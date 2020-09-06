@@ -1,12 +1,14 @@
 {
-   "compilerOptions": {
-      "module": "commonjs",
-      "target": "esnext",
-      "sourceMap": true,
-      "jsx": "preserve",
-      "importHelpers": true,
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true
-   },
-   "exclude": ["node_modules", "fuse.ts"]
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "sourceMap": true,
+    "inlineSources": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true
+  },
+  "exclude": ["node_modules", "fuse.ts"]
 }

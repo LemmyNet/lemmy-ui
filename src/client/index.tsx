@@ -1,8 +1,8 @@
 import { Component } from 'inferno';
 import { hydrate } from 'inferno-hydrate';
 import { BrowserRouter } from 'inferno-router';
-import App from './components/App/App';
-import { initDevTools } from 'inferno-devtools';
+import { App } from '../shared/components/app';
+/* import { initDevTools } from 'inferno-devtools'; */
 
 declare global {
   interface Window {
@@ -14,8 +14,8 @@ declare global {
 
 const wrapper = (
   <BrowserRouter>
-    <App name={window.isoData.name} />
+    <App />
   </BrowserRouter>
 );
-initDevTools();
+/* initDevTools(); */
 hydrate(wrapper, document.getElementById('root'));
