@@ -1,35 +1,55 @@
-import cookieParser = require('cookie-parser');
+// import cookieParser = require('cookie-parser');
 import serialize from 'serialize-javascript';
 import express from 'express';
 import { StaticRouter } from 'inferno-router';
 import { renderToString } from 'inferno-server';
 import { matchPath } from 'inferno-router';
-import path = require('path');
+import path from 'path';
 import { App } from '../shared/components/app';
+import { IsoData } from '../shared/interfaces';
 import { routes } from '../shared/routes';
 import IsomorphicCookie from 'isomorphic-cookie';
+import { lemmyHttp, setAuth } from '../shared/utils';
+import { GetSiteForm } from 'lemmy-js-client';
 const server = express();
 const port = 1234;
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
-server.use('/assets', express.static(path.resolve('./dist/assets')));
-server.use('/static', express.static(path.resolve('./dist/client')));
+server.use('/assets', express.static(path.resolve('./src/assets')));
+server.use('/static', express.static(path.resolve('./dist')));
 
-server.use(cookieParser());
+// server.use(cookieParser());
 
-server.get('/*', (req, res) => {
+server.get('/*', async (req, res) => {
   const activeRoute = routes.find(route => matchPath(req.url, route)) || {};
-  console.log(activeRoute);
   const context = {} as any;
-  const isoData = {
-    name: 'fishing sux',
-  };
   let auth: string = IsomorphicCookie.load('jwt', req);
 
+  let getSiteForm: GetSiteForm = {};
+  setAuth(getSiteForm, auth);
+
+  let promises: Promise<any>[] = [];
+
+  let siteData = lemmyHttp.getSite(getSiteForm);
+  promises.push(siteData);
+  if (activeRoute.fetchInitialData) {
+    promises.push(...activeRoute.fetchInitialData(auth, req.path));
+  }
+
+  let resolver = await Promise.all(promises);
+
+  let isoData: IsoData = {
+    path: req.path,
+    site: resolver[0],
+    routeData: resolver.slice(1, resolver.length),
+  };
+
+  console.log(activeRoute.path);
+
   const wrapper = (
-    <StaticRouter location={req.url} context={context}>
-      <App />
+    <StaticRouter location={req.url} context={isoData}>
+      <App site={isoData.site} />
     </StaticRouter>
   );
   if (context.url) {
@@ -49,24 +69,15 @@ server.get('/*', (req, res) => {
 
            <!-- Icons -->
            <link rel="shortcut icon" type="image/svg+xml" href="/assets/favicon.svg" />
-           <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+           <!-- <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" /> -->
 
            <!-- Styles -->
-           <link rel="stylesheet" type="text/css" href="/assets/css/tribute.css" />
-           <link rel="stylesheet" type="text/css" href="/assets/css/toastify.css" />
-           <link rel="stylesheet" type="text/css" href="/assets/css/choices.min.css" />
-           <link rel="stylesheet" type="text/css" href="/assets/css/tippy.css" />
-           <link rel="stylesheet" type="text/css" href="/assets/css/themes/litely.min.css" id="default-light" media="(prefers-color-scheme: light)" />
-           <link rel="stylesheet" type="text/css" href="/assets/css/themes/darkly.min.css" id="default-dark" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)" />
-           <link rel="stylesheet" type="text/css" href="/assets/css/main.css" />
-
-           <!-- Scripts -->
-           <script async src="/assets/libs/sortable/sortable.min.js"></script>
+           <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
            </head>
 
            <body>
              <div id='root'>${renderToString(wrapper)}</div>
-             <script src='./static/bundle.js'></script>
+             <script src='/static/js/client.js'></script>
            </body>
          </html>
 `);

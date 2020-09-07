@@ -1,8 +1,5 @@
-import { BrowserRouter, Route, Switch } from 'inferno-router';
 import { IRouteProps } from 'inferno-router/dist/Route';
 import { Main } from './components/main';
-import { Navbar } from './components/navbar';
-import { Footer } from './components/footer';
 import { Login } from './components/login';
 import { CreatePost } from './components/create-post';
 import { CreateCommunity } from './components/create-community';
@@ -20,7 +17,11 @@ import { Search } from './components/search';
 import { Sponsors } from './components/sponsors';
 import { Instances } from './components/instances';
 
-export const routes: IRouteProps[] = [
+interface IRoutePropsWithFetch extends IRouteProps {
+  fetchInitialData?(auth: string, path: string): Promise<any>[];
+}
+
+export const routes: IRoutePropsWithFetch[] = [
   { exact: true, path: `/`, component: Main },
   {
     path: `/home/data_type/:data_type/listing_type/:listing_type/sort/:sort/page/:page`,
@@ -36,8 +37,13 @@ export const routes: IRouteProps[] = [
   {
     path: `/communities/page/:page`,
     component: Communities,
+    fetchInitialData: (auth, path) => Communities.fetchInitialData(auth, path),
   },
-  { path: `/communities`, component: Communities },
+  {
+    path: `/communities`,
+    component: Communities,
+    fetchInitialData: (auth, path) => Communities.fetchInitialData(auth, path),
+  },
   {
     path: `/post/:id/comment/:comment_id`,
     component: Post,

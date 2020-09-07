@@ -1,17 +1,10 @@
 import { Component } from 'inferno';
 import { Helmet } from 'inferno-helmet';
-import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
-import { WebSocketService } from '../services';
-import {
-  GetSiteResponse,
-  Site,
-  WebSocketJsonResponse,
-  UserOperation,
-} from 'lemmy-js-client';
+import { Site } from 'lemmy-js-client';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
-import { repoUrl, wsJsonToRes, toast } from '../utils';
+import { repoUrl, isBrowser } from '../utils';
+import { IsoData } from 'shared/interfaces';
 
 interface SilverUser {
   name: string;
@@ -51,30 +44,27 @@ interface SponsorsState {
 }
 
 export class Sponsors extends Component<any, SponsorsState> {
-  private subscription: Subscription;
   private emptyState: SponsorsState = {
     site: undefined,
   };
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
 
-    WebSocketService.Instance.getSite();
+    let isoData: IsoData;
+    if (isBrowser()) {
+      isoData = window.isoData;
+    } else {
+      isoData = this.context.router.staticContext;
+    }
+
+    this.state.site = isoData.site.site;
   }
 
   componentDidMount() {
-    window.scrollTo(0, 0);
-  }
-
-  componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      window.scrollTo(0, 0);
+    }
   }
 
   get documentTitle(): string {
@@ -103,9 +93,11 @@ export class Sponsors extends Component<any, SponsorsState> {
       <div>
         <h5>{i18n.t('donate_to_lemmy')}</h5>
         <p>
+          {/* TODO 
           <T i18nKey="sponsor_message">
             #<a href={repoUrl}>#</a>
           </T>
+          */}
         </p>
         <a class="btn btn-secondary" href="https://liberapay.com/Lemmy/">
           {i18n.t('support_on_liberapay')}
@@ -194,18 +186,5 @@ export class Sponsors extends Component<any, SponsorsState> {
         </div>
       </div>
     );
-  }
-
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
-      return;
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-      this.state.site = data.site;
-      this.setState(this.state);
-    }
   }
 }

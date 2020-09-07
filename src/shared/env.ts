@@ -13,3 +13,4 @@ const host = '192.168.50.60';
 const port = 8536;
 const endpoint = `${host}:${port}`;
 export const wsUri = `ws://${endpoint}/api/v1/ws`;
+export const httpUri = `http://${endpoint}/api/v1`;

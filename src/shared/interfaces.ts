@@ -1,3 +1,18 @@
+import { GetSiteResponse } from 'lemmy-js-client';
+
+export interface IsoData {
+  path: string;
+  routeData: any[];
+  site: GetSiteResponse;
+  // communities?: ListCommunitiesResponse;
+}
+
+declare global {
+  interface Window {
+    isoData: IsoData;
+  }
+}
+
 export enum CommentSortType {
   Hot,
   Top,

@@ -48,28 +48,28 @@ export class Footer extends Component<any, FooterState> {
             <li class="nav-item">
               <span class="navbar-text">{this.state.version}</span>
             </li>
-            <li class="nav-item">
-              <Link class="nav-link" to="/modlog">
+            <li className="nav-item">
+              <Link className="nav-link" to="/modlog">
                 {i18n.t('modlog')}
               </Link>
             </li>
             <li class="nav-item">
-              <Link class="nav-link" to="/instances">
+              <Link className="nav-link" to="/instances">
                 {i18n.t('instances')}
               </Link>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href={'/docs/index.html'}>
+              <a className="nav-link" href={'/docs/index.html'}>
                 {i18n.t('docs')}
               </a>
             </li>
             <li class="nav-item">
-              <Link class="nav-link" to="/sponsors">
+              <Link className="nav-link" to="/sponsors">
                 {i18n.t('donate')}
               </Link>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href={repoUrl}>
+              <a className="nav-link" href={repoUrl}>
                 {i18n.t('code')}
               </a>
             </li>

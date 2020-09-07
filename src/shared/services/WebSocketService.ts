@@ -393,7 +393,7 @@ export class WebSocketService {
     this.ws.send(this.client.saveSiteConfig(form));
   }
 
-  private setAuth(obj: any, throwErr: boolean = true) {
+  public setAuth(obj: any, throwErr: boolean = true) {
     obj.auth = UserService.Instance.auth;
     if (obj.auth == null && throwErr) {
       toast(i18n.t('not_logged_in'), 'danger');

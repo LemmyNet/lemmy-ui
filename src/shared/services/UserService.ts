@@ -24,7 +24,7 @@ export class UserService {
     if (jwt) {
       this.setClaims(jwt);
     } else {
-      setTheme();
+      // setTheme();
       console.log('No JWT cookie found.');
     }
   }
@@ -39,7 +39,7 @@ export class UserService {
     this.claims = undefined;
     this.user = undefined;
     IsomorphicCookie.remove('jwt');
-    setTheme();
+    // setTheme();
     this.jwtSub.next();
     console.log('Logged out.');
   }

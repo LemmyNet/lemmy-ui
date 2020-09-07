@@ -42,7 +42,10 @@ import {
   SearchResponse,
   CommentResponse,
   PostResponse,
+  LemmyHttp,
 } from 'lemmy-js-client';
+
+import { httpUri } from './env';
 
 import { CommentSortType, DataType } from './interfaces';
 import { UserService, WebSocketService } from './services';
@@ -73,6 +76,8 @@ export const elementUrl = 'https://element.io/';
 export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit: number = 20;
 export const mentionDropdownFetchLimit = 10;
+
+export const lemmyHttp = new LemmyHttp(httpUri);
 
 export const languages = [
   { code: 'ca', name: 'Català' },
@@ -450,18 +455,18 @@ export function setTheme(theme: string = 'darkly', loggedIn: boolean = false) {
   // }
 }
 
-export function loadCss(id: string, loc: string) {
-  if (!document.getElementById(id)) {
-    var head = document.getElementsByTagName('head')[0];
-    var link = document.createElement('link');
-    link.id = id;
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
-    link.href = loc;
-    link.media = 'all';
-    head.appendChild(link);
-  }
-}
+// export function loadCss(id: string, loc: string) {
+//   if (!document.getElementById(id)) {
+//     var head = document.getElementsByTagName('head')[0];
+//     var link = document.createElement('link');
+//     link.id = id;
+//     link.rel = 'stylesheet';
+//     link.type = 'text/css';
+//     link.href = loc;
+//     link.media = 'all';
+//     head.appendChild(link);
+//   }
+// }
 
 export function objectFlip(obj: any) {
   const ret = {};
@@ -828,10 +833,7 @@ export function getPageFromProps(props: any): number {
   // return props.match.params.page ? Number(props.match.params.page) : 1;
 }
 
-export function editCommentRes(
-  data: CommentResponse,
-  comments: Comment[]
-) {
+export function editCommentRes(data: CommentResponse, comments: Comment[]) {
   let found = comments.find(c => c.id == data.comment.id);
   if (found) {
     found.content = data.comment.content;
@@ -844,10 +846,7 @@ export function editCommentRes(
   }
 }
 
-export function saveCommentRes(
-  data: CommentResponse,
-  comments: Comment[]
-) {
+export function saveCommentRes(data: CommentResponse, comments: Comment[]) {
   let found = comments.find(c => c.id == data.comment.id);
   if (found) {
     found.saved = data.comment.saved;
@@ -907,9 +906,7 @@ export function editPostRes(data: PostResponse, post: Post) {
   }
 }
 
-export function commentsToFlatNodes(
-  comments: Comment[]
-): CommentNodeI[] {
+export function commentsToFlatNodes(comments: Comment[]): CommentNodeI[] {
   let nodes: CommentNodeI[] = [];
   for (let comment of comments) {
     nodes.push({ comment: comment });
@@ -1108,4 +1105,10 @@ export function siteBannerCss(banner: string): string {
 
 export function isBrowser() {
   return typeof window !== 'undefined';
+}
+
+export function setAuth(obj: any, auth: string) {
+  if (auth) {
+    obj.auth = auth;
+  }
 }

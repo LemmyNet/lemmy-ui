@@ -15,11 +15,17 @@ import {
   Site,
 } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
-import { wsJsonToRes, toast, getPageFromProps } from '../utils';
+import {
+  wsJsonToRes,
+  toast,
+  getPageFromProps,
+  isBrowser,
+  lemmyHttp,
+  setAuth,
+} from '../utils';
 import { CommunityLink } from './community-link';
 import { i18n } from '../i18next';
-
-declare const Sortable: any;
+import { IsoData } from 'shared/interfaces';
 
 const communityLimit = 100;
 
@@ -46,20 +52,36 @@ export class Communities extends Component<any, CommunitiesState> {
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    let isoData: IsoData;
 
-    this.refetch();
-    WebSocketService.Instance.getSite();
+    if (isBrowser()) {
+      this.subscription = WebSocketService.Instance.subject
+        .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
+        .subscribe(
+          msg => this.parseMessage(msg),
+          err => console.error(err),
+          () => console.log('complete')
+        );
+      isoData = window.isoData;
+    } else {
+      isoData = this.context.router.staticContext;
+    }
+
+    this.state.site = isoData.site.site;
+
+    // Only fetch the data if coming from another route
+    if (isoData.path == this.context.router.route.match.path) {
+      this.state.communities = isoData.routeData[0].communities;
+      this.state.loading = false;
+    } else {
+      this.refetch();
+    }
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
   static getDerivedStateFromProps(props: any): CommunitiesProps {
@@ -226,6 +248,19 @@ export class Communities extends Component<any, CommunitiesState> {
     WebSocketService.Instance.listCommunities(listCommunitiesForm);
   }
 
+  static fetchInitialData(auth: string, path: string): Promise<any>[] {
+    let pathSplit = path.split('/');
+    let page = pathSplit[2] ? Number(pathSplit[2]) : 1;
+    let listCommunitiesForm: ListCommunitiesForm = {
+      sort: SortType.TopAll,
+      limit: communityLimit,
+      page,
+    };
+    setAuth(listCommunitiesForm, auth);
+
+    return [lemmyHttp.listCommunities(listCommunitiesForm)];
+  }
+
   parseMessage(msg: WebSocketJsonResponse) {
     console.log(msg);
     let res = wsJsonToRes(msg);
@@ -241,8 +276,6 @@ export class Communities extends Component<any, CommunitiesState> {
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setState(this.state);
-      let table = document.querySelector('#community_table');
-      Sortable.initTable(table);
     } else if (res.op == UserOperation.FollowCommunity) {
       let data = res.data as CommunityResponse;
       let found = this.state.communities.find(c => c.id == data.community.id);
