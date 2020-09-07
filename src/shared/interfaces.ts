@@ -4,6 +4,8 @@ export interface IsoData {
   path: string;
   routeData: any[];
   site: GetSiteResponse;
+  // Lang and theme
+  lang: string;
   // communities?: ListCommunitiesResponse;
 }
 

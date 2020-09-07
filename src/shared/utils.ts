@@ -47,7 +47,7 @@ import {
 
 import { httpUri } from './env';
 
-import { CommentSortType, DataType } from './interfaces';
+import { CommentSortType, DataType, IsoData } from './interfaces';
 import { UserService, WebSocketService } from './services';
 
 // import Tribute from 'tributejs';
@@ -60,6 +60,8 @@ import emojiShortName from 'emoji-short-name';
 import Toastify from 'toastify-js';
 import tippy from 'tippy.js';
 import moment from 'moment';
+import { Subscription } from 'rxjs';
+import { retryWhen, delay, take } from 'rxjs/operators';
 
 export const favIconUrl = '/static/assets/favicon.svg';
 export const favIconPngUrl = '/static/assets/apple-touch-icon.png';
@@ -828,9 +830,7 @@ export function getSortTypeFromProps(props: any): SortType {
 }
 
 export function getPageFromProps(props: any): number {
-  // TODO
-  return 1;
-  // return props.match.params.page ? Number(props.match.params.page) : 1;
+  return props.match.params.page ? Number(props.match.params.page) : 1;
 }
 
 export function editCommentRes(data: CommentResponse, comments: Comment[]) {
@@ -1110,5 +1110,27 @@ export function isBrowser() {
 export function setAuth(obj: any, auth: string) {
   if (auth) {
     obj.auth = auth;
+  }
+}
+
+export function setIsoData(context: any): IsoData {
+  if (isBrowser()) {
+    return window.isoData;
+  } else {
+    return context.router.staticContext;
+  }
+}
+
+export function wsSubscribe(parseMessage: any): Subscription {
+  if (isBrowser()) {
+    return WebSocketService.Instance.subject
+      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
+      .subscribe(
+        msg => parseMessage(msg),
+        err => console.error(err),
+        () => console.log('complete')
+      );
+  } else {
+    return null;
   }
 }

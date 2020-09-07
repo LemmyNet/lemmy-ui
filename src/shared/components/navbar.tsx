@@ -46,7 +46,6 @@ interface NavbarState {
   unreadCount: number;
   searchParam: string;
   toggleSearch: boolean;
-  siteRes: GetSiteResponse;
   onSiteBanner?(url: string): any;
 }
 
@@ -62,7 +61,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     mentions: [],
     messages: [],
     expanded: false,
-    siteRes: this.props.site, // TODO this could probably go away
     searchParam: '',
     toggleSearch: false,
   };
@@ -80,14 +78,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           () => console.log('complete')
         );
 
-      // WebSocketService.Instance.getSite();
-
       this.searchTextField = createRef();
     }
 
     // The login
+    // TODO this needs some work
     if (this.props.site.my_user) {
+      console.log(this.props.site.my_user);
       UserService.Instance.user = this.props.site.my_user;
+      // i18n.changeLanguage(getLanguage());
 
       if (isBrowser()) {
         WebSocketService.Instance.userJoin();
@@ -97,6 +96,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           this.fetchUnreads();
           // setTheme(data.my_user.theme, true);
           // i18n.changeLanguage(getLanguage());
+          // i18n.changeLanguage('de');
         }
       }
     }
@@ -113,7 +113,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           this.state.isLoggedIn = false;
         }
         console.log('a new login');
-        WebSocketService.Instance.getSite();
+        // WebSocketService.Instance.getSite();
         this.setState(this.state);
       });
 
@@ -184,19 +184,19 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
           <Link
-            title={this.state.siteRes.version}
+            title={this.props.site.version}
             className="d-flex align-items-center navbar-brand mr-md-3"
             to="/"
           >
-            {this.state.siteRes.site.icon && showAvatars() && (
+            {this.props.site.site.icon && showAvatars() && (
               <img
-                src={pictrsAvatarThumbnail(this.state.siteRes.site.icon)}
+                src={pictrsAvatarThumbnail(this.props.site.site.icon)}
                 height="32"
                 width="32"
                 class="rounded-circle mr-2"
               />
             )}
-            {this.state.siteRes.site.name}
+            {this.props.site.site.name}
           </Link>
           {this.state.isLoggedIn && (
             <Link
@@ -441,29 +441,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         }
       }
     }
-
-    // TODO all this needs to be moved
-    else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-
-      this.state.siteRes = data;
-
-      // The login
-      if (data.my_user) {
-        UserService.Instance.user = data.my_user;
-        WebSocketService.Instance.userJoin();
-        // On the first load, check the unreads
-        if (this.state.isLoggedIn == false) {
-          this.requestNotificationPermission();
-          this.fetchUnreads();
-          setTheme(data.my_user.theme, true);
-          i18n.changeLanguage(getLanguage());
-        }
-        this.state.isLoggedIn = true;
-      }
-
-      this.setState(this.state);
-    }
   }
 
   fetchUnreads() {
@@ -514,7 +491,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   get canAdmin(): boolean {
     return (
       UserService.Instance.user &&
-      this.state.siteRes.admins
+      this.props.site.admins
         .map(a => a.id)
         .includes(UserService.Instance.user.id)
     );

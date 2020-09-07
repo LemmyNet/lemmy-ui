@@ -1,7 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
   Community,
@@ -11,7 +10,6 @@ import {
   ListCommunitiesForm,
   SortType,
   WebSocketJsonResponse,
-  GetSiteResponse,
   Site,
 } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
@@ -22,10 +20,11 @@ import {
   isBrowser,
   lemmyHttp,
   setAuth,
+  setIsoData,
+  wsSubscribe,
 } from '../utils';
 import { CommunityLink } from './community-link';
 import { i18n } from '../i18next';
-import { IsoData } from 'shared/interfaces';
 
 const communityLimit = 100;
 
@@ -42,36 +41,24 @@ interface CommunitiesProps {
 
 export class Communities extends Component<any, CommunitiesState> {
   private subscription: Subscription;
+  private isoData = setIsoData(this.context);
   private emptyState: CommunitiesState = {
     communities: [],
     loading: true,
     page: getPageFromProps(this.props),
-    site: undefined,
+    site: this.isoData.site.site,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
-    let isoData: IsoData;
+    this.parseMessage = this.parseMessage.bind(this);
 
-    if (isBrowser()) {
-      this.subscription = WebSocketService.Instance.subject
-        .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-        .subscribe(
-          msg => this.parseMessage(msg),
-          err => console.error(err),
-          () => console.log('complete')
-        );
-      isoData = window.isoData;
-    } else {
-      isoData = this.context.router.staticContext;
-    }
-
-    this.state.site = isoData.site.site;
+    this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (isoData.path == this.context.router.route.match.path) {
-      this.state.communities = isoData.routeData[0].communities;
+    if (this.isoData.path == this.context.router.route.match.url) {
+      this.state.communities = this.isoData.routeData[0].communities;
       this.state.loading = false;
     } else {
       this.refetch();
@@ -98,11 +85,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   get documentTitle(): string {
-    if (this.state.site) {
-      return `${i18n.t('communities')} - ${this.state.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `${i18n.t('communities')} - ${this.state.site.name}`;
   }
 
   render() {
@@ -250,7 +233,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   static fetchInitialData(auth: string, path: string): Promise<any>[] {
     let pathSplit = path.split('/');
-    let page = pathSplit[2] ? Number(pathSplit[2]) : 1;
+    let page = pathSplit[3] ? Number(pathSplit[3]) : 1;
     let listCommunitiesForm: ListCommunitiesForm = {
       sort: SortType.TopAll,
       limit: communityLimit,
@@ -281,10 +264,6 @@ export class Communities extends Component<any, CommunitiesState> {
       let found = this.state.communities.find(c => c.id == data.community.id);
       found.subscribed = data.community.subscribed;
       found.number_of_subscribers = data.community.number_of_subscribers;
-      this.setState(this.state);
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-      this.state.site = data.site;
       this.setState(this.state);
     }
   }

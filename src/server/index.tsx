@@ -10,7 +10,7 @@ import { IsoData } from '../shared/interfaces';
 import { routes } from '../shared/routes';
 import IsomorphicCookie from 'isomorphic-cookie';
 import { lemmyHttp, setAuth } from '../shared/utils';
-import { GetSiteForm } from 'lemmy-js-client';
+import { GetSiteForm, GetSiteResponse } from 'lemmy-js-client';
 const server = express();
 const port = 1234;
 
@@ -38,14 +38,22 @@ server.get('/*', async (req, res) => {
   }
 
   let resolver = await Promise.all(promises);
+  let site: GetSiteResponse = resolver[0];
+  let routeData = resolver.slice(1, resolver.length);
+
+  let acceptLang = req.headers['accept-language'].split(',')[0];
+  let lang = !!site.my_user
+    ? site.my_user.lang == 'browser'
+      ? acceptLang
+      : 'en'
+    : acceptLang;
 
   let isoData: IsoData = {
     path: req.path,
-    site: resolver[0],
-    routeData: resolver.slice(1, resolver.length),
+    site,
+    routeData,
+    lang,
   };
-
-  console.log(activeRoute.path);
 
   const wrapper = (
     <StaticRouter location={req.url} context={isoData}>

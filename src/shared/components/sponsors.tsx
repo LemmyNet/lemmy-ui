@@ -93,11 +93,9 @@ export class Sponsors extends Component<any, SponsorsState> {
       <div>
         <h5>{i18n.t('donate_to_lemmy')}</h5>
         <p>
-          {/* TODO 
           <T i18nKey="sponsor_message">
             #<a href={repoUrl}>#</a>
           </T>
-          */}
         </p>
         <a class="btn btn-secondary" href="https://liberapay.com/Lemmy/">
           {i18n.t('support_on_liberapay')}
