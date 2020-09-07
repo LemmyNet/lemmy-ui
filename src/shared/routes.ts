@@ -28,8 +28,17 @@ export const routes: IRoutePropsWithFetch[] = [
     component: Main,
   },
   { path: `/login`, component: Login },
-  { path: `/create_post`, component: CreatePost },
-  { path: `/create_community`, component: CreateCommunity },
+  {
+    path: `/create_post`,
+    component: CreatePost,
+    fetchInitialData: (auth, path) => CreatePost.fetchInitialData(auth, path),
+  },
+  {
+    path: `/create_community`,
+    component: CreateCommunity,
+    fetchInitialData: (auth, path) =>
+      CreateCommunity.fetchInitialData(auth, path),
+  },
   {
     path: `/create_private_message`,
     component: CreatePrivateMessage,

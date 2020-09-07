@@ -50,7 +50,10 @@ import { httpUri } from './env';
 import { CommentSortType, DataType, IsoData } from './interfaces';
 import { UserService, WebSocketService } from './services';
 
-// import Tribute from 'tributejs';
+var Tribute;
+if (isBrowser()) {
+  Tribute = require('tributejs');
+}
 import markdown_it from 'markdown-it';
 import markdown_it_sub from 'markdown-it-sub';
 import markdown_it_sup from 'markdown-it-sup';
@@ -266,6 +269,7 @@ export function isVideo(url: string) {
 
 // TODO this broke
 export function validURL(str: string) {
+  console.log(str);
   // try {
   return !!new URL(str);
   // } catch {
@@ -648,71 +652,71 @@ function notify(info: NotifyInfo, router: any) {
   }
 }
 
-// export function setupTribute(): Tribute<{}> {
-//   return new Tribute({
-//     noMatchTemplate: function () {
-//       return '';
-//     },
-//     collection: [
-//       // Emojis
-//       {
-//         trigger: ':',
-//         menuItemTemplate: (item: any) => {
-//           let shortName = `:${item.original.key}:`;
-//           return `${item.original.val} ${shortName}`;
-//         },
-//         selectTemplate: (item: any) => {
-//           return `:${item.original.key}:`;
-//         },
-//         values: Object.entries(emojiShortName).map(e => {
-//           return { key: e[1], val: e[0] };
-//         }),
-//         allowSpaces: false,
-//         autocompleteMode: true,
-//         // TODO
-//         // menuItemLimit: mentionDropdownFetchLimit,
-//         menuShowMinLength: 2,
-//       },
-//       // Users
-//       {
-//         trigger: '@',
-//         selectTemplate: (item: any) => {
-//           let link = item.original.local
-//             ? `[${item.original.key}](/u/${item.original.name})`
-//             : `[${item.original.key}](/user/${item.original.id})`;
-//           return link;
-//         },
-//         values: (text: string, cb: any) => {
-//           userSearch(text, (users: any) => cb(users));
-//         },
-//         allowSpaces: false,
-//         autocompleteMode: true,
-//         // TODO
-//         // menuItemLimit: mentionDropdownFetchLimit,
-//         menuShowMinLength: 2,
-//       },
+export function setupTribute() {
+  return new Tribute({
+    noMatchTemplate: function () {
+      return '';
+    },
+    collection: [
+      // Emojis
+      {
+        trigger: ':',
+        menuItemTemplate: (item: any) => {
+          let shortName = `:${item.original.key}:`;
+          return `${item.original.val} ${shortName}`;
+        },
+        selectTemplate: (item: any) => {
+          return `:${item.original.key}:`;
+        },
+        values: Object.entries(emojiShortName).map(e => {
+          return { key: e[1], val: e[0] };
+        }),
+        allowSpaces: false,
+        autocompleteMode: true,
+        // TODO
+        // menuItemLimit: mentionDropdownFetchLimit,
+        menuShowMinLength: 2,
+      },
+      // Users
+      {
+        trigger: '@',
+        selectTemplate: (item: any) => {
+          let link = item.original.local
+            ? `[${item.original.key}](/u/${item.original.name})`
+            : `[${item.original.key}](/user/${item.original.id})`;
+          return link;
+        },
+        values: (text: string, cb: any) => {
+          userSearch(text, (users: any) => cb(users));
+        },
+        allowSpaces: false,
+        autocompleteMode: true,
+        // TODO
+        // menuItemLimit: mentionDropdownFetchLimit,
+        menuShowMinLength: 2,
+      },
 
-//       // Communities
-//       {
-//         trigger: '!',
-//         selectTemplate: (item: any) => {
-//           let link = item.original.local
-//             ? `[${item.original.key}](/c/${item.original.name})`
-//             : `[${item.original.key}](/community/${item.original.id})`;
-//           return link;
-//         },
-//         values: (text: string, cb: any) => {
-//           communitySearch(text, (communities: any) => cb(communities));
-//         },
-//         allowSpaces: false,
-//         autocompleteMode: true,
-//         // TODO
-//         // menuItemLimit: mentionDropdownFetchLimit,
-//         menuShowMinLength: 2,
-//       },
-//     ],
-//   });
-// }
+      // Communities
+      {
+        trigger: '!',
+        selectTemplate: (item: any) => {
+          let link = item.original.local
+            ? `[${item.original.key}](/c/${item.original.name})`
+            : `[${item.original.key}](/community/${item.original.id})`;
+          return link;
+        },
+        values: (text: string, cb: any) => {
+          communitySearch(text, (communities: any) => cb(communities));
+        },
+        allowSpaces: false,
+        autocompleteMode: true,
+        // TODO
+        // menuItemLimit: mentionDropdownFetchLimit,
+        menuShowMinLength: 2,
+      },
+    ],
+  });
+}
 
 // TODO
 // let tippyInstance = tippy('[data-tippy-content]');

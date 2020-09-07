@@ -52,13 +52,16 @@ export class Communities extends Component<any, CommunitiesState> {
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
-    this.parseMessage = this.parseMessage.bind(this);
 
+    this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.communities = this.isoData.routeData[0].communities;
+      this.state.communities.sort(
+        (a, b) => b.number_of_subscribers - a.number_of_subscribers
+      );
       this.state.loading = false;
     } else {
       this.refetch();

@@ -6,7 +6,6 @@ import {
   CommunityForm as CommunityFormI,
   UserOperation,
   Category,
-  ListCategoriesResponse,
   CommunityResponse,
   WebSocketJsonResponse,
   Community,
@@ -20,6 +19,7 @@ import { ImageUploadForm } from './image-upload-form';
 
 interface CommunityFormProps {
   community?: Community; // If a community is given, that means this is an edit
+  categories: Category[];
   onCancel?(): any;
   onCreate?(community: Community): any;
   onEdit?(community: Community): any;
@@ -28,7 +28,6 @@ interface CommunityFormProps {
 
 interface CommunityFormState {
   communityForm: CommunityFormI;
-  categories: Category[];
   loading: boolean;
 }
 
@@ -43,12 +42,11 @@ export class CommunityForm extends Component<
     communityForm: {
       name: null,
       title: null,
-      category_id: null,
+      category_id: this.props.categories[0].id,
       nsfw: false,
       icon: null,
       banner: null,
     },
-    categories: [],
     loading: false,
   };
 
@@ -88,8 +86,6 @@ export class CommunityForm extends Component<
         err => console.error(err),
         () => console.log('complete')
       );
-
-    WebSocketService.Instance.listCategories();
   }
 
   componentDidUpdate() {
@@ -218,7 +214,7 @@ export class CommunityForm extends Component<
                 value={this.state.communityForm.category_id}
                 onInput={linkEvent(this, this.handleCommunityCategoryChange)}
               >
-                {this.state.categories.map(category => (
+                {this.props.categories.map(category => (
                   <option value={category.id}>{category.name}</option>
                 ))}
               </select>
@@ -344,13 +340,6 @@ export class CommunityForm extends Component<
       this.state.loading = false;
       this.setState(this.state);
       return;
-    } else if (res.op == UserOperation.ListCategories) {
-      let data = res.data as ListCategoriesResponse;
-      this.state.categories = data.categories;
-      if (!this.props.community) {
-        this.state.communityForm.category_id = data.categories[0].id;
-      }
-      this.setState(this.state);
     } else if (res.op == UserOperation.CreateCommunity) {
       let data = res.data as CommunityResponse;
       this.state.loading = false;

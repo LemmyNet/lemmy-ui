@@ -3,7 +3,6 @@ import { Prompt } from 'inferno-router';
 import { PostListings } from './post-listings';
 import { MarkdownTextArea } from './markdown-textarea';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   PostForm as PostFormI,
   PostFormParams,
@@ -11,8 +10,6 @@ import {
   PostResponse,
   UserOperation,
   Community,
-  ListCommunitiesResponse,
-  ListCommunitiesForm,
   SortType,
   SearchForm,
   SearchType,
@@ -34,14 +31,22 @@ import {
   hostname,
   pictrsDeleteToast,
   validTitle,
+  wsSubscribe,
+  isBrowser,
 } from '../utils';
-import Choices from 'choices.js';
+
+var Choices;
+if (isBrowser()) {
+  Choices = require('choices.js');
+}
+
 import { i18n } from '../i18next';
 
 const MAX_POST_TITLE_LENGTH = 200;
 
 interface PostFormProps {
   post?: Post; // If a post is given, that means this is an edit
+  communities: Community[];
   params?: PostFormParams;
   onCancel?(): any;
   onCreate?(id: number): any;
@@ -52,7 +57,6 @@ interface PostFormProps {
 
 interface PostFormState {
   postForm: PostFormI;
-  communities: Community[];
   loading: boolean;
   imageLoading: boolean;
   previewMode: boolean;
@@ -64,7 +68,7 @@ interface PostFormState {
 export class PostForm extends Component<PostFormProps, PostFormState> {
   private id = `post-form-${randomStr()}`;
   private subscription: Subscription;
-  private choices: Choices;
+  private choices: any;
   private emptyState: PostFormState = {
     postForm: {
       name: null,
@@ -72,7 +76,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       auth: null,
       community_id: null,
     },
-    communities: [],
     loading: false,
     imageLoading: false,
     previewMode: false,
@@ -112,24 +115,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       }
     }
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
-
-    let listCommunitiesForm: ListCommunitiesForm = {
-      sort: SortType.TopAll,
-      limit: 9999,
-    };
-
-    WebSocketService.Instance.listCommunities(listCommunitiesForm);
+    this.subscription = wsSubscribe(this.parseMessage);
   }
 
   componentDidMount() {
     setupTippy();
+    this.setupCommunities();
   }
 
   componentDidUpdate() {
@@ -209,7 +200,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   onChange={linkEvent(this, this.handleImageUpload)}
                 />
               </form>
-              {validURL(this.state.postForm.url) && (
+              {this.state.postForm.url && validURL(this.state.postForm.url) && (
                 <a
                   href={`${archiveUrl}/?run=1&url=${encodeURIComponent(
                     this.state.postForm.url
@@ -305,7 +296,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   onInput={linkEvent(this, this.handlePostCommunityChange)}
                 >
                   <option>{i18n.t('select_a_community')}</option>
-                  {this.state.communities.map(community => (
+                  {this.props.communities.map(community => (
                     <option value={community.id}>
                       {community.local
                         ? community.name
@@ -531,63 +522,53 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       });
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
-      this.state.loading = false;
-      this.setState(this.state);
-      return;
-    } else if (res.op == UserOperation.ListCommunities) {
-      let data = res.data as ListCommunitiesResponse;
-      this.state.communities = data.communities;
-      if (this.props.post) {
-        this.state.postForm.community_id = this.props.post.community_id;
-      } else if (this.props.params && this.props.params.community) {
-        let foundCommunityId = data.communities.find(
-          r => r.name == this.props.params.community
-        ).id;
-        this.state.postForm.community_id = foundCommunityId;
-      } else {
-        // By default, the null valued 'Select a Community'
-      }
-      this.setState(this.state);
+  setupCommunities() {
+    if (this.props.post) {
+      this.state.postForm.community_id = this.props.post.community_id;
+    } else if (this.props.params && this.props.params.community) {
+      let foundCommunityId = this.props.communities.find(
+        r => r.name == this.props.params.community
+      ).id;
+      this.state.postForm.community_id = foundCommunityId;
+    } else {
+      // By default, the null valued 'Select a Community'
+    }
 
-      // Set up select searching
+    // Set up select searching
+    if (isBrowser()) {
       let selectId: any = document.getElementById('post-community');
       if (selectId) {
-        // TODO
-        /* this.choices = new Choices(selectId, { */
-        /*   shouldSort: false, */
-        /*   classNames: { */
-        /*     containerOuter: 'choices', */
-        /*     containerInner: 'choices__inner bg-secondary border-0', */
-        /*     input: 'form-control', */
-        /*     inputCloned: 'choices__input--cloned', */
-        /*     list: 'choices__list', */
-        /*     listItems: 'choices__list--multiple', */
-        /*     listSingle: 'choices__list--single', */
-        /*     listDropdown: 'choices__list--dropdown', */
-        /*     item: 'choices__item bg-secondary', */
-        /*     itemSelectable: 'choices__item--selectable', */
-        /*     itemDisabled: 'choices__item--disabled', */
-        /*     itemChoice: 'choices__item--choice', */
-        /*     placeholder: 'choices__placeholder', */
-        /*     group: 'choices__group', */
-        /*     groupHeading: 'choices__heading', */
-        /*     button: 'choices__button', */
-        /*     activeState: 'is-active', */
-        /*     focusState: 'is-focused', */
-        /*     openState: 'is-open', */
-        /*     disabledState: 'is-disabled', */
-        /*     highlightedState: 'text-info', */
-        /*     selectedState: 'text-info', */
-        /*     flippedState: 'is-flipped', */
-        /*     loadingState: 'is-loading', */
-        /*     noResults: 'has-no-results', */
-        /*     noChoices: 'has-no-choices', */
-        /*   }, */
-        /* }); */
+        this.choices = new Choices(selectId, {
+          shouldSort: false,
+          classNames: {
+            containerOuter: 'choices',
+            containerInner: 'choices__inner bg-secondary border-0',
+            input: 'form-control',
+            inputCloned: 'choices__input--cloned',
+            list: 'choices__list',
+            listItems: 'choices__list--multiple',
+            listSingle: 'choices__list--single',
+            listDropdown: 'choices__list--dropdown',
+            item: 'choices__item bg-secondary',
+            itemSelectable: 'choices__item--selectable',
+            itemDisabled: 'choices__item--disabled',
+            itemChoice: 'choices__item--choice',
+            placeholder: 'choices__placeholder',
+            group: 'choices__group',
+            groupHeading: 'choices__heading',
+            button: 'choices__button',
+            activeState: 'is-active',
+            focusState: 'is-focused',
+            openState: 'is-open',
+            disabledState: 'is-disabled',
+            highlightedState: 'text-info',
+            selectedState: 'text-info',
+            flippedState: 'is-flipped',
+            loadingState: 'is-loading',
+            noResults: 'has-no-results',
+            noChoices: 'has-no-choices',
+          },
+        });
         this.choices.passedElement.element.addEventListener(
           'choice',
           (e: any) => {
@@ -597,6 +578,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           false
         );
       }
+    }
+  }
+
+  parseMessage(msg: WebSocketJsonResponse) {
+    let res = wsJsonToRes(msg);
+    if (msg.error) {
+      toast(i18n.t(msg.error), 'danger');
+      this.state.loading = false;
+      this.setState(this.state);
+      return;
     } else if (res.op == UserOperation.CreatePost) {
       let data = res.data as PostResponse;
       if (data.post.creator_id == UserService.Instance.user.id) {

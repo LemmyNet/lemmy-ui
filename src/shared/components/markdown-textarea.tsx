@@ -8,10 +8,10 @@ import {
   setupTribute,
   pictrsDeleteToast,
   setupTippy,
+  isBrowser,
 } from '../utils';
 import { UserService } from '../services';
 import autosize from 'autosize';
-import Tribute from 'tributejs/src/Tribute.js';
 import { i18n } from '../i18next';
 
 interface MarkdownTextAreaProps {
@@ -41,7 +41,7 @@ export class MarkdownTextArea extends Component<
 > {
   private id = `comment-textarea-${randomStr()}`;
   private formId = `comment-form-${randomStr()}`;
-  private tribute: Tribute;
+  private tribute: any;
   private emptyState: MarkdownTextAreaState = {
     content: this.props.initialContent,
     previewMode: false,
@@ -52,8 +52,9 @@ export class MarkdownTextArea extends Component<
   constructor(props: any, context: any) {
     super(props, context);
 
-    // TODO
-    /* this.tribute = setupTribute(); */
+    if (isBrowser()) {
+      this.tribute = setupTribute();
+    }
     this.state = this.emptyState;
   }
 
