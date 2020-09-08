@@ -23,7 +23,6 @@ export class DataTypeSelect extends Component<
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
-    console.log(this.state);
   }
 
   static getDerivedStateFromProps(props: any): DataTypeSelectProps {

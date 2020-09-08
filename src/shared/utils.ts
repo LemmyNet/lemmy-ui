@@ -25,6 +25,7 @@ import 'moment/locale/sq';
 import 'moment/locale/km';
 import 'moment/locale/ga';
 import 'moment/locale/sr';
+import 'moment/locale/ko';
 
 import {
   UserOperation,
@@ -96,6 +97,7 @@ export const languages = [
   { code: 'gl', name: 'Galego' },
   { code: 'hu', name: 'Magyar Nyelv' },
   { code: 'ka', name: 'ქართული ენა' },
+  { code: 'ko', name: '한국어' },
   { code: 'km', name: 'ភាសាខ្មែរ' },
   { code: 'hi', name: 'मानक हिन्दी' },
   { code: 'fa', name: 'فارسی' },
@@ -428,6 +430,8 @@ export function getMomentLanguage(): string {
     lang = 'ga';
   } else if (lang.startsWith('sr')) {
     lang = 'sr';
+  } else if (lang.startsWith('ko')) {
+    lang = 'ko';
   } else {
     lang = 'en';
   }
@@ -718,16 +722,20 @@ export function setupTribute() {
   });
 }
 
-// TODO
-// let tippyInstance = tippy('[data-tippy-content]');
+var tippyInstance;
+if (isBrowser()) {
+  tippyInstance = tippy('[data-tippy-content]');
+}
 
 export function setupTippy() {
-  // tippyInstance.forEach(e => e.destroy());
-  // tippyInstance = tippy('[data-tippy-content]', {
-  //   delay: [500, 0],
-  //   // Display on "long press"
-  //   touch: ['hold', 500],
-  // });
+  if (isBrowser()) {
+    tippyInstance.forEach(e => e.destroy());
+    tippyInstance = tippy('[data-tippy-content]', {
+      delay: [500, 0],
+      // Display on "long press"
+      touch: ['hold', 500],
+    });
+  }
 }
 
 function userSearch(text: string, cb: any) {
@@ -805,32 +813,26 @@ function communitySearch(text: string, cb: any) {
 }
 
 export function getListingTypeFromProps(props: any): ListingType {
-  // TODO
-  return ListingType.All;
-  // return props.match.params.listing_type
-  //   ? routeListingTypeToEnum(props.match.params.listing_type)
-  //   : UserService.Instance.user
-  //   ? Object.values(ListingType)[UserService.Instance.user.default_listing_type]
-  //   : ListingType.All;
+  return props.match.params.listing_type
+    ? routeListingTypeToEnum(props.match.params.listing_type)
+    : UserService.Instance.user
+    ? Object.values(ListingType)[UserService.Instance.user.default_listing_type]
+    : ListingType.All;
 }
 
 // TODO might need to add a user setting for this too
 export function getDataTypeFromProps(props: any): DataType {
-  // TODO
-  return DataType.Post;
-  // return props.match.params.data_type
-  //   ? routeDataTypeToEnum(props.match.params.data_type)
-  //   : DataType.Post;
+  return props.match.params.data_type
+    ? routeDataTypeToEnum(props.match.params.data_type)
+    : DataType.Post;
 }
 
 export function getSortTypeFromProps(props: any): SortType {
-  // TODO
-  return SortType.Active;
-  // return props.match.params.sort
-  //   ? routeSortTypeToEnum(props.match.params.sort)
-  //   : UserService.Instance.user
-  //   ? Object.values(SortType)[UserService.Instance.user.default_sort_type]
-  //   : SortType.Active;
+  return props.match.params.sort
+    ? routeSortTypeToEnum(props.match.params.sort)
+    : UserService.Instance.user
+    ? Object.values(SortType)[UserService.Instance.user.default_sort_type]
+    : SortType.Active;
 }
 
 export function getPageFromProps(props: any): number {

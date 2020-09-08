@@ -2,7 +2,6 @@ import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
   CommunityUser,
@@ -56,7 +55,11 @@ import {
   setupTippy,
   favIconUrl,
   notifyPost,
+  setIsoData,
+  wsSubscribe,
   isBrowser,
+  setAuth,
+  lemmyHttp,
 } from '../utils';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
@@ -90,34 +93,12 @@ interface UrlParams {
 }
 
 export class Main extends Component<any, MainState> {
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: MainState = {
     subscribedCommunities: [],
     trendingCommunities: [],
-    siteRes: {
-      site: {
-        id: null,
-        name: null,
-        creator_id: null,
-        creator_name: null,
-        published: null,
-        number_of_users: null,
-        number_of_posts: null,
-        number_of_comments: null,
-        number_of_communities: null,
-        enable_downvotes: null,
-        open_registration: null,
-        enable_nsfw: null,
-        icon: null,
-        banner: null,
-        creator_preferred_username: null,
-      },
-      admins: [],
-      banned: [],
-      online: null,
-      version: null,
-      federated_instances: null,
-    },
+    siteRes: this.isoData.site,
     showEditSite: false,
     loading: true,
     posts: [],
@@ -137,59 +118,126 @@ export class Main extends Component<any, MainState> {
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
 
-    if (isBrowser()) {
-      // TODO
-      /* this.subscription = WebSocketService.Instance.subject */
-      /* .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10)))) */
-      /* .subscribe( */
-      /*   msg => this.parseMessage(msg), */
-      /*     err => console.error(err), */
-      /*     () => console.log('complete') */
-      /* ); */
-      /* WebSocketService.Instance.getSite(); */
-      /* if (UserService.Instance.user) { */
-      /*   WebSocketService.Instance.getFollowedCommunities(); */
-      /* } */
-      /* let listCommunitiesForm: ListCommunitiesForm = { */
-      /*   sort: SortType.Hot, */
-      /*   limit: 6, */
-      /* }; */
-      /* WebSocketService.Instance.listCommunities(listCommunitiesForm); */
-      /* this.fetchData(); */
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
+
+    // Only fetch the data if coming from another route
+    if (this.isoData.path == this.context.router.route.match.url) {
+      if (this.state.dataType == DataType.Post) {
+        this.state.posts = this.isoData.routeData[0].posts;
+      } else {
+        this.state.comments = this.isoData.routeData[0].comments;
+      }
+      this.state.trendingCommunities = this.isoData.routeData[1].communities;
+      if (UserService.Instance.user) {
+        this.state.subscribedCommunities = this.isoData.routeData[2].communities;
+      }
+      this.state.loading = false;
+    } else {
+      this.fetchTrendingCommunities();
+      this.fetchData();
+      if (UserService.Instance.user) {
+        WebSocketService.Instance.getFollowedCommunities();
+      }
     }
+
+    setupTippy();
+  }
+
+  fetchTrendingCommunities() {
+    let listCommunitiesForm: ListCommunitiesForm = {
+      sort: SortType.Hot,
+      limit: 6,
+    };
+    WebSocketService.Instance.listCommunities(listCommunitiesForm);
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
-  /* static getDerivedStateFromProps(props: any): MainProps { */
-  /*   return { */
-  /*     listingType: getListingTypeFromProps(props), */
-  /*     dataType: getDataTypeFromProps(props), */
-  /*     sort: getSortTypeFromProps(props), */
-  /*     page: getPageFromProps(props), */
-  /*   }; */
-  /* } */
+  static getDerivedStateFromProps(props: any): MainProps {
+    return {
+      listingType: getListingTypeFromProps(props),
+      dataType: getDataTypeFromProps(props),
+      sort: getSortTypeFromProps(props),
+      page: getPageFromProps(props),
+    };
+  }
 
-  /* componentDidUpdate(_: any, lastState: MainState) { */
-  /*   if ( */
-  /*     lastState.listingType !== this.state.listingType || */
-  /*     lastState.dataType !== this.state.dataType || */
-  /*     lastState.sort !== this.state.sort || */
-  /*     lastState.page !== this.state.page */
-  /*   ) { */
-  /*     this.setState({ loading: true }); */
-  /*     this.fetchData(); */
-  /*   } */
-  /* } */
+  static fetchInitialData(auth: string, path: string): Promise<any>[] {
+    let pathSplit = path.split('/');
+    let dataType: DataType = pathSplit[3]
+      ? DataType[pathSplit[3]]
+      : DataType.Post;
+
+    // TODO figure out auth default_listingType, default_sort_type
+    let type_: ListingType = pathSplit[5]
+      ? ListingType[pathSplit[5]]
+      : UserService.Instance.user
+      ? Object.values(ListingType)[
+          UserService.Instance.user.default_listing_type
+        ]
+      : ListingType.All;
+    let sort: SortType = pathSplit[7]
+      ? SortType[pathSplit[7]]
+      : UserService.Instance.user
+      ? Object.values(SortType)[UserService.Instance.user.default_sort_type]
+      : SortType.Active;
+
+    let page = pathSplit[9] ? Number(pathSplit[9]) : 1;
+
+    let promises: Promise<any>[] = [];
+
+    if (dataType == DataType.Post) {
+      let getPostsForm: GetPostsForm = {
+        page,
+        limit: fetchLimit,
+        sort,
+        type_,
+      };
+      setAuth(getPostsForm, auth);
+      promises.push(lemmyHttp.getPosts(getPostsForm));
+    } else {
+      let getCommentsForm: GetCommentsForm = {
+        page,
+        limit: fetchLimit,
+        sort,
+        type_,
+      };
+      setAuth(getCommentsForm, auth);
+      promises.push(lemmyHttp.getComments(getCommentsForm));
+    }
+
+    let trendingCommunitiesForm: ListCommunitiesForm = {
+      sort: SortType.Hot,
+      limit: 6,
+    };
+    promises.push(lemmyHttp.listCommunities(trendingCommunitiesForm));
+
+    if (auth) {
+      promises.push(lemmyHttp.getFollowedCommunities({ auth }));
+    }
+
+    return promises;
+  }
+
+  componentDidUpdate(_: any, lastState: MainState) {
+    if (
+      lastState.listingType !== this.state.listingType ||
+      lastState.dataType !== this.state.dataType ||
+      lastState.sort !== this.state.sort ||
+      lastState.page !== this.state.page
+    ) {
+      this.setState({ loading: true });
+      this.fetchData();
+    }
+  }
 
   get documentTitle(): string {
-    if (this.state.siteRes.site.name) {
-      return `${this.state.siteRes.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `${this.state.siteRes.site.name}`;
   }
 
   get favIcon(): string {
@@ -201,7 +249,6 @@ export class Main extends Component<any, MainState> {
   render() {
     return (
       <div class="container">
-        <h1 className={`text-warning`}>u stink main</h1>
         <Helmet title={this.documentTitle}>
           <link
             id="favicon"
@@ -236,7 +283,7 @@ export class Main extends Component<any, MainState> {
               <div class="card-body">
                 {this.trendingCommunities()}
                 {this.createCommunityButton()}
-                {/*
+                {/* TODO
                 {this.subscribedCommunities()}
                 */}
               </div>
@@ -257,7 +304,7 @@ export class Main extends Component<any, MainState> {
 
   createCommunityButton() {
     return (
-      <Link class="btn btn-secondary btn-block" to="/create_community">
+      <Link className="btn btn-secondary btn-block" to="/create_community">
         {i18n.t('create_a_community')}
       </Link>
     );
@@ -269,7 +316,7 @@ export class Main extends Component<any, MainState> {
         <h5>
           <T i18nKey="trending_communities">
             #
-            <Link class="text-body" to="/communities">
+            <Link className="text-body" to="/communities">
               #
             </Link>
           </T>
@@ -293,7 +340,7 @@ export class Main extends Component<any, MainState> {
           <h5>
             <T i18nKey="subscribed_to_communities">
               #
-              <Link class="text-body" to="/communities">
+              <Link className="text-body" to="/communities">
                 #
               </Link>
             </T>
@@ -537,6 +584,10 @@ export class Main extends Component<any, MainState> {
         <span class="mr-3">
           <ListingTypeSelect
             type_={this.state.listingType}
+            showLocal={
+              this.state.siteRes.federated_instances &&
+              this.state.siteRes.federated_instances.length > 0
+            }
             onChange={this.handleListingTypeChange}
           />
         </span>

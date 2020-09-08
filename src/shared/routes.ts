@@ -22,10 +22,16 @@ interface IRoutePropsWithFetch extends IRouteProps {
 }
 
 export const routes: IRoutePropsWithFetch[] = [
-  { exact: true, path: `/`, component: Main },
+  {
+    exact: true,
+    path: `/`,
+    component: Main,
+    fetchInitialData: (auth, path) => Main.fetchInitialData(auth, path),
+  },
   {
     path: `/home/data_type/:data_type/listing_type/:listing_type/sort/:sort/page/:page`,
     component: Main,
+    fetchInitialData: (auth, path) => Main.fetchInitialData(auth, path),
   },
   { path: `/login`, component: Login },
   {

@@ -84,7 +84,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     // The login
     // TODO this needs some work
     if (this.props.site.my_user) {
-      console.log(this.props.site.my_user);
       UserService.Instance.user = this.props.site.my_user;
       // i18n.changeLanguage(getLanguage());
 
