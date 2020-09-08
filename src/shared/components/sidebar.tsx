@@ -8,6 +8,7 @@ import {
   RemoveCommunityForm,
   UserView,
   AddModToCommunityForm,
+  Category,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
 import { mdToHtml, getUnixTime } from '../utils';
@@ -19,6 +20,7 @@ import { i18n } from '../i18next';
 
 interface SidebarProps {
   community: Community;
+  categories: Category[];
   moderators: CommunityUser[];
   admins: UserView[];
   online: number;
@@ -57,6 +59,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           this.sidebar()
         ) : (
           <CommunityForm
+            categories={this.props.categories}
             community={this.props.community}
             onEdit={this.handleEditCommunity}
             onCancel={this.handleEditCancel}
@@ -193,7 +196,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <div class="d-flex flex-wrap">
         <Link
-          class={`btn btn-secondary flex-fill mr-2 mb-2 ${
+          className={`btn btn-secondary flex-fill mr-2 mb-2 ${
             community.deleted || community.removed ? 'no-click' : ''
           }`}
           to={`/create_post?community=${community.name}`}

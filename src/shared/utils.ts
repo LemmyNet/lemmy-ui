@@ -839,6 +839,12 @@ export function getPageFromProps(props: any): number {
   return props.match.params.page ? Number(props.match.params.page) : 1;
 }
 
+export function getRecipientIdFromProps(props: any): number {
+  return props.match.params.recipient_id
+    ? Number(props.match.params.recipient_id)
+    : 1;
+}
+
 export function editCommentRes(data: CommentResponse, comments: Comment[]) {
   let found = comments.find(c => c.id == data.comment.id);
   if (found) {

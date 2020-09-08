@@ -3,6 +3,7 @@ import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import { PostForm } from './post-form';
 import {
+  isBrowser,
   lemmyHttp,
   setAuth,
   setIsoData,
@@ -69,7 +70,9 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
   get documentTitle(): string {

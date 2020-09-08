@@ -21,6 +21,8 @@ import {
   CommentResponse,
   WebSocketJsonResponse,
   GetSiteResponse,
+  Category,
+  ListCategoriesResponse,
 } from 'lemmy-js-client';
 import { UserService, WebSocketService } from '../services';
 import { PostListings } from './post-listings';
@@ -65,6 +67,7 @@ interface State {
   dataType: DataType;
   sort: SortType;
   page: number;
+  categories: Category[];
 }
 
 interface CommunityProps {
@@ -93,6 +96,7 @@ export class Community extends Component<any, State> {
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
     siteRes: this.isoData.site,
+    categories: [],
   };
 
   constructor(props: any, context: any) {
@@ -113,10 +117,12 @@ export class Community extends Component<any, State> {
       } else {
         this.state.comments = this.isoData.routeData[1].comments;
       }
+      this.state.categories = this.isoData.routeData[2].categories;
       this.state.loading = false;
     } else {
       this.fetchCommunity();
       this.fetchData();
+      WebSocketService.Instance.listCategories();
     }
     setupTippy();
   }
@@ -195,6 +201,8 @@ export class Community extends Component<any, State> {
       promises.push(lemmyHttp.getComments(getCommentsForm));
     }
 
+    promises.push(lemmyHttp.listCategories());
+
     return promises;
   }
 
@@ -263,6 +271,7 @@ export class Community extends Component<any, State> {
                 admins={this.state.siteRes.admins}
                 online={this.state.communityRes.online}
                 enableNsfw={this.state.siteRes.site.enable_nsfw}
+                categories={this.state.categories}
               />
             </div>
           </div>
@@ -425,6 +434,9 @@ export class Community extends Component<any, State> {
     } else if (res.op == UserOperation.GetCommunity) {
       let data = res.data as GetCommunityResponse;
       this.state.communityRes = data;
+      if (this.state.posts.length || this.state.comments.length) {
+        this.state.loading = false;
+      }
       this.setState(this.state);
     } else if (
       res.op == UserOperation.EditCommunity ||
@@ -443,7 +455,10 @@ export class Community extends Component<any, State> {
     } else if (res.op == UserOperation.GetPosts) {
       let data = res.data as GetPostsResponse;
       this.state.posts = data.posts;
-      this.state.loading = false;
+
+      if (this.state.communityRes) {
+        this.state.loading = false;
+      }
       this.setState(this.state);
       setupTippy();
     } else if (
@@ -480,7 +495,9 @@ export class Community extends Component<any, State> {
     } else if (res.op == UserOperation.GetComments) {
       let data = res.data as GetCommentsResponse;
       this.state.comments = data.comments;
-      this.state.loading = false;
+      if (this.state.communityRes) {
+        this.state.loading = false;
+      }
       this.setState(this.state);
     } else if (
       res.op == UserOperation.EditComment ||
@@ -505,6 +522,10 @@ export class Community extends Component<any, State> {
     } else if (res.op == UserOperation.CreateCommentLike) {
       let data = res.data as CommentResponse;
       createCommentLikeRes(data, this.state.comments);
+      this.setState(this.state);
+    } else if (res.op == UserOperation.ListCategories) {
+      let data = res.data as ListCategoriesResponse;
+      this.state.categories = data.categories;
       this.setState(this.state);
     }
   }

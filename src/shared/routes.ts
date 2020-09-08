@@ -23,8 +23,8 @@ interface IRoutePropsWithFetch extends IRouteProps {
 
 export const routes: IRoutePropsWithFetch[] = [
   {
-    exact: true,
     path: `/`,
+    exact: true,
     component: Main,
     fetchInitialData: (auth, path) => Main.fetchInitialData(auth, path),
   },
@@ -46,8 +46,10 @@ export const routes: IRoutePropsWithFetch[] = [
       CreateCommunity.fetchInitialData(auth, path),
   },
   {
-    path: `/create_private_message`,
+    path: `/create_private_message/recipient/:recipient_id`,
     component: CreatePrivateMessage,
+    fetchInitialData: (auth, path) =>
+      CreatePrivateMessage.fetchInitialData(auth, path),
   },
   {
     path: `/communities/page/:page`,

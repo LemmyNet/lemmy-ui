@@ -430,7 +430,7 @@ export class User extends Component<any, UserState> {
                   </a>
                   <Link
                     class="d-flex align-self-start btn btn-secondary ml-2"
-                    to={`/create_private_message?recipient_id=${this.state.user.id}`}
+                    to={`/create_private_message/recipient/${this.state.user.id}`}
                   >
                     {i18n.t('send_message')}
                   </Link>

@@ -344,7 +344,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             <button class="btn btn-link btn-animate">
                               <Link
                                 class="text-muted"
-                                to={`/create_private_message?recipient_id=${node.comment.creator_id}`}
+                                to={`/create_private_message/recipient/${node.comment.creator_id}`}
                                 title={i18n.t('message').toLowerCase()}
                               >
                                 <svg class="icon">

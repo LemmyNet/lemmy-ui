@@ -1,18 +1,13 @@
 import { Component, linkEvent } from 'inferno';
 import { Prompt } from 'inferno-router';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   PrivateMessageForm as PrivateMessageFormI,
   EditPrivateMessageForm,
-  PrivateMessageFormParams,
   PrivateMessage,
   PrivateMessageResponse,
   UserView,
   UserOperation,
-  UserDetailsResponse,
-  GetUserDetailsForm,
-  SortType,
   WebSocketJsonResponse,
 } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
@@ -21,6 +16,8 @@ import {
   wsJsonToRes,
   toast,
   setupTippy,
+  wsSubscribe,
+  isBrowser,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { MarkdownTextArea } from './markdown-textarea';
@@ -28,8 +25,8 @@ import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
 
 interface PrivateMessageFormProps {
+  recipient: UserView;
   privateMessage?: PrivateMessage; // If a pm is given, that means this is an edit
-  params?: PrivateMessageFormParams;
   onCancel?(): any;
   onCreate?(message: PrivateMessage): any;
   onEdit?(message: PrivateMessage): any;
@@ -37,7 +34,6 @@ interface PrivateMessageFormProps {
 
 interface PrivateMessageFormState {
   privateMessageForm: PrivateMessageFormI;
-  recipient: UserView;
   loading: boolean;
   previewMode: boolean;
   showDisclaimer: boolean;
@@ -51,9 +47,8 @@ export class PrivateMessageForm extends Component<
   private emptyState: PrivateMessageFormState = {
     privateMessageForm: {
       content: null,
-      recipient_id: null,
+      recipient_id: this.props.recipient.id,
     },
-    recipient: null,
     loading: false,
     previewMode: false,
     showDisclaimer: false,
@@ -66,30 +61,15 @@ export class PrivateMessageForm extends Component<
 
     this.handleContentChange = this.handleContentChange.bind(this);
 
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
+
     if (this.props.privateMessage) {
       this.state.privateMessageForm = {
         content: this.props.privateMessage.content,
         recipient_id: this.props.privateMessage.recipient_id,
       };
     }
-
-    if (this.props.params) {
-      this.state.privateMessageForm.recipient_id = this.props.params.recipient_id;
-      let form: GetUserDetailsForm = {
-        user_id: this.state.privateMessageForm.recipient_id,
-        sort: SortType.New,
-        saved_only: false,
-      };
-      WebSocketService.Instance.getUserDetails(form);
-    }
-
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
   }
 
   componentDidMount() {
@@ -105,8 +85,10 @@ export class PrivateMessageForm extends Component<
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
-    window.onbeforeunload = null;
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+      window.onbeforeunload = null;
+    }
   }
 
   render() {
@@ -123,21 +105,18 @@ export class PrivateMessageForm extends Component<
                 {capitalizeFirstLetter(i18n.t('to'))}
               </label>
 
-              {this.state.recipient && (
-                <div class="col-sm-10 form-control-plaintext">
-                  <UserListing
-                    user={{
-                      name: this.state.recipient.name,
-                      preferred_username: this.state.recipient
-                        .preferred_username,
-                      avatar: this.state.recipient.avatar,
-                      id: this.state.recipient.id,
-                      local: this.state.recipient.local,
-                      actor_id: this.state.recipient.actor_id,
-                    }}
-                  />
-                </div>
-              )}
+              <div class="col-sm-10 form-control-plaintext">
+                <UserListing
+                  user={{
+                    name: this.props.recipient.name,
+                    preferred_username: this.props.recipient.preferred_username,
+                    avatar: this.props.recipient.avatar,
+                    id: this.props.recipient.id,
+                    local: this.props.recipient.local,
+                    actor_id: this.props.recipient.actor_id,
+                  }}
+                />
+              </div>
             </div>
           )}
           <div class="form-group row">
@@ -233,11 +212,6 @@ export class PrivateMessageForm extends Component<
     i.setState(i.state);
   }
 
-  handleRecipientChange(i: PrivateMessageForm, event: any) {
-    i.state.recipient = event.target.value;
-    i.setState(i.state);
-  }
-
   handleContentChange(val: string) {
     this.state.privateMessageForm.content = val;
     this.setState(this.state);
@@ -273,11 +247,6 @@ export class PrivateMessageForm extends Component<
       let data = res.data as PrivateMessageResponse;
       this.state.loading = false;
       this.props.onEdit(data.message);
-    } else if (res.op == UserOperation.GetUserDetails) {
-      let data = res.data as UserDetailsResponse;
-      this.state.recipient = data.user;
-      this.state.privateMessageForm.recipient_id = data.user.id;
-      this.setState(this.state);
     } else if (res.op == UserOperation.CreatePrivateMessage) {
       let data = res.data as PrivateMessageResponse;
       this.state.loading = false;
