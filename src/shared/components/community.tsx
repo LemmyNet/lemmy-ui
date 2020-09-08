@@ -1,15 +1,11 @@
 import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import { DataType } from '../interfaces';
 import {
   UserOperation,
-  Community as CommunityI,
   GetCommunityResponse,
   CommunityResponse,
-  CommunityUser,
-  UserView,
   SortType,
   Post,
   GetPostsForm,
@@ -25,9 +21,8 @@ import {
   CommentResponse,
   WebSocketJsonResponse,
   GetSiteResponse,
-  Site,
 } from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+import { UserService, WebSocketService } from '../services';
 import { PostListings } from './post-listings';
 import { CommentNodes } from './comment-nodes';
 import { SortSelect } from './sort-select';
@@ -51,23 +46,25 @@ import {
   setupTippy,
   favIconUrl,
   notifyPost,
+  setIsoData,
+  wsSubscribe,
+  isBrowser,
+  lemmyHttp,
+  setAuth,
 } from '../utils';
 import { i18n } from '../i18next';
 
 interface State {
-  community: CommunityI;
+  communityRes: GetCommunityResponse;
+  siteRes: GetSiteResponse;
   communityId: number;
   communityName: string;
-  moderators: CommunityUser[];
-  admins: UserView[];
-  online: number;
   loading: boolean;
   posts: Post[];
   comments: Comment[];
   dataType: DataType;
   sort: SortType;
   page: number;
-  site: Site;
 }
 
 interface CommunityProps {
@@ -83,57 +80,19 @@ interface UrlParams {
 }
 
 export class Community extends Component<any, State> {
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: State = {
-    community: {
-      id: null,
-      name: null,
-      title: null,
-      category_id: null,
-      category_name: null,
-      creator_id: null,
-      creator_name: null,
-      number_of_subscribers: null,
-      number_of_posts: null,
-      number_of_comments: null,
-      published: null,
-      removed: null,
-      nsfw: false,
-      deleted: null,
-      local: null,
-      actor_id: null,
-      last_refreshed_at: null,
-      creator_actor_id: null,
-      creator_local: null,
-    },
-    moderators: [],
-    admins: [],
+    communityRes: undefined,
     communityId: Number(this.props.match.params.id),
     communityName: this.props.match.params.name,
-    online: null,
     loading: true,
     posts: [],
     comments: [],
     dataType: getDataTypeFromProps(this.props),
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
-    site: {
-      id: undefined,
-      name: undefined,
-      creator_id: undefined,
-      published: undefined,
-      creator_name: undefined,
-      number_of_users: undefined,
-      number_of_posts: undefined,
-      number_of_comments: undefined,
-      number_of_communities: undefined,
-      enable_downvotes: undefined,
-      open_registration: undefined,
-      enable_nsfw: undefined,
-      icon: undefined,
-      banner: undefined,
-      creator_preferred_username: undefined,
-    },
+    siteRes: this.isoData.site,
   };
 
   constructor(props: any, context: any) {
@@ -143,24 +102,37 @@ export class Community extends Component<any, State> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
 
+    // Only fetch the data if coming from another route
+    if (this.isoData.path == this.context.router.route.match.url) {
+      this.state.communityRes = this.isoData.routeData[0];
+      if (this.state.dataType == DataType.Post) {
+        this.state.posts = this.isoData.routeData[1].posts;
+      } else {
+        this.state.comments = this.isoData.routeData[1].comments;
+      }
+      this.state.loading = false;
+    } else {
+      this.fetchCommunity();
+      this.fetchData();
+    }
+    setupTippy();
+  }
+
+  fetchCommunity() {
     let form: GetCommunityForm = {
       id: this.state.communityId ? this.state.communityId : null,
       name: this.state.communityName ? this.state.communityName : null,
     };
     WebSocketService.Instance.getCommunity(form);
-    WebSocketService.Instance.getSite();
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
   static getDerivedStateFromProps(props: any): CommunityProps {
@@ -169,6 +141,69 @@ export class Community extends Component<any, State> {
       sort: getSortTypeFromProps(props),
       page: getPageFromProps(props),
     };
+  }
+
+  static fetchInitialData(auth: string, path: string): Promise<any>[] {
+    let pathSplit = path.split('/');
+    let promises: Promise<any>[] = [];
+
+    // It can be /c/main, or /c/1
+    let idOrName = pathSplit[2];
+    let id: number;
+    let name_: string;
+    if (isNaN(Number(idOrName))) {
+      name_ = idOrName;
+    } else {
+      id = Number(idOrName);
+    }
+
+    let communityForm: GetCommunityForm = id ? { id } : { name: name_ };
+    setAuth(communityForm, auth);
+    promises.push(lemmyHttp.getCommunity(communityForm));
+
+    let dataType: DataType = pathSplit[4]
+      ? DataType[pathSplit[4]]
+      : DataType.Post;
+
+    let sort: SortType = pathSplit[6]
+      ? SortType[pathSplit[6]]
+      : UserService.Instance.user
+      ? Object.values(SortType)[UserService.Instance.user.default_sort_type]
+      : SortType.Active;
+
+    let page = pathSplit[8] ? Number(pathSplit[8]) : 1;
+
+    if (dataType == DataType.Post) {
+      let getPostsForm: GetPostsForm = {
+        page,
+        limit: fetchLimit,
+        sort,
+        type_: ListingType.Community,
+      };
+      this.setIdOrName(getPostsForm, id, name_);
+      setAuth(getPostsForm, auth);
+      promises.push(lemmyHttp.getPosts(getPostsForm));
+    } else {
+      let getCommentsForm: GetCommentsForm = {
+        page,
+        limit: fetchLimit,
+        sort,
+        type_: ListingType.Community,
+      };
+      this.setIdOrName(getCommentsForm, id, name_);
+      setAuth(getCommentsForm, auth);
+      promises.push(lemmyHttp.getComments(getCommentsForm));
+    }
+
+    return promises;
+  }
+
+  static setIdOrName(obj: any, id: number, name_: string) {
+    if (id) {
+      obj.community_id = id;
+    } else {
+      obj.community_name = name_;
+    }
   }
 
   componentDidUpdate(_: any, lastState: State) {
@@ -183,15 +218,17 @@ export class Community extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    if (this.state.community.title) {
-      return `${this.state.community.title} - ${this.state.site.name}`;
+    if (this.state.communityRes) {
+      return `${this.state.communityRes.community.title} - ${this.state.siteRes.site.name}`;
     } else {
       return 'Lemmy';
     }
   }
 
   get favIcon(): string {
-    return this.state.site.icon ? this.state.site.icon : favIconUrl;
+    return this.state.siteRes.site.icon
+      ? this.state.siteRes.site.icon
+      : favIconUrl;
   }
 
   render() {
@@ -221,11 +258,11 @@ export class Community extends Component<any, State> {
             </div>
             <div class="col-12 col-md-4">
               <Sidebar
-                community={this.state.community}
-                moderators={this.state.moderators}
-                admins={this.state.admins}
-                online={this.state.online}
-                enableNsfw={this.state.site.enable_nsfw}
+                community={this.state.communityRes.community}
+                moderators={this.state.communityRes.moderators}
+                admins={this.state.siteRes.admins}
+                online={this.state.communityRes.online}
+                enableNsfw={this.state.siteRes.site.enable_nsfw}
               />
             </div>
           </div>
@@ -240,8 +277,8 @@ export class Community extends Component<any, State> {
         posts={this.state.posts}
         removeDuplicates
         sort={this.state.sort}
-        enableDownvotes={this.state.site.enable_downvotes}
-        enableNsfw={this.state.site.enable_nsfw}
+        enableDownvotes={this.state.siteRes.site.enable_downvotes}
+        enableNsfw={this.state.siteRes.site.enable_nsfw}
       />
     ) : (
       <CommentNodes
@@ -249,7 +286,7 @@ export class Community extends Component<any, State> {
         noIndent
         sortType={this.state.sort}
         showContext
-        enableDownvotes={this.state.site.enable_downvotes}
+        enableDownvotes={this.state.siteRes.site.enable_downvotes}
       />
     );
   }
@@ -258,12 +295,12 @@ export class Community extends Component<any, State> {
     return (
       <div>
         <BannerIconHeader
-          banner={this.state.community.banner}
-          icon={this.state.community.icon}
+          banner={this.state.communityRes.community.banner}
+          icon={this.state.communityRes.community.icon}
         />
-        <h5 class="mb-0">{this.state.community.title}</h5>
+        <h5 class="mb-0">{this.state.communityRes.community.title}</h5>
         <CommunityLink
-          community={this.state.community}
+          community={this.state.communityRes.community}
           realLink
           useApubName
           muted
@@ -348,7 +385,7 @@ export class Community extends Component<any, State> {
     const sortStr = paramUpdates.sort || this.state.sort;
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
-      `/c/${this.state.community.name}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
+      `/c/${this.state.communityRes.community.name}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
     );
   }
 
@@ -359,7 +396,8 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort: this.state.sort,
         type_: ListingType.Community,
-        community_id: this.state.community.id,
+        community_id: this.state.communityId,
+        community_name: this.state.communityName,
       };
       WebSocketService.Instance.getPosts(getPostsForm);
     } else {
@@ -368,7 +406,8 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort: this.state.sort,
         type_: ListingType.Community,
-        community_id: this.state.community.id,
+        community_id: this.state.communityId,
+        community_name: this.state.communityName,
       };
       WebSocketService.Instance.getComments(getCommentsForm);
     }
@@ -385,23 +424,20 @@ export class Community extends Component<any, State> {
       this.fetchData();
     } else if (res.op == UserOperation.GetCommunity) {
       let data = res.data as GetCommunityResponse;
-      this.state.community = data.community;
-      this.state.moderators = data.moderators;
-      this.state.online = data.online;
+      this.state.communityRes = data;
       this.setState(this.state);
-      this.fetchData();
     } else if (
       res.op == UserOperation.EditCommunity ||
       res.op == UserOperation.DeleteCommunity ||
       res.op == UserOperation.RemoveCommunity
     ) {
       let data = res.data as CommunityResponse;
-      this.state.community = data.community;
+      this.state.communityRes.community = data.community;
       this.setState(this.state);
     } else if (res.op == UserOperation.FollowCommunity) {
       let data = res.data as CommunityResponse;
-      this.state.community.subscribed = data.community.subscribed;
-      this.state.community.number_of_subscribers =
+      this.state.communityRes.community.subscribed = data.community.subscribed;
+      this.state.communityRes.community.number_of_subscribers =
         data.community.number_of_subscribers;
       this.setState(this.state);
     } else if (res.op == UserOperation.GetPosts) {
@@ -431,7 +467,7 @@ export class Community extends Component<any, State> {
       this.setState(this.state);
     } else if (res.op == UserOperation.AddModToCommunity) {
       let data = res.data as AddModToCommunityResponse;
-      this.state.moderators = data.moderators;
+      this.state.communityRes.moderators = data.moderators;
       this.setState(this.state);
     } else if (res.op == UserOperation.BanFromCommunity) {
       let data = res.data as BanFromCommunityResponse;
@@ -469,11 +505,6 @@ export class Community extends Component<any, State> {
     } else if (res.op == UserOperation.CreateCommentLike) {
       let data = res.data as CommentResponse;
       createCommentLikeRes(data, this.state.comments);
-      this.setState(this.state);
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-      this.state.site = data.site;
-      this.state.admins = data.admins;
       this.setState(this.state);
     }
   }
