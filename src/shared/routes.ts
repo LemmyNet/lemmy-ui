@@ -33,7 +33,10 @@ export const routes: IRoutePropsWithFetch[] = [
     component: Main,
     fetchInitialData: (auth, path) => Main.fetchInitialData(auth, path),
   },
-  { path: `/login`, component: Login },
+  {
+    path: `/login`,
+    component: Login,
+  },
   {
     path: `/create_post`,
     component: CreatePost,

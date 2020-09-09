@@ -62,7 +62,7 @@ interface PostListingState {
 
 interface PostListingProps {
   post: Post;
-  communities: Community[];
+  communities: Community[]; // TODO this should be an optional
   showCommunity?: boolean;
   showBody?: boolean;
   moderators?: CommunityUser[];

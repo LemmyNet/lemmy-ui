@@ -1,12 +1,12 @@
 import { Component, linkEvent } from 'inferno';
-import { Link } from 'inferno-router';
 import {
   PrivateMessage as PrivateMessageI,
   DeletePrivateMessageForm,
   MarkPrivateMessageAsReadForm,
+  UserView,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
-import { mdToHtml, pictrsAvatarThumbnail, showAvatars, toast } from '../utils';
+import { mdToHtml, toast } from '../utils';
 import { MomentTime } from './moment-time';
 import { PrivateMessageForm } from './private-message-form';
 import { UserListing, UserOther } from './user-listing';
@@ -17,6 +17,7 @@ interface PrivateMessageState {
   showEdit: boolean;
   collapsed: boolean;
   viewSource: boolean;
+  recipient: UserView;
 }
 
 interface PrivateMessageProps {
@@ -32,6 +33,21 @@ export class PrivateMessage extends Component<
     showEdit: false,
     collapsed: false,
     viewSource: false,
+    recipient: {
+      id: this.props.privateMessage.recipient_id,
+      actor_id: this.props.privateMessage.recipient_actor_id,
+      name: this.props.privateMessage.recipient_name,
+      local: this.props.privateMessage.recipient_local,
+      avatar: this.props.privateMessage.recipient_avatar,
+      preferred_username: this.props.privateMessage
+        .recipient_preferred_username,
+      published: undefined,
+      number_of_posts: 0,
+      post_score: 0,
+      number_of_comments: 0,
+      comment_score: 0,
+      banned: false,
+    },
   };
 
   constructor(props: any, context: any) {
@@ -109,6 +125,7 @@ export class PrivateMessage extends Component<
           </ul>
           {this.state.showEdit && (
             <PrivateMessageForm
+              recipient={this.state.recipient}
               privateMessage={message}
               onEdit={this.handlePrivateMessageEdit}
               onCreate={this.handlePrivateMessageCreate}
@@ -215,9 +232,7 @@ export class PrivateMessage extends Component<
         </div>
         {this.state.showReply && (
           <PrivateMessageForm
-            params={{
-              recipient_id: this.props.privateMessage.creator_id,
-            }}
+            recipient={this.state.recipient}
             onCreate={this.handlePrivateMessageCreate}
           />
         )}

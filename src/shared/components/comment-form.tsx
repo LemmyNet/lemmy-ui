@@ -1,7 +1,6 @@
 import { Component } from 'inferno';
 import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   CommentNode as CommentNodeI,
   CommentForm as CommentFormI,
@@ -9,7 +8,7 @@ import {
   UserOperation,
   CommentResponse,
 } from 'lemmy-js-client';
-import { capitalizeFirstLetter, wsJsonToRes } from '../utils';
+import { capitalizeFirstLetter, wsJsonToRes, wsSubscribe } from '../utils';
 import { WebSocketService, UserService } from '../services';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
@@ -71,13 +70,8 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
       }
     }
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
   }
 
   componentWillUnmount() {

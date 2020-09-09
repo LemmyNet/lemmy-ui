@@ -1,17 +1,22 @@
 import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
   LoginResponse,
   PasswordChangeForm,
   WebSocketJsonResponse,
-  GetSiteResponse,
   Site,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
-import { wsJsonToRes, capitalizeFirstLetter, toast } from '../utils';
+import {
+  wsJsonToRes,
+  capitalizeFirstLetter,
+  toast,
+  setIsoData,
+  isBrowser,
+  wsSubscribe,
+} from '../utils';
 import { i18n } from '../i18next';
 
 interface State {
@@ -21,6 +26,7 @@ interface State {
 }
 
 export class PasswordChange extends Component<any, State> {
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
 
   emptyState: State = {
@@ -30,7 +36,7 @@ export class PasswordChange extends Component<any, State> {
       password_verify: undefined,
     },
     loading: false,
-    site: undefined,
+    site: this.isoData.site.site,
   };
 
   constructor(props: any, context: any) {
@@ -38,26 +44,18 @@ export class PasswordChange extends Component<any, State> {
 
     this.state = this.emptyState;
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
-    WebSocketService.Instance.getSite();
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
   get documentTitle(): string {
-    if (this.state.site) {
-      return `${i18n.t('password_change')} - ${this.state.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `${i18n.t('password_change')} - ${this.state.site.name}`;
   }
 
   render() {
@@ -153,10 +151,6 @@ export class PasswordChange extends Component<any, State> {
       this.setState(this.state);
       UserService.Instance.login(data);
       this.props.history.push('/');
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-      this.state.site = data.site;
-      this.setState(this.state);
     }
   }
 }

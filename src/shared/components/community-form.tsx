@@ -1,7 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { Prompt } from 'inferno-router';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   CommunityForm as CommunityFormI,
   UserOperation,
@@ -11,7 +10,13 @@ import {
   Community,
 } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
-import { wsJsonToRes, capitalizeFirstLetter, toast, randomStr } from '../utils';
+import {
+  wsJsonToRes,
+  capitalizeFirstLetter,
+  toast,
+  randomStr,
+  wsSubscribe,
+} from '../utils';
 import { i18n } from '../i18next';
 
 import { MarkdownTextArea } from './markdown-textarea';
@@ -79,13 +84,8 @@ export class CommunityForm extends Component<
       };
     }
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
   }
 
   componentDidUpdate() {

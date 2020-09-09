@@ -1,43 +1,18 @@
 import { Component } from 'inferno';
 import { Link } from 'inferno-router';
 import { i18n } from '../i18next';
-import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
-import { WebSocketService } from '../services';
-import { repoUrl, wsJsonToRes, isBrowser } from '../utils';
-import {
-  UserOperation,
-  WebSocketJsonResponse,
-  GetSiteResponse,
-} from 'lemmy-js-client';
+import { repoUrl } from '../utils';
+import { GetSiteResponse } from 'lemmy-js-client';
 
-interface FooterState {
-  version: string;
+interface FooterProps {
+  site: GetSiteResponse;
 }
 
-export class Footer extends Component<any, FooterState> {
-  private wsSub: Subscription;
-  emptyState: FooterState = {
-    version: null,
-  };
+interface FooterState {}
+
+export class Footer extends Component<FooterProps, FooterState> {
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.state = this.emptyState;
-
-    if (isBrowser()) {
-      this.wsSub = WebSocketService.Instance.subject
-        .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-        .subscribe(
-          msg => this.parseMessage(msg),
-          err => console.error(err),
-          () => console.log('complete')
-        );
-    }
-  }
-
-  componentWillUnmount() {
-    this.wsSub.unsubscribe();
   }
 
   render() {
@@ -46,7 +21,7 @@ export class Footer extends Component<any, FooterState> {
         <div className="navbar-collapse">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-              <span class="navbar-text">{this.state.version}</span>
+              <span class="navbar-text">{this.props.site.version}</span>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/modlog">
@@ -77,13 +52,5 @@ export class Footer extends Component<any, FooterState> {
         </div>
       </nav>
     );
-  }
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
-
-    if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-      this.setState({ version: data.version });
-    }
   }
 }

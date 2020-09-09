@@ -1,7 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   LoginForm,
   RegisterForm,
@@ -14,7 +13,14 @@ import {
   Site,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
-import { wsJsonToRes, validEmail, toast } from '../utils';
+import {
+  wsJsonToRes,
+  validEmail,
+  toast,
+  wsSubscribe,
+  isBrowser,
+  setIsoData,
+} from '../utils';
 import { i18n } from '../i18next';
 
 interface State {
@@ -28,6 +34,7 @@ interface State {
 }
 
 export class Login extends Component<any, State> {
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
 
   emptyState: State = {
@@ -48,20 +55,7 @@ export class Login extends Component<any, State> {
     registerLoading: false,
     captcha: undefined,
     captchaPlaying: false,
-    site: {
-      id: undefined,
-      name: undefined,
-      creator_id: undefined,
-      published: undefined,
-      creator_name: undefined,
-      number_of_users: undefined,
-      number_of_posts: undefined,
-      number_of_comments: undefined,
-      number_of_communities: undefined,
-      enable_downvotes: undefined,
-      open_registration: undefined,
-      enable_nsfw: undefined,
-    },
+    site: this.isoData.site.site,
   };
 
   constructor(props: any, context: any) {
@@ -69,20 +63,18 @@ export class Login extends Component<any, State> {
 
     this.state = this.emptyState;
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
 
-    WebSocketService.Instance.getSite();
-    WebSocketService.Instance.getCaptcha();
+    if (isBrowser()) {
+      WebSocketService.Instance.getCaptcha();
+    }
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
   get documentTitle(): string {

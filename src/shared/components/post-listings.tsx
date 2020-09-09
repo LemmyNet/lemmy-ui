@@ -27,6 +27,7 @@ export class PostListings extends Component<PostListingsProps, any> {
           this.outer().map(post => (
             <>
               <PostListing
+                communities={[]}
                 post={post}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}

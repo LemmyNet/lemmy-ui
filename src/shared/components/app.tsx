@@ -38,7 +38,7 @@ export class App extends Component<AppProps, any> {
               </Switch>
               <Symbols />
             </div>
-            <Footer />
+            <Footer site={this.props.site} />
           </div>
         </Provider>
       </>
