@@ -1,38 +1,13 @@
 import { Component, linkEvent } from 'inferno';
-import { WebSocketService, UserService } from '../services';
-import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import { i18n } from '../i18next';
-import {
-  UserOperation,
-  Post,
-  Comment,
-  CommunityUser,
-  SortType,
-  UserDetailsResponse,
-  UserView,
-  WebSocketJsonResponse,
-  CommentResponse,
-  BanUserResponse,
-  PostResponse,
-} from 'lemmy-js-client';
+import { Post, Comment, SortType, UserDetailsResponse } from 'lemmy-js-client';
 import { UserDetailsView } from '../interfaces';
-import {
-  wsJsonToRes,
-  toast,
-  commentsToFlatNodes,
-  setupTippy,
-  editCommentRes,
-  saveCommentRes,
-  createCommentLikeRes,
-  createPostLikeFindRes,
-} from '../utils';
+import { commentsToFlatNodes, setupTippy } from '../utils';
 import { PostListing } from './post-listing';
 import { CommentNodes } from './comment-nodes';
 
 interface UserDetailsProps {
-  username?: string;
-  user_id?: number;
+  userRes: UserDetailsResponse;
   page: number;
   limit: number;
   sort: SortType;
@@ -40,67 +15,29 @@ interface UserDetailsProps {
   enableNsfw: boolean;
   view: UserDetailsView;
   onPageChange(page: number): number | any;
-  admins: UserView[];
 }
 
-interface UserDetailsState {
-  follows: CommunityUser[];
-  moderates: CommunityUser[];
-  comments: Comment[];
-  posts: Post[];
-  saved?: Post[];
-}
+interface UserDetailsState {}
 
 export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
-  private subscription: Subscription;
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.state = {
-      follows: [],
-      moderates: [],
-      comments: [],
-      posts: [],
-      saved: [],
-    };
-
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
   }
 
-  componentWillUnmount() {
-    this.subscription.unsubscribe();
-  }
-
+  // TODO needed here?
   componentDidMount() {
-    this.fetchUserData();
     setupTippy();
   }
 
-  componentDidUpdate(lastProps: UserDetailsProps) {
-    for (const key of Object.keys(lastProps)) {
-      if (lastProps[key] !== this.props[key]) {
-        this.fetchUserData();
-        break;
-      }
-    }
-  }
-
-  fetchUserData() {
-    WebSocketService.Instance.getUserDetails({
-      user_id: this.props.user_id,
-      username: this.props.username,
-      sort: this.props.sort,
-      saved_only: this.props.view === UserDetailsView.Saved,
-      page: this.props.page,
-      limit: this.props.limit,
-    });
-  }
+  // TODO wut?
+  // componentDidUpdate(lastProps: UserDetailsProps) {
+  //   for (const key of Object.keys(lastProps)) {
+  //     if (lastProps[key] !== this.props[key]) {
+  //       this.fetchUserData();
+  //       break;
+  //     }
+  //   }
+  // }
 
   render() {
     return (
@@ -114,20 +51,20 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
   viewSelector(view: UserDetailsView) {
     if (view === UserDetailsView.Overview || view === UserDetailsView.Saved) {
       return this.overview();
-    }
-    if (view === UserDetailsView.Comments) {
+    } else if (view === UserDetailsView.Comments) {
       return this.comments();
-    }
-    if (view === UserDetailsView.Posts) {
+    } else if (view === UserDetailsView.Posts) {
       return this.posts();
+    } else {
+      return null;
     }
   }
 
   overview() {
-    const comments = this.state.comments.map((c: Comment) => {
+    const comments = this.props.userRes.comments.map((c: Comment) => {
       return { type: 'comments', data: c };
     });
-    const posts = this.state.posts.map((p: Post) => {
+    const posts = this.props.userRes.posts.map((p: Post) => {
       return { type: 'posts', data: p };
     });
 
@@ -150,9 +87,10 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
             <div>
               {i.type === 'posts' ? (
                 <PostListing
+                  communities={[]}
                   key={(i.data as Post).id}
                   post={i.data as Post}
-                  admins={this.props.admins}
+                  admins={this.props.userRes.admins}
                   showCommunity
                   enableDownvotes={this.props.enableDownvotes}
                   enableNsfw={this.props.enableNsfw}
@@ -161,7 +99,7 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
                 <CommentNodes
                   key={(i.data as Comment).id}
                   nodes={[{ comment: i.data as Comment }]}
-                  admins={this.props.admins}
+                  admins={this.props.userRes.admins}
                   noBorder
                   noIndent
                   showCommunity
@@ -181,8 +119,8 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
     return (
       <div>
         <CommentNodes
-          nodes={commentsToFlatNodes(this.state.comments)}
-          admins={this.props.admins}
+          nodes={commentsToFlatNodes(this.props.userRes.comments)}
+          admins={this.props.userRes.admins}
           noIndent
           showCommunity
           showContext
@@ -195,11 +133,12 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
   posts() {
     return (
       <div>
-        {this.state.posts.map(post => (
+        {this.props.userRes.posts.map(post => (
           <>
             <PostListing
+              communities={[]}
               post={post}
-              admins={this.props.admins}
+              admins={this.props.userRes.admins}
               showCommunity
               enableDownvotes={this.props.enableDownvotes}
               enableNsfw={this.props.enableNsfw}
@@ -222,7 +161,8 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
             {i18n.t('prev')}
           </button>
         )}
-        {this.state.comments.length + this.state.posts.length > 0 && (
+        {this.props.userRes.comments.length + this.props.userRes.posts.length >
+          0 && (
           <button
             class="btn btn-secondary"
             onClick={linkEvent(this, this.nextPage)}
@@ -240,76 +180,5 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
 
   prevPage(i: UserDetails) {
     i.props.onPageChange(i.props.page - 1);
-  }
-
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    const res = wsJsonToRes(msg);
-
-    if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
-      if (msg.error == 'couldnt_find_that_username_or_email') {
-        this.context.router.history.push('/');
-      }
-      return;
-    } else if (msg.reconnect) {
-      this.fetchUserData();
-    } else if (res.op == UserOperation.GetUserDetails) {
-      const data = res.data as UserDetailsResponse;
-      this.setState({
-        comments: data.comments,
-        follows: data.follows,
-        moderates: data.moderates,
-        posts: data.posts,
-      });
-    } else if (res.op == UserOperation.CreateCommentLike) {
-      const data = res.data as CommentResponse;
-      createCommentLikeRes(data, this.state.comments);
-      this.setState({
-        comments: this.state.comments,
-      });
-    } else if (
-      res.op == UserOperation.EditComment ||
-      res.op == UserOperation.DeleteComment ||
-      res.op == UserOperation.RemoveComment
-    ) {
-      const data = res.data as CommentResponse;
-      editCommentRes(data, this.state.comments);
-      this.setState({
-        comments: this.state.comments,
-      });
-    } else if (res.op == UserOperation.CreateComment) {
-      const data = res.data as CommentResponse;
-      if (
-        UserService.Instance.user &&
-        data.comment.creator_id == UserService.Instance.user.id
-      ) {
-        toast(i18n.t('reply_sent'));
-      }
-    } else if (res.op == UserOperation.SaveComment) {
-      const data = res.data as CommentResponse;
-      saveCommentRes(data, this.state.comments);
-      this.setState({
-        comments: this.state.comments,
-      });
-    } else if (res.op == UserOperation.CreatePostLike) {
-      const data = res.data as PostResponse;
-      createPostLikeFindRes(data, this.state.posts);
-      this.setState({
-        posts: this.state.posts,
-      });
-    } else if (res.op == UserOperation.BanUser) {
-      const data = res.data as BanUserResponse;
-      this.state.comments
-        .filter(c => c.creator_id == data.user.id)
-        .forEach(c => (c.banned = data.banned));
-      this.state.posts
-        .filter(c => c.creator_id == data.user.id)
-        .forEach(c => (c.banned = data.banned));
-      this.setState({
-        posts: this.state.posts,
-        comments: this.state.comments,
-      });
-    }
   }
 }

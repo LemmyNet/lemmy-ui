@@ -31,7 +31,9 @@ export class UserService {
 
   public login(res: LoginResponse) {
     this.setClaims(res.jwt);
-    IsomorphicCookie.save('jwt', res.jwt, { expires: 365 });
+    let expires = new Date();
+    expires.setDate(expires.getDate() + 365);
+    IsomorphicCookie.save('jwt', res.jwt, { expires });
     console.log('jwt cookie set');
   }
 

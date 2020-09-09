@@ -1,7 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
   Comment,
@@ -17,7 +16,6 @@ import {
   GetPrivateMessagesForm,
   PrivateMessagesResponse,
   PrivateMessageResponse,
-  GetSiteResponse,
   Site,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
@@ -31,6 +29,11 @@ import {
   createCommentLikeRes,
   commentsToFlatNodes,
   setupTippy,
+  setIsoData,
+  wsSubscribe,
+  lemmyHttp,
+  setAuth,
+  isBrowser,
 } from '../utils';
 import { CommentNodes } from './comment-nodes';
 import { PrivateMessage } from './private-message';
@@ -60,9 +63,11 @@ interface InboxState {
   sort: SortType;
   page: number;
   site: Site;
+  loading: boolean;
 }
 
 export class Inbox extends Component<any, InboxState> {
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
@@ -72,20 +77,8 @@ export class Inbox extends Component<any, InboxState> {
     messages: [],
     sort: SortType.New,
     page: 1,
-    site: {
-      id: undefined,
-      name: undefined,
-      creator_id: undefined,
-      published: undefined,
-      creator_name: undefined,
-      number_of_users: undefined,
-      number_of_posts: undefined,
-      number_of_comments: undefined,
-      number_of_communities: undefined,
-      enable_downvotes: undefined,
-      open_registration: undefined,
-      enable_nsfw: undefined,
-    },
+    site: this.isoData.site.site,
+    loading: true,
   };
 
   constructor(props: any, context: any) {
@@ -94,77 +87,88 @@ export class Inbox extends Component<any, InboxState> {
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
 
-    this.refetch();
-    WebSocketService.Instance.getSite();
+    // Only fetch the data if coming from another route
+    if (this.isoData.path == this.context.router.route.match.url) {
+      this.state.replies = this.isoData.routeData[0].replies;
+      this.state.mentions = this.isoData.routeData[1].mentions;
+      this.state.messages = this.isoData.routeData[2].messages;
+      this.sendUnreadCount();
+      this.state.loading = false;
+    } else {
+      this.refetch();
+    }
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
   get documentTitle(): string {
-    if (this.state.site.name) {
-      return `@${UserService.Instance.user.name} ${i18n.t('inbox')} - ${
-        this.state.site.name
-      }`;
-    } else {
-      return 'Lemmy';
-    }
+    return `@${UserService.Instance.user.name} ${i18n.t('inbox')} - ${
+      this.state.site.name
+    }`;
   }
 
   render() {
     return (
       <div class="container">
         <Helmet title={this.documentTitle} />
-        <div class="row">
-          <div class="col-12">
-            <h5 class="mb-1">
-              {i18n.t('inbox')}
-              <small>
-                <a
-                  href={`/feeds/inbox/${UserService.Instance.auth}.xml`}
-                  target="_blank"
-                  title="RSS"
-                  rel="noopener"
-                >
-                  <svg class="icon ml-2 text-muted small">
-                    <use xlinkHref="#icon-rss">#</use>
-                  </svg>
-                </a>
-              </small>
-            </h5>
-            {this.state.replies.length +
-              this.state.mentions.length +
-              this.state.messages.length >
-              0 &&
-              this.state.unreadOrAll == UnreadOrAll.Unread && (
-                <ul class="list-inline mb-1 text-muted small font-weight-bold">
-                  <li className="list-inline-item">
-                    <span
-                      class="pointer"
-                      onClick={linkEvent(this, this.markAllAsRead)}
-                    >
-                      {i18n.t('mark_all_as_read')}
-                    </span>
-                  </li>
-                </ul>
-              )}
-            {this.selects()}
-            {this.state.messageType == MessageType.All && this.all()}
-            {this.state.messageType == MessageType.Replies && this.replies()}
-            {this.state.messageType == MessageType.Mentions && this.mentions()}
-            {this.state.messageType == MessageType.Messages && this.messages()}
-            {this.paginator()}
+        {this.state.loading ? (
+          <h5>
+            <svg class="icon icon-spinner spin">
+              <use xlinkHref="#icon-spinner"></use>
+            </svg>
+          </h5>
+        ) : (
+          <div class="row">
+            <div class="col-12">
+              <h5 class="mb-1">
+                {i18n.t('inbox')}
+                <small>
+                  <a
+                    href={`/feeds/inbox/${UserService.Instance.auth}.xml`}
+                    target="_blank"
+                    title="RSS"
+                    rel="noopener"
+                  >
+                    <svg class="icon ml-2 text-muted small">
+                      <use xlinkHref="#icon-rss">#</use>
+                    </svg>
+                  </a>
+                </small>
+              </h5>
+              {this.state.replies.length +
+                this.state.mentions.length +
+                this.state.messages.length >
+                0 &&
+                this.state.unreadOrAll == UnreadOrAll.Unread && (
+                  <ul class="list-inline mb-1 text-muted small font-weight-bold">
+                    <li className="list-inline-item">
+                      <span
+                        class="pointer"
+                        onClick={linkEvent(this, this.markAllAsRead)}
+                      >
+                        {i18n.t('mark_all_as_read')}
+                      </span>
+                    </li>
+                  </ul>
+                )}
+              {this.selects()}
+              {this.state.messageType == MessageType.All && this.all()}
+              {this.state.messageType == MessageType.Replies && this.replies()}
+              {this.state.messageType == MessageType.Mentions &&
+                this.mentions()}
+              {this.state.messageType == MessageType.Messages &&
+                this.messages()}
+              {this.paginator()}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -397,6 +401,39 @@ export class Inbox extends Component<any, InboxState> {
     i.refetch();
   }
 
+  static fetchInitialData(auth: string, _path: string): Promise<any>[] {
+    let promises: Promise<any>[] = [];
+
+    // It can be /u/me, or /username/1
+    let repliesForm: GetRepliesForm = {
+      sort: SortType.New,
+      unread_only: true,
+      page: 1,
+      limit: fetchLimit,
+    };
+    setAuth(repliesForm, auth);
+    promises.push(lemmyHttp.getReplies(repliesForm));
+
+    let userMentionsForm: GetUserMentionsForm = {
+      sort: SortType.New,
+      unread_only: true,
+      page: 1,
+      limit: fetchLimit,
+    };
+    setAuth(userMentionsForm, auth);
+    promises.push(lemmyHttp.getUserMentions(userMentionsForm));
+
+    let privateMessagesForm: GetPrivateMessagesForm = {
+      unread_only: true,
+      page: 1,
+      limit: fetchLimit,
+    };
+    setAuth(privateMessagesForm, auth);
+    promises.push(lemmyHttp.getPrivateMessages(privateMessagesForm));
+
+    return promises;
+  }
+
   refetch() {
     let repliesForm: GetRepliesForm = {
       sort: this.state.sort,
@@ -450,6 +487,7 @@ export class Inbox extends Component<any, InboxState> {
     } else if (res.op == UserOperation.GetReplies) {
       let data = res.data as GetRepliesResponse;
       this.state.replies = data.replies;
+      this.state.loading = false;
       this.sendUnreadCount();
       window.scrollTo(0, 0);
       this.setState(this.state);
@@ -580,10 +618,6 @@ export class Inbox extends Component<any, InboxState> {
     } else if (res.op == UserOperation.CreateCommentLike) {
       let data = res.data as CommentResponse;
       createCommentLikeRes(data, this.state.replies);
-      this.setState(this.state);
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-      this.state.site = data.site;
       this.setState(this.state);
     }
   }

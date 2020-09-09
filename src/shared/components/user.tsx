@@ -2,13 +2,10 @@ import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
-  CommunityUser,
   SortType,
   ListingType,
-  UserView,
   UserSettingsForm,
   LoginResponse,
   DeleteAccountForm,
@@ -16,6 +13,10 @@ import {
   GetSiteResponse,
   UserDetailsResponse,
   AddAdminResponse,
+  GetUserDetailsForm,
+  CommentResponse,
+  PostResponse,
+  BanUserResponse,
 } from 'lemmy-js-client';
 import { UserDetailsView } from '../interfaces';
 import { WebSocketService, UserService } from '../services';
@@ -33,6 +34,16 @@ import {
   mdToHtml,
   elementUrl,
   favIconUrl,
+  setIsoData,
+  getIdFromProps,
+  getUsernameFromProps,
+  wsSubscribe,
+  createCommentLikeRes,
+  editCommentRes,
+  saveCommentRes,
+  createPostLikeFindRes,
+  setAuth,
+  lemmyHttp,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { SortSelect } from './sort-select';
@@ -46,11 +57,9 @@ import { ImageUploadForm } from './image-upload-form';
 import { BannerIconHeader } from './banner-icon-header';
 
 interface UserState {
-  user: UserView;
-  user_id: number;
-  username: string;
-  follows: CommunityUser[];
-  moderates: CommunityUser[];
+  userRes: UserDetailsResponse;
+  userId: number;
+  userName: string;
   view: UserDetailsView;
   sort: SortType;
   page: number;
@@ -78,25 +87,12 @@ interface UrlParams {
 }
 
 export class User extends Component<any, UserState> {
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: UserState = {
-    user: {
-      id: null,
-      name: null,
-      published: null,
-      number_of_posts: null,
-      post_score: null,
-      number_of_comments: null,
-      comment_score: null,
-      banned: null,
-      avatar: null,
-      actor_id: null,
-      local: null,
-    },
-    user_id: null,
-    username: null,
-    follows: [],
-    moderates: [],
+    userRes: undefined,
+    userId: getIdFromProps(this.props),
+    userName: getUsernameFromProps(this.props),
     loading: true,
     view: User.getViewFromProps(this.props.match.view),
     sort: User.getSortTypeFromProps(this.props.match.sort),
@@ -119,31 +115,7 @@ export class User extends Component<any, UserState> {
     deleteAccountForm: {
       password: null,
     },
-    siteRes: {
-      admins: [],
-      banned: [],
-      online: undefined,
-      site: {
-        id: undefined,
-        name: undefined,
-        creator_id: undefined,
-        published: undefined,
-        creator_name: undefined,
-        number_of_users: undefined,
-        number_of_posts: undefined,
-        number_of_comments: undefined,
-        number_of_communities: undefined,
-        enable_downvotes: undefined,
-        open_registration: undefined,
-        enable_nsfw: undefined,
-        icon: undefined,
-        banner: undefined,
-        creator_preferred_username: undefined,
-      },
-      version: undefined,
-      my_user: undefined,
-      federated_instances: undefined,
-    },
+    siteRes: this.isoData.site,
   };
 
   constructor(props: any, context: any) {
@@ -168,25 +140,37 @@ export class User extends Component<any, UserState> {
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
-    this.state.user_id = Number(this.props.match.params.id) || null;
-    this.state.username = this.props.match.params.username;
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    // Only fetch the data if coming from another route
+    if (this.isoData.path == this.context.router.route.match.url) {
+      this.state.userRes = this.isoData.routeData[0];
+      this.setUserInfo();
+      this.state.loading = false;
+    } else {
+      this.fetchUserData();
+    }
 
-    WebSocketService.Instance.getSite();
     setupTippy();
+  }
+
+  fetchUserData() {
+    let form: GetUserDetailsForm = {
+      user_id: this.state.userId,
+      username: this.state.userName,
+      sort: this.state.sort,
+      saved_only: this.state.view === UserDetailsView.Saved,
+      page: this.state.page,
+      limit: fetchLimit,
+    };
+    WebSocketService.Instance.getUserDetails(form);
   }
 
   get isCurrentUser() {
     return (
       UserService.Instance.user &&
-      UserService.Instance.user.id == this.state.user.id
+      UserService.Instance.user.id == this.state.userRes.user.id
     );
   }
 
@@ -200,6 +184,44 @@ export class User extends Component<any, UserState> {
 
   static getPageFromProps(page: number): number {
     return page ? Number(page) : 1;
+  }
+
+  static fetchInitialData(auth: string, path: string): Promise<any>[] {
+    let pathSplit = path.split('/');
+    let promises: Promise<any>[] = [];
+
+    // It can be /u/me, or /username/1
+    let idOrName = pathSplit[2];
+    let user_id: number;
+    let username: string;
+    if (isNaN(Number(idOrName))) {
+      username = idOrName;
+    } else {
+      user_id = Number(idOrName);
+    }
+
+    let view = this.getViewFromProps(pathSplit[4]);
+    let sort = this.getSortTypeFromProps(pathSplit[6]);
+    let page = this.getPageFromProps(Number(pathSplit[8]));
+
+    let form: GetUserDetailsForm = {
+      sort,
+      saved_only: view === UserDetailsView.Saved,
+      page,
+      limit: fetchLimit,
+    };
+    this.setIdOrName(form, user_id, username);
+    setAuth(form, auth);
+    promises.push(lemmyHttp.getUserDetails(form));
+    return promises;
+  }
+
+  static setIdOrName(obj: any, id: number, name_: string) {
+    if (id) {
+      obj.user_id = id;
+    } else {
+      obj.username = name_;
+    }
   }
 
   componentWillUnmount() {
@@ -229,7 +251,7 @@ export class User extends Component<any, UserState> {
 
   get documentTitle(): string {
     if (this.state.siteRes.site.name) {
-      return `@${this.state.username} - ${this.state.siteRes.site.name}`;
+      return `@${this.state.userName} - ${this.state.siteRes.site.name}`;
     } else {
       return 'Lemmy';
     }
@@ -252,43 +274,41 @@ export class User extends Component<any, UserState> {
             href={this.favIcon}
           />
         </Helmet>
-        <div class="row">
-          <div class="col-12 col-md-8">
-            {this.state.loading ? (
-              <h5>
-                <svg class="icon icon-spinner spin">
-                  <use xlinkHref="#icon-spinner"></use>
-                </svg>
-              </h5>
-            ) : (
+        {this.state.loading ? (
+          <h5>
+            <svg class="icon icon-spinner spin">
+              <use xlinkHref="#icon-spinner"></use>
+            </svg>
+          </h5>
+        ) : (
+          <div class="row">
+            <div class="col-12 col-md-8">
               <>
                 {this.userInfo()}
                 <hr />
               </>
-            )}
-            {!this.state.loading && this.selects()}
-            <UserDetails
-              user_id={this.state.user_id}
-              username={this.state.username}
-              sort={this.state.sort}
-              page={this.state.page}
-              limit={fetchLimit}
-              enableDownvotes={this.state.siteRes.site.enable_downvotes}
-              enableNsfw={this.state.siteRes.site.enable_nsfw}
-              admins={this.state.siteRes.admins}
-              view={this.state.view}
-              onPageChange={this.handlePageChange}
-            />
-          </div>
-
-          {!this.state.loading && (
-            <div class="col-12 col-md-4">
-              {this.isCurrentUser && this.userSettings()}
-              {this.moderates()}
-              {this.follows()}
+              {!this.state.loading && this.selects()}
+              <UserDetails
+                userRes={this.state.userRes}
+                sort={this.state.sort}
+                page={this.state.page}
+                limit={fetchLimit}
+                enableDownvotes={this.state.siteRes.site.enable_downvotes}
+                enableNsfw={this.state.siteRes.site.enable_nsfw}
+                view={this.state.view}
+                onPageChange={this.handlePageChange}
+              />
             </div>
-          )}
-        </div>
+
+            {!this.state.loading && (
+              <div class="col-12 col-md-4">
+                {this.isCurrentUser && this.userSettings()}
+                {this.moderates()}
+                {this.follows()}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   }
@@ -362,7 +382,7 @@ export class User extends Component<any, UserState> {
           hideHot
         />
         <a
-          href={`/feeds/u/${this.state.username}.xml?sort=${this.state.sort}`}
+          href={`/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`}
           target="_blank"
           rel="noopener"
           title="RSS"
@@ -376,14 +396,11 @@ export class User extends Component<any, UserState> {
   }
 
   userInfo() {
-    let user = this.state.user;
+    let user = this.state.userRes.user;
 
     return (
       <div>
-        <BannerIconHeader
-          banner={this.state.user.banner}
-          icon={this.state.user.avatar}
-        />
+        <BannerIconHeader banner={user.banner} icon={user.avatar} />
         <div class="mb-3">
           <div class="">
             <div class="mb-0 d-flex flex-wrap">
@@ -420,17 +437,17 @@ export class User extends Component<any, UserState> {
                 <>
                   <a
                     className={`d-flex align-self-start btn btn-secondary ml-2 ${
-                      !this.state.user.matrix_user_id && 'invisible'
+                      !user.matrix_user_id && 'invisible'
                     }`}
                     target="_blank"
                     rel="noopener"
-                    href={`https://matrix.to/#/${this.state.user.matrix_user_id}`}
+                    href={`https://matrix.to/#/${user.matrix_user_id}`}
                   >
                     {i18n.t('send_secure_message')}
                   </a>
                   <Link
                     class="d-flex align-self-start btn btn-secondary ml-2"
-                    to={`/create_private_message/recipient/${this.state.user.id}`}
+                    to={`/create_private_message/recipient/${user.id}`}
                   >
                     {i18n.t('send_message')}
                   </Link>
@@ -818,12 +835,12 @@ export class User extends Component<any, UserState> {
   moderates() {
     return (
       <div>
-        {this.state.moderates.length > 0 && (
+        {this.state.userRes.moderates.length > 0 && (
           <div class="card bg-transparent border-secondary mb-3">
             <div class="card-body">
               <h5>{i18n.t('moderates')}</h5>
               <ul class="list-unstyled mb-0">
-                {this.state.moderates.map(community => (
+                {this.state.userRes.moderates.map(community => (
                   <li>
                     <Link to={`/c/${community.community_name}`}>
                       {community.community_name}
@@ -841,12 +858,12 @@ export class User extends Component<any, UserState> {
   follows() {
     return (
       <div>
-        {this.state.follows.length > 0 && (
+        {this.state.userRes.follows.length > 0 && (
           <div class="card bg-transparent border-secondary mb-3">
             <div class="card-body">
               <h5>{i18n.t('subscribed')}</h5>
               <ul class="list-unstyled mb-0">
-                {this.state.follows.map(community => (
+                {this.state.userRes.follows.map(community => (
                   <li>
                     <Link to={`/c/${community.community_name}`}>
                       {community.community_name}
@@ -866,7 +883,7 @@ export class User extends Component<any, UserState> {
     const viewStr = paramUpdates.view || UserDetailsView[this.state.view];
     const sortStr = paramUpdates.sort || this.state.sort;
     this.props.history.push(
-      `/u/${this.state.username}/view/${viewStr}/sort/${sortStr}/page/${page}`
+      `/u/${this.state.userName}/view/${viewStr}/sort/${sortStr}/page/${page}`
     );
   }
 
@@ -966,7 +983,7 @@ export class User extends Component<any, UserState> {
     i.state.userSettingsForm.matrix_user_id = event.target.value;
     if (
       i.state.userSettingsForm.matrix_user_id == '' &&
-      !i.state.user.matrix_user_id
+      !i.state.userRes.user.matrix_user_id
     ) {
       i.state.userSettingsForm.matrix_user_id = undefined;
     }
@@ -1029,6 +1046,33 @@ export class User extends Component<any, UserState> {
     WebSocketService.Instance.deleteAccount(i.state.deleteAccountForm);
   }
 
+  setUserInfo() {
+    if (this.isCurrentUser) {
+      this.state.userSettingsForm.show_nsfw =
+        UserService.Instance.user.show_nsfw;
+      this.state.userSettingsForm.theme = UserService.Instance.user.theme
+        ? UserService.Instance.user.theme
+        : 'darkly';
+      this.state.userSettingsForm.default_sort_type =
+        UserService.Instance.user.default_sort_type;
+      this.state.userSettingsForm.default_listing_type =
+        UserService.Instance.user.default_listing_type;
+      this.state.userSettingsForm.lang = UserService.Instance.user.lang;
+      this.state.userSettingsForm.avatar = UserService.Instance.user.avatar;
+      this.state.userSettingsForm.banner = UserService.Instance.user.banner;
+      this.state.userSettingsForm.preferred_username =
+        UserService.Instance.user.preferred_username;
+      this.state.userSettingsForm.show_avatars =
+        UserService.Instance.user.show_avatars;
+      this.state.userSettingsForm.email = UserService.Instance.user.email;
+      this.state.userSettingsForm.bio = UserService.Instance.user.bio;
+      this.state.userSettingsForm.send_notifications_to_email =
+        UserService.Instance.user.send_notifications_to_email;
+      this.state.userSettingsForm.matrix_user_id =
+        UserService.Instance.user.matrix_user_id;
+    }
+  }
+
   parseMessage(msg: WebSocketJsonResponse) {
     console.log(msg);
     const res = wsJsonToRes(msg);
@@ -1042,50 +1086,24 @@ export class User extends Component<any, UserState> {
         userSettingsLoading: false,
       });
       return;
+    } else if (msg.reconnect) {
+      this.fetchUserData();
     } else if (res.op == UserOperation.GetUserDetails) {
       // Since the UserDetails contains posts/comments as well as some general user info we listen here as well
       // and set the parent state if it is not set or differs
+      // TODO this might need to get abstracted
       const data = res.data as UserDetailsResponse;
-
-      if (this.state.user.id !== data.user.id) {
-        this.state.user = data.user;
-        this.state.follows = data.follows;
-        this.state.moderates = data.moderates;
-
-        if (this.isCurrentUser) {
-          this.state.userSettingsForm.show_nsfw =
-            UserService.Instance.user.show_nsfw;
-          this.state.userSettingsForm.theme = UserService.Instance.user.theme
-            ? UserService.Instance.user.theme
-            : 'darkly';
-          this.state.userSettingsForm.default_sort_type =
-            UserService.Instance.user.default_sort_type;
-          this.state.userSettingsForm.default_listing_type =
-            UserService.Instance.user.default_listing_type;
-          this.state.userSettingsForm.lang = UserService.Instance.user.lang;
-          this.state.userSettingsForm.avatar = UserService.Instance.user.avatar;
-          this.state.userSettingsForm.banner = UserService.Instance.user.banner;
-          this.state.userSettingsForm.preferred_username =
-            UserService.Instance.user.preferred_username;
-          this.state.userSettingsForm.show_avatars =
-            UserService.Instance.user.show_avatars;
-          this.state.userSettingsForm.email = UserService.Instance.user.email;
-          this.state.userSettingsForm.bio = UserService.Instance.user.bio;
-          this.state.userSettingsForm.send_notifications_to_email =
-            UserService.Instance.user.send_notifications_to_email;
-          this.state.userSettingsForm.matrix_user_id =
-            UserService.Instance.user.matrix_user_id;
-        }
-        this.state.loading = false;
-        this.setState(this.state);
-      }
+      this.state.userRes = data;
+      this.setUserInfo();
+      this.state.loading = false;
+      this.setState(this.state);
     } else if (res.op == UserOperation.SaveUserSettings) {
       const data = res.data as LoginResponse;
       UserService.Instance.login(data);
-      this.state.user.bio = this.state.userSettingsForm.bio;
-      this.state.user.preferred_username = this.state.userSettingsForm.preferred_username;
-      this.state.user.banner = this.state.userSettingsForm.banner;
-      this.state.user.avatar = this.state.userSettingsForm.avatar;
+      this.state.userRes.user.bio = this.state.userSettingsForm.bio;
+      this.state.userRes.user.preferred_username = this.state.userSettingsForm.preferred_username;
+      this.state.userRes.user.banner = this.state.userSettingsForm.banner;
+      this.state.userRes.user.avatar = this.state.userSettingsForm.avatar;
       this.state.userSettingsLoading = false;
       this.setState(this.state);
 
@@ -1096,13 +1114,46 @@ export class User extends Component<any, UserState> {
         deleteAccountShowConfirm: false,
       });
       this.context.router.history.push('/');
-    } else if (res.op == UserOperation.GetSite) {
-      const data = res.data as GetSiteResponse;
-      this.state.siteRes = data;
-      this.setState(this.state);
     } else if (res.op == UserOperation.AddAdmin) {
       const data = res.data as AddAdminResponse;
       this.state.siteRes.admins = data.admins;
+      this.setState(this.state);
+    } else if (res.op == UserOperation.CreateCommentLike) {
+      const data = res.data as CommentResponse;
+      createCommentLikeRes(data, this.state.userRes.comments);
+      this.setState(this.state);
+    } else if (
+      res.op == UserOperation.EditComment ||
+      res.op == UserOperation.DeleteComment ||
+      res.op == UserOperation.RemoveComment
+    ) {
+      const data = res.data as CommentResponse;
+      editCommentRes(data, this.state.userRes.comments);
+      this.setState(this.state);
+    } else if (res.op == UserOperation.CreateComment) {
+      const data = res.data as CommentResponse;
+      if (
+        UserService.Instance.user &&
+        data.comment.creator_id == UserService.Instance.user.id
+      ) {
+        toast(i18n.t('reply_sent'));
+      }
+    } else if (res.op == UserOperation.SaveComment) {
+      const data = res.data as CommentResponse;
+      saveCommentRes(data, this.state.userRes.comments);
+      this.setState(this.state);
+    } else if (res.op == UserOperation.CreatePostLike) {
+      const data = res.data as PostResponse;
+      createPostLikeFindRes(data, this.state.userRes.posts);
+      this.setState(this.state);
+    } else if (res.op == UserOperation.BanUser) {
+      const data = res.data as BanUserResponse;
+      this.state.userRes.comments
+        .filter(c => c.creator_id == data.user.id)
+        .forEach(c => (c.banned = data.banned));
+      this.state.userRes.posts
+        .filter(c => c.creator_id == data.user.id)
+        .forEach(c => (c.banned = data.banned));
       this.setState(this.state);
     }
   }

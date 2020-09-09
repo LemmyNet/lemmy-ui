@@ -115,6 +115,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       }
     }
 
+    this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
   }
 

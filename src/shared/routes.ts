@@ -64,8 +64,13 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/post/:id/comment/:comment_id`,
     component: Post,
+    fetchInitialData: (auth, path) => Post.fetchInitialData(auth, path),
   },
-  { path: `/post/:id`, component: Post },
+  {
+    path: `/post/:id`,
+    component: Post,
+    fetchInitialData: (auth, path) => Post.fetchInitialData(auth, path),
+  },
   {
     path: `/c/:name/data_type/:data_type/sort/:sort/page/:page`,
     component: Community,
@@ -84,10 +89,23 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/u/:username/view/:view/sort/:sort/page/:page`,
     component: User,
+    fetchInitialData: (auth, path) => User.fetchInitialData(auth, path),
   },
-  { path: `/user/:id`, component: User },
-  { path: `/u/:username`, component: User },
-  { path: `/inbox`, component: Inbox },
+  {
+    path: `/user/:id`,
+    component: User,
+    fetchInitialData: (auth, path) => User.fetchInitialData(auth, path),
+  },
+  {
+    path: `/u/:username`,
+    component: User,
+    fetchInitialData: (auth, path) => User.fetchInitialData(auth, path),
+  },
+  {
+    path: `/inbox`,
+    component: Inbox,
+    fetchInitialData: (auth, path) => Inbox.fetchInitialData(auth, path),
+  },
   {
     path: `/modlog/community/:community_id`,
     component: Modlog,

@@ -845,6 +845,18 @@ export function getRecipientIdFromProps(props: any): number {
     : 1;
 }
 
+export function getIdFromProps(props: any): number {
+  return Number(props.match.params.id);
+}
+
+export function getCommentIdFromProps(props: any): number {
+  return Number(props.match.params.comment_id);
+}
+
+export function getUsernameFromProps(props: any): string {
+  return props.match.params.username;
+}
+
 export function editCommentRes(data: CommentResponse, comments: Comment[]) {
   let found = comments.find(c => c.id == data.comment.id);
   if (found) {

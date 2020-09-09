@@ -1,17 +1,13 @@
 import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
-  Community,
   Post as PostI,
   GetPostResponse,
   PostResponse,
-  Comment,
   MarkCommentAsReadForm,
   CommentResponse,
-  CommunityUser,
   CommunityResponse,
   CommentNode as CommentNodeI,
   BanFromCommunityResponse,
@@ -26,6 +22,8 @@ import {
   GetSiteResponse,
   GetCommunityResponse,
   WebSocketJsonResponse,
+  ListCategoriesResponse,
+  Category,
 } from 'lemmy-js-client';
 import { CommentSortType, CommentViewType } from '../interfaces';
 import { WebSocketService, UserService } from '../services';
@@ -39,6 +37,13 @@ import {
   commentsToFlatNodes,
   setupTippy,
   favIconUrl,
+  setIsoData,
+  getIdFromProps,
+  getCommentIdFromProps,
+  wsSubscribe,
+  setAuth,
+  lemmyHttp,
+  isBrowser,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { Sidebar } from './sidebar';
@@ -48,56 +53,32 @@ import autosize from 'autosize';
 import { i18n } from '../i18next';
 
 interface PostState {
-  post: PostI;
-  comments: Comment[];
+  postRes: GetPostResponse;
+  postId: number;
+  commentId?: number;
   commentSort: CommentSortType;
   commentViewType: CommentViewType;
-  community: Community;
-  moderators: CommunityUser[];
-  online: number;
   scrolled?: boolean;
-  scrolled_comment_id?: number;
   loading: boolean;
   crossPosts: PostI[];
   siteRes: GetSiteResponse;
+  categories: Category[];
 }
 
 export class Post extends Component<any, PostState> {
   private subscription: Subscription;
+  private isoData = setIsoData(this.context);
   private emptyState: PostState = {
-    post: null,
-    comments: [],
+    postRes: null,
+    postId: getIdFromProps(this.props),
+    commentId: getCommentIdFromProps(this.props),
     commentSort: CommentSortType.Hot,
     commentViewType: CommentViewType.Tree,
-    community: null,
-    moderators: [],
-    online: null,
     scrolled: false,
     loading: true,
     crossPosts: [],
-    siteRes: {
-      admins: [],
-      banned: [],
-      site: {
-        id: undefined,
-        name: undefined,
-        creator_id: undefined,
-        published: undefined,
-        creator_name: undefined,
-        number_of_users: undefined,
-        number_of_posts: undefined,
-        number_of_comments: undefined,
-        number_of_communities: undefined,
-        enable_downvotes: undefined,
-        open_registration: undefined,
-        enable_nsfw: undefined,
-        icon: undefined,
-        banner: undefined,
-      },
-      online: null,
-      version: null,
-      federated_instances: undefined,
-    },
+    siteRes: this.isoData.site,
+    categories: [],
   };
 
   constructor(props: any, context: any) {
@@ -105,24 +86,46 @@ export class Post extends Component<any, PostState> {
 
     this.state = this.emptyState;
 
-    let postId = Number(this.props.match.params.id);
-    if (this.props.match.params.comment_id) {
-      this.state.scrolled_comment_id = this.props.match.params.comment_id;
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
+
+    // Only fetch the data if coming from another route
+    if (this.isoData.path == this.context.router.route.match.url) {
+      this.state.postRes = this.isoData.routeData[0];
+      this.state.categories = this.isoData.routeData[1].categories;
+      this.state.loading = false;
+
+      if (isBrowser() && this.state.commentId) {
+        this.scrollCommentIntoView();
+      }
+    } else {
+      this.fetchPost();
+      WebSocketService.Instance.listCategories();
     }
+  }
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
-
+  fetchPost() {
     let form: GetPostForm = {
-      id: postId,
+      id: this.state.postId,
     };
     WebSocketService.Instance.getPost(form);
-    WebSocketService.Instance.getSite();
+  }
+
+  static fetchInitialData(auth: string, path: string): Promise<any>[] {
+    let pathSplit = path.split('/');
+    let promises: Promise<any>[] = [];
+
+    let id = Number(pathSplit[2]);
+
+    let postForm: GetPostForm = {
+      id,
+    };
+    setAuth(postForm, auth);
+
+    promises.push(lemmyHttp.getPost(postForm));
+    promises.push(lemmyHttp.listCategories());
+
+    return promises;
   }
 
   componentWillUnmount() {
@@ -135,17 +138,12 @@ export class Post extends Component<any, PostState> {
 
   componentDidUpdate(_lastProps: any, lastState: PostState, _snapshot: any) {
     if (
-      this.state.scrolled_comment_id &&
+      this.state.commentId &&
       !this.state.scrolled &&
-      lastState.comments.length > 0
+      lastState.postRes &&
+      lastState.postRes.comments.length > 0
     ) {
-      var elmnt = document.getElementById(
-        `comment-${this.state.scrolled_comment_id}`
-      );
-      elmnt.scrollIntoView();
-      elmnt.classList.add('mark');
-      this.state.scrolled = true;
-      this.markScrolledAsRead(this.state.scrolled_comment_id);
+      this.scrollCommentIntoView();
     }
 
     // Necessary if you are on a post and you click another post (same route)
@@ -161,12 +159,20 @@ export class Post extends Component<any, PostState> {
     }
   }
 
+  scrollCommentIntoView() {
+    var elmnt = document.getElementById(`comment-${this.state.commentId}`);
+    elmnt.scrollIntoView();
+    elmnt.classList.add('mark');
+    this.state.scrolled = true;
+    this.markScrolledAsRead(this.state.commentId);
+  }
+
   markScrolledAsRead(commentId: number) {
-    let found = this.state.comments.find(c => c.id == commentId);
-    let parent = this.state.comments.find(c => found.parent_id == c.id);
+    let found = this.state.postRes.comments.find(c => c.id == commentId);
+    let parent = this.state.postRes.comments.find(c => found.parent_id == c.id);
     let parent_user_id = parent
       ? parent.creator_id
-      : this.state.post.creator_id;
+      : this.state.postRes.post.creator_id;
 
     if (
       UserService.Instance.user &&
@@ -185,8 +191,8 @@ export class Post extends Component<any, PostState> {
   }
 
   get documentTitle(): string {
-    if (this.state.post) {
-      return `${this.state.post.name} - ${this.state.siteRes.site.name}`;
+    if (this.state.postRes) {
+      return `${this.state.postRes.post.name} - ${this.state.siteRes.site.name}`;
     } else {
       return 'Lemmy';
     }
@@ -219,20 +225,21 @@ export class Post extends Component<any, PostState> {
           <div class="row">
             <div class="col-12 col-md-8 mb-3">
               <PostListing
-                post={this.state.post}
+                communities={[this.state.postRes.community]}
+                post={this.state.postRes.post}
                 showBody
                 showCommunity
-                moderators={this.state.moderators}
+                moderators={this.state.postRes.moderators}
                 admins={this.state.siteRes.admins}
                 enableDownvotes={this.state.siteRes.site.enable_downvotes}
                 enableNsfw={this.state.siteRes.site.enable_nsfw}
               />
               <div className="mb-2" />
               <CommentForm
-                postId={this.state.post.id}
-                disabled={this.state.post.locked}
+                postId={this.state.postId}
+                disabled={this.state.postRes.post.locked}
               />
-              {this.state.comments.length > 0 && this.sortRadios()}
+              {this.state.postRes.comments.length > 0 && this.sortRadios()}
               {this.state.commentViewType == CommentViewType.Tree &&
                 this.commentsTree()}
               {this.state.commentViewType == CommentViewType.Chat &&
@@ -325,12 +332,12 @@ export class Post extends Component<any, PostState> {
     return (
       <div>
         <CommentNodes
-          nodes={commentsToFlatNodes(this.state.comments)}
+          nodes={commentsToFlatNodes(this.state.postRes.comments)}
           noIndent
-          locked={this.state.post.locked}
-          moderators={this.state.moderators}
+          locked={this.state.postRes.post.locked}
+          moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
-          postCreatorId={this.state.post.creator_id}
+          postCreatorId={this.state.postRes.post.creator_id}
           showContext
           enableDownvotes={this.state.siteRes.site.enable_downvotes}
           sort={this.state.commentSort}
@@ -343,12 +350,13 @@ export class Post extends Component<any, PostState> {
     return (
       <div class="mb-3">
         <Sidebar
-          community={this.state.community}
-          moderators={this.state.moderators}
+          community={this.state.postRes.community}
+          moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
-          online={this.state.online}
+          online={this.state.postRes.online}
           enableNsfw={this.state.siteRes.site.enable_nsfw}
           showIcon
+          categories={this.state.categories}
         />
       </div>
     );
@@ -368,7 +376,7 @@ export class Post extends Component<any, PostState> {
 
   buildCommentsTree(): CommentNodeI[] {
     let map = new Map<number, CommentNodeI>();
-    for (let comment of this.state.comments) {
+    for (let comment of this.state.postRes.comments) {
       let node: CommentNodeI = {
         comment: comment,
         children: [],
@@ -376,7 +384,7 @@ export class Post extends Component<any, PostState> {
       map.set(comment.id, { ...node });
     }
     let tree: CommentNodeI[] = [];
-    for (let comment of this.state.comments) {
+    for (let comment of this.state.postRes.comments) {
       let child = map.get(comment.id);
       if (comment.parent_id) {
         let parent_ = map.get(comment.parent_id);
@@ -404,10 +412,10 @@ export class Post extends Component<any, PostState> {
       <div>
         <CommentNodes
           nodes={nodes}
-          locked={this.state.post.locked}
-          moderators={this.state.moderators}
+          locked={this.state.postRes.post.locked}
+          moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
-          postCreatorId={this.state.post.creator_id}
+          postCreatorId={this.state.postRes.post.creator_id}
           sort={this.state.commentSort}
           enableDownvotes={this.state.siteRes.site.enable_downvotes}
         />
@@ -427,17 +435,13 @@ export class Post extends Component<any, PostState> {
       });
     } else if (res.op == UserOperation.GetPost) {
       let data = res.data as GetPostResponse;
-      this.state.post = data.post;
-      this.state.comments = data.comments;
-      this.state.community = data.community;
-      this.state.moderators = data.moderators;
-      this.state.online = data.online;
+      this.state.postRes = data;
       this.state.loading = false;
 
       // Get cross-posts
-      if (this.state.post.url) {
+      if (this.state.postRes.post.url) {
         let form: SearchForm = {
-          q: this.state.post.url,
+          q: this.state.postRes.post.url,
           type_: SearchType.Url,
           sort: SortType.TopAll,
           page: 1,
@@ -453,7 +457,7 @@ export class Post extends Component<any, PostState> {
 
       // Necessary since it might be a user reply
       if (data.recipient_ids.length == 0) {
-        this.state.comments.unshift(data.comment);
+        this.state.postRes.comments.unshift(data.comment);
         this.setState(this.state);
       }
     } else if (
@@ -462,20 +466,20 @@ export class Post extends Component<any, PostState> {
       res.op == UserOperation.RemoveComment
     ) {
       let data = res.data as CommentResponse;
-      editCommentRes(data, this.state.comments);
+      editCommentRes(data, this.state.postRes.comments);
       this.setState(this.state);
     } else if (res.op == UserOperation.SaveComment) {
       let data = res.data as CommentResponse;
-      saveCommentRes(data, this.state.comments);
+      saveCommentRes(data, this.state.postRes.comments);
       this.setState(this.state);
       setupTippy();
     } else if (res.op == UserOperation.CreateCommentLike) {
       let data = res.data as CommentResponse;
-      createCommentLikeRes(data, this.state.comments);
+      createCommentLikeRes(data, this.state.postRes.comments);
       this.setState(this.state);
     } else if (res.op == UserOperation.CreatePostLike) {
       let data = res.data as PostResponse;
-      createPostLikeRes(data, this.state.post);
+      createPostLikeRes(data, this.state.postRes.post);
       this.setState(this.state);
     } else if (
       res.op == UserOperation.EditPost ||
@@ -485,12 +489,12 @@ export class Post extends Component<any, PostState> {
       res.op == UserOperation.StickyPost
     ) {
       let data = res.data as PostResponse;
-      this.state.post = data.post;
+      this.state.postRes.post = data.post;
       this.setState(this.state);
       setupTippy();
     } else if (res.op == UserOperation.SavePost) {
       let data = res.data as PostResponse;
-      this.state.post = data.post;
+      this.state.postRes.post = data.post;
       this.setState(this.state);
       setupTippy();
     } else if (
@@ -499,36 +503,36 @@ export class Post extends Component<any, PostState> {
       res.op == UserOperation.RemoveCommunity
     ) {
       let data = res.data as CommunityResponse;
-      this.state.community = data.community;
-      this.state.post.community_id = data.community.id;
-      this.state.post.community_name = data.community.name;
+      this.state.postRes.community = data.community;
+      this.state.postRes.post.community_id = data.community.id;
+      this.state.postRes.post.community_name = data.community.name;
       this.setState(this.state);
     } else if (res.op == UserOperation.FollowCommunity) {
       let data = res.data as CommunityResponse;
-      this.state.community.subscribed = data.community.subscribed;
-      this.state.community.number_of_subscribers =
+      this.state.postRes.community.subscribed = data.community.subscribed;
+      this.state.postRes.community.number_of_subscribers =
         data.community.number_of_subscribers;
       this.setState(this.state);
     } else if (res.op == UserOperation.BanFromCommunity) {
       let data = res.data as BanFromCommunityResponse;
-      this.state.comments
+      this.state.postRes.comments
         .filter(c => c.creator_id == data.user.id)
         .forEach(c => (c.banned_from_community = data.banned));
-      if (this.state.post.creator_id == data.user.id) {
-        this.state.post.banned_from_community = data.banned;
+      if (this.state.postRes.post.creator_id == data.user.id) {
+        this.state.postRes.post.banned_from_community = data.banned;
       }
       this.setState(this.state);
     } else if (res.op == UserOperation.AddModToCommunity) {
       let data = res.data as AddModToCommunityResponse;
-      this.state.moderators = data.moderators;
+      this.state.postRes.moderators = data.moderators;
       this.setState(this.state);
     } else if (res.op == UserOperation.BanUser) {
       let data = res.data as BanUserResponse;
-      this.state.comments
+      this.state.postRes.comments
         .filter(c => c.creator_id == data.user.id)
         .forEach(c => (c.banned = data.banned));
-      if (this.state.post.creator_id == data.user.id) {
-        this.state.post.banned = data.banned;
+      if (this.state.postRes.post.creator_id == data.user.id) {
+        this.state.postRes.post.banned = data.banned;
       }
       this.setState(this.state);
     } else if (res.op == UserOperation.AddAdmin) {
@@ -541,20 +545,21 @@ export class Post extends Component<any, PostState> {
         p => p.id != Number(this.props.match.params.id)
       );
       if (this.state.crossPosts.length) {
-        this.state.post.duplicates = this.state.crossPosts;
+        this.state.postRes.post.duplicates = this.state.crossPosts;
       }
       this.setState(this.state);
-    } else if (
-      res.op == UserOperation.TransferSite ||
-      res.op == UserOperation.GetSite
-    ) {
+    } else if (res.op == UserOperation.TransferSite) {
       let data = res.data as GetSiteResponse;
       this.state.siteRes = data;
       this.setState(this.state);
     } else if (res.op == UserOperation.TransferCommunity) {
       let data = res.data as GetCommunityResponse;
-      this.state.community = data.community;
-      this.state.moderators = data.moderators;
+      this.state.postRes.community = data.community;
+      this.state.postRes.moderators = data.moderators;
+      this.setState(this.state);
+    } else if (res.op == UserOperation.ListCategories) {
+      let data = res.data as ListCategoriesResponse;
+      this.state.categories = data.categories;
       this.setState(this.state);
     }
   }

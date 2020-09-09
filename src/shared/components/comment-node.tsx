@@ -202,7 +202,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     }}
                   />
                   <span class="mx-2">•</span>
-                  <Link class="mr-2" to={`/post/${node.comment.post_id}`}>
+                  <Link className="mr-2" to={`/post/${node.comment.post_id}`}>
                     {node.comment.post_name}
                   </Link>
                 </>
@@ -343,7 +343,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {!this.myComment && (
                             <button class="btn btn-link btn-animate">
                               <Link
-                                class="text-muted"
+                                className="text-muted"
                                 to={`/create_private_message/recipient/${node.comment.creator_id}`}
                                 title={i18n.t('message').toLowerCase()}
                               >
@@ -757,7 +757,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     let node = this.props.node;
     return (
       <Link
-        class="btn btn-link btn-animate text-muted"
+        className="btn btn-link btn-animate text-muted"
         to={`/post/${node.comment.post_id}/comment/${node.comment.id}`}
         title={this.props.showContext ? i18n.t('show_context') : i18n.t('link')}
       >
