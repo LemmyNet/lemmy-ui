@@ -99,7 +99,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             </svg>
             <T i18nKey="must_login" class="d-inline">
               #
-              <Link class="alert-link" to="/login">
+              <Link className="alert-link" to="/login">
                 #
               </Link>
             </T>

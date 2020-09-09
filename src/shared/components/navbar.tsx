@@ -1,7 +1,6 @@
 import { Component, linkEvent, createRef, RefObject } from 'inferno';
 import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import { WebSocketService, UserService } from '../services';
 import {
   UserOperation,
@@ -30,6 +29,7 @@ import {
   notifyComment,
   notifyPrivateMessage,
   isBrowser,
+  wsSubscribe,
 } from '../utils';
 import { i18n } from '../i18next';
 
@@ -64,56 +64,56 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     searchParam: '',
     toggleSearch: false,
   };
+  subscription: any;
 
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
 
-    if (isBrowser()) {
-      this.wsSub = WebSocketService.Instance.subject
-        .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-        .subscribe(
-          msg => this.parseMessage(msg),
-          err => console.error(err),
-          () => console.log('complete')
-        );
-
-      this.searchTextField = createRef();
-    }
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
 
     // The login
     // TODO this needs some work
-    if (this.props.site.my_user) {
-      UserService.Instance.user = this.props.site.my_user;
-      // i18n.changeLanguage(getLanguage());
-
-      if (isBrowser()) {
-        WebSocketService.Instance.userJoin();
-        // On the first load, check the unreads
-        if (this.state.isLoggedIn == false) {
-          this.requestNotificationPermission();
-          this.fetchUnreads();
-          // setTheme(data.my_user.theme, true);
-          // i18n.changeLanguage(getLanguage());
-          // i18n.changeLanguage('de');
-        }
-      }
+    UserService.Instance.user = this.props.site.my_user;
+    i18n.changeLanguage(getLanguage());
+    setTheme();
+    if (UserService.Instance.user) {
     }
+
+    // if (!!this.props.site.my_user) {
+    //   UserService.Instance.this.props.site.my_user);
+    //   // UserService.Instance.user = this.props.site.my_user;
+    // } else {
+    //   UserService.Instance.setUser(undefined);
+    // }
   }
 
   componentDidMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
+      this.searchTextField = createRef();
+      console.log(`isLoggedIn = ${this.state.isLoggedIn}`);
+
+      // On the first load, check the unreads
+      if (this.state.isLoggedIn == false) {
+        // setTheme(data.my_user.theme, true);
+        // i18n.changeLanguage(getLanguage());
+        // i18n.changeLanguage('de');
+      } else {
+        this.requestNotificationPermission();
+        WebSocketService.Instance.userJoin();
+        this.fetchUnreads();
+      }
+
       this.userSub = UserService.Instance.jwtSub.subscribe(res => {
         // A login
         if (res !== undefined) {
           this.requestNotificationPermission();
+          WebSocketService.Instance.getSite();
         } else {
-          this.state.isLoggedIn = false;
+          this.setState({ isLoggedIn: false });
         }
-        console.log('a new login');
-        // WebSocketService.Instance.getSite();
-        this.setState(this.state);
       });
 
       // Subscribe to unread count changes
@@ -415,6 +415,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.state.unreadCount = this.calculateUnreadCount();
       this.setState(this.state);
       this.sendUnreadCount();
+    } else if (res.op == UserOperation.GetSite) {
+      // This is only called on a successful login
+      let data = res.data as GetSiteResponse;
+      UserService.Instance.user = data.my_user;
+      this.state.isLoggedIn = true;
+      this.setState(this.state);
     } else if (res.op == UserOperation.CreateComment) {
       let data = res.data as CommentResponse;
 

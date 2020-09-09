@@ -143,18 +143,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             this.props.post.embed_title && (
               <IFramelyCard post={this.props.post} />
             )}
-          {this.props.showBody && this.props.post.body && (
-            <>
-              {this.state.viewSource ? (
-                <pre>{this.props.post.body}</pre>
-              ) : (
-                <div
-                  className="md-div"
-                  dangerouslySetInnerHTML={mdToHtml(this.props.post.body)}
-                />
-              )}
-            </>
-          )}
+          {this.props.showBody &&
+            this.props.post.body &&
+            (this.state.viewSource ? (
+              <pre>{this.props.post.body}</pre>
+            ) : (
+              <div
+                className="md-div"
+                dangerouslySetInnerHTML={mdToHtml(this.props.post.body)}
+              />
+            ))}
         </div>
       </div>
     );

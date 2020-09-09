@@ -20,9 +20,8 @@ export class UserService {
   );
 
   private constructor() {
-    let jwt = IsomorphicCookie.load('jwt');
-    if (jwt) {
-      this.setClaims(jwt);
+    if (this.auth) {
+      this.setClaims(this.auth);
     } else {
       // setTheme();
       console.log('No JWT cookie found.');
@@ -30,17 +29,17 @@ export class UserService {
   }
 
   public login(res: LoginResponse) {
-    this.setClaims(res.jwt);
     let expires = new Date();
     expires.setDate(expires.getDate() + 365);
-    IsomorphicCookie.save('jwt', res.jwt, { expires });
+    IsomorphicCookie.save('jwt', res.jwt, { expires, secure: false });
     console.log('jwt cookie set');
+    this.setClaims(res.jwt);
   }
 
   public logout() {
+    IsomorphicCookie.remove('jwt', { secure: false });
     this.claims = undefined;
     this.user = undefined;
-    IsomorphicCookie.remove('jwt');
     // setTheme();
     this.jwtSub.next();
     console.log('Logged out.');

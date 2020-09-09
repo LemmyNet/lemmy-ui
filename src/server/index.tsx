@@ -84,6 +84,12 @@ server.get('/*', async (req, res) => {
            </head>
 
            <body>
+             <noscript>
+               <nav class="navbar fixed-bottom navbar-light bg-light">
+                Javascript is disabled. Actions will not work.
+               </nav>
+             </noscript>
+            
              <div id='root'>${renderToString(wrapper)}</div>
              <script src='/static/js/client.js'></script>
            </body>

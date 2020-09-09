@@ -358,15 +358,14 @@ export function debounce(
 
 // TODO
 export function getLanguage(override?: string): string {
-  return 'en';
-  // let user = UserService.Instance.user;
-  // let lang = override || (user && user.lang ? user.lang : 'browser');
+  let user = UserService.Instance.user;
+  let lang = override || (user && user.lang ? user.lang : 'browser');
 
-  // if (lang == 'browser') {
-  //   return getBrowserLanguage();
-  // } else {
-  //   return lang;
-  // }
+  if (lang == 'browser' && isBrowser()) {
+    return getBrowserLanguage();
+  } else {
+    return lang;
+  }
 }
 
 // TODO
@@ -440,6 +439,11 @@ export function getMomentLanguage(): string {
 
 // TODO
 export function setTheme(theme: string = 'darkly', loggedIn: boolean = false) {
+  // require('../assets/css/themes/_variables.darkly.scss');
+  // require('../../node_modules/bootstrap/scss/bootstrap.scss');
+  // require('../assets/css/themes/_variables.darkly.scss');
+  // require('../assets/css/themes/_variables.darkly.scss');
+  // require('../assets/css/themes/_variables.darkly.scss');
   // unload all the other themes
   // for (var i = 0; i < themes.length; i++) {
   //   let styleSheet = document.getElementById(themes[i]);
@@ -1138,11 +1142,10 @@ export function setAuth(obj: any, auth: string) {
 }
 
 export function setIsoData(context: any): IsoData {
-  if (isBrowser()) {
-    return window.isoData;
-  } else {
-    return context.router.staticContext;
-  }
+  let isoData: IsoData = isBrowser()
+    ? window.isoData
+    : context.router.staticContext;
+  return isoData;
 }
 
 export function wsSubscribe(parseMessage: any): Subscription {
