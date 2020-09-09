@@ -68,11 +68,7 @@ export class Sponsors extends Component<any, SponsorsState> {
   }
 
   get documentTitle(): string {
-    if (this.state.site) {
-      return `${i18n.t('sponsors')} - ${this.state.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `${i18n.t('sponsors')} - ${this.state.site.name}`;
   }
 
   render() {

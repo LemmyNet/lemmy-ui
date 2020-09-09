@@ -2,7 +2,6 @@ import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
   GetModlogForm,
@@ -17,11 +16,19 @@ import {
   ModAddCommunity,
   ModAdd,
   WebSocketJsonResponse,
-  GetSiteResponse,
   Site,
 } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
-import { wsJsonToRes, addTypeInfo, fetchLimit, toast } from '../utils';
+import {
+  wsJsonToRes,
+  addTypeInfo,
+  fetchLimit,
+  toast,
+  setIsoData,
+  wsSubscribe,
+  isBrowser,
+  lemmyHttp,
+} from '../utils';
 import { MomentTime } from './moment-time';
 import moment from 'moment';
 import { i18n } from '../i18next';
@@ -45,12 +52,13 @@ interface ModlogState {
 }
 
 export class Modlog extends Component<any, ModlogState> {
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: ModlogState = {
     combined: [],
     page: 1,
     loading: true,
-    site: undefined,
+    site: this.isoData.site.site,
   };
 
   constructor(props: any, context: any) {
@@ -60,20 +68,24 @@ export class Modlog extends Component<any, ModlogState> {
     this.state.communityId = this.props.match.params.community_id
       ? Number(this.props.match.params.community_id)
       : undefined;
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
 
-    this.refetch();
-    WebSocketService.Instance.getSite();
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
+
+    // Only fetch the data if coming from another route
+    if (this.isoData.path == this.context.router.route.match.url) {
+      let data = this.isoData.routeData[0];
+      this.setCombined(data);
+      this.state.loading = false;
+    } else {
+      this.refetch();
+    }
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
   setCombined(res: GetModlogResponse) {
@@ -119,8 +131,6 @@ export class Modlog extends Component<any, ModlogState> {
     this.state.combined.sort((a, b) =>
       b.data.when_.localeCompare(a.data.when_)
     );
-
-    this.setState(this.state);
   }
 
   combined() {
@@ -434,6 +444,24 @@ export class Modlog extends Component<any, ModlogState> {
     WebSocketService.Instance.getModlog(modlogForm);
   }
 
+  static fetchInitialData(_auth: string, path: string): Promise<any>[] {
+    let pathSplit = path.split('/');
+    let communityId = pathSplit[3];
+    let promises: Promise<any>[] = [];
+
+    let modlogForm: GetModlogForm = {
+      page: 1,
+      limit: fetchLimit,
+    };
+
+    if (communityId) {
+      modlogForm.community_id = Number(communityId);
+    }
+
+    promises.push(lemmyHttp.getModlog(modlogForm));
+    return promises;
+  }
+
   parseMessage(msg: WebSocketJsonResponse) {
     console.log(msg);
     let res = wsJsonToRes(msg);
@@ -445,9 +473,6 @@ export class Modlog extends Component<any, ModlogState> {
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setCombined(data);
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-      this.state.site = data.site;
       this.setState(this.state);
     }
   }

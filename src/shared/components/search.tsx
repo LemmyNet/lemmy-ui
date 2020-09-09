@@ -1,7 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
   Post,
@@ -15,7 +14,6 @@ import {
   PostResponse,
   CommentResponse,
   WebSocketJsonResponse,
-  GetSiteResponse,
   Site,
 } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
@@ -28,7 +26,10 @@ import {
   createCommentLikeRes,
   createPostLikeFindRes,
   commentsToFlatNodes,
-  getPageFromProps,
+  setIsoData,
+  wsSubscribe,
+  lemmyHttp,
+  setAuth,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { UserListing } from './user-listing';
@@ -36,6 +37,13 @@ import { CommunityLink } from './community-link';
 import { SortSelect } from './sort-select';
 import { CommentNodes } from './comment-nodes';
 import { i18n } from '../i18next';
+
+interface SearchProps {
+  q: string;
+  type_: SearchType;
+  sort: SortType;
+  page: number;
+}
 
 interface SearchState {
   q: string;
@@ -48,13 +56,6 @@ interface SearchState {
   searchText: string;
 }
 
-interface SearchProps {
-  q: string;
-  type_: SearchType;
-  sort: SortType;
-  page: number;
-}
-
 interface UrlParams {
   q?: string;
   type_?: SearchType;
@@ -63,13 +64,14 @@ interface UrlParams {
 }
 
 export class Search extends Component<any, SearchState> {
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: SearchState = {
-    q: Search.getSearchQueryFromProps(this.props),
-    type_: Search.getSearchTypeFromProps(this.props),
-    sort: Search.getSortTypeFromProps(this.props),
-    page: getPageFromProps(this.props),
-    searchText: Search.getSearchQueryFromProps(this.props),
+    q: Search.getSearchQueryFromProps(this.props.match.params.q),
+    type_: Search.getSearchTypeFromProps(this.props.match.params.type),
+    sort: Search.getSortTypeFromProps(this.props.match.params.sort),
+    page: Search.getPageFromProps(this.props.match.params.page),
+    searchText: Search.getSearchQueryFromProps(this.props.match.params.q),
     searchResponse: {
       type_: null,
       posts: [],
@@ -78,36 +80,23 @@ export class Search extends Component<any, SearchState> {
       users: [],
     },
     loading: false,
-    site: {
-      id: undefined,
-      name: undefined,
-      creator_id: undefined,
-      published: undefined,
-      creator_name: undefined,
-      number_of_users: undefined,
-      number_of_posts: undefined,
-      number_of_comments: undefined,
-      number_of_communities: undefined,
-      enable_downvotes: undefined,
-      open_registration: undefined,
-      enable_nsfw: undefined,
-    },
+    site: this.isoData.site.site,
   };
 
-  static getSearchQueryFromProps(props: any): string {
-    return props.match.params.q ? props.match.params.q : '';
+  static getSearchQueryFromProps(q: string): string {
+    return q || '';
   }
 
-  static getSearchTypeFromProps(props: any): SearchType {
-    return props.match.params.type
-      ? routeSearchTypeToEnum(props.match.params.type)
-      : SearchType.All;
+  static getSearchTypeFromProps(type_: string): SearchType {
+    return type_ ? routeSearchTypeToEnum(type_) : SearchType.All;
   }
 
-  static getSortTypeFromProps(props: any): SortType {
-    return props.match.params.sort
-      ? routeSortTypeToEnum(props.match.params.sort)
-      : SortType.TopAll;
+  static getSortTypeFromProps(sort: string): SortType {
+    return sort ? routeSortTypeToEnum(sort) : SortType.TopAll;
+  }
+
+  static getPageFromProps(page: string): number {
+    return page ? Number(page) : 1;
   }
 
   constructor(props: any, context: any) {
@@ -116,18 +105,17 @@ export class Search extends Component<any, SearchState> {
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
 
-    WebSocketService.Instance.getSite();
-
-    if (this.state.q) {
-      this.search();
+    // Only fetch the data if coming from another route
+    if (this.state.q != '') {
+      if (this.isoData.path == this.context.router.route.match.url) {
+        this.state.searchResponse = this.isoData.routeData[0];
+        this.state.loading = false;
+      } else {
+        this.search();
+      }
     }
   }
 
@@ -137,11 +125,31 @@ export class Search extends Component<any, SearchState> {
 
   static getDerivedStateFromProps(props: any): SearchProps {
     return {
-      q: Search.getSearchQueryFromProps(props),
-      type_: Search.getSearchTypeFromProps(props),
-      sort: Search.getSortTypeFromProps(props),
-      page: getPageFromProps(props),
+      q: Search.getSearchQueryFromProps(props.match.params.q),
+      type_: Search.getSearchTypeFromProps(props.match.params.type),
+      sort: Search.getSortTypeFromProps(props.match.params.sort),
+      page: Search.getPageFromProps(props.match.params.page),
     };
+  }
+
+  static fetchInitialData(auth: string, path: string): Promise<any>[] {
+    let pathSplit = path.split('/');
+    let promises: Promise<any>[] = [];
+
+    let form: SearchForm = {
+      q: this.getSearchQueryFromProps(pathSplit[3]),
+      type_: this.getSearchTypeFromProps(pathSplit[5]),
+      sort: this.getSortTypeFromProps(pathSplit[7]),
+      page: this.getPageFromProps(pathSplit[9]),
+      limit: fetchLimit,
+    };
+    setAuth(form, auth);
+
+    if (form.q != '') {
+      promises.push(lemmyHttp.search(form));
+    }
+
+    return promises;
   }
 
   componentDidUpdate(_: any, lastState: SearchState) {
@@ -289,6 +297,7 @@ export class Search extends Component<any, SearchState> {
             <div class="col-12">
               {i.type_ == 'posts' && (
                 <PostListing
+                  communities={[]}
                   key={(i.data as Post).id}
                   post={i.data as Post}
                   showCommunity
@@ -351,6 +360,7 @@ export class Search extends Component<any, SearchState> {
           <div class="row">
             <div class="col-12">
               <PostListing
+                communities={[]}
                 post={post}
                 showCommunity
                 enableDownvotes={this.state.site.enable_downvotes}
@@ -526,10 +536,6 @@ export class Search extends Component<any, SearchState> {
     } else if (res.op == UserOperation.CreatePostLike) {
       let data = res.data as PostResponse;
       createPostLikeFindRes(data, this.state.searchResponse.posts);
-      this.setState(this.state);
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-      this.state.site = data.site;
       this.setState(this.state);
     }
   }

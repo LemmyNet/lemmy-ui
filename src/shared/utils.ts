@@ -301,7 +301,7 @@ export function routeDataTypeToEnum(type: string): DataType {
 }
 
 export function routeSearchTypeToEnum(type: string): SearchType {
-  return SearchType[capitalizeFirstLetter(type)];
+  return SearchType[type];
 }
 
 export async function getPageTitle(url: string) {

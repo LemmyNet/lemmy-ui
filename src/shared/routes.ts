@@ -109,15 +109,30 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/modlog/community/:community_id`,
     component: Modlog,
+    fetchInitialData: (auth, path) => Modlog.fetchInitialData(auth, path),
   },
-  { path: `/modlog`, component: Modlog },
+  {
+    path: `/modlog`,
+    component: Modlog,
+    fetchInitialData: (auth, path) => Modlog.fetchInitialData(auth, path),
+  },
   { path: `/setup`, component: Setup },
-  { path: `/admin`, component: AdminSettings },
+  {
+    path: `/admin`,
+    component: AdminSettings,
+    fetchInitialData: (auth, path) =>
+      AdminSettings.fetchInitialData(auth, path),
+  },
   {
     path: `/search/q/:q/type/:type/sort/:sort/page/:page`,
     component: Search,
+    fetchInitialData: (auth, path) => Search.fetchInitialData(auth, path),
   },
-  { path: `/search`, component: Search },
+  {
+    path: `/search`,
+    component: Search,
+    fetchInitialData: (auth, path) => Search.fetchInitialData(auth, path),
+  },
   { path: `/sponsors`, component: Sponsors },
   {
     path: `/password_change/:token`,

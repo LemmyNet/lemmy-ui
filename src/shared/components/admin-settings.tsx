@@ -1,7 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
 import {
   UserOperation,
   SiteResponse,
@@ -9,9 +8,20 @@ import {
   SiteConfigForm,
   GetSiteConfigResponse,
   WebSocketJsonResponse,
+  GetSiteConfig,
 } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
-import { wsJsonToRes, capitalizeFirstLetter, toast, randomStr } from '../utils';
+import {
+  wsJsonToRes,
+  capitalizeFirstLetter,
+  toast,
+  randomStr,
+  setIsoData,
+  wsSubscribe,
+  isBrowser,
+  lemmyHttp,
+  setAuth,
+} from '../utils';
 import autosize from 'autosize';
 import { SiteForm } from './site-form';
 import { UserListing } from './user-listing';
@@ -27,29 +37,10 @@ interface AdminSettingsState {
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
   private siteConfigTextAreaId = `site-config-${randomStr()}`;
+  private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: AdminSettingsState = {
-    siteRes: {
-      site: {
-        id: null,
-        name: null,
-        creator_id: null,
-        creator_name: null,
-        published: null,
-        number_of_users: null,
-        number_of_posts: null,
-        number_of_comments: null,
-        number_of_communities: null,
-        enable_downvotes: null,
-        open_registration: null,
-        enable_nsfw: null,
-      },
-      admins: [],
-      banned: [],
-      online: null,
-      version: null,
-      federated_instances: null,
-    },
+    siteRes: this.isoData.site,
     siteConfigForm: {
       config_hjson: null,
       auth: null,
@@ -66,28 +57,41 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     this.state = this.emptyState;
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log('complete')
-      );
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
 
-    WebSocketService.Instance.getSite();
-    WebSocketService.Instance.getSiteConfig();
+    // Only fetch the data if coming from another route
+    if (this.isoData.path == this.context.router.route.match.url) {
+      this.state.siteConfigRes = this.isoData.routeData[0];
+      this.state.siteConfigForm.config_hjson = this.state.siteConfigRes.config_hjson;
+      this.state.siteConfigLoading = false;
+      this.state.loading = false;
+    } else {
+      WebSocketService.Instance.getSiteConfig();
+    }
+  }
+
+  static fetchInitialData(auth: string, _path: string): Promise<any>[] {
+    let form: GetSiteConfig = {};
+    setAuth(form, auth);
+    return [lemmyHttp.getSiteConfig(form)];
+  }
+
+  componentDidMount() {
+    if (isBrowser()) {
+      var textarea: any = document.getElementById(this.siteConfigTextAreaId);
+      autosize(textarea);
+    }
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    if (isBrowser()) {
+      this.subscription.unsubscribe();
+    }
   }
 
   get documentTitle(): string {
-    if (this.state.siteRes.site.name) {
-      return `${i18n.t('admin_settings')} - ${this.state.siteRes.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `${i18n.t('admin_settings')} - ${this.state.siteRes.site.name}`;
   }
 
   render() {
@@ -226,15 +230,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.setState(this.state);
       return;
     } else if (msg.reconnect) {
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-
-      // This means it hasn't been set up yet
-      if (!data.site) {
-        this.context.router.history.push('/setup');
-      }
-      this.state.siteRes = data;
-      this.setState(this.state);
     } else if (res.op == UserOperation.EditSite) {
       let data = res.data as SiteResponse;
       this.state.siteRes.site = data.site;
