@@ -1,23 +1,10 @@
-
-// import '../../assets/css/themes/darkly.min.css';
-@import '../../assets/css/tribute.css';
-@import '../../assets/css/toastify.css';
-@import '../../assets/css/choices.min.css';
-@import '../../assets/css/tippy.css';
+// Custom css
+@import '../../../node_modules/tributejs/dist/tribute.css';
+@import '../../../node_modules/toastify-js/src/toastify.css';
+@import '../../../node_modules/choices.js/src/styles/choices.scss';
+@import '../../../node_modules/tippy.js/dist/tippy.css';
 @import '../../assets/css/main.css';
 
 // Bootstrap theme
 @import "../../assets/css/themes/_variables.darkly.scss";
 @import "../../../node_modules/bootstrap/scss/bootstrap";
-
-// // Required
-// @import "../../../node_modules/bootstrap/scss/functions";
-// @import "../../../node_modules/bootstrap/scss/variables";
-// @import "../../../node_modules/bootstrap/scss/mixins";
-
-// // Optional
-// @import "../../../node_modules/bootstrap/scss/reboot";
-// @import "../../../node_modules/bootstrap/scss/type";
-// @import "../../../node_modules/bootstrap/scss/images";
-// @import "../../../node_modules/bootstrap/scss/code";
-// @import "../../../node_modules/bootstrap/scss/grid";

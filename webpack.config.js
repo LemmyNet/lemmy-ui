@@ -22,20 +22,7 @@ module.exports = function (env, _) {
       rules: [
         {
           test: /\.(scss|css)$/i,
-          use: [
-            MiniCssExtractPlugin.loader,
-            'css-loader',
-            {
-              loader: 'postcss-loader', // Run post css actions
-              options: {
-                plugins: function () {
-                  // post css plugins, can be exported to postcss.config.js
-                  return [require('precss'), require('autoprefixer')];
-                },
-              },
-            },
-            'sass-loader',
-          ],
+          use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
         },
         {
           test: /\.(js|jsx|tsx|ts)$/, // All ts and tsx files will be process by
