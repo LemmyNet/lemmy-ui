@@ -46,7 +46,7 @@ const MAX_POST_TITLE_LENGTH = 200;
 
 interface PostFormProps {
   post?: Post; // If a post is given, that means this is an edit
-  communities: Community[];
+  communities?: Community[];
   params?: PostFormParams;
   onCancel?(): any;
   onCreate?(id: number): any;

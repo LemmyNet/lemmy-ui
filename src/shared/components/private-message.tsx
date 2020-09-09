@@ -9,7 +9,7 @@ import { WebSocketService, UserService } from '../services';
 import { mdToHtml, toast } from '../utils';
 import { MomentTime } from './moment-time';
 import { PrivateMessageForm } from './private-message-form';
-import { UserListing, UserOther } from './user-listing';
+import { UserListing } from './user-listing';
 import { i18n } from '../i18next';
 
 interface PrivateMessageState {
@@ -17,7 +17,6 @@ interface PrivateMessageState {
   showEdit: boolean;
   collapsed: boolean;
   viewSource: boolean;
-  recipient: UserView;
 }
 
 interface PrivateMessageProps {
@@ -33,21 +32,6 @@ export class PrivateMessage extends Component<
     showEdit: false,
     collapsed: false,
     viewSource: false,
-    recipient: {
-      id: this.props.privateMessage.recipient_id,
-      actor_id: this.props.privateMessage.recipient_actor_id,
-      name: this.props.privateMessage.recipient_name,
-      local: this.props.privateMessage.recipient_local,
-      avatar: this.props.privateMessage.recipient_avatar,
-      preferred_username: this.props.privateMessage
-        .recipient_preferred_username,
-      published: undefined,
-      number_of_posts: 0,
-      post_score: 0,
-      number_of_comments: 0,
-      comment_score: 0,
-      banned: false,
-    },
   };
 
   constructor(props: any, context: any) {
@@ -70,7 +54,7 @@ export class PrivateMessage extends Component<
 
   render() {
     let message = this.props.privateMessage;
-    let userOther: UserOther = this.mine
+    let userOther: UserView = this.mine
       ? {
           name: message.recipient_name,
           preferred_username: message.recipient_preferred_username,
@@ -79,6 +63,11 @@ export class PrivateMessage extends Component<
           local: message.recipient_local,
           actor_id: message.recipient_actor_id,
           published: message.published,
+          number_of_posts: 0,
+          post_score: 0,
+          number_of_comments: 0,
+          comment_score: 0,
+          banned: false,
         }
       : {
           name: message.creator_name,
@@ -88,6 +77,11 @@ export class PrivateMessage extends Component<
           local: message.creator_local,
           actor_id: message.creator_actor_id,
           published: message.published,
+          number_of_posts: 0,
+          post_score: 0,
+          number_of_comments: 0,
+          comment_score: 0,
+          banned: false,
         };
 
     return (
@@ -125,7 +119,7 @@ export class PrivateMessage extends Component<
           </ul>
           {this.state.showEdit && (
             <PrivateMessageForm
-              recipient={this.state.recipient}
+              recipient={userOther}
               privateMessage={message}
               onEdit={this.handlePrivateMessageEdit}
               onCreate={this.handlePrivateMessageCreate}
@@ -232,7 +226,7 @@ export class PrivateMessage extends Component<
         </div>
         {this.state.showReply && (
           <PrivateMessageForm
-            recipient={this.state.recipient}
+            recipient={userOther}
             onCreate={this.handlePrivateMessageCreate}
           />
         )}

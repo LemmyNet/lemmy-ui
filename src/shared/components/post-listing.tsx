@@ -17,7 +17,6 @@ import {
   AddAdminForm,
   TransferSiteForm,
   TransferCommunityForm,
-  Community,
 } from 'lemmy-js-client';
 import { BanType } from '../interfaces';
 import { MomentTime } from './moment-time';
@@ -62,7 +61,6 @@ interface PostListingState {
 
 interface PostListingProps {
   post: Post;
-  communities: Community[]; // TODO this should be an optional
   showCommunity?: boolean;
   showBody?: boolean;
   moderators?: CommunityUser[];
@@ -129,7 +127,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               onCancel={this.handleEditCancel}
               enableNsfw={this.props.enableNsfw}
               enableDownvotes={this.props.enableDownvotes}
-              communities={this.props.communities}
             />
           </div>
         )}

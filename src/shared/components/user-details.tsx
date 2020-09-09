@@ -87,7 +87,6 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
             <div>
               {i.type === 'posts' ? (
                 <PostListing
-                  communities={[]}
                   key={(i.data as Post).id}
                   post={i.data as Post}
                   admins={this.props.userRes.admins}
@@ -136,7 +135,6 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
         {this.props.userRes.posts.map(post => (
           <>
             <PostListing
-              communities={[]}
               post={post}
               admins={this.props.userRes.admins}
               showCommunity

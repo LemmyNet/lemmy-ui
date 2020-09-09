@@ -297,7 +297,6 @@ export class Search extends Component<any, SearchState> {
             <div class="col-12">
               {i.type_ == 'posts' && (
                 <PostListing
-                  communities={[]}
                   key={(i.data as Post).id}
                   post={i.data as Post}
                   showCommunity
@@ -360,7 +359,6 @@ export class Search extends Component<any, SearchState> {
           <div class="row">
             <div class="col-12">
               <PostListing
-                communities={[]}
                 post={post}
                 showCommunity
                 enableDownvotes={this.state.site.enable_downvotes}

@@ -225,7 +225,6 @@ export class Post extends Component<any, PostState> {
           <div class="row">
             <div class="col-12 col-md-8 mb-3">
               <PostListing
-                communities={[this.state.postRes.community]}
                 post={this.state.postRes.post}
                 showBody
                 showCommunity
