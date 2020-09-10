@@ -1,6 +1,6 @@
 fs = require('fs');
 
-let translationDir = 'translations/';
+let translationDir = 'lemmy-translations/translations/';
 let outDir = 'src/shared/translations/';
 fs.mkdirSync(outDir, { recursive: true });
 fs.readdir(translationDir, (err, files) => {
