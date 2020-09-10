@@ -15,7 +15,7 @@ COPY generate_translations.js \
   webpack.config.js \
   .babelrc \
   .
-COPY translations translations
+COPY lemmy-translations lemmy-translations
 COPY src src
 
 RUN yarn
