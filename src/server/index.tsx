@@ -75,9 +75,12 @@ server.get('/*', async (req, res) => {
            <meta charset="utf-8">
            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+           <!-- Web app manifest -->
+           <link rel="manifest" href="/assets/manifest.webmanifest">
+
            <!-- Icons -->
            <link rel="shortcut icon" type="image/svg+xml" href="/assets/favicon.svg" />
-           <!-- <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" /> -->
+           <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
 
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />

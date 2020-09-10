@@ -39,6 +39,7 @@
     "markdown-it-sup": "^1.0.0",
     "moment": "^2.24.0",
     "reconnecting-websocket": "^4.4.0",
+    "register-service-worker": "^1.7.1",
     "rxjs": "^6.6.3",
     "serialize-javascript": "^5.0.0",
     "tippy.js": "^6.1.1",

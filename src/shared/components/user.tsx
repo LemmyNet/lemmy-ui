@@ -556,6 +556,10 @@ export class User extends Component<any, UserState> {
                       this.state.userSettingsForm.default_listing_type
                     ]
                   }
+                  showLocal={
+                    this.state.siteRes.federated_instances &&
+                    this.state.siteRes.federated_instances.length > 0
+                  }
                   onChange={this.handleUserSettingsListingTypeChange}
                 />
               </form>

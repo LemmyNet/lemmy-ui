@@ -444,6 +444,9 @@ export function setTheme(theme: string = 'darkly', loggedIn: boolean = false) {
   // require('../assets/css/themes/_variables.darkly.scss');
   // require('../assets/css/themes/_variables.darkly.scss');
   // require('../assets/css/themes/_variables.darkly.scss');
+  // require('../../node_modules/bootswatch/dist/darkly/bootstrap.min.css');
+  // require('../../node_modules/bootswatch/dist/yeti/_variables.scss');
+  // require('../../node_modules/bootstrap/scss/bootstrap.scss');
   // unload all the other themes
   // for (var i = 0; i < themes.length; i++) {
   //   let styleSheet = document.getElementById(themes[i]);
