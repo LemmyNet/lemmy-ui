@@ -4,15 +4,19 @@
   "author": "Dessalines <tyhou13@gmx.com>",
   "license": "AGPL-3.0",
   "scripts": {
-    "build": "yarn run build:server && yarn run build:client",
-    "build:client": "webpack --env.platform=client",
-    "build:server": "webpack --env.platform=server",
+    "build:client:dev": "webpack --env.platform=client --mode=development",
+    "build:client:prod": "webpack --env.platform=client --mode=production",
+    "build:dev": "yarn run build:server:dev && yarn run build:client:dev",
+    "build:prod": "yarn run build:server:prod && yarn run build:client:prod",
+    "build:server:dev": "webpack --env.platform=server --mode=development",
+    "build:server:prod": "webpack --env.platform=server --mode=production",
     "clean": "yarn run rimraf dist",
     "dev": "nodemon --watch ./src/shared/components -e ts,tsx,css,scss --exec yarn run start",
     "lint": "tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx src",
-    "prebuild": "yarn clean && node generate_translations.js",
+    "prebuild:dev": "yarn clean && node generate_translations.js",
+    "prebuild:prod": "yarn clean && node generate_translations.js",
     "serve": "node dist/js/server.js",
-    "start": "yarn run build && yarn run serve"
+    "start": "yarn run build:dev && yarn run serve"
   },
   "repository": "https://github.com/LemmyNet/lemmy-isomorphic-ui",
   "dependencies": {
@@ -63,6 +67,7 @@
     "bootstrap": "^4.5.2",
     "bootswatch": "^4.5.2",
     "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.1.0",
     "css-loader": "^4.3.0",
     "eslint": "^7.8.1",
     "eslint-plugin-jane": "^9.0.0",

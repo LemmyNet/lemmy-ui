@@ -19,7 +19,7 @@ COPY translations translations
 COPY src src
 
 RUN yarn
-RUN yarn build
+RUN yarn build:prod
 
 # Pruning
 # RUN npm prune --production
@@ -30,4 +30,5 @@ COPY --from=builder /usr/src/app/dist /app/dist
 COPY --from=builder /usr/src/app/node_modules /app/node_modules
 
 EXPOSE 1234
-CMD node /app/dist/js/server.js
+WORKDIR /app
+CMD node dist/js/server.js
