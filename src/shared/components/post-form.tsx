@@ -41,6 +41,7 @@ if (isBrowser()) {
 }
 
 import { i18n } from '../i18next';
+import { pictrsUri } from '../env';
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -482,14 +483,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       file = event;
     }
 
-    const imageUploadUrl = `/pictrs/image`;
     const formData = new FormData();
     formData.append('images[]', file);
 
     i.state.imageLoading = true;
     i.setState(i.state);
 
-    fetch(imageUploadUrl, {
+    fetch(pictrsUri, {
       method: 'POST',
       body: formData,
     })
@@ -499,9 +499,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         console.log(res);
         if (res.msg == 'ok') {
           let hash = res.files[0].file;
-          let url = `${window.location.origin}/pictrs/image/${hash}`;
+          let url = `${pictrsUri}/${hash}`;
           let deleteToken = res.files[0].delete_token;
-          let deleteUrl = `${window.location.origin}/pictrs/image/delete/${deleteToken}/${hash}`;
+          let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
           i.state.postForm.url = url;
           i.state.imageLoading = false;
           i.setState(i.state);

@@ -1,4 +1,5 @@
 import { Component, linkEvent } from 'inferno';
+import { pictrsUri } from '../env';
 import { UserService } from '../services';
 import { toast, randomStr } from '../utils';
 
@@ -71,14 +72,13 @@ export class ImageUploadForm extends Component<
   handleImageUpload(i: ImageUploadForm, event: any) {
     event.preventDefault();
     let file = event.target.files[0];
-    const imageUploadUrl = `/pictrs/image`;
     const formData = new FormData();
     formData.append('images[]', file);
 
     i.state.loading = true;
     i.setState(i.state);
 
-    fetch(imageUploadUrl, {
+    fetch(pictrsUri, {
       method: 'POST',
       body: formData,
     })
@@ -88,7 +88,7 @@ export class ImageUploadForm extends Component<
         console.log(res);
         if (res.msg == 'ok') {
           let hash = res.files[0].file;
-          let url = `${window.location.origin}/pictrs/image/${hash}`;
+          let url = `${pictrsUri}/${hash}`;
           i.state.loading = false;
           i.setState(i.state);
           i.props.onUpload(url);

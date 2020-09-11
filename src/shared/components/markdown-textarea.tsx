@@ -13,6 +13,7 @@ import {
 import { UserService } from '../services';
 import autosize from 'autosize';
 import { i18n } from '../i18next';
+import { pictrsUri } from '../env';
 
 interface MarkdownTextAreaProps {
   initialContent: string;
@@ -334,14 +335,13 @@ export class MarkdownTextArea extends Component<
       file = event;
     }
 
-    const imageUploadUrl = `/pictrs/image`;
     const formData = new FormData();
     formData.append('images[]', file);
 
     i.state.imageLoading = true;
     i.setState(i.state);
 
-    fetch(imageUploadUrl, {
+    fetch(pictrsUri, {
       method: 'POST',
       body: formData,
     })
@@ -351,9 +351,9 @@ export class MarkdownTextArea extends Component<
         console.log(res);
         if (res.msg == 'ok') {
           let hash = res.files[0].file;
-          let url = `${window.location.origin}/pictrs/image/${hash}`;
+          let url = `${pictrsUri}/${hash}`;
           let deleteToken = res.files[0].delete_token;
-          let deleteUrl = `${window.location.origin}/pictrs/image/delete/${deleteToken}/${hash}`;
+          let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
           let imageMarkdown = `![](${url})`;
           let content = i.state.content;
           content = content ? `${content}\n${imageMarkdown}` : imageMarkdown;

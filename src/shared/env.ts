@@ -12,3 +12,4 @@ const endpoint = `${host}:${port}`;
 
 export const wsUri = `ws${secure}://${endpoint}/api/v1/ws`;
 export const httpUri = `http${secure}://${endpoint}/api/v1`;
+export const pictrsUri = `http${secure}://${endpoint}/pictrs/image`;
