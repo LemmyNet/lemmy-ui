@@ -49,7 +49,7 @@ module.exports = function (env, _) {
   // server-specific configuration
   if (env.platform === 'server') {
     base.target = 'node';
-    base.externals = [nodeExternals()];
+    base.externals = [nodeExternals(), 'inferno-helmet'];
   }
   // client-specific configurations
   if (env.platform === 'client') {

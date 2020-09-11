@@ -12,6 +12,7 @@ import IsomorphicCookie from 'isomorphic-cookie';
 import { lemmyHttp, setAuth } from '../shared/utils';
 import { GetSiteForm, GetSiteResponse } from 'lemmy-js-client';
 import process from 'process';
+import { Helmet } from 'inferno-helmet';
 
 const server = express();
 const port = 1234;
@@ -65,11 +66,18 @@ server.get('/*', async (req, res) => {
     return res.redirect(context.url);
   }
 
+  const root = renderToString(wrapper);
+  const helmet = Helmet.renderStatic();
+
   res.send(`
            <!DOCTYPE html>
-           <html lang="en">
+           <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
            <script>window.isoData = ${serialize(isoData)}</script>      
+
+           ${helmet.title.toString()}
+           ${helmet.meta.toString()}
+           ${helmet.link.toString()}
 
            <!-- Required meta tags -->
            <meta name="Description" content="Lemmy">
@@ -89,14 +97,14 @@ server.get('/*', async (req, res) => {
            <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/darkly.min.css" id="default-dark" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)" />
            </head>
 
-           <body>
+           <body ${helmet.bodyAttributes.toString()}>
              <noscript>
                <nav class="navbar fixed-bottom navbar-light bg-light">
                 Javascript is disabled. Actions will not work.
                </nav>
              </noscript>
             
-             <div id='root'>${renderToString(wrapper)}</div>
+             <div id='root'>${root}</div>
              <script src='/static/js/client.js'></script>
            </body>
          </html>
