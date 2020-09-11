@@ -80,11 +80,13 @@ server.get('/*', async (req, res) => {
            <link rel="manifest" href="/static/assets/manifest.webmanifest">
 
            <!-- Icons -->
-           <link rel="shortcut icon" type="image/svg+xml" href="/static/assets/favicon.svg" />
-           <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png" />
+           <link rel="shortcut icon" type="image/svg+xml" href="/static/assets/icons/favicon.svg" />
+           <link rel="apple-touch-icon" href="/static/assets/icons/apple-touch-icon.png" />
 
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
+           <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/litely.min.css" id="default-light" media="(prefers-color-scheme: light)" />
+           <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/darkly.min.css" id="default-dark" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)" />
            </head>
 
            <body>

@@ -437,53 +437,43 @@ export function getMomentLanguage(): string {
   return lang;
 }
 
-// TODO
-export function setTheme(theme: string = 'darkly', loggedIn: boolean = false) {
-  // require('../assets/css/themes/_variables.darkly.scss');
-  // require('../../node_modules/bootstrap/scss/bootstrap.scss');
-  // require('../assets/css/themes/_variables.darkly.scss');
-  // require('../assets/css/themes/_variables.darkly.scss');
-  // require('../assets/css/themes/_variables.darkly.scss');
-  // require('../../node_modules/bootswatch/dist/darkly/bootstrap.min.css');
-  // require('../../node_modules/bootswatch/dist/yeti/_variables.scss');
-  // require('../../node_modules/bootstrap/scss/bootstrap.scss');
-  // unload all the other themes
-  // for (var i = 0; i < themes.length; i++) {
-  //   let styleSheet = document.getElementById(themes[i]);
-  //   if (styleSheet) {
-  //     styleSheet.setAttribute('disabled', 'disabled');
-  //   }
-  // }
-  // // if the user is not logged in, we load the default themes and let the browser decide
-  // if (!loggedIn) {
-  //   document.getElementById('default-light').removeAttribute('disabled');
-  //   document.getElementById('default-dark').removeAttribute('disabled');
-  // } else {
-  //   document
-  //     .getElementById('default-light')
-  //     .setAttribute('disabled', 'disabled');
-  //   document
-  //     .getElementById('default-dark')
-  //     .setAttribute('disabled', 'disabled');
-  //   // Load the theme dynamically
-  //   let cssLoc = `/static/assets/css/themes/${theme}.min.css`;
-  //   loadCss(theme, cssLoc);
-  //   document.getElementById(theme).removeAttribute('disabled');
-  // }
+export function setTheme(theme: string, forceReload: boolean = false) {
+  if (isBrowser() && (theme !== 'darkly' || forceReload)) {
+    console.log(`setting theme ${theme}`);
+
+    // Unload all the other themes
+    for (var i = 0; i < themes.length; i++) {
+      let styleSheet = document.getElementById(themes[i]);
+      if (styleSheet) {
+        styleSheet.setAttribute('disabled', 'disabled');
+      }
+    }
+
+    document
+      .getElementById('default-light')
+      .setAttribute('disabled', 'disabled');
+    document
+      .getElementById('default-dark')
+      .setAttribute('disabled', 'disabled');
+    // Load the theme dynamically
+    let cssLoc = `/static/assets/css/themes/${theme}.min.css`;
+    loadCss(theme, cssLoc);
+    document.getElementById(theme).removeAttribute('disabled');
+  }
 }
 
-// export function loadCss(id: string, loc: string) {
-//   if (!document.getElementById(id)) {
-//     var head = document.getElementsByTagName('head')[0];
-//     var link = document.createElement('link');
-//     link.id = id;
-//     link.rel = 'stylesheet';
-//     link.type = 'text/css';
-//     link.href = loc;
-//     link.media = 'all';
-//     head.appendChild(link);
-//   }
-// }
+export function loadCss(id: string, loc: string) {
+  if (!document.getElementById(id)) {
+    var head = document.getElementsByTagName('head')[0];
+    var link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = loc;
+    link.media = 'all';
+    head.appendChild(link);
+  }
+}
 
 export function objectFlip(obj: any) {
   const ret = {};

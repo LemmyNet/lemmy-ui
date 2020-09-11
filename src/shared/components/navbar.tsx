@@ -77,8 +77,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     // TODO this needs some work
     UserService.Instance.user = this.props.site.my_user;
     i18n.changeLanguage(getLanguage());
-    setTheme();
     if (UserService.Instance.user) {
+      setTheme(UserService.Instance.user.theme);
     }
 
     // if (!!this.props.site.my_user) {
