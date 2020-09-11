@@ -271,7 +271,6 @@ export function isVideo(url: string) {
 
 // TODO this broke
 export function validURL(str: string) {
-  console.log(str);
   // try {
   return !!new URL(str);
   // } catch {
@@ -439,8 +438,6 @@ export function getMomentLanguage(): string {
 
 export function setTheme(theme: string, forceReload: boolean = false) {
   if (isBrowser() && (theme !== 'darkly' || forceReload)) {
-    console.log(`setting theme ${theme}`);
-
     // Unload all the other themes
     for (var i = 0; i < themes.length; i++) {
       let styleSheet = document.getElementById(themes[i]);
@@ -1078,11 +1075,7 @@ export function previewLines(
 
 export function hostname(url: string): string {
   let cUrl = new URL(url);
-  // TODO
-  return `${cUrl.hostname}:${cUrl.port}`;
-  // return window.location.port
-  //   ? `${cUrl.hostname}:${cUrl.port}`
-  //   : `${cUrl.hostname}`;
+  return cUrl.port ? `${cUrl.hostname}:${cUrl.port}` : `${cUrl.hostname}`;
 }
 
 function canUseWebP() {

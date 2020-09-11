@@ -1,8 +1,8 @@
 import { Component } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { GetSiteResponse } from 'lemmy-js-client';
 import { setIsoData } from '../utils';
 import { i18n } from '../i18next';
+import { HtmlTags } from './html-tags';
 
 interface InstancesState {
   siteRes: GetSiteResponse;
@@ -26,7 +26,10 @@ export class Instances extends Component<any, InstancesState> {
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         <div>
           <h5>{i18n.t('linked_instances')}</h5>
           {this.state.siteRes &&

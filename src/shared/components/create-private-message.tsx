@@ -1,7 +1,7 @@
 import { Component } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import { PrivateMessageForm } from './private-message-form';
+import { HtmlTags } from './html-tags';
 import { UserService, WebSocketService } from '../services';
 import {
   Site,
@@ -102,7 +102,10 @@ export class CreatePrivateMessage extends Component<
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         {this.state.loading ? (
           <h5>
             <svg class="icon icon-spinner spin">

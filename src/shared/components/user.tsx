@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
 import {
@@ -33,7 +32,6 @@ import {
   getLanguage,
   mdToHtml,
   elementUrl,
-  favIconUrl,
   setIsoData,
   getIdFromProps,
   getUsernameFromProps,
@@ -44,8 +42,10 @@ import {
   createPostLikeFindRes,
   setAuth,
   lemmyHttp,
+  previewLines,
 } from '../utils';
 import { UserListing } from './user-listing';
+import { HtmlTags } from './html-tags';
 import { SortSelect } from './sort-select';
 import { ListingTypeSelect } from './listing-type-select';
 import { MomentTime } from './moment-time';
@@ -250,30 +250,18 @@ export class User extends Component<any, UserState> {
   }
 
   get documentTitle(): string {
-    if (this.state.siteRes.site.name) {
-      return `@${this.state.userName} - ${this.state.siteRes.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `@${this.state.userName} - ${this.state.siteRes.site.name}`;
   }
 
-  get favIcon(): string {
-    return this.state.siteRes.site.icon
-      ? this.state.siteRes.site.icon
-      : favIconUrl;
+  get bioTag(): string {
+    return this.state.userRes.user.bio
+      ? previewLines(this.state.userRes.user.bio)
+      : undefined;
   }
 
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle}>
-          <link
-            id="favicon"
-            rel="icon"
-            type="image/x-icon"
-            href={this.favIcon}
-          />
-        </Helmet>
         {this.state.loading ? (
           <h5>
             <svg class="icon icon-spinner spin">
@@ -284,6 +272,12 @@ export class User extends Component<any, UserState> {
           <div class="row">
             <div class="col-12 col-md-8">
               <>
+                <HtmlTags
+                  title={this.documentTitle}
+                  path={this.context.router.route.match.url}
+                  description={this.bioTag}
+                  image={this.state.userRes.user.avatar}
+                />
                 {this.userInfo()}
                 <hr />
               </>

@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
 import {
@@ -53,7 +52,6 @@ import {
   editPostFindRes,
   commentsToFlatNodes,
   setupTippy,
-  favIconUrl,
   notifyPost,
   setIsoData,
   wsSubscribe,
@@ -63,6 +61,7 @@ import {
 } from '../utils';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
+import { HtmlTags } from './html-tags';
 
 interface MainState {
   subscribedCommunities: CommunityUser[];
@@ -240,23 +239,13 @@ export class Main extends Component<any, MainState> {
     return `${this.state.siteRes.site.name}`;
   }
 
-  get favIcon(): string {
-    return this.state.siteRes.site.icon
-      ? this.state.siteRes.site.icon
-      : favIconUrl;
-  }
-
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle}>
-          <link
-            id="favicon"
-            rel="icon"
-            type="image/x-icon"
-            href={this.favIcon}
-          />
-        </Helmet>
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         <div class="row">
           <main role="main" class="col-12 col-md-8">
             {this.posts()}

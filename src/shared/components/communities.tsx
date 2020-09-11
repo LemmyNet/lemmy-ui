@@ -1,5 +1,5 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
+import { HtmlTags } from './html-tags';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
@@ -94,7 +94,10 @@ export class Communities extends Component<any, CommunitiesState> {
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         {this.state.loading ? (
           <h5 class="">
             <svg class="icon icon-spinner spin">

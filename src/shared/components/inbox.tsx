@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
@@ -37,6 +36,7 @@ import {
 } from '../utils';
 import { CommentNodes } from './comment-nodes';
 import { PrivateMessage } from './private-message';
+import { HtmlTags } from './html-tags';
 import { SortSelect } from './sort-select';
 import { i18n } from '../i18next';
 
@@ -117,7 +117,6 @@ export class Inbox extends Component<any, InboxState> {
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
         {this.state.loading ? (
           <h5>
             <svg class="icon icon-spinner spin">
@@ -127,6 +126,10 @@ export class Inbox extends Component<any, InboxState> {
         ) : (
           <div class="row">
             <div class="col-12">
+              <HtmlTags
+                title={this.documentTitle}
+                path={this.context.router.route.match.url}
+              />
               <h5 class="mb-1">
                 {i18n.t('inbox')}
                 <small>

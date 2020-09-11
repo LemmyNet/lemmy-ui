@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
@@ -18,6 +17,7 @@ import {
   wsSubscribe,
 } from '../utils';
 import { i18n } from '../i18next';
+import { HtmlTags } from './html-tags';
 
 interface State {
   passwordChangeForm: PasswordChangeForm;
@@ -61,7 +61,10 @@ export class PasswordChange extends Component<any, State> {
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         <div class="row">
           <div class="col-12 col-lg-6 offset-lg-3 mb-4">
             <h5>{i18n.t('password_change')}</h5>

@@ -1,7 +1,7 @@
 import { Component } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import { CommunityForm } from './community-form';
+import { HtmlTags } from './html-tags';
 import {
   Community,
   UserOperation,
@@ -70,7 +70,10 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         {this.state.loading ? (
           <h5>
             <svg class="icon icon-spinner spin">

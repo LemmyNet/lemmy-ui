@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
@@ -25,6 +24,7 @@ import {
 import autosize from 'autosize';
 import { SiteForm } from './site-form';
 import { UserListing } from './user-listing';
+import { HtmlTags } from './html-tags';
 import { i18n } from '../i18next';
 
 interface AdminSettingsState {
@@ -97,7 +97,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         {this.state.loading ? (
           <h5>
             <svg class="icon icon-spinner spin">

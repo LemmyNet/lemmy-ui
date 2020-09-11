@@ -38,6 +38,7 @@ import {
   previewLines,
 } from '../utils';
 import { i18n } from '../i18next';
+import { externalHost } from '../env';
 
 interface PostListingState {
   showEdit: boolean;
@@ -309,7 +310,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
         </li>
         <li className="list-inline-item">•</li>
-        {post.url && !(hostname(post.url) == window.location.hostname) && (
+        {post.url && !(hostname(post.url) == externalHost) && (
           <>
             <li className="list-inline-item">
               <a
@@ -413,43 +414,37 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {post.name}
             </Link>
           )}
-          {(isImage(post.url) || this.props.post.thumbnail_url) && (
-            <>
-              {!this.state.imageExpanded ? (
+          {(isImage(post.url) || this.props.post.thumbnail_url) &&
+            (!this.state.imageExpanded ? (
+              <span
+                class="text-monospace unselectable pointer ml-2 text-muted small"
+                data-tippy-content={i18n.t('expand_here')}
+                onClick={linkEvent(this, this.handleImageExpandClick)}
+              >
+                <svg class="icon icon-inline">
+                  <use xlinkHref="#icon-plus-square"></use>
+                </svg>
+              </span>
+            ) : (
+              <span>
                 <span
                   class="text-monospace unselectable pointer ml-2 text-muted small"
-                  data-tippy-content={i18n.t('expand_here')}
                   onClick={linkEvent(this, this.handleImageExpandClick)}
                 >
                   <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-plus-square"></use>
+                    <use xlinkHref="#icon-minus-square"></use>
                   </svg>
                 </span>
-              ) : (
-                <span>
+                <div>
                   <span
-                    class="text-monospace unselectable pointer ml-2 text-muted small"
+                    class="pointer"
                     onClick={linkEvent(this, this.handleImageExpandClick)}
                   >
-                    <svg class="icon icon-inline">
-                      <use xlinkHref="#icon-minus-square"></use>
-                    </svg>
+                    <img class="img-fluid img-expanded" src={this.getImage()} />
                   </span>
-                  <div>
-                    <span
-                      class="pointer"
-                      onClick={linkEvent(this, this.handleImageExpandClick)}
-                    >
-                      <img
-                        class="img-fluid img-expanded"
-                        src={this.getImage()}
-                      />
-                    </span>
-                  </div>
-                </span>
-              )}
-            </>
-          )}
+                </div>
+              </span>
+            ))}
           {post.removed && (
             <small className="ml-2 text-muted font-italic">
               {i18n.t('removed')}

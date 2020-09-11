@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
 import {
@@ -30,6 +29,7 @@ import {
   lemmyHttp,
 } from '../utils';
 import { MomentTime } from './moment-time';
+import { HtmlTags } from './html-tags';
 import moment from 'moment';
 import { i18n } from '../i18next';
 
@@ -353,17 +353,16 @@ export class Modlog extends Component<any, ModlogState> {
   }
 
   get documentTitle(): string {
-    if (this.state.site) {
-      return `Modlog - ${this.state.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `Modlog - ${this.state.site.name}`;
   }
 
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         {this.state.loading ? (
           <h5 class="">
             <svg class="icon icon-spinner spin">

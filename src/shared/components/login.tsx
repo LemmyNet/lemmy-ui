@@ -22,6 +22,7 @@ import {
   setIsoData,
 } from '../utils';
 import { i18n } from '../i18next';
+import { HtmlTags } from './html-tags';
 
 interface State {
   loginForm: LoginForm;
@@ -78,17 +79,16 @@ export class Login extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    if (this.state.site.name) {
-      return `${i18n.t('login')} - ${this.state.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `${i18n.t('login')} - ${this.state.site.name}`;
   }
 
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         <div class="row">
           <div class="col-12 col-lg-6 mb-4">{this.loginForm()}</div>
           <div class="col-12 col-lg-6">{this.registerForm()}</div>

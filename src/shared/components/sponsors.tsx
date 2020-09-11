@@ -1,10 +1,10 @@
 import { Component } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Site } from 'lemmy-js-client';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
 import { repoUrl, isBrowser } from '../utils';
 import { IsoData } from 'shared/interfaces';
+import { HtmlTags } from './html-tags';
 
 interface SilverUser {
   name: string;
@@ -74,7 +74,10 @@ export class Sponsors extends Component<any, SponsorsState> {
   render() {
     return (
       <div class="container text-center">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         {this.topMessage()}
         <hr />
         {this.sponsors()}

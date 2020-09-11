@@ -1,7 +1,7 @@
 import { Component } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import { PostForm } from './post-form';
+import { HtmlTags } from './html-tags';
 import {
   isBrowser,
   lemmyHttp,
@@ -82,7 +82,10 @@ export class CreatePost extends Component<any, CreatePostState> {
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         {this.state.loading ? (
           <h5>
             <svg class="icon icon-spinner spin">

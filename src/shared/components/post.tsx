@@ -1,5 +1,5 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
+import { HtmlTags } from './html-tags';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
@@ -36,7 +36,6 @@ import {
   createPostLikeRes,
   commentsToFlatNodes,
   setupTippy,
-  favIconUrl,
   setIsoData,
   getIdFromProps,
   getCommentIdFromProps,
@@ -44,6 +43,8 @@ import {
   setAuth,
   lemmyHttp,
   isBrowser,
+  previewLines,
+  isImage,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { Sidebar } from './sidebar';
@@ -148,7 +149,7 @@ export class Post extends Component<any, PostState> {
 
     // Necessary if you are on a post and you click another post (same route)
     if (_lastProps.location.pathname !== _lastProps.history.location.pathname) {
-      // Couldnt get a refresh working. This does for now.
+      // TODO Couldnt get a refresh working. This does for now.
       location.reload();
 
       // let currentId = this.props.match.params.id;
@@ -191,30 +192,29 @@ export class Post extends Component<any, PostState> {
   }
 
   get documentTitle(): string {
-    if (this.state.postRes) {
-      return `${this.state.postRes.post.name} - ${this.state.siteRes.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
+    return `${this.state.postRes.post.name} - ${this.state.siteRes.site.name}`;
   }
 
-  get favIcon(): string {
-    return this.state.siteRes.site.icon
-      ? this.state.siteRes.site.icon
-      : favIconUrl;
+  get imageTag(): string {
+    return (
+      this.state.postRes.post.thumbnail_url ||
+      (this.state.postRes.post.url
+        ? isImage(this.state.postRes.post.url)
+          ? this.state.postRes.post.url
+          : undefined
+        : undefined)
+    );
+  }
+
+  get descriptionTag(): string {
+    return this.state.postRes.post.body
+      ? previewLines(this.state.postRes.post.body)
+      : undefined;
   }
 
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle}>
-          <link
-            id="favicon"
-            rel="icon"
-            type="image/x-icon"
-            href={this.favIcon}
-          />
-        </Helmet>
         {this.state.loading ? (
           <h5>
             <svg class="icon icon-spinner spin">
@@ -224,6 +224,12 @@ export class Post extends Component<any, PostState> {
         ) : (
           <div class="row">
             <div class="col-12 col-md-8 mb-3">
+              <HtmlTags
+                title={this.documentTitle}
+                path={this.context.router.route.match.url}
+                image={this.imageTag}
+                description={this.descriptionTag}
+              />
               <PostListing
                 post={this.state.postRes.post}
                 showBody

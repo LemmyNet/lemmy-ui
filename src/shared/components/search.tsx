@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
@@ -32,6 +31,7 @@ import {
   setAuth,
 } from '../utils';
 import { PostListing } from './post-listing';
+import { HtmlTags } from './html-tags';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
 import { SortSelect } from './sort-select';
@@ -165,23 +165,20 @@ export class Search extends Component<any, SearchState> {
   }
 
   get documentTitle(): string {
-    if (this.state.site.name) {
-      if (this.state.q) {
-        return `${i18n.t('search')} - ${this.state.q} - ${
-          this.state.site.name
-        }`;
-      } else {
-        return `${i18n.t('search')} - ${this.state.site.name}`;
-      }
+    if (this.state.q) {
+      return `${i18n.t('search')} - ${this.state.q} - ${this.state.site.name}`;
     } else {
-      return 'Lemmy';
+      return `${i18n.t('search')} - ${this.state.site.name}`;
     }
   }
 
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle} />
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         <h5>{i18n.t('search')}</h5>
         {this.selects()}
         {this.searchForm()}

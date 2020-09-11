@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import { DataType } from '../interfaces';
 import {
@@ -27,6 +26,7 @@ import {
 import { UserService, WebSocketService } from '../services';
 import { PostListings } from './post-listings';
 import { CommentNodes } from './comment-nodes';
+import { HtmlTags } from './html-tags';
 import { SortSelect } from './sort-select';
 import { DataTypeSelect } from './data-type-select';
 import { Sidebar } from './sidebar';
@@ -46,7 +46,6 @@ import {
   editPostFindRes,
   commentsToFlatNodes,
   setupTippy,
-  favIconUrl,
   notifyPost,
   setIsoData,
   wsSubscribe,
@@ -226,30 +225,12 @@ export class Community extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    if (this.state.communityRes) {
-      return `${this.state.communityRes.community.title} - ${this.state.siteRes.site.name}`;
-    } else {
-      return 'Lemmy';
-    }
-  }
-
-  get favIcon(): string {
-    return this.state.siteRes.site.icon
-      ? this.state.siteRes.site.icon
-      : favIconUrl;
+    return `${this.state.communityRes.community.title} - ${this.state.siteRes.site.name}`;
   }
 
   render() {
     return (
       <div class="container">
-        <Helmet title={this.documentTitle}>
-          <link
-            id="favicon"
-            rel="icon"
-            type="image/x-icon"
-            href={this.favIcon}
-          />
-        </Helmet>
         {this.state.loading ? (
           <h5>
             <svg class="icon icon-spinner spin">
@@ -259,6 +240,12 @@ export class Community extends Component<any, State> {
         ) : (
           <div class="row">
             <div class="col-12 col-md-8">
+              <HtmlTags
+                title={this.documentTitle}
+                path={this.context.router.route.match.url}
+                description={this.state.communityRes.community.title}
+                image={this.state.communityRes.community.icon}
+              />
               {this.communityInfo()}
               {this.selects()}
               {this.listings()}
