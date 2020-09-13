@@ -1,4 +1,5 @@
 # lemmy-isomorphic-ui
 
-A trial run at making an isomorphic UI for lemmy, based off of MrFoxPro's [inferno-isomorphic-template](https://github.com/MrFoxPro/inferno-isomorphic-template).
+The official web app for [Lemmy](https://github.com/LemmyNet/lemmy), written in inferno.
 
+Based off of MrFoxPro's [inferno-isomorphic-template](https://github.com/MrFoxPro/inferno-isomorphic-template).
