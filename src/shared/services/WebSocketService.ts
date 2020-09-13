@@ -55,6 +55,8 @@ import {
   SiteConfigForm,
   MarkAllAsReadForm,
   WebSocketJsonResponse,
+  CommunityJoinForm,
+  PostJoinForm,
 } from 'lemmy-js-client';
 import { UserService } from './';
 import { i18n } from '../i18next';
@@ -85,7 +87,7 @@ export class WebSocketService {
     this.ws = new ReconnectingWebSocket(wsUri, [], this.wsOptions);
     let firstConnect = true;
 
-    this.subject = Observable.create((obs: any) => {
+    this.subject = new Observable((obs: any) => {
       this.ws.onmessage = e => {
         obs.next(JSON.parse(e.data));
       };
@@ -111,6 +113,14 @@ export class WebSocketService {
   public userJoin() {
     let form: UserJoinForm = { auth: UserService.Instance.auth };
     this.ws.send(this.client.userJoin(form));
+  }
+
+  public postJoin(form: PostJoinForm) {
+    this.ws.send(this.client.postJoin(form));
+  }
+
+  public communityJoin(form: CommunityJoinForm) {
+    this.ws.send(this.client.communityJoin(form));
   }
 
   public login(form: LoginForm) {

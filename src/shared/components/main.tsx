@@ -151,6 +151,10 @@ export class Main extends Component<any, MainState> {
     WebSocketService.Instance.listCommunities(listCommunitiesForm);
   }
 
+  componentDidMount() {
+    WebSocketService.Instance.communityJoin({ community_id: 0 });
+  }
+
   componentWillUnmount() {
     if (isBrowser()) {
       this.subscription.unsubscribe();

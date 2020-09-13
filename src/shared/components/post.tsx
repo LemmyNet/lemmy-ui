@@ -134,6 +134,7 @@ export class Post extends Component<any, PostState> {
   }
 
   componentDidMount() {
+    WebSocketService.Instance.postJoin({ post_id: this.state.postId });
     autosize(document.querySelectorAll('textarea'));
   }
 

@@ -425,6 +425,9 @@ export class Community extends Component<any, State> {
         this.state.loading = false;
       }
       this.setState(this.state);
+      WebSocketService.Instance.communityJoin({
+        community_id: data.community.id,
+      });
     } else if (
       res.op == UserOperation.EditCommunity ||
       res.op == UserOperation.DeleteCommunity ||
