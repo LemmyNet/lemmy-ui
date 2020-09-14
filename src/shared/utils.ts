@@ -1054,9 +1054,9 @@ function hsl(num: number) {
   return `hsla(${num}, 35%, 50%, 1)`;
 }
 
-function randomHsl() {
-  return `hsla(${Math.random() * 360}, 100%, 50%, 1)`;
-}
+// function randomHsl() {
+//   return `hsla(${Math.random() * 360}, 100%, 50%, 1)`;
+// }
 
 export function previewLines(
   text: string,

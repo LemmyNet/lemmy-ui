@@ -99,9 +99,9 @@ server.get('/*', async (req, res) => {
 
            <body ${helmet.bodyAttributes.toString()}>
              <noscript>
-               <nav class="navbar fixed-bottom navbar-light bg-light">
-                Javascript is disabled. Actions will not work.
-               </nav>
+               <div class="alert alert-danger rounded-0" role="alert">
+                 Javascript is disabled. Actions will not work.
+               </div>
              </noscript>
             
              <div id='root'>${root}</div>
