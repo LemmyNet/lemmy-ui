@@ -100,7 +100,7 @@ server.get('/*', async (req, res) => {
            <body ${helmet.bodyAttributes.toString()}>
              <noscript>
                <div class="alert alert-danger rounded-0" role="alert">
-                 Javascript is disabled. Actions will not work.
+                 <b>Javascript is disabled. Actions will not work.</b>
                </div>
              </noscript>
             

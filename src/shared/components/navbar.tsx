@@ -419,6 +419,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       // This is only called on a successful login
       let data = res.data as GetSiteResponse;
       UserService.Instance.user = data.my_user;
+      setTheme(UserService.Instance.user.theme);
+      i18n.changeLanguage(getLanguage());
       this.state.isLoggedIn = true;
       this.setState(this.state);
     } else if (res.op == UserOperation.CreateComment) {
