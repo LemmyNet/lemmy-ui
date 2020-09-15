@@ -24,7 +24,7 @@ export class App extends Component<AppProps, any> {
       <>
         <Provider i18next={i18n}>
           <div>
-            {this.props.site.site.icon && (
+            {this.props.site && this.props.site.site.icon && (
               <Helmet>
                 <link
                   id="favicon"
