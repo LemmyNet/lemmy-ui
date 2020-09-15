@@ -182,21 +182,23 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     return (
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
-          <Link
-            title={this.props.site.version}
-            className="d-flex align-items-center navbar-brand mr-md-3"
-            to="/"
-          >
-            {this.props.site.site.icon && showAvatars() && (
-              <img
-                src={pictrsAvatarThumbnail(this.props.site.site.icon)}
-                height="32"
-                width="32"
-                class="rounded-circle mr-2"
-              />
-            )}
-            {this.props.site.site.name}
-          </Link>
+          {this.props.site.site && (
+            <Link
+              title={this.props.site.version}
+              className="d-flex align-items-center navbar-brand mr-md-3"
+              to="/"
+            >
+              {this.props.site.site.icon && showAvatars() && (
+                <img
+                  src={pictrsAvatarThumbnail(this.props.site.site.icon)}
+                  height="32"
+                  width="32"
+                  class="rounded-circle mr-2"
+                />
+              )}
+              {this.props.site.site.name}
+            </Link>
+          )}
           {this.state.isLoggedIn && (
             <Link
               className="ml-auto p-0 navbar-toggler nav-link border-0"
