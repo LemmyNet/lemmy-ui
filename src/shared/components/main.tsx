@@ -152,6 +152,11 @@ export class Main extends Component<any, MainState> {
   }
 
   componentDidMount() {
+    // This means it hasn't been set up yet
+    if (!this.state.siteRes.site) {
+      this.context.router.history.push('/setup');
+    }
+
     WebSocketService.Instance.communityJoin({ community_id: 0 });
   }
 
@@ -240,7 +245,9 @@ export class Main extends Component<any, MainState> {
   }
 
   get documentTitle(): string {
-    return `${this.state.siteRes.site.name}`;
+    return `${
+      this.state.siteRes.site ? this.state.siteRes.site.name : 'Lemmy'
+    }`;
   }
 
   render() {
@@ -250,12 +257,14 @@ export class Main extends Component<any, MainState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div class="row">
-          <main role="main" class="col-12 col-md-8">
-            {this.posts()}
-          </main>
-          <aside class="col-12 col-md-4">{this.mySidebar()}</aside>
-        </div>
+        {this.state.siteRes.site && (
+          <div class="row">
+            <main role="main" class="col-12 col-md-8">
+              {this.posts()}
+            </main>
+            <aside class="col-12 col-md-4">{this.mySidebar()}</aside>
+          </div>
+        )}
       </div>
     );
   }
@@ -394,7 +403,7 @@ export class Main extends Component<any, MainState> {
   }
 
   siteName() {
-    return <h5 class="mb-0">{`${this.state.siteRes.site.name}`}</h5>;
+    return <h5 class="mb-0">{`${this.documentTitle}`}</h5>;
   }
 
   admins() {
@@ -718,18 +727,6 @@ export class Main extends Component<any, MainState> {
     } else if (res.op == UserOperation.ListCommunities) {
       let data = res.data as ListCommunitiesResponse;
       this.state.trendingCommunities = data.communities;
-      this.setState(this.state);
-    } else if (res.op == UserOperation.GetSite) {
-      let data = res.data as GetSiteResponse;
-
-      // This means it hasn't been set up yet
-      if (!data.site) {
-        this.context.router.history.push('/setup');
-      }
-      this.state.siteRes.admins = data.admins;
-      this.state.siteRes.site = data.site;
-      this.state.siteRes.banned = data.banned;
-      this.state.siteRes.online = data.online;
       this.setState(this.state);
     } else if (res.op == UserOperation.EditSite) {
       let data = res.data as SiteResponse;

@@ -205,7 +205,7 @@ export class Setup extends Component<any, State> {
       UserService.Instance.login(data);
       this.setState(this.state);
     } else if (res.op == UserOperation.CreateSite) {
-      this.props.history.push('/');
+      window.location.href = '/';
     }
   }
 }
