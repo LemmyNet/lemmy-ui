@@ -24,16 +24,18 @@ export class App extends Component<AppProps, any> {
       <>
         <Provider i18next={i18n}>
           <div>
-            {this.props.site && this.props.site.site.icon && (
-              <Helmet>
-                <link
-                  id="favicon"
-                  rel="icon"
-                  type="image/x-icon"
-                  href={this.props.site.site.icon}
-                />
-              </Helmet>
-            )}
+            {this.props.site &&
+              this.props.site.site &&
+              this.props.site.site.icon && (
+                <Helmet>
+                  <link
+                    id="favicon"
+                    rel="icon"
+                    type="image/x-icon"
+                    href={this.props.site.site.icon}
+                  />
+                </Helmet>
+              )}
             <Navbar site={this.props.site} />
             <div class="mt-4 p-0 fl-1">
               <Switch>

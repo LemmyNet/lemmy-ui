@@ -26,6 +26,9 @@ export const wsUri = `ws${secure}://${host}/api/v1/ws`;
 export const httpUri = `${httpBase}/api/v1`;
 export const pictrsUri = `${httpBase}/pictrs/image`;
 
+console.log(`httpbase: ${httpBase}`);
+console.log(`wsUri: ${wsUri}`);
+
 // This is for html tags, don't include port
 const httpExternalUri = `http${secure}://${externalHost.split(':')[0]}`;
 export function httpExternalPath(path: string) {
