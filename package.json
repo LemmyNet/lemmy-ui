@@ -1,5 +1,5 @@
 {
-  "name": "lemmy-isomorphic-ui",
+  "name": "lemmy-ui",
   "description": "An isomorphic UI for lemmy",
   "author": "Dessalines <tyhou13@gmx.com>",
   "license": "AGPL-3.0",
@@ -18,7 +18,7 @@
     "serve": "node dist/js/server.js",
     "start": "yarn run build:dev && yarn run serve"
   },
-  "repository": "https://github.com/LemmyNet/lemmy-isomorphic-ui",
+  "repository": "https://github.com/LemmyNet/lemmy-ui",
   "dependencies": {
     "@typescript-eslint/parser": "^4.1.0",
     "autosize": "^4.0.2",

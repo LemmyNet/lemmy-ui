@@ -1,4 +1,4 @@
-# lemmy-isomorphic-ui
+# lemmy-ui
 
 The official web app for [Lemmy](https://github.com/LemmyNet/lemmy), written in inferno.
 
