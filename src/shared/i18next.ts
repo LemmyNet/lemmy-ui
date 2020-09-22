@@ -9,9 +9,7 @@ import { de } from './translations/de';
 import { fr } from './translations/fr';
 import { sv } from './translations/sv';
 import { ru } from './translations/ru';
-import { zh_CN } from './translations/zh_CN';
-import { zh_TW } from './translations/zh_TW';
-import { zh_HK } from './translations/zh_HK';
+import { zh } from './translations/zh';
 import { nl } from './translations/nl';
 import { it } from './translations/it';
 import { fi } from './translations/fi';
@@ -41,9 +39,7 @@ const resources = {
   ka,
   hi,
   de,
-  zh_CN,
-  zh_TW,
-  zh_HK,
+  zh,
   fr,
   sv,
   ru,
