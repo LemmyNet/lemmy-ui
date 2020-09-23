@@ -43,7 +43,9 @@ server.get('/*', async (req, res) => {
   let site: GetSiteResponse = resolver[0];
   let routeData = resolver.slice(1, resolver.length);
 
-  let acceptLang = req.headers['accept-language'].split(',')[0];
+  let acceptLang = req.headers['accept-language']
+    ? req.headers['accept-language'].split(',')[0]
+    : 'en';
   let lang = !!site.my_user
     ? site.my_user.lang == 'browser'
       ? acceptLang
