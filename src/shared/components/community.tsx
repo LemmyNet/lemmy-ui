@@ -243,7 +243,7 @@ export class Community extends Component<any, State> {
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
-                description={this.state.communityRes.community.title}
+                description={this.state.communityRes.community.description}
                 image={this.state.communityRes.community.icon}
               />
               {this.communityInfo()}

@@ -274,28 +274,25 @@ export class Main extends Component<any, MainState> {
       <div>
         {!this.state.loading && (
           <div>
-            <div class="card bg-transparent border-secondary mb-3">
-              <div class="card-header bg-transparent border-secondary">
-                <div class="mb-2">
-                  {this.siteName()}
-                  {this.adminButtons()}
-                </div>
-                <BannerIconHeader banner={this.state.siteRes.site.banner} />
-              </div>
+            <div class="card border-secondary mb-3">
               <div class="card-body">
                 {this.trendingCommunities()}
                 {this.createCommunityButton()}
-                {/* TODO
-                {this.subscribedCommunities()}
-                */}
               </div>
             </div>
 
-            <div class="card bg-transparent border-secondary mb-3">
+            {UserService.Instance.user &&
+              this.state.subscribedCommunities.length > 0 && (
+                <div class="card border-secondary mb-3">
+                  <div class="card-body">{this.subscribedCommunities()}</div>
+                </div>
+              )}
+
+            <div class="card border-secondary mb-3">
               <div class="card-body">{this.sidebar()}</div>
             </div>
 
-            <div class="card bg-transparent border-secondary">
+            <div class="card border-secondary">
               <div class="card-body">{this.landing()}</div>
             </div>
           </div>
@@ -336,34 +333,31 @@ export class Main extends Component<any, MainState> {
 
   subscribedCommunities() {
     return (
-      UserService.Instance.user &&
-      this.state.subscribedCommunities.length > 0 && (
-        <div>
-          <h5>
-            <T i18nKey="subscribed_to_communities">
+      <div>
+        <h5>
+          <T i18nKey="subscribed_to_communities">
+            #
+            <Link className="text-body" to="/communities">
               #
-              <Link className="text-body" to="/communities">
-                #
-              </Link>
-            </T>
-          </h5>
-          <ul class="list-inline">
-            {this.state.subscribedCommunities.map(community => (
-              <li class="list-inline-item">
-                <CommunityLink
-                  community={{
-                    name: community.community_name,
-                    id: community.community_id,
-                    local: community.community_local,
-                    actor_id: community.community_actor_id,
-                    icon: community.community_icon,
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )
+            </Link>
+          </T>
+        </h5>
+        <ul class="list-inline mb-0">
+          {this.state.subscribedCommunities.map(community => (
+            <li class="list-inline-item">
+              <CommunityLink
+                community={{
+                  name: community.community_name,
+                  id: community.community_id,
+                  local: community.community_local,
+                  actor_id: community.community_actor_id,
+                  icon: community.community_icon,
+                }}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 
@@ -371,7 +365,14 @@ export class Main extends Component<any, MainState> {
     return (
       <div>
         {!this.state.showEditSite ? (
-          this.siteInfo()
+          <div>
+            <div class="mb-2">
+              {this.siteName()}
+              {this.adminButtons()}
+            </div>
+            <BannerIconHeader banner={this.state.siteRes.site.banner} />
+            {this.siteInfo()}
+          </div>
         ) : (
           <SiteForm
             site={this.state.siteRes.site}
@@ -431,31 +432,31 @@ export class Main extends Component<any, MainState> {
   badges() {
     return (
       <ul class="my-2 list-inline">
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_online', { count: this.state.siteRes.online })}
         </li>
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_users', {
             count: this.state.siteRes.site.number_of_users,
           })}
         </li>
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_communities', {
             count: this.state.siteRes.site.number_of_communities,
           })}
         </li>
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_posts', {
             count: this.state.siteRes.site.number_of_posts,
           })}
         </li>
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_comments', {
             count: this.state.siteRes.site.number_of_comments,
           })}
         </li>
         <li className="list-inline-item">
-          <Link className="badge badge-light" to="/modlog">
+          <Link className="badge badge-secondary" to="/modlog">
             {i18n.t('modlog')}
           </Link>
         </li>

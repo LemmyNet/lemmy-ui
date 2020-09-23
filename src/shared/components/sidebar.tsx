@@ -73,14 +73,15 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     return (
       <div>
-        <div class="card bg-transparent border-secondary mb-3">
-          <div class="card-header bg-transparent border-secondary">
+        <div class="card border-secondary mb-3">
+          <div class="card-body">
             {this.communityTitle()}
             {this.adminButtons()}
+            {this.subscribe()}
+            {this.createPost()}
           </div>
-          <div class="card-body">{this.subscribes()}</div>
         </div>
-        <div class="card bg-transparent border-secondary mb-3">
+        <div class="card border-secondary mb-3">
           <div class="card-body">
             {this.description()}
             {this.badges()}
@@ -99,19 +100,31 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           {this.props.showIcon && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
-          <span>{community.title}</span>
+          <span class="mr-2">{community.title}</span>
+          {community.subscribed && (
+            <a
+              class="btn btn-secondary btn-sm mr-2"
+              href="#"
+              onClick={linkEvent(community.id, this.handleUnsubscribe)}
+            >
+              <svg class="text-success mr-1 icon icon-inline">
+                <use xlinkHref="#icon-check"></use>
+              </svg>
+              {i18n.t('joined')}
+            </a>
+          )}
           {community.removed && (
-            <small className="ml-2 text-muted font-italic">
+            <small className="mr-2 text-muted font-italic">
               {i18n.t('removed')}
             </small>
           )}
           {community.deleted && (
-            <small className="ml-2 text-muted font-italic">
+            <small className="mr-2 text-muted font-italic">
               {i18n.t('deleted')}
             </small>
           )}
           {community.nsfw && (
-            <small className="ml-2 text-muted font-italic">
+            <small className="mr-2 text-muted font-italic">
               {i18n.t('nsfw')}
             </small>
           )}
@@ -131,38 +144,38 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     let community = this.props.community;
     return (
       <ul class="my-1 list-inline">
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_online', { count: this.props.online })}
         </li>
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_subscribers', {
             count: community.number_of_subscribers,
           })}
         </li>
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_posts', {
             count: community.number_of_posts,
           })}
         </li>
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_comments', {
             count: community.number_of_comments,
           })}
         </li>
         <li className="list-inline-item">
-          <Link className="badge badge-light" to="/communities">
+          <Link className="badge badge-secondary" to="/communities">
             {community.category_name}
           </Link>
         </li>
         <li className="list-inline-item">
           <Link
-            className="badge badge-light"
+            className="badge badge-secondary"
             to={`/modlog/community/${this.props.community.id}`}
           >
             {i18n.t('modlog')}
           </Link>
         </li>
-        <li className="list-inline-item badge badge-light">
+        <li className="list-inline-item badge badge-secondary">
           <CommunityLink community={community} realLink />
         </li>
       </ul>
@@ -191,29 +204,29 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  subscribes() {
+  createPost() {
     let community = this.props.community;
     return (
-      <div class="d-flex flex-wrap">
+      community.subscribed && (
         <Link
-          className={`btn btn-secondary flex-fill mr-2 mb-2 ${
+          className={`btn btn-secondary btn-block mb-2 ${
             community.deleted || community.removed ? 'no-click' : ''
           }`}
           to={`/create_post?community=${community.name}`}
         >
           {i18n.t('create_a_post')}
         </Link>
-        {community.subscribed ? (
+      )
+    );
+  }
+
+  subscribe() {
+    let community = this.props.community;
+    return (
+      <div class="mb-2">
+        {!community.subscribed && (
           <a
-            class="btn btn-secondary flex-fill mb-2"
-            href="#"
-            onClick={linkEvent(community.id, this.handleUnsubscribe)}
-          >
-            {i18n.t('unsubscribe')}
-          </a>
-        ) : (
-          <a
-            class="btn btn-secondary flex-fill mb-2"
+            class="btn btn-secondary btn-block"
             href="#"
             onClick={linkEvent(community.id, this.handleSubscribe)}
           >
@@ -380,7 +393,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     this.setState(this.state);
   }
 
-  handleDeleteClick(i: Sidebar) {
+  handleDeleteClick(i: Sidebar, event: any) {
     event.preventDefault();
     let deleteForm: DeleteCommunityForm = {
       edit_id: i.props.community.id,
@@ -410,7 +423,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.setState(i.state);
   }
 
-  handleUnsubscribe(communityId: number) {
+  handleUnsubscribe(communityId: number, event: any) {
     event.preventDefault();
     let form: FollowCommunityForm = {
       community_id: communityId,
@@ -419,7 +432,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     WebSocketService.Instance.followCommunity(form);
   }
 
-  handleSubscribe(communityId: number) {
+  handleSubscribe(communityId: number, event: any) {
     event.preventDefault();
     let form: FollowCommunityForm = {
       community_id: communityId,
@@ -464,7 +477,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.setState(i.state);
   }
 
-  handleModRemoveSubmit(i: Sidebar) {
+  handleModRemoveSubmit(i: Sidebar, event: any) {
     event.preventDefault();
     let removeForm: RemoveCommunityForm = {
       edit_id: i.props.community.id,

@@ -133,7 +133,7 @@ export class MarkdownTextArea extends Component<
             />
             {this.state.previewMode && (
               <div
-                className="card bg-transparent border-secondary card-body md-div"
+                className="card border-secondary card-body md-div"
                 dangerouslySetInnerHTML={mdToHtml(this.state.content)}
               />
             )}

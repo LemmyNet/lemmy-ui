@@ -422,7 +422,7 @@ export class User extends Component<any, UserState> {
               <div className="flex-grow-1 unselectable pointer mx-2"></div>
               {this.isCurrentUser ? (
                 <button
-                  class="d-flex align-self-start btn btn-secondary ml-2"
+                  class="d-flex align-self-start btn btn-secondary mr-2"
                   onClick={linkEvent(this, this.handleLogoutClick)}
                 >
                   {i18n.t('logout')}
@@ -430,7 +430,7 @@ export class User extends Component<any, UserState> {
               ) : (
                 <>
                   <a
-                    className={`d-flex align-self-start btn btn-secondary ml-2 ${
+                    className={`d-flex align-self-start btn btn-secondary mr-2 ${
                       !user.matrix_user_id && 'invisible'
                     }`}
                     target="_blank"
@@ -440,7 +440,7 @@ export class User extends Component<any, UserState> {
                     {i18n.t('send_secure_message')}
                   </a>
                   <Link
-                    class="d-flex align-self-start btn btn-secondary ml-2"
+                    className={'d-flex align-self-start btn btn-secondary'}
                     to={`/create_private_message/recipient/${user.id}`}
                   >
                     {i18n.t('send_message')}
@@ -489,7 +489,7 @@ export class User extends Component<any, UserState> {
   userSettings() {
     return (
       <div>
-        <div class="card bg-transparent border-secondary mb-3">
+        <div class="card border-secondary mb-3">
           <div class="card-body">
             <h5>{i18n.t('settings')}</h5>
             <form onSubmit={linkEvent(this, this.handleUserSettingsSubmit)}>
@@ -834,7 +834,7 @@ export class User extends Component<any, UserState> {
     return (
       <div>
         {this.state.userRes.moderates.length > 0 && (
-          <div class="card bg-transparent border-secondary mb-3">
+          <div class="card border-secondary mb-3">
             <div class="card-body">
               <h5>{i18n.t('moderates')}</h5>
               <ul class="list-unstyled mb-0">
@@ -857,7 +857,7 @@ export class User extends Component<any, UserState> {
     return (
       <div>
         {this.state.userRes.follows.length > 0 && (
-          <div class="card bg-transparent border-secondary mb-3">
+          <div class="card border-secondary mb-3">
             <div class="card-body">
               <h5>{i18n.t('subscribed')}</h5>
               <ul class="list-unstyled mb-0">
