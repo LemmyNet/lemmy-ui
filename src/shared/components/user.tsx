@@ -535,6 +535,7 @@ export class User extends Component<any, UserState> {
                   class="ml-2 custom-select w-auto"
                 >
                   <option disabled>{i18n.t('theme')}</option>
+                  <option value="browser">{i18n.t('browser_default')}</option>
                   {themes.map(theme => (
                     <option value={theme}>{theme}</option>
                   ))}
@@ -1050,7 +1051,7 @@ export class User extends Component<any, UserState> {
         UserService.Instance.user.show_nsfw;
       this.state.userSettingsForm.theme = UserService.Instance.user.theme
         ? UserService.Instance.user.theme
-        : 'darkly';
+        : 'browser';
       this.state.userSettingsForm.default_sort_type =
         UserService.Instance.user.default_sort_type;
       this.state.userSettingsForm.default_listing_type =

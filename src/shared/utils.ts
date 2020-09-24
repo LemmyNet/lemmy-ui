@@ -437,7 +437,12 @@ export function getMomentLanguage(): string {
 }
 
 export function setTheme(theme: string, forceReload: boolean = false) {
-  if (isBrowser() && (theme !== 'darkly' || forceReload)) {
+  if (isBrowser() && (theme !== 'browser' || forceReload)) {
+    // This is only run on a force reload
+    if (theme == 'browser') {
+      theme = 'darkly';
+    }
+
     // Unload all the other themes
     for (var i = 0; i < themes.length; i++) {
       let styleSheet = document.getElementById(themes[i]);
@@ -452,6 +457,7 @@ export function setTheme(theme: string, forceReload: boolean = false) {
     document
       .getElementById('default-dark')
       .setAttribute('disabled', 'disabled');
+
     // Load the theme dynamically
     let cssLoc = `/static/assets/css/themes/${theme}.min.css`;
     loadCss(theme, cssLoc);

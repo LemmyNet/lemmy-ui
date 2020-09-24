@@ -107,7 +107,7 @@ server.get('/*', async (req, res) => {
              </noscript>
             
              <div id='root'>${root}</div>
-             <script src='/static/js/client.js'></script>
+             <script defer src='/static/js/client.js'></script>
            </body>
          </html>
 `);
