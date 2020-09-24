@@ -1,5 +1,4 @@
 import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import {
   LoginForm,
@@ -402,12 +401,12 @@ export class Login extends Component<any, State> {
     i.setState(i.state);
   }
 
-  handleRegenCaptcha(_i: Login, _event: any) {
+  handleRegenCaptcha(_i: Login, event: any) {
     event.preventDefault();
     WebSocketService.Instance.getCaptcha();
   }
 
-  handlePasswordReset(i: Login) {
+  handlePasswordReset(i: Login, event: any) {
     event.preventDefault();
     let resetForm: PasswordResetForm = {
       email: i.state.loginForm.username_or_email,
@@ -415,7 +414,7 @@ export class Login extends Component<any, State> {
     WebSocketService.Instance.passwordReset(resetForm);
   }
 
-  handleCaptchaPlay(i: Login) {
+  handleCaptchaPlay(i: Login, event: any) {
     event.preventDefault();
     let snd = new Audio('data:audio/wav;base64,' + i.state.captcha.ok.wav);
     snd.play();
