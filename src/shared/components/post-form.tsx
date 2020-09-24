@@ -524,17 +524,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   setupCommunities() {
-    if (this.props.post) {
-      this.state.postForm.community_id = this.props.post.community_id;
-    } else if (this.props.params && this.props.params.community) {
-      let foundCommunityId = this.props.communities.find(
-        r => r.name == this.props.params.community
-      ).id;
-      this.state.postForm.community_id = foundCommunityId;
-    } else {
-      // By default, the null valued 'Select a Community'
-    }
-
     // Set up select searching
     if (isBrowser()) {
       let selectId: any = document.getElementById('post-community');
@@ -579,6 +568,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           false
         );
       }
+    }
+
+    if (this.props.post) {
+      this.state.postForm.community_id = this.props.post.community_id;
+    } else if (this.props.params && this.props.params.community) {
+      let foundCommunityId = this.props.communities.find(
+        r => r.name == this.props.params.community
+      ).id;
+      this.state.postForm.community_id = foundCommunityId;
+      if (isBrowser()) {
+        this.choices.setChoiceByValue(
+          this.state.postForm.community_id.toString()
+        );
+      }
+      this.setState(this.state);
+    } else {
+      // By default, the null valued 'Select a Community'
     }
   }
 

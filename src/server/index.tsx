@@ -24,7 +24,7 @@ server.use('/static', express.static(path.resolve('./dist')));
 // server.use(cookieParser());
 
 server.get('/*', async (req, res) => {
-  const activeRoute = routes.find(route => matchPath(req.url, route)) || {};
+  const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
   const context = {} as any;
   let auth: string = IsomorphicCookie.load('jwt', req);
 
