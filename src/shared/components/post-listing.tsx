@@ -490,7 +490,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  commentsLine(showVotes: boolean = false) {
+  commentsLine(mobile: boolean = false) {
     let post = this.props.post;
     return (
       <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold">
@@ -510,9 +510,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             })}
           </Link>
         </button>
+        {!mobile && this.state.downvotes !== 0 && (
+          <button
+            class="btn text-muted py-0"
+            data-tippy-content={this.pointsTippy}
+          >
+            <small>
+              <svg class="icon icon-inline mr-1">
+                <use xlinkHref="#icon-arrow-down1"></use>
+              </svg>
+              <span>{this.state.downvotes}</span>
+            </small>
+          </button>
+        )}
         {/* This is an expanding spacer for mobile */}
         <div className="flex-grow-1"></div>
-        {(showVotes || this.state.upvotes !== this.state.score) && (
+        {mobile && (
           <>
             <div>
               <button
