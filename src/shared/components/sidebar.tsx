@@ -175,9 +175,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {i18n.t('modlog')}
           </Link>
         </li>
-        <li className="list-inline-item badge badge-secondary">
-          <CommunityLink community={community} realLink />
-        </li>
       </ul>
     );
   }

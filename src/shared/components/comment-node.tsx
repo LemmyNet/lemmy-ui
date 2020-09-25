@@ -208,31 +208,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 </>
               )}
               <button
-                class="btn text-muted"
+                class="btn btn-sm text-muted"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
               >
-                {this.state.collapsed ? (
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-plus-square"></use>
-                  </svg>
-                ) : (
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-minus-square"></use>
-                  </svg>
-                )}
+                {this.state.collapsed ? '+' : '—'}
               </button>
               {/* This is an expanding spacer for mobile */}
               <div className="mr-lg-4 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2"></div>
-              <button
-                className={`btn p-0 unselectable pointer ${this.scoreColor}`}
+              <a
+                className={`unselectable pointer ${this.scoreColor}`}
                 onClick={linkEvent(node, this.handleCommentUpvote)}
                 data-tippy-content={this.pointsTippy}
               >
-                <svg class="icon icon-inline mr-1">
-                  <use xlinkHref="#icon-zap"></use>
-                </svg>
-                <span class="mr-1">{this.state.score}</span>
-              </button>
+                <span class="mr-1 font-weight-bold">{this.state.score}</span>
+              </a>
               <span className="mr-1">•</span>
               <span>
                 <MomentTime data={node.comment} />
@@ -295,7 +284,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         data-tippy-content={i18n.t('upvote')}
                       >
                         <svg class="icon icon-inline">
-                          <use xlinkHref="#icon-arrow-up"></use>
+                          <use xlinkHref="#icon-arrow-up1"></use>
                         </svg>
                         {this.state.upvotes !== this.state.score && (
                           <span class="ml-1">{this.state.upvotes}</span>
@@ -312,7 +301,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           data-tippy-content={i18n.t('downvote')}
                         >
                           <svg class="icon icon-inline">
-                            <use xlinkHref="#icon-arrow-down"></use>
+                            <use xlinkHref="#icon-arrow-down1"></use>
                           </svg>
                           {this.state.upvotes !== this.state.score && (
                             <span class="ml-1">{this.state.downvotes}</span>

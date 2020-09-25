@@ -194,7 +194,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (isImage(post.url)) {
       return (
         <div
-          class="float-right text-body pointer d-inline-block position-relative"
+          class="float-right text-body pointer d-inline-block position-relative mb-2"
           data-tippy-content={i18n.t('expand_here')}
           onClick={linkEvent(this, this.handleImageExpandClick)}
         >
@@ -207,7 +207,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     } else if (post.thumbnail_url) {
       return (
         <a
-          class="float-right text-body d-inline-block position-relative"
+          class="float-right text-body d-inline-block position-relative mb-2"
           href={post.url}
           target="_blank"
           rel="noopener"
@@ -493,10 +493,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   commentsLine(showVotes: boolean = false) {
     let post = this.props.post;
     return (
-      <ul class="d-flex align-items-center list-inline mb-1 text-muted small">
-        <li className="list-inline-item">
+      <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold">
+        <button class="btn btn-link text-muted p-0">
           <Link
-            className="text-muted"
+            className="text-muted small"
             title={i18n.t('number_of_comments', {
               count: post.number_of_comments,
             })}
@@ -509,43 +509,53 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               count: post.number_of_comments,
             })}
           </Link>
-        </li>
+        </button>
+        {/* This is an expanding spacer for mobile */}
+        <div className="flex-grow-1"></div>
         {(showVotes || this.state.upvotes !== this.state.score) && (
           <>
-            <span
-              class="unselectable pointer ml-3"
-              data-tippy-content={this.pointsTippy}
+            <div>
+              <button
+                className={`btn-animate btn py-0 px-1 ${
+                  this.state.my_vote == 1 ? 'text-info' : 'text-muted'
+                }`}
+                data-tippy-content={this.pointsTippy}
+                onClick={linkEvent(this, this.handlePostLike)}
+              >
+                <svg class="small icon icon-inline mr-2">
+                  <use xlinkHref="#icon-arrow-up1"></use>
+                </svg>
+                {this.state.upvotes}
+              </button>
+              <button
+                className={`ml-2 btn-animate btn py-0 px-1 ${
+                  this.state.my_vote == -1 ? 'text-danger' : 'text-muted'
+                }`}
+                onClick={linkEvent(this, this.handlePostDisLike)}
+                data-tippy-content={this.pointsTippy}
+              >
+                <svg class="small icon icon-inline mr-2">
+                  <use xlinkHref="#icon-arrow-down1"></use>
+                </svg>
+                {this.state.downvotes !== 0 && (
+                  <span>{this.state.downvotes}</span>
+                )}
+              </button>
+            </div>
+            <button
+              class="btn btn-link btn-animate text-muted py-0 pl-1 pr-0"
+              onClick={linkEvent(this, this.handleSavePostClick)}
+              data-tippy-content={
+                post.saved ? i18n.t('unsave') : i18n.t('save')
+              }
             >
-              <li className="list-inline-item">
-                <a
-                  className={`btn-animate btn btn-link p-0 ${
-                    this.state.my_vote == 1 ? 'text-info' : 'text-muted'
-                  }`}
-                  onClick={linkEvent(this, this.handlePostLike)}
-                >
-                  <svg class="small icon icon-inline mx-1">
-                    <use xlinkHref="#icon-arrow-up1"></use>
-                  </svg>
-                  {this.state.upvotes}
-                </a>
-              </li>
-              <li className="list-inline-item">
-                <a
-                  className={`btn-animate btn btn-link p-0 ${
-                    this.state.my_vote == -1 ? 'text-danger' : 'text-muted'
-                  }`}
-                  onClick={linkEvent(this, this.handlePostDisLike)}
-                >
-                  <svg class="small icon icon-inline mx-1">
-                    <use xlinkHref="#icon-arrow-down1"></use>
-                  </svg>
-                  {this.state.downvotes}
-                </a>
-              </li>
-            </span>
+              <svg class={`icon icon-inline ${post.saved && 'text-warning'}`}>
+                <use xlinkHref="#icon-star"></use>
+              </svg>
+            </button>
           </>
         )}
-      </ul>
+      </div>
     );
   }
 
@@ -576,21 +586,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.props.showBody && (
               <>
-                <li className="list-inline-item">
-                  <button
-                    class="btn btn-link btn-animate text-muted"
-                    onClick={linkEvent(this, this.handleSavePostClick)}
-                    data-tippy-content={
-                      post.saved ? i18n.t('unsave') : i18n.t('save')
-                    }
-                  >
-                    <svg
-                      class={`icon icon-inline ${post.saved && 'text-warning'}`}
-                    >
-                      <use xlinkHref="#icon-star"></use>
-                    </svg>
-                  </button>
-                </li>
                 <li className="list-inline-item">
                   <Link
                     className="btn btn-link btn-animate text-muted"

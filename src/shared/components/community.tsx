@@ -459,7 +459,8 @@ export class Community extends Component<any, State> {
       res.op == UserOperation.DeletePost ||
       res.op == UserOperation.RemovePost ||
       res.op == UserOperation.LockPost ||
-      res.op == UserOperation.StickyPost
+      res.op == UserOperation.StickyPost ||
+      res.op == UserOperation.SavePost
     ) {
       let data = res.data as PostResponse;
       editPostFindRes(data, this.state.posts);

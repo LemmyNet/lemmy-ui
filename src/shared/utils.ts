@@ -927,6 +927,7 @@ export function editPostRes(data: PostResponse, post: Post) {
     post.stickied = data.post.stickied;
     post.body = data.post.body;
     post.locked = data.post.locked;
+    post.saved = data.post.saved;
   }
 }
 
@@ -1153,3 +1154,24 @@ export function wsSubscribe(parseMessage: any): Subscription {
     return null;
   }
 }
+
+moment.updateLocale('en', {
+  relativeTime: {
+    future: 'in %s',
+    past: '%s ago',
+    s: '<1m',
+    ss: '%ds',
+    m: '1m',
+    mm: '%dm',
+    h: '1h',
+    hh: '%dh',
+    d: '1d',
+    dd: '%dd',
+    w: '1w',
+    ww: '%dw',
+    M: '1m',
+    MM: '%dm',
+    y: '1y',
+    yy: '%dy',
+  },
+});
