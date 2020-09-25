@@ -392,6 +392,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       }
       return;
     } else if (msg.reconnect) {
+      WebSocketService.Instance.userJoin();
       this.fetchUnreads();
     } else if (res.op == UserOperation.GetReplies) {
       let data = res.data as GetRepliesResponse;

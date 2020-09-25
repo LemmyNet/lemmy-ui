@@ -417,6 +417,9 @@ export class Community extends Component<any, State> {
       this.context.router.history.push('/');
       return;
     } else if (msg.reconnect) {
+      WebSocketService.Instance.communityJoin({
+        community_id: this.state.communityRes.community.id,
+      });
       this.fetchData();
     } else if (res.op == UserOperation.GetCommunity) {
       let data = res.data as GetCommunityResponse;

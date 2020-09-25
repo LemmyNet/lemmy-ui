@@ -436,8 +436,10 @@ export class Post extends Component<any, PostState> {
       toast(i18n.t(msg.error), 'danger');
       return;
     } else if (msg.reconnect) {
+      let postId = Number(this.props.match.params.id);
+      WebSocketService.Instance.postJoin({ post_id: postId });
       WebSocketService.Instance.getPost({
-        id: Number(this.props.match.params.id),
+        id: postId,
       });
     } else if (res.op == UserOperation.GetPost) {
       let data = res.data as GetPostResponse;
