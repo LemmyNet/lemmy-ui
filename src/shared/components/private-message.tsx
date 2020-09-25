@@ -58,7 +58,7 @@ export class PrivateMessage extends Component<
       ? {
           name: message.recipient_name,
           preferred_username: message.recipient_preferred_username,
-          id: message.id,
+          id: message.recipient_id,
           avatar: message.recipient_avatar,
           local: message.recipient_local,
           actor_id: message.recipient_actor_id,
@@ -72,7 +72,7 @@ export class PrivateMessage extends Component<
       : {
           name: message.creator_name,
           preferred_username: message.creator_preferred_username,
-          id: message.id,
+          id: message.creator_id,
           avatar: message.creator_avatar,
           local: message.creator_local,
           actor_id: message.creator_actor_id,
