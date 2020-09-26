@@ -43,6 +43,7 @@ import {
   setAuth,
   lemmyHttp,
   previewLines,
+  editPostFindRes,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { HtmlTags } from './html-tags';
@@ -884,6 +885,9 @@ export class User extends Component<any, UserState> {
     this.props.history.push(
       `/u/${this.state.userName}/view/${viewStr}/sort/${sortStr}/page/${page}`
     );
+    this.state.loading = true;
+    this.setState(this.state);
+    this.fetchUserData();
   }
 
   handlePageChange(page: number) {
@@ -1140,6 +1144,17 @@ export class User extends Component<any, UserState> {
     } else if (res.op == UserOperation.SaveComment) {
       const data = res.data as CommentResponse;
       saveCommentRes(data, this.state.userRes.comments);
+      this.setState(this.state);
+    } else if (
+      res.op == UserOperation.EditPost ||
+      res.op == UserOperation.DeletePost ||
+      res.op == UserOperation.RemovePost ||
+      res.op == UserOperation.LockPost ||
+      res.op == UserOperation.StickyPost ||
+      res.op == UserOperation.SavePost
+    ) {
+      let data = res.data as PostResponse;
+      editPostFindRes(data, this.state.userRes.posts);
       this.setState(this.state);
     } else if (res.op == UserOperation.CreatePostLike) {
       const data = res.data as PostResponse;
