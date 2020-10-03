@@ -579,7 +579,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               </button>
             </div>
             <button
-              class="btn btn-link btn-animate text-muted py-0 pl-1"
+              class="btn btn-link btn-animate text-muted py-0 pl-1 pr-0"
               onClick={linkEvent(this, this.handleSavePostClick)}
               data-tippy-content={
                 post.saved ? i18n.t('unsave') : i18n.t('save')
@@ -592,7 +592,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
             {!this.state.showMoreMobile && this.props.showBody && (
               <button
-                class="btn btn-link btn-animate text-muted py-0 p-0"
+                class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleShowMoreMobile)}
                 data-tippy-content={i18n.t('more')}
               >
