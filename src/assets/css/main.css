@@ -204,12 +204,6 @@ hr {
   -ms-transform: scale(1.2);
 }
 
-.selectr-selected, .selectr-options-container {
-  background-color: var(--secondary);
-  color: var(--white);
-  border: unset;
-}
-
 .mini-overlay {
   position: absolute;
   top: 0;
