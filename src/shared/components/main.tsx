@@ -188,7 +188,7 @@ export class Main extends Component<any, MainState> {
       ? Object.values(ListingType)[
           UserService.Instance.user.default_listing_type
         ]
-      : ListingType.All;
+      : ListingType.Local;
     let sort: SortType = pathSplit[7]
       ? SortType[pathSplit[7]]
       : UserService.Instance.user
@@ -587,10 +587,7 @@ export class Main extends Component<any, MainState> {
         <span class="mr-3">
           <ListingTypeSelect
             type_={this.state.listingType}
-            showLocal={
-              this.state.siteRes.federated_instances &&
-              this.state.siteRes.federated_instances.length > 0
-            }
+            showLocal={this.showLocal}
             onChange={this.handleListingTypeChange}
           />
         </span>
@@ -646,6 +643,13 @@ export class Main extends Component<any, MainState> {
           </button>
         )}
       </div>
+    );
+  }
+
+  get showLocal(): boolean {
+    return (
+      this.isoData.site.federated_instances !== null &&
+      this.isoData.site.federated_instances.length > 0
     );
   }
 

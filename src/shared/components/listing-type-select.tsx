@@ -73,7 +73,10 @@ export class ListingTypeSelect extends Component<
         )}
         <label
           className={`pointer btn btn-outline-secondary ${
-            this.state.type_ == ListingType.All && 'active'
+            (this.state.type_ == ListingType.All && 'active') ||
+            (!this.props.showLocal &&
+              this.state.type_ == ListingType.Local &&
+              'active')
           }`}
         >
           <input
