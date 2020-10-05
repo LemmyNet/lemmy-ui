@@ -1169,9 +1169,9 @@ moment.updateLocale('en', {
     dd: '%dd',
     w: '1w',
     ww: '%dw',
-    M: '1m',
-    MM: '%dm',
-    y: '1y',
-    yy: '%dy',
+    M: '1M',
+    MM: '%dM',
+    y: '1Y',
+    yy: '%dY',
   },
 });
