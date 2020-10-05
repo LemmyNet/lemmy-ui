@@ -223,6 +223,7 @@ export class Login extends Component<any, State> {
               value={this.state.registerForm.password}
               autoComplete="new-password"
               onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+              maxLength={60}
               class="form-control"
               required
             />
