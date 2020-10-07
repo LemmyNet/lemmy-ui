@@ -84,7 +84,7 @@ export class Search extends Component<any, SearchState> {
   };
 
   static getSearchQueryFromProps(q: string): string {
-    return q || '';
+    return decodeURIComponent(q) || '';
   }
 
   static getSearchTypeFromProps(type_: string): SearchType {
@@ -504,11 +504,12 @@ export class Search extends Component<any, SearchState> {
 
   updateUrl(paramUpdates: UrlParams) {
     const qStr = paramUpdates.q || this.state.q;
+    const qStrEncoded = encodeURIComponent(qStr);
     const typeStr = paramUpdates.type_ || this.state.type_;
     const sortStr = paramUpdates.sort || this.state.sort;
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
-      `/search/q/${qStr}/type/${typeStr}/sort/${sortStr}/page/${page}`
+      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/page/${page}`
     );
   }
 

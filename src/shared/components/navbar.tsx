@@ -137,8 +137,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (searchParam === '') {
       this.context.router.history.push(`/search/`);
     } else {
+      const searchParamEncoded = encodeURIComponent(searchParam);
       this.context.router.history.push(
-        `/search/q/${searchParam}/type/All/sort/TopAll/page/1`
+        `/search/q/${searchParamEncoded}/type/All/sort/TopAll/page/1`
       );
     }
   }
