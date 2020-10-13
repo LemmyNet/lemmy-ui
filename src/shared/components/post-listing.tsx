@@ -749,53 +749,53 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {/* Mods can ban from community, and appoint as mods to community */}
               {(this.canMod || this.canAdmin) &&
                 (!post.removed ? (
-                  <span
-                    class="pointer"
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModRemoveShow)}
                   >
                     {i18n.t('remove')}
-                  </span>
+                  </button>
                 ) : (
-                  <span
-                    class="pointer"
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModRemoveSubmit)}
                   >
                     {i18n.t('restore')}
-                  </span>
+                  </button>
                 ))}
               {this.canMod && (
                 <>
                   {!this.isMod &&
                     (!post.banned_from_community ? (
-                      <span
-                        class="pointer"
+                      <button
+                        class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(
                           this,
                           this.handleModBanFromCommunityShow
                         )}
                       >
                         {i18n.t('ban')}
-                      </span>
+                      </button>
                     ) : (
-                      <span
-                        class="pointer"
+                      <button
+                        class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(
                           this,
                           this.handleModBanFromCommunitySubmit
                         )}
                       >
                         {i18n.t('unban')}
-                      </span>
+                      </button>
                     ))}
                   {!post.banned_from_community && post.creator_local && (
-                    <span
-                      class="pointer"
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0"
                       onClick={linkEvent(this, this.handleAddModToCommunity)}
                     >
                       {this.isMod
                         ? i18n.t('remove_as_mod')
                         : i18n.t('appoint_as_mod')}
-                    </span>
+                    </button>
                   )}
                 </>
               )}
@@ -804,35 +804,35 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 this.isMod &&
                 post.creator_local &&
                 (!this.state.showConfirmTransferCommunity ? (
-                  <span
-                    class="pointer"
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(
                       this,
                       this.handleShowConfirmTransferCommunity
                     )}
                   >
                     {i18n.t('transfer_community')}
-                  </span>
+                  </button>
                 ) : (
                   <>
-                    <span class="d-inline-block mr-1">
+                    <button class="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0">
                       {i18n.t('are_you_sure')}
-                    </span>
-                    <span
-                      class="pointer d-inline-block mr-1"
+                    </button>
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
                       onClick={linkEvent(this, this.handleTransferCommunity)}
                     >
                       {i18n.t('yes')}
-                    </span>
-                    <span
-                      class="pointer d-inline-block"
+                    </button>
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0 d-inline-block"
                       onClick={linkEvent(
                         this,
                         this.handleCancelShowConfirmTransferCommunity
                       )}
                     >
                       {i18n.t('no')}
-                    </span>
+                    </button>
                   </>
                 ))}
               {/* Admins can ban from all, and appoint other admins */}
@@ -840,29 +840,29 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <>
                   {!this.isAdmin &&
                     (!post.banned ? (
-                      <span
-                        class="pointer"
+                      <button
+                        class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(this, this.handleModBanShow)}
                       >
                         {i18n.t('ban_from_site')}
-                      </span>
+                      </button>
                     ) : (
-                      <span
-                        class="pointer"
+                      <button
+                        class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(this, this.handleModBanSubmit)}
                       >
                         {i18n.t('unban_from_site')}
-                      </span>
+                      </button>
                     ))}
                   {!post.banned && post.creator_local && (
-                    <span
-                      class="pointer"
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0"
                       onClick={linkEvent(this, this.handleAddAdmin)}
                     >
                       {this.isAdmin
                         ? i18n.t('remove_as_admin')
                         : i18n.t('appoint_as_admin')}
-                    </span>
+                    </button>
                   )}
                 </>
               )}
@@ -870,35 +870,35 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.amSiteCreator &&
                 this.isAdmin &&
                 (!this.state.showConfirmTransferSite ? (
-                  <span
-                    class="pointer"
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(
                       this,
                       this.handleShowConfirmTransferSite
                     )}
                   >
                     {i18n.t('transfer_site')}
-                  </span>
+                  </button>
                 ) : (
                   <>
-                    <span class="d-inline-block mr-1">
+                    <button class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1">
                       {i18n.t('are_you_sure')}
-                    </span>
-                    <span
-                      class="pointer d-inline-block mr-1"
+                    </button>
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
                       onClick={linkEvent(this, this.handleTransferSite)}
                     >
                       {i18n.t('yes')}
-                    </span>
-                    <span
-                      class="pointer d-inline-block"
+                    </button>
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0 d-inline-block"
                       onClick={linkEvent(
                         this,
                         this.handleCancelShowConfirmTransferSite
                       )}
                     >
                       {i18n.t('no')}
-                    </span>
+                    </button>
                   </>
                 ))}
             </>
