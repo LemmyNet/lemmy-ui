@@ -52,6 +52,7 @@ import {
   isBrowser,
   lemmyHttp,
   setAuth,
+  communityRSSUrl,
 } from '../utils';
 import { i18n } from '../i18next';
 
@@ -320,7 +321,10 @@ export class Community extends Component<any, State> {
           <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
         </span>
         <a
-          href={`/feeds/c/${this.state.communityName}.xml?sort=${this.state.sort}`}
+          href={communityRSSUrl(
+            this.state.communityRes.community.actor_id,
+            this.state.sort
+          )}
           target="_blank"
           title="RSS"
           rel="noopener"

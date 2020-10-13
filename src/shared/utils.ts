@@ -278,6 +278,11 @@ export function validURL(str: string) {
   // }
 }
 
+export function communityRSSUrl(actorId: string, sort: string): string {
+  let url = new URL(actorId);
+  return `${url.origin}/feeds${url.pathname}.xml?sort=${sort}`;
+}
+
 export function validEmail(email: string) {
   let re = /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z\-]+\.)+[A-Za-z]{2,}))$/;
   return re.test(String(email).toLowerCase());
