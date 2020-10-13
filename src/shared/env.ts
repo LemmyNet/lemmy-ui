@@ -4,9 +4,9 @@ const testHost = 'localhost:8536';
 
 const internalHost = process.env.LEMMY_INTERNAL_HOST || testHost; // used for local dev
 export const externalHost = isBrowser()
-  ? `${window.location.hostname}:${
-      window.location.port == '1234' || window.location.port == '1235'
-        ? 8536
+  ? `${window.location.hostname}${
+      ['1234', '1235'].includes(window.location.port)
+        ? ':8536'
         : window.location.port
     }`
   : process.env.LEMMY_EXTERNAL_HOST || testHost;
