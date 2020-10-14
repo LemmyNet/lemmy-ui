@@ -297,6 +297,10 @@ br.big {
   margin-top: -60px;
 }
 
+.img-icon {
+  width: 2rem; height: 2rem;
+}
+
 .tribute-container ul {
   margin: 0;
   margin-top: 2px;

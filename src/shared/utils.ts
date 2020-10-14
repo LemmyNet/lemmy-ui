@@ -491,15 +491,6 @@ export function objectFlip(obj: any) {
   return ret;
 }
 
-export function pictrsAvatarThumbnail(src: string): string {
-  // sample url: http://localhost:8535/pictrs/image/thumbnail256/gs7xuu.jpg
-  let split = src.split('/pictrs/image');
-  let out = `${split[0]}/pictrs/image/${
-    canUseWebP() ? 'webp/' : ''
-  }thumbnail96${split[1]}`;
-  return out;
-}
-
 export function showAvatars(): boolean {
   return (
     (UserService.Instance.user && UserService.Instance.user.show_avatars) ||
@@ -518,23 +509,6 @@ export function isCakeDay(published: string): boolean {
     userCreationDate.month() === currentDate.month() &&
     userCreationDate.year() !== currentDate.year()
   );
-}
-
-// Converts to image thumbnail
-export function pictrsImage(hash: string, thumbnail: boolean = false): string {
-  let root = `/pictrs/image`;
-
-  // Necessary for other servers / domains
-  if (hash.includes('pictrs')) {
-    let split = hash.split('/pictrs/image/');
-    root = `${split[0]}/pictrs/image`;
-    hash = split[1];
-  }
-
-  let out = `${root}/${canUseWebP() ? 'webp/' : ''}${
-    thumbnail ? 'thumbnail256/' : ''
-  }${hash}`;
-  return out;
 }
 
 export function isCommentType(
@@ -1088,23 +1062,6 @@ export function previewLines(
 export function hostname(url: string): string {
   let cUrl = new URL(url);
   return cUrl.port ? `${cUrl.hostname}:${cUrl.port}` : `${cUrl.hostname}`;
-}
-
-function canUseWebP() {
-  // TODO pictshare might have a webp conversion bug, try disabling this
-  return false;
-
-  // var elem = document.createElement('canvas');
-  // if (!!(elem.getContext && elem.getContext('2d'))) {
-  //   var testString = !(window.mozInnerScreenX == null) ? 'png' : 'webp';
-  //   // was able or not to get WebP representation
-  //   return (
-  //     elem.toDataURL('image/webp').startsWith('data:image/' + testString)
-  //   );
-  // }
-
-  // // very old browser like IE 8, canvas not supported
-  // return false;
 }
 
 export function validTitle(title?: string): boolean {

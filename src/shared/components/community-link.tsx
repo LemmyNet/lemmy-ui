@@ -1,7 +1,8 @@
 import { Component } from 'inferno';
 import { Link } from 'inferno-router';
 import { Community } from 'lemmy-js-client';
-import { hostname, pictrsAvatarThumbnail, showAvatars } from '../utils';
+import { hostname, showAvatars } from '../utils';
+import { PictrsImage } from './pictrs-image';
 
 interface CommunityOther {
   name: string;
@@ -47,11 +48,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
         to={link}
       >
         {!this.props.hideAvatar && community.icon && showAvatars() && (
-          <img
-            style="width: 2rem; height: 2rem;"
-            src={pictrsAvatarThumbnail(community.icon)}
-            class="rounded-circle mr-2"
-          />
+          <PictrsImage src={community.icon} icon />
         )}
         <span>{displayName}</span>
       </Link>

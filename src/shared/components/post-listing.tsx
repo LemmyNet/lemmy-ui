@@ -24,6 +24,7 @@ import { PostForm } from './post-form';
 import { IFramelyCard } from './iframely-card';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
+import { PictrsImage } from './pictrs-image';
 import {
   md,
   mdToHtml,
@@ -32,7 +33,6 @@ import {
   isImage,
   isVideo,
   getUnixTime,
-  pictrsImage,
   setupTippy,
   hostname,
   previewLines,
@@ -164,27 +164,26 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   imgThumb(src: string) {
     let post = this.props.post;
     return (
-      <img
-        className={`img-fluid thumbnail rounded ${
-          post.nsfw || post.community_nsfw ? 'img-blur' : ''
-        }`}
+      <PictrsImage
         src={src}
+        thumbnail
+        nsfw={post.nsfw || post.community_nsfw}
       />
     );
   }
 
-  getImage(thumbnail: boolean = false) {
+  getImageSrc(): string {
     let post = this.props.post;
     if (isImage(post.url)) {
       if (post.url.includes('pictrs')) {
-        return pictrsImage(post.url, thumbnail);
+        return post.url;
       } else if (post.thumbnail_url) {
-        return pictrsImage(post.thumbnail_url, thumbnail);
+        return post.thumbnail_url;
       } else {
         return post.url;
       }
     } else if (post.thumbnail_url) {
-      return pictrsImage(post.thumbnail_url, thumbnail);
+      return post.thumbnail_url;
     } else {
       return null;
     }
@@ -200,7 +199,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           data-tippy-content={i18n.t('expand_here')}
           onClick={linkEvent(this, this.handleImageExpandClick)}
         >
-          {this.imgThumb(this.getImage(true))}
+          {this.imgThumb(this.getImageSrc())}
           <svg class="icon mini-overlay">
             <use xlinkHref="#icon-image"></use>
           </svg>
@@ -215,7 +214,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           rel="noopener"
           title={post.url}
         >
-          {this.imgThumb(this.getImage(true))}
+          {this.imgThumb(this.getImageSrc())}
           <svg class="icon mini-overlay">
             <use xlinkHref="#icon-external-link"></use>
           </svg>
@@ -442,7 +441,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     class="pointer"
                     onClick={linkEvent(this, this.handleImageExpandClick)}
                   >
-                    <img class="img-fluid img-expanded" src={this.getImage()} />
+                    <PictrsImage src={this.getImageSrc()} />
                   </span>
                 </div>
               </span>

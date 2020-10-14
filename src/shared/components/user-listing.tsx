@@ -1,13 +1,9 @@
 import { Component } from 'inferno';
 import { Link } from 'inferno-router';
 import { UserView } from 'lemmy-js-client';
-import {
-  pictrsAvatarThumbnail,
-  showAvatars,
-  hostname,
-  isCakeDay,
-} from '../utils';
+import { showAvatars, hostname, isCakeDay } from '../utils';
 import { CakeDay } from './cake-day';
+import { PictrsImage } from './pictrs-image';
 
 export interface UserOther {
   name: string;
@@ -59,11 +55,7 @@ export class UserListing extends Component<UserListingProps, any> {
           to={link}
         >
           {!this.props.hideAvatar && user.avatar && showAvatars() && (
-            <img
-              style="width: 2rem; height: 2rem;"
-              src={pictrsAvatarThumbnail(user.avatar)}
-              class="rounded-circle mr-2"
-            />
+            <PictrsImage src={user.avatar} icon />
           )}
           <span>{displayName}</span>
         </Link>
