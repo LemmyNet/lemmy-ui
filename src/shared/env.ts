@@ -7,7 +7,9 @@ export const externalHost = isBrowser()
   ? `${window.location.hostname}${
       ['1234', '1235'].includes(window.location.port)
         ? ':8536'
-        : window.location.port
+        : window.location.port == ''
+        ? ''
+        : `:${window.location.port}`
     }`
   : process.env.LEMMY_EXTERNAL_HOST || testHost;
 
