@@ -20,7 +20,6 @@ import {
 } from 'lemmy-js-client';
 import {
   wsJsonToRes,
-  pictrsAvatarThumbnail,
   showAvatars,
   fetchLimit,
   toast,
@@ -32,6 +31,7 @@ import {
   wsSubscribe,
 } from '../utils';
 import { i18n } from '../i18next';
+import { PictrsImage } from './pictrs-image';
 
 interface NavbarProps {
   site: GetSiteResponse;
@@ -190,12 +190,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               to="/"
             >
               {this.props.site.site.icon && showAvatars() && (
-                <img
-                  src={pictrsAvatarThumbnail(this.props.site.site.icon)}
-                  height="32"
-                  width="32"
-                  class="rounded-circle mr-2"
-                />
+                <PictrsImage src={this.props.site.site.icon} icon />
               )}
               {this.props.site.site.name}
             </Link>
@@ -345,12 +340,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     >
                       <span>
                         {user.avatar && showAvatars() && (
-                          <img
-                            src={pictrsAvatarThumbnail(user.avatar)}
-                            height="32"
-                            width="32"
-                            class="rounded-circle mr-2"
-                          />
+                          <PictrsImage src={user.avatar} icon />
                         )}
                         {user.preferred_username
                           ? user.preferred_username

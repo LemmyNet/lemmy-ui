@@ -1,4 +1,5 @@
 import { Component } from 'inferno';
+import { PictrsImage } from './pictrs-image';
 
 interface BannerIconHeaderProps {
   banner?: string;
@@ -13,15 +14,12 @@ export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
   render() {
     return (
       <div class="position-relative mb-2">
-        {this.props.banner && (
-          <img src={this.props.banner} class="banner img-fluid" />
-        )}
+        {this.props.banner && <PictrsImage src={this.props.banner} />}
         {this.props.icon && (
-          <img
+          <PictrsImage
             src={this.props.icon}
-            className={`ml-2 mb-0 ${
-              this.props.banner ? 'avatar-pushup' : ''
-            } rounded-circle avatar-overlay`}
+            iconOverlay
+            pushup={!!this.props.banner}
           />
         )}
       </div>
