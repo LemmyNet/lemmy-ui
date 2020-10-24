@@ -5,7 +5,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const banner = `
-  hash:[hash], chunkhash:[chunkhash], name:[name], filebase:[filebase], query:[query], file:[file]
+  hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
   Source code: https://github.com/LemmyNet/lemmy-ui
   Created by dessalines
   @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3.0
@@ -16,7 +16,6 @@ module.exports = function (env, _) {
     // mode is set by package.json flags
     entry: './src/server/index.tsx', // Point to main file
     output: {
-      path: path.resolve(process.cwd(), 'dist'),
       filename: 'js/server.js',
       publicPath: '/',
     },
@@ -34,8 +33,15 @@ module.exports = function (env, _) {
         },
         {
           test: /\.(js|jsx|tsx|ts)$/, // All ts and tsx files will be process by
-          loaders: 'babel-loader', // first babel-loader, then ts-loader
           exclude: /node_modules/, // ignore node_modules
+          loader: 'babel-loader',
+        },
+        // Due to some weird babel issue: https://github.com/webpack/webpack/issues/11467
+        {
+          test: /\.m?js/,
+          resolve: {
+            fullySpecified: false,
+          },
         },
       ],
     },

@@ -61,7 +61,7 @@ const resources = {
   sr_Latn,
 };
 
-function format(value: any, format: any, lng: any): any {
+function format(value: any, format: any): any {
   return format === 'uppercase' ? value.toUpperCase() : value;
 }
 
