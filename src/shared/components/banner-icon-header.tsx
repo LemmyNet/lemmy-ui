@@ -19,6 +19,7 @@ export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
           <PictrsImage
             src={this.props.icon}
             iconOverlay
+            noFluid
             pushup={!!this.props.banner}
           />
         )}

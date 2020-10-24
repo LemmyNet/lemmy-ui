@@ -10,6 +10,7 @@ interface PictrsImageProps {
   nsfw?: boolean;
   iconOverlay?: boolean;
   pushup?: boolean;
+  noFluid?: boolean;
 }
 
 export class PictrsImage extends Component<PictrsImageProps, any> {
@@ -24,7 +25,8 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
         <source srcSet={this.src('jpg')} type="image/jpeg" />
         <img
           src={this.src('jpg')}
-          className={`img-fluid 
+          className={`
+        ${!this.props.noFluid && 'img-fluid '}
         ${this.props.thumbnail ? 'thumbnail rounded ' : 'img-expanded '} 
         ${this.props.thumbnail && this.props.nsfw && 'img-blur '}
         ${this.props.icon && 'rounded-circle img-icon mr-2 '}
