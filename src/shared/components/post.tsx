@@ -155,7 +155,6 @@ export class Post extends Component<any, PostState> {
 
       // let currentId = this.props.match.params.id;
       // WebSocketService.Instance.getPost(currentId);
-      // this.context.router.history.push('/sponsors');
       // this.context.refresh();
       // this.context.router.history.push(_lastProps.location.pathname);
     }

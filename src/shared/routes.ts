@@ -14,7 +14,6 @@ import { Setup } from './components/setup';
 import { AdminSettings } from './components/admin-settings';
 import { Inbox } from './components/inbox';
 import { Search } from './components/search';
-import { Sponsors } from './components/sponsors';
 import { Instances } from './components/instances';
 
 interface IRoutePropsWithFetch extends IRouteProps {
@@ -136,7 +135,6 @@ export const routes: IRoutePropsWithFetch[] = [
     component: Search,
     fetchInitialData: (auth, path) => Search.fetchInitialData(auth, path),
   },
-  { path: `/sponsors`, component: Sponsors },
   {
     path: `/password_change/:token`,
     component: PasswordChange,
