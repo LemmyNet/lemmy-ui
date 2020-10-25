@@ -12,6 +12,8 @@ const banner = `
   `;
 
 module.exports = function (env, _) {
+  const platform = env.platform || 'server';
+
   const base = {
     // mode is set by package.json flags
     entry: './src/server/index.tsx', // Point to main file
@@ -61,15 +63,19 @@ module.exports = function (env, _) {
         banner,
       }),
     ],
+    cache: {
+      type: 'filesystem',
+      name: platform,
+    },
   };
 
   // server-specific configuration
-  if (env.platform === 'server') {
+  if (platform === 'server') {
     base.target = 'node';
     base.externals = [nodeExternals(), 'inferno-helmet'];
   }
   // client-specific configurations
-  if (env.platform === 'client') {
+  if (platform === 'client') {
     base.entry = './src/client/index.tsx';
     base.output.filename = 'js/client.js';
   }
