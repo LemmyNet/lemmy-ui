@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const nodeExternals = require('webpack-node-externals');
 const CopyPlugin = require('copy-webpack-plugin');
+const RunNodeWebpackPlugin = require('run-node-webpack-plugin');
 const { merge } = require('lodash');
 
 const banner = `
@@ -71,6 +72,12 @@ const createServerConfig = (env, mode) => {
       type: 'filesystem',
       name: 'server',
     };
+
+    config.plugins.push(
+      new RunNodeWebpackPlugin({
+        runOnlyInWatchMode: true,
+      })
+    );
   }
 
   return config;
