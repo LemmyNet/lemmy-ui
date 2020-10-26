@@ -89,7 +89,7 @@ server.get('/*', async (req, res) => {
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
-           <script>window.isoData = ${serialize(isoData)}</script>      
+           <script>window.isoData = ${serialize(isoData)}</script>
 
            ${helmet.title.toString()}
            ${helmet.meta.toString()}
@@ -109,14 +109,12 @@ server.get('/*', async (req, res) => {
 
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
-           ${userTheme || ''}
            ${
-             userTheme
-               ? ''
-               : `
+             userTheme ??
+             `
            <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/litely.min.css" id="default-light" media="(prefers-color-scheme: light)" />
            <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/darkly.min.css" id="default-dark" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)" />
-           `
+           `.trim()
            }
            </head>
 
