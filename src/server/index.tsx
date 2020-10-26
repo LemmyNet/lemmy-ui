@@ -61,17 +61,6 @@ server.get('/*', async (req, res) => {
   };
 
   initializeSite(site);
-  const user = site.my_user;
-  const userTheme =
-    user &&
-    user.theme &&
-    `
-      <link
-        rel="stylesheet"
-        type="text/css"
-        href="/static/assets/css/themes/${user.theme}.min.css"
-      />
-    `;
 
   const wrapper = (
     <StaticRouter location={req.url} context={isoData}>
@@ -93,7 +82,6 @@ server.get('/*', async (req, res) => {
 
            ${helmet.title.toString()}
            ${helmet.meta.toString()}
-           ${helmet.link.toString()}
 
            <!-- Required meta tags -->
            <meta name="Description" content="Lemmy">
@@ -109,13 +97,9 @@ server.get('/*', async (req, res) => {
 
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
-           ${
-             userTheme ??
-             `
-           <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/litely.min.css" id="default-light" media="(prefers-color-scheme: light)" />
-           <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/darkly.min.css" id="default-dark" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)" />
-           `.trim()
-           }
+
+           <!-- Current theme and more -->
+           ${helmet.link.toString()}
            </head>
 
            <body ${helmet.bodyAttributes.toString()}>

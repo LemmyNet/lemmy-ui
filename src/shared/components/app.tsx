@@ -6,9 +6,9 @@ import { i18n } from '../i18next';
 import { routes } from '../../shared/routes';
 import { Navbar } from '../../shared/components/navbar';
 import { Footer } from '../../shared/components/footer';
+import { Theme } from './theme';
 import { Symbols } from '../../shared/components/symbols';
 import { GetSiteResponse } from 'lemmy-js-client';
-import { UserService } from '../../shared/services';
 import './styles.scss';
 
 export interface AppProps {
@@ -24,6 +24,7 @@ export class App extends Component<AppProps, any> {
       <>
         <Provider i18next={i18n}>
           <div>
+            <Theme user={this.props.site.my_user} />
             {this.props.site &&
               this.props.site.site &&
               this.props.site.site.icon && (
