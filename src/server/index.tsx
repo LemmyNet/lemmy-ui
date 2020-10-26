@@ -13,6 +13,7 @@ import { lemmyHttp, setAuth } from '../shared/utils';
 import { GetSiteForm, GetSiteResponse } from 'lemmy-js-client';
 import process from 'process';
 import { Helmet } from 'inferno-helmet';
+import { initializeSite } from '../shared/initialize';
 
 const server = express();
 const port = 1234;
@@ -59,6 +60,19 @@ server.get('/*', async (req, res) => {
     lang,
   };
 
+  initializeSite(site);
+  const user = site.my_user;
+  const userTheme =
+    user &&
+    user.theme &&
+    `
+      <link
+        rel="stylesheet"
+        type="text/css"
+        href="/static/assets/css/themes/${user.theme}.min.css"
+      />
+    `;
+
   const wrapper = (
     <StaticRouter location={req.url} context={isoData}>
       <App site={isoData.site} />
@@ -95,8 +109,15 @@ server.get('/*', async (req, res) => {
 
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
+           ${userTheme || ''}
+           ${
+             userTheme
+               ? ''
+               : `
            <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/litely.min.css" id="default-light" media="(prefers-color-scheme: light)" />
            <link rel="stylesheet" type="text/css" href="/static/assets/css/themes/darkly.min.css" id="default-dark" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)" />
+           `
+           }
            </head>
 
            <body ${helmet.bodyAttributes.toString()}>
@@ -105,7 +126,7 @@ server.get('/*', async (req, res) => {
                  <b>Javascript is disabled. Actions will not work.</b>
                </div>
              </noscript>
-            
+
              <div id='root'>${root}</div>
              <script defer src='/static/js/client.js'></script>
            </body>

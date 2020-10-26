@@ -8,6 +8,7 @@ import { Navbar } from '../../shared/components/navbar';
 import { Footer } from '../../shared/components/footer';
 import { Symbols } from '../../shared/components/symbols';
 import { GetSiteResponse } from 'lemmy-js-client';
+import { UserService } from '../../shared/services';
 import './styles.scss';
 
 export interface AppProps {
@@ -18,7 +19,6 @@ export class App extends Component<AppProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }
-
   render() {
     return (
       <>
