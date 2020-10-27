@@ -29,7 +29,6 @@
     "inferno-router": "^7.4.6",
     "inferno-server": "^7.4.6",
     "isomorphic-cookie": "^1.2.4",
-    "isomorphic-ws": "^4.0.1",
     "jwt-decode": "^3.0.0",
     "markdown-it": "^12.0.2",
     "markdown-it-container": "^3.0.0",

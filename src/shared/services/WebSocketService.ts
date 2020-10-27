@@ -63,7 +63,6 @@ import { i18n } from '../i18next';
 import { toast, isBrowser } from '../utils';
 import { Observable } from 'rxjs';
 import { share } from 'rxjs/operators';
-import WebSocket from 'isomorphic-ws';
 import {
   Options as WSOptions,
   default as ReconnectingWebSocket,
@@ -73,8 +72,7 @@ export class WebSocketService {
   private static _instance: WebSocketService;
   public ws: ReconnectingWebSocket;
   public wsOptions: WSOptions = {
-    WebSocket: WebSocket,
-    connectionTimeout: 1000,
+    connectionTimeout: 5000,
     maxRetries: 10,
   };
   public subject: Observable<any>;
