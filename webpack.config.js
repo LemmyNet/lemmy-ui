@@ -56,7 +56,7 @@ const base = {
   ],
 };
 
-const createServerConfig = (env, mode) => {
+const createServerConfig = (_env, mode) => {
   const config = merge({}, base, {
     mode,
     entry: './src/server/index.tsx',
@@ -82,7 +82,7 @@ const createServerConfig = (env, mode) => {
 
   return config;
 };
-const createClientConfig = (env, mode) => {
+const createClientConfig = (_env, mode) => {
   const config = merge({}, base, {
     mode,
     entry: './src/client/index.tsx',
