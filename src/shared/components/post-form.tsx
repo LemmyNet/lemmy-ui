@@ -366,7 +366,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     event.preventDefault();
 
     // Coerce empty url string to undefined
-    if (i.state.postForm.url && i.state.postForm.url === '') {
+    if (i.state.postForm.url !== undefined && i.state.postForm.url === '') {
       i.state.postForm.url = undefined;
     }
 

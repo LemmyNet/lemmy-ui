@@ -270,13 +270,8 @@ export function isVideo(url: string) {
   return videoRegex.test(url);
 }
 
-// TODO this broke
 export function validURL(str: string) {
-  // try {
   return !!new URL(str);
-  // } catch {
-  // return false;
-  // }
 }
 
 export function communityRSSUrl(actorId: string, sort: string): string {
