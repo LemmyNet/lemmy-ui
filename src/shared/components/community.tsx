@@ -138,6 +138,7 @@ export class Community extends Component<any, State> {
   componentWillUnmount() {
     if (isBrowser()) {
       this.subscription.unsubscribe();
+      window.isoData.path = undefined;
     }
   }
 

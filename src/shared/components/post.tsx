@@ -131,6 +131,7 @@ export class Post extends Component<any, PostState> {
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
+    window.isoData.path = undefined;
   }
 
   componentDidMount() {

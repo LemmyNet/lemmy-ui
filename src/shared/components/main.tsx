@@ -162,6 +162,7 @@ export class Main extends Component<any, MainState> {
   componentWillUnmount() {
     if (isBrowser()) {
       this.subscription.unsubscribe();
+      window.isoData.path = undefined;
     }
   }
 
