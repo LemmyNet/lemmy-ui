@@ -3,11 +3,12 @@ import { Route, Switch } from 'inferno-router';
 import { Provider } from 'inferno-i18next';
 import { Helmet } from 'inferno-helmet';
 import { i18n } from '../i18next';
-import { routes } from '../../shared/routes';
-import { Navbar } from '../../shared/components/navbar';
-import { Footer } from '../../shared/components/footer';
+import { routes } from '../routes';
+import { Navbar } from './navbar';
+import { Footer } from './footer';
+import { NoMatch } from './no-match';
 import { Theme } from './theme';
-import { Symbols } from '../../shared/components/symbols';
+import { Symbols } from './symbols';
 import { GetSiteResponse } from 'lemmy-js-client';
 import './styles.scss';
 
@@ -48,7 +49,7 @@ export class App extends Component<AppProps, any> {
                     render={props => <C {...props} {...rest} />}
                   />
                 ))}
-                {/* <Route render={(props) => <NoMatch {...props} />} /> */}
+                <Route render={props => <NoMatch {...props} />} />
               </Switch>
               <Symbols />
             </div>

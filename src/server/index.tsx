@@ -44,6 +44,12 @@ server.get('/*', async (req, res) => {
   let site: GetSiteResponse = resolver[0];
   let routeData = resolver.slice(1, resolver.length);
 
+  // Redirect to the 404 if there's an API error
+  if (routeData[0] && routeData[0].error) {
+    console.log(`Route error: ${routeData[0].error}`);
+    return res.redirect('/404');
+  }
+
   let acceptLang = req.headers['accept-language']
     ? req.headers['accept-language'].split(',')[0]
     : 'en';
