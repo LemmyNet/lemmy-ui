@@ -66,7 +66,7 @@ export class IFramelyCard extends Component<
                   )}
                   {post.embed_html && (
                     <button
-                      class="mt-2 btn btn-secondary ml-2 pointer text-monospace"
+                      class="mt-2 btn btn-secondary text-monospace"
                       onClick={linkEvent(this, this.handleIframeExpand)}
                       data-tippy-content={i18n.t('expand_here')}
                     >
