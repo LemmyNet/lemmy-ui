@@ -33,55 +33,45 @@ export class IFramelyCard extends Component<
             <div class="row">
               <div class="col-12">
                 <div class="card-body">
-                  <h5 class="card-title d-inline">
-                    {post.embed_html ? (
-                      <span
-                        class="unselectable pointer"
-                        onClick={linkEvent(this, this.handleIframeExpand)}
-                        data-tippy-content={i18n.t('expand_here')}
+                  {post.name !== post.embed_title && [
+                    <h5 class="card-title d-inline">
+                      <a
+                        class="text-body"
+                        target="_blank"
+                        href={post.url}
+                        rel="noopener"
                       >
                         {post.embed_title}
-                      </span>
-                    ) : (
-                      <span>
-                        <a
-                          class="text-body"
-                          target="_blank"
-                          href={post.url}
-                          rel="noopener"
-                        >
-                          {post.embed_title}
-                        </a>
-                      </span>
-                    )}
-                  </h5>
-                  <span class="d-inline-block ml-2 mb-2 small text-muted">
-                    <a
-                      class="text-muted font-italic"
-                      target="_blank"
-                      href={post.url}
-                      rel="noopener"
-                    >
-                      {new URL(post.url).hostname}
-                      <svg class="ml-1 icon">
-                        <use xlinkHref="#icon-external-link"></use>
-                      </svg>
-                    </a>
-                    {post.embed_html && (
-                      <span
-                        class="ml-2 pointer text-monospace"
-                        onClick={linkEvent(this, this.handleIframeExpand)}
-                        data-tippy-content={i18n.t('expand_here')}
+                      </a>
+                    </h5>,
+                    <span class="d-inline-block ml-2 mb-2 small text-muted">
+                      <a
+                        class="text-muted font-italic"
+                        target="_blank"
+                        href={post.url}
+                        rel="noopener"
                       >
-                        {this.state.expanded ? '[-]' : '[+]'}
-                      </span>
-                    )}
-                  </span>
+                        {new URL(post.url).hostname}
+                        <svg class="ml-1 icon">
+                          <use xlinkHref="#icon-external-link"></use>
+                        </svg>
+                      </a>
+                    </span>,
+                  ]}
                   {post.embed_description && (
                     <div
                       className="card-text small text-muted md-div"
                       dangerouslySetInnerHTML={mdToHtml(post.embed_description)}
                     />
+                  )}
+                  {post.embed_html && (
+                    <button
+                      class="mt-2 btn btn-secondary ml-2 pointer text-monospace"
+                      onClick={linkEvent(this, this.handleIframeExpand)}
+                      data-tippy-content={i18n.t('expand_here')}
+                    >
+                      {this.state.expanded ? '-' : '+'}
+                    </button>
                   )}
                 </div>
               </div>
