@@ -10,7 +10,7 @@ import { IsoData } from '../shared/interfaces';
 import { routes } from '../shared/routes';
 import IsomorphicCookie from 'isomorphic-cookie';
 import { lemmyHttp, setAuth } from '../shared/utils';
-import { GetSiteForm, GetSiteResponse } from 'lemmy-js-client';
+import { GetSiteForm } from 'lemmy-js-client';
 import process from 'process';
 import { Helmet } from 'inferno-helmet';
 import { initializeSite } from '../shared/initialize';
@@ -34,15 +34,15 @@ server.get('/*', async (req, res) => {
 
   let promises: Promise<any>[] = [];
 
-  let siteData = lemmyHttp.getSite(getSiteForm);
-  promises.push(siteData);
+  // Get site data first
+  let site = await lemmyHttp.getSite(getSiteForm);
+  initializeSite(site);
+
   if (activeRoute.fetchInitialData) {
     promises.push(...activeRoute.fetchInitialData(auth, req.path));
   }
 
-  let resolver = await Promise.all(promises);
-  let site: GetSiteResponse = resolver[0];
-  let routeData = resolver.slice(1, resolver.length);
+  let routeData = await Promise.all(promises);
 
   // Redirect to the 404 if there's an API error
   if (routeData[0] && routeData[0].error) {
@@ -65,8 +65,6 @@ server.get('/*', async (req, res) => {
     routeData,
     lang,
   };
-
-  initializeSite(site);
 
   const wrapper = (
     <StaticRouter location={req.url} context={isoData}>
