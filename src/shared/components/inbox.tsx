@@ -30,7 +30,6 @@ import {
   setupTippy,
   setIsoData,
   wsSubscribe,
-  lemmyHttp,
   setAuth,
   isBrowser,
 } from '../utils';
@@ -39,6 +38,7 @@ import { PrivateMessage } from './private-message';
 import { HtmlTags } from './html-tags';
 import { SortSelect } from './sort-select';
 import { i18n } from '../i18next';
+import { InitialFetchRequest } from 'shared/interfaces';
 
 enum UnreadOrAll {
   Unread,
@@ -404,7 +404,7 @@ export class Inbox extends Component<any, InboxState> {
     i.refetch();
   }
 
-  static fetchInitialData(auth: string, _path: string): Promise<any>[] {
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
     // It can be /u/me, or /username/1
@@ -414,8 +414,8 @@ export class Inbox extends Component<any, InboxState> {
       page: 1,
       limit: fetchLimit,
     };
-    setAuth(repliesForm, auth);
-    promises.push(lemmyHttp.getReplies(repliesForm));
+    setAuth(repliesForm, req.auth);
+    promises.push(req.client.getReplies(repliesForm));
 
     let userMentionsForm: GetUserMentionsForm = {
       sort: SortType.New,
@@ -423,16 +423,16 @@ export class Inbox extends Component<any, InboxState> {
       page: 1,
       limit: fetchLimit,
     };
-    setAuth(userMentionsForm, auth);
-    promises.push(lemmyHttp.getUserMentions(userMentionsForm));
+    setAuth(userMentionsForm, req.auth);
+    promises.push(req.client.getUserMentions(userMentionsForm));
 
     let privateMessagesForm: GetPrivateMessagesForm = {
       unread_only: true,
       page: 1,
       limit: fetchLimit,
     };
-    setAuth(privateMessagesForm, auth);
-    promises.push(lemmyHttp.getPrivateMessages(privateMessagesForm));
+    setAuth(privateMessagesForm, req.auth);
+    promises.push(req.client.getPrivateMessages(privateMessagesForm));
 
     return promises;
   }

@@ -1,6 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { Subscription } from 'rxjs';
-import { DataType } from '../interfaces';
+import { DataType, InitialFetchRequest } from '../interfaces';
 import {
   UserOperation,
   GetCommunityResponse,
@@ -50,7 +50,6 @@ import {
   setIsoData,
   wsSubscribe,
   isBrowser,
-  lemmyHttp,
   setAuth,
   communityRSSUrl,
 } from '../utils';
@@ -150,8 +149,8 @@ export class Community extends Component<any, State> {
     };
   }
 
-  static fetchInitialData(auth: string, path: string): Promise<any>[] {
-    let pathSplit = path.split('/');
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
+    let pathSplit = req.path.split('/');
     let promises: Promise<any>[] = [];
 
     // It can be /c/main, or /c/1
@@ -165,8 +164,8 @@ export class Community extends Component<any, State> {
     }
 
     let communityForm: GetCommunityForm = id ? { id } : { name: name_ };
-    setAuth(communityForm, auth);
-    promises.push(lemmyHttp.getCommunity(communityForm));
+    setAuth(communityForm, req.auth);
+    promises.push(req.client.getCommunity(communityForm));
 
     let dataType: DataType = pathSplit[4]
       ? DataType[pathSplit[4]]
@@ -188,8 +187,8 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
       };
       this.setIdOrName(getPostsForm, id, name_);
-      setAuth(getPostsForm, auth);
-      promises.push(lemmyHttp.getPosts(getPostsForm));
+      setAuth(getPostsForm, req.auth);
+      promises.push(req.client.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetCommentsForm = {
         page,
@@ -198,11 +197,11 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
       };
       this.setIdOrName(getCommentsForm, id, name_);
-      setAuth(getCommentsForm, auth);
-      promises.push(lemmyHttp.getComments(getCommentsForm));
+      setAuth(getCommentsForm, req.auth);
+      promises.push(req.client.getComments(getCommentsForm));
     }
 
-    promises.push(lemmyHttp.listCategories());
+    promises.push(req.client.listCategories());
 
     return promises;
   }

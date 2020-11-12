@@ -26,12 +26,12 @@ import {
   setIsoData,
   wsSubscribe,
   isBrowser,
-  lemmyHttp,
 } from '../utils';
 import { MomentTime } from './moment-time';
 import { HtmlTags } from './html-tags';
 import moment from 'moment';
 import { i18n } from '../i18next';
+import { InitialFetchRequest } from 'shared/interfaces';
 
 interface ModlogState {
   combined: {
@@ -443,8 +443,8 @@ export class Modlog extends Component<any, ModlogState> {
     WebSocketService.Instance.getModlog(modlogForm);
   }
 
-  static fetchInitialData(_auth: string, path: string): Promise<any>[] {
-    let pathSplit = path.split('/');
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
+    let pathSplit = req.path.split('/');
     let communityId = pathSplit[3];
     let promises: Promise<any>[] = [];
 
@@ -457,7 +457,7 @@ export class Modlog extends Component<any, ModlogState> {
       modlogForm.community_id = Number(communityId);
     }
 
-    promises.push(lemmyHttp.getModlog(modlogForm));
+    promises.push(req.client.getModlog(modlogForm));
     return promises;
   }
 

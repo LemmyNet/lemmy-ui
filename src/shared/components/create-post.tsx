@@ -4,7 +4,6 @@ import { PostForm } from './post-form';
 import { HtmlTags } from './html-tags';
 import {
   isBrowser,
-  lemmyHttp,
   setAuth,
   setIsoData,
   toast,
@@ -23,6 +22,7 @@ import {
   SortType,
 } from 'lemmy-js-client';
 import { i18n } from '../i18next';
+import { InitialFetchRequest } from 'shared/interfaces';
 
 interface CreatePostState {
   site: Site;
@@ -138,13 +138,13 @@ export class CreatePost extends Component<any, CreatePostState> {
     this.props.history.push(`/post/${id}`);
   }
 
-  static fetchInitialData(auth: string, _path: string): Promise<any>[] {
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let listCommunitiesForm: ListCommunitiesForm = {
       sort: SortType.TopAll,
       limit: 9999,
     };
-    setAuth(listCommunitiesForm, auth);
-    return [lemmyHttp.listCommunities(listCommunitiesForm)];
+    setAuth(listCommunitiesForm, req.auth);
+    return [req.client.listCommunities(listCommunitiesForm)];
   }
 
   parseMessage(msg: WebSocketJsonResponse) {

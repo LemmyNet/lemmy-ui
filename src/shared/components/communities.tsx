@@ -18,13 +18,13 @@ import {
   toast,
   getPageFromProps,
   isBrowser,
-  lemmyHttp,
   setAuth,
   setIsoData,
   wsSubscribe,
 } from '../utils';
 import { CommunityLink } from './community-link';
 import { i18n } from '../i18next';
+import { InitialFetchRequest } from 'shared/interfaces';
 
 const communityLimit = 100;
 
@@ -237,17 +237,17 @@ export class Communities extends Component<any, CommunitiesState> {
     WebSocketService.Instance.listCommunities(listCommunitiesForm);
   }
 
-  static fetchInitialData(auth: string, path: string): Promise<any>[] {
-    let pathSplit = path.split('/');
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
+    let pathSplit = req.path.split('/');
     let page = pathSplit[3] ? Number(pathSplit[3]) : 1;
     let listCommunitiesForm: ListCommunitiesForm = {
       sort: SortType.TopAll,
       limit: communityLimit,
       page,
     };
-    setAuth(listCommunitiesForm, auth);
+    setAuth(listCommunitiesForm, req.auth);
 
-    return [lemmyHttp.listCommunities(listCommunitiesForm)];
+    return [req.client.listCommunities(listCommunitiesForm)];
   }
 
   parseMessage(msg: WebSocketJsonResponse) {

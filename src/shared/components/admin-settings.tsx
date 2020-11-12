@@ -18,7 +18,6 @@ import {
   setIsoData,
   wsSubscribe,
   isBrowser,
-  lemmyHttp,
   setAuth,
 } from '../utils';
 import autosize from 'autosize';
@@ -26,6 +25,7 @@ import { SiteForm } from './site-form';
 import { UserListing } from './user-listing';
 import { HtmlTags } from './html-tags';
 import { i18n } from '../i18next';
+import { InitialFetchRequest } from 'shared/interfaces';
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
@@ -71,10 +71,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     }
   }
 
-  static fetchInitialData(auth: string, _path: string): Promise<any>[] {
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let form: GetSiteConfig = {};
-    setAuth(form, auth);
-    return [lemmyHttp.getSiteConfig(form)];
+    setAuth(form, req.auth);
+    return [req.client.getSiteConfig(form)];
   }
 
   componentDidMount() {

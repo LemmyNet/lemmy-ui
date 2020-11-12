@@ -27,7 +27,6 @@ import {
   commentsToFlatNodes,
   setIsoData,
   wsSubscribe,
-  lemmyHttp,
   setAuth,
 } from '../utils';
 import { PostListing } from './post-listing';
@@ -37,6 +36,7 @@ import { CommunityLink } from './community-link';
 import { SortSelect } from './sort-select';
 import { CommentNodes } from './comment-nodes';
 import { i18n } from '../i18next';
+import { InitialFetchRequest } from 'shared/interfaces';
 
 interface SearchProps {
   q: string;
@@ -132,8 +132,8 @@ export class Search extends Component<any, SearchState> {
     };
   }
 
-  static fetchInitialData(auth: string, path: string): Promise<any>[] {
-    let pathSplit = path.split('/');
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
+    let pathSplit = req.path.split('/');
     let promises: Promise<any>[] = [];
 
     let form: SearchForm = {
@@ -143,10 +143,10 @@ export class Search extends Component<any, SearchState> {
       page: this.getPageFromProps(pathSplit[9]),
       limit: fetchLimit,
     };
-    setAuth(form, auth);
+    setAuth(form, req.auth);
 
     if (form.q != '') {
-      promises.push(lemmyHttp.search(form));
+      promises.push(req.client.search(form));
     }
 
     return promises;

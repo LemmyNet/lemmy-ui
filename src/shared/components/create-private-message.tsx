@@ -15,7 +15,6 @@ import {
 import {
   getRecipientIdFromProps,
   isBrowser,
-  lemmyHttp,
   setAuth,
   setIsoData,
   toast,
@@ -23,6 +22,7 @@ import {
   wsSubscribe,
 } from '../utils';
 import { i18n } from '../i18next';
+import { InitialFetchRequest } from 'shared/interfaces';
 
 interface CreatePrivateMessageProps {}
 
@@ -78,15 +78,15 @@ export class CreatePrivateMessage extends Component<
     WebSocketService.Instance.getUserDetails(form);
   }
 
-  static fetchInitialData(auth: string, path: string): Promise<any>[] {
-    let user_id = Number(path.split('/').pop());
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
+    let user_id = Number(req.path.split('/').pop());
     let form: GetUserDetailsForm = {
       user_id,
       sort: SortType.New,
       saved_only: false,
     };
-    setAuth(form, auth);
-    return [lemmyHttp.getUserDetails(form)];
+    setAuth(form, req.auth);
+    return [req.client.getUserDetails(form)];
   }
 
   get documentTitle(): string {

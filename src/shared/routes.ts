@@ -15,9 +15,10 @@ import { AdminSettings } from './components/admin-settings';
 import { Inbox } from './components/inbox';
 import { Search } from './components/search';
 import { Instances } from './components/instances';
+import { InitialFetchRequest } from './interfaces';
 
 interface IRoutePropsWithFetch extends IRouteProps {
-  fetchInitialData?(auth: string, path: string): Promise<any>[];
+  fetchInitialData?(req: InitialFetchRequest): Promise<any>[];
 }
 
 export const routes: IRoutePropsWithFetch[] = [
@@ -25,12 +26,12 @@ export const routes: IRoutePropsWithFetch[] = [
     path: `/`,
     exact: true,
     component: Main,
-    fetchInitialData: (auth, path) => Main.fetchInitialData(auth, path),
+    fetchInitialData: req => Main.fetchInitialData(req),
   },
   {
     path: `/home/data_type/:data_type/listing_type/:listing_type/sort/:sort/page/:page`,
     component: Main,
-    fetchInitialData: (auth, path) => Main.fetchInitialData(auth, path),
+    fetchInitialData: req => Main.fetchInitialData(req),
   },
   {
     path: `/login`,
@@ -39,101 +40,98 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/create_post`,
     component: CreatePost,
-    fetchInitialData: (auth, path) => CreatePost.fetchInitialData(auth, path),
+    fetchInitialData: req => CreatePost.fetchInitialData(req),
   },
   {
     path: `/create_community`,
     component: CreateCommunity,
-    fetchInitialData: (auth, path) =>
-      CreateCommunity.fetchInitialData(auth, path),
+    fetchInitialData: req => CreateCommunity.fetchInitialData(req),
   },
   {
     path: `/create_private_message/recipient/:recipient_id`,
     component: CreatePrivateMessage,
-    fetchInitialData: (auth, path) =>
-      CreatePrivateMessage.fetchInitialData(auth, path),
+    fetchInitialData: req => CreatePrivateMessage.fetchInitialData(req),
   },
   {
     path: `/communities/page/:page`,
     component: Communities,
-    fetchInitialData: (auth, path) => Communities.fetchInitialData(auth, path),
+    fetchInitialData: req => Communities.fetchInitialData(req),
   },
   {
     path: `/communities`,
     component: Communities,
-    fetchInitialData: (auth, path) => Communities.fetchInitialData(auth, path),
+    fetchInitialData: req => Communities.fetchInitialData(req),
   },
   {
     path: `/post/:id/comment/:comment_id`,
     component: Post,
-    fetchInitialData: (auth, path) => Post.fetchInitialData(auth, path),
+    fetchInitialData: req => Post.fetchInitialData(req),
   },
   {
     path: `/post/:id`,
     component: Post,
-    fetchInitialData: (auth, path) => Post.fetchInitialData(auth, path),
+    fetchInitialData: req => Post.fetchInitialData(req),
   },
   {
     path: `/c/:name/data_type/:data_type/sort/:sort/page/:page`,
     component: Community,
-    fetchInitialData: (auth, path) => Community.fetchInitialData(auth, path),
+    fetchInitialData: req => Community.fetchInitialData(req),
   },
   {
     path: `/community/:id`,
     component: Community,
-    fetchInitialData: (auth, path) => Community.fetchInitialData(auth, path),
+    fetchInitialData: req => Community.fetchInitialData(req),
   },
   {
     path: `/c/:name`,
     component: Community,
-    fetchInitialData: (auth, path) => Community.fetchInitialData(auth, path),
+    fetchInitialData: req => Community.fetchInitialData(req),
   },
   {
     path: `/u/:username/view/:view/sort/:sort/page/:page`,
     component: User,
-    fetchInitialData: (auth, path) => User.fetchInitialData(auth, path),
+    fetchInitialData: req => User.fetchInitialData(req),
   },
   {
     path: `/user/:id`,
     component: User,
-    fetchInitialData: (auth, path) => User.fetchInitialData(auth, path),
+    fetchInitialData: req => User.fetchInitialData(req),
   },
   {
     path: `/u/:username`,
     component: User,
-    fetchInitialData: (auth, path) => User.fetchInitialData(auth, path),
+    fetchInitialData: req => User.fetchInitialData(req),
   },
   {
     path: `/inbox`,
     component: Inbox,
-    fetchInitialData: (auth, path) => Inbox.fetchInitialData(auth, path),
+    fetchInitialData: req => Inbox.fetchInitialData(req),
   },
   {
     path: `/modlog/community/:community_id`,
     component: Modlog,
-    fetchInitialData: (auth, path) => Modlog.fetchInitialData(auth, path),
+    fetchInitialData: req => Modlog.fetchInitialData(req),
   },
   {
     path: `/modlog`,
     component: Modlog,
-    fetchInitialData: (auth, path) => Modlog.fetchInitialData(auth, path),
+    fetchInitialData: req => Modlog.fetchInitialData(req),
   },
   { path: `/setup`, component: Setup },
   {
     path: `/admin`,
     component: AdminSettings,
-    fetchInitialData: (auth, path) =>
-      AdminSettings.fetchInitialData(auth, path),
+    fetchInitialData: req => AdminSettings.fetchInitialData(req),
   },
   {
     path: `/search/q/:q/type/:type/sort/:sort/page/:page`,
     component: Search,
-    fetchInitialData: (auth, path) => Search.fetchInitialData(auth, path),
+    fetchInitialData: req => Search.fetchInitialData(req),
   },
   {
     path: `/search`,
     component: Search,
-    fetchInitialData: (auth, path) => Search.fetchInitialData(auth, path),
+    fetchInitialData: req => Search.fetchInitialData(req),
   },
   {
     path: `/password_change/:token`,

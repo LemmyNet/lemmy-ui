@@ -24,7 +24,7 @@ import {
   BanUserResponse,
   WebSocketJsonResponse,
 } from 'lemmy-js-client';
-import { DataType } from '../interfaces';
+import { DataType, InitialFetchRequest } from '../interfaces';
 import { WebSocketService, UserService } from '../services';
 import { PostListings } from './post-listings';
 import { CommentNodes } from './comment-nodes';
@@ -56,7 +56,6 @@ import {
   wsSubscribe,
   isBrowser,
   setAuth,
-  lemmyHttp,
 } from '../utils';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
@@ -175,8 +174,8 @@ export class Main extends Component<any, MainState> {
     };
   }
 
-  static fetchInitialData(auth: string, path: string): Promise<any>[] {
-    let pathSplit = path.split('/');
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
+    let pathSplit = req.path.split('/');
     let dataType: DataType = pathSplit[3]
       ? DataType[pathSplit[3]]
       : DataType.Post;
@@ -206,8 +205,8 @@ export class Main extends Component<any, MainState> {
         sort,
         type_,
       };
-      setAuth(getPostsForm, auth);
-      promises.push(lemmyHttp.getPosts(getPostsForm));
+      setAuth(getPostsForm, req.auth);
+      promises.push(req.client.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetCommentsForm = {
         page,
@@ -215,18 +214,18 @@ export class Main extends Component<any, MainState> {
         sort,
         type_,
       };
-      setAuth(getCommentsForm, auth);
-      promises.push(lemmyHttp.getComments(getCommentsForm));
+      setAuth(getCommentsForm, req.auth);
+      promises.push(req.client.getComments(getCommentsForm));
     }
 
     let trendingCommunitiesForm: ListCommunitiesForm = {
       sort: SortType.Hot,
       limit: 6,
     };
-    promises.push(lemmyHttp.listCommunities(trendingCommunitiesForm));
+    promises.push(req.client.listCommunities(trendingCommunitiesForm));
 
-    if (auth) {
-      promises.push(lemmyHttp.getFollowedCommunities({ auth }));
+    if (req.auth) {
+      promises.push(req.client.getFollowedCommunities({ auth: req.auth }));
     }
 
     return promises;

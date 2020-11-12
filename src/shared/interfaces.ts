@@ -1,4 +1,4 @@
-import { GetSiteResponse } from 'lemmy-js-client';
+import { GetSiteResponse, LemmyHttp } from 'lemmy-js-client';
 
 export interface IsoData {
   path: string;
@@ -13,6 +13,12 @@ declare global {
   interface Window {
     isoData: IsoData;
   }
+}
+
+export interface InitialFetchRequest {
+  auth: string;
+  path: string;
+  client: LemmyHttp;
 }
 
 export enum CommentSortType {

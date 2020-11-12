@@ -16,10 +16,10 @@ import {
   wsJsonToRes,
   wsSubscribe,
   isBrowser,
-  lemmyHttp,
 } from '../utils';
 import { WebSocketService, UserService } from '../services';
 import { i18n } from '../i18next';
+import { InitialFetchRequest } from 'shared/interfaces';
 
 interface CreateCommunityState {
   site: Site;
@@ -100,8 +100,8 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
     this.props.history.push(`/c/${community.name}`);
   }
 
-  static fetchInitialData(_auth: string, _path: string): Promise<any>[] {
-    return [lemmyHttp.listCategories()];
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
+    return [req.client.listCategories()];
   }
 
   parseMessage(msg: WebSocketJsonResponse) {

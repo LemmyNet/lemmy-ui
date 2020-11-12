@@ -25,7 +25,11 @@ import {
   ListCategoriesResponse,
   Category,
 } from 'lemmy-js-client';
-import { CommentSortType, CommentViewType } from '../interfaces';
+import {
+  CommentSortType,
+  CommentViewType,
+  InitialFetchRequest,
+} from '../interfaces';
 import { WebSocketService, UserService } from '../services';
 import {
   wsJsonToRes,
@@ -41,7 +45,6 @@ import {
   getCommentIdFromProps,
   wsSubscribe,
   setAuth,
-  lemmyHttp,
   isBrowser,
   previewLines,
   isImage,
@@ -112,8 +115,8 @@ export class Post extends Component<any, PostState> {
     WebSocketService.Instance.getPost(form);
   }
 
-  static fetchInitialData(auth: string, path: string): Promise<any>[] {
-    let pathSplit = path.split('/');
+  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
+    let pathSplit = req.path.split('/');
     let promises: Promise<any>[] = [];
 
     let id = Number(pathSplit[2]);
@@ -121,10 +124,10 @@ export class Post extends Component<any, PostState> {
     let postForm: GetPostForm = {
       id,
     };
-    setAuth(postForm, auth);
+    setAuth(postForm, req.auth);
 
-    promises.push(lemmyHttp.getPost(postForm));
-    promises.push(lemmyHttp.listCategories());
+    promises.push(req.client.getPost(postForm));
+    promises.push(req.client.listCategories());
 
     return promises;
   }

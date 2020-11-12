@@ -43,10 +43,7 @@ import {
   SearchResponse,
   CommentResponse,
   PostResponse,
-  LemmyHttp,
 } from 'lemmy-js-client';
-
-import { httpUri } from './env';
 
 import { CommentSortType, DataType, IsoData } from './interfaces';
 import { UserService, WebSocketService } from './services';
@@ -83,8 +80,6 @@ export const elementUrl = 'https://element.io/';
 export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit: number = 20;
 export const mentionDropdownFetchLimit = 10;
-
-export const lemmyHttp = new LemmyHttp(httpUri);
 
 export const languages = [
   { code: 'ca', name: 'Català' },
