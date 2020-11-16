@@ -617,7 +617,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </li>
             {this.props.post.duplicates.map(post => (
               <li className="list-inline-item mr-2">
-                <Link to={`/post/${post.id}`}>{post.community_name}</Link>
+                <Link to={`/post/${post.id}`}>
+                  {post.community_local
+                    ? post.community_name
+                    : `${post.community_name}@${hostname(
+                        post.community_actor_id
+                      )}`}
+                </Link>
               </li>
             ))}
           </>

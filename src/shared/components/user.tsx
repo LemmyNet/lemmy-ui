@@ -55,6 +55,7 @@ import { UserDetails } from './user-details';
 import { MarkdownTextArea } from './markdown-textarea';
 import { ImageUploadForm } from './image-upload-form';
 import { BannerIconHeader } from './banner-icon-header';
+import { CommunityLink } from './community-link';
 
 interface UserState {
   userRes: UserDetailsResponse;
@@ -841,9 +842,15 @@ export class User extends Component<any, UserState> {
               <ul class="list-unstyled mb-0">
                 {this.state.userRes.moderates.map(community => (
                   <li>
-                    <Link to={`/c/${community.community_name}`}>
-                      {community.community_name}
-                    </Link>
+                    <CommunityLink
+                      community={{
+                        name: community.community_name,
+                        id: community.community_id,
+                        local: community.community_local,
+                        actor_id: community.community_actor_id,
+                        icon: community.community_icon,
+                      }}
+                    />
                   </li>
                 ))}
               </ul>
@@ -864,9 +871,15 @@ export class User extends Component<any, UserState> {
               <ul class="list-unstyled mb-0">
                 {this.state.userRes.follows.map(community => (
                   <li>
-                    <Link to={`/c/${community.community_name}`}>
-                      {community.community_name}
-                    </Link>
+                    <CommunityLink
+                      community={{
+                        name: community.community_name,
+                        id: community.community_id,
+                        local: community.community_local,
+                        actor_id: community.community_actor_id,
+                        icon: community.community_icon,
+                      }}
+                    />
                   </li>
                 ))}
               </ul>
