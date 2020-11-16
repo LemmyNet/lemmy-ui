@@ -250,7 +250,7 @@ export class User extends Component<any, UserState> {
   }
 
   get documentTitle(): string {
-    return `@${this.state.userName} - ${this.state.siteRes.site.name}`;
+    return `@${this.state.userRes.user.name} - ${this.state.siteRes.site.name}`;
   }
 
   get bioTag(): string {
