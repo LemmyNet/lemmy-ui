@@ -562,20 +562,21 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 </svg>
                 {this.state.upvotes}
               </button>
-              {this.props.enableDownvotes && (<button
-                className={`ml-2 btn-animate btn py-0 pl-1 ${
-                  this.state.my_vote == -1 ? 'text-danger' : 'text-muted'
-                }`}
-                onClick={linkEvent(this, this.handlePostDisLike)}
-                data-tippy-content={this.pointsTippy}
-              >
-                <svg class="small icon icon-inline mr-2">
-                  <use xlinkHref="#icon-arrow-down1"></use>
-                </svg>
-                {this.state.downvotes !== 0 && (
-                  <span>{this.state.downvotes}</span>
-                )}
-              </button>
+              {this.props.enableDownvotes && (
+                <button
+                  className={`ml-2 btn-animate btn py-0 pl-1 ${
+                    this.state.my_vote == -1 ? 'text-danger' : 'text-muted'
+                  }`}
+                  onClick={linkEvent(this, this.handlePostDisLike)}
+                  data-tippy-content={this.pointsTippy}
+                >
+                  <svg class="small icon icon-inline mr-2">
+                    <use xlinkHref="#icon-arrow-down1"></use>
+                  </svg>
+                  {this.state.downvotes !== 0 && (
+                    <span>{this.state.downvotes}</span>
+                  )}
+                </button>
               )}
             </div>
             <button
