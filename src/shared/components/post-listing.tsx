@@ -562,7 +562,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 </svg>
                 {this.state.upvotes}
               </button>
-              <button
+              {this.props.enableDownvotes && (<button
                 className={`ml-2 btn-animate btn py-0 pl-1 ${
                   this.state.my_vote == -1 ? 'text-danger' : 'text-muted'
                 }`}
@@ -576,6 +576,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <span>{this.state.downvotes}</span>
                 )}
               </button>
+              )}
             </div>
             <button
               class="btn btn-link btn-animate text-muted py-0 pl-1 pr-0"
