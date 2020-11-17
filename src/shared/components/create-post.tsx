@@ -114,7 +114,10 @@ export class CreatePost extends Component<any, CreatePostState> {
     let urlParams = new URLSearchParams(this.props.location.search);
     let params: PostFormParams = {
       name: urlParams.get('title'),
-      community: urlParams.get('community') || this.prevCommunityName,
+      community_name: urlParams.get('community_name') || this.prevCommunityName,
+      community_id: urlParams.get('community_id')
+        ? Number(urlParams.get('community_id')) || this.prevCommunityId
+        : null,
       body: urlParams.get('body'),
       url: urlParams.get('url'),
     };
@@ -129,6 +132,18 @@ export class CreatePost extends Component<any, CreatePostState> {
       let lastLocation = this.props.location.state.prevPath;
       if (lastLocation.includes('/c/')) {
         return lastLocation.split('/c/')[1];
+      }
+    }
+    return null;
+  }
+
+  get prevCommunityId(): number {
+    if (this.props.match.params.id) {
+      return this.props.match.params.id;
+    } else if (this.props.location.state) {
+      let lastLocation = this.props.location.state.prevPath;
+      if (lastLocation.includes('/community/')) {
+        return Number(lastLocation.split('/community/')[1]);
       }
     }
     return null;

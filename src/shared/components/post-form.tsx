@@ -572,11 +572,19 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     if (this.props.post) {
       this.state.postForm.community_id = this.props.post.community_id;
-    } else if (this.props.params && this.props.params.community) {
-      let foundCommunityId = this.props.communities.find(
-        r => r.name == this.props.params.community
-      ).id;
-      this.state.postForm.community_id = foundCommunityId;
+    } else if (
+      this.props.params &&
+      (this.props.params.community_id || this.props.params.community_name)
+    ) {
+      if (this.props.params.community_name) {
+        let foundCommunityId = this.props.communities.find(
+          r => r.name == this.props.params.community_name
+        ).id;
+        this.state.postForm.community_id = foundCommunityId;
+      } else if (this.props.params.community_id) {
+        this.state.postForm.community_id = this.props.params.community_id;
+      }
+
       if (isBrowser()) {
         this.choices.setChoiceByValue(
           this.state.postForm.community_id.toString()
