@@ -314,22 +314,7 @@ export class Search extends Component<any, SearchState> {
                 <div>{this.communityListing(i.data as Community)}</div>
               )}
               {i.type_ == 'users' && (
-                <div>
-                  <span>
-                    @
-                    <UserListing
-                      user={{
-                        name: (i.data as UserView).name,
-                        preferred_username: (i.data as UserView)
-                          .preferred_username,
-                        avatar: (i.data as UserView).avatar,
-                      }}
-                    />
-                  </span>
-                  <span>{` - ${i18n.t('number_of_comments', {
-                    count: (i.data as UserView).number_of_comments,
-                  })}`}</span>
-                </div>
+                <div>{this.userListing(i.data as UserView)}</div>
               )}
             </div>
           </div>
@@ -368,7 +353,6 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  // Todo possibly create UserListing and CommunityListing
   communities() {
     return (
       <>
@@ -396,25 +380,23 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
+  userListing(user: UserView) {
+    return [
+      <span>
+        <UserListing user={user} />
+      </span>,
+      <span>{` - ${i18n.t('number_of_comments', {
+        count: user.number_of_comments,
+      })}`}</span>,
+    ];
+  }
+
   users() {
     return (
       <>
         {this.state.searchResponse.users.map(user => (
           <div class="row">
-            <div class="col-12">
-              <span>
-                @
-                <UserListing
-                  user={{
-                    name: user.name,
-                    avatar: user.avatar,
-                  }}
-                />
-              </span>
-              <span>{` - ${i18n.t('number_of_comments', {
-                count: user.number_of_comments,
-              })}`}</span>
-            </div>
+            <div class="col-12">{this.userListing(user)}</div>
           </div>
         ))}
       </>
