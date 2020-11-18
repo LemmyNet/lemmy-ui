@@ -348,7 +348,7 @@ export class WebSocketService {
   }
 
   public markAllAsRead() {
-    let form: MarkAllAsReadForm;
+    let form: MarkAllAsReadForm = { auth: null };
     this.setAuth(form);
     this.ws.send(this.client.markAllAsRead(form));
   }

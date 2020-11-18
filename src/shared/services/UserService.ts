@@ -49,7 +49,7 @@ export class UserService {
   }
 
   private setClaims(jwt: string) {
-    this.claims = jwt_decode(jwt) as Claims;
+    this.claims = jwt_decode(jwt);
     this.jwtSub.next(jwt);
   }
 
