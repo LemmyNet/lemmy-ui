@@ -383,7 +383,7 @@ export class Search extends Component<any, SearchState> {
   userListing(user: UserView) {
     return [
       <span>
-        <UserListing user={user} />
+        <UserListing user={user} showApubName />
       </span>,
       <span>{` - ${i18n.t('number_of_comments', {
         count: user.number_of_comments,

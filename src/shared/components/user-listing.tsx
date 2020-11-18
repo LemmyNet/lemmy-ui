@@ -21,6 +21,7 @@ interface UserListingProps {
   useApubName?: boolean;
   muted?: boolean;
   hideAvatar?: boolean;
+  showApubName?: boolean;
 }
 
 export class UserListing extends Component<UserListingProps, any> {
@@ -46,6 +47,10 @@ export class UserListing extends Component<UserListingProps, any> {
       : user.preferred_username
       ? user.preferred_username
       : apubName;
+
+    if (this.props.showApubName && !local && user.preferred_username) {
+      displayName = `${displayName} (${apubName})`;
+    }
 
     return (
       <>
