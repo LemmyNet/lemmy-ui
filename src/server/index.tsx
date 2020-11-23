@@ -101,6 +101,9 @@ server.get('/*', async (req, res) => {
            <meta charset="utf-8">
            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+           <!-- Content Security Policy -->
+           <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'self'; frame-src *; img-src *; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+
            <!-- Web app manifest -->
            <link rel="manifest" href="/static/assets/manifest.webmanifest">
 
