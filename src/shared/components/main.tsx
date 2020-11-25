@@ -561,6 +561,18 @@ export class Main extends Component<any, MainState> {
             </svg>
           </a>
         )}
+        {this.state.listingType == ListingType.Local && (
+          <a
+            href={`/feeds/local.xml?sort=${this.state.sort}`}
+            target="_blank"
+            rel="noopener"
+            title="RSS"
+          >
+            <svg class="icon text-muted small">
+              <use xlinkHref="#icon-rss">#</use>
+            </svg>
+          </a>
+        )}
         {UserService.Instance.user &&
           this.state.listingType == ListingType.Subscribed && (
             <a
