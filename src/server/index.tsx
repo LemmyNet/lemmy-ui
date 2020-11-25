@@ -84,7 +84,15 @@ server.get('/*', async (req, res) => {
     return res.redirect(context.url);
   }
 
+  const cspHtml = (
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; connect-src 'self'; frame-src *; img-src *; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    />
+  );
+
   const root = renderToString(wrapper);
+  const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : '';
   const helmet = Helmet.renderStatic();
 
   res.send(`
@@ -102,7 +110,7 @@ server.get('/*', async (req, res) => {
            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
            <!-- Content Security Policy -->
-           <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'self'; frame-src *; img-src *; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+           ${cspStr}
 
            <!-- Web app manifest -->
            <link rel="manifest" href="/static/assets/manifest.webmanifest">
