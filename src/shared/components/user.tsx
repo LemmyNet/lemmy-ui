@@ -1059,6 +1059,7 @@ export class User extends Component<any, UserState> {
     i.setState(i.state);
 
     WebSocketService.Instance.deleteAccount(i.state.deleteAccountForm);
+    i.handleLogoutClick(i);
   }
 
   setUserInfo() {
