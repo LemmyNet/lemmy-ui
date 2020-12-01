@@ -317,7 +317,7 @@ export class Main extends Component<any, MainState> {
         </h5>
         <ul class="list-inline">
           {this.state.trendingCommunities.map(community => (
-            <li class="list-inline-item">
+            <li class="list-inline-item d-inline">
               <CommunityLink community={community} />
             </li>
           ))}
@@ -339,7 +339,7 @@ export class Main extends Component<any, MainState> {
         </h5>
         <ul class="list-inline mb-0">
           {this.state.subscribedCommunities.map(community => (
-            <li class="list-inline-item">
+            <li class="list-inline-item d-inline">
               <CommunityLink
                 community={{
                   name: community.community_name,
