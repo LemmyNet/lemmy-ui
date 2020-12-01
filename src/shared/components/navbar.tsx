@@ -183,7 +183,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           )}
           {this.state.isLoggedIn && (
             <Link
-              className="ml-auto p-0 navbar-toggler nav-link border-0"
+              className="ml-auto p-1 navbar-toggler nav-link border-0"
               to="/inbox"
               title={i18n.t('inbox')}
             >
@@ -204,7 +204,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             onClick={linkEvent(this, this.expandNavbar)}
             data-tippy-content={i18n.t('expand_here')}
           >
-            <span class="navbar-toggler-icon"></span>
+            <svg class="icon">
+              <use xlinkHref="#icon-menu"></use>
+            </svg>
           </button>
           <div
             className={`${!this.state.expanded && 'collapse'} navbar-collapse`}

@@ -20,6 +20,9 @@ export class Symbols extends Component<any, any> {
         xmlnsXlink="http://www.w3.org/1999/xlink"
       >
         <defs>
+          <symbol id="icon-menu" viewBox="0 0 24 24">
+            <path d="M3 13h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1zM3 7h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1zM3 19h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1z"></path>
+          </symbol>
           <symbol id="icon-beer" viewBox="0 0 27 28">
             <path d="M10 14v-6h-4v4c0 1.109 0.891 2 2 2h2zM26 21v3h-18v-3l2-3h-2c-3.313 0-6-2.688-6-6v-5l-1-1 0.5-2h7.5l0.5-2h15l0.5 3-1 0.5v12.5z"></path>
           </symbol>
