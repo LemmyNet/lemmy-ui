@@ -29,6 +29,7 @@ import {
   notifyPrivateMessage,
   isBrowser,
   wsSubscribe,
+  supportLemmyUrl,
 } from '../utils';
 import { i18n } from '../i18next';
 import { PictrsImage } from './pictrs-image';
@@ -238,6 +239,17 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 >
                   {i18n.t('create_community')}
                 </Link>
+              </li>
+              <li class="nav-item">
+                <a
+                  className="nav-link"
+                  title={i18n.t('support_lemmy')}
+                  href={supportLemmyUrl}
+                >
+                  <svg class="icon small">
+                    <use xlinkHref="#icon-beer"></use>
+                  </svg>
+                </a>
               </li>
             </ul>
             <ul class="navbar-nav my-2">

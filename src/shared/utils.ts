@@ -71,6 +71,7 @@ export const favIconPngUrl = '/static/assets/apple-touch-icon.png';
 export const defaultFavIcon = 'test';
 export const repoUrl = 'https://github.com/LemmyNet';
 export const joinLemmyUrl = 'https://join.lemmy.ml';
+export const supportLemmyUrl = 'https://join.lemmy.ml/sponsors';
 export const helpGuideUrl = '/docs/about_guide.html';
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
