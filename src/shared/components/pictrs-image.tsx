@@ -2,6 +2,7 @@ import { Component } from 'inferno';
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
+const maxImageSize = 1000;
 
 interface PictrsImageProps {
   src: string;
@@ -10,7 +11,6 @@ interface PictrsImageProps {
   nsfw?: boolean;
   iconOverlay?: boolean;
   pushup?: boolean;
-  noFluid?: boolean;
 }
 
 export class PictrsImage extends Component<PictrsImageProps, any> {
@@ -26,8 +26,12 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
         <img
           src={this.src('jpg')}
           className={`
-        ${!this.props.noFluid && 'img-fluid '}
-        ${this.props.thumbnail ? 'thumbnail rounded ' : 'img-expanded '} 
+        ${!this.props.icon && !this.props.iconOverlay && 'img-fluid '}
+        ${
+          this.props.thumbnail && !this.props.icon
+            ? 'thumbnail rounded '
+            : 'img-expanded '
+        } 
         ${this.props.thumbnail && this.props.nsfw && 'img-blur '}
         ${this.props.icon && 'rounded-circle img-icon mr-2 '}
         ${this.props.iconOverlay && 'ml-2 mb-0 rounded-circle avatar-overlay '}
@@ -58,6 +62,8 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
       params['thumbnail'] = thumbnailSize;
     } else if (this.props.icon) {
       params['thumbnail'] = iconThumbnailSize;
+    } else {
+      params['thumbnail'] = maxImageSize;
     }
 
     let paramsStr = `?${new URLSearchParams(params).toString()}`;
