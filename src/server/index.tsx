@@ -87,7 +87,7 @@ server.get('/*', async (req, res) => {
   const cspHtml = (
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; connect-src 'self'; frame-src *; img-src *; script-src 'self'; style-src 'self'"
+      content="default-src data:; connect-src 'self'; frame-src *; img-src * data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
     />
   );
 
