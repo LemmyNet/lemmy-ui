@@ -60,7 +60,9 @@ interface State {
   siteRes: GetSiteResponse;
   communityId: number;
   communityName: string;
-  loading: boolean;
+  communityLoading: boolean;
+  postsLoading: boolean;
+  commentsLoading: boolean;
   posts: Post[];
   comments: Comment[];
   dataType: DataType;
@@ -88,7 +90,9 @@ export class Community extends Component<any, State> {
     communityRes: undefined,
     communityId: Number(this.props.match.params.id),
     communityName: this.props.match.params.name,
-    loading: true,
+    communityLoading: true,
+    postsLoading: true,
+    commentsLoading: true,
     posts: [],
     comments: [],
     dataType: getDataTypeFromProps(this.props),
@@ -117,7 +121,9 @@ export class Community extends Component<any, State> {
         this.state.comments = this.isoData.routeData[1].comments;
       }
       this.state.categories = this.isoData.routeData[2].categories;
-      this.state.loading = false;
+      this.state.communityLoading = false;
+      this.state.postsLoading = false;
+      this.state.commentsLoading = false;
     } else {
       this.fetchCommunity();
       this.fetchData();
@@ -220,7 +226,7 @@ export class Community extends Component<any, State> {
       lastState.sort !== this.state.sort ||
       lastState.page !== this.state.page
     ) {
-      this.setState({ loading: true });
+      this.setState({ postsLoading: true, commentsLoading: true });
       this.fetchData();
     }
   }
@@ -232,7 +238,7 @@ export class Community extends Component<any, State> {
   render() {
     return (
       <div class="container">
-        {this.state.loading ? (
+        {this.state.communityLoading ? (
           <h5>
             <svg class="icon icon-spinner spin">
               <use xlinkHref="#icon-spinner"></use>
@@ -270,13 +276,27 @@ export class Community extends Component<any, State> {
 
   listings() {
     return this.state.dataType == DataType.Post ? (
-      <PostListings
-        posts={this.state.posts}
-        removeDuplicates
-        sort={this.state.sort}
-        enableDownvotes={this.state.siteRes.site.enable_downvotes}
-        enableNsfw={this.state.siteRes.site.enable_nsfw}
-      />
+      this.state.postsLoading ? (
+        <h5>
+          <svg class="icon icon-spinner spin">
+            <use xlinkHref="#icon-spinner"></use>
+          </svg>
+        </h5>
+      ) : (
+        <PostListings
+          posts={this.state.posts}
+          removeDuplicates
+          sort={this.state.sort}
+          enableDownvotes={this.state.siteRes.site.enable_downvotes}
+          enableNsfw={this.state.siteRes.site.enable_nsfw}
+        />
+      )
+    ) : this.state.commentsLoading ? (
+      <h5>
+        <svg class="icon icon-spinner spin">
+          <use xlinkHref="#icon-spinner"></use>
+        </svg>
+      </h5>
     ) : (
       <CommentNodes
         nodes={commentsToFlatNodes(this.state.comments)}
@@ -428,9 +448,7 @@ export class Community extends Component<any, State> {
     } else if (res.op == UserOperation.GetCommunity) {
       let data = res.data as GetCommunityResponse;
       this.state.communityRes = data;
-      if (this.state.posts.length || this.state.comments.length) {
-        this.state.loading = false;
-      }
+      this.state.communityLoading = false;
       this.setState(this.state);
       WebSocketService.Instance.communityJoin({
         community_id: data.community.id,
@@ -452,10 +470,7 @@ export class Community extends Component<any, State> {
     } else if (res.op == UserOperation.GetPosts) {
       let data = res.data as GetPostsResponse;
       this.state.posts = data.posts;
-
-      if (this.state.communityRes) {
-        this.state.loading = false;
-      }
+      this.state.postsLoading = false;
       this.setState(this.state);
       setupTippy();
     } else if (
@@ -493,9 +508,7 @@ export class Community extends Component<any, State> {
     } else if (res.op == UserOperation.GetComments) {
       let data = res.data as GetCommentsResponse;
       this.state.comments = data.comments;
-      if (this.state.communityRes) {
-        this.state.loading = false;
-      }
+      this.state.commentsLoading = false;
       this.setState(this.state);
     } else if (
       res.op == UserOperation.EditComment ||
