@@ -2,7 +2,7 @@ import { Component } from 'inferno';
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
-const maxImageSize = 1000;
+const maxImageSize = 3000;
 
 interface PictrsImageProps {
   src: string;
