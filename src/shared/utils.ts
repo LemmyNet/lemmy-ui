@@ -521,13 +521,15 @@ export function isPostType(
 }
 
 export function toast(text: string, background: string = 'success') {
-  let backgroundColor = `var(--${background})`;
-  Toastify({
-    text: text,
-    backgroundColor: backgroundColor,
-    gravity: 'bottom',
-    position: 'left',
-  }).showToast();
+  if (isBrowser()) {
+    let backgroundColor = `var(--${background})`;
+    Toastify({
+      text: text,
+      backgroundColor: backgroundColor,
+      gravity: 'bottom',
+      position: 'left',
+    }).showToast();
+  }
 }
 
 export function pictrsDeleteToast(
@@ -535,22 +537,24 @@ export function pictrsDeleteToast(
   deletePictureText: string,
   deleteUrl: string
 ) {
-  let backgroundColor = `var(--light)`;
-  let toast = Toastify({
-    text: clickToDeleteText,
-    backgroundColor: backgroundColor,
-    gravity: 'top',
-    position: 'right',
-    duration: 10000,
-    onClick: () => {
-      if (toast) {
-        window.location.replace(deleteUrl);
-        alert(deletePictureText);
-        toast.hideToast();
-      }
-    },
-    close: true,
-  }).showToast();
+  if (isBrowser()) {
+    let backgroundColor = `var(--light)`;
+    let toast = Toastify({
+      text: clickToDeleteText,
+      backgroundColor: backgroundColor,
+      gravity: 'top',
+      position: 'right',
+      duration: 10000,
+      onClick: () => {
+        if (toast) {
+          window.location.replace(deleteUrl);
+          alert(deletePictureText);
+          toast.hideToast();
+        }
+      },
+      close: true,
+    }).showToast();
+  }
 }
 
 interface NotifyInfo {
@@ -561,25 +565,27 @@ interface NotifyInfo {
 }
 
 export function messageToastify(info: NotifyInfo, router: any) {
-  let htmlBody = info.body ? md.render(info.body) : '';
-  let backgroundColor = `var(--light)`;
+  if (isBrowser()) {
+    let htmlBody = info.body ? md.render(info.body) : '';
+    let backgroundColor = `var(--light)`;
 
-  let toast = Toastify({
-    text: `${htmlBody}<br />${info.name}`,
-    avatar: info.icon,
-    backgroundColor: backgroundColor,
-    className: 'text-dark',
-    close: true,
-    gravity: 'top',
-    position: 'right',
-    duration: 5000,
-    onClick: () => {
-      if (toast) {
-        toast.hideToast();
-        router.history.push(info.link);
-      }
-    },
-  }).showToast();
+    let toast = Toastify({
+      text: `${htmlBody}<br />${info.name}`,
+      avatar: info.icon,
+      backgroundColor: backgroundColor,
+      className: 'text-dark',
+      close: true,
+      gravity: 'top',
+      position: 'right',
+      duration: 5000,
+      onClick: () => {
+        if (toast) {
+          toast.hideToast();
+          router.history.push(info.link);
+        }
+      },
+    }).showToast();
+  }
 }
 
 export function notifyPost(post: Post, router: any) {
