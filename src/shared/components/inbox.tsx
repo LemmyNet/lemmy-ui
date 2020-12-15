@@ -87,6 +87,11 @@ export class Inbox extends Component<any, InboxState> {
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
 
+    if (!UserService.Instance.user && isBrowser()) {
+      toast(i18n.t('not_logged_in'), 'danger');
+      this.context.router.history.push(`/login`);
+    }
+
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
