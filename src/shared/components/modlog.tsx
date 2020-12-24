@@ -25,6 +25,7 @@ import {
   wsSubscribe,
   isBrowser,
   wsUserOp,
+  wsClient,
 } from '../utils';
 import { MomentTime } from './moment-time';
 import { HtmlTags } from './html-tags';
@@ -439,7 +440,7 @@ export class Modlog extends Component<any, ModlogState> {
       page: this.state.page,
       limit: fetchLimit,
     };
-    WebSocketService.Instance.client.getModlog(modlogForm);
+    WebSocketService.Instance.send(wsClient.getModlog(modlogForm));
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {

@@ -19,6 +19,8 @@ import {
   isBrowser,
   setIsoData,
   wsUserOp,
+  wsClient,
+  authField,
 } from '../utils';
 import { i18n } from '../i18next';
 import { HtmlTags } from './html-tags';
@@ -67,7 +69,7 @@ export class Login extends Component<any, State> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     if (isBrowser()) {
-      WebSocketService.Instance.client.getCaptcha();
+      WebSocketService.Instance.send(wsClient.getCaptcha());
     }
   }
 
@@ -349,7 +351,7 @@ export class Login extends Component<any, State> {
     event.preventDefault();
     i.state.loginLoading = true;
     i.setState(i.state);
-    WebSocketService.Instance.client.login(i.state.loginForm);
+    WebSocketService.Instance.send(wsClient.login(i.state.loginForm));
   }
 
   handleLoginUsernameChange(i: Login, event: any) {
@@ -366,7 +368,7 @@ export class Login extends Component<any, State> {
     event.preventDefault();
     i.state.registerLoading = true;
     i.setState(i.state);
-    WebSocketService.Instance.client.register(i.state.registerForm);
+    WebSocketService.Instance.send(wsClient.register(i.state.registerForm));
   }
 
   handleRegisterUsernameChange(i: Login, event: any) {
@@ -404,7 +406,7 @@ export class Login extends Component<any, State> {
 
   handleRegenCaptcha(_i: Login, event: any) {
     event.preventDefault();
-    WebSocketService.Instance.client.getCaptcha();
+    WebSocketService.Instance.send(wsClient.getCaptcha());
   }
 
   handlePasswordReset(i: Login, event: any) {
@@ -412,7 +414,7 @@ export class Login extends Component<any, State> {
     let resetForm: PasswordReset = {
       email: i.state.loginForm.username_or_email,
     };
-    WebSocketService.Instance.client.passwordReset(resetForm);
+    WebSocketService.Instance.send(wsClient.passwordReset(resetForm));
   }
 
   handleCaptchaPlay(i: Login, event: any) {
@@ -439,7 +441,7 @@ export class Login extends Component<any, State> {
       this.state = this.emptyState;
       this.state.registerForm.captcha_answer = undefined;
       // Refetch another captcha
-      WebSocketService.Instance.client.getCaptcha();
+      WebSocketService.Instance.send(wsClient.getCaptcha());
       this.setState(this.state);
       return;
     } else {
@@ -448,9 +450,11 @@ export class Login extends Component<any, State> {
         this.state = this.emptyState;
         this.setState(this.state);
         UserService.Instance.login(data);
-        WebSocketService.Instance.client.userJoin({
-          auth: UserService.Instance.authField(),
-        });
+        WebSocketService.Instance.send(
+          wsClient.userJoin({
+            auth: authField(),
+          })
+        );
         toast(i18n.t('logged_in'));
         this.props.history.push('/');
       } else if (op == UserOperation.Register) {
@@ -458,9 +462,11 @@ export class Login extends Component<any, State> {
         this.state = this.emptyState;
         this.setState(this.state);
         UserService.Instance.login(data);
-        WebSocketService.Instance.client.userJoin({
-          auth: UserService.Instance.authField(),
-        });
+        WebSocketService.Instance.send(
+          wsClient.userJoin({
+            auth: authField(),
+          })
+        );
         this.props.history.push('/communities');
       } else if (op == UserOperation.GetCaptcha) {
         let data = wsJsonToRes<GetCaptchaResponse>(msg).data;

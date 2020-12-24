@@ -25,8 +25,8 @@ const secure = isBrowser()
 const host = isBrowser() ? externalHost : internalHost;
 
 const httpBase = `http://${host}`; // Don't use secure here
-export const wsUri = `ws${secure}://${host}/api/v1/ws`;
-export const httpUri = `${httpBase}/api/v1`;
+export const wsUri = `ws${secure}://${host}/api/v2/ws`;
+export const httpUri = `${httpBase}/api/v2`;
 export const pictrsUri = `http${secure}://${host}/pictrs/image`;
 
 console.log(`httpbase: ${httpBase}`);

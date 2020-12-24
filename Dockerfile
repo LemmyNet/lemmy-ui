@@ -1,5 +1,5 @@
 FROM node:14-alpine as builder
-RUN apk update && apk add yarn curl bash && rm -rf /var/cache/apk/*
+RUN apk add yarn curl bash --no-cache
 
 RUN curl -sfL https://install.goreleaser.com/github.com/tj/node-prune.sh | bash -s -- -b /usr/local/bin
 
@@ -24,7 +24,7 @@ RUN yarn build:prod
 
 # Pruning
 # RUN npm prune --production
-RUN /usr/local/bin/node-prune
+RUN node-prune
 
 FROM node:14-alpine as runner
 COPY --from=builder /usr/src/app/dist /app/dist

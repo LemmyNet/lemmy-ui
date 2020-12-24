@@ -42,6 +42,9 @@ import {
   previewLines,
   editPostFindRes,
   wsUserOp,
+  wsClient,
+  authField,
+  setOptionalAuth,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { HtmlTags } from './html-tags';
@@ -107,14 +110,14 @@ export class User extends Component<any, UserState> {
       send_notifications_to_email: null,
       bio: null,
       preferred_username: null,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     },
     userSettingsLoading: null,
     deleteAccountLoading: null,
     deleteAccountShowConfirm: false,
     deleteAccountForm: {
       password: null,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     },
     siteRes: this.isoData.site_res,
   };
@@ -164,9 +167,9 @@ export class User extends Component<any, UserState> {
       saved_only: this.state.view === UserDetailsView.Saved,
       page: this.state.page,
       limit: fetchLimit,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
-    WebSocketService.Instance.client.getUserDetails(form);
+    WebSocketService.Instance.send(wsClient.getUserDetails(form));
   }
 
   get isCurrentUser() {
@@ -211,8 +214,8 @@ export class User extends Component<any, UserState> {
       saved_only: view === UserDetailsView.Saved,
       page,
       limit: fetchLimit,
-      auth: req.auth,
     };
+    setOptionalAuth(form, req.auth);
     this.setIdOrName(form, user_id, username);
     promises.push(req.client.getUserDetails(form));
     return promises;
@@ -1018,7 +1021,9 @@ export class User extends Component<any, UserState> {
     i.state.userSettingsLoading = true;
     i.setState(i.state);
 
-    WebSocketService.Instance.client.saveUserSettings(i.state.userSettingsForm);
+    WebSocketService.Instance.send(
+      wsClient.saveUserSettings(i.state.userSettingsForm)
+    );
   }
 
   handleDeleteAccountShowConfirmToggle(i: User, event: any) {
@@ -1042,7 +1047,9 @@ export class User extends Component<any, UserState> {
     i.state.deleteAccountLoading = true;
     i.setState(i.state);
 
-    WebSocketService.Instance.client.deleteAccount(i.state.deleteAccountForm);
+    WebSocketService.Instance.send(
+      wsClient.deleteAccount(i.state.deleteAccountForm)
+    );
     i.handleLogoutClick(i);
   }
 

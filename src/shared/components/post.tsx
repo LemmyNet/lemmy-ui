@@ -47,6 +47,9 @@ import {
   previewLines,
   isImage,
   wsUserOp,
+  wsClient,
+  authField,
+  setOptionalAuth,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { Sidebar } from './sidebar';
@@ -103,16 +106,16 @@ export class Post extends Component<any, PostState> {
       }
     } else {
       this.fetchPost();
-      WebSocketService.Instance.client.listCategories();
+      WebSocketService.Instance.send(wsClient.listCategories());
     }
   }
 
   fetchPost() {
     let form: GetPost = {
       id: this.state.postId,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
-    WebSocketService.Instance.client.getPost(form);
+    WebSocketService.Instance.send(wsClient.getPost(form));
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -123,8 +126,8 @@ export class Post extends Component<any, PostState> {
 
     let postForm: GetPost = {
       id,
-      auth: req.auth,
     };
+    setOptionalAuth(postForm, req.auth);
 
     promises.push(req.client.getPost(postForm));
     promises.push(req.client.listCategories());
@@ -138,7 +141,9 @@ export class Post extends Component<any, PostState> {
   }
 
   componentDidMount() {
-    WebSocketService.Instance.client.postJoin({ post_id: this.state.postId });
+    WebSocketService.Instance.send(
+      wsClient.postJoin({ post_id: this.state.postId })
+    );
     autosize(document.querySelectorAll('textarea'));
   }
 
@@ -191,9 +196,9 @@ export class Post extends Component<any, PostState> {
       let form: MarkCommentAsRead = {
         comment_id: found.creator.id,
         read: true,
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.markCommentAsRead(form);
+      WebSocketService.Instance.send(wsClient.markCommentAsRead(form));
       UserService.Instance.unreadCountSub.next(
         UserService.Instance.unreadCountSub.value - 1
       );
@@ -218,7 +223,7 @@ export class Post extends Component<any, PostState> {
   }
 
   render() {
-    let pv = this.state.postRes.post_view;
+    let pv = this.state.postRes?.post_view;
     return (
       <div class="container">
         {this.state.loading ? (
@@ -444,11 +449,13 @@ export class Post extends Component<any, PostState> {
       return;
     } else if (msg.reconnect) {
       let postId = Number(this.props.match.params.id);
-      WebSocketService.Instance.client.postJoin({ post_id: postId });
-      WebSocketService.Instance.client.getPost({
-        id: postId,
-        auth: UserService.Instance.authField(false),
-      });
+      WebSocketService.Instance.send(wsClient.postJoin({ post_id: postId }));
+      WebSocketService.Instance.send(
+        wsClient.getPost({
+          id: postId,
+          auth: authField(false),
+        })
+      );
     } else if (op == UserOperation.GetPost) {
       let data = wsJsonToRes<GetPostResponse>(msg).data;
       this.state.postRes = data;
@@ -462,9 +469,9 @@ export class Post extends Component<any, PostState> {
           sort: SortType.TopAll,
           page: 1,
           limit: 6,
-          auth: UserService.Instance.authField(false),
+          auth: authField(false),
         };
-        WebSocketService.Instance.client.search(form);
+        WebSocketService.Instance.send(wsClient.search(form));
       }
 
       this.setState(this.state);

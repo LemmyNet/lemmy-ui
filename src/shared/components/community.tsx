@@ -51,6 +51,9 @@ import {
   isBrowser,
   communityRSSUrl,
   wsUserOp,
+  wsClient,
+  authField,
+  setOptionalAuth,
 } from '../utils';
 import { i18n } from '../i18next';
 
@@ -126,7 +129,7 @@ export class Community extends Component<any, State> {
     } else {
       this.fetchCommunity();
       this.fetchData();
-      WebSocketService.Instance.client.listCategories();
+      WebSocketService.Instance.send(wsClient.listCategories());
     }
     setupTippy();
   }
@@ -135,9 +138,9 @@ export class Community extends Component<any, State> {
     let form: GetCommunity = {
       id: this.state.communityId ? this.state.communityId : null,
       name: this.state.communityName ? this.state.communityName : null,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
-    WebSocketService.Instance.client.getCommunity(form);
+    WebSocketService.Instance.send(wsClient.getCommunity(form));
   }
 
   componentWillUnmount() {
@@ -170,7 +173,7 @@ export class Community extends Component<any, State> {
     }
 
     let communityForm: GetCommunity = id ? { id } : { name: name_ };
-    communityForm.auth = req.auth;
+    setOptionalAuth(communityForm, req.auth);
     promises.push(req.client.getCommunity(communityForm));
 
     let dataType: DataType = pathSplit[4]
@@ -191,8 +194,8 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
-        auth: req.auth,
       };
+      setOptionalAuth(getPostsForm, req.auth);
       this.setIdOrName(getPostsForm, id, name_);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
@@ -201,8 +204,8 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
-        auth: req.auth,
       };
+      setOptionalAuth(getCommentsForm, req.auth);
       this.setIdOrName(getCommentsForm, id, name_);
       promises.push(req.client.getComments(getCommentsForm));
     }
@@ -236,7 +239,7 @@ export class Community extends Component<any, State> {
   }
 
   render() {
-    let cv = this.state.communityRes.community_view;
+    let cv = this.state.communityRes?.community_view;
     return (
       <div class="container">
         {this.state.communityLoading ? (
@@ -418,9 +421,9 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
-        auth: UserService.Instance.authField(false),
+        auth: authField(false),
       };
-      WebSocketService.Instance.client.getPosts(form);
+      WebSocketService.Instance.send(wsClient.getPosts(form));
     } else {
       let form: GetComments = {
         page: this.state.page,
@@ -429,9 +432,9 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
-        auth: UserService.Instance.authField(false),
+        auth: authField(false),
       };
-      WebSocketService.Instance.client.getComments(form);
+      WebSocketService.Instance.send(wsClient.getComments(form));
     }
   }
 
@@ -442,9 +445,11 @@ export class Community extends Component<any, State> {
       this.context.router.history.push('/');
       return;
     } else if (msg.reconnect) {
-      WebSocketService.Instance.client.communityJoin({
-        community_id: this.state.communityRes.community_view.community.id,
-      });
+      WebSocketService.Instance.send(
+        wsClient.communityJoin({
+          community_id: this.state.communityRes.community_view.community.id,
+        })
+      );
       this.fetchData();
     } else if (op == UserOperation.GetCommunity) {
       let data = wsJsonToRes<GetCommunityResponse>(msg).data;
@@ -452,9 +457,11 @@ export class Community extends Component<any, State> {
       this.state.communityLoading = false;
       this.setState(this.state);
       // TODO why is there no auth in this form?
-      WebSocketService.Instance.client.communityJoin({
-        community_id: data.community_view.community.id,
-      });
+      WebSocketService.Instance.send(
+        wsClient.communityJoin({
+          community_id: data.community_view.community.id,
+        })
+      );
     } else if (
       op == UserOperation.EditCommunity ||
       op == UserOperation.DeleteCommunity ||

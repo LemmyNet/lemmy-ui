@@ -30,6 +30,8 @@ import {
   wsSubscribe,
   supportLemmyUrl,
   wsUserOp,
+  wsClient,
+  authField,
 } from '../utils';
 import { i18n } from '../i18next';
 import { PictrsImage } from './pictrs-image';
@@ -88,9 +90,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         // i18n.changeLanguage('de');
       } else {
         this.requestNotificationPermission();
-        WebSocketService.Instance.client.userJoin({
-          auth: UserService.Instance.authField(),
-        });
+        WebSocketService.Instance.send(
+          wsClient.userJoin({
+            auth: authField(),
+          })
+        );
         this.fetchUnreads();
       }
 
@@ -98,7 +102,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         // A login
         if (res !== undefined) {
           this.requestNotificationPermission();
-          WebSocketService.Instance.client.getSite();
+          WebSocketService.Instance.send(
+            wsClient.getSite({ auth: authField() })
+          );
         } else {
           this.setState({ isLoggedIn: false });
         }
@@ -167,7 +173,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
-    let user = this.props.site_res.my_user;
+    let user = this.props.site_res.my_user || UserService.Instance.user;
     return (
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
@@ -376,9 +382,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       }
       return;
     } else if (msg.reconnect) {
-      WebSocketService.Instance.client.userJoin({
-        auth: UserService.Instance.authField(),
-      });
+      WebSocketService.Instance.send(
+        wsClient.userJoin({
+          auth: authField(),
+        })
+      );
       this.fetchUnreads();
     } else if (op == UserOperation.GetReplies) {
       let data = wsJsonToRes<GetRepliesResponse>(msg).data;
@@ -409,6 +417,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     } else if (op == UserOperation.GetSite) {
       // This is only called on a successful login
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
+      console.log(data.my_user);
       UserService.Instance.user = data.my_user;
       setTheme(UserService.Instance.user.theme);
       i18n.changeLanguage(getLanguage());
@@ -450,7 +459,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       unread_only: true,
       page: 1,
       limit: fetchLimit,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
     let userMentionsForm: GetUserMentions = {
@@ -458,20 +467,24 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       unread_only: true,
       page: 1,
       limit: fetchLimit,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
     let privateMessagesForm: GetPrivateMessages = {
       unread_only: true,
       page: 1,
       limit: fetchLimit,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
     if (this.currentLocation !== '/inbox') {
-      WebSocketService.Instance.client.getReplies(repliesForm);
-      WebSocketService.Instance.client.getUserMentions(userMentionsForm);
-      WebSocketService.Instance.client.getPrivateMessages(privateMessagesForm);
+      WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
+      WebSocketService.Instance.send(
+        wsClient.getUserMentions(userMentionsForm)
+      );
+      WebSocketService.Instance.send(
+        wsClient.getPrivateMessages(privateMessagesForm)
+      );
     }
   }
 

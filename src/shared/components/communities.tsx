@@ -11,7 +11,7 @@ import {
   SortType,
   SiteView,
 } from 'lemmy-js-client';
-import { UserService, WebSocketService } from '../services';
+import { WebSocketService } from '../services';
 import {
   wsJsonToRes,
   toast,
@@ -20,6 +20,9 @@ import {
   setIsoData,
   wsSubscribe,
   wsUserOp,
+  wsClient,
+  authField,
+  setOptionalAuth,
 } from '../utils';
 import { CommunityLink } from './community-link';
 import { i18n } from '../i18next';
@@ -212,18 +215,18 @@ export class Communities extends Component<any, CommunitiesState> {
     let form: FollowCommunity = {
       community_id: communityId,
       follow: false,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.followCommunity(form);
+    WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
 
   handleSubscribe(communityId: number) {
     let form: FollowCommunity = {
       community_id: communityId,
       follow: true,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.followCommunity(form);
+    WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
 
   refetch() {
@@ -231,10 +234,12 @@ export class Communities extends Component<any, CommunitiesState> {
       sort: SortType.TopAll,
       limit: communityLimit,
       page: this.state.page,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
 
-    WebSocketService.Instance.client.listCommunities(listCommunitiesForm);
+    WebSocketService.Instance.send(
+      wsClient.listCommunities(listCommunitiesForm)
+    );
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -244,8 +249,8 @@ export class Communities extends Component<any, CommunitiesState> {
       sort: SortType.TopAll,
       limit: communityLimit,
       page,
-      auth: req.auth,
     };
+    setOptionalAuth(listCommunitiesForm, req.auth);
 
     return [req.client.listCommunities(listCommunitiesForm)];
   }

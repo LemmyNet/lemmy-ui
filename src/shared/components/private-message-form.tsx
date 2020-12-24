@@ -9,7 +9,7 @@ import {
   UserSafe,
   UserOperation,
 } from 'lemmy-js-client';
-import { UserService, WebSocketService } from '../services';
+import { WebSocketService } from '../services';
 import {
   capitalizeFirstLetter,
   wsJsonToRes,
@@ -18,6 +18,8 @@ import {
   wsSubscribe,
   isBrowser,
   wsUserOp,
+  wsClient,
+  authField,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { MarkdownTextArea } from './markdown-textarea';
@@ -48,7 +50,7 @@ export class PrivateMessageForm extends Component<
     privateMessageForm: {
       content: null,
       recipient_id: this.props.recipient.id,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     },
     loading: false,
     previewMode: false,
@@ -191,12 +193,12 @@ export class PrivateMessageForm extends Component<
       let form: EditPrivateMessage = {
         edit_id: i.props.privateMessage.private_message.id,
         content: i.state.privateMessageForm.content,
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.editPrivateMessage(form);
+      WebSocketService.Instance.send(wsClient.editPrivateMessage(form));
     } else {
-      WebSocketService.Instance.client.createPrivateMessage(
-        i.state.privateMessageForm
+      WebSocketService.Instance.send(
+        wsClient.createPrivateMessage(i.state.privateMessageForm)
       );
     }
     i.state.loading = true;

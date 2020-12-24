@@ -16,6 +16,7 @@ import {
   wsSubscribe,
   isBrowser,
   wsUserOp,
+  wsClient,
 } from '../utils';
 import { WebSocketService, UserService } from '../services';
 import { i18n } from '../i18next';
@@ -53,7 +54,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
       this.state.categories = this.isoData.routeData[0].categories;
       this.state.loading = false;
     } else {
-      WebSocketService.Instance.client.listCategories();
+      WebSocketService.Instance.send(wsClient.listCategories());
     }
   }
 

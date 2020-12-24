@@ -34,6 +34,8 @@ import {
   wsSubscribe,
   isBrowser,
   wsUserOp,
+  wsClient,
+  authField,
 } from '../utils';
 
 var Choices;
@@ -76,7 +78,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       community_id: null,
       name: null,
       nsfw: false,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     },
     loading: false,
     imageLoading: false,
@@ -102,7 +104,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         community_id: this.props.post_view.community.id,
         url: this.props.post_view.post.url,
         nsfw: this.props.post_view.post.nsfw,
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
     }
 
@@ -377,9 +379,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         ...i.state.postForm,
         edit_id: i.props.post_view.post.id,
       };
-      WebSocketService.Instance.client.editPost(form);
+      WebSocketService.Instance.send(wsClient.editPost(form));
     } else {
-      WebSocketService.Instance.client.createPost(i.state.postForm);
+      WebSocketService.Instance.send(wsClient.createPost(i.state.postForm));
     }
     i.state.loading = true;
     i.setState(i.state);
@@ -408,10 +410,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         sort: SortType.TopAll,
         page: 1,
         limit: 6,
-        auth: UserService.Instance.authField(false),
+        auth: authField(false),
       };
 
-      WebSocketService.Instance.client.search(form);
+      WebSocketService.Instance.send(wsClient.search(form));
 
       // Fetch the page title
       getPageTitle(this.state.postForm.url).then(d => {
@@ -438,11 +440,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       community_id: this.state.postForm.community_id,
       page: 1,
       limit: 6,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
 
     if (this.state.postForm.name !== '') {
-      WebSocketService.Instance.client.search(form);
+      WebSocketService.Instance.send(wsClient.search(form));
     } else {
       this.state.suggestedPosts = [];
     }

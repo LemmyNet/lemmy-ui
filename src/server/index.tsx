@@ -14,6 +14,7 @@ import { Helmet } from 'inferno-helmet';
 import { initializeSite } from '../shared/initialize';
 import { httpUri } from '../shared/env';
 import { IncomingHttpHeaders } from 'http';
+import { setOptionalAuth } from '../shared/utils';
 
 const server = express();
 const port = 1234;
@@ -29,7 +30,8 @@ server.get('/*', async (req, res) => {
   const context = {} as any;
   let auth: string = IsomorphicCookie.load('jwt', req);
 
-  let getSiteForm: GetSite = { auth };
+  let getSiteForm: GetSite = {};
+  setOptionalAuth(getSiteForm, auth);
 
   let promises: Promise<any>[] = [];
 

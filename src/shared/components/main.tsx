@@ -55,6 +55,9 @@ import {
   wsSubscribe,
   isBrowser,
   wsUserOp,
+  setOptionalAuth,
+  wsClient,
+  authField,
 } from '../utils';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
@@ -133,9 +136,11 @@ export class Main extends Component<any, MainState> {
       this.fetchTrendingCommunities();
       this.fetchData();
       if (UserService.Instance.user) {
-        WebSocketService.Instance.client.getFollowedCommunities({
-          auth: UserService.Instance.authField(),
-        });
+        WebSocketService.Instance.send(
+          wsClient.getFollowedCommunities({
+            auth: authField(),
+          })
+        );
       }
     }
 
@@ -146,9 +151,11 @@ export class Main extends Component<any, MainState> {
     let listCommunitiesForm: ListCommunities = {
       sort: SortType.Hot,
       limit: 6,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
-    WebSocketService.Instance.client.listCommunities(listCommunitiesForm);
+    WebSocketService.Instance.send(
+      wsClient.listCommunities(listCommunitiesForm)
+    );
   }
 
   componentDidMount() {
@@ -157,7 +164,7 @@ export class Main extends Component<any, MainState> {
       this.context.router.history.push('/setup');
     }
 
-    WebSocketService.Instance.client.communityJoin({ community_id: 0 });
+    WebSocketService.Instance.send(wsClient.communityJoin({ community_id: 0 }));
   }
 
   componentWillUnmount() {
@@ -206,8 +213,8 @@ export class Main extends Component<any, MainState> {
         limit: fetchLimit,
         sort,
         type_,
-        auth: req.auth,
       };
+      setOptionalAuth(getPostsForm, req.auth);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetComments = {
@@ -215,8 +222,8 @@ export class Main extends Component<any, MainState> {
         limit: fetchLimit,
         sort,
         type_,
-        auth: req.auth,
       };
+      setOptionalAuth(getCommentsForm, req.auth);
       promises.push(req.client.getComments(getCommentsForm));
     }
 
@@ -661,18 +668,18 @@ export class Main extends Component<any, MainState> {
         limit: fetchLimit,
         sort: this.state.sort,
         type_: this.state.listingType,
-        auth: UserService.Instance.authField(false),
+        auth: authField(false),
       };
-      WebSocketService.Instance.client.getPosts(getPostsForm);
+      WebSocketService.Instance.send(wsClient.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetComments = {
         page: this.state.page,
         limit: fetchLimit,
         sort: this.state.sort,
         type_: this.state.listingType,
-        auth: UserService.Instance.authField(false),
+        auth: authField(false),
       };
-      WebSocketService.Instance.client.getComments(getCommentsForm);
+      WebSocketService.Instance.send(wsClient.getComments(getCommentsForm));
     }
   }
 
@@ -682,7 +689,9 @@ export class Main extends Component<any, MainState> {
       toast(i18n.t(msg.error), 'danger');
       return;
     } else if (msg.reconnect) {
-      WebSocketService.Instance.client.communityJoin({ community_id: 0 });
+      WebSocketService.Instance.send(
+        wsClient.communityJoin({ community_id: 0 })
+      );
       this.fetchData();
     } else if (op == UserOperation.GetFollowedCommunities) {
       let data = wsJsonToRes<GetFollowedCommunitiesResponse>(msg).data;

@@ -12,10 +12,12 @@ import {
   GetUserDetails,
 } from 'lemmy-js-client';
 import {
+  authField,
   getRecipientIdFromProps,
   isBrowser,
   setIsoData,
   toast,
+  wsClient,
   wsJsonToRes,
   wsSubscribe,
   wsUserOp,
@@ -73,9 +75,9 @@ export class CreatePrivateMessage extends Component<
       user_id: this.state.recipient_id,
       sort: SortType.New,
       saved_only: false,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
-    WebSocketService.Instance.client.getUserDetails(form);
+    WebSocketService.Instance.send(wsClient.getUserDetails(form));
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {

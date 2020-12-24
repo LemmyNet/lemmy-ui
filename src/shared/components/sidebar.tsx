@@ -11,7 +11,7 @@ import {
   Category,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
-import { mdToHtml, getUnixTime } from '../utils';
+import { mdToHtml, getUnixTime, wsClient, authField } from '../utils';
 import { CommunityForm } from './community-form';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
@@ -394,9 +394,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     let deleteForm: DeleteCommunity = {
       edit_id: i.props.community_view.community.id,
       deleted: !i.props.community_view.community.deleted,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.deleteCommunity(deleteForm);
+    WebSocketService.Instance.send(wsClient.deleteCommunity(deleteForm));
   }
 
   handleShowConfirmLeaveModTeamClick(i: Sidebar) {
@@ -409,9 +409,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       user_id: UserService.Instance.user.id,
       community_id: i.props.community_view.community.id,
       added: false,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.addModToCommunity(form);
+    WebSocketService.Instance.send(wsClient.addModToCommunity(form));
     i.state.showConfirmLeaveModTeam = false;
     i.setState(i.state);
   }
@@ -426,9 +426,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     let form: FollowCommunity = {
       community_id: communityId,
       follow: false,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.followCommunity(form);
+    WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
 
   handleSubscribe(communityId: number, event: any) {
@@ -436,9 +436,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     let form: FollowCommunity = {
       community_id: communityId,
       follow: true,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.followCommunity(form);
+    WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
 
   private get amCreator(): boolean {
@@ -486,9 +486,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       removed: !i.props.community_view.community.removed,
       reason: i.state.removeReason,
       expires: getUnixTime(i.state.removeExpires),
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.removeCommunity(removeForm);
+    WebSocketService.Instance.send(wsClient.removeCommunity(removeForm));
 
     i.state.showRemoveDialog = false;
     i.setState(i.state);

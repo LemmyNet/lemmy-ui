@@ -9,7 +9,7 @@ import {
   CommunityResponse,
   CommunityView,
 } from 'lemmy-js-client';
-import { UserService, WebSocketService } from '../services';
+import { WebSocketService } from '../services';
 import {
   wsJsonToRes,
   capitalizeFirstLetter,
@@ -17,6 +17,8 @@ import {
   randomStr,
   wsSubscribe,
   wsUserOp,
+  wsClient,
+  authField,
 } from '../utils';
 import { i18n } from '../i18next';
 
@@ -52,7 +54,7 @@ export class CommunityForm extends Component<
       nsfw: false,
       icon: null,
       banner: null,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     },
     loading: false,
   };
@@ -82,7 +84,7 @@ export class CommunityForm extends Component<
         nsfw: cv.community.nsfw,
         icon: cv.community.icon,
         banner: cv.community.banner,
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
     }
 
@@ -283,9 +285,11 @@ export class CommunityForm extends Component<
         ...i.state.communityForm,
         edit_id: i.props.community_view.community.id,
       };
-      WebSocketService.Instance.client.editCommunity(form);
+      WebSocketService.Instance.send(wsClient.editCommunity(form));
     } else {
-      WebSocketService.Instance.client.createCommunity(i.state.communityForm);
+      WebSocketService.Instance.send(
+        wsClient.createCommunity(i.state.communityForm)
+      );
     }
     i.setState(i.state);
   }

@@ -3,8 +3,13 @@ import { Prompt } from 'inferno-router';
 import { MarkdownTextArea } from './markdown-textarea';
 import { ImageUploadForm } from './image-upload-form';
 import { Site, EditSite } from 'lemmy-js-client';
-import { UserService, WebSocketService } from '../services';
-import { capitalizeFirstLetter, randomStr } from '../utils';
+import { WebSocketService } from '../services';
+import {
+  authField,
+  capitalizeFirstLetter,
+  randomStr,
+  wsClient,
+} from '../utils';
 import { i18n } from '../i18next';
 
 interface SiteFormProps {
@@ -27,7 +32,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       name: null,
       icon: null,
       banner: null,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     },
     loading: false,
   };
@@ -55,7 +60,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         enable_nsfw: this.props.site.enable_nsfw,
         icon: this.props.site.icon,
         banner: this.props.site.banner,
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
     }
   }
@@ -244,9 +249,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event.preventDefault();
     i.state.loading = true;
     if (i.props.site) {
-      WebSocketService.Instance.client.editSite(i.state.siteForm);
+      WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
     } else {
-      WebSocketService.Instance.client.createSite(i.state.siteForm);
+      WebSocketService.Instance.send(wsClient.createSite(i.state.siteForm));
     }
     i.setState(i.state);
   }

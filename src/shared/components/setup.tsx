@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { retryWhen, delay, take } from 'rxjs/operators';
 import { Register, LoginResponse, UserOperation } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
-import { wsUserOp, wsJsonToRes, toast } from '../utils';
+import { wsUserOp, wsJsonToRes, toast, wsClient } from '../utils';
 import { SiteForm } from './site-form';
 import { i18n } from '../i18next';
 
@@ -163,7 +163,7 @@ export class Setup extends Component<any, State> {
     i.state.userLoading = true;
     i.setState(i.state);
     event.preventDefault();
-    WebSocketService.Instance.client.register(i.state.userForm);
+    WebSocketService.Instance.send(wsClient.register(i.state.userForm));
   }
 
   handleRegisterUsernameChange(i: Setup, event: any) {

@@ -3,9 +3,12 @@ import { Subscription } from 'rxjs';
 import { PostForm } from './post-form';
 import { HtmlTags } from './html-tags';
 import {
+  authField,
   isBrowser,
   setIsoData,
+  setOptionalAuth,
   toast,
+  wsClient,
   wsJsonToRes,
   wsSubscribe,
   wsUserOp,
@@ -64,9 +67,11 @@ export class CreatePost extends Component<any, CreatePostState> {
     let listCommunitiesForm: ListCommunities = {
       sort: SortType.TopAll,
       limit: 9999,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
-    WebSocketService.Instance.client.listCommunities(listCommunitiesForm);
+    WebSocketService.Instance.send(
+      wsClient.listCommunities(listCommunitiesForm)
+    );
   }
 
   componentWillUnmount() {
@@ -157,8 +162,8 @@ export class CreatePost extends Component<any, CreatePostState> {
     let listCommunitiesForm: ListCommunities = {
       sort: SortType.TopAll,
       limit: 9999,
-      auth: req.auth,
     };
+    setOptionalAuth(listCommunitiesForm, req.auth);
     return [req.client.listCommunities(listCommunitiesForm)];
   }
 

@@ -8,7 +8,7 @@ import {
   GetSiteConfigResponse,
   GetSiteConfig,
 } from 'lemmy-js-client';
-import { UserService, WebSocketService } from '../services';
+import { WebSocketService } from '../services';
 import {
   wsJsonToRes,
   capitalizeFirstLetter,
@@ -18,6 +18,8 @@ import {
   wsSubscribe,
   isBrowser,
   wsUserOp,
+  wsClient,
+  authField,
 } from '../utils';
 import autosize from 'autosize';
 import { SiteForm } from './site-form';
@@ -42,7 +44,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     siteRes: this.isoData.site_res,
     siteConfigForm: {
       config_hjson: null,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     },
     siteConfigRes: {
       config_hjson: null,
@@ -66,9 +68,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state.siteConfigLoading = false;
       this.state.loading = false;
     } else {
-      WebSocketService.Instance.client.getSiteConfig({
-        auth: UserService.Instance.authField(),
-      });
+      WebSocketService.Instance.send(
+        wsClient.getSiteConfig({
+          auth: authField(),
+        })
+      );
     }
   }
 
@@ -198,7 +202,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   handleSiteConfigSubmit(i: AdminSettings, event: any) {
     event.preventDefault();
     i.state.siteConfigLoading = true;
-    WebSocketService.Instance.client.saveSiteConfig(i.state.siteConfigForm);
+    WebSocketService.Instance.send(
+      wsClient.saveSiteConfig(i.state.siteConfigForm)
+    );
     i.setState(i.state);
   }
 

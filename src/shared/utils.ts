@@ -41,6 +41,7 @@ import {
   SearchResponse,
   PostView,
   PrivateMessageView,
+  LemmyWebsocket,
 } from 'lemmy-js-client';
 
 import {
@@ -66,6 +67,9 @@ import tippy from 'tippy.js';
 import moment from 'moment';
 import { Subscription } from 'rxjs';
 import { retryWhen, delay, take } from 'rxjs/operators';
+import { i18n } from './i18next';
+
+export const wsClient = new LemmyWebsocket();
 
 export const favIconUrl = '/static/assets/favicon.svg';
 export const favIconPngUrl = '/static/assets/apple-touch-icon.png';
@@ -719,10 +723,10 @@ function userSearch(text: string, cb: any) {
       sort: SortType.TopAll,
       page: 1,
       limit: mentionDropdownFetchLimit,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
 
-    WebSocketService.Instance.client.search(form);
+    WebSocketService.Instance.send(wsClient.search(form));
 
     let userSub = WebSocketService.Instance.subject.subscribe(
       msg => {
@@ -757,10 +761,10 @@ function communitySearch(text: string, cb: any) {
       sort: SortType.TopAll,
       page: 1,
       limit: mentionDropdownFetchLimit,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
 
-    WebSocketService.Instance.client.search(form);
+    WebSocketService.Instance.send(wsClient.search(form));
 
     let communitySub = WebSocketService.Instance.subject.subscribe(
       msg => {
@@ -1108,6 +1112,24 @@ export function wsSubscribe(parseMessage: any): Subscription {
       );
   } else {
     return null;
+  }
+}
+
+export function setOptionalAuth(obj: any, auth = UserService.Instance.auth) {
+  if (auth) {
+    obj.auth = auth;
+  }
+}
+
+export function authField(
+  throwErr: boolean = true,
+  auth = UserService.Instance.auth
+): string {
+  if (auth == null && throwErr) {
+    toast(i18n.t('not_logged_in'), 'danger');
+    throw 'Not logged in';
+  } else {
+    return auth;
   }
 }
 

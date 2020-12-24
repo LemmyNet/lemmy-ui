@@ -36,6 +36,8 @@ import {
   setupTippy,
   hostname,
   previewLines,
+  wsClient,
+  authField,
 } from '../utils';
 import { i18n } from '../i18next';
 import { externalHost } from '../env';
@@ -1175,10 +1177,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let form: CreatePostLike = {
       post_id: i.props.post_view.post.id,
       score: i.state.my_vote,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
-    WebSocketService.Instance.client.likePost(form);
+    WebSocketService.Instance.send(wsClient.likePost(form));
     i.setState(i.state);
     setupTippy();
   }
@@ -1207,10 +1209,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let form: CreatePostLike = {
       post_id: i.props.post_view.post.id,
       score: i.state.my_vote,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
-    WebSocketService.Instance.client.likePost(form);
+    WebSocketService.Instance.send(wsClient.likePost(form));
     i.setState(i.state);
     setupTippy();
   }
@@ -1235,9 +1237,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let deleteForm: DeletePost = {
       edit_id: i.props.post_view.post.id,
       deleted: !i.props.post_view.post.deleted,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.deletePost(deleteForm);
+    WebSocketService.Instance.send(wsClient.deletePost(deleteForm));
   }
 
   handleSavePostClick(i: PostListing) {
@@ -1246,10 +1248,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let form: SavePost = {
       post_id: i.props.post_view.post.id,
       save: saved,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
-    WebSocketService.Instance.client.savePost(form);
+    WebSocketService.Instance.send(wsClient.savePost(form));
   }
 
   get crossPostParams(): string {
@@ -1286,9 +1288,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       edit_id: i.props.post_view.post.id,
       removed: !i.props.post_view.post.removed,
       reason: i.state.removeReason,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.removePost(form);
+    WebSocketService.Instance.send(wsClient.removePost(form));
 
     i.state.showRemoveDialog = false;
     i.setState(i.state);
@@ -1298,18 +1300,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let form: LockPost = {
       edit_id: i.props.post_view.post.id,
       locked: !i.props.post_view.post.locked,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.lockPost(form);
+    WebSocketService.Instance.send(wsClient.lockPost(form));
   }
 
   handleModSticky(i: PostListing) {
     let form: StickyPost = {
       edit_id: i.props.post_view.post.id,
       stickied: !i.props.post_view.post.stickied,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.stickyPost(form);
+    WebSocketService.Instance.send(wsClient.stickyPost(form));
   }
 
   handleModBanFromCommunityShow(i: PostListing) {
@@ -1362,9 +1364,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         remove_data: i.state.removeData,
         reason: i.state.banReason,
         expires: getUnixTime(i.state.banExpires),
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.banFromCommunity(form);
+      WebSocketService.Instance.send(wsClient.banFromCommunity(form));
     } else {
       // If its an unban, restore all their data
       let ban = !i.props.post_view.creator.banned;
@@ -1377,9 +1379,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         remove_data: i.state.removeData,
         reason: i.state.banReason,
         expires: getUnixTime(i.state.banExpires),
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.banUser(form);
+      WebSocketService.Instance.send(wsClient.banUser(form));
     }
 
     i.state.showBanDialog = false;
@@ -1391,9 +1393,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       user_id: i.props.post_view.creator.id,
       community_id: i.props.post_view.community.id,
       added: !i.isMod,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.addModToCommunity(form);
+    WebSocketService.Instance.send(wsClient.addModToCommunity(form));
     i.setState(i.state);
   }
 
@@ -1401,9 +1403,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let form: AddAdmin = {
       user_id: i.props.post_view.creator.id,
       added: !i.isAdmin,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.addAdmin(form);
+    WebSocketService.Instance.send(wsClient.addAdmin(form));
     i.setState(i.state);
   }
 
@@ -1421,9 +1423,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let form: TransferCommunity = {
       community_id: i.props.post_view.community.id,
       user_id: i.props.post_view.creator.id,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.transferCommunity(form);
+    WebSocketService.Instance.send(wsClient.transferCommunity(form));
     i.state.showConfirmTransferCommunity = false;
     i.setState(i.state);
   }
@@ -1441,9 +1443,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleTransferSite(i: PostListing) {
     let form: TransferSite = {
       user_id: i.props.post_view.creator.id,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.transferSite(form);
+    WebSocketService.Instance.send(wsClient.transferSite(form));
     i.state.showConfirmTransferSite = false;
     i.setState(i.state);
   }

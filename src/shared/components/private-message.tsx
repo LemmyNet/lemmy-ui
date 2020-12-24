@@ -6,7 +6,7 @@ import {
   UserSafe,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
-import { mdToHtml, toast } from '../utils';
+import { authField, mdToHtml, toast, wsClient } from '../utils';
 import { MomentTime } from './moment-time';
 import { PrivateMessageForm } from './private-message-form';
 import { UserListing } from './user-listing';
@@ -231,9 +231,9 @@ export class PrivateMessage extends Component<
     let form: DeletePrivateMessage = {
       edit_id: i.props.private_message_view.private_message.id,
       deleted: !i.props.private_message_view.private_message.deleted,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.deletePrivateMessage(form);
+    WebSocketService.Instance.send(wsClient.deletePrivateMessage(form));
   }
 
   handleReplyCancel() {
@@ -246,9 +246,9 @@ export class PrivateMessage extends Component<
     let form: MarkPrivateMessageAsRead = {
       edit_id: i.props.private_message_view.private_message.id,
       read: !i.props.private_message_view.private_message.read,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.markPrivateMessageAsRead(form);
+    WebSocketService.Instance.send(wsClient.markPrivateMessageAsRead(form));
   }
 
   handleMessageCollapse(i: PrivateMessage) {

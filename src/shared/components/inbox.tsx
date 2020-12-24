@@ -31,6 +31,8 @@ import {
   wsSubscribe,
   isBrowser,
   wsUserOp,
+  wsClient,
+  authField,
 } from '../utils';
 import { CommentNodes } from './comment-nodes';
 import { PrivateMessage } from './private-message';
@@ -498,26 +500,28 @@ export class Inbox extends Component<any, InboxState> {
       unread_only: this.state.unreadOrAll == UnreadOrAll.Unread,
       page: this.state.page,
       limit: fetchLimit,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.getReplies(repliesForm);
+    WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
 
     let userMentionsForm: GetUserMentions = {
       sort: this.state.sort,
       unread_only: this.state.unreadOrAll == UnreadOrAll.Unread,
       page: this.state.page,
       limit: fetchLimit,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.getUserMentions(userMentionsForm);
+    WebSocketService.Instance.send(wsClient.getUserMentions(userMentionsForm));
 
     let privateMessagesForm: GetPrivateMessages = {
       unread_only: this.state.unreadOrAll == UnreadOrAll.Unread,
       page: this.state.page,
       limit: fetchLimit,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.getPrivateMessages(privateMessagesForm);
+    WebSocketService.Instance.send(
+      wsClient.getPrivateMessages(privateMessagesForm)
+    );
   }
 
   handleSortChange(val: SortType) {
@@ -528,9 +532,11 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   markAllAsRead(i: Inbox) {
-    WebSocketService.Instance.client.markAllAsRead({
-      auth: UserService.Instance.authField(),
-    });
+    WebSocketService.Instance.send(
+      wsClient.markAllAsRead({
+        auth: authField(),
+      })
+    );
     i.state.replies = [];
     i.state.mentions = [];
     i.state.messages = [];

@@ -1,9 +1,5 @@
 import { wsUri } from '../env';
-import {
-  LemmyWebsocket,
-  UserViewSafe,
-  WebSocketJsonResponse,
-} from 'lemmy-js-client';
+import { UserViewSafe, WebSocketJsonResponse } from 'lemmy-js-client';
 import { isBrowser } from '../utils';
 import { Observable } from 'rxjs';
 import { share } from 'rxjs/operators';
@@ -14,7 +10,7 @@ import {
 
 export class WebSocketService {
   private static _instance: WebSocketService;
-  public ws: ReconnectingWebSocket;
+  private ws: ReconnectingWebSocket;
   public wsOptions: WSOptions = {
     connectionTimeout: 5000,
     maxRetries: 10,
@@ -23,7 +19,6 @@ export class WebSocketService {
 
   public admins: UserViewSafe[];
   public banned: UserViewSafe[];
-  public client = new LemmyWebsocket();
 
   private constructor() {
     this.ws = new ReconnectingWebSocket(wsUri, [], this.wsOptions);
@@ -46,15 +41,19 @@ export class WebSocketService {
         firstConnect = false;
       };
     }).pipe(share());
+
+    if (isBrowser()) {
+      window.onbeforeunload = () => {
+        this.ws.close();
+      };
+    }
+  }
+
+  public send(data: string) {
+    this.ws.send(data);
   }
 
   public static get Instance() {
     return this._instance || (this._instance = new this());
   }
-}
-
-if (isBrowser()) {
-  window.onbeforeunload = () => {
-    WebSocketService.Instance.ws.close();
-  };
 }

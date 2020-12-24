@@ -3,8 +3,6 @@ import IsomorphicCookie from 'isomorphic-cookie';
 import { User_, LoginResponse } from 'lemmy-js-client';
 import jwt_decode from 'jwt-decode';
 import { Subject, BehaviorSubject } from 'rxjs';
-import { i18n } from '../i18next';
-import { toast } from '../utils';
 
 interface Claims {
   id: number;
@@ -48,15 +46,6 @@ export class UserService {
 
   public get auth(): string {
     return IsomorphicCookie.load('jwt');
-  }
-
-  public authField(throwErr: boolean = true): string {
-    if (this.auth == null && throwErr) {
-      toast(i18n.t('not_logged_in'), 'danger');
-      throw 'Not logged in';
-    } else {
-      return this.auth;
-    }
   }
 
   private setClaims(jwt: string) {

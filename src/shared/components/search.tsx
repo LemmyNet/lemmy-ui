@@ -14,7 +14,7 @@ import {
   CommentResponse,
   Site,
 } from 'lemmy-js-client';
-import { UserService, WebSocketService } from '../services';
+import { WebSocketService } from '../services';
 import {
   wsJsonToRes,
   fetchLimit,
@@ -27,6 +27,9 @@ import {
   setIsoData,
   wsSubscribe,
   wsUserOp,
+  wsClient,
+  authField,
+  setOptionalAuth,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { HtmlTags } from './html-tags';
@@ -141,8 +144,8 @@ export class Search extends Component<any, SearchState> {
       sort: this.getSortTypeFromProps(pathSplit[7]),
       page: this.getPageFromProps(pathSplit[9]),
       limit: fetchLimit,
-      auth: req.auth,
     };
+    setOptionalAuth(form, req.auth);
 
     if (form.q != '') {
       promises.push(req.client.search(form));
@@ -456,11 +459,11 @@ export class Search extends Component<any, SearchState> {
       sort: this.state.sort,
       page: this.state.page,
       limit: fetchLimit,
-      auth: UserService.Instance.authField(false),
+      auth: authField(false),
     };
 
     if (this.state.q != '') {
-      WebSocketService.Instance.client.search(form);
+      WebSocketService.Instance.send(wsClient.search(form));
     }
   }
 

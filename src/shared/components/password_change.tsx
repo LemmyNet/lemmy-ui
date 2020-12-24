@@ -15,6 +15,7 @@ import {
   isBrowser,
   wsSubscribe,
   wsUserOp,
+  wsClient,
 } from '../utils';
 import { i18n } from '../i18next';
 import { HtmlTags } from './html-tags';
@@ -138,7 +139,9 @@ export class PasswordChange extends Component<any, State> {
     i.state.loading = true;
     i.setState(i.state);
 
-    WebSocketService.Instance.client.passwordChange(i.state.passwordChangeForm);
+    WebSocketService.Instance.send(
+      wsClient.passwordChange(i.state.passwordChangeForm)
+    );
   }
 
   parseMessage(msg: any) {

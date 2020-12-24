@@ -9,7 +9,9 @@ import {
 } from 'lemmy-js-client';
 import { CommentNode as CommentNodeI } from '../interfaces';
 import {
+  authField,
   capitalizeFirstLetter,
+  wsClient,
   wsJsonToRes,
   wsSubscribe,
   wsUserOp,
@@ -21,11 +23,11 @@ import { MarkdownTextArea } from './markdown-textarea';
 
 interface CommentFormProps {
   postId?: number;
-  node?: CommentNodeI;
-  onReplyCancel?(): any;
+  node?: CommentNodeI; // Can either be the parent, or the editable comment
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
+  onReplyCancel?(): any;
 }
 
 interface CommentFormState {
@@ -68,7 +70,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         {UserService.Instance.user ? (
           <MarkdownTextArea
             initialContent={
-              this.props.node
+              this.props.edit
                 ? this.props.node.comment_view.comment.content
                 : null
             }
@@ -108,18 +110,18 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         content,
         form_id: this.state.formId,
         edit_id: node.comment_view.comment.id,
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.editComment(form);
+      WebSocketService.Instance.send(wsClient.editComment(form));
     } else {
       let form: CreateComment = {
         content,
         form_id: this.state.formId,
         post_id: node ? node.comment_view.post.id : this.props.postId,
-        parent_id: node ? node.comment_view.comment.parent_id : null,
-        auth: UserService.Instance.authField(),
+        parent_id: node ? node.comment_view.comment.id : null,
+        auth: authField(),
       };
-      WebSocketService.Instance.client.createComment(form);
+      WebSocketService.Instance.send(wsClient.createComment(form));
     }
     this.setState(this.state);
   }

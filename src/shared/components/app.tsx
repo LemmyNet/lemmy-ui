@@ -28,7 +28,7 @@ export class App extends Component<AppProps, any> {
           <div>
             <Theme user={siteRes.my_user} />
             {siteRes &&
-              siteRes.site_view.site &&
+              siteRes.site_view &&
               this.props.siteRes.site_view.site.icon && (
                 <Helmet>
                   <link

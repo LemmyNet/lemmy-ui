@@ -32,6 +32,8 @@ import {
   isMod,
   setupTippy,
   colorList,
+  wsClient,
+  authField,
 } from '../utils';
 import moment from 'moment';
 import { MomentTime } from './moment-time';
@@ -849,9 +851,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     let deleteForm: DeleteComment = {
       edit_id: comment.id,
       deleted: !comment.deleted,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.deleteComment(deleteForm);
+    WebSocketService.Instance.send(wsClient.deleteComment(deleteForm));
   }
 
   handleSaveCommentClick(i: CommentNode) {
@@ -860,10 +862,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     let form: SaveComment = {
       comment_id: cv.comment.id,
       save,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
-    WebSocketService.Instance.client.saveComment(form);
+    WebSocketService.Instance.send(wsClient.saveComment(form));
 
     i.state.saveLoading = true;
     i.setState(this.state);
@@ -895,10 +897,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     let form: CreateCommentLike = {
       comment_id: i.comment_view.comment.id,
       score: this.state.my_vote,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
-    WebSocketService.Instance.client.likeComment(form);
+    WebSocketService.Instance.send(wsClient.likeComment(form));
     this.setState(this.state);
     setupTippy();
   }
@@ -923,10 +925,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     let form: CreateCommentLike = {
       comment_id: i.comment_view.comment.id,
       score: this.state.my_vote,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
 
-    WebSocketService.Instance.client.likeComment(form);
+    WebSocketService.Instance.send(wsClient.likeComment(form));
     this.setState(this.state);
     setupTippy();
   }
@@ -952,9 +954,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       edit_id: comment.id,
       removed: !comment.removed,
       reason: i.state.removeReason,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.removeComment(form);
+    WebSocketService.Instance.send(wsClient.removeComment(form));
 
     i.state.showRemoveDialog = false;
     i.setState(i.state);
@@ -971,16 +973,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       let form: MarkUserMentionAsRead = {
         user_mention_id: i.props.node.comment_view.user_mention.id,
         read: !i.props.node.comment_view.user_mention.read,
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.markUserMentionAsRead(form);
+      WebSocketService.Instance.send(wsClient.markUserMentionAsRead(form));
     } else {
       let form: MarkCommentAsRead = {
         comment_id: i.props.node.comment_view.comment.id,
         read: !i.props.node.comment_view.comment.read,
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.markCommentAsRead(form);
+      WebSocketService.Instance.send(wsClient.markCommentAsRead(form));
     }
 
     i.state.readLoading = true;
@@ -1037,9 +1039,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         remove_data: i.state.removeData,
         reason: i.state.banReason,
         expires: getUnixTime(i.state.banExpires),
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.banFromCommunity(form);
+      WebSocketService.Instance.send(wsClient.banFromCommunity(form));
     } else {
       // If its an unban, restore all their data
       let ban = !cv.creator.banned;
@@ -1052,9 +1054,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         remove_data: i.state.removeData,
         reason: i.state.banReason,
         expires: getUnixTime(i.state.banExpires),
-        auth: UserService.Instance.authField(),
+        auth: authField(),
       };
-      WebSocketService.Instance.client.banUser(form);
+      WebSocketService.Instance.send(wsClient.banUser(form));
     }
 
     i.state.showBanDialog = false;
@@ -1077,9 +1079,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       user_id: cv.creator.id,
       community_id: cv.community.id,
       added: !i.isMod,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.addModToCommunity(form);
+    WebSocketService.Instance.send(wsClient.addModToCommunity(form));
     i.state.showConfirmAppointAsMod = false;
     i.setState(i.state);
   }
@@ -1098,9 +1100,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     let form: AddAdmin = {
       user_id: i.props.node.comment_view.creator.id,
       added: !i.isAdmin,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.addAdmin(form);
+    WebSocketService.Instance.send(wsClient.addAdmin(form));
     i.state.showConfirmAppointAsAdmin = false;
     i.setState(i.state);
   }
@@ -1120,9 +1122,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     let form: TransferCommunity = {
       community_id: cv.community.id,
       user_id: cv.creator.id,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.transferCommunity(form);
+    WebSocketService.Instance.send(wsClient.transferCommunity(form));
     i.state.showConfirmTransferCommunity = false;
     i.setState(i.state);
   }
@@ -1140,9 +1142,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleTransferSite(i: CommentNode) {
     let form: TransferSite = {
       user_id: i.props.node.comment_view.creator.id,
-      auth: UserService.Instance.authField(),
+      auth: authField(),
     };
-    WebSocketService.Instance.client.transferSite(form);
+    WebSocketService.Instance.send(wsClient.transferSite(form));
     i.state.showConfirmTransferSite = false;
     i.setState(i.state);
   }
