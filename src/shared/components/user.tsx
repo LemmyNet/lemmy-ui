@@ -5,14 +5,13 @@ import {
   UserOperation,
   SortType,
   ListingType,
-  UserSettingsForm,
+  SaveUserSettings,
   LoginResponse,
-  DeleteAccountForm,
-  WebSocketJsonResponse,
+  DeleteAccount,
   GetSiteResponse,
-  UserDetailsResponse,
+  GetUserDetailsResponse,
   AddAdminResponse,
-  GetUserDetailsForm,
+  GetUserDetails,
   CommentResponse,
   PostResponse,
   BanUserResponse,
@@ -40,9 +39,9 @@ import {
   editCommentRes,
   saveCommentRes,
   createPostLikeFindRes,
-  setAuth,
   previewLines,
   editPostFindRes,
+  wsUserOp,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { HtmlTags } from './html-tags';
@@ -58,18 +57,18 @@ import { BannerIconHeader } from './banner-icon-header';
 import { CommunityLink } from './community-link';
 
 interface UserState {
-  userRes: UserDetailsResponse;
+  userRes: GetUserDetailsResponse;
   userId: number;
   userName: string;
   view: UserDetailsView;
   sort: SortType;
   page: number;
   loading: boolean;
-  userSettingsForm: UserSettingsForm;
+  userSettingsForm: SaveUserSettings;
   userSettingsLoading: boolean;
   deleteAccountLoading: boolean;
   deleteAccountShowConfirm: boolean;
-  deleteAccountForm: DeleteAccountForm;
+  deleteAccountForm: DeleteAccount;
   siteRes: GetSiteResponse;
 }
 
@@ -106,17 +105,18 @@ export class User extends Component<any, UserState> {
       lang: null,
       show_avatars: null,
       send_notifications_to_email: null,
-      auth: null,
       bio: null,
       preferred_username: null,
+      auth: UserService.Instance.authField(),
     },
     userSettingsLoading: null,
     deleteAccountLoading: null,
     deleteAccountShowConfirm: false,
     deleteAccountForm: {
       password: null,
+      auth: UserService.Instance.authField(),
     },
-    siteRes: this.isoData.site,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -157,21 +157,22 @@ export class User extends Component<any, UserState> {
   }
 
   fetchUserData() {
-    let form: GetUserDetailsForm = {
+    let form: GetUserDetails = {
       user_id: this.state.userId,
       username: this.state.userName,
       sort: this.state.sort,
       saved_only: this.state.view === UserDetailsView.Saved,
       page: this.state.page,
       limit: fetchLimit,
+      auth: UserService.Instance.authField(false),
     };
-    WebSocketService.Instance.getUserDetails(form);
+    WebSocketService.Instance.client.getUserDetails(form);
   }
 
   get isCurrentUser() {
     return (
       UserService.Instance.user &&
-      UserService.Instance.user.id == this.state.userRes.user.id
+      UserService.Instance.user.id == this.state.userRes.user_view.user.id
     );
   }
 
@@ -205,14 +206,14 @@ export class User extends Component<any, UserState> {
     let sort = this.getSortTypeFromProps(pathSplit[6]);
     let page = this.getPageFromProps(Number(pathSplit[8]));
 
-    let form: GetUserDetailsForm = {
+    let form: GetUserDetails = {
       sort,
       saved_only: view === UserDetailsView.Saved,
       page,
       limit: fetchLimit,
+      auth: req.auth,
     };
     this.setIdOrName(form, user_id, username);
-    setAuth(form, req.auth);
     promises.push(req.client.getUserDetails(form));
     return promises;
   }
@@ -251,12 +252,12 @@ export class User extends Component<any, UserState> {
   }
 
   get documentTitle(): string {
-    return `@${this.state.userRes.user.name} - ${this.state.siteRes.site.name}`;
+    return `@${this.state.userRes.user_view.user.name} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   get bioTag(): string {
-    return this.state.userRes.user.bio
-      ? previewLines(this.state.userRes.user.bio)
+    return this.state.userRes.user_view.user.bio
+      ? previewLines(this.state.userRes.user_view.user.bio)
       : undefined;
   }
 
@@ -277,7 +278,7 @@ export class User extends Component<any, UserState> {
                   title={this.documentTitle}
                   path={this.context.router.route.match.url}
                   description={this.bioTag}
-                  image={this.state.userRes.user.avatar}
+                  image={this.state.userRes.user_view.user.avatar}
                 />
                 {this.userInfo()}
                 <hr />
@@ -285,11 +286,14 @@ export class User extends Component<any, UserState> {
               {!this.state.loading && this.selects()}
               <UserDetails
                 userRes={this.state.userRes}
+                admins={this.state.siteRes.admins}
                 sort={this.state.sort}
                 page={this.state.page}
                 limit={fetchLimit}
-                enableDownvotes={this.state.siteRes.site.enable_downvotes}
-                enableNsfw={this.state.siteRes.site.enable_nsfw}
+                enableDownvotes={
+                  this.state.siteRes.site_view.site.enable_downvotes
+                }
+                enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
                 view={this.state.view}
                 onPageChange={this.handlePageChange}
               />
@@ -391,29 +395,29 @@ export class User extends Component<any, UserState> {
   }
 
   userInfo() {
-    let user = this.state.userRes.user;
+    let uv = this.state.userRes.user_view;
 
     return (
       <div>
-        <BannerIconHeader banner={user.banner} icon={user.avatar} />
+        <BannerIconHeader banner={uv.user.banner} icon={uv.user.avatar} />
         <div class="mb-3">
           <div class="">
             <div class="mb-0 d-flex flex-wrap">
               <div>
-                {user.preferred_username && (
-                  <h5 class="mb-0">{user.preferred_username}</h5>
+                {uv.user.preferred_username && (
+                  <h5 class="mb-0">{uv.user.preferred_username}</h5>
                 )}
                 <ul class="list-inline mb-2">
                   <li className="list-inline-item">
                     <UserListing
-                      user={user}
+                      user={uv.user}
                       realLink
                       useApubName
                       muted
                       hideAvatar
                     />
                   </li>
-                  {user.banned && (
+                  {uv.user.banned && (
                     <li className="list-inline-item badge badge-danger">
                       {i18n.t('banned')}
                     </li>
@@ -432,45 +436,45 @@ export class User extends Component<any, UserState> {
                 <>
                   <a
                     className={`d-flex align-self-start btn btn-secondary mr-2 ${
-                      !user.matrix_user_id && 'invisible'
+                      !uv.user.matrix_user_id && 'invisible'
                     }`}
                     target="_blank"
                     rel="noopener"
-                    href={`https://matrix.to/#/${user.matrix_user_id}`}
+                    href={`https://matrix.to/#/${uv.user.matrix_user_id}`}
                   >
                     {i18n.t('send_secure_message')}
                   </a>
                   <Link
                     className={'d-flex align-self-start btn btn-secondary'}
-                    to={`/create_private_message/recipient/${user.id}`}
+                    to={`/create_private_message/recipient/${uv.user.id}`}
                   >
                     {i18n.t('send_message')}
                   </Link>
                 </>
               )}
             </div>
-            {user.bio && (
+            {uv.user.bio && (
               <div className="d-flex align-items-center mb-2">
                 <div
                   className="md-div"
-                  dangerouslySetInnerHTML={mdToHtml(user.bio)}
+                  dangerouslySetInnerHTML={mdToHtml(uv.user.bio)}
                 />
               </div>
             )}
             <div>
               <ul class="list-inline mb-2">
                 <li className="list-inline-item badge badge-light">
-                  {i18n.t('number_of_posts', { count: user.number_of_posts })}
+                  {i18n.t('number_of_posts', { count: uv.counts.post_count })}
                 </li>
                 <li className="list-inline-item badge badge-light">
                   {i18n.t('number_of_comments', {
-                    count: user.number_of_comments,
+                    count: uv.counts.comment_count,
                   })}
                 </li>
               </ul>
             </div>
             <div class="text-muted">
-              {i18n.t('joined')} <MomentTime data={user} showAgo />
+              {i18n.t('joined')} <MomentTime data={uv.user} showAgo />
             </div>
             <div className="d-flex align-items-center text-muted mb-2">
               <svg class="icon">
@@ -478,7 +482,7 @@ export class User extends Component<any, UserState> {
               </svg>
               <span className="ml-2">
                 {i18n.t('cake_day_title')}{' '}
-                {moment.utc(user.published).local().format('MMM DD, YYYY')}
+                {moment.utc(uv.user.published).local().format('MMM DD, YYYY')}
               </span>
             </div>
           </div>
@@ -704,7 +708,7 @@ export class User extends Component<any, UserState> {
                   />
                 </div>
               </div>
-              {this.state.siteRes.site.enable_nsfw && (
+              {this.state.siteRes.site_view.site.enable_nsfw && (
                 <div class="form-group">
                   <div class="form-check">
                     <input
@@ -840,17 +844,9 @@ export class User extends Component<any, UserState> {
             <div class="card-body">
               <h5>{i18n.t('moderates')}</h5>
               <ul class="list-unstyled mb-0">
-                {this.state.userRes.moderates.map(community => (
+                {this.state.userRes.moderates.map(cmv => (
                   <li>
-                    <CommunityLink
-                      community={{
-                        name: community.community_name,
-                        id: community.community_id,
-                        local: community.community_local,
-                        actor_id: community.community_actor_id,
-                        icon: community.community_icon,
-                      }}
-                    />
+                    <CommunityLink community={cmv.community} />
                   </li>
                 ))}
               </ul>
@@ -869,17 +865,9 @@ export class User extends Component<any, UserState> {
             <div class="card-body">
               <h5>{i18n.t('subscribed')}</h5>
               <ul class="list-unstyled mb-0">
-                {this.state.userRes.follows.map(community => (
+                {this.state.userRes.follows.map(cfv => (
                   <li>
-                    <CommunityLink
-                      community={{
-                        name: community.community_name,
-                        id: community.community_id,
-                        local: community.community_local,
-                        actor_id: community.community_actor_id,
-                        icon: community.community_icon,
-                      }}
-                    />
+                    <CommunityLink community={cfv.community} />
                   </li>
                 ))}
               </ul>
@@ -946,16 +934,12 @@ export class User extends Component<any, UserState> {
   }
 
   handleUserSettingsSortTypeChange(val: SortType) {
-    this.state.userSettingsForm.default_sort_type = Object.keys(
-      SortType
-    ).indexOf(val);
+    this.state.userSettingsForm.default_sort_type = val;
     this.setState(this.state);
   }
 
   handleUserSettingsListingTypeChange(val: ListingType) {
-    this.state.userSettingsForm.default_listing_type = Object.keys(
-      ListingType
-    ).indexOf(val);
+    this.state.userSettingsForm.default_listing_type = val;
     this.setState(this.state);
   }
 
@@ -998,7 +982,7 @@ export class User extends Component<any, UserState> {
     i.state.userSettingsForm.matrix_user_id = event.target.value;
     if (
       i.state.userSettingsForm.matrix_user_id == '' &&
-      !i.state.userRes.user.matrix_user_id
+      !i.state.userRes.user_view.user.matrix_user_id
     ) {
       i.state.userSettingsForm.matrix_user_id = undefined;
     }
@@ -1034,7 +1018,7 @@ export class User extends Component<any, UserState> {
     i.state.userSettingsLoading = true;
     i.setState(i.state);
 
-    WebSocketService.Instance.saveUserSettings(i.state.userSettingsForm);
+    WebSocketService.Instance.client.saveUserSettings(i.state.userSettingsForm);
   }
 
   handleDeleteAccountShowConfirmToggle(i: User, event: any) {
@@ -1058,7 +1042,7 @@ export class User extends Component<any, UserState> {
     i.state.deleteAccountLoading = true;
     i.setState(i.state);
 
-    WebSocketService.Instance.deleteAccount(i.state.deleteAccountForm);
+    WebSocketService.Instance.client.deleteAccount(i.state.deleteAccountForm);
     i.handleLogoutClick(i);
   }
 
@@ -1089,9 +1073,9 @@ export class User extends Component<any, UserState> {
     }
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
+  parseMessage(msg: any) {
     console.log(msg);
-    const res = wsJsonToRes(msg);
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       if (msg.error == 'couldnt_find_that_username_or_email') {
@@ -1104,83 +1088,83 @@ export class User extends Component<any, UserState> {
       return;
     } else if (msg.reconnect) {
       this.fetchUserData();
-    } else if (res.op == UserOperation.GetUserDetails) {
+    } else if (op == UserOperation.GetUserDetails) {
       // Since the UserDetails contains posts/comments as well as some general user info we listen here as well
       // and set the parent state if it is not set or differs
       // TODO this might need to get abstracted
-      const data = res.data as UserDetailsResponse;
+      let data = wsJsonToRes<GetUserDetailsResponse>(msg).data;
       this.state.userRes = data;
       this.setUserInfo();
       this.state.loading = false;
       this.setState(this.state);
-    } else if (res.op == UserOperation.SaveUserSettings) {
-      const data = res.data as LoginResponse;
+    } else if (op == UserOperation.SaveUserSettings) {
+      let data = wsJsonToRes<LoginResponse>(msg).data;
       UserService.Instance.login(data);
-      this.state.userRes.user.bio = this.state.userSettingsForm.bio;
-      this.state.userRes.user.preferred_username = this.state.userSettingsForm.preferred_username;
-      this.state.userRes.user.banner = this.state.userSettingsForm.banner;
-      this.state.userRes.user.avatar = this.state.userSettingsForm.avatar;
+      this.state.userRes.user_view.user.bio = this.state.userSettingsForm.bio;
+      this.state.userRes.user_view.user.preferred_username = this.state.userSettingsForm.preferred_username;
+      this.state.userRes.user_view.user.banner = this.state.userSettingsForm.banner;
+      this.state.userRes.user_view.user.avatar = this.state.userSettingsForm.avatar;
       this.state.userSettingsLoading = false;
       this.setState(this.state);
 
       window.scrollTo(0, 0);
-    } else if (res.op == UserOperation.DeleteAccount) {
+    } else if (op == UserOperation.DeleteAccount) {
       this.setState({
         deleteAccountLoading: false,
         deleteAccountShowConfirm: false,
       });
       this.context.router.history.push('/');
-    } else if (res.op == UserOperation.AddAdmin) {
-      const data = res.data as AddAdminResponse;
+    } else if (op == UserOperation.AddAdmin) {
+      let data = wsJsonToRes<AddAdminResponse>(msg).data;
       this.state.siteRes.admins = data.admins;
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateCommentLike) {
-      const data = res.data as CommentResponse;
-      createCommentLikeRes(data, this.state.userRes.comments);
+    } else if (op == UserOperation.CreateCommentLike) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      createCommentLikeRes(data.comment_view, this.state.userRes.comments);
       this.setState(this.state);
     } else if (
-      res.op == UserOperation.EditComment ||
-      res.op == UserOperation.DeleteComment ||
-      res.op == UserOperation.RemoveComment
+      op == UserOperation.EditComment ||
+      op == UserOperation.DeleteComment ||
+      op == UserOperation.RemoveComment
     ) {
-      const data = res.data as CommentResponse;
-      editCommentRes(data, this.state.userRes.comments);
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      editCommentRes(data.comment_view, this.state.userRes.comments);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateComment) {
-      const data = res.data as CommentResponse;
+    } else if (op == UserOperation.CreateComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
       if (
         UserService.Instance.user &&
-        data.comment.creator_id == UserService.Instance.user.id
+        data.comment_view.creator.id == UserService.Instance.user.id
       ) {
         toast(i18n.t('reply_sent'));
       }
-    } else if (res.op == UserOperation.SaveComment) {
-      const data = res.data as CommentResponse;
-      saveCommentRes(data, this.state.userRes.comments);
+    } else if (op == UserOperation.SaveComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      saveCommentRes(data.comment_view, this.state.userRes.comments);
       this.setState(this.state);
     } else if (
-      res.op == UserOperation.EditPost ||
-      res.op == UserOperation.DeletePost ||
-      res.op == UserOperation.RemovePost ||
-      res.op == UserOperation.LockPost ||
-      res.op == UserOperation.StickyPost ||
-      res.op == UserOperation.SavePost
+      op == UserOperation.EditPost ||
+      op == UserOperation.DeletePost ||
+      op == UserOperation.RemovePost ||
+      op == UserOperation.LockPost ||
+      op == UserOperation.StickyPost ||
+      op == UserOperation.SavePost
     ) {
-      let data = res.data as PostResponse;
-      editPostFindRes(data, this.state.userRes.posts);
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      editPostFindRes(data.post_view, this.state.userRes.posts);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreatePostLike) {
-      const data = res.data as PostResponse;
-      createPostLikeFindRes(data, this.state.userRes.posts);
+    } else if (op == UserOperation.CreatePostLike) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      createPostLikeFindRes(data.post_view, this.state.userRes.posts);
       this.setState(this.state);
-    } else if (res.op == UserOperation.BanUser) {
-      const data = res.data as BanUserResponse;
+    } else if (op == UserOperation.BanUser) {
+      let data = wsJsonToRes<BanUserResponse>(msg).data;
       this.state.userRes.comments
-        .filter(c => c.creator_id == data.user.id)
-        .forEach(c => (c.banned = data.banned));
+        .filter(c => c.creator.id == data.user_view.user.id)
+        .forEach(c => (c.creator.banned = data.banned));
       this.state.userRes.posts
-        .filter(c => c.creator_id == data.user.id)
-        .forEach(c => (c.banned = data.banned));
+        .filter(c => c.creator.id == data.user_view.user.id)
+        .forEach(c => (c.creator.banned = data.banned));
       this.setState(this.state);
     }
   }

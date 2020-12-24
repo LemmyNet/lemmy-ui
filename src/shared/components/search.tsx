@@ -2,20 +2,19 @@ import { Component, linkEvent } from 'inferno';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
-  Post,
-  Comment,
-  Community,
-  UserView,
+  PostView,
+  CommentView,
+  CommunityView,
+  UserViewSafe,
   SortType,
-  SearchForm,
+  Search as SearchForm,
   SearchResponse,
   SearchType,
   PostResponse,
   CommentResponse,
-  WebSocketJsonResponse,
   Site,
 } from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+import { UserService, WebSocketService } from '../services';
 import {
   wsJsonToRes,
   fetchLimit,
@@ -27,7 +26,7 @@ import {
   commentsToFlatNodes,
   setIsoData,
   wsSubscribe,
-  setAuth,
+  wsUserOp,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { HtmlTags } from './html-tags';
@@ -80,7 +79,7 @@ export class Search extends Component<any, SearchState> {
       users: [],
     },
     loading: false,
-    site: this.isoData.site.site,
+    site: this.isoData.site_res.site_view.site,
   };
 
   static getSearchQueryFromProps(q: string): string {
@@ -142,8 +141,8 @@ export class Search extends Component<any, SearchState> {
       sort: this.getSortTypeFromProps(pathSplit[7]),
       page: this.getPageFromProps(pathSplit[9]),
       limit: fetchLimit,
+      auth: req.auth,
     };
-    setAuth(form, req.auth);
 
     if (form.q != '') {
       promises.push(req.client.search(form));
@@ -252,19 +251,24 @@ export class Search extends Component<any, SearchState> {
   all() {
     let combined: {
       type_: string;
-      data: Comment | Post | Community | UserView;
+      data: CommentView | PostView | CommunityView | UserViewSafe;
+      published: string;
     }[] = [];
     let comments = this.state.searchResponse.comments.map(e => {
-      return { type_: 'comments', data: e };
+      return { type_: 'comments', data: e, published: e.comment.published };
     });
     let posts = this.state.searchResponse.posts.map(e => {
-      return { type_: 'posts', data: e };
+      return { type_: 'posts', data: e, published: e.post.published };
     });
     let communities = this.state.searchResponse.communities.map(e => {
-      return { type_: 'communities', data: e };
+      return {
+        type_: 'communities',
+        data: e,
+        published: e.community.published,
+      };
     });
     let users = this.state.searchResponse.users.map(e => {
-      return { type_: 'users', data: e };
+      return { type_: 'users', data: e, published: e.user.published };
     });
 
     combined.push(...comments);
@@ -274,16 +278,16 @@ export class Search extends Component<any, SearchState> {
 
     // Sort it
     if (this.state.sort == SortType.New) {
-      combined.sort((a, b) => b.data.published.localeCompare(a.data.published));
+      combined.sort((a, b) => b.published.localeCompare(a.published));
     } else {
       combined.sort(
         (a, b) =>
-          ((b.data as Comment | Post).score |
-            (b.data as Community).number_of_subscribers |
-            (b.data as UserView).comment_score) -
-          ((a.data as Comment | Post).score |
-            (a.data as Community).number_of_subscribers |
-            (a.data as UserView).comment_score)
+          ((b.data as CommentView | PostView).counts.score |
+            (b.data as CommunityView).counts.subscribers |
+            (b.data as UserViewSafe).counts.comment_score) -
+          ((a.data as CommentView | PostView).counts.score |
+            (a.data as CommunityView).counts.subscribers |
+            (a.data as UserViewSafe).counts.comment_score)
       );
     }
 
@@ -294,8 +298,8 @@ export class Search extends Component<any, SearchState> {
             <div class="col-12">
               {i.type_ == 'posts' && (
                 <PostListing
-                  key={(i.data as Post).id}
-                  post={i.data as Post}
+                  key={(i.data as PostView).post.id}
+                  post_view={i.data as PostView}
                   showCommunity
                   enableDownvotes={this.state.site.enable_downvotes}
                   enableNsfw={this.state.site.enable_nsfw}
@@ -303,18 +307,18 @@ export class Search extends Component<any, SearchState> {
               )}
               {i.type_ == 'comments' && (
                 <CommentNodes
-                  key={(i.data as Comment).id}
-                  nodes={[{ comment: i.data as Comment }]}
+                  key={(i.data as CommentView).comment.id}
+                  nodes={[{ comment_view: i.data as CommentView }]}
                   locked
                   noIndent
                   enableDownvotes={this.state.site.enable_downvotes}
                 />
               )}
               {i.type_ == 'communities' && (
-                <div>{this.communityListing(i.data as Community)}</div>
+                <div>{this.communityListing(i.data as CommunityView)}</div>
               )}
               {i.type_ == 'users' && (
-                <div>{this.userListing(i.data as UserView)}</div>
+                <div>{this.userListing(i.data as UserViewSafe)}</div>
               )}
             </div>
           </div>
@@ -341,7 +345,7 @@ export class Search extends Component<any, SearchState> {
           <div class="row">
             <div class="col-12">
               <PostListing
-                post={post}
+                post_view={post}
                 showCommunity
                 enableDownvotes={this.state.site.enable_downvotes}
                 enableNsfw={this.state.site.enable_nsfw}
@@ -365,28 +369,28 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  communityListing(community: Community) {
+  communityListing(community_view: CommunityView) {
     return (
       <>
         <span>
-          <CommunityLink community={community} />
+          <CommunityLink community={community_view.community} />
         </span>
-        <span>{` - ${community.title} - 
+        <span>{` - ${community_view.community.title} - 
         ${i18n.t('number_of_subscribers', {
-          count: community.number_of_subscribers,
+          count: community_view.counts.subscribers,
         })}
       `}</span>
       </>
     );
   }
 
-  userListing(user: UserView) {
+  userListing(user_view: UserViewSafe) {
     return [
       <span>
-        <UserListing user={user} showApubName />
+        <UserListing user={user_view.user} showApubName />
       </span>,
       <span>{` - ${i18n.t('number_of_comments', {
-        count: user.number_of_comments,
+        count: user_view.counts.comment_count,
       })}`}</span>,
     ];
   }
@@ -452,10 +456,11 @@ export class Search extends Component<any, SearchState> {
       sort: this.state.sort,
       page: this.state.page,
       limit: fetchLimit,
+      auth: UserService.Instance.authField(false),
     };
 
     if (this.state.q != '') {
-      WebSocketService.Instance.search(form);
+      WebSocketService.Instance.client.search(form);
     }
   }
 
@@ -495,25 +500,28 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
+  parseMessage(msg: any) {
     console.log(msg);
-    let res = wsJsonToRes(msg);
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       return;
-    } else if (res.op == UserOperation.Search) {
-      let data = res.data as SearchResponse;
+    } else if (op == UserOperation.Search) {
+      let data = wsJsonToRes<SearchResponse>(msg).data;
       this.state.searchResponse = data;
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateCommentLike) {
-      let data = res.data as CommentResponse;
-      createCommentLikeRes(data, this.state.searchResponse.comments);
+    } else if (op == UserOperation.CreateCommentLike) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      createCommentLikeRes(
+        data.comment_view,
+        this.state.searchResponse.comments
+      );
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreatePostLike) {
-      let data = res.data as PostResponse;
-      createPostLikeFindRes(data, this.state.searchResponse.posts);
+    } else if (op == UserOperation.CreatePostLike) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      createPostLikeFindRes(data.post_view, this.state.searchResponse.posts);
       this.setState(this.state);
     }
   }

@@ -4,19 +4,18 @@ import { Subscription } from 'rxjs';
 import { WebSocketService, UserService } from '../services';
 import {
   UserOperation,
-  GetRepliesForm,
+  GetReplies,
   GetRepliesResponse,
-  GetUserMentionsForm,
+  GetUserMentions,
   GetUserMentionsResponse,
-  GetPrivateMessagesForm,
+  GetPrivateMessages,
   PrivateMessagesResponse,
   SortType,
   GetSiteResponse,
-  Comment,
+  CommentView,
   CommentResponse,
-  PrivateMessage,
   PrivateMessageResponse,
-  WebSocketJsonResponse,
+  PrivateMessageView,
 } from 'lemmy-js-client';
 import {
   wsJsonToRes,
@@ -30,20 +29,21 @@ import {
   isBrowser,
   wsSubscribe,
   supportLemmyUrl,
+  wsUserOp,
 } from '../utils';
 import { i18n } from '../i18next';
 import { PictrsImage } from './pictrs-image';
 
 interface NavbarProps {
-  site: GetSiteResponse;
+  site_res: GetSiteResponse;
 }
 
 interface NavbarState {
   isLoggedIn: boolean;
   expanded: boolean;
-  replies: Comment[];
-  mentions: Comment[];
-  messages: PrivateMessage[];
+  replies: CommentView[];
+  mentions: CommentView[];
+  messages: PrivateMessageView[];
   unreadCount: number;
   searchParam: string;
   toggleSearch: boolean;
@@ -56,7 +56,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   private unreadCountSub: Subscription;
   private searchTextField: RefObject<HTMLInputElement>;
   emptyState: NavbarState = {
-    isLoggedIn: !!this.props.site.my_user,
+    isLoggedIn: !!this.props.site_res.my_user,
     unreadCount: 0,
     replies: [],
     mentions: [],
@@ -88,7 +88,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         // i18n.changeLanguage('de');
       } else {
         this.requestNotificationPermission();
-        WebSocketService.Instance.userJoin();
+        WebSocketService.Instance.client.userJoin({
+          auth: UserService.Instance.authField(),
+        });
         this.fetchUnreads();
       }
 
@@ -96,7 +98,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         // A login
         if (res !== undefined) {
           this.requestNotificationPermission();
-          WebSocketService.Instance.getSite();
+          WebSocketService.Instance.client.getSite();
         } else {
           this.setState({ isLoggedIn: false });
         }
@@ -165,20 +167,23 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
-    let user = this.props.site.my_user;
+    let user = this.props.site_res.my_user;
     return (
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
-          {this.props.site.site && (
+          {this.props.site_res.site_view && (
             <Link
-              title={this.props.site.version}
+              title={this.props.site_res.version}
               className="d-flex align-items-center navbar-brand mr-md-3"
               to="/"
             >
-              {this.props.site.site.icon && showAvatars() && (
-                <PictrsImage src={this.props.site.site.icon} icon />
+              {this.props.site_res.site_view.site.icon && showAvatars() && (
+                <PictrsImage
+                  src={this.props.site_res.site_view.site.icon}
+                  icon
+                />
               )}
-              {this.props.site.site.name}
+              {this.props.site_res.site_view.site.name}
             </Link>
           )}
           {this.state.isLoggedIn && (
@@ -362,8 +367,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     i.setState(i.state);
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       if (msg.error == 'not_logged_in') {
         UserService.Instance.logout();
@@ -371,62 +376,68 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       }
       return;
     } else if (msg.reconnect) {
-      WebSocketService.Instance.userJoin();
+      WebSocketService.Instance.client.userJoin({
+        auth: UserService.Instance.authField(),
+      });
       this.fetchUnreads();
-    } else if (res.op == UserOperation.GetReplies) {
-      let data = res.data as GetRepliesResponse;
-      let unreadReplies = data.replies.filter(r => !r.read);
+    } else if (op == UserOperation.GetReplies) {
+      let data = wsJsonToRes<GetRepliesResponse>(msg).data;
+      let unreadReplies = data.replies.filter(r => !r.comment.read);
 
       this.state.replies = unreadReplies;
       this.state.unreadCount = this.calculateUnreadCount();
       this.setState(this.state);
       this.sendUnreadCount();
-    } else if (res.op == UserOperation.GetUserMentions) {
-      let data = res.data as GetUserMentionsResponse;
-      let unreadMentions = data.mentions.filter(r => !r.read);
+    } else if (op == UserOperation.GetUserMentions) {
+      let data = wsJsonToRes<GetUserMentionsResponse>(msg).data;
+      let unreadMentions = data.mentions.filter(r => !r.comment.read);
 
       this.state.mentions = unreadMentions;
       this.state.unreadCount = this.calculateUnreadCount();
       this.setState(this.state);
       this.sendUnreadCount();
-    } else if (res.op == UserOperation.GetPrivateMessages) {
-      let data = res.data as PrivateMessagesResponse;
-      let unreadMessages = data.messages.filter(r => !r.read);
+    } else if (op == UserOperation.GetPrivateMessages) {
+      let data = wsJsonToRes<PrivateMessagesResponse>(msg).data;
+      let unreadMessages = data.private_messages.filter(
+        r => !r.private_message.read
+      );
 
       this.state.messages = unreadMessages;
       this.state.unreadCount = this.calculateUnreadCount();
       this.setState(this.state);
       this.sendUnreadCount();
-    } else if (res.op == UserOperation.GetSite) {
+    } else if (op == UserOperation.GetSite) {
       // This is only called on a successful login
-      let data = res.data as GetSiteResponse;
+      let data = wsJsonToRes<GetSiteResponse>(msg).data;
       UserService.Instance.user = data.my_user;
       setTheme(UserService.Instance.user.theme);
       i18n.changeLanguage(getLanguage());
       this.state.isLoggedIn = true;
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateComment) {
-      let data = res.data as CommentResponse;
+    } else if (op == UserOperation.CreateComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
 
       if (this.state.isLoggedIn) {
         if (data.recipient_ids.includes(UserService.Instance.user.id)) {
-          this.state.replies.push(data.comment);
+          this.state.replies.push(data.comment_view);
           this.state.unreadCount++;
           this.setState(this.state);
           this.sendUnreadCount();
-          notifyComment(data.comment, this.context.router);
+          notifyComment(data.comment_view, this.context.router);
         }
       }
-    } else if (res.op == UserOperation.CreatePrivateMessage) {
-      let data = res.data as PrivateMessageResponse;
+    } else if (op == UserOperation.CreatePrivateMessage) {
+      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
 
       if (this.state.isLoggedIn) {
-        if (data.message.recipient_id == UserService.Instance.user.id) {
-          this.state.messages.push(data.message);
+        if (
+          data.private_message_view.recipient.id == UserService.Instance.user.id
+        ) {
+          this.state.messages.push(data.private_message_view);
           this.state.unreadCount++;
           this.setState(this.state);
           this.sendUnreadCount();
-          notifyPrivateMessage(data.message, this.context.router);
+          notifyPrivateMessage(data.private_message_view, this.context.router);
         }
       }
     }
@@ -434,30 +445,33 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   fetchUnreads() {
     console.log('Fetching unreads...');
-    let repliesForm: GetRepliesForm = {
+    let repliesForm: GetReplies = {
       sort: SortType.New,
       unread_only: true,
       page: 1,
       limit: fetchLimit,
+      auth: UserService.Instance.authField(),
     };
 
-    let userMentionsForm: GetUserMentionsForm = {
+    let userMentionsForm: GetUserMentions = {
       sort: SortType.New,
       unread_only: true,
       page: 1,
       limit: fetchLimit,
+      auth: UserService.Instance.authField(),
     };
 
-    let privateMessagesForm: GetPrivateMessagesForm = {
+    let privateMessagesForm: GetPrivateMessages = {
       unread_only: true,
       page: 1,
       limit: fetchLimit,
+      auth: UserService.Instance.authField(),
     };
 
     if (this.currentLocation !== '/inbox') {
-      WebSocketService.Instance.getReplies(repliesForm);
-      WebSocketService.Instance.getUserMentions(userMentionsForm);
-      WebSocketService.Instance.getPrivateMessages(privateMessagesForm);
+      WebSocketService.Instance.client.getReplies(repliesForm);
+      WebSocketService.Instance.client.getUserMentions(userMentionsForm);
+      WebSocketService.Instance.client.getPrivateMessages(privateMessagesForm);
     }
   }
 
@@ -471,17 +485,17 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   calculateUnreadCount(): number {
     return (
-      this.state.replies.filter(r => !r.read).length +
-      this.state.mentions.filter(r => !r.read).length +
-      this.state.messages.filter(r => !r.read).length
+      this.state.replies.filter(r => !r.comment.read).length +
+      this.state.mentions.filter(r => !r.comment.read).length +
+      this.state.messages.filter(r => !r.private_message.read).length
     );
   }
 
   get canAdmin(): boolean {
     return (
       UserService.Instance.user &&
-      this.props.site.admins
-        .map(a => a.id)
+      this.props.site_res.admins
+        .map(a => a.user.id)
         .includes(UserService.Instance.user.id)
     );
   }

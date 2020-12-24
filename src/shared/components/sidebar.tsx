@@ -1,13 +1,13 @@
 import { Component, linkEvent } from 'inferno';
 import { Link } from 'inferno-router';
 import {
-  Community,
-  CommunityUser,
-  FollowCommunityForm,
-  DeleteCommunityForm,
-  RemoveCommunityForm,
-  UserView,
-  AddModToCommunityForm,
+  CommunityView,
+  CommunityModeratorView,
+  FollowCommunity,
+  DeleteCommunity,
+  RemoveCommunity,
+  UserViewSafe,
+  AddModToCommunity,
   Category,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
@@ -19,10 +19,10 @@ import { BannerIconHeader } from './banner-icon-header';
 import { i18n } from '../i18next';
 
 interface SidebarProps {
-  community: Community;
+  community_view: CommunityView;
   categories: Category[];
-  moderators: CommunityUser[];
-  admins: UserView[];
+  moderators: CommunityModeratorView[];
+  admins: UserViewSafe[];
   online: number;
   enableNsfw: boolean;
   showIcon?: boolean;
@@ -60,7 +60,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         ) : (
           <CommunityForm
             categories={this.props.categories}
-            community={this.props.community}
+            community_view={this.props.community_view}
             onEdit={this.handleEditCommunity}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
@@ -93,7 +93,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   communityTitle() {
-    let community = this.props.community;
+    let community = this.props.community_view.community;
+    let subscribed = this.props.community_view.subscribed;
     return (
       <div>
         <h5 className="mb-0">
@@ -101,7 +102,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span class="mr-2">{community.title}</span>
-          {community.subscribed && (
+          {subscribed && (
             <a
               class="btn btn-secondary btn-sm mr-2"
               href="#"
@@ -141,7 +142,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   badges() {
-    let community = this.props.community;
+    let community_view = this.props.community_view;
     return (
       <ul class="my-1 list-inline">
         <li className="list-inline-item badge badge-secondary">
@@ -149,28 +150,28 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_subscribers', {
-            count: community.number_of_subscribers,
+            count: community_view.counts.subscribers,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_posts', {
-            count: community.number_of_posts,
+            count: community_view.counts.posts,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_comments', {
-            count: community.number_of_comments,
+            count: community_view.counts.comments,
           })}
         </li>
         <li className="list-inline-item">
           <Link className="badge badge-secondary" to="/communities">
-            {community.category_name}
+            {community_view.category.name}
           </Link>
         </li>
         <li className="list-inline-item">
           <Link
             className="badge badge-secondary"
-            to={`/modlog/community/${this.props.community.id}`}
+            to={`/modlog/community/${this.props.community_view.community.id}`}
           >
             {i18n.t('modlog')}
           </Link>
@@ -185,16 +186,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li class="list-inline-item">{i18n.t('mods')}: </li>
         {this.props.moderators.map(mod => (
           <li class="list-inline-item">
-            <UserListing
-              user={{
-                name: mod.user_name,
-                preferred_username: mod.user_preferred_username,
-                avatar: mod.avatar,
-                id: mod.user_id,
-                local: mod.user_local,
-                actor_id: mod.user_actor_id,
-              }}
-            />
+            <UserListing user={mod.moderator} />
           </li>
         ))}
       </ul>
@@ -202,14 +194,16 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   createPost() {
-    let community = this.props.community;
+    let community_view = this.props.community_view;
     return (
-      community.subscribed && (
+      community_view.subscribed && (
         <Link
           className={`btn btn-secondary btn-block mb-2 ${
-            community.deleted || community.removed ? 'no-click' : ''
+            community_view.community.deleted || community_view.community.removed
+              ? 'no-click'
+              : ''
           }`}
-          to={`/create_post?community_id=${community.id}`}
+          to={`/create_post?community_id=${community_view.community.id}`}
         >
           {i18n.t('create_a_post')}
         </Link>
@@ -218,14 +212,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   subscribe() {
-    let community = this.props.community;
+    let community_view = this.props.community_view;
     return (
       <div class="mb-2">
-        {!community.subscribed && (
+        {!community_view.subscribed && (
           <a
             class="btn btn-secondary btn-block"
             href="#"
-            onClick={linkEvent(community.id, this.handleSubscribe)}
+            onClick={linkEvent(
+              community_view.community.id,
+              this.handleSubscribe
+            )}
           >
             {i18n.t('subscribe')}
           </a>
@@ -235,19 +232,19 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   description() {
-    let community = this.props.community;
+    let description = this.props.community_view.community.description;
     return (
-      community.description && (
+      description && (
         <div
           className="md-div"
-          dangerouslySetInnerHTML={mdToHtml(community.description)}
+          dangerouslySetInnerHTML={mdToHtml(description)}
         />
       )
     );
   }
 
   adminButtons() {
-    let community = this.props.community;
+    let community_view = this.props.community_view;
     return (
       <>
         <ul class="list-inline mb-1 text-muted font-weight-bold">
@@ -309,12 +306,14 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     class="pointer"
                     onClick={linkEvent(this, this.handleDeleteClick)}
                     data-tippy-content={
-                      !community.deleted ? i18n.t('delete') : i18n.t('restore')
+                      !community_view.community.deleted
+                        ? i18n.t('delete')
+                        : i18n.t('restore')
                     }
                   >
                     <svg
                       class={`icon icon-inline ${
-                        community.deleted && 'text-danger'
+                        community_view.community.deleted && 'text-danger'
                       }`}
                     >
                       <use xlinkHref="#icon-trash"></use>
@@ -326,7 +325,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           )}
           {this.canAdmin && (
             <li className="list-inline-item">
-              {!this.props.community.removed ? (
+              {!this.props.community_view.community.removed ? (
                 <span
                   class="pointer"
                   onClick={linkEvent(this, this.handleModRemoveShow)}
@@ -392,11 +391,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleDeleteClick(i: Sidebar, event: any) {
     event.preventDefault();
-    let deleteForm: DeleteCommunityForm = {
-      edit_id: i.props.community.id,
-      deleted: !i.props.community.deleted,
+    let deleteForm: DeleteCommunity = {
+      edit_id: i.props.community_view.community.id,
+      deleted: !i.props.community_view.community.deleted,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.deleteCommunity(deleteForm);
+    WebSocketService.Instance.client.deleteCommunity(deleteForm);
   }
 
   handleShowConfirmLeaveModTeamClick(i: Sidebar) {
@@ -405,12 +405,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleLeaveModTeamClick(i: Sidebar) {
-    let form: AddModToCommunityForm = {
+    let form: AddModToCommunity = {
       user_id: UserService.Instance.user.id,
-      community_id: i.props.community.id,
+      community_id: i.props.community_view.community.id,
       added: false,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.addModToCommunity(form);
+    WebSocketService.Instance.client.addModToCommunity(form);
     i.state.showConfirmLeaveModTeam = false;
     i.setState(i.state);
   }
@@ -422,31 +423,33 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleUnsubscribe(communityId: number, event: any) {
     event.preventDefault();
-    let form: FollowCommunityForm = {
+    let form: FollowCommunity = {
       community_id: communityId,
       follow: false,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.followCommunity(form);
+    WebSocketService.Instance.client.followCommunity(form);
   }
 
   handleSubscribe(communityId: number, event: any) {
     event.preventDefault();
-    let form: FollowCommunityForm = {
+    let form: FollowCommunity = {
       community_id: communityId,
       follow: true,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.followCommunity(form);
+    WebSocketService.Instance.client.followCommunity(form);
   }
 
   private get amCreator(): boolean {
-    return this.props.community.creator_id == UserService.Instance.user.id;
+    return this.props.community_view.creator.id == UserService.Instance.user.id;
   }
 
   get canMod(): boolean {
     return (
       UserService.Instance.user &&
       this.props.moderators
-        .map(m => m.user_id)
+        .map(m => m.moderator.id)
         .includes(UserService.Instance.user.id)
     );
   }
@@ -454,7 +457,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   get canAdmin(): boolean {
     return (
       UserService.Instance.user &&
-      this.props.admins.map(a => a.id).includes(UserService.Instance.user.id)
+      this.props.admins
+        .map(a => a.user.id)
+        .includes(UserService.Instance.user.id)
     );
   }
 
@@ -476,13 +481,14 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleModRemoveSubmit(i: Sidebar, event: any) {
     event.preventDefault();
-    let removeForm: RemoveCommunityForm = {
-      edit_id: i.props.community.id,
-      removed: !i.props.community.removed,
+    let removeForm: RemoveCommunity = {
+      edit_id: i.props.community_view.community.id,
+      removed: !i.props.community_view.community.removed,
       reason: i.state.removeReason,
       expires: getUnixTime(i.state.removeExpires),
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.removeCommunity(removeForm);
+    WebSocketService.Instance.client.removeCommunity(removeForm);
 
     i.state.showRemoveDialog = false;
     i.setState(i.state);

@@ -1,8 +1,10 @@
 // import Cookies from 'js-cookie';
 import IsomorphicCookie from 'isomorphic-cookie';
-import { User, LoginResponse } from 'lemmy-js-client';
+import { User_, LoginResponse } from 'lemmy-js-client';
 import jwt_decode from 'jwt-decode';
 import { Subject, BehaviorSubject } from 'rxjs';
+import { i18n } from '../i18next';
+import { toast } from '../utils';
 
 interface Claims {
   id: number;
@@ -11,7 +13,7 @@ interface Claims {
 
 export class UserService {
   private static _instance: UserService;
-  public user: User;
+  public user: User_;
   public claims: Claims;
   public jwtSub: Subject<string> = new Subject<string>();
   public unreadCountSub: BehaviorSubject<number> = new BehaviorSubject<number>(
@@ -46,6 +48,15 @@ export class UserService {
 
   public get auth(): string {
     return IsomorphicCookie.load('jwt');
+  }
+
+  public authField(throwErr: boolean = true): string {
+    if (this.auth == null && throwErr) {
+      toast(i18n.t('not_logged_in'), 'danger');
+      throw 'Not logged in';
+    } else {
+      return this.auth;
+    }
   }
 
   private setClaims(jwt: string) {

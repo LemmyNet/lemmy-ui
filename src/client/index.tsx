@@ -3,12 +3,12 @@ import { BrowserRouter } from 'inferno-router';
 import { initializeSite } from '../shared/initialize';
 import { App } from '../shared/components/app';
 
-const site = window.isoData.site;
+const site = window.isoData.site_res;
 initializeSite(site);
 
 const wrapper = (
   <BrowserRouter>
-    <App site={window.isoData.site} />
+    <App siteRes={window.isoData.site_res} />
   </BrowserRouter>
 );
 

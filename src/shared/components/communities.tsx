@@ -3,24 +3,23 @@ import { HtmlTags } from './html-tags';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
-  Community,
+  CommunityView,
   ListCommunitiesResponse,
   CommunityResponse,
-  FollowCommunityForm,
-  ListCommunitiesForm,
+  FollowCommunity,
+  ListCommunities,
   SortType,
-  WebSocketJsonResponse,
-  Site,
+  SiteView,
 } from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+import { UserService, WebSocketService } from '../services';
 import {
   wsJsonToRes,
   toast,
   getPageFromProps,
   isBrowser,
-  setAuth,
   setIsoData,
   wsSubscribe,
+  wsUserOp,
 } from '../utils';
 import { CommunityLink } from './community-link';
 import { i18n } from '../i18next';
@@ -29,10 +28,10 @@ import { InitialFetchRequest } from 'shared/interfaces';
 const communityLimit = 100;
 
 interface CommunitiesState {
-  communities: Community[];
+  communities: CommunityView[];
   page: number;
   loading: boolean;
-  site: Site;
+  site_view: SiteView;
 }
 
 interface CommunitiesProps {
@@ -46,7 +45,7 @@ export class Communities extends Component<any, CommunitiesState> {
     communities: [],
     loading: true,
     page: getPageFromProps(this.props),
-    site: this.isoData.site.site,
+    site_view: this.isoData.site_res.site_view,
   };
 
   constructor(props: any, context: any) {
@@ -60,7 +59,7 @@ export class Communities extends Component<any, CommunitiesState> {
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.communities = this.isoData.routeData[0].communities;
       this.state.communities.sort(
-        (a, b) => b.number_of_subscribers - a.number_of_subscribers
+        (a, b) => b.counts.subscribers - a.counts.subscribers
       );
       this.state.loading = false;
     } else {
@@ -88,7 +87,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('communities')} - ${this.state.site.name}`;
+    return `${i18n.t('communities')} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -124,27 +123,25 @@ export class Communities extends Component<any, CommunitiesState> {
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.communities.map(community => (
+                  {this.state.communities.map(cv => (
                     <tr>
                       <td>
-                        <CommunityLink community={community} />
+                        <CommunityLink community={cv.community} />
                       </td>
-                      <td>{community.category_name}</td>
-                      <td class="text-right">
-                        {community.number_of_subscribers}
+                      <td>{cv.category.name}</td>
+                      <td class="text-right">{cv.counts.subscribers}</td>
+                      <td class="text-right d-none d-lg-table-cell">
+                        {cv.counts.posts}
                       </td>
                       <td class="text-right d-none d-lg-table-cell">
-                        {community.number_of_posts}
-                      </td>
-                      <td class="text-right d-none d-lg-table-cell">
-                        {community.number_of_comments}
+                        {cv.counts.comments}
                       </td>
                       <td class="text-right">
-                        {community.subscribed ? (
+                        {cv.subscribed ? (
                           <span
                             class="pointer btn-link"
                             onClick={linkEvent(
-                              community.id,
+                              cv.community.id,
                               this.handleUnsubscribe
                             )}
                           >
@@ -154,7 +151,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           <span
                             class="pointer btn-link"
                             onClick={linkEvent(
-                              community.id,
+                              cv.community.id,
                               this.handleSubscribe
                             )}
                           >
@@ -212,64 +209,68 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   handleUnsubscribe(communityId: number) {
-    let form: FollowCommunityForm = {
+    let form: FollowCommunity = {
       community_id: communityId,
       follow: false,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.followCommunity(form);
+    WebSocketService.Instance.client.followCommunity(form);
   }
 
   handleSubscribe(communityId: number) {
-    let form: FollowCommunityForm = {
+    let form: FollowCommunity = {
       community_id: communityId,
       follow: true,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.followCommunity(form);
+    WebSocketService.Instance.client.followCommunity(form);
   }
 
   refetch() {
-    let listCommunitiesForm: ListCommunitiesForm = {
+    let listCommunitiesForm: ListCommunities = {
       sort: SortType.TopAll,
       limit: communityLimit,
       page: this.state.page,
+      auth: UserService.Instance.authField(false),
     };
 
-    WebSocketService.Instance.listCommunities(listCommunitiesForm);
+    WebSocketService.Instance.client.listCommunities(listCommunitiesForm);
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split('/');
     let page = pathSplit[3] ? Number(pathSplit[3]) : 1;
-    let listCommunitiesForm: ListCommunitiesForm = {
+    let listCommunitiesForm: ListCommunities = {
       sort: SortType.TopAll,
       limit: communityLimit,
       page,
+      auth: req.auth,
     };
-    setAuth(listCommunitiesForm, req.auth);
 
     return [req.client.listCommunities(listCommunitiesForm)];
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       return;
-    } else if (res.op == UserOperation.ListCommunities) {
-      let data = res.data as ListCommunitiesResponse;
+    } else if (op == UserOperation.ListCommunities) {
+      let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
       this.state.communities = data.communities;
       this.state.communities.sort(
-        (a, b) => b.number_of_subscribers - a.number_of_subscribers
+        (a, b) => b.counts.subscribers - a.counts.subscribers
       );
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setState(this.state);
-    } else if (res.op == UserOperation.FollowCommunity) {
-      let data = res.data as CommunityResponse;
-      let found = this.state.communities.find(c => c.id == data.community.id);
-      found.subscribed = data.community.subscribed;
-      found.number_of_subscribers = data.community.number_of_subscribers;
+    } else if (op == UserOperation.FollowCommunity) {
+      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      let found = this.state.communities.find(
+        c => c.community.id == data.community_view.community.id
+      );
+      found.subscribed = data.community_view.subscribed;
+      found.counts.subscribers = data.community_view.counts.subscribers;
       this.setState(this.state);
     }
   }

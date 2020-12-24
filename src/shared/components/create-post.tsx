@@ -4,29 +4,28 @@ import { PostForm } from './post-form';
 import { HtmlTags } from './html-tags';
 import {
   isBrowser,
-  setAuth,
   setIsoData,
   toast,
   wsJsonToRes,
   wsSubscribe,
+  wsUserOp,
 } from '../utils';
 import { UserService, WebSocketService } from '../services';
 import {
   UserOperation,
-  PostFormParams,
-  WebSocketJsonResponse,
   ListCommunitiesResponse,
-  Community,
-  Site,
-  ListCommunitiesForm,
+  CommunityView,
+  SiteView,
+  ListCommunities,
   SortType,
+  PostView,
 } from 'lemmy-js-client';
 import { i18n } from '../i18next';
-import { InitialFetchRequest } from 'shared/interfaces';
+import { InitialFetchRequest, PostFormParams } from 'shared/interfaces';
 
 interface CreatePostState {
-  site: Site;
-  communities: Community[];
+  site_view: SiteView;
+  communities: CommunityView[];
   loading: boolean;
 }
 
@@ -34,7 +33,7 @@ export class CreatePost extends Component<any, CreatePostState> {
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: CreatePostState = {
-    site: this.isoData.site.site,
+    site_view: this.isoData.site_res.site_view,
     communities: [],
     loading: true,
   };
@@ -62,11 +61,12 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   refetch() {
-    let listCommunitiesForm: ListCommunitiesForm = {
+    let listCommunitiesForm: ListCommunities = {
       sort: SortType.TopAll,
       limit: 9999,
+      auth: UserService.Instance.authField(false),
     };
-    WebSocketService.Instance.listCommunities(listCommunitiesForm);
+    WebSocketService.Instance.client.listCommunities(listCommunitiesForm);
   }
 
   componentWillUnmount() {
@@ -76,7 +76,7 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('create_post')} - ${this.state.site.name}`;
+    return `${i18n.t('create_post')} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -100,8 +100,8 @@ export class CreatePost extends Component<any, CreatePostState> {
                 communities={this.state.communities}
                 onCreate={this.handlePostCreate}
                 params={this.params}
-                enableDownvotes={this.state.site.enable_downvotes}
-                enableNsfw={this.state.site.enable_nsfw}
+                enableDownvotes={this.state.site_view.site.enable_downvotes}
+                enableNsfw={this.state.site_view.site.enable_nsfw}
               />
             </div>
           </div>
@@ -149,27 +149,26 @@ export class CreatePost extends Component<any, CreatePostState> {
     return null;
   }
 
-  handlePostCreate(id: number) {
-    this.props.history.push(`/post/${id}`);
+  handlePostCreate(post_view: PostView) {
+    this.props.history.push(`/post/${post_view.post.id}`);
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let listCommunitiesForm: ListCommunitiesForm = {
+    let listCommunitiesForm: ListCommunities = {
       sort: SortType.TopAll,
       limit: 9999,
+      auth: req.auth,
     };
-    setAuth(listCommunitiesForm, req.auth);
     return [req.client.listCommunities(listCommunitiesForm)];
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       return;
-    } else if (res.op == UserOperation.ListCommunities) {
-      let data = res.data as ListCommunitiesResponse;
+    } else if (op == UserOperation.ListCommunities) {
+      let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
       this.state.communities = data.communities;
       this.state.loading = false;
       this.setState(this.state);

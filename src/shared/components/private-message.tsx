@@ -1,9 +1,9 @@
 import { Component, linkEvent } from 'inferno';
 import {
-  PrivateMessage as PrivateMessageI,
-  DeletePrivateMessageForm,
-  MarkPrivateMessageAsReadForm,
-  UserView,
+  PrivateMessageView,
+  DeletePrivateMessage,
+  MarkPrivateMessageAsRead,
+  UserSafe,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
 import { mdToHtml, toast } from '../utils';
@@ -20,7 +20,7 @@ interface PrivateMessageState {
 }
 
 interface PrivateMessageProps {
-  privateMessage: PrivateMessageI;
+  private_message_view: PrivateMessageView;
 }
 
 export class PrivateMessage extends Component<
@@ -48,41 +48,16 @@ export class PrivateMessage extends Component<
   get mine(): boolean {
     return (
       UserService.Instance.user &&
-      UserService.Instance.user.id == this.props.privateMessage.creator_id
+      UserService.Instance.user.id == this.props.private_message_view.creator.id
     );
   }
 
   render() {
-    let message = this.props.privateMessage;
-    let userOther: UserView = this.mine
-      ? {
-          name: message.recipient_name,
-          preferred_username: message.recipient_preferred_username,
-          id: message.recipient_id,
-          avatar: message.recipient_avatar,
-          local: message.recipient_local,
-          actor_id: message.recipient_actor_id,
-          published: message.published,
-          number_of_posts: 0,
-          post_score: 0,
-          number_of_comments: 0,
-          comment_score: 0,
-          banned: false,
-        }
-      : {
-          name: message.creator_name,
-          preferred_username: message.creator_preferred_username,
-          id: message.creator_id,
-          avatar: message.creator_avatar,
-          local: message.creator_local,
-          actor_id: message.creator_actor_id,
-          published: message.published,
-          number_of_posts: 0,
-          post_score: 0,
-          number_of_comments: 0,
-          comment_score: 0,
-          banned: false,
-        };
+    let message_view = this.props.private_message_view;
+    // TODO check this again
+    let userOther: UserSafe = this.mine
+      ? message_view.recipient
+      : message_view.creator;
 
     return (
       <div class="border-top border-light">
@@ -97,7 +72,7 @@ export class PrivateMessage extends Component<
             </li>
             <li className="list-inline-item">
               <span>
-                <MomentTime data={message} />
+                <MomentTime data={message_view.private_message} />
               </span>
             </li>
             <li className="list-inline-item">
@@ -120,7 +95,7 @@ export class PrivateMessage extends Component<
           {this.state.showEdit && (
             <PrivateMessageForm
               recipient={userOther}
-              privateMessage={message}
+              privateMessage={message_view}
               onEdit={this.handlePrivateMessageEdit}
               onCreate={this.handlePrivateMessageCreate}
               onCancel={this.handleReplyCancel}
@@ -144,14 +119,14 @@ export class PrivateMessage extends Component<
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleMarkRead)}
                         data-tippy-content={
-                          message.read
+                          message_view.private_message.read
                             ? i18n.t('mark_as_unread')
                             : i18n.t('mark_as_read')
                         }
                       >
                         <svg
                           class={`icon icon-inline ${
-                            message.read && 'text-success'
+                            message_view.private_message.read && 'text-success'
                           }`}
                         >
                           <use xlinkHref="#icon-check"></use>
@@ -189,14 +164,15 @@ export class PrivateMessage extends Component<
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleDeleteClick)}
                         data-tippy-content={
-                          !message.deleted
+                          !message_view.private_message.deleted
                             ? i18n.t('delete')
                             : i18n.t('restore')
                         }
                       >
                         <svg
                           class={`icon icon-inline ${
-                            message.deleted && 'text-danger'
+                            message_view.private_message.deleted &&
+                            'text-danger'
                           }`}
                         >
                           <use xlinkHref="#icon-trash"></use>
@@ -237,7 +213,7 @@ export class PrivateMessage extends Component<
   }
 
   get messageUnlessRemoved(): string {
-    let message = this.props.privateMessage;
+    let message = this.props.private_message_view.private_message;
     return message.deleted ? `*${i18n.t('deleted')}*` : message.content;
   }
 
@@ -252,11 +228,12 @@ export class PrivateMessage extends Component<
   }
 
   handleDeleteClick(i: PrivateMessage) {
-    let form: DeletePrivateMessageForm = {
-      edit_id: i.props.privateMessage.id,
-      deleted: !i.props.privateMessage.deleted,
+    let form: DeletePrivateMessage = {
+      edit_id: i.props.private_message_view.private_message.id,
+      deleted: !i.props.private_message_view.private_message.deleted,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.deletePrivateMessage(form);
+    WebSocketService.Instance.client.deletePrivateMessage(form);
   }
 
   handleReplyCancel() {
@@ -266,11 +243,12 @@ export class PrivateMessage extends Component<
   }
 
   handleMarkRead(i: PrivateMessage) {
-    let form: MarkPrivateMessageAsReadForm = {
-      edit_id: i.props.privateMessage.id,
-      read: !i.props.privateMessage.read,
+    let form: MarkPrivateMessageAsRead = {
+      edit_id: i.props.private_message_view.private_message.id,
+      read: !i.props.private_message_view.private_message.read,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.markPrivateMessageAsRead(form);
+    WebSocketService.Instance.client.markPrivateMessageAsRead(form);
   }
 
   handleMessageCollapse(i: PrivateMessage) {
@@ -288,10 +266,10 @@ export class PrivateMessage extends Component<
     this.setState(this.state);
   }
 
-  handlePrivateMessageCreate(message: PrivateMessageI) {
+  handlePrivateMessageCreate(message: PrivateMessageView) {
     if (
       UserService.Instance.user &&
-      message.creator_id == UserService.Instance.user.id
+      message.creator.id == UserService.Instance.user.id
     ) {
       this.state.showReply = false;
       this.setState(this.state);

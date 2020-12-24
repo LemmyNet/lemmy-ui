@@ -1,15 +1,14 @@
 import { Component, linkEvent } from 'inferno';
 import { Subscription } from 'rxjs';
 import {
-  LoginForm,
-  RegisterForm,
+  Login as LoginForm,
+  Register,
   LoginResponse,
   UserOperation,
-  PasswordResetForm,
+  PasswordReset,
   GetSiteResponse,
   GetCaptchaResponse,
-  WebSocketJsonResponse,
-  Site,
+  SiteView,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
 import {
@@ -19,18 +18,19 @@ import {
   wsSubscribe,
   isBrowser,
   setIsoData,
+  wsUserOp,
 } from '../utils';
 import { i18n } from '../i18next';
 import { HtmlTags } from './html-tags';
 
 interface State {
   loginForm: LoginForm;
-  registerForm: RegisterForm;
+  registerForm: Register;
   loginLoading: boolean;
   registerLoading: boolean;
   captcha: GetCaptchaResponse;
   captchaPlaying: boolean;
-  site: Site;
+  site_view: SiteView;
 }
 
 export class Login extends Component<any, State> {
@@ -55,7 +55,7 @@ export class Login extends Component<any, State> {
     registerLoading: false,
     captcha: undefined,
     captchaPlaying: false,
-    site: this.isoData.site.site,
+    site_view: this.isoData.site_res.site_view,
   };
 
   constructor(props: any, context: any) {
@@ -67,7 +67,7 @@ export class Login extends Component<any, State> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     if (isBrowser()) {
-      WebSocketService.Instance.getCaptcha();
+      WebSocketService.Instance.client.getCaptcha();
     }
   }
 
@@ -78,7 +78,7 @@ export class Login extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('login')} - ${this.state.site.name}`;
+    return `${i18n.t('login')} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -280,7 +280,7 @@ export class Login extends Component<any, State> {
             </div>
           </div>
         )}
-        {this.state.site.enable_nsfw && (
+        {this.state.site_view.site.enable_nsfw && (
           <div class="form-group row">
             <div class="col-sm-10">
               <div class="form-check">
@@ -349,7 +349,7 @@ export class Login extends Component<any, State> {
     event.preventDefault();
     i.state.loginLoading = true;
     i.setState(i.state);
-    WebSocketService.Instance.login(i.state.loginForm);
+    WebSocketService.Instance.client.login(i.state.loginForm);
   }
 
   handleLoginUsernameChange(i: Login, event: any) {
@@ -366,7 +366,7 @@ export class Login extends Component<any, State> {
     event.preventDefault();
     i.state.registerLoading = true;
     i.setState(i.state);
-    WebSocketService.Instance.register(i.state.registerForm);
+    WebSocketService.Instance.client.register(i.state.registerForm);
   }
 
   handleRegisterUsernameChange(i: Login, event: any) {
@@ -404,15 +404,15 @@ export class Login extends Component<any, State> {
 
   handleRegenCaptcha(_i: Login, event: any) {
     event.preventDefault();
-    WebSocketService.Instance.getCaptcha();
+    WebSocketService.Instance.client.getCaptcha();
   }
 
   handlePasswordReset(i: Login, event: any) {
     event.preventDefault();
-    let resetForm: PasswordResetForm = {
+    let resetForm: PasswordReset = {
       email: i.state.loginForm.username_or_email,
     };
-    WebSocketService.Instance.passwordReset(resetForm);
+    WebSocketService.Instance.client.passwordReset(resetForm);
   }
 
   handleCaptchaPlay(i: Login, event: any) {
@@ -432,44 +432,48 @@ export class Login extends Component<any, State> {
     return `data:image/png;base64,${this.state.captcha.ok.png}`;
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       this.state = this.emptyState;
       this.state.registerForm.captcha_answer = undefined;
       // Refetch another captcha
-      WebSocketService.Instance.getCaptcha();
+      WebSocketService.Instance.client.getCaptcha();
       this.setState(this.state);
       return;
     } else {
-      if (res.op == UserOperation.Login) {
-        let data = res.data as LoginResponse;
+      if (op == UserOperation.Login) {
+        let data = wsJsonToRes<LoginResponse>(msg).data;
         this.state = this.emptyState;
         this.setState(this.state);
         UserService.Instance.login(data);
-        WebSocketService.Instance.userJoin();
+        WebSocketService.Instance.client.userJoin({
+          auth: UserService.Instance.authField(),
+        });
         toast(i18n.t('logged_in'));
         this.props.history.push('/');
-      } else if (res.op == UserOperation.Register) {
-        let data = res.data as LoginResponse;
+      } else if (op == UserOperation.Register) {
+        let data = wsJsonToRes<LoginResponse>(msg).data;
         this.state = this.emptyState;
         this.setState(this.state);
         UserService.Instance.login(data);
-        WebSocketService.Instance.userJoin();
+        WebSocketService.Instance.client.userJoin({
+          auth: UserService.Instance.authField(),
+        });
         this.props.history.push('/communities');
-      } else if (res.op == UserOperation.GetCaptcha) {
-        let data = res.data as GetCaptchaResponse;
+      } else if (op == UserOperation.GetCaptcha) {
+        let data = wsJsonToRes<GetCaptchaResponse>(msg).data;
         if (data.ok) {
           this.state.captcha = data;
           this.state.registerForm.captcha_uuid = data.ok.uuid;
           this.setState(this.state);
         }
-      } else if (res.op == UserOperation.PasswordReset) {
+      } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t('reset_password_mail_sent'));
-      } else if (res.op == UserOperation.GetSite) {
-        let data = res.data as GetSiteResponse;
-        this.state.site = data.site;
+      } else if (op == UserOperation.GetSite) {
+        let data = wsJsonToRes<GetSiteResponse>(msg).data;
+        this.state.site_view = data.site_view;
         this.setState(this.state);
       }
     }

@@ -11,7 +11,7 @@ interface InstancesState {
 export class Instances extends Component<any, InstancesState> {
   private isoData = setIsoData(this.context);
   private emptyState: InstancesState = {
-    siteRes: this.isoData.site,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -20,7 +20,7 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('instances')} - ${this.state.siteRes.site.name}`;
+    return `${i18n.t('instances')} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   render() {

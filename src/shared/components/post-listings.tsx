@@ -1,13 +1,13 @@
 import { Component } from 'inferno';
 import { Link } from 'inferno-router';
-import { Post, SortType } from 'lemmy-js-client';
+import { PostView, SortType } from 'lemmy-js-client';
 import { postSort } from '../utils';
 import { PostListing } from './post-listing';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
 
 interface PostListingsProps {
-  posts: Post[];
+  posts: PostView[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
   sort?: SortType;
@@ -16,6 +16,8 @@ interface PostListingsProps {
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
+  private duplicatesMap = new Map<number, PostView[]>();
+
   constructor(props: any, context: any) {
     super(props, context);
   }
@@ -24,10 +26,11 @@ export class PostListings extends Component<PostListingsProps, any> {
     return (
       <div>
         {this.props.posts.length > 0 ? (
-          this.outer().map(post => (
+          this.outer().map(post_view => (
             <>
               <PostListing
-                post={post}
+                post_view={post_view}
+                duplicates={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
@@ -49,7 +52,7 @@ export class PostListings extends Component<PostListingsProps, any> {
     );
   }
 
-  outer(): Post[] {
+  outer(): PostView[] {
     let out = this.props.posts;
     if (this.props.removeDuplicates) {
       out = this.removeDuplicates(out);
@@ -62,23 +65,23 @@ export class PostListings extends Component<PostListingsProps, any> {
     return out;
   }
 
-  removeDuplicates(posts: Post[]): Post[] {
+  removeDuplicates(posts: PostView[]): PostView[] {
     // A map from post url to list of posts (dupes)
-    let urlMap = new Map<string, Post[]>();
+    let urlMap = new Map<string, PostView[]>();
 
     // Loop over the posts, find ones with same urls
-    for (let post of posts) {
+    for (let pv of posts) {
       if (
-        post.url &&
-        !post.deleted &&
-        !post.removed &&
-        !post.community_deleted &&
-        !post.community_removed
+        pv.post.url &&
+        !pv.post.deleted &&
+        !pv.post.removed &&
+        !pv.community.deleted &&
+        !pv.community.removed
       ) {
-        if (!urlMap.get(post.url)) {
-          urlMap.set(post.url, [post]);
+        if (!urlMap.get(pv.post.url)) {
+          urlMap.set(pv.post.url, [pv]);
         } else {
-          urlMap.get(post.url).push(post);
+          urlMap.get(pv.post.url).push(pv);
         }
       }
     }
@@ -89,18 +92,18 @@ export class PostListings extends Component<PostListingsProps, any> {
       if (e[1].length == 1) {
         urlMap.delete(e[0]);
       } else {
-        e[1].sort((a, b) => a.published.localeCompare(b.published));
+        e[1].sort((a, b) => a.post.published.localeCompare(b.post.published));
       }
     }
 
     for (let i = 0; i < posts.length; i++) {
-      let post = posts[i];
-      if (post.url) {
-        let found = urlMap.get(post.url);
+      let pv = posts[i];
+      if (pv.post.url) {
+        let found = urlMap.get(pv.post.url);
         if (found) {
           // If its the oldest, add
-          if (post.id == found[0].id) {
-            post.duplicates = found.slice(1);
+          if (pv.post.id == found[0].post.id) {
+            this.duplicatesMap.set(pv.post.id, found.slice(1));
           }
           // Otherwise, delete it
           else {

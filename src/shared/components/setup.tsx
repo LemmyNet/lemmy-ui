@@ -2,19 +2,14 @@ import { Component, linkEvent } from 'inferno';
 import { Helmet } from 'inferno-helmet';
 import { Subscription } from 'rxjs';
 import { retryWhen, delay, take } from 'rxjs/operators';
-import {
-  RegisterForm,
-  LoginResponse,
-  UserOperation,
-  WebSocketJsonResponse,
-} from 'lemmy-js-client';
+import { Register, LoginResponse, UserOperation } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
-import { wsJsonToRes, toast } from '../utils';
+import { wsUserOp, wsJsonToRes, toast } from '../utils';
 import { SiteForm } from './site-form';
 import { i18n } from '../i18next';
 
 interface State {
-  userForm: RegisterForm;
+  userForm: Register;
   doneRegisteringUser: boolean;
   userLoading: boolean;
 }
@@ -168,7 +163,7 @@ export class Setup extends Component<any, State> {
     i.state.userLoading = true;
     i.setState(i.state);
     event.preventDefault();
-    WebSocketService.Instance.register(i.state.userForm);
+    WebSocketService.Instance.client.register(i.state.userForm);
   }
 
   handleRegisterUsernameChange(i: Setup, event: any) {
@@ -191,20 +186,20 @@ export class Setup extends Component<any, State> {
     i.setState(i.state);
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       this.state.userLoading = false;
       this.setState(this.state);
       return;
-    } else if (res.op == UserOperation.Register) {
-      let data = res.data as LoginResponse;
+    } else if (op == UserOperation.Register) {
+      let data = wsJsonToRes<LoginResponse>(msg).data;
       this.state.userLoading = false;
       this.state.doneRegisteringUser = true;
       UserService.Instance.login(data);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateSite) {
+    } else if (op == UserOperation.CreateSite) {
       window.location.href = '/';
     }
   }

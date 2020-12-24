@@ -4,19 +4,19 @@ import { PostListings } from './post-listings';
 import { MarkdownTextArea } from './markdown-textarea';
 import { Subscription } from 'rxjs';
 import {
-  PostForm as PostFormI,
-  PostFormParams,
-  Post,
+  CreatePost,
+  EditPost,
+  PostView,
   PostResponse,
   UserOperation,
-  Community,
+  CommunityView,
   SortType,
-  SearchForm,
+  Search,
   SearchType,
   SearchResponse,
-  WebSocketJsonResponse,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
+import { PostFormParams } from '../interfaces';
 import {
   wsJsonToRes,
   getPageTitle,
@@ -33,6 +33,7 @@ import {
   validTitle,
   wsSubscribe,
   isBrowser,
+  wsUserOp,
 } from '../utils';
 
 var Choices;
@@ -46,24 +47,24 @@ import { pictrsUri } from '../env';
 const MAX_POST_TITLE_LENGTH = 200;
 
 interface PostFormProps {
-  post?: Post; // If a post is given, that means this is an edit
-  communities?: Community[];
+  post_view?: PostView; // If a post is given, that means this is an edit
+  communities?: CommunityView[];
   params?: PostFormParams;
   onCancel?(): any;
-  onCreate?(id: number): any;
-  onEdit?(post: Post): any;
+  onCreate?(post: PostView): any;
+  onEdit?(post: PostView): any;
   enableNsfw: boolean;
   enableDownvotes: boolean;
 }
 
 interface PostFormState {
-  postForm: PostFormI;
+  postForm: CreatePost;
   loading: boolean;
   imageLoading: boolean;
   previewMode: boolean;
   suggestedTitle: string;
-  suggestedPosts: Post[];
-  crossPosts: Post[];
+  suggestedPosts: PostView[];
+  crossPosts: PostView[];
 }
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
@@ -72,10 +73,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   private choices: any;
   private emptyState: PostFormState = {
     postForm: {
+      community_id: null,
       name: null,
       nsfw: false,
-      auth: null,
-      community_id: null,
+      auth: UserService.Instance.authField(),
     },
     loading: false,
     imageLoading: false,
@@ -93,16 +94,15 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     this.state = this.emptyState;
 
-    if (this.props.post) {
+    // Means its an edit
+    if (this.props.post_view) {
       this.state.postForm = {
-        body: this.props.post.body,
-        // NOTE: debouncing breaks both these for some reason, unless you use defaultValue
-        name: this.props.post.name,
-        community_id: this.props.post.community_id,
-        edit_id: this.props.post.id,
-        url: this.props.post.url,
-        nsfw: this.props.post.nsfw,
-        auth: null,
+        body: this.props.post_view.post.body,
+        name: this.props.post_view.post.name,
+        community_id: this.props.post_view.community.id,
+        url: this.props.post_view.post.url,
+        nsfw: this.props.post_view.post.nsfw,
+        auth: UserService.Instance.authField(),
       };
     }
 
@@ -285,7 +285,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               />
             </div>
           </div>
-          {!this.props.post && (
+          {!this.props.post_view && (
             <div class="form-group row">
               <label class="col-sm-2 col-form-label" htmlFor="post-community">
                 {i18n.t('community')}
@@ -298,11 +298,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   onInput={linkEvent(this, this.handlePostCommunityChange)}
                 >
                   <option>{i18n.t('select_a_community')}</option>
-                  {this.props.communities.map(community => (
-                    <option value={community.id}>
-                      {community.local
-                        ? community.name
-                        : `${hostname(community.actor_id)}/${community.name}`}
+                  {this.props.communities.map(cv => (
+                    <option value={cv.community.id}>
+                      {cv.community.local
+                        ? cv.community.name
+                        : `${hostname(cv.community.actor_id)}/${
+                            cv.community.name
+                          }`}
                     </option>
                   ))}
                 </select>
@@ -340,13 +342,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   <svg class="icon icon-spinner spin">
                     <use xlinkHref="#icon-spinner"></use>
                   </svg>
-                ) : this.props.post ? (
+                ) : this.props.post_view ? (
                   capitalizeFirstLetter(i18n.t('save'))
                 ) : (
                   capitalizeFirstLetter(i18n.t('create'))
                 )}
               </button>
-              {this.props.post && (
+              {this.props.post_view && (
                 <button
                   type="button"
                   class="btn btn-secondary"
@@ -370,10 +372,14 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       i.state.postForm.url = undefined;
     }
 
-    if (i.props.post) {
-      WebSocketService.Instance.editPost(i.state.postForm);
+    if (i.props.post_view) {
+      let form: EditPost = {
+        ...i.state.postForm,
+        edit_id: i.props.post_view.post.id,
+      };
+      WebSocketService.Instance.client.editPost(form);
     } else {
-      WebSocketService.Instance.createPost(i.state.postForm);
+      WebSocketService.Instance.client.createPost(i.state.postForm);
     }
     i.state.loading = true;
     i.setState(i.state);
@@ -396,15 +402,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   fetchPageTitle() {
     if (validURL(this.state.postForm.url)) {
-      let form: SearchForm = {
+      let form: Search = {
         q: this.state.postForm.url,
         type_: SearchType.Url,
         sort: SortType.TopAll,
         page: 1,
         limit: 6,
+        auth: UserService.Instance.authField(false),
       };
 
-      WebSocketService.Instance.search(form);
+      WebSocketService.Instance.client.search(form);
 
       // Fetch the page title
       getPageTitle(this.state.postForm.url).then(d => {
@@ -424,17 +431,18 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   fetchSimilarPosts() {
-    let form: SearchForm = {
+    let form: Search = {
       q: this.state.postForm.name,
       type_: SearchType.Posts,
       sort: SortType.TopAll,
       community_id: this.state.postForm.community_id,
       page: 1,
       limit: 6,
+      auth: UserService.Instance.authField(false),
     };
 
     if (this.state.postForm.name !== '') {
-      WebSocketService.Instance.search(form);
+      WebSocketService.Instance.client.search(form);
     } else {
       this.state.suggestedPosts = [];
     }
@@ -570,16 +578,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       }
     }
 
-    if (this.props.post) {
-      this.state.postForm.community_id = this.props.post.community_id;
+    if (this.props.post_view) {
+      this.state.postForm.community_id = this.props.post_view.community.id;
     } else if (
       this.props.params &&
       (this.props.params.community_id || this.props.params.community_name)
     ) {
       if (this.props.params.community_name) {
         let foundCommunityId = this.props.communities.find(
-          r => r.name == this.props.params.community_name
-        ).id;
+          r => r.community.name == this.props.params.community_name
+        ).community.id;
         this.state.postForm.community_id = foundCommunityId;
       } else if (this.props.params.community_id) {
         this.state.postForm.community_id = this.props.params.community_id;
@@ -596,27 +604,27 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       this.state.loading = false;
       this.setState(this.state);
       return;
-    } else if (res.op == UserOperation.CreatePost) {
-      let data = res.data as PostResponse;
-      if (data.post.creator_id == UserService.Instance.user.id) {
+    } else if (op == UserOperation.CreatePost) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      if (data.post_view.creator.id == UserService.Instance.user.id) {
         this.state.loading = false;
-        this.props.onCreate(data.post.id);
+        this.props.onCreate(data.post_view);
       }
-    } else if (res.op == UserOperation.EditPost) {
-      let data = res.data as PostResponse;
-      if (data.post.creator_id == UserService.Instance.user.id) {
+    } else if (op == UserOperation.EditPost) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      if (data.post_view.creator.id == UserService.Instance.user.id) {
         this.state.loading = false;
-        this.props.onEdit(data.post);
+        this.props.onEdit(data.post_view);
       }
-    } else if (res.op == UserOperation.Search) {
-      let data = res.data as SearchResponse;
+    } else if (op == UserOperation.Search) {
+      let data = wsJsonToRes<SearchResponse>(msg).data;
 
       if (data.type_ == SearchType[SearchType.Posts]) {
         this.state.suggestedPosts = data.posts;

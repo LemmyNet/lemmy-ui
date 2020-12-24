@@ -1,24 +1,29 @@
 import { Component, linkEvent } from 'inferno';
 import { Link } from 'inferno-router';
 import {
-  CommentNode as CommentNodeI,
-  CommentLikeForm,
-  DeleteCommentForm,
-  RemoveCommentForm,
-  MarkCommentAsReadForm,
-  MarkUserMentionAsReadForm,
-  SaveCommentForm,
-  BanFromCommunityForm,
-  BanUserForm,
-  CommunityUser,
-  UserView,
-  AddModToCommunityForm,
-  AddAdminForm,
-  TransferCommunityForm,
-  TransferSiteForm,
+  CreateCommentLike,
+  DeleteComment,
+  RemoveComment,
+  MarkCommentAsRead,
+  MarkUserMentionAsRead,
+  SaveComment,
+  BanFromCommunity,
+  BanUser,
+  CommunityModeratorView,
+  UserViewSafe,
+  AddModToCommunity,
+  AddAdmin,
+  TransferCommunity,
+  TransferSite,
   SortType,
+  CommentView,
+  UserMentionView,
 } from 'lemmy-js-client';
-import { CommentSortType, BanType } from '../interfaces';
+import {
+  CommentSortType,
+  CommentNode as CommentNodeI,
+  BanType,
+} from '../interfaces';
 import { WebSocketService, UserService } from '../services';
 import {
   mdToHtml,
@@ -70,8 +75,8 @@ interface CommentNodeProps {
   locked?: boolean;
   markable?: boolean;
   showContext?: boolean;
-  moderators: CommunityUser[];
-  admins: UserView[];
+  moderators: CommunityModeratorView[];
+  admins: UserViewSafe[];
   // TODO is this necessary, can't I get it from the node itself?
   postCreatorId?: number;
   showCommunity?: boolean;
@@ -98,12 +103,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showConfirmTransferCommunity: false,
     showConfirmAppointAsMod: false,
     showConfirmAppointAsAdmin: false,
-    my_vote: this.props.node.comment.my_vote,
-    score: this.props.node.comment.score,
-    upvotes: this.props.node.comment.upvotes,
-    downvotes: this.props.node.comment.downvotes,
-    borderColor: this.props.node.comment.depth
-      ? colorList[this.props.node.comment.depth % colorList.length]
+    my_vote: this.props.node.comment_view.my_vote,
+    score: this.props.node.comment_view.counts.score,
+    upvotes: this.props.node.comment_view.counts.upvotes,
+    downvotes: this.props.node.comment_view.counts.downvotes,
+    borderColor: this.props.node.depth
+      ? colorList[this.props.node.depth % colorList.length]
       : colorList[0],
     readLoading: false,
     saveLoading: false,
@@ -118,11 +123,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handleCommentDownvote = this.handleCommentDownvote.bind(this);
   }
 
+  // TODO see if there's a better way to do this, and all willReceiveProps
   componentWillReceiveProps(nextProps: CommentNodeProps) {
-    this.state.my_vote = nextProps.node.comment.my_vote;
-    this.state.upvotes = nextProps.node.comment.upvotes;
-    this.state.downvotes = nextProps.node.comment.downvotes;
-    this.state.score = nextProps.node.comment.score;
+    let cv = nextProps.node.comment_view;
+    this.state.my_vote = cv.my_vote;
+    this.state.upvotes = cv.counts.upvotes;
+    this.state.downvotes = cv.counts.downvotes;
+    this.state.score = cv.counts.score;
     this.state.readLoading = false;
     this.state.saveLoading = false;
     this.setState(this.state);
@@ -130,43 +137,30 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   render() {
     let node = this.props.node;
+    let cv = this.props.node.comment_view;
     return (
       <div
         className={`comment ${
-          node.comment.parent_id && !this.props.noIndent ? 'ml-1' : ''
+          cv.comment.parent_id && !this.props.noIndent ? 'ml-1' : ''
         }`}
       >
         <div
-          id={`comment-${node.comment.id}`}
+          id={`comment-${cv.comment.id}`}
           className={`details comment-node py-2 ${
             !this.props.noBorder ? 'border-top border-light' : ''
           } ${this.isCommentNew ? 'mark' : ''}`}
           style={
             !this.props.noIndent &&
-            this.props.node.comment.parent_id &&
+            cv.comment.parent_id &&
             `border-left: 2px ${this.state.borderColor} solid !important`
           }
         >
           <div
-            class={`${
-              !this.props.noIndent &&
-              this.props.node.comment.parent_id &&
-              'ml-2'
-            }`}
+            class={`${!this.props.noIndent && cv.comment.parent_id && 'ml-2'}`}
           >
             <div class="d-flex flex-wrap align-items-center text-muted small">
               <span class="mr-2">
-                <UserListing
-                  user={{
-                    name: node.comment.creator_name,
-                    preferred_username: node.comment.creator_preferred_username,
-                    avatar: node.comment.creator_avatar,
-                    id: node.comment.creator_id,
-                    local: node.comment.creator_local,
-                    actor_id: node.comment.creator_actor_id,
-                    published: node.comment.creator_published,
-                  }}
-                />
+                <UserListing user={cv.creator} />
               </span>
 
               {this.isMod && (
@@ -184,7 +178,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {i18n.t('creator')}
                 </div>
               )}
-              {(node.comment.banned_from_community || node.comment.banned) && (
+              {(cv.creator_banned_from_community || cv.creator.banned) && (
                 <div className="badge badge-danger mr-2">
                   {i18n.t('banned')}
                 </div>
@@ -192,18 +186,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {this.props.showCommunity && (
                 <>
                   <span class="mx-1">{i18n.t('to')}</span>
-                  <CommunityLink
-                    community={{
-                      name: node.comment.community_name,
-                      id: node.comment.community_id,
-                      local: node.comment.community_local,
-                      actor_id: node.comment.community_actor_id,
-                      icon: node.comment.community_icon,
-                    }}
-                  />
+                  <CommunityLink community={cv.community} />
                   <span class="mx-2">•</span>
-                  <Link className="mr-2" to={`/post/${node.comment.post_id}`}>
-                    {node.comment.post_name}
+                  <Link className="mr-2" to={`/post/${cv.post.id}`}>
+                    {cv.post.name}
                   </Link>
                 </>
               )}
@@ -224,7 +210,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               </a>
               <span className="mr-1">•</span>
               <span>
-                <MomentTime data={node.comment} />
+                <MomentTime data={cv.comment} />
               </span>
             </div>
             {/* end of user row */}
@@ -256,7 +242,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       class="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(this, this.handleMarkRead)}
                       data-tippy-content={
-                        node.comment.read
+                        cv.comment.read
                           ? i18n.t('mark_as_unread')
                           : i18n.t('mark_as_read')
                       }
@@ -266,7 +252,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       ) : (
                         <svg
                           class={`icon icon-inline ${
-                            node.comment.read && 'text-success'
+                            cv.comment.read && 'text-success'
                           }`}
                         >
                           <use xlinkHref="#icon-check"></use>
@@ -333,7 +319,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             <button class="btn btn-link btn-animate">
                               <Link
                                 className="text-muted"
-                                to={`/create_private_message/recipient/${node.comment.creator_id}`}
+                                to={`/create_private_message/recipient/${cv.creator.id}`}
                                 title={i18n.t('message').toLowerCase()}
                               >
                                 <svg class="icon">
@@ -350,9 +336,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               this.handleSaveCommentClick
                             )}
                             data-tippy-content={
-                              node.comment.saved
-                                ? i18n.t('unsave')
-                                : i18n.t('save')
+                              cv.saved ? i18n.t('unsave') : i18n.t('save')
                             }
                           >
                             {this.state.saveLoading ? (
@@ -360,7 +344,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             ) : (
                               <svg
                                 class={`icon icon-inline ${
-                                  node.comment.saved && 'text-warning'
+                                  cv.saved && 'text-warning'
                                 }`}
                               >
                                 <use xlinkHref="#icon-star"></use>
@@ -398,14 +382,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   this.handleDeleteClick
                                 )}
                                 data-tippy-content={
-                                  !node.comment.deleted
+                                  !cv.comment.deleted
                                     ? i18n.t('delete')
                                     : i18n.t('restore')
                                 }
                               >
                                 <svg
                                   class={`icon icon-inline ${
-                                    node.comment.deleted && 'text-danger'
+                                    cv.comment.deleted && 'text-danger'
                                   }`}
                                 >
                                   <use xlinkHref="#icon-trash"></use>
@@ -416,7 +400,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {/* Admins and mods can remove comments */}
                           {(this.canMod || this.canAdmin) && (
                             <>
-                              {!node.comment.removed ? (
+                              {!cv.comment.removed ? (
                                 <button
                                   class="btn btn-link btn-animate text-muted"
                                   onClick={linkEvent(
@@ -443,7 +427,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {this.canMod && (
                             <>
                               {!this.isMod &&
-                                (!node.comment.banned_from_community ? (
+                                (!cv.creator_banned_from_community ? (
                                   <button
                                     class="btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
@@ -464,8 +448,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     {i18n.t('unban')}
                                   </button>
                                 ))}
-                              {!node.comment.banned_from_community &&
-                                node.comment.creator_local &&
+                              {!cv.creator_banned_from_community &&
+                                cv.creator.local &&
                                 (!this.state.showConfirmAppointAsMod ? (
                                   <button
                                     class="btn btn-link btn-animate text-muted"
@@ -508,7 +492,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {/* Community creators and admins can transfer community to another mod */}
                           {(this.amCommunityCreator || this.canAdmin) &&
                             this.isMod &&
-                            node.comment.creator_local &&
+                            cv.creator.local &&
                             (!this.state.showConfirmTransferCommunity ? (
                               <button
                                 class="btn btn-link btn-animate text-muted"
@@ -549,7 +533,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {this.canAdmin && (
                             <>
                               {!this.isAdmin &&
-                                (!node.comment.banned ? (
+                                (!cv.creator.banned ? (
                                   <button
                                     class="btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
@@ -570,8 +554,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     {i18n.t('unban_from_site')}
                                   </button>
                                 ))}
-                              {!node.comment.banned &&
-                                node.comment.creator_local &&
+                              {!cv.creator.banned &&
+                                cv.creator.local &&
                                 (!this.state.showConfirmAppointAsAdmin ? (
                                   <button
                                     class="btn btn-link btn-animate text-muted"
@@ -614,7 +598,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {/* Site Creator can transfer to another admin */}
                           {this.amSiteCreator &&
                             this.isAdmin &&
-                            node.comment.creator_local &&
+                            cv.creator.local &&
                             (!this.state.showConfirmTransferSite ? (
                               <button
                                 class="btn btn-link btn-animate text-muted"
@@ -711,7 +695,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             {/* </div> */}
             <div class="form-group row">
               <button type="submit" class="btn btn-secondary">
-                {i18n.t('ban')} {node.comment.creator_name}
+                {i18n.t('ban')} {cv.creator.name}
               </button>
             </div>
           </form>
@@ -743,11 +727,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get linkBtn() {
-    let node = this.props.node;
+    let cv = this.props.node.comment_view;
     return (
       <Link
         className="btn btn-link btn-animate text-muted"
-        to={`/post/${node.comment.post_id}/comment/${node.comment.id}`}
+        to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
         title={this.props.showContext ? i18n.t('show_context') : i18n.t('link')}
       >
         <svg class="icon icon-inline">
@@ -768,7 +752,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   get myComment(): boolean {
     return (
       UserService.Instance.user &&
-      this.props.node.comment.creator_id == UserService.Instance.user.id
+      this.props.node.comment_view.creator.id == UserService.Instance.user.id
     );
   }
 
@@ -776,8 +760,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return (
       this.props.moderators &&
       isMod(
-        this.props.moderators.map(m => m.user_id),
-        this.props.node.comment.creator_id
+        this.props.moderators.map(m => m.moderator.id),
+        this.props.node.comment_view.creator.id
       )
     );
   }
@@ -786,26 +770,26 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return (
       this.props.admins &&
       isMod(
-        this.props.admins.map(a => a.id),
-        this.props.node.comment.creator_id
+        this.props.admins.map(a => a.user.id),
+        this.props.node.comment_view.creator.id
       )
     );
   }
 
   get isPostCreator(): boolean {
-    return this.props.node.comment.creator_id == this.props.postCreatorId;
+    return this.props.node.comment_view.creator.id == this.props.postCreatorId;
   }
 
   get canMod(): boolean {
     if (this.props.admins && this.props.moderators) {
       let adminsThenMods = this.props.admins
-        .map(a => a.id)
-        .concat(this.props.moderators.map(m => m.user_id));
+        .map(a => a.user.id)
+        .concat(this.props.moderators.map(m => m.moderator.id));
 
       return canMod(
         UserService.Instance.user,
         adminsThenMods,
-        this.props.node.comment.creator_id
+        this.props.node.comment_view.creator.id
       );
     } else {
       return false;
@@ -817,8 +801,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.props.admins &&
       canMod(
         UserService.Instance.user,
-        this.props.admins.map(a => a.id),
-        this.props.node.comment.creator_id
+        this.props.admins.map(a => a.user.id),
+        this.props.node.comment_view.creator.id
       )
     );
   }
@@ -827,8 +811,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return (
       this.props.moderators &&
       UserService.Instance.user &&
-      this.props.node.comment.creator_id != UserService.Instance.user.id &&
-      UserService.Instance.user.id == this.props.moderators[0].user_id
+      this.props.node.comment_view.creator.id != UserService.Instance.user.id &&
+      UserService.Instance.user.id == this.props.moderators[0].moderator.id
     );
   }
 
@@ -836,18 +820,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return (
       this.props.admins &&
       UserService.Instance.user &&
-      this.props.node.comment.creator_id != UserService.Instance.user.id &&
-      UserService.Instance.user.id == this.props.admins[0].id
+      this.props.node.comment_view.creator.id != UserService.Instance.user.id &&
+      UserService.Instance.user.id == this.props.admins[0].user.id
     );
   }
 
   get commentUnlessRemoved(): string {
-    let node = this.props.node;
-    return node.comment.removed
+    let comment = this.props.node.comment_view.comment;
+    return comment.removed
       ? `*${i18n.t('removed')}*`
-      : node.comment.deleted
+      : comment.deleted
       ? `*${i18n.t('deleted')}*`
-      : node.comment.content;
+      : comment.content;
   }
 
   handleReplyClick(i: CommentNode) {
@@ -861,25 +845,25 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleDeleteClick(i: CommentNode) {
-    let deleteForm: DeleteCommentForm = {
-      edit_id: i.props.node.comment.id,
-      deleted: !i.props.node.comment.deleted,
-      auth: null,
+    let comment = i.props.node.comment_view.comment;
+    let deleteForm: DeleteComment = {
+      edit_id: comment.id,
+      deleted: !comment.deleted,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.deleteComment(deleteForm);
+    WebSocketService.Instance.client.deleteComment(deleteForm);
   }
 
   handleSaveCommentClick(i: CommentNode) {
-    let saved =
-      i.props.node.comment.saved == undefined
-        ? true
-        : !i.props.node.comment.saved;
-    let form: SaveCommentForm = {
-      comment_id: i.props.node.comment.id,
-      save: saved,
+    let cv = i.props.node.comment_view;
+    let save = cv.saved == undefined ? true : !cv.saved;
+    let form: SaveComment = {
+      comment_id: cv.comment.id,
+      save,
+      auth: UserService.Instance.authField(),
     };
 
-    WebSocketService.Instance.saveComment(form);
+    WebSocketService.Instance.client.saveComment(form);
 
     i.state.saveLoading = true;
     i.setState(this.state);
@@ -908,12 +892,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     this.state.my_vote = new_vote;
 
-    let form: CommentLikeForm = {
-      comment_id: i.comment.id,
+    let form: CreateCommentLike = {
+      comment_id: i.comment_view.comment.id,
       score: this.state.my_vote,
+      auth: UserService.Instance.authField(),
     };
 
-    WebSocketService.Instance.likeComment(form);
+    WebSocketService.Instance.client.likeComment(form);
     this.setState(this.state);
     setupTippy();
   }
@@ -935,12 +920,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     this.state.my_vote = new_vote;
 
-    let form: CommentLikeForm = {
-      comment_id: i.comment.id,
+    let form: CreateCommentLike = {
+      comment_id: i.comment_view.comment.id,
       score: this.state.my_vote,
+      auth: UserService.Instance.authField(),
     };
 
-    WebSocketService.Instance.likeComment(form);
+    WebSocketService.Instance.client.likeComment(form);
     this.setState(this.state);
     setupTippy();
   }
@@ -961,34 +947,40 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModRemoveSubmit(i: CommentNode) {
-    event.preventDefault();
-    let form: RemoveCommentForm = {
-      edit_id: i.props.node.comment.id,
-      removed: !i.props.node.comment.removed,
+    let comment = i.props.node.comment_view.comment;
+    let form: RemoveComment = {
+      edit_id: comment.id,
+      removed: !comment.removed,
       reason: i.state.removeReason,
-      auth: null,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.removeComment(form);
+    WebSocketService.Instance.client.removeComment(form);
 
     i.state.showRemoveDialog = false;
     i.setState(i.state);
   }
 
+  isUserMentionType(
+    item: CommentView | UserMentionView
+  ): item is UserMentionView {
+    return (item as UserMentionView).user_mention.id !== undefined;
+  }
+
   handleMarkRead(i: CommentNode) {
-    // if it has a user_mention_id field, then its a mention
-    if (i.props.node.comment.user_mention_id) {
-      let form: MarkUserMentionAsReadForm = {
-        user_mention_id: i.props.node.comment.user_mention_id,
-        read: !i.props.node.comment.read,
+    if (i.isUserMentionType(i.props.node.comment_view)) {
+      let form: MarkUserMentionAsRead = {
+        user_mention_id: i.props.node.comment_view.user_mention.id,
+        read: !i.props.node.comment_view.user_mention.read,
+        auth: UserService.Instance.authField(),
       };
-      WebSocketService.Instance.markUserMentionAsRead(form);
+      WebSocketService.Instance.client.markUserMentionAsRead(form);
     } else {
-      let form: MarkCommentAsReadForm = {
-        edit_id: i.props.node.comment.id,
-        read: !i.props.node.comment.read,
-        auth: null,
+      let form: MarkCommentAsRead = {
+        comment_id: i.props.node.comment_view.comment.id,
+        read: !i.props.node.comment_view.comment.read,
+        auth: UserService.Instance.authField(),
       };
-      WebSocketService.Instance.markCommentAsRead(form);
+      WebSocketService.Instance.client.markCommentAsRead(form);
     }
 
     i.state.readLoading = true;
@@ -1030,37 +1022,39 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModBanBothSubmit(i: CommentNode) {
-    event.preventDefault();
+    let cv = i.props.node.comment_view;
 
     if (i.state.banType == BanType.Community) {
       // If its an unban, restore all their data
-      let ban = !i.props.node.comment.banned_from_community;
+      let ban = !cv.creator_banned_from_community;
       if (ban == false) {
         i.state.removeData = false;
       }
-      let form: BanFromCommunityForm = {
-        user_id: i.props.node.comment.creator_id,
-        community_id: i.props.node.comment.community_id,
+      let form: BanFromCommunity = {
+        user_id: cv.creator.id,
+        community_id: cv.community.id,
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
         expires: getUnixTime(i.state.banExpires),
+        auth: UserService.Instance.authField(),
       };
-      WebSocketService.Instance.banFromCommunity(form);
+      WebSocketService.Instance.client.banFromCommunity(form);
     } else {
       // If its an unban, restore all their data
-      let ban = !i.props.node.comment.banned;
+      let ban = !cv.creator.banned;
       if (ban == false) {
         i.state.removeData = false;
       }
-      let form: BanUserForm = {
-        user_id: i.props.node.comment.creator_id,
+      let form: BanUser = {
+        user_id: cv.creator.id,
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
         expires: getUnixTime(i.state.banExpires),
+        auth: UserService.Instance.authField(),
       };
-      WebSocketService.Instance.banUser(form);
+      WebSocketService.Instance.client.banUser(form);
     }
 
     i.state.showBanDialog = false;
@@ -1078,12 +1072,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleAddModToCommunity(i: CommentNode) {
-    let form: AddModToCommunityForm = {
-      user_id: i.props.node.comment.creator_id,
-      community_id: i.props.node.comment.community_id,
+    let cv = i.props.node.comment_view;
+    let form: AddModToCommunity = {
+      user_id: cv.creator.id,
+      community_id: cv.community.id,
       added: !i.isMod,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.addModToCommunity(form);
+    WebSocketService.Instance.client.addModToCommunity(form);
     i.state.showConfirmAppointAsMod = false;
     i.setState(i.state);
   }
@@ -1099,11 +1095,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleAddAdmin(i: CommentNode) {
-    let form: AddAdminForm = {
-      user_id: i.props.node.comment.creator_id,
+    let form: AddAdmin = {
+      user_id: i.props.node.comment_view.creator.id,
       added: !i.isAdmin,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.addAdmin(form);
+    WebSocketService.Instance.client.addAdmin(form);
     i.state.showConfirmAppointAsAdmin = false;
     i.setState(i.state);
   }
@@ -1119,11 +1116,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleTransferCommunity(i: CommentNode) {
-    let form: TransferCommunityForm = {
-      community_id: i.props.node.comment.community_id,
-      user_id: i.props.node.comment.creator_id,
+    let cv = i.props.node.comment_view;
+    let form: TransferCommunity = {
+      community_id: cv.community.id,
+      user_id: cv.creator.id,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.transferCommunity(form);
+    WebSocketService.Instance.client.transferCommunity(form);
     i.state.showConfirmTransferCommunity = false;
     i.setState(i.state);
   }
@@ -1139,17 +1138,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleTransferSite(i: CommentNode) {
-    let form: TransferSiteForm = {
-      user_id: i.props.node.comment.creator_id,
+    let form: TransferSite = {
+      user_id: i.props.node.comment_view.creator.id,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.transferSite(form);
+    WebSocketService.Instance.client.transferSite(form);
     i.state.showConfirmTransferSite = false;
     i.setState(i.state);
   }
 
   get isCommentNew(): boolean {
     let now = moment.utc().subtract(10, 'minutes');
-    let then = moment.utc(this.props.node.comment.published);
+    let then = moment.utc(this.props.node.comment_view.comment.published);
     return now.isBefore(then);
   }
 

@@ -2,20 +2,21 @@ import { Component, linkEvent } from 'inferno';
 import { Prompt } from 'inferno-router';
 import { Subscription } from 'rxjs';
 import {
-  CommunityForm as CommunityFormI,
+  EditCommunity,
+  CreateCommunity,
   UserOperation,
   Category,
   CommunityResponse,
-  WebSocketJsonResponse,
-  Community,
+  CommunityView,
 } from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+import { UserService, WebSocketService } from '../services';
 import {
   wsJsonToRes,
   capitalizeFirstLetter,
   toast,
   randomStr,
   wsSubscribe,
+  wsUserOp,
 } from '../utils';
 import { i18n } from '../i18next';
 
@@ -23,16 +24,16 @@ import { MarkdownTextArea } from './markdown-textarea';
 import { ImageUploadForm } from './image-upload-form';
 
 interface CommunityFormProps {
-  community?: Community; // If a community is given, that means this is an edit
+  community_view?: CommunityView; // If a community is given, that means this is an edit
   categories: Category[];
   onCancel?(): any;
-  onCreate?(community: Community): any;
-  onEdit?(community: Community): any;
+  onCreate?(community: CommunityView): any;
+  onEdit?(community: CommunityView): any;
   enableNsfw: boolean;
 }
 
 interface CommunityFormState {
-  communityForm: CommunityFormI;
+  communityForm: CreateCommunity;
   loading: boolean;
 }
 
@@ -51,6 +52,7 @@ export class CommunityForm extends Component<
       nsfw: false,
       icon: null,
       banner: null,
+      auth: UserService.Instance.authField(),
     },
     loading: false,
   };
@@ -70,17 +72,17 @@ export class CommunityForm extends Component<
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
-    if (this.props.community) {
+    let cv = this.props.community_view;
+    if (cv) {
       this.state.communityForm = {
-        name: this.props.community.name,
-        title: this.props.community.title,
-        category_id: this.props.community.category_id,
-        description: this.props.community.description,
-        edit_id: this.props.community.id,
-        nsfw: this.props.community.nsfw,
-        icon: this.props.community.icon,
-        banner: this.props.community.banner,
-        auth: null,
+        name: cv.community.name,
+        title: cv.community.title,
+        category_id: cv.category.id,
+        description: cv.community.description,
+        nsfw: cv.community.nsfw,
+        icon: cv.community.icon,
+        banner: cv.community.banner,
+        auth: UserService.Instance.authField(),
       };
     }
 
@@ -88,6 +90,7 @@ export class CommunityForm extends Component<
     this.subscription = wsSubscribe(this.parseMessage);
   }
 
+  // TODO this should be checked out
   componentDidUpdate() {
     if (
       !this.state.loading &&
@@ -119,7 +122,7 @@ export class CommunityForm extends Component<
           message={i18n.t('block_leaving')}
         />
         <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
-          {!this.props.community && (
+          {!this.props.community_view && (
             <div class="form-group row">
               <label class="col-12 col-form-label" htmlFor="community-name">
                 {i18n.t('name')}
@@ -250,13 +253,13 @@ export class CommunityForm extends Component<
                   <svg class="icon icon-spinner spin">
                     <use xlinkHref="#icon-spinner"></use>
                   </svg>
-                ) : this.props.community ? (
+                ) : this.props.community_view ? (
                   capitalizeFirstLetter(i18n.t('save'))
                 ) : (
                   capitalizeFirstLetter(i18n.t('create'))
                 )}
               </button>
-              {this.props.community && (
+              {this.props.community_view && (
                 <button
                   type="button"
                   class="btn btn-secondary"
@@ -275,10 +278,14 @@ export class CommunityForm extends Component<
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
     i.state.loading = true;
-    if (i.props.community) {
-      WebSocketService.Instance.editCommunity(i.state.communityForm);
+    if (i.props.community_view) {
+      let form: EditCommunity = {
+        ...i.state.communityForm,
+        edit_id: i.props.community_view.community.id,
+      };
+      WebSocketService.Instance.client.editCommunity(form);
     } else {
-      WebSocketService.Instance.createCommunity(i.state.communityForm);
+      WebSocketService.Instance.client.createCommunity(i.state.communityForm);
     }
     i.setState(i.state);
   }
@@ -332,22 +339,21 @@ export class CommunityForm extends Component<
     this.setState(this.state);
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
-    console.log(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       this.state.loading = false;
       this.setState(this.state);
       return;
-    } else if (res.op == UserOperation.CreateCommunity) {
-      let data = res.data as CommunityResponse;
+    } else if (op == UserOperation.CreateCommunity) {
+      let data = wsJsonToRes<CommunityResponse>(msg).data;
       this.state.loading = false;
-      this.props.onCreate(data.community);
-    } else if (res.op == UserOperation.EditCommunity) {
-      let data = res.data as CommunityResponse;
+      this.props.onCreate(data.community_view);
+    } else if (op == UserOperation.EditCommunity) {
+      let data = wsJsonToRes<CommunityResponse>(msg).data;
       this.state.loading = false;
-      this.props.onEdit(data.community);
+      this.props.onEdit(data.community_view);
     }
   }
 }

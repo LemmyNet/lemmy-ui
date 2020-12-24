@@ -3,26 +3,25 @@ import { Link } from 'inferno-router';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
-  CommunityUser,
+  CommunityFollowerView,
   GetFollowedCommunitiesResponse,
-  ListCommunitiesForm,
+  ListCommunities,
   ListCommunitiesResponse,
-  Community,
+  CommunityView,
   SortType,
   GetSiteResponse,
   ListingType,
   SiteResponse,
   GetPostsResponse,
   PostResponse,
-  Post,
-  GetPostsForm,
-  Comment,
-  GetCommentsForm,
+  PostView,
+  GetPosts,
+  CommentView,
+  GetComments,
   GetCommentsResponse,
   CommentResponse,
   AddAdminResponse,
   BanUserResponse,
-  WebSocketJsonResponse,
 } from 'lemmy-js-client';
 import { DataType, InitialFetchRequest } from '../interfaces';
 import { WebSocketService, UserService } from '../services';
@@ -55,20 +54,20 @@ import {
   setIsoData,
   wsSubscribe,
   isBrowser,
-  setAuth,
+  wsUserOp,
 } from '../utils';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
 import { HtmlTags } from './html-tags';
 
 interface MainState {
-  subscribedCommunities: CommunityUser[];
-  trendingCommunities: Community[];
+  subscribedCommunities: CommunityFollowerView[];
+  trendingCommunities: CommunityView[];
   siteRes: GetSiteResponse;
   showEditSite: boolean;
   loading: boolean;
-  posts: Post[];
-  comments: Comment[];
+  posts: PostView[];
+  comments: CommentView[];
   listingType: ListingType;
   dataType: DataType;
   sort: SortType;
@@ -95,7 +94,7 @@ export class Main extends Component<any, MainState> {
   private emptyState: MainState = {
     subscribedCommunities: [],
     trendingCommunities: [],
-    siteRes: this.isoData.site,
+    siteRes: this.isoData.site_res,
     showEditSite: false,
     loading: true,
     posts: [],
@@ -134,7 +133,9 @@ export class Main extends Component<any, MainState> {
       this.fetchTrendingCommunities();
       this.fetchData();
       if (UserService.Instance.user) {
-        WebSocketService.Instance.getFollowedCommunities();
+        WebSocketService.Instance.client.getFollowedCommunities({
+          auth: UserService.Instance.authField(),
+        });
       }
     }
 
@@ -142,20 +143,21 @@ export class Main extends Component<any, MainState> {
   }
 
   fetchTrendingCommunities() {
-    let listCommunitiesForm: ListCommunitiesForm = {
+    let listCommunitiesForm: ListCommunities = {
       sort: SortType.Hot,
       limit: 6,
+      auth: UserService.Instance.authField(false),
     };
-    WebSocketService.Instance.listCommunities(listCommunitiesForm);
+    WebSocketService.Instance.client.listCommunities(listCommunitiesForm);
   }
 
   componentDidMount() {
     // This means it hasn't been set up yet
-    if (!this.state.siteRes.site) {
+    if (!this.state.siteRes.site_view) {
       this.context.router.history.push('/setup');
     }
 
-    WebSocketService.Instance.communityJoin({ community_id: 0 });
+    WebSocketService.Instance.client.communityJoin({ community_id: 0 });
   }
 
   componentWillUnmount() {
@@ -199,26 +201,26 @@ export class Main extends Component<any, MainState> {
     let promises: Promise<any>[] = [];
 
     if (dataType == DataType.Post) {
-      let getPostsForm: GetPostsForm = {
+      let getPostsForm: GetPosts = {
         page,
         limit: fetchLimit,
         sort,
         type_,
+        auth: req.auth,
       };
-      setAuth(getPostsForm, req.auth);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
-      let getCommentsForm: GetCommentsForm = {
+      let getCommentsForm: GetComments = {
         page,
         limit: fetchLimit,
         sort,
         type_,
+        auth: req.auth,
       };
-      setAuth(getCommentsForm, req.auth);
       promises.push(req.client.getComments(getCommentsForm));
     }
 
-    let trendingCommunitiesForm: ListCommunitiesForm = {
+    let trendingCommunitiesForm: ListCommunities = {
       sort: SortType.Hot,
       limit: 6,
     };
@@ -245,7 +247,9 @@ export class Main extends Component<any, MainState> {
 
   get documentTitle(): string {
     return `${
-      this.state.siteRes.site ? this.state.siteRes.site.name : 'Lemmy'
+      this.state.siteRes.site_view
+        ? this.state.siteRes.site_view.site.name
+        : 'Lemmy'
     }`;
   }
 
@@ -256,7 +260,7 @@ export class Main extends Component<any, MainState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.state.siteRes.site && (
+        {this.state.siteRes.site_view.site && (
           <div class="row">
             <main role="main" class="col-12 col-md-8">
               {this.posts()}
@@ -316,9 +320,9 @@ export class Main extends Component<any, MainState> {
           </T>
         </h5>
         <ul class="list-inline">
-          {this.state.trendingCommunities.map(community => (
+          {this.state.trendingCommunities.map(cv => (
             <li class="list-inline-item d-inline">
-              <CommunityLink community={community} />
+              <CommunityLink community={cv.community} />
             </li>
           ))}
         </ul>
@@ -338,17 +342,9 @@ export class Main extends Component<any, MainState> {
           </T>
         </h5>
         <ul class="list-inline mb-0">
-          {this.state.subscribedCommunities.map(community => (
+          {this.state.subscribedCommunities.map(cfv => (
             <li class="list-inline-item d-inline">
-              <CommunityLink
-                community={{
-                  name: community.community_name,
-                  id: community.community_id,
-                  local: community.community_local,
-                  actor_id: community.community_actor_id,
-                  icon: community.community_icon,
-                }}
-              />
+              <CommunityLink community={cfv.community} />
             </li>
           ))}
         </ul>
@@ -357,6 +353,7 @@ export class Main extends Component<any, MainState> {
   }
 
   sidebar() {
+    let site = this.state.siteRes.site_view.site;
     return (
       <div>
         {!this.state.showEditSite ? (
@@ -365,14 +362,11 @@ export class Main extends Component<any, MainState> {
               {this.siteName()}
               {this.adminButtons()}
             </div>
-            <BannerIconHeader banner={this.state.siteRes.site.banner} />
+            <BannerIconHeader banner={site.banner} />
             {this.siteInfo()}
           </div>
         ) : (
-          <SiteForm
-            site={this.state.siteRes.site}
-            onCancel={this.handleEditCancel}
-          />
+          <SiteForm site={site} onCancel={this.handleEditCancel} />
         )}
       </div>
     );
@@ -391,7 +385,8 @@ export class Main extends Component<any, MainState> {
   siteInfo() {
     return (
       <div>
-        {this.state.siteRes.site.description && this.siteDescription()}
+        {this.state.siteRes.site_view.site.description &&
+          this.siteDescription()}
         {this.badges()}
         {this.admins()}
       </div>
@@ -406,18 +401,9 @@ export class Main extends Component<any, MainState> {
     return (
       <ul class="mt-1 list-inline small mb-0">
         <li class="list-inline-item">{i18n.t('admins')}:</li>
-        {this.state.siteRes.admins.map(admin => (
+        {this.state.siteRes.admins.map(av => (
           <li class="list-inline-item">
-            <UserListing
-              user={{
-                name: admin.name,
-                preferred_username: admin.preferred_username,
-                avatar: admin.avatar,
-                local: admin.local,
-                actor_id: admin.actor_id,
-                id: admin.id,
-              }}
-            />
+            <UserListing user={av.user} />
           </li>
         ))}
       </ul>
@@ -425,6 +411,7 @@ export class Main extends Component<any, MainState> {
   }
 
   badges() {
+    let site_view = this.state.siteRes.site_view;
     return (
       <ul class="my-2 list-inline">
         <li className="list-inline-item badge badge-secondary">
@@ -432,22 +419,22 @@ export class Main extends Component<any, MainState> {
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_users', {
-            count: this.state.siteRes.site.number_of_users,
+            count: site_view.counts.users,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_communities', {
-            count: this.state.siteRes.site.number_of_communities,
+            count: site_view.counts.communities,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_posts', {
-            count: this.state.siteRes.site.number_of_posts,
+            count: site_view.counts.posts,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_comments', {
-            count: this.state.siteRes.site.number_of_comments,
+            count: site_view.counts.comments,
           })}
         </li>
         <li className="list-inline-item">
@@ -483,7 +470,9 @@ export class Main extends Component<any, MainState> {
     return (
       <div
         className="md-div"
-        dangerouslySetInnerHTML={mdToHtml(this.state.siteRes.site.description)}
+        dangerouslySetInnerHTML={mdToHtml(
+          this.state.siteRes.site_view.site.description
+        )}
       />
     );
   }
@@ -509,14 +498,15 @@ export class Main extends Component<any, MainState> {
   }
 
   listings() {
+    let site = this.state.siteRes.site_view.site;
     return this.state.dataType == DataType.Post ? (
       <PostListings
         posts={this.state.posts}
         showCommunity
         removeDuplicates
         sort={this.state.sort}
-        enableDownvotes={this.state.siteRes.site.enable_downvotes}
-        enableNsfw={this.state.siteRes.site.enable_nsfw}
+        enableDownvotes={site.enable_downvotes}
+        enableNsfw={site.enable_nsfw}
       />
     ) : (
       <CommentNodes
@@ -525,7 +515,7 @@ export class Main extends Component<any, MainState> {
         showCommunity
         sortType={this.state.sort}
         showContext
-        enableDownvotes={this.state.siteRes.site.enable_downvotes}
+        enableDownvotes={site.enable_downvotes}
       />
     );
   }
@@ -615,8 +605,8 @@ export class Main extends Component<any, MainState> {
 
   get showLocal(): boolean {
     return (
-      this.isoData.site.federated_instances !== null &&
-      this.isoData.site.federated_instances.length > 0
+      this.isoData.site_res.federated_instances !== null &&
+      this.isoData.site_res.federated_instances.length > 0
     );
   }
 
@@ -624,7 +614,7 @@ export class Main extends Component<any, MainState> {
     return (
       UserService.Instance.user &&
       this.state.siteRes.admins
-        .map(a => a.id)
+        .map(a => a.user.id)
         .includes(UserService.Instance.user.id)
     );
   }
@@ -666,69 +656,70 @@ export class Main extends Component<any, MainState> {
 
   fetchData() {
     if (this.state.dataType == DataType.Post) {
-      let getPostsForm: GetPostsForm = {
+      let getPostsForm: GetPosts = {
         page: this.state.page,
         limit: fetchLimit,
         sort: this.state.sort,
         type_: this.state.listingType,
+        auth: UserService.Instance.authField(false),
       };
-      WebSocketService.Instance.getPosts(getPostsForm);
+      WebSocketService.Instance.client.getPosts(getPostsForm);
     } else {
-      let getCommentsForm: GetCommentsForm = {
+      let getCommentsForm: GetComments = {
         page: this.state.page,
         limit: fetchLimit,
         sort: this.state.sort,
         type_: this.state.listingType,
+        auth: UserService.Instance.authField(false),
       };
-      WebSocketService.Instance.getComments(getCommentsForm);
+      WebSocketService.Instance.client.getComments(getCommentsForm);
     }
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       return;
     } else if (msg.reconnect) {
-      WebSocketService.Instance.communityJoin({ community_id: 0 });
+      WebSocketService.Instance.client.communityJoin({ community_id: 0 });
       this.fetchData();
-    } else if (res.op == UserOperation.GetFollowedCommunities) {
-      let data = res.data as GetFollowedCommunitiesResponse;
+    } else if (op == UserOperation.GetFollowedCommunities) {
+      let data = wsJsonToRes<GetFollowedCommunitiesResponse>(msg).data;
       this.state.subscribedCommunities = data.communities;
       this.setState(this.state);
-    } else if (res.op == UserOperation.ListCommunities) {
-      let data = res.data as ListCommunitiesResponse;
+    } else if (op == UserOperation.ListCommunities) {
+      let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
       this.state.trendingCommunities = data.communities;
       this.setState(this.state);
-    } else if (res.op == UserOperation.EditSite) {
-      let data = res.data as SiteResponse;
-      this.state.siteRes.site = data.site;
+    } else if (op == UserOperation.EditSite) {
+      let data = wsJsonToRes<SiteResponse>(msg).data;
+      this.state.siteRes.site_view = data.site_view;
       this.state.showEditSite = false;
       this.setState(this.state);
       toast(i18n.t('site_saved'));
-    } else if (res.op == UserOperation.GetPosts) {
-      let data = res.data as GetPostsResponse;
+    } else if (op == UserOperation.GetPosts) {
+      let data = wsJsonToRes<GetPostsResponse>(msg).data;
       this.state.posts = data.posts;
       this.state.loading = false;
       this.setState(this.state);
       setupTippy();
-    } else if (res.op == UserOperation.CreatePost) {
-      let data = res.data as PostResponse;
+    } else if (op == UserOperation.CreatePost) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
 
       // If you're on subscribed, only push it if you're subscribed.
       if (this.state.listingType == ListingType.Subscribed) {
         if (
           this.state.subscribedCommunities
-            .map(c => c.community_id)
-            .includes(data.post.community_id)
+            .map(c => c.community.id)
+            .includes(data.post_view.community.id)
         ) {
-          this.state.posts.unshift(data.post);
-          notifyPost(data.post, this.context.router);
+          this.state.posts.unshift(data.post_view);
+          notifyPost(data.post_view, this.context.router);
         }
       } else {
         // NSFW posts
-        let nsfw = data.post.nsfw || data.post.community_nsfw;
+        let nsfw = data.post_view.post.nsfw || data.post_view.community.nsfw;
 
         // Don't push the post if its nsfw, and don't have that setting on
         if (
@@ -737,63 +728,65 @@ export class Main extends Component<any, MainState> {
             UserService.Instance.user &&
             UserService.Instance.user.show_nsfw)
         ) {
-          this.state.posts.unshift(data.post);
-          notifyPost(data.post, this.context.router);
+          this.state.posts.unshift(data.post_view);
+          notifyPost(data.post_view, this.context.router);
         }
       }
       this.setState(this.state);
     } else if (
-      res.op == UserOperation.EditPost ||
-      res.op == UserOperation.DeletePost ||
-      res.op == UserOperation.RemovePost ||
-      res.op == UserOperation.LockPost ||
-      res.op == UserOperation.StickyPost ||
-      res.op == UserOperation.SavePost
+      op == UserOperation.EditPost ||
+      op == UserOperation.DeletePost ||
+      op == UserOperation.RemovePost ||
+      op == UserOperation.LockPost ||
+      op == UserOperation.StickyPost ||
+      op == UserOperation.SavePost
     ) {
-      let data = res.data as PostResponse;
-      editPostFindRes(data, this.state.posts);
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      editPostFindRes(data.post_view, this.state.posts);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreatePostLike) {
-      let data = res.data as PostResponse;
-      createPostLikeFindRes(data, this.state.posts);
+    } else if (op == UserOperation.CreatePostLike) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      createPostLikeFindRes(data.post_view, this.state.posts);
       this.setState(this.state);
-    } else if (res.op == UserOperation.AddAdmin) {
-      let data = res.data as AddAdminResponse;
+    } else if (op == UserOperation.AddAdmin) {
+      let data = wsJsonToRes<AddAdminResponse>(msg).data;
       this.state.siteRes.admins = data.admins;
       this.setState(this.state);
-    } else if (res.op == UserOperation.BanUser) {
-      let data = res.data as BanUserResponse;
-      let found = this.state.siteRes.banned.find(u => (u.id = data.user.id));
+    } else if (op == UserOperation.BanUser) {
+      let data = wsJsonToRes<BanUserResponse>(msg).data;
+      let found = this.state.siteRes.banned.find(
+        u => (u.user.id = data.user_view.user.id)
+      );
 
       // Remove the banned if its found in the list, and the action is an unban
       if (found && !data.banned) {
         this.state.siteRes.banned = this.state.siteRes.banned.filter(
-          i => i.id !== data.user.id
+          i => i.user.id !== data.user_view.user.id
         );
       } else {
-        this.state.siteRes.banned.push(data.user);
+        this.state.siteRes.banned.push(data.user_view);
       }
 
       this.state.posts
-        .filter(p => p.creator_id == data.user.id)
-        .forEach(p => (p.banned = data.banned));
+        .filter(p => p.creator.id == data.user_view.user.id)
+        .forEach(p => (p.creator.banned = data.banned));
 
       this.setState(this.state);
-    } else if (res.op == UserOperation.GetComments) {
-      let data = res.data as GetCommentsResponse;
+    } else if (op == UserOperation.GetComments) {
+      let data = wsJsonToRes<GetCommentsResponse>(msg).data;
       this.state.comments = data.comments;
       this.state.loading = false;
       this.setState(this.state);
     } else if (
-      res.op == UserOperation.EditComment ||
-      res.op == UserOperation.DeleteComment ||
-      res.op == UserOperation.RemoveComment
+      op == UserOperation.EditComment ||
+      op == UserOperation.DeleteComment ||
+      op == UserOperation.RemoveComment
     ) {
-      let data = res.data as CommentResponse;
-      editCommentRes(data, this.state.comments);
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      editCommentRes(data.comment_view, this.state.comments);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateComment) {
-      let data = res.data as CommentResponse;
+    } else if (op == UserOperation.CreateComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
 
       // Necessary since it might be a user reply
       if (data.recipient_ids.length == 0) {
@@ -801,23 +794,23 @@ export class Main extends Component<any, MainState> {
         if (this.state.listingType == ListingType.Subscribed) {
           if (
             this.state.subscribedCommunities
-              .map(c => c.community_id)
-              .includes(data.comment.community_id)
+              .map(c => c.community.id)
+              .includes(data.comment_view.community.id)
           ) {
-            this.state.comments.unshift(data.comment);
+            this.state.comments.unshift(data.comment_view);
           }
         } else {
-          this.state.comments.unshift(data.comment);
+          this.state.comments.unshift(data.comment_view);
         }
         this.setState(this.state);
       }
-    } else if (res.op == UserOperation.SaveComment) {
-      let data = res.data as CommentResponse;
-      saveCommentRes(data, this.state.comments);
+    } else if (op == UserOperation.SaveComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      saveCommentRes(data.comment_view, this.state.comments);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateCommentLike) {
-      let data = res.data as CommentResponse;
-      createCommentLikeRes(data, this.state.comments);
+    } else if (op == UserOperation.CreateCommentLike) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      createCommentLikeRes(data.comment_view, this.state.comments);
       this.setState(this.state);
     }
   }

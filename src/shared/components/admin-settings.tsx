@@ -4,12 +4,11 @@ import {
   UserOperation,
   SiteResponse,
   GetSiteResponse,
-  SiteConfigForm,
+  SaveSiteConfig,
   GetSiteConfigResponse,
-  WebSocketJsonResponse,
   GetSiteConfig,
 } from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+import { UserService, WebSocketService } from '../services';
 import {
   wsJsonToRes,
   capitalizeFirstLetter,
@@ -18,7 +17,7 @@ import {
   setIsoData,
   wsSubscribe,
   isBrowser,
-  setAuth,
+  wsUserOp,
 } from '../utils';
 import autosize from 'autosize';
 import { SiteForm } from './site-form';
@@ -30,7 +29,7 @@ import { InitialFetchRequest } from 'shared/interfaces';
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
   siteConfigRes: GetSiteConfigResponse;
-  siteConfigForm: SiteConfigForm;
+  siteConfigForm: SaveSiteConfig;
   loading: boolean;
   siteConfigLoading: boolean;
 }
@@ -40,10 +39,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: AdminSettingsState = {
-    siteRes: this.isoData.site,
+    siteRes: this.isoData.site_res,
     siteConfigForm: {
       config_hjson: null,
-      auth: null,
+      auth: UserService.Instance.authField(),
     },
     siteConfigRes: {
       config_hjson: null,
@@ -67,13 +66,14 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state.siteConfigLoading = false;
       this.state.loading = false;
     } else {
-      WebSocketService.Instance.getSiteConfig();
+      WebSocketService.Instance.client.getSiteConfig({
+        auth: UserService.Instance.authField(),
+      });
     }
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let form: GetSiteConfig = {};
-    setAuth(form, req.auth);
+    let form: GetSiteConfig = { auth: req.auth };
     return [req.client.getSiteConfig(form)];
   }
 
@@ -91,7 +91,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('admin_settings')} - ${this.state.siteRes.site.name}`;
+    return `${i18n.t('admin_settings')} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   render() {
@@ -110,8 +112,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         ) : (
           <div class="row">
             <div class="col-12 col-md-6">
-              {this.state.siteRes.site.id && (
-                <SiteForm site={this.state.siteRes.site} />
+              {this.state.siteRes.site_view.site.id && (
+                <SiteForm site={this.state.siteRes.site_view.site} />
               )}
               {this.admins()}
               {this.bannedUsers()}
@@ -130,16 +132,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         <ul class="list-unstyled">
           {this.state.siteRes.admins.map(admin => (
             <li class="list-inline-item">
-              <UserListing
-                user={{
-                  name: admin.name,
-                  preferred_username: admin.preferred_username,
-                  avatar: admin.avatar,
-                  id: admin.id,
-                  local: admin.local,
-                  actor_id: admin.actor_id,
-                }}
-              />
+              <UserListing user={admin.user} />
             </li>
           ))}
         </ul>
@@ -154,16 +147,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         <ul class="list-unstyled">
           {this.state.siteRes.banned.map(banned => (
             <li class="list-inline-item">
-              <UserListing
-                user={{
-                  name: banned.name,
-                  preferred_username: banned.preferred_username,
-                  avatar: banned.avatar,
-                  id: banned.id,
-                  local: banned.local,
-                  actor_id: banned.actor_id,
-                }}
-              />
+              <UserListing user={banned.user} />
             </li>
           ))}
         </ul>
@@ -214,7 +198,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   handleSiteConfigSubmit(i: AdminSettings, event: any) {
     event.preventDefault();
     i.state.siteConfigLoading = true;
-    WebSocketService.Instance.saveSiteConfig(i.state.siteConfigForm);
+    WebSocketService.Instance.client.saveSiteConfig(i.state.siteConfigForm);
     i.setState(i.state);
   }
 
@@ -223,9 +207,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     i.setState(i.state);
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       this.context.router.history.push('/');
@@ -233,21 +216,21 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.setState(this.state);
       return;
     } else if (msg.reconnect) {
-    } else if (res.op == UserOperation.EditSite) {
-      let data = res.data as SiteResponse;
-      this.state.siteRes.site = data.site;
+    } else if (op == UserOperation.EditSite) {
+      let data = wsJsonToRes<SiteResponse>(msg).data;
+      this.state.siteRes.site_view = data.site_view;
       this.setState(this.state);
       toast(i18n.t('site_saved'));
-    } else if (res.op == UserOperation.GetSiteConfig) {
-      let data = res.data as GetSiteConfigResponse;
+    } else if (op == UserOperation.GetSiteConfig) {
+      let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
       this.state.loading = false;
       this.state.siteConfigForm.config_hjson = this.state.siteConfigRes.config_hjson;
       this.setState(this.state);
       var textarea: any = document.getElementById(this.siteConfigTextAreaId);
       autosize(textarea);
-    } else if (res.op == UserOperation.SaveSiteConfig) {
-      let data = res.data as GetSiteConfigResponse;
+    } else if (op == UserOperation.SaveSiteConfig) {
+      let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
       this.state.siteConfigForm.config_hjson = this.state.siteConfigRes.config_hjson;
       this.state.siteConfigLoading = false;

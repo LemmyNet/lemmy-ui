@@ -1,13 +1,20 @@
 import { Component, linkEvent } from 'inferno';
 import { i18n } from '../i18next';
-import { Post, Comment, SortType, UserDetailsResponse } from 'lemmy-js-client';
+import {
+  PostView,
+  CommentView,
+  SortType,
+  GetUserDetailsResponse,
+  UserViewSafe,
+} from 'lemmy-js-client';
 import { UserDetailsView } from '../interfaces';
 import { commentsToFlatNodes, setupTippy } from '../utils';
 import { PostListing } from './post-listing';
 import { CommentNodes } from './comment-nodes';
 
 interface UserDetailsProps {
-  userRes: UserDetailsResponse;
+  userRes: GetUserDetailsResponse;
+  admins: UserViewSafe[];
   page: number;
   limit: number;
   sort: SortType;
@@ -18,6 +25,18 @@ interface UserDetailsProps {
 }
 
 interface UserDetailsState {}
+
+enum ItemEnum {
+  Comment,
+  Post,
+}
+type ItemType = {
+  id: number;
+  type_: ItemEnum;
+  view: CommentView | PostView;
+  published: string;
+  score: number;
+};
 
 export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
   constructor(props: any, context: any) {
@@ -60,56 +79,68 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
     }
   }
 
-  overview() {
-    const comments = this.props.userRes.comments.map((c: Comment) => {
-      return { type: 'comments', data: c };
-    });
-    const posts = this.props.userRes.posts.map((p: Post) => {
-      return { type: 'posts', data: p };
-    });
+  renderItemType(i: ItemType) {
+    switch (i.type_) {
+      case ItemEnum.Comment:
+        let c = i.view as CommentView;
+        return (
+          <CommentNodes
+            key={i.id}
+            nodes={[{ comment_view: c }]}
+            admins={this.props.admins}
+            noBorder
+            noIndent
+            showCommunity
+            showContext
+            enableDownvotes={this.props.enableDownvotes}
+          />
+        );
+      case ItemEnum.Post:
+        let p = i.view as PostView;
+        return (
+          <PostListing
+            key={i.id}
+            post_view={p}
+            admins={this.props.admins}
+            showCommunity
+            enableDownvotes={this.props.enableDownvotes}
+            enableNsfw={this.props.enableNsfw}
+          />
+        );
+      default:
+        return <div />;
+    }
+  }
 
-    const combined: { type: string; data: Comment | Post }[] = [
-      ...comments,
-      ...posts,
-    ];
+  overview() {
+    let id = 0;
+    let comments: ItemType[] = this.props.userRes.comments.map(r => ({
+      id: id++,
+      type_: ItemEnum.Comment,
+      view: r,
+      published: r.comment.published,
+      score: r.counts.score,
+    }));
+    let posts: ItemType[] = this.props.userRes.posts.map(r => ({
+      id: id++,
+      type_: ItemEnum.Comment,
+      view: r,
+      published: r.post.published,
+      score: r.counts.score,
+    }));
+
+    let combined = [...comments, ...posts];
 
     // Sort it
     if (this.props.sort === SortType.New) {
-      combined.sort((a, b) => b.data.published.localeCompare(a.data.published));
+      combined.sort((a, b) => b.published.localeCompare(a.published));
     } else {
-      combined.sort((a, b) => b.data.score - a.data.score);
+      combined.sort((a, b) => b.score - a.score);
     }
 
     return (
       <div>
-        {combined.map(i => (
-          <>
-            <div>
-              {i.type === 'posts' ? (
-                <PostListing
-                  key={(i.data as Post).id}
-                  post={i.data as Post}
-                  admins={this.props.userRes.admins}
-                  showCommunity
-                  enableDownvotes={this.props.enableDownvotes}
-                  enableNsfw={this.props.enableNsfw}
-                />
-              ) : (
-                <CommentNodes
-                  key={(i.data as Comment).id}
-                  nodes={[{ comment: i.data as Comment }]}
-                  admins={this.props.userRes.admins}
-                  noBorder
-                  noIndent
-                  showCommunity
-                  showContext
-                  enableDownvotes={this.props.enableDownvotes}
-                />
-              )}
-            </div>
-            <hr class="my-3" />
-          </>
-        ))}
+        {combined.map(i => [this.renderItemType(i), <hr class="my-3" />])}
       </div>
     );
   }
@@ -119,7 +150,7 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
       <div>
         <CommentNodes
           nodes={commentsToFlatNodes(this.props.userRes.comments)}
-          admins={this.props.userRes.admins}
+          admins={this.props.admins}
           noIndent
           showCommunity
           showContext
@@ -135,8 +166,8 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
         {this.props.userRes.posts.map(post => (
           <>
             <PostListing
-              post={post}
-              admins={this.props.userRes.admins}
+              post_view={post}
+              admins={this.props.admins}
               showCommunity
               enableDownvotes={this.props.enableDownvotes}
               enableNsfw={this.props.enableNsfw}

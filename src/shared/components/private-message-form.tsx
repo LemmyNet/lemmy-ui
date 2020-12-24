@@ -2,15 +2,14 @@ import { Component, linkEvent } from 'inferno';
 import { Prompt } from 'inferno-router';
 import { Subscription } from 'rxjs';
 import {
-  PrivateMessageForm as PrivateMessageFormI,
-  EditPrivateMessageForm,
-  PrivateMessage,
+  CreatePrivateMessage,
+  EditPrivateMessage,
+  PrivateMessageView,
   PrivateMessageResponse,
-  UserView,
+  UserSafe,
   UserOperation,
-  WebSocketJsonResponse,
 } from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+import { UserService, WebSocketService } from '../services';
 import {
   capitalizeFirstLetter,
   wsJsonToRes,
@@ -18,6 +17,7 @@ import {
   setupTippy,
   wsSubscribe,
   isBrowser,
+  wsUserOp,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { MarkdownTextArea } from './markdown-textarea';
@@ -25,15 +25,15 @@ import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
 
 interface PrivateMessageFormProps {
-  recipient: UserView;
-  privateMessage?: PrivateMessage; // If a pm is given, that means this is an edit
+  recipient: UserSafe;
+  privateMessage?: PrivateMessageView; // If a pm is given, that means this is an edit
   onCancel?(): any;
-  onCreate?(message: PrivateMessage): any;
-  onEdit?(message: PrivateMessage): any;
+  onCreate?(message: PrivateMessageView): any;
+  onEdit?(message: PrivateMessageView): any;
 }
 
 interface PrivateMessageFormState {
-  privateMessageForm: PrivateMessageFormI;
+  privateMessageForm: CreatePrivateMessage;
   loading: boolean;
   previewMode: boolean;
   showDisclaimer: boolean;
@@ -48,6 +48,7 @@ export class PrivateMessageForm extends Component<
     privateMessageForm: {
       content: null,
       recipient_id: this.props.recipient.id,
+      auth: UserService.Instance.authField(),
     },
     loading: false,
     previewMode: false,
@@ -64,11 +65,9 @@ export class PrivateMessageForm extends Component<
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
+    // Its an edit
     if (this.props.privateMessage) {
-      this.state.privateMessageForm = {
-        content: this.props.privateMessage.content,
-        recipient_id: this.props.privateMessage.recipient_id,
-      };
+      this.state.privateMessageForm.content = this.props.privateMessage.private_message.content;
     }
   }
 
@@ -106,16 +105,7 @@ export class PrivateMessageForm extends Component<
               </label>
 
               <div class="col-sm-10 form-control-plaintext">
-                <UserListing
-                  user={{
-                    name: this.props.recipient.name,
-                    preferred_username: this.props.recipient.preferred_username,
-                    avatar: this.props.recipient.avatar,
-                    id: this.props.recipient.id,
-                    local: this.props.recipient.local,
-                    actor_id: this.props.recipient.actor_id,
-                  }}
-                />
+                <UserListing user={this.props.recipient} />
               </div>
             </div>
           )}
@@ -198,13 +188,14 @@ export class PrivateMessageForm extends Component<
   handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
     event.preventDefault();
     if (i.props.privateMessage) {
-      let editForm: EditPrivateMessageForm = {
-        edit_id: i.props.privateMessage.id,
+      let form: EditPrivateMessage = {
+        edit_id: i.props.privateMessage.private_message.id,
         content: i.state.privateMessageForm.content,
+        auth: UserService.Instance.authField(),
       };
-      WebSocketService.Instance.editPrivateMessage(editForm);
+      WebSocketService.Instance.client.editPrivateMessage(form);
     } else {
-      WebSocketService.Instance.createPrivateMessage(
+      WebSocketService.Instance.client.createPrivateMessage(
         i.state.privateMessageForm
       );
     }
@@ -232,25 +223,25 @@ export class PrivateMessageForm extends Component<
     i.setState(i.state);
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       this.state.loading = false;
       this.setState(this.state);
       return;
     } else if (
-      res.op == UserOperation.EditPrivateMessage ||
-      res.op == UserOperation.DeletePrivateMessage ||
-      res.op == UserOperation.MarkPrivateMessageAsRead
+      op == UserOperation.EditPrivateMessage ||
+      op == UserOperation.DeletePrivateMessage ||
+      op == UserOperation.MarkPrivateMessageAsRead
     ) {
-      let data = res.data as PrivateMessageResponse;
+      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
       this.state.loading = false;
-      this.props.onEdit(data.message);
-    } else if (res.op == UserOperation.CreatePrivateMessage) {
-      let data = res.data as PrivateMessageResponse;
+      this.props.onEdit(data.private_message_view);
+    } else if (op == UserOperation.CreatePrivateMessage) {
+      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
       this.state.loading = false;
-      this.props.onCreate(data.message);
+      this.props.onCreate(data.private_message_view);
       this.setState(this.state);
     }
   }

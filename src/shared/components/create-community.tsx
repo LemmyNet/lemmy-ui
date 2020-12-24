@@ -3,10 +3,9 @@ import { Subscription } from 'rxjs';
 import { CommunityForm } from './community-form';
 import { HtmlTags } from './html-tags';
 import {
-  Community,
+  CommunityView,
   UserOperation,
-  WebSocketJsonResponse,
-  Site,
+  SiteView,
   ListCategoriesResponse,
   Category,
 } from 'lemmy-js-client';
@@ -16,13 +15,14 @@ import {
   wsJsonToRes,
   wsSubscribe,
   isBrowser,
+  wsUserOp,
 } from '../utils';
 import { WebSocketService, UserService } from '../services';
 import { i18n } from '../i18next';
 import { InitialFetchRequest } from 'shared/interfaces';
 
 interface CreateCommunityState {
-  site: Site;
+  site_view: SiteView;
   categories: Category[];
   loading: boolean;
 }
@@ -31,7 +31,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: CreateCommunityState = {
-    site: this.isoData.site.site,
+    site_view: this.isoData.site_res.site_view,
     categories: [],
     loading: true,
   };
@@ -53,7 +53,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
       this.state.categories = this.isoData.routeData[0].categories;
       this.state.loading = false;
     } else {
-      WebSocketService.Instance.listCategories();
+      WebSocketService.Instance.client.listCategories();
     }
   }
 
@@ -64,7 +64,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('create_community')} - ${this.state.site.name}`;
+    return `${i18n.t('create_community')} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -87,7 +87,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
               <CommunityForm
                 categories={this.state.categories}
                 onCreate={this.handleCommunityCreate}
-                enableNsfw={this.state.site.enable_nsfw}
+                enableNsfw={this.state.site_view.site.enable_nsfw}
               />
             </div>
           </div>
@@ -96,22 +96,21 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
     );
   }
 
-  handleCommunityCreate(community: Community) {
-    this.props.history.push(`/c/${community.name}`);
+  handleCommunityCreate(cv: CommunityView) {
+    this.props.history.push(`/c/${cv.community.name}`);
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     return [req.client.listCategories()];
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       // Toast errors are already handled by community-form
       return;
-    } else if (res.op == UserOperation.ListCategories) {
-      let data = res.data as ListCategoriesResponse;
+    } else if (op == UserOperation.ListCategories) {
+      let data = wsJsonToRes<ListCategoriesResponse>(msg).data;
       this.state.categories = data.categories;
       this.state.loading = false;
       this.setState(this.state);

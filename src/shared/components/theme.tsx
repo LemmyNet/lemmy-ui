@@ -1,9 +1,9 @@
-import { User } from 'lemmy-js-client';
+import { User_ } from 'lemmy-js-client';
 import { Helmet } from 'inferno-helmet';
 import { Component } from 'inferno';
 
 interface Props {
-  user: User | undefined;
+  user: User_ | undefined;
 }
 
 export class Theme extends Component<Props> {

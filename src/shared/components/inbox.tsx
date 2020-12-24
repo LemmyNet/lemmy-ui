@@ -2,26 +2,25 @@ import { Component, linkEvent } from 'inferno';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
-  Comment,
+  CommentView,
   SortType,
-  GetRepliesForm,
+  GetReplies,
   GetRepliesResponse,
-  GetUserMentionsForm,
+  GetUserMentions,
   GetUserMentionsResponse,
   UserMentionResponse,
   CommentResponse,
-  WebSocketJsonResponse,
-  PrivateMessage as PrivateMessageI,
-  GetPrivateMessagesForm,
+  PrivateMessageView,
+  GetPrivateMessages,
   PrivateMessagesResponse,
   PrivateMessageResponse,
-  Site,
+  SiteView,
+  UserMentionView,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
 import {
   wsJsonToRes,
   fetchLimit,
-  isCommentType,
   toast,
   editCommentRes,
   saveCommentRes,
@@ -30,8 +29,8 @@ import {
   setupTippy,
   setIsoData,
   wsSubscribe,
-  setAuth,
   isBrowser,
+  wsUserOp,
 } from '../utils';
 import { CommentNodes } from './comment-nodes';
 import { PrivateMessage } from './private-message';
@@ -52,17 +51,27 @@ enum MessageType {
   Messages,
 }
 
-type ReplyType = Comment | PrivateMessageI;
+enum ReplyEnum {
+  Reply,
+  Mention,
+  Message,
+}
+type ReplyType = {
+  id: number;
+  type_: ReplyEnum;
+  view: CommentView | PrivateMessageView | UserMentionView;
+  published: string;
+};
 
 interface InboxState {
   unreadOrAll: UnreadOrAll;
   messageType: MessageType;
-  replies: Comment[];
-  mentions: Comment[];
-  messages: PrivateMessageI[];
+  replies: CommentView[];
+  mentions: UserMentionView[];
+  messages: PrivateMessageView[];
   sort: SortType;
   page: number;
-  site: Site;
+  site_view: SiteView;
   loading: boolean;
 }
 
@@ -77,7 +86,7 @@ export class Inbox extends Component<any, InboxState> {
     messages: [],
     sort: SortType.New,
     page: 1,
-    site: this.isoData.site.site,
+    site_view: this.isoData.site_res.site_view,
     loading: true,
   };
 
@@ -115,7 +124,7 @@ export class Inbox extends Component<any, InboxState> {
 
   get documentTitle(): string {
     return `@${UserService.Instance.user.name} ${i18n.t('inbox')} - ${
-      this.state.site.name
+      this.state.site_view.site.name
     }`;
   }
 
@@ -288,33 +297,71 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   combined(): ReplyType[] {
-    return [
-      ...this.state.replies,
-      ...this.state.mentions,
-      ...this.state.messages,
-    ].sort((a, b) => b.published.localeCompare(a.published));
+    let id = 0;
+    let replies: ReplyType[] = this.state.replies.map(r => ({
+      id: id++,
+      type_: ReplyEnum.Reply,
+      view: r,
+      published: r.comment.published,
+    }));
+    let mentions: ReplyType[] = this.state.mentions.map(r => ({
+      id: id++,
+      type_: ReplyEnum.Mention,
+      view: r,
+      published: r.comment.published,
+    }));
+    let messages: ReplyType[] = this.state.messages.map(r => ({
+      id: id++,
+      type_: ReplyEnum.Message,
+      view: r,
+      published: r.private_message.published,
+    }));
+
+    return [...replies, ...mentions, ...messages].sort((a, b) =>
+      b.published.localeCompare(a.published)
+    );
+  }
+
+  renderReplyType(i: ReplyType) {
+    switch (i.type_) {
+      case ReplyEnum.Reply:
+        return (
+          <CommentNodes
+            key={i.id}
+            nodes={[{ comment_view: i.view as CommentView }]}
+            noIndent
+            markable
+            showCommunity
+            showContext
+            enableDownvotes={this.state.site_view.site.enable_downvotes}
+          />
+        );
+      case ReplyEnum.Mention:
+        return (
+          <CommentNodes
+            key={i.id}
+            nodes={[{ comment_view: i.view as UserMentionView }]}
+            noIndent
+            markable
+            showCommunity
+            showContext
+            enableDownvotes={this.state.site_view.site.enable_downvotes}
+          />
+        );
+      case ReplyEnum.Message:
+        return (
+          <PrivateMessage
+            key={i.id}
+            private_message_view={i.view as PrivateMessageView}
+          />
+        );
+      default:
+        return <div />;
+    }
   }
 
   all() {
-    return (
-      <div>
-        {this.combined().map(i =>
-          isCommentType(i) ? (
-            <CommentNodes
-              key={i.id}
-              nodes={[{ comment: i }]}
-              noIndent
-              markable
-              showCommunity
-              showContext
-              enableDownvotes={this.state.site.enable_downvotes}
-            />
-          ) : (
-            <PrivateMessage key={i.id} privateMessage={i} />
-          )
-        )}
-      </div>
-    );
+    return <div>{this.combined().map(i => this.renderReplyType(i))}</div>;
   }
 
   replies() {
@@ -326,7 +373,7 @@ export class Inbox extends Component<any, InboxState> {
           markable
           showCommunity
           showContext
-          enableDownvotes={this.state.site.enable_downvotes}
+          enableDownvotes={this.state.site_view.site.enable_downvotes}
         />
       </div>
     );
@@ -335,15 +382,15 @@ export class Inbox extends Component<any, InboxState> {
   mentions() {
     return (
       <div>
-        {this.state.mentions.map(mention => (
+        {this.state.mentions.map(umv => (
           <CommentNodes
-            key={mention.id}
-            nodes={[{ comment: mention }]}
+            key={umv.user_mention.id}
+            nodes={[{ comment_view: umv }]}
             noIndent
             markable
             showCommunity
             showContext
-            enableDownvotes={this.state.site.enable_downvotes}
+            enableDownvotes={this.state.site_view.site.enable_downvotes}
           />
         ))}
       </div>
@@ -353,8 +400,11 @@ export class Inbox extends Component<any, InboxState> {
   messages() {
     return (
       <div>
-        {this.state.messages.map(message => (
-          <PrivateMessage key={message.id} privateMessage={message} />
+        {this.state.messages.map(pmv => (
+          <PrivateMessage
+            key={pmv.private_message.id}
+            private_message_view={pmv}
+          />
         ))}
       </div>
     );
@@ -413,58 +463,61 @@ export class Inbox extends Component<any, InboxState> {
     let promises: Promise<any>[] = [];
 
     // It can be /u/me, or /username/1
-    let repliesForm: GetRepliesForm = {
+    let repliesForm: GetReplies = {
       sort: SortType.New,
       unread_only: true,
       page: 1,
       limit: fetchLimit,
+      auth: req.auth,
     };
-    setAuth(repliesForm, req.auth);
     promises.push(req.client.getReplies(repliesForm));
 
-    let userMentionsForm: GetUserMentionsForm = {
+    let userMentionsForm: GetUserMentions = {
       sort: SortType.New,
       unread_only: true,
       page: 1,
       limit: fetchLimit,
+      auth: req.auth,
     };
-    setAuth(userMentionsForm, req.auth);
     promises.push(req.client.getUserMentions(userMentionsForm));
 
-    let privateMessagesForm: GetPrivateMessagesForm = {
+    let privateMessagesForm: GetPrivateMessages = {
       unread_only: true,
       page: 1,
       limit: fetchLimit,
+      auth: req.auth,
     };
-    setAuth(privateMessagesForm, req.auth);
     promises.push(req.client.getPrivateMessages(privateMessagesForm));
 
     return promises;
   }
 
   refetch() {
-    let repliesForm: GetRepliesForm = {
+    let repliesForm: GetReplies = {
       sort: this.state.sort,
       unread_only: this.state.unreadOrAll == UnreadOrAll.Unread,
       page: this.state.page,
       limit: fetchLimit,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.getReplies(repliesForm);
+    WebSocketService.Instance.client.getReplies(repliesForm);
 
-    let userMentionsForm: GetUserMentionsForm = {
+    let userMentionsForm: GetUserMentions = {
       sort: this.state.sort,
       unread_only: this.state.unreadOrAll == UnreadOrAll.Unread,
       page: this.state.page,
       limit: fetchLimit,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.getUserMentions(userMentionsForm);
+    WebSocketService.Instance.client.getUserMentions(userMentionsForm);
 
-    let privateMessagesForm: GetPrivateMessagesForm = {
+    let privateMessagesForm: GetPrivateMessages = {
       unread_only: this.state.unreadOrAll == UnreadOrAll.Unread,
       page: this.state.page,
       limit: fetchLimit,
+      auth: UserService.Instance.authField(),
     };
-    WebSocketService.Instance.getPrivateMessages(privateMessagesForm);
+    WebSocketService.Instance.client.getPrivateMessages(privateMessagesForm);
   }
 
   handleSortChange(val: SortType) {
@@ -475,7 +528,9 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   markAllAsRead(i: Inbox) {
-    WebSocketService.Instance.markAllAsRead();
+    WebSocketService.Instance.client.markAllAsRead({
+      auth: UserService.Instance.authField(),
+    });
     i.state.replies = [];
     i.state.mentions = [];
     i.state.messages = [];
@@ -484,148 +539,182 @@ export class Inbox extends Component<any, InboxState> {
     i.setState(i.state);
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       return;
     } else if (msg.reconnect) {
       this.refetch();
-    } else if (res.op == UserOperation.GetReplies) {
-      let data = res.data as GetRepliesResponse;
+    } else if (op == UserOperation.GetReplies) {
+      let data = wsJsonToRes<GetRepliesResponse>(msg).data;
       this.state.replies = data.replies;
       this.state.loading = false;
       this.sendUnreadCount();
       window.scrollTo(0, 0);
       this.setState(this.state);
       setupTippy();
-    } else if (res.op == UserOperation.GetUserMentions) {
-      let data = res.data as GetUserMentionsResponse;
+    } else if (op == UserOperation.GetUserMentions) {
+      let data = wsJsonToRes<GetUserMentionsResponse>(msg).data;
       this.state.mentions = data.mentions;
       this.sendUnreadCount();
       window.scrollTo(0, 0);
       this.setState(this.state);
       setupTippy();
-    } else if (res.op == UserOperation.GetPrivateMessages) {
-      let data = res.data as PrivateMessagesResponse;
-      this.state.messages = data.messages;
+    } else if (op == UserOperation.GetPrivateMessages) {
+      let data = wsJsonToRes<PrivateMessagesResponse>(msg).data;
+      this.state.messages = data.private_messages;
       this.sendUnreadCount();
       window.scrollTo(0, 0);
       this.setState(this.state);
       setupTippy();
-    } else if (res.op == UserOperation.EditPrivateMessage) {
-      let data = res.data as PrivateMessageResponse;
-      let found: PrivateMessageI = this.state.messages.find(
-        m => m.id === data.message.id
+    } else if (op == UserOperation.EditPrivateMessage) {
+      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      let found: PrivateMessageView = this.state.messages.find(
+        m =>
+          m.private_message.id === data.private_message_view.private_message.id
       );
       if (found) {
-        found.content = data.message.content;
-        found.updated = data.message.updated;
+        found.private_message.content =
+          data.private_message_view.private_message.content;
+        found.private_message.updated =
+          data.private_message_view.private_message.updated;
       }
       this.setState(this.state);
-    } else if (res.op == UserOperation.DeletePrivateMessage) {
-      let data = res.data as PrivateMessageResponse;
-      let found: PrivateMessageI = this.state.messages.find(
-        m => m.id === data.message.id
+    } else if (op == UserOperation.DeletePrivateMessage) {
+      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      let found: PrivateMessageView = this.state.messages.find(
+        m =>
+          m.private_message.id === data.private_message_view.private_message.id
       );
       if (found) {
-        found.deleted = data.message.deleted;
-        found.updated = data.message.updated;
+        found.private_message.deleted =
+          data.private_message_view.private_message.deleted;
+        found.private_message.updated =
+          data.private_message_view.private_message.updated;
       }
       this.setState(this.state);
-    } else if (res.op == UserOperation.MarkPrivateMessageAsRead) {
-      let data = res.data as PrivateMessageResponse;
-      let found: PrivateMessageI = this.state.messages.find(
-        m => m.id === data.message.id
+    } else if (op == UserOperation.MarkPrivateMessageAsRead) {
+      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      let found: PrivateMessageView = this.state.messages.find(
+        m =>
+          m.private_message.id === data.private_message_view.private_message.id
       );
 
       if (found) {
-        found.updated = data.message.updated;
+        found.private_message.updated =
+          data.private_message_view.private_message.updated;
 
         // If youre in the unread view, just remove it from the list
-        if (this.state.unreadOrAll == UnreadOrAll.Unread && data.message.read) {
+        if (
+          this.state.unreadOrAll == UnreadOrAll.Unread &&
+          data.private_message_view.private_message.read
+        ) {
           this.state.messages = this.state.messages.filter(
-            r => r.id !== data.message.id
+            r =>
+              r.private_message.id !==
+              data.private_message_view.private_message.id
           );
         } else {
-          let found = this.state.messages.find(c => c.id == data.message.id);
-          found.read = data.message.read;
+          let found = this.state.messages.find(
+            c =>
+              c.private_message.id ==
+              data.private_message_view.private_message.id
+          );
+          found.private_message.read =
+            data.private_message_view.private_message.read;
         }
       }
       this.sendUnreadCount();
       this.setState(this.state);
-    } else if (res.op == UserOperation.MarkAllAsRead) {
+    } else if (op == UserOperation.MarkAllAsRead) {
       // Moved to be instant
     } else if (
-      res.op == UserOperation.EditComment ||
-      res.op == UserOperation.DeleteComment ||
-      res.op == UserOperation.RemoveComment
+      op == UserOperation.EditComment ||
+      op == UserOperation.DeleteComment ||
+      op == UserOperation.RemoveComment
     ) {
-      let data = res.data as CommentResponse;
-      editCommentRes(data, this.state.replies);
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      editCommentRes(data.comment_view, this.state.replies);
       this.setState(this.state);
-    } else if (res.op == UserOperation.MarkCommentAsRead) {
-      let data = res.data as CommentResponse;
+    } else if (op == UserOperation.MarkCommentAsRead) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
 
       // If youre in the unread view, just remove it from the list
-      if (this.state.unreadOrAll == UnreadOrAll.Unread && data.comment.read) {
+      if (
+        this.state.unreadOrAll == UnreadOrAll.Unread &&
+        data.comment_view.comment.read
+      ) {
         this.state.replies = this.state.replies.filter(
-          r => r.id !== data.comment.id
+          r => r.comment.id !== data.comment_view.comment.id
         );
       } else {
-        let found = this.state.replies.find(c => c.id == data.comment.id);
-        found.read = data.comment.read;
+        let found = this.state.replies.find(
+          c => c.comment.id == data.comment_view.comment.id
+        );
+        found.comment.read = data.comment_view.comment.read;
       }
       this.sendUnreadCount();
       this.setState(this.state);
       setupTippy();
-    } else if (res.op == UserOperation.MarkUserMentionAsRead) {
-      let data = res.data as UserMentionResponse;
+    } else if (op == UserOperation.MarkUserMentionAsRead) {
+      let data = wsJsonToRes<UserMentionResponse>(msg).data;
 
-      let found = this.state.mentions.find(c => c.id == data.mention.id);
-      found.content = data.mention.content;
-      found.updated = data.mention.updated;
-      found.removed = data.mention.removed;
-      found.deleted = data.mention.deleted;
-      found.upvotes = data.mention.upvotes;
-      found.downvotes = data.mention.downvotes;
-      found.score = data.mention.score;
+      // TODO this might not be correct, it might need to use the comment id
+      let found = this.state.mentions.find(
+        c => c.user_mention.id == data.user_mention_view.user_mention.id
+      );
+      found.comment.content = data.user_mention_view.comment.content;
+      found.comment.updated = data.user_mention_view.comment.updated;
+      found.comment.removed = data.user_mention_view.comment.removed;
+      found.comment.deleted = data.user_mention_view.comment.deleted;
+      found.counts.upvotes = data.user_mention_view.counts.upvotes;
+      found.counts.downvotes = data.user_mention_view.counts.downvotes;
+      found.counts.score = data.user_mention_view.counts.score;
 
       // If youre in the unread view, just remove it from the list
-      if (this.state.unreadOrAll == UnreadOrAll.Unread && data.mention.read) {
+      if (
+        this.state.unreadOrAll == UnreadOrAll.Unread &&
+        data.user_mention_view.user_mention.read
+      ) {
         this.state.mentions = this.state.mentions.filter(
-          r => r.id !== data.mention.id
+          r => r.user_mention.id !== data.user_mention_view.user_mention.id
         );
       } else {
-        let found = this.state.mentions.find(c => c.id == data.mention.id);
-        found.read = data.mention.read;
+        let found = this.state.mentions.find(
+          c => c.user_mention.id == data.user_mention_view.user_mention.id
+        );
+        // TODO test to make sure these mentions are getting marked as read
+        found.user_mention.read = data.user_mention_view.user_mention.read;
       }
       this.sendUnreadCount();
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateComment) {
-      let data = res.data as CommentResponse;
+    } else if (op == UserOperation.CreateComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
 
       if (data.recipient_ids.includes(UserService.Instance.user.id)) {
-        this.state.replies.unshift(data.comment);
+        this.state.replies.unshift(data.comment_view);
         this.setState(this.state);
-      } else if (data.comment.creator_id == UserService.Instance.user.id) {
+      } else if (data.comment_view.creator.id == UserService.Instance.user.id) {
+        // TODO this seems wrong, you should be using form_id
         toast(i18n.t('reply_sent'));
       }
-    } else if (res.op == UserOperation.CreatePrivateMessage) {
-      let data = res.data as PrivateMessageResponse;
-      if (data.message.recipient_id == UserService.Instance.user.id) {
-        this.state.messages.unshift(data.message);
+    } else if (op == UserOperation.CreatePrivateMessage) {
+      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      if (
+        data.private_message_view.recipient.id == UserService.Instance.user.id
+      ) {
+        this.state.messages.unshift(data.private_message_view);
         this.setState(this.state);
       }
-    } else if (res.op == UserOperation.SaveComment) {
-      let data = res.data as CommentResponse;
-      saveCommentRes(data, this.state.replies);
+    } else if (op == UserOperation.SaveComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      saveCommentRes(data.comment_view, this.state.replies);
       this.setState(this.state);
       setupTippy();
-    } else if (res.op == UserOperation.CreateCommentLike) {
-      let data = res.data as CommentResponse;
-      createCommentLikeRes(data, this.state.replies);
+    } else if (op == UserOperation.CreateCommentLike) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      createCommentLikeRes(data.comment_view, this.state.replies);
       this.setState(this.state);
     }
   }
@@ -636,13 +725,14 @@ export class Inbox extends Component<any, InboxState> {
 
   unreadCount(): number {
     return (
-      this.state.replies.filter(r => !r.read).length +
-      this.state.mentions.filter(r => !r.read).length +
+      this.state.replies.filter(r => !r.comment.read).length +
+      this.state.mentions.filter(r => !r.user_mention.read).length +
       this.state.messages.filter(
         r =>
           UserService.Instance.user &&
-          !r.read &&
-          r.creator_id !== UserService.Instance.user.id
+          !r.private_message.read &&
+          // TODO also seems very strang and wrong
+          r.creator.id !== UserService.Instance.user.id
       ).length
     );
   }

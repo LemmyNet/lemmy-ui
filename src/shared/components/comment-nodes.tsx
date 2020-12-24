@@ -1,9 +1,8 @@
 import { Component } from 'inferno';
-import { CommentSortType } from '../interfaces';
+import { CommentSortType, CommentNode as CommentNodeI } from '../interfaces';
 import {
-  CommentNode as CommentNodeI,
-  CommunityUser,
-  UserView,
+  CommunityModeratorView,
+  UserViewSafe,
   SortType,
 } from 'lemmy-js-client';
 import { commentSort, commentSortSortType } from '../utils';
@@ -13,8 +12,8 @@ interface CommentNodesState {}
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
-  moderators?: CommunityUser[];
-  admins?: UserView[];
+  moderators?: CommunityModeratorView[];
+  admins?: UserViewSafe[];
   postCreatorId?: number;
   noBorder?: boolean;
   noIndent?: boolean;
@@ -41,7 +40,7 @@ export class CommentNodes extends Component<
       <div className="comments">
         {this.sorter().map(node => (
           <CommentNode
-            key={node.comment.id}
+            key={node.comment_view.comment.id}
             node={node}
             noBorder={this.props.noBorder}
             noIndent={this.props.noIndent}

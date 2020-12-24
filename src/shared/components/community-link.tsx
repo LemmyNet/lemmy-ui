@@ -1,19 +1,12 @@
 import { Component } from 'inferno';
 import { Link } from 'inferno-router';
-import { Community } from 'lemmy-js-client';
+import { CommunitySafe } from 'lemmy-js-client';
 import { hostname, showAvatars } from '../utils';
 import { PictrsImage } from './pictrs-image';
 
-interface CommunityOther {
-  name: string;
-  id?: number; // Necessary if its federated
-  icon?: string;
-  local?: boolean;
-  actor_id?: string;
-}
-
 interface CommunityLinkProps {
-  community: Community | CommunityOther;
+  // TODO figure this out better
+  community: CommunitySafe;
   realLink?: boolean;
   useApubName?: boolean;
   muted?: boolean;

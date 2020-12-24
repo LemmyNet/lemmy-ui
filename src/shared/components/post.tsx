@@ -3,25 +3,23 @@ import { HtmlTags } from './html-tags';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
-  Post as PostI,
+  PostView,
   GetPostResponse,
   PostResponse,
-  MarkCommentAsReadForm,
+  MarkCommentAsRead,
   CommentResponse,
   CommunityResponse,
-  CommentNode as CommentNodeI,
   BanFromCommunityResponse,
   BanUserResponse,
   AddModToCommunityResponse,
   AddAdminResponse,
   SearchType,
   SortType,
-  SearchForm,
-  GetPostForm,
+  Search,
+  GetPost,
   SearchResponse,
   GetSiteResponse,
   GetCommunityResponse,
-  WebSocketJsonResponse,
   ListCategoriesResponse,
   Category,
 } from 'lemmy-js-client';
@@ -29,6 +27,7 @@ import {
   CommentSortType,
   CommentViewType,
   InitialFetchRequest,
+  CommentNode as CommentNodeI,
 } from '../interfaces';
 import { WebSocketService, UserService } from '../services';
 import {
@@ -44,10 +43,10 @@ import {
   getIdFromProps,
   getCommentIdFromProps,
   wsSubscribe,
-  setAuth,
   isBrowser,
   previewLines,
   isImage,
+  wsUserOp,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { Sidebar } from './sidebar';
@@ -64,7 +63,7 @@ interface PostState {
   commentViewType: CommentViewType;
   scrolled?: boolean;
   loading: boolean;
-  crossPosts: PostI[];
+  crossPosts: PostView[];
   siteRes: GetSiteResponse;
   categories: Category[];
 }
@@ -81,7 +80,7 @@ export class Post extends Component<any, PostState> {
     scrolled: false,
     loading: true,
     crossPosts: [],
-    siteRes: this.isoData.site,
+    siteRes: this.isoData.site_res,
     categories: [],
   };
 
@@ -104,15 +103,16 @@ export class Post extends Component<any, PostState> {
       }
     } else {
       this.fetchPost();
-      WebSocketService.Instance.listCategories();
+      WebSocketService.Instance.client.listCategories();
     }
   }
 
   fetchPost() {
-    let form: GetPostForm = {
+    let form: GetPost = {
       id: this.state.postId,
+      auth: UserService.Instance.authField(false),
     };
-    WebSocketService.Instance.getPost(form);
+    WebSocketService.Instance.client.getPost(form);
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -121,10 +121,10 @@ export class Post extends Component<any, PostState> {
 
     let id = Number(pathSplit[2]);
 
-    let postForm: GetPostForm = {
+    let postForm: GetPost = {
       id,
+      auth: req.auth,
     };
-    setAuth(postForm, req.auth);
 
     promises.push(req.client.getPost(postForm));
     promises.push(req.client.listCategories());
@@ -138,7 +138,7 @@ export class Post extends Component<any, PostState> {
   }
 
   componentDidMount() {
-    WebSocketService.Instance.postJoin({ post_id: this.state.postId });
+    WebSocketService.Instance.client.postJoin({ post_id: this.state.postId });
     autosize(document.querySelectorAll('textarea'));
   }
 
@@ -172,23 +172,28 @@ export class Post extends Component<any, PostState> {
     this.markScrolledAsRead(this.state.commentId);
   }
 
+  // TODO this needs some re-work
   markScrolledAsRead(commentId: number) {
-    let found = this.state.postRes.comments.find(c => c.id == commentId);
-    let parent = this.state.postRes.comments.find(c => found.parent_id == c.id);
+    let found = this.state.postRes.comments.find(
+      c => c.comment.id == commentId
+    );
+    let parent = this.state.postRes.comments.find(
+      c => found.comment.parent_id == c.comment.id
+    );
     let parent_user_id = parent
-      ? parent.creator_id
-      : this.state.postRes.post.creator_id;
+      ? parent.creator.id
+      : this.state.postRes.post_view.creator.id;
 
     if (
       UserService.Instance.user &&
       UserService.Instance.user.id == parent_user_id
     ) {
-      let form: MarkCommentAsReadForm = {
-        edit_id: found.id,
+      let form: MarkCommentAsRead = {
+        comment_id: found.creator.id,
         read: true,
-        auth: null,
+        auth: UserService.Instance.authField(),
       };
-      WebSocketService.Instance.markCommentAsRead(form);
+      WebSocketService.Instance.client.markCommentAsRead(form);
       UserService.Instance.unreadCountSub.next(
         UserService.Instance.unreadCountSub.value - 1
       );
@@ -196,27 +201,24 @@ export class Post extends Component<any, PostState> {
   }
 
   get documentTitle(): string {
-    return `${this.state.postRes.post.name} - ${this.state.siteRes.site.name}`;
+    return `${this.state.postRes.post_view.post.name} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   get imageTag(): string {
+    let post = this.state.postRes.post_view.post;
     return (
-      this.state.postRes.post.thumbnail_url ||
-      (this.state.postRes.post.url
-        ? isImage(this.state.postRes.post.url)
-          ? this.state.postRes.post.url
-          : undefined
-        : undefined)
+      post.thumbnail_url ||
+      (post.url ? (isImage(post.url) ? post.url : undefined) : undefined)
     );
   }
 
   get descriptionTag(): string {
-    return this.state.postRes.post.body
-      ? previewLines(this.state.postRes.post.body)
-      : undefined;
+    let body = this.state.postRes.post_view.post.body;
+    return body ? previewLines(body) : undefined;
   }
 
   render() {
+    let pv = this.state.postRes.post_view;
     return (
       <div class="container">
         {this.state.loading ? (
@@ -235,18 +237,21 @@ export class Post extends Component<any, PostState> {
                 description={this.descriptionTag}
               />
               <PostListing
-                post={this.state.postRes.post}
+                post_view={pv}
+                duplicates={this.state.crossPosts}
                 showBody
                 showCommunity
                 moderators={this.state.postRes.moderators}
                 admins={this.state.siteRes.admins}
-                enableDownvotes={this.state.siteRes.site.enable_downvotes}
-                enableNsfw={this.state.siteRes.site.enable_nsfw}
+                enableDownvotes={
+                  this.state.siteRes.site_view.site.enable_downvotes
+                }
+                enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
               />
               <div className="mb-2" />
               <CommentForm
                 postId={this.state.postId}
-                disabled={this.state.postRes.post.locked}
+                disabled={pv.post.locked}
               />
               {this.state.postRes.comments.length > 0 && this.sortRadios()}
               {this.state.commentViewType == CommentViewType.Tree &&
@@ -343,12 +348,12 @@ export class Post extends Component<any, PostState> {
         <CommentNodes
           nodes={commentsToFlatNodes(this.state.postRes.comments)}
           noIndent
-          locked={this.state.postRes.post.locked}
+          locked={this.state.postRes.post_view.post.locked}
           moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
-          postCreatorId={this.state.postRes.post.creator_id}
+          postCreatorId={this.state.postRes.post_view.creator.id}
           showContext
-          enableDownvotes={this.state.siteRes.site.enable_downvotes}
+          enableDownvotes={this.state.siteRes.site_view.site.enable_downvotes}
           sort={this.state.commentSort}
         />
       </div>
@@ -359,11 +364,11 @@ export class Post extends Component<any, PostState> {
     return (
       <div class="mb-3">
         <Sidebar
-          community={this.state.postRes.community}
+          community_view={this.state.postRes.community_view}
           moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
           online={this.state.postRes.online}
-          enableNsfw={this.state.siteRes.site.enable_nsfw}
+          enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
           showIcon
           categories={this.state.categories}
         />
@@ -385,18 +390,18 @@ export class Post extends Component<any, PostState> {
 
   buildCommentsTree(): CommentNodeI[] {
     let map = new Map<number, CommentNodeI>();
-    for (let comment of this.state.postRes.comments) {
+    for (let comment_view of this.state.postRes.comments) {
       let node: CommentNodeI = {
-        comment: comment,
+        comment_view: comment_view,
         children: [],
       };
-      map.set(comment.id, { ...node });
+      map.set(comment_view.comment.id, { ...node });
     }
     let tree: CommentNodeI[] = [];
-    for (let comment of this.state.postRes.comments) {
-      let child = map.get(comment.id);
-      if (comment.parent_id) {
-        let parent_ = map.get(comment.parent_id);
+    for (let comment_view of this.state.postRes.comments) {
+      let child = map.get(comment_view.comment.id);
+      if (comment_view.comment.parent_id) {
+        let parent_ = map.get(comment_view.comment.parent_id);
         parent_.children.push(child);
       } else {
         tree.push(child);
@@ -410,7 +415,7 @@ export class Post extends Component<any, PostState> {
 
   setDepth(node: CommentNodeI, i: number = 0): void {
     for (let child of node.children) {
-      child.comment.depth = i;
+      child.depth = i;
       this.setDepth(child, i + 1);
     }
   }
@@ -421,155 +426,146 @@ export class Post extends Component<any, PostState> {
       <div>
         <CommentNodes
           nodes={nodes}
-          locked={this.state.postRes.post.locked}
+          locked={this.state.postRes.post_view.post.locked}
           moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
-          postCreatorId={this.state.postRes.post.creator_id}
+          postCreatorId={this.state.postRes.post_view.creator.id}
           sort={this.state.commentSort}
-          enableDownvotes={this.state.siteRes.site.enable_downvotes}
+          enableDownvotes={this.state.siteRes.site_view.site.enable_downvotes}
         />
       </div>
     );
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       return;
     } else if (msg.reconnect) {
       let postId = Number(this.props.match.params.id);
-      WebSocketService.Instance.postJoin({ post_id: postId });
-      WebSocketService.Instance.getPost({
+      WebSocketService.Instance.client.postJoin({ post_id: postId });
+      WebSocketService.Instance.client.getPost({
         id: postId,
+        auth: UserService.Instance.authField(false),
       });
-    } else if (res.op == UserOperation.GetPost) {
-      let data = res.data as GetPostResponse;
+    } else if (op == UserOperation.GetPost) {
+      let data = wsJsonToRes<GetPostResponse>(msg).data;
       this.state.postRes = data;
       this.state.loading = false;
 
       // Get cross-posts
-      if (this.state.postRes.post.url) {
-        let form: SearchForm = {
-          q: this.state.postRes.post.url,
+      if (this.state.postRes.post_view.post.url) {
+        let form: Search = {
+          q: this.state.postRes.post_view.post.url,
           type_: SearchType.Url,
           sort: SortType.TopAll,
           page: 1,
           limit: 6,
+          auth: UserService.Instance.authField(false),
         };
-        WebSocketService.Instance.search(form);
+        WebSocketService.Instance.client.search(form);
       }
 
       this.setState(this.state);
       setupTippy();
-    } else if (res.op == UserOperation.CreateComment) {
-      let data = res.data as CommentResponse;
+    } else if (op == UserOperation.CreateComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
 
       // Necessary since it might be a user reply
       if (data.recipient_ids.length == 0) {
-        this.state.postRes.comments.unshift(data.comment);
+        this.state.postRes.comments.unshift(data.comment_view);
         this.setState(this.state);
       }
     } else if (
-      res.op == UserOperation.EditComment ||
-      res.op == UserOperation.DeleteComment ||
-      res.op == UserOperation.RemoveComment
+      op == UserOperation.EditComment ||
+      op == UserOperation.DeleteComment ||
+      op == UserOperation.RemoveComment
     ) {
-      let data = res.data as CommentResponse;
-      editCommentRes(data, this.state.postRes.comments);
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      editCommentRes(data.comment_view, this.state.postRes.comments);
       this.setState(this.state);
-    } else if (res.op == UserOperation.SaveComment) {
-      let data = res.data as CommentResponse;
-      saveCommentRes(data, this.state.postRes.comments);
+    } else if (op == UserOperation.SaveComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      saveCommentRes(data.comment_view, this.state.postRes.comments);
       this.setState(this.state);
       setupTippy();
-    } else if (res.op == UserOperation.CreateCommentLike) {
-      let data = res.data as CommentResponse;
-      createCommentLikeRes(data, this.state.postRes.comments);
+    } else if (op == UserOperation.CreateCommentLike) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      createCommentLikeRes(data.comment_view, this.state.postRes.comments);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreatePostLike) {
-      let data = res.data as PostResponse;
-      createPostLikeRes(data, this.state.postRes.post);
+    } else if (op == UserOperation.CreatePostLike) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      createPostLikeRes(data.post_view, this.state.postRes.post_view);
       this.setState(this.state);
     } else if (
-      res.op == UserOperation.EditPost ||
-      res.op == UserOperation.DeletePost ||
-      res.op == UserOperation.RemovePost ||
-      res.op == UserOperation.LockPost ||
-      res.op == UserOperation.StickyPost
+      op == UserOperation.EditPost ||
+      op == UserOperation.DeletePost ||
+      op == UserOperation.RemovePost ||
+      op == UserOperation.LockPost ||
+      op == UserOperation.StickyPost ||
+      op == UserOperation.SavePost
     ) {
-      let data = res.data as PostResponse;
-      this.state.postRes.post = data.post;
-      this.setState(this.state);
-      setupTippy();
-    } else if (res.op == UserOperation.SavePost) {
-      let data = res.data as PostResponse;
-      this.state.postRes.post = data.post;
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      this.state.postRes.post_view = data.post_view;
       this.setState(this.state);
       setupTippy();
     } else if (
-      res.op == UserOperation.EditCommunity ||
-      res.op == UserOperation.DeleteCommunity ||
-      res.op == UserOperation.RemoveCommunity
+      op == UserOperation.EditCommunity ||
+      op == UserOperation.DeleteCommunity ||
+      op == UserOperation.RemoveCommunity ||
+      op == UserOperation.FollowCommunity
     ) {
-      let data = res.data as CommunityResponse;
-      this.state.postRes.community = data.community;
-      this.state.postRes.post.community_id = data.community.id;
-      this.state.postRes.post.community_name = data.community.name;
+      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      this.state.postRes.community_view = data.community_view;
+      this.state.postRes.post_view.community = data.community_view.community;
       this.setState(this.state);
-    } else if (res.op == UserOperation.FollowCommunity) {
-      let data = res.data as CommunityResponse;
-      this.state.postRes.community.subscribed = data.community.subscribed;
-      this.state.postRes.community.number_of_subscribers =
-        data.community.number_of_subscribers;
       this.setState(this.state);
-    } else if (res.op == UserOperation.BanFromCommunity) {
-      let data = res.data as BanFromCommunityResponse;
+    } else if (op == UserOperation.BanFromCommunity) {
+      let data = wsJsonToRes<BanFromCommunityResponse>(msg).data;
       this.state.postRes.comments
-        .filter(c => c.creator_id == data.user.id)
-        .forEach(c => (c.banned_from_community = data.banned));
-      if (this.state.postRes.post.creator_id == data.user.id) {
-        this.state.postRes.post.banned_from_community = data.banned;
+        .filter(c => c.creator.id == data.user_view.user.id)
+        .forEach(c => (c.creator_banned_from_community = data.banned));
+      if (this.state.postRes.post_view.creator.id == data.user_view.user.id) {
+        this.state.postRes.post_view.creator_banned_from_community =
+          data.banned;
       }
       this.setState(this.state);
-    } else if (res.op == UserOperation.AddModToCommunity) {
-      let data = res.data as AddModToCommunityResponse;
+    } else if (op == UserOperation.AddModToCommunity) {
+      let data = wsJsonToRes<AddModToCommunityResponse>(msg).data;
       this.state.postRes.moderators = data.moderators;
       this.setState(this.state);
-    } else if (res.op == UserOperation.BanUser) {
-      let data = res.data as BanUserResponse;
+    } else if (op == UserOperation.BanUser) {
+      let data = wsJsonToRes<BanUserResponse>(msg).data;
       this.state.postRes.comments
-        .filter(c => c.creator_id == data.user.id)
-        .forEach(c => (c.banned = data.banned));
-      if (this.state.postRes.post.creator_id == data.user.id) {
-        this.state.postRes.post.banned = data.banned;
+        .filter(c => c.creator.id == data.user_view.user.id)
+        .forEach(c => (c.creator.banned = data.banned));
+      if (this.state.postRes.post_view.creator.id == data.user_view.user.id) {
+        this.state.postRes.post_view.creator.banned = data.banned;
       }
       this.setState(this.state);
-    } else if (res.op == UserOperation.AddAdmin) {
-      let data = res.data as AddAdminResponse;
+    } else if (op == UserOperation.AddAdmin) {
+      let data = wsJsonToRes<AddAdminResponse>(msg).data;
       this.state.siteRes.admins = data.admins;
       this.setState(this.state);
-    } else if (res.op == UserOperation.Search) {
-      let data = res.data as SearchResponse;
+    } else if (op == UserOperation.Search) {
+      let data = wsJsonToRes<SearchResponse>(msg).data;
       this.state.crossPosts = data.posts.filter(
-        p => p.id != Number(this.props.match.params.id)
+        p => p.post.id != Number(this.props.match.params.id)
       );
-      if (this.state.crossPosts.length) {
-        this.state.postRes.post.duplicates = this.state.crossPosts;
-      }
       this.setState(this.state);
-    } else if (res.op == UserOperation.TransferSite) {
-      let data = res.data as GetSiteResponse;
+    } else if (op == UserOperation.TransferSite) {
+      let data = wsJsonToRes<GetSiteResponse>(msg).data;
       this.state.siteRes = data;
       this.setState(this.state);
-    } else if (res.op == UserOperation.TransferCommunity) {
-      let data = res.data as GetCommunityResponse;
-      this.state.postRes.community = data.community;
+    } else if (op == UserOperation.TransferCommunity) {
+      let data = wsJsonToRes<GetCommunityResponse>(msg).data;
+      this.state.postRes.community_view = data.community_view;
+      this.state.postRes.post_view.community = data.community_view.community;
       this.state.postRes.moderators = data.moderators;
       this.setState(this.state);
-    } else if (res.op == UserOperation.ListCategories) {
-      let data = res.data as ListCategoriesResponse;
+    } else if (op == UserOperation.ListCategories) {
+      let data = wsJsonToRes<ListCategoriesResponse>(msg).data;
       this.state.categories = data.categories;
       this.setState(this.state);
     }

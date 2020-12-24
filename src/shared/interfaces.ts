@@ -1,9 +1,14 @@
-import { GetSiteResponse, LemmyHttp } from 'lemmy-js-client';
+import {
+  CommentView,
+  GetSiteResponse,
+  LemmyHttp,
+  UserMentionView,
+} from 'lemmy-js-client';
 
 export interface IsoData {
   path: string;
   routeData: any[];
-  site: GetSiteResponse;
+  site_res: GetSiteResponse;
   // Lang and theme
   lang: string;
   // communities?: ListCommunitiesResponse;
@@ -19,6 +24,20 @@ export interface InitialFetchRequest {
   auth: string;
   path: string;
   client: LemmyHttp;
+}
+
+export interface CommentNode {
+  comment_view: CommentView | UserMentionView;
+  children?: CommentNode[];
+  depth?: number;
+}
+
+export interface PostFormParams {
+  name: string;
+  url?: string;
+  body?: string;
+  community_name?: string;
+  community_id?: number;
 }
 
 export enum CommentSortType {

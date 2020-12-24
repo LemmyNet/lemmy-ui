@@ -6,19 +6,18 @@ import {
   GetCommunityResponse,
   CommunityResponse,
   SortType,
-  Post,
-  GetPostsForm,
-  GetCommunityForm,
+  PostView,
+  GetPosts,
+  GetCommunity,
   ListingType,
   GetPostsResponse,
   PostResponse,
   AddModToCommunityResponse,
   BanFromCommunityResponse,
-  Comment,
-  GetCommentsForm,
+  CommentView,
+  GetComments,
   GetCommentsResponse,
   CommentResponse,
-  WebSocketJsonResponse,
   GetSiteResponse,
   Category,
   ListCategoriesResponse,
@@ -50,8 +49,8 @@ import {
   setIsoData,
   wsSubscribe,
   isBrowser,
-  setAuth,
   communityRSSUrl,
+  wsUserOp,
 } from '../utils';
 import { i18n } from '../i18next';
 
@@ -63,8 +62,8 @@ interface State {
   communityLoading: boolean;
   postsLoading: boolean;
   commentsLoading: boolean;
-  posts: Post[];
-  comments: Comment[];
+  posts: PostView[];
+  comments: CommentView[];
   dataType: DataType;
   sort: SortType;
   page: number;
@@ -98,7 +97,7 @@ export class Community extends Component<any, State> {
     dataType: getDataTypeFromProps(this.props),
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
-    siteRes: this.isoData.site,
+    siteRes: this.isoData.site_res,
     categories: [],
   };
 
@@ -127,17 +126,18 @@ export class Community extends Component<any, State> {
     } else {
       this.fetchCommunity();
       this.fetchData();
-      WebSocketService.Instance.listCategories();
+      WebSocketService.Instance.client.listCategories();
     }
     setupTippy();
   }
 
   fetchCommunity() {
-    let form: GetCommunityForm = {
+    let form: GetCommunity = {
       id: this.state.communityId ? this.state.communityId : null,
       name: this.state.communityName ? this.state.communityName : null,
+      auth: UserService.Instance.authField(false),
     };
-    WebSocketService.Instance.getCommunity(form);
+    WebSocketService.Instance.client.getCommunity(form);
   }
 
   componentWillUnmount() {
@@ -169,8 +169,8 @@ export class Community extends Component<any, State> {
       id = Number(idOrName);
     }
 
-    let communityForm: GetCommunityForm = id ? { id } : { name: name_ };
-    setAuth(communityForm, req.auth);
+    let communityForm: GetCommunity = id ? { id } : { name: name_ };
+    communityForm.auth = req.auth;
     promises.push(req.client.getCommunity(communityForm));
 
     let dataType: DataType = pathSplit[4]
@@ -186,24 +186,24 @@ export class Community extends Component<any, State> {
     let page = pathSplit[8] ? Number(pathSplit[8]) : 1;
 
     if (dataType == DataType.Post) {
-      let getPostsForm: GetPostsForm = {
+      let getPostsForm: GetPosts = {
         page,
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
+        auth: req.auth,
       };
       this.setIdOrName(getPostsForm, id, name_);
-      setAuth(getPostsForm, req.auth);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
-      let getCommentsForm: GetCommentsForm = {
+      let getCommentsForm: GetComments = {
         page,
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
+        auth: req.auth,
       };
       this.setIdOrName(getCommentsForm, id, name_);
-      setAuth(getCommentsForm, req.auth);
       promises.push(req.client.getComments(getCommentsForm));
     }
 
@@ -232,10 +232,11 @@ export class Community extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${this.state.communityRes.community.title} - ${this.state.siteRes.site.name}`;
+    return `${this.state.communityRes.community_view.community.title} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   render() {
+    let cv = this.state.communityRes.community_view;
     return (
       <div class="container">
         {this.state.communityLoading ? (
@@ -250,8 +251,8 @@ export class Community extends Component<any, State> {
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
-                description={this.state.communityRes.community.description}
-                image={this.state.communityRes.community.icon}
+                description={cv.community.description}
+                image={cv.community.icon}
               />
               {this.communityInfo()}
               {this.selects()}
@@ -260,11 +261,11 @@ export class Community extends Component<any, State> {
             </div>
             <div class="col-12 col-md-4">
               <Sidebar
-                community={this.state.communityRes.community}
+                community_view={cv}
                 moderators={this.state.communityRes.moderators}
                 admins={this.state.siteRes.admins}
                 online={this.state.communityRes.online}
-                enableNsfw={this.state.siteRes.site.enable_nsfw}
+                enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
                 categories={this.state.categories}
               />
             </div>
@@ -275,6 +276,7 @@ export class Community extends Component<any, State> {
   }
 
   listings() {
+    let site = this.state.siteRes.site_view.site;
     return this.state.dataType == DataType.Post ? (
       this.state.postsLoading ? (
         <h5>
@@ -287,8 +289,8 @@ export class Community extends Component<any, State> {
           posts={this.state.posts}
           removeDuplicates
           sort={this.state.sort}
-          enableDownvotes={this.state.siteRes.site.enable_downvotes}
-          enableNsfw={this.state.siteRes.site.enable_nsfw}
+          enableDownvotes={site.enable_downvotes}
+          enableNsfw={site.enable_nsfw}
         />
       )
     ) : this.state.commentsLoading ? (
@@ -303,21 +305,19 @@ export class Community extends Component<any, State> {
         noIndent
         sortType={this.state.sort}
         showContext
-        enableDownvotes={this.state.siteRes.site.enable_downvotes}
+        enableDownvotes={site.enable_downvotes}
       />
     );
   }
 
   communityInfo() {
+    let community = this.state.communityRes.community_view.community;
     return (
       <div>
-        <BannerIconHeader
-          banner={this.state.communityRes.community.banner}
-          icon={this.state.communityRes.community.icon}
-        />
-        <h5 class="mb-0">{this.state.communityRes.community.title}</h5>
+        <BannerIconHeader banner={community.banner} icon={community.icon} />
+        <h5 class="mb-0">{community.title}</h5>
         <CommunityLink
-          community={this.state.communityRes.community}
+          community={community}
           realLink
           useApubName
           muted
@@ -342,7 +342,7 @@ export class Community extends Component<any, State> {
         </span>
         <a
           href={communityRSSUrl(
-            this.state.communityRes.community.actor_id,
+            this.state.communityRes.community_view.community.actor_id,
             this.state.sort
           )}
           target="_blank"
@@ -405,137 +405,141 @@ export class Community extends Component<any, State> {
     const sortStr = paramUpdates.sort || this.state.sort;
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
-      `/c/${this.state.communityRes.community.name}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
+      `/c/${this.state.communityRes.community_view.community.name}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
     );
   }
 
   fetchData() {
     if (this.state.dataType == DataType.Post) {
-      let getPostsForm: GetPostsForm = {
+      let form: GetPosts = {
         page: this.state.page,
         limit: fetchLimit,
         sort: this.state.sort,
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
+        auth: UserService.Instance.authField(false),
       };
-      WebSocketService.Instance.getPosts(getPostsForm);
+      WebSocketService.Instance.client.getPosts(form);
     } else {
-      let getCommentsForm: GetCommentsForm = {
+      let form: GetComments = {
         page: this.state.page,
         limit: fetchLimit,
         sort: this.state.sort,
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
+        auth: UserService.Instance.authField(false),
       };
-      WebSocketService.Instance.getComments(getCommentsForm);
+      WebSocketService.Instance.client.getComments(form);
     }
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    console.log(msg);
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       this.context.router.history.push('/');
       return;
     } else if (msg.reconnect) {
-      WebSocketService.Instance.communityJoin({
-        community_id: this.state.communityRes.community.id,
+      WebSocketService.Instance.client.communityJoin({
+        community_id: this.state.communityRes.community_view.community.id,
       });
       this.fetchData();
-    } else if (res.op == UserOperation.GetCommunity) {
-      let data = res.data as GetCommunityResponse;
+    } else if (op == UserOperation.GetCommunity) {
+      let data = wsJsonToRes<GetCommunityResponse>(msg).data;
       this.state.communityRes = data;
       this.state.communityLoading = false;
       this.setState(this.state);
-      WebSocketService.Instance.communityJoin({
-        community_id: data.community.id,
+      // TODO why is there no auth in this form?
+      WebSocketService.Instance.client.communityJoin({
+        community_id: data.community_view.community.id,
       });
     } else if (
-      res.op == UserOperation.EditCommunity ||
-      res.op == UserOperation.DeleteCommunity ||
-      res.op == UserOperation.RemoveCommunity
+      op == UserOperation.EditCommunity ||
+      op == UserOperation.DeleteCommunity ||
+      op == UserOperation.RemoveCommunity
     ) {
-      let data = res.data as CommunityResponse;
-      this.state.communityRes.community = data.community;
+      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      this.state.communityRes.community_view = data.community_view;
       this.setState(this.state);
-    } else if (res.op == UserOperation.FollowCommunity) {
-      let data = res.data as CommunityResponse;
-      this.state.communityRes.community.subscribed = data.community.subscribed;
-      this.state.communityRes.community.number_of_subscribers =
-        data.community.number_of_subscribers;
+    } else if (op == UserOperation.FollowCommunity) {
+      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      this.state.communityRes.community_view.subscribed =
+        data.community_view.subscribed;
+      this.state.communityRes.community_view.counts.subscribers =
+        data.community_view.counts.subscribers;
       this.setState(this.state);
-    } else if (res.op == UserOperation.GetPosts) {
-      let data = res.data as GetPostsResponse;
+    } else if (op == UserOperation.GetPosts) {
+      let data = wsJsonToRes<GetPostsResponse>(msg).data;
       this.state.posts = data.posts;
       this.state.postsLoading = false;
       this.setState(this.state);
       setupTippy();
     } else if (
-      res.op == UserOperation.EditPost ||
-      res.op == UserOperation.DeletePost ||
-      res.op == UserOperation.RemovePost ||
-      res.op == UserOperation.LockPost ||
-      res.op == UserOperation.StickyPost ||
-      res.op == UserOperation.SavePost
+      op == UserOperation.EditPost ||
+      op == UserOperation.DeletePost ||
+      op == UserOperation.RemovePost ||
+      op == UserOperation.LockPost ||
+      op == UserOperation.StickyPost ||
+      op == UserOperation.SavePost
     ) {
-      let data = res.data as PostResponse;
-      editPostFindRes(data, this.state.posts);
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      editPostFindRes(data.post_view, this.state.posts);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreatePost) {
-      let data = res.data as PostResponse;
-      this.state.posts.unshift(data.post);
-      notifyPost(data.post, this.context.router);
+    } else if (op == UserOperation.CreatePost) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      this.state.posts.unshift(data.post_view);
+      notifyPost(data.post_view, this.context.router);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreatePostLike) {
-      let data = res.data as PostResponse;
-      createPostLikeFindRes(data, this.state.posts);
+    } else if (op == UserOperation.CreatePostLike) {
+      let data = wsJsonToRes<PostResponse>(msg).data;
+      createPostLikeFindRes(data.post_view, this.state.posts);
       this.setState(this.state);
-    } else if (res.op == UserOperation.AddModToCommunity) {
-      let data = res.data as AddModToCommunityResponse;
+    } else if (op == UserOperation.AddModToCommunity) {
+      let data = wsJsonToRes<AddModToCommunityResponse>(msg).data;
       this.state.communityRes.moderators = data.moderators;
       this.setState(this.state);
-    } else if (res.op == UserOperation.BanFromCommunity) {
-      let data = res.data as BanFromCommunityResponse;
+    } else if (op == UserOperation.BanFromCommunity) {
+      let data = wsJsonToRes<BanFromCommunityResponse>(msg).data;
 
+      // TODO this might be incorrect
       this.state.posts
-        .filter(p => p.creator_id == data.user.id)
-        .forEach(p => (p.banned = data.banned));
+        .filter(p => p.creator.id == data.user_view.user.id)
+        .forEach(p => (p.creator_banned_from_community = data.banned));
 
       this.setState(this.state);
-    } else if (res.op == UserOperation.GetComments) {
-      let data = res.data as GetCommentsResponse;
+    } else if (op == UserOperation.GetComments) {
+      let data = wsJsonToRes<GetCommentsResponse>(msg).data;
       this.state.comments = data.comments;
       this.state.commentsLoading = false;
       this.setState(this.state);
     } else if (
-      res.op == UserOperation.EditComment ||
-      res.op == UserOperation.DeleteComment ||
-      res.op == UserOperation.RemoveComment
+      op == UserOperation.EditComment ||
+      op == UserOperation.DeleteComment ||
+      op == UserOperation.RemoveComment
     ) {
-      let data = res.data as CommentResponse;
-      editCommentRes(data, this.state.comments);
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      editCommentRes(data.comment_view, this.state.comments);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateComment) {
-      let data = res.data as CommentResponse;
+    } else if (op == UserOperation.CreateComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
 
       // Necessary since it might be a user reply
       if (data.recipient_ids.length == 0) {
-        this.state.comments.unshift(data.comment);
+        this.state.comments.unshift(data.comment_view);
         this.setState(this.state);
       }
-    } else if (res.op == UserOperation.SaveComment) {
-      let data = res.data as CommentResponse;
-      saveCommentRes(data, this.state.comments);
+    } else if (op == UserOperation.SaveComment) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      saveCommentRes(data.comment_view, this.state.comments);
       this.setState(this.state);
-    } else if (res.op == UserOperation.CreateCommentLike) {
-      let data = res.data as CommentResponse;
-      createCommentLikeRes(data, this.state.comments);
+    } else if (op == UserOperation.CreateCommentLike) {
+      let data = wsJsonToRes<CommentResponse>(msg).data;
+      createCommentLikeRes(data.comment_view, this.state.comments);
       this.setState(this.state);
-    } else if (res.op == UserOperation.ListCategories) {
-      let data = res.data as ListCategoriesResponse;
+    } else if (op == UserOperation.ListCategories) {
+      let data = wsJsonToRes<ListCategoriesResponse>(msg).data;
       this.state.categories = data.categories;
       this.setState(this.state);
     }

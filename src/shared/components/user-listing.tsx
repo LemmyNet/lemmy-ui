@@ -1,22 +1,12 @@
 import { Component } from 'inferno';
 import { Link } from 'inferno-router';
-import { UserView } from 'lemmy-js-client';
+import { UserSafe } from 'lemmy-js-client';
 import { showAvatars, hostname, isCakeDay } from '../utils';
 import { CakeDay } from './cake-day';
 import { PictrsImage } from './pictrs-image';
 
-export interface UserOther {
-  name: string;
-  preferred_username?: string;
-  id?: number; // Necessary if its federated
-  avatar?: string;
-  local?: boolean;
-  actor_id?: string;
-  published?: string;
-}
-
 interface UserListingProps {
-  user: UserView | UserOther;
+  user: UserSafe;
   realLink?: boolean;
   useApubName?: boolean;
   muted?: boolean;

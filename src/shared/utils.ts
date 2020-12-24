@@ -30,23 +30,25 @@ import 'moment/locale/da';
 
 import {
   UserOperation,
-  Comment,
-  CommentNode as CommentNodeI,
-  Post,
-  PrivateMessage,
-  User,
+  CommentView,
+  User_,
   SortType,
   ListingType,
   SearchType,
   WebSocketResponse,
   WebSocketJsonResponse,
-  SearchForm,
+  Search,
   SearchResponse,
-  CommentResponse,
-  PostResponse,
+  PostView,
+  PrivateMessageView,
 } from 'lemmy-js-client';
 
-import { CommentSortType, DataType, IsoData } from './interfaces';
+import {
+  CommentSortType,
+  DataType,
+  IsoData,
+  CommentNode as CommentNodeI,
+} from './interfaces';
 import { UserService, WebSocketService } from './services';
 
 var Tribute;
@@ -154,12 +156,18 @@ export function randomStr(
     .join('');
 }
 
-export function wsJsonToRes(msg: WebSocketJsonResponse): WebSocketResponse {
-  let opStr: string = msg.op;
+export function wsJsonToRes<ResponseType>(
+  msg: WebSocketJsonResponse<ResponseType>
+): WebSocketResponse<ResponseType> {
   return {
-    op: UserOperation[opStr],
+    op: wsUserOp(msg),
     data: msg.data,
   };
+}
+
+export function wsUserOp(msg: any): UserOperation {
+  let opStr: string = msg.op;
+  return UserOperation[opStr];
 }
 
 export const md = new markdown_it({
@@ -190,12 +198,16 @@ export const md = new markdown_it({
     defs: objectFlip(emojiShortName),
   });
 
-export function hotRankComment(comment: Comment): number {
-  return hotRank(comment.score, comment.published);
+export function hotRankComment(comment_view: CommentView): number {
+  return hotRank(comment_view.counts.score, comment_view.comment.published);
 }
 
-export function hotRankPost(post: Post): number {
-  return hotRank(post.score, post.newest_activity_time);
+export function hotRankActivePost(post_view: PostView): number {
+  return hotRank(post_view.counts.score, post_view.counts.newest_comment_time);
+}
+
+export function hotRankPost(post_view: PostView): number {
+  return hotRank(post_view.counts.score, post_view.post.published);
 }
 
 export function hotRank(score: number, timeStr: string): number {
@@ -221,17 +233,8 @@ export function getUnixTime(text: string): number {
   return text ? new Date(text).getTime() / 1000 : undefined;
 }
 
-export function addTypeInfo<T>(
-  arr: T[],
-  name: string
-): { type_: string; data: T }[] {
-  return arr.map(e => {
-    return { type_: name, data: e };
-  });
-}
-
 export function canMod(
-  user: User,
+  user: User_,
   modIds: number[],
   creator_id: number,
   onSelf: boolean = false
@@ -509,21 +512,6 @@ export function isCakeDay(published: string): boolean {
   );
 }
 
-export function isCommentType(
-  item: Comment | PrivateMessage | Post
-): item is Comment {
-  return (
-    (item as Comment).community_id !== undefined &&
-    (item as Comment).content !== undefined
-  );
-}
-
-export function isPostType(
-  item: Comment | PrivateMessage | Post
-): item is Post {
-  return (item as Post).stickied !== undefined;
-}
-
 export function toast(text: string, background: string = 'success') {
   if (isBrowser()) {
     let backgroundColor = `var(--${background})`;
@@ -592,32 +580,34 @@ export function messageToastify(info: NotifyInfo, router: any) {
   }
 }
 
-export function notifyPost(post: Post, router: any) {
+export function notifyPost(post_view: PostView, router: any) {
   let info: NotifyInfo = {
-    name: post.community_name,
-    icon: post.community_icon ? post.community_icon : defaultFavIcon,
-    link: `/post/${post.id}`,
-    body: post.name,
+    name: post_view.community.name,
+    icon: post_view.community.icon ? post_view.community.icon : defaultFavIcon,
+    link: `/post/${post_view.post.id}`,
+    body: post_view.post.name,
   };
   notify(info, router);
 }
 
-export function notifyComment(comment: Comment, router: any) {
+export function notifyComment(comment_view: CommentView, router: any) {
   let info: NotifyInfo = {
-    name: comment.creator_name,
-    icon: comment.creator_avatar ? comment.creator_avatar : defaultFavIcon,
-    link: `/post/${comment.post_id}/comment/${comment.id}`,
-    body: comment.content,
+    name: comment_view.creator.name,
+    icon: comment_view.creator.avatar
+      ? comment_view.creator.avatar
+      : defaultFavIcon,
+    link: `/post/${comment_view.post.id}/comment/${comment_view.comment.id}`,
+    body: comment_view.comment.content,
   };
   notify(info, router);
 }
 
-export function notifyPrivateMessage(pm: PrivateMessage, router: any) {
+export function notifyPrivateMessage(pmv: PrivateMessageView, router: any) {
   let info: NotifyInfo = {
-    name: pm.creator_name,
-    icon: pm.creator_avatar ? pm.creator_avatar : defaultFavIcon,
+    name: pmv.creator.name,
+    icon: pmv.creator.avatar ? pmv.creator.avatar : defaultFavIcon,
     link: `/inbox`,
-    body: pm.content,
+    body: pmv.private_message.content,
   };
   notify(info, router);
 }
@@ -723,27 +713,28 @@ export function setupTippy() {
 
 function userSearch(text: string, cb: any) {
   if (text) {
-    let form: SearchForm = {
+    let form: Search = {
       q: text,
       type_: SearchType.Users,
       sort: SortType.TopAll,
       page: 1,
       limit: mentionDropdownFetchLimit,
+      auth: UserService.Instance.authField(false),
     };
 
-    WebSocketService.Instance.search(form);
+    WebSocketService.Instance.client.search(form);
 
     let userSub = WebSocketService.Instance.subject.subscribe(
       msg => {
         let res = wsJsonToRes(msg);
         if (res.op == UserOperation.Search) {
           let data = res.data as SearchResponse;
-          let users = data.users.map(u => {
+          let users = data.users.map(uv => {
             return {
-              key: `@${u.name}@${hostname(u.actor_id)}`,
-              name: u.name,
-              local: u.local,
-              id: u.id,
+              key: `@${uv.user.name}@${hostname(uv.user.actor_id)}`,
+              name: uv.user.name,
+              local: uv.user.local,
+              id: uv.user.id,
             };
           });
           cb(users);
@@ -760,27 +751,28 @@ function userSearch(text: string, cb: any) {
 
 function communitySearch(text: string, cb: any) {
   if (text) {
-    let form: SearchForm = {
+    let form: Search = {
       q: text,
       type_: SearchType.Communities,
       sort: SortType.TopAll,
       page: 1,
       limit: mentionDropdownFetchLimit,
+      auth: UserService.Instance.authField(false),
     };
 
-    WebSocketService.Instance.search(form);
+    WebSocketService.Instance.client.search(form);
 
     let communitySub = WebSocketService.Instance.subject.subscribe(
       msg => {
         let res = wsJsonToRes(msg);
         if (res.op == UserOperation.Search) {
           let data = res.data as SearchResponse;
-          let communities = data.communities.map(c => {
+          let communities = data.communities.map(cv => {
             return {
-              key: `!${c.name}@${hostname(c.actor_id)}`,
-              name: c.name,
-              local: c.local,
-              id: c.id,
+              key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
+              name: cv.community.name,
+              local: cv.community.local,
+              id: cv.community.id,
             };
           });
           cb(communities);
@@ -840,84 +832,84 @@ export function getUsernameFromProps(props: any): string {
   return props.match.params.username;
 }
 
-export function editCommentRes(data: CommentResponse, comments: Comment[]) {
-  let found = comments.find(c => c.id == data.comment.id);
+export function editCommentRes(data: CommentView, comments: CommentView[]) {
+  let found = comments.find(c => c.comment.id == data.comment.id);
   if (found) {
-    found.content = data.comment.content;
-    found.updated = data.comment.updated;
-    found.removed = data.comment.removed;
-    found.deleted = data.comment.deleted;
-    found.upvotes = data.comment.upvotes;
-    found.downvotes = data.comment.downvotes;
-    found.score = data.comment.score;
+    found.comment.content = data.comment.content;
+    found.comment.updated = data.comment.updated;
+    found.comment.removed = data.comment.removed;
+    found.comment.deleted = data.comment.deleted;
+    found.counts.upvotes = data.counts.upvotes;
+    found.counts.downvotes = data.counts.downvotes;
+    found.counts.score = data.counts.score;
   }
 }
 
-export function saveCommentRes(data: CommentResponse, comments: Comment[]) {
-  let found = comments.find(c => c.id == data.comment.id);
+export function saveCommentRes(data: CommentView, comments: CommentView[]) {
+  let found = comments.find(c => c.comment.id == data.comment.id);
   if (found) {
-    found.saved = data.comment.saved;
+    found.saved = data.saved;
   }
 }
 
 export function createCommentLikeRes(
-  data: CommentResponse,
-  comments: Comment[]
+  data: CommentView,
+  comments: CommentView[]
 ) {
-  let found: Comment = comments.find(c => c.id === data.comment.id);
+  let found = comments.find(c => c.comment.id === data.comment.id);
   if (found) {
-    found.score = data.comment.score;
-    found.upvotes = data.comment.upvotes;
-    found.downvotes = data.comment.downvotes;
-    if (data.comment.my_vote !== null) {
-      found.my_vote = data.comment.my_vote;
+    found.counts.score = data.counts.score;
+    found.counts.upvotes = data.counts.upvotes;
+    found.counts.downvotes = data.counts.downvotes;
+    if (data.my_vote !== null) {
+      found.my_vote = data.my_vote;
     }
   }
 }
 
-export function createPostLikeFindRes(data: PostResponse, posts: Post[]) {
-  let found = posts.find(c => c.id == data.post.id);
+export function createPostLikeFindRes(data: PostView, posts: PostView[]) {
+  let found = posts.find(p => p.post.id == data.post.id);
   if (found) {
     createPostLikeRes(data, found);
   }
 }
 
-export function createPostLikeRes(data: PostResponse, post: Post) {
-  if (post) {
-    post.score = data.post.score;
-    post.upvotes = data.post.upvotes;
-    post.downvotes = data.post.downvotes;
-    if (data.post.my_vote !== null) {
-      post.my_vote = data.post.my_vote;
+export function createPostLikeRes(data: PostView, post_view: PostView) {
+  if (post_view) {
+    post_view.counts.score = data.counts.score;
+    post_view.counts.upvotes = data.counts.upvotes;
+    post_view.counts.downvotes = data.counts.downvotes;
+    if (data.my_vote !== null) {
+      post_view.my_vote = data.my_vote;
     }
   }
 }
 
-export function editPostFindRes(data: PostResponse, posts: Post[]) {
-  let found = posts.find(c => c.id == data.post.id);
+export function editPostFindRes(data: PostView, posts: PostView[]) {
+  let found = posts.find(p => p.post.id == data.post.id);
   if (found) {
     editPostRes(data, found);
   }
 }
 
-export function editPostRes(data: PostResponse, post: Post) {
+export function editPostRes(data: PostView, post: PostView) {
   if (post) {
-    post.url = data.post.url;
-    post.name = data.post.name;
-    post.nsfw = data.post.nsfw;
-    post.deleted = data.post.deleted;
-    post.removed = data.post.removed;
-    post.stickied = data.post.stickied;
-    post.body = data.post.body;
-    post.locked = data.post.locked;
-    post.saved = data.post.saved;
+    post.post.url = data.post.url;
+    post.post.name = data.post.name;
+    post.post.nsfw = data.post.nsfw;
+    post.post.deleted = data.post.deleted;
+    post.post.removed = data.post.removed;
+    post.post.stickied = data.post.stickied;
+    post.post.body = data.post.body;
+    post.post.locked = data.post.locked;
+    post.saved = data.saved;
   }
 }
 
-export function commentsToFlatNodes(comments: Comment[]): CommentNodeI[] {
+export function commentsToFlatNodes(comments: CommentView[]): CommentNodeI[] {
   let nodes: CommentNodeI[] = [];
   for (let comment of comments) {
-    nodes.push({ comment: comment });
+    nodes.push({ comment_view: comment });
   }
   return nodes;
 }
@@ -927,30 +919,34 @@ export function commentSort(tree: CommentNodeI[], sort: CommentSortType) {
   if (sort == CommentSortType.Top) {
     tree.sort(
       (a, b) =>
-        +a.comment.removed - +b.comment.removed ||
-        +a.comment.deleted - +b.comment.deleted ||
-        b.comment.score - a.comment.score
+        +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
+        +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
+        b.comment_view.counts.score - a.comment_view.counts.score
     );
   } else if (sort == CommentSortType.New) {
     tree.sort(
       (a, b) =>
-        +a.comment.removed - +b.comment.removed ||
-        +a.comment.deleted - +b.comment.deleted ||
-        b.comment.published.localeCompare(a.comment.published)
+        +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
+        +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
+        b.comment_view.comment.published.localeCompare(
+          a.comment_view.comment.published
+        )
     );
   } else if (sort == CommentSortType.Old) {
     tree.sort(
       (a, b) =>
-        +a.comment.removed - +b.comment.removed ||
-        +a.comment.deleted - +b.comment.deleted ||
-        a.comment.published.localeCompare(b.comment.published)
+        +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
+        +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
+        a.comment_view.comment.published.localeCompare(
+          b.comment_view.comment.published
+        )
     );
   } else if (sort == CommentSortType.Hot) {
     tree.sort(
       (a, b) =>
-        +a.comment.removed - +b.comment.removed ||
-        +a.comment.deleted - +b.comment.deleted ||
-        hotRankComment(b.comment) - hotRankComment(a.comment)
+        +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
+        +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
+        hotRankComment(b.comment_view) - hotRankComment(a.comment_view)
     );
   }
 
@@ -985,7 +981,7 @@ function convertCommentSortType(sort: SortType): CommentSortType {
 }
 
 export function postSort(
-  posts: Post[],
+  posts: PostView[],
   sort: SortType,
   communityType: boolean
 ) {
@@ -999,34 +995,34 @@ export function postSort(
   ) {
     posts.sort(
       (a, b) =>
-        +a.removed - +b.removed ||
-        +a.deleted - +b.deleted ||
-        (communityType && +b.stickied - +a.stickied) ||
-        b.score - a.score
+        +a.post.removed - +b.post.removed ||
+        +a.post.deleted - +b.post.deleted ||
+        (communityType && +b.post.stickied - +a.post.stickied) ||
+        b.counts.score - a.counts.score
     );
   } else if (sort == SortType.New) {
     posts.sort(
       (a, b) =>
-        +a.removed - +b.removed ||
-        +a.deleted - +b.deleted ||
-        (communityType && +b.stickied - +a.stickied) ||
-        b.published.localeCompare(a.published)
+        +a.post.removed - +b.post.removed ||
+        +a.post.deleted - +b.post.deleted ||
+        (communityType && +b.post.stickied - +a.post.stickied) ||
+        b.post.published.localeCompare(a.post.published)
     );
   } else if (sort == SortType.Hot) {
     posts.sort(
       (a, b) =>
-        +a.removed - +b.removed ||
-        +a.deleted - +b.deleted ||
-        (communityType && +b.stickied - +a.stickied) ||
-        b.hot_rank - a.hot_rank
+        +a.post.removed - +b.post.removed ||
+        +a.post.deleted - +b.post.deleted ||
+        (communityType && +b.post.stickied - +a.post.stickied) ||
+        hotRankPost(b) - hotRankPost(a)
     );
   } else if (sort == SortType.Active) {
     posts.sort(
       (a, b) =>
-        +a.removed - +b.removed ||
-        +a.deleted - +b.deleted ||
-        (communityType && +b.stickied - +a.stickied) ||
-        b.hot_rank_active - a.hot_rank_active
+        +a.post.removed - +b.post.removed ||
+        +a.post.deleted - +b.post.deleted ||
+        (communityType && +b.post.stickied - +a.post.stickied) ||
+        hotRankActivePost(b) - hotRankActivePost(a)
     );
   }
 }
@@ -1092,12 +1088,6 @@ export function siteBannerCss(banner: string): string {
 
 export function isBrowser() {
   return typeof window !== 'undefined';
-}
-
-export function setAuth(obj: any, auth: string) {
-  if (auth) {
-    obj.auth = auth;
-  }
 }
 
 export function setIsoData(context: any): IsoData {

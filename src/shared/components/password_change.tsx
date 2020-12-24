@@ -3,9 +3,8 @@ import { Subscription } from 'rxjs';
 import {
   UserOperation,
   LoginResponse,
-  PasswordChangeForm,
-  WebSocketJsonResponse,
-  Site,
+  PasswordChange as PasswordChangeForm,
+  SiteView,
 } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
 import {
@@ -15,6 +14,7 @@ import {
   setIsoData,
   isBrowser,
   wsSubscribe,
+  wsUserOp,
 } from '../utils';
 import { i18n } from '../i18next';
 import { HtmlTags } from './html-tags';
@@ -22,7 +22,7 @@ import { HtmlTags } from './html-tags';
 interface State {
   passwordChangeForm: PasswordChangeForm;
   loading: boolean;
-  site: Site;
+  site_view: SiteView;
 }
 
 export class PasswordChange extends Component<any, State> {
@@ -36,7 +36,7 @@ export class PasswordChange extends Component<any, State> {
       password_verify: undefined,
     },
     loading: false,
-    site: this.isoData.site.site,
+    site_view: this.isoData.site_res.site_view,
   };
 
   constructor(props: any, context: any) {
@@ -55,7 +55,7 @@ export class PasswordChange extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('password_change')} - ${this.state.site.name}`;
+    return `${i18n.t('password_change')} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -138,18 +138,18 @@ export class PasswordChange extends Component<any, State> {
     i.state.loading = true;
     i.setState(i.state);
 
-    WebSocketService.Instance.passwordChange(i.state.passwordChangeForm);
+    WebSocketService.Instance.client.passwordChange(i.state.passwordChangeForm);
   }
 
-  parseMessage(msg: WebSocketJsonResponse) {
-    let res = wsJsonToRes(msg);
+  parseMessage(msg: any) {
+    let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       this.state.loading = false;
       this.setState(this.state);
       return;
-    } else if (res.op == UserOperation.PasswordChange) {
-      let data = res.data as LoginResponse;
+    } else if (op == UserOperation.PasswordChange) {
+      let data = wsJsonToRes<LoginResponse>(msg).data;
       this.state = this.emptyState;
       this.setState(this.state);
       UserService.Instance.login(data);
