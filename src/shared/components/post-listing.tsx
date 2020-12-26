@@ -601,14 +601,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   duplicatesLine() {
+    let dupes = this.props.duplicates;
     return (
-      this.props.duplicates && (
+      dupes &&
+      dupes.length > 0 && (
         <ul class="list-inline mb-1 small text-muted">
           <>
             <li className="list-inline-item mr-2">
               {i18n.t('cross_posted_to')}
             </li>
-            {this.props.duplicates.map(pv => (
+            {dupes.map(pv => (
               <li className="list-inline-item mr-2">
                 <Link to={`/post/${pv.post.id}`}>
                   {pv.community.local

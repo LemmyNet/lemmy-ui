@@ -54,7 +54,7 @@ export class CommunityForm extends Component<
       nsfw: false,
       icon: null,
       banner: null,
-      auth: authField(),
+      auth: authField(false),
     },
     loading: false,
   };

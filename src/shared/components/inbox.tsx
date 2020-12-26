@@ -108,10 +108,9 @@ export class Inbox extends Component<any, InboxState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.replies = this.isoData.routeData[0].replies;
-      this.state.mentions = this.isoData.routeData[1].mentions;
-      this.state.messages = this.isoData.routeData[2].messages;
-      this.sendUnreadCount();
+      this.state.replies = this.isoData.routeData[0].replies || [];
+      this.state.mentions = this.isoData.routeData[1].mentions || [];
+      this.state.messages = this.isoData.routeData[2].messages || [];
       this.state.loading = false;
     } else {
       this.refetch();

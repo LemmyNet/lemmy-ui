@@ -67,7 +67,7 @@
     "eslint": "^7.16.0",
     "eslint-plugin-jane": "^9.0.6",
     "husky": "^4.3.6",
-    "lemmy-js-client": "1.0.17-beta5",
+    "lemmy-js-client": "1.0.17-beta6",
     "lint-staged": "^10.5.3",
     "mini-css-extract-plugin": "^1.3.3",
     "node-fetch": "^2.6.1",

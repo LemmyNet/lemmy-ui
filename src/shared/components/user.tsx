@@ -110,14 +110,14 @@ export class User extends Component<any, UserState> {
       send_notifications_to_email: null,
       bio: null,
       preferred_username: null,
-      auth: authField(),
+      auth: authField(false),
     },
     userSettingsLoading: null,
     deleteAccountLoading: null,
     deleteAccountShowConfirm: false,
     deleteAccountForm: {
       password: null,
-      auth: authField(),
+      auth: authField(false),
     },
     siteRes: this.isoData.site_res,
   };
@@ -150,6 +150,8 @@ export class User extends Component<any, UserState> {
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.userRes = this.isoData.routeData[0];
+      this.state.userRes.user_view =
+        this.state.userRes.user_view || this.state.userRes.user_view_dangerous;
       this.setUserInfo();
       this.state.loading = false;
     } else {
@@ -398,7 +400,7 @@ export class User extends Component<any, UserState> {
   }
 
   userInfo() {
-    let uv = this.state.userRes.user_view;
+    let uv = this.state.userRes?.user_view;
 
     return (
       <div>
@@ -937,12 +939,16 @@ export class User extends Component<any, UserState> {
   }
 
   handleUserSettingsSortTypeChange(val: SortType) {
-    this.state.userSettingsForm.default_sort_type = val;
+    this.state.userSettingsForm.default_sort_type = Object.keys(
+      SortType
+    ).indexOf(val);
     this.setState(this.state);
   }
 
   handleUserSettingsListingTypeChange(val: ListingType) {
-    this.state.userSettingsForm.default_listing_type = val;
+    this.state.userSettingsForm.default_listing_type = Object.keys(
+      ListingType
+    ).indexOf(val);
     this.setState(this.state);
   }
 
@@ -1081,7 +1087,6 @@ export class User extends Component<any, UserState> {
   }
 
   parseMessage(msg: any) {
-    console.log(msg);
     let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
@@ -1101,6 +1106,8 @@ export class User extends Component<any, UserState> {
       // TODO this might need to get abstracted
       let data = wsJsonToRes<GetUserDetailsResponse>(msg).data;
       this.state.userRes = data;
+      this.state.userRes.user_view =
+        this.state.userRes.user_view || this.state.userRes.user_view_dangerous;
       this.setUserInfo();
       this.state.loading = false;
       this.setState(this.state);

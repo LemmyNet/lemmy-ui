@@ -123,7 +123,7 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
     }));
     let posts: ItemType[] = this.props.userRes.posts.map(r => ({
       id: id++,
-      type_: ItemEnum.Comment,
+      type_: ItemEnum.Post,
       view: r,
       published: r.post.published,
       score: r.counts.score,

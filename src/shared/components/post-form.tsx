@@ -78,7 +78,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       community_id: null,
       name: null,
       nsfw: false,
-      auth: authField(),
+      auth: authField(false),
     },
     loading: false,
     imageLoading: false,

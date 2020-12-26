@@ -297,6 +297,14 @@ export function routeSortTypeToEnum(sort: string): SortType {
   return SortType[sort];
 }
 
+export function listingTypeFromNum(type_: number): ListingType {
+  return Object.values(ListingType)[type_];
+}
+
+export function sortTypeFromNum(type_: number): SortType {
+  return Object.values(SortType)[type_];
+}
+
 export function routeListingTypeToEnum(type: string): ListingType {
   return ListingType[type];
 }
