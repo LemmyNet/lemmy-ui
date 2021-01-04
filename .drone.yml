@@ -57,13 +57,12 @@ platform:
 
 steps:
 
-  - name: create docker tags
+  - name: fetch git submodules
     image: node:14-alpine
     commands:
-      - echo "$(git describe),latest" > .tags
-    when:
-      ref:
-        - refs/tags/*
+      - apk add git
+      - git submodule init
+      - git submodule update --recursive --remote
 
   - name: try to make a build
     image: plugins/docker
@@ -73,3 +72,12 @@ steps:
     #when:
     #  ref:
     #    - refs/tags/*
+
+  - name: create docker tags
+    image: node:14-alpine
+    commands:
+      - echo "$(git describe),latest" > .tags
+    when:
+      ref:
+        - refs/tags/*
+
