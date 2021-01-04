@@ -64,19 +64,19 @@ steps:
       - git submodule init
       - git submodule update --recursive --remote
 
+  - name: create docker tags
+    image: node:14-alpine
+    commands:
+      - echo "$(git describe),latest" > .tags
+    # when:
+    #   ref:
+    #     - refs/tags/*
+
   - name: try to make a build
     image: plugins/docker
     settings:
       dockerfile: Dockerfile
       repo: dessalines/lemmy-ui
-    #when:
-    #  ref:
-    #    - refs/tags/*
-
-  - name: create docker tags
-    image: node:14-alpine
-    commands:
-      - echo "$(git describe),latest" > .tags
     when:
       ref:
         - refs/tags/*
