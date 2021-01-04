@@ -1,5 +1,5 @@
 FROM node:14 as builder
-RUN apk add yarn curl bash --no-cache
+RUN apt-get update && apt-get install -y curl yarn bash
 
 RUN curl -sfL https://install.goreleaser.com/github.com/tj/node-prune.sh | bash -s -- -b /usr/local/bin
 
