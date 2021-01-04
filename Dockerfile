@@ -1,4 +1,4 @@
-FROM node:14-alpine as builder
+FROM node:14 as builder
 RUN apk add yarn curl bash --no-cache
 
 RUN curl -sfL https://install.goreleaser.com/github.com/tj/node-prune.sh | bash -s -- -b /usr/local/bin
