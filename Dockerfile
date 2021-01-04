@@ -1,5 +1,5 @@
 FROM node:14-alpine as builder
-RUN apk update && apk add yarn python3 --no-cache
+RUN apk update && apk add yarn python3 build-base gcc wget git --no-cache
 
 WORKDIR /usr/src/app
 
