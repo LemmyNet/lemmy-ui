@@ -1,0 +1,75 @@
+---
+kind: pipeline
+name: amd64
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+
+  - name: fetch git submodules
+    image: node:14-alpine
+    commands:
+      - apk add git
+      - git submodule init
+      - git submodule update --recursive --remote
+
+  - name: yarn
+    image: node:14-alpine
+    commands:
+      - yarn
+
+  - name: yarn lint
+    image: node:14-alpine
+    commands:
+      - yarn lint
+
+  - name: yarn build:dev
+    image: node:14-alpine
+    commands:
+      - yarn build:dev
+
+  - name: create docker tags
+    image: node:14-alpine
+    commands:
+      - echo "$(git describe),latest" > .tags
+    when:
+      ref:
+        - refs/tags/*
+
+  - name: try to make a build
+    image: plugins/docker
+    settings:
+      dockerfile: Dockerfile
+      repo: dessalines/lemmy-ui
+    when:
+      ref:
+        - refs/tags/*
+
+---
+kind: pipeline
+name: arm64
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+
+  - name: create docker tags
+    image: node:14-alpine
+    commands:
+      - echo "$(git describe),latest" > .tags
+    when:
+      ref:
+        - refs/tags/*
+
+  - name: try to make a build
+    image: plugins/docker
+    settings:
+      dockerfile: Dockerfile
+      repo: dessalines/lemmy-ui
+    #when:
+    #  ref:
+    #    - refs/tags/*
