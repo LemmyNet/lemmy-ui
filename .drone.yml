@@ -68,9 +68,9 @@ steps:
     image: node:14-alpine
     commands:
       - echo "$(git describe),latest" > .tags
-    # when:
-    #   ref:
-    #     - refs/tags/*
+    when:
+      ref:
+        - refs/tags/*
 
   - name: try to make a build
     image: plugins/docker
