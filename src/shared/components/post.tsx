@@ -194,7 +194,7 @@ export class Post extends Component<any, PostState> {
       UserService.Instance.user.id == parent_user_id
     ) {
       let form: MarkCommentAsRead = {
-        comment_id: found.creator.id,
+        comment_id: found.comment.id,
         read: true,
         auth: authField(),
       };
