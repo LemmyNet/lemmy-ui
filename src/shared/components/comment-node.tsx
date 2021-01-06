@@ -244,7 +244,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       class="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(this, this.handleMarkRead)}
                       data-tippy-content={
-                        cv.comment.read
+                        this.commentOrMentionRead
                           ? i18n.t('mark_as_unread')
                           : i18n.t('mark_as_read')
                       }
@@ -254,7 +254,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       ) : (
                         <svg
                           class={`icon icon-inline ${
-                            cv.comment.read && 'text-success'
+                            this.commentOrMentionRead && 'text-success'
                           }`}
                         >
                           <use xlinkHref="#icon-check"></use>
@@ -728,6 +728,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     );
   }
 
+  get commentOrMentionRead() {
+    let cv = this.props.node.comment_view;
+    return this.isUserMentionType(cv) ? cv.user_mention.read : cv.comment.read;
+  }
+
   get linkBtn() {
     let cv = this.props.node.comment_view;
     return (
@@ -965,7 +970,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   isUserMentionType(
     item: CommentView | UserMentionView
   ): item is UserMentionView {
-    return (item as UserMentionView).user_mention.id !== undefined;
+    return (item as UserMentionView).user_mention?.id !== undefined;
   }
 
   handleMarkRead(i: CommentNode) {
