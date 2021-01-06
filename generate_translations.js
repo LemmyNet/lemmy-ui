@@ -3,7 +3,7 @@ fs = require('fs');
 let translationDir = 'lemmy-translations/translations/';
 let outDir = 'src/shared/translations/';
 fs.mkdirSync(outDir, { recursive: true });
-fs.readdir(translationDir, (err, files) => {
+fs.readdir(translationDir, (_err, files) => {
   files.forEach(filename => {
     const lang = filename.split('.')[0];
     try {
