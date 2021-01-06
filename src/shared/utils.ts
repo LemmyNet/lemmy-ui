@@ -75,11 +75,11 @@ export const favIconUrl = '/static/assets/favicon.svg';
 export const favIconPngUrl = '/static/assets/apple-touch-icon.png';
 // TODO
 // export const defaultFavIcon = `${window.location.protocol}//${window.location.host}${favIconPngUrl}`;
-export const defaultFavIcon = 'test';
 export const repoUrl = 'https://github.com/LemmyNet';
 export const joinLemmyUrl = 'https://join.lemmy.ml';
 export const supportLemmyUrl = 'https://join.lemmy.ml/sponsors';
-export const helpGuideUrl = '/docs/about/guide.html';
+export const docsUrl = '/docs';
+export const helpGuideUrl = '/docs/en/about/guide.html'; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
 export const archiveUrl = 'https://archive.is';
@@ -563,7 +563,7 @@ export function pictrsDeleteToast(
 
 interface NotifyInfo {
   name: string;
-  icon: string;
+  icon?: string;
   link: string;
   body: string;
 }
@@ -575,7 +575,7 @@ export function messageToastify(info: NotifyInfo, router: any) {
 
     let toast = Toastify({
       text: `${htmlBody}<br />${info.name}`,
-      avatar: info.icon,
+      avatar: info.icon ? info.icon : null,
       backgroundColor: backgroundColor,
       className: 'text-dark',
       close: true,
@@ -595,7 +595,7 @@ export function messageToastify(info: NotifyInfo, router: any) {
 export function notifyPost(post_view: PostView, router: any) {
   let info: NotifyInfo = {
     name: post_view.community.name,
-    icon: post_view.community.icon ? post_view.community.icon : defaultFavIcon,
+    icon: post_view.community.icon,
     link: `/post/${post_view.post.id}`,
     body: post_view.post.name,
   };
@@ -605,9 +605,7 @@ export function notifyPost(post_view: PostView, router: any) {
 export function notifyComment(comment_view: CommentView, router: any) {
   let info: NotifyInfo = {
     name: comment_view.creator.name,
-    icon: comment_view.creator.avatar
-      ? comment_view.creator.avatar
-      : defaultFavIcon,
+    icon: comment_view.creator.avatar,
     link: `/post/${comment_view.post.id}/comment/${comment_view.comment.id}`,
     body: comment_view.comment.content,
   };
@@ -617,7 +615,7 @@ export function notifyComment(comment_view: CommentView, router: any) {
 export function notifyPrivateMessage(pmv: PrivateMessageView, router: any) {
   let info: NotifyInfo = {
     name: pmv.creator.name,
-    icon: pmv.creator.avatar ? pmv.creator.avatar : defaultFavIcon,
+    icon: pmv.creator.avatar,
     link: `/inbox`,
     body: pmv.private_message.content,
   };
