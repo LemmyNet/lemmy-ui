@@ -798,7 +798,7 @@ export class Main extends Component<any, MainState> {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
       // Necessary since it might be a user reply
-      if (data.recipient_ids.length == 0) {
+      if (data.form_id) {
         // If you're on subscribed, only push it if you're subscribed.
         if (this.state.listingType == ListingType.Subscribed) {
           if (

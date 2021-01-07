@@ -533,7 +533,7 @@ export class Community extends Component<any, State> {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
       // Necessary since it might be a user reply
-      if (data.recipient_ids.length == 0) {
+      if (data.form_id) {
         this.state.comments.unshift(data.comment_view);
         this.setState(this.state);
       }

@@ -479,8 +479,8 @@ export class Post extends Component<any, PostState> {
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
-      // Necessary since it might be a user reply
-      if (data.recipient_ids.length == 0) {
+      // Necessary since it might be a user reply, which has the form_id removed
+      if (data.form_id) {
         this.state.postRes.comments.unshift(data.comment_view);
         this.setState(this.state);
       }
