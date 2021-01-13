@@ -44,35 +44,36 @@ steps:
       ref:
         - refs/tags/*
 
----
-kind: pipeline
-name: arm64
+# TODO Disabling arm for now
+# ---
+# kind: pipeline
+# name: arm64
 
-platform:
-  os: linux
-  arch: arm64
+# platform:
+#   os: linux
+#   arch: arm64
 
-steps:
+# steps:
 
-  - name: fetch git submodules
-    image: node:14-alpine
-    commands:
-      - apk add git
-      - git submodule init
-      - git submodule update --recursive --remote
+#   - name: fetch git submodules
+#     image: node:14-alpine
+#     commands:
+#       - apk add git
+#       - git submodule init
+#       - git submodule update --recursive --remote
 
-  - name: make release build and push to docker hub
-    image: plugins/docker
-    settings:
-      dockerfile: Dockerfile
-      repo: dessalines/lemmy-ui
-      auto_tag: true
-      auto_tag_suffix: arm64
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-    when:
-      ref:
-        - refs/tags/*
+#   - name: make release build and push to docker hub
+#     image: plugins/docker
+#     settings:
+#       dockerfile: Dockerfile
+#       repo: dessalines/lemmy-ui
+#       auto_tag: true
+#       auto_tag_suffix: arm64
+#       username:
+#         from_secret: docker_username
+#       password:
+#         from_secret: docker_password
+#     when:
+#       ref:
+#         - refs/tags/*
 
