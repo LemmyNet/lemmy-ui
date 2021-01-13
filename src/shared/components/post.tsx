@@ -444,6 +444,7 @@ export class Post extends Component<any, PostState> {
 
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
+    console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), 'danger');
       return;
@@ -479,8 +480,8 @@ export class Post extends Component<any, PostState> {
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
-      // Necessary since it might be a user reply, which has the form_id removed
-      if (data.form_id) {
+      // Necessary since it might be a user reply, which has the recipients, to avoid double
+      if (data.recipient_ids.length == 0) {
         this.state.postRes.comments.unshift(data.comment_view);
         this.setState(this.state);
       }
