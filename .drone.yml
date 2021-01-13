@@ -30,19 +30,16 @@ steps:
     commands:
       - yarn build:dev
 
-  - name: create docker tags
-    image: node:14-alpine
-    commands:
-      - echo "$(git describe),latest" > .tags
-    when:
-      ref:
-        - refs/tags/*
-
-  - name: try to make a build
+  - name: make release build and push to docker hub
     image: plugins/docker
     settings:
       dockerfile: Dockerfile
       repo: dessalines/lemmy-ui
+      auto_tag: true
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
     when:
       ref:
         - refs/tags/*
@@ -70,6 +67,7 @@ steps:
       dockerfile: Dockerfile
       repo: dessalines/lemmy-ui
       auto_tag: true
+      auto_tag_suffix: arm64
       username:
         from_secret: docker_username
       password:
