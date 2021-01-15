@@ -107,6 +107,7 @@ export const languages = [
   { code: 'hi', name: 'मानक हिन्दी' },
   { code: 'fa', name: 'فارسی' },
   { code: 'ja', name: '日本語' },
+  { code: 'oc', name: 'Occitan' },
   { code: 'pl', name: 'Polski' },
   { code: 'pt_BR', name: 'Português Brasileiro' },
   { code: 'zh', name: '中文' },
@@ -446,6 +447,8 @@ export function getMomentLanguage(): string {
     lang = 'ko';
   } else if (lang.startsWith('da')) {
     lang = 'da';
+  } else if (lang.startsWith('oc')) {
+    lang = 'oc';
   } else {
     lang = 'en';
   }
