@@ -483,6 +483,7 @@ export class Post extends Component<any, PostState> {
       // Necessary since it might be a user reply, which has the recipients, to avoid double
       if (data.recipient_ids.length == 0) {
         this.state.postRes.comments.unshift(data.comment_view);
+        this.state.postRes.post_view.counts.comments++;
         this.setState(this.state);
       }
     } else if (
