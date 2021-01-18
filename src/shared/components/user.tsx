@@ -150,8 +150,6 @@ export class User extends Component<any, UserState> {
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.userRes = this.isoData.routeData[0];
-      this.state.userRes.user_view =
-        this.state.userRes.user_view || this.state.userRes.user_view_dangerous;
       this.setUserInfo();
       this.state.loading = false;
     } else {
@@ -1106,8 +1104,6 @@ export class User extends Component<any, UserState> {
       // TODO this might need to get abstracted
       let data = wsJsonToRes<GetUserDetailsResponse>(msg).data;
       this.state.userRes = data;
-      this.state.userRes.user_view =
-        this.state.userRes.user_view || this.state.userRes.user_view_dangerous;
       this.setUserInfo();
       this.state.loading = false;
       this.setState(this.state);

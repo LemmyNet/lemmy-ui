@@ -1,6 +1,6 @@
 // import Cookies from 'js-cookie';
 import IsomorphicCookie from 'isomorphic-cookie';
-import { User_, LoginResponse } from 'lemmy-js-client';
+import { UserSafeSettings, LoginResponse } from 'lemmy-js-client';
 import jwt_decode from 'jwt-decode';
 import { Subject, BehaviorSubject } from 'rxjs';
 
@@ -11,7 +11,7 @@ interface Claims {
 
 export class UserService {
   private static _instance: UserService;
-  public user: User_;
+  public user: UserSafeSettings;
   public claims: Claims;
   public jwtSub: Subject<string> = new Subject<string>();
   public unreadCountSub: BehaviorSubject<number> = new BehaviorSubject<number>(

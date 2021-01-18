@@ -48,7 +48,6 @@ export class Login extends Component<any, State> {
       username: undefined,
       password: undefined,
       password_verify: undefined,
-      admin: false,
       show_nsfw: false,
       captcha_uuid: undefined,
       captcha_answer: undefined,

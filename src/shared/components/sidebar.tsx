@@ -392,7 +392,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   handleDeleteClick(i: Sidebar, event: any) {
     event.preventDefault();
     let deleteForm: DeleteCommunity = {
-      edit_id: i.props.community_view.community.id,
+      community_id: i.props.community_view.community.id,
       deleted: !i.props.community_view.community.deleted,
       auth: authField(),
     };
@@ -482,7 +482,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   handleModRemoveSubmit(i: Sidebar, event: any) {
     event.preventDefault();
     let removeForm: RemoveCommunity = {
-      edit_id: i.props.community_view.community.id,
+      community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
       reason: i.state.removeReason,
       expires: getUnixTime(i.state.removeExpires),

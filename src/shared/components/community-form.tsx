@@ -283,7 +283,7 @@ export class CommunityForm extends Component<
     if (i.props.community_view) {
       let form: EditCommunity = {
         ...i.state.communityForm,
-        edit_id: i.props.community_view.community.id,
+        community_id: i.props.community_view.community.id,
       };
       WebSocketService.Instance.send(wsClient.editCommunity(form));
     } else {

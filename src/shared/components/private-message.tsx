@@ -229,7 +229,7 @@ export class PrivateMessage extends Component<
 
   handleDeleteClick(i: PrivateMessage) {
     let form: DeletePrivateMessage = {
-      edit_id: i.props.private_message_view.private_message.id,
+      private_message_id: i.props.private_message_view.private_message.id,
       deleted: !i.props.private_message_view.private_message.deleted,
       auth: authField(),
     };
@@ -244,7 +244,7 @@ export class PrivateMessage extends Component<
 
   handleMarkRead(i: PrivateMessage) {
     let form: MarkPrivateMessageAsRead = {
-      edit_id: i.props.private_message_view.private_message.id,
+      private_message_id: i.props.private_message_view.private_message.id,
       read: !i.props.private_message_view.private_message.read,
       auth: authField(),
     };

@@ -191,7 +191,7 @@ export class PrivateMessageForm extends Component<
     event.preventDefault();
     if (i.props.privateMessage) {
       let form: EditPrivateMessage = {
-        edit_id: i.props.privateMessage.private_message.id,
+        private_message_id: i.props.privateMessage.private_message.id,
         content: i.state.privateMessageForm.content,
         auth: authField(),
       };

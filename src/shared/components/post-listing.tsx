@@ -1237,7 +1237,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleDeleteClick(i: PostListing) {
     let deleteForm: DeletePost = {
-      edit_id: i.props.post_view.post.id,
+      post_id: i.props.post_view.post.id,
       deleted: !i.props.post_view.post.deleted,
       auth: authField(),
     };
@@ -1287,7 +1287,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModRemoveSubmit(i: PostListing) {
     event.preventDefault();
     let form: RemovePost = {
-      edit_id: i.props.post_view.post.id,
+      post_id: i.props.post_view.post.id,
       removed: !i.props.post_view.post.removed,
       reason: i.state.removeReason,
       auth: authField(),
@@ -1300,7 +1300,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleModLock(i: PostListing) {
     let form: LockPost = {
-      edit_id: i.props.post_view.post.id,
+      post_id: i.props.post_view.post.id,
       locked: !i.props.post_view.post.locked,
       auth: authField(),
     };
@@ -1309,7 +1309,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleModSticky(i: PostListing) {
     let form: StickyPost = {
-      edit_id: i.props.post_view.post.id,
+      post_id: i.props.post_view.post.id,
       stickied: !i.props.post_view.post.stickied,
       auth: authField(),
     };

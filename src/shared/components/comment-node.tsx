@@ -854,7 +854,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleDeleteClick(i: CommentNode) {
     let comment = i.props.node.comment_view.comment;
     let deleteForm: DeleteComment = {
-      edit_id: comment.id,
+      comment_id: comment.id,
       deleted: !comment.deleted,
       auth: authField(),
     };
@@ -956,7 +956,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleModRemoveSubmit(i: CommentNode) {
     let comment = i.props.node.comment_view.comment;
     let form: RemoveComment = {
-      edit_id: comment.id,
+      comment_id: comment.id,
       removed: !comment.removed,
       reason: i.state.removeReason,
       auth: authField(),

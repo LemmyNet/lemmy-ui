@@ -31,7 +31,7 @@ import 'moment/locale/da';
 import {
   UserOperation,
   CommentView,
-  User_,
+  UserSafeSettings,
   SortType,
   ListingType,
   SearchType,
@@ -239,7 +239,7 @@ export function getUnixTime(text: string): number {
 }
 
 export function canMod(
-  user: User_,
+  user: UserSafeSettings,
   modIds: number[],
   creator_id: number,
   onSelf: boolean = false

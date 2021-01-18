@@ -377,7 +377,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (i.props.post_view) {
       let form: EditPost = {
         ...i.state.postForm,
-        edit_id: i.props.post_view.post.id,
+        post_id: i.props.post_view.post.id,
       };
       WebSocketService.Instance.send(wsClient.editPost(form));
     } else {

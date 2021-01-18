@@ -109,7 +109,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
       let form: EditComment = {
         content,
         form_id: this.state.formId,
-        edit_id: node.comment_view.comment.id,
+        comment_id: node.comment_view.comment.id,
         auth: authField(),
       };
       WebSocketService.Instance.send(wsClient.editComment(form));
