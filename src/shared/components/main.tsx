@@ -267,7 +267,7 @@ export class Main extends Component<any, MainState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.state.siteRes.site_view.site && (
+        {this.state.siteRes.site_view?.site && (
           <div class="row">
             <main role="main" class="col-12 col-md-8">
               {this.posts()}
