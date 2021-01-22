@@ -1279,10 +1279,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.6.0.tgz#7d4411bf5157339337d7cff864d9ff45f177b499"
   integrity sha512-mikldZQitV94akrc4sCcSjtJfsTKt4p+e/s0AGscVA6XArQ9kFclP+ZiYUMnq987rc6QlYxXv/EivqlfSLxpKA==
 
-"@types/node@^14.14.21":
-  version "14.14.21"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.21.tgz#d934aacc22424fe9622ebf6857370c052eae464e"
-  integrity sha512-cHYfKsnwllYhjOzuC5q1VpguABBeecUp24yFluHpn/BQaVxB1CuQ1FSRZCzrPxrkIfWISXV2LbeoBthLWg0+0A==
+"@types/node@^14.14.22":
+  version "14.14.22"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.22.tgz#0d29f382472c4ccf3bd96ff0ce47daf5b7b84b18"
+  integrity sha512-g+f/qj/cNcqKkc3tFqlXOYjrmZA+jNBiDzbP3kH+B+otKFqAdPgVTGP1IeKRdMml/aE69as5S4FqtxAbl+LaMw==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -2224,15 +2224,15 @@ bonjour@^3.5.0:
     multicast-dns "^6.0.1"
     multicast-dns-service-types "^1.1.0"
 
-bootstrap@^4.5.3:
-  version "4.5.3"
-  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-4.5.3.tgz#c6a72b355aaf323920be800246a6e4ef30997fe6"
-  integrity sha512-o9ppKQioXGqhw8Z7mah6KdTYpNQY//tipnkxppWhPbiSWdD+1raYsnhwEZjkTHYbGee4cVQ0Rx65EhOY/HNLcQ==
+bootstrap@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-4.6.0.tgz#97b9f29ac98f98dfa43bf7468262d84392552fd7"
+  integrity sha512-Io55IuQY3kydzHtbGvQya3H+KorS/M9rSNyfCGCg9WZ4pyT/lCxIlpJgG1GXW/PswzC84Tr2fBYi+7+jFVQQBw==
 
-bootswatch@^4.5.3:
-  version "4.5.3"
-  resolved "https://registry.yarnpkg.com/bootswatch/-/bootswatch-4.5.3.tgz#bd9bd4fa212bd5872c932be58ed54e376ee7ccc5"
-  integrity sha512-gaB3gBSAegmYbk97aVELKcSKVdPjWsSY4yCITkUt/SqbqjtMU/HtIUszb4O9vzdbrfuVXThc/qCXzjoJaAPgiQ==
+bootswatch@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/bootswatch/-/bootswatch-4.6.0.tgz#295237ed0e118decb3e3543f2ac14e9bb8ae48ea"
+  integrity sha512-Yr6YqFBC8jwTzoJoLViYlvO97IhPWGqZEm+6FXHfD/G6gbUok6sZkdXxdh4Zb6iCGEwr9p7zGCn38yKQD/bh2Q==
 
 boxen@^1.2.1:
   version "1.3.0"
@@ -5624,10 +5624,10 @@ lcid@^1.0.0:
   dependencies:
     invert-kv "^1.0.0"
 
-lemmy-js-client@0.9.0-rc.12:
-  version "0.9.0-rc.12"
-  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.9.0-rc.12.tgz#991d31c4ef89b9bd4088a17c60b6cbaac997df41"
-  integrity sha512-SeCw9wjU89Zm4YWhr+neHC2XvqoqzJg2e42sFEgcDmnQxpPt2sND9Udu+tjGXatbz0tCu6ybGmpR5M0QT4xx9Q==
+lemmy-js-client@0.9.0-rc.16:
+  version "0.9.0-rc.16"
+  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.9.0-rc.16.tgz#4cb01bee5821d05f477857877879a7a7e1711cce"
+  integrity sha512-x5LRpXtUFDSMLqcNY/r6mttc4rrzedyfcQdudStPJlZaX4L8FSfBa3A1T8I1m4/UaVeIIXZjV2dl306LaQqOvw==
 
 levn@^0.4.1:
   version "0.4.1"
@@ -8602,10 +8602,10 @@ sorted-union-stream@~2.1.3:
     from2 "^1.3.0"
     stream-iterate "^1.1.0"
 
-sortpack@^2.1.11:
-  version "2.1.11"
-  resolved "https://registry.yarnpkg.com/sortpack/-/sortpack-2.1.11.tgz#afef2312f411f646707150b6659b4fb3499a7422"
-  integrity sha512-gm8tL0UDg4lO5KM6m/lWxoXYSNEJT4jEXuvxaqsc6kScOqJECU7tcmxWhgUY1tiQFhOO6jY4RaYUn2HPmZVSYA==
+sortpack@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/sortpack/-/sortpack-2.2.0.tgz#8f5ffc34a62305201186dae05658ef36723cc50d"
+  integrity sha512-2W/CtgiUebcL2znZheuNX2TQ0Z1XioF3yw6rzyvTYTJirYVjNbYjV4BJ62OvPAytF9pnnDI6bs07i1b/uK7qOQ==
 
 source-list-map@^2.0.0, source-list-map@^2.0.1:
   version "2.0.1"
@@ -9637,10 +9637,10 @@ webpack-sources@^2.1.1:
     source-list-map "^2.0.1"
     source-map "^0.6.1"
 
-webpack@5.15.0:
-  version "5.15.0"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.15.0.tgz#63d7b6228a4e15ee8c89899c2cfdd993e809bdd2"
-  integrity sha512-y/xG+ONDz78yn3VvP6gAvGr1/gkxOgitvHSXBmquyN8KDtrGEyE3K9WkXOPB7QmfcOBCpO4ELXwNcCYQnEmexA==
+webpack@5.16.0:
+  version "5.16.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.16.0.tgz#796e093c2d92c229f013aefefde82b50c0572570"
+  integrity sha512-QOkctcjYfEGxcYg4AzPJafyAQ7ANc266/URkX881uFA7b2k31E0Dmpy1ExfppHOTp1kHDTsRh9sXojVUvgPF0g==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.45"
