@@ -485,6 +485,7 @@ export class Post extends Component<any, PostState> {
         this.state.postRes.comments.unshift(data.comment_view);
         this.state.postRes.post_view.counts.comments++;
         this.setState(this.state);
+        setupTippy();
       }
     } else if (
       op == UserOperation.EditComment ||

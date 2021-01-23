@@ -52,7 +52,7 @@ import {
 } from './interfaces';
 import { UserService, WebSocketService } from './services';
 
-var Tribute;
+var Tribute: any;
 if (isBrowser()) {
   Tribute = require('tributejs');
 }
@@ -635,8 +635,8 @@ function notify(info: NotifyInfo, router: any) {
       body: info.body,
     });
 
-    notification.onclick = () => {
-      event.preventDefault();
+    notification.onclick = (ev: Event): any => {
+      ev.preventDefault();
       router.history.push(info.link);
     };
   }
@@ -708,14 +708,14 @@ export function setupTribute() {
   });
 }
 
-var tippyInstance;
+var tippyInstance: any;
 if (isBrowser()) {
   tippyInstance = tippy('[data-tippy-content]');
 }
 
 export function setupTippy() {
   if (isBrowser()) {
-    tippyInstance.forEach(e => e.destroy());
+    tippyInstance.forEach((e: any) => e.destroy());
     tippyInstance = tippy('[data-tippy-content]', {
       delay: [500, 0],
       // Display on "long press"
