@@ -51,12 +51,20 @@
   height: auto;
 }
 
-.md-div h1,
-.md-div h2,
-.md-div h3,
-.md-div h4,
+.md-div h1 {
+  font-size:2rem;
+}
+.md-div h2 {
+  font-size:1.8rem;
+}
+.md-div h3 {
+  font-size:1.6rem;
+}
+.md-div h4 {
+  font-size:1.4rem;
+}
 .md-div h5 {
-  font-size:1.171875rem;
+  font-size:1.2rem;
 }
 
 .md-div table {
