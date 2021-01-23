@@ -536,7 +536,12 @@ export class MarkdownTextArea extends Component<
           .split('\n')
           .map(t => `> ${t}`)
           .join('\n') + '\n\n';
-      this.state.content = quotedText;
+      if (this.state.content == null) {
+        this.state.content = '';
+      } else {
+        this.state.content += '\n';
+      }
+      this.state.content += quotedText;
       this.setState(this.state);
       // Not sure why this needs a delay
       setTimeout(() => autosize.update(textarea), 10);
