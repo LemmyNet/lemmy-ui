@@ -885,8 +885,13 @@ export class User extends Component<any, UserState> {
     const page = paramUpdates.page || this.state.page;
     const viewStr = paramUpdates.view || UserDetailsView[this.state.view];
     const sortStr = paramUpdates.sort || this.state.sort;
+
+    let typeView = this.state.userName
+      ? `/u/${this.state.userName}`
+      : `/user/${this.state.userId}`;
+
     this.props.history.push(
-      `/u/${this.state.userName}/view/${viewStr}/sort/${sortStr}/page/${page}`
+      `${typeView}/view/${viewStr}/sort/${sortStr}/page/${page}`
     );
     this.state.loading = true;
     this.setState(this.state);

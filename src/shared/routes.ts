@@ -93,6 +93,11 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: req => User.fetchInitialData(req),
   },
   {
+    path: `/user/:id/view/:view/sort/:sort/page/:page`,
+    component: User,
+    fetchInitialData: req => User.fetchInitialData(req),
+  },
+  {
     path: `/user/:id`,
     component: User,
     fetchInitialData: req => User.fetchInitialData(req),
