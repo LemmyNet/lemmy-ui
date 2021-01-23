@@ -35,6 +35,7 @@ interface CommunitiesState {
   page: number;
   loading: boolean;
   site_view: SiteView;
+  searchText: string;
 }
 
 interface CommunitiesProps {
@@ -49,6 +50,7 @@ export class Communities extends Component<any, CommunitiesState> {
     loading: true,
     page: getPageFromProps(this.props),
     site_view: this.isoData.site_res.site_view,
+    searchText: '',
   };
 
   constructor(props: any, context: any) {
@@ -108,7 +110,15 @@ export class Communities extends Component<any, CommunitiesState> {
           </h5>
         ) : (
           <div>
-            <h5>{i18n.t('list_of_communities')}</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <h4>{i18n.t('list_of_communities')}</h4>
+              </div>
+              <div class="col-md-6">
+                <div class="float-md-right">{this.searchForm()}</div>
+              </div>
+            </div>
+
             <div class="table-responsive">
               <table id="community_table" class="table table-sm table-hover">
                 <thead class="pointer">
@@ -174,6 +184,28 @@ export class Communities extends Component<any, CommunitiesState> {
     );
   }
 
+  searchForm() {
+    return (
+      <form
+        class="form-inline"
+        onSubmit={linkEvent(this, this.handleSearchSubmit)}
+      >
+        <input
+          type="text"
+          class="form-control mr-2 mb-2"
+          value={this.state.searchText}
+          placeholder={`${i18n.t('search')}...`}
+          onInput={linkEvent(this, this.handleSearchChange)}
+          required
+          minLength={3}
+        />
+        <button type="submit" class="btn btn-secondary mr-2 mb-2">
+          <span>{i18n.t('search')}</span>
+        </button>
+      </form>
+    );
+  }
+
   paginator() {
     return (
       <div class="mt-2">
@@ -227,6 +259,17 @@ export class Communities extends Component<any, CommunitiesState> {
       auth: authField(),
     };
     WebSocketService.Instance.send(wsClient.followCommunity(form));
+  }
+
+  handleSearchChange(i: Communities, event: any) {
+    i.setState({ searchText: event.target.value });
+  }
+
+  handleSearchSubmit(i: Communities) {
+    const searchParamEncoded = encodeURIComponent(i.state.searchText);
+    i.context.router.history.push(
+      `/search/q/${searchParamEncoded}/type/Communities/sort/TopAll/page/1`
+    );
   }
 
   refetch() {
