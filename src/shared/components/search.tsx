@@ -378,7 +378,7 @@ export class Search extends Component<any, SearchState> {
         <span>
           <CommunityLink community={community_view.community} />
         </span>
-        <span>{` - ${community_view.community.title} - 
+        <span>{` - 
         ${i18n.t('number_of_subscribers', {
           count: community_view.counts.subscribers,
         })}
