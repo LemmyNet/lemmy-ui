@@ -42,6 +42,8 @@ import {
   PostView,
   PrivateMessageView,
   LemmyWebsocket,
+  UserViewSafe,
+  CommunityView,
 } from 'lemmy-js-client';
 
 import {
@@ -671,13 +673,11 @@ export function setupTribute() {
       {
         trigger: '@',
         selectTemplate: (item: any) => {
-          let link = item.original.local
-            ? `[${item.original.key}](/u/${item.original.name})`
-            : `[${item.original.key}](/user/${item.original.id})`;
-          return link;
+          let it: UserTribute = item.original;
+          return `[${it.key}](${it.view.user.actor_id})`;
         },
-        values: (text: string, cb: any) => {
-          userSearch(text, (users: any) => cb(users));
+        values: (text: string, cb: (users: UserTribute[]) => any) => {
+          userSearch(text, (users: UserTribute[]) => cb(users));
         },
         allowSpaces: false,
         autocompleteMode: true,
@@ -690,13 +690,13 @@ export function setupTribute() {
       {
         trigger: '!',
         selectTemplate: (item: any) => {
-          let link = item.original.local
-            ? `[${item.original.key}](/c/${item.original.name})`
-            : `[${item.original.key}](/community/${item.original.id})`;
-          return link;
+          let it: CommunityTribute = item.original;
+          return `[${it.key}](${it.view.community.actor_id})`;
         },
         values: (text: string, cb: any) => {
-          communitySearch(text, (communities: any) => cb(communities));
+          communitySearch(text, (communities: CommunityTribute[]) =>
+            cb(communities)
+          );
         },
         allowSpaces: false,
         autocompleteMode: true,
@@ -724,7 +724,12 @@ export function setupTippy() {
   }
 }
 
-function userSearch(text: string, cb: any) {
+interface UserTribute {
+  key: string;
+  view: UserViewSafe;
+}
+
+function userSearch(text: string, cb: (users: UserTribute[]) => any) {
   if (text) {
     let form: Search = {
       q: text,
@@ -742,13 +747,12 @@ function userSearch(text: string, cb: any) {
         let res = wsJsonToRes(msg);
         if (res.op == UserOperation.Search) {
           let data = res.data as SearchResponse;
-          let users = data.users.map(uv => {
-            return {
+          let users: UserTribute[] = data.users.map(uv => {
+            let tribute: UserTribute = {
               key: `@${uv.user.name}@${hostname(uv.user.actor_id)}`,
-              name: uv.user.name,
-              local: uv.user.local,
-              id: uv.user.id,
+              view: uv,
             };
+            return tribute;
           });
           cb(users);
           userSub.unsubscribe();
@@ -762,7 +766,15 @@ function userSearch(text: string, cb: any) {
   }
 }
 
-function communitySearch(text: string, cb: any) {
+interface CommunityTribute {
+  key: string;
+  view: CommunityView;
+}
+
+function communitySearch(
+  text: string,
+  cb: (communities: CommunityTribute[]) => any
+) {
   if (text) {
     let form: Search = {
       q: text,
@@ -780,13 +792,12 @@ function communitySearch(text: string, cb: any) {
         let res = wsJsonToRes(msg);
         if (res.op == UserOperation.Search) {
           let data = res.data as SearchResponse;
-          let communities = data.communities.map(cv => {
-            return {
+          let communities: CommunityTribute[] = data.communities.map(cv => {
+            let tribute: CommunityTribute = {
               key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
-              name: cv.community.name,
-              local: cv.community.local,
-              id: cv.community.id,
+              view: cv,
             };
+            return tribute;
           });
           cb(communities);
           communitySub.unsubscribe();
