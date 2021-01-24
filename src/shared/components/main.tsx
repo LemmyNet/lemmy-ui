@@ -716,32 +716,38 @@ export class Main extends Component<any, MainState> {
     } else if (op == UserOperation.CreatePost) {
       let data = wsJsonToRes<PostResponse>(msg).data;
 
-      // If you're on subscribed, only push it if you're subscribed.
-      if (this.state.listingType == ListingType.Subscribed) {
-        if (
-          this.state.subscribedCommunities
-            .map(c => c.community.id)
-            .includes(data.post_view.community.id)
-        ) {
-          this.state.posts.unshift(data.post_view);
-          notifyPost(data.post_view, this.context.router);
-        }
-      } else {
-        // NSFW posts
-        let nsfw = data.post_view.post.nsfw || data.post_view.community.nsfw;
+      // NSFW check
+      let nsfw = data.post_view.post.nsfw || data.post_view.community.nsfw;
+      let nsfwCheck =
+        !nsfw ||
+        (nsfw &&
+          UserService.Instance.user &&
+          UserService.Instance.user.show_nsfw);
 
-        // Don't push the post if its nsfw, and don't have that setting on
-        if (
-          !nsfw ||
-          (nsfw &&
-            UserService.Instance.user &&
-            UserService.Instance.user.show_nsfw)
-        ) {
+      // Only push these if you're on the first page, and you pass the nsfw check
+      if (this.state.page == 1 && nsfwCheck) {
+        // If you're on subscribed, only push it if you're subscribed.
+        if (this.state.listingType == ListingType.Subscribed) {
+          if (
+            this.state.subscribedCommunities
+              .map(c => c.community.id)
+              .includes(data.post_view.community.id)
+          ) {
+            this.state.posts.unshift(data.post_view);
+            notifyPost(data.post_view, this.context.router);
+          }
+        } else if (this.state.listingType == ListingType.Local) {
+          // If you're on the local view, only push it if its local
+          if (data.post_view.post.local) {
+            this.state.posts.unshift(data.post_view);
+            notifyPost(data.post_view, this.context.router);
+          }
+        } else {
           this.state.posts.unshift(data.post_view);
           notifyPost(data.post_view, this.context.router);
         }
+        this.setState(this.state);
       }
-      this.setState(this.state);
     } else if (
       op == UserOperation.EditPost ||
       op == UserOperation.DeletePost ||
