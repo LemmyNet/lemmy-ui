@@ -173,7 +173,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
-    let user = this.props.site_res.my_user || UserService.Instance.user;
+    let user = UserService.Instance.user || this.props.site_res.my_user;
     return (
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
