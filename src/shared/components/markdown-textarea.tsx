@@ -420,13 +420,13 @@ export class MarkdownTextArea extends Component<
       i.state.content = `${i.state.content.substring(
         0,
         start
-      )} [${selectedText}]() ${i.state.content.substring(end)}`;
+      )}[${selectedText}]()${i.state.content.substring(end)}`;
       textarea.focus();
-      setTimeout(() => (textarea.selectionEnd = end + 4), 10);
+      setTimeout(() => (textarea.selectionEnd = end + 5), 10);
     } else {
       i.state.content += '[]()';
       textarea.focus();
-      setTimeout(() => (textarea.selectionEnd -= 1), 10);
+      setTimeout(() => (textarea.selectionEnd -= 0), 10);
     }
     i.setState(i.state);
   }
@@ -435,7 +435,15 @@ export class MarkdownTextArea extends Component<
     this.simpleSurroundBeforeAfter(chars, chars);
   }
 
-  simpleSurroundBeforeAfter(beforeChars: string, afterChars: string) {
+  simpleBeginningofLine(chars: string) {
+    this.simpleSurroundBeforeAfter(`${chars} `, '', '');
+  }
+
+  simpleSurroundBeforeAfter(
+    beforeChars: string,
+    afterChars: string,
+    emptyChars: string = '___'
+  ) {
     if (!this.state.content) {
       this.state.content = '';
     }
@@ -447,12 +455,12 @@ export class MarkdownTextArea extends Component<
       let selectedText = this.state.content.substring(start, end);
       this.state.content = `${this.state.content.substring(
         0,
-        start - 1
-      )} ${beforeChars}${selectedText}${afterChars} ${this.state.content.substring(
-        end + 1
+        start
+      )}${beforeChars}${selectedText}${afterChars}${this.state.content.substring(
+        end
       )}`;
     } else {
-      this.state.content += `${beforeChars}___${afterChars}`;
+      this.state.content += `${beforeChars}${emptyChars}${afterChars}`;
     }
     this.setState(this.state);
     setTimeout(() => {
@@ -482,17 +490,17 @@ export class MarkdownTextArea extends Component<
 
   handleInsertList(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleInsert('-');
+    i.simpleBeginningofLine('-');
   }
 
   handleInsertQuote(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleInsert('>');
+    i.simpleBeginningofLine('>');
   }
 
   handleInsertHeader(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleInsert('#');
+    i.simpleBeginningofLine('#');
   }
 
   handleInsertSubscript(i: MarkdownTextArea, event: any) {
