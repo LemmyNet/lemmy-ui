@@ -101,8 +101,11 @@ export class Post extends Component<any, PostState> {
       this.state.categories = this.isoData.routeData[1].categories;
       this.state.loading = false;
 
-      if (isBrowser() && this.state.commentId) {
-        this.scrollCommentIntoView();
+      if (isBrowser()) {
+        this.fetchCrossPosts();
+        if (this.state.commentId) {
+          this.scrollCommentIntoView();
+        }
       }
     } else {
       this.fetchPost();
@@ -116,6 +119,20 @@ export class Post extends Component<any, PostState> {
       auth: authField(false),
     };
     WebSocketService.Instance.send(wsClient.getPost(form));
+  }
+
+  fetchCrossPosts() {
+    if (this.state.postRes.post_view.post.url) {
+      let form: Search = {
+        q: this.state.postRes.post_view.post.url,
+        type_: SearchType.Url,
+        sort: SortType.TopAll,
+        page: 1,
+        limit: 6,
+        auth: authField(false),
+      };
+      WebSocketService.Instance.send(wsClient.search(form));
+    }
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -463,18 +480,7 @@ export class Post extends Component<any, PostState> {
       this.state.loading = false;
 
       // Get cross-posts
-      if (this.state.postRes.post_view.post.url) {
-        let form: Search = {
-          q: this.state.postRes.post_view.post.url,
-          type_: SearchType.Url,
-          sort: SortType.TopAll,
-          page: 1,
-          limit: 6,
-          auth: authField(false),
-        };
-        WebSocketService.Instance.send(wsClient.search(form));
-      }
-
+      this.fetchCrossPosts();
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.CreateComment) {
