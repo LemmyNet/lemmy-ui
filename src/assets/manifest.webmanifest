@@ -2,7 +2,7 @@
   "name": "Lemmy",
   "description": "A link aggregator for the fediverse",
   "start_url": "/",
-  "display": "minimal-ui",
+  "display": "standalone",
   "background_color": "#222222",
   "icons": [
     {
