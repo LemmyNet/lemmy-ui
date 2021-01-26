@@ -94,7 +94,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showRemoveDialog: false,
     removeReason: null,
     showBanDialog: false,
-    removeData: null,
+    removeData: false,
     banReason: null,
     banExpires: null,
     banType: BanType.Community,

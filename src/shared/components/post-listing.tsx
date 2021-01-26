@@ -80,7 +80,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showRemoveDialog: false,
     removeReason: null,
     showBanDialog: false,
-    removeData: null,
+    removeData: false,
     banReason: null,
     banExpires: null,
     banType: BanType.Community,
@@ -1284,7 +1284,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState(i.state);
   }
 
-  handleModRemoveSubmit(i: PostListing) {
+  handleModRemoveSubmit(i: PostListing, event: any) {
     event.preventDefault();
     let form: RemovePost = {
       post_id: i.props.post_view.post.id,
@@ -1350,7 +1350,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.handleModBanBothSubmit(i);
   }
 
-  handleModBanBothSubmit(i: PostListing) {
+  handleModBanBothSubmit(i: PostListing, event?: any) {
     event.preventDefault();
 
     if (i.state.banType == BanType.Community) {
