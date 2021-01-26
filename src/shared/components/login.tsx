@@ -245,6 +245,7 @@ export class Login extends Component<any, State> {
               value={this.state.registerForm.password_verify}
               autoComplete="new-password"
               onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
+              maxLength={60}
               class="form-control"
               required
             />
