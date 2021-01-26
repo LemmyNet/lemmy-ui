@@ -9,6 +9,7 @@ import {
   FollowCommunity,
   ListCommunities,
   SortType,
+  ListingType,
   SiteView,
 } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
@@ -274,6 +275,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   refetch() {
     let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.All,
       sort: SortType.TopAll,
       limit: communityLimit,
       page: this.state.page,
@@ -289,6 +291,7 @@ export class Communities extends Component<any, CommunitiesState> {
     let pathSplit = req.path.split('/');
     let page = pathSplit[3] ? Number(pathSplit[3]) : 1;
     let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.All,
       sort: SortType.TopAll,
       limit: communityLimit,
       page,

@@ -21,6 +21,7 @@ import {
   SiteView,
   ListCommunities,
   SortType,
+  ListingType,
   PostView,
 } from 'lemmy-js-client';
 import { i18n } from '../i18next';
@@ -65,6 +66,7 @@ export class CreatePost extends Component<any, CreatePostState> {
 
   refetch() {
     let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.All,
       sort: SortType.TopAll,
       limit: 9999,
       auth: authField(false),
@@ -160,6 +162,7 @@ export class CreatePost extends Component<any, CreatePostState> {
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.All,
       sort: SortType.TopAll,
       limit: 9999,
     };
