@@ -149,6 +149,7 @@ export class Main extends Component<any, MainState> {
 
   fetchTrendingCommunities() {
     let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.Local,
       sort: SortType.Hot,
       limit: 6,
       auth: authField(false),
@@ -228,6 +229,7 @@ export class Main extends Component<any, MainState> {
     }
 
     let trendingCommunitiesForm: ListCommunities = {
+      type_: ListingType.Local,
       sort: SortType.Hot,
       limit: 6,
     };
