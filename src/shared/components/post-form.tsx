@@ -37,6 +37,7 @@ import {
   wsClient,
   authField,
 } from '../utils';
+import autosize from 'autosize';
 
 var Choices;
 if (isBrowser()) {
@@ -125,6 +126,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   componentDidMount() {
     setupTippy();
     this.setupCommunities();
+    let textarea: any = document.getElementById('post-title');
+    if (textarea) {
+      autosize(textarea);
+    }
   }
 
   componentDidUpdate() {
@@ -252,7 +257,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   !validTitle(this.state.postForm.name) && 'is-invalid'
                 }`}
                 required
-                rows={2}
+                rows={1}
                 minLength={3}
                 maxLength={MAX_POST_TITLE_LENGTH}
               />
