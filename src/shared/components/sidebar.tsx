@@ -143,24 +143,49 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   badges() {
     let community_view = this.props.community_view;
+    let counts = community_view.counts;
     return (
       <ul class="my-1 list-inline">
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_online', { count: this.props.online })}
         </li>
         <li className="list-inline-item badge badge-secondary">
+          {i18n.t('number_of_users', {
+            count: counts.users_active_day,
+          })}{' '}
+          / {i18n.t('day')}
+        </li>
+        <li className="list-inline-item badge badge-secondary">
+          {i18n.t('number_of_users', {
+            count: counts.users_active_week,
+          })}{' '}
+          / {i18n.t('week')}
+        </li>
+        <li className="list-inline-item badge badge-secondary">
+          {i18n.t('number_of_users', {
+            count: counts.users_active_month,
+          })}{' '}
+          / {i18n.t('month')}
+        </li>
+        <li className="list-inline-item badge badge-secondary">
+          {i18n.t('number_of_users', {
+            count: counts.users_active_half_year,
+          })}{' '}
+          / {i18n.t('number_of_months', { count: 6 })}
+        </li>
+        <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_subscribers', {
-            count: community_view.counts.subscribers,
+            count: counts.subscribers,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_posts', {
-            count: community_view.counts.posts,
+            count: counts.posts,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_comments', {
-            count: community_view.counts.comments,
+            count: counts.comments,
           })}
         </li>
         <li className="list-inline-item">

@@ -420,7 +420,7 @@ export class Main extends Component<any, MainState> {
   }
 
   badges() {
-    let site_view = this.state.siteRes.site_view;
+    let counts = this.state.siteRes.site_view.counts;
     return (
       <ul class="my-2 list-inline">
         <li className="list-inline-item badge badge-secondary">
@@ -428,22 +428,46 @@ export class Main extends Component<any, MainState> {
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_users', {
-            count: site_view.counts.users,
+            count: counts.users_active_day,
+          })}{' '}
+          / {i18n.t('day')}
+        </li>
+        <li className="list-inline-item badge badge-secondary">
+          {i18n.t('number_of_users', {
+            count: counts.users_active_week,
+          })}{' '}
+          / {i18n.t('week')}
+        </li>
+        <li className="list-inline-item badge badge-secondary">
+          {i18n.t('number_of_users', {
+            count: counts.users_active_month,
+          })}{' '}
+          / {i18n.t('month')}
+        </li>
+        <li className="list-inline-item badge badge-secondary">
+          {i18n.t('number_of_users', {
+            count: counts.users_active_half_year,
+          })}{' '}
+          / {i18n.t('number_of_months', { count: 6 })}
+        </li>
+        <li className="list-inline-item badge badge-secondary">
+          {i18n.t('number_of_subscribers', {
+            count: counts.users,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_communities', {
-            count: site_view.counts.communities,
+            count: counts.communities,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_posts', {
-            count: site_view.counts.posts,
+            count: counts.posts,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_of_comments', {
-            count: site_view.counts.comments,
+            count: counts.comments,
           })}
         </li>
         <li className="list-inline-item">
