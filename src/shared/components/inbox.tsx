@@ -169,6 +169,7 @@ export class Inbox extends Component<any, InboxState> {
                     <li className="list-inline-item">
                       <span
                         class="pointer"
+                        role="button"
                         onClick={linkEvent(this, this.markAllAsRead)}
                       >
                         {i18n.t('mark_all_as_read')}

@@ -80,11 +80,12 @@ export class PasswordChange extends Component<any, State> {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
         <div class="form-group row">
-          <label class="col-sm-2 col-form-label">
+          <label class="col-sm-2 col-form-label" htmlFor="new-password">
             {i18n.t('new_password')}
           </label>
           <div class="col-sm-10">
             <input
+              id="new-password"
               type="password"
               value={this.state.passwordChangeForm.password}
               onInput={linkEvent(this, this.handlePasswordChange)}
@@ -94,11 +95,12 @@ export class PasswordChange extends Component<any, State> {
           </div>
         </div>
         <div class="form-group row">
-          <label class="col-sm-2 col-form-label">
+          <label class="col-sm-2 col-form-label" htmlFor="verify-password">
             {i18n.t('verify_password')}
           </label>
           <div class="col-sm-10">
             <input
+              id="verify-password"
               type="password"
               value={this.state.passwordChangeForm.password_verify}
               onInput={linkEvent(this, this.handleVerifyPasswordChange)}

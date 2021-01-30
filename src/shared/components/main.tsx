@@ -486,7 +486,9 @@ export class Main extends Component<any, MainState> {
           <li className="list-inline-item-action">
             <span
               class="pointer"
+              role="button"
               onClick={linkEvent(this, this.handleEditClick)}
+              aria-label={i18n.t('edit')}
               data-tippy-content={i18n.t('edit')}
             >
               <svg class="icon icon-inline">

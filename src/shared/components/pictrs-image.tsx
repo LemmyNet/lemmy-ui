@@ -6,6 +6,7 @@ const maxImageSize = 3000;
 
 interface PictrsImageProps {
   src: string;
+  alt?: string;
   icon?: boolean;
   thumbnail?: boolean;
   nsfw?: boolean;
@@ -25,13 +26,14 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
         <source srcSet={this.src('jpg')} type="image/jpeg" />
         <img
           src={this.src('jpg')}
+          alt={this.alt()}
           className={`
         ${!this.props.icon && !this.props.iconOverlay && 'img-fluid '}
         ${
           this.props.thumbnail && !this.props.icon
             ? 'thumbnail rounded '
             : 'img-expanded '
-        } 
+        }
         ${this.props.thumbnail && this.props.nsfw && 'img-blur '}
         ${this.props.icon && 'rounded-circle img-icon mr-2 '}
         ${this.props.iconOverlay && 'ml-2 mb-0 rounded-circle avatar-overlay '}
@@ -70,5 +72,12 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     let out = `${host}/pictrs/image/${path}${paramsStr}`;
 
     return out;
+  }
+
+  alt(): string {
+    if (this.props.icon) {
+      return '';
+    }
+    return this.props.alt || '';
   }
 }

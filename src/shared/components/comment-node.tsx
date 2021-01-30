@@ -198,6 +198,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <button
                 class="btn btn-sm text-muted"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
+                aria-label={
+                  this.state.collapsed ? i18n.t('expand') : i18n.t('collapse')
+                }
               >
                 {this.state.collapsed ? '+' : '—'}
               </button>
@@ -248,6 +251,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           ? i18n.t('mark_as_unread')
                           : i18n.t('mark_as_read')
                       }
+                      aria-label={
+                        this.commentOrMentionRead
+                          ? i18n.t('mark_as_unread')
+                          : i18n.t('mark_as_read')
+                      }
                     >
                       {this.state.readLoading ? (
                         this.loadingIcon
@@ -270,6 +278,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         }`}
                         onClick={linkEvent(node, this.handleCommentUpvote)}
                         data-tippy-content={i18n.t('upvote')}
+                        aria-label={i18n.t('upvote')}
                       >
                         <svg class="icon icon-inline">
                           <use xlinkHref="#icon-arrow-up1"></use>
@@ -287,6 +296,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           }`}
                           onClick={linkEvent(node, this.handleCommentDownvote)}
                           data-tippy-content={i18n.t('downvote')}
+                          aria-label={i18n.t('downvote')}
                         >
                           <svg class="icon icon-inline">
                             <use xlinkHref="#icon-arrow-down1"></use>
@@ -300,6 +310,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
                         data-tippy-content={i18n.t('reply')}
+                        aria-label={i18n.t('reply')}
                       >
                         <svg class="icon icon-inline">
                           <use xlinkHref="#icon-reply1"></use>
@@ -310,6 +321,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           className="btn btn-link btn-animate text-muted"
                           onClick={linkEvent(this, this.handleShowAdvanced)}
                           data-tippy-content={i18n.t('more')}
+                          aria-label={i18n.t('more')}
                         >
                           <svg class="icon icon-inline">
                             <use xlinkHref="#icon-more-vertical"></use>
@@ -340,6 +352,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             data-tippy-content={
                               cv.saved ? i18n.t('unsave') : i18n.t('save')
                             }
+                            aria-label={
+                              cv.saved ? i18n.t('unsave') : i18n.t('save')
+                            }
                           >
                             {this.state.saveLoading ? (
                               this.loadingIcon
@@ -357,6 +372,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             className="btn btn-link btn-animate text-muted"
                             onClick={linkEvent(this, this.handleViewSource)}
                             data-tippy-content={i18n.t('view_source')}
+                            aria-label={i18n.t('view_source')}
                           >
                             <svg
                               class={`icon icon-inline ${
@@ -372,6 +388,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 class="btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(this, this.handleEditClick)}
                                 data-tippy-content={i18n.t('edit')}
+                                aria-label={i18n.t('edit')}
                               >
                                 <svg class="icon icon-inline">
                                   <use xlinkHref="#icon-edit"></use>
@@ -384,6 +401,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   this.handleDeleteClick
                                 )}
                                 data-tippy-content={
+                                  !cv.comment.deleted
+                                    ? i18n.t('delete')
+                                    : i18n.t('restore')
+                                }
+                                aria-label={
                                   !cv.comment.deleted
                                     ? i18n.t('delete')
                                     : i18n.t('restore')
@@ -667,9 +689,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
             <div class="form-group row">
-              <label class="col-form-label">{i18n.t('reason')}</label>
+              <label
+                class="col-form-label"
+                htmlFor={`mod-ban-reason-${cv.comment.id}`}
+              >
+                {i18n.t('reason')}
+              </label>
               <input
                 type="text"
+                id={`mod-ban-reason-${cv.comment.id}`}
                 class="form-control mr-2"
                 placeholder={i18n.t('reason')}
                 value={this.state.banReason}

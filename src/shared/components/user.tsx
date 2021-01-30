@@ -521,28 +521,36 @@ export class User extends Component<any, UserState> {
                 />
               </div>
               <div class="form-group">
-                <label>{i18n.t('language')}</label>
+                <label htmlFor="user-language">{i18n.t('language')}</label>
                 <select
+                  id="user-language"
                   value={this.state.userSettingsForm.lang}
                   onChange={linkEvent(this, this.handleUserSettingsLangChange)}
                   class="ml-2 custom-select w-auto"
                 >
-                  <option disabled>{i18n.t('language')}</option>
+                  <option disabled aria-hidden="true">
+                    {i18n.t('language')}
+                  </option>
                   <option value="browser">{i18n.t('browser_default')}</option>
-                  <option disabled>──</option>
+                  <option disabled aria-hidden="true">
+                    ──
+                  </option>
                   {languages.map(lang => (
                     <option value={lang.code}>{lang.name}</option>
                   ))}
                 </select>
               </div>
               <div class="form-group">
-                <label>{i18n.t('theme')}</label>
+                <label htmlFor="user-theme">{i18n.t('theme')}</label>
                 <select
+                  id="user-theme"
                   value={this.state.userSettingsForm.theme}
                   onChange={linkEvent(this, this.handleUserSettingsThemeChange)}
                   class="ml-2 custom-select w-auto"
                 >
-                  <option disabled>{i18n.t('theme')}</option>
+                  <option disabled aria-hidden="true">
+                    {i18n.t('theme')}
+                  </option>
                   <option value="browser">{i18n.t('browser_default')}</option>
                   {themes.map(theme => (
                     <option value={theme}>{theme}</option>
@@ -580,11 +588,12 @@ export class User extends Component<any, UserState> {
                 />
               </form>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">
+                <label class="col-lg-5 col-form-label" htmlFor="display-name">
                   {i18n.t('display_name')}
                 </label>
                 <div class="col-lg-7">
                   <input
+                    id="display-name"
                     type="text"
                     class="form-control"
                     placeholder={i18n.t('optional')}
@@ -632,13 +641,14 @@ export class User extends Component<any, UserState> {
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">
+                <label class="col-lg-5 col-form-label" htmlFor="matrix-user-id">
                   <a href={elementUrl} target="_blank" rel="noopener">
                     {i18n.t('matrix_user_id')}
                   </a>
                 </label>
                 <div class="col-lg-7">
                   <input
+                    id="matrix-user-id"
                     type="text"
                     class="form-control"
                     placeholder="@user:example.com"
