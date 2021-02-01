@@ -639,7 +639,7 @@ export class Main extends Component<any, MainState> {
   get showLocal(): boolean {
     return (
       this.isoData.site_res.federated_instances !== null &&
-      this.isoData.site_res.federated_instances.length > 0
+      this.isoData.site_res.federated_instances.linked.length > 0
     );
   }
 
