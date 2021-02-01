@@ -7,6 +7,7 @@ interface SortSelectProps {
   sort: SortType;
   onChange?(val: SortType): any;
   hideHot?: boolean;
+  hideMostComments?: boolean;
 }
 
 interface SortSelectState {
@@ -41,13 +42,16 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
           class="custom-select w-auto mr-2 mb-2"
         >
           <option disabled>{i18n.t('sort_type')}</option>
-          {!this.props.hideHot && (
-            <option value={SortType.Hot}>{i18n.t('hot')}</option>
-          )}
-          {!this.props.hideHot && (
-            <option value={SortType.Active}>{i18n.t('active')}</option>
-          )}
+          {!this.props.hideHot && [
+            <option value={SortType.Hot}>{i18n.t('hot')}</option>,
+            <option value={SortType.Active}>{i18n.t('active')}</option>,
+          ]}
           <option value={SortType.New}>{i18n.t('new')}</option>
+          {!this.props.hideMostComments && (
+            <option value={SortType.MostComments}>
+              {i18n.t('most_comments')}
+            </option>
+          )}
           <option disabled>─────</option>
           <option value={SortType.TopDay}>{i18n.t('top_day')}</option>
           <option value={SortType.TopWeek}>{i18n.t('top_week')}</option>
