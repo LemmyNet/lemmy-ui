@@ -24,30 +24,50 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   render() {
+    let federated_instances = this.state.siteRes?.federated_instances;
     return (
-      <div class="container">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
-        <div>
-          <h5>{i18n.t('linked_instances')}</h5>
-          {this.state.siteRes &&
-          this.state.siteRes.federated_instances.length ? (
-            <ul>
-              {this.state.siteRes.federated_instances.map(i => (
-                <li>
-                  <a href={`https://${i}`} target="_blank" rel="noopener">
-                    {i}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div>{i18n.t('none_found')}</div>
-          )}
+      federated_instances && (
+        <div class="container">
+          <HtmlTags
+            title={this.documentTitle}
+            path={this.context.router.route.match.url}
+          />
+          <div class="row">
+            <div class="col-md-6">
+              <h5>{i18n.t('linked_instances')}</h5>
+              {this.itemList(federated_instances.linked)}
+            </div>
+            {federated_instances.allowed.length > 0 && (
+              <div class="col-md-6">
+                <h5>{i18n.t('allowed_instances')}</h5>
+                {this.itemList(federated_instances.allowed)}
+              </div>
+            )}
+            {federated_instances.blocked.length > 0 && (
+              <div class="col-md-6">
+                <h5>{i18n.t('blocked_instances')}</h5>
+                {this.itemList(federated_instances.blocked)}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )
+    );
+  }
+
+  itemList(items: string[]) {
+    return items.length > 0 ? (
+      <ul>
+        {items.map(i => (
+          <li>
+            <a href={`https://${i}`} target="_blank" rel="noopener">
+              {i}
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div>{i18n.t('none_found')}</div>
     );
   }
 }

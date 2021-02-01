@@ -560,8 +560,7 @@ export class User extends Component<any, UserState> {
                     ]
                   }
                   showLocal={
-                    this.state.siteRes.federated_instances &&
-                    this.state.siteRes.federated_instances.length > 0
+                    this.state.siteRes.federated_instances?.linked.length > 0
                   }
                   onChange={this.handleUserSettingsListingTypeChange}
                 />
