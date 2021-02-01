@@ -382,6 +382,7 @@ export class User extends Component<any, UserState> {
           sort={this.state.sort}
           onChange={this.handleSortChange}
           hideHot
+          hideMostComments
         />
         <a
           href={`/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`}

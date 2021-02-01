@@ -292,6 +292,7 @@ export class Inbox extends Component<any, InboxState> {
           sort={this.state.sort}
           onChange={this.handleSortChange}
           hideHot
+          hideMostComments
         />
       </div>
     );

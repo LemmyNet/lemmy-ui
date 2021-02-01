@@ -245,6 +245,7 @@ export class Search extends Component<any, SearchState> {
             sort={this.state.sort}
             onChange={this.handleSortChange}
             hideHot
+            hideMostComments
           />
         </span>
       </div>
