@@ -149,25 +149,47 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_online', { count: this.props.online })}
         </li>
-        <li className="list-inline-item badge badge-secondary">
+        <li
+          className="list-inline-item badge badge-secondary pointer"
+          data-tippy-content={`${i18n.t('number_of_users', {
+            count: counts.users_active_day,
+          })} ${i18n.t('active_in_the_last')} ${i18n.t('day')}`}
+        >
           {i18n.t('number_of_users', {
             count: counts.users_active_day,
           })}{' '}
           / {i18n.t('day')}
         </li>
-        <li className="list-inline-item badge badge-secondary">
+        <li
+          className="list-inline-item badge badge-secondary pointer"
+          data-tippy-content={`${i18n.t('number_of_users', {
+            count: counts.users_active_week,
+          })} ${i18n.t('active_in_the_last')} ${i18n.t('week')}`}
+        >
           {i18n.t('number_of_users', {
             count: counts.users_active_week,
           })}{' '}
           / {i18n.t('week')}
         </li>
-        <li className="list-inline-item badge badge-secondary">
+        <li
+          className="list-inline-item badge badge-secondary pointer"
+          data-tippy-content={`${i18n.t('number_of_users', {
+            count: counts.users_active_month,
+          })} ${i18n.t('active_in_the_last')} ${i18n.t('month')}`}
+        >
           {i18n.t('number_of_users', {
             count: counts.users_active_month,
           })}{' '}
           / {i18n.t('month')}
         </li>
-        <li className="list-inline-item badge badge-secondary">
+        <li
+          className="list-inline-item badge badge-secondary pointer"
+          data-tippy-content={`${i18n.t('number_of_users', {
+            count: counts.users_active_half_year,
+          })} ${i18n.t('active_in_the_last')} ${i18n.t('number_of_months', {
+            count: 6,
+          })}`}
+        >
           {i18n.t('number_of_users', {
             count: counts.users_active_half_year,
           })}{' '}
