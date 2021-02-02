@@ -478,7 +478,8 @@ export class User extends Component<any, UserState> {
               </ul>
             </div>
             <div class="text-muted">
-              {i18n.t('joined')} <MomentTime data={uv.user} showAgo />
+              {i18n.t('joined')}{' '}
+              <MomentTime data={uv.user} showAgo ignoreUpdated />
             </div>
             <div className="d-flex align-items-center text-muted mb-2">
               <svg class="icon">
