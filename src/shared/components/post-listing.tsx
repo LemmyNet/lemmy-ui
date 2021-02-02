@@ -1155,7 +1155,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  handlePostLike(i: PostListing) {
+  handlePostLike(i: PostListing, event: any) {
+    event.preventDefault();
     if (!UserService.Instance.user) {
       this.context.router.history.push(`/login`);
     }
@@ -1187,7 +1188,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     setupTippy();
   }
 
-  handlePostDisLike(i: PostListing) {
+  handlePostDisLike(i: PostListing, event: any) {
+    event.preventDefault();
     if (!UserService.Instance.user) {
       this.context.router.history.push(`/login`);
     }
