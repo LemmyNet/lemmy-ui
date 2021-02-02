@@ -30,6 +30,8 @@ import {
   wsClient,
   authField,
   setOptionalAuth,
+  saveScrollPosition,
+  restoreScrollPosition,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { HtmlTags } from './html-tags';
@@ -123,6 +125,7 @@ export class Search extends Component<any, SearchState> {
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
+    saveScrollPosition(this.context);
   }
 
   static getDerivedStateFromProps(props: any): SearchProps {
@@ -516,6 +519,7 @@ export class Search extends Component<any, SearchState> {
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setState(this.state);
+      restoreScrollPosition(this.context);
     } else if (op == UserOperation.CreateCommentLike) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       createCommentLikeRes(

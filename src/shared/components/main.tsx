@@ -53,11 +53,12 @@ import {
   notifyPost,
   setIsoData,
   wsSubscribe,
-  isBrowser,
   wsUserOp,
   setOptionalAuth,
   wsClient,
   authField,
+  saveScrollPosition,
+  restoreScrollPosition,
 } from '../utils';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
@@ -169,10 +170,9 @@ export class Main extends Component<any, MainState> {
   }
 
   componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription.unsubscribe();
-      window.isoData.path = undefined;
-    }
+    saveScrollPosition(this.context);
+    this.subscription.unsubscribe();
+    window.isoData.path = undefined;
   }
 
   static getDerivedStateFromProps(props: any): MainProps {
@@ -757,6 +757,7 @@ export class Main extends Component<any, MainState> {
       this.state.posts = data.posts;
       this.state.loading = false;
       this.setState(this.state);
+      restoreScrollPosition(this.context);
       setupTippy();
     } else if (op == UserOperation.CreatePost) {
       let data = wsJsonToRes<PostResponse>(msg).data;

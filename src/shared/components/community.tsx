@@ -48,12 +48,13 @@ import {
   notifyPost,
   setIsoData,
   wsSubscribe,
-  isBrowser,
   communityRSSUrl,
   wsUserOp,
   wsClient,
   authField,
   setOptionalAuth,
+  saveScrollPosition,
+  restoreScrollPosition,
 } from '../utils';
 import { i18n } from '../i18next';
 
@@ -144,10 +145,9 @@ export class Community extends Component<any, State> {
   }
 
   componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription.unsubscribe();
-      window.isoData.path = undefined;
-    }
+    saveScrollPosition(this.context);
+    this.subscription.unsubscribe();
+    window.isoData.path = undefined;
   }
 
   static getDerivedStateFromProps(props: any): CommunityProps {
@@ -482,6 +482,7 @@ export class Community extends Component<any, State> {
       this.state.posts = data.posts;
       this.state.postsLoading = false;
       this.setState(this.state);
+      restoreScrollPosition(this.context);
       setupTippy();
     } else if (
       op == UserOperation.EditPost ||
