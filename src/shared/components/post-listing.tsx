@@ -1260,13 +1260,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get crossPostParams(): string {
     let post = this.props.post_view.post;
-    let params = `?title=${post.name}`;
+    let params = `?title=${encodeURIComponent(post.name)}`;
 
     if (post.url) {
       params += `&url=${encodeURIComponent(post.url)}`;
     }
     if (post.body) {
-      params += `&body=${post.body}`;
+      params += `&body=${encodeURIComponent(post.body)}`;
     }
     return params;
   }
