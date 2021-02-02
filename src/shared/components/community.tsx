@@ -48,7 +48,6 @@ import {
   notifyPost,
   setIsoData,
   wsSubscribe,
-  isBrowser,
   communityRSSUrl,
   wsUserOp,
   wsClient,
@@ -146,11 +145,9 @@ export class Community extends Component<any, State> {
   }
 
   componentWillUnmount() {
-    if (isBrowser()) {
-      saveScrollPosition(this.context);
-      this.subscription.unsubscribe();
-      window.isoData.path = undefined;
-    }
+    saveScrollPosition(this.context);
+    this.subscription.unsubscribe();
+    window.isoData.path = undefined;
   }
 
   static getDerivedStateFromProps(props: any): CommunityProps {
