@@ -422,11 +422,11 @@ export class MarkdownTextArea extends Component<
         start
       )}[${selectedText}]()${i.state.content.substring(end)}`;
       textarea.focus();
-      setTimeout(() => (textarea.selectionEnd = end + 5), 10);
+      setTimeout(() => (textarea.selectionEnd = end + 3), 10);
     } else {
       i.state.content += '[]()';
       textarea.focus();
-      setTimeout(() => (textarea.selectionEnd -= 0), 10);
+      setTimeout(() => (textarea.selectionEnd -= 1), 10);
     }
     i.setState(i.state);
   }
