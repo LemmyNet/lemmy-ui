@@ -1173,3 +1173,15 @@ moment.updateLocale('en', {
     yy: '%dY',
   },
 });
+
+export function saveScrollPosition(context: any) {
+  let path: string = context.router.route.location.pathname;
+  let y = window.scrollY;
+  sessionStorage.setItem(`scrollPosition_${path}`, y.toString());
+}
+
+export function restoreScrollPosition(context: any) {
+  let path: string = context.router.route.location.pathname;
+  let y = Number(sessionStorage.getItem(`scrollPosition_${path}`));
+  window.scrollTo(0, y);
+}

@@ -45,6 +45,8 @@ import {
   wsClient,
   authField,
   setOptionalAuth,
+  saveScrollPosition,
+  restoreScrollPosition,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { HtmlTags } from './html-tags';
@@ -231,6 +233,7 @@ export class User extends Component<any, UserState> {
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
+    saveScrollPosition(this.context);
   }
 
   static getDerivedStateFromProps(props: any): UserProps {
@@ -1113,6 +1116,7 @@ export class User extends Component<any, UserState> {
       this.setUserInfo();
       this.state.loading = false;
       this.setState(this.state);
+      restoreScrollPosition(this.context);
     } else if (op == UserOperation.SaveUserSettings) {
       let data = wsJsonToRes<LoginResponse>(msg).data;
       UserService.Instance.login(data);
