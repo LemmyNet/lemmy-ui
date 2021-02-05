@@ -45,7 +45,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
       ? capitalizeFirstLetter(i18n.t('save'))
       : capitalizeFirstLetter(i18n.t('reply')),
     finished: false,
-    formId: null,
+    formId: 'empty_form',
   };
 
   constructor(props: any, context: any) {
