@@ -27,6 +27,7 @@ import 'moment/locale/ga';
 import 'moment/locale/sr';
 import 'moment/locale/ko';
 import 'moment/locale/da';
+import 'moment/locale/hr';
 
 import {
   UserOperation,
@@ -102,6 +103,7 @@ export const languages = [
   { code: 'de', name: 'Deutsch' },
   { code: 'ga', name: 'Gaeilge' },
   { code: 'gl', name: 'Galego' },
+  { code: 'hr', name: 'hrvatski' },
   { code: 'hu', name: 'Magyar Nyelv' },
   { code: 'ka', name: 'ქართული ენა' },
   { code: 'ko', name: '한국어' },
@@ -451,6 +453,8 @@ export function getMomentLanguage(): string {
     lang = 'da';
   } else if (lang.startsWith('oc')) {
     lang = 'oc';
+  } else if (lang.startsWith('hr')) {
+    lang = 'hr';
   } else {
     lang = 'en';
   }
