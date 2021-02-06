@@ -28,11 +28,13 @@ export class Footer extends Component<FooterProps, FooterState> {
                 {i18n.t('modlog')}
               </Link>
             </li>
-            <li class="nav-item">
-              <Link className="nav-link" to="/instances">
-                {i18n.t('instances')}
-              </Link>
-            </li>
+            {this.props.site.federated_instances && (
+              <li class="nav-item">
+                <Link className="nav-link" to="/instances">
+                  {i18n.t('instances')}
+                </Link>
+              </li>
+            )}
             <li class="nav-item">
               <a className="nav-link" href={docsUrl}>
                 {i18n.t('docs')}

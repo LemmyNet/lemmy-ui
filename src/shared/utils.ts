@@ -27,6 +27,7 @@ import 'moment/locale/ga';
 import 'moment/locale/sr';
 import 'moment/locale/ko';
 import 'moment/locale/da';
+import 'moment/locale/hr';
 
 import {
   UserOperation,
@@ -80,8 +81,8 @@ export const favIconPngUrl = '/static/assets/apple-touch-icon.png';
 export const repoUrl = 'https://github.com/LemmyNet';
 export const joinLemmyUrl = 'https://join.lemmy.ml';
 export const supportLemmyUrl = 'https://join.lemmy.ml/sponsors';
-export const docsUrl = '/docs/en/index.html';
-export const helpGuideUrl = '/docs/en/about/guide.html'; // TODO find a way to redirect to the non-en folder
+export const docsUrl = 'https://join.lemmy.ml/docs/en/index.html';
+export const helpGuideUrl = 'https://join.lemmy.ml/docs/en/about/guide.html'; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
 export const archiveUrl = 'https://archive.is';
@@ -102,6 +103,7 @@ export const languages = [
   { code: 'de', name: 'Deutsch' },
   { code: 'ga', name: 'Gaeilge' },
   { code: 'gl', name: 'Galego' },
+  { code: 'hr', name: 'hrvatski' },
   { code: 'hu', name: 'Magyar Nyelv' },
   { code: 'ka', name: 'ქართული ენა' },
   { code: 'ko', name: '한국어' },
@@ -451,6 +453,8 @@ export function getMomentLanguage(): string {
     lang = 'da';
   } else if (lang.startsWith('oc')) {
     lang = 'oc';
+  } else if (lang.startsWith('hr')) {
+    lang = 'hr';
   } else {
     lang = 'en';
   }
@@ -1173,3 +1177,15 @@ moment.updateLocale('en', {
     yy: '%dY',
   },
 });
+
+export function saveScrollPosition(context: any) {
+  let path: string = context.router.route.location.pathname;
+  let y = window.scrollY;
+  sessionStorage.setItem(`scrollPosition_${path}`, y.toString());
+}
+
+export function restoreScrollPosition(context: any) {
+  let path: string = context.router.route.location.pathname;
+  let y = Number(sessionStorage.getItem(`scrollPosition_${path}`));
+  window.scrollTo(0, y);
+}

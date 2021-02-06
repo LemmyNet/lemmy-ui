@@ -45,6 +45,8 @@ import {
   wsClient,
   authField,
   setOptionalAuth,
+  saveScrollPosition,
+  restoreScrollPosition,
 } from '../utils';
 import { UserListing } from './user-listing';
 import { HtmlTags } from './html-tags';
@@ -231,6 +233,7 @@ export class User extends Component<any, UserState> {
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
+    saveScrollPosition(this.context);
   }
 
   static getDerivedStateFromProps(props: any): UserProps {
@@ -382,6 +385,7 @@ export class User extends Component<any, UserState> {
           sort={this.state.sort}
           onChange={this.handleSortChange}
           hideHot
+          hideMostComments
         />
         <a
           href={`/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`}
@@ -477,7 +481,8 @@ export class User extends Component<any, UserState> {
               </ul>
             </div>
             <div class="text-muted">
-              {i18n.t('joined')} <MomentTime data={uv.user} showAgo />
+              {i18n.t('joined')}{' '}
+              <MomentTime data={uv.user} showAgo ignoreUpdated />
             </div>
             <div className="d-flex align-items-center text-muted mb-2">
               <svg class="icon">
@@ -568,8 +573,7 @@ export class User extends Component<any, UserState> {
                     ]
                   }
                   showLocal={
-                    this.state.siteRes.federated_instances &&
-                    this.state.siteRes.federated_instances.length > 0
+                    this.state.siteRes.federated_instances?.linked.length > 0
                   }
                   onChange={this.handleUserSettingsListingTypeChange}
                 />
@@ -1122,6 +1126,7 @@ export class User extends Component<any, UserState> {
       this.setUserInfo();
       this.state.loading = false;
       this.setState(this.state);
+      restoreScrollPosition(this.context);
     } else if (op == UserOperation.SaveUserSettings) {
       let data = wsJsonToRes<LoginResponse>(msg).data;
       UserService.Instance.login(data);

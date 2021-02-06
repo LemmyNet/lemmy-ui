@@ -10,6 +10,7 @@ interface MomentTimeProps {
     updated?: string;
   };
   showAgo?: boolean;
+  ignoreUpdated?: boolean;
 }
 
 export class MomentTime extends Component<MomentTimeProps, any> {
@@ -22,7 +23,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   }
 
   render() {
-    if (this.props.data.updated) {
+    if (!this.props.ignoreUpdated && this.props.data.updated) {
       return (
         <span
           data-tippy-content={`${capitalizeFirstLetter(

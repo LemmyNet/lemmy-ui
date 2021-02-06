@@ -50,6 +50,8 @@ import {
   wsClient,
   authField,
   setOptionalAuth,
+  saveScrollPosition,
+  restoreScrollPosition,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { Sidebar } from './sidebar';
@@ -155,6 +157,7 @@ export class Post extends Component<any, PostState> {
   componentWillUnmount() {
     this.subscription.unsubscribe();
     window.isoData.path = undefined;
+    saveScrollPosition(this.context);
   }
 
   componentDidMount() {
@@ -483,6 +486,7 @@ export class Post extends Component<any, PostState> {
       this.fetchCrossPosts();
       this.setState(this.state);
       setupTippy();
+      restoreScrollPosition(this.context);
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 

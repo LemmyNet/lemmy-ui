@@ -910,7 +910,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState(this.state);
   }
 
-  handleCommentUpvote(i: CommentNodeI) {
+  handleCommentUpvote(i: CommentNodeI, event: any) {
+    event.preventDefault();
     let new_vote = this.state.my_vote == 1 ? 0 : 1;
 
     if (this.state.my_vote == 1) {
@@ -938,7 +939,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     setupTippy();
   }
 
-  handleCommentDownvote(i: CommentNodeI) {
+  handleCommentDownvote(i: CommentNodeI, event: any) {
+    event.preventDefault();
     let new_vote = this.state.my_vote == -1 ? 0 : -1;
 
     if (this.state.my_vote == 1) {

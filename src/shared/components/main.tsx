@@ -53,11 +53,12 @@ import {
   notifyPost,
   setIsoData,
   wsSubscribe,
-  isBrowser,
   wsUserOp,
   setOptionalAuth,
   wsClient,
   authField,
+  saveScrollPosition,
+  restoreScrollPosition,
 } from '../utils';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
@@ -169,10 +170,9 @@ export class Main extends Component<any, MainState> {
   }
 
   componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription.unsubscribe();
-      window.isoData.path = undefined;
-    }
+    saveScrollPosition(this.context);
+    this.subscription.unsubscribe();
+    window.isoData.path = undefined;
   }
 
   static getDerivedStateFromProps(props: any): MainProps {
@@ -426,25 +426,47 @@ export class Main extends Component<any, MainState> {
         <li className="list-inline-item badge badge-secondary">
           {i18n.t('number_online', { count: this.state.siteRes.online })}
         </li>
-        <li className="list-inline-item badge badge-secondary">
+        <li
+          className="list-inline-item badge badge-secondary pointer"
+          data-tippy-content={`${i18n.t('number_of_users', {
+            count: counts.users_active_day,
+          })} ${i18n.t('active_in_the_last')} ${i18n.t('day')}`}
+        >
           {i18n.t('number_of_users', {
             count: counts.users_active_day,
           })}{' '}
           / {i18n.t('day')}
         </li>
-        <li className="list-inline-item badge badge-secondary">
+        <li
+          className="list-inline-item badge badge-secondary pointer"
+          data-tippy-content={`${i18n.t('number_of_users', {
+            count: counts.users_active_week,
+          })} ${i18n.t('active_in_the_last')} ${i18n.t('week')}`}
+        >
           {i18n.t('number_of_users', {
             count: counts.users_active_week,
           })}{' '}
           / {i18n.t('week')}
         </li>
-        <li className="list-inline-item badge badge-secondary">
+        <li
+          className="list-inline-item badge badge-secondary pointer"
+          data-tippy-content={`${i18n.t('number_of_users', {
+            count: counts.users_active_month,
+          })} ${i18n.t('active_in_the_last')} ${i18n.t('month')}`}
+        >
           {i18n.t('number_of_users', {
             count: counts.users_active_month,
           })}{' '}
           / {i18n.t('month')}
         </li>
-        <li className="list-inline-item badge badge-secondary">
+        <li
+          className="list-inline-item badge badge-secondary pointer"
+          data-tippy-content={`${i18n.t('number_of_users', {
+            count: counts.users_active_half_year,
+          })} ${i18n.t('active_in_the_last')} ${i18n.t('number_of_months', {
+            count: 6,
+          })}`}
+        >
           {i18n.t('number_of_users', {
             count: counts.users_active_half_year,
           })}{' '}
@@ -639,10 +661,7 @@ export class Main extends Component<any, MainState> {
   }
 
   get showLocal(): boolean {
-    return (
-      this.isoData.site_res.federated_instances !== null &&
-      this.isoData.site_res.federated_instances.length > 0
-    );
+    return this.isoData.site_res.federated_instances?.linked.length > 0;
   }
 
   get canAdmin(): boolean {
@@ -740,6 +759,7 @@ export class Main extends Component<any, MainState> {
       this.state.posts = data.posts;
       this.state.loading = false;
       this.setState(this.state);
+      restoreScrollPosition(this.context);
       setupTippy();
     } else if (op == UserOperation.CreatePost) {
       let data = wsJsonToRes<PostResponse>(msg).data;
