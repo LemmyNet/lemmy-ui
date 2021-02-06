@@ -77,6 +77,7 @@ export class PrivateMessage extends Component<
             </li>
             <li className="list-inline-item">
               <div
+                role="button"
                 className="pointer text-monospace"
                 onClick={linkEvent(this, this.handleMessageCollapse)}
               >
@@ -123,6 +124,11 @@ export class PrivateMessage extends Component<
                             ? i18n.t('mark_as_unread')
                             : i18n.t('mark_as_read')
                         }
+                        aria-label={
+                          message_view.private_message.read
+                            ? i18n.t('mark_as_unread')
+                            : i18n.t('mark_as_read')
+                        }
                       >
                         <svg
                           class={`icon icon-inline ${
@@ -138,6 +144,7 @@ export class PrivateMessage extends Component<
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
                         data-tippy-content={i18n.t('reply')}
+                        aria-label={i18n.t('reply')}
                       >
                         <svg class="icon icon-inline">
                           <use xlinkHref="#icon-reply1"></use>
@@ -153,6 +160,7 @@ export class PrivateMessage extends Component<
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleEditClick)}
                         data-tippy-content={i18n.t('edit')}
+                        aria-label={i18n.t('edit')}
                       >
                         <svg class="icon icon-inline">
                           <use xlinkHref="#icon-edit"></use>
@@ -164,6 +172,11 @@ export class PrivateMessage extends Component<
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleDeleteClick)}
                         data-tippy-content={
+                          !message_view.private_message.deleted
+                            ? i18n.t('delete')
+                            : i18n.t('restore')
+                        }
+                        aria-label={
                           !message_view.private_message.deleted
                             ? i18n.t('delete')
                             : i18n.t('restore')
@@ -186,6 +199,7 @@ export class PrivateMessage extends Component<
                     class="btn btn-link btn-animate text-muted"
                     onClick={linkEvent(this, this.handleViewSource)}
                     data-tippy-content={i18n.t('view_source')}
+                    aria-label={i18n.t('view_source')}
                   >
                     <svg
                       class={`icon icon-inline ${

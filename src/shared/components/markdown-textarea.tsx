@@ -233,6 +233,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('header')}
+              aria-label={i18n.t('header')}
               onClick={linkEvent(this, this.handleInsertHeader)}
             >
               <svg class="icon icon-inline">
@@ -242,6 +243,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('strikethrough')}
+              aria-label={i18n.t('strikethrough')}
               onClick={linkEvent(this, this.handleInsertStrikethrough)}
             >
               <svg class="icon icon-inline">
@@ -251,6 +253,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('quote')}
+              aria-label={i18n.t('quote')}
               onClick={linkEvent(this, this.handleInsertQuote)}
             >
               <svg class="icon icon-inline">
@@ -260,6 +263,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('list')}
+              aria-label={i18n.t('list')}
               onClick={linkEvent(this, this.handleInsertList)}
             >
               <svg class="icon icon-inline">
@@ -269,6 +273,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('code')}
+              aria-label={i18n.t('code')}
               onClick={linkEvent(this, this.handleInsertCode)}
             >
               <svg class="icon icon-inline">
@@ -278,6 +283,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('subscript')}
+              aria-label={i18n.t('subscript')}
               onClick={linkEvent(this, this.handleInsertSubscript)}
             >
               <svg class="icon icon-inline">
@@ -287,6 +293,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('superscript')}
+              aria-label={i18n.t('superscript')}
               onClick={linkEvent(this, this.handleInsertSuperscript)}
             >
               <svg class="icon icon-inline">
@@ -296,6 +303,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('spoiler')}
+              aria-label={i18n.t('spoiler')}
               onClick={linkEvent(this, this.handleInsertSpoiler)}
             >
               <svg class="icon icon-inline">

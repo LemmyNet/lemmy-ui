@@ -116,8 +116,10 @@ export class PrivateMessageForm extends Component<
               {i18n.t('message')}
               <span
                 onClick={linkEvent(this, this.handleShowDisclaimer)}
+                role="button"
                 class="ml-2 pointer text-danger"
                 data-tippy-content={i18n.t('disclaimer')}
+                aria-label={i18n.t('disclaimer')}
               >
                 <svg class={`icon icon-inline`}>
                   <use xlinkHref="#icon-alert-triangle"></use>

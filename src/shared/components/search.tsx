@@ -209,6 +209,7 @@ export class Search extends Component<any, SearchState> {
           class="form-control mr-2 mb-2"
           value={this.state.searchText}
           placeholder={`${i18n.t('search')}...`}
+          aria-label={i18n.t('search')}
           onInput={linkEvent(this, this.handleQChange)}
           required
           minLength={3}
@@ -233,8 +234,11 @@ export class Search extends Component<any, SearchState> {
           value={this.state.type_}
           onChange={linkEvent(this, this.handleTypeChange)}
           class="custom-select w-auto mb-2"
+          aria-label={i18n.t('type')}
         >
-          <option disabled>{i18n.t('type')}</option>
+          <option disabled aria-hidden="true">
+            {i18n.t('type')}
+          </option>
           <option value={SearchType.All}>{i18n.t('all')}</option>
           <option value={SearchType.Comments}>{i18n.t('comments')}</option>
           <option value={SearchType.Posts}>{i18n.t('posts')}</option>
@@ -382,7 +386,7 @@ export class Search extends Component<any, SearchState> {
         <span>
           <CommunityLink community={community_view.community} />
         </span>
-        <span>{` - 
+        <span>{` -
         ${i18n.t('number_of_subscribers', {
           count: community_view.counts.subscribers,
         })}

@@ -299,9 +299,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <>
               <li className="list-inline-item-action">
                 <span
+                  role="button"
                   class="pointer"
                   onClick={linkEvent(this, this.handleEditClick)}
                   data-tippy-content={i18n.t('edit')}
+                  aria-label={i18n.t('edit')}
                 >
                   <svg class="icon icon-inline">
                     <use xlinkHref="#icon-edit"></use>
@@ -313,6 +315,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   <li className="list-inline-item-action">
                     <span
                       class="pointer"
+                      role="button"
                       onClick={linkEvent(
                         this,
                         this.handleShowConfirmLeaveModTeamClick
@@ -329,6 +332,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     <li className="list-inline-item-action">
                       <span
                         class="pointer"
+                        role="button"
                         onClick={linkEvent(this, this.handleLeaveModTeamClick)}
                       >
                         {i18n.t('yes')}
@@ -337,6 +341,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     <li className="list-inline-item-action">
                       <span
                         class="pointer"
+                        role="button"
                         onClick={linkEvent(
                           this,
                           this.handleCancelLeaveModTeamClick
@@ -353,6 +358,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     class="pointer"
                     onClick={linkEvent(this, this.handleDeleteClick)}
                     data-tippy-content={
+                      !community_view.community.deleted
+                        ? i18n.t('delete')
+                        : i18n.t('restore')
+                    }
+                    aria-label={
                       !community_view.community.deleted
                         ? i18n.t('delete')
                         : i18n.t('restore')
@@ -375,6 +385,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               {!this.props.community_view.community.removed ? (
                 <span
                   class="pointer"
+                  role="button"
                   onClick={linkEvent(this, this.handleModRemoveShow)}
                 >
                   {i18n.t('remove')}
@@ -382,6 +393,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               ) : (
                 <span
                   class="pointer"
+                  role="button"
                   onClick={linkEvent(this, this.handleModRemoveSubmit)}
                 >
                   {i18n.t('restore')}
