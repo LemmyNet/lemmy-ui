@@ -26,7 +26,7 @@ if (isBrowser()) {
   wsHost = lemmyConfig.wsHost || host;
   secure = window.location.protocol == 'https:' ? 's' : '';
 } else {
-  // server-siide
+  // server-side
   externalHost = process.env.LEMMY_EXTERNAL_HOST || testHost;
   host = internalHost;
   wsHost = process.env.LEMMY_WS_HOST || host;
