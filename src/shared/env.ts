@@ -4,10 +4,10 @@ const testHost = 'localhost:8536';
 
 let internalHost =
   (!isBrowser() && process.env.LEMMY_INTERNAL_HOST) || testHost; // used for local dev
-let externalHost;
-let host;
-let wsHost;
-let secure = false;
+export let externalHost: string;
+let host: string;
+let wsHost: string;
+let secure: string;
 
 if (isBrowser()) {
   // browser
