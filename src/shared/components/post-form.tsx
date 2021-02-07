@@ -180,6 +180,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               {this.state.suggestedTitle && (
                 <div
                   class="mt-1 text-muted small font-weight-bold pointer"
+                  role="button"
                   onClick={linkEvent(this, this.copySuggestedTitle)}
                 >
                   {i18n.t('copy_suggested_title', {
@@ -227,7 +228,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 </svg>
               )}
               {isImage(this.state.postForm.url) && (
-                <img src={this.state.postForm.url} class="img-fluid" />
+                <img src={this.state.postForm.url} class="img-fluid" alt="" />
               )}
               {this.state.crossPosts.length > 0 && (
                 <>

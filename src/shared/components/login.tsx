@@ -326,6 +326,7 @@ export class Login extends Component<any, State> {
               class="rounded-top img-fluid"
               src={this.captchaPngSrc()}
               style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
+              alt={i18n.t('captcha')}
             />
             {this.state.captcha.ok.wav && (
               <button

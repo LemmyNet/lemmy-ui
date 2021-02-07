@@ -158,6 +158,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         {cv.subscribed ? (
                           <span
                             class="pointer btn-link"
+                            role="button"
                             onClick={linkEvent(
                               cv.community.id,
                               this.handleUnsubscribe
@@ -168,6 +169,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         ) : (
                           <span
                             class="pointer btn-link"
+                            role="button"
                             onClick={linkEvent(
                               cv.community.id,
                               this.handleSubscribe

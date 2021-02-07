@@ -169,6 +169,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <PictrsImage
         src={src}
         thumbnail
+        alt=""
         nsfw={post_view.post.nsfw || post_view.community.nsfw}
       />
     );
@@ -200,6 +201,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           class="float-right text-body pointer d-inline-block position-relative mb-2"
           data-tippy-content={i18n.t('expand_here')}
           onClick={linkEvent(this, this.handleImageExpandClick)}
+          role="button"
+          aria-label={i18n.t('expand_here')}
         >
           {this.imgThumb(this.getImageSrc())}
           <svg class="icon mini-overlay">
@@ -328,6 +331,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   previewLines(post_view.post.body)
                 )}
                 data-tippy-allowHtml={true}
+                aria-label={i18n.t('upvote')}
                 to={`/post/${post_view.post.id}`}
               >
                 <svg class="mr-1 icon icon-inline">
@@ -350,6 +354,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           }`}
           onClick={linkEvent(this, this.handlePostLike)}
           data-tippy-content={i18n.t('upvote')}
+          aria-label={i18n.t('upvote')}
         >
           <svg class="icon upvote">
             <use xlinkHref="#icon-arrow-up1"></use>
@@ -368,6 +373,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             }`}
             onClick={linkEvent(this, this.handlePostDisLike)}
             data-tippy-content={i18n.t('downvote')}
+            aria-label={i18n.t('downvote')}
           >
             <svg class="icon downvote">
               <use xlinkHref="#icon-arrow-down1"></use>
@@ -504,6 +510,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <button
                 class="btn text-muted py-0 pr-0"
                 data-tippy-content={this.pointsTippy}
+                aria-label={i18n.t('downvote')}
               >
                 <small>
                   <svg class="icon icon-inline mr-1">
@@ -520,6 +527,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 data-tippy-content={
                   post_view.saved ? i18n.t('unsave') : i18n.t('save')
                 }
+                aria-label={post_view.saved ? i18n.t('unsave') : i18n.t('save')}
               >
                 <small>
                   <svg
@@ -545,6 +553,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 }`}
                 data-tippy-content={this.pointsTippy}
                 onClick={linkEvent(this, this.handlePostLike)}
+                aria-label={i18n.t('upvote')}
               >
                 <svg class="small icon icon-inline mr-2">
                   <use xlinkHref="#icon-arrow-up1"></use>
@@ -558,6 +567,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   }`}
                   onClick={linkEvent(this, this.handlePostDisLike)}
                   data-tippy-content={this.pointsTippy}
+                  aria-label={i18n.t('downvote')}
                 >
                   <svg class="small icon icon-inline mr-2">
                     <use xlinkHref="#icon-arrow-down1"></use>
@@ -571,6 +581,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <button
               class="btn btn-link btn-animate text-muted py-0 pl-1 pr-0"
               onClick={linkEvent(this, this.handleSavePostClick)}
+              aria-label={post_view.saved ? i18n.t('unsave') : i18n.t('save')}
               data-tippy-content={
                 post_view.saved ? i18n.t('unsave') : i18n.t('save')
               }
@@ -586,6 +597,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <button
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleShowMoreMobile)}
+                aria-label={i18n.t('more')}
                 data-tippy-content={i18n.t('more')}
               >
                 <svg class="icon icon-inline">
@@ -637,6 +649,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   class="btn btn-link btn-animate text-muted py-0 pl-0"
                   onClick={linkEvent(this, this.handleSavePostClick)}
                   data-tippy-content={
+                    post_view.saved ? i18n.t('unsave') : i18n.t('save')
+                  }
+                  aria-label={
                     post_view.saved ? i18n.t('unsave') : i18n.t('save')
                   }
                 >
@@ -694,6 +709,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               class="btn btn-link btn-animate text-muted py-0"
               onClick={linkEvent(this, this.handleShowAdvanced)}
               data-tippy-content={i18n.t('more')}
+              aria-label={i18n.t('more')}
             >
               <svg class="icon icon-inline">
                 <use xlinkHref="#icon-more-vertical"></use>
