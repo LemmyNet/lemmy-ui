@@ -95,11 +95,14 @@ server.get('/*', async (req, res) => {
   const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : '';
   const helmet = Helmet.renderStatic();
 
+  const config = { wsHost: process.env.LEMMY_WS_HOST };
+
   res.send(`
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
            <script>window.isoData = ${serialize(isoData)}</script>
+           <script>window.lemmyConfig = ${serialize(config)}</script>
 
            ${helmet.title.toString()}
            ${helmet.meta.toString()}
