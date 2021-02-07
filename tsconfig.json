@@ -22,6 +22,7 @@
 	},
 	"include": [
 		"src/**/*",
-		"node_modules/inferno/dist/index.d.ts"
-, "index.d.ts"	]
+		"node_modules/inferno/dist/index.d.ts",
+		"index.d.ts"
+	]
 }
