@@ -55,7 +55,7 @@ import {
 } from './interfaces';
 import { UserService, WebSocketService } from './services';
 
-interface ILemmyConfig {
+export interface ILemmyConfig {
   wsHost?: string;
 }
 

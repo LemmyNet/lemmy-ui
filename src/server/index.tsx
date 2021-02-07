@@ -14,7 +14,7 @@ import { Helmet } from 'inferno-helmet';
 import { initializeSite } from '../shared/initialize';
 import { httpUri } from '../shared/env';
 import { IncomingHttpHeaders } from 'http';
-import { setOptionalAuth } from '../shared/utils';
+import { ILemmyConfig, setOptionalAuth } from '../shared/utils';
 
 const server = express();
 const port = 1234;
@@ -95,7 +95,7 @@ server.get('/*', async (req, res) => {
   const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : '';
   const helmet = Helmet.renderStatic();
 
-  const config = { wsHost: process.env.LEMMY_WS_HOST };
+  const config: ILemmyConfig = { wsHost: process.env.LEMMY_WS_HOST };
 
   res.send(`
            <!DOCTYPE html>
