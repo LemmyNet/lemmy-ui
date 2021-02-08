@@ -399,6 +399,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       MAX_POST_TITLE_LENGTH
     );
     i.state.suggestedTitle = undefined;
+    setTimeout(() => {
+      let textarea: any = document.getElementById('post-title');
+      autosize.update(textarea);
+    }, 10);
     i.setState(i.state);
   }
 
