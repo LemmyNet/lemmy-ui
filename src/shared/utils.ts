@@ -942,7 +942,7 @@ export function commentsToFlatNodes(comments: CommentView[]): CommentNodeI[] {
   return nodes;
 }
 
-export function commentSort(tree: CommentNodeI[], sort: CommentSortType) {
+function commentSort(tree: CommentNodeI[], sort: CommentSortType) {
   // First, put removed and deleted comments at the bottom, then do your other sorts
   if (sort == CommentSortType.Top) {
     tree.sort(
@@ -1008,51 +1008,80 @@ function convertCommentSortType(sort: SortType): CommentSortType {
   }
 }
 
-export function postSort(
-  posts: PostView[],
-  sort: SortType,
-  communityType: boolean
-) {
-  // First, put removed and deleted comments at the bottom, then do your other sorts
-  if (
-    sort == SortType.TopAll ||
-    sort == SortType.TopDay ||
-    sort == SortType.TopWeek ||
-    sort == SortType.TopMonth ||
-    sort == SortType.TopYear
-  ) {
-    posts.sort(
-      (a, b) =>
-        +a.post.removed - +b.post.removed ||
-        +a.post.deleted - +b.post.deleted ||
-        (communityType && +b.post.stickied - +a.post.stickied) ||
-        b.counts.score - a.counts.score
-    );
-  } else if (sort == SortType.New) {
-    posts.sort(
-      (a, b) =>
-        +a.post.removed - +b.post.removed ||
-        +a.post.deleted - +b.post.deleted ||
-        (communityType && +b.post.stickied - +a.post.stickied) ||
-        b.post.published.localeCompare(a.post.published)
-    );
-  } else if (sort == SortType.Hot) {
-    posts.sort(
-      (a, b) =>
-        +a.post.removed - +b.post.removed ||
-        +a.post.deleted - +b.post.deleted ||
-        (communityType && +b.post.stickied - +a.post.stickied) ||
-        hotRankPost(b) - hotRankPost(a)
-    );
-  } else if (sort == SortType.Active) {
-    posts.sort(
-      (a, b) =>
-        +a.post.removed - +b.post.removed ||
-        +a.post.deleted - +b.post.deleted ||
-        (communityType && +b.post.stickied - +a.post.stickied) ||
-        hotRankActivePost(b) - hotRankActivePost(a)
-    );
+export function buildCommentsTree(
+  comments: CommentView[],
+  commentSortType: CommentSortType
+): CommentNodeI[] {
+  let map = new Map<number, CommentNodeI>();
+  for (let comment_view of comments) {
+    let node: CommentNodeI = {
+      comment_view: comment_view,
+      children: [],
+    };
+    map.set(comment_view.comment.id, { ...node });
   }
+  let tree: CommentNodeI[] = [];
+  for (let comment_view of comments) {
+    let child = map.get(comment_view.comment.id);
+    if (comment_view.comment.parent_id) {
+      let parent_ = map.get(comment_view.comment.parent_id);
+      parent_.children.push(child);
+    } else {
+      tree.push(child);
+    }
+
+    setDepth(child);
+  }
+
+  commentSort(tree, commentSortType);
+
+  return tree;
+}
+
+function setDepth(node: CommentNodeI, i: number = 0) {
+  for (let child of node.children) {
+    child.depth = i;
+    setDepth(child, i + 1);
+  }
+}
+
+export function insertCommentIntoTree(tree: CommentNodeI[], cv: CommentView) {
+  // Building a fake node to be used for later
+  let node: CommentNodeI = {
+    comment_view: cv,
+    children: [],
+    depth: 0,
+  };
+
+  if (cv.comment.parent_id) {
+    let parentComment = searchCommentTree(tree, cv.comment.parent_id);
+    if (parentComment) {
+      node.depth = parentComment.depth + 1;
+      parentComment.children.unshift(node);
+    }
+  } else {
+    tree.unshift(node);
+  }
+}
+
+export function searchCommentTree(
+  tree: CommentNodeI[],
+  id: number
+): CommentNodeI {
+  for (let node of tree) {
+    if (node.comment_view.comment.id === id) {
+      return node;
+    }
+
+    for (const child of node.children) {
+      const res = searchCommentTree([child], id);
+
+      if (res) {
+        return res;
+      }
+    }
+  }
+  return null;
 }
 
 export const colorList: string[] = [
@@ -1067,10 +1096,6 @@ export const colorList: string[] = [
 function hsl(num: number) {
   return `hsla(${num}, 35%, 50%, 1)`;
 }
-
-// function randomHsl() {
-//   return `hsla(${Math.random() * 360}, 100%, 50%, 1)`;
-// }
 
 export function previewLines(
   text: string,

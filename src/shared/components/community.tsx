@@ -291,7 +291,6 @@ export class Community extends Component<any, State> {
         <PostListings
           posts={this.state.posts}
           removeDuplicates
-          sort={this.state.sort}
           enableDownvotes={site.enable_downvotes}
           enableNsfw={site.enable_nsfw}
         />
@@ -306,7 +305,6 @@ export class Community extends Component<any, State> {
       <CommentNodes
         nodes={commentsToFlatNodes(this.state.comments)}
         noIndent
-        sortType={this.state.sort}
         showContext
         enableDownvotes={site.enable_downvotes}
       />

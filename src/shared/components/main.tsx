@@ -561,7 +561,6 @@ export class Main extends Component<any, MainState> {
         posts={this.state.posts}
         showCommunity
         removeDuplicates
-        sort={this.state.sort}
         enableDownvotes={site.enable_downvotes}
         enableNsfw={site.enable_nsfw}
       />
@@ -570,7 +569,6 @@ export class Main extends Component<any, MainState> {
         nodes={commentsToFlatNodes(this.state.comments)}
         noIndent
         showCommunity
-        sortType={this.state.sort}
         showContext
         enableDownvotes={site.enable_downvotes}
       />
