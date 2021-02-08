@@ -405,8 +405,13 @@ export class Community extends Component<any, State> {
     const dataTypeStr = paramUpdates.dataType || DataType[this.state.dataType];
     const sortStr = paramUpdates.sort || this.state.sort;
     const page = paramUpdates.page || this.state.page;
+
+    let typeView = this.state.communityName
+      ? `/c/${this.state.communityName}`
+      : `/community/${this.state.communityId}`;
+
     this.props.history.push(
-      `/c/${this.state.communityRes.community_view.community.name}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
+      `${typeView}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
     );
   }
 
