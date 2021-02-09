@@ -26,7 +26,6 @@ import {
   debounce,
   isImage,
   toast,
-  randomStr,
   setupTippy,
   hostname,
   pictrsDeleteToast,
@@ -71,7 +70,6 @@ interface PostFormState {
 }
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
-  private id = `post-form-${randomStr()}`;
   private subscription: Subscription;
   private choices: any;
   private emptyState: PostFormState = {
