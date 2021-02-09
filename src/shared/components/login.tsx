@@ -260,6 +260,7 @@ export class Login extends Component<any, State> {
                 type="button"
                 class="btn btn-secondary"
                 onClick={linkEvent(this, this.handleRegenCaptcha)}
+                aria-label={i18n.t('captcha')}
               >
                 <svg class="icon icon-refresh-cw">
                   <use xlinkHref="#icon-refresh-cw"></use>
