@@ -158,7 +158,7 @@ export class Inbox extends Component<any, InboxState> {
                     rel="noopener"
                   >
                     <svg class="icon ml-2 text-muted small">
-                      <use xlinkHref="#icon-rss">#</use>
+                      <use xlinkHref="#icon-rss"></use>
                     </svg>
                   </a>
                 </small>

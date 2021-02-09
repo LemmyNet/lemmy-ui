@@ -214,7 +214,11 @@ export class Search extends Component<any, SearchState> {
           required
           minLength={3}
         />
-        <button type="submit" class="btn btn-secondary mr-2 mb-2">
+        <button
+          type="submit"
+          class="btn btn-secondary mr-2 mb-2"
+          aria-label={i18n.t('search')}
+        >
           {this.state.loading ? (
             <svg class="icon icon-spinner spin">
               <use xlinkHref="#icon-spinner"></use>

@@ -204,7 +204,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 onClick={linkEvent(node, this.handleCommentUpvote)}
                 data-tippy-content={this.pointsTippy}
               >
-                <span class="mr-1 font-weight-bold">{this.state.score}</span>
+                <span
+                  class="mr-1 font-weight-bold"
+                  aria-label={i18n.t('number_of_points', {
+                    count: this.state.score,
+                  })}
+                >
+                  {this.state.score}
+                </span>
               </a>
               <span className="mr-1">•</span>
               <span>
@@ -424,6 +431,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleModRemoveShow
                                   )}
+                                  aria-label={i18n.t('remove')}
                                 >
                                   {i18n.t('remove')}
                                 </button>
@@ -434,6 +442,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleModRemoveSubmit
                                   )}
+                                  aria-label={i18n.t('restore')}
                                 >
                                   {i18n.t('restore')}
                                 </button>
@@ -451,6 +460,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleModBanFromCommunityShow
                                     )}
+                                    aria-label={i18n.t('ban')}
                                   >
                                     {i18n.t('ban')}
                                   </button>
@@ -461,6 +471,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleModBanFromCommunitySubmit
                                     )}
+                                    aria-label={i18n.t('unban')}
                                   >
                                     {i18n.t('unban')}
                                   </button>
@@ -474,6 +485,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleShowConfirmAppointAsMod
                                     )}
+                                    aria-label={
+                                      this.isMod
+                                        ? i18n.t('remove_as_mod')
+                                        : i18n.t('appoint_as_mod')
+                                    }
                                   >
                                     {this.isMod
                                       ? i18n.t('remove_as_mod')
@@ -481,7 +497,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   </button>
                                 ) : (
                                   <>
-                                    <button class="btn btn-link btn-animate text-muted">
+                                    <button
+                                      class="btn btn-link btn-animate text-muted"
+                                      aria-label={i18n.t('are_you_sure')}
+                                    >
                                       {i18n.t('are_you_sure')}
                                     </button>
                                     <button
@@ -490,6 +509,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                         this,
                                         this.handleAddModToCommunity
                                       )}
+                                      aria-label={i18n.t('yes')}
                                     >
                                       {i18n.t('yes')}
                                     </button>
@@ -499,6 +519,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                         this,
                                         this.handleCancelConfirmAppointAsMod
                                       )}
+                                      aria-label={i18n.t('no')}
                                     >
                                       {i18n.t('no')}
                                     </button>
@@ -517,12 +538,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   this,
                                   this.handleShowConfirmTransferCommunity
                                 )}
+                                aria-label={i18n.t('transfer_community')}
                               >
                                 {i18n.t('transfer_community')}
                               </button>
                             ) : (
                               <>
-                                <button class="btn btn-link btn-animate text-muted">
+                                <button
+                                  class="btn btn-link btn-animate text-muted"
+                                  aria-label={i18n.t('are_you_sure')}
+                                >
                                   {i18n.t('are_you_sure')}
                                 </button>
                                 <button
@@ -531,6 +556,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleTransferCommunity
                                   )}
+                                  aria-label={i18n.t('yes')}
                                 >
                                   {i18n.t('yes')}
                                 </button>
@@ -541,6 +567,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this
                                       .handleCancelShowConfirmTransferCommunity
                                   )}
+                                  aria-label={i18n.t('no')}
                                 >
                                   {i18n.t('no')}
                                 </button>
@@ -557,6 +584,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleModBanShow
                                     )}
+                                    aria-label={i18n.t('ban_from_site')}
                                   >
                                     {i18n.t('ban_from_site')}
                                   </button>
@@ -567,6 +595,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleModBanSubmit
                                     )}
+                                    aria-label={i18n.t('unban_from_site')}
                                   >
                                     {i18n.t('unban_from_site')}
                                   </button>
@@ -580,6 +609,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleShowConfirmAppointAsAdmin
                                     )}
+                                    aria-label={
+                                      this.isAdmin
+                                        ? i18n.t('remove_as_admin')
+                                        : i18n.t('appoint_as_admin')
+                                    }
                                   >
                                     {this.isAdmin
                                       ? i18n.t('remove_as_admin')
@@ -596,6 +630,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                         this,
                                         this.handleAddAdmin
                                       )}
+                                      aria-label={i18n.t('yes')}
                                     >
                                       {i18n.t('yes')}
                                     </button>
@@ -605,6 +640,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                         this,
                                         this.handleCancelConfirmAppointAsAdmin
                                       )}
+                                      aria-label={i18n.t('no')}
                                     >
                                       {i18n.t('no')}
                                     </button>
@@ -623,12 +659,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   this,
                                   this.handleShowConfirmTransferSite
                                 )}
+                                aria-label={i18n.t('transfer_site')}
                               >
                                 {i18n.t('transfer_site')}
                               </button>
                             ) : (
                               <>
-                                <button class="btn btn-link btn-animate text-muted">
+                                <button
+                                  class="btn btn-link btn-animate text-muted"
+                                  aria-label={i18n.t('are_you_sure')}
+                                >
                                   {i18n.t('are_you_sure')}
                                 </button>
                                 <button
@@ -637,6 +677,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleTransferSite
                                   )}
+                                  aria-label={i18n.t('yes')}
                                 >
                                   {i18n.t('yes')}
                                 </button>
@@ -646,6 +687,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleCancelShowConfirmTransferSite
                                   )}
+                                  aria-label={i18n.t('no')}
                                 >
                                   {i18n.t('no')}
                                 </button>
@@ -667,14 +709,25 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             class="form-inline"
             onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
           >
+            <label
+              class="sr-only"
+              htmlFor={`mod-remove-reason-${cv.comment.id}`}
+            >
+              {i18n.t('reason')}
+            </label>
             <input
               type="text"
+              id={`mod-remove-reason-${cv.comment.id}`}
               class="form-control mr-2"
               placeholder={i18n.t('reason')}
               value={this.state.removeReason}
               onInput={linkEvent(this, this.handleModRemoveReasonChange)}
             />
-            <button type="submit" class="btn btn-secondary">
+            <button
+              type="submit"
+              class="btn btn-secondary"
+              aria-label={i18n.t('remove_comment')}
+            >
               {i18n.t('remove_comment')}
             </button>
           </form>
@@ -717,7 +770,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
             {/* </div> */}
             <div class="form-group row">
-              <button type="submit" class="btn btn-secondary">
+              <button
+                type="submit"
+                class="btn btn-secondary"
+                aria-label={i18n.t('ban')}
+              >
                 {i18n.t('ban')} {cv.creator.name}
               </button>
             </div>

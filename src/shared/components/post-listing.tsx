@@ -681,6 +681,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleEditClick)}
                 data-tippy-content={i18n.t('edit')}
+                aria-label={i18n.t('edit')}
               >
                 <svg class="icon icon-inline">
                   <use xlinkHref="#icon-edit"></use>
@@ -690,6 +691,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleDeleteClick)}
                 data-tippy-content={
+                  !post_view.post.deleted ? i18n.t('delete') : i18n.t('restore')
+                }
+                aria-label={
                   !post_view.post.deleted ? i18n.t('delete') : i18n.t('restore')
                 }
               >
@@ -722,6 +726,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   class="btn btn-link btn-animate text-muted py-0"
                   onClick={linkEvent(this, this.handleViewSource)}
                   data-tippy-content={i18n.t('view_source')}
+                  aria-label={i18n.t('view_source')}
                 >
                   <svg
                     class={`icon icon-inline ${
@@ -740,6 +745,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     data-tippy-content={
                       post_view.post.locked ? i18n.t('unlock') : i18n.t('lock')
                     }
+                    aria-label={
+                      post_view.post.locked ? i18n.t('unlock') : i18n.t('lock')
+                    }
                   >
                     <svg
                       class={`icon icon-inline ${
@@ -753,6 +761,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModSticky)}
                     data-tippy-content={
+                      post_view.post.stickied
+                        ? i18n.t('unsticky')
+                        : i18n.t('sticky')
+                    }
+                    aria-label={
                       post_view.post.stickied
                         ? i18n.t('unsticky')
                         : i18n.t('sticky')
@@ -774,6 +787,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModRemoveShow)}
+                    aria-label={i18n.t('remove')}
                   >
                     {i18n.t('remove')}
                   </button>
@@ -781,6 +795,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModRemoveSubmit)}
+                    aria-label={i18n.t('restore')}
                   >
                     {i18n.t('restore')}
                   </button>
@@ -795,6 +810,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                           this,
                           this.handleModBanFromCommunityShow
                         )}
+                        aria-label={i18n.t('ban')}
                       >
                         {i18n.t('ban')}
                       </button>
@@ -805,6 +821,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                           this,
                           this.handleModBanFromCommunitySubmit
                         )}
+                        aria-label={i18n.t('unban')}
                       >
                         {i18n.t('unban')}
                       </button>
@@ -814,6 +831,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       <button
                         class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(this, this.handleAddModToCommunity)}
+                        aria-label={
+                          this.isMod
+                            ? i18n.t('remove_as_mod')
+                            : i18n.t('appoint_as_mod')
+                        }
                       >
                         {this.isMod
                           ? i18n.t('remove_as_mod')
@@ -833,16 +855,21 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       this,
                       this.handleShowConfirmTransferCommunity
                     )}
+                    aria-label={i18n.t('transfer_community')}
                   >
                     {i18n.t('transfer_community')}
                   </button>
                 ) : (
                   <>
-                    <button class="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0">
+                    <button
+                      class="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
+                      aria-label={i18n.t('are_you_sure')}
+                    >
                       {i18n.t('are_you_sure')}
                     </button>
                     <button
                       class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                      aria-label={i18n.t('yes')}
                       onClick={linkEvent(this, this.handleTransferCommunity)}
                     >
                       {i18n.t('yes')}
@@ -853,6 +880,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                         this,
                         this.handleCancelShowConfirmTransferCommunity
                       )}
+                      aria-label={i18n.t('no')}
                     >
                       {i18n.t('no')}
                     </button>
@@ -866,6 +894,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       <button
                         class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(this, this.handleModBanShow)}
+                        aria-label={i18n.t('ban_from_site')}
                       >
                         {i18n.t('ban_from_site')}
                       </button>
@@ -873,6 +902,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       <button
                         class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(this, this.handleModBanSubmit)}
+                        aria-label={i18n.t('unban_from_site')}
                       >
                         {i18n.t('unban_from_site')}
                       </button>
@@ -881,6 +911,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     <button
                       class="btn btn-link btn-animate text-muted py-0"
                       onClick={linkEvent(this, this.handleAddAdmin)}
+                      aria-label={
+                        this.isAdmin
+                          ? i18n.t('remove_as_admin')
+                          : i18n.t('appoint_as_admin')
+                      }
                     >
                       {this.isAdmin
                         ? i18n.t('remove_as_admin')
@@ -899,17 +934,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       this,
                       this.handleShowConfirmTransferSite
                     )}
+                    aria-label={i18n.t('transfer_site')}
                   >
                     {i18n.t('transfer_site')}
                   </button>
                 ) : (
                   <>
-                    <button class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1">
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                      aria-label={i18n.t('are_you_sure')}
+                    >
                       {i18n.t('are_you_sure')}
                     </button>
                     <button
                       class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
                       onClick={linkEvent(this, this.handleTransferSite)}
+                      aria-label={i18n.t('yes')}
                     >
                       {i18n.t('yes')}
                     </button>
@@ -919,6 +959,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                         this,
                         this.handleCancelShowConfirmTransferSite
                       )}
+                      aria-label={i18n.t('no')}
                     >
                       {i18n.t('no')}
                     </button>
@@ -940,14 +981,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             class="form-inline"
             onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
           >
+            <label class="sr-only" htmlFor="post-listing-remove-reason">
+              {i18n.t('reason')}
+            </label>
             <input
               type="text"
+              id="post-listing-remove-reason"
               class="form-control mr-2"
               placeholder={i18n.t('reason')}
               value={this.state.removeReason}
               onInput={linkEvent(this, this.handleModRemoveReasonChange)}
             />
-            <button type="submit" class="btn btn-secondary">
+            <button
+              type="submit"
+              class="btn btn-secondary"
+              aria-label={i18n.t('remove_post')}
+            >
               {i18n.t('remove_post')}
             </button>
           </form>
@@ -955,12 +1004,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
             <div class="form-group row">
-              <label class="col-form-label" htmlFor="post-listing-reason">
+              <label class="col-form-label" htmlFor="post-listing-ban-reason">
                 {i18n.t('reason')}
               </label>
               <input
                 type="text"
-                id="post-listing-reason"
+                id="post-listing-ban-reason"
                 class="form-control mr-2"
                 placeholder={i18n.t('reason')}
                 value={this.state.banReason}
@@ -987,7 +1036,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
             {/* </div> */}
             <div class="form-group row">
-              <button type="submit" class="btn btn-secondary">
+              <button
+                type="submit"
+                class="btn btn-secondary"
+                aria-label={i18n.t('ban')}
+              >
                 {i18n.t('ban')} {post.creator.name}
               </button>
             </div>

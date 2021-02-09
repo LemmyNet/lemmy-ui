@@ -602,7 +602,7 @@ export class Main extends Component<any, MainState> {
             title="RSS"
           >
             <svg class="icon text-muted small">
-              <use xlinkHref="#icon-rss">#</use>
+              <use xlinkHref="#icon-rss"></use>
             </svg>
           </a>
         )}

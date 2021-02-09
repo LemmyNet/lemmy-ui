@@ -351,7 +351,7 @@ export class Community extends Component<any, State> {
           rel="noopener"
         >
           <svg class="icon text-muted small">
-            <use xlinkHref="#icon-rss">#</use>
+            <use xlinkHref="#icon-rss"></use>
           </svg>
         </a>
       </div>

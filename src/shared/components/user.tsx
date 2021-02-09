@@ -394,7 +394,7 @@ export class User extends Component<any, UserState> {
           title="RSS"
         >
           <svg class="icon mx-2 text-muted small">
-            <use xlinkHref="#icon-rss">#</use>
+            <use xlinkHref="#icon-rss"></use>
           </svg>
         </a>
       </div>
