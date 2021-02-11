@@ -2,6 +2,7 @@ import { Component } from 'inferno';
 import { Subscription } from 'rxjs';
 import { PostForm } from './post-form';
 import { HtmlTags } from './html-tags';
+import { Spinner } from './icon';
 import {
   authField,
   isBrowser,
@@ -95,9 +96,7 @@ export class CreatePost extends Component<any, CreatePostState> {
         />
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">

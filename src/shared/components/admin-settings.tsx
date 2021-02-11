@@ -25,6 +25,7 @@ import autosize from 'autosize';
 import { SiteForm } from './site-form';
 import { UserListing } from './user-listing';
 import { HtmlTags } from './html-tags';
+import { Spinner } from './icon';
 import { i18n } from '../i18next';
 import { InitialFetchRequest } from 'shared/interfaces';
 
@@ -109,9 +110,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         />
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">
@@ -185,9 +184,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             <div class="col-12">
               <button type="submit" class="btn btn-secondary mr-2">
                 {this.state.siteConfigLoading ? (
-                  <svg class="icon icon-spinner spin">
-                    <use xlinkHref="#icon-spinner"></use>
-                  </svg>
+                  <Spinner />
                 ) : (
                   capitalizeFirstLetter(i18n.t('save'))
                 )}

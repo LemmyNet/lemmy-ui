@@ -24,6 +24,7 @@ import { i18n } from '../i18next';
 
 import { MarkdownTextArea } from './markdown-textarea';
 import { ImageUploadForm } from './image-upload-form';
+import { Icon, Spinner } from './icon';
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
@@ -132,9 +133,7 @@ export class CommunityForm extends Component<
                   class="pointer unselectable ml-2 text-muted"
                   data-tippy-content={i18n.t('name_explain')}
                 >
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-help-circle"></use>
-                  </svg>
+                  <Icon icon="help-circle" classes="icon-inline" />
                 </span>
               </label>
               <div class="col-12">
@@ -160,9 +159,7 @@ export class CommunityForm extends Component<
                 class="pointer unselectable ml-2 text-muted"
                 data-tippy-content={i18n.t('display_name_explain')}
               >
-                <svg class="icon icon-inline">
-                  <use xlinkHref="#icon-help-circle"></use>
-                </svg>
+                <Icon icon="help-circle" classes="icon-inline" />
               </span>
             </label>
             <div class="col-12">
@@ -252,9 +249,7 @@ export class CommunityForm extends Component<
                 disabled={this.state.loading}
               >
                 {this.state.loading ? (
-                  <svg class="icon icon-spinner spin">
-                    <use xlinkHref="#icon-spinner"></use>
-                  </svg>
+                  <Spinner />
                 ) : this.props.community_view ? (
                   capitalizeFirstLetter(i18n.t('save'))
                 ) : (

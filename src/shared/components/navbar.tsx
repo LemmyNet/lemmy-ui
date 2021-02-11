@@ -35,6 +35,7 @@ import {
 } from '../utils';
 import { i18n } from '../i18next';
 import { PictrsImage } from './pictrs-image';
+import { Icon } from './icon';
 
 interface NavbarProps {
   site_res: GetSiteResponse;
@@ -198,9 +199,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               to="/inbox"
               title={i18n.t('inbox')}
             >
-              <svg class="icon">
-                <use xlinkHref="#icon-bell"></use>
-              </svg>
+              <Icon icon="bell" />
               {this.state.unreadCount > 0 && (
                 <span class="mx-1 badge badge-light">
                   {this.state.unreadCount}
@@ -215,9 +214,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             onClick={linkEvent(this, this.expandNavbar)}
             data-tippy-content={i18n.t('expand_here')}
           >
-            <svg class="icon">
-              <use xlinkHref="#icon-menu"></use>
-            </svg>
+            <Icon icon="menu" />
           </button>
           <div
             className={`${!this.state.expanded && 'collapse'} navbar-collapse`}
@@ -259,9 +256,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   title={i18n.t('support_lemmy')}
                   href={supportLemmyUrl}
                 >
-                  <svg class="icon small">
-                    <use xlinkHref="#icon-beer"></use>
-                  </svg>
+                  <Icon icon="beer" classes="small" />
                 </a>
               </li>
             </ul>
@@ -273,9 +268,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     to={`/admin`}
                     title={i18n.t('admin_settings')}
                   >
-                    <svg class="icon">
-                      <use xlinkHref="#icon-settings"></use>
-                    </svg>
+                    <Icon icon="settings" />
                   </Link>
                 </li>
               )}
@@ -304,9 +297,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   class="px-1 btn btn-link"
                   style="color: var(--gray)"
                 >
-                  <svg class="icon">
-                    <use xlinkHref="#icon-search"></use>
-                  </svg>
+                  <Icon icon="search" />
                 </button>
               </form>
             )}
@@ -319,9 +310,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       to="/inbox"
                       title={i18n.t('inbox')}
                     >
-                      <svg class="icon">
-                        <use xlinkHref="#icon-bell"></use>
-                      </svg>
+                      <Icon icon="bell" />
                       {this.state.unreadCount > 0 && (
                         <span class="ml-1 badge badge-light">
                           {this.state.unreadCount}

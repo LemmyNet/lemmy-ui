@@ -20,6 +20,7 @@ import { WebSocketService, UserService } from '../services';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
 import { MarkdownTextArea } from './markdown-textarea';
+import { Icon } from './icon';
 
 interface CommentFormProps {
   postId?: number;
@@ -84,9 +85,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
           />
         ) : (
           <div class="alert alert-light" role="alert">
-            <svg class="icon icon-inline mr-2">
-              <use xlinkHref="#icon-alert-triangle"></use>
-            </svg>
+            <Icon icon="alert-triangle" classes="icon-inline mr-2" />
             <T i18nKey="must_login" class="d-inline">
               #
               <Link className="alert-link" to="/login">

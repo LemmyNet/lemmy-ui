@@ -26,6 +26,7 @@ import {
   setOptionalAuth,
 } from '../utils';
 import { CommunityLink } from './community-link';
+import { Spinner } from './icon';
 import { i18n } from '../i18next';
 import { InitialFetchRequest } from 'shared/interfaces';
 
@@ -104,10 +105,8 @@ export class Communities extends Component<any, CommunitiesState> {
           path={this.context.router.route.match.url}
         />
         {this.state.loading ? (
-          <h5 class="">
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+          <h5>
+            <Spinner />
           </h5>
         ) : (
           <div>

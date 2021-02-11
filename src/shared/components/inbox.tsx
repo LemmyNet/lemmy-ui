@@ -38,6 +38,7 @@ import { CommentNodes } from './comment-nodes';
 import { PrivateMessage } from './private-message';
 import { HtmlTags } from './html-tags';
 import { SortSelect } from './sort-select';
+import { Icon, Spinner } from './icon';
 import { i18n } from '../i18next';
 import { InitialFetchRequest } from 'shared/interfaces';
 
@@ -137,9 +138,7 @@ export class Inbox extends Component<any, InboxState> {
       <div class="container">
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">
@@ -157,9 +156,7 @@ export class Inbox extends Component<any, InboxState> {
                     title="RSS"
                     rel="noopener"
                   >
-                    <svg class="icon ml-2 text-muted small">
-                      <use xlinkHref="#icon-rss">#</use>
-                    </svg>
+                    <Icon icon="rss" classes="ml-2 text-muted small" />
                   </a>
                 </small>
               </h5>

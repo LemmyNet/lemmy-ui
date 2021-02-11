@@ -2,6 +2,7 @@ import { Component, linkEvent } from 'inferno';
 import { Prompt } from 'inferno-router';
 import { PostListings } from './post-listings';
 import { MarkdownTextArea } from './markdown-textarea';
+import { Icon, Spinner } from './icon';
 import { Subscription } from 'rxjs';
 import {
   CreatePost,
@@ -196,9 +197,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   } d-inline-block float-right text-muted font-weight-bold`}
                   data-tippy-content={i18n.t('upload_image')}
                 >
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-image"></use>
-                  </svg>
+                  <Icon icon="image" classes="icon-inline" />
                 </label>
                 <input
                   id="file-upload"
@@ -222,11 +221,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   {i18n.t('archive_link')}
                 </a>
               )}
-              {this.state.imageLoading && (
-                <svg class="icon icon-spinner spin">
-                  <use xlinkHref="#icon-spinner"></use>
-                </svg>
-              )}
+              {this.state.imageLoading && <Spinner />}
               {isImage(this.state.postForm.url) && (
                 <img src={this.state.postForm.url} class="img-fluid" alt="" />
               )}
@@ -347,9 +342,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 class="btn btn-secondary mr-2"
               >
                 {this.state.loading ? (
-                  <svg class="icon icon-spinner spin">
-                    <use xlinkHref="#icon-spinner"></use>
-                  </svg>
+                  <Spinner />
                 ) : this.props.post_view ? (
                   capitalizeFirstLetter(i18n.t('save'))
                 ) : (

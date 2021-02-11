@@ -31,6 +31,7 @@ import { DataTypeSelect } from './data-type-select';
 import { Sidebar } from './sidebar';
 import { CommunityLink } from './community-link';
 import { BannerIconHeader } from './banner-icon-header';
+import { Icon, Spinner } from './icon';
 import {
   wsJsonToRes,
   fetchLimit,
@@ -244,9 +245,7 @@ export class Community extends Component<any, State> {
       <div class="container">
         {this.state.communityLoading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">
@@ -283,9 +282,7 @@ export class Community extends Component<any, State> {
     return this.state.dataType == DataType.Post ? (
       this.state.postsLoading ? (
         <h5>
-          <svg class="icon icon-spinner spin">
-            <use xlinkHref="#icon-spinner"></use>
-          </svg>
+          <Spinner />
         </h5>
       ) : (
         <PostListings
@@ -297,9 +294,7 @@ export class Community extends Component<any, State> {
       )
     ) : this.state.commentsLoading ? (
       <h5>
-        <svg class="icon icon-spinner spin">
-          <use xlinkHref="#icon-spinner"></use>
-        </svg>
+        <Spinner />
       </h5>
     ) : (
       <CommentNodes
@@ -350,9 +345,7 @@ export class Community extends Component<any, State> {
           title="RSS"
           rel="noopener"
         >
-          <svg class="icon text-muted small">
-            <use xlinkHref="#icon-rss">#</use>
-          </svg>
+          <Icon icon="rss" classes="text-muted small" />
         </a>
       </div>
     );
