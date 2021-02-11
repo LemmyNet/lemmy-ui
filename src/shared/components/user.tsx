@@ -388,7 +388,6 @@ export class User extends Component<any, UserState> {
         />
         <a
           href={`/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`}
-          target="_blank"
           rel="noopener"
           title="RSS"
         >
@@ -442,7 +441,6 @@ export class User extends Component<any, UserState> {
                     className={`d-flex align-self-start btn btn-secondary mr-2 ${
                       !uv.user.matrix_user_id && 'invisible'
                     }`}
-                    target="_blank"
                     rel="noopener"
                     href={`https://matrix.to/#/${uv.user.matrix_user_id}`}
                   >
@@ -641,7 +639,7 @@ export class User extends Component<any, UserState> {
               </div>
               <div class="form-group row">
                 <label class="col-lg-5 col-form-label" htmlFor="matrix-user-id">
-                  <a href={elementUrl} target="_blank" rel="noopener">
+                  <a href={elementUrl} rel="noopener">
                     {i18n.t('matrix_user_id')}
                   </a>
                 </label>

@@ -152,7 +152,6 @@ export class Inbox extends Component<any, InboxState> {
                 <small>
                   <a
                     href={`/feeds/inbox/${UserService.Instance.auth}.xml`}
-                    target="_blank"
                     title="RSS"
                     rel="noopener"
                   >

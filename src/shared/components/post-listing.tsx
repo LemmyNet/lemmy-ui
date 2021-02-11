@@ -214,7 +214,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <a
           class="float-right text-body d-inline-block position-relative mb-2"
           href={post.url}
-          target="_blank"
           rel="noopener"
           title={post.url}
         >
@@ -242,7 +241,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <a
             className="text-body"
             href={post.url}
-            target="_blank"
             title={post.url}
             rel="noopener"
           >
@@ -298,7 +296,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <a
                 className="text-muted font-italic"
                 href={post_view.post.url}
-                target="_blank"
                 title={post_view.post.url}
                 rel="noopener"
               >
@@ -380,7 +377,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <a
               className={!post.stickied ? 'text-body' : 'text-primary'}
               href={post.url}
-              target="_blank"
               title={post.url}
               rel="noopener"
             >

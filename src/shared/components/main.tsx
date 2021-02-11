@@ -594,7 +594,6 @@ export class Main extends Component<any, MainState> {
         {this.state.listingType == ListingType.All && (
           <a
             href={`/feeds/all.xml?sort=${this.state.sort}`}
-            target="_blank"
             rel="noopener"
             title="RSS"
           >
@@ -604,7 +603,6 @@ export class Main extends Component<any, MainState> {
         {this.state.listingType == ListingType.Local && (
           <a
             href={`/feeds/local.xml?sort=${this.state.sort}`}
-            target="_blank"
             rel="noopener"
             title="RSS"
           >
@@ -615,7 +613,6 @@ export class Main extends Component<any, MainState> {
           this.state.listingType == ListingType.Subscribed && (
             <a
               href={`/feeds/front/${UserService.Instance.auth}.xml?sort=${this.state.sort}`}
-              target="_blank"
               title="RSS"
               rel="noopener"
             >

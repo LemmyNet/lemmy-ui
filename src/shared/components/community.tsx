@@ -341,7 +341,6 @@ export class Community extends Component<any, State> {
             this.state.communityRes.community_view.community.actor_id,
             this.state.sort
           )}
-          target="_blank"
           title="RSS"
           rel="noopener"
         >
