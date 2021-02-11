@@ -25,6 +25,7 @@ import { IFramelyCard } from './iframely-card';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
 import { PictrsImage } from './pictrs-image';
+import { Icon } from './icon';
 import {
   md,
   mdToHtml,
@@ -205,9 +206,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           aria-label={i18n.t('expand_here')}
         >
           {this.imgThumb(this.getImageSrc())}
-          <svg class="icon mini-overlay">
-            <use xlinkHref="#icon-image"></use>
-          </svg>
+          <Icon icon="image" classes="mini-overlay" />
         </div>
       );
     } else if (post.thumbnail_url) {
@@ -220,9 +219,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           title={post.url}
         >
           {this.imgThumb(this.getImageSrc())}
-          <svg class="icon mini-overlay">
-            <use xlinkHref="#icon-external-link"></use>
-          </svg>
+          <Icon icon="external-link" classes="mini-overlay" />
         </a>
       );
     } else if (post.url) {
@@ -250,9 +247,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             rel="noopener"
           >
             <div class="thumbnail rounded bg-light d-flex justify-content-center">
-              <svg class="icon d-flex align-items-center">
-                <use xlinkHref="#icon-external-link"></use>
-              </svg>
+              <Icon icon="external-link" classes="d-flex align-items-center" />
             </div>
           </a>
         );
@@ -265,9 +260,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           title={i18n.t('comments')}
         >
           <div class="thumbnail rounded bg-light d-flex justify-content-center">
-            <svg class="icon d-flex align-items-center">
-              <use xlinkHref="#icon-message-square"></use>
-            </svg>
+            <Icon icon="message-square" classes="d-flex align-items-center" />
           </div>
         </Link>
       );
@@ -334,9 +327,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 aria-label={i18n.t('upvote')}
                 to={`/post/${post_view.post.id}`}
               >
-                <svg class="mr-1 icon icon-inline">
-                  <use xlinkHref="#icon-book-open"></use>
-                </svg>
+                <Icon icon="book-open" classes="icon-inline mr-1" />
               </Link>
             </li>
           </>
@@ -356,9 +347,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           data-tippy-content={i18n.t('upvote')}
           aria-label={i18n.t('upvote')}
         >
-          <svg class="icon upvote">
-            <use xlinkHref="#icon-arrow-up1"></use>
-          </svg>
+          <Icon icon="arrow-up1" classes="upvote" />
         </button>
         <div
           class={`unselectable pointer font-weight-bold text-muted px-1`}
@@ -375,9 +364,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             data-tippy-content={i18n.t('downvote')}
             aria-label={i18n.t('downvote')}
           >
-            <svg class="icon downvote">
-              <use xlinkHref="#icon-arrow-down1"></use>
-            </svg>
+            <Icon icon="arrow-down1" classes="downvote" />
           </button>
         )}
       </div>
@@ -415,9 +402,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 data-tippy-content={i18n.t('expand_here')}
                 onClick={linkEvent(this, this.handleImageExpandClick)}
               >
-                <svg class="icon icon-inline">
-                  <use xlinkHref="#icon-plus-square"></use>
-                </svg>
+                <Icon icon="plus-square" classes="icon-inline" />
               </span>
             ) : (
               <span>
@@ -425,9 +410,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   class="text-monospace unselectable pointer ml-2 text-muted small"
                   onClick={linkEvent(this, this.handleImageExpandClick)}
                 >
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-minus-square"></use>
-                  </svg>
+                  <Icon icon="minus-square" classes="icon-inline" />
                 </span>
                 <div>
                   <span
@@ -449,9 +432,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="unselectable pointer ml-2 text-muted font-italic"
               data-tippy-content={i18n.t('deleted')}
             >
-              <svg class={`icon icon-inline text-danger`}>
-                <use xlinkHref="#icon-trash"></use>
-              </svg>
+              <Icon icon="trash" classes="icon-inline text-danger" />
             </small>
           )}
           {post.locked && (
@@ -459,9 +440,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="unselectable pointer ml-2 text-muted font-italic"
               data-tippy-content={i18n.t('locked')}
             >
-              <svg class={`icon icon-inline text-danger`}>
-                <use xlinkHref="#icon-lock"></use>
-              </svg>
+              <Icon icon="lock" classes="icon-inline text-danger" />
             </small>
           )}
           {post.stickied && (
@@ -469,9 +448,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="unselectable pointer ml-2 text-muted font-italic"
               data-tippy-content={i18n.t('stickied')}
             >
-              <svg class={`icon icon-inline text-primary`}>
-                <use xlinkHref="#icon-pin"></use>
-              </svg>
+              <Icon icon="pin" classes="icon-inline text-primary" />
             </small>
           )}
           {post.nsfw && (
@@ -496,9 +473,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             })}
             to={`/post/${post_view.post.id}`}
           >
-            <svg class="mr-1 icon icon-inline">
-              <use xlinkHref="#icon-message-square"></use>
-            </svg>
+            <Icon icon="message-square" classes="icon-inline mr-1" />
             {i18n.t('number_of_comments', {
               count: post_view.counts.comments,
             })}
@@ -513,9 +488,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 aria-label={i18n.t('downvote')}
               >
                 <small>
-                  <svg class="icon icon-inline mr-1">
-                    <use xlinkHref="#icon-arrow-down1"></use>
-                  </svg>
+                  <Icon icon="arrow-down1" classes="icon-inline mr-1" />
                   <span>{this.state.downvotes}</span>
                 </small>
               </button>
@@ -530,13 +503,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 aria-label={post_view.saved ? i18n.t('unsave') : i18n.t('save')}
               >
                 <small>
-                  <svg
-                    class={`icon icon-inline ${
-                      post_view.saved && 'text-warning'
-                    }`}
-                  >
-                    <use xlinkHref="#icon-star"></use>
-                  </svg>
+                  <Icon
+                    icon="star"
+                    classes={`icon-inline ${post_view.saved && 'text-warning'}`}
+                  />
                 </small>
               </button>
             )}
@@ -555,9 +525,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 onClick={linkEvent(this, this.handlePostLike)}
                 aria-label={i18n.t('upvote')}
               >
-                <svg class="small icon icon-inline mr-2">
-                  <use xlinkHref="#icon-arrow-up1"></use>
-                </svg>
+                <Icon icon="arrow-up1" classes="icon-inline small mr-2" />
                 {this.state.upvotes}
               </button>
               {this.props.enableDownvotes && (
@@ -569,9 +537,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   data-tippy-content={this.pointsTippy}
                   aria-label={i18n.t('downvote')}
                 >
-                  <svg class="small icon icon-inline mr-2">
-                    <use xlinkHref="#icon-arrow-down1"></use>
-                  </svg>
+                  <Icon icon="arrow-down1" classes="icon-inline small mr-2" />
                   {this.state.downvotes !== 0 && (
                     <span>{this.state.downvotes}</span>
                   )}
@@ -586,11 +552,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 post_view.saved ? i18n.t('unsave') : i18n.t('save')
               }
             >
-              <svg
-                class={`icon icon-inline ${post_view.saved && 'text-warning'}`}
-              >
-                <use xlinkHref="#icon-star"></use>
-              </svg>
+              <Icon
+                icon="star"
+                classes={`icon-inline ${post_view.saved && 'text-warning'}`}
+              />
             </button>
 
             {!this.state.showMoreMobile && this.props.showBody && (
@@ -600,9 +565,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 aria-label={i18n.t('more')}
                 data-tippy-content={i18n.t('more')}
               >
-                <svg class="icon icon-inline">
-                  <use xlinkHref="#icon-more-vertical"></use>
-                </svg>
+                <Icon icon="more-vertical" classes="icon-inline" />
               </button>
             )}
             {this.state.showMoreMobile && this.postActions(mobile)}
@@ -655,13 +618,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     post_view.saved ? i18n.t('unsave') : i18n.t('save')
                   }
                 >
-                  <svg
-                    class={`icon icon-inline ${
-                      post_view.saved && 'text-warning'
-                    }`}
-                  >
-                    <use xlinkHref="#icon-star"></use>
-                  </svg>
+                  <Icon
+                    icon="star"
+                    classes={`icon-inline ${post_view.saved && 'text-warning'}`}
+                  />
                 </button>
               )}
               <Link
@@ -669,9 +629,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 to={`/create_post${this.crossPostParams}`}
                 title={i18n.t('cross_post')}
               >
-                <svg class="icon icon-inline">
-                  <use xlinkHref="#icon-copy"></use>
-                </svg>
+                <Icon icon="copy" classes="icon-inline" />
               </Link>
             </>
           )}
@@ -683,9 +641,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 data-tippy-content={i18n.t('edit')}
                 aria-label={i18n.t('edit')}
               >
-                <svg class="icon icon-inline">
-                  <use xlinkHref="#icon-edit"></use>
-                </svg>
+                <Icon icon="edit" classes="icon-inline" />
               </button>
               <button
                 class="btn btn-link btn-animate text-muted py-0"
@@ -697,13 +653,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   !post_view.post.deleted ? i18n.t('delete') : i18n.t('restore')
                 }
               >
-                <svg
-                  class={`icon icon-inline ${
+                <Icon
+                  icon="trash"
+                  classes={`icon-inline ${
                     post_view.post.deleted && 'text-danger'
                   }`}
-                >
-                  <use xlinkHref="#icon-trash"></use>
-                </svg>
+                />
               </button>
             </>
           )}
@@ -715,9 +670,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               data-tippy-content={i18n.t('more')}
               aria-label={i18n.t('more')}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-more-vertical"></use>
-              </svg>
+              <Icon icon="more-vertical" classes="icon-inline" />
             </button>
           ) : (
             <>
@@ -728,13 +681,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   data-tippy-content={i18n.t('view_source')}
                   aria-label={i18n.t('view_source')}
                 >
-                  <svg
-                    class={`icon icon-inline ${
+                  <Icon
+                    icon="file-text"
+                    classes={`icon-inline ${
                       this.state.viewSource && 'text-success'
                     }`}
-                  >
-                    <use xlinkHref="#icon-file-text"></use>
-                  </svg>
+                  />
                 </button>
               )}
               {this.canModOnSelf && (
@@ -749,13 +701,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       post_view.post.locked ? i18n.t('unlock') : i18n.t('lock')
                     }
                   >
-                    <svg
-                      class={`icon icon-inline ${
+                    <Icon
+                      icon="lock"
+                      classes={`icon-inline ${
                         post_view.post.locked && 'text-danger'
                       }`}
-                    >
-                      <use xlinkHref="#icon-lock"></use>
-                    </svg>
+                    />
                   </button>
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
@@ -771,13 +722,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                         : i18n.t('sticky')
                     }
                   >
-                    <svg
-                      class={`icon icon-inline ${
+                    <Icon
+                      icon="pin"
+                      classes={`icon-inline ${
                         post_view.post.stickied && 'text-success'
                       }`}
-                    >
-                      <use xlinkHref="#icon-pin"></use>
-                    </svg>
+                    />
                   </button>
                 </>
               )}

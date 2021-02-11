@@ -24,6 +24,7 @@ import {
 } from '../utils';
 import { i18n } from '../i18next';
 import { HtmlTags } from './html-tags';
+import { Icon, Spinner } from './icon';
 
 interface State {
   loginForm: LoginForm;
@@ -134,27 +135,21 @@ export class Login extends Component<any, State> {
                 class="form-control"
                 required
               />
-              {validEmail(this.state.loginForm.username_or_email) && (
-                <button
-                  type="button"
-                  onClick={linkEvent(this, this.handlePasswordReset)}
-                  className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold"
-                >
-                  {i18n.t('forgot_password')}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={linkEvent(this, this.handlePasswordReset)}
+                className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events"
+                disabled={!validEmail(this.state.loginForm.username_or_email)}
+                title={i18n.t('no_password_reset')}
+              >
+                {i18n.t('forgot_password')}
+              </button>
             </div>
           </div>
           <div class="form-group row">
             <div class="col-sm-10">
               <button type="submit" class="btn btn-secondary">
-                {this.state.loginLoading ? (
-                  <svg class="icon icon-spinner spin">
-                    <use xlinkHref="#icon-spinner"></use>
-                  </svg>
-                ) : (
-                  i18n.t('login')
-                )}
+                {this.state.loginLoading ? <Spinner /> : i18n.t('login')}
               </button>
             </div>
           </div>
@@ -204,9 +199,7 @@ export class Login extends Component<any, State> {
             />
             {!validEmail(this.state.registerForm.email) && (
               <div class="mt-2 mb-0 alert alert-light" role="alert">
-                <svg class="icon icon-inline mr-2">
-                  <use xlinkHref="#icon-alert-triangle"></use>
-                </svg>
+                <Icon icon="alert-triangle" classes="icon-inline mr-2" />
                 {i18n.t('no_password_reset')}
               </div>
             )}
@@ -262,9 +255,7 @@ export class Login extends Component<any, State> {
                 onClick={linkEvent(this, this.handleRegenCaptcha)}
                 aria-label={i18n.t('captcha')}
               >
-                <svg class="icon icon-refresh-cw">
-                  <use xlinkHref="#icon-refresh-cw"></use>
-                </svg>
+                <Icon icon="refresh-cw" classes="icon-refresh-cw" />
               </button>
             </label>
             {this.showCaptcha()}
@@ -304,13 +295,7 @@ export class Login extends Component<any, State> {
         <div class="form-group row">
           <div class="col-sm-10">
             <button type="submit" class="btn btn-secondary">
-              {this.state.registerLoading ? (
-                <svg class="icon icon-spinner spin">
-                  <use xlinkHref="#icon-spinner"></use>
-                </svg>
-              ) : (
-                i18n.t('sign_up')
-              )}
+              {this.state.registerLoading ? <Spinner /> : i18n.t('sign_up')}
             </button>
           </div>
         </div>
@@ -338,9 +323,7 @@ export class Login extends Component<any, State> {
                 type="button"
                 disabled={this.state.captchaPlaying}
               >
-                <svg class="icon icon-play">
-                  <use xlinkHref="#icon-play"></use>
-                </svg>
+                <Icon icon="play" classes="icon-play" />
               </button>
             )}
           </>

@@ -2,6 +2,7 @@ import { Component } from 'inferno';
 import { Subscription } from 'rxjs';
 import { PrivateMessageForm } from './private-message-form';
 import { HtmlTags } from './html-tags';
+import { Spinner } from './icon';
 import { UserService, WebSocketService } from '../services';
 import {
   SiteView,
@@ -112,9 +113,7 @@ export class CreatePrivateMessage extends Component<
         />
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">

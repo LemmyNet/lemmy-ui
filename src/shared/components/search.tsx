@@ -35,6 +35,7 @@ import {
 } from '../utils';
 import { PostListing } from './post-listing';
 import { HtmlTags } from './html-tags';
+import { Spinner } from './icon';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
 import { SortSelect } from './sort-select';
@@ -214,18 +215,8 @@ export class Search extends Component<any, SearchState> {
           required
           minLength={3}
         />
-        <button
-          type="submit"
-          class="btn btn-secondary mr-2 mb-2"
-          aria-label={i18n.t('search')}
-        >
-          {this.state.loading ? (
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
-          ) : (
-            <span>{i18n.t('search')}</span>
-          )}
+        <button type="submit" class="btn btn-secondary mr-2 mb-2">
+          {this.state.loading ? <Spinner /> : <span>{i18n.t('search')}</span>}
         </button>
       </form>
     );

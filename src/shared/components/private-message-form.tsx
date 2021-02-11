@@ -23,6 +23,7 @@ import {
 } from '../utils';
 import { UserListing } from './user-listing';
 import { MarkdownTextArea } from './markdown-textarea';
+import { Icon, Spinner } from './icon';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
 
@@ -121,9 +122,7 @@ export class PrivateMessageForm extends Component<
                 data-tippy-content={i18n.t('disclaimer')}
                 aria-label={i18n.t('disclaimer')}
               >
-                <svg class={`icon icon-inline`}>
-                  <use xlinkHref="#icon-alert-triangle"></use>
-                </svg>
+                <Icon icon="alert-triangle" classes="icon-inline" />
               </span>
             </label>
             <div class="col-sm-10">
@@ -161,9 +160,7 @@ export class PrivateMessageForm extends Component<
                 disabled={this.state.loading}
               >
                 {this.state.loading ? (
-                  <svg class="icon icon-spinner spin">
-                    <use xlinkHref="#icon-spinner"></use>
-                  </svg>
+                  <Spinner />
                 ) : this.props.privateMessage ? (
                   capitalizeFirstLetter(i18n.t('save'))
                 ) : (

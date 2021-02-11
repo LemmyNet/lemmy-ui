@@ -19,6 +19,7 @@ import {
 } from '../utils';
 import { i18n } from '../i18next';
 import { HtmlTags } from './html-tags';
+import { Spinner } from './icon';
 
 interface State {
   passwordChangeForm: PasswordChangeForm;
@@ -113,9 +114,7 @@ export class PasswordChange extends Component<any, State> {
           <div class="col-sm-10">
             <button type="submit" class="btn btn-secondary">
               {this.state.loading ? (
-                <svg class="icon icon-spinner spin">
-                  <use xlinkHref="#icon-spinner"></use>
-                </svg>
+                <Spinner />
               ) : (
                 capitalizeFirstLetter(i18n.t('save'))
               )}

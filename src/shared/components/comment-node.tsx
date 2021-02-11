@@ -36,6 +36,7 @@ import { CommentForm } from './comment-form';
 import { CommentNodes } from './comment-nodes';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
+import { Icon, Spinner } from './icon';
 import { i18n } from '../i18next';
 
 interface CommentNodeState {
@@ -260,13 +261,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       {this.state.readLoading ? (
                         this.loadingIcon
                       ) : (
-                        <svg
-                          class={`icon icon-inline ${
+                        <Icon
+                          icon="check"
+                          classes={`icon-inline ${
                             this.commentOrMentionRead && 'text-success'
                           }`}
-                        >
-                          <use xlinkHref="#icon-check"></use>
-                        </svg>
+                        />
                       )}
                     </button>
                   )}
@@ -280,9 +280,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         data-tippy-content={i18n.t('upvote')}
                         aria-label={i18n.t('upvote')}
                       >
-                        <svg class="icon icon-inline">
-                          <use xlinkHref="#icon-arrow-up1"></use>
-                        </svg>
+                        <Icon icon="arrow-up1" classes="icon-inline" />
                         {this.state.upvotes !== this.state.score && (
                           <span class="ml-1">{this.state.upvotes}</span>
                         )}
@@ -298,9 +296,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           data-tippy-content={i18n.t('downvote')}
                           aria-label={i18n.t('downvote')}
                         >
-                          <svg class="icon icon-inline">
-                            <use xlinkHref="#icon-arrow-down1"></use>
-                          </svg>
+                          <Icon icon="arrow-down1" classes="icon-inline" />
                           {this.state.upvotes !== this.state.score && (
                             <span class="ml-1">{this.state.downvotes}</span>
                           )}
@@ -312,9 +308,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         data-tippy-content={i18n.t('reply')}
                         aria-label={i18n.t('reply')}
                       >
-                        <svg class="icon icon-inline">
-                          <use xlinkHref="#icon-reply1"></use>
-                        </svg>
+                        <Icon icon="reply1" classes="icon-inline" />
                       </button>
                       {!this.state.showAdvanced ? (
                         <button
@@ -323,9 +317,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           data-tippy-content={i18n.t('more')}
                           aria-label={i18n.t('more')}
                         >
-                          <svg class="icon icon-inline">
-                            <use xlinkHref="#icon-more-vertical"></use>
-                          </svg>
+                          <Icon icon="more-vertical" classes="icon-inline" />
                         </button>
                       ) : (
                         <>
@@ -336,9 +328,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 to={`/create_private_message/recipient/${cv.creator.id}`}
                                 title={i18n.t('message').toLowerCase()}
                               >
-                                <svg class="icon">
-                                  <use xlinkHref="#icon-mail"></use>
-                                </svg>
+                                <Icon icon="mail" />
                               </Link>
                             </button>
                           )}
@@ -359,13 +349,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             {this.state.saveLoading ? (
                               this.loadingIcon
                             ) : (
-                              <svg
-                                class={`icon icon-inline ${
+                              <Icon
+                                icon="star"
+                                classes={`icon-inline ${
                                   cv.saved && 'text-warning'
                                 }`}
-                              >
-                                <use xlinkHref="#icon-star"></use>
-                              </svg>
+                              />
                             )}
                           </button>
                           <button
@@ -374,13 +363,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             data-tippy-content={i18n.t('view_source')}
                             aria-label={i18n.t('view_source')}
                           >
-                            <svg
-                              class={`icon icon-inline ${
+                            <Icon
+                              icon="file-text"
+                              classes={`icon-inline ${
                                 this.state.viewSource && 'text-success'
                               }`}
-                            >
-                              <use xlinkHref="#icon-file-text"></use>
-                            </svg>
+                            />
                           </button>
                           {this.myComment && (
                             <>
@@ -390,9 +378,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 data-tippy-content={i18n.t('edit')}
                                 aria-label={i18n.t('edit')}
                               >
-                                <svg class="icon icon-inline">
-                                  <use xlinkHref="#icon-edit"></use>
-                                </svg>
+                                <Icon icon="edit" classes="icon-inline" />
                               </button>
                               <button
                                 class="btn btn-link btn-animate text-muted"
@@ -411,13 +397,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     : i18n.t('restore')
                                 }
                               >
-                                <svg
-                                  class={`icon icon-inline ${
+                                <Icon
+                                  icon="trash"
+                                  classes={`icon-inline ${
                                     cv.comment.deleted && 'text-danger'
                                   }`}
-                                >
-                                  <use xlinkHref="#icon-trash"></use>
-                                </svg>
+                                />
                               </button>
                             </>
                           )}
@@ -817,19 +802,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
         title={this.props.showContext ? i18n.t('show_context') : i18n.t('link')}
       >
-        <svg class="icon icon-inline">
-          <use xlinkHref="#icon-link"></use>
-        </svg>
+        <Icon icon="link" classes="icon-inline" />
       </Link>
     );
   }
 
   get loadingIcon() {
-    return (
-      <svg class="icon icon-spinner spin">
-        <use xlinkHref="#icon-spinner"></use>
-      </svg>
-    );
+    return <Spinner />;
   }
 
   get myComment(): boolean {

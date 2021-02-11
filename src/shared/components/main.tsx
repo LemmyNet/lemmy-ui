@@ -34,6 +34,7 @@ import { SiteForm } from './site-form';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
 import { BannerIconHeader } from './banner-icon-header';
+import { Icon, Spinner } from './icon';
 import {
   wsJsonToRes,
   mdToHtml,
@@ -513,9 +514,7 @@ export class Main extends Component<any, MainState> {
               aria-label={i18n.t('edit')}
               data-tippy-content={i18n.t('edit')}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-edit"></use>
-              </svg>
+              <Icon icon="edit" classes="icon-inline" />
             </span>
           </li>
         </ul>
@@ -539,9 +538,7 @@ export class Main extends Component<any, MainState> {
       <div class="main-content-wrapper">
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div>
@@ -601,9 +598,7 @@ export class Main extends Component<any, MainState> {
             rel="noopener"
             title="RSS"
           >
-            <svg class="icon text-muted small">
-              <use xlinkHref="#icon-rss"></use>
-            </svg>
+            <Icon icon="rss" classes="text-muted small" />
           </a>
         )}
         {this.state.listingType == ListingType.Local && (
@@ -613,9 +608,7 @@ export class Main extends Component<any, MainState> {
             rel="noopener"
             title="RSS"
           >
-            <svg class="icon text-muted small">
-              <use xlinkHref="#icon-rss">#</use>
-            </svg>
+            <Icon icon="rss" classes="text-muted small" />
           </a>
         )}
         {UserService.Instance.user &&
@@ -626,9 +619,7 @@ export class Main extends Component<any, MainState> {
               title="RSS"
               rel="noopener"
             >
-              <svg class="icon text-muted small">
-                <use xlinkHref="#icon-rss">#</use>
-              </svg>
+              <Icon icon="rss" classes="text-muted small" />
             </a>
           )}
       </div>
