@@ -134,15 +134,15 @@ export class Login extends Component<any, State> {
                 class="form-control"
                 required
               />
-              {validEmail(this.state.loginForm.username_or_email) && (
-                <button
-                  type="button"
-                  onClick={linkEvent(this, this.handlePasswordReset)}
-                  className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold"
-                >
-                  {i18n.t('forgot_password')}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={linkEvent(this, this.handlePasswordReset)}
+                className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events"
+                disabled={!validEmail(this.state.loginForm.username_or_email)}
+                title={i18n.t('no_password_reset')}
+              >
+                {i18n.t('forgot_password')}
+              </button>
             </div>
           </div>
           <div class="form-group row">
