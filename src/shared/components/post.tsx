@@ -1,5 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { HtmlTags } from './html-tags';
+import { Spinner } from './icon';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
@@ -256,9 +257,7 @@ export class Post extends Component<any, PostState> {
       <div class="container">
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">
