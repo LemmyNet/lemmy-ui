@@ -198,6 +198,7 @@ export class Communities extends Component<any, CommunitiesState> {
       >
         <input
           type="text"
+          id="communities-search"
           class="form-control mr-2 mb-2"
           value={this.state.searchText}
           placeholder={`${i18n.t('search')}...`}
@@ -205,6 +206,9 @@ export class Communities extends Component<any, CommunitiesState> {
           required
           minLength={3}
         />
+        <label class="sr-only" htmlFor="communities-search">
+          {i18n.t('search')}
+        </label>
         <button type="submit" class="btn btn-secondary mr-2 mb-2">
           <span>{i18n.t('search')}</span>
         </button>

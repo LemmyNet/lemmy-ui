@@ -253,6 +253,7 @@ export class Login extends Component<any, State> {
                 type="button"
                 class="btn btn-secondary"
                 onClick={linkEvent(this, this.handleRegenCaptcha)}
+                aria-label={i18n.t('captcha')}
               >
                 <Icon icon="refresh-cw" classes="icon-refresh-cw" />
               </button>

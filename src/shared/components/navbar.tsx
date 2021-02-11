@@ -201,7 +201,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             >
               <Icon icon="bell" />
               {this.state.unreadCount > 0 && (
-                <span class="mx-1 badge badge-light">
+                <span
+                  class="mx-1 badge badge-light"
+                  aria-label={`${this.state.unreadCount} ${i18n.t(
+                    'unread_messages'
+                  )}`}
+                >
                   {this.state.unreadCount}
                 </span>
               )}
@@ -281,6 +286,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 onSubmit={linkEvent(this, this.handleSearchSubmit)}
               >
                 <input
+                  id="search-input"
                   class={`form-control mr-0 search-input ${
                     this.state.toggleSearch ? 'show-input' : 'hide-input'
                   }`}
@@ -291,11 +297,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   placeholder={i18n.t('search')}
                   onBlur={linkEvent(this, this.handleSearchBlur)}
                 ></input>
+                <label class="sr-only" htmlFor="search-input">
+                  {i18n.t('search')}
+                </label>
                 <button
                   name="search-btn"
                   onClick={linkEvent(this, this.handleSearchBtn)}
                   class="px-1 btn btn-link"
                   style="color: var(--gray)"
+                  aria-label={i18n.t('search')}
                 >
                   <Icon icon="search" />
                 </button>
@@ -312,7 +322,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     >
                       <Icon icon="bell" />
                       {this.state.unreadCount > 0 && (
-                        <span class="ml-1 badge badge-light">
+                        <span
+                          class="ml-1 badge badge-light"
+                          aria-label={`${this.state.unreadCount} ${i18n.t(
+                            'unread_messages'
+                          )}`}
+                        >
                           {this.state.unreadCount}
                         </span>
                       )}

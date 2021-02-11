@@ -139,6 +139,9 @@ export class MarkdownTextArea extends Component<
               />
             )}
           </div>
+          <label class="sr-only" htmlFor={this.id}>
+            {i18n.t('body')}
+          </label>
         </div>
         <div class="row">
           <div class="col-sm-12 d-flex flex-wrap">
@@ -179,6 +182,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('bold')}
+              aria-label={i18n.t('bold')}
               onClick={linkEvent(this, this.handleInsertBold)}
             >
               <Icon icon="bold" classes="icon-inline" />
@@ -186,6 +190,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('italic')}
+              aria-label={i18n.t('italic')}
               onClick={linkEvent(this, this.handleInsertItalic)}
             >
               <Icon icon="italic" classes="icon-inline" />
@@ -193,6 +198,7 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('link')}
+              aria-label={i18n.t('link')}
               onClick={linkEvent(this, this.handleInsertLink)}
             >
               <Icon icon="link" classes="icon-inline" />
