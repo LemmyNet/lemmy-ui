@@ -60,7 +60,7 @@ export class Instances extends Component<any, InstancesState> {
       <ul>
         {items.map(i => (
           <li>
-            <a href={`https://${i}`} target="_blank" rel="noopener">
+            <a href={`https://${i}`} rel="noopener">
               {i}
             </a>
           </li>

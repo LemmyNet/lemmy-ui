@@ -291,7 +291,6 @@ export class MarkdownTextArea extends Component<
             </button>
             <a
               href={markdownHelpUrl}
-              target="_blank"
               class="btn btn-sm text-muted font-weight-bold"
               title={i18n.t('formatting_help')}
               rel="noopener"

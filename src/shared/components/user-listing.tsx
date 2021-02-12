@@ -48,7 +48,6 @@ export class UserListing extends Component<UserListingProps, any> {
           title={apubName}
           className={this.props.muted ? 'text-muted' : 'text-info'}
           to={link}
-          target={this.props.realLink ? '_blank' : ''}
         >
           {!this.props.hideAvatar && user.avatar && showAvatars() && (
             <PictrsImage src={user.avatar} icon />

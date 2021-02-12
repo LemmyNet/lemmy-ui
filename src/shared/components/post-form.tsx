@@ -212,7 +212,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${archiveUrl}/?run=1&url=${encodeURIComponent(
                     this.state.postForm.url
                   )}`}
-                  target="_blank"
                   class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel="noopener"
                 >

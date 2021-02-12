@@ -41,7 +41,6 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
         title={apubName}
         className={`${this.props.muted ? 'text-muted' : ''}`}
         to={link}
-        target={this.props.realLink ? '_blank' : ''}
       >
         {!this.props.hideAvatar && community.icon && showAvatars() && (
           <PictrsImage src={community.icon} icon />
