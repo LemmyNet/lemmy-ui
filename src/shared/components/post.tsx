@@ -1,5 +1,6 @@
 import { Component, linkEvent } from 'inferno';
 import { HtmlTags } from './html-tags';
+import { Spinner } from './icon';
 import { Subscription } from 'rxjs';
 import {
   UserOperation,
@@ -52,6 +53,8 @@ import {
   setOptionalAuth,
   saveScrollPosition,
   restoreScrollPosition,
+  buildCommentsTree,
+  insertCommentIntoTree,
 } from '../utils';
 import { PostListing } from './post-listing';
 import { Sidebar } from './sidebar';
@@ -63,6 +66,7 @@ import { i18n } from '../i18next';
 interface PostState {
   postRes: GetPostResponse;
   postId: number;
+  commentTree: CommentNodeI[];
   commentId?: number;
   commentSort: CommentSortType;
   commentViewType: CommentViewType;
@@ -79,6 +83,7 @@ export class Post extends Component<any, PostState> {
   private emptyState: PostState = {
     postRes: null,
     postId: getIdFromProps(this.props),
+    commentTree: [],
     commentId: getCommentIdFromProps(this.props),
     commentSort: CommentSortType.Hot,
     commentViewType: CommentViewType.Tree,
@@ -100,6 +105,10 @@ export class Post extends Component<any, PostState> {
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.postRes = this.isoData.routeData[0];
+      this.state.commentTree = buildCommentsTree(
+        this.state.postRes.comments,
+        this.state.commentSort
+      );
       this.state.categories = this.isoData.routeData[1].categories;
       this.state.loading = false;
 
@@ -248,9 +257,7 @@ export class Post extends Component<any, PostState> {
       <div class="container">
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">
@@ -368,6 +375,7 @@ export class Post extends Component<any, PostState> {
   }
 
   commentsFlat() {
+    // These are already sorted by new
     return (
       <div>
         <CommentNodes
@@ -379,7 +387,6 @@ export class Post extends Component<any, PostState> {
           postCreatorId={this.state.postRes.post_view.creator.id}
           showContext
           enableDownvotes={this.state.siteRes.site_view.site.enable_downvotes}
-          sort={this.state.commentSort}
         />
       </div>
     );
@@ -404,58 +411,32 @@ export class Post extends Component<any, PostState> {
   handleCommentSortChange(i: Post, event: any) {
     i.state.commentSort = Number(event.target.value);
     i.state.commentViewType = CommentViewType.Tree;
+    i.state.commentTree = buildCommentsTree(
+      i.state.postRes.comments,
+      i.state.commentSort
+    );
     i.setState(i.state);
   }
 
   handleCommentViewTypeChange(i: Post, event: any) {
     i.state.commentViewType = Number(event.target.value);
     i.state.commentSort = CommentSortType.New;
+    i.state.commentTree = buildCommentsTree(
+      i.state.postRes.comments,
+      i.state.commentSort
+    );
     i.setState(i.state);
   }
 
-  buildCommentsTree(): CommentNodeI[] {
-    let map = new Map<number, CommentNodeI>();
-    for (let comment_view of this.state.postRes.comments) {
-      let node: CommentNodeI = {
-        comment_view: comment_view,
-        children: [],
-      };
-      map.set(comment_view.comment.id, { ...node });
-    }
-    let tree: CommentNodeI[] = [];
-    for (let comment_view of this.state.postRes.comments) {
-      let child = map.get(comment_view.comment.id);
-      if (comment_view.comment.parent_id) {
-        let parent_ = map.get(comment_view.comment.parent_id);
-        parent_.children.push(child);
-      } else {
-        tree.push(child);
-      }
-
-      this.setDepth(child);
-    }
-
-    return tree;
-  }
-
-  setDepth(node: CommentNodeI, i: number = 0): void {
-    for (let child of node.children) {
-      child.depth = i;
-      this.setDepth(child, i + 1);
-    }
-  }
-
   commentsTree() {
-    let nodes = this.buildCommentsTree();
     return (
       <div>
         <CommentNodes
-          nodes={nodes}
+          nodes={this.state.commentTree}
           locked={this.state.postRes.post_view.post.locked}
           moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
           postCreatorId={this.state.postRes.post_view.creator.id}
-          sort={this.state.commentSort}
           enableDownvotes={this.state.siteRes.site_view.site.enable_downvotes}
         />
       </div>
@@ -480,6 +461,10 @@ export class Post extends Component<any, PostState> {
     } else if (op == UserOperation.GetPost) {
       let data = wsJsonToRes<GetPostResponse>(msg).data;
       this.state.postRes = data;
+      this.state.commentTree = buildCommentsTree(
+        this.state.postRes.comments,
+        this.state.commentSort
+      );
       this.state.loading = false;
 
       // Get cross-posts
@@ -493,6 +478,7 @@ export class Post extends Component<any, PostState> {
       // Necessary since it might be a user reply, which has the recipients, to avoid double
       if (data.recipient_ids.length == 0) {
         this.state.postRes.comments.unshift(data.comment_view);
+        insertCommentIntoTree(this.state.commentTree, data.comment_view);
         this.state.postRes.post_view.counts.comments++;
         this.setState(this.state);
         setupTippy();

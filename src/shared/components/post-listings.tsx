@@ -1,7 +1,6 @@
 import { Component } from 'inferno';
 import { Link } from 'inferno-router';
-import { PostView, SortType } from 'lemmy-js-client';
-import { postSort } from '../utils';
+import { PostView } from 'lemmy-js-client';
 import { PostListing } from './post-listing';
 import { i18n } from '../i18next';
 import { T } from 'inferno-i18next';
@@ -10,7 +9,6 @@ interface PostListingsProps {
   posts: PostView[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
-  sort?: SortType;
   enableDownvotes: boolean;
   enableNsfw: boolean;
 }
@@ -56,10 +54,6 @@ export class PostListings extends Component<PostListingsProps, any> {
     let out = this.props.posts;
     if (this.props.removeDuplicates) {
       out = this.removeDuplicates(out);
-    }
-
-    if (this.props.sort !== undefined) {
-      postSort(out, this.props.sort, this.props.showCommunity == undefined);
     }
 
     return out;

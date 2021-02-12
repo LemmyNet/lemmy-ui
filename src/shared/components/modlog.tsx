@@ -34,6 +34,7 @@ import { i18n } from '../i18next';
 import { InitialFetchRequest } from 'shared/interfaces';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
+import { Spinner } from './icon';
 
 enum ModlogEnum {
   ModRemovePost,
@@ -364,10 +365,8 @@ export class Modlog extends Component<any, ModlogState> {
           path={this.context.router.route.match.url}
         />
         {this.state.loading ? (
-          <h5 class="">
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+          <h5>
+            <Spinner />
           </h5>
         ) : (
           <div>

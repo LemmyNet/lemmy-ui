@@ -1,6 +1,7 @@
 import { Component, linkEvent } from 'inferno';
 import { Prompt } from 'inferno-router';
 import { MarkdownTextArea } from './markdown-textarea';
+import { Spinner } from './icon';
 import { ImageUploadForm } from './image-upload-form';
 import { Site, EditSite } from 'lemmy-js-client';
 import { WebSocketService } from '../services';
@@ -220,9 +221,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 disabled={this.state.loading}
               >
                 {this.state.loading ? (
-                  <svg class="icon icon-spinner spin">
-                    <use xlinkHref="#icon-spinner"></use>
-                  </svg>
+                  <Spinner />
                 ) : this.props.site ? (
                   capitalizeFirstLetter(i18n.t('save'))
                 ) : (

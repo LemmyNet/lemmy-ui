@@ -31,6 +31,7 @@ import { DataTypeSelect } from './data-type-select';
 import { Sidebar } from './sidebar';
 import { CommunityLink } from './community-link';
 import { BannerIconHeader } from './banner-icon-header';
+import { Icon, Spinner } from './icon';
 import {
   wsJsonToRes,
   fetchLimit,
@@ -244,9 +245,7 @@ export class Community extends Component<any, State> {
       <div class="container">
         {this.state.communityLoading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">
@@ -283,30 +282,24 @@ export class Community extends Component<any, State> {
     return this.state.dataType == DataType.Post ? (
       this.state.postsLoading ? (
         <h5>
-          <svg class="icon icon-spinner spin">
-            <use xlinkHref="#icon-spinner"></use>
-          </svg>
+          <Spinner />
         </h5>
       ) : (
         <PostListings
           posts={this.state.posts}
           removeDuplicates
-          sort={this.state.sort}
           enableDownvotes={site.enable_downvotes}
           enableNsfw={site.enable_nsfw}
         />
       )
     ) : this.state.commentsLoading ? (
       <h5>
-        <svg class="icon icon-spinner spin">
-          <use xlinkHref="#icon-spinner"></use>
-        </svg>
+        <Spinner />
       </h5>
     ) : (
       <CommentNodes
         nodes={commentsToFlatNodes(this.state.comments)}
         noIndent
-        sortType={this.state.sort}
         showContext
         enableDownvotes={site.enable_downvotes}
       />
@@ -352,9 +345,7 @@ export class Community extends Component<any, State> {
           title="RSS"
           rel="noopener"
         >
-          <svg class="icon text-muted small">
-            <use xlinkHref="#icon-rss">#</use>
-          </svg>
+          <Icon icon="rss" classes="text-muted small" />
         </a>
       </div>
     );
@@ -407,8 +398,13 @@ export class Community extends Component<any, State> {
     const dataTypeStr = paramUpdates.dataType || DataType[this.state.dataType];
     const sortStr = paramUpdates.sort || this.state.sort;
     const page = paramUpdates.page || this.state.page;
+
+    let typeView = this.state.communityName
+      ? `/c/${this.state.communityName}`
+      : `/community/${this.state.communityId}`;
+
     this.props.history.push(
-      `/c/${this.state.communityRes.community_view.community.name}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
+      `${typeView}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
     );
   }
 

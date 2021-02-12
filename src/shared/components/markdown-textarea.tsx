@@ -14,6 +14,7 @@ import { UserService } from '../services';
 import autosize from 'autosize';
 import { i18n } from '../i18next';
 import { pictrsUri } from '../env';
+import { Icon, Spinner } from './icon';
 
 interface MarkdownTextAreaProps {
   initialContent: string;
@@ -138,6 +139,9 @@ export class MarkdownTextArea extends Component<
               />
             )}
           </div>
+          <label class="sr-only" htmlFor={this.id}>
+            {i18n.t('body')}
+          </label>
         </div>
         <div class="row">
           <div class="col-sm-12 d-flex flex-wrap">
@@ -148,9 +152,7 @@ export class MarkdownTextArea extends Component<
                 disabled={this.props.disabled || this.state.loading}
               >
                 {this.state.loading ? (
-                  <svg class="icon icon-spinner spin">
-                    <use xlinkHref="#icon-spinner"></use>
-                  </svg>
+                  <Spinner />
                 ) : (
                   <span>{this.props.buttonTitle}</span>
                 )}
@@ -180,29 +182,26 @@ export class MarkdownTextArea extends Component<
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('bold')}
+              aria-label={i18n.t('bold')}
               onClick={linkEvent(this, this.handleInsertBold)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-bold"></use>
-              </svg>
+              <Icon icon="bold" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('italic')}
+              aria-label={i18n.t('italic')}
               onClick={linkEvent(this, this.handleInsertItalic)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-italic"></use>
-              </svg>
+              <Icon icon="italic" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
               data-tippy-content={i18n.t('link')}
+              aria-label={i18n.t('link')}
               onClick={linkEvent(this, this.handleInsertLink)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-link"></use>
-              </svg>
+              <Icon icon="link" classes="icon-inline" />
             </button>
             <form class="btn btn-sm text-muted font-weight-bold">
               <label
@@ -211,13 +210,9 @@ export class MarkdownTextArea extends Component<
                 data-tippy-content={i18n.t('upload_image')}
               >
                 {this.state.imageLoading ? (
-                  <svg class="icon icon-spinner spin">
-                    <use xlinkHref="#icon-spinner"></use>
-                  </svg>
+                  <Spinner />
                 ) : (
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-image"></use>
-                  </svg>
+                  <Icon icon="image" classes="icon-inline" />
                 )}
               </label>
               <input
@@ -236,9 +231,7 @@ export class MarkdownTextArea extends Component<
               aria-label={i18n.t('header')}
               onClick={linkEvent(this, this.handleInsertHeader)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-header"></use>
-              </svg>
+              <Icon icon="header" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
@@ -246,9 +239,7 @@ export class MarkdownTextArea extends Component<
               aria-label={i18n.t('strikethrough')}
               onClick={linkEvent(this, this.handleInsertStrikethrough)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-strikethrough"></use>
-              </svg>
+              <Icon icon="strikethrough" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
@@ -256,9 +247,7 @@ export class MarkdownTextArea extends Component<
               aria-label={i18n.t('quote')}
               onClick={linkEvent(this, this.handleInsertQuote)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-format_quote"></use>
-              </svg>
+              <Icon icon="format_quote" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
@@ -266,9 +255,7 @@ export class MarkdownTextArea extends Component<
               aria-label={i18n.t('list')}
               onClick={linkEvent(this, this.handleInsertList)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-list"></use>
-              </svg>
+              <Icon icon="list" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
@@ -276,9 +263,7 @@ export class MarkdownTextArea extends Component<
               aria-label={i18n.t('code')}
               onClick={linkEvent(this, this.handleInsertCode)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-code"></use>
-              </svg>
+              <Icon icon="code" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
@@ -286,9 +271,7 @@ export class MarkdownTextArea extends Component<
               aria-label={i18n.t('subscript')}
               onClick={linkEvent(this, this.handleInsertSubscript)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-subscript"></use>
-              </svg>
+              <Icon icon="subscript" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
@@ -296,9 +279,7 @@ export class MarkdownTextArea extends Component<
               aria-label={i18n.t('superscript')}
               onClick={linkEvent(this, this.handleInsertSuperscript)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-superscript"></use>
-              </svg>
+              <Icon icon="superscript" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
@@ -306,9 +287,7 @@ export class MarkdownTextArea extends Component<
               aria-label={i18n.t('spoiler')}
               onClick={linkEvent(this, this.handleInsertSpoiler)}
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-alert-triangle"></use>
-              </svg>
+              <Icon icon="alert-triangle" classes="icon-inline" />
             </button>
             <a
               href={markdownHelpUrl}
@@ -317,9 +296,7 @@ export class MarkdownTextArea extends Component<
               title={i18n.t('formatting_help')}
               rel="noopener"
             >
-              <svg class="icon icon-inline">
-                <use xlinkHref="#icon-help-circle"></use>
-              </svg>
+              <Icon icon="help-circle" classes="icon-inline" />
             </a>
           </div>
         </div>
