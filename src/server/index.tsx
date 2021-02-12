@@ -5,7 +5,11 @@ import { renderToString } from 'inferno-server';
 import { matchPath } from 'inferno-router';
 import path from 'path';
 import { App } from '../shared/components/app';
-import { InitialFetchRequest, IsoData } from '../shared/interfaces';
+import {
+  ILemmyConfig,
+  InitialFetchRequest,
+  IsoData,
+} from '../shared/interfaces';
 import { routes } from '../shared/routes';
 import IsomorphicCookie from 'isomorphic-cookie';
 import { GetSite, LemmyHttp } from 'lemmy-js-client';
@@ -14,7 +18,7 @@ import { Helmet } from 'inferno-helmet';
 import { initializeSite } from '../shared/initialize';
 import { httpUri } from '../shared/env';
 import { IncomingHttpHeaders } from 'http';
-import { ILemmyConfig, setOptionalAuth } from '../shared/utils';
+import { setOptionalAuth } from '../shared/utils';
 
 const server = express();
 const port = 1234;

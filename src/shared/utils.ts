@@ -54,17 +54,6 @@ import {
   CommentNode as CommentNodeI,
 } from './interfaces';
 import { UserService, WebSocketService } from './services';
-
-export interface ILemmyConfig {
-  wsHost?: string;
-}
-
-declare global {
-  interface Window {
-    lemmyConfig?: ILemmyConfig;
-  }
-}
-
 var Tribute: any;
 if (isBrowser()) {
   Tribute = require('tributejs');
