@@ -14,9 +14,14 @@ export interface IsoData {
   // communities?: ListCommunitiesResponse;
 }
 
+export interface ILemmyConfig {
+  wsHost?: string;
+}
+
 declare global {
   interface Window {
     isoData: IsoData;
+    lemmyConfig?: ILemmyConfig;
   }
 }
 

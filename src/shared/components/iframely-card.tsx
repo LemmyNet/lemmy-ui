@@ -2,6 +2,7 @@ import { Component, linkEvent } from 'inferno';
 import { Post } from 'lemmy-js-client';
 import { mdToHtml } from '../utils';
 import { i18n } from '../i18next';
+import { Icon } from './icon';
 
 interface FramelyCardProps {
   post: Post;
@@ -35,26 +36,18 @@ export class IFramelyCard extends Component<
                 <div class="card-body">
                   {post.name !== post.embed_title && [
                     <h5 class="card-title d-inline">
-                      <a
-                        class="text-body"
-                        target="_blank"
-                        href={post.url}
-                        rel="noopener"
-                      >
+                      <a class="text-body" href={post.url} rel="noopener">
                         {post.embed_title}
                       </a>
                     </h5>,
                     <span class="d-inline-block ml-2 mb-2 small text-muted">
                       <a
                         class="text-muted font-italic"
-                        target="_blank"
                         href={post.url}
                         rel="noopener"
                       >
                         {new URL(post.url).hostname}
-                        <svg class="ml-1 icon">
-                          <use xlinkHref="#icon-external-link"></use>
-                        </svg>
+                        <Icon icon="external-link" classes="ml-1" />
                       </a>
                     </span>,
                   ]}

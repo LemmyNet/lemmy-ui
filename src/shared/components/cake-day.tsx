@@ -1,5 +1,6 @@
 import { Component } from 'inferno';
 import { i18n } from '../i18next';
+import { Icon } from './icon';
 
 interface CakeDayProps {
   creatorName: string;
@@ -12,9 +13,7 @@ export class CakeDay extends Component<CakeDayProps, any> {
         className={`mx-2 d-inline-block unselectable pointer`}
         data-tippy-content={this.cakeDayTippy()}
       >
-        <svg class="icon icon-inline">
-          <use xlinkHref="#icon-cake"></use>
-        </svg>
+        <Icon icon="cake" classes="icon-inline" />
       </div>
     );
   }

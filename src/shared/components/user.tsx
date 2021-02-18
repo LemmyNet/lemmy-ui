@@ -57,6 +57,7 @@ import { i18n } from '../i18next';
 import moment from 'moment';
 import { UserDetails } from './user-details';
 import { MarkdownTextArea } from './markdown-textarea';
+import { Icon, Spinner } from './icon';
 import { ImageUploadForm } from './image-upload-form';
 import { BannerIconHeader } from './banner-icon-header';
 import { CommunityLink } from './community-link';
@@ -272,9 +273,7 @@ export class User extends Component<any, UserState> {
       <div class="container">
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">
@@ -389,13 +388,10 @@ export class User extends Component<any, UserState> {
         />
         <a
           href={`/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`}
-          target="_blank"
           rel="noopener"
           title="RSS"
         >
-          <svg class="icon mx-2 text-muted small">
-            <use xlinkHref="#icon-rss">#</use>
-          </svg>
+          <Icon icon="rss" classes="text-muted small mx-2" />
         </a>
       </div>
     );
@@ -445,7 +441,6 @@ export class User extends Component<any, UserState> {
                     className={`d-flex align-self-start btn btn-secondary mr-2 ${
                       !uv.user.matrix_user_id && 'invisible'
                     }`}
-                    target="_blank"
                     rel="noopener"
                     href={`https://matrix.to/#/${uv.user.matrix_user_id}`}
                   >
@@ -485,9 +480,7 @@ export class User extends Component<any, UserState> {
               <MomentTime data={uv.user} showAgo ignoreUpdated />
             </div>
             <div className="d-flex align-items-center text-muted mb-2">
-              <svg class="icon">
-                <use xlinkHref="#icon-cake"></use>
-              </svg>
+              <Icon icon="cake" />
               <span className="ml-2">
                 {i18n.t('cake_day_title')}{' '}
                 {moment.utc(uv.user.published).local().format('MMM DD, YYYY')}
@@ -646,7 +639,7 @@ export class User extends Component<any, UserState> {
               </div>
               <div class="form-group row">
                 <label class="col-lg-5 col-form-label" htmlFor="matrix-user-id">
-                  <a href={elementUrl} target="_blank" rel="noopener">
+                  <a href={elementUrl} rel="noopener">
                     {i18n.t('matrix_user_id')}
                   </a>
                 </label>
@@ -787,9 +780,7 @@ export class User extends Component<any, UserState> {
               <div class="form-group">
                 <button type="submit" class="btn btn-block btn-secondary mr-4">
                   {this.state.userSettingsLoading ? (
-                    <svg class="icon icon-spinner spin">
-                      <use xlinkHref="#icon-spinner"></use>
-                    </svg>
+                    <Spinner />
                   ) : (
                     capitalizeFirstLetter(i18n.t('save'))
                   )}
@@ -827,9 +818,7 @@ export class User extends Component<any, UserState> {
                       onClick={linkEvent(this, this.handleDeleteAccount)}
                     >
                       {this.state.deleteAccountLoading ? (
-                        <svg class="icon icon-spinner spin">
-                          <use xlinkHref="#icon-spinner"></use>
-                        </svg>
+                        <Spinner />
                       ) : (
                         capitalizeFirstLetter(i18n.t('delete'))
                       )}

@@ -6,6 +6,7 @@ import { Register, LoginResponse, UserOperation } from 'lemmy-js-client';
 import { WebSocketService, UserService } from '../services';
 import { wsUserOp, wsJsonToRes, toast, wsClient } from '../utils';
 import { SiteForm } from './site-form';
+import { Spinner } from './icon';
 import { i18n } from '../i18next';
 
 interface State {
@@ -143,13 +144,7 @@ export class Setup extends Component<any, State> {
         <div class="form-group row">
           <div class="col-sm-10">
             <button type="submit" class="btn btn-secondary">
-              {this.state.userLoading ? (
-                <svg class="icon icon-spinner spin">
-                  <use xlinkHref="#icon-spinner"></use>
-                </svg>
-              ) : (
-                i18n.t('sign_up')
-              )}
+              {this.state.userLoading ? <Spinner /> : i18n.t('sign_up')}
             </button>
           </div>
         </div>

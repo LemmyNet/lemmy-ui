@@ -16,6 +16,7 @@ import { CommunityForm } from './community-form';
 import { UserListing } from './user-listing';
 import { CommunityLink } from './community-link';
 import { BannerIconHeader } from './banner-icon-header';
+import { Icon } from './icon';
 import { i18n } from '../i18next';
 
 interface SidebarProps {
@@ -108,9 +109,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               href="#"
               onClick={linkEvent(community.id, this.handleUnsubscribe)}
             >
-              <svg class="text-success mr-1 icon icon-inline">
-                <use xlinkHref="#icon-check"></use>
-              </svg>
+              <Icon icon="check" classes="icon-inline text-success mr-1" />
               {i18n.t('joined')}
             </a>
           )}
@@ -305,9 +304,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   data-tippy-content={i18n.t('edit')}
                   aria-label={i18n.t('edit')}
                 >
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-edit"></use>
-                  </svg>
+                  <Icon icon="edit" classes="icon-inline" />
                 </span>
               </li>
               {!this.amCreator &&
@@ -368,13 +365,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         : i18n.t('restore')
                     }
                   >
-                    <svg
-                      class={`icon icon-inline ${
+                    <Icon
+                      icon="trash"
+                      classes={`icon-inline ${
                         community_view.community.deleted && 'text-danger'
                       }`}
-                    >
-                      <use xlinkHref="#icon-trash"></use>
-                    </svg>
+                    />
                   </span>
                 </li>
               )}

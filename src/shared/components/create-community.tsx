@@ -2,6 +2,7 @@ import { Component } from 'inferno';
 import { Subscription } from 'rxjs';
 import { CommunityForm } from './community-form';
 import { HtmlTags } from './html-tags';
+import { Spinner } from './icon';
 import {
   CommunityView,
   UserOperation,
@@ -77,9 +78,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
         />
         {this.state.loading ? (
           <h5>
-            <svg class="icon icon-spinner spin">
-              <use xlinkHref="#icon-spinner"></use>
-            </svg>
+            <Spinner />
           </h5>
         ) : (
           <div class="row">

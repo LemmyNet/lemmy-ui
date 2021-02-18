@@ -1,6 +1,7 @@
 import { Component, linkEvent } from 'inferno';
 import { SortType } from 'lemmy-js-client';
 import { sortingHelpUrl, randomStr } from '../utils';
+import { Icon } from './icon';
 import { i18n } from '../i18next';
 
 interface SortSelectProps {
@@ -70,13 +71,10 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
         <a
           className="text-muted"
           href={sortingHelpUrl}
-          target="_blank"
           rel="noopener"
           title={i18n.t('sorting_help')}
         >
-          <svg class={`icon icon-inline`}>
-            <use xlinkHref="#icon-help-circle"></use>
-          </svg>
+          <Icon icon="help-circle" classes="icon-inline" />
         </a>
       </>
     );

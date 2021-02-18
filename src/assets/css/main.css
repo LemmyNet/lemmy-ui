@@ -11,6 +11,10 @@
   cursor: pointer;
 }
 
+.pointer-events {
+  pointer-events: auto !important;
+}
+
 .no-click {
   pointer-events:none;
   opacity: 0.65;

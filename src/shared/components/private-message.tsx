@@ -10,6 +10,7 @@ import { authField, mdToHtml, toast, wsClient } from '../utils';
 import { MomentTime } from './moment-time';
 import { PrivateMessageForm } from './private-message-form';
 import { UserListing } from './user-listing';
+import { Icon } from './icon';
 import { i18n } from '../i18next';
 
 interface PrivateMessageState {
@@ -82,13 +83,9 @@ export class PrivateMessage extends Component<
                 onClick={linkEvent(this, this.handleMessageCollapse)}
               >
                 {this.state.collapsed ? (
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-plus-square"></use>
-                  </svg>
+                  <Icon icon="plus-square" classes="icon-inline" />
                 ) : (
-                  <svg class="icon icon-inline">
-                    <use xlinkHref="#icon-minus-square"></use>
-                  </svg>
+                  <Icon icon="minus-square" classes="icon-inline" />
                 )}
               </div>
             </li>
@@ -130,13 +127,12 @@ export class PrivateMessage extends Component<
                             : i18n.t('mark_as_read')
                         }
                       >
-                        <svg
-                          class={`icon icon-inline ${
+                        <Icon
+                          icon="check"
+                          classes={`icon-inline ${
                             message_view.private_message.read && 'text-success'
                           }`}
-                        >
-                          <use xlinkHref="#icon-check"></use>
-                        </svg>
+                        />
                       </button>
                     </li>
                     <li className="list-inline-item">
@@ -146,9 +142,7 @@ export class PrivateMessage extends Component<
                         data-tippy-content={i18n.t('reply')}
                         aria-label={i18n.t('reply')}
                       >
-                        <svg class="icon icon-inline">
-                          <use xlinkHref="#icon-reply1"></use>
-                        </svg>
+                        <Icon icon="reply1" classes="icon-inline" />
                       </button>
                     </li>
                   </>
@@ -162,9 +156,7 @@ export class PrivateMessage extends Component<
                         data-tippy-content={i18n.t('edit')}
                         aria-label={i18n.t('edit')}
                       >
-                        <svg class="icon icon-inline">
-                          <use xlinkHref="#icon-edit"></use>
-                        </svg>
+                        <Icon icon="edit" classes="icon-inline" />
                       </button>
                     </li>
                     <li className="list-inline-item">
@@ -182,14 +174,13 @@ export class PrivateMessage extends Component<
                             : i18n.t('restore')
                         }
                       >
-                        <svg
-                          class={`icon icon-inline ${
+                        <Icon
+                          icon="trash"
+                          classes={`icon-inline ${
                             message_view.private_message.deleted &&
                             'text-danger'
                           }`}
-                        >
-                          <use xlinkHref="#icon-trash"></use>
-                        </svg>
+                        />
                       </button>
                     </li>
                   </>
@@ -201,13 +192,12 @@ export class PrivateMessage extends Component<
                     data-tippy-content={i18n.t('view_source')}
                     aria-label={i18n.t('view_source')}
                   >
-                    <svg
-                      class={`icon icon-inline ${
+                    <Icon
+                      icon="file-text"
+                      classes={`icon-inline ${
                         this.state.viewSource && 'text-success'
                       }`}
-                    >
-                      <use xlinkHref="#icon-file-text"></use>
-                    </svg>
+                    />
                   </button>
                 </li>
               </ul>

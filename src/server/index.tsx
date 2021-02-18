@@ -5,7 +5,11 @@ import { renderToString } from 'inferno-server';
 import { matchPath } from 'inferno-router';
 import path from 'path';
 import { App } from '../shared/components/app';
-import { InitialFetchRequest, IsoData } from '../shared/interfaces';
+import {
+  ILemmyConfig,
+  InitialFetchRequest,
+  IsoData,
+} from '../shared/interfaces';
 import { routes } from '../shared/routes';
 import IsomorphicCookie from 'isomorphic-cookie';
 import { GetSite, LemmyHttp } from 'lemmy-js-client';
@@ -95,11 +99,14 @@ server.get('/*', async (req, res) => {
   const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : '';
   const helmet = Helmet.renderStatic();
 
+  const config: ILemmyConfig = { wsHost: process.env.LEMMY_WS_HOST };
+
   res.send(`
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
            <script>window.isoData = ${serialize(isoData)}</script>
+           <script>window.lemmyConfig = ${serialize(config)}</script>
 
            ${helmet.title.toString()}
            ${helmet.meta.toString()}

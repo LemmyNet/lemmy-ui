@@ -54,7 +54,6 @@ import {
   CommentNode as CommentNodeI,
 } from './interfaces';
 import { UserService, WebSocketService } from './services';
-
 var Tribute: any;
 if (isBrowser()) {
   Tribute = require('tributejs');

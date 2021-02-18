@@ -2,6 +2,7 @@ import { Component } from 'inferno';
 import moment from 'moment';
 import { getMomentLanguage, capitalizeFirstLetter } from '../utils';
 import { i18n } from '../i18next';
+import { Icon } from './icon';
 
 interface MomentTimeProps {
   data: {
@@ -31,9 +32,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
           )} ${this.format(this.props.data.updated)}`}
           className="font-italics pointer unselectable"
         >
-          <svg class="icon icon-inline mr-1">
-            <use xlinkHref="#icon-edit-2"></use>
-          </svg>
+          <Icon icon="edit-2" classes="icon-inline mr-1" />
           {moment.utc(this.props.data.updated).fromNow(!this.props.showAgo)}
         </span>
       );
