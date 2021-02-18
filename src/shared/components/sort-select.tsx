@@ -51,11 +51,14 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
             <option value={SortType.Active}>{i18n.t('active')}</option>,
           ]}
           <option value={SortType.New}>{i18n.t('new')}</option>
-          {!this.props.hideMostComments && (
+          {!this.props.hideMostComments && [
             <option value={SortType.MostComments}>
               {i18n.t('most_comments')}
-            </option>
-          )}
+            </option>,
+            <option value={SortType.NewComments}>
+              {i18n.t('new_comments')}
+            </option>,
+          ]}
           <option disabled aria-hidden="true">
             ─────
           </option>
