@@ -5577,10 +5577,10 @@ lcid@^1.0.0:
   dependencies:
     invert-kv "^1.0.0"
 
-lemmy-js-client@0.9.8-rc.3:
-  version "0.9.8-rc.3"
-  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.9.8-rc.3.tgz#29973895a768f8fea7cb7acb7d2dd1ca81f6ac9c"
-  integrity sha512-68sLBsfwWLjhNXKg5CmGN5yobeeBG131kOZmP3GG4IYDRje5W84ryyi/KY4I/S6ZdG9s959FGau+QFg5iZTwEQ==
+lemmy-js-client@0.9.9:
+  version "0.9.9"
+  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.9.9.tgz#cd1effe165147d04da93d1265e30dd1daf09c0de"
+  integrity sha512-+tHghqb02WM/Deizneg/8wO6W6ZqG67y5gZwZb9QQLDcowLZWTmFCwdoYVxLxcH6LBmZ1TvPq7ppumB5vQI1qg==
 
 levn@^0.4.1:
   version "0.4.1"
