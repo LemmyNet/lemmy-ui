@@ -245,7 +245,7 @@ export function canMod(
   user: UserSafeSettings,
   modIds: number[],
   creator_id: number,
-  onSelf: boolean = false
+  onSelf: boolea = false
 ): boolean {
   // You can do moderator actions only on the mods added after you.
   if (user) {
