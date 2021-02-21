@@ -88,7 +88,7 @@ export const archiveUrl = 'https://archive.is';
 export const elementUrl = 'https://element.io/';
 
 export const postRefetchSeconds: number = 60 * 1000;
-export const fetchLimit: number = 20;
+export const fetchLimit = 20;
 export const mentionDropdownFetchLimit = 10;
 
 export const languages = [
@@ -150,7 +150,7 @@ function getRandomCharFromAlphabet(alphabet: string): string {
 }
 
 export function randomStr(
-  idDesiredLength: number = 20,
+  idDesiredLength = 20,
   alphabet = DEFAULT_ALPHABET
 ): string {
   /**
@@ -245,7 +245,7 @@ export function canMod(
   user: UserSafeSettings,
   modIds: number[],
   creator_id: number,
-  onSelf: boolean = false
+  onSelf = false
 ): boolean {
   // You can do moderator actions only on the mods added after you.
   if (user) {
@@ -329,8 +329,8 @@ export async function getPageTitle(url: string) {
 
 export function debounce(
   func: any,
-  wait: number = 1000,
-  immediate: boolean = false
+  wait = 1000,
+  immediate = false
 ) {
   // 'private' variable for instance
   // The returned function will be able to reference this due to closure.
@@ -340,8 +340,7 @@ export function debounce(
   // Calling debounce returns a new anonymous function
   return function () {
     // reference the context and args for the setTimeout function
-    var context = this,
-      args = arguments;
+    var args = arguments;
 
     // Should the function be called now? If immediate is true
     //   and not already in a timeout then the answer is: Yes
@@ -364,12 +363,12 @@ export function debounce(
         // Call the original function with apply
         // apply lets you define the 'this' object as well as the arguments
         //    (both captured before setTimeout)
-        func.apply(context, args);
+        func.apply(this, args);
       }
     }, wait);
 
     // Immediate mode and no wait timer? Execute the function..
-    if (callNow) func.apply(context, args);
+    if (callNow) func.apply(this, args);
   };
 }
 
@@ -460,7 +459,7 @@ export function getMomentLanguage(): string {
   return lang;
 }
 
-export function setTheme(theme: string, forceReload: boolean = false) {
+export function setTheme(theme: string, forceReload = false) {
   if (!isBrowser()) {
     return;
   }
@@ -532,7 +531,7 @@ export function isCakeDay(published: string): boolean {
   );
 }
 
-export function toast(text: string, background: string = 'success') {
+export function toast(text: string, background = 'success') {
   if (isBrowser()) {
     let backgroundColor = `var(--${background})`;
     Toastify({
@@ -1037,7 +1036,7 @@ export function buildCommentsTree(
   return tree;
 }
 
-function setDepth(node: CommentNodeI, i: number = 0) {
+function setDepth(node: CommentNodeI, i = 0) {
   for (let child of node.children) {
     child.depth = i;
     setDepth(child, i + 1);
@@ -1098,8 +1097,8 @@ function hsl(num: number) {
 
 export function previewLines(
   text: string,
-  maxChars: number = 300,
-  maxLines: number = 1
+  maxChars = 300,
+  maxLines = 1
 ): string {
   return (
     text
@@ -1170,7 +1169,7 @@ export function setOptionalAuth(obj: any, auth = UserService.Instance.auth) {
 }
 
 export function authField(
-  throwErr: boolean = true,
+  throwErr = true,
   auth = UserService.Instance.auth
 ): string {
   if (auth == null && throwErr) {

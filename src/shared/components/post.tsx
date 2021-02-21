@@ -176,7 +176,7 @@ export class Post extends Component<any, PostState> {
     autosize(document.querySelectorAll('textarea'));
   }
 
-  componentDidUpdate(_lastProps: any, lastState: PostState, _snapshot: any) {
+  componentDidUpdate(_lastProps: any, lastState: PostState) {
     if (
       this.state.commentId &&
       !this.state.scrolled &&

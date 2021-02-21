@@ -457,7 +457,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  commentsLine(mobile: boolean = false) {
+  commentsLine(mobile = false) {
     let post_view = this.props.post_view;
     return (
       <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold mb-1">
@@ -596,7 +596,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  postActions(mobile: boolean = false) {
+  postActions(mobile = false) {
     let post_view = this.props.post_view;
     return (
       UserService.Instance.user && (

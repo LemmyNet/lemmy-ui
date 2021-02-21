@@ -2,19 +2,19 @@ import { register } from 'register-service-worker';
 
 register('/service-worker.js', {
   registrationOptions: { scope: './' },
-  ready(_registration) {
+  ready() {
     console.log('Service worker is active.');
   },
-  registered(_registration) {
+  registered() {
     console.log('Service worker has been registered.');
   },
-  cached(_registration) {
+  cached() {
     console.log('Content has been cached for offline use.');
   },
-  updatefound(_registration) {
+  updatefound() {
     console.log('New content is downloading.');
   },
-  updated(_registration) {
+  updated() {
     console.log('New content is available; please refresh.');
   },
   offline() {

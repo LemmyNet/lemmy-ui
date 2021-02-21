@@ -211,7 +211,7 @@ export class Modlog extends Component<any, ModlogState> {
 
   renderModlogType(i: ModlogType) {
     switch (i.type_) {
-      case ModlogEnum.ModRemovePost:
+      case ModlogEnum.ModRemovePost: {
         let mrpv = i.view as ModRemovePostView;
         return [
           mrpv.mod_remove_post.removed ? 'Removed ' : 'Restored ',
@@ -221,7 +221,8 @@ export class Modlog extends Component<any, ModlogState> {
           mrpv.mod_remove_post.reason &&
             ` reason: ${mrpv.mod_remove_post.reason}`,
         ];
-      case ModlogEnum.ModLockPost:
+      }
+      case ModlogEnum.ModLockPost: {
         let mlpv = i.view as ModLockPostView;
         return [
           mlpv.mod_lock_post.locked ? 'Locked ' : 'Unlocked ',
@@ -229,7 +230,8 @@ export class Modlog extends Component<any, ModlogState> {
             Post <Link to={`/post/${mlpv.post.id}`}>{mlpv.post.name}</Link>
           </span>,
         ];
-      case ModlogEnum.ModStickyPost:
+      }
+      case ModlogEnum.ModStickyPost: {
         let mspv = i.view as ModStickyPostView;
         return [
           mspv.mod_sticky_post.stickied ? 'Stickied ' : 'Unstickied ',
@@ -237,7 +239,8 @@ export class Modlog extends Component<any, ModlogState> {
             Post <Link to={`/post/${mspv.post.id}`}>{mspv.post.name}</Link>
           </span>,
         ];
-      case ModlogEnum.ModRemoveComment:
+      }
+      case ModlogEnum.ModRemoveComment: {
         let mrc = i.view as ModRemoveCommentView;
         return [
           mrc.mod_remove_comment.removed ? 'Removed ' : 'Restored ',
@@ -254,7 +257,8 @@ export class Modlog extends Component<any, ModlogState> {
           mrc.mod_remove_comment.reason &&
             ` reason: ${mrc.mod_remove_comment.reason}`,
         ];
-      case ModlogEnum.ModRemoveCommunity:
+      }
+      case ModlogEnum.ModRemoveCommunity: {
         let mrco = i.view as ModRemoveCommunityView;
         return [
           mrco.mod_remove_community.removed ? 'Removed ' : 'Restored ',
@@ -268,7 +272,8 @@ export class Modlog extends Component<any, ModlogState> {
               .utc(mrco.mod_remove_community.expires)
               .fromNow()}`,
         ];
-      case ModlogEnum.ModBanFromCommunity:
+      }
+      case ModlogEnum.ModBanFromCommunity: {
         let mbfc = i.view as ModBanFromCommunityView;
         return [
           <span>
@@ -292,7 +297,8 @@ export class Modlog extends Component<any, ModlogState> {
                 .fromNow()}`}
           </div>,
         ];
-      case ModlogEnum.ModAddCommunity:
+      }
+      case ModlogEnum.ModAddCommunity: {
         let mac = i.view as ModAddCommunityView;
         return [
           <span>
@@ -306,7 +312,8 @@ export class Modlog extends Component<any, ModlogState> {
             <CommunityLink community={mac.community} />
           </span>,
         ];
-      case ModlogEnum.ModBan:
+      }
+      case ModlogEnum.ModBan: {
         let mb = i.view as ModBanView;
         return [
           <span>{mb.mod_ban.banned ? 'Banned ' : 'Unbanned '} </span>,
@@ -319,7 +326,8 @@ export class Modlog extends Component<any, ModlogState> {
               ` expires: ${moment.utc(mb.mod_ban.expires).fromNow()}`}
           </div>,
         ];
-      case ModlogEnum.ModAdd:
+      }
+      case ModlogEnum.ModAdd: {
         let ma = i.view as ModAddView;
         return [
           <span>{ma.mod_add.removed ? 'Removed ' : 'Appointed '} </span>,
@@ -328,6 +336,7 @@ export class Modlog extends Component<any, ModlogState> {
           </span>,
           <span> as an admin </span>,
         ];
+      }
       default:
         return <div />;
     }

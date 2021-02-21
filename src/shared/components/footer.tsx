@@ -8,9 +8,7 @@ interface FooterProps {
   site: GetSiteResponse;
 }
 
-interface FooterState {}
-
-export class Footer extends Component<FooterProps, FooterState> {
+export class Footer extends Component<FooterProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }
