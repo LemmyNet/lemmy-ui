@@ -61,7 +61,6 @@ if (isBrowser()) {
 import markdown_it from 'markdown-it';
 import markdown_it_sub from 'markdown-it-sub';
 import markdown_it_sup from 'markdown-it-sup';
-import markdownitEmoji from 'markdown-it-emoji/light';
 import markdown_it_container from 'markdown-it-container';
 import emojiShortName from 'emoji-short-name';
 import Toastify from 'toastify-js';
@@ -201,9 +200,6 @@ export const md = new markdown_it({
         return '</details>\n';
       }
     },
-  })
-  .use(markdownitEmoji, {
-    defs: objectFlip(emojiShortName),
   });
 
 export function hotRankComment(comment_view: CommentView): number {
@@ -661,7 +657,7 @@ export function setupTribute() {
           return `${item.original.val} ${shortName}`;
         },
         selectTemplate: (item: any) => {
-          return `:${item.original.key}:`;
+          return `${item.original.val}`;
         },
         values: Object.entries(emojiShortName).map(e => {
           return { key: e[1], val: e[0] };
