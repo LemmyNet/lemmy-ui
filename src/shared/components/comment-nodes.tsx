@@ -3,8 +3,6 @@ import { CommentNode as CommentNodeI } from '../interfaces';
 import { CommunityModeratorView, UserViewSafe } from 'lemmy-js-client';
 import { CommentNode } from './comment-node';
 
-interface CommentNodesState {}
-
 interface CommentNodesProps {
   nodes: CommentNodeI[];
   moderators?: CommunityModeratorView[];
@@ -22,7 +20,7 @@ interface CommentNodesProps {
 
 export class CommentNodes extends Component<
   CommentNodesProps,
-  CommentNodesState
+  any
 > {
   constructor(props: any, context: any) {
     super(props, context);

@@ -1,33 +1,33 @@
-import 'moment/locale/es';
-import 'moment/locale/el';
-import 'moment/locale/eu';
-import 'moment/locale/eo';
-import 'moment/locale/de';
-import 'moment/locale/zh-cn';
-import 'moment/locale/fr';
-import 'moment/locale/sv';
-import 'moment/locale/ru';
-import 'moment/locale/nl';
-import 'moment/locale/it';
-import 'moment/locale/fi';
-import 'moment/locale/ca';
-import 'moment/locale/fa';
-import 'moment/locale/pl';
-import 'moment/locale/pt-br';
-import 'moment/locale/ja';
-import 'moment/locale/ka';
-import 'moment/locale/hi';
-import 'moment/locale/gl';
-import 'moment/locale/tr';
-import 'moment/locale/hu';
-import 'moment/locale/uk';
-import 'moment/locale/sq';
-import 'moment/locale/km';
-import 'moment/locale/ga';
-import 'moment/locale/sr';
-import 'moment/locale/ko';
-import 'moment/locale/da';
-import 'moment/locale/hr';
+import "moment/locale/es";
+import "moment/locale/el";
+import "moment/locale/eu";
+import "moment/locale/eo";
+import "moment/locale/de";
+import "moment/locale/zh-cn";
+import "moment/locale/fr";
+import "moment/locale/sv";
+import "moment/locale/ru";
+import "moment/locale/nl";
+import "moment/locale/it";
+import "moment/locale/fi";
+import "moment/locale/ca";
+import "moment/locale/fa";
+import "moment/locale/pl";
+import "moment/locale/pt-br";
+import "moment/locale/ja";
+import "moment/locale/ka";
+import "moment/locale/hi";
+import "moment/locale/gl";
+import "moment/locale/tr";
+import "moment/locale/hu";
+import "moment/locale/uk";
+import "moment/locale/sq";
+import "moment/locale/km";
+import "moment/locale/ga";
+import "moment/locale/sr";
+import "moment/locale/ko";
+import "moment/locale/da";
+import "moment/locale/hr";
 
 import {
   UserOperation,
@@ -45,111 +45,111 @@ import {
   LemmyWebsocket,
   UserViewSafe,
   CommunityView,
-} from 'lemmy-js-client';
+} from "lemmy-js-client";
 
 import {
   CommentSortType,
   DataType,
   IsoData,
   CommentNode as CommentNodeI,
-} from './interfaces';
-import { UserService, WebSocketService } from './services';
+} from "./interfaces";
+import { UserService, WebSocketService } from "./services";
 var Tribute: any;
 if (isBrowser()) {
-  Tribute = require('tributejs');
+  Tribute = require("tributejs");
 }
-import markdown_it from 'markdown-it';
-import markdown_it_sub from 'markdown-it-sub';
-import markdown_it_sup from 'markdown-it-sup';
-import markdown_it_container from 'markdown-it-container';
-import emojiShortName from 'emoji-short-name';
-import Toastify from 'toastify-js';
-import tippy from 'tippy.js';
-import moment from 'moment';
-import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
-import { i18n } from './i18next';
+import markdown_it from "markdown-it";
+import markdown_it_sub from "markdown-it-sub";
+import markdown_it_sup from "markdown-it-sup";
+import markdown_it_container from "markdown-it-container";
+import emojiShortName from "emoji-short-name";
+import Toastify from "toastify-js";
+import tippy from "tippy.js";
+import moment from "moment";
+import { Subscription } from "rxjs";
+import { retryWhen, delay, take } from "rxjs/operators";
+import { i18n } from "./i18next";
 
 export const wsClient = new LemmyWebsocket();
 
-export const favIconUrl = '/static/assets/favicon.svg';
-export const favIconPngUrl = '/static/assets/apple-touch-icon.png';
+export const favIconUrl = "/static/assets/favicon.svg";
+export const favIconPngUrl = "/static/assets/apple-touch-icon.png";
 // TODO
 // export const defaultFavIcon = `${window.location.protocol}//${window.location.host}${favIconPngUrl}`;
-export const repoUrl = 'https://github.com/LemmyNet';
-export const joinLemmyUrl = 'https://join.lemmy.ml';
-export const supportLemmyUrl = 'https://join.lemmy.ml/sponsors';
-export const docsUrl = 'https://join.lemmy.ml/docs/en/index.html';
-export const helpGuideUrl = 'https://join.lemmy.ml/docs/en/about/guide.html'; // TODO find a way to redirect to the non-en folder
+export const repoUrl = "https://github.com/LemmyNet";
+export const joinLemmyUrl = "https://join.lemmy.ml";
+export const supportLemmyUrl = "https://join.lemmy.ml/sponsors";
+export const docsUrl = "https://join.lemmy.ml/docs/en/index.html";
+export const helpGuideUrl = "https://join.lemmy.ml/docs/en/about/guide.html"; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
-export const archiveUrl = 'https://archive.is';
-export const elementUrl = 'https://element.io/';
+export const archiveUrl = "https://archive.is";
+export const elementUrl = "https://element.io/";
 
 export const postRefetchSeconds: number = 60 * 1000;
-export const fetchLimit: number = 20;
+export const fetchLimit = 20;
 export const mentionDropdownFetchLimit = 10;
 
 export const languages = [
-  { code: 'ca', name: 'Català' },
-  { code: 'en', name: 'English' },
-  { code: 'el', name: 'Ελληνικά' },
-  { code: 'eu', name: 'Euskara' },
-  { code: 'eo', name: 'Esperanto' },
-  { code: 'es', name: 'Español' },
-  { code: 'da', name: 'Dansk' },
-  { code: 'de', name: 'Deutsch' },
-  { code: 'ga', name: 'Gaeilge' },
-  { code: 'gl', name: 'Galego' },
-  { code: 'hr', name: 'hrvatski' },
-  { code: 'hu', name: 'Magyar Nyelv' },
-  { code: 'ka', name: 'ქართული ენა' },
-  { code: 'ko', name: '한국어' },
-  { code: 'km', name: 'ភាសាខ្មែរ' },
-  { code: 'hi', name: 'मानक हिन्दी' },
-  { code: 'fa', name: 'فارسی' },
-  { code: 'ja', name: '日本語' },
-  { code: 'oc', name: 'Occitan' },
-  { code: 'pl', name: 'Polski' },
-  { code: 'pt_BR', name: 'Português Brasileiro' },
-  { code: 'zh', name: '中文' },
-  { code: 'fi', name: 'Suomi' },
-  { code: 'fr', name: 'Français' },
-  { code: 'sv', name: 'Svenska' },
-  { code: 'sq', name: 'Shqip' },
-  { code: 'sr_Latn', name: 'srpski' },
-  { code: 'tr', name: 'Türkçe' },
-  { code: 'uk', name: 'Українська Mова' },
-  { code: 'ru', name: 'Русский' },
-  { code: 'nl', name: 'Nederlands' },
-  { code: 'it', name: 'Italiano' },
+  { code: "ca", name: "Català" },
+  { code: "en", name: "English" },
+  { code: "el", name: "Ελληνικά" },
+  { code: "eu", name: "Euskara" },
+  { code: "eo", name: "Esperanto" },
+  { code: "es", name: "Español" },
+  { code: "da", name: "Dansk" },
+  { code: "de", name: "Deutsch" },
+  { code: "ga", name: "Gaeilge" },
+  { code: "gl", name: "Galego" },
+  { code: "hr", name: "hrvatski" },
+  { code: "hu", name: "Magyar Nyelv" },
+  { code: "ka", name: "ქართული ენა" },
+  { code: "ko", name: "한국어" },
+  { code: "km", name: "ភាសាខ្មែរ" },
+  { code: "hi", name: "मानक हिन्दी" },
+  { code: "fa", name: "فارسی" },
+  { code: "ja", name: "日本語" },
+  { code: "oc", name: "Occitan" },
+  { code: "pl", name: "Polski" },
+  { code: "pt_BR", name: "Português Brasileiro" },
+  { code: "zh", name: "中文" },
+  { code: "fi", name: "Suomi" },
+  { code: "fr", name: "Français" },
+  { code: "sv", name: "Svenska" },
+  { code: "sq", name: "Shqip" },
+  { code: "sr_Latn", name: "srpski" },
+  { code: "tr", name: "Türkçe" },
+  { code: "uk", name: "Українська Mова" },
+  { code: "ru", name: "Русский" },
+  { code: "nl", name: "Nederlands" },
+  { code: "it", name: "Italiano" },
 ];
 
 export const themes = [
-  'litera',
-  'materia',
-  'minty',
-  'solar',
-  'united',
-  'cyborg',
-  'darkly',
-  'journal',
-  'sketchy',
-  'vaporwave',
-  'vaporwave-dark',
-  'i386',
-  'litely',
+  "litera",
+  "materia",
+  "minty",
+  "solar",
+  "united",
+  "cyborg",
+  "darkly",
+  "journal",
+  "sketchy",
+  "vaporwave",
+  "vaporwave-dark",
+  "i386",
+  "litely",
 ];
 
 const DEFAULT_ALPHABET =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 function getRandomCharFromAlphabet(alphabet: string): string {
   return alphabet.charAt(Math.floor(Math.random() * alphabet.length));
 }
 
 export function randomStr(
-  idDesiredLength: number = 20,
+  idDesiredLength = 20,
   alphabet = DEFAULT_ALPHABET
 ): string {
   /**
@@ -160,7 +160,7 @@ export function randomStr(
     .map(() => {
       return getRandomCharFromAlphabet(alphabet);
     })
-    .join('');
+    .join("");
 }
 
 export function wsJsonToRes<ResponseType>(
@@ -184,7 +184,7 @@ export const md = new markdown_it({
 })
   .use(markdown_it_sub)
   .use(markdown_it_sup)
-  .use(markdown_it_container, 'spoiler', {
+  .use(markdown_it_container, "spoiler", {
     validate: function (params: any) {
       return params.trim().match(/^spoiler\s+(.*)$/);
     },
@@ -197,7 +197,7 @@ export const md = new markdown_it({
         return `<details><summary> ${md.utils.escapeHtml(m[1])} </summary>\n`;
       } else {
         // closing tag
-        return '</details>\n';
+        return "</details>\n";
       }
     },
   });
@@ -216,7 +216,7 @@ export function hotRankPost(post_view: PostView): number {
 
 export function hotRank(score: number, timeStr: string): number {
   // Rank = ScaleFactor * sign(Score) * log(1 + abs(Score)) / (Time + 2)^Gravity
-  let date: Date = new Date(timeStr + 'Z'); // Add Z to convert from UTC date
+  let date: Date = new Date(timeStr + "Z"); // Add Z to convert from UTC date
   let now: Date = new Date();
   let hoursElapsed: number = (now.getTime() - date.getTime()) / 36e5;
 
@@ -241,7 +241,7 @@ export function canMod(
   user: UserSafeSettings,
   modIds: number[],
   creator_id: number,
-  onSelf: boolean = false
+  onSelf = false
 ): boolean {
   // You can do moderator actions only on the mods added after you.
   if (user) {
@@ -323,11 +323,7 @@ export async function getPageTitle(url: string) {
   return title;
 }
 
-export function debounce(
-  func: any,
-  wait: number = 1000,
-  immediate: boolean = false
-) {
+export function debounce(func: any, wait = 1000, immediate = false) {
   // 'private' variable for instance
   // The returned function will be able to reference this due to closure.
   // Each call to the returned function will share this common timer.
@@ -336,8 +332,7 @@ export function debounce(
   // Calling debounce returns a new anonymous function
   return function () {
     // reference the context and args for the setTimeout function
-    var context = this,
-      args = arguments;
+    var args = arguments;
 
     // Should the function be called now? If immediate is true
     //   and not already in a timeout then the answer is: Yes
@@ -360,21 +355,21 @@ export function debounce(
         // Call the original function with apply
         // apply lets you define the 'this' object as well as the arguments
         //    (both captured before setTimeout)
-        func.apply(context, args);
+        func.apply(this, args);
       }
     }, wait);
 
     // Immediate mode and no wait timer? Execute the function..
-    if (callNow) func.apply(context, args);
+    if (callNow) func.apply(this, args);
   };
 }
 
 // TODO
 export function getLanguage(override?: string): string {
   let user = UserService.Instance.user;
-  let lang = override || (user && user.lang ? user.lang : 'browser');
+  let lang = override || (user && user.lang ? user.lang : "browser");
 
-  if (lang == 'browser' && isBrowser()) {
+  if (lang == "browser" && isBrowser()) {
     return getBrowserLanguage();
   } else {
     return lang;
@@ -388,114 +383,114 @@ export function getBrowserLanguage(): string {
 
 export function getMomentLanguage(): string {
   let lang = getLanguage();
-  if (lang.startsWith('zh')) {
-    lang = 'zh-cn';
-  } else if (lang.startsWith('sv')) {
-    lang = 'sv';
-  } else if (lang.startsWith('fr')) {
-    lang = 'fr';
-  } else if (lang.startsWith('de')) {
-    lang = 'de';
-  } else if (lang.startsWith('ru')) {
-    lang = 'ru';
-  } else if (lang.startsWith('es')) {
-    lang = 'es';
-  } else if (lang.startsWith('eo')) {
-    lang = 'eo';
-  } else if (lang.startsWith('nl')) {
-    lang = 'nl';
-  } else if (lang.startsWith('it')) {
-    lang = 'it';
-  } else if (lang.startsWith('fi')) {
-    lang = 'fi';
-  } else if (lang.startsWith('ca')) {
-    lang = 'ca';
-  } else if (lang.startsWith('fa')) {
-    lang = 'fa';
-  } else if (lang.startsWith('pl')) {
-    lang = 'pl';
-  } else if (lang.startsWith('pt')) {
-    lang = 'pt-br';
-  } else if (lang.startsWith('ja')) {
-    lang = 'ja';
-  } else if (lang.startsWith('ka')) {
-    lang = 'ka';
-  } else if (lang.startsWith('hi')) {
-    lang = 'hi';
-  } else if (lang.startsWith('el')) {
-    lang = 'el';
-  } else if (lang.startsWith('eu')) {
-    lang = 'eu';
-  } else if (lang.startsWith('gl')) {
-    lang = 'gl';
-  } else if (lang.startsWith('tr')) {
-    lang = 'tr';
-  } else if (lang.startsWith('hu')) {
-    lang = 'hu';
-  } else if (lang.startsWith('uk')) {
-    lang = 'uk';
-  } else if (lang.startsWith('sq')) {
-    lang = 'sq';
-  } else if (lang.startsWith('km')) {
-    lang = 'km';
-  } else if (lang.startsWith('ga')) {
-    lang = 'ga';
-  } else if (lang.startsWith('sr')) {
-    lang = 'sr';
-  } else if (lang.startsWith('ko')) {
-    lang = 'ko';
-  } else if (lang.startsWith('da')) {
-    lang = 'da';
-  } else if (lang.startsWith('oc')) {
-    lang = 'oc';
-  } else if (lang.startsWith('hr')) {
-    lang = 'hr';
+  if (lang.startsWith("zh")) {
+    lang = "zh-cn";
+  } else if (lang.startsWith("sv")) {
+    lang = "sv";
+  } else if (lang.startsWith("fr")) {
+    lang = "fr";
+  } else if (lang.startsWith("de")) {
+    lang = "de";
+  } else if (lang.startsWith("ru")) {
+    lang = "ru";
+  } else if (lang.startsWith("es")) {
+    lang = "es";
+  } else if (lang.startsWith("eo")) {
+    lang = "eo";
+  } else if (lang.startsWith("nl")) {
+    lang = "nl";
+  } else if (lang.startsWith("it")) {
+    lang = "it";
+  } else if (lang.startsWith("fi")) {
+    lang = "fi";
+  } else if (lang.startsWith("ca")) {
+    lang = "ca";
+  } else if (lang.startsWith("fa")) {
+    lang = "fa";
+  } else if (lang.startsWith("pl")) {
+    lang = "pl";
+  } else if (lang.startsWith("pt")) {
+    lang = "pt-br";
+  } else if (lang.startsWith("ja")) {
+    lang = "ja";
+  } else if (lang.startsWith("ka")) {
+    lang = "ka";
+  } else if (lang.startsWith("hi")) {
+    lang = "hi";
+  } else if (lang.startsWith("el")) {
+    lang = "el";
+  } else if (lang.startsWith("eu")) {
+    lang = "eu";
+  } else if (lang.startsWith("gl")) {
+    lang = "gl";
+  } else if (lang.startsWith("tr")) {
+    lang = "tr";
+  } else if (lang.startsWith("hu")) {
+    lang = "hu";
+  } else if (lang.startsWith("uk")) {
+    lang = "uk";
+  } else if (lang.startsWith("sq")) {
+    lang = "sq";
+  } else if (lang.startsWith("km")) {
+    lang = "km";
+  } else if (lang.startsWith("ga")) {
+    lang = "ga";
+  } else if (lang.startsWith("sr")) {
+    lang = "sr";
+  } else if (lang.startsWith("ko")) {
+    lang = "ko";
+  } else if (lang.startsWith("da")) {
+    lang = "da";
+  } else if (lang.startsWith("oc")) {
+    lang = "oc";
+  } else if (lang.startsWith("hr")) {
+    lang = "hr";
   } else {
-    lang = 'en';
+    lang = "en";
   }
   return lang;
 }
 
-export function setTheme(theme: string, forceReload: boolean = false) {
+export function setTheme(theme: string, forceReload = false) {
   if (!isBrowser()) {
     return;
   }
-  if (theme === 'browser' && !forceReload) {
+  if (theme === "browser" && !forceReload) {
     return;
   }
   // This is only run on a force reload
-  if (theme == 'browser') {
-    theme = 'darkly';
+  if (theme == "browser") {
+    theme = "darkly";
   }
 
   // Unload all the other themes
   for (var i = 0; i < themes.length; i++) {
     let styleSheet = document.getElementById(themes[i]);
     if (styleSheet) {
-      styleSheet.setAttribute('disabled', 'disabled');
+      styleSheet.setAttribute("disabled", "disabled");
     }
   }
 
   document
-    .getElementById('default-light')
-    ?.setAttribute('disabled', 'disabled');
-  document.getElementById('default-dark')?.setAttribute('disabled', 'disabled');
+    .getElementById("default-light")
+    ?.setAttribute("disabled", "disabled");
+  document.getElementById("default-dark")?.setAttribute("disabled", "disabled");
 
   // Load the theme dynamically
   let cssLoc = `/static/assets/css/themes/${theme}.min.css`;
   loadCss(theme, cssLoc);
-  document.getElementById(theme).removeAttribute('disabled');
+  document.getElementById(theme).removeAttribute("disabled");
 }
 
 export function loadCss(id: string, loc: string) {
   if (!document.getElementById(id)) {
-    var head = document.getElementsByTagName('head')[0];
-    var link = document.createElement('link');
+    var head = document.getElementsByTagName("head")[0];
+    var link = document.createElement("link");
     link.id = id;
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
+    link.rel = "stylesheet";
+    link.type = "text/css";
     link.href = loc;
-    link.media = 'all';
+    link.media = "all";
     head.appendChild(link);
   }
 }
@@ -528,14 +523,14 @@ export function isCakeDay(published: string): boolean {
   );
 }
 
-export function toast(text: string, background: string = 'success') {
+export function toast(text: string, background = "success") {
   if (isBrowser()) {
     let backgroundColor = `var(--${background})`;
     Toastify({
       text: text,
       backgroundColor: backgroundColor,
-      gravity: 'bottom',
-      position: 'left',
+      gravity: "bottom",
+      position: "left",
     }).showToast();
   }
 }
@@ -550,8 +545,8 @@ export function pictrsDeleteToast(
     let toast = Toastify({
       text: clickToDeleteText,
       backgroundColor: backgroundColor,
-      gravity: 'top',
-      position: 'right',
+      gravity: "top",
+      position: "right",
       duration: 10000,
       onClick: () => {
         if (toast) {
@@ -574,17 +569,17 @@ interface NotifyInfo {
 
 export function messageToastify(info: NotifyInfo, router: any) {
   if (isBrowser()) {
-    let htmlBody = info.body ? md.render(info.body) : '';
+    let htmlBody = info.body ? md.render(info.body) : "";
     let backgroundColor = `var(--light)`;
 
     let toast = Toastify({
       text: `${htmlBody}<br />${info.name}`,
       avatar: info.icon ? info.icon : null,
       backgroundColor: backgroundColor,
-      className: 'text-dark',
+      className: "text-dark",
       close: true,
-      gravity: 'top',
-      position: 'right',
+      gravity: "top",
+      position: "right",
       duration: 5000,
       onClick: () => {
         if (toast) {
@@ -629,7 +624,7 @@ export function notifyPrivateMessage(pmv: PrivateMessageView, router: any) {
 function notify(info: NotifyInfo, router: any) {
   messageToastify(info, router);
 
-  if (Notification.permission !== 'granted') Notification.requestPermission();
+  if (Notification.permission !== "granted") Notification.requestPermission();
   else {
     var notification = new Notification(info.name, {
       icon: info.icon,
@@ -646,12 +641,12 @@ function notify(info: NotifyInfo, router: any) {
 export function setupTribute() {
   return new Tribute({
     noMatchTemplate: function () {
-      return '';
+      return "";
     },
     collection: [
       // Emojis
       {
-        trigger: ':',
+        trigger: ":",
         menuItemTemplate: (item: any) => {
           let shortName = `:${item.original.key}:`;
           return `${item.original.val} ${shortName}`;
@@ -670,7 +665,7 @@ export function setupTribute() {
       },
       // Users
       {
-        trigger: '@',
+        trigger: "@",
         selectTemplate: (item: any) => {
           let it: UserTribute = item.original;
           return `[${it.key}](${it.view.user.actor_id})`;
@@ -687,7 +682,7 @@ export function setupTribute() {
 
       // Communities
       {
-        trigger: '!',
+        trigger: "!",
         selectTemplate: (item: any) => {
           let it: CommunityTribute = item.original;
           return `[${it.key}](${it.view.community.actor_id})`;
@@ -709,16 +704,16 @@ export function setupTribute() {
 
 var tippyInstance: any;
 if (isBrowser()) {
-  tippyInstance = tippy('[data-tippy-content]');
+  tippyInstance = tippy("[data-tippy-content]");
 }
 
 export function setupTippy() {
   if (isBrowser()) {
     tippyInstance.forEach((e: any) => e.destroy());
-    tippyInstance = tippy('[data-tippy-content]', {
+    tippyInstance = tippy("[data-tippy-content]", {
       delay: [500, 0],
       // Display on "long press"
-      touch: ['hold', 500],
+      touch: ["hold", 500],
     });
   }
 }
@@ -758,7 +753,7 @@ function userSearch(text: string, cb: (users: UserTribute[]) => any) {
         }
       },
       err => console.error(err),
-      () => console.log('complete')
+      () => console.log("complete")
     );
   } else {
     cb([]);
@@ -803,7 +798,7 @@ function communitySearch(
         }
       },
       err => console.error(err),
-      () => console.log('complete')
+      () => console.log("complete")
     );
   } else {
     cb([]);
@@ -1033,7 +1028,7 @@ export function buildCommentsTree(
   return tree;
 }
 
-function setDepth(node: CommentNodeI, i: number = 0) {
+function setDepth(node: CommentNodeI, i = 0) {
   for (let child of node.children) {
     child.depth = i;
     setDepth(child, i + 1);
@@ -1094,16 +1089,16 @@ function hsl(num: number) {
 
 export function previewLines(
   text: string,
-  maxChars: number = 300,
-  maxLines: number = 1
+  maxChars = 300,
+  maxLines = 1
 ): string {
   return (
     text
       .slice(0, maxChars)
-      .split('\n')
+      .split("\n")
       // Use lines * 2 because markdown requires 2 lines
       .slice(0, maxLines * 2)
-      .join('\n') + '...'
+      .join("\n") + "..."
   );
 }
 
@@ -1116,7 +1111,7 @@ export function validTitle(title?: string): boolean {
   // Initial title is null, minimum length is taken care of by textarea's minLength={3}
   if (title === null || title.length < 3) return true;
 
-  const regex = new RegExp(/.*\S.*/, 'g');
+  const regex = new RegExp(/.*\S.*/, "g");
 
   return regex.test(title);
 }
@@ -1135,7 +1130,7 @@ export function siteBannerCss(banner: string): string {
 }
 
 export function isBrowser() {
-  return typeof window !== 'undefined';
+  return typeof window !== "undefined";
 }
 
 export function setIsoData(context: any): IsoData {
@@ -1152,7 +1147,7 @@ export function wsSubscribe(parseMessage: any): Subscription {
       .subscribe(
         msg => parseMessage(msg),
         err => console.error(err),
-        () => console.log('complete')
+        () => console.log("complete")
       );
   } else {
     return null;
@@ -1166,35 +1161,35 @@ export function setOptionalAuth(obj: any, auth = UserService.Instance.auth) {
 }
 
 export function authField(
-  throwErr: boolean = true,
+  throwErr = true,
   auth = UserService.Instance.auth
 ): string {
   if (auth == null && throwErr) {
-    toast(i18n.t('not_logged_in'), 'danger');
-    throw 'Not logged in';
+    toast(i18n.t("not_logged_in"), "danger");
+    throw "Not logged in";
   } else {
     return auth;
   }
 }
 
-moment.updateLocale('en', {
+moment.updateLocale("en", {
   relativeTime: {
-    future: 'in %s',
-    past: '%s ago',
-    s: '<1m',
-    ss: '%ds',
-    m: '1m',
-    mm: '%dm',
-    h: '1h',
-    hh: '%dh',
-    d: '1d',
-    dd: '%dd',
-    w: '1w',
-    ww: '%dw',
-    M: '1M',
-    MM: '%dM',
-    y: '1Y',
-    yy: '%dY',
+    future: "in %s",
+    past: "%s ago",
+    s: "<1m",
+    ss: "%ds",
+    m: "1m",
+    mm: "%dm",
+    h: "1h",
+    hh: "%dh",
+    d: "1d",
+    dd: "%dd",
+    w: "1w",
+    ww: "%dw",
+    M: "1M",
+    MM: "%dM",
+    y: "1Y",
+    yy: "%dY",
   },
 });
 

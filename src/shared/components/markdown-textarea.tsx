@@ -426,7 +426,7 @@ export class MarkdownTextArea extends Component<
   simpleSurroundBeforeAfter(
     beforeChars: string,
     afterChars: string,
-    emptyChars: string = '___'
+    emptyChars = '___'
   ) {
     if (!this.state.content) {
       this.state.content = '';

@@ -26,8 +26,6 @@ import {
 import { i18n } from '../i18next';
 import { InitialFetchRequest } from 'shared/interfaces';
 
-interface CreatePrivateMessageProps {}
-
 interface CreatePrivateMessageState {
   site_view: SiteView;
   recipient: UserViewSafe;
@@ -36,7 +34,7 @@ interface CreatePrivateMessageState {
 }
 
 export class CreatePrivateMessage extends Component<
-  CreatePrivateMessageProps,
+  any,
   CreatePrivateMessageState
 > {
   private isoData = setIsoData(this.context);

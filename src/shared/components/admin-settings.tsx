@@ -218,7 +218,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state.loading = false;
       this.setState(this.state);
       return;
-    } else if (msg.reconnect) {
     } else if (op == UserOperation.EditSite) {
       let data = wsJsonToRes<SiteResponse>(msg).data;
       this.state.siteRes.site_view = data.site_view;

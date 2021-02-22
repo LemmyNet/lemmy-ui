@@ -24,8 +24,6 @@ interface UserDetailsProps {
   onPageChange(page: number): number | any;
 }
 
-interface UserDetailsState {}
-
 enum ItemEnum {
   Comment,
   Post,
@@ -38,7 +36,7 @@ type ItemType = {
   score: number;
 };
 
-export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
+export class UserDetails extends Component<UserDetailsProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }
@@ -81,7 +79,7 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
 
   renderItemType(i: ItemType) {
     switch (i.type_) {
-      case ItemEnum.Comment:
+      case ItemEnum.Comment: {
         let c = i.view as CommentView;
         return (
           <CommentNodes
@@ -95,7 +93,8 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
             enableDownvotes={this.props.enableDownvotes}
           />
         );
-      case ItemEnum.Post:
+      }
+      case ItemEnum.Post: {
         let p = i.view as PostView;
         return (
           <PostListing
@@ -107,6 +106,7 @@ export class UserDetails extends Component<UserDetailsProps, UserDetailsState> {
             enableNsfw={this.props.enableNsfw}
           />
         );
+      }
       default:
         return <div />;
     }
