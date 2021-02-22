@@ -1,9 +1,9 @@
-import { Component, linkEvent } from 'inferno';
-import { Prompt } from 'inferno-router';
-import { PostListings } from './post-listings';
-import { MarkdownTextArea } from './markdown-textarea';
-import { Icon, Spinner } from './icon';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
+import { PostListings } from "./post-listings";
+import { MarkdownTextArea } from "./markdown-textarea";
+import { Icon, Spinner } from "./icon";
+import { Subscription } from "rxjs";
 import {
   CreatePost,
   EditPost,
@@ -15,9 +15,9 @@ import {
   Search,
   SearchType,
   SearchResponse,
-} from 'lemmy-js-client';
-import { WebSocketService, UserService } from '../services';
-import { PostFormParams } from '../interfaces';
+} from "lemmy-js-client";
+import { WebSocketService, UserService } from "../services";
+import { PostFormParams } from "../interfaces";
 import {
   wsJsonToRes,
   getPageTitle,
@@ -36,16 +36,16 @@ import {
   wsUserOp,
   wsClient,
   authField,
-} from '../utils';
-import autosize from 'autosize';
+} from "../utils";
+import autosize from "autosize";
 
 var Choices;
 if (isBrowser()) {
-  Choices = require('choices.js');
+  Choices = require("choices.js");
 }
 
-import { i18n } from '../i18next';
-import { pictrsUri } from '../env';
+import { i18n } from "../i18next";
+import { pictrsUri } from "../env";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -125,7 +125,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   componentDidMount() {
     setupTippy();
     this.setupCommunities();
-    let textarea: any = document.getElementById('post-title');
+    let textarea: any = document.getElementById("post-title");
     if (textarea) {
       autosize(textarea);
     }
@@ -160,12 +160,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               this.state.postForm.url ||
               this.state.postForm.body)
           }
-          message={i18n.t('block_leaving')}
+          message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handlePostSubmit)}>
           <div class="form-group row">
             <label class="col-sm-2 col-form-label" htmlFor="post-url">
-              {i18n.t('url')}
+              {i18n.t("url")}
             </label>
             <div class="col-sm-10">
               <input
@@ -182,7 +182,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   role="button"
                   onClick={linkEvent(this, this.copySuggestedTitle)}
                 >
-                  {i18n.t('copy_suggested_title', {
+                  {i18n.t("copy_suggested_title", {
                     title: this.state.suggestedTitle,
                   })}
                 </div>
@@ -191,9 +191,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 <label
                   htmlFor="file-upload"
                   className={`${
-                    UserService.Instance.user && 'pointer'
+                    UserService.Instance.user && "pointer"
                   } d-inline-block float-right text-muted font-weight-bold`}
-                  data-tippy-content={i18n.t('upload_image')}
+                  data-tippy-content={i18n.t("upload_image")}
                 >
                   <Icon icon="image" classes="icon-inline" />
                 </label>
@@ -215,7 +215,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel="noopener"
                 >
-                  {i18n.t('archive_link')}
+                  {i18n.t("archive_link")}
                 </a>
               )}
               {this.state.imageLoading && <Spinner />}
@@ -225,7 +225,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               {this.state.crossPosts.length > 0 && (
                 <>
                   <div class="my-1 text-muted small font-weight-bold">
-                    {i18n.t('cross_posts')}
+                    {i18n.t("cross_posts")}
                   </div>
                   <PostListings
                     showCommunity
@@ -239,7 +239,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
           <div class="form-group row">
             <label class="col-sm-2 col-form-label" htmlFor="post-title">
-              {i18n.t('title')}
+              {i18n.t("title")}
             </label>
             <div class="col-sm-10">
               <textarea
@@ -247,7 +247,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 id="post-title"
                 onInput={linkEvent(this, this.handlePostNameChange)}
                 class={`form-control ${
-                  !validTitle(this.state.postForm.name) && 'is-invalid'
+                  !validTitle(this.state.postForm.name) && "is-invalid"
                 }`}
                 required
                 rows={1}
@@ -256,13 +256,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               />
               {!validTitle(this.state.postForm.name) && (
                 <div class="invalid-feedback">
-                  {i18n.t('invalid_post_title')}
+                  {i18n.t("invalid_post_title")}
                 </div>
               )}
               {this.state.suggestedPosts.length > 0 && (
                 <>
                   <div class="my-1 text-muted small font-weight-bold">
-                    {i18n.t('related_posts')}
+                    {i18n.t("related_posts")}
                   </div>
                   <PostListings
                     posts={this.state.suggestedPosts}
@@ -275,7 +275,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
 
           <div class="form-group row">
-            <label class="col-sm-2 col-form-label">{i18n.t('body')}</label>
+            <label class="col-sm-2 col-form-label">{i18n.t("body")}</label>
             <div class="col-sm-10">
               <MarkdownTextArea
                 initialContent={this.state.postForm.body}
@@ -286,7 +286,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           {!this.props.post_view && (
             <div class="form-group row">
               <label class="col-sm-2 col-form-label" htmlFor="post-community">
-                {i18n.t('community')}
+                {i18n.t("community")}
               </label>
               <div class="col-sm-10">
                 <select
@@ -295,7 +295,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   value={this.state.postForm.community_id}
                   onInput={linkEvent(this, this.handlePostCommunityChange)}
                 >
-                  <option>{i18n.t('select_a_community')}</option>
+                  <option>{i18n.t("select_a_community")}</option>
                   {this.props.communities.map(cv => (
                     <option value={cv.community.id}>
                       {cv.community.local
@@ -321,7 +321,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     onChange={linkEvent(this, this.handlePostNsfwChange)}
                   />
                   <label class="form-check-label" htmlFor="post-nsfw">
-                    {i18n.t('nsfw')}
+                    {i18n.t("nsfw")}
                   </label>
                 </div>
               </div>
@@ -339,9 +339,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 {this.state.loading ? (
                   <Spinner />
                 ) : this.props.post_view ? (
-                  capitalizeFirstLetter(i18n.t('save'))
+                  capitalizeFirstLetter(i18n.t("save"))
                 ) : (
-                  capitalizeFirstLetter(i18n.t('create'))
+                  capitalizeFirstLetter(i18n.t("create"))
                 )}
               </button>
               {this.props.post_view && (
@@ -350,7 +350,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   class="btn btn-secondary"
                   onClick={linkEvent(this, this.handleCancel)}
                 >
-                  {i18n.t('cancel')}
+                  {i18n.t("cancel")}
                 </button>
               )}
             </div>
@@ -364,7 +364,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     event.preventDefault();
 
     // Coerce empty url string to undefined
-    if (i.state.postForm.url !== undefined && i.state.postForm.url === '') {
+    if (i.state.postForm.url !== undefined && i.state.postForm.url === "") {
       i.state.postForm.url = undefined;
     }
 
@@ -388,7 +388,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     );
     i.state.suggestedTitle = undefined;
     setTimeout(() => {
-      let textarea: any = document.getElementById('post-title');
+      let textarea: any = document.getElementById("post-title");
       autosize.update(textarea);
     }, 10);
     i.setState(i.state);
@@ -441,7 +441,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       auth: authField(false),
     };
 
-    if (this.state.postForm.name !== '') {
+    if (this.state.postForm.name !== "") {
       WebSocketService.Instance.send(wsClient.search(form));
     } else {
       this.state.suggestedPosts = [];
@@ -492,20 +492,20 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
 
     const formData = new FormData();
-    formData.append('images[]', file);
+    formData.append("images[]", file);
 
     i.state.imageLoading = true;
     i.setState(i.state);
 
     fetch(pictrsUri, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     })
       .then(res => res.json())
       .then(res => {
-        console.log('pictrs upload:');
+        console.log("pictrs upload:");
         console.log(res);
-        if (res.msg == 'ok') {
+        if (res.msg == "ok") {
           let hash = res.files[0].file;
           let url = `${pictrsUri}/${hash}`;
           let deleteToken = res.files[0].delete_token;
@@ -514,61 +514,61 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           i.state.imageLoading = false;
           i.setState(i.state);
           pictrsDeleteToast(
-            i18n.t('click_to_delete_picture'),
-            i18n.t('picture_deleted'),
+            i18n.t("click_to_delete_picture"),
+            i18n.t("picture_deleted"),
             deleteUrl
           );
         } else {
           i.state.imageLoading = false;
           i.setState(i.state);
-          toast(JSON.stringify(res), 'danger');
+          toast(JSON.stringify(res), "danger");
         }
       })
       .catch(error => {
         i.state.imageLoading = false;
         i.setState(i.state);
-        toast(error, 'danger');
+        toast(error, "danger");
       });
   }
 
   setupCommunities() {
     // Set up select searching
     if (isBrowser()) {
-      let selectId: any = document.getElementById('post-community');
+      let selectId: any = document.getElementById("post-community");
       if (selectId) {
         this.choices = new Choices(selectId, {
           shouldSort: false,
           classNames: {
-            containerOuter: 'choices',
-            containerInner: 'choices__inner bg-light border-0',
-            input: 'form-control',
-            inputCloned: 'choices__input--cloned',
-            list: 'choices__list',
-            listItems: 'choices__list--multiple',
-            listSingle: 'choices__list--single',
-            listDropdown: 'choices__list--dropdown',
-            item: 'choices__item bg-light',
-            itemSelectable: 'choices__item--selectable',
-            itemDisabled: 'choices__item--disabled',
-            itemChoice: 'choices__item--choice',
-            placeholder: 'choices__placeholder',
-            group: 'choices__group',
-            groupHeading: 'choices__heading',
-            button: 'choices__button',
-            activeState: 'is-active',
-            focusState: 'is-focused',
-            openState: 'is-open',
-            disabledState: 'is-disabled',
-            highlightedState: 'text-info',
-            selectedState: 'text-info',
-            flippedState: 'is-flipped',
-            loadingState: 'is-loading',
-            noResults: 'has-no-results',
-            noChoices: 'has-no-choices',
+            containerOuter: "choices",
+            containerInner: "choices__inner bg-light border-0",
+            input: "form-control",
+            inputCloned: "choices__input--cloned",
+            list: "choices__list",
+            listItems: "choices__list--multiple",
+            listSingle: "choices__list--single",
+            listDropdown: "choices__list--dropdown",
+            item: "choices__item bg-light",
+            itemSelectable: "choices__item--selectable",
+            itemDisabled: "choices__item--disabled",
+            itemChoice: "choices__item--choice",
+            placeholder: "choices__placeholder",
+            group: "choices__group",
+            groupHeading: "choices__heading",
+            button: "choices__button",
+            activeState: "is-active",
+            focusState: "is-focused",
+            openState: "is-open",
+            disabledState: "is-disabled",
+            highlightedState: "text-info",
+            selectedState: "text-info",
+            flippedState: "is-flipped",
+            loadingState: "is-loading",
+            noResults: "has-no-results",
+            noChoices: "has-no-choices",
           },
         });
         this.choices.passedElement.element.addEventListener(
-          'choice',
+          "choice",
           (e: any) => {
             this.state.postForm.community_id = Number(e.detail.choice.value);
             this.setState(this.state);
@@ -607,7 +607,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       this.state.loading = false;
       this.setState(this.state);
       return;

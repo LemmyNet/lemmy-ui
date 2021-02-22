@@ -1,5 +1,5 @@
-import { Component, linkEvent } from 'inferno';
-import { Link } from 'inferno-router';
+import { Component, linkEvent } from "inferno";
+import { Link } from "inferno-router";
 import {
   CommunityView,
   CommunityModeratorView,
@@ -9,15 +9,15 @@ import {
   UserViewSafe,
   AddModToCommunity,
   Category,
-} from 'lemmy-js-client';
-import { WebSocketService, UserService } from '../services';
-import { mdToHtml, getUnixTime, wsClient, authField } from '../utils';
-import { CommunityForm } from './community-form';
-import { UserListing } from './user-listing';
-import { CommunityLink } from './community-link';
-import { BannerIconHeader } from './banner-icon-header';
-import { Icon } from './icon';
-import { i18n } from '../i18next';
+} from "lemmy-js-client";
+import { WebSocketService, UserService } from "../services";
+import { mdToHtml, getUnixTime, wsClient, authField } from "../utils";
+import { CommunityForm } from "./community-form";
+import { UserListing } from "./user-listing";
+import { CommunityLink } from "./community-link";
+import { BannerIconHeader } from "./banner-icon-header";
+import { Icon } from "./icon";
+import { i18n } from "../i18next";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -110,22 +110,22 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               onClick={linkEvent(community.id, this.handleUnsubscribe)}
             >
               <Icon icon="check" classes="icon-inline text-success mr-1" />
-              {i18n.t('joined')}
+              {i18n.t("joined")}
             </a>
           )}
           {community.removed && (
             <small className="mr-2 text-muted font-italic">
-              {i18n.t('removed')}
+              {i18n.t("removed")}
             </small>
           )}
           {community.deleted && (
             <small className="mr-2 text-muted font-italic">
-              {i18n.t('deleted')}
+              {i18n.t("deleted")}
             </small>
           )}
           {community.nsfw && (
             <small className="mr-2 text-muted font-italic">
-              {i18n.t('nsfw')}
+              {i18n.t("nsfw")}
             </small>
           )}
         </h5>
@@ -146,66 +146,66 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <ul class="my-1 list-inline">
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_online', { count: this.props.online })}
+          {i18n.t("number_online", { count: this.props.online })}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t('number_of_users', {
+          data-tippy-content={`${i18n.t("number_of_users", {
             count: counts.users_active_day,
-          })} ${i18n.t('active_in_the_last')} ${i18n.t('day')}`}
+          })} ${i18n.t("active_in_the_last")} ${i18n.t("day")}`}
         >
-          {i18n.t('number_of_users', {
+          {i18n.t("number_of_users", {
             count: counts.users_active_day,
-          })}{' '}
-          / {i18n.t('day')}
+          })}{" "}
+          / {i18n.t("day")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t('number_of_users', {
+          data-tippy-content={`${i18n.t("number_of_users", {
             count: counts.users_active_week,
-          })} ${i18n.t('active_in_the_last')} ${i18n.t('week')}`}
+          })} ${i18n.t("active_in_the_last")} ${i18n.t("week")}`}
         >
-          {i18n.t('number_of_users', {
+          {i18n.t("number_of_users", {
             count: counts.users_active_week,
-          })}{' '}
-          / {i18n.t('week')}
+          })}{" "}
+          / {i18n.t("week")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t('number_of_users', {
+          data-tippy-content={`${i18n.t("number_of_users", {
             count: counts.users_active_month,
-          })} ${i18n.t('active_in_the_last')} ${i18n.t('month')}`}
+          })} ${i18n.t("active_in_the_last")} ${i18n.t("month")}`}
         >
-          {i18n.t('number_of_users', {
+          {i18n.t("number_of_users", {
             count: counts.users_active_month,
-          })}{' '}
-          / {i18n.t('month')}
+          })}{" "}
+          / {i18n.t("month")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t('number_of_users', {
+          data-tippy-content={`${i18n.t("number_of_users", {
             count: counts.users_active_half_year,
-          })} ${i18n.t('active_in_the_last')} ${i18n.t('number_of_months', {
+          })} ${i18n.t("active_in_the_last")} ${i18n.t("number_of_months", {
             count: 6,
           })}`}
         >
-          {i18n.t('number_of_users', {
+          {i18n.t("number_of_users", {
             count: counts.users_active_half_year,
-          })}{' '}
-          / {i18n.t('number_of_months', { count: 6 })}
+          })}{" "}
+          / {i18n.t("number_of_months", { count: 6 })}
         </li>
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_of_subscribers', {
+          {i18n.t("number_of_subscribers", {
             count: counts.subscribers,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_of_posts', {
+          {i18n.t("number_of_posts", {
             count: counts.posts,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_of_comments', {
+          {i18n.t("number_of_comments", {
             count: counts.comments,
           })}
         </li>
@@ -219,7 +219,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             className="badge badge-secondary"
             to={`/modlog/community/${this.props.community_view.community.id}`}
           >
-            {i18n.t('modlog')}
+            {i18n.t("modlog")}
           </Link>
         </li>
       </ul>
@@ -229,7 +229,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   mods() {
     return (
       <ul class="list-inline small">
-        <li class="list-inline-item">{i18n.t('mods')}: </li>
+        <li class="list-inline-item">{i18n.t("mods")}: </li>
         {this.props.moderators.map(mod => (
           <li class="list-inline-item">
             <UserListing user={mod.moderator} />
@@ -246,12 +246,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <Link
           className={`btn btn-secondary btn-block mb-2 ${
             community_view.community.deleted || community_view.community.removed
-              ? 'no-click'
-              : ''
+              ? "no-click"
+              : ""
           }`}
           to={`/create_post?community_id=${community_view.community.id}`}
         >
-          {i18n.t('create_a_post')}
+          {i18n.t("create_a_post")}
         </Link>
       )
     );
@@ -270,7 +270,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               this.handleSubscribe
             )}
           >
-            {i18n.t('subscribe')}
+            {i18n.t("subscribe")}
           </a>
         )}
       </div>
@@ -301,8 +301,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   role="button"
                   class="pointer"
                   onClick={linkEvent(this, this.handleEditClick)}
-                  data-tippy-content={i18n.t('edit')}
-                  aria-label={i18n.t('edit')}
+                  data-tippy-content={i18n.t("edit")}
+                  aria-label={i18n.t("edit")}
                 >
                   <Icon icon="edit" classes="icon-inline" />
                 </span>
@@ -318,13 +318,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         this.handleShowConfirmLeaveModTeamClick
                       )}
                     >
-                      {i18n.t('leave_mod_team')}
+                      {i18n.t("leave_mod_team")}
                     </span>
                   </li>
                 ) : (
                   <>
                     <li className="list-inline-item-action">
-                      {i18n.t('are_you_sure')}
+                      {i18n.t("are_you_sure")}
                     </li>
                     <li className="list-inline-item-action">
                       <span
@@ -332,7 +332,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         role="button"
                         onClick={linkEvent(this, this.handleLeaveModTeamClick)}
                       >
-                        {i18n.t('yes')}
+                        {i18n.t("yes")}
                       </span>
                     </li>
                     <li className="list-inline-item-action">
@@ -344,7 +344,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                           this.handleCancelLeaveModTeamClick
                         )}
                       >
-                        {i18n.t('no')}
+                        {i18n.t("no")}
                       </span>
                     </li>
                   </>
@@ -356,19 +356,19 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     onClick={linkEvent(this, this.handleDeleteClick)}
                     data-tippy-content={
                       !community_view.community.deleted
-                        ? i18n.t('delete')
-                        : i18n.t('restore')
+                        ? i18n.t("delete")
+                        : i18n.t("restore")
                     }
                     aria-label={
                       !community_view.community.deleted
-                        ? i18n.t('delete')
-                        : i18n.t('restore')
+                        ? i18n.t("delete")
+                        : i18n.t("restore")
                     }
                   >
                     <Icon
                       icon="trash"
                       classes={`icon-inline ${
-                        community_view.community.deleted && 'text-danger'
+                        community_view.community.deleted && "text-danger"
                       }`}
                     />
                   </span>
@@ -384,7 +384,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   role="button"
                   onClick={linkEvent(this, this.handleModRemoveShow)}
                 >
-                  {i18n.t('remove')}
+                  {i18n.t("remove")}
                 </span>
               ) : (
                 <span
@@ -392,7 +392,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   role="button"
                   onClick={linkEvent(this, this.handleModRemoveSubmit)}
                 >
-                  {i18n.t('restore')}
+                  {i18n.t("restore")}
                 </span>
               )}
             </li>
@@ -402,13 +402,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           <form onSubmit={linkEvent(this, this.handleModRemoveSubmit)}>
             <div class="form-group row">
               <label class="col-form-label" htmlFor="remove-reason">
-                {i18n.t('reason')}
+                {i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id="remove-reason"
                 class="form-control mr-2"
-                placeholder={i18n.t('optional')}
+                placeholder={i18n.t("optional")}
                 value={this.state.removeReason}
                 onInput={linkEvent(this, this.handleModRemoveReasonChange)}
               />
@@ -420,7 +420,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {/* </div> */}
             <div class="form-group row">
               <button type="submit" class="btn btn-secondary">
-                {i18n.t('remove_community')}
+                {i18n.t("remove_community")}
               </button>
             </div>
           </form>

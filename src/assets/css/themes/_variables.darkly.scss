@@ -1,4 +1,3 @@
-
 $white: #fff;
 $gray-100: #f8f9fa;
 $gray-200: #ebebeb;
@@ -31,7 +30,9 @@ $yiq-contrasted-threshold: 175;
 $body-bg: $gray-900;
 $body-color: $gray-300;
 $link-color: $success;
-$font-family-sans-serif: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+$font-family-sans-serif: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI",
+  Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+  "Segoe UI Emoji", "Segoe UI Symbol";
 $font-size-base: 0.9375rem;
 $h1-font-size: 3rem;
 $h2-font-size: 2.5rem;
@@ -53,16 +54,18 @@ $dropdown-link-hover-bg: $primary;
 $nav-link-padding-x: 2rem;
 $nav-link-disabled-color: $gray-500;
 $nav-tabs-border-color: $gray-700;
-$nav-tabs-link-hover-border-color: $nav-tabs-border-color $nav-tabs-border-color transparent;
+$nav-tabs-link-hover-border-color: $nav-tabs-border-color $nav-tabs-border-color
+  transparent;
 $nav-tabs-link-active-color: $white;
-$nav-tabs-link-active-border-color: $nav-tabs-border-color $nav-tabs-border-color transparent;
+$nav-tabs-link-active-border-color: $nav-tabs-border-color
+  $nav-tabs-border-color transparent;
 $navbar-padding-y: 1rem;
-$navbar-dark-color: rgba($white,.6);
+$navbar-dark-color: rgba($white, 0.6);
 $navbar-dark-hover-color: $white;
-$navbar-light-color: rgba($white,.6);
+$navbar-light-color: rgba($white, 0.6);
 $navbar-light-hover-color: $white;
 $navbar-light-active-color: $white;
-$navbar-light-toggler-border-color: rgba($gray-900, .1);
+$navbar-light-toggler-border-color: rgba($gray-900, 0.1);
 $pagination-color: $white;
 $pagination-bg: $success;
 $pagination-border-width: 0;
@@ -98,7 +101,7 @@ $custom-select-bg: $secondary;
 $custom-select-color: $white;
 $input-bg: $secondary;
 $input-color: $white;
-$input-disabled-bg: darken($secondary, 10%);;
+$input-disabled-bg: darken($secondary, 10%);
 $light: $gray-800;
 $navbar-light-brand-color: $navbar-dark-active-color;
 $navbar-light-brand-hover-color: $navbar-dark-active-color;

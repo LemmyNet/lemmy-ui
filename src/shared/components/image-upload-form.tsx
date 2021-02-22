@@ -1,9 +1,9 @@
-import { Component, linkEvent } from 'inferno';
-import { pictrsUri } from '../env';
-import { UserService } from '../services';
-import { toast, randomStr } from '../utils';
-import { i18n } from '../i18next';
-import { Icon } from './icon';
+import { Component, linkEvent } from "inferno";
+import { pictrsUri } from "../env";
+import { UserService } from "../services";
+import { toast, randomStr } from "../utils";
+import { i18n } from "../i18next";
+import { Icon } from "./icon";
 
 interface ImageUploadFormProps {
   uploadTitle: string;
@@ -44,15 +44,15 @@ export class ImageUploadForm extends Component<
             <span class="d-inline-block position-relative">
               <img
                 src={this.props.imageSrc}
-                height={this.props.rounded ? 60 : ''}
-                width={this.props.rounded ? 60 : ''}
+                height={this.props.rounded ? 60 : ""}
+                width={this.props.rounded ? 60 : ""}
                 className={`img-fluid ${
-                  this.props.rounded ? 'rounded-circle' : ''
+                  this.props.rounded ? "rounded-circle" : ""
                 }`}
               />
               <a
                 onClick={linkEvent(this, this.handleRemoveImage)}
-                aria-label={i18n.t('remove')}
+                aria-label={i18n.t("remove")}
               >
                 <Icon icon="x" classes="mini-overlay" />
               </a>
@@ -76,20 +76,20 @@ export class ImageUploadForm extends Component<
     event.preventDefault();
     let file = event.target.files[0];
     const formData = new FormData();
-    formData.append('images[]', file);
+    formData.append("images[]", file);
 
     i.state.loading = true;
     i.setState(i.state);
 
     fetch(pictrsUri, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     })
       .then(res => res.json())
       .then(res => {
-        console.log('pictrs upload:');
+        console.log("pictrs upload:");
         console.log(res);
-        if (res.msg == 'ok') {
+        if (res.msg == "ok") {
           let hash = res.files[0].file;
           let url = `${pictrsUri}/${hash}`;
           i.state.loading = false;
@@ -98,13 +98,13 @@ export class ImageUploadForm extends Component<
         } else {
           i.state.loading = false;
           i.setState(i.state);
-          toast(JSON.stringify(res), 'danger');
+          toast(JSON.stringify(res), "danger");
         }
       })
       .catch(error => {
         i.state.loading = false;
         i.setState(i.state);
-        toast(error, 'danger');
+        toast(error, "danger");
       });
   }
 

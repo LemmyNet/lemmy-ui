@@ -1,6 +1,6 @@
-import { Component, linkEvent } from 'inferno';
-import { Subscription } from 'rxjs';
-import { DataType, InitialFetchRequest } from '../interfaces';
+import { Component, linkEvent } from "inferno";
+import { Subscription } from "rxjs";
+import { DataType, InitialFetchRequest } from "../interfaces";
 import {
   UserOperation,
   GetCommunityResponse,
@@ -21,17 +21,17 @@ import {
   GetSiteResponse,
   Category,
   ListCategoriesResponse,
-} from 'lemmy-js-client';
-import { UserService, WebSocketService } from '../services';
-import { PostListings } from './post-listings';
-import { CommentNodes } from './comment-nodes';
-import { HtmlTags } from './html-tags';
-import { SortSelect } from './sort-select';
-import { DataTypeSelect } from './data-type-select';
-import { Sidebar } from './sidebar';
-import { CommunityLink } from './community-link';
-import { BannerIconHeader } from './banner-icon-header';
-import { Icon, Spinner } from './icon';
+} from "lemmy-js-client";
+import { UserService, WebSocketService } from "../services";
+import { PostListings } from "./post-listings";
+import { CommentNodes } from "./comment-nodes";
+import { HtmlTags } from "./html-tags";
+import { SortSelect } from "./sort-select";
+import { DataTypeSelect } from "./data-type-select";
+import { Sidebar } from "./sidebar";
+import { CommunityLink } from "./community-link";
+import { BannerIconHeader } from "./banner-icon-header";
+import { Icon, Spinner } from "./icon";
 import {
   wsJsonToRes,
   fetchLimit,
@@ -56,8 +56,8 @@ import {
   setOptionalAuth,
   saveScrollPosition,
   restoreScrollPosition,
-} from '../utils';
-import { i18n } from '../i18next';
+} from "../utils";
+import { i18n } from "../i18next";
 
 interface State {
   communityRes: GetCommunityResponse;
@@ -160,7 +160,7 @@ export class Community extends Component<any, State> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split('/');
+    let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
     // It can be /c/main, or /c/1
@@ -358,7 +358,7 @@ export class Community extends Component<any, State> {
             class="btn btn-secondary mr-1"
             onClick={linkEvent(this, this.prevPage)}
           >
-            {i18n.t('prev')}
+            {i18n.t("prev")}
           </button>
         )}
         {this.state.posts.length > 0 && (
@@ -366,7 +366,7 @@ export class Community extends Component<any, State> {
             class="btn btn-secondary"
             onClick={linkEvent(this, this.nextPage)}
           >
-            {i18n.t('next')}
+            {i18n.t("next")}
           </button>
         )}
       </div>
@@ -436,8 +436,8 @@ export class Community extends Component<any, State> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
-      this.context.router.history.push('/');
+      toast(i18n.t(msg.error), "danger");
+      this.context.router.history.push("/");
       return;
     } else if (msg.reconnect) {
       WebSocketService.Instance.send(

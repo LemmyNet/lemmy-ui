@@ -1,7 +1,7 @@
-import { Component, linkEvent, createRef, RefObject } from 'inferno';
-import { Link } from 'inferno-router';
-import { Subscription } from 'rxjs';
-import { WebSocketService, UserService } from '../services';
+import { Component, linkEvent, createRef, RefObject } from "inferno";
+import { Link } from "inferno-router";
+import { Subscription } from "rxjs";
+import { WebSocketService, UserService } from "../services";
 import {
   UserOperation,
   GetReplies,
@@ -16,7 +16,7 @@ import {
   CommentResponse,
   PrivateMessageResponse,
   PrivateMessageView,
-} from 'lemmy-js-client';
+} from "lemmy-js-client";
 import {
   wsJsonToRes,
   showAvatars,
@@ -32,10 +32,10 @@ import {
   wsUserOp,
   wsClient,
   authField,
-} from '../utils';
-import { i18n } from '../i18next';
-import { PictrsImage } from './pictrs-image';
-import { Icon } from './icon';
+} from "../utils";
+import { i18n } from "../i18next";
+import { PictrsImage } from "./pictrs-image";
+import { Icon } from "./icon";
 
 interface NavbarProps {
   site_res: GetSiteResponse;
@@ -65,7 +65,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     mentions: [],
     messages: [],
     expanded: false,
-    searchParam: '',
+    searchParam: "",
     toggleSearch: false,
   };
   subscription: any;
@@ -127,9 +127,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   updateUrl() {
     const searchParam = this.state.searchParam;
-    this.setState({ searchParam: '' });
+    this.setState({ searchParam: "" });
     this.setState({ toggleSearch: false });
-    if (searchParam === '') {
+    if (searchParam === "") {
       this.context.router.history.push(`/search/`);
     } else {
       const searchParamEncoded = encodeURIComponent(searchParam);
@@ -156,7 +156,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   handleSearchBlur(i: Navbar, event: any) {
-    if (!(event.relatedTarget && event.relatedTarget.name !== 'search-btn')) {
+    if (!(event.relatedTarget && event.relatedTarget.name !== "search-btn")) {
       i.state.toggleSearch = false;
       i.setState(i.state);
     }
@@ -197,14 +197,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <Link
               className="ml-auto p-1 navbar-toggler nav-link border-0"
               to="/inbox"
-              title={i18n.t('inbox')}
+              title={i18n.t("inbox")}
             >
               <Icon icon="bell" />
               {this.state.unreadCount > 0 && (
                 <span
                   class="mx-1 badge badge-light"
                   aria-label={`${this.state.unreadCount} ${i18n.t(
-                    'unread_messages'
+                    "unread_messages"
                   )}`}
                 >
                   {this.state.unreadCount}
@@ -217,48 +217,48 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             type="button"
             aria-label="menu"
             onClick={linkEvent(this, this.expandNavbar)}
-            data-tippy-content={i18n.t('expand_here')}
+            data-tippy-content={i18n.t("expand_here")}
           >
             <Icon icon="menu" />
           </button>
           <div
-            className={`${!this.state.expanded && 'collapse'} navbar-collapse`}
+            className={`${!this.state.expanded && "collapse"} navbar-collapse`}
           >
             <ul class="navbar-nav my-2 mr-auto">
               <li class="nav-item">
                 <Link
                   className="nav-link"
                   to="/communities"
-                  title={i18n.t('communities')}
+                  title={i18n.t("communities")}
                 >
-                  {i18n.t('communities')}
+                  {i18n.t("communities")}
                 </Link>
               </li>
               <li class="nav-item">
                 <Link
                   className="nav-link"
                   to={{
-                    pathname: '/create_post',
+                    pathname: "/create_post",
                     state: { prevPath: this.currentLocation },
                   }}
-                  title={i18n.t('create_post')}
+                  title={i18n.t("create_post")}
                 >
-                  {i18n.t('create_post')}
+                  {i18n.t("create_post")}
                 </Link>
               </li>
               <li class="nav-item">
                 <Link
                   className="nav-link"
                   to="/create_community"
-                  title={i18n.t('create_community')}
+                  title={i18n.t("create_community")}
                 >
-                  {i18n.t('create_community')}
+                  {i18n.t("create_community")}
                 </Link>
               </li>
               <li class="nav-item">
                 <a
                   className="nav-link"
-                  title={i18n.t('support_lemmy')}
+                  title={i18n.t("support_lemmy")}
                   href={supportLemmyUrl}
                 >
                   <Icon icon="beer" classes="small" />
@@ -271,7 +271,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     className="nav-link"
                     to={`/admin`}
-                    title={i18n.t('admin_settings')}
+                    title={i18n.t("admin_settings")}
                   >
                     <Icon icon="settings" />
                   </Link>
@@ -288,24 +288,24 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <input
                   id="search-input"
                   class={`form-control mr-0 search-input ${
-                    this.state.toggleSearch ? 'show-input' : 'hide-input'
+                    this.state.toggleSearch ? "show-input" : "hide-input"
                   }`}
                   onInput={linkEvent(this, this.handleSearchParam)}
                   value={this.state.searchParam}
                   ref={this.searchTextField}
                   type="text"
-                  placeholder={i18n.t('search')}
+                  placeholder={i18n.t("search")}
                   onBlur={linkEvent(this, this.handleSearchBlur)}
                 ></input>
                 <label class="sr-only" htmlFor="search-input">
-                  {i18n.t('search')}
+                  {i18n.t("search")}
                 </label>
                 <button
                   name="search-btn"
                   onClick={linkEvent(this, this.handleSearchBtn)}
                   class="px-1 btn btn-link"
                   style="color: var(--gray)"
-                  aria-label={i18n.t('search')}
+                  aria-label={i18n.t("search")}
                 >
                   <Icon icon="search" />
                 </button>
@@ -318,14 +318,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <Link
                       className="nav-link"
                       to="/inbox"
-                      title={i18n.t('inbox')}
+                      title={i18n.t("inbox")}
                     >
                       <Icon icon="bell" />
                       {this.state.unreadCount > 0 && (
                         <span
                           class="ml-1 badge badge-light"
                           aria-label={`${this.state.unreadCount} ${i18n.t(
-                            'unread_messages'
+                            "unread_messages"
                           )}`}
                         >
                           {this.state.unreadCount}
@@ -339,7 +339,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <Link
                       className="nav-link"
                       to={`/u/${user.name}`}
-                      title={i18n.t('settings')}
+                      title={i18n.t("settings")}
                     >
                       <span>
                         {user.avatar && showAvatars() && (
@@ -359,9 +359,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     className="btn btn-success"
                     to="/login"
-                    title={i18n.t('login_sign_up')}
+                    title={i18n.t("login_sign_up")}
                   >
-                    {i18n.t('login_sign_up')}
+                    {i18n.t("login_sign_up")}
                   </Link>
                 </li>
               </ul>
@@ -380,7 +380,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      if (msg.error == 'not_logged_in') {
+      if (msg.error == "not_logged_in") {
         UserService.Instance.logout();
         location.reload();
       }
@@ -457,7 +457,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   fetchUnreads() {
-    console.log('Fetching unreads...');
+    console.log("Fetching unreads...");
     let repliesForm: GetReplies = {
       sort: SortType.New,
       unread_only: true,
@@ -481,7 +481,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       auth: authField(),
     };
 
-    if (this.currentLocation !== '/inbox') {
+    if (this.currentLocation !== "/inbox") {
       WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
       WebSocketService.Instance.send(
         wsClient.getUserMentions(userMentionsForm)
@@ -519,13 +519,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   requestNotificationPermission() {
     if (UserService.Instance.user) {
-      document.addEventListener('DOMContentLoaded', function () {
+      document.addEventListener("DOMContentLoaded", function () {
         if (!Notification) {
-          toast(i18n.t('notifications_error'), 'danger');
+          toast(i18n.t("notifications_error"), "danger");
           return;
         }
 
-        if (Notification.permission !== 'granted')
+        if (Notification.permission !== "granted")
           Notification.requestPermission();
       });
     }

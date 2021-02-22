@@ -1,8 +1,8 @@
 // import Cookies from 'js-cookie';
-import IsomorphicCookie from 'isomorphic-cookie';
-import { UserSafeSettings, LoginResponse } from 'lemmy-js-client';
-import jwt_decode from 'jwt-decode';
-import { Subject, BehaviorSubject } from 'rxjs';
+import IsomorphicCookie from "isomorphic-cookie";
+import { UserSafeSettings, LoginResponse } from "lemmy-js-client";
+import jwt_decode from "jwt-decode";
+import { Subject, BehaviorSubject } from "rxjs";
 
 interface Claims {
   id: number;
@@ -23,29 +23,29 @@ export class UserService {
       this.setClaims(this.auth);
     } else {
       // setTheme();
-      console.log('No JWT cookie found.');
+      console.log("No JWT cookie found.");
     }
   }
 
   public login(res: LoginResponse) {
     let expires = new Date();
     expires.setDate(expires.getDate() + 365);
-    IsomorphicCookie.save('jwt', res.jwt, { expires, secure: false });
-    console.log('jwt cookie set');
+    IsomorphicCookie.save("jwt", res.jwt, { expires, secure: false });
+    console.log("jwt cookie set");
     this.setClaims(res.jwt);
   }
 
   public logout() {
-    IsomorphicCookie.remove('jwt', { secure: false });
+    IsomorphicCookie.remove("jwt", { secure: false });
     this.claims = undefined;
     this.user = undefined;
     // setTheme();
     this.jwtSub.next();
-    console.log('Logged out.');
+    console.log("Logged out.");
   }
 
   public get auth(): string {
-    return IsomorphicCookie.load('jwt');
+    return IsomorphicCookie.load("jwt");
   }
 
   private setClaims(jwt: string) {

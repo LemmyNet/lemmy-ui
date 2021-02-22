@@ -1,4 +1,3 @@
-
 $blue: #01cdfe;
 $indigo: #b967ff;
 $purple: #b967ff;
@@ -21,14 +20,14 @@ $yiq-text-light: $gray-300;
 $secondary: $blue;
 $text-muted: $gray-500;
 $primary: $pink;
-$navbar-light-hover-color: rgba($primary, .7);
-$light: darken($gray-100,1.5);
+$navbar-light-hover-color: rgba($primary, 0.7);
+$light: darken($gray-100, 1.5);
 $font-family-sans-serif: "Lucida Console", Monaco, monospace;
 $card-bg: $body-bg;
-$navbar-dark-color: rgba($body-bg, .5);
-$navbar-light-active-color: rgba($gray-200, .9);
-$navbar-light-disabled-color: rgba($gray-200, .3);
-$navbar-light-color: rgba($white, .5);
+$navbar-dark-color: rgba($body-bg, 0.5);
+$navbar-light-active-color: rgba($gray-200, 0.9);
+$navbar-light-disabled-color: rgba($gray-200, 0.3);
+$navbar-light-color: rgba($white, 0.5);
 $input-bg: $gray-700;
 $input-color: $gray-200;
 $input-disabled-bg: $gray-800;

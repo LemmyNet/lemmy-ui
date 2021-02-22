@@ -1,6 +1,6 @@
-import { UserSafeSettings } from 'lemmy-js-client';
-import { Helmet } from 'inferno-helmet';
-import { Component } from 'inferno';
+import { UserSafeSettings } from "lemmy-js-client";
+import { Helmet } from "inferno-helmet";
+import { Component } from "inferno";
 
 interface Props {
   user: UserSafeSettings | undefined;
@@ -9,7 +9,7 @@ interface Props {
 export class Theme extends Component<Props> {
   render() {
     const { user } = this.props;
-    const hasUserTheme = user && user.theme !== 'browser';
+    const hasUserTheme = user && user.theme !== "browser";
 
     return (
       <Helmet>

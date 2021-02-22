@@ -1,8 +1,8 @@
-import { Component } from 'inferno';
-import { Link } from 'inferno-router';
-import { CommunitySafe } from 'lemmy-js-client';
-import { hostname, showAvatars } from '../utils';
-import { PictrsImage } from './pictrs-image';
+import { Component } from "inferno";
+import { Link } from "inferno-router";
+import { CommunitySafe } from "lemmy-js-client";
+import { hostname, showAvatars } from "../utils";
+import { PictrsImage } from "./pictrs-image";
 
 interface CommunityLinkProps {
   // TODO figure this out better
@@ -39,7 +39,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     return (
       <Link
         title={apubName}
-        className={`${this.props.muted ? 'text-muted' : ''}`}
+        className={`${this.props.muted ? "text-muted" : ""}`}
         to={link}
       >
         {!this.props.hideAvatar && community.icon && showAvatars() && (

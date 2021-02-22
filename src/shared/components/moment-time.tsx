@@ -1,8 +1,8 @@
-import { Component } from 'inferno';
-import moment from 'moment';
-import { getMomentLanguage, capitalizeFirstLetter } from '../utils';
-import { i18n } from '../i18next';
-import { Icon } from './icon';
+import { Component } from "inferno";
+import moment from "moment";
+import { getMomentLanguage, capitalizeFirstLetter } from "../utils";
+import { i18n } from "../i18next";
+import { Icon } from "./icon";
 
 interface MomentTimeProps {
   data: {
@@ -28,7 +28,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       return (
         <span
           data-tippy-content={`${capitalizeFirstLetter(
-            i18n.t('modified')
+            i18n.t("modified")
           )} ${this.format(this.props.data.updated)}`}
           className="font-italics pointer unselectable"
         >
@@ -50,6 +50,6 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   }
 
   format(input: string): string {
-    return moment.utc(input).local().format('LLLL');
+    return moment.utc(input).local().format("LLLL");
   }
 }

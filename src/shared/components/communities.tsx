@@ -1,6 +1,6 @@
-import { Component, linkEvent } from 'inferno';
-import { HtmlTags } from './html-tags';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { HtmlTags } from "./html-tags";
+import { Subscription } from "rxjs";
 import {
   UserOperation,
   CommunityView,
@@ -11,8 +11,8 @@ import {
   SortType,
   ListingType,
   SiteView,
-} from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+} from "lemmy-js-client";
+import { WebSocketService } from "../services";
 import {
   wsJsonToRes,
   toast,
@@ -24,11 +24,11 @@ import {
   wsClient,
   authField,
   setOptionalAuth,
-} from '../utils';
-import { CommunityLink } from './community-link';
-import { Spinner } from './icon';
-import { i18n } from '../i18next';
-import { InitialFetchRequest } from 'shared/interfaces';
+} from "../utils";
+import { CommunityLink } from "./community-link";
+import { Spinner } from "./icon";
+import { i18n } from "../i18next";
+import { InitialFetchRequest } from "shared/interfaces";
 
 const communityLimit = 100;
 
@@ -52,7 +52,7 @@ export class Communities extends Component<any, CommunitiesState> {
     loading: true,
     page: getPageFromProps(this.props),
     site_view: this.isoData.site_res.site_view,
-    searchText: '',
+    searchText: "",
   };
 
   constructor(props: any, context: any) {
@@ -94,7 +94,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('communities')} - ${this.state.site_view.site.name}`;
+    return `${i18n.t("communities")} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -112,7 +112,7 @@ export class Communities extends Component<any, CommunitiesState> {
           <div>
             <div class="row">
               <div class="col-md-6">
-                <h4>{i18n.t('list_of_communities')}</h4>
+                <h4>{i18n.t("list_of_communities")}</h4>
               </div>
               <div class="col-md-6">
                 <div class="float-md-right">{this.searchForm()}</div>
@@ -123,17 +123,17 @@ export class Communities extends Component<any, CommunitiesState> {
               <table id="community_table" class="table table-sm table-hover">
                 <thead class="pointer">
                   <tr>
-                    <th>{i18n.t('name')}</th>
-                    <th>{i18n.t('category')}</th>
-                    <th class="text-right">{i18n.t('subscribers')}</th>
+                    <th>{i18n.t("name")}</th>
+                    <th>{i18n.t("category")}</th>
+                    <th class="text-right">{i18n.t("subscribers")}</th>
                     <th class="text-right">
-                      {i18n.t('users')} / {i18n.t('month')}
+                      {i18n.t("users")} / {i18n.t("month")}
                     </th>
                     <th class="text-right d-none d-lg-table-cell">
-                      {i18n.t('posts')}
+                      {i18n.t("posts")}
                     </th>
                     <th class="text-right d-none d-lg-table-cell">
-                      {i18n.t('comments')}
+                      {i18n.t("comments")}
                     </th>
                     <th></th>
                   </tr>
@@ -163,7 +163,7 @@ export class Communities extends Component<any, CommunitiesState> {
                               this.handleUnsubscribe
                             )}
                           >
-                            {i18n.t('unsubscribe')}
+                            {i18n.t("unsubscribe")}
                           </span>
                         ) : (
                           <span
@@ -174,7 +174,7 @@ export class Communities extends Component<any, CommunitiesState> {
                               this.handleSubscribe
                             )}
                           >
-                            {i18n.t('subscribe')}
+                            {i18n.t("subscribe")}
                           </span>
                         )}
                       </td>
@@ -201,16 +201,16 @@ export class Communities extends Component<any, CommunitiesState> {
           id="communities-search"
           class="form-control mr-2 mb-2"
           value={this.state.searchText}
-          placeholder={`${i18n.t('search')}...`}
+          placeholder={`${i18n.t("search")}...`}
           onInput={linkEvent(this, this.handleSearchChange)}
           required
           minLength={3}
         />
         <label class="sr-only" htmlFor="communities-search">
-          {i18n.t('search')}
+          {i18n.t("search")}
         </label>
         <button type="submit" class="btn btn-secondary mr-2 mb-2">
-          <span>{i18n.t('search')}</span>
+          <span>{i18n.t("search")}</span>
         </button>
       </form>
     );
@@ -224,7 +224,7 @@ export class Communities extends Component<any, CommunitiesState> {
             class="btn btn-secondary mr-1"
             onClick={linkEvent(this, this.prevPage)}
           >
-            {i18n.t('prev')}
+            {i18n.t("prev")}
           </button>
         )}
 
@@ -233,7 +233,7 @@ export class Communities extends Component<any, CommunitiesState> {
             class="btn btn-secondary"
             onClick={linkEvent(this, this.nextPage)}
           >
-            {i18n.t('next')}
+            {i18n.t("next")}
           </button>
         )}
       </div>
@@ -297,7 +297,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split('/');
+    let pathSplit = req.path.split("/");
     let page = pathSplit[3] ? Number(pathSplit[3]) : 1;
     let listCommunitiesForm: ListCommunities = {
       type_: ListingType.All,
@@ -313,7 +313,7 @@ export class Communities extends Component<any, CommunitiesState> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.ListCommunities) {
       let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;

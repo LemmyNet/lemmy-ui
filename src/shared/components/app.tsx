@@ -1,16 +1,16 @@
-import { Component } from 'inferno';
-import { Route, Switch } from 'inferno-router';
-import { Provider } from 'inferno-i18next';
-import { Helmet } from 'inferno-helmet';
-import { i18n } from '../i18next';
-import { routes } from '../routes';
-import { Navbar } from './navbar';
-import { Footer } from './footer';
-import { NoMatch } from './no-match';
-import { Theme } from './theme';
-import { Symbols } from './symbols';
-import { GetSiteResponse } from 'lemmy-js-client';
-import './styles.scss';
+import { Component } from "inferno";
+import { Route, Switch } from "inferno-router";
+import { Provider } from "inferno-i18next";
+import { Helmet } from "inferno-helmet";
+import { i18n } from "../i18next";
+import { routes } from "../routes";
+import { Navbar } from "./navbar";
+import { Footer } from "./footer";
+import { NoMatch } from "./no-match";
+import { Theme } from "./theme";
+import { Symbols } from "./symbols";
+import { GetSiteResponse } from "lemmy-js-client";
+import "./styles.scss";
 
 export interface AppProps {
   siteRes: GetSiteResponse;

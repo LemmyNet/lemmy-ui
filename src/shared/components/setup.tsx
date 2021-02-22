@@ -1,13 +1,13 @@
-import { Component, linkEvent } from 'inferno';
-import { Helmet } from 'inferno-helmet';
-import { Subscription } from 'rxjs';
-import { retryWhen, delay, take } from 'rxjs/operators';
-import { Register, LoginResponse, UserOperation } from 'lemmy-js-client';
-import { WebSocketService, UserService } from '../services';
-import { wsUserOp, wsJsonToRes, toast, wsClient } from '../utils';
-import { SiteForm } from './site-form';
-import { Spinner } from './icon';
-import { i18n } from '../i18next';
+import { Component, linkEvent } from "inferno";
+import { Helmet } from "inferno-helmet";
+import { Subscription } from "rxjs";
+import { retryWhen, delay, take } from "rxjs/operators";
+import { Register, LoginResponse, UserOperation } from "lemmy-js-client";
+import { WebSocketService, UserService } from "../services";
+import { wsUserOp, wsJsonToRes, toast, wsClient } from "../utils";
+import { SiteForm } from "./site-form";
+import { Spinner } from "./icon";
+import { i18n } from "../i18next";
 
 interface State {
   userForm: Register;
@@ -25,8 +25,8 @@ export class Setup extends Component<any, State> {
       password_verify: undefined,
       show_nsfw: true,
       // The first admin signup doesn't need a captcha
-      captcha_uuid: '',
-      captcha_answer: '',
+      captcha_uuid: "",
+      captcha_answer: "",
     },
     doneRegisteringUser: false,
     userLoading: false,
@@ -42,7 +42,7 @@ export class Setup extends Component<any, State> {
       .subscribe(
         msg => this.parseMessage(msg),
         err => console.error(err),
-        () => console.log('complete')
+        () => console.log("complete")
       );
   }
 
@@ -51,7 +51,7 @@ export class Setup extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('setup')} - Lemmy`;
+    return `${i18n.t("setup")} - Lemmy`;
   }
 
   render() {
@@ -60,7 +60,7 @@ export class Setup extends Component<any, State> {
         <Helmet title={this.documentTitle} />
         <div class="row">
           <div class="col-12 offset-lg-3 col-lg-6">
-            <h3>{i18n.t('lemmy_instance_setup')}</h3>
+            <h3>{i18n.t("lemmy_instance_setup")}</h3>
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
@@ -75,10 +75,10 @@ export class Setup extends Component<any, State> {
   registerUser() {
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
-        <h5>{i18n.t('setup_admin')}</h5>
+        <h5>{i18n.t("setup_admin")}</h5>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="username">
-            {i18n.t('username')}
+            {i18n.t("username")}
           </label>
           <div class="col-sm-10">
             <input
@@ -96,7 +96,7 @@ export class Setup extends Component<any, State> {
         </div>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="email">
-            {i18n.t('email')}
+            {i18n.t("email")}
           </label>
 
           <div class="col-sm-10">
@@ -104,7 +104,7 @@ export class Setup extends Component<any, State> {
               type="email"
               id="email"
               class="form-control"
-              placeholder={i18n.t('optional')}
+              placeholder={i18n.t("optional")}
               value={this.state.userForm.email}
               onInput={linkEvent(this, this.handleRegisterEmailChange)}
               minLength={3}
@@ -113,7 +113,7 @@ export class Setup extends Component<any, State> {
         </div>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="password">
-            {i18n.t('password')}
+            {i18n.t("password")}
           </label>
           <div class="col-sm-10">
             <input
@@ -128,7 +128,7 @@ export class Setup extends Component<any, State> {
         </div>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="verify-password">
-            {i18n.t('verify_password')}
+            {i18n.t("verify_password")}
           </label>
           <div class="col-sm-10">
             <input
@@ -144,7 +144,7 @@ export class Setup extends Component<any, State> {
         <div class="form-group row">
           <div class="col-sm-10">
             <button type="submit" class="btn btn-secondary">
-              {this.state.userLoading ? <Spinner /> : i18n.t('sign_up')}
+              {this.state.userLoading ? <Spinner /> : i18n.t("sign_up")}
             </button>
           </div>
         </div>
@@ -183,7 +183,7 @@ export class Setup extends Component<any, State> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       this.state.userLoading = false;
       this.setState(this.state);
       return;
@@ -194,7 +194,7 @@ export class Setup extends Component<any, State> {
       UserService.Instance.login(data);
       this.setState(this.state);
     } else if (op == UserOperation.CreateSite) {
-      window.location.href = '/';
+      window.location.href = "/";
     }
   }
 }
