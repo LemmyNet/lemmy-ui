@@ -343,6 +343,7 @@ export class MarkdownTextArea extends Component<
           content = content ? `${content}\n${imageMarkdown}` : imageMarkdown;
           i.state.content = content;
           i.state.imageLoading = false;
+          i.contentChange();
           i.setState(i.state);
           let textarea: any = document.getElementById(i.id);
           autosize.update(textarea);
@@ -364,12 +365,16 @@ export class MarkdownTextArea extends Component<
       });
   }
 
+  contentChange() {
+    if (this.props.onContentChange) {
+      this.props.onContentChange(this.state.content);
+    }
+  }
+
   handleContentChange(i: MarkdownTextArea, event: any) {
     i.state.content = event.target.value;
+    i.contentChange();
     i.setState(i.state);
-    if (i.props.onContentChange) {
-      i.props.onContentChange(i.state.content);
-    }
   }
 
   handlePreviewToggle(i: MarkdownTextArea, event: any) {
@@ -412,6 +417,7 @@ export class MarkdownTextArea extends Component<
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd -= 1), 10);
     }
+    i.contentChange();
     i.setState(i.state);
   }
 
@@ -446,6 +452,7 @@ export class MarkdownTextArea extends Component<
     } else {
       this.state.content += `${beforeChars}${emptyChars}${afterChars}`;
     }
+    this.contentChange();
     this.setState(this.state);
     setTimeout(() => {
       autosize.update(textarea);
@@ -509,6 +516,7 @@ export class MarkdownTextArea extends Component<
     setTimeout(() => {
       autosize.update(textarea);
     }, 10);
+    this.contentChange();
     this.setState(this.state);
   }
 
@@ -534,6 +542,7 @@ export class MarkdownTextArea extends Component<
         this.state.content += "\n";
       }
       this.state.content += quotedText;
+      this.contentChange();
       this.setState(this.state);
       // Not sure why this needs a delay
       setTimeout(() => autosize.update(textarea), 10);
