@@ -1,9 +1,9 @@
-import { Component } from 'inferno';
-import { Link } from 'inferno-router';
-import { UserSafe } from 'lemmy-js-client';
-import { showAvatars, hostname, isCakeDay } from '../utils';
-import { CakeDay } from './cake-day';
-import { PictrsImage } from './pictrs-image';
+import { Component } from "inferno";
+import { Link } from "inferno-router";
+import { UserSafe } from "lemmy-js-client";
+import { showAvatars, hostname, isCakeDay } from "../utils";
+import { CakeDay } from "./cake-day";
+import { PictrsImage } from "./pictrs-image";
 
 interface UserListingProps {
   user: UserSafe;
@@ -46,7 +46,7 @@ export class UserListing extends Component<UserListingProps, any> {
       <>
         <Link
           title={apubName}
-          className={this.props.muted ? 'text-muted' : 'text-info'}
+          className={this.props.muted ? "text-muted" : "text-info"}
           to={link}
         >
           {!this.props.hideAvatar && user.avatar && showAvatars() && (

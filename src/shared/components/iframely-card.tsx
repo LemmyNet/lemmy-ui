@@ -1,8 +1,8 @@
-import { Component, linkEvent } from 'inferno';
-import { Post } from 'lemmy-js-client';
-import { mdToHtml } from '../utils';
-import { i18n } from '../i18next';
-import { Icon } from './icon';
+import { Component, linkEvent } from "inferno";
+import { Post } from "lemmy-js-client";
+import { mdToHtml } from "../utils";
+import { i18n } from "../i18next";
+import { Icon } from "./icon";
 
 interface FramelyCardProps {
   post: Post;
@@ -61,9 +61,9 @@ export class IFramelyCard extends Component<
                     <button
                       class="mt-2 btn btn-secondary text-monospace"
                       onClick={linkEvent(this, this.handleIframeExpand)}
-                      data-tippy-content={i18n.t('expand_here')}
+                      data-tippy-content={i18n.t("expand_here")}
                     >
-                      {this.state.expanded ? '-' : '+'}
+                      {this.state.expanded ? "-" : "+"}
                     </button>
                   )}
                 </div>

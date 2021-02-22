@@ -1,5 +1,5 @@
-import { Component, linkEvent } from 'inferno';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Subscription } from "rxjs";
 import {
   Login as LoginForm,
   Register,
@@ -9,8 +9,8 @@ import {
   GetSiteResponse,
   GetCaptchaResponse,
   SiteView,
-} from 'lemmy-js-client';
-import { WebSocketService, UserService } from '../services';
+} from "lemmy-js-client";
+import { WebSocketService, UserService } from "../services";
 import {
   wsJsonToRes,
   validEmail,
@@ -21,10 +21,10 @@ import {
   wsUserOp,
   wsClient,
   authField,
-} from '../utils';
-import { i18n } from '../i18next';
-import { HtmlTags } from './html-tags';
-import { Icon, Spinner } from './icon';
+} from "../utils";
+import { i18n } from "../i18next";
+import { HtmlTags } from "./html-tags";
+import { Icon, Spinner } from "./icon";
 
 interface State {
   loginForm: LoginForm;
@@ -80,7 +80,7 @@ export class Login extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('login')} - ${this.state.site_view.site.name}`;
+    return `${i18n.t("login")} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -102,13 +102,13 @@ export class Login extends Component<any, State> {
     return (
       <div>
         <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
-          <h5>{i18n.t('login')}</h5>
+          <h5>{i18n.t("login")}</h5>
           <div class="form-group row">
             <label
               class="col-sm-2 col-form-label"
               htmlFor="login-email-or-username"
             >
-              {i18n.t('email_or_username')}
+              {i18n.t("email_or_username")}
             </label>
             <div class="col-sm-10">
               <input
@@ -124,7 +124,7 @@ export class Login extends Component<any, State> {
           </div>
           <div class="form-group row">
             <label class="col-sm-2 col-form-label" htmlFor="login-password">
-              {i18n.t('password')}
+              {i18n.t("password")}
             </label>
             <div class="col-sm-10">
               <input
@@ -140,16 +140,16 @@ export class Login extends Component<any, State> {
                 onClick={linkEvent(this, this.handlePasswordReset)}
                 className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events"
                 disabled={!validEmail(this.state.loginForm.username_or_email)}
-                title={i18n.t('no_password_reset')}
+                title={i18n.t("no_password_reset")}
               >
-                {i18n.t('forgot_password')}
+                {i18n.t("forgot_password")}
               </button>
             </div>
           </div>
           <div class="form-group row">
             <div class="col-sm-10">
               <button type="submit" class="btn btn-secondary">
-                {this.state.loginLoading ? <Spinner /> : i18n.t('login')}
+                {this.state.loginLoading ? <Spinner /> : i18n.t("login")}
               </button>
             </div>
           </div>
@@ -161,11 +161,11 @@ export class Login extends Component<any, State> {
   registerForm() {
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
-        <h5>{i18n.t('sign_up')}</h5>
+        <h5>{i18n.t("sign_up")}</h5>
 
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="register-username">
-            {i18n.t('username')}
+            {i18n.t("username")}
           </label>
 
           <div class="col-sm-10">
@@ -185,14 +185,14 @@ export class Login extends Component<any, State> {
 
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="register-email">
-            {i18n.t('email')}
+            {i18n.t("email")}
           </label>
           <div class="col-sm-10">
             <input
               type="email"
               id="register-email"
               class="form-control"
-              placeholder={i18n.t('optional')}
+              placeholder={i18n.t("optional")}
               value={this.state.registerForm.email}
               onInput={linkEvent(this, this.handleRegisterEmailChange)}
               minLength={3}
@@ -200,7 +200,7 @@ export class Login extends Component<any, State> {
             {!validEmail(this.state.registerForm.email) && (
               <div class="mt-2 mb-0 alert alert-light" role="alert">
                 <Icon icon="alert-triangle" classes="icon-inline mr-2" />
-                {i18n.t('no_password_reset')}
+                {i18n.t("no_password_reset")}
               </div>
             )}
           </div>
@@ -208,7 +208,7 @@ export class Login extends Component<any, State> {
 
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="register-password">
-            {i18n.t('password')}
+            {i18n.t("password")}
           </label>
           <div class="col-sm-10">
             <input
@@ -229,7 +229,7 @@ export class Login extends Component<any, State> {
             class="col-sm-2 col-form-label"
             htmlFor="register-verify-password"
           >
-            {i18n.t('verify_password')}
+            {i18n.t("verify_password")}
           </label>
           <div class="col-sm-10">
             <input
@@ -248,12 +248,12 @@ export class Login extends Component<any, State> {
         {this.state.captcha && (
           <div class="form-group row">
             <label class="col-sm-2" htmlFor="register-captcha">
-              <span class="mr-2">{i18n.t('enter_code')}</span>
+              <span class="mr-2">{i18n.t("enter_code")}</span>
               <button
                 type="button"
                 class="btn btn-secondary"
                 onClick={linkEvent(this, this.handleRegenCaptcha)}
-                aria-label={i18n.t('captcha')}
+                aria-label={i18n.t("captcha")}
               >
                 <Icon icon="refresh-cw" classes="icon-refresh-cw" />
               </button>
@@ -286,7 +286,7 @@ export class Login extends Component<any, State> {
                   onChange={linkEvent(this, this.handleRegisterShowNsfwChange)}
                 />
                 <label class="form-check-label" htmlFor="register-show-nsfw">
-                  {i18n.t('show_nsfw')}
+                  {i18n.t("show_nsfw")}
                 </label>
               </div>
             </div>
@@ -295,7 +295,7 @@ export class Login extends Component<any, State> {
         <div class="form-group row">
           <div class="col-sm-10">
             <button type="submit" class="btn btn-secondary">
-              {this.state.registerLoading ? <Spinner /> : i18n.t('sign_up')}
+              {this.state.registerLoading ? <Spinner /> : i18n.t("sign_up")}
             </button>
           </div>
         </div>
@@ -312,13 +312,13 @@ export class Login extends Component<any, State> {
               class="rounded-top img-fluid"
               src={this.captchaPngSrc()}
               style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
-              alt={i18n.t('captcha')}
+              alt={i18n.t("captcha")}
             />
             {this.state.captcha.ok.wav && (
               <button
                 class="rounded-bottom btn btn-sm btn-secondary btn-block"
                 style="border-top-right-radius: 0; border-top-left-radius: 0;"
-                title={i18n.t('play_captcha_audio')}
+                title={i18n.t("play_captcha_audio")}
                 onClick={linkEvent(this, this.handleCaptchaPlay)}
                 type="button"
                 disabled={this.state.captchaPlaying}
@@ -363,7 +363,7 @@ export class Login extends Component<any, State> {
 
   handleRegisterEmailChange(i: Login, event: any) {
     i.state.registerForm.email = event.target.value;
-    if (i.state.registerForm.email == '') {
+    if (i.state.registerForm.email == "") {
       i.state.registerForm.email = undefined;
     }
     i.setState(i.state);
@@ -404,11 +404,11 @@ export class Login extends Component<any, State> {
 
   handleCaptchaPlay(i: Login, event: any) {
     event.preventDefault();
-    let snd = new Audio('data:audio/wav;base64,' + i.state.captcha.ok.wav);
+    let snd = new Audio("data:audio/wav;base64," + i.state.captcha.ok.wav);
     snd.play();
     i.state.captchaPlaying = true;
     i.setState(i.state);
-    snd.addEventListener('ended', () => {
+    snd.addEventListener("ended", () => {
       snd.currentTime = 0;
       i.state.captchaPlaying = false;
       i.setState(this.state);
@@ -422,7 +422,7 @@ export class Login extends Component<any, State> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       this.state = this.emptyState;
       this.state.registerForm.captcha_answer = undefined;
       // Refetch another captcha
@@ -440,8 +440,8 @@ export class Login extends Component<any, State> {
             auth: authField(),
           })
         );
-        toast(i18n.t('logged_in'));
-        this.props.history.push('/');
+        toast(i18n.t("logged_in"));
+        this.props.history.push("/");
       } else if (op == UserOperation.Register) {
         let data = wsJsonToRes<LoginResponse>(msg).data;
         this.state = this.emptyState;
@@ -452,7 +452,7 @@ export class Login extends Component<any, State> {
             auth: authField(),
           })
         );
-        this.props.history.push('/communities');
+        this.props.history.push("/communities");
       } else if (op == UserOperation.GetCaptcha) {
         let data = wsJsonToRes<GetCaptchaResponse>(msg).data;
         if (data.ok) {
@@ -461,7 +461,7 @@ export class Login extends Component<any, State> {
           this.setState(this.state);
         }
       } else if (op == UserOperation.PasswordReset) {
-        toast(i18n.t('reset_password_mail_sent'));
+        toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
         let data = wsJsonToRes<GetSiteResponse>(msg).data;
         this.state.site_view = data.site_view;

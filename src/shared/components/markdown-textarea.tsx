@@ -1,5 +1,5 @@
-import { Component, linkEvent } from 'inferno';
-import { Prompt } from 'inferno-router';
+import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
 import {
   mdToHtml,
   randomStr,
@@ -9,12 +9,12 @@ import {
   pictrsDeleteToast,
   setupTippy,
   isBrowser,
-} from '../utils';
-import { UserService } from '../services';
-import autosize from 'autosize';
-import { i18n } from '../i18next';
-import { pictrsUri } from '../env';
-import { Icon, Spinner } from './icon';
+} from "../utils";
+import { UserService } from "../services";
+import autosize from "autosize";
+import { i18n } from "../i18next";
+import { pictrsUri } from "../env";
+import { Icon, Spinner } from "./icon";
 
 interface MarkdownTextAreaProps {
   initialContent: string;
@@ -65,7 +65,7 @@ export class MarkdownTextArea extends Component<
     if (textarea) {
       autosize(textarea);
       this.tribute.attach(textarea);
-      textarea.addEventListener('tribute-replaced', () => {
+      textarea.addEventListener("tribute-replaced", () => {
         this.state.content = textarea.value;
         this.setState(this.state);
         autosize.update(textarea);
@@ -94,7 +94,7 @@ export class MarkdownTextArea extends Component<
     if (nextProps.finished) {
       this.state.previewMode = false;
       this.state.loading = false;
-      this.state.content = '';
+      this.state.content = "";
       this.setState(this.state);
       if (this.props.replyType) {
         this.props.onReplyCancel();
@@ -117,13 +117,13 @@ export class MarkdownTextArea extends Component<
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
         <Prompt
           when={!this.props.hideNavigationWarnings && this.state.content}
-          message={i18n.t('block_leaving')}
+          message={i18n.t("block_leaving")}
         />
         <div class="form-group row">
           <div className={`col-sm-12`}>
             <textarea
               id={this.id}
-              className={`form-control ${this.state.previewMode && 'd-none'}`}
+              className={`form-control ${this.state.previewMode && "d-none"}`}
               value={this.state.content}
               onInput={linkEvent(this, this.handleContentChange)}
               onPaste={linkEvent(this, this.handleImageUploadPaste)}
@@ -140,7 +140,7 @@ export class MarkdownTextArea extends Component<
             )}
           </div>
           <label class="sr-only" htmlFor={this.id}>
-            {i18n.t('body')}
+            {i18n.t("body")}
           </label>
         </div>
         <div class="row">
@@ -164,41 +164,41 @@ export class MarkdownTextArea extends Component<
                 class="btn btn-sm btn-secondary mr-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
-                {i18n.t('cancel')}
+                {i18n.t("cancel")}
               </button>
             )}
             {this.state.content && (
               <button
                 className={`btn btn-sm btn-secondary mr-2 ${
-                  this.state.previewMode && 'active'
+                  this.state.previewMode && "active"
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}
               >
-                {i18n.t('preview')}
+                {i18n.t("preview")}
               </button>
             )}
             {/* A flex expander */}
             <div class="flex-grow-1"></div>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('bold')}
-              aria-label={i18n.t('bold')}
+              data-tippy-content={i18n.t("bold")}
+              aria-label={i18n.t("bold")}
               onClick={linkEvent(this, this.handleInsertBold)}
             >
               <Icon icon="bold" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('italic')}
-              aria-label={i18n.t('italic')}
+              data-tippy-content={i18n.t("italic")}
+              aria-label={i18n.t("italic")}
               onClick={linkEvent(this, this.handleInsertItalic)}
             >
               <Icon icon="italic" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('link')}
-              aria-label={i18n.t('link')}
+              data-tippy-content={i18n.t("link")}
+              aria-label={i18n.t("link")}
               onClick={linkEvent(this, this.handleInsertLink)}
             >
               <Icon icon="link" classes="icon-inline" />
@@ -206,8 +206,8 @@ export class MarkdownTextArea extends Component<
             <form class="btn btn-sm text-muted font-weight-bold">
               <label
                 htmlFor={`file-upload-${this.id}`}
-                className={`mb-0 ${UserService.Instance.user && 'pointer'}`}
-                data-tippy-content={i18n.t('upload_image')}
+                className={`mb-0 ${UserService.Instance.user && "pointer"}`}
+                data-tippy-content={i18n.t("upload_image")}
               >
                 {this.state.imageLoading ? (
                   <Spinner />
@@ -227,64 +227,64 @@ export class MarkdownTextArea extends Component<
             </form>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('header')}
-              aria-label={i18n.t('header')}
+              data-tippy-content={i18n.t("header")}
+              aria-label={i18n.t("header")}
               onClick={linkEvent(this, this.handleInsertHeader)}
             >
               <Icon icon="header" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('strikethrough')}
-              aria-label={i18n.t('strikethrough')}
+              data-tippy-content={i18n.t("strikethrough")}
+              aria-label={i18n.t("strikethrough")}
               onClick={linkEvent(this, this.handleInsertStrikethrough)}
             >
               <Icon icon="strikethrough" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('quote')}
-              aria-label={i18n.t('quote')}
+              data-tippy-content={i18n.t("quote")}
+              aria-label={i18n.t("quote")}
               onClick={linkEvent(this, this.handleInsertQuote)}
             >
               <Icon icon="format_quote" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('list')}
-              aria-label={i18n.t('list')}
+              data-tippy-content={i18n.t("list")}
+              aria-label={i18n.t("list")}
               onClick={linkEvent(this, this.handleInsertList)}
             >
               <Icon icon="list" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('code')}
-              aria-label={i18n.t('code')}
+              data-tippy-content={i18n.t("code")}
+              aria-label={i18n.t("code")}
               onClick={linkEvent(this, this.handleInsertCode)}
             >
               <Icon icon="code" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('subscript')}
-              aria-label={i18n.t('subscript')}
+              data-tippy-content={i18n.t("subscript")}
+              aria-label={i18n.t("subscript")}
               onClick={linkEvent(this, this.handleInsertSubscript)}
             >
               <Icon icon="subscript" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('superscript')}
-              aria-label={i18n.t('superscript')}
+              data-tippy-content={i18n.t("superscript")}
+              aria-label={i18n.t("superscript")}
               onClick={linkEvent(this, this.handleInsertSuperscript)}
             >
               <Icon icon="superscript" classes="icon-inline" />
             </button>
             <button
               class="btn btn-sm text-muted"
-              data-tippy-content={i18n.t('spoiler')}
-              aria-label={i18n.t('spoiler')}
+              data-tippy-content={i18n.t("spoiler")}
+              aria-label={i18n.t("spoiler")}
               onClick={linkEvent(this, this.handleInsertSpoiler)}
             >
               <Icon icon="alert-triangle" classes="icon-inline" />
@@ -292,7 +292,7 @@ export class MarkdownTextArea extends Component<
             <a
               href={markdownHelpUrl}
               class="btn btn-sm text-muted font-weight-bold"
-              title={i18n.t('formatting_help')}
+              title={i18n.t("formatting_help")}
               rel="noopener"
             >
               <Icon icon="help-circle" classes="icon-inline" />
@@ -320,20 +320,20 @@ export class MarkdownTextArea extends Component<
     }
 
     const formData = new FormData();
-    formData.append('images[]', file);
+    formData.append("images[]", file);
 
     i.state.imageLoading = true;
     i.setState(i.state);
 
     fetch(pictrsUri, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     })
       .then(res => res.json())
       .then(res => {
-        console.log('pictrs upload:');
+        console.log("pictrs upload:");
         console.log(res);
-        if (res.msg == 'ok') {
+        if (res.msg == "ok") {
           let hash = res.files[0].file;
           let url = `${pictrsUri}/${hash}`;
           let deleteToken = res.files[0].delete_token;
@@ -347,20 +347,20 @@ export class MarkdownTextArea extends Component<
           let textarea: any = document.getElementById(i.id);
           autosize.update(textarea);
           pictrsDeleteToast(
-            i18n.t('click_to_delete_picture'),
-            i18n.t('picture_deleted'),
+            i18n.t("click_to_delete_picture"),
+            i18n.t("picture_deleted"),
             deleteUrl
           );
         } else {
           i.state.imageLoading = false;
           i.setState(i.state);
-          toast(JSON.stringify(res), 'danger');
+          toast(JSON.stringify(res), "danger");
         }
       })
       .catch(error => {
         i.state.imageLoading = false;
         i.setState(i.state);
-        toast(error, 'danger');
+        toast(error, "danger");
       });
   }
 
@@ -393,7 +393,7 @@ export class MarkdownTextArea extends Component<
   handleInsertLink(i: MarkdownTextArea, event: any) {
     event.preventDefault();
     if (!i.state.content) {
-      i.state.content = '';
+      i.state.content = "";
     }
     let textarea: any = document.getElementById(i.id);
     let start: number = textarea.selectionStart;
@@ -408,7 +408,7 @@ export class MarkdownTextArea extends Component<
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd = end + 3), 10);
     } else {
-      i.state.content += '[]()';
+      i.state.content += "[]()";
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd -= 1), 10);
     }
@@ -420,16 +420,16 @@ export class MarkdownTextArea extends Component<
   }
 
   simpleBeginningofLine(chars: string) {
-    this.simpleSurroundBeforeAfter(`${chars} `, '', '');
+    this.simpleSurroundBeforeAfter(`${chars} `, "", "");
   }
 
   simpleSurroundBeforeAfter(
     beforeChars: string,
     afterChars: string,
-    emptyChars = '___'
+    emptyChars = "___"
   ) {
     if (!this.state.content) {
-      this.state.content = '';
+      this.state.content = "";
     }
     let textarea: any = document.getElementById(this.id);
     let start: number = textarea.selectionStart;
@@ -454,47 +454,47 @@ export class MarkdownTextArea extends Component<
 
   handleInsertBold(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround('**');
+    i.simpleSurround("**");
   }
 
   handleInsertItalic(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround('*');
+    i.simpleSurround("*");
   }
 
   handleInsertCode(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround('`');
+    i.simpleSurround("`");
   }
 
   handleInsertStrikethrough(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround('~~');
+    i.simpleSurround("~~");
   }
 
   handleInsertList(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleBeginningofLine('-');
+    i.simpleBeginningofLine("-");
   }
 
   handleInsertQuote(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleBeginningofLine('>');
+    i.simpleBeginningofLine(">");
   }
 
   handleInsertHeader(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleBeginningofLine('#');
+    i.simpleBeginningofLine("#");
   }
 
   handleInsertSubscript(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround('~');
+    i.simpleSurround("~");
   }
 
   handleInsertSuperscript(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround('^');
+    i.simpleSurround("^");
   }
 
   simpleInsert(chars: string) {
@@ -514,8 +514,8 @@ export class MarkdownTextArea extends Component<
 
   handleInsertSpoiler(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    let beforeChars = `\n::: spoiler ${i18n.t('spoiler')}\n`;
-    let afterChars = '\n:::\n';
+    let beforeChars = `\n::: spoiler ${i18n.t("spoiler")}\n`;
+    let afterChars = "\n:::\n";
     i.simpleSurroundBeforeAfter(beforeChars, afterChars);
   }
 
@@ -525,13 +525,13 @@ export class MarkdownTextArea extends Component<
     if (selectedText) {
       let quotedText =
         selectedText
-          .split('\n')
+          .split("\n")
           .map(t => `> ${t}`)
-          .join('\n') + '\n\n';
+          .join("\n") + "\n\n";
       if (this.state.content == null) {
-        this.state.content = '';
+        this.state.content = "";
       } else {
-        this.state.content += '\n';
+        this.state.content += "\n";
       }
       this.state.content += quotedText;
       this.setState(this.state);

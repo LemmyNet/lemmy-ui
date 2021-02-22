@@ -1,16 +1,16 @@
-import { Component, linkEvent } from 'inferno';
-import { i18n } from '../i18next';
+import { Component, linkEvent } from "inferno";
+import { i18n } from "../i18next";
 import {
   PostView,
   CommentView,
   SortType,
   GetUserDetailsResponse,
   UserViewSafe,
-} from 'lemmy-js-client';
-import { UserDetailsView } from '../interfaces';
-import { commentsToFlatNodes, setupTippy } from '../utils';
-import { PostListing } from './post-listing';
-import { CommentNodes } from './comment-nodes';
+} from "lemmy-js-client";
+import { UserDetailsView } from "../interfaces";
+import { commentsToFlatNodes, setupTippy } from "../utils";
+import { PostListing } from "./post-listing";
+import { CommentNodes } from "./comment-nodes";
 
 interface UserDetailsProps {
   userRes: GetUserDetailsResponse;
@@ -187,7 +187,7 @@ export class UserDetails extends Component<UserDetailsProps, any> {
             class="btn btn-secondary mr-1"
             onClick={linkEvent(this, this.prevPage)}
           >
-            {i18n.t('prev')}
+            {i18n.t("prev")}
           </button>
         )}
         {this.props.userRes.comments.length + this.props.userRes.posts.length >
@@ -196,7 +196,7 @@ export class UserDetails extends Component<UserDetailsProps, any> {
             class="btn btn-secondary"
             onClick={linkEvent(this, this.nextPage)}
           >
-            {i18n.t('next')}
+            {i18n.t("next")}
           </button>
         )}
       </div>

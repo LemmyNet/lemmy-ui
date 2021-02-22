@@ -1,9 +1,9 @@
-import { Component } from 'inferno';
-import { Link } from 'inferno-router';
-import { PostView } from 'lemmy-js-client';
-import { PostListing } from './post-listing';
-import { i18n } from '../i18next';
-import { T } from 'inferno-i18next';
+import { Component } from "inferno";
+import { Link } from "inferno-router";
+import { PostView } from "lemmy-js-client";
+import { PostListing } from "./post-listing";
+import { i18n } from "../i18next";
+import { T } from "inferno-i18next";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -38,7 +38,7 @@ export class PostListings extends Component<PostListingsProps, any> {
           ))
         ) : (
           <>
-            <div>{i18n.t('no_posts')}</div>
+            <div>{i18n.t("no_posts")}</div>
             {this.props.showCommunity !== undefined && (
               <T i18nKey="subscribe_to_communities">
                 #<Link to="/communities">#</Link>

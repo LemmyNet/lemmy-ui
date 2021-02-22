@@ -1,8 +1,8 @@
-import { Component } from 'inferno';
-import { GetSiteResponse } from 'lemmy-js-client';
-import { setIsoData } from '../utils';
-import { i18n } from '../i18next';
-import { HtmlTags } from './html-tags';
+import { Component } from "inferno";
+import { GetSiteResponse } from "lemmy-js-client";
+import { setIsoData } from "../utils";
+import { i18n } from "../i18next";
+import { HtmlTags } from "./html-tags";
 
 interface InstancesState {
   siteRes: GetSiteResponse;
@@ -20,7 +20,7 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('instances')} - ${this.state.siteRes.site_view.site.name}`;
+    return `${i18n.t("instances")} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   render() {
@@ -34,18 +34,18 @@ export class Instances extends Component<any, InstancesState> {
           />
           <div class="row">
             <div class="col-md-6">
-              <h5>{i18n.t('linked_instances')}</h5>
+              <h5>{i18n.t("linked_instances")}</h5>
               {this.itemList(federated_instances.linked)}
             </div>
             {federated_instances.allowed.length > 0 && (
               <div class="col-md-6">
-                <h5>{i18n.t('allowed_instances')}</h5>
+                <h5>{i18n.t("allowed_instances")}</h5>
                 {this.itemList(federated_instances.allowed)}
               </div>
             )}
             {federated_instances.blocked.length > 0 && (
               <div class="col-md-6">
-                <h5>{i18n.t('blocked_instances')}</h5>
+                <h5>{i18n.t("blocked_instances")}</h5>
                 {this.itemList(federated_instances.blocked)}
               </div>
             )}
@@ -67,7 +67,7 @@ export class Instances extends Component<any, InstancesState> {
         ))}
       </ul>
     ) : (
-      <div>{i18n.t('none_found')}</div>
+      <div>{i18n.t("none_found")}</div>
     );
   }
 }

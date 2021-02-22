@@ -1,6 +1,6 @@
-import { Component, linkEvent } from 'inferno';
-import { Link } from 'inferno-router';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Link } from "inferno-router";
+import { Subscription } from "rxjs";
 import {
   UserOperation,
   SortType,
@@ -15,9 +15,9 @@ import {
   CommentResponse,
   PostResponse,
   BanUserResponse,
-} from 'lemmy-js-client';
-import { InitialFetchRequest, UserDetailsView } from '../interfaces';
-import { WebSocketService, UserService } from '../services';
+} from "lemmy-js-client";
+import { InitialFetchRequest, UserDetailsView } from "../interfaces";
+import { WebSocketService, UserService } from "../services";
 import {
   wsJsonToRes,
   fetchLimit,
@@ -47,20 +47,20 @@ import {
   setOptionalAuth,
   saveScrollPosition,
   restoreScrollPosition,
-} from '../utils';
-import { UserListing } from './user-listing';
-import { HtmlTags } from './html-tags';
-import { SortSelect } from './sort-select';
-import { ListingTypeSelect } from './listing-type-select';
-import { MomentTime } from './moment-time';
-import { i18n } from '../i18next';
-import moment from 'moment';
-import { UserDetails } from './user-details';
-import { MarkdownTextArea } from './markdown-textarea';
-import { Icon, Spinner } from './icon';
-import { ImageUploadForm } from './image-upload-form';
-import { BannerIconHeader } from './banner-icon-header';
-import { CommunityLink } from './community-link';
+} from "../utils";
+import { UserListing } from "./user-listing";
+import { HtmlTags } from "./html-tags";
+import { SortSelect } from "./sort-select";
+import { ListingTypeSelect } from "./listing-type-select";
+import { MomentTime } from "./moment-time";
+import { i18n } from "../i18next";
+import moment from "moment";
+import { UserDetails } from "./user-details";
+import { MarkdownTextArea } from "./markdown-textarea";
+import { Icon, Spinner } from "./icon";
+import { ImageUploadForm } from "./image-upload-form";
+import { BannerIconHeader } from "./banner-icon-header";
+import { CommunityLink } from "./community-link";
 
 interface UserState {
   userRes: GetUserDetailsResponse;
@@ -195,7 +195,7 @@ export class User extends Component<any, UserState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split('/');
+    let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
     // It can be /u/me, or /username/1
@@ -250,8 +250,8 @@ export class User extends Component<any, UserState> {
   componentDidUpdate(lastProps: any) {
     // Necessary if you are on a post and you click another post (same route)
     if (
-      lastProps.location.pathname.split('/')[2] !==
-      lastProps.history.location.pathname.split('/')[2]
+      lastProps.location.pathname.split("/")[2] !==
+      lastProps.history.location.pathname.split("/")[2]
     ) {
       // Couldnt get a refresh working. This does for now.
       location.reload();
@@ -322,7 +322,7 @@ export class User extends Component<any, UserState> {
       <div class="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.view == UserDetailsView.Overview && 'active'}
+            ${this.state.view == UserDetailsView.Overview && "active"}
           `}
         >
           <input
@@ -331,11 +331,11 @@ export class User extends Component<any, UserState> {
             checked={this.state.view === UserDetailsView.Overview}
             onChange={linkEvent(this, this.handleViewChange)}
           />
-          {i18n.t('overview')}
+          {i18n.t("overview")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.view == UserDetailsView.Comments && 'active'}
+            ${this.state.view == UserDetailsView.Comments && "active"}
           `}
         >
           <input
@@ -344,11 +344,11 @@ export class User extends Component<any, UserState> {
             checked={this.state.view == UserDetailsView.Comments}
             onChange={linkEvent(this, this.handleViewChange)}
           />
-          {i18n.t('comments')}
+          {i18n.t("comments")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.view == UserDetailsView.Posts && 'active'}
+            ${this.state.view == UserDetailsView.Posts && "active"}
           `}
         >
           <input
@@ -357,11 +357,11 @@ export class User extends Component<any, UserState> {
             checked={this.state.view == UserDetailsView.Posts}
             onChange={linkEvent(this, this.handleViewChange)}
           />
-          {i18n.t('posts')}
+          {i18n.t("posts")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.view == UserDetailsView.Saved && 'active'}
+            ${this.state.view == UserDetailsView.Saved && "active"}
           `}
         >
           <input
@@ -370,7 +370,7 @@ export class User extends Component<any, UserState> {
             checked={this.state.view == UserDetailsView.Saved}
             onChange={linkEvent(this, this.handleViewChange)}
           />
-          {i18n.t('saved')}
+          {i18n.t("saved")}
         </label>
       </div>
     );
@@ -422,7 +422,7 @@ export class User extends Component<any, UserState> {
                   </li>
                   {uv.user.banned && (
                     <li className="list-inline-item badge badge-danger">
-                      {i18n.t('banned')}
+                      {i18n.t("banned")}
                     </li>
                   )}
                 </ul>
@@ -433,24 +433,24 @@ export class User extends Component<any, UserState> {
                   class="d-flex align-self-start btn btn-secondary mr-2"
                   onClick={linkEvent(this, this.handleLogoutClick)}
                 >
-                  {i18n.t('logout')}
+                  {i18n.t("logout")}
                 </button>
               ) : (
                 <>
                   <a
                     className={`d-flex align-self-start btn btn-secondary mr-2 ${
-                      !uv.user.matrix_user_id && 'invisible'
+                      !uv.user.matrix_user_id && "invisible"
                     }`}
                     rel="noopener"
                     href={`https://matrix.to/#/${uv.user.matrix_user_id}`}
                   >
-                    {i18n.t('send_secure_message')}
+                    {i18n.t("send_secure_message")}
                   </a>
                   <Link
-                    className={'d-flex align-self-start btn btn-secondary'}
+                    className={"d-flex align-self-start btn btn-secondary"}
                     to={`/create_private_message/recipient/${uv.user.id}`}
                   >
-                    {i18n.t('send_message')}
+                    {i18n.t("send_message")}
                   </Link>
                 </>
               )}
@@ -466,24 +466,24 @@ export class User extends Component<any, UserState> {
             <div>
               <ul class="list-inline mb-2">
                 <li className="list-inline-item badge badge-light">
-                  {i18n.t('number_of_posts', { count: uv.counts.post_count })}
+                  {i18n.t("number_of_posts", { count: uv.counts.post_count })}
                 </li>
                 <li className="list-inline-item badge badge-light">
-                  {i18n.t('number_of_comments', {
+                  {i18n.t("number_of_comments", {
                     count: uv.counts.comment_count,
                   })}
                 </li>
               </ul>
             </div>
             <div class="text-muted">
-              {i18n.t('joined')}{' '}
+              {i18n.t("joined")}{" "}
               <MomentTime data={uv.user} showAgo ignoreUpdated />
             </div>
             <div className="d-flex align-items-center text-muted mb-2">
               <Icon icon="cake" />
               <span className="ml-2">
-                {i18n.t('cake_day_title')}{' '}
-                {moment.utc(uv.user.published).local().format('MMM DD, YYYY')}
+                {i18n.t("cake_day_title")}{" "}
+                {moment.utc(uv.user.published).local().format("MMM DD, YYYY")}
               </span>
             </div>
           </div>
@@ -497,12 +497,12 @@ export class User extends Component<any, UserState> {
       <div>
         <div class="card border-secondary mb-3">
           <div class="card-body">
-            <h5>{i18n.t('settings')}</h5>
+            <h5>{i18n.t("settings")}</h5>
             <form onSubmit={linkEvent(this, this.handleUserSettingsSubmit)}>
               <div class="form-group">
-                <label>{i18n.t('avatar')}</label>
+                <label>{i18n.t("avatar")}</label>
                 <ImageUploadForm
-                  uploadTitle={i18n.t('upload_avatar')}
+                  uploadTitle={i18n.t("upload_avatar")}
                   imageSrc={this.state.userSettingsForm.avatar}
                   onUpload={this.handleAvatarUpload}
                   onRemove={this.handleAvatarRemove}
@@ -510,16 +510,16 @@ export class User extends Component<any, UserState> {
                 />
               </div>
               <div class="form-group">
-                <label>{i18n.t('banner')}</label>
+                <label>{i18n.t("banner")}</label>
                 <ImageUploadForm
-                  uploadTitle={i18n.t('upload_banner')}
+                  uploadTitle={i18n.t("upload_banner")}
                   imageSrc={this.state.userSettingsForm.banner}
                   onUpload={this.handleBannerUpload}
                   onRemove={this.handleBannerRemove}
                 />
               </div>
               <div class="form-group">
-                <label htmlFor="user-language">{i18n.t('language')}</label>
+                <label htmlFor="user-language">{i18n.t("language")}</label>
                 <select
                   id="user-language"
                   value={this.state.userSettingsForm.lang}
@@ -527,9 +527,9 @@ export class User extends Component<any, UserState> {
                   class="ml-2 custom-select w-auto"
                 >
                   <option disabled aria-hidden="true">
-                    {i18n.t('language')}
+                    {i18n.t("language")}
                   </option>
-                  <option value="browser">{i18n.t('browser_default')}</option>
+                  <option value="browser">{i18n.t("browser_default")}</option>
                   <option disabled aria-hidden="true">
                     ──
                   </option>
@@ -539,7 +539,7 @@ export class User extends Component<any, UserState> {
                 </select>
               </div>
               <div class="form-group">
-                <label htmlFor="user-theme">{i18n.t('theme')}</label>
+                <label htmlFor="user-theme">{i18n.t("theme")}</label>
                 <select
                   id="user-theme"
                   value={this.state.userSettingsForm.theme}
@@ -547,9 +547,9 @@ export class User extends Component<any, UserState> {
                   class="ml-2 custom-select w-auto"
                 >
                   <option disabled aria-hidden="true">
-                    {i18n.t('theme')}
+                    {i18n.t("theme")}
                   </option>
-                  <option value="browser">{i18n.t('browser_default')}</option>
+                  <option value="browser">{i18n.t("browser_default")}</option>
                   {themes.map(theme => (
                     <option value={theme}>{theme}</option>
                   ))}
@@ -557,7 +557,7 @@ export class User extends Component<any, UserState> {
               </div>
               <form className="form-group">
                 <label>
-                  <div class="mr-2">{i18n.t('sort_type')}</div>
+                  <div class="mr-2">{i18n.t("sort_type")}</div>
                 </label>
                 <ListingTypeSelect
                   type_={
@@ -573,7 +573,7 @@ export class User extends Component<any, UserState> {
               </form>
               <form className="form-group">
                 <label>
-                  <div class="mr-2">{i18n.t('type')}</div>
+                  <div class="mr-2">{i18n.t("type")}</div>
                 </label>
                 <SortSelect
                   sort={
@@ -586,14 +586,14 @@ export class User extends Component<any, UserState> {
               </form>
               <div class="form-group row">
                 <label class="col-lg-5 col-form-label" htmlFor="display-name">
-                  {i18n.t('display_name')}
+                  {i18n.t("display_name")}
                 </label>
                 <div class="col-lg-7">
                   <input
                     id="display-name"
                     type="text"
                     class="form-control"
-                    placeholder={i18n.t('optional')}
+                    placeholder={i18n.t("optional")}
                     value={this.state.userSettingsForm.preferred_username}
                     onInput={linkEvent(
                       this,
@@ -607,7 +607,7 @@ export class User extends Component<any, UserState> {
               </div>
               <div class="form-group row">
                 <label class="col-lg-3 col-form-label" htmlFor="user-bio">
-                  {i18n.t('bio')}
+                  {i18n.t("bio")}
                 </label>
                 <div class="col-lg-9">
                   <MarkdownTextArea
@@ -620,14 +620,14 @@ export class User extends Component<any, UserState> {
               </div>
               <div class="form-group row">
                 <label class="col-lg-3 col-form-label" htmlFor="user-email">
-                  {i18n.t('email')}
+                  {i18n.t("email")}
                 </label>
                 <div class="col-lg-9">
                   <input
                     type="email"
                     id="user-email"
                     class="form-control"
-                    placeholder={i18n.t('optional')}
+                    placeholder={i18n.t("optional")}
                     value={this.state.userSettingsForm.email}
                     onInput={linkEvent(
                       this,
@@ -640,7 +640,7 @@ export class User extends Component<any, UserState> {
               <div class="form-group row">
                 <label class="col-lg-5 col-form-label" htmlFor="matrix-user-id">
                   <a href={elementUrl} rel="noopener">
-                    {i18n.t('matrix_user_id')}
+                    {i18n.t("matrix_user_id")}
                   </a>
                 </label>
                 <div class="col-lg-7">
@@ -660,7 +660,7 @@ export class User extends Component<any, UserState> {
               </div>
               <div class="form-group row">
                 <label class="col-lg-5 col-form-label" htmlFor="user-password">
-                  {i18n.t('new_password')}
+                  {i18n.t("new_password")}
                 </label>
                 <div class="col-lg-7">
                   <input
@@ -681,7 +681,7 @@ export class User extends Component<any, UserState> {
                   class="col-lg-5 col-form-label"
                   htmlFor="user-verify-password"
                 >
-                  {i18n.t('verify_password')}
+                  {i18n.t("verify_password")}
                 </label>
                 <div class="col-lg-7">
                   <input
@@ -702,7 +702,7 @@ export class User extends Component<any, UserState> {
                   class="col-lg-5 col-form-label"
                   htmlFor="user-old-password"
                 >
-                  {i18n.t('old_password')}
+                  {i18n.t("old_password")}
                 </label>
                 <div class="col-lg-7">
                   <input
@@ -732,7 +732,7 @@ export class User extends Component<any, UserState> {
                       )}
                     />
                     <label class="form-check-label" htmlFor="user-show-nsfw">
-                      {i18n.t('show_nsfw')}
+                      {i18n.t("show_nsfw")}
                     </label>
                   </div>
                 </div>
@@ -750,7 +750,7 @@ export class User extends Component<any, UserState> {
                     )}
                   />
                   <label class="form-check-label" htmlFor="user-show-avatars">
-                    {i18n.t('show_avatars')}
+                    {i18n.t("show_avatars")}
                   </label>
                 </div>
               </div>
@@ -773,7 +773,7 @@ export class User extends Component<any, UserState> {
                     class="form-check-label"
                     htmlFor="user-send-notifications-to-email"
                   >
-                    {i18n.t('send_notifications_to_email')}
+                    {i18n.t("send_notifications_to_email")}
                   </label>
                 </div>
               </div>
@@ -782,7 +782,7 @@ export class User extends Component<any, UserState> {
                   {this.state.userSettingsLoading ? (
                     <Spinner />
                   ) : (
-                    capitalizeFirstLetter(i18n.t('save'))
+                    capitalizeFirstLetter(i18n.t("save"))
                   )}
                 </button>
               </div>
@@ -795,12 +795,12 @@ export class User extends Component<any, UserState> {
                     this.handleDeleteAccountShowConfirmToggle
                   )}
                 >
-                  {i18n.t('delete_account')}
+                  {i18n.t("delete_account")}
                 </button>
                 {this.state.deleteAccountShowConfirm && (
                   <>
                     <div class="my-2 alert alert-danger" role="alert">
-                      {i18n.t('delete_account_confirm')}
+                      {i18n.t("delete_account_confirm")}
                     </div>
                     <input
                       type="password"
@@ -820,7 +820,7 @@ export class User extends Component<any, UserState> {
                       {this.state.deleteAccountLoading ? (
                         <Spinner />
                       ) : (
-                        capitalizeFirstLetter(i18n.t('delete'))
+                        capitalizeFirstLetter(i18n.t("delete"))
                       )}
                     </button>
                     <button
@@ -830,7 +830,7 @@ export class User extends Component<any, UserState> {
                         this.handleDeleteAccountShowConfirmToggle
                       )}
                     >
-                      {i18n.t('cancel')}
+                      {i18n.t("cancel")}
                     </button>
                   </>
                 )}
@@ -848,7 +848,7 @@ export class User extends Component<any, UserState> {
         {this.state.userRes.moderates.length > 0 && (
           <div class="card border-secondary mb-3">
             <div class="card-body">
-              <h5>{i18n.t('moderates')}</h5>
+              <h5>{i18n.t("moderates")}</h5>
               <ul class="list-unstyled mb-0">
                 {this.state.userRes.moderates.map(cmv => (
                   <li>
@@ -869,7 +869,7 @@ export class User extends Component<any, UserState> {
         {this.state.userRes.follows.length > 0 && (
           <div class="card border-secondary mb-3">
             <div class="card-body">
-              <h5>{i18n.t('subscribed')}</h5>
+              <h5>{i18n.t("subscribed")}</h5>
               <ul class="list-unstyled mb-0">
                 {this.state.userRes.follows.map(cfv => (
                   <li>
@@ -974,7 +974,7 @@ export class User extends Component<any, UserState> {
   }
 
   handleAvatarRemove() {
-    this.state.userSettingsForm.avatar = '';
+    this.state.userSettingsForm.avatar = "";
     this.setState(this.state);
   }
 
@@ -984,7 +984,7 @@ export class User extends Component<any, UserState> {
   }
 
   handleBannerRemove() {
-    this.state.userSettingsForm.banner = '';
+    this.state.userSettingsForm.banner = "";
     this.setState(this.state);
   }
 
@@ -996,7 +996,7 @@ export class User extends Component<any, UserState> {
   handleUserSettingsMatrixUserIdChange(i: User, event: any) {
     i.state.userSettingsForm.matrix_user_id = event.target.value;
     if (
-      i.state.userSettingsForm.matrix_user_id == '' &&
+      i.state.userSettingsForm.matrix_user_id == "" &&
       !i.state.userRes.user_view.user.matrix_user_id
     ) {
       i.state.userSettingsForm.matrix_user_id = undefined;
@@ -1006,7 +1006,7 @@ export class User extends Component<any, UserState> {
 
   handleUserSettingsNewPasswordChange(i: User, event: any) {
     i.state.userSettingsForm.new_password = event.target.value;
-    if (i.state.userSettingsForm.new_password == '') {
+    if (i.state.userSettingsForm.new_password == "") {
       i.state.userSettingsForm.new_password = undefined;
     }
     i.setState(i.state);
@@ -1014,7 +1014,7 @@ export class User extends Component<any, UserState> {
 
   handleUserSettingsNewPasswordVerifyChange(i: User, event: any) {
     i.state.userSettingsForm.new_password_verify = event.target.value;
-    if (i.state.userSettingsForm.new_password_verify == '') {
+    if (i.state.userSettingsForm.new_password_verify == "") {
       i.state.userSettingsForm.new_password_verify = undefined;
     }
     i.setState(i.state);
@@ -1022,7 +1022,7 @@ export class User extends Component<any, UserState> {
 
   handleUserSettingsOldPasswordChange(i: User, event: any) {
     i.state.userSettingsForm.old_password = event.target.value;
-    if (i.state.userSettingsForm.old_password == '') {
+    if (i.state.userSettingsForm.old_password == "") {
       i.state.userSettingsForm.old_password = undefined;
     }
     i.setState(i.state);
@@ -1051,7 +1051,7 @@ export class User extends Component<any, UserState> {
 
   handleLogoutClick(i: User) {
     UserService.Instance.logout();
-    i.context.router.history.push('/');
+    i.context.router.history.push("/");
   }
 
   handleDeleteAccount(i: User, event: any) {
@@ -1071,7 +1071,7 @@ export class User extends Component<any, UserState> {
         UserService.Instance.user.show_nsfw;
       this.state.userSettingsForm.theme = UserService.Instance.user.theme
         ? UserService.Instance.user.theme
-        : 'browser';
+        : "browser";
       this.state.userSettingsForm.default_sort_type =
         UserService.Instance.user.default_sort_type;
       this.state.userSettingsForm.default_listing_type =
@@ -1095,9 +1095,9 @@ export class User extends Component<any, UserState> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
-      if (msg.error == 'couldnt_find_that_username_or_email') {
-        this.context.router.history.push('/');
+      toast(i18n.t(msg.error), "danger");
+      if (msg.error == "couldnt_find_that_username_or_email") {
+        this.context.router.history.push("/");
       }
       this.setState({
         deleteAccountLoading: false,
@@ -1132,7 +1132,7 @@ export class User extends Component<any, UserState> {
         deleteAccountLoading: false,
         deleteAccountShowConfirm: false,
       });
-      this.context.router.history.push('/');
+      this.context.router.history.push("/");
     } else if (op == UserOperation.AddAdmin) {
       let data = wsJsonToRes<AddAdminResponse>(msg).data;
       this.state.siteRes.admins = data.admins;
@@ -1155,7 +1155,7 @@ export class User extends Component<any, UserState> {
         UserService.Instance.user &&
         data.comment_view.creator.id == UserService.Instance.user.id
       ) {
-        toast(i18n.t('reply_sent'));
+        toast(i18n.t("reply_sent"));
       }
     } else if (op == UserOperation.SaveComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;

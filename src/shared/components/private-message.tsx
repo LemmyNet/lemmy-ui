@@ -1,17 +1,17 @@
-import { Component, linkEvent } from 'inferno';
+import { Component, linkEvent } from "inferno";
 import {
   PrivateMessageView,
   DeletePrivateMessage,
   MarkPrivateMessageAsRead,
   UserSafe,
-} from 'lemmy-js-client';
-import { WebSocketService, UserService } from '../services';
-import { authField, mdToHtml, toast, wsClient } from '../utils';
-import { MomentTime } from './moment-time';
-import { PrivateMessageForm } from './private-message-form';
-import { UserListing } from './user-listing';
-import { Icon } from './icon';
-import { i18n } from '../i18next';
+} from "lemmy-js-client";
+import { WebSocketService, UserService } from "../services";
+import { authField, mdToHtml, toast, wsClient } from "../utils";
+import { MomentTime } from "./moment-time";
+import { PrivateMessageForm } from "./private-message-form";
+import { UserListing } from "./user-listing";
+import { Icon } from "./icon";
+import { i18n } from "../i18next";
 
 interface PrivateMessageState {
   showReply: boolean;
@@ -66,7 +66,7 @@ export class PrivateMessage extends Component<
           <ul class="list-inline mb-0 text-muted small">
             {/* TODO refactor this */}
             <li className="list-inline-item">
-              {this.mine ? i18n.t('to') : i18n.t('from')}
+              {this.mine ? i18n.t("to") : i18n.t("from")}
             </li>
             <li className="list-inline-item">
               <UserListing user={userOther} />
@@ -118,19 +118,19 @@ export class PrivateMessage extends Component<
                         onClick={linkEvent(this, this.handleMarkRead)}
                         data-tippy-content={
                           message_view.private_message.read
-                            ? i18n.t('mark_as_unread')
-                            : i18n.t('mark_as_read')
+                            ? i18n.t("mark_as_unread")
+                            : i18n.t("mark_as_read")
                         }
                         aria-label={
                           message_view.private_message.read
-                            ? i18n.t('mark_as_unread')
-                            : i18n.t('mark_as_read')
+                            ? i18n.t("mark_as_unread")
+                            : i18n.t("mark_as_read")
                         }
                       >
                         <Icon
                           icon="check"
                           classes={`icon-inline ${
-                            message_view.private_message.read && 'text-success'
+                            message_view.private_message.read && "text-success"
                           }`}
                         />
                       </button>
@@ -139,8 +139,8 @@ export class PrivateMessage extends Component<
                       <button
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
-                        data-tippy-content={i18n.t('reply')}
-                        aria-label={i18n.t('reply')}
+                        data-tippy-content={i18n.t("reply")}
+                        aria-label={i18n.t("reply")}
                       >
                         <Icon icon="reply1" classes="icon-inline" />
                       </button>
@@ -153,8 +153,8 @@ export class PrivateMessage extends Component<
                       <button
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleEditClick)}
-                        data-tippy-content={i18n.t('edit')}
-                        aria-label={i18n.t('edit')}
+                        data-tippy-content={i18n.t("edit")}
+                        aria-label={i18n.t("edit")}
                       >
                         <Icon icon="edit" classes="icon-inline" />
                       </button>
@@ -165,20 +165,20 @@ export class PrivateMessage extends Component<
                         onClick={linkEvent(this, this.handleDeleteClick)}
                         data-tippy-content={
                           !message_view.private_message.deleted
-                            ? i18n.t('delete')
-                            : i18n.t('restore')
+                            ? i18n.t("delete")
+                            : i18n.t("restore")
                         }
                         aria-label={
                           !message_view.private_message.deleted
-                            ? i18n.t('delete')
-                            : i18n.t('restore')
+                            ? i18n.t("delete")
+                            : i18n.t("restore")
                         }
                       >
                         <Icon
                           icon="trash"
                           classes={`icon-inline ${
                             message_view.private_message.deleted &&
-                            'text-danger'
+                            "text-danger"
                           }`}
                         />
                       </button>
@@ -189,13 +189,13 @@ export class PrivateMessage extends Component<
                   <button
                     class="btn btn-link btn-animate text-muted"
                     onClick={linkEvent(this, this.handleViewSource)}
-                    data-tippy-content={i18n.t('view_source')}
-                    aria-label={i18n.t('view_source')}
+                    data-tippy-content={i18n.t("view_source")}
+                    aria-label={i18n.t("view_source")}
                   >
                     <Icon
                       icon="file-text"
                       classes={`icon-inline ${
-                        this.state.viewSource && 'text-success'
+                        this.state.viewSource && "text-success"
                       }`}
                     />
                   </button>
@@ -218,7 +218,7 @@ export class PrivateMessage extends Component<
 
   get messageUnlessRemoved(): string {
     let message = this.props.private_message_view.private_message;
-    return message.deleted ? `*${i18n.t('deleted')}*` : message.content;
+    return message.deleted ? `*${i18n.t("deleted")}*` : message.content;
   }
 
   handleReplyClick(i: PrivateMessage) {
@@ -277,7 +277,7 @@ export class PrivateMessage extends Component<
     ) {
       this.state.showReply = false;
       this.setState(this.state);
-      toast(i18n.t('message_sent'));
+      toast(i18n.t("message_sent"));
     }
   }
 }

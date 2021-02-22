@@ -3,7 +3,7 @@ import {
   GetSiteResponse,
   LemmyHttp,
   UserMentionView,
-} from 'lemmy-js-client';
+} from "lemmy-js-client";
 
 export interface IsoData {
   path: string;
