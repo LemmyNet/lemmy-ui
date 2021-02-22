@@ -1,7 +1,7 @@
-import { Component } from 'inferno';
-import { Helmet } from 'inferno-helmet';
-import { httpExternalPath } from '../env';
-import { md } from '../utils';
+import { Component } from "inferno";
+import { Helmet } from "inferno-helmet";
+import { httpExternalPath } from "../env";
+import { md } from "../utils";
 
 interface HtmlTagsProps {
   title: string;
@@ -17,10 +17,10 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
 
     return (
       <Helmet title={this.props.title}>
-        {['title', 'og:title', 'twitter:title'].map(t => (
+        {["title", "og:title", "twitter:title"].map(t => (
           <meta property={t} content={this.props.title} />
         ))}
-        {['og:url', 'twitter:url'].map(u => (
+        {["og:url", "twitter:url"].map(u => (
           <meta property={u} content={url} />
         ))}
 
@@ -32,12 +32,12 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
 
         {/* Optional desc and images */}
         {this.props.description &&
-          ['description', 'og:description', 'twitter:description'].map(n => (
+          ["description", "og:description", "twitter:description"].map(n => (
             <meta name={n} content={md.renderInline(this.props.description)} />
           ))}
 
         {this.props.image &&
-          ['og:image', 'twitter:image'].map(p => (
+          ["og:image", "twitter:image"].map(p => (
             <meta property={p} content={this.props.image} />
           ))}
       </Helmet>

@@ -1,9 +1,9 @@
-import { Component } from 'inferno';
-import { Subscription } from 'rxjs';
-import { PrivateMessageForm } from './private-message-form';
-import { HtmlTags } from './html-tags';
-import { Spinner } from './icon';
-import { UserService, WebSocketService } from '../services';
+import { Component } from "inferno";
+import { Subscription } from "rxjs";
+import { PrivateMessageForm } from "./private-message-form";
+import { HtmlTags } from "./html-tags";
+import { Spinner } from "./icon";
+import { UserService, WebSocketService } from "../services";
 import {
   SiteView,
   UserOperation,
@@ -11,7 +11,7 @@ import {
   UserViewSafe,
   SortType,
   GetUserDetails,
-} from 'lemmy-js-client';
+} from "lemmy-js-client";
 import {
   authField,
   getRecipientIdFromProps,
@@ -22,9 +22,9 @@ import {
   wsJsonToRes,
   wsSubscribe,
   wsUserOp,
-} from '../utils';
-import { i18n } from '../i18next';
-import { InitialFetchRequest } from 'shared/interfaces';
+} from "../utils";
+import { i18n } from "../i18next";
+import { InitialFetchRequest } from "shared/interfaces";
 
 interface CreatePrivateMessageState {
   site_view: SiteView;
@@ -56,7 +56,7 @@ export class CreatePrivateMessage extends Component<
     this.subscription = wsSubscribe(this.parseMessage);
 
     if (!UserService.Instance.user) {
-      toast(i18n.t('not_logged_in'), 'danger');
+      toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
 
@@ -80,7 +80,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let user_id = Number(req.path.split('/').pop());
+    let user_id = Number(req.path.split("/").pop());
     let form: GetUserDetails = {
       user_id,
       sort: SortType.New,
@@ -91,7 +91,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   get documentTitle(): string {
-    return `${i18n.t('create_private_message')} - ${
+    return `${i18n.t("create_private_message")} - ${
       this.state.site_view.site.name
     }`;
   }
@@ -116,7 +116,7 @@ export class CreatePrivateMessage extends Component<
         ) : (
           <div class="row">
             <div class="col-12 col-lg-6 offset-lg-3 mb-4">
-              <h5>{i18n.t('create_private_message')}</h5>
+              <h5>{i18n.t("create_private_message")}</h5>
               <PrivateMessageForm
                 onCreate={this.handlePrivateMessageCreate}
                 recipient={this.state.recipient.user}
@@ -129,7 +129,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   handlePrivateMessageCreate() {
-    toast(i18n.t('message_sent'));
+    toast(i18n.t("message_sent"));
 
     // Navigate to the front
     this.context.router.history.push(`/`);
@@ -138,7 +138,7 @@ export class CreatePrivateMessage extends Component<
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       this.state.loading = false;
       this.setState(this.state);
       return;

@@ -1,6 +1,6 @@
-import { Component, linkEvent } from 'inferno';
-import { Link } from 'inferno-router';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Link } from "inferno-router";
+import { Subscription } from "rxjs";
 import {
   UserOperation,
   GetModlog,
@@ -15,8 +15,8 @@ import {
   ModBanView,
   ModAddCommunityView,
   ModAddView,
-} from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+} from "lemmy-js-client";
+import { WebSocketService } from "../services";
 import {
   wsJsonToRes,
   fetchLimit,
@@ -26,15 +26,15 @@ import {
   isBrowser,
   wsUserOp,
   wsClient,
-} from '../utils';
-import { MomentTime } from './moment-time';
-import { HtmlTags } from './html-tags';
-import moment from 'moment';
-import { i18n } from '../i18next';
-import { InitialFetchRequest } from 'shared/interfaces';
-import { UserListing } from './user-listing';
-import { CommunityLink } from './community-link';
-import { Spinner } from './icon';
+} from "../utils";
+import { MomentTime } from "./moment-time";
+import { HtmlTags } from "./html-tags";
+import moment from "moment";
+import { i18n } from "../i18next";
+import { InitialFetchRequest } from "shared/interfaces";
+import { UserListing } from "./user-listing";
+import { CommunityLink } from "./community-link";
+import { Spinner } from "./icon";
 
 enum ModlogEnum {
   ModRemovePost,
@@ -214,7 +214,7 @@ export class Modlog extends Component<any, ModlogState> {
       case ModlogEnum.ModRemovePost: {
         let mrpv = i.view as ModRemovePostView;
         return [
-          mrpv.mod_remove_post.removed ? 'Removed ' : 'Restored ',
+          mrpv.mod_remove_post.removed ? "Removed " : "Restored ",
           <span>
             Post <Link to={`/post/${mrpv.post.id}`}>{mrpv.post.name}</Link>
           </span>,
@@ -225,7 +225,7 @@ export class Modlog extends Component<any, ModlogState> {
       case ModlogEnum.ModLockPost: {
         let mlpv = i.view as ModLockPostView;
         return [
-          mlpv.mod_lock_post.locked ? 'Locked ' : 'Unlocked ',
+          mlpv.mod_lock_post.locked ? "Locked " : "Unlocked ",
           <span>
             Post <Link to={`/post/${mlpv.post.id}`}>{mlpv.post.name}</Link>
           </span>,
@@ -234,7 +234,7 @@ export class Modlog extends Component<any, ModlogState> {
       case ModlogEnum.ModStickyPost: {
         let mspv = i.view as ModStickyPostView;
         return [
-          mspv.mod_sticky_post.stickied ? 'Stickied ' : 'Unstickied ',
+          mspv.mod_sticky_post.stickied ? "Stickied " : "Unstickied ",
           <span>
             Post <Link to={`/post/${mspv.post.id}`}>{mspv.post.name}</Link>
           </span>,
@@ -243,15 +243,15 @@ export class Modlog extends Component<any, ModlogState> {
       case ModlogEnum.ModRemoveComment: {
         let mrc = i.view as ModRemoveCommentView;
         return [
-          mrc.mod_remove_comment.removed ? 'Removed ' : 'Restored ',
+          mrc.mod_remove_comment.removed ? "Removed " : "Restored ",
           <span>
-            Comment{' '}
+            Comment{" "}
             <Link to={`/post/${mrc.post.id}/comment/${mrc.comment.id}`}>
               {mrc.comment.content}
             </Link>
           </span>,
           <span>
-            {' '}
+            {" "}
             by <UserListing user={mrc.commenter} />
           </span>,
           mrc.mod_remove_comment.reason &&
@@ -261,7 +261,7 @@ export class Modlog extends Component<any, ModlogState> {
       case ModlogEnum.ModRemoveCommunity: {
         let mrco = i.view as ModRemoveCommunityView;
         return [
-          mrco.mod_remove_community.removed ? 'Removed ' : 'Restored ',
+          mrco.mod_remove_community.removed ? "Removed " : "Restored ",
           <span>
             Community <CommunityLink community={mrco.community} />
           </span>,
@@ -277,7 +277,7 @@ export class Modlog extends Component<any, ModlogState> {
         let mbfc = i.view as ModBanFromCommunityView;
         return [
           <span>
-            {mbfc.mod_ban_from_community.banned ? 'Banned ' : 'Unbanned '}{' '}
+            {mbfc.mod_ban_from_community.banned ? "Banned " : "Unbanned "}{" "}
           </span>,
           <span>
             <UserListing user={mbfc.banned_user} />
@@ -302,7 +302,7 @@ export class Modlog extends Component<any, ModlogState> {
         let mac = i.view as ModAddCommunityView;
         return [
           <span>
-            {mac.mod_add_community.removed ? 'Removed ' : 'Appointed '}{' '}
+            {mac.mod_add_community.removed ? "Removed " : "Appointed "}{" "}
           </span>,
           <span>
             <UserListing user={mac.modded_user} />
@@ -316,7 +316,7 @@ export class Modlog extends Component<any, ModlogState> {
       case ModlogEnum.ModBan: {
         let mb = i.view as ModBanView;
         return [
-          <span>{mb.mod_ban.banned ? 'Banned ' : 'Unbanned '} </span>,
+          <span>{mb.mod_ban.banned ? "Banned " : "Unbanned "} </span>,
           <span>
             <UserListing user={mb.banned_user} />
           </span>,
@@ -330,7 +330,7 @@ export class Modlog extends Component<any, ModlogState> {
       case ModlogEnum.ModAdd: {
         let ma = i.view as ModAddView;
         return [
-          <span>{ma.mod_add.removed ? 'Removed ' : 'Appointed '} </span>,
+          <span>{ma.mod_add.removed ? "Removed " : "Appointed "} </span>,
           <span>
             <UserListing user={ma.modded_user} />
           </span>,
@@ -385,18 +385,18 @@ export class Modlog extends Component<any, ModlogState> {
                   className="text-body"
                   to={`/c/${this.state.communityName}`}
                 >
-                  /c/{this.state.communityName}{' '}
+                  /c/{this.state.communityName}{" "}
                 </Link>
               )}
-              <span>{i18n.t('modlog')}</span>
+              <span>{i18n.t("modlog")}</span>
             </h5>
             <div class="table-responsive">
               <table id="modlog_table" class="table table-sm table-hover">
                 <thead class="pointer">
                   <tr>
-                    <th> {i18n.t('time')}</th>
-                    <th>{i18n.t('mod')}</th>
-                    <th>{i18n.t('action')}</th>
+                    <th> {i18n.t("time")}</th>
+                    <th>{i18n.t("mod")}</th>
+                    <th>{i18n.t("action")}</th>
                   </tr>
                 </thead>
                 {this.combined()}
@@ -417,14 +417,14 @@ export class Modlog extends Component<any, ModlogState> {
             class="btn btn-secondary mr-1"
             onClick={linkEvent(this, this.prevPage)}
           >
-            {i18n.t('prev')}
+            {i18n.t("prev")}
           </button>
         )}
         <button
           class="btn btn-secondary"
           onClick={linkEvent(this, this.nextPage)}
         >
-          {i18n.t('next')}
+          {i18n.t("next")}
         </button>
       </div>
     );
@@ -452,7 +452,7 @@ export class Modlog extends Component<any, ModlogState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split('/');
+    let pathSplit = req.path.split("/");
     let communityId = pathSplit[3];
     let promises: Promise<any>[] = [];
 
@@ -472,7 +472,7 @@ export class Modlog extends Component<any, ModlogState> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.GetModlog) {
       let data = wsJsonToRes<GetModlogResponse>(msg).data;

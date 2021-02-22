@@ -1,13 +1,13 @@
-import { Component } from 'inferno';
-import { Link } from 'inferno-router';
-import { Subscription } from 'rxjs';
+import { Component } from "inferno";
+import { Link } from "inferno-router";
+import { Subscription } from "rxjs";
 import {
   CreateComment,
   EditComment,
   UserOperation,
   CommentResponse,
-} from 'lemmy-js-client';
-import { CommentNode as CommentNodeI } from '../interfaces';
+} from "lemmy-js-client";
+import { CommentNode as CommentNodeI } from "../interfaces";
 import {
   authField,
   capitalizeFirstLetter,
@@ -15,12 +15,12 @@ import {
   wsJsonToRes,
   wsSubscribe,
   wsUserOp,
-} from '../utils';
-import { WebSocketService, UserService } from '../services';
-import { i18n } from '../i18next';
-import { T } from 'inferno-i18next';
-import { MarkdownTextArea } from './markdown-textarea';
-import { Icon } from './icon';
+} from "../utils";
+import { WebSocketService, UserService } from "../services";
+import { i18n } from "../i18next";
+import { T } from "inferno-i18next";
+import { MarkdownTextArea } from "./markdown-textarea";
+import { Icon } from "./icon";
 
 interface CommentFormProps {
   postId?: number;
@@ -41,12 +41,12 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
   private subscription: Subscription;
   private emptyState: CommentFormState = {
     buttonTitle: !this.props.node
-      ? capitalizeFirstLetter(i18n.t('post'))
+      ? capitalizeFirstLetter(i18n.t("post"))
       : this.props.edit
-      ? capitalizeFirstLetter(i18n.t('save'))
-      : capitalizeFirstLetter(i18n.t('reply')),
+      ? capitalizeFirstLetter(i18n.t("save"))
+      : capitalizeFirstLetter(i18n.t("reply")),
     finished: false,
-    formId: 'empty_form',
+    formId: "empty_form",
   };
 
   constructor(props: any, context: any) {

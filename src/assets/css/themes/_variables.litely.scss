@@ -1,23 +1,23 @@
-
 $white: #ffffff;
 $orange: #f1641e;
 $cyan: #02bdc2;
-$green: #00C853;
+$green: #00c853;
 $secondary: $green;
 $body-color: $gray-700;
-$link-color: theme-color("primary");;
+$link-color: theme-color("primary");
 $primary: $orange;
 $red: #d8486a;
 $border-radius: 0.5rem;
 $border-radius-lg: 0.5rem;
 $border-radius-sm: 1rem;
-$font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Droid Sans","Segoe UI","Helvetica",Arial,sans-serif;
+$font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Droid Sans",
+  "Segoe UI", "Helvetica", Arial, sans-serif;
 $headings-color: $gray-700;
-$input-btn-focus-color: rgba($component-active-bg, .75);
+$input-btn-focus-color: rgba($component-active-bg, 0.75);
 $form-feedback-valid-color: theme-color("info");
 $navbar-light-color: $gray-600;
 $black: #222222;
-$navbar-dark-toggler-border-color: rgba($black, .1);
+$navbar-dark-toggler-border-color: rgba($black, 0.1);
 $navbar-light-active-color: $gray-900;
 $card-color: $gray-700;
 $card-cap-color: $gray-700;

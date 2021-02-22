@@ -1,6 +1,6 @@
-import { Component, linkEvent } from 'inferno';
-import { Link } from 'inferno-router';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Link } from "inferno-router";
+import { Subscription } from "rxjs";
 import {
   UserOperation,
   CommunityFollowerView,
@@ -22,19 +22,19 @@ import {
   CommentResponse,
   AddAdminResponse,
   BanUserResponse,
-} from 'lemmy-js-client';
-import { DataType, InitialFetchRequest } from '../interfaces';
-import { WebSocketService, UserService } from '../services';
-import { PostListings } from './post-listings';
-import { CommentNodes } from './comment-nodes';
-import { SortSelect } from './sort-select';
-import { ListingTypeSelect } from './listing-type-select';
-import { DataTypeSelect } from './data-type-select';
-import { SiteForm } from './site-form';
-import { UserListing } from './user-listing';
-import { CommunityLink } from './community-link';
-import { BannerIconHeader } from './banner-icon-header';
-import { Icon, Spinner } from './icon';
+} from "lemmy-js-client";
+import { DataType, InitialFetchRequest } from "../interfaces";
+import { WebSocketService, UserService } from "../services";
+import { PostListings } from "./post-listings";
+import { CommentNodes } from "./comment-nodes";
+import { SortSelect } from "./sort-select";
+import { ListingTypeSelect } from "./listing-type-select";
+import { DataTypeSelect } from "./data-type-select";
+import { SiteForm } from "./site-form";
+import { UserListing } from "./user-listing";
+import { CommunityLink } from "./community-link";
+import { BannerIconHeader } from "./banner-icon-header";
+import { Icon, Spinner } from "./icon";
 import {
   wsJsonToRes,
   mdToHtml,
@@ -60,10 +60,10 @@ import {
   authField,
   saveScrollPosition,
   restoreScrollPosition,
-} from '../utils';
-import { i18n } from '../i18next';
-import { T } from 'inferno-i18next';
-import { HtmlTags } from './html-tags';
+} from "../utils";
+import { i18n } from "../i18next";
+import { T } from "inferno-i18next";
+import { HtmlTags } from "./html-tags";
 
 interface MainState {
   subscribedCommunities: CommunityFollowerView[];
@@ -164,7 +164,7 @@ export class Main extends Component<any, MainState> {
   componentDidMount() {
     // This means it hasn't been set up yet
     if (!this.state.siteRes.site_view) {
-      this.context.router.history.push('/setup');
+      this.context.router.history.push("/setup");
     }
 
     WebSocketService.Instance.send(wsClient.communityJoin({ community_id: 0 }));
@@ -186,7 +186,7 @@ export class Main extends Component<any, MainState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split('/');
+    let pathSplit = req.path.split("/");
     let dataType: DataType = pathSplit[3]
       ? DataType[pathSplit[3]]
       : DataType.Post;
@@ -259,7 +259,7 @@ export class Main extends Component<any, MainState> {
     return `${
       this.state.siteRes.site_view
         ? this.state.siteRes.site_view.site.name
-        : 'Lemmy'
+        : "Lemmy"
     }`;
   }
 
@@ -313,7 +313,7 @@ export class Main extends Component<any, MainState> {
   createCommunityButton() {
     return (
       <Link className="btn btn-secondary btn-block" to="/create_community">
-        {i18n.t('create_a_community')}
+        {i18n.t("create_a_community")}
       </Link>
     );
   }
@@ -410,7 +410,7 @@ export class Main extends Component<any, MainState> {
   admins() {
     return (
       <ul class="mt-1 list-inline small mb-0">
-        <li class="list-inline-item">{i18n.t('admins')}:</li>
+        <li class="list-inline-item">{i18n.t("admins")}:</li>
         {this.state.siteRes.admins.map(av => (
           <li class="list-inline-item">
             <UserListing user={av.user} />
@@ -425,77 +425,77 @@ export class Main extends Component<any, MainState> {
     return (
       <ul class="my-2 list-inline">
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_online', { count: this.state.siteRes.online })}
+          {i18n.t("number_online", { count: this.state.siteRes.online })}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t('number_of_users', {
+          data-tippy-content={`${i18n.t("number_of_users", {
             count: counts.users_active_day,
-          })} ${i18n.t('active_in_the_last')} ${i18n.t('day')}`}
+          })} ${i18n.t("active_in_the_last")} ${i18n.t("day")}`}
         >
-          {i18n.t('number_of_users', {
+          {i18n.t("number_of_users", {
             count: counts.users_active_day,
-          })}{' '}
-          / {i18n.t('day')}
+          })}{" "}
+          / {i18n.t("day")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t('number_of_users', {
+          data-tippy-content={`${i18n.t("number_of_users", {
             count: counts.users_active_week,
-          })} ${i18n.t('active_in_the_last')} ${i18n.t('week')}`}
+          })} ${i18n.t("active_in_the_last")} ${i18n.t("week")}`}
         >
-          {i18n.t('number_of_users', {
+          {i18n.t("number_of_users", {
             count: counts.users_active_week,
-          })}{' '}
-          / {i18n.t('week')}
+          })}{" "}
+          / {i18n.t("week")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t('number_of_users', {
+          data-tippy-content={`${i18n.t("number_of_users", {
             count: counts.users_active_month,
-          })} ${i18n.t('active_in_the_last')} ${i18n.t('month')}`}
+          })} ${i18n.t("active_in_the_last")} ${i18n.t("month")}`}
         >
-          {i18n.t('number_of_users', {
+          {i18n.t("number_of_users", {
             count: counts.users_active_month,
-          })}{' '}
-          / {i18n.t('month')}
+          })}{" "}
+          / {i18n.t("month")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t('number_of_users', {
+          data-tippy-content={`${i18n.t("number_of_users", {
             count: counts.users_active_half_year,
-          })} ${i18n.t('active_in_the_last')} ${i18n.t('number_of_months', {
+          })} ${i18n.t("active_in_the_last")} ${i18n.t("number_of_months", {
             count: 6,
           })}`}
         >
-          {i18n.t('number_of_users', {
+          {i18n.t("number_of_users", {
             count: counts.users_active_half_year,
-          })}{' '}
-          / {i18n.t('number_of_months', { count: 6 })}
+          })}{" "}
+          / {i18n.t("number_of_months", { count: 6 })}
         </li>
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_of_subscribers', {
+          {i18n.t("number_of_subscribers", {
             count: counts.users,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_of_communities', {
+          {i18n.t("number_of_communities", {
             count: counts.communities,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_of_posts', {
+          {i18n.t("number_of_posts", {
             count: counts.posts,
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t('number_of_comments', {
+          {i18n.t("number_of_comments", {
             count: counts.comments,
           })}
         </li>
         <li className="list-inline-item">
           <Link className="badge badge-secondary" to="/modlog">
-            {i18n.t('modlog')}
+            {i18n.t("modlog")}
           </Link>
         </li>
       </ul>
@@ -511,8 +511,8 @@ export class Main extends Component<any, MainState> {
               class="pointer"
               role="button"
               onClick={linkEvent(this, this.handleEditClick)}
-              aria-label={i18n.t('edit')}
-              data-tippy-content={i18n.t('edit')}
+              aria-label={i18n.t("edit")}
+              data-tippy-content={i18n.t("edit")}
             >
               <Icon icon="edit" classes="icon-inline" />
             </span>
@@ -631,7 +631,7 @@ export class Main extends Component<any, MainState> {
             class="btn btn-secondary mr-1"
             onClick={linkEvent(this, this.prevPage)}
           >
-            {i18n.t('prev')}
+            {i18n.t("prev")}
           </button>
         )}
         {this.state.posts.length > 0 && (
@@ -639,7 +639,7 @@ export class Main extends Component<any, MainState> {
             class="btn btn-secondary"
             onClick={linkEvent(this, this.nextPage)}
           >
-            {i18n.t('next')}
+            {i18n.t("next")}
           </button>
         )}
       </div>
@@ -719,7 +719,7 @@ export class Main extends Component<any, MainState> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       return;
     } else if (msg.reconnect) {
       WebSocketService.Instance.send(
@@ -739,7 +739,7 @@ export class Main extends Component<any, MainState> {
       this.state.siteRes.site_view = data.site_view;
       this.state.showEditSite = false;
       this.setState(this.state);
-      toast(i18n.t('site_saved'));
+      toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetPosts) {
       let data = wsJsonToRes<GetPostsResponse>(msg).data;
       this.state.posts = data.posts;

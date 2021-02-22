@@ -1,15 +1,15 @@
-import { Component } from 'inferno';
-import { Subscription } from 'rxjs';
-import { CommunityForm } from './community-form';
-import { HtmlTags } from './html-tags';
-import { Spinner } from './icon';
+import { Component } from "inferno";
+import { Subscription } from "rxjs";
+import { CommunityForm } from "./community-form";
+import { HtmlTags } from "./html-tags";
+import { Spinner } from "./icon";
 import {
   CommunityView,
   UserOperation,
   SiteView,
   ListCategoriesResponse,
   Category,
-} from 'lemmy-js-client';
+} from "lemmy-js-client";
 import {
   setIsoData,
   toast,
@@ -18,10 +18,10 @@ import {
   isBrowser,
   wsUserOp,
   wsClient,
-} from '../utils';
-import { WebSocketService, UserService } from '../services';
-import { i18n } from '../i18next';
-import { InitialFetchRequest } from 'shared/interfaces';
+} from "../utils";
+import { WebSocketService, UserService } from "../services";
+import { i18n } from "../i18next";
+import { InitialFetchRequest } from "shared/interfaces";
 
 interface CreateCommunityState {
   site_view: SiteView;
@@ -46,7 +46,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     if (!UserService.Instance.user && isBrowser()) {
-      toast(i18n.t('not_logged_in'), 'danger');
+      toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
 
@@ -66,7 +66,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('create_community')} - ${this.state.site_view.site.name}`;
+    return `${i18n.t("create_community")} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -83,7 +83,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
         ) : (
           <div class="row">
             <div class="col-12 col-lg-6 offset-lg-3 mb-4">
-              <h5>{i18n.t('create_community')}</h5>
+              <h5>{i18n.t("create_community")}</h5>
               <CommunityForm
                 categories={this.state.categories}
                 onCreate={this.handleCommunityCreate}

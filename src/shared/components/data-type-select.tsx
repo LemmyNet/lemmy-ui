@@ -1,7 +1,7 @@
-import { Component, linkEvent } from 'inferno';
-import { DataType } from '../interfaces';
+import { Component, linkEvent } from "inferno";
+import { DataType } from "../interfaces";
 
-import { i18n } from '../i18next';
+import { i18n } from "../i18next";
 
 interface DataTypeSelectProps {
   type_: DataType;
@@ -36,7 +36,7 @@ export class DataTypeSelect extends Component<
       <div class="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`pointer btn btn-outline-secondary 
-            ${this.state.type_ == DataType.Post && 'active'}
+            ${this.state.type_ == DataType.Post && "active"}
           `}
         >
           <input
@@ -45,11 +45,11 @@ export class DataTypeSelect extends Component<
             checked={this.state.type_ == DataType.Post}
             onChange={linkEvent(this, this.handleTypeChange)}
           />
-          {i18n.t('posts')}
+          {i18n.t("posts")}
         </label>
         <label
           className={`pointer btn btn-outline-secondary ${
-            this.state.type_ == DataType.Comment && 'active'
+            this.state.type_ == DataType.Comment && "active"
           }`}
         >
           <input
@@ -58,7 +58,7 @@ export class DataTypeSelect extends Component<
             checked={this.state.type_ == DataType.Comment}
             onChange={linkEvent(this, this.handleTypeChange)}
           />
-          {i18n.t('comments')}
+          {i18n.t("comments")}
         </label>
       </div>
     );

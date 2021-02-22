@@ -1,38 +1,38 @@
-import serialize from 'serialize-javascript';
-import express from 'express';
-import { StaticRouter } from 'inferno-router';
-import { renderToString } from 'inferno-server';
-import { matchPath } from 'inferno-router';
-import path from 'path';
-import { App } from '../shared/components/app';
+import serialize from "serialize-javascript";
+import express from "express";
+import { StaticRouter } from "inferno-router";
+import { renderToString } from "inferno-server";
+import { matchPath } from "inferno-router";
+import path from "path";
+import { App } from "../shared/components/app";
 import {
   ILemmyConfig,
   InitialFetchRequest,
   IsoData,
-} from '../shared/interfaces';
-import { routes } from '../shared/routes';
-import IsomorphicCookie from 'isomorphic-cookie';
-import { GetSite, LemmyHttp } from 'lemmy-js-client';
-import process from 'process';
-import { Helmet } from 'inferno-helmet';
-import { initializeSite } from '../shared/initialize';
-import { httpUri } from '../shared/env';
-import { IncomingHttpHeaders } from 'http';
-import { setOptionalAuth } from '../shared/utils';
+} from "../shared/interfaces";
+import { routes } from "../shared/routes";
+import IsomorphicCookie from "isomorphic-cookie";
+import { GetSite, LemmyHttp } from "lemmy-js-client";
+import process from "process";
+import { Helmet } from "inferno-helmet";
+import { initializeSite } from "../shared/initialize";
+import { httpUri } from "../shared/env";
+import { IncomingHttpHeaders } from "http";
+import { setOptionalAuth } from "../shared/utils";
 
 const server = express();
 const port = 1234;
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
-server.use('/static', express.static(path.resolve('./dist')));
+server.use("/static", express.static(path.resolve("./dist")));
 
 // server.use(cookieParser());
 
-server.get('/*', async (req, res) => {
+server.get("/*", async (req, res) => {
   const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
   const context = {} as any;
-  let auth: string = IsomorphicCookie.load('jwt', req);
+  let auth: string = IsomorphicCookie.load("jwt", req);
 
   let getSiteForm: GetSite = {};
   setOptionalAuth(getSiteForm, auth);
@@ -63,13 +63,13 @@ server.get('/*', async (req, res) => {
     return res.redirect(`/404?err=${errCode}`);
   }
 
-  let acceptLang = req.headers['accept-language']
-    ? req.headers['accept-language'].split(',')[0]
-    : 'en';
+  let acceptLang = req.headers["accept-language"]
+    ? req.headers["accept-language"].split(",")[0]
+    : "en";
   let lang = site.my_user
-    ? site.my_user.lang == 'browser'
+    ? site.my_user.lang == "browser"
       ? acceptLang
-      : 'en'
+      : "en"
     : acceptLang;
 
   let isoData: IsoData = {
@@ -96,7 +96,7 @@ server.get('/*', async (req, res) => {
   );
 
   const root = renderToString(wrapper);
-  const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : '';
+  const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : "";
   const helmet = Helmet.renderStatic();
 
   const config: ILemmyConfig = { wsHost: process.env.LEMMY_WS_HOST };
@@ -157,17 +157,17 @@ function setForwardedHeaders(
   let out = {
     host: headers.host,
   };
-  if (headers['x-real-ip']) {
-    out['x-real-ip'] = headers['x-real-ip'];
+  if (headers["x-real-ip"]) {
+    out["x-real-ip"] = headers["x-real-ip"];
   }
-  if (headers['x-forwarded-for']) {
-    out['x-forwarded-for'] = headers['x-forwarded-for'];
+  if (headers["x-forwarded-for"]) {
+    out["x-forwarded-for"] = headers["x-forwarded-for"];
   }
 
   return out;
 }
 
-process.on('SIGINT', () => {
-  console.info('Interrupted');
+process.on("SIGINT", () => {
+  console.info("Interrupted");
   process.exit(0);
 });

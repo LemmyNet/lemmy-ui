@@ -1,5 +1,5 @@
-import { Component, linkEvent } from 'inferno';
-import { Link } from 'inferno-router';
+import { Component, linkEvent } from "inferno";
+import { Link } from "inferno-router";
 import {
   CreateCommentLike,
   DeleteComment,
@@ -17,9 +17,9 @@ import {
   TransferSite,
   CommentView,
   UserMentionView,
-} from 'lemmy-js-client';
-import { CommentNode as CommentNodeI, BanType } from '../interfaces';
-import { WebSocketService, UserService } from '../services';
+} from "lemmy-js-client";
+import { CommentNode as CommentNodeI, BanType } from "../interfaces";
+import { WebSocketService, UserService } from "../services";
 import {
   mdToHtml,
   getUnixTime,
@@ -29,15 +29,15 @@ import {
   colorList,
   wsClient,
   authField,
-} from '../utils';
-import moment from 'moment';
-import { MomentTime } from './moment-time';
-import { CommentForm } from './comment-form';
-import { CommentNodes } from './comment-nodes';
-import { UserListing } from './user-listing';
-import { CommunityLink } from './community-link';
-import { Icon, Spinner } from './icon';
-import { i18n } from '../i18next';
+} from "../utils";
+import moment from "moment";
+import { MomentTime } from "./moment-time";
+import { CommentForm } from "./comment-form";
+import { CommentNodes } from "./comment-nodes";
+import { UserListing } from "./user-listing";
+import { CommunityLink } from "./community-link";
+import { Icon, Spinner } from "./icon";
+import { i18n } from "../i18next";
 
 interface CommentNodeState {
   showReply: boolean;
@@ -137,14 +137,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return (
       <div
         className={`comment ${
-          cv.comment.parent_id && !this.props.noIndent ? 'ml-1' : ''
+          cv.comment.parent_id && !this.props.noIndent ? "ml-1" : ""
         }`}
       >
         <div
           id={`comment-${cv.comment.id}`}
           className={`details comment-node py-2 ${
-            !this.props.noBorder ? 'border-top border-light' : ''
-          } ${this.isCommentNew ? 'mark' : ''}`}
+            !this.props.noBorder ? "border-top border-light" : ""
+          } ${this.isCommentNew ? "mark" : ""}`}
           style={
             !this.props.noIndent &&
             cv.comment.parent_id &&
@@ -152,7 +152,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           }
         >
           <div
-            class={`${!this.props.noIndent && cv.comment.parent_id && 'ml-2'}`}
+            class={`${!this.props.noIndent && cv.comment.parent_id && "ml-2"}`}
           >
             <div class="d-flex flex-wrap align-items-center text-muted small">
               <span class="mr-2">
@@ -161,27 +161,27 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
               {this.isMod && (
                 <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t('mod')}
+                  {i18n.t("mod")}
                 </div>
               )}
               {this.isAdmin && (
                 <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t('admin')}
+                  {i18n.t("admin")}
                 </div>
               )}
               {this.isPostCreator && (
                 <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t('creator')}
+                  {i18n.t("creator")}
                 </div>
               )}
               {(cv.creator_banned_from_community || cv.creator.banned) && (
                 <div className="badge badge-danger mr-2">
-                  {i18n.t('banned')}
+                  {i18n.t("banned")}
                 </div>
               )}
               {this.props.showCommunity && (
                 <>
-                  <span class="mx-1">{i18n.t('to')}</span>
+                  <span class="mx-1">{i18n.t("to")}</span>
                   <CommunityLink community={cv.community} />
                   <span class="mx-2">•</span>
                   <Link className="mr-2" to={`/post/${cv.post.id}`}>
@@ -193,10 +193,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 class="btn btn-sm text-muted"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
                 aria-label={
-                  this.state.collapsed ? i18n.t('expand') : i18n.t('collapse')
+                  this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
                 }
               >
-                {this.state.collapsed ? '+' : '—'}
+                {this.state.collapsed ? "+" : "—"}
               </button>
               {/* This is an expanding spacer for mobile */}
               <div className="mr-lg-4 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2"></div>
@@ -207,7 +207,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               >
                 <span
                   class="mr-1 font-weight-bold"
-                  aria-label={i18n.t('number_of_points', {
+                  aria-label={i18n.t("number_of_points", {
                     count: this.state.score,
                   })}
                 >
@@ -249,13 +249,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       onClick={linkEvent(this, this.handleMarkRead)}
                       data-tippy-content={
                         this.commentOrMentionRead
-                          ? i18n.t('mark_as_unread')
-                          : i18n.t('mark_as_read')
+                          ? i18n.t("mark_as_unread")
+                          : i18n.t("mark_as_read")
                       }
                       aria-label={
                         this.commentOrMentionRead
-                          ? i18n.t('mark_as_unread')
-                          : i18n.t('mark_as_read')
+                          ? i18n.t("mark_as_unread")
+                          : i18n.t("mark_as_read")
                       }
                     >
                       {this.state.readLoading ? (
@@ -264,7 +264,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <Icon
                           icon="check"
                           classes={`icon-inline ${
-                            this.commentOrMentionRead && 'text-success'
+                            this.commentOrMentionRead && "text-success"
                           }`}
                         />
                       )}
@@ -274,11 +274,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <>
                       <button
                         className={`btn btn-link btn-animate ${
-                          this.state.my_vote == 1 ? 'text-info' : 'text-muted'
+                          this.state.my_vote == 1 ? "text-info" : "text-muted"
                         }`}
                         onClick={linkEvent(node, this.handleCommentUpvote)}
-                        data-tippy-content={i18n.t('upvote')}
-                        aria-label={i18n.t('upvote')}
+                        data-tippy-content={i18n.t("upvote")}
+                        aria-label={i18n.t("upvote")}
                       >
                         <Icon icon="arrow-up1" classes="icon-inline" />
                         {this.state.upvotes !== this.state.score && (
@@ -289,12 +289,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <button
                           className={`btn btn-link btn-animate ${
                             this.state.my_vote == -1
-                              ? 'text-danger'
-                              : 'text-muted'
+                              ? "text-danger"
+                              : "text-muted"
                           }`}
                           onClick={linkEvent(node, this.handleCommentDownvote)}
-                          data-tippy-content={i18n.t('downvote')}
-                          aria-label={i18n.t('downvote')}
+                          data-tippy-content={i18n.t("downvote")}
+                          aria-label={i18n.t("downvote")}
                         >
                           <Icon icon="arrow-down1" classes="icon-inline" />
                           {this.state.upvotes !== this.state.score && (
@@ -305,8 +305,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       <button
                         class="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
-                        data-tippy-content={i18n.t('reply')}
-                        aria-label={i18n.t('reply')}
+                        data-tippy-content={i18n.t("reply")}
+                        aria-label={i18n.t("reply")}
                       >
                         <Icon icon="reply1" classes="icon-inline" />
                       </button>
@@ -314,8 +314,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <button
                           className="btn btn-link btn-animate text-muted"
                           onClick={linkEvent(this, this.handleShowAdvanced)}
-                          data-tippy-content={i18n.t('more')}
-                          aria-label={i18n.t('more')}
+                          data-tippy-content={i18n.t("more")}
+                          aria-label={i18n.t("more")}
                         >
                           <Icon icon="more-vertical" classes="icon-inline" />
                         </button>
@@ -326,7 +326,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               <Link
                                 className="text-muted"
                                 to={`/create_private_message/recipient/${cv.creator.id}`}
-                                title={i18n.t('message').toLowerCase()}
+                                title={i18n.t("message").toLowerCase()}
                               >
                                 <Icon icon="mail" />
                               </Link>
@@ -340,10 +340,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               this.handleSaveCommentClick
                             )}
                             data-tippy-content={
-                              cv.saved ? i18n.t('unsave') : i18n.t('save')
+                              cv.saved ? i18n.t("unsave") : i18n.t("save")
                             }
                             aria-label={
-                              cv.saved ? i18n.t('unsave') : i18n.t('save')
+                              cv.saved ? i18n.t("unsave") : i18n.t("save")
                             }
                           >
                             {this.state.saveLoading ? (
@@ -352,7 +352,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               <Icon
                                 icon="star"
                                 classes={`icon-inline ${
-                                  cv.saved && 'text-warning'
+                                  cv.saved && "text-warning"
                                 }`}
                               />
                             )}
@@ -360,13 +360,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           <button
                             className="btn btn-link btn-animate text-muted"
                             onClick={linkEvent(this, this.handleViewSource)}
-                            data-tippy-content={i18n.t('view_source')}
-                            aria-label={i18n.t('view_source')}
+                            data-tippy-content={i18n.t("view_source")}
+                            aria-label={i18n.t("view_source")}
                           >
                             <Icon
                               icon="file-text"
                               classes={`icon-inline ${
-                                this.state.viewSource && 'text-success'
+                                this.state.viewSource && "text-success"
                               }`}
                             />
                           </button>
@@ -375,8 +375,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               <button
                                 class="btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(this, this.handleEditClick)}
-                                data-tippy-content={i18n.t('edit')}
-                                aria-label={i18n.t('edit')}
+                                data-tippy-content={i18n.t("edit")}
+                                aria-label={i18n.t("edit")}
                               >
                                 <Icon icon="edit" classes="icon-inline" />
                               </button>
@@ -388,19 +388,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 )}
                                 data-tippy-content={
                                   !cv.comment.deleted
-                                    ? i18n.t('delete')
-                                    : i18n.t('restore')
+                                    ? i18n.t("delete")
+                                    : i18n.t("restore")
                                 }
                                 aria-label={
                                   !cv.comment.deleted
-                                    ? i18n.t('delete')
-                                    : i18n.t('restore')
+                                    ? i18n.t("delete")
+                                    : i18n.t("restore")
                                 }
                               >
                                 <Icon
                                   icon="trash"
                                   classes={`icon-inline ${
-                                    cv.comment.deleted && 'text-danger'
+                                    cv.comment.deleted && "text-danger"
                                   }`}
                                 />
                               </button>
@@ -416,9 +416,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleModRemoveShow
                                   )}
-                                  aria-label={i18n.t('remove')}
+                                  aria-label={i18n.t("remove")}
                                 >
-                                  {i18n.t('remove')}
+                                  {i18n.t("remove")}
                                 </button>
                               ) : (
                                 <button
@@ -427,9 +427,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleModRemoveSubmit
                                   )}
-                                  aria-label={i18n.t('restore')}
+                                  aria-label={i18n.t("restore")}
                                 >
-                                  {i18n.t('restore')}
+                                  {i18n.t("restore")}
                                 </button>
                               )}
                             </>
@@ -445,9 +445,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleModBanFromCommunityShow
                                     )}
-                                    aria-label={i18n.t('ban')}
+                                    aria-label={i18n.t("ban")}
                                   >
-                                    {i18n.t('ban')}
+                                    {i18n.t("ban")}
                                   </button>
                                 ) : (
                                   <button
@@ -456,9 +456,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleModBanFromCommunitySubmit
                                     )}
-                                    aria-label={i18n.t('unban')}
+                                    aria-label={i18n.t("unban")}
                                   >
-                                    {i18n.t('unban')}
+                                    {i18n.t("unban")}
                                   </button>
                                 ))}
                               {!cv.creator_banned_from_community &&
@@ -472,21 +472,21 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     )}
                                     aria-label={
                                       this.isMod
-                                        ? i18n.t('remove_as_mod')
-                                        : i18n.t('appoint_as_mod')
+                                        ? i18n.t("remove_as_mod")
+                                        : i18n.t("appoint_as_mod")
                                     }
                                   >
                                     {this.isMod
-                                      ? i18n.t('remove_as_mod')
-                                      : i18n.t('appoint_as_mod')}
+                                      ? i18n.t("remove_as_mod")
+                                      : i18n.t("appoint_as_mod")}
                                   </button>
                                 ) : (
                                   <>
                                     <button
                                       class="btn btn-link btn-animate text-muted"
-                                      aria-label={i18n.t('are_you_sure')}
+                                      aria-label={i18n.t("are_you_sure")}
                                     >
-                                      {i18n.t('are_you_sure')}
+                                      {i18n.t("are_you_sure")}
                                     </button>
                                     <button
                                       class="btn btn-link btn-animate text-muted"
@@ -494,9 +494,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                         this,
                                         this.handleAddModToCommunity
                                       )}
-                                      aria-label={i18n.t('yes')}
+                                      aria-label={i18n.t("yes")}
                                     >
-                                      {i18n.t('yes')}
+                                      {i18n.t("yes")}
                                     </button>
                                     <button
                                       class="btn btn-link btn-animate text-muted"
@@ -504,9 +504,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                         this,
                                         this.handleCancelConfirmAppointAsMod
                                       )}
-                                      aria-label={i18n.t('no')}
+                                      aria-label={i18n.t("no")}
                                     >
-                                      {i18n.t('no')}
+                                      {i18n.t("no")}
                                     </button>
                                   </>
                                 ))}
@@ -523,17 +523,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   this,
                                   this.handleShowConfirmTransferCommunity
                                 )}
-                                aria-label={i18n.t('transfer_community')}
+                                aria-label={i18n.t("transfer_community")}
                               >
-                                {i18n.t('transfer_community')}
+                                {i18n.t("transfer_community")}
                               </button>
                             ) : (
                               <>
                                 <button
                                   class="btn btn-link btn-animate text-muted"
-                                  aria-label={i18n.t('are_you_sure')}
+                                  aria-label={i18n.t("are_you_sure")}
                                 >
-                                  {i18n.t('are_you_sure')}
+                                  {i18n.t("are_you_sure")}
                                 </button>
                                 <button
                                   class="btn btn-link btn-animate text-muted"
@@ -541,9 +541,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleTransferCommunity
                                   )}
-                                  aria-label={i18n.t('yes')}
+                                  aria-label={i18n.t("yes")}
                                 >
-                                  {i18n.t('yes')}
+                                  {i18n.t("yes")}
                                 </button>
                                 <button
                                   class="btn btn-link btn-animate text-muted"
@@ -552,9 +552,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this
                                       .handleCancelShowConfirmTransferCommunity
                                   )}
-                                  aria-label={i18n.t('no')}
+                                  aria-label={i18n.t("no")}
                                 >
-                                  {i18n.t('no')}
+                                  {i18n.t("no")}
                                 </button>
                               </>
                             ))}
@@ -569,9 +569,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleModBanShow
                                     )}
-                                    aria-label={i18n.t('ban_from_site')}
+                                    aria-label={i18n.t("ban_from_site")}
                                   >
-                                    {i18n.t('ban_from_site')}
+                                    {i18n.t("ban_from_site")}
                                   </button>
                                 ) : (
                                   <button
@@ -580,9 +580,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       this,
                                       this.handleModBanSubmit
                                     )}
-                                    aria-label={i18n.t('unban_from_site')}
+                                    aria-label={i18n.t("unban_from_site")}
                                   >
-                                    {i18n.t('unban_from_site')}
+                                    {i18n.t("unban_from_site")}
                                   </button>
                                 ))}
                               {!cv.creator.banned &&
@@ -596,18 +596,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     )}
                                     aria-label={
                                       this.isAdmin
-                                        ? i18n.t('remove_as_admin')
-                                        : i18n.t('appoint_as_admin')
+                                        ? i18n.t("remove_as_admin")
+                                        : i18n.t("appoint_as_admin")
                                     }
                                   >
                                     {this.isAdmin
-                                      ? i18n.t('remove_as_admin')
-                                      : i18n.t('appoint_as_admin')}
+                                      ? i18n.t("remove_as_admin")
+                                      : i18n.t("appoint_as_admin")}
                                   </button>
                                 ) : (
                                   <>
                                     <button class="btn btn-link btn-animate text-muted">
-                                      {i18n.t('are_you_sure')}
+                                      {i18n.t("are_you_sure")}
                                     </button>
                                     <button
                                       class="btn btn-link btn-animate text-muted"
@@ -615,9 +615,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                         this,
                                         this.handleAddAdmin
                                       )}
-                                      aria-label={i18n.t('yes')}
+                                      aria-label={i18n.t("yes")}
                                     >
-                                      {i18n.t('yes')}
+                                      {i18n.t("yes")}
                                     </button>
                                     <button
                                       class="btn btn-link btn-animate text-muted"
@@ -625,9 +625,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                         this,
                                         this.handleCancelConfirmAppointAsAdmin
                                       )}
-                                      aria-label={i18n.t('no')}
+                                      aria-label={i18n.t("no")}
                                     >
-                                      {i18n.t('no')}
+                                      {i18n.t("no")}
                                     </button>
                                   </>
                                 ))}
@@ -644,17 +644,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   this,
                                   this.handleShowConfirmTransferSite
                                 )}
-                                aria-label={i18n.t('transfer_site')}
+                                aria-label={i18n.t("transfer_site")}
                               >
-                                {i18n.t('transfer_site')}
+                                {i18n.t("transfer_site")}
                               </button>
                             ) : (
                               <>
                                 <button
                                   class="btn btn-link btn-animate text-muted"
-                                  aria-label={i18n.t('are_you_sure')}
+                                  aria-label={i18n.t("are_you_sure")}
                                 >
-                                  {i18n.t('are_you_sure')}
+                                  {i18n.t("are_you_sure")}
                                 </button>
                                 <button
                                   class="btn btn-link btn-animate text-muted"
@@ -662,9 +662,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleTransferSite
                                   )}
-                                  aria-label={i18n.t('yes')}
+                                  aria-label={i18n.t("yes")}
                                 >
-                                  {i18n.t('yes')}
+                                  {i18n.t("yes")}
                                 </button>
                                 <button
                                   class="btn btn-link btn-animate text-muted"
@@ -672,9 +672,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     this,
                                     this.handleCancelShowConfirmTransferSite
                                   )}
-                                  aria-label={i18n.t('no')}
+                                  aria-label={i18n.t("no")}
                                 >
-                                  {i18n.t('no')}
+                                  {i18n.t("no")}
                                 </button>
                               </>
                             ))}
@@ -698,22 +698,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               class="sr-only"
               htmlFor={`mod-remove-reason-${cv.comment.id}`}
             >
-              {i18n.t('reason')}
+              {i18n.t("reason")}
             </label>
             <input
               type="text"
               id={`mod-remove-reason-${cv.comment.id}`}
               class="form-control mr-2"
-              placeholder={i18n.t('reason')}
+              placeholder={i18n.t("reason")}
               value={this.state.removeReason}
               onInput={linkEvent(this, this.handleModRemoveReasonChange)}
             />
             <button
               type="submit"
               class="btn btn-secondary"
-              aria-label={i18n.t('remove_comment')}
+              aria-label={i18n.t("remove_comment")}
             >
-              {i18n.t('remove_comment')}
+              {i18n.t("remove_comment")}
             </button>
           </form>
         )}
@@ -724,13 +724,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 class="col-form-label"
                 htmlFor={`mod-ban-reason-${cv.comment.id}`}
               >
-                {i18n.t('reason')}
+                {i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id={`mod-ban-reason-${cv.comment.id}`}
                 class="form-control mr-2"
-                placeholder={i18n.t('reason')}
+                placeholder={i18n.t("reason")}
                 value={this.state.banReason}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
               />
@@ -744,7 +744,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     onChange={linkEvent(this, this.handleModRemoveDataChange)}
                   />
                   <label class="form-check-label" htmlFor="mod-ban-remove-data">
-                    {i18n.t('remove_posts_comments')}
+                    {i18n.t("remove_posts_comments")}
                   </label>
                 </div>
               </div>
@@ -758,9 +758,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <button
                 type="submit"
                 class="btn btn-secondary"
-                aria-label={i18n.t('ban')}
+                aria-label={i18n.t("ban")}
               >
-                {i18n.t('ban')} {cv.creator.name}
+                {i18n.t("ban")} {cv.creator.name}
               </button>
             </div>
           </form>
@@ -800,7 +800,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       <Link
         className="btn btn-link btn-animate text-muted"
         to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
-        title={this.props.showContext ? i18n.t('show_context') : i18n.t('link')}
+        title={this.props.showContext ? i18n.t("show_context") : i18n.t("link")}
       >
         <Icon icon="link" classes="icon-inline" />
       </Link>
@@ -890,9 +890,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   get commentUnlessRemoved(): string {
     let comment = this.props.node.comment_view.comment;
     return comment.removed
-      ? `*${i18n.t('removed')}*`
+      ? `*${i18n.t("removed")}*`
       : comment.deleted
-      ? `*${i18n.t('deleted')}*`
+      ? `*${i18n.t("deleted")}*`
       : comment.content;
   }
 
@@ -1212,7 +1212,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get isCommentNew(): boolean {
-    let now = moment.utc().subtract(10, 'minutes');
+    let now = moment.utc().subtract(10, "minutes");
     let then = moment.utc(this.props.node.comment_view.comment.published);
     return now.isBefore(then);
   }
@@ -1235,24 +1235,24 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get scoreColor() {
     if (this.state.my_vote == 1) {
-      return 'text-info';
+      return "text-info";
     } else if (this.state.my_vote == -1) {
-      return 'text-danger';
+      return "text-danger";
     } else {
-      return 'text-muted';
+      return "text-muted";
     }
   }
 
   get pointsTippy(): string {
-    let points = i18n.t('number_of_points', {
+    let points = i18n.t("number_of_points", {
       count: this.state.score,
     });
 
-    let upvotes = i18n.t('number_of_upvotes', {
+    let upvotes = i18n.t("number_of_upvotes", {
       count: this.state.upvotes,
     });
 
-    let downvotes = i18n.t('number_of_downvotes', {
+    let downvotes = i18n.t("number_of_downvotes", {
       count: this.state.downvotes,
     });
 
