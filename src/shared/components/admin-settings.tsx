@@ -1,5 +1,5 @@
-import { Component, linkEvent } from 'inferno';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Subscription } from "rxjs";
 import {
   UserOperation,
   SiteResponse,
@@ -7,8 +7,8 @@ import {
   SaveSiteConfig,
   GetSiteConfigResponse,
   GetSiteConfig,
-} from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+} from "lemmy-js-client";
+import { WebSocketService } from "../services";
 import {
   wsJsonToRes,
   capitalizeFirstLetter,
@@ -20,14 +20,14 @@ import {
   wsUserOp,
   wsClient,
   authField,
-} from '../utils';
-import autosize from 'autosize';
-import { SiteForm } from './site-form';
-import { UserListing } from './user-listing';
-import { HtmlTags } from './html-tags';
-import { Spinner } from './icon';
-import { i18n } from '../i18next';
-import { InitialFetchRequest } from 'shared/interfaces';
+} from "../utils";
+import autosize from "autosize";
+import { SiteForm } from "./site-form";
+import { UserListing } from "./user-listing";
+import { HtmlTags } from "./html-tags";
+import { Spinner } from "./icon";
+import { i18n } from "../i18next";
+import { InitialFetchRequest } from "shared/interfaces";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
@@ -96,7 +96,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('admin_settings')} - ${
+    return `${i18n.t("admin_settings")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
@@ -131,7 +131,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   admins() {
     return (
       <>
-        <h5>{capitalizeFirstLetter(i18n.t('admins'))}</h5>
+        <h5>{capitalizeFirstLetter(i18n.t("admins"))}</h5>
         <ul class="list-unstyled">
           {this.state.siteRes.admins.map(admin => (
             <li class="list-inline-item">
@@ -146,7 +146,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   bannedUsers() {
     return (
       <>
-        <h5>{i18n.t('banned_users')}</h5>
+        <h5>{i18n.t("banned_users")}</h5>
         <ul class="list-unstyled">
           {this.state.siteRes.banned.map(banned => (
             <li class="list-inline-item">
@@ -161,14 +161,14 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   adminSettings() {
     return (
       <div>
-        <h5>{i18n.t('admin_settings')}</h5>
+        <h5>{i18n.t("admin_settings")}</h5>
         <form onSubmit={linkEvent(this, this.handleSiteConfigSubmit)}>
           <div class="form-group row">
             <label
               class="col-12 col-form-label"
               htmlFor={this.siteConfigTextAreaId}
             >
-              {i18n.t('site_config')}
+              {i18n.t("site_config")}
             </label>
             <div class="col-12">
               <textarea
@@ -186,7 +186,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 {this.state.siteConfigLoading ? (
                   <Spinner />
                 ) : (
-                  capitalizeFirstLetter(i18n.t('save'))
+                  capitalizeFirstLetter(i18n.t("save"))
                 )}
               </button>
             </div>
@@ -213,8 +213,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
-      this.context.router.history.push('/');
+      toast(i18n.t(msg.error), "danger");
+      this.context.router.history.push("/");
       this.state.loading = false;
       this.setState(this.state);
       return;
@@ -222,7 +222,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       let data = wsJsonToRes<SiteResponse>(msg).data;
       this.state.siteRes.site_view = data.site_view;
       this.setState(this.state);
-      toast(i18n.t('site_saved'));
+      toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetSiteConfig) {
       let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
@@ -236,7 +236,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state.siteConfigRes = data;
       this.state.siteConfigForm.config_hjson = this.state.siteConfigRes.config_hjson;
       this.state.siteConfigLoading = false;
-      toast(i18n.t('site_saved'));
+      toast(i18n.t("site_saved"));
       this.setState(this.state);
     }
   }

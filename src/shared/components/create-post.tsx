@@ -1,8 +1,8 @@
-import { Component } from 'inferno';
-import { Subscription } from 'rxjs';
-import { PostForm } from './post-form';
-import { HtmlTags } from './html-tags';
-import { Spinner } from './icon';
+import { Component } from "inferno";
+import { Subscription } from "rxjs";
+import { PostForm } from "./post-form";
+import { HtmlTags } from "./html-tags";
+import { Spinner } from "./icon";
 import {
   authField,
   isBrowser,
@@ -13,8 +13,8 @@ import {
   wsJsonToRes,
   wsSubscribe,
   wsUserOp,
-} from '../utils';
-import { UserService, WebSocketService } from '../services';
+} from "../utils";
+import { UserService, WebSocketService } from "../services";
 import {
   UserOperation,
   ListCommunitiesResponse,
@@ -24,9 +24,9 @@ import {
   SortType,
   ListingType,
   PostView,
-} from 'lemmy-js-client';
-import { i18n } from '../i18next';
-import { InitialFetchRequest, PostFormParams } from 'shared/interfaces';
+} from "lemmy-js-client";
+import { i18n } from "../i18next";
+import { InitialFetchRequest, PostFormParams } from "shared/interfaces";
 
 interface CreatePostState {
   site_view: SiteView;
@@ -49,7 +49,7 @@ export class CreatePost extends Component<any, CreatePostState> {
     this.state = this.emptyState;
 
     if (!UserService.Instance.user && isBrowser()) {
-      toast(i18n.t('not_logged_in'), 'danger');
+      toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
 
@@ -84,7 +84,7 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('create_post')} - ${this.state.site_view.site.name}`;
+    return `${i18n.t("create_post")} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -101,7 +101,7 @@ export class CreatePost extends Component<any, CreatePostState> {
         ) : (
           <div class="row">
             <div class="col-12 col-lg-6 offset-lg-3 mb-4">
-              <h5>{i18n.t('create_post')}</h5>
+              <h5>{i18n.t("create_post")}</h5>
               <PostForm
                 communities={this.state.communities}
                 onCreate={this.handlePostCreate}
@@ -119,13 +119,13 @@ export class CreatePost extends Component<any, CreatePostState> {
   get params(): PostFormParams {
     let urlParams = new URLSearchParams(this.props.location.search);
     let params: PostFormParams = {
-      name: urlParams.get('title'),
-      community_name: urlParams.get('community_name') || this.prevCommunityName,
-      community_id: urlParams.get('community_id')
-        ? Number(urlParams.get('community_id')) || this.prevCommunityId
+      name: urlParams.get("title"),
+      community_name: urlParams.get("community_name") || this.prevCommunityName,
+      community_id: urlParams.get("community_id")
+        ? Number(urlParams.get("community_id")) || this.prevCommunityId
         : null,
-      body: urlParams.get('body'),
-      url: urlParams.get('url'),
+      body: urlParams.get("body"),
+      url: urlParams.get("url"),
     };
 
     return params;
@@ -136,8 +136,8 @@ export class CreatePost extends Component<any, CreatePostState> {
       return this.props.match.params.name;
     } else if (this.props.location.state) {
       let lastLocation = this.props.location.state.prevPath;
-      if (lastLocation.includes('/c/')) {
-        return lastLocation.split('/c/')[1];
+      if (lastLocation.includes("/c/")) {
+        return lastLocation.split("/c/")[1];
       }
     }
     return null;
@@ -148,8 +148,8 @@ export class CreatePost extends Component<any, CreatePostState> {
       return this.props.match.params.id;
     } else if (this.props.location.state) {
       let lastLocation = this.props.location.state.prevPath;
-      if (lastLocation.includes('/community/')) {
-        return Number(lastLocation.split('/community/')[1]);
+      if (lastLocation.includes("/community/")) {
+        return Number(lastLocation.split("/community/")[1]);
       }
     }
     return null;
@@ -172,7 +172,7 @@ export class CreatePost extends Component<any, CreatePostState> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.ListCommunities) {
       let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;

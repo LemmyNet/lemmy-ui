@@ -1,7 +1,7 @@
-import { Component, linkEvent } from 'inferno';
-import { HtmlTags } from './html-tags';
-import { Spinner } from './icon';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { HtmlTags } from "./html-tags";
+import { Spinner } from "./icon";
+import { Subscription } from "rxjs";
 import {
   UserOperation,
   PostView,
@@ -23,14 +23,14 @@ import {
   GetCommunityResponse,
   ListCategoriesResponse,
   Category,
-} from 'lemmy-js-client';
+} from "lemmy-js-client";
 import {
   CommentSortType,
   CommentViewType,
   InitialFetchRequest,
   CommentNode as CommentNodeI,
-} from '../interfaces';
-import { WebSocketService, UserService } from '../services';
+} from "../interfaces";
+import { WebSocketService, UserService } from "../services";
 import {
   wsJsonToRes,
   toast,
@@ -55,13 +55,13 @@ import {
   restoreScrollPosition,
   buildCommentsTree,
   insertCommentIntoTree,
-} from '../utils';
-import { PostListing } from './post-listing';
-import { Sidebar } from './sidebar';
-import { CommentForm } from './comment-form';
-import { CommentNodes } from './comment-nodes';
-import autosize from 'autosize';
-import { i18n } from '../i18next';
+} from "../utils";
+import { PostListing } from "./post-listing";
+import { Sidebar } from "./sidebar";
+import { CommentForm } from "./comment-form";
+import { CommentNodes } from "./comment-nodes";
+import autosize from "autosize";
+import { i18n } from "../i18next";
 
 interface PostState {
   postRes: GetPostResponse;
@@ -147,7 +147,7 @@ export class Post extends Component<any, PostState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split('/');
+    let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
     let id = Number(pathSplit[2]);
@@ -173,7 +173,7 @@ export class Post extends Component<any, PostState> {
     WebSocketService.Instance.send(
       wsClient.postJoin({ post_id: this.state.postId })
     );
-    autosize(document.querySelectorAll('textarea'));
+    autosize(document.querySelectorAll("textarea"));
   }
 
   componentDidUpdate(_lastProps: any, lastState: PostState) {
@@ -201,7 +201,7 @@ export class Post extends Component<any, PostState> {
   scrollCommentIntoView() {
     var elmnt = document.getElementById(`comment-${this.state.commentId}`);
     elmnt.scrollIntoView();
-    elmnt.classList.add('mark');
+    elmnt.classList.add("mark");
     this.state.scrolled = true;
     this.markScrolledAsRead(this.state.commentId);
   }
@@ -304,10 +304,10 @@ export class Post extends Component<any, PostState> {
         <div class="btn-group btn-group-toggle flex-wrap mr-3 mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === CommentSortType.Hot && 'active'
+              this.state.commentSort === CommentSortType.Hot && "active"
             }`}
           >
-            {i18n.t('hot')}
+            {i18n.t("hot")}
             <input
               type="radio"
               value={CommentSortType.Hot}
@@ -317,10 +317,10 @@ export class Post extends Component<any, PostState> {
           </label>
           <label
             className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === CommentSortType.Top && 'active'
+              this.state.commentSort === CommentSortType.Top && "active"
             }`}
           >
-            {i18n.t('top')}
+            {i18n.t("top")}
             <input
               type="radio"
               value={CommentSortType.Top}
@@ -330,10 +330,10 @@ export class Post extends Component<any, PostState> {
           </label>
           <label
             className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === CommentSortType.New && 'active'
+              this.state.commentSort === CommentSortType.New && "active"
             }`}
           >
-            {i18n.t('new')}
+            {i18n.t("new")}
             <input
               type="radio"
               value={CommentSortType.New}
@@ -343,10 +343,10 @@ export class Post extends Component<any, PostState> {
           </label>
           <label
             className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === CommentSortType.Old && 'active'
+              this.state.commentSort === CommentSortType.Old && "active"
             }`}
           >
-            {i18n.t('old')}
+            {i18n.t("old")}
             <input
               type="radio"
               value={CommentSortType.Old}
@@ -358,10 +358,10 @@ export class Post extends Component<any, PostState> {
         <div class="btn-group btn-group-toggle flex-wrap mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
-              this.state.commentViewType === CommentViewType.Chat && 'active'
+              this.state.commentViewType === CommentViewType.Chat && "active"
             }`}
           >
-            {i18n.t('chat')}
+            {i18n.t("chat")}
             <input
               type="radio"
               value={CommentViewType.Chat}
@@ -447,7 +447,7 @@ export class Post extends Component<any, PostState> {
     let op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       return;
     } else if (msg.reconnect) {
       let postId = Number(this.props.match.params.id);

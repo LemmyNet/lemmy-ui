@@ -1,12 +1,12 @@
-import { Component, linkEvent } from 'inferno';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Subscription } from "rxjs";
 import {
   UserOperation,
   LoginResponse,
   PasswordChange as PasswordChangeForm,
   SiteView,
-} from 'lemmy-js-client';
-import { WebSocketService, UserService } from '../services';
+} from "lemmy-js-client";
+import { WebSocketService, UserService } from "../services";
 import {
   wsJsonToRes,
   capitalizeFirstLetter,
@@ -16,10 +16,10 @@ import {
   wsSubscribe,
   wsUserOp,
   wsClient,
-} from '../utils';
-import { i18n } from '../i18next';
-import { HtmlTags } from './html-tags';
-import { Spinner } from './icon';
+} from "../utils";
+import { i18n } from "../i18next";
+import { HtmlTags } from "./html-tags";
+import { Spinner } from "./icon";
 
 interface State {
   passwordChangeForm: PasswordChangeForm;
@@ -57,7 +57,7 @@ export class PasswordChange extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t('password_change')} - ${this.state.site_view.site.name}`;
+    return `${i18n.t("password_change")} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -69,7 +69,7 @@ export class PasswordChange extends Component<any, State> {
         />
         <div class="row">
           <div class="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{i18n.t('password_change')}</h5>
+            <h5>{i18n.t("password_change")}</h5>
             {this.passwordChangeForm()}
           </div>
         </div>
@@ -82,7 +82,7 @@ export class PasswordChange extends Component<any, State> {
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="new-password">
-            {i18n.t('new_password')}
+            {i18n.t("new_password")}
           </label>
           <div class="col-sm-10">
             <input
@@ -97,7 +97,7 @@ export class PasswordChange extends Component<any, State> {
         </div>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="verify-password">
-            {i18n.t('verify_password')}
+            {i18n.t("verify_password")}
           </label>
           <div class="col-sm-10">
             <input
@@ -116,7 +116,7 @@ export class PasswordChange extends Component<any, State> {
               {this.state.loading ? (
                 <Spinner />
               ) : (
-                capitalizeFirstLetter(i18n.t('save'))
+                capitalizeFirstLetter(i18n.t("save"))
               )}
             </button>
           </div>
@@ -148,7 +148,7 @@ export class PasswordChange extends Component<any, State> {
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       this.state.loading = false;
       this.setState(this.state);
       return;
@@ -157,7 +157,7 @@ export class PasswordChange extends Component<any, State> {
       this.state = this.emptyState;
       this.setState(this.state);
       UserService.Instance.login(data);
-      this.props.history.push('/');
+      this.props.history.push("/");
     }
   }
 }

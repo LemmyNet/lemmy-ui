@@ -1,6 +1,6 @@
-import { Component, linkEvent } from 'inferno';
-import { Prompt } from 'inferno-router';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
+import { Subscription } from "rxjs";
 import {
   CreatePrivateMessage,
   EditPrivateMessage,
@@ -8,8 +8,8 @@ import {
   PrivateMessageResponse,
   UserSafe,
   UserOperation,
-} from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+} from "lemmy-js-client";
+import { WebSocketService } from "../services";
 import {
   capitalizeFirstLetter,
   wsJsonToRes,
@@ -20,12 +20,12 @@ import {
   wsUserOp,
   wsClient,
   authField,
-} from '../utils';
-import { UserListing } from './user-listing';
-import { MarkdownTextArea } from './markdown-textarea';
-import { Icon, Spinner } from './icon';
-import { i18n } from '../i18next';
-import { T } from 'inferno-i18next';
+} from "../utils";
+import { UserListing } from "./user-listing";
+import { MarkdownTextArea } from "./markdown-textarea";
+import { Icon, Spinner } from "./icon";
+import { i18n } from "../i18next";
+import { T } from "inferno-i18next";
 
 interface PrivateMessageFormProps {
   recipient: UserSafe;
@@ -98,13 +98,13 @@ export class PrivateMessageForm extends Component<
       <div>
         <Prompt
           when={!this.state.loading && this.state.privateMessageForm.content}
-          message={i18n.t('block_leaving')}
+          message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
           {!this.props.privateMessage && (
             <div class="form-group row">
               <label class="col-sm-2 col-form-label">
-                {capitalizeFirstLetter(i18n.t('to'))}
+                {capitalizeFirstLetter(i18n.t("to"))}
               </label>
 
               <div class="col-sm-10 form-control-plaintext">
@@ -114,13 +114,13 @@ export class PrivateMessageForm extends Component<
           )}
           <div class="form-group row">
             <label class="col-sm-2 col-form-label">
-              {i18n.t('message')}
+              {i18n.t("message")}
               <span
                 onClick={linkEvent(this, this.handleShowDisclaimer)}
                 role="button"
                 class="ml-2 pointer text-danger"
-                data-tippy-content={i18n.t('disclaimer')}
-                aria-label={i18n.t('disclaimer')}
+                data-tippy-content={i18n.t("disclaimer")}
+                aria-label={i18n.t("disclaimer")}
               >
                 <Icon icon="alert-triangle" classes="icon-inline" />
               </span>
@@ -161,9 +161,9 @@ export class PrivateMessageForm extends Component<
                 {this.state.loading ? (
                   <Spinner />
                 ) : this.props.privateMessage ? (
-                  capitalizeFirstLetter(i18n.t('save'))
+                  capitalizeFirstLetter(i18n.t("save"))
                 ) : (
-                  capitalizeFirstLetter(i18n.t('send_message'))
+                  capitalizeFirstLetter(i18n.t("send_message"))
                 )}
               </button>
               {this.props.privateMessage && (
@@ -172,7 +172,7 @@ export class PrivateMessageForm extends Component<
                   class="btn btn-secondary"
                   onClick={linkEvent(this, this.handleCancel)}
                 >
-                  {i18n.t('cancel')}
+                  {i18n.t("cancel")}
                 </button>
               )}
               <ul class="d-inline-block float-right list-inline mb-1 text-muted font-weight-bold">
@@ -226,7 +226,7 @@ export class PrivateMessageForm extends Component<
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       this.state.loading = false;
       this.setState(this.state);
       return;

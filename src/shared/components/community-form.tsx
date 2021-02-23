@@ -1,6 +1,6 @@
-import { Component, linkEvent } from 'inferno';
-import { Prompt } from 'inferno-router';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
+import { Subscription } from "rxjs";
 import {
   EditCommunity,
   CreateCommunity,
@@ -8,8 +8,8 @@ import {
   Category,
   CommunityResponse,
   CommunityView,
-} from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+} from "lemmy-js-client";
+import { WebSocketService } from "../services";
 import {
   wsJsonToRes,
   capitalizeFirstLetter,
@@ -19,12 +19,12 @@ import {
   wsUserOp,
   wsClient,
   authField,
-} from '../utils';
-import { i18n } from '../i18next';
+} from "../utils";
+import { i18n } from "../i18next";
 
-import { MarkdownTextArea } from './markdown-textarea';
-import { ImageUploadForm } from './image-upload-form';
-import { Icon, Spinner } from './icon';
+import { MarkdownTextArea } from "./markdown-textarea";
+import { ImageUploadForm } from "./image-upload-form";
+import { Icon, Spinner } from "./icon";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
@@ -122,16 +122,16 @@ export class CommunityForm extends Component<
               this.state.communityForm.title ||
               this.state.communityForm.description)
           }
-          message={i18n.t('block_leaving')}
+          message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
           {!this.props.community_view && (
             <div class="form-group row">
               <label class="col-12 col-form-label" htmlFor="community-name">
-                {i18n.t('name')}
+                {i18n.t("name")}
                 <span
                   class="pointer unselectable ml-2 text-muted"
-                  data-tippy-content={i18n.t('name_explain')}
+                  data-tippy-content={i18n.t("name_explain")}
                 >
                   <Icon icon="help-circle" classes="icon-inline" />
                 </span>
@@ -147,17 +147,17 @@ export class CommunityForm extends Component<
                   minLength={3}
                   maxLength={20}
                   pattern="[a-z0-9_]+"
-                  title={i18n.t('community_reqs')}
+                  title={i18n.t("community_reqs")}
                 />
               </div>
             </div>
           )}
           <div class="form-group row">
             <label class="col-12 col-form-label" htmlFor="community-title">
-              {i18n.t('display_name')}
+              {i18n.t("display_name")}
               <span
                 class="pointer unselectable ml-2 text-muted"
-                data-tippy-content={i18n.t('display_name_explain')}
+                data-tippy-content={i18n.t("display_name_explain")}
               >
                 <Icon icon="help-circle" classes="icon-inline" />
               </span>
@@ -176,9 +176,9 @@ export class CommunityForm extends Component<
             </div>
           </div>
           <div class="form-group">
-            <label>{i18n.t('icon')}</label>
+            <label>{i18n.t("icon")}</label>
             <ImageUploadForm
-              uploadTitle={i18n.t('upload_icon')}
+              uploadTitle={i18n.t("upload_icon")}
               imageSrc={this.state.communityForm.icon}
               onUpload={this.handleIconUpload}
               onRemove={this.handleIconRemove}
@@ -186,9 +186,9 @@ export class CommunityForm extends Component<
             />
           </div>
           <div class="form-group">
-            <label>{i18n.t('banner')}</label>
+            <label>{i18n.t("banner")}</label>
             <ImageUploadForm
-              uploadTitle={i18n.t('upload_banner')}
+              uploadTitle={i18n.t("upload_banner")}
               imageSrc={this.state.communityForm.banner}
               onUpload={this.handleBannerUpload}
               onRemove={this.handleBannerRemove}
@@ -196,7 +196,7 @@ export class CommunityForm extends Component<
           </div>
           <div class="form-group row">
             <label class="col-12 col-form-label" htmlFor={this.id}>
-              {i18n.t('sidebar')}
+              {i18n.t("sidebar")}
             </label>
             <div class="col-12">
               <MarkdownTextArea
@@ -207,7 +207,7 @@ export class CommunityForm extends Component<
           </div>
           <div class="form-group row">
             <label class="col-12 col-form-label" htmlFor="community-category">
-              {i18n.t('category')}
+              {i18n.t("category")}
             </label>
             <div class="col-12">
               <select
@@ -235,7 +235,7 @@ export class CommunityForm extends Component<
                     onChange={linkEvent(this, this.handleCommunityNsfwChange)}
                   />
                   <label class="form-check-label" htmlFor="community-nsfw">
-                    {i18n.t('nsfw')}
+                    {i18n.t("nsfw")}
                   </label>
                 </div>
               </div>
@@ -251,9 +251,9 @@ export class CommunityForm extends Component<
                 {this.state.loading ? (
                   <Spinner />
                 ) : this.props.community_view ? (
-                  capitalizeFirstLetter(i18n.t('save'))
+                  capitalizeFirstLetter(i18n.t("save"))
                 ) : (
-                  capitalizeFirstLetter(i18n.t('create'))
+                  capitalizeFirstLetter(i18n.t("create"))
                 )}
               </button>
               {this.props.community_view && (
@@ -262,7 +262,7 @@ export class CommunityForm extends Component<
                   class="btn btn-secondary"
                   onClick={linkEvent(this, this.handleCancel)}
                 >
-                  {i18n.t('cancel')}
+                  {i18n.t("cancel")}
                 </button>
               )}
             </div>
@@ -324,7 +324,7 @@ export class CommunityForm extends Component<
   }
 
   handleIconRemove() {
-    this.state.communityForm.icon = '';
+    this.state.communityForm.icon = "";
     this.setState(this.state);
   }
 
@@ -334,14 +334,14 @@ export class CommunityForm extends Component<
   }
 
   handleBannerRemove() {
-    this.state.communityForm.banner = '';
+    this.state.communityForm.banner = "";
     this.setState(this.state);
   }
 
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       this.state.loading = false;
       this.setState(this.state);
       return;

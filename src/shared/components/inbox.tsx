@@ -1,5 +1,5 @@
-import { Component, linkEvent } from 'inferno';
-import { Subscription } from 'rxjs';
+import { Component, linkEvent } from "inferno";
+import { Subscription } from "rxjs";
 import {
   UserOperation,
   CommentView,
@@ -16,8 +16,8 @@ import {
   PrivateMessageResponse,
   SiteView,
   UserMentionView,
-} from 'lemmy-js-client';
-import { WebSocketService, UserService } from '../services';
+} from "lemmy-js-client";
+import { WebSocketService, UserService } from "../services";
 import {
   wsJsonToRes,
   fetchLimit,
@@ -33,14 +33,14 @@ import {
   wsUserOp,
   wsClient,
   authField,
-} from '../utils';
-import { CommentNodes } from './comment-nodes';
-import { PrivateMessage } from './private-message';
-import { HtmlTags } from './html-tags';
-import { SortSelect } from './sort-select';
-import { Icon, Spinner } from './icon';
-import { i18n } from '../i18next';
-import { InitialFetchRequest } from 'shared/interfaces';
+} from "../utils";
+import { CommentNodes } from "./comment-nodes";
+import { PrivateMessage } from "./private-message";
+import { HtmlTags } from "./html-tags";
+import { SortSelect } from "./sort-select";
+import { Icon, Spinner } from "./icon";
+import { i18n } from "../i18next";
+import { InitialFetchRequest } from "shared/interfaces";
 
 enum UnreadOrAll {
   Unread,
@@ -102,7 +102,7 @@ export class Inbox extends Component<any, InboxState> {
     this.handleSortChange = this.handleSortChange.bind(this);
 
     if (!UserService.Instance.user && isBrowser()) {
-      toast(i18n.t('not_logged_in'), 'danger');
+      toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
 
@@ -128,7 +128,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   get documentTitle(): string {
-    return `@${UserService.Instance.user.name} ${i18n.t('inbox')} - ${
+    return `@${UserService.Instance.user.name} ${i18n.t("inbox")} - ${
       this.state.site_view.site.name
     }`;
   }
@@ -148,7 +148,7 @@ export class Inbox extends Component<any, InboxState> {
                 path={this.context.router.route.match.url}
               />
               <h5 class="mb-1">
-                {i18n.t('inbox')}
+                {i18n.t("inbox")}
                 <small>
                   <a
                     href={`/feeds/inbox/${UserService.Instance.auth}.xml`}
@@ -171,7 +171,7 @@ export class Inbox extends Component<any, InboxState> {
                         role="button"
                         onClick={linkEvent(this, this.markAllAsRead)}
                       >
-                        {i18n.t('mark_all_as_read')}
+                        {i18n.t("mark_all_as_read")}
                       </span>
                     </li>
                   </ul>
@@ -196,7 +196,7 @@ export class Inbox extends Component<any, InboxState> {
       <div class="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.Unread && 'active'}
+            ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
           `}
         >
           <input
@@ -205,11 +205,11 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t('unread')}
+          {i18n.t("unread")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.All && 'active'}
+            ${this.state.unreadOrAll == UnreadOrAll.All && "active"}
           `}
         >
           <input
@@ -218,7 +218,7 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t('all')}
+          {i18n.t("all")}
         </label>
       </div>
     );
@@ -229,7 +229,7 @@ export class Inbox extends Component<any, InboxState> {
       <div class="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.All && 'active'}
+            ${this.state.messageType == MessageType.All && "active"}
           `}
         >
           <input
@@ -238,11 +238,11 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.messageType == MessageType.All}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t('all')}
+          {i18n.t("all")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Replies && 'active'}
+            ${this.state.messageType == MessageType.Replies && "active"}
           `}
         >
           <input
@@ -251,11 +251,11 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.messageType == MessageType.Replies}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t('replies')}
+          {i18n.t("replies")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Mentions && 'active'}
+            ${this.state.messageType == MessageType.Mentions && "active"}
           `}
         >
           <input
@@ -264,11 +264,11 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.messageType == MessageType.Mentions}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t('mentions')}
+          {i18n.t("mentions")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Messages && 'active'}
+            ${this.state.messageType == MessageType.Messages && "active"}
           `}
         >
           <input
@@ -277,7 +277,7 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.messageType == MessageType.Messages}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t('messages')}
+          {i18n.t("messages")}
         </label>
       </div>
     );
@@ -437,7 +437,7 @@ export class Inbox extends Component<any, InboxState> {
             class="btn btn-secondary mr-1"
             onClick={linkEvent(this, this.prevPage)}
           >
-            {i18n.t('prev')}
+            {i18n.t("prev")}
           </button>
         )}
         {this.unreadCount() > 0 && (
@@ -445,7 +445,7 @@ export class Inbox extends Component<any, InboxState> {
             class="btn btn-secondary"
             onClick={linkEvent(this, this.nextPage)}
           >
-            {i18n.t('next')}
+            {i18n.t("next")}
           </button>
         )}
       </div>
@@ -566,7 +566,7 @@ export class Inbox extends Component<any, InboxState> {
     let op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), 'danger');
+      toast(i18n.t(msg.error), "danger");
       return;
     } else if (msg.reconnect) {
       this.refetch();
@@ -753,7 +753,7 @@ export class Inbox extends Component<any, InboxState> {
         this.setState(this.state);
       } else if (data.comment_view.creator.id == UserService.Instance.user.id) {
         // TODO this seems wrong, you should be using form_id
-        toast(i18n.t('reply_sent'));
+        toast(i18n.t("reply_sent"));
       }
     } else if (op == UserOperation.CreatePrivateMessage) {
       let data = wsJsonToRes<PrivateMessageResponse>(msg).data;

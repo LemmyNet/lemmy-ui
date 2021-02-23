@@ -1,7 +1,7 @@
-import { Component } from 'inferno';
-import { CommentNode as CommentNodeI } from '../interfaces';
-import { CommunityModeratorView, UserViewSafe } from 'lemmy-js-client';
-import { CommentNode } from './comment-node';
+import { Component } from "inferno";
+import { CommentNode as CommentNodeI } from "../interfaces";
+import { CommunityModeratorView, UserViewSafe } from "lemmy-js-client";
+import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
@@ -18,10 +18,7 @@ interface CommentNodesProps {
   enableDownvotes: boolean;
 }
 
-export class CommentNodes extends Component<
-  CommentNodesProps,
-  any
-> {
+export class CommentNodes extends Component<CommentNodesProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }

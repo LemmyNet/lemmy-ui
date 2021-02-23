@@ -1,17 +1,17 @@
-import { Component, linkEvent } from 'inferno';
-import { Prompt } from 'inferno-router';
-import { MarkdownTextArea } from './markdown-textarea';
-import { Spinner } from './icon';
-import { ImageUploadForm } from './image-upload-form';
-import { Site, EditSite } from 'lemmy-js-client';
-import { WebSocketService } from '../services';
+import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
+import { MarkdownTextArea } from "./markdown-textarea";
+import { Spinner } from "./icon";
+import { ImageUploadForm } from "./image-upload-form";
+import { Site, EditSite } from "lemmy-js-client";
+import { WebSocketService } from "../services";
 import {
   authField,
   capitalizeFirstLetter,
   randomStr,
   wsClient,
-} from '../utils';
-import { i18n } from '../i18next';
+} from "../utils";
+import { i18n } from "../i18next";
 
 interface SiteFormProps {
   site?: Site; // If a site is given, that means this is an edit
@@ -97,17 +97,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !this.props.site &&
             (this.state.siteForm.name || this.state.siteForm.description)
           }
-          message={i18n.t('block_leaving')}
+          message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handleCreateSiteSubmit)}>
           <h5>{`${
             this.props.site
-              ? capitalizeFirstLetter(i18n.t('save'))
-              : capitalizeFirstLetter(i18n.t('name'))
-          } ${i18n.t('your_site')}`}</h5>
+              ? capitalizeFirstLetter(i18n.t("save"))
+              : capitalizeFirstLetter(i18n.t("name"))
+          } ${i18n.t("your_site")}`}</h5>
           <div class="form-group row">
             <label class="col-12 col-form-label" htmlFor="create-site-name">
-              {i18n.t('name')}
+              {i18n.t("name")}
             </label>
             <div class="col-12">
               <input
@@ -123,9 +123,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
           <div class="form-group">
-            <label>{i18n.t('icon')}</label>
+            <label>{i18n.t("icon")}</label>
             <ImageUploadForm
-              uploadTitle={i18n.t('upload_icon')}
+              uploadTitle={i18n.t("upload_icon")}
               imageSrc={this.state.siteForm.icon}
               onUpload={this.handleIconUpload}
               onRemove={this.handleIconRemove}
@@ -133,9 +133,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
           <div class="form-group">
-            <label>{i18n.t('banner')}</label>
+            <label>{i18n.t("banner")}</label>
             <ImageUploadForm
-              uploadTitle={i18n.t('upload_banner')}
+              uploadTitle={i18n.t("upload_banner")}
               imageSrc={this.state.siteForm.banner}
               onUpload={this.handleBannerUpload}
               onRemove={this.handleBannerRemove}
@@ -143,7 +143,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
           <div class="form-group row">
             <label class="col-12 col-form-label" htmlFor={this.id}>
-              {i18n.t('sidebar')}
+              {i18n.t("sidebar")}
             </label>
             <div class="col-12">
               <MarkdownTextArea
@@ -167,7 +167,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   )}
                 />
                 <label class="form-check-label" htmlFor="create-site-downvotes">
-                  {i18n.t('enable_downvotes')}
+                  {i18n.t("enable_downvotes")}
                 </label>
               </div>
             </div>
@@ -186,7 +186,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   class="form-check-label"
                   htmlFor="create-site-enable-nsfw"
                 >
-                  {i18n.t('enable_nsfw')}
+                  {i18n.t("enable_nsfw")}
                 </label>
               </div>
             </div>
@@ -208,7 +208,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   class="form-check-label"
                   htmlFor="create-site-open-registration"
                 >
-                  {i18n.t('open_registration')}
+                  {i18n.t("open_registration")}
                 </label>
               </div>
             </div>
@@ -223,9 +223,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 {this.state.loading ? (
                   <Spinner />
                 ) : this.props.site ? (
-                  capitalizeFirstLetter(i18n.t('save'))
+                  capitalizeFirstLetter(i18n.t("save"))
                 ) : (
-                  capitalizeFirstLetter(i18n.t('create'))
+                  capitalizeFirstLetter(i18n.t("create"))
                 )}
               </button>
               {this.props.site && (
@@ -234,7 +234,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   class="btn btn-secondary"
                   onClick={linkEvent(this, this.handleCancel)}
                 >
-                  {i18n.t('cancel')}
+                  {i18n.t("cancel")}
                 </button>
               )}
             </div>
@@ -290,7 +290,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleIconRemove() {
-    this.state.siteForm.icon = '';
+    this.state.siteForm.icon = "";
     this.setState(this.state);
   }
 
@@ -300,7 +300,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleBannerRemove() {
-    this.state.siteForm.banner = '';
+    this.state.siteForm.banner = "";
     this.setState(this.state);
   }
 }

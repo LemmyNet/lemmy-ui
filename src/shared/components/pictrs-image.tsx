@@ -1,4 +1,4 @@
-import { Component } from 'inferno';
+import { Component } from "inferno";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -22,22 +22,22 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
   render() {
     return (
       <picture>
-        <source srcSet={this.src('webp')} type="image/webp" />
-        <source srcSet={this.src('jpg')} type="image/jpeg" />
+        <source srcSet={this.src("webp")} type="image/webp" />
+        <source srcSet={this.src("jpg")} type="image/jpeg" />
         <img
-          src={this.src('jpg')}
+          src={this.src("jpg")}
           alt={this.alt()}
           className={`
-        ${!this.props.icon && !this.props.iconOverlay && 'img-fluid '}
+        ${!this.props.icon && !this.props.iconOverlay && "img-fluid "}
         ${
           this.props.thumbnail && !this.props.icon
-            ? 'thumbnail rounded '
-            : 'img-expanded '
+            ? "thumbnail rounded "
+            : "img-expanded "
         }
-        ${this.props.thumbnail && this.props.nsfw && 'img-blur '}
-        ${this.props.icon && 'rounded-circle img-icon mr-2 '}
-        ${this.props.iconOverlay && 'ml-2 mb-0 rounded-circle avatar-overlay '}
-        ${this.props.pushup && 'avatar-pushup '}
+        ${this.props.thumbnail && this.props.nsfw && "img-blur "}
+        ${this.props.icon && "rounded-circle img-icon mr-2 "}
+        ${this.props.iconOverlay && "ml-2 mb-0 rounded-circle avatar-overlay "}
+        ${this.props.pushup && "avatar-pushup "}
         `}
         />
       </picture>
@@ -48,7 +48,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     // sample url:
     // http://localhost:8535/pictrs/image/file.png?thumbnail=256&format=jpg
 
-    let split = this.props.src.split('/pictrs/image/');
+    let split = this.props.src.split("/pictrs/image/");
 
     // If theres not multiple, then its not a pictrs image
     if (split.length == 1) {
@@ -61,11 +61,11 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     let params = { format };
 
     if (this.props.thumbnail) {
-      params['thumbnail'] = thumbnailSize;
+      params["thumbnail"] = thumbnailSize;
     } else if (this.props.icon) {
-      params['thumbnail'] = iconThumbnailSize;
+      params["thumbnail"] = iconThumbnailSize;
     } else {
-      params['thumbnail'] = maxImageSize;
+      params["thumbnail"] = maxImageSize;
     }
 
     let paramsStr = `?${new URLSearchParams(params).toString()}`;
@@ -76,8 +76,8 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
 
   alt(): string {
     if (this.props.icon) {
-      return '';
+      return "";
     }
-    return this.props.alt || '';
+    return this.props.alt || "";
   }
 }

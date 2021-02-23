@@ -1,8 +1,8 @@
-import { Component, linkEvent } from 'inferno';
-import { ListingType } from 'lemmy-js-client';
-import { UserService } from '../services';
-import { randomStr } from '../utils';
-import { i18n } from '../i18next';
+import { Component, linkEvent } from "inferno";
+import { ListingType } from "lemmy-js-client";
+import { UserService } from "../services";
+import { randomStr } from "../utils";
+import { i18n } from "../i18next";
 
 interface ListingTypeSelectProps {
   type_: ListingType;
@@ -41,8 +41,8 @@ export class ListingTypeSelect extends Component<
       <div class="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary 
-            ${this.state.type_ == ListingType.Subscribed && 'active'}
-            ${UserService.Instance.user == undefined ? 'disabled' : 'pointer'}
+            ${this.state.type_ == ListingType.Subscribed && "active"}
+            ${UserService.Instance.user == undefined ? "disabled" : "pointer"}
           `}
         >
           <input
@@ -53,12 +53,12 @@ export class ListingTypeSelect extends Component<
             onChange={linkEvent(this, this.handleTypeChange)}
             disabled={UserService.Instance.user == undefined}
           />
-          {i18n.t('subscribed')}
+          {i18n.t("subscribed")}
         </label>
         {this.props.showLocal && (
           <label
             className={`pointer btn btn-outline-secondary ${
-              this.state.type_ == ListingType.Local && 'active'
+              this.state.type_ == ListingType.Local && "active"
             }`}
           >
             <input
@@ -68,15 +68,15 @@ export class ListingTypeSelect extends Component<
               checked={this.state.type_ == ListingType.Local}
               onChange={linkEvent(this, this.handleTypeChange)}
             />
-            {i18n.t('local')}
+            {i18n.t("local")}
           </label>
         )}
         <label
           className={`pointer btn btn-outline-secondary ${
-            (this.state.type_ == ListingType.All && 'active') ||
+            (this.state.type_ == ListingType.All && "active") ||
             (!this.props.showLocal &&
               this.state.type_ == ListingType.Local &&
-              'active')
+              "active")
           }`}
         >
           <input
@@ -86,7 +86,7 @@ export class ListingTypeSelect extends Component<
             checked={this.state.type_ == ListingType.All}
             onChange={linkEvent(this, this.handleTypeChange)}
           />
-          {i18n.t('all')}
+          {i18n.t("all")}
         </label>
       </div>
     );

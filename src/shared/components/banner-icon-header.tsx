@@ -1,5 +1,5 @@
-import { Component } from 'inferno';
-import { PictrsImage } from './pictrs-image';
+import { Component } from "inferno";
+import { PictrsImage } from "./pictrs-image";
 
 interface BannerIconHeaderProps {
   banner?: string;

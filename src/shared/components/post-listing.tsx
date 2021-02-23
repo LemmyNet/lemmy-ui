@@ -1,6 +1,6 @@
-import { Component, linkEvent } from 'inferno';
-import { Link } from 'inferno-router';
-import { WebSocketService, UserService } from '../services';
+import { Component, linkEvent } from "inferno";
+import { Link } from "inferno-router";
+import { WebSocketService, UserService } from "../services";
 import {
   PostView,
   CreatePostLike,
@@ -17,15 +17,15 @@ import {
   TransferSite,
   TransferCommunity,
   CommunityModeratorView,
-} from 'lemmy-js-client';
-import { BanType } from '../interfaces';
-import { MomentTime } from './moment-time';
-import { PostForm } from './post-form';
-import { IFramelyCard } from './iframely-card';
-import { UserListing } from './user-listing';
-import { CommunityLink } from './community-link';
-import { PictrsImage } from './pictrs-image';
-import { Icon } from './icon';
+} from "lemmy-js-client";
+import { BanType } from "../interfaces";
+import { MomentTime } from "./moment-time";
+import { PostForm } from "./post-form";
+import { IFramelyCard } from "./iframely-card";
+import { UserListing } from "./user-listing";
+import { CommunityLink } from "./community-link";
+import { PictrsImage } from "./pictrs-image";
+import { Icon } from "./icon";
 import {
   md,
   mdToHtml,
@@ -39,9 +39,9 @@ import {
   previewLines,
   wsClient,
   authField,
-} from '../utils';
-import { i18n } from '../i18next';
-import { externalHost } from '../env';
+} from "../utils";
+import { i18n } from "../i18next";
+import { externalHost } from "../env";
 
 interface PostListingState {
   showEdit: boolean;
@@ -179,7 +179,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   getImageSrc(): string {
     let post = this.props.post_view.post;
     if (isImage(post.url)) {
-      if (post.url.includes('pictrs')) {
+      if (post.url.includes("pictrs")) {
         return post.url;
       } else if (post.thumbnail_url) {
         return post.thumbnail_url;
@@ -200,10 +200,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return (
         <div
           class="float-right text-body pointer d-inline-block position-relative mb-2"
-          data-tippy-content={i18n.t('expand_here')}
+          data-tippy-content={i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           role="button"
-          aria-label={i18n.t('expand_here')}
+          aria-label={i18n.t("expand_here")}
         >
           {this.imgThumb(this.getImageSrc())}
           <Icon icon="image" classes="mini-overlay" />
@@ -255,7 +255,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <Link
           className="text-body"
           to={`/post/${post.id}`}
-          title={i18n.t('comments')}
+          title={i18n.t("comments")}
         >
           <div class="thumbnail rounded bg-light d-flex justify-content-center">
             <Icon icon="message-square" classes="d-flex align-items-center" />
@@ -273,18 +273,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <UserListing user={post_view.creator} />
 
           {this.isMod && (
-            <span className="mx-1 badge badge-light">{i18n.t('mod')}</span>
+            <span className="mx-1 badge badge-light">{i18n.t("mod")}</span>
           )}
           {this.isAdmin && (
-            <span className="mx-1 badge badge-light">{i18n.t('admin')}</span>
+            <span className="mx-1 badge badge-light">{i18n.t("admin")}</span>
           )}
           {(post_view.creator_banned_from_community ||
             post_view.creator.banned) && (
-            <span className="mx-1 badge badge-danger">{i18n.t('banned')}</span>
+            <span className="mx-1 badge badge-danger">{i18n.t("banned")}</span>
           )}
           {this.props.showCommunity && (
             <span>
-              <span class="mx-1"> {i18n.t('to')} </span>
+              <span class="mx-1"> {i18n.t("to")} </span>
               <CommunityLink community={post_view.community} />
             </span>
           )}
@@ -321,7 +321,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   previewLines(post_view.post.body)
                 )}
                 data-tippy-allowHtml={true}
-                aria-label={i18n.t('upvote')}
+                aria-label={i18n.t("upvote")}
                 to={`/post/${post_view.post.id}`}
               >
                 <Icon icon="book-open" classes="icon-inline mr-1" />
@@ -338,11 +338,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <div className={`vote-bar col-1 pr-0 small text-center`}>
         <button
           className={`btn-animate btn btn-link p-0 ${
-            this.state.my_vote == 1 ? 'text-info' : 'text-muted'
+            this.state.my_vote == 1 ? "text-info" : "text-muted"
           }`}
           onClick={linkEvent(this, this.handlePostLike)}
-          data-tippy-content={i18n.t('upvote')}
-          aria-label={i18n.t('upvote')}
+          data-tippy-content={i18n.t("upvote")}
+          aria-label={i18n.t("upvote")}
         >
           <Icon icon="arrow-up1" classes="upvote" />
         </button>
@@ -355,11 +355,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.props.enableDownvotes && (
           <button
             className={`btn-animate btn btn-link p-0 ${
-              this.state.my_vote == -1 ? 'text-danger' : 'text-muted'
+              this.state.my_vote == -1 ? "text-danger" : "text-muted"
             }`}
             onClick={linkEvent(this, this.handlePostDisLike)}
-            data-tippy-content={i18n.t('downvote')}
-            aria-label={i18n.t('downvote')}
+            data-tippy-content={i18n.t("downvote")}
+            aria-label={i18n.t("downvote")}
           >
             <Icon icon="arrow-down1" classes="downvote" />
           </button>
@@ -375,7 +375,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <h5>
           {this.props.showBody && post.url ? (
             <a
-              className={!post.stickied ? 'text-body' : 'text-primary'}
+              className={!post.stickied ? "text-body" : "text-primary"}
               href={post.url}
               title={post.url}
               rel="noopener"
@@ -384,9 +384,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </a>
           ) : (
             <Link
-              className={!post.stickied ? 'text-body' : 'text-primary'}
+              className={!post.stickied ? "text-body" : "text-primary"}
               to={`/post/${post.id}`}
-              title={i18n.t('comments')}
+              title={i18n.t("comments")}
             >
               {post.name}
             </Link>
@@ -395,7 +395,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             (!this.state.imageExpanded ? (
               <span
                 class="text-monospace unselectable pointer ml-2 text-muted small"
-                data-tippy-content={i18n.t('expand_here')}
+                data-tippy-content={i18n.t("expand_here")}
                 onClick={linkEvent(this, this.handleImageExpandClick)}
               >
                 <Icon icon="plus-square" classes="icon-inline" />
@@ -420,13 +420,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ))}
           {post.removed && (
             <small className="ml-2 text-muted font-italic">
-              {i18n.t('removed')}
+              {i18n.t("removed")}
             </small>
           )}
           {post.deleted && (
             <small
               className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t('deleted')}
+              data-tippy-content={i18n.t("deleted")}
             >
               <Icon icon="trash" classes="icon-inline text-danger" />
             </small>
@@ -434,7 +434,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {post.locked && (
             <small
               className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t('locked')}
+              data-tippy-content={i18n.t("locked")}
             >
               <Icon icon="lock" classes="icon-inline text-danger" />
             </small>
@@ -442,14 +442,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {post.stickied && (
             <small
               className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t('stickied')}
+              data-tippy-content={i18n.t("stickied")}
             >
               <Icon icon="pin" classes="icon-inline text-primary" />
             </small>
           )}
           {post.nsfw && (
             <small className="ml-2 text-muted font-italic">
-              {i18n.t('nsfw')}
+              {i18n.t("nsfw")}
             </small>
           )}
         </h5>
@@ -464,13 +464,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <button class="btn btn-link text-muted p-0">
           <Link
             className="text-muted small"
-            title={i18n.t('number_of_comments', {
+            title={i18n.t("number_of_comments", {
               count: post_view.counts.comments,
             })}
             to={`/post/${post_view.post.id}`}
           >
             <Icon icon="message-square" classes="icon-inline mr-1" />
-            {i18n.t('number_of_comments', {
+            {i18n.t("number_of_comments", {
               count: post_view.counts.comments,
             })}
           </Link>
@@ -481,7 +481,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <button
                 class="btn text-muted py-0 pr-0"
                 data-tippy-content={this.pointsTippy}
-                aria-label={i18n.t('downvote')}
+                aria-label={i18n.t("downvote")}
               >
                 <small>
                   <Icon icon="arrow-down1" classes="icon-inline mr-1" />
@@ -494,14 +494,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleSavePostClick)}
                 data-tippy-content={
-                  post_view.saved ? i18n.t('unsave') : i18n.t('save')
+                  post_view.saved ? i18n.t("unsave") : i18n.t("save")
                 }
-                aria-label={post_view.saved ? i18n.t('unsave') : i18n.t('save')}
+                aria-label={post_view.saved ? i18n.t("unsave") : i18n.t("save")}
               >
                 <small>
                   <Icon
                     icon="star"
-                    classes={`icon-inline ${post_view.saved && 'text-warning'}`}
+                    classes={`icon-inline ${post_view.saved && "text-warning"}`}
                   />
                 </small>
               </button>
@@ -515,11 +515,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <div>
               <button
                 className={`btn-animate btn py-0 px-1 ${
-                  this.state.my_vote == 1 ? 'text-info' : 'text-muted'
+                  this.state.my_vote == 1 ? "text-info" : "text-muted"
                 }`}
                 data-tippy-content={this.pointsTippy}
                 onClick={linkEvent(this, this.handlePostLike)}
-                aria-label={i18n.t('upvote')}
+                aria-label={i18n.t("upvote")}
               >
                 <Icon icon="arrow-up1" classes="icon-inline small mr-2" />
                 {this.state.upvotes}
@@ -527,11 +527,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.props.enableDownvotes && (
                 <button
                   className={`ml-2 btn-animate btn py-0 pl-1 ${
-                    this.state.my_vote == -1 ? 'text-danger' : 'text-muted'
+                    this.state.my_vote == -1 ? "text-danger" : "text-muted"
                   }`}
                   onClick={linkEvent(this, this.handlePostDisLike)}
                   data-tippy-content={this.pointsTippy}
-                  aria-label={i18n.t('downvote')}
+                  aria-label={i18n.t("downvote")}
                 >
                   <Icon icon="arrow-down1" classes="icon-inline small mr-2" />
                   {this.state.downvotes !== 0 && (
@@ -543,14 +543,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <button
               class="btn btn-link btn-animate text-muted py-0 pl-1 pr-0"
               onClick={linkEvent(this, this.handleSavePostClick)}
-              aria-label={post_view.saved ? i18n.t('unsave') : i18n.t('save')}
+              aria-label={post_view.saved ? i18n.t("unsave") : i18n.t("save")}
               data-tippy-content={
-                post_view.saved ? i18n.t('unsave') : i18n.t('save')
+                post_view.saved ? i18n.t("unsave") : i18n.t("save")
               }
             >
               <Icon
                 icon="star"
-                classes={`icon-inline ${post_view.saved && 'text-warning'}`}
+                classes={`icon-inline ${post_view.saved && "text-warning"}`}
               />
             </button>
 
@@ -558,8 +558,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <button
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleShowMoreMobile)}
-                aria-label={i18n.t('more')}
-                data-tippy-content={i18n.t('more')}
+                aria-label={i18n.t("more")}
+                data-tippy-content={i18n.t("more")}
               >
                 <Icon icon="more-vertical" classes="icon-inline" />
               </button>
@@ -579,7 +579,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <ul class="list-inline mb-1 small text-muted">
           <>
             <li className="list-inline-item mr-2">
-              {i18n.t('cross_posted_to')}
+              {i18n.t("cross_posted_to")}
             </li>
             {dupes.map(pv => (
               <li className="list-inline-item mr-2">
@@ -608,22 +608,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   class="btn btn-link btn-animate text-muted py-0 pl-0"
                   onClick={linkEvent(this, this.handleSavePostClick)}
                   data-tippy-content={
-                    post_view.saved ? i18n.t('unsave') : i18n.t('save')
+                    post_view.saved ? i18n.t("unsave") : i18n.t("save")
                   }
                   aria-label={
-                    post_view.saved ? i18n.t('unsave') : i18n.t('save')
+                    post_view.saved ? i18n.t("unsave") : i18n.t("save")
                   }
                 >
                   <Icon
                     icon="star"
-                    classes={`icon-inline ${post_view.saved && 'text-warning'}`}
+                    classes={`icon-inline ${post_view.saved && "text-warning"}`}
                   />
                 </button>
               )}
               <Link
                 className="btn btn-link btn-animate text-muted py-0"
                 to={`/create_post${this.crossPostParams}`}
-                title={i18n.t('cross_post')}
+                title={i18n.t("cross_post")}
               >
                 <Icon icon="copy" classes="icon-inline" />
               </Link>
@@ -634,8 +634,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <button
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleEditClick)}
-                data-tippy-content={i18n.t('edit')}
-                aria-label={i18n.t('edit')}
+                data-tippy-content={i18n.t("edit")}
+                aria-label={i18n.t("edit")}
               >
                 <Icon icon="edit" classes="icon-inline" />
               </button>
@@ -643,16 +643,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleDeleteClick)}
                 data-tippy-content={
-                  !post_view.post.deleted ? i18n.t('delete') : i18n.t('restore')
+                  !post_view.post.deleted ? i18n.t("delete") : i18n.t("restore")
                 }
                 aria-label={
-                  !post_view.post.deleted ? i18n.t('delete') : i18n.t('restore')
+                  !post_view.post.deleted ? i18n.t("delete") : i18n.t("restore")
                 }
               >
                 <Icon
                   icon="trash"
                   classes={`icon-inline ${
-                    post_view.post.deleted && 'text-danger'
+                    post_view.post.deleted && "text-danger"
                   }`}
                 />
               </button>
@@ -663,8 +663,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <button
               class="btn btn-link btn-animate text-muted py-0"
               onClick={linkEvent(this, this.handleShowAdvanced)}
-              data-tippy-content={i18n.t('more')}
-              aria-label={i18n.t('more')}
+              data-tippy-content={i18n.t("more")}
+              aria-label={i18n.t("more")}
             >
               <Icon icon="more-vertical" classes="icon-inline" />
             </button>
@@ -674,13 +674,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <button
                   class="btn btn-link btn-animate text-muted py-0"
                   onClick={linkEvent(this, this.handleViewSource)}
-                  data-tippy-content={i18n.t('view_source')}
-                  aria-label={i18n.t('view_source')}
+                  data-tippy-content={i18n.t("view_source")}
+                  aria-label={i18n.t("view_source")}
                 >
                   <Icon
                     icon="file-text"
                     classes={`icon-inline ${
-                      this.state.viewSource && 'text-success'
+                      this.state.viewSource && "text-success"
                     }`}
                   />
                 </button>
@@ -691,16 +691,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModLock)}
                     data-tippy-content={
-                      post_view.post.locked ? i18n.t('unlock') : i18n.t('lock')
+                      post_view.post.locked ? i18n.t("unlock") : i18n.t("lock")
                     }
                     aria-label={
-                      post_view.post.locked ? i18n.t('unlock') : i18n.t('lock')
+                      post_view.post.locked ? i18n.t("unlock") : i18n.t("lock")
                     }
                   >
                     <Icon
                       icon="lock"
                       classes={`icon-inline ${
-                        post_view.post.locked && 'text-danger'
+                        post_view.post.locked && "text-danger"
                       }`}
                     />
                   </button>
@@ -709,19 +709,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     onClick={linkEvent(this, this.handleModSticky)}
                     data-tippy-content={
                       post_view.post.stickied
-                        ? i18n.t('unsticky')
-                        : i18n.t('sticky')
+                        ? i18n.t("unsticky")
+                        : i18n.t("sticky")
                     }
                     aria-label={
                       post_view.post.stickied
-                        ? i18n.t('unsticky')
-                        : i18n.t('sticky')
+                        ? i18n.t("unsticky")
+                        : i18n.t("sticky")
                     }
                   >
                     <Icon
                       icon="pin"
                       classes={`icon-inline ${
-                        post_view.post.stickied && 'text-success'
+                        post_view.post.stickied && "text-success"
                       }`}
                     />
                   </button>
@@ -733,17 +733,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModRemoveShow)}
-                    aria-label={i18n.t('remove')}
+                    aria-label={i18n.t("remove")}
                   >
-                    {i18n.t('remove')}
+                    {i18n.t("remove")}
                   </button>
                 ) : (
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModRemoveSubmit)}
-                    aria-label={i18n.t('restore')}
+                    aria-label={i18n.t("restore")}
                   >
-                    {i18n.t('restore')}
+                    {i18n.t("restore")}
                   </button>
                 ))}
               {this.canMod && (
@@ -756,9 +756,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                           this,
                           this.handleModBanFromCommunityShow
                         )}
-                        aria-label={i18n.t('ban')}
+                        aria-label={i18n.t("ban")}
                       >
-                        {i18n.t('ban')}
+                        {i18n.t("ban")}
                       </button>
                     ) : (
                       <button
@@ -767,9 +767,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                           this,
                           this.handleModBanFromCommunitySubmit
                         )}
-                        aria-label={i18n.t('unban')}
+                        aria-label={i18n.t("unban")}
                       >
-                        {i18n.t('unban')}
+                        {i18n.t("unban")}
                       </button>
                     ))}
                   {!post_view.creator_banned_from_community &&
@@ -779,13 +779,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                         onClick={linkEvent(this, this.handleAddModToCommunity)}
                         aria-label={
                           this.isMod
-                            ? i18n.t('remove_as_mod')
-                            : i18n.t('appoint_as_mod')
+                            ? i18n.t("remove_as_mod")
+                            : i18n.t("appoint_as_mod")
                         }
                       >
                         {this.isMod
-                          ? i18n.t('remove_as_mod')
-                          : i18n.t('appoint_as_mod')}
+                          ? i18n.t("remove_as_mod")
+                          : i18n.t("appoint_as_mod")}
                       </button>
                     )}
                 </>
@@ -801,24 +801,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       this,
                       this.handleShowConfirmTransferCommunity
                     )}
-                    aria-label={i18n.t('transfer_community')}
+                    aria-label={i18n.t("transfer_community")}
                   >
-                    {i18n.t('transfer_community')}
+                    {i18n.t("transfer_community")}
                   </button>
                 ) : (
                   <>
                     <button
                       class="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
-                      aria-label={i18n.t('are_you_sure')}
+                      aria-label={i18n.t("are_you_sure")}
                     >
-                      {i18n.t('are_you_sure')}
+                      {i18n.t("are_you_sure")}
                     </button>
                     <button
                       class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
-                      aria-label={i18n.t('yes')}
+                      aria-label={i18n.t("yes")}
                       onClick={linkEvent(this, this.handleTransferCommunity)}
                     >
-                      {i18n.t('yes')}
+                      {i18n.t("yes")}
                     </button>
                     <button
                       class="btn btn-link btn-animate text-muted py-0 d-inline-block"
@@ -826,9 +826,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                         this,
                         this.handleCancelShowConfirmTransferCommunity
                       )}
-                      aria-label={i18n.t('no')}
+                      aria-label={i18n.t("no")}
                     >
-                      {i18n.t('no')}
+                      {i18n.t("no")}
                     </button>
                   </>
                 ))}
@@ -840,17 +840,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       <button
                         class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(this, this.handleModBanShow)}
-                        aria-label={i18n.t('ban_from_site')}
+                        aria-label={i18n.t("ban_from_site")}
                       >
-                        {i18n.t('ban_from_site')}
+                        {i18n.t("ban_from_site")}
                       </button>
                     ) : (
                       <button
                         class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(this, this.handleModBanSubmit)}
-                        aria-label={i18n.t('unban_from_site')}
+                        aria-label={i18n.t("unban_from_site")}
                       >
-                        {i18n.t('unban_from_site')}
+                        {i18n.t("unban_from_site")}
                       </button>
                     ))}
                   {!post_view.creator.banned && post_view.creator.local && (
@@ -859,13 +859,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       onClick={linkEvent(this, this.handleAddAdmin)}
                       aria-label={
                         this.isAdmin
-                          ? i18n.t('remove_as_admin')
-                          : i18n.t('appoint_as_admin')
+                          ? i18n.t("remove_as_admin")
+                          : i18n.t("appoint_as_admin")
                       }
                     >
                       {this.isAdmin
-                        ? i18n.t('remove_as_admin')
-                        : i18n.t('appoint_as_admin')}
+                        ? i18n.t("remove_as_admin")
+                        : i18n.t("appoint_as_admin")}
                     </button>
                   )}
                 </>
@@ -880,24 +880,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       this,
                       this.handleShowConfirmTransferSite
                     )}
-                    aria-label={i18n.t('transfer_site')}
+                    aria-label={i18n.t("transfer_site")}
                   >
-                    {i18n.t('transfer_site')}
+                    {i18n.t("transfer_site")}
                   </button>
                 ) : (
                   <>
                     <button
                       class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
-                      aria-label={i18n.t('are_you_sure')}
+                      aria-label={i18n.t("are_you_sure")}
                     >
-                      {i18n.t('are_you_sure')}
+                      {i18n.t("are_you_sure")}
                     </button>
                     <button
                       class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
                       onClick={linkEvent(this, this.handleTransferSite)}
-                      aria-label={i18n.t('yes')}
+                      aria-label={i18n.t("yes")}
                     >
-                      {i18n.t('yes')}
+                      {i18n.t("yes")}
                     </button>
                     <button
                       class="btn btn-link btn-animate text-muted py-0 d-inline-block"
@@ -905,9 +905,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                         this,
                         this.handleCancelShowConfirmTransferSite
                       )}
-                      aria-label={i18n.t('no')}
+                      aria-label={i18n.t("no")}
                     >
-                      {i18n.t('no')}
+                      {i18n.t("no")}
                     </button>
                   </>
                 ))}
@@ -928,22 +928,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
           >
             <label class="sr-only" htmlFor="post-listing-remove-reason">
-              {i18n.t('reason')}
+              {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="post-listing-remove-reason"
               class="form-control mr-2"
-              placeholder={i18n.t('reason')}
+              placeholder={i18n.t("reason")}
               value={this.state.removeReason}
               onInput={linkEvent(this, this.handleModRemoveReasonChange)}
             />
             <button
               type="submit"
               class="btn btn-secondary"
-              aria-label={i18n.t('remove_post')}
+              aria-label={i18n.t("remove_post")}
             >
-              {i18n.t('remove_post')}
+              {i18n.t("remove_post")}
             </button>
           </form>
         )}
@@ -951,13 +951,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
             <div class="form-group row">
               <label class="col-form-label" htmlFor="post-listing-ban-reason">
-                {i18n.t('reason')}
+                {i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id="post-listing-ban-reason"
                 class="form-control mr-2"
-                placeholder={i18n.t('reason')}
+                placeholder={i18n.t("reason")}
                 value={this.state.banReason}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
               />
@@ -971,7 +971,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     onChange={linkEvent(this, this.handleModRemoveDataChange)}
                   />
                   <label class="form-check-label" htmlFor="mod-ban-remove-data">
-                    {i18n.t('remove_posts_comments')}
+                    {i18n.t("remove_posts_comments")}
                   </label>
                 </div>
               </div>
@@ -985,9 +985,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <button
                 type="submit"
                 class="btn btn-secondary"
-                aria-label={i18n.t('ban')}
+                aria-label={i18n.t("ban")}
               >
-                {i18n.t('ban')} {post.creator.name}
+                {i18n.t("ban")} {post.creator.name}
               </button>
             </div>
           </form>
@@ -1000,7 +1000,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     return post.thumbnail_url || isImage(post.url) ? (
       <div class="row">
-        <div className={`${this.state.imageExpanded ? 'col-12' : 'col-8'}`}>
+        <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
           {this.postTitleLine()}
         </div>
         <div class="col-4">
@@ -1061,7 +1061,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             )}
             <div
               class={`${
-                this.state.imageExpanded ? 'col-12' : 'col-12 col-sm-9'
+                this.state.imageExpanded ? "col-12" : "col-12 col-sm-9"
               }`}
             >
               <div class="row">
@@ -1493,15 +1493,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get pointsTippy(): string {
-    let points = i18n.t('number_of_points', {
+    let points = i18n.t("number_of_points", {
       count: this.state.score,
     });
 
-    let upvotes = i18n.t('number_of_upvotes', {
+    let upvotes = i18n.t("number_of_upvotes", {
       count: this.state.upvotes,
     });
 
-    let downvotes = i18n.t('number_of_downvotes', {
+    let downvotes = i18n.t("number_of_downvotes", {
       count: this.state.downvotes,
     });
 

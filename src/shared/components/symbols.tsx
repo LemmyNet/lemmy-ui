@@ -1,4 +1,4 @@
-import { Component } from 'inferno';
+import { Component } from "inferno";
 
 export class Symbols extends Component<any, any> {
   constructor(props: any, context: any) {
@@ -10,10 +10,10 @@ export class Symbols extends Component<any, any> {
       <svg
         aria-hidden="true"
         style={{
-          position: 'absolute',
+          position: "absolute",
           width: 0,
           height: 0,
-          overflow: 'hidden',
+          overflow: "hidden",
         }}
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
