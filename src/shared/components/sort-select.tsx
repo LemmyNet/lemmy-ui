@@ -68,14 +68,6 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
           <option value={SortType.TopYear}>{i18n.t('top_year')}</option>
           <option value={SortType.TopAll}>{i18n.t('top_all')}</option>
         </select>
-        <a
-          className="text-muted"
-          href={sortingHelpUrl}
-          rel="noopener"
-          title={i18n.t('sorting_help')}
-        >
-          <Icon icon="help-circle" classes="icon-inline" />
-        </a>
       </>
     );
   }

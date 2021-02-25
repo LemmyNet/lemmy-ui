@@ -550,7 +550,7 @@ export function pictrsDeleteToast(
   deleteUrl: string
 ) {
   if (isBrowser()) {
-    let backgroundColor = `var(--light)`;
+    let backgroundColor = `#8300e9bd`;
     let toast = Toastify({
       text: clickToDeleteText,
       backgroundColor: backgroundColor,
@@ -579,7 +579,7 @@ interface NotifyInfo {
 export function messageToastify(info: NotifyInfo, router: any) {
   if (isBrowser()) {
     let htmlBody = info.body ? md.render(info.body) : '';
-    let backgroundColor = `var(--light)`;
+    let backgroundColor = `#8300e9bd`;
 
     let toast = Toastify({
       text: `${htmlBody}<br />${info.name}`,

@@ -21,33 +21,11 @@ export class Footer extends Component<FooterProps, FooterState> {
         <div className="navbar-collapse">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-              <span class="navbar-text">{this.props.site.version}</span>
+              <span class="navbar-text">©</span>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/modlog">
-                {i18n.t('modlog')}
-              </Link>
-            </li>
-            {this.props.site.federated_instances && (
-              <li class="nav-item">
-                <Link className="nav-link" to="/instances">
-                  {i18n.t('instances')}
-                </Link>
-              </li>
-            )}
-            <li class="nav-item">
-              <a className="nav-link" href={docsUrl}>
-                {i18n.t('docs')}
-              </a>
-            </li>
-            <li class="nav-item">
-              <a className="nav-link" href={repoUrl}>
-                {i18n.t('code')}
-              </a>
-            </li>
-            <li class="nav-item">
-              <a className="nav-link" href={joinLemmyUrl}>
-                {i18n.t('join_lemmy')}
+              <a className="nav-link" href="https://tom.inc/" target="_blank">
+                Tom, Inc.
               </a>
             </li>
           </ul>

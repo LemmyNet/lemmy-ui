@@ -609,16 +609,6 @@ export class Main extends Component<any, MainState> {
             <Icon icon="rss" classes="text-muted small" />
           </a>
         )}
-        {UserService.Instance.user &&
-          this.state.listingType == ListingType.Subscribed && (
-            <a
-              href={`/feeds/front/${UserService.Instance.auth}.xml?sort=${this.state.sort}`}
-              title="RSS"
-              rel="noopener"
-            >
-              <Icon icon="rss" classes="text-muted small" />
-            </a>
-          )}
       </div>
     );
   }
