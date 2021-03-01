@@ -123,6 +123,7 @@ export class Setup extends Component<any, State> {
               onInput={linkEvent(this, this.handleRegisterPasswordChange)}
               class="form-control"
               required
+              maxLength={60}
             />
           </div>
         </div>
@@ -138,6 +139,7 @@ export class Setup extends Component<any, State> {
               onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
               class="form-control"
               required
+              maxLength={60}
             />
           </div>
         </div>

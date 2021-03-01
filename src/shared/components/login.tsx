@@ -134,6 +134,7 @@ export class Login extends Component<any, State> {
                 onInput={linkEvent(this, this.handleLoginPasswordChange)}
                 class="form-control"
                 required
+                maxLength={60}
               />
               <button
                 type="button"

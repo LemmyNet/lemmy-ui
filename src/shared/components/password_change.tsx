@@ -92,6 +92,7 @@ export class PasswordChange extends Component<any, State> {
               onInput={linkEvent(this, this.handlePasswordChange)}
               class="form-control"
               required
+              maxLength={60}
             />
           </div>
         </div>
@@ -107,6 +108,7 @@ export class PasswordChange extends Component<any, State> {
               onInput={linkEvent(this, this.handleVerifyPasswordChange)}
               class="form-control"
               required
+              maxLength={60}
             />
           </div>
         </div>
