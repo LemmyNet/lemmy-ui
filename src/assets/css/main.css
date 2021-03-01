@@ -228,17 +228,20 @@ hr {
   height: 1.5em;
   width: 1.5em;
   background: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.4);
   border-bottom-left-radius: 0.25rem !important;
   border-top-right-radius: 0.25rem !important;
 }
 
 .link-overlay:hover {
   transition: 0.1s;
+  -webkit-transition: 0.1s;
   opacity: 1;
 }
 
 .link-overlay {
   transition: opacity 0.1s ease-in-out;
+  -webkit-transition: opacity 0.1s ease-in-out;
   position: absolute;
   opacity: 0;
   left: 0;
@@ -246,6 +249,7 @@ hr {
   width: 100%;
   padding: 10px;
   background: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .placeholder {
@@ -285,6 +289,7 @@ pre {
 }
 .hide-input {
   background: transparent !important;
+  background-color: transparent !important;
   width: 0px !important;
   padding: 0 !important;
 }
