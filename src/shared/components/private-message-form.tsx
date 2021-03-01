@@ -119,8 +119,8 @@ export class PrivateMessageForm extends Component<
                 onClick={linkEvent(this, this.handleShowDisclaimer)}
                 role="button"
                 class="ml-2 pointer text-danger"
-                data-tippy-content={i18n.t("disclaimer")}
-                aria-label={i18n.t("disclaimer")}
+                data-tippy-content={i18n.t("private_message_disclaimer")}
+                aria-label={i18n.t("private_message_disclaimer")}
               >
                 <Icon icon="alert-triangle" classes="icon-inline" />
               </span>
