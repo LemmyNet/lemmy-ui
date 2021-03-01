@@ -32,17 +32,17 @@ const baseLanguage = "en";
 fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
   const keys = Object.keys(JSON.parse(fileStr));
 
-  const data = `import * as i18n from "i18next";
-
-type I18nKeys = 
-${keys.map(key => `  | "${key}"`).join("\n")};
+  const data = `import { i18n } from "i18next";
 
 declare module "i18next" {
-  export interface TFunction {
+  export type I18nKeys = 
+${keys.map(key => `    | "${key}"`).join("\n")};
+  
+  export interface TFunctionTyped {
     // basic usage
     <
       TResult extends TFunctionResult = string,
-      TInterpolationMap extends object = StringMap
+      TInterpolationMap extends Record<string, unknown> = StringMap
     >(
       key: I18nKeys | I18nKeys[],
       options?: TOptions<TInterpolationMap> | string
@@ -50,12 +50,16 @@ declare module "i18next" {
     // overloaded usage
     <
       TResult extends TFunctionResult = string,
-      TInterpolationMap extends object = StringMap
+      TInterpolationMap extends Record<string, unknown> = StringMap
     >(
       key: I18nKeys | I18nKeys[],
       defaultValue?: string,
       options?: TOptions<TInterpolationMap> | string
     ): TResult;
+  }
+
+  export interface i18nTyped extends i18n {
+    t: TFunctionTyped;
   }
 }
 `;
