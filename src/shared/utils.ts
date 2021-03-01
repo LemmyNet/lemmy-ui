@@ -118,6 +118,7 @@ export const languages = [
   { code: "sv", name: "Svenska" },
   { code: "sq", name: "Shqip" },
   { code: "sr_Latn", name: "srpski" },
+  { code: "th", name: "ภาษาไทย" },
   { code: "tr", name: "Türkçe" },
   { code: "uk", name: "Українська Mова" },
   { code: "ru", name: "Русский" },
@@ -445,6 +446,8 @@ export function getMomentLanguage(): string {
     lang = "oc";
   } else if (lang.startsWith("hr")) {
     lang = "hr";
+  } else if (lang.startsWith("th")) {
+    lang = "th";
   } else {
     lang = "en";
   }

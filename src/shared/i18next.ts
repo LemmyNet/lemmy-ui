@@ -31,6 +31,7 @@ import { sr_Latn } from "./translations/sr_Latn";
 import { da } from "./translations/da";
 import { oc } from "./translations/oc";
 import { hr } from "./translations/hr";
+import { th } from "./translations/th";
 
 // https://github.com/nimbusec-oss/inferno-i18next/blob/master/tests/T.test.js#L66
 const resources = {
@@ -65,6 +66,7 @@ const resources = {
   da,
   oc,
   hr,
+  th,
 };
 
 function format(value: any, format: any): any {
