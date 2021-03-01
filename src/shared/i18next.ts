@@ -1,4 +1,4 @@
-import i18next from "i18next";
+import i18next, { i18nTyped } from "i18next";
 import { getLanguage } from "./utils";
 import { en } from "./translations/en";
 import { el } from "./translations/el";
@@ -84,4 +84,6 @@ i18next.init({
   interpolation: { format },
 });
 
-export { i18next as i18n, resources };
+export const i18n = i18next as i18nTyped;
+
+export { resources };
