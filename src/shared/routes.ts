@@ -45,7 +45,6 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/create_community`,
     component: CreateCommunity,
-    fetchInitialData: req => CreateCommunity.fetchInitialData(req),
   },
   {
     path: `/create_private_message/recipient/:recipient_id`,

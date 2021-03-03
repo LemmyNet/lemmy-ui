@@ -5,7 +5,6 @@ import {
   EditCommunity,
   CreateCommunity,
   UserOperation,
-  Category,
   CommunityResponse,
   CommunityView,
 } from "lemmy-js-client";
@@ -28,7 +27,6 @@ import { Icon, Spinner } from "./icon";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
-  categories: Category[];
   onCancel?(): any;
   onCreate?(community: CommunityView): any;
   onEdit?(community: CommunityView): any;
@@ -51,7 +49,6 @@ export class CommunityForm extends Component<
     communityForm: {
       name: null,
       title: null,
-      category_id: this.props.categories[0].id,
       nsfw: false,
       icon: null,
       banner: null,
@@ -80,7 +77,6 @@ export class CommunityForm extends Component<
       this.state.communityForm = {
         name: cv.community.name,
         title: cv.community.title,
-        category_id: cv.category.id,
         description: cv.community.description,
         nsfw: cv.community.nsfw,
         icon: cv.community.icon,
@@ -205,23 +201,6 @@ export class CommunityForm extends Component<
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-12 col-form-label" htmlFor="community-category">
-              {i18n.t("category")}
-            </label>
-            <div class="col-12">
-              <select
-                class="form-control"
-                id="community-category"
-                value={this.state.communityForm.category_id}
-                onInput={linkEvent(this, this.handleCommunityCategoryChange)}
-              >
-                {this.props.categories.map(category => (
-                  <option value={category.id}>{category.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
 
           {this.props.enableNsfw && (
             <div class="form-group row">
@@ -302,11 +281,6 @@ export class CommunityForm extends Component<
   handleCommunityDescriptionChange(val: string) {
     this.state.communityForm.description = val;
     this.setState(this.state);
-  }
-
-  handleCommunityCategoryChange(i: CommunityForm, event: any) {
-    i.state.communityForm.category_id = Number(event.target.value);
-    i.setState(i.state);
   }
 
   handleCommunityNsfwChange(i: CommunityForm, event: any) {

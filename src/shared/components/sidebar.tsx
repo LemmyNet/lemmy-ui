@@ -8,7 +8,6 @@ import {
   RemoveCommunity,
   UserViewSafe,
   AddModToCommunity,
-  Category,
 } from "lemmy-js-client";
 import { WebSocketService, UserService } from "../services";
 import { mdToHtml, getUnixTime, wsClient, authField } from "../utils";
@@ -21,7 +20,6 @@ import { i18n } from "../i18next";
 
 interface SidebarProps {
   community_view: CommunityView;
-  categories: Category[];
   moderators: CommunityModeratorView[];
   admins: UserViewSafe[];
   online: number;
@@ -60,7 +58,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           this.sidebar()
         ) : (
           <CommunityForm
-            categories={this.props.categories}
             community_view={this.props.community_view}
             onEdit={this.handleEditCommunity}
             onCancel={this.handleEditCancel}
@@ -208,11 +205,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           {i18n.t("number_of_comments", {
             count: counts.comments,
           })}
-        </li>
-        <li className="list-inline-item">
-          <Link className="badge badge-secondary" to="/communities">
-            {community_view.category.name}
-          </Link>
         </li>
         <li className="list-inline-item">
           <Link

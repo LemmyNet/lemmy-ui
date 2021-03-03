@@ -19,8 +19,6 @@ import {
   GetCommentsResponse,
   CommentResponse,
   GetSiteResponse,
-  Category,
-  ListCategoriesResponse,
 } from "lemmy-js-client";
 import { UserService, WebSocketService } from "../services";
 import { PostListings } from "./post-listings";
@@ -72,7 +70,6 @@ interface State {
   dataType: DataType;
   sort: SortType;
   page: number;
-  categories: Category[];
 }
 
 interface CommunityProps {
@@ -103,7 +100,6 @@ export class Community extends Component<any, State> {
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
     siteRes: this.isoData.site_res,
-    categories: [],
   };
 
   constructor(props: any, context: any) {
@@ -124,14 +120,12 @@ export class Community extends Component<any, State> {
       } else {
         this.state.comments = this.isoData.routeData[1].comments;
       }
-      this.state.categories = this.isoData.routeData[2].categories;
       this.state.communityLoading = false;
       this.state.postsLoading = false;
       this.state.commentsLoading = false;
     } else {
       this.fetchCommunity();
       this.fetchData();
-      WebSocketService.Instance.send(wsClient.listCategories());
     }
     setupTippy();
   }
@@ -211,8 +205,6 @@ export class Community extends Component<any, State> {
       promises.push(req.client.getComments(getCommentsForm));
     }
 
-    promises.push(req.client.listCategories());
-
     return promises;
   }
 
@@ -268,7 +260,6 @@ export class Community extends Component<any, State> {
                 admins={this.state.siteRes.admins}
                 online={this.state.communityRes.online}
                 enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
-                categories={this.state.categories}
               />
             </div>
           </div>
@@ -540,10 +531,6 @@ export class Community extends Component<any, State> {
     } else if (op == UserOperation.CreateCommentLike) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       createCommentLikeRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.ListCategories) {
-      let data = wsJsonToRes<ListCategoriesResponse>(msg).data;
-      this.state.categories = data.categories;
       this.setState(this.state);
     }
   }
