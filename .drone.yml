@@ -78,6 +78,9 @@ steps:
       - apk add git
       - git submodule init
       - git submodule update --recursive --remote
+    when:
+      ref:
+        - refs/tags/*
 
   - name: make release build and push to docker hub
     image: plugins/docker
