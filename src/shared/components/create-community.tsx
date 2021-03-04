@@ -3,16 +3,8 @@ import { Subscription } from "rxjs";
 import { CommunityForm } from "./community-form";
 import { HtmlTags } from "./html-tags";
 import { Spinner } from "./icon";
-import {
-  CommunityView,
-  SiteView,
-} from "lemmy-js-client";
-import {
-  setIsoData,
-  toast,
-  wsSubscribe,
-  isBrowser,
-} from "../utils";
+import { CommunityView, SiteView } from "lemmy-js-client";
+import { setIsoData, toast, wsSubscribe, isBrowser } from "../utils";
 import { UserService } from "../services";
 import { i18n } from "../i18next";
 
@@ -26,7 +18,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   private subscription: Subscription;
   private emptyState: CreateCommunityState = {
     site_view: this.isoData.site_res.site_view,
-    loading: true,
+    loading: false,
   };
   constructor(props: any, context: any) {
     super(props, context);
@@ -39,11 +31,6 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
     if (!UserService.Instance.user && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
-    }
-
-    // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.loading = false;
     }
   }
 
