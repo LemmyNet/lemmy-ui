@@ -4,10 +4,8 @@
         }
     ],
     "ca": [
-        {
-			"name": "Néfix Estrada", "link": ""
-			"name": "spla", "link": "https://weblate.yerbamate.ml/user/spla/"
-        }
+        {"name": "Néfix Estrada", "link": ""},
+		{"name": "spla", "link": "https://weblate.yerbamate.ml/user/spla/"}
     ],
 	"da": [
 		{
@@ -15,10 +13,8 @@
 	],
 	
 	"de": [
-		{
-		"name":"0xflotus", "link":""
-		"name":"T", "link":""
-		}
+		{"name":"0xflotus", "link":""},
+		{"name":"T", "link":""}
 	],
 	"el": [
 		{
@@ -40,11 +36,9 @@
 		}
 	],
 	"eu": [
-		{
-		"name":"Sergio Varela", "link":"https://ingrownmink4.tumblr.com"
-		"name":"Txopi", "link":"https://librezale.eus/wiki/Lemmy"
-		"name":"Porrumentzio", "link":""
-		}
+		{"name":"Sergio Varela", "link":"https://ingrownmink4.tumblr.com"},
+		{"name":"Txopi", "link":"https://librezale.eus/wiki/Lemmy"},
+		{"name":"Porrumentzio", "link":""}
 	],
 	"fa": [
 		{
@@ -55,10 +49,8 @@
 		}
 	],
 	"fr": [
-		{
-		"name":"Hugo Mechiche", "link":"https://hugo-mechiche.com"
-		"name":"Ady Nemo", "link":""
-		}
+		{"name":"Hugo Mechiche", "link":"https://hugo-mechiche.com"},
+		{"name":"Ady Nemo", "link":""}
 	],
 	"ga": [
 		{
@@ -87,10 +79,8 @@
 		}
 	],
 	"ja": [
-		{
-		"name":"Kitaiti Makoto", "link":""
-		"name":"Creativ", "link":""
-		}
+		{"name":"Kitaiti Makoto", "link":""},
+		{"name":"Creativ", "link":""}
 	],
 	"ka": [
 		{
@@ -106,21 +96,17 @@
 		}
 	],
 	"nl": [
-		{
-		"name":"T", "link":""
-		"name":"Tom van Djik", "link":""
-		}
+		{"name":"T", "link":""},
+		{"name":"Tom van Djik", "link":""}
 	],
 	"oc": [
 		{
 		}
 	],
 	"pl": [
-		{
-		"name":"Adam Adamsky", "link":""
-		"name":"Ernest Wisniewski", "link":""
-		"name":"harc", "link":""
-		}
+		{"name":"Adam Adamsky", "link":""},
+		{"name":"Ernest Wisniewski", "link":""},
+		{"name":"harc", "link":""}
 	],
 	"pt_BR": [
 		{
@@ -128,12 +114,11 @@
 		}
 	],
 	"ru": [
-		{
-		"name":"Ron", "link":""
-		"name":"Serge Tarkovski", "link":""
-		"name":"andrei", "link":""
-		"name":"kleeon", "link":""
-		}
+		{"name":"Ron", "link":""},
+		{"name":"Serge Tarkovski", "link":""},
+		{"name":"andrei", "link":""},
+		{"name":"kleeon", "link":""}
+		
 	],
 	"sq": [
 		{
@@ -144,10 +129,8 @@
 		}
 	],
 	"sv": [
-		{
-		"name":"Filip Bengtsson", "link":""
-		"name":"Johan Winther", "link":""
-		}
+		{"name":"Filip Bengtsson", "link":""},
+		{"name":"Johan Winther", "link":""}
 	],
 	"tr": [
 		{
@@ -158,10 +141,8 @@
 		}
 	],
 	"zh": [
-		{
-		"name":"kana", "link":""
-		"name":"iggyiccy", "link":" https://rchow.eth.link/"
-		"name":"jims", "link":""
-		}
+		{"name":"kana", "link":""},
+		{"name":"iggyiccy", "link":" https://rchow.eth.link/"},
+		{"name":"jims", "link":""}
 	],
 }
