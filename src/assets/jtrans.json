@@ -1,0 +1,167 @@
+{
+    "ar": [
+        {
+        }
+    ],
+    "ca": [
+        {
+			"name": "Néfix Estrada", "link": ""
+			"name": "spla", "link": "https://weblate.yerbamate.ml/user/spla/"
+        }
+    ],
+	"da": [
+		{
+		}
+	],
+	
+	"de": [
+		{
+		"name":"0xflotus", "link":""
+		"name":"T", "link":""
+		}
+	],
+	"el": [
+		{
+		"name":"Panos Alevropoulos", "link":"https://mastodon.social/@panosalevropoulos"
+		}
+	],
+	"en": [
+		{
+		}
+	],
+	"eo": [
+		{
+		"name":"Tirifito", "link":""
+		}
+	],
+	"es":[
+		{
+		"name":"Sercio Varela", "link":"https://ingrownmink4.tumblr.com"
+		}
+	],
+	"eu": [
+		{
+		"name":"Sergio Varela", "link":"https://ingrownmink4.tumblr.com"
+		"name":"Txopi", "link":"https://librezale.eus/wiki/Lemmy"
+		"name":"Porrumentzio", "link":""
+		}
+	],
+	"fa": [
+		{
+		}
+	],
+	"fi": [
+		{
+		}
+	],
+	"fr": [
+		{
+		"name":"Hugo Mechiche", "link":"https://hugo-mechiche.com"
+		"name":"Ady Nemo", "link":""
+		}
+	],
+	"ga": [
+		{
+		"name":"Lucy", "link":"https://twitter.com/o_hartigan"
+		}
+	],
+	"gl": [
+		{
+		}
+	],
+	"hi": [
+		{
+		}
+	],
+	"hr": [
+		{
+		}
+	],	
+	"hu": [
+		{
+		}
+	],
+	"it": [
+		{
+		"name":"riccardo", "link":""
+		}
+	],
+	"ja": [
+		{
+		"name":"Kitaiti Makoto", "link":""
+		"name":"Creativ", "link":""
+		}
+	],
+	"ka": [
+		{
+		}
+	],
+	"km": [
+		{
+		}
+	],
+	"ko": [
+		{
+		"name":"Lee Kiwon", "link":""
+		}
+	],
+	"nl": [
+		{
+		"name":"T", "link":""
+		"name":"Tom van Djik", "link":""
+		}
+	],
+	"oc": [
+		{
+		}
+	],
+	"pl": [
+		{
+		"name":"Adam Adamsky", "link":""
+		"name":"Ernest Wisniewski", "link":""
+		"name":"harc", "link":""
+		}
+	],
+	"pt_BR": [
+		{
+		"name":"Paulo", "link":""
+		}
+	],
+	"ru": [
+		{
+		"name":"Ron", "link":""
+		"name":"Serge Tarkovski", "link":""
+		"name":"andrei", "link":""
+		"name":"kleeon", "link":""
+		}
+	],
+	"sq": [
+		{
+		}
+	],
+	"sr_Latn": [
+		{
+		}
+	],
+	"sv": [
+		{
+		"name":"Filip Bengtsson", "link":""
+		"name":"Johan Winther", "link":""
+		}
+	],
+	"tr": [
+		{
+		}
+	],
+	"uk": [
+		{
+		}
+	],
+	"zh": [
+		{
+		"name":"kana", "link":""
+		"name":"iggyiccy", "link":" https://rchow.eth.link/"
+		"name":"jims", "link":""
+		}
+	],
+}
