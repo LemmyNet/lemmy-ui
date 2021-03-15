@@ -12,7 +12,7 @@ import {
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
 import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, LemmyHttp } from "lemmy-js-client";
+import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import process from "process";
 import { Helmet } from "inferno-helmet";
 import { initializeSite } from "../shared/initialize";
@@ -48,7 +48,18 @@ server.get("/*", async (req, res) => {
   };
 
   // Get site data first
-  let site = await initialFetchReq.client.getSite(getSiteForm);
+  // This bypasses errors, so that the client can hit the error on its own,
+  // in order to remove the jwt on the browser. Necessary for wrong jwts
+  let try_site: any = await initialFetchReq.client.getSite(getSiteForm);
+  if (try_site.error == "not_logged_in") {
+    console.error(
+      "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
+    );
+    delete getSiteForm.auth;
+    delete initialFetchReq.auth;
+    try_site = await initialFetchReq.client.getSite(getSiteForm);
+  }
+  let site: GetSiteResponse = try_site;
   initializeSite(site);
 
   if (activeRoute.fetchInitialData) {
