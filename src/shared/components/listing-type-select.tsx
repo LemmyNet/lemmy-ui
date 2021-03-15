@@ -42,7 +42,11 @@ export class ListingTypeSelect extends Component<
         <label
           className={`btn btn-outline-secondary 
             ${this.state.type_ == ListingType.Subscribed && "active"}
-            ${UserService.Instance.user == undefined ? "disabled" : "pointer"}
+            ${
+              UserService.Instance.localUserView == undefined
+                ? "disabled"
+                : "pointer"
+            }
           `}
         >
           <input
@@ -51,7 +55,7 @@ export class ListingTypeSelect extends Component<
             value={ListingType.Subscribed}
             checked={this.state.type_ == ListingType.Subscribed}
             onChange={linkEvent(this, this.handleTypeChange)}
-            disabled={UserService.Instance.user == undefined}
+            disabled={UserService.Instance.localUserView == undefined}
           />
           {i18n.t("subscribed")}
         </label>

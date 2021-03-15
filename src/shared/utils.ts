@@ -32,7 +32,7 @@ import "moment/locale/hr";
 import {
   UserOperation,
   CommentView,
-  UserSafeSettings,
+  LocalUserSettingsView,
   SortType,
   ListingType,
   SearchType,
@@ -43,7 +43,7 @@ import {
   PostView,
   PrivateMessageView,
   LemmyWebsocket,
-  UserViewSafe,
+  PersonViewSafe,
   CommunityView,
 } from "lemmy-js-client";
 
@@ -239,14 +239,14 @@ export function getUnixTime(text: string): number {
 }
 
 export function canMod(
-  user: UserSafeSettings,
+  localUserView: LocalUserSettingsView,
   modIds: number[],
   creator_id: number,
   onSelf = false
 ): boolean {
   // You can do moderator actions only on the mods added after you.
-  if (user) {
-    let yourIndex = modIds.findIndex(id => id == user.id);
+  if (localUserView) {
+    let yourIndex = modIds.findIndex(id => id == localUserView.person.id);
     if (yourIndex == -1) {
       return false;
     } else {
@@ -367,8 +367,12 @@ export function debounce(func: any, wait = 1000, immediate = false) {
 
 // TODO
 export function getLanguage(override?: string): string {
-  let user = UserService.Instance.user;
-  let lang = override || (user && user.lang ? user.lang : "browser");
+  let localUserView = UserService.Instance.localUserView;
+  let lang =
+    override ||
+    (localUserView?.local_user.lang
+      ? localUserView.local_user.lang
+      : "browser");
 
   if (lang == "browser" && isBrowser()) {
     return getBrowserLanguage();
@@ -508,21 +512,21 @@ export function objectFlip(obj: any) {
 
 export function showAvatars(): boolean {
   return (
-    (UserService.Instance.user && UserService.Instance.user.show_avatars) ||
-    !UserService.Instance.user
+    UserService.Instance.localUserView?.local_user.show_avatars ||
+    !UserService.Instance.localUserView
   );
 }
 
 export function isCakeDay(published: string): boolean {
   // moment(undefined) or moment.utc(undefined) returns the current date/time
   // moment(null) or moment.utc(null) returns null
-  const userCreationDate = moment.utc(published || null).local();
+  const createDate = moment.utc(published || null).local();
   const currentDate = moment(new Date());
 
   return (
-    userCreationDate.date() === currentDate.date() &&
-    userCreationDate.month() === currentDate.month() &&
-    userCreationDate.year() !== currentDate.year()
+    createDate.date() === currentDate.date() &&
+    createDate.month() === currentDate.month() &&
+    createDate.year() !== currentDate.year()
   );
 }
 
@@ -666,15 +670,15 @@ export function setupTribute() {
         // menuItemLimit: mentionDropdownFetchLimit,
         menuShowMinLength: 2,
       },
-      // Users
+      // Persons
       {
         trigger: "@",
         selectTemplate: (item: any) => {
-          let it: UserTribute = item.original;
-          return `[${it.key}](${it.view.user.actor_id})`;
+          let it: PersonTribute = item.original;
+          return `[${it.key}](${it.view.person.actor_id})`;
         },
-        values: (text: string, cb: (users: UserTribute[]) => any) => {
-          userSearch(text, (users: UserTribute[]) => cb(users));
+        values: (text: string, cb: (persons: PersonTribute[]) => any) => {
+          personSearch(text, (persons: PersonTribute[]) => cb(persons));
         },
         allowSpaces: false,
         autocompleteMode: true,
@@ -721,12 +725,12 @@ export function setupTippy() {
   }
 }
 
-interface UserTribute {
+interface PersonTribute {
   key: string;
-  view: UserViewSafe;
+  view: PersonViewSafe;
 }
 
-function userSearch(text: string, cb: (users: UserTribute[]) => any) {
+function personSearch(text: string, cb: (persons: PersonTribute[]) => any) {
   if (text) {
     let form: Search = {
       q: text,
@@ -739,20 +743,20 @@ function userSearch(text: string, cb: (users: UserTribute[]) => any) {
 
     WebSocketService.Instance.send(wsClient.search(form));
 
-    let userSub = WebSocketService.Instance.subject.subscribe(
+    let personSub = WebSocketService.Instance.subject.subscribe(
       msg => {
         let res = wsJsonToRes(msg);
         if (res.op == UserOperation.Search) {
           let data = res.data as SearchResponse;
-          let users: UserTribute[] = data.users.map(uv => {
-            let tribute: UserTribute = {
-              key: `@${uv.user.name}@${hostname(uv.user.actor_id)}`,
-              view: uv,
+          let persons: PersonTribute[] = data.users.map(pv => {
+            let tribute: PersonTribute = {
+              key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
+              view: pv,
             };
             return tribute;
           });
-          cb(users);
-          userSub.unsubscribe();
+          cb(persons);
+          personSub.unsubscribe();
         }
       },
       err => console.error(err),
@@ -811,8 +815,10 @@ function communitySearch(
 export function getListingTypeFromProps(props: any): ListingType {
   return props.match.params.listing_type
     ? routeListingTypeToEnum(props.match.params.listing_type)
-    : UserService.Instance.user
-    ? Object.values(ListingType)[UserService.Instance.user.default_listing_type]
+    : UserService.Instance.localUserView
+    ? Object.values(ListingType)[
+        UserService.Instance.localUserView.local_user.default_listing_type
+      ]
     : ListingType.Local;
 }
 
@@ -826,8 +832,10 @@ export function getDataTypeFromProps(props: any): DataType {
 export function getSortTypeFromProps(props: any): SortType {
   return props.match.params.sort
     ? routeSortTypeToEnum(props.match.params.sort)
-    : UserService.Instance.user
-    ? Object.values(SortType)[UserService.Instance.user.default_sort_type]
+    : UserService.Instance.localUserView
+    ? Object.values(SortType)[
+        UserService.Instance.localUserView.local_user.default_sort_type
+      ]
     : SortType.Active;
 }
 

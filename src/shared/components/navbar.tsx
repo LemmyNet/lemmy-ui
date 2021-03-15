@@ -6,8 +6,8 @@ import {
   UserOperation,
   GetReplies,
   GetRepliesResponse,
-  GetUserMentions,
-  GetUserMentionsResponse,
+  GetPersonMentions,
+  GetPersonMentionsResponse,
   GetPrivateMessages,
   PrivateMessagesResponse,
   SortType,
@@ -174,7 +174,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
-    let user = UserService.Instance.user || this.props.site_res.my_user;
+    let localUserView =
+      UserService.Instance.localUserView || this.props.site_res.my_user;
     return (
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
@@ -338,16 +339,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <li className="nav-item">
                     <Link
                       className="nav-link"
-                      to={`/u/${user.name}`}
+                      to={`/u/${localUserView.person.name}`}
                       title={i18n.t("settings")}
                     >
                       <span>
-                        {user.avatar && showAvatars() && (
-                          <PictrsImage src={user.avatar} icon />
+                        {localUserView.person.avatar && showAvatars() && (
+                          <PictrsImage src={localUserView.person.avatar} icon />
                         )}
-                        {user.preferred_username
-                          ? user.preferred_username
-                          : user.name}
+                        {localUserView.person.preferred_username
+                          ? localUserView.person.preferred_username
+                          : localUserView.person.name}
                       </span>
                     </Link>
                   </li>
@@ -400,8 +401,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.state.unreadCount = this.calculateUnreadCount();
       this.setState(this.state);
       this.sendUnreadCount();
-    } else if (op == UserOperation.GetUserMentions) {
-      let data = wsJsonToRes<GetUserMentionsResponse>(msg).data;
+    } else if (op == UserOperation.GetPersonMentions) {
+      let data = wsJsonToRes<GetPersonMentionsResponse>(msg).data;
       let unreadMentions = data.mentions.filter(r => !r.comment.read);
 
       this.state.mentions = unreadMentions;
@@ -422,8 +423,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       // This is only called on a successful login
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
       console.log(data.my_user);
-      UserService.Instance.user = data.my_user;
-      setTheme(UserService.Instance.user.theme);
+      UserService.Instance.localUserView = data.my_user;
+      setTheme(UserService.Instance.localUserView.local_user.theme);
       i18n.changeLanguage(getLanguage());
       this.state.isLoggedIn = true;
       this.setState(this.state);
@@ -431,7 +432,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
       if (this.state.isLoggedIn) {
-        if (data.recipient_ids.includes(UserService.Instance.user.id)) {
+        if (
+          data.recipient_ids.includes(
+            UserService.Instance.localUserView.local_user.id
+          )
+        ) {
           this.state.replies.push(data.comment_view);
           this.state.unreadCount++;
           this.setState(this.state);
@@ -444,7 +449,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
       if (this.state.isLoggedIn) {
         if (
-          data.private_message_view.recipient.id == UserService.Instance.user.id
+          data.private_message_view.recipient.id ==
+          UserService.Instance.localUserView.person.id
         ) {
           this.state.messages.push(data.private_message_view);
           this.state.unreadCount++;
@@ -466,7 +472,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       auth: authField(),
     };
 
-    let userMentionsForm: GetUserMentions = {
+    let personMentionsForm: GetPersonMentions = {
       sort: SortType.New,
       unread_only: true,
       page: 1,
@@ -484,7 +490,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (this.currentLocation !== "/inbox") {
       WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
       WebSocketService.Instance.send(
-        wsClient.getUserMentions(userMentionsForm)
+        wsClient.getPersonMentions(personMentionsForm)
       );
       WebSocketService.Instance.send(
         wsClient.getPrivateMessages(privateMessagesForm)
@@ -510,15 +516,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   get canAdmin(): boolean {
     return (
-      UserService.Instance.user &&
+      UserService.Instance.localUserView &&
       this.props.site_res.admins
-        .map(a => a.user.id)
-        .includes(UserService.Instance.user.id)
+        .map(a => a.person.id)
+        .includes(UserService.Instance.localUserView.person.id)
     );
   }
 
   requestNotificationPermission() {
-    if (UserService.Instance.user) {
+    if (UserService.Instance.localUserView) {
       document.addEventListener("DOMContentLoaded", function () {
         if (!Notification) {
           toast(i18n.t("notifications_error"), "danger");

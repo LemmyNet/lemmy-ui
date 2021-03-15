@@ -3,13 +3,13 @@ import {
   PrivateMessageView,
   DeletePrivateMessage,
   MarkPrivateMessageAsRead,
-  UserSafe,
+  PersonSafe,
 } from "lemmy-js-client";
 import { WebSocketService, UserService } from "../services";
 import { authField, mdToHtml, toast, wsClient } from "../utils";
 import { MomentTime } from "./moment-time";
 import { PrivateMessageForm } from "./private-message-form";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { Icon } from "./icon";
 import { i18n } from "../i18next";
 
@@ -48,15 +48,16 @@ export class PrivateMessage extends Component<
 
   get mine(): boolean {
     return (
-      UserService.Instance.user &&
-      UserService.Instance.user.id == this.props.private_message_view.creator.id
+      UserService.Instance.localUserView &&
+      UserService.Instance.localUserView.person.id ==
+        this.props.private_message_view.creator.id
     );
   }
 
   render() {
     let message_view = this.props.private_message_view;
     // TODO check this again
-    let userOther: UserSafe = this.mine
+    let otherPerson: PersonSafe = this.mine
       ? message_view.recipient
       : message_view.creator;
 
@@ -69,7 +70,7 @@ export class PrivateMessage extends Component<
               {this.mine ? i18n.t("to") : i18n.t("from")}
             </li>
             <li className="list-inline-item">
-              <UserListing user={userOther} />
+              <PersonListing person={otherPerson} />
             </li>
             <li className="list-inline-item">
               <span>
@@ -92,7 +93,7 @@ export class PrivateMessage extends Component<
           </ul>
           {this.state.showEdit && (
             <PrivateMessageForm
-              recipient={userOther}
+              recipient={otherPerson}
               privateMessage={message_view}
               onEdit={this.handlePrivateMessageEdit}
               onCreate={this.handlePrivateMessageCreate}
@@ -206,7 +207,7 @@ export class PrivateMessage extends Component<
         </div>
         {this.state.showReply && (
           <PrivateMessageForm
-            recipient={userOther}
+            recipient={otherPerson}
             onCreate={this.handlePrivateMessageCreate}
           />
         )}
@@ -272,8 +273,8 @@ export class PrivateMessage extends Component<
 
   handlePrivateMessageCreate(message: PrivateMessageView) {
     if (
-      UserService.Instance.user &&
-      message.creator.id == UserService.Instance.user.id
+      UserService.Instance.localUserView &&
+      message.creator.id == UserService.Instance.localUserView.person.id
     ) {
       this.state.showReply = false;
       this.setState(this.state);

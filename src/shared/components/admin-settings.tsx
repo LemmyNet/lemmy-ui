@@ -23,7 +23,7 @@ import {
 } from "../utils";
 import autosize from "autosize";
 import { SiteForm } from "./site-form";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { HtmlTags } from "./html-tags";
 import { Spinner } from "./icon";
 import { i18n } from "../i18next";
@@ -135,7 +135,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         <ul class="list-unstyled">
           {this.state.siteRes.admins.map(admin => (
             <li class="list-inline-item">
-              <UserListing user={admin.user} />
+              <PersonListing person={admin.person} />
             </li>
           ))}
         </ul>
@@ -150,7 +150,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         <ul class="list-unstyled">
           {this.state.siteRes.banned.map(banned => (
             <li class="list-inline-item">
-              <UserListing user={banned.user} />
+              <PersonListing person={banned.person} />
             </li>
           ))}
         </ul>

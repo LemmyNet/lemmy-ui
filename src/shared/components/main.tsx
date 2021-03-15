@@ -21,7 +21,7 @@ import {
   GetCommentsResponse,
   CommentResponse,
   AddAdminResponse,
-  BanUserResponse,
+  BanPersonResponse,
 } from "lemmy-js-client";
 import { DataType, InitialFetchRequest } from "../interfaces";
 import { WebSocketService, UserService } from "../services";
@@ -31,7 +31,7 @@ import { SortSelect } from "./sort-select";
 import { ListingTypeSelect } from "./listing-type-select";
 import { DataTypeSelect } from "./data-type-select";
 import { SiteForm } from "./site-form";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { CommunityLink } from "./community-link";
 import { BannerIconHeader } from "./banner-icon-header";
 import { Icon, Spinner } from "./icon";
@@ -130,14 +130,14 @@ export class Main extends Component<any, MainState> {
         this.state.comments = this.isoData.routeData[0].comments;
       }
       this.state.trendingCommunities = this.isoData.routeData[1].communities;
-      if (UserService.Instance.user) {
+      if (UserService.Instance.localUserView) {
         this.state.subscribedCommunities = this.isoData.routeData[2].communities;
       }
       this.state.loading = false;
     } else {
       this.fetchTrendingCommunities();
       this.fetchData();
-      if (UserService.Instance.user) {
+      if (UserService.Instance.localUserView) {
         WebSocketService.Instance.send(
           wsClient.getFollowedCommunities({
             auth: authField(),
@@ -194,15 +194,17 @@ export class Main extends Component<any, MainState> {
     // TODO figure out auth default_listingType, default_sort_type
     let type_: ListingType = pathSplit[5]
       ? ListingType[pathSplit[5]]
-      : UserService.Instance.user
+      : UserService.Instance.localUserView
       ? Object.values(ListingType)[
-          UserService.Instance.user.default_listing_type
+          UserService.Instance.localUserView.local_user.default_listing_type
         ]
       : ListingType.Local;
     let sort: SortType = pathSplit[7]
       ? SortType[pathSplit[7]]
-      : UserService.Instance.user
-      ? Object.values(SortType)[UserService.Instance.user.default_sort_type]
+      : UserService.Instance.localUserView
+      ? Object.values(SortType)[
+          UserService.Instance.localUserView.local_user.default_sort_type
+        ]
       : SortType.Active;
 
     let page = pathSplit[9] ? Number(pathSplit[9]) : 1;
@@ -294,7 +296,7 @@ export class Main extends Component<any, MainState> {
               </div>
             </div>
 
-            {UserService.Instance.user &&
+            {UserService.Instance.localUserView &&
               this.state.subscribedCommunities.length > 0 && (
                 <div class="card border-secondary mb-3">
                   <div class="card-body">{this.subscribedCommunities()}</div>
@@ -413,7 +415,7 @@ export class Main extends Component<any, MainState> {
         <li class="list-inline-item">{i18n.t("admins")}:</li>
         {this.state.siteRes.admins.map(av => (
           <li class="list-inline-item">
-            <UserListing user={av.user} />
+            <PersonListing person={av.person} />
           </li>
         ))}
       </ul>
@@ -609,7 +611,7 @@ export class Main extends Component<any, MainState> {
             <Icon icon="rss" classes="text-muted small" />
           </a>
         )}
-        {UserService.Instance.user &&
+        {UserService.Instance.localUserView &&
           this.state.listingType == ListingType.Subscribed && (
             <a
               href={`/feeds/front/${UserService.Instance.auth}.xml?sort=${this.state.sort}`}
@@ -652,10 +654,10 @@ export class Main extends Component<any, MainState> {
 
   get canAdmin(): boolean {
     return (
-      UserService.Instance.user &&
+      UserService.Instance.localUserView &&
       this.state.siteRes.admins
-        .map(a => a.user.id)
-        .includes(UserService.Instance.user.id)
+        .map(a => a.person.id)
+        .includes(UserService.Instance.localUserView.person.id)
     );
   }
 
@@ -755,8 +757,8 @@ export class Main extends Component<any, MainState> {
       let nsfwCheck =
         !nsfw ||
         (nsfw &&
-          UserService.Instance.user &&
-          UserService.Instance.user.show_nsfw);
+          UserService.Instance.localUserView &&
+          UserService.Instance.localUserView.local_user.show_nsfw);
 
       // Only push these if you're on the first page, and you pass the nsfw check
       if (this.state.page == 1 && nsfwCheck) {
@@ -801,23 +803,23 @@ export class Main extends Component<any, MainState> {
       let data = wsJsonToRes<AddAdminResponse>(msg).data;
       this.state.siteRes.admins = data.admins;
       this.setState(this.state);
-    } else if (op == UserOperation.BanUser) {
-      let data = wsJsonToRes<BanUserResponse>(msg).data;
+    } else if (op == UserOperation.BanPerson) {
+      let data = wsJsonToRes<BanPersonResponse>(msg).data;
       let found = this.state.siteRes.banned.find(
-        u => (u.user.id = data.user_view.user.id)
+        p => (p.person.id = data.person_view.person.id)
       );
 
       // Remove the banned if its found in the list, and the action is an unban
       if (found && !data.banned) {
         this.state.siteRes.banned = this.state.siteRes.banned.filter(
-          i => i.user.id !== data.user_view.user.id
+          i => i.person.id !== data.person_view.person.id
         );
       } else {
-        this.state.siteRes.banned.push(data.user_view);
+        this.state.siteRes.banned.push(data.person_view);
       }
 
       this.state.posts
-        .filter(p => p.creator.id == data.user_view.user.id)
+        .filter(p => p.creator.id == data.person_view.person.id)
         .forEach(p => (p.creator.banned = data.banned));
 
       this.setState(this.state);

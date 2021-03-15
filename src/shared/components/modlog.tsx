@@ -32,7 +32,7 @@ import { HtmlTags } from "./html-tags";
 import moment from "moment";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "shared/interfaces";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { CommunityLink } from "./community-link";
 import { Spinner } from "./icon";
 
@@ -252,7 +252,7 @@ export class Modlog extends Component<any, ModlogState> {
           </span>,
           <span>
             {" "}
-            by <UserListing user={mrc.commenter} />
+            by <PersonListing person={mrc.commenter} />
           </span>,
           mrc.mod_remove_comment.reason &&
             ` reason: ${mrc.mod_remove_comment.reason}`,
@@ -280,7 +280,7 @@ export class Modlog extends Component<any, ModlogState> {
             {mbfc.mod_ban_from_community.banned ? "Banned " : "Unbanned "}{" "}
           </span>,
           <span>
-            <UserListing user={mbfc.banned_user} />
+            <PersonListing person={mbfc.banned_person} />
           </span>,
           <span> from the community </span>,
           <span>
@@ -305,7 +305,7 @@ export class Modlog extends Component<any, ModlogState> {
             {mac.mod_add_community.removed ? "Removed " : "Appointed "}{" "}
           </span>,
           <span>
-            <UserListing user={mac.modded_user} />
+            <PersonListing person={mac.modded_person} />
           </span>,
           <span> as a mod to the community </span>,
           <span>
@@ -318,7 +318,7 @@ export class Modlog extends Component<any, ModlogState> {
         return [
           <span>{mb.mod_ban.banned ? "Banned " : "Unbanned "} </span>,
           <span>
-            <UserListing user={mb.banned_user} />
+            <PersonListing person={mb.banned_person} />
           </span>,
           <div>{mb.mod_ban.reason && ` reason: ${mb.mod_ban.reason}`}</div>,
           <div>
@@ -332,7 +332,7 @@ export class Modlog extends Component<any, ModlogState> {
         return [
           <span>{ma.mod_add.removed ? "Removed " : "Appointed "} </span>,
           <span>
-            <UserListing user={ma.modded_user} />
+            <PersonListing person={ma.modded_person} />
           </span>,
           <span> as an admin </span>,
         ];
@@ -353,7 +353,7 @@ export class Modlog extends Component<any, ModlogState> {
               <MomentTime data={i} />
             </td>
             <td>
-              <UserListing user={i.view.moderator} />
+              <PersonListing person={i.view.moderator} />
             </td>
             <td>{this.renderModlogType(i)}</td>
           </tr>

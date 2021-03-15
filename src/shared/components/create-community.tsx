@@ -28,7 +28,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    if (!UserService.Instance.user && isBrowser()) {
+    if (!UserService.Instance.localUserView && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }

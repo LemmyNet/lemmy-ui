@@ -67,7 +67,7 @@ server.get("/*", async (req, res) => {
     ? req.headers["accept-language"].split(",")[0]
     : "en";
   let lang = site.my_user
-    ? site.my_user.lang == "browser"
+    ? site.my_user.local_user.lang == "browser"
       ? acceptLang
       : "en"
     : acceptLang;

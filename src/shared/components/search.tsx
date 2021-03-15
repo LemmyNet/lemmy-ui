@@ -5,7 +5,7 @@ import {
   PostView,
   CommentView,
   CommunityView,
-  UserViewSafe,
+  PersonViewSafe,
   SortType,
   Search as SearchForm,
   SearchResponse,
@@ -36,7 +36,7 @@ import {
 import { PostListing } from "./post-listing";
 import { HtmlTags } from "./html-tags";
 import { Spinner } from "./icon";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { CommunityLink } from "./community-link";
 import { SortSelect } from "./sort-select";
 import { CommentNodes } from "./comment-nodes";
@@ -257,7 +257,7 @@ export class Search extends Component<any, SearchState> {
   all() {
     let combined: {
       type_: string;
-      data: CommentView | PostView | CommunityView | UserViewSafe;
+      data: CommentView | PostView | CommunityView | PersonViewSafe;
       published: string;
     }[] = [];
     let comments = this.state.searchResponse.comments.map(e => {
@@ -274,7 +274,7 @@ export class Search extends Component<any, SearchState> {
       };
     });
     let users = this.state.searchResponse.users.map(e => {
-      return { type_: "users", data: e, published: e.user.published };
+      return { type_: "users", data: e, published: e.person.published };
     });
 
     combined.push(...comments);
@@ -290,10 +290,10 @@ export class Search extends Component<any, SearchState> {
         (a, b) =>
           ((b.data as CommentView | PostView).counts.score |
             (b.data as CommunityView).counts.subscribers |
-            (b.data as UserViewSafe).counts.comment_score) -
+            (b.data as PersonViewSafe).counts.comment_score) -
           ((a.data as CommentView | PostView).counts.score |
             (a.data as CommunityView).counts.subscribers |
-            (a.data as UserViewSafe).counts.comment_score)
+            (a.data as PersonViewSafe).counts.comment_score)
       );
     }
 
@@ -324,7 +324,7 @@ export class Search extends Component<any, SearchState> {
                 <div>{this.communityListing(i.data as CommunityView)}</div>
               )}
               {i.type_ == "users" && (
-                <div>{this.userListing(i.data as UserViewSafe)}</div>
+                <div>{this.userListing(i.data as PersonViewSafe)}</div>
               )}
             </div>
           </div>
@@ -390,13 +390,13 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  userListing(user_view: UserViewSafe) {
+  userListing(person_view: PersonViewSafe) {
     return [
       <span>
-        <UserListing user={user_view.user} showApubName />
+        <PersonListing person={person_view.person} showApubName />
       </span>,
       <span>{` - ${i18n.t("number_of_comments", {
-        count: user_view.counts.comment_count,
+        count: person_view.counts.comment_count,
       })}`}</span>,
     ];
   }
