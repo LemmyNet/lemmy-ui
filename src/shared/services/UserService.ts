@@ -5,8 +5,9 @@ import jwt_decode from "jwt-decode";
 import { Subject, BehaviorSubject } from "rxjs";
 
 interface Claims {
-  local_user_id: number;
+  sub: number;
   iss: string;
+  iat: number;
 }
 
 export class UserService {
