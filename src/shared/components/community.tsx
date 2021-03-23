@@ -191,6 +191,7 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
+        saved_only: false,
       };
       setOptionalAuth(getPostsForm, req.auth);
       this.setIdOrName(getPostsForm, id, name_);
@@ -201,6 +202,7 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
+        saved_only: false,
       };
       setOptionalAuth(getCommentsForm, req.auth);
       this.setIdOrName(getCommentsForm, id, name_);
@@ -409,6 +411,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
+        saved_only: false,
         auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getPosts(form));
@@ -420,6 +423,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
+        saved_only: false,
         auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getComments(form));

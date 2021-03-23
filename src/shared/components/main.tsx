@@ -217,6 +217,7 @@ export class Main extends Component<any, MainState> {
         limit: fetchLimit,
         sort,
         type_,
+        saved_only: false,
       };
       setOptionalAuth(getPostsForm, req.auth);
       promises.push(req.client.getPosts(getPostsForm));
@@ -226,6 +227,7 @@ export class Main extends Component<any, MainState> {
         limit: fetchLimit,
         sort,
         type_,
+        saved_only: false,
       };
       setOptionalAuth(getCommentsForm, req.auth);
       promises.push(req.client.getComments(getCommentsForm));
@@ -703,6 +705,7 @@ export class Main extends Component<any, MainState> {
         limit: fetchLimit,
         sort: this.state.sort,
         type_: this.state.listingType,
+        saved_only: false,
         auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getPosts(getPostsForm));
@@ -712,6 +715,7 @@ export class Main extends Component<any, MainState> {
         limit: fetchLimit,
         sort: this.state.sort,
         type_: this.state.listingType,
+        saved_only: false,
         auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getComments(getCommentsForm));
