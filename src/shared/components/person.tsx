@@ -1001,7 +1001,7 @@ export class Person extends Component<any, PersonState> {
     i.state.userSettingsForm.matrix_user_id = event.target.value;
     if (
       i.state.userSettingsForm.matrix_user_id == "" &&
-      !UserService.Instance.localUserView.local_user.matrix_user_id
+      !UserService.Instance.localUserView.person.matrix_user_id
     ) {
       i.state.userSettingsForm.matrix_user_id = undefined;
     }
@@ -1098,7 +1098,7 @@ export class Person extends Component<any, PersonState> {
       this.state.userSettingsForm.send_notifications_to_email =
         UserService.Instance.localUserView.local_user.send_notifications_to_email;
       this.state.userSettingsForm.matrix_user_id =
-        UserService.Instance.localUserView.local_user.matrix_user_id;
+        UserService.Instance.localUserView.person.matrix_user_id;
     }
   }
 
