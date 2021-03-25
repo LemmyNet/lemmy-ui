@@ -11,7 +11,7 @@ import { Theme } from "./theme";
 import { Symbols } from "./symbols";
 import { GetSiteResponse } from "lemmy-js-client";
 import "./styles.scss";
-import { favIconPngUrl, favIconUrl } from "shared/utils";
+import { favIconPngUrl, favIconUrl } from "../utils";
 
 export interface AppProps {
   siteRes: GetSiteResponse;
