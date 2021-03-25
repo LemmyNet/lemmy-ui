@@ -675,6 +675,7 @@ export class Person extends Component<any, PersonState> {
                     class="form-control"
                     value={this.state.userSettingsForm.new_password}
                     autoComplete="new-password"
+                    maxLength={60}
                     onInput={linkEvent(
                       this,
                       this.handleUserSettingsNewPasswordChange
@@ -696,6 +697,7 @@ export class Person extends Component<any, PersonState> {
                     class="form-control"
                     value={this.state.userSettingsForm.new_password_verify}
                     autoComplete="new-password"
+                    maxLength={60}
                     onInput={linkEvent(
                       this,
                       this.handleUserSettingsNewPasswordVerifyChange
@@ -717,6 +719,7 @@ export class Person extends Component<any, PersonState> {
                     class="form-control"
                     value={this.state.userSettingsForm.old_password}
                     autoComplete="new-password"
+                    maxLength={60}
                     onInput={linkEvent(
                       this,
                       this.handleUserSettingsOldPasswordChange
@@ -812,6 +815,7 @@ export class Person extends Component<any, PersonState> {
                       type="password"
                       value={this.state.deleteAccountForm.password}
                       autoComplete="new-password"
+                      maxLength={60}
                       onInput={linkEvent(
                         this,
                         this.handleDeleteAccountPasswordChange
