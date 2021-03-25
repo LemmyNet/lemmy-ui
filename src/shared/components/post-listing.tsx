@@ -772,8 +772,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                         {i18n.t("unban")}
                       </button>
                     ))}
-                  {!post_view.creator_banned_from_community &&
-                    post_view.creator.local && (
+                  {!post_view.creator_banned_from_community && (
                       <button
                         class="btn btn-link btn-animate text-muted py-0"
                         onClick={linkEvent(this, this.handleAddModToCommunity)}
@@ -793,7 +792,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {/* Community creators and admins can transfer community to another mod */}
               {(this.amCommunityCreator || this.canAdmin) &&
                 this.isMod &&
-                post_view.creator.local &&
                 (!this.state.showConfirmTransferCommunity ? (
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
