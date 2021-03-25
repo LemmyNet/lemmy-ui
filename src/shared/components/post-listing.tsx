@@ -1293,7 +1293,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     let body = `${i18n.t("cross_posted_from")} ${
       post.ap_id
-    }\n\n---\n\n${post.body.replace(/^/gm, "> ")}`;
+    }\n\n${post.body.replace(/^/gm, "> ")}`;
     return body;
   }
 
