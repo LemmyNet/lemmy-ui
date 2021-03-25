@@ -58,6 +58,7 @@ interface PostListingState {
   viewSource: boolean;
   showAdvanced: boolean;
   showMoreMobile: boolean;
+  showBody: boolean;
   my_vote: number;
   score: number;
   upvotes: number;
@@ -91,6 +92,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     viewSource: false,
     showAdvanced: false,
     showMoreMobile: false,
+    showBody: false,
     my_vote: this.props.post_view.my_vote,
     score: this.props.post_view.counts.score,
     upvotes: this.props.post_view.counts.upvotes,
@@ -146,10 +148,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <div class="row">
         <div class="col-12">
-          {post.url && this.props.showBody && post.embed_title && (
+          {post.url && this.showBody && post.embed_title && (
             <IFramelyCard post={post} />
           )}
-          {this.props.showBody &&
+          {this.showBody &&
             post.body &&
             (this.state.viewSource ? (
               <pre>{post.body}</pre>
@@ -314,18 +316,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             <li className="list-inline-item">•</li>
             <li className="list-inline-item">
-              {/* Using a link with tippy doesn't work on touch devices unfortunately */}
-              <Link
-                className="text-muted"
+              <button
+                className="text-muted btn btn-sm btn-link p-0"
                 data-tippy-content={md.render(
                   previewLines(post_view.post.body)
                 )}
                 data-tippy-allowHtml={true}
-                aria-label={i18n.t("upvote")}
-                to={`/post/${post_view.post.id}`}
+                onClick={linkEvent(this, this.handleShowBody)}
               >
                 <Icon icon="book-open" classes="icon-inline mr-1" />
-              </Link>
+              </button>
             </li>
           </>
         )}
@@ -373,7 +373,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <div className="post-title overflow-hidden">
         <h5>
-          {this.props.showBody && post.url ? (
+          {this.showBody && post.url ? (
             <a
               className={!post.stickied ? "text-body" : "text-primary"}
               href={post.url}
@@ -489,7 +489,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 </small>
               </button>
             )}
-            {!this.props.showBody && (
+            {!this.showBody && (
               <button
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleSavePostClick)}
@@ -554,7 +554,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               />
             </button>
 
-            {!this.state.showMoreMobile && this.props.showBody && (
+            {!this.state.showMoreMobile && this.showBody && (
               <button
                 class="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(this, this.handleShowMoreMobile)}
@@ -601,7 +601,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       UserService.Instance.localUserView && (
         <>
-          {this.props.showBody && (
+          {this.showBody && (
             <>
               {!mobile && (
                 <button
@@ -629,7 +629,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               </Link>
             </>
           )}
-          {this.myPost && this.props.showBody && (
+          {this.myPost && this.showBody && (
             <>
               <button
                 class="btn btn-link btn-animate text-muted py-0"
@@ -659,7 +659,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </>
           )}
 
-          {!this.state.showAdvanced && this.props.showBody ? (
+          {!this.state.showAdvanced && this.showBody ? (
             <button
               class="btn btn-link btn-animate text-muted py-0"
               onClick={linkEvent(this, this.handleShowAdvanced)}
@@ -670,7 +670,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </button>
           ) : (
             <>
-              {this.props.showBody && post_view.post.body && (
+              {this.showBody && post_view.post.body && (
                 <button
                   class="btn btn-link btn-animate text-muted py-0"
                   onClick={linkEvent(this, this.handleViewSource)}
@@ -773,20 +773,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       </button>
                     ))}
                   {!post_view.creator_banned_from_community && (
-                      <button
-                        class="btn btn-link btn-animate text-muted py-0"
-                        onClick={linkEvent(this, this.handleAddModToCommunity)}
-                        aria-label={
-                          this.isMod
-                            ? i18n.t("remove_as_mod")
-                            : i18n.t("appoint_as_mod")
-                        }
-                      >
-                        {this.isMod
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0"
+                      onClick={linkEvent(this, this.handleAddModToCommunity)}
+                      aria-label={
+                        this.isMod
                           ? i18n.t("remove_as_mod")
-                          : i18n.t("appoint_as_mod")}
-                      </button>
-                    )}
+                          : i18n.t("appoint_as_mod")
+                      }
+                    >
+                      {this.isMod
+                        ? i18n.t("remove_as_mod")
+                        : i18n.t("appoint_as_mod")}
+                    </button>
+                  )}
                 </>
               )}
               {/* Community creators and admins can transfer community to another mod */}
@@ -1015,7 +1015,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     return (
       post.body &&
-      !this.props.showBody && (
+      !this.showBody && (
         <div
           className="md-div mb-1"
           dangerouslySetInnerHTML={{
@@ -1289,6 +1289,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return params;
   }
 
+  get showBody(): boolean {
+    return this.props.showBody || this.state.showBody;
+  }
+
   handleModRemoveShow(i: PostListing) {
     i.state.showRemoveDialog = true;
     i.setState(i.state);
@@ -1491,6 +1495,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleShowMoreMobile(i: PostListing) {
     i.state.showMoreMobile = !i.state.showMoreMobile;
     i.state.showAdvanced = !i.state.showAdvanced;
+    i.setState(i.state);
+    setupTippy();
+  }
+
+  handleShowBody(i: PostListing) {
+    i.state.showBody = !i.state.showBody;
     i.setState(i.state);
     setupTippy();
   }
