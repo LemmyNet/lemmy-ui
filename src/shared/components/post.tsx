@@ -463,7 +463,7 @@ export class Post extends Component<any, PostState> {
       this.fetchCrossPosts();
       this.setState(this.state);
       setupTippy();
-      restoreScrollPosition(this.context);
+      if (!this.state.commentId) restoreScrollPosition(this.context);
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
