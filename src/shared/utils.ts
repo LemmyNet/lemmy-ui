@@ -72,8 +72,8 @@ import { i18n } from "./i18next";
 
 export const wsClient = new LemmyWebsocket();
 
-export const favIconUrl = "/static/assets/favicon.svg";
-export const favIconPngUrl = "/static/assets/apple-touch-icon.png";
+export const favIconUrl = "/static/assets/icons/favicon.svg";
+export const favIconPngUrl = "/static/assets/icons/apple-touch-icon.png";
 // TODO
 // export const defaultFavIcon = `${window.location.protocol}//${window.location.host}${favIconPngUrl}`;
 export const repoUrl = "https://github.com/LemmyNet";

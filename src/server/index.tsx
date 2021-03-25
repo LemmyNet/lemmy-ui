@@ -133,10 +133,6 @@ server.get("/*", async (req, res) => {
            <!-- Web app manifest -->
            <link rel="manifest" href="/static/assets/manifest.webmanifest">
 
-           <!-- Icons -->
-           <link rel="shortcut icon" type="image/svg+xml" href="/static/assets/icons/favicon.svg" />
-           <link rel="apple-touch-icon" href="/static/assets/icons/apple-touch-icon.png" />
-
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
 
