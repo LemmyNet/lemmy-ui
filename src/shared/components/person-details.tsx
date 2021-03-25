@@ -4,23 +4,23 @@ import {
   PostView,
   CommentView,
   SortType,
-  GetUserDetailsResponse,
-  UserViewSafe,
+  GetPersonDetailsResponse,
+  PersonViewSafe,
 } from "lemmy-js-client";
-import { UserDetailsView } from "../interfaces";
+import { PersonDetailsView } from "../interfaces";
 import { commentsToFlatNodes, setupTippy } from "../utils";
 import { PostListing } from "./post-listing";
 import { CommentNodes } from "./comment-nodes";
 
-interface UserDetailsProps {
-  userRes: GetUserDetailsResponse;
-  admins: UserViewSafe[];
+interface PersonDetailsProps {
+  personRes: GetPersonDetailsResponse;
+  admins: PersonViewSafe[];
   page: number;
   limit: number;
   sort: SortType;
   enableDownvotes: boolean;
   enableNsfw: boolean;
-  view: UserDetailsView;
+  view: PersonDetailsView;
   onPageChange(page: number): number | any;
 }
 
@@ -36,7 +36,7 @@ type ItemType = {
   score: number;
 };
 
-export class UserDetails extends Component<UserDetailsProps, any> {
+export class PersonDetails extends Component<PersonDetailsProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }
@@ -65,12 +65,15 @@ export class UserDetails extends Component<UserDetailsProps, any> {
     );
   }
 
-  viewSelector(view: UserDetailsView) {
-    if (view === UserDetailsView.Overview || view === UserDetailsView.Saved) {
+  viewSelector(view: PersonDetailsView) {
+    if (
+      view === PersonDetailsView.Overview ||
+      view === PersonDetailsView.Saved
+    ) {
       return this.overview();
-    } else if (view === UserDetailsView.Comments) {
+    } else if (view === PersonDetailsView.Comments) {
       return this.comments();
-    } else if (view === UserDetailsView.Posts) {
+    } else if (view === PersonDetailsView.Posts) {
       return this.posts();
     } else {
       return null;
@@ -114,14 +117,14 @@ export class UserDetails extends Component<UserDetailsProps, any> {
 
   overview() {
     let id = 0;
-    let comments: ItemType[] = this.props.userRes.comments.map(r => ({
+    let comments: ItemType[] = this.props.personRes.comments.map(r => ({
       id: id++,
       type_: ItemEnum.Comment,
       view: r,
       published: r.comment.published,
       score: r.counts.score,
     }));
-    let posts: ItemType[] = this.props.userRes.posts.map(r => ({
+    let posts: ItemType[] = this.props.personRes.posts.map(r => ({
       id: id++,
       type_: ItemEnum.Post,
       view: r,
@@ -149,7 +152,7 @@ export class UserDetails extends Component<UserDetailsProps, any> {
     return (
       <div>
         <CommentNodes
-          nodes={commentsToFlatNodes(this.props.userRes.comments)}
+          nodes={commentsToFlatNodes(this.props.personRes.comments)}
           admins={this.props.admins}
           noIndent
           showCommunity
@@ -163,7 +166,7 @@ export class UserDetails extends Component<UserDetailsProps, any> {
   posts() {
     return (
       <div>
-        {this.props.userRes.posts.map(post => (
+        {this.props.personRes.posts.map(post => (
           <>
             <PostListing
               post_view={post}
@@ -190,7 +193,8 @@ export class UserDetails extends Component<UserDetailsProps, any> {
             {i18n.t("prev")}
           </button>
         )}
-        {this.props.userRes.comments.length + this.props.userRes.posts.length >
+        {this.props.personRes.comments.length +
+          this.props.personRes.posts.length >
           0 && (
           <button
             class="btn btn-secondary"
@@ -203,11 +207,11 @@ export class UserDetails extends Component<UserDetailsProps, any> {
     );
   }
 
-  nextPage(i: UserDetails) {
+  nextPage(i: PersonDetails) {
     i.props.onPageChange(i.props.page + 1);
   }
 
-  prevPage(i: UserDetails) {
+  prevPage(i: PersonDetails) {
     i.props.onPageChange(i.props.page - 1);
   }
 }

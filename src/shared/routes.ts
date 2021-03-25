@@ -8,7 +8,7 @@ import { PasswordChange } from "./components/password_change";
 import { Post } from "./components/post";
 import { Community } from "./components/community";
 import { Communities } from "./components/communities";
-import { User } from "./components/user";
+import { Person } from "./components/person";
 import { Modlog } from "./components/modlog";
 import { Setup } from "./components/setup";
 import { AdminSettings } from "./components/admin-settings";
@@ -45,7 +45,6 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/create_community`,
     component: CreateCommunity,
-    fetchInitialData: req => CreateCommunity.fetchInitialData(req),
   },
   {
     path: `/create_private_message/recipient/:recipient_id`,
@@ -94,23 +93,23 @@ export const routes: IRoutePropsWithFetch[] = [
   },
   {
     path: `/u/:username/view/:view/sort/:sort/page/:page`,
-    component: User,
-    fetchInitialData: req => User.fetchInitialData(req),
+    component: Person,
+    fetchInitialData: req => Person.fetchInitialData(req),
   },
   {
     path: `/user/:id/view/:view/sort/:sort/page/:page`,
-    component: User,
-    fetchInitialData: req => User.fetchInitialData(req),
+    component: Person,
+    fetchInitialData: req => Person.fetchInitialData(req),
   },
   {
     path: `/user/:id`,
-    component: User,
-    fetchInitialData: req => User.fetchInitialData(req),
+    component: Person,
+    fetchInitialData: req => Person.fetchInitialData(req),
   },
   {
     path: `/u/:username`,
-    component: User,
-    fetchInitialData: req => User.fetchInitialData(req),
+    component: Person,
+    fetchInitialData: req => Person.fetchInitialData(req),
   },
   {
     path: `/inbox`,

@@ -7,10 +7,10 @@ import { UserService, WebSocketService } from "../services";
 import {
   SiteView,
   UserOperation,
-  GetUserDetailsResponse,
-  UserViewSafe,
+  GetPersonDetailsResponse,
+  PersonViewSafe,
   SortType,
-  GetUserDetails,
+  GetPersonDetails,
 } from "lemmy-js-client";
 import {
   authField,
@@ -28,7 +28,7 @@ import { InitialFetchRequest } from "shared/interfaces";
 
 interface CreatePrivateMessageState {
   site_view: SiteView;
-  recipient: UserViewSafe;
+  recipient: PersonViewSafe;
   recipient_id: number;
   loading: boolean;
 }
@@ -55,7 +55,7 @@ export class CreatePrivateMessage extends Component<
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    if (!UserService.Instance.user) {
+    if (!UserService.Instance.localUserView) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
@@ -65,29 +65,29 @@ export class CreatePrivateMessage extends Component<
       this.state.recipient = this.isoData.routeData[0].user;
       this.state.loading = false;
     } else {
-      this.fetchUserDetails();
+      this.fetchPersonDetails();
     }
   }
 
-  fetchUserDetails() {
-    let form: GetUserDetails = {
-      user_id: this.state.recipient_id,
+  fetchPersonDetails() {
+    let form: GetPersonDetails = {
+      person_id: this.state.recipient_id,
       sort: SortType.New,
       saved_only: false,
       auth: authField(false),
     };
-    WebSocketService.Instance.send(wsClient.getUserDetails(form));
+    WebSocketService.Instance.send(wsClient.getPersonDetails(form));
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let user_id = Number(req.path.split("/").pop());
-    let form: GetUserDetails = {
-      user_id,
+    let person_id = Number(req.path.split("/").pop());
+    let form: GetPersonDetails = {
+      person_id,
       sort: SortType.New,
       saved_only: false,
       auth: req.auth,
     };
-    return [req.client.getUserDetails(form)];
+    return [req.client.getPersonDetails(form)];
   }
 
   get documentTitle(): string {
@@ -119,7 +119,7 @@ export class CreatePrivateMessage extends Component<
               <h5>{i18n.t("create_private_message")}</h5>
               <PrivateMessageForm
                 onCreate={this.handlePrivateMessageCreate}
-                recipient={this.state.recipient.user}
+                recipient={this.state.recipient.person}
               />
             </div>
           </div>
@@ -142,9 +142,9 @@ export class CreatePrivateMessage extends Component<
       this.state.loading = false;
       this.setState(this.state);
       return;
-    } else if (op == UserOperation.GetUserDetails) {
-      let data = wsJsonToRes<GetUserDetailsResponse>(msg).data;
-      this.state.recipient = data.user_view;
+    } else if (op == UserOperation.GetPersonDetails) {
+      let data = wsJsonToRes<GetPersonDetailsResponse>(msg).data;
+      this.state.recipient = data.person_view;
       this.state.loading = false;
       this.setState(this.state);
     }

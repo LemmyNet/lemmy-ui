@@ -19,8 +19,6 @@ import {
   GetCommentsResponse,
   CommentResponse,
   GetSiteResponse,
-  Category,
-  ListCategoriesResponse,
 } from "lemmy-js-client";
 import { UserService, WebSocketService } from "../services";
 import { PostListings } from "./post-listings";
@@ -72,7 +70,6 @@ interface State {
   dataType: DataType;
   sort: SortType;
   page: number;
-  categories: Category[];
 }
 
 interface CommunityProps {
@@ -103,7 +100,6 @@ export class Community extends Component<any, State> {
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
     siteRes: this.isoData.site_res,
-    categories: [],
   };
 
   constructor(props: any, context: any) {
@@ -124,14 +120,12 @@ export class Community extends Component<any, State> {
       } else {
         this.state.comments = this.isoData.routeData[1].comments;
       }
-      this.state.categories = this.isoData.routeData[2].categories;
       this.state.communityLoading = false;
       this.state.postsLoading = false;
       this.state.commentsLoading = false;
     } else {
       this.fetchCommunity();
       this.fetchData();
-      WebSocketService.Instance.send(wsClient.listCategories());
     }
     setupTippy();
   }
@@ -183,8 +177,10 @@ export class Community extends Component<any, State> {
 
     let sort: SortType = pathSplit[6]
       ? SortType[pathSplit[6]]
-      : UserService.Instance.user
-      ? Object.values(SortType)[UserService.Instance.user.default_sort_type]
+      : UserService.Instance.localUserView
+      ? Object.values(SortType)[
+          UserService.Instance.localUserView.local_user.default_sort_type
+        ]
       : SortType.Active;
 
     let page = pathSplit[8] ? Number(pathSplit[8]) : 1;
@@ -195,6 +191,7 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
+        saved_only: false,
       };
       setOptionalAuth(getPostsForm, req.auth);
       this.setIdOrName(getPostsForm, id, name_);
@@ -205,13 +202,12 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
+        saved_only: false,
       };
       setOptionalAuth(getCommentsForm, req.auth);
       this.setIdOrName(getCommentsForm, id, name_);
       promises.push(req.client.getComments(getCommentsForm));
     }
-
-    promises.push(req.client.listCategories());
 
     return promises;
   }
@@ -268,7 +264,6 @@ export class Community extends Component<any, State> {
                 admins={this.state.siteRes.admins}
                 online={this.state.communityRes.online}
                 enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
-                categories={this.state.categories}
               />
             </div>
           </div>
@@ -416,6 +411,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
+        saved_only: false,
         auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getPosts(form));
@@ -427,6 +423,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
+        saved_only: false,
         auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getComments(form));
@@ -508,7 +505,7 @@ export class Community extends Component<any, State> {
 
       // TODO this might be incorrect
       this.state.posts
-        .filter(p => p.creator.id == data.user_view.user.id)
+        .filter(p => p.creator.id == data.person_view.person.id)
         .forEach(p => (p.creator_banned_from_community = data.banned));
 
       this.setState(this.state);
@@ -540,10 +537,6 @@ export class Community extends Component<any, State> {
     } else if (op == UserOperation.CreateCommentLike) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       createCommentLikeRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.ListCategories) {
-      let data = wsJsonToRes<ListCategoriesResponse>(msg).data;
-      this.state.categories = data.categories;
       this.setState(this.state);
     }
   }

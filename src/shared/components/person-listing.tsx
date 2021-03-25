@@ -1,12 +1,12 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { UserSafe } from "lemmy-js-client";
+import { PersonSafe } from "lemmy-js-client";
 import { showAvatars, hostname, isCakeDay } from "../utils";
 import { CakeDay } from "./cake-day";
 import { PictrsImage } from "./pictrs-image";
 
-interface UserListingProps {
-  user: UserSafe;
+interface PersonListingProps {
+  person: PersonSafe;
   realLink?: boolean;
   useApubName?: boolean;
   muted?: boolean;
@@ -14,31 +14,31 @@ interface UserListingProps {
   showApubName?: boolean;
 }
 
-export class UserListing extends Component<UserListingProps, any> {
+export class PersonListing extends Component<PersonListingProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }
 
   render() {
-    let user = this.props.user;
-    let local = user.local == null ? true : user.local;
+    let person = this.props.person;
+    let local = person.local == null ? true : person.local;
     let apubName: string, link: string;
 
     if (local) {
-      apubName = `@${user.name}`;
-      link = `/u/${user.name}`;
+      apubName = `@${person.name}`;
+      link = `/u/${person.name}`;
     } else {
-      apubName = `@${user.name}@${hostname(user.actor_id)}`;
-      link = !this.props.realLink ? `/user/${user.id}` : user.actor_id;
+      apubName = `@${person.name}@${hostname(person.actor_id)}`;
+      link = !this.props.realLink ? `/user/${person.id}` : person.actor_id;
     }
 
     let displayName = this.props.useApubName
       ? apubName
-      : user.preferred_username
-      ? user.preferred_username
+      : person.preferred_username
+      ? person.preferred_username
       : apubName;
 
-    if (this.props.showApubName && !local && user.preferred_username) {
+    if (this.props.showApubName && !local && person.preferred_username) {
       displayName = `${displayName} (${apubName})`;
     }
 
@@ -49,13 +49,13 @@ export class UserListing extends Component<UserListingProps, any> {
           className={this.props.muted ? "text-muted" : "text-info"}
           to={link}
         >
-          {!this.props.hideAvatar && user.avatar && showAvatars() && (
-            <PictrsImage src={user.avatar} icon />
+          {!this.props.hideAvatar && person.avatar && showAvatars() && (
+            <PictrsImage src={person.avatar} icon />
           )}
           <span>{displayName}</span>
         </Link>
 
-        {isCakeDay(user.published) && <CakeDay creatorName={apubName} />}
+        {isCakeDay(person.published) && <CakeDay creatorName={apubName} />}
       </>
     );
   }

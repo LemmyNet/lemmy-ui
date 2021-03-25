@@ -1,4 +1,4 @@
-import i18next from "i18next";
+import i18next, { i18nTyped } from "i18next";
 import { getLanguage } from "./utils";
 import { en } from "./translations/en";
 import { el } from "./translations/el";
@@ -31,6 +31,7 @@ import { sr_Latn } from "./translations/sr_Latn";
 import { da } from "./translations/da";
 import { oc } from "./translations/oc";
 import { hr } from "./translations/hr";
+import { th } from "./translations/th";
 
 // https://github.com/nimbusec-oss/inferno-i18next/blob/master/tests/T.test.js#L66
 const resources = {
@@ -65,6 +66,7 @@ const resources = {
   da,
   oc,
   hr,
+  th,
 };
 
 function format(value: any, format: any): any {
@@ -82,4 +84,6 @@ i18next.init({
   interpolation: { format },
 });
 
-export { i18next as i18n, resources };
+export const i18n = i18next as i18nTyped;
+
+export { resources };

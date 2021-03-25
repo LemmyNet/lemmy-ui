@@ -124,7 +124,6 @@ export class Communities extends Component<any, CommunitiesState> {
                 <thead class="pointer">
                   <tr>
                     <th>{i18n.t("name")}</th>
-                    <th>{i18n.t("category")}</th>
                     <th class="text-right">{i18n.t("subscribers")}</th>
                     <th class="text-right">
                       {i18n.t("users")} / {i18n.t("month")}
@@ -144,7 +143,6 @@ export class Communities extends Component<any, CommunitiesState> {
                       <td>
                         <CommunityLink community={cv.community} />
                       </td>
-                      <td>{cv.category.name}</td>
                       <td class="text-right">{cv.counts.subscribers}</td>
                       <td class="text-right">{cv.counts.users_active_month}</td>
                       <td class="text-right d-none d-lg-table-cell">

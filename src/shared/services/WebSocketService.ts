@@ -1,5 +1,5 @@
 import { wsUri } from "../env";
-import { UserViewSafe, WebSocketJsonResponse } from "lemmy-js-client";
+import { PersonViewSafe, WebSocketJsonResponse } from "lemmy-js-client";
 import { isBrowser } from "../utils";
 import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
@@ -17,8 +17,8 @@ export class WebSocketService {
   };
   public subject: Observable<any>;
 
-  public admins: UserViewSafe[];
-  public banned: UserViewSafe[];
+  public admins: PersonViewSafe[];
+  public banned: PersonViewSafe[];
 
   private constructor() {
     this.ws = new ReconnectingWebSocket(wsUri, [], this.wsOptions);
