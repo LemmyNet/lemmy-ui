@@ -563,7 +563,7 @@ export class Person extends Component<any, PersonState> {
               </div>
               <form className="form-group">
                 <label>
-                  <div class="mr-2">{i18n.t("sort_type")}</div>
+                  <div class="mr-2">{i18n.t("type")}</div>
                 </label>
                 <ListingTypeSelect
                   type_={
@@ -579,7 +579,7 @@ export class Person extends Component<any, PersonState> {
               </form>
               <form className="form-group">
                 <label>
-                  <div class="mr-2">{i18n.t("type")}</div>
+                  <div class="mr-2">{i18n.t("sort_type")}</div>
                 </label>
                 <SortSelect
                   sort={
