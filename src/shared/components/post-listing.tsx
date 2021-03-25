@@ -9,9 +9,9 @@ import {
   LockPost,
   StickyPost,
   SavePost,
-  UserViewSafe,
+  PersonViewSafe,
   BanFromCommunity,
-  BanUser,
+  BanPerson,
   AddModToCommunity,
   AddAdmin,
   TransferSite,
@@ -22,7 +22,7 @@ import { BanType } from "../interfaces";
 import { MomentTime } from "./moment-time";
 import { PostForm } from "./post-form";
 import { IFramelyCard } from "./iframely-card";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { CommunityLink } from "./community-link";
 import { PictrsImage } from "./pictrs-image";
 import { Icon } from "./icon";
@@ -70,7 +70,7 @@ interface PostListingProps {
   showCommunity?: boolean;
   showBody?: boolean;
   moderators?: CommunityModeratorView[];
-  admins?: UserViewSafe[];
+  admins?: PersonViewSafe[];
   enableDownvotes: boolean;
   enableNsfw: boolean;
 }
@@ -270,7 +270,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <ul class="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
-          <UserListing user={post_view.creator} />
+          <PersonListing person={post_view.creator} />
 
           {this.isMod && (
             <span className="mx-1 badge badge-light">{i18n.t("mod")}</span>
@@ -599,7 +599,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postActions(mobile = false) {
     let post_view = this.props.post_view;
     return (
-      UserService.Instance.user && (
+      UserService.Instance.localUserView && (
         <>
           {this.props.showBody && (
             <>
@@ -1083,8 +1083,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   private get myPost(): boolean {
     return (
-      UserService.Instance.user &&
-      this.props.post_view.creator.id == UserService.Instance.user.id
+      UserService.Instance.localUserView &&
+      this.props.post_view.creator.id ==
+        UserService.Instance.localUserView.person.id
     );
   }
 
@@ -1102,7 +1103,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       this.props.admins &&
       isMod(
-        this.props.admins.map(a => a.user.id),
+        this.props.admins.map(a => a.person.id),
         this.props.post_view.creator.id
       )
     );
@@ -1111,11 +1112,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get canMod(): boolean {
     if (this.props.admins && this.props.moderators) {
       let adminsThenMods = this.props.admins
-        .map(a => a.user.id)
+        .map(a => a.person.id)
         .concat(this.props.moderators.map(m => m.moderator.id));
 
       return canMod(
-        UserService.Instance.user,
+        UserService.Instance.localUserView,
         adminsThenMods,
         this.props.post_view.creator.id
       );
@@ -1127,11 +1128,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get canModOnSelf(): boolean {
     if (this.props.admins && this.props.moderators) {
       let adminsThenMods = this.props.admins
-        .map(a => a.user.id)
+        .map(a => a.person.id)
         .concat(this.props.moderators.map(m => m.moderator.id));
 
       return canMod(
-        UserService.Instance.user,
+        UserService.Instance.localUserView,
         adminsThenMods,
         this.props.post_view.creator.id,
         true
@@ -1145,8 +1146,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       this.props.admins &&
       canMod(
-        UserService.Instance.user,
-        this.props.admins.map(a => a.user.id),
+        UserService.Instance.localUserView,
+        this.props.admins.map(a => a.person.id),
         this.props.post_view.creator.id
       )
     );
@@ -1155,24 +1156,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get amCommunityCreator(): boolean {
     return (
       this.props.moderators &&
-      UserService.Instance.user &&
-      this.props.post_view.creator.id != UserService.Instance.user.id &&
-      UserService.Instance.user.id == this.props.moderators[0].moderator.id
+      UserService.Instance.localUserView &&
+      this.props.post_view.creator.id !=
+        UserService.Instance.localUserView.person.id &&
+      UserService.Instance.localUserView.person.id ==
+        this.props.moderators[0].moderator.id
     );
   }
 
   get amSiteCreator(): boolean {
     return (
       this.props.admins &&
-      UserService.Instance.user &&
-      this.props.post_view.creator.id != UserService.Instance.user.id &&
-      UserService.Instance.user.id == this.props.admins[0].user.id
+      UserService.Instance.localUserView &&
+      this.props.post_view.creator.id !=
+        UserService.Instance.localUserView.person.id &&
+      UserService.Instance.localUserView.person.id ==
+        this.props.admins[0].person.id
     );
   }
 
   handlePostLike(i: PostListing, event: any) {
     event.preventDefault();
-    if (!UserService.Instance.user) {
+    if (!UserService.Instance.localUserView) {
       this.context.router.history.push(`/login`);
     }
 
@@ -1205,7 +1210,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handlePostDisLike(i: PostListing, event: any) {
     event.preventDefault();
-    if (!UserService.Instance.user) {
+    if (!UserService.Instance.localUserView) {
       this.context.router.history.push(`/login`);
     }
 
@@ -1377,7 +1382,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         i.state.removeData = false;
       }
       let form: BanFromCommunity = {
-        user_id: i.props.post_view.creator.id,
+        person_id: i.props.post_view.creator.id,
         community_id: i.props.post_view.community.id,
         ban,
         remove_data: i.state.removeData,
@@ -1392,15 +1397,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       if (ban == false) {
         i.state.removeData = false;
       }
-      let form: BanUser = {
-        user_id: i.props.post_view.creator.id,
+      let form: BanPerson = {
+        person_id: i.props.post_view.creator.id,
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
         expires: getUnixTime(i.state.banExpires),
         auth: authField(),
       };
-      WebSocketService.Instance.send(wsClient.banUser(form));
+      WebSocketService.Instance.send(wsClient.banPerson(form));
     }
 
     i.state.showBanDialog = false;
@@ -1409,7 +1414,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleAddModToCommunity(i: PostListing) {
     let form: AddModToCommunity = {
-      user_id: i.props.post_view.creator.id,
+      person_id: i.props.post_view.creator.id,
       community_id: i.props.post_view.community.id,
       added: !i.isMod,
       auth: authField(),
@@ -1420,7 +1425,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleAddAdmin(i: PostListing) {
     let form: AddAdmin = {
-      user_id: i.props.post_view.creator.id,
+      person_id: i.props.post_view.creator.id,
       added: !i.isAdmin,
       auth: authField(),
     };
@@ -1441,7 +1446,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleTransferCommunity(i: PostListing) {
     let form: TransferCommunity = {
       community_id: i.props.post_view.community.id,
-      user_id: i.props.post_view.creator.id,
+      person_id: i.props.post_view.creator.id,
       auth: authField(),
     };
     WebSocketService.Instance.send(wsClient.transferCommunity(form));
@@ -1461,7 +1466,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleTransferSite(i: PostListing) {
     let form: TransferSite = {
-      user_id: i.props.post_view.creator.id,
+      person_id: i.props.post_view.creator.id,
       auth: authField(),
     };
     WebSocketService.Instance.send(wsClient.transferSite(form));

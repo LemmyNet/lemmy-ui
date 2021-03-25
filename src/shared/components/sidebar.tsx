@@ -6,13 +6,13 @@ import {
   FollowCommunity,
   DeleteCommunity,
   RemoveCommunity,
-  UserViewSafe,
+  PersonViewSafe,
   AddModToCommunity,
 } from "lemmy-js-client";
 import { WebSocketService, UserService } from "../services";
 import { mdToHtml, getUnixTime, wsClient, authField } from "../utils";
 import { CommunityForm } from "./community-form";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { CommunityLink } from "./community-link";
 import { BannerIconHeader } from "./banner-icon-header";
 import { Icon } from "./icon";
@@ -21,7 +21,7 @@ import { i18n } from "../i18next";
 interface SidebarProps {
   community_view: CommunityView;
   moderators: CommunityModeratorView[];
-  admins: UserViewSafe[];
+  admins: PersonViewSafe[];
   online: number;
   enableNsfw: boolean;
   showIcon?: boolean;
@@ -224,7 +224,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li class="list-inline-item">{i18n.t("mods")}: </li>
         {this.props.moderators.map(mod => (
           <li class="list-inline-item">
-            <UserListing user={mod.moderator} />
+            <PersonListing person={mod.moderator} />
           </li>
         ))}
       </ul>
@@ -453,7 +453,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleLeaveModTeamClick(i: Sidebar) {
     let form: AddModToCommunity = {
-      user_id: UserService.Instance.user.id,
+      person_id: UserService.Instance.localUserView.person.id,
       community_id: i.props.community_view.community.id,
       added: false,
       auth: authField(),
@@ -489,24 +489,27 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   private get amCreator(): boolean {
-    return this.props.community_view.creator.id == UserService.Instance.user.id;
+    return (
+      this.props.community_view.creator.id ==
+      UserService.Instance.localUserView.person.id
+    );
   }
 
   get canMod(): boolean {
     return (
-      UserService.Instance.user &&
+      UserService.Instance.localUserView &&
       this.props.moderators
         .map(m => m.moderator.id)
-        .includes(UserService.Instance.user.id)
+        .includes(UserService.Instance.localUserView.person.id)
     );
   }
 
   get canAdmin(): boolean {
     return (
-      UserService.Instance.user &&
+      UserService.Instance.localUserView &&
       this.props.admins
-        .map(a => a.user.id)
-        .includes(UserService.Instance.user.id)
+        .map(a => a.person.id)
+        .includes(UserService.Instance.localUserView.person.id)
     );
   }
 

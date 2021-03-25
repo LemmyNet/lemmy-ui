@@ -2,7 +2,7 @@ import {
   CommentView,
   GetSiteResponse,
   LemmyHttp,
-  UserMentionView,
+  PersonMentionView,
 } from "lemmy-js-client";
 
 export interface IsoData {
@@ -32,7 +32,7 @@ export interface InitialFetchRequest {
 }
 
 export interface CommentNode {
-  comment_view: CommentView | UserMentionView;
+  comment_view: CommentView | PersonMentionView;
   children?: CommentNode[];
   depth?: number;
 }
@@ -67,7 +67,7 @@ export enum BanType {
   Site,
 }
 
-export enum UserDetailsView {
+export enum PersonDetailsView {
   Overview,
   Comments,
   Posts,

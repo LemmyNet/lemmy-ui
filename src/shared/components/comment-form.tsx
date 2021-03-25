@@ -68,7 +68,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
   render() {
     return (
       <div class="mb-3">
-        {UserService.Instance.user ? (
+        {UserService.Instance.localUserView ? (
           <MarkdownTextArea
             initialContent={
               this.props.edit
@@ -133,7 +133,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
     let op = wsUserOp(msg);
 
     // Only do the showing and hiding if logged in
-    if (UserService.Instance.user) {
+    if (UserService.Instance.localUserView) {
       if (
         op == UserOperation.CreateComment ||
         op == UserOperation.EditComment

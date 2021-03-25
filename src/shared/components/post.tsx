@@ -11,7 +11,7 @@ import {
   CommentResponse,
   CommunityResponse,
   BanFromCommunityResponse,
-  BanUserResponse,
+  BanPersonResponse,
   AddModToCommunityResponse,
   AddAdminResponse,
   SearchType,
@@ -207,13 +207,13 @@ export class Post extends Component<any, PostState> {
     let parent = this.state.postRes.comments.find(
       c => found.comment.parent_id == c.comment.id
     );
-    let parent_user_id = parent
+    let parent_person_id = parent
       ? parent.creator.id
       : this.state.postRes.post_view.creator.id;
 
     if (
-      UserService.Instance.user &&
-      UserService.Instance.user.id == parent_user_id
+      UserService.Instance.localUserView &&
+      UserService.Instance.localUserView.person.id == parent_person_id
     ) {
       let form: MarkCommentAsRead = {
         comment_id: found.comment.id,
@@ -522,9 +522,11 @@ export class Post extends Component<any, PostState> {
     } else if (op == UserOperation.BanFromCommunity) {
       let data = wsJsonToRes<BanFromCommunityResponse>(msg).data;
       this.state.postRes.comments
-        .filter(c => c.creator.id == data.user_view.user.id)
+        .filter(c => c.creator.id == data.person_view.person.id)
         .forEach(c => (c.creator_banned_from_community = data.banned));
-      if (this.state.postRes.post_view.creator.id == data.user_view.user.id) {
+      if (
+        this.state.postRes.post_view.creator.id == data.person_view.person.id
+      ) {
         this.state.postRes.post_view.creator_banned_from_community =
           data.banned;
       }
@@ -533,12 +535,14 @@ export class Post extends Component<any, PostState> {
       let data = wsJsonToRes<AddModToCommunityResponse>(msg).data;
       this.state.postRes.moderators = data.moderators;
       this.setState(this.state);
-    } else if (op == UserOperation.BanUser) {
-      let data = wsJsonToRes<BanUserResponse>(msg).data;
+    } else if (op == UserOperation.BanPerson) {
+      let data = wsJsonToRes<BanPersonResponse>(msg).data;
       this.state.postRes.comments
-        .filter(c => c.creator.id == data.user_view.user.id)
+        .filter(c => c.creator.id == data.person_view.person.id)
         .forEach(c => (c.creator.banned = data.banned));
-      if (this.state.postRes.post_view.creator.id == data.user_view.user.id) {
+      if (
+        this.state.postRes.post_view.creator.id == data.person_view.person.id
+      ) {
         this.state.postRes.post_view.creator.banned = data.banned;
       }
       this.setState(this.state);

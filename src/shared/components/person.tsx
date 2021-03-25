@@ -1,6 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { Subscription } from "rxjs";
+import ISO6391 from "iso-639-1";
 import {
   UserOperation,
   SortType,
@@ -9,14 +10,14 @@ import {
   LoginResponse,
   DeleteAccount,
   GetSiteResponse,
-  GetUserDetailsResponse,
+  GetPersonDetailsResponse,
   AddAdminResponse,
-  GetUserDetails,
+  GetPersonDetails,
   CommentResponse,
   PostResponse,
-  BanUserResponse,
+  BanPersonResponse,
 } from "lemmy-js-client";
-import { InitialFetchRequest, UserDetailsView } from "../interfaces";
+import { InitialFetchRequest, PersonDetailsView } from "../interfaces";
 import { WebSocketService, UserService } from "../services";
 import {
   wsJsonToRes,
@@ -48,25 +49,25 @@ import {
   saveScrollPosition,
   restoreScrollPosition,
 } from "../utils";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { HtmlTags } from "./html-tags";
 import { SortSelect } from "./sort-select";
 import { ListingTypeSelect } from "./listing-type-select";
 import { MomentTime } from "./moment-time";
 import { i18n } from "../i18next";
 import moment from "moment";
-import { UserDetails } from "./user-details";
+import { PersonDetails } from "./person-details";
 import { MarkdownTextArea } from "./markdown-textarea";
 import { Icon, Spinner } from "./icon";
 import { ImageUploadForm } from "./image-upload-form";
 import { BannerIconHeader } from "./banner-icon-header";
 import { CommunityLink } from "./community-link";
 
-interface UserState {
-  userRes: GetUserDetailsResponse;
-  userId: number;
+interface PersonState {
+  personRes: GetPersonDetailsResponse;
+  personId: number;
   userName: string;
-  view: UserDetailsView;
+  view: PersonDetailsView;
   sort: SortType;
   page: number;
   loading: boolean;
@@ -78,11 +79,11 @@ interface UserState {
   siteRes: GetSiteResponse;
 }
 
-interface UserProps {
-  view: UserDetailsView;
+interface PersonProps {
+  view: PersonDetailsView;
   sort: SortType;
   page: number;
-  user_id: number | null;
+  person_id: number | null;
   username: string;
 }
 
@@ -92,17 +93,17 @@ interface UrlParams {
   page?: number;
 }
 
-export class User extends Component<any, UserState> {
+export class Person extends Component<any, PersonState> {
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
-  private emptyState: UserState = {
-    userRes: undefined,
-    userId: getIdFromProps(this.props),
+  private emptyState: PersonState = {
+    personRes: undefined,
+    personId: getIdFromProps(this.props),
     userName: getUsernameFromProps(this.props),
     loading: true,
-    view: User.getViewFromProps(this.props.match.view),
-    sort: User.getSortTypeFromProps(this.props.match.sort),
-    page: User.getPageFromProps(this.props.match.page),
+    view: Person.getViewFromProps(this.props.match.view),
+    sort: Person.getSortTypeFromProps(this.props.match.sort),
+    page: Person.getPageFromProps(this.props.match.page),
     userSettingsForm: {
       show_nsfw: null,
       theme: null,
@@ -152,7 +153,7 @@ export class User extends Component<any, UserState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.userRes = this.isoData.routeData[0];
+      this.state.personRes = this.isoData.routeData[0];
       this.setUserInfo();
       this.state.loading = false;
     } else {
@@ -163,27 +164,27 @@ export class User extends Component<any, UserState> {
   }
 
   fetchUserData() {
-    let form: GetUserDetails = {
-      user_id: this.state.userId,
+    let form: GetPersonDetails = {
+      person_id: this.state.personId,
       username: this.state.userName,
       sort: this.state.sort,
-      saved_only: this.state.view === UserDetailsView.Saved,
+      saved_only: this.state.view === PersonDetailsView.Saved,
       page: this.state.page,
       limit: fetchLimit,
       auth: authField(false),
     };
-    WebSocketService.Instance.send(wsClient.getUserDetails(form));
+    WebSocketService.Instance.send(wsClient.getPersonDetails(form));
   }
 
   get isCurrentUser() {
     return (
-      UserService.Instance.user &&
-      UserService.Instance.user.id == this.state.userRes.user_view.user.id
+      UserService.Instance.localUserView?.person.id ==
+      this.state.personRes.person_view.person.id
     );
   }
 
-  static getViewFromProps(view: string): UserDetailsView {
-    return view ? UserDetailsView[view] : UserDetailsView.Overview;
+  static getViewFromProps(view: string): PersonDetailsView {
+    return view ? PersonDetailsView[view] : PersonDetailsView.Overview;
   }
 
   static getSortTypeFromProps(sort: string): SortType {
@@ -200,33 +201,33 @@ export class User extends Component<any, UserState> {
 
     // It can be /u/me, or /username/1
     let idOrName = pathSplit[2];
-    let user_id: number;
+    let person_id: number;
     let username: string;
     if (isNaN(Number(idOrName))) {
       username = idOrName;
     } else {
-      user_id = Number(idOrName);
+      person_id = Number(idOrName);
     }
 
     let view = this.getViewFromProps(pathSplit[4]);
     let sort = this.getSortTypeFromProps(pathSplit[6]);
     let page = this.getPageFromProps(Number(pathSplit[8]));
 
-    let form: GetUserDetails = {
+    let form: GetPersonDetails = {
       sort,
-      saved_only: view === UserDetailsView.Saved,
+      saved_only: view === PersonDetailsView.Saved,
       page,
       limit: fetchLimit,
     };
     setOptionalAuth(form, req.auth);
-    this.setIdOrName(form, user_id, username);
-    promises.push(req.client.getUserDetails(form));
+    this.setIdOrName(form, person_id, username);
+    promises.push(req.client.getPersonDetails(form));
     return promises;
   }
 
   static setIdOrName(obj: any, id: number, name_: string) {
     if (id) {
-      obj.user_id = id;
+      obj.person_id = id;
     } else {
       obj.username = name_;
     }
@@ -237,12 +238,12 @@ export class User extends Component<any, UserState> {
     saveScrollPosition(this.context);
   }
 
-  static getDerivedStateFromProps(props: any): UserProps {
+  static getDerivedStateFromProps(props: any): PersonProps {
     return {
       view: this.getViewFromProps(props.match.params.view),
       sort: this.getSortTypeFromProps(props.match.params.sort),
       page: this.getPageFromProps(props.match.params.page),
-      user_id: Number(props.match.params.id) || null,
+      person_id: Number(props.match.params.id) || null,
       username: props.match.params.username,
     };
   }
@@ -259,12 +260,12 @@ export class User extends Component<any, UserState> {
   }
 
   get documentTitle(): string {
-    return `@${this.state.userRes.user_view.user.name} - ${this.state.siteRes.site_view.site.name}`;
+    return `@${this.state.personRes.person_view.person.name} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   get bioTag(): string {
-    return this.state.userRes.user_view.user.bio
-      ? previewLines(this.state.userRes.user_view.user.bio)
+    return this.state.personRes.person_view.person.bio
+      ? previewLines(this.state.personRes.person_view.person.bio)
       : undefined;
   }
 
@@ -283,14 +284,14 @@ export class User extends Component<any, UserState> {
                   title={this.documentTitle}
                   path={this.context.router.route.match.url}
                   description={this.bioTag}
-                  image={this.state.userRes.user_view.user.avatar}
+                  image={this.state.personRes.person_view.person.avatar}
                 />
                 {this.userInfo()}
                 <hr />
               </>
               {!this.state.loading && this.selects()}
-              <UserDetails
-                userRes={this.state.userRes}
+              <PersonDetails
+                personRes={this.state.personRes}
                 admins={this.state.siteRes.admins}
                 sort={this.state.sort}
                 page={this.state.page}
@@ -322,52 +323,52 @@ export class User extends Component<any, UserState> {
       <div class="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.view == UserDetailsView.Overview && "active"}
+            ${this.state.view == PersonDetailsView.Overview && "active"}
           `}
         >
           <input
             type="radio"
-            value={UserDetailsView.Overview}
-            checked={this.state.view === UserDetailsView.Overview}
+            value={PersonDetailsView.Overview}
+            checked={this.state.view === PersonDetailsView.Overview}
             onChange={linkEvent(this, this.handleViewChange)}
           />
           {i18n.t("overview")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.view == UserDetailsView.Comments && "active"}
+            ${this.state.view == PersonDetailsView.Comments && "active"}
           `}
         >
           <input
             type="radio"
-            value={UserDetailsView.Comments}
-            checked={this.state.view == UserDetailsView.Comments}
+            value={PersonDetailsView.Comments}
+            checked={this.state.view == PersonDetailsView.Comments}
             onChange={linkEvent(this, this.handleViewChange)}
           />
           {i18n.t("comments")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.view == UserDetailsView.Posts && "active"}
+            ${this.state.view == PersonDetailsView.Posts && "active"}
           `}
         >
           <input
             type="radio"
-            value={UserDetailsView.Posts}
-            checked={this.state.view == UserDetailsView.Posts}
+            value={PersonDetailsView.Posts}
+            checked={this.state.view == PersonDetailsView.Posts}
             onChange={linkEvent(this, this.handleViewChange)}
           />
           {i18n.t("posts")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
-            ${this.state.view == UserDetailsView.Saved && "active"}
+            ${this.state.view == PersonDetailsView.Saved && "active"}
           `}
         >
           <input
             type="radio"
-            value={UserDetailsView.Saved}
-            checked={this.state.view == UserDetailsView.Saved}
+            value={PersonDetailsView.Saved}
+            checked={this.state.view == PersonDetailsView.Saved}
             onChange={linkEvent(this, this.handleViewChange)}
           />
           {i18n.t("saved")}
@@ -398,29 +399,29 @@ export class User extends Component<any, UserState> {
   }
 
   userInfo() {
-    let uv = this.state.userRes?.user_view;
+    let pv = this.state.personRes?.person_view;
 
     return (
       <div>
-        <BannerIconHeader banner={uv.user.banner} icon={uv.user.avatar} />
+        <BannerIconHeader banner={pv.person.banner} icon={pv.person.avatar} />
         <div class="mb-3">
           <div class="">
             <div class="mb-0 d-flex flex-wrap">
               <div>
-                {uv.user.preferred_username && (
-                  <h5 class="mb-0">{uv.user.preferred_username}</h5>
+                {pv.person.preferred_username && (
+                  <h5 class="mb-0">{pv.person.preferred_username}</h5>
                 )}
                 <ul class="list-inline mb-2">
                   <li className="list-inline-item">
-                    <UserListing
-                      user={uv.user}
+                    <PersonListing
+                      person={pv.person}
                       realLink
                       useApubName
                       muted
                       hideAvatar
                     />
                   </li>
-                  {uv.user.banned && (
+                  {pv.person.banned && (
                     <li className="list-inline-item badge badge-danger">
                       {i18n.t("banned")}
                     </li>
@@ -437,53 +438,56 @@ export class User extends Component<any, UserState> {
                 </button>
               ) : (
                 <>
+                  {/* TODO matrix ids aren't currently federated, so don't come back with GetPersonDetails
                   <a
                     className={`d-flex align-self-start btn btn-secondary mr-2 ${
-                      !uv.user.matrix_user_id && "invisible"
+                      !pv.local_user.matrix_user_id && "invisible"
                     }`}
                     rel="noopener"
-                    href={`https://matrix.to/#/${uv.user.matrix_user_id}`}
+                    href={`https://matrix.to/#/${pv.local_user.matrix_user_id}`}
                   >
                     {i18n.t("send_secure_message")}
                   </a>
+                */}
+
                   <Link
                     className={"d-flex align-self-start btn btn-secondary"}
-                    to={`/create_private_message/recipient/${uv.user.id}`}
+                    to={`/create_private_message/recipient/${pv.person.id}`}
                   >
                     {i18n.t("send_message")}
                   </Link>
                 </>
               )}
             </div>
-            {uv.user.bio && (
+            {pv.person.bio && (
               <div className="d-flex align-items-center mb-2">
                 <div
                   className="md-div"
-                  dangerouslySetInnerHTML={mdToHtml(uv.user.bio)}
+                  dangerouslySetInnerHTML={mdToHtml(pv.person.bio)}
                 />
               </div>
             )}
             <div>
               <ul class="list-inline mb-2">
                 <li className="list-inline-item badge badge-light">
-                  {i18n.t("number_of_posts", { count: uv.counts.post_count })}
+                  {i18n.t("number_of_posts", { count: pv.counts.post_count })}
                 </li>
                 <li className="list-inline-item badge badge-light">
                   {i18n.t("number_of_comments", {
-                    count: uv.counts.comment_count,
+                    count: pv.counts.comment_count,
                   })}
                 </li>
               </ul>
             </div>
             <div class="text-muted">
               {i18n.t("joined")}{" "}
-              <MomentTime data={uv.user} showAgo ignoreUpdated />
+              <MomentTime data={pv.person} showAgo ignoreUpdated />
             </div>
             <div className="d-flex align-items-center text-muted mb-2">
               <Icon icon="cake" />
               <span className="ml-2">
                 {i18n.t("cake_day_title")}{" "}
-                {moment.utc(uv.user.published).local().format("MMM DD, YYYY")}
+                {moment.utc(pv.person.published).local().format("MMM DD, YYYY")}
               </span>
             </div>
           </div>
@@ -533,8 +537,10 @@ export class User extends Component<any, UserState> {
                   <option disabled aria-hidden="true">
                     ──
                   </option>
-                  {languages.map(lang => (
-                    <option value={lang.code}>{lang.name}</option>
+                  {languages.sort().map(lang => (
+                    <option value={lang.code}>
+                      {ISO6391.getNativeName(lang.code) || lang.code}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -557,7 +563,7 @@ export class User extends Component<any, UserState> {
               </div>
               <form className="form-group">
                 <label>
-                  <div class="mr-2">{i18n.t("sort_type")}</div>
+                  <div class="mr-2">{i18n.t("type")}</div>
                 </label>
                 <ListingTypeSelect
                   type_={
@@ -573,7 +579,7 @@ export class User extends Component<any, UserState> {
               </form>
               <form className="form-group">
                 <label>
-                  <div class="mr-2">{i18n.t("type")}</div>
+                  <div class="mr-2">{i18n.t("sort_type")}</div>
                 </label>
                 <SortSelect
                   sort={
@@ -845,12 +851,12 @@ export class User extends Component<any, UserState> {
   moderates() {
     return (
       <div>
-        {this.state.userRes.moderates.length > 0 && (
+        {this.state.personRes.moderates.length > 0 && (
           <div class="card border-secondary mb-3">
             <div class="card-body">
               <h5>{i18n.t("moderates")}</h5>
               <ul class="list-unstyled mb-0">
-                {this.state.userRes.moderates.map(cmv => (
+                {this.state.personRes.moderates.map(cmv => (
                   <li>
                     <CommunityLink community={cmv.community} />
                   </li>
@@ -866,12 +872,12 @@ export class User extends Component<any, UserState> {
   follows() {
     return (
       <div>
-        {this.state.userRes.follows.length > 0 && (
+        {this.state.personRes.follows.length > 0 && (
           <div class="card border-secondary mb-3">
             <div class="card-body">
               <h5>{i18n.t("subscribed")}</h5>
               <ul class="list-unstyled mb-0">
-                {this.state.userRes.follows.map(cfv => (
+                {this.state.personRes.follows.map(cfv => (
                   <li>
                     <CommunityLink community={cfv.community} />
                   </li>
@@ -886,12 +892,12 @@ export class User extends Component<any, UserState> {
 
   updateUrl(paramUpdates: UrlParams) {
     const page = paramUpdates.page || this.state.page;
-    const viewStr = paramUpdates.view || UserDetailsView[this.state.view];
+    const viewStr = paramUpdates.view || PersonDetailsView[this.state.view];
     const sortStr = paramUpdates.sort || this.state.sort;
 
     let typeView = this.state.userName
       ? `/u/${this.state.userName}`
-      : `/user/${this.state.userId}`;
+      : `/user/${this.state.personId}`;
 
     this.props.history.push(
       `${typeView}/view/${viewStr}/sort/${sortStr}/page/${page}`
@@ -909,36 +915,37 @@ export class User extends Component<any, UserState> {
     this.updateUrl({ sort: val, page: 1 });
   }
 
-  handleViewChange(i: User, event: any) {
+  handleViewChange(i: Person, event: any) {
     i.updateUrl({
-      view: UserDetailsView[Number(event.target.value)],
+      view: PersonDetailsView[Number(event.target.value)],
       page: 1,
     });
   }
 
-  handleUserSettingsShowNsfwChange(i: User, event: any) {
+  handleUserSettingsShowNsfwChange(i: Person, event: any) {
     i.state.userSettingsForm.show_nsfw = event.target.checked;
     i.setState(i.state);
   }
 
-  handleUserSettingsShowAvatarsChange(i: User, event: any) {
+  handleUserSettingsShowAvatarsChange(i: Person, event: any) {
     i.state.userSettingsForm.show_avatars = event.target.checked;
-    UserService.Instance.user.show_avatars = event.target.checked; // Just for instant updates
+    UserService.Instance.localUserView.local_user.show_avatars =
+      event.target.checked; // Just for instant updates
     i.setState(i.state);
   }
 
-  handleUserSettingsSendNotificationsToEmailChange(i: User, event: any) {
+  handleUserSettingsSendNotificationsToEmailChange(i: Person, event: any) {
     i.state.userSettingsForm.send_notifications_to_email = event.target.checked;
     i.setState(i.state);
   }
 
-  handleUserSettingsThemeChange(i: User, event: any) {
+  handleUserSettingsThemeChange(i: Person, event: any) {
     i.state.userSettingsForm.theme = event.target.value;
     setTheme(event.target.value, true);
     i.setState(i.state);
   }
 
-  handleUserSettingsLangChange(i: User, event: any) {
+  handleUserSettingsLangChange(i: Person, event: any) {
     i.state.userSettingsForm.lang = event.target.value;
     i18n.changeLanguage(getLanguage(i.state.userSettingsForm.lang));
     i.setState(i.state);
@@ -958,7 +965,7 @@ export class User extends Component<any, UserState> {
     this.setState(this.state);
   }
 
-  handleUserSettingsEmailChange(i: User, event: any) {
+  handleUserSettingsEmailChange(i: Person, event: any) {
     i.state.userSettingsForm.email = event.target.value;
     i.setState(i.state);
   }
@@ -988,23 +995,23 @@ export class User extends Component<any, UserState> {
     this.setState(this.state);
   }
 
-  handleUserSettingsPreferredUsernameChange(i: User, event: any) {
+  handleUserSettingsPreferredUsernameChange(i: Person, event: any) {
     i.state.userSettingsForm.preferred_username = event.target.value;
     i.setState(i.state);
   }
 
-  handleUserSettingsMatrixUserIdChange(i: User, event: any) {
+  handleUserSettingsMatrixUserIdChange(i: Person, event: any) {
     i.state.userSettingsForm.matrix_user_id = event.target.value;
     if (
       i.state.userSettingsForm.matrix_user_id == "" &&
-      !i.state.userRes.user_view.user.matrix_user_id
+      !UserService.Instance.localUserView.person.matrix_user_id
     ) {
       i.state.userSettingsForm.matrix_user_id = undefined;
     }
     i.setState(i.state);
   }
 
-  handleUserSettingsNewPasswordChange(i: User, event: any) {
+  handleUserSettingsNewPasswordChange(i: Person, event: any) {
     i.state.userSettingsForm.new_password = event.target.value;
     if (i.state.userSettingsForm.new_password == "") {
       i.state.userSettingsForm.new_password = undefined;
@@ -1012,7 +1019,7 @@ export class User extends Component<any, UserState> {
     i.setState(i.state);
   }
 
-  handleUserSettingsNewPasswordVerifyChange(i: User, event: any) {
+  handleUserSettingsNewPasswordVerifyChange(i: Person, event: any) {
     i.state.userSettingsForm.new_password_verify = event.target.value;
     if (i.state.userSettingsForm.new_password_verify == "") {
       i.state.userSettingsForm.new_password_verify = undefined;
@@ -1020,7 +1027,7 @@ export class User extends Component<any, UserState> {
     i.setState(i.state);
   }
 
-  handleUserSettingsOldPasswordChange(i: User, event: any) {
+  handleUserSettingsOldPasswordChange(i: Person, event: any) {
     i.state.userSettingsForm.old_password = event.target.value;
     if (i.state.userSettingsForm.old_password == "") {
       i.state.userSettingsForm.old_password = undefined;
@@ -1028,7 +1035,7 @@ export class User extends Component<any, UserState> {
     i.setState(i.state);
   }
 
-  handleUserSettingsSubmit(i: User, event: any) {
+  handleUserSettingsSubmit(i: Person, event: any) {
     event.preventDefault();
     i.state.userSettingsLoading = true;
     i.setState(i.state);
@@ -1038,23 +1045,23 @@ export class User extends Component<any, UserState> {
     );
   }
 
-  handleDeleteAccountShowConfirmToggle(i: User, event: any) {
+  handleDeleteAccountShowConfirmToggle(i: Person, event: any) {
     event.preventDefault();
     i.state.deleteAccountShowConfirm = !i.state.deleteAccountShowConfirm;
     i.setState(i.state);
   }
 
-  handleDeleteAccountPasswordChange(i: User, event: any) {
+  handleDeleteAccountPasswordChange(i: Person, event: any) {
     i.state.deleteAccountForm.password = event.target.value;
     i.setState(i.state);
   }
 
-  handleLogoutClick(i: User) {
+  handleLogoutClick(i: Person) {
     UserService.Instance.logout();
     i.context.router.history.push("/");
   }
 
-  handleDeleteAccount(i: User, event: any) {
+  handleDeleteAccount(i: Person, event: any) {
     event.preventDefault();
     i.state.deleteAccountLoading = true;
     i.setState(i.state);
@@ -1068,27 +1075,33 @@ export class User extends Component<any, UserState> {
   setUserInfo() {
     if (this.isCurrentUser) {
       this.state.userSettingsForm.show_nsfw =
-        UserService.Instance.user.show_nsfw;
-      this.state.userSettingsForm.theme = UserService.Instance.user.theme
-        ? UserService.Instance.user.theme
+        UserService.Instance.localUserView.local_user.show_nsfw;
+      this.state.userSettingsForm.theme = UserService.Instance.localUserView
+        .local_user.theme
+        ? UserService.Instance.localUserView.local_user.theme
         : "browser";
       this.state.userSettingsForm.default_sort_type =
-        UserService.Instance.user.default_sort_type;
+        UserService.Instance.localUserView.local_user.default_sort_type;
       this.state.userSettingsForm.default_listing_type =
-        UserService.Instance.user.default_listing_type;
-      this.state.userSettingsForm.lang = UserService.Instance.user.lang;
-      this.state.userSettingsForm.avatar = UserService.Instance.user.avatar;
-      this.state.userSettingsForm.banner = UserService.Instance.user.banner;
+        UserService.Instance.localUserView.local_user.default_listing_type;
+      this.state.userSettingsForm.lang =
+        UserService.Instance.localUserView.local_user.lang;
+      this.state.userSettingsForm.avatar =
+        UserService.Instance.localUserView.person.avatar;
+      this.state.userSettingsForm.banner =
+        UserService.Instance.localUserView.person.banner;
       this.state.userSettingsForm.preferred_username =
-        UserService.Instance.user.preferred_username;
+        UserService.Instance.localUserView.person.preferred_username;
       this.state.userSettingsForm.show_avatars =
-        UserService.Instance.user.show_avatars;
-      this.state.userSettingsForm.email = UserService.Instance.user.email;
-      this.state.userSettingsForm.bio = UserService.Instance.user.bio;
+        UserService.Instance.localUserView.local_user.show_avatars;
+      this.state.userSettingsForm.email =
+        UserService.Instance.localUserView.local_user.email;
+      this.state.userSettingsForm.bio =
+        UserService.Instance.localUserView.person.bio;
       this.state.userSettingsForm.send_notifications_to_email =
-        UserService.Instance.user.send_notifications_to_email;
+        UserService.Instance.localUserView.local_user.send_notifications_to_email;
       this.state.userSettingsForm.matrix_user_id =
-        UserService.Instance.user.matrix_user_id;
+        UserService.Instance.localUserView.person.matrix_user_id;
     }
   }
 
@@ -1106,12 +1119,12 @@ export class User extends Component<any, UserState> {
       return;
     } else if (msg.reconnect) {
       this.fetchUserData();
-    } else if (op == UserOperation.GetUserDetails) {
-      // Since the UserDetails contains posts/comments as well as some general user info we listen here as well
+    } else if (op == UserOperation.GetPersonDetails) {
+      // Since the PersonDetails contains posts/comments as well as some general user info we listen here as well
       // and set the parent state if it is not set or differs
       // TODO this might need to get abstracted
-      let data = wsJsonToRes<GetUserDetailsResponse>(msg).data;
-      this.state.userRes = data;
+      let data = wsJsonToRes<GetPersonDetailsResponse>(msg).data;
+      this.state.personRes = data;
       this.setUserInfo();
       this.state.loading = false;
       this.setState(this.state);
@@ -1119,10 +1132,10 @@ export class User extends Component<any, UserState> {
     } else if (op == UserOperation.SaveUserSettings) {
       let data = wsJsonToRes<LoginResponse>(msg).data;
       UserService.Instance.login(data);
-      this.state.userRes.user_view.user.bio = this.state.userSettingsForm.bio;
-      this.state.userRes.user_view.user.preferred_username = this.state.userSettingsForm.preferred_username;
-      this.state.userRes.user_view.user.banner = this.state.userSettingsForm.banner;
-      this.state.userRes.user_view.user.avatar = this.state.userSettingsForm.avatar;
+      this.state.personRes.person_view.person.bio = this.state.userSettingsForm.bio;
+      this.state.personRes.person_view.person.preferred_username = this.state.userSettingsForm.preferred_username;
+      this.state.personRes.person_view.person.banner = this.state.userSettingsForm.banner;
+      this.state.personRes.person_view.person.avatar = this.state.userSettingsForm.avatar;
       this.state.userSettingsLoading = false;
       this.setState(this.state);
 
@@ -1139,7 +1152,7 @@ export class User extends Component<any, UserState> {
       this.setState(this.state);
     } else if (op == UserOperation.CreateCommentLike) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
-      createCommentLikeRes(data.comment_view, this.state.userRes.comments);
+      createCommentLikeRes(data.comment_view, this.state.personRes.comments);
       this.setState(this.state);
     } else if (
       op == UserOperation.EditComment ||
@@ -1147,19 +1160,20 @@ export class User extends Component<any, UserState> {
       op == UserOperation.RemoveComment
     ) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
-      editCommentRes(data.comment_view, this.state.userRes.comments);
+      editCommentRes(data.comment_view, this.state.personRes.comments);
       this.setState(this.state);
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       if (
-        UserService.Instance.user &&
-        data.comment_view.creator.id == UserService.Instance.user.id
+        UserService.Instance.localUserView &&
+        data.comment_view.creator.id ==
+          UserService.Instance.localUserView.person.id
       ) {
         toast(i18n.t("reply_sent"));
       }
     } else if (op == UserOperation.SaveComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
-      saveCommentRes(data.comment_view, this.state.userRes.comments);
+      saveCommentRes(data.comment_view, this.state.personRes.comments);
       this.setState(this.state);
     } else if (
       op == UserOperation.EditPost ||
@@ -1170,19 +1184,19 @@ export class User extends Component<any, UserState> {
       op == UserOperation.SavePost
     ) {
       let data = wsJsonToRes<PostResponse>(msg).data;
-      editPostFindRes(data.post_view, this.state.userRes.posts);
+      editPostFindRes(data.post_view, this.state.personRes.posts);
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
       let data = wsJsonToRes<PostResponse>(msg).data;
-      createPostLikeFindRes(data.post_view, this.state.userRes.posts);
+      createPostLikeFindRes(data.post_view, this.state.personRes.posts);
       this.setState(this.state);
-    } else if (op == UserOperation.BanUser) {
-      let data = wsJsonToRes<BanUserResponse>(msg).data;
-      this.state.userRes.comments
-        .filter(c => c.creator.id == data.user_view.user.id)
+    } else if (op == UserOperation.BanPerson) {
+      let data = wsJsonToRes<BanPersonResponse>(msg).data;
+      this.state.personRes.comments
+        .filter(c => c.creator.id == data.person_view.person.id)
         .forEach(c => (c.creator.banned = data.banned));
-      this.state.userRes.posts
-        .filter(c => c.creator.id == data.user_view.user.id)
+      this.state.personRes.posts
+        .filter(c => c.creator.id == data.person_view.person.id)
         .forEach(c => (c.creator.banned = data.banned));
       this.setState(this.state);
     }

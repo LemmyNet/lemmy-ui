@@ -177,8 +177,10 @@ export class Community extends Component<any, State> {
 
     let sort: SortType = pathSplit[6]
       ? SortType[pathSplit[6]]
-      : UserService.Instance.user
-      ? Object.values(SortType)[UserService.Instance.user.default_sort_type]
+      : UserService.Instance.localUserView
+      ? Object.values(SortType)[
+          UserService.Instance.localUserView.local_user.default_sort_type
+        ]
       : SortType.Active;
 
     let page = pathSplit[8] ? Number(pathSplit[8]) : 1;
@@ -189,6 +191,7 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
+        saved_only: false,
       };
       setOptionalAuth(getPostsForm, req.auth);
       this.setIdOrName(getPostsForm, id, name_);
@@ -199,6 +202,7 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort,
         type_: ListingType.Community,
+        saved_only: false,
       };
       setOptionalAuth(getCommentsForm, req.auth);
       this.setIdOrName(getCommentsForm, id, name_);
@@ -407,6 +411,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
+        saved_only: false,
         auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getPosts(form));
@@ -418,6 +423,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         community_id: this.state.communityId,
         community_name: this.state.communityName,
+        saved_only: false,
         auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getComments(form));
@@ -499,7 +505,7 @@ export class Community extends Component<any, State> {
 
       // TODO this might be incorrect
       this.state.posts
-        .filter(p => p.creator.id == data.user_view.user.id)
+        .filter(p => p.creator.id == data.person_view.person.id)
         .forEach(p => (p.creator_banned_from_community = data.banned));
 
       this.setState(this.state);

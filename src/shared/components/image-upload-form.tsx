@@ -65,7 +65,7 @@ export class ImageUploadForm extends Component<
           accept="image/*,video/*"
           name={this.id}
           class="d-none"
-          disabled={!UserService.Instance.user}
+          disabled={!UserService.Instance.localUserView}
           onChange={linkEvent(this, this.handleImageUpload)}
         />
       </form>

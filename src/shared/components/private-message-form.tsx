@@ -6,7 +6,7 @@ import {
   EditPrivateMessage,
   PrivateMessageView,
   PrivateMessageResponse,
-  UserSafe,
+  PersonSafe,
   UserOperation,
 } from "lemmy-js-client";
 import { WebSocketService } from "../services";
@@ -21,14 +21,14 @@ import {
   wsClient,
   authField,
 } from "../utils";
-import { UserListing } from "./user-listing";
+import { PersonListing } from "./person-listing";
 import { MarkdownTextArea } from "./markdown-textarea";
 import { Icon, Spinner } from "./icon";
 import { i18n } from "../i18next";
 import { T } from "inferno-i18next";
 
 interface PrivateMessageFormProps {
-  recipient: UserSafe;
+  recipient: PersonSafe;
   privateMessage?: PrivateMessageView; // If a pm is given, that means this is an edit
   onCancel?(): any;
   onCreate?(message: PrivateMessageView): any;
@@ -108,7 +108,7 @@ export class PrivateMessageForm extends Component<
               </label>
 
               <div class="col-sm-10 form-control-plaintext">
-                <UserListing user={this.props.recipient} />
+                <PersonListing person={this.props.recipient} />
               </div>
             </div>
           )}
