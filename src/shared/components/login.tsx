@@ -117,6 +117,7 @@ export class Login extends Component<any, State> {
                 id="login-email-or-username"
                 value={this.state.loginForm.username_or_email}
                 onInput={linkEvent(this, this.handleLoginUsernameChange)}
+                autoComplete="email"
                 required
                 minLength={3}
               />
@@ -133,6 +134,7 @@ export class Login extends Component<any, State> {
                 value={this.state.loginForm.password}
                 onInput={linkEvent(this, this.handleLoginPasswordChange)}
                 class="form-control"
+                autoComplete="current-password"
                 required
                 maxLength={60}
               />
@@ -195,6 +197,7 @@ export class Login extends Component<any, State> {
               class="form-control"
               placeholder={i18n.t("optional")}
               value={this.state.registerForm.email}
+              autoComplete="email"
               onInput={linkEvent(this, this.handleRegisterEmailChange)}
               minLength={3}
             />
