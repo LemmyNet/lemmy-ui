@@ -84,7 +84,7 @@ export class Search extends Component<any, SearchState> {
       communities: [],
       users: [],
     },
-    loading: false,
+    loading: true,
     site: this.isoData.site_res.site_view.site,
   };
 
