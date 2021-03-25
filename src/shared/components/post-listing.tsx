@@ -1284,9 +1284,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       params += `&url=${encodeURIComponent(post.url)}`;
     }
     if (post.body) {
-      params += `&body=${encodeURIComponent(post.body)}`;
+      params += `&body=${encodeURIComponent(this.crossPostBody())}`;
     }
     return params;
+  }
+
+  crossPostBody(): string {
+    let post = this.props.post_view.post;
+    let body = `${i18n.t("cross_posted_from")} ${
+      post.ap_id
+    }\n\n---\n\n${post.body.replace(/^/gm, "> ")}`;
+    return body;
   }
 
   get showBody(): boolean {
