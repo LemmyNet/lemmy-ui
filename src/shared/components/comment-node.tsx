@@ -462,7 +462,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   </button>
                                 ))}
                               {!cv.creator_banned_from_community &&
-                                cv.creator.local &&
                                 (!this.state.showConfirmAppointAsMod ? (
                                   <button
                                     class="btn btn-link btn-animate text-muted"
