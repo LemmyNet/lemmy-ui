@@ -78,7 +78,7 @@ export const favIconPngUrl = "/static/assets/apple-touch-icon.png";
 // export const defaultFavIcon = `${window.location.protocol}//${window.location.host}${favIconPngUrl}`;
 export const repoUrl = "https://github.com/LemmyNet";
 export const joinLemmyUrl = "https://join.lemmy.ml";
-export const supportLemmyUrl = "https://join.lemmy.ml/sponsors";
+export const supportLemmyUrl = "https://join.lemmy.ml/support";
 export const docsUrl = "https://join.lemmy.ml/docs/en/index.html";
 export const helpGuideUrl = "https://join.lemmy.ml/docs/en/about/guide.html"; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
@@ -91,39 +91,39 @@ export const fetchLimit = 20;
 export const mentionDropdownFetchLimit = 10;
 
 export const languages = [
-  { code: "ca", name: "Català" },
-  { code: "en", name: "English" },
-  { code: "el", name: "Ελληνικά" },
-  { code: "eu", name: "Euskara" },
-  { code: "eo", name: "Esperanto" },
-  { code: "es", name: "Español" },
-  { code: "da", name: "Dansk" },
-  { code: "de", name: "Deutsch" },
-  { code: "ga", name: "Gaeilge" },
-  { code: "gl", name: "Galego" },
-  { code: "hr", name: "hrvatski" },
-  { code: "hu", name: "Magyar Nyelv" },
-  { code: "ka", name: "ქართული ენა" },
-  { code: "ko", name: "한국어" },
-  { code: "km", name: "ភាសាខ្មែរ" },
-  { code: "hi", name: "मानक हिन्दी" },
-  { code: "fa", name: "فارسی" },
-  { code: "ja", name: "日本語" },
-  { code: "oc", name: "Occitan" },
-  { code: "pl", name: "Polski" },
-  { code: "pt_BR", name: "Português Brasileiro" },
-  { code: "zh", name: "中文" },
-  { code: "fi", name: "Suomi" },
-  { code: "fr", name: "Français" },
-  { code: "sv", name: "Svenska" },
-  { code: "sq", name: "Shqip" },
-  { code: "sr_Latn", name: "srpski" },
-  { code: "th", name: "ภาษาไทย" },
-  { code: "tr", name: "Türkçe" },
-  { code: "uk", name: "Українська Mова" },
-  { code: "ru", name: "Русский" },
-  { code: "nl", name: "Nederlands" },
-  { code: "it", name: "Italiano" },
+  { code: "ca" },
+  { code: "en" },
+  { code: "el" },
+  { code: "eu" },
+  { code: "eo" },
+  { code: "es" },
+  { code: "da" },
+  { code: "de" },
+  { code: "ga" },
+  { code: "gl" },
+  { code: "hr" },
+  { code: "hu" },
+  { code: "ka" },
+  { code: "ko" },
+  { code: "km" },
+  { code: "hi" },
+  { code: "fa" },
+  { code: "ja" },
+  { code: "oc" },
+  { code: "pl" },
+  { code: "pt_BR" },
+  { code: "zh" },
+  { code: "fi" },
+  { code: "fr" },
+  { code: "sv" },
+  { code: "sq" },
+  { code: "sr_Latn" },
+  { code: "th" },
+  { code: "tr" },
+  { code: "uk" },
+  { code: "ru" },
+  { code: "nl" },
+  { code: "it" },
 ];
 
 export const themes = [
@@ -381,7 +381,6 @@ export function getLanguage(override?: string): string {
   }
 }
 
-// TODO
 export function getBrowserLanguage(): string {
   return navigator.language;
 }

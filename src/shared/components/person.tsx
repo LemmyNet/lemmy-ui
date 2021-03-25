@@ -1,6 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { Subscription } from "rxjs";
+import ISO6391 from "iso-639-1";
 import {
   UserOperation,
   SortType,
@@ -536,8 +537,10 @@ export class Person extends Component<any, PersonState> {
                   <option disabled aria-hidden="true">
                     ──
                   </option>
-                  {languages.map(lang => (
-                    <option value={lang.code}>{lang.name}</option>
+                  {languages.sort().map(lang => (
+                    <option value={lang.code}>
+                      {ISO6391.getNativeName(lang.code) || lang.code}
+                    </option>
                   ))}
                 </select>
               </div>

@@ -262,7 +262,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   title={i18n.t("support_lemmy")}
                   href={supportLemmyUrl}
                 >
-                  <Icon icon="beer" classes="small" />
+                  <Icon icon="heart" classes="small" />
                 </a>
               </li>
             </ul>
