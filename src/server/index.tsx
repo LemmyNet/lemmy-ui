@@ -155,7 +155,7 @@ server.get("/*", async (req, res) => {
 `);
 });
 
-server.listen(port, hostname, () => {
+server.listen(Number(port), hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });
 
