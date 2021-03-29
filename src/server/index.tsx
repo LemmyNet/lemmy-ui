@@ -16,13 +16,13 @@ import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import process from "process";
 import { Helmet } from "inferno-helmet";
 import { initializeSite } from "../shared/initialize";
-import { httpUri } from "../shared/env";
+import { httpBase } from "../shared/env";
 import { IncomingHttpHeaders } from "http";
 import { setOptionalAuth } from "../shared/utils";
 
 const server = express();
-const hostname = process.env['LEMMY_UI_HOST'] || 'localhost'
-const port = process.env['LEMMY_UI_PORT'] || 1234;
+const hostname = process.env["LEMMY_UI_HOST"] || "localhost";
+const port = process.env["LEMMY_UI_PORT"] || 1234;
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
@@ -43,7 +43,7 @@ server.get("/*", async (req, res) => {
   let headers = setForwardedHeaders(req.headers);
 
   let initialFetchReq: InitialFetchRequest = {
-    client: new LemmyHttp(httpUri, headers),
+    client: new LemmyHttp(httpBase, headers),
     auth,
     path: req.path,
   };

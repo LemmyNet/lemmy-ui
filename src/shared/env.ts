@@ -33,9 +33,8 @@ if (isBrowser()) {
   secure = process.env.LEMMY_HTTPS == "true" ? "s" : "";
 }
 
-const httpBase = `http://${host}`; // Don't use secure here
-export const wsUri = `ws${secure}://${wsHost}/api/v2/ws`;
-export const httpUri = `${httpBase}/api/v2`;
+export const httpBase = `http://${host}`; // Don't use secure here
+export const wsUri = `ws${secure}://${wsHost}/api/v3/ws`;
 export const pictrsUri = `http${secure}://${host}/pictrs/image`;
 
 console.log(`httpbase: ${httpBase}`);
