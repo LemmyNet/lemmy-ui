@@ -21,7 +21,8 @@ import { IncomingHttpHeaders } from "http";
 import { setOptionalAuth } from "../shared/utils";
 
 const server = express();
-const port = 1234;
+const hostname = process.env['LEMMY_UI_HOST'] || 'localhost'
+const port = process.env['LEMMY_UI_PORT'] || 1234;
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
@@ -154,8 +155,8 @@ server.get("/*", async (req, res) => {
 `);
 });
 
-server.listen(port, () => {
-  console.log(`http://localhost:${port}`);
+server.listen(Number(port), hostname, () => {
+  console.log(`http://${hostname}:${port}`);
 });
 
 function setForwardedHeaders(
