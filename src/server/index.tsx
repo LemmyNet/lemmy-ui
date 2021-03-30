@@ -21,8 +21,8 @@ import { IncomingHttpHeaders } from "http";
 import { setOptionalAuth } from "../shared/utils";
 
 const server = express();
-const [hostname, port] = process.env["LEMMY_INTERNAL_HOST"]
-  ? process.env["LEMMY_INTERNAL_HOST"].split(":")
+const [hostname, port] = process.env["LEMMY_UI_HOST"]
+  ? process.env["LEMMY_UI_HOST"].split(":")
   : ["0.0.0.0", "1234"];
 
 server.use(express.json());
