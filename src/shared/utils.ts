@@ -28,6 +28,7 @@ import "moment/locale/sr";
 import "moment/locale/ko";
 import "moment/locale/da";
 import "moment/locale/hr";
+import "moment/locale/bg";
 
 import {
   UserOperation,
@@ -124,6 +125,7 @@ export const languages = [
   { code: "ru" },
   { code: "nl" },
   { code: "it" },
+  { code: "bg" },
 ];
 
 export const themes = [
@@ -451,6 +453,8 @@ export function getMomentLanguage(): string {
     lang = "hr";
   } else if (lang.startsWith("th")) {
     lang = "th";
+  } else if (lang.startsWith("bg")) {
+    lang = "bg";
   } else {
     lang = "en";
   }
