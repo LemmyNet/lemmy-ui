@@ -37,13 +37,13 @@ export class Instances extends Component<any, InstancesState> {
               <h5>{i18n.t("linked_instances")}</h5>
               {this.itemList(federated_instances.linked)}
             </div>
-            {federated_instances.allowed.length > 0 && (
+            {federated_instances.allowed?.length > 0 && (
               <div class="col-md-6">
                 <h5>{i18n.t("allowed_instances")}</h5>
                 {this.itemList(federated_instances.allowed)}
               </div>
             )}
-            {federated_instances.blocked.length > 0 && (
+            {federated_instances.blocked?.length > 0 && (
               <div class="col-md-6">
                 <h5>{i18n.t("blocked_instances")}</h5>
                 {this.itemList(federated_instances.blocked)}
