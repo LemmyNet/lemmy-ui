@@ -131,6 +131,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
 
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
+    console.log(msg);
 
     // Only do the showing and hiding if logged in
     if (UserService.Instance.localUserView) {

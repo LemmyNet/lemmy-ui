@@ -314,6 +314,7 @@ export class CommunityForm extends Component<
 
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
+    console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       this.state.loading = false;
