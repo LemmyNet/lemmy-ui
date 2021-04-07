@@ -1383,7 +1383,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModBanBothSubmit(i: PostListing, event?: any) {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
     if (i.state.banType == BanType.Community) {
       // If its an unban, restore all their data
