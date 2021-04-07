@@ -437,26 +437,12 @@ export class Person extends Component<any, PersonState> {
                   {i18n.t("logout")}
                 </button>
               ) : (
-                <>
-                  {/* TODO matrix ids aren't currently federated, so don't come back with GetPersonDetails
-                  <a
-                    className={`d-flex align-self-start btn btn-secondary mr-2 ${
-                      !pv.local_user.matrix_user_id && "invisible"
-                    }`}
-                    rel="noopener"
-                    href={`https://matrix.to/#/${pv.local_user.matrix_user_id}`}
-                  >
-                    {i18n.t("send_secure_message")}
-                  </a>
-                */}
-
-                  <Link
-                    className={"d-flex align-self-start btn btn-secondary"}
-                    to={`/create_private_message/recipient/${pv.person.id}`}
-                  >
-                    {i18n.t("send_message")}
-                  </Link>
-                </>
+                <Link
+                  className={"d-flex align-self-start btn btn-secondary"}
+                  to={`/create_private_message/recipient/${pv.person.id}`}
+                >
+                  {i18n.t("send_message")}
+                </Link>
               )}
             </div>
             {pv.person.bio && (
@@ -495,6 +481,21 @@ export class Person extends Component<any, PersonState> {
       </div>
     );
   }
+
+  // TODO this isn't used currently
+  // matrixButton() {
+  //   return (
+  //     <a
+  //     className={`d-flex align-self-start btn btn-secondary mr-2 ${
+  //       !pv.local_user.matrix_user_id && "invisible"
+  //     }`}
+  //     rel="noopener"
+  //     href={`https://matrix.to/#/${pv.local_user.matrix_user_id}`}
+  //   >
+  //       {i18n.t("send_secure_message")}
+  //   </a>
+  //   );
+  // }
 
   userSettings() {
     return (
@@ -1111,6 +1112,7 @@ export class Person extends Component<any, PersonState> {
 
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
+    console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       if (msg.error == "couldnt_find_that_username_or_email") {
@@ -1129,6 +1131,7 @@ export class Person extends Component<any, PersonState> {
       // TODO this might need to get abstracted
       let data = wsJsonToRes<GetPersonDetailsResponse>(msg).data;
       this.state.personRes = data;
+      console.log(data);
       this.setUserInfo();
       this.state.loading = false;
       this.setState(this.state);
