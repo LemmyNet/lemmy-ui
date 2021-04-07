@@ -212,6 +212,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
+    console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       this.context.router.history.push("/");

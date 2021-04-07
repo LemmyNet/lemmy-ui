@@ -380,6 +380,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
+    console.log(msg);
     if (msg.error) {
       if (msg.error == "not_logged_in") {
         UserService.Instance.logout();

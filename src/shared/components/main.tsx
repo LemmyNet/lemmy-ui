@@ -724,6 +724,7 @@ export class Main extends Component<any, MainState> {
 
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
+    console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       return;
