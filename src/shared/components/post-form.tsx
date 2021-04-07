@@ -90,8 +90,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.fetchSimilarPosts = debounce(this.fetchSimilarPosts).bind(this);
-    this.fetchPageTitle = debounce(this.fetchPageTitle).bind(this);
+    this.fetchSimilarPosts = debounce(this.fetchSimilarPosts.bind(this));
+    this.fetchPageTitle = debounce(this.fetchPageTitle.bind(this));
     this.handlePostBodyChange = this.handlePostBodyChange.bind(this);
 
     this.state = this.emptyState;
