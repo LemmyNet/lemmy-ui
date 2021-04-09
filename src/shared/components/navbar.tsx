@@ -346,8 +346,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         {localUserView.person.avatar && showAvatars() && (
                           <PictrsImage src={localUserView.person.avatar} icon />
                         )}
-                        {localUserView.person.preferred_username
-                          ? localUserView.person.preferred_username
+                        {localUserView.person.display_name
+                          ? localUserView.person.display_name
                           : localUserView.person.name}
                       </span>
                     </Link>
