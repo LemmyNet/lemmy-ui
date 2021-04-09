@@ -108,15 +108,6 @@ export class Person extends Component<any, PersonState> {
     sort: Person.getSortTypeFromProps(this.props.match.sort),
     page: Person.getPageFromProps(this.props.match.page),
     saveUserSettingsForm: {
-      show_nsfw: null,
-      theme: null,
-      default_sort_type: null,
-      default_listing_type: null,
-      lang: null,
-      show_avatars: null,
-      send_notifications_to_email: null,
-      bio: null,
-      display_name: null,
       auth: authField(false),
     },
     changePasswordForm: {
@@ -777,6 +768,23 @@ export class Person extends Component<any, PersonState> {
             <div class="form-check">
               <input
                 class="form-check-input"
+                id="user-show-scores"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_scores}
+                onChange={linkEvent(
+                  this,
+                  this.handleUserSettingsShowScoresChange
+                )}
+              />
+              <label class="form-check-label" htmlFor="user-show-scores">
+                {i18n.t("show_scores")}
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <input
+                class="form-check-input"
                 id="user-show-avatars"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_avatars}
@@ -963,6 +971,13 @@ export class Person extends Component<any, PersonState> {
     i.setState(i.state);
   }
 
+  handleUserSettingsShowScoresChange(i: Person, event: any) {
+    i.state.saveUserSettingsForm.show_scores = event.target.checked;
+    UserService.Instance.localUserView.local_user.show_scores =
+      event.target.checked; // Just for instant updates
+    i.setState(i.state);
+  }
+
   handleUserSettingsSendNotificationsToEmailChange(i: Person, event: any) {
     i.state.saveUserSettingsForm.send_notifications_to_email =
       event.target.checked;
@@ -1134,6 +1149,8 @@ export class Person extends Component<any, PersonState> {
         UserService.Instance.localUserView.person.display_name;
       this.state.saveUserSettingsForm.show_avatars =
         UserService.Instance.localUserView.local_user.show_avatars;
+      this.state.saveUserSettingsForm.show_scores =
+        UserService.Instance.localUserView.local_user.show_scores;
       this.state.saveUserSettingsForm.email =
         UserService.Instance.localUserView.local_user.email;
       this.state.saveUserSettingsForm.bio =

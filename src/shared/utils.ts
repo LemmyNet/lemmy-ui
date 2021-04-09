@@ -520,6 +520,13 @@ export function showAvatars(): boolean {
   );
 }
 
+export function showScores(): boolean {
+  return (
+    UserService.Instance.localUserView?.local_user.show_scores ||
+    !UserService.Instance.localUserView
+  );
+}
+
 export function isCakeDay(published: string): boolean {
   // moment(undefined) or moment.utc(undefined) returns the current date/time
   // moment(null) or moment.utc(null) returns null
