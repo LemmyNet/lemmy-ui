@@ -16,6 +16,7 @@ import {
   CommentResponse,
   PostResponse,
   BanPersonResponse,
+  ChangePassword,
 } from "lemmy-js-client";
 import { InitialFetchRequest, PersonDetailsView } from "../interfaces";
 import { WebSocketService, UserService } from "../services";
@@ -71,8 +72,10 @@ interface PersonState {
   sort: SortType;
   page: number;
   loading: boolean;
-  userSettingsForm: SaveUserSettings;
-  userSettingsLoading: boolean;
+  saveUserSettingsForm: SaveUserSettings;
+  changePasswordForm: ChangePassword;
+  saveUserSettingsLoading: boolean;
+  changePasswordLoading: boolean;
   deleteAccountLoading: boolean;
   deleteAccountShowConfirm: boolean;
   deleteAccountForm: DeleteAccount;
@@ -104,7 +107,7 @@ export class Person extends Component<any, PersonState> {
     view: Person.getViewFromProps(this.props.match.view),
     sort: Person.getSortTypeFromProps(this.props.match.sort),
     page: Person.getPageFromProps(this.props.match.page),
-    userSettingsForm: {
+    saveUserSettingsForm: {
       show_nsfw: null,
       theme: null,
       default_sort_type: null,
@@ -113,10 +116,17 @@ export class Person extends Component<any, PersonState> {
       show_avatars: null,
       send_notifications_to_email: null,
       bio: null,
-      preferred_username: null,
+      display_name: null,
       auth: authField(false),
     },
-    userSettingsLoading: null,
+    changePasswordForm: {
+      new_password: null,
+      new_password_verify: null,
+      old_password: null,
+      auth: authField(false),
+    },
+    saveUserSettingsLoading: null,
+    changePasswordLoading: false,
     deleteAccountLoading: null,
     deleteAccountShowConfirm: false,
     deleteAccountForm: {
@@ -408,8 +418,8 @@ export class Person extends Component<any, PersonState> {
           <div class="">
             <div class="mb-0 d-flex flex-wrap">
               <div>
-                {pv.person.preferred_username && (
-                  <h5 class="mb-0">{pv.person.preferred_username}</h5>
+                {pv.person.display_name && (
+                  <h5 class="mb-0">{pv.person.display_name}</h5>
                 )}
                 <ul class="list-inline mb-2">
                   <li className="list-inline-item">
@@ -502,354 +512,368 @@ export class Person extends Component<any, PersonState> {
       <div>
         <div class="card border-secondary mb-3">
           <div class="card-body">
-            <h5>{i18n.t("settings")}</h5>
-            <form onSubmit={linkEvent(this, this.handleUserSettingsSubmit)}>
-              <div class="form-group">
-                <label>{i18n.t("avatar")}</label>
-                <ImageUploadForm
-                  uploadTitle={i18n.t("upload_avatar")}
-                  imageSrc={this.state.userSettingsForm.avatar}
-                  onUpload={this.handleAvatarUpload}
-                  onRemove={this.handleAvatarRemove}
-                  rounded
-                />
-              </div>
-              <div class="form-group">
-                <label>{i18n.t("banner")}</label>
-                <ImageUploadForm
-                  uploadTitle={i18n.t("upload_banner")}
-                  imageSrc={this.state.userSettingsForm.banner}
-                  onUpload={this.handleBannerUpload}
-                  onRemove={this.handleBannerRemove}
-                />
-              </div>
-              <div class="form-group">
-                <label htmlFor="user-language">{i18n.t("language")}</label>
-                <select
-                  id="user-language"
-                  value={this.state.userSettingsForm.lang}
-                  onChange={linkEvent(this, this.handleUserSettingsLangChange)}
-                  class="ml-2 custom-select w-auto"
-                >
-                  <option disabled aria-hidden="true">
-                    {i18n.t("language")}
-                  </option>
-                  <option value="browser">{i18n.t("browser_default")}</option>
-                  <option disabled aria-hidden="true">
-                    ──
-                  </option>
-                  {languages.sort().map(lang => (
-                    <option value={lang.code}>
-                      {ISO6391.getNativeName(lang.code) || lang.code}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div class="form-group">
-                <label htmlFor="user-theme">{i18n.t("theme")}</label>
-                <select
-                  id="user-theme"
-                  value={this.state.userSettingsForm.theme}
-                  onChange={linkEvent(this, this.handleUserSettingsThemeChange)}
-                  class="ml-2 custom-select w-auto"
-                >
-                  <option disabled aria-hidden="true">
-                    {i18n.t("theme")}
-                  </option>
-                  <option value="browser">{i18n.t("browser_default")}</option>
-                  {themes.map(theme => (
-                    <option value={theme}>{theme}</option>
-                  ))}
-                </select>
-              </div>
-              <form className="form-group">
-                <label>
-                  <div class="mr-2">{i18n.t("type")}</div>
-                </label>
-                <ListingTypeSelect
-                  type_={
-                    Object.values(ListingType)[
-                      this.state.userSettingsForm.default_listing_type
-                    ]
-                  }
-                  showLocal={
-                    this.state.siteRes.federated_instances?.linked.length > 0
-                  }
-                  onChange={this.handleUserSettingsListingTypeChange}
-                />
-              </form>
-              <form className="form-group">
-                <label>
-                  <div class="mr-2">{i18n.t("sort_type")}</div>
-                </label>
-                <SortSelect
-                  sort={
-                    Object.values(SortType)[
-                      this.state.userSettingsForm.default_sort_type
-                    ]
-                  }
-                  onChange={this.handleUserSettingsSortTypeChange}
-                />
-              </form>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label" htmlFor="display-name">
-                  {i18n.t("display_name")}
-                </label>
-                <div class="col-lg-7">
-                  <input
-                    id="display-name"
-                    type="text"
-                    class="form-control"
-                    placeholder={i18n.t("optional")}
-                    value={this.state.userSettingsForm.preferred_username}
-                    onInput={linkEvent(
-                      this,
-                      this.handleUserSettingsPreferredUsernameChange
-                    )}
-                    pattern="^(?!@)(.+)$"
-                    minLength={3}
-                    maxLength={20}
-                  />
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-3 col-form-label" htmlFor="user-bio">
-                  {i18n.t("bio")}
-                </label>
-                <div class="col-lg-9">
-                  <MarkdownTextArea
-                    initialContent={this.state.userSettingsForm.bio}
-                    onContentChange={this.handleUserSettingsBioChange}
-                    maxLength={300}
-                    hideNavigationWarnings
-                  />
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-3 col-form-label" htmlFor="user-email">
-                  {i18n.t("email")}
-                </label>
-                <div class="col-lg-9">
-                  <input
-                    type="email"
-                    id="user-email"
-                    class="form-control"
-                    placeholder={i18n.t("optional")}
-                    value={this.state.userSettingsForm.email}
-                    onInput={linkEvent(
-                      this,
-                      this.handleUserSettingsEmailChange
-                    )}
-                    minLength={3}
-                  />
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label" htmlFor="matrix-user-id">
-                  <a href={elementUrl} rel="noopener">
-                    {i18n.t("matrix_user_id")}
-                  </a>
-                </label>
-                <div class="col-lg-7">
-                  <input
-                    id="matrix-user-id"
-                    type="text"
-                    class="form-control"
-                    placeholder="@user:example.com"
-                    value={this.state.userSettingsForm.matrix_user_id}
-                    onInput={linkEvent(
-                      this,
-                      this.handleUserSettingsMatrixUserIdChange
-                    )}
-                    minLength={3}
-                  />
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label" htmlFor="user-password">
-                  {i18n.t("new_password")}
-                </label>
-                <div class="col-lg-7">
-                  <input
-                    type="password"
-                    id="user-password"
-                    class="form-control"
-                    value={this.state.userSettingsForm.new_password}
-                    autoComplete="new-password"
-                    maxLength={60}
-                    onInput={linkEvent(
-                      this,
-                      this.handleUserSettingsNewPasswordChange
-                    )}
-                  />
-                </div>
-              </div>
-              <div class="form-group row">
-                <label
-                  class="col-lg-5 col-form-label"
-                  htmlFor="user-verify-password"
-                >
-                  {i18n.t("verify_password")}
-                </label>
-                <div class="col-lg-7">
-                  <input
-                    type="password"
-                    id="user-verify-password"
-                    class="form-control"
-                    value={this.state.userSettingsForm.new_password_verify}
-                    autoComplete="new-password"
-                    maxLength={60}
-                    onInput={linkEvent(
-                      this,
-                      this.handleUserSettingsNewPasswordVerifyChange
-                    )}
-                  />
-                </div>
-              </div>
-              <div class="form-group row">
-                <label
-                  class="col-lg-5 col-form-label"
-                  htmlFor="user-old-password"
-                >
-                  {i18n.t("old_password")}
-                </label>
-                <div class="col-lg-7">
-                  <input
-                    type="password"
-                    id="user-old-password"
-                    class="form-control"
-                    value={this.state.userSettingsForm.old_password}
-                    autoComplete="new-password"
-                    maxLength={60}
-                    onInput={linkEvent(
-                      this,
-                      this.handleUserSettingsOldPasswordChange
-                    )}
-                  />
-                </div>
-              </div>
-              {this.state.siteRes.site_view.site.enable_nsfw && (
-                <div class="form-group">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      id="user-show-nsfw"
-                      type="checkbox"
-                      checked={this.state.userSettingsForm.show_nsfw}
-                      onChange={linkEvent(
-                        this,
-                        this.handleUserSettingsShowNsfwChange
-                      )}
-                    />
-                    <label class="form-check-label" htmlFor="user-show-nsfw">
-                      {i18n.t("show_nsfw")}
-                    </label>
-                  </div>
-                </div>
+            {this.saveUserSettingsHtmlForm()}
+            <br />
+            {this.changePasswordHtmlForm()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  changePasswordHtmlForm() {
+    return (
+      <>
+        <h5>{i18n.t("change_password")}</h5>
+        <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
+          <div class="form-group row">
+            <label class="col-lg-5 col-form-label" htmlFor="user-password">
+              {i18n.t("new_password")}
+            </label>
+            <div class="col-lg-7">
+              <input
+                type="password"
+                id="user-password"
+                class="form-control"
+                value={this.state.changePasswordForm.new_password}
+                autoComplete="new-password"
+                maxLength={60}
+                onInput={linkEvent(this, this.handleNewPasswordChange)}
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label
+              class="col-lg-5 col-form-label"
+              htmlFor="user-verify-password"
+            >
+              {i18n.t("verify_password")}
+            </label>
+            <div class="col-lg-7">
+              <input
+                type="password"
+                id="user-verify-password"
+                class="form-control"
+                value={this.state.changePasswordForm.new_password_verify}
+                autoComplete="new-password"
+                maxLength={60}
+                onInput={linkEvent(this, this.handleNewPasswordVerifyChange)}
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-5 col-form-label" htmlFor="user-old-password">
+              {i18n.t("old_password")}
+            </label>
+            <div class="col-lg-7">
+              <input
+                type="password"
+                id="user-old-password"
+                class="form-control"
+                value={this.state.changePasswordForm.old_password}
+                autoComplete="new-password"
+                maxLength={60}
+                onInput={linkEvent(this, this.handleOldPasswordChange)}
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-block btn-secondary mr-4">
+              {this.state.changePasswordLoading ? (
+                <Spinner />
+              ) : (
+                capitalizeFirstLetter(i18n.t("save"))
               )}
-              <div class="form-group">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    id="user-show-avatars"
-                    type="checkbox"
-                    checked={this.state.userSettingsForm.show_avatars}
-                    onChange={linkEvent(
-                      this,
-                      this.handleUserSettingsShowAvatarsChange
-                    )}
-                  />
-                  <label class="form-check-label" htmlFor="user-show-avatars">
-                    {i18n.t("show_avatars")}
-                  </label>
-                </div>
+            </button>
+          </div>
+        </form>
+      </>
+    );
+  }
+
+  saveUserSettingsHtmlForm() {
+    return (
+      <>
+        <h5>{i18n.t("settings")}</h5>
+        <form onSubmit={linkEvent(this, this.handleSaveUserSettingsSubmit)}>
+          <div class="form-group">
+            <label>{i18n.t("avatar")}</label>
+            <ImageUploadForm
+              uploadTitle={i18n.t("upload_avatar")}
+              imageSrc={this.state.saveUserSettingsForm.avatar}
+              onUpload={this.handleAvatarUpload}
+              onRemove={this.handleAvatarRemove}
+              rounded
+            />
+          </div>
+          <div class="form-group">
+            <label>{i18n.t("banner")}</label>
+            <ImageUploadForm
+              uploadTitle={i18n.t("upload_banner")}
+              imageSrc={this.state.saveUserSettingsForm.banner}
+              onUpload={this.handleBannerUpload}
+              onRemove={this.handleBannerRemove}
+            />
+          </div>
+          <div class="form-group">
+            <label htmlFor="user-language">{i18n.t("language")}</label>
+            <select
+              id="user-language"
+              value={this.state.saveUserSettingsForm.lang}
+              onChange={linkEvent(this, this.handleUserSettingsLangChange)}
+              class="ml-2 custom-select w-auto"
+            >
+              <option disabled aria-hidden="true">
+                {i18n.t("language")}
+              </option>
+              <option value="browser">{i18n.t("browser_default")}</option>
+              <option disabled aria-hidden="true">
+                ──
+              </option>
+              {languages.sort().map(lang => (
+                <option value={lang.code}>
+                  {ISO6391.getNativeName(lang.code) || lang.code}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div class="form-group">
+            <label htmlFor="user-theme">{i18n.t("theme")}</label>
+            <select
+              id="user-theme"
+              value={this.state.saveUserSettingsForm.theme}
+              onChange={linkEvent(this, this.handleUserSettingsThemeChange)}
+              class="ml-2 custom-select w-auto"
+            >
+              <option disabled aria-hidden="true">
+                {i18n.t("theme")}
+              </option>
+              <option value="browser">{i18n.t("browser_default")}</option>
+              {themes.map(theme => (
+                <option value={theme}>{theme}</option>
+              ))}
+            </select>
+          </div>
+          <form className="form-group">
+            <label>
+              <div class="mr-2">{i18n.t("type")}</div>
+            </label>
+            <ListingTypeSelect
+              type_={
+                Object.values(ListingType)[
+                  this.state.saveUserSettingsForm.default_listing_type
+                ]
+              }
+              showLocal={
+                this.state.siteRes.federated_instances?.linked.length > 0
+              }
+              onChange={this.handleUserSettingsListingTypeChange}
+            />
+          </form>
+          <form className="form-group">
+            <label>
+              <div class="mr-2">{i18n.t("sort_type")}</div>
+            </label>
+            <SortSelect
+              sort={
+                Object.values(SortType)[
+                  this.state.saveUserSettingsForm.default_sort_type
+                ]
+              }
+              onChange={this.handleUserSettingsSortTypeChange}
+            />
+          </form>
+          <div class="form-group row">
+            <label class="col-lg-5 col-form-label" htmlFor="display-name">
+              {i18n.t("display_name")}
+            </label>
+            <div class="col-lg-7">
+              <input
+                id="display-name"
+                type="text"
+                class="form-control"
+                placeholder={i18n.t("optional")}
+                value={this.state.saveUserSettingsForm.display_name}
+                onInput={linkEvent(
+                  this,
+                  this.handleUserSettingsPreferredUsernameChange
+                )}
+                pattern="^(?!@)(.+)$"
+                minLength={3}
+                maxLength={20}
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-3 col-form-label" htmlFor="user-bio">
+              {i18n.t("bio")}
+            </label>
+            <div class="col-lg-9">
+              <MarkdownTextArea
+                initialContent={this.state.saveUserSettingsForm.bio}
+                onContentChange={this.handleUserSettingsBioChange}
+                maxLength={300}
+                hideNavigationWarnings
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-3 col-form-label" htmlFor="user-email">
+              {i18n.t("email")}
+            </label>
+            <div class="col-lg-9">
+              <input
+                type="email"
+                id="user-email"
+                class="form-control"
+                placeholder={i18n.t("optional")}
+                value={this.state.saveUserSettingsForm.email}
+                onInput={linkEvent(this, this.handleUserSettingsEmailChange)}
+                minLength={3}
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-5 col-form-label" htmlFor="matrix-user-id">
+              <a href={elementUrl} rel="noopener">
+                {i18n.t("matrix_user_id")}
+              </a>
+            </label>
+            <div class="col-lg-7">
+              <input
+                id="matrix-user-id"
+                type="text"
+                class="form-control"
+                placeholder="@user:example.com"
+                value={this.state.saveUserSettingsForm.matrix_user_id}
+                onInput={linkEvent(
+                  this,
+                  this.handleUserSettingsMatrixUserIdChange
+                )}
+                minLength={3}
+              />
+            </div>
+          </div>
+          {this.state.siteRes.site_view.site.enable_nsfw && (
+            <div class="form-group">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="user-show-nsfw"
+                  type="checkbox"
+                  checked={this.state.saveUserSettingsForm.show_nsfw}
+                  onChange={linkEvent(
+                    this,
+                    this.handleUserSettingsShowNsfwChange
+                  )}
+                />
+                <label class="form-check-label" htmlFor="user-show-nsfw">
+                  {i18n.t("show_nsfw")}
+                </label>
               </div>
-              <div class="form-group">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    id="user-send-notifications-to-email"
-                    type="checkbox"
-                    disabled={!this.state.userSettingsForm.email}
-                    checked={
-                      this.state.userSettingsForm.send_notifications_to_email
-                    }
-                    onChange={linkEvent(
-                      this,
-                      this.handleUserSettingsSendNotificationsToEmailChange
-                    )}
-                  />
-                  <label
-                    class="form-check-label"
-                    htmlFor="user-send-notifications-to-email"
-                  >
-                    {i18n.t("send_notifications_to_email")}
-                  </label>
+            </div>
+          )}
+          <div class="form-group">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                id="user-show-avatars"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_avatars}
+                onChange={linkEvent(
+                  this,
+                  this.handleUserSettingsShowAvatarsChange
+                )}
+              />
+              <label class="form-check-label" htmlFor="user-show-avatars">
+                {i18n.t("show_avatars")}
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                id="user-send-notifications-to-email"
+                type="checkbox"
+                disabled={!this.state.saveUserSettingsForm.email}
+                checked={
+                  this.state.saveUserSettingsForm.send_notifications_to_email
+                }
+                onChange={linkEvent(
+                  this,
+                  this.handleUserSettingsSendNotificationsToEmailChange
+                )}
+              />
+              <label
+                class="form-check-label"
+                htmlFor="user-send-notifications-to-email"
+              >
+                {i18n.t("send_notifications_to_email")}
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-block btn-secondary mr-4">
+              {this.state.saveUserSettingsLoading ? (
+                <Spinner />
+              ) : (
+                capitalizeFirstLetter(i18n.t("save"))
+              )}
+            </button>
+          </div>
+          <hr />
+          <div class="form-group">
+            <button
+              class="btn btn-block btn-danger"
+              onClick={linkEvent(
+                this,
+                this.handleDeleteAccountShowConfirmToggle
+              )}
+            >
+              {i18n.t("delete_account")}
+            </button>
+            {this.state.deleteAccountShowConfirm && (
+              <>
+                <div class="my-2 alert alert-danger" role="alert">
+                  {i18n.t("delete_account_confirm")}
                 </div>
-              </div>
-              <div class="form-group">
-                <button type="submit" class="btn btn-block btn-secondary mr-4">
-                  {this.state.userSettingsLoading ? (
+                <input
+                  type="password"
+                  value={this.state.deleteAccountForm.password}
+                  autoComplete="new-password"
+                  maxLength={60}
+                  onInput={linkEvent(
+                    this,
+                    this.handleDeleteAccountPasswordChange
+                  )}
+                  class="form-control my-2"
+                />
+                <button
+                  class="btn btn-danger mr-4"
+                  disabled={!this.state.deleteAccountForm.password}
+                  onClick={linkEvent(this, this.handleDeleteAccount)}
+                >
+                  {this.state.deleteAccountLoading ? (
                     <Spinner />
                   ) : (
-                    capitalizeFirstLetter(i18n.t("save"))
+                    capitalizeFirstLetter(i18n.t("delete"))
                   )}
                 </button>
-              </div>
-              <hr />
-              <div class="form-group mb-0">
                 <button
-                  class="btn btn-block btn-danger"
+                  class="btn btn-secondary"
                   onClick={linkEvent(
                     this,
                     this.handleDeleteAccountShowConfirmToggle
                   )}
                 >
-                  {i18n.t("delete_account")}
+                  {i18n.t("cancel")}
                 </button>
-                {this.state.deleteAccountShowConfirm && (
-                  <>
-                    <div class="my-2 alert alert-danger" role="alert">
-                      {i18n.t("delete_account_confirm")}
-                    </div>
-                    <input
-                      type="password"
-                      value={this.state.deleteAccountForm.password}
-                      autoComplete="new-password"
-                      maxLength={60}
-                      onInput={linkEvent(
-                        this,
-                        this.handleDeleteAccountPasswordChange
-                      )}
-                      class="form-control my-2"
-                    />
-                    <button
-                      class="btn btn-danger mr-4"
-                      disabled={!this.state.deleteAccountForm.password}
-                      onClick={linkEvent(this, this.handleDeleteAccount)}
-                    >
-                      {this.state.deleteAccountLoading ? (
-                        <Spinner />
-                      ) : (
-                        capitalizeFirstLetter(i18n.t("delete"))
-                      )}
-                    </button>
-                    <button
-                      class="btn btn-secondary"
-                      onClick={linkEvent(
-                        this,
-                        this.handleDeleteAccountShowConfirmToggle
-                      )}
-                    >
-                      {i18n.t("cancel")}
-                    </button>
-                  </>
-                )}
-              </div>
-            </form>
+              </>
+            )}
           </div>
-        </div>
-      </div>
+        </form>
+      </>
     );
   }
 
@@ -928,125 +952,136 @@ export class Person extends Component<any, PersonState> {
   }
 
   handleUserSettingsShowNsfwChange(i: Person, event: any) {
-    i.state.userSettingsForm.show_nsfw = event.target.checked;
+    i.state.saveUserSettingsForm.show_nsfw = event.target.checked;
     i.setState(i.state);
   }
 
   handleUserSettingsShowAvatarsChange(i: Person, event: any) {
-    i.state.userSettingsForm.show_avatars = event.target.checked;
+    i.state.saveUserSettingsForm.show_avatars = event.target.checked;
     UserService.Instance.localUserView.local_user.show_avatars =
       event.target.checked; // Just for instant updates
     i.setState(i.state);
   }
 
   handleUserSettingsSendNotificationsToEmailChange(i: Person, event: any) {
-    i.state.userSettingsForm.send_notifications_to_email = event.target.checked;
+    i.state.saveUserSettingsForm.send_notifications_to_email =
+      event.target.checked;
     i.setState(i.state);
   }
 
   handleUserSettingsThemeChange(i: Person, event: any) {
-    i.state.userSettingsForm.theme = event.target.value;
+    i.state.saveUserSettingsForm.theme = event.target.value;
     setTheme(event.target.value, true);
     i.setState(i.state);
   }
 
   handleUserSettingsLangChange(i: Person, event: any) {
-    i.state.userSettingsForm.lang = event.target.value;
-    i18n.changeLanguage(getLanguage(i.state.userSettingsForm.lang));
+    i.state.saveUserSettingsForm.lang = event.target.value;
+    i18n.changeLanguage(getLanguage(i.state.saveUserSettingsForm.lang));
     i.setState(i.state);
   }
 
   handleUserSettingsSortTypeChange(val: SortType) {
-    this.state.userSettingsForm.default_sort_type = Object.keys(
+    this.state.saveUserSettingsForm.default_sort_type = Object.keys(
       SortType
     ).indexOf(val);
     this.setState(this.state);
   }
 
   handleUserSettingsListingTypeChange(val: ListingType) {
-    this.state.userSettingsForm.default_listing_type = Object.keys(
+    this.state.saveUserSettingsForm.default_listing_type = Object.keys(
       ListingType
     ).indexOf(val);
     this.setState(this.state);
   }
 
   handleUserSettingsEmailChange(i: Person, event: any) {
-    i.state.userSettingsForm.email = event.target.value;
+    i.state.saveUserSettingsForm.email = event.target.value;
     i.setState(i.state);
   }
 
   handleUserSettingsBioChange(val: string) {
-    this.state.userSettingsForm.bio = val;
+    this.state.saveUserSettingsForm.bio = val;
     this.setState(this.state);
   }
 
   handleAvatarUpload(url: string) {
-    this.state.userSettingsForm.avatar = url;
+    this.state.saveUserSettingsForm.avatar = url;
     this.setState(this.state);
   }
 
   handleAvatarRemove() {
-    this.state.userSettingsForm.avatar = "";
+    this.state.saveUserSettingsForm.avatar = "";
     this.setState(this.state);
   }
 
   handleBannerUpload(url: string) {
-    this.state.userSettingsForm.banner = url;
+    this.state.saveUserSettingsForm.banner = url;
     this.setState(this.state);
   }
 
   handleBannerRemove() {
-    this.state.userSettingsForm.banner = "";
+    this.state.saveUserSettingsForm.banner = "";
     this.setState(this.state);
   }
 
   handleUserSettingsPreferredUsernameChange(i: Person, event: any) {
-    i.state.userSettingsForm.preferred_username = event.target.value;
+    i.state.saveUserSettingsForm.display_name = event.target.value;
     i.setState(i.state);
   }
 
   handleUserSettingsMatrixUserIdChange(i: Person, event: any) {
-    i.state.userSettingsForm.matrix_user_id = event.target.value;
+    i.state.saveUserSettingsForm.matrix_user_id = event.target.value;
     if (
-      i.state.userSettingsForm.matrix_user_id == "" &&
+      i.state.saveUserSettingsForm.matrix_user_id == "" &&
       !UserService.Instance.localUserView.person.matrix_user_id
     ) {
-      i.state.userSettingsForm.matrix_user_id = undefined;
+      i.state.saveUserSettingsForm.matrix_user_id = undefined;
     }
     i.setState(i.state);
   }
 
-  handleUserSettingsNewPasswordChange(i: Person, event: any) {
-    i.state.userSettingsForm.new_password = event.target.value;
-    if (i.state.userSettingsForm.new_password == "") {
-      i.state.userSettingsForm.new_password = undefined;
+  handleNewPasswordChange(i: Person, event: any) {
+    i.state.changePasswordForm.new_password = event.target.value;
+    if (i.state.changePasswordForm.new_password == "") {
+      i.state.changePasswordForm.new_password = undefined;
     }
     i.setState(i.state);
   }
 
-  handleUserSettingsNewPasswordVerifyChange(i: Person, event: any) {
-    i.state.userSettingsForm.new_password_verify = event.target.value;
-    if (i.state.userSettingsForm.new_password_verify == "") {
-      i.state.userSettingsForm.new_password_verify = undefined;
+  handleNewPasswordVerifyChange(i: Person, event: any) {
+    i.state.changePasswordForm.new_password_verify = event.target.value;
+    if (i.state.changePasswordForm.new_password_verify == "") {
+      i.state.changePasswordForm.new_password_verify = undefined;
     }
     i.setState(i.state);
   }
 
-  handleUserSettingsOldPasswordChange(i: Person, event: any) {
-    i.state.userSettingsForm.old_password = event.target.value;
-    if (i.state.userSettingsForm.old_password == "") {
-      i.state.userSettingsForm.old_password = undefined;
+  handleOldPasswordChange(i: Person, event: any) {
+    i.state.changePasswordForm.old_password = event.target.value;
+    if (i.state.changePasswordForm.old_password == "") {
+      i.state.changePasswordForm.old_password = undefined;
     }
     i.setState(i.state);
   }
 
-  handleUserSettingsSubmit(i: Person, event: any) {
+  handleSaveUserSettingsSubmit(i: Person, event: any) {
     event.preventDefault();
-    i.state.userSettingsLoading = true;
+    i.state.saveUserSettingsLoading = true;
     i.setState(i.state);
 
     WebSocketService.Instance.send(
-      wsClient.saveUserSettings(i.state.userSettingsForm)
+      wsClient.saveUserSettings(i.state.saveUserSettingsForm)
+    );
+  }
+
+  handleChangePasswordSubmit(i: Person, event: any) {
+    event.preventDefault();
+    i.state.changePasswordLoading = true;
+    i.setState(i.state);
+
+    WebSocketService.Instance.send(
+      wsClient.changePassword(i.state.changePasswordForm)
     );
   }
 
@@ -1079,33 +1114,33 @@ export class Person extends Component<any, PersonState> {
 
   setUserInfo() {
     if (this.isCurrentUser) {
-      this.state.userSettingsForm.show_nsfw =
+      this.state.saveUserSettingsForm.show_nsfw =
         UserService.Instance.localUserView.local_user.show_nsfw;
-      this.state.userSettingsForm.theme = UserService.Instance.localUserView
+      this.state.saveUserSettingsForm.theme = UserService.Instance.localUserView
         .local_user.theme
         ? UserService.Instance.localUserView.local_user.theme
         : "browser";
-      this.state.userSettingsForm.default_sort_type =
+      this.state.saveUserSettingsForm.default_sort_type =
         UserService.Instance.localUserView.local_user.default_sort_type;
-      this.state.userSettingsForm.default_listing_type =
+      this.state.saveUserSettingsForm.default_listing_type =
         UserService.Instance.localUserView.local_user.default_listing_type;
-      this.state.userSettingsForm.lang =
+      this.state.saveUserSettingsForm.lang =
         UserService.Instance.localUserView.local_user.lang;
-      this.state.userSettingsForm.avatar =
+      this.state.saveUserSettingsForm.avatar =
         UserService.Instance.localUserView.person.avatar;
-      this.state.userSettingsForm.banner =
+      this.state.saveUserSettingsForm.banner =
         UserService.Instance.localUserView.person.banner;
-      this.state.userSettingsForm.preferred_username =
-        UserService.Instance.localUserView.person.preferred_username;
-      this.state.userSettingsForm.show_avatars =
+      this.state.saveUserSettingsForm.display_name =
+        UserService.Instance.localUserView.person.display_name;
+      this.state.saveUserSettingsForm.show_avatars =
         UserService.Instance.localUserView.local_user.show_avatars;
-      this.state.userSettingsForm.email =
+      this.state.saveUserSettingsForm.email =
         UserService.Instance.localUserView.local_user.email;
-      this.state.userSettingsForm.bio =
+      this.state.saveUserSettingsForm.bio =
         UserService.Instance.localUserView.person.bio;
-      this.state.userSettingsForm.send_notifications_to_email =
+      this.state.saveUserSettingsForm.send_notifications_to_email =
         UserService.Instance.localUserView.local_user.send_notifications_to_email;
-      this.state.userSettingsForm.matrix_user_id =
+      this.state.saveUserSettingsForm.matrix_user_id =
         UserService.Instance.localUserView.person.matrix_user_id;
     }
   }
@@ -1120,7 +1155,8 @@ export class Person extends Component<any, PersonState> {
       }
       this.setState({
         deleteAccountLoading: false,
-        userSettingsLoading: false,
+        saveUserSettingsLoading: false,
+        changePasswordLoading: false,
       });
       return;
     } else if (msg.reconnect) {
@@ -1139,14 +1175,21 @@ export class Person extends Component<any, PersonState> {
     } else if (op == UserOperation.SaveUserSettings) {
       let data = wsJsonToRes<LoginResponse>(msg).data;
       UserService.Instance.login(data);
-      this.state.personRes.person_view.person.bio = this.state.userSettingsForm.bio;
-      this.state.personRes.person_view.person.preferred_username = this.state.userSettingsForm.preferred_username;
-      this.state.personRes.person_view.person.banner = this.state.userSettingsForm.banner;
-      this.state.personRes.person_view.person.avatar = this.state.userSettingsForm.avatar;
-      this.state.userSettingsLoading = false;
+      this.state.personRes.person_view.person.bio = this.state.saveUserSettingsForm.bio;
+      this.state.personRes.person_view.person.display_name = this.state.saveUserSettingsForm.display_name;
+      this.state.personRes.person_view.person.banner = this.state.saveUserSettingsForm.banner;
+      this.state.personRes.person_view.person.avatar = this.state.saveUserSettingsForm.avatar;
+      this.state.saveUserSettingsLoading = false;
       this.setState(this.state);
 
       window.scrollTo(0, 0);
+    } else if (op == UserOperation.ChangePassword) {
+      let data = wsJsonToRes<LoginResponse>(msg).data;
+      UserService.Instance.login(data);
+      this.state.changePasswordLoading = false;
+      this.setState(this.state);
+      window.scrollTo(0, 0);
+      toast(i18n.t("password_changed"));
     } else if (op == UserOperation.DeleteAccount) {
       this.setState({
         deleteAccountLoading: false,

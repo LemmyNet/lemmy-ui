@@ -299,7 +299,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   <Icon icon="edit" classes="icon-inline" />
                 </span>
               </li>
-              {!this.amCreator &&
+              {!this.amTopMod &&
                 (!this.state.showConfirmLeaveModTeam ? (
                   <li className="list-inline-item-action">
                     <span
@@ -341,7 +341,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     </li>
                   </>
                 ))}
-              {this.amCreator && (
+              {this.amTopMod && (
                 <li className="list-inline-item-action">
                   <span
                     class="pointer"
@@ -488,9 +488,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
 
-  private get amCreator(): boolean {
+  private get amTopMod(): boolean {
     return (
-      this.props.community_view.creator.id ==
+      this.props.moderators[0].moderator.id ==
       UserService.Instance.localUserView.person.id
     );
   }

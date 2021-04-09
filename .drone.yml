@@ -36,7 +36,7 @@ steps:
       dockerfile: Dockerfile
       repo: dessalines/lemmy-ui
       tags:
-        - dev-linux-arm64
+        - dev-linux-amd64
       username:
         from_secret: docker_username
       password:

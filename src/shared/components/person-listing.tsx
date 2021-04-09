@@ -34,11 +34,11 @@ export class PersonListing extends Component<PersonListingProps, any> {
 
     let displayName = this.props.useApubName
       ? apubName
-      : person.preferred_username
-      ? person.preferred_username
+      : person.display_name
+      ? person.display_name
       : apubName;
 
-    if (this.props.showApubName && !local && person.preferred_username) {
+    if (this.props.showApubName && !local && person.display_name) {
       displayName = `${displayName} (${apubName})`;
     }
 
