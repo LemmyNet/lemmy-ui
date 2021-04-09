@@ -65,9 +65,6 @@ export class Communities extends Component<any, CommunitiesState> {
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.communities = this.isoData.routeData[0].communities;
-      this.state.communities.sort(
-        (a, b) => b.counts.subscribers - a.counts.subscribers
-      );
       this.state.loading = false;
     } else {
       this.refetch();
@@ -283,7 +280,7 @@ export class Communities extends Component<any, CommunitiesState> {
   refetch() {
     let listCommunitiesForm: ListCommunities = {
       type_: ListingType.All,
-      sort: SortType.TopAll,
+      sort: SortType.TopMonth,
       limit: communityLimit,
       page: this.state.page,
       auth: authField(false),
@@ -299,7 +296,7 @@ export class Communities extends Component<any, CommunitiesState> {
     let page = pathSplit[3] ? Number(pathSplit[3]) : 1;
     let listCommunitiesForm: ListCommunities = {
       type_: ListingType.All,
-      sort: SortType.TopAll,
+      sort: SortType.TopMonth,
       limit: communityLimit,
       page,
     };
@@ -317,9 +314,6 @@ export class Communities extends Component<any, CommunitiesState> {
     } else if (op == UserOperation.ListCommunities) {
       let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
       this.state.communities = data.communities;
-      this.state.communities.sort(
-        (a, b) => b.counts.subscribers - a.counts.subscribers
-      );
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setState(this.state);
