@@ -750,7 +750,7 @@ export class Person extends Component<any, PersonState> {
                   this,
                   this.handleUserSettingsMatrixUserIdChange
                 )}
-                minLength={3}
+                pattern="^@[A-Za-z0-9._=-]+:[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
               />
             </div>
           </div>
