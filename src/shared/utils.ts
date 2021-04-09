@@ -591,6 +591,7 @@ export function messageToastify(info: NotifyInfo, router: any) {
       gravity: "top",
       position: "right",
       duration: 5000,
+      escapeMarkup: false,
       onClick: () => {
         if (toast) {
           toast.hideToast();
