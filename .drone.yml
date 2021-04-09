@@ -112,6 +112,7 @@ steps:
       - git submodule update --recursive --remote
     when:
       ref:
+        - refs/heads/main
         - refs/tags/*
 
   - name: publish dev docker image
