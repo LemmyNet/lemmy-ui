@@ -29,6 +29,7 @@ import {
   colorList,
   wsClient,
   authField,
+  showScores,
 } from "../utils";
 import moment from "moment";
 import { MomentTime } from "./moment-time";
@@ -200,21 +201,25 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               </button>
               {/* This is an expanding spacer for mobile */}
               <div className="mr-lg-4 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2"></div>
-              <a
-                className={`unselectable pointer ${this.scoreColor}`}
-                onClick={linkEvent(node, this.handleCommentUpvote)}
-                data-tippy-content={this.pointsTippy}
-              >
-                <span
-                  class="mr-1 font-weight-bold"
-                  aria-label={i18n.t("number_of_points", {
-                    count: this.state.score,
-                  })}
-                >
-                  {this.state.score}
-                </span>
-              </a>
-              <span className="mr-1">•</span>
+              {showScores() && (
+                <>
+                  <a
+                    className={`unselectable pointer ${this.scoreColor}`}
+                    onClick={linkEvent(node, this.handleCommentUpvote)}
+                    data-tippy-content={this.pointsTippy}
+                  >
+                    <span
+                      class="mr-1 font-weight-bold"
+                      aria-label={i18n.t("number_of_points", {
+                        count: this.state.score,
+                      })}
+                    >
+                      {this.state.score}
+                    </span>
+                  </a>
+                  <span className="mr-1">•</span>
+                </>
+              )}
               <span>
                 <MomentTime data={cv.comment} />
               </span>
@@ -281,9 +286,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         aria-label={i18n.t("upvote")}
                       >
                         <Icon icon="arrow-up1" classes="icon-inline" />
-                        {this.state.upvotes !== this.state.score && (
-                          <span class="ml-1">{this.state.upvotes}</span>
-                        )}
+                        {showScores() &&
+                          this.state.upvotes !== this.state.score && (
+                            <span class="ml-1">{this.state.upvotes}</span>
+                          )}
                       </button>
                       {this.props.enableDownvotes && (
                         <button
@@ -297,9 +303,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           aria-label={i18n.t("downvote")}
                         >
                           <Icon icon="arrow-down1" classes="icon-inline" />
-                          {this.state.upvotes !== this.state.score && (
-                            <span class="ml-1">{this.state.downvotes}</span>
-                          )}
+                          {showScores() &&
+                            this.state.upvotes !== this.state.score && (
+                              <span class="ml-1">{this.state.downvotes}</span>
+                            )}
                         </button>
                       )}
                       <button

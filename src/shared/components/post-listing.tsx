@@ -39,6 +39,7 @@ import {
   previewLines,
   wsClient,
   authField,
+  showScores,
 } from "../utils";
 import { i18n } from "../i18next";
 import { externalHost } from "../env";
@@ -346,12 +347,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         >
           <Icon icon="arrow-up1" classes="upvote" />
         </button>
-        <div
-          class={`unselectable pointer font-weight-bold text-muted px-1`}
-          data-tippy-content={this.pointsTippy}
-        >
-          {this.state.score}
-        </div>
+        {showScores() ? (
+          <div
+            class={`unselectable pointer font-weight-bold text-muted px-1`}
+            data-tippy-content={this.pointsTippy}
+          >
+            {this.state.score}
+          </div>
+        ) : (
+          <div class="p-1"></div>
+        )}
         {this.props.enableDownvotes && (
           <button
             className={`btn-animate btn btn-link p-0 ${
@@ -477,7 +482,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </button>
         {!mobile && (
           <>
-            {this.state.downvotes !== 0 && (
+            {this.state.downvotes !== 0 && showScores() && (
               <button
                 class="btn text-muted py-0 pr-0"
                 data-tippy-content={this.pointsTippy}
@@ -513,32 +518,55 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {mobile && (
           <>
             <div>
-              <button
-                className={`btn-animate btn py-0 px-1 ${
-                  this.state.my_vote == 1 ? "text-info" : "text-muted"
-                }`}
-                data-tippy-content={this.pointsTippy}
-                onClick={linkEvent(this, this.handlePostLike)}
-                aria-label={i18n.t("upvote")}
-              >
-                <Icon icon="arrow-up1" classes="icon-inline small mr-2" />
-                {this.state.upvotes}
-              </button>
-              {this.props.enableDownvotes && (
+              {showScores() ? (
                 <button
-                  className={`ml-2 btn-animate btn py-0 pl-1 ${
-                    this.state.my_vote == -1 ? "text-danger" : "text-muted"
+                  className={`btn-animate btn py-0 px-1 ${
+                    this.state.my_vote == 1 ? "text-info" : "text-muted"
                   }`}
-                  onClick={linkEvent(this, this.handlePostDisLike)}
                   data-tippy-content={this.pointsTippy}
-                  aria-label={i18n.t("downvote")}
+                  onClick={linkEvent(this, this.handlePostLike)}
+                  aria-label={i18n.t("upvote")}
                 >
-                  <Icon icon="arrow-down1" classes="icon-inline small mr-2" />
-                  {this.state.downvotes !== 0 && (
-                    <span>{this.state.downvotes}</span>
-                  )}
+                  <Icon icon="arrow-up1" classes="icon-inline small mr-2" />
+                  {this.state.upvotes}
+                </button>
+              ) : (
+                <button
+                  className={`btn-animate btn py-0 px-1 ${
+                    this.state.my_vote == 1 ? "text-info" : "text-muted"
+                  }`}
+                  onClick={linkEvent(this, this.handlePostLike)}
+                  aria-label={i18n.t("upvote")}
+                >
+                  <Icon icon="arrow-up1" classes="icon-inline small" />
                 </button>
               )}
+              {this.props.enableDownvotes &&
+                (showScores() ? (
+                  <button
+                    className={`ml-2 btn-animate btn py-0 pl-1 ${
+                      this.state.my_vote == -1 ? "text-danger" : "text-muted"
+                    }`}
+                    onClick={linkEvent(this, this.handlePostDisLike)}
+                    data-tippy-content={this.pointsTippy}
+                    aria-label={i18n.t("downvote")}
+                  >
+                    <Icon icon="arrow-down1" classes="icon-inline small mr-2" />
+                    {this.state.downvotes !== 0 && (
+                      <span>{this.state.downvotes}</span>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    className={`ml-2 btn-animate btn py-0 pl-1 ${
+                      this.state.my_vote == -1 ? "text-danger" : "text-muted"
+                    }`}
+                    onClick={linkEvent(this, this.handlePostDisLike)}
+                    aria-label={i18n.t("downvote")}
+                  >
+                    <Icon icon="arrow-down1" classes="icon-inline small" />
+                  </button>
+                ))}
             </div>
             <button
               class="btn btn-link btn-animate text-muted py-0 pl-1 pr-0"
