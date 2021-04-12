@@ -15,6 +15,7 @@ import {
   Search,
   SearchType,
   SearchResponse,
+  ListingType,
 } from "lemmy-js-client";
 import { WebSocketService, UserService } from "../services";
 import { PostFormParams } from "../interfaces";
@@ -406,6 +407,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         q: this.state.postForm.url,
         type_: SearchType.Url,
         sort: SortType.TopAll,
+        listing_type: ListingType.All,
         page: 1,
         limit: 6,
         auth: authField(false),
@@ -435,6 +437,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       q: this.state.postForm.name,
       type_: SearchType.Posts,
       sort: SortType.TopAll,
+      listing_type: ListingType.All,
       community_id: this.state.postForm.community_id,
       page: 1,
       limit: 6,

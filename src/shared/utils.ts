@@ -747,6 +747,7 @@ function personSearch(text: string, cb: (persons: PersonTribute[]) => any) {
       q: text,
       type_: SearchType.Users,
       sort: SortType.TopAll,
+      listing_type: ListingType.All,
       page: 1,
       limit: mentionDropdownFetchLimit,
       auth: authField(false),
@@ -792,6 +793,7 @@ function communitySearch(
       q: text,
       type_: SearchType.Communities,
       sort: SortType.TopAll,
+      listing_type: ListingType.All,
       page: 1,
       limit: mentionDropdownFetchLimit,
       auth: authField(false),
@@ -1225,4 +1227,8 @@ export function restoreScrollPosition(context: any) {
   let path: string = context.router.route.location.pathname;
   let y = Number(sessionStorage.getItem(`scrollPosition_${path}`));
   window.scrollTo(0, y);
+}
+
+export function showLocal(isoData: IsoData): boolean {
+  return isoData.site_res.federated_instances?.linked.length > 0;
 }

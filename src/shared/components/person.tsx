@@ -49,6 +49,7 @@ import {
   setOptionalAuth,
   saveScrollPosition,
   restoreScrollPosition,
+  showLocal,
 } from "../utils";
 import { PersonListing } from "./person-listing";
 import { HtmlTags } from "./html-tags";
@@ -655,9 +656,7 @@ export class Person extends Component<any, PersonState> {
                   this.state.saveUserSettingsForm.default_listing_type
                 ]
               }
-              showLocal={
-                this.state.siteRes.federated_instances?.linked.length > 0
-              }
+              showLocal={showLocal(this.isoData)}
               onChange={this.handleUserSettingsListingTypeChange}
             />
           </form>

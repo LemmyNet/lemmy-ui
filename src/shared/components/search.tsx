@@ -13,6 +13,7 @@ import {
   PostResponse,
   CommentResponse,
   Site,
+  ListingType,
 } from "lemmy-js-client";
 import { WebSocketService } from "../services";
 import {
@@ -32,6 +33,8 @@ import {
   setOptionalAuth,
   saveScrollPosition,
   restoreScrollPosition,
+  routeListingTypeToEnum,
+  showLocal,
 } from "../utils";
 import { PostListing } from "./post-listing";
 import { HtmlTags } from "./html-tags";
@@ -39,6 +42,7 @@ import { Spinner } from "./icon";
 import { PersonListing } from "./person-listing";
 import { CommunityLink } from "./community-link";
 import { SortSelect } from "./sort-select";
+import { ListingTypeSelect } from "./listing-type-select";
 import { CommentNodes } from "./comment-nodes";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "shared/interfaces";
@@ -47,6 +51,7 @@ interface SearchProps {
   q: string;
   type_: SearchType;
   sort: SortType;
+  listingType: ListingType;
   page: number;
 }
 
@@ -54,6 +59,7 @@ interface SearchState {
   q: string;
   type_: SearchType;
   sort: SortType;
+  listingType: ListingType;
   page: number;
   searchResponse: SearchResponse;
   loading: boolean;
@@ -65,6 +71,7 @@ interface UrlParams {
   q?: string;
   type_?: SearchType;
   sort?: SortType;
+  listingType?: ListingType;
   page?: number;
 }
 
@@ -75,6 +82,9 @@ export class Search extends Component<any, SearchState> {
     q: Search.getSearchQueryFromProps(this.props.match.params.q),
     type_: Search.getSearchTypeFromProps(this.props.match.params.type),
     sort: Search.getSortTypeFromProps(this.props.match.params.sort),
+    listingType: Search.getListingTypeFromProps(
+      this.props.match.params.listing_type
+    ),
     page: Search.getPageFromProps(this.props.match.params.page),
     searchText: Search.getSearchQueryFromProps(this.props.match.params.q),
     searchResponse: {
@@ -100,6 +110,10 @@ export class Search extends Component<any, SearchState> {
     return sort ? routeSortTypeToEnum(sort) : SortType.TopAll;
   }
 
+  static getListingTypeFromProps(listingType: string): ListingType {
+    return listingType ? routeListingTypeToEnum(listingType) : ListingType.All;
+  }
+
   static getPageFromProps(page: string): number {
     return page ? Number(page) : 1;
   }
@@ -109,6 +123,7 @@ export class Search extends Component<any, SearchState> {
 
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -134,6 +149,9 @@ export class Search extends Component<any, SearchState> {
       q: Search.getSearchQueryFromProps(props.match.params.q),
       type_: Search.getSearchTypeFromProps(props.match.params.type),
       sort: Search.getSortTypeFromProps(props.match.params.sort),
+      listingType: Search.getListingTypeFromProps(
+        props.match.params.listing_type
+      ),
       page: Search.getPageFromProps(props.match.params.page),
     };
   }
@@ -146,7 +164,8 @@ export class Search extends Component<any, SearchState> {
       q: this.getSearchQueryFromProps(pathSplit[3]),
       type_: this.getSearchTypeFromProps(pathSplit[5]),
       sort: this.getSortTypeFromProps(pathSplit[7]),
-      page: this.getPageFromProps(pathSplit[9]),
+      listing_type: this.getListingTypeFromProps(pathSplit[9]),
+      page: this.getPageFromProps(pathSplit[11]),
       limit: fetchLimit,
     };
     setOptionalAuth(form, req.auth);
@@ -163,6 +182,7 @@ export class Search extends Component<any, SearchState> {
       lastState.q !== this.state.q ||
       lastState.type_ !== this.state.type_ ||
       lastState.sort !== this.state.sort ||
+      lastState.listingType !== this.state.listingType ||
       lastState.page !== this.state.page
     ) {
       this.setState({ loading: true, searchText: this.state.q });
@@ -242,6 +262,13 @@ export class Search extends Component<any, SearchState> {
           </option>
           <option value={SearchType.Users}>{i18n.t("users")}</option>
         </select>
+        <span class="ml-2">
+          <ListingTypeSelect
+            type_={this.state.listingType}
+            showLocal={showLocal(this.isoData)}
+            onChange={this.handleListingTypeChange}
+          />
+        </span>
         <span class="ml-2">
           <SortSelect
             sort={this.state.sort}
@@ -460,6 +487,7 @@ export class Search extends Component<any, SearchState> {
       q: this.state.q,
       type_: this.state.type_,
       sort: this.state.sort,
+      listing_type: this.state.listingType,
       page: this.state.page,
       limit: fetchLimit,
       auth: authField(false),
@@ -481,11 +509,19 @@ export class Search extends Component<any, SearchState> {
     });
   }
 
+  handleListingTypeChange(val: ListingType) {
+    this.updateUrl({
+      listingType: val,
+      page: 1,
+    });
+  }
+
   handleSearchSubmit(i: Search, event: any) {
     event.preventDefault();
     i.updateUrl({
       q: i.state.searchText,
       type_: i.state.type_,
+      listingType: i.state.listingType,
       sort: i.state.sort,
       page: i.state.page,
     });
@@ -499,10 +535,11 @@ export class Search extends Component<any, SearchState> {
     const qStr = paramUpdates.q || this.state.q;
     const qStrEncoded = encodeURIComponent(qStr);
     const typeStr = paramUpdates.type_ || this.state.type_;
+    const listingTypeStr = paramUpdates.listingType || this.state.listingType;
     const sortStr = paramUpdates.sort || this.state.sort;
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
-      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/page/${page}`
+      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/listing_type/${listingTypeStr}/page/${page}`
     );
   }
 

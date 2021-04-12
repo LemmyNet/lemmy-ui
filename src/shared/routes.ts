@@ -133,7 +133,7 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: req => AdminSettings.fetchInitialData(req),
   },
   {
-    path: `/search/q/:q/type/:type/sort/:sort/page/:page`,
+    path: `/search/q/:q/type/:type/sort/:sort/listing_type/:listing_type/page/:page`,
     component: Search,
     fetchInitialData: req => Search.fetchInitialData(req),
   },

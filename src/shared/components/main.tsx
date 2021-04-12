@@ -60,6 +60,7 @@ import {
   authField,
   saveScrollPosition,
   restoreScrollPosition,
+  showLocal,
 } from "../utils";
 import { i18n } from "../i18next";
 import { T } from "inferno-i18next";
@@ -588,7 +589,7 @@ export class Main extends Component<any, MainState> {
         <span class="mr-3">
           <ListingTypeSelect
             type_={this.state.listingType}
-            showLocal={this.showLocal}
+            showLocal={showLocal(this.isoData)}
             onChange={this.handleListingTypeChange}
           />
         </span>
@@ -648,10 +649,6 @@ export class Main extends Component<any, MainState> {
         )}
       </div>
     );
-  }
-
-  get showLocal(): boolean {
-    return this.isoData.site_res.federated_instances?.linked.length > 0;
   }
 
   get canAdmin(): boolean {
