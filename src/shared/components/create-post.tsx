@@ -5,6 +5,7 @@ import { HtmlTags } from "./html-tags";
 import { Spinner } from "./icon";
 import {
   authField,
+  fetchLimit,
   isBrowser,
   setIsoData,
   setOptionalAuth,
@@ -69,7 +70,7 @@ export class CreatePost extends Component<any, CreatePostState> {
     let listCommunitiesForm: ListCommunities = {
       type_: ListingType.All,
       sort: SortType.TopAll,
-      limit: 9999,
+      limit: fetchLimit,
       auth: authField(false),
     };
     WebSocketService.Instance.send(
@@ -163,7 +164,7 @@ export class CreatePost extends Component<any, CreatePostState> {
     let listCommunitiesForm: ListCommunities = {
       type_: ListingType.All,
       sort: SortType.TopAll,
-      limit: 9999,
+      limit: fetchLimit,
     };
     setOptionalAuth(listCommunitiesForm, req.auth);
     return [req.client.listCommunities(listCommunitiesForm)];

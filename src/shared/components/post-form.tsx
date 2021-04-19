@@ -16,6 +16,7 @@ import {
   SearchType,
   SearchResponse,
   ListingType,
+  LemmyHttp,
 } from "lemmy-js-client";
 import { WebSocketService, UserService } from "../services";
 import { PostFormParams } from "../interfaces";
@@ -37,6 +38,8 @@ import {
   wsUserOp,
   wsClient,
   authField,
+  communityToChoice,
+  fetchLimit,
 } from "../utils";
 import autosize from "autosize";
 
@@ -46,7 +49,7 @@ if (isBrowser()) {
 }
 
 import { i18n } from "../i18next";
-import { pictrsUri } from "../env";
+import { httpBase, pictrsUri } from "../env";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -453,6 +456,20 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.setState(this.state);
   }
 
+  async fetchCommunities(q: string) {
+    let form: Search = {
+      q,
+      type_: SearchType.Communities,
+      sort: SortType.TopAll,
+      listing_type: ListingType.All,
+      page: 1,
+      limit: fetchLimit,
+      auth: authField(false),
+    };
+    let client = new LemmyHttp(httpBase);
+    return client.search(form);
+  }
+
   handlePostBodyChange(val: string) {
     this.state.postForm.body = val;
     this.setState(this.state);
@@ -578,6 +595,20 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           },
           false
         );
+        this.choices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            let communities = (await this.fetchCommunities(e.detail.value))
+              .communities;
+            this.choices.setChoices(
+              communities.map(cv => communityToChoice(cv)),
+              "value",
+              "label",
+              true
+            );
+          }, 400),
+          false
+        );
       }
     }
 
@@ -641,7 +672,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       } else if (data.type_ == SearchType[SearchType.Url]) {
         this.state.crossPosts = data.posts;
       }
-      this.setState(this.state);
     }
   }
 }

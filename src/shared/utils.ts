@@ -1232,3 +1232,16 @@ export function restoreScrollPosition(context: any) {
 export function showLocal(isoData: IsoData): boolean {
   return isoData.site_res.federated_instances?.linked.length > 0;
 }
+
+interface ChoicesValue {
+  value: string;
+  label: string;
+}
+
+export function communityToChoice(cv: CommunityView): ChoicesValue {
+  let choice: ChoicesValue = {
+    value: cv.community.id.toString(),
+    label: cv.community.name,
+  };
+  return choice;
+}
