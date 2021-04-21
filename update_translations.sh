@@ -1,9 +1,11 @@
 #!/bin/bash
-pushd ../lemmy-translations || exit
+set -e
+
+pushd ../lemmy-translations
 git fetch weblate
 git merge weblate/main
 git push
-popd || exit
+popd
 
 # look for unused translations
 for langfile in lemmy-translations/translations/*.json; do

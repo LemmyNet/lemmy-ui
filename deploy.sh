@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 new_tag="$1"
 
