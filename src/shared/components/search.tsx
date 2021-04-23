@@ -17,6 +17,7 @@ import {
   ListCommunities,
   ListCommunitiesResponse,
   GetCommunity,
+  GetPersonDetails,
 } from "lemmy-js-client";
 import { WebSocketService } from "../services";
 import {
@@ -44,6 +45,9 @@ import {
   fetchCommunities,
   communityToChoice,
   hostname,
+  fetchUsers,
+  personToChoice,
+  capitalizeFirstLetter,
 } from "../utils";
 import { PostListing } from "./post-listing";
 import { HtmlTags } from "./html-tags";
@@ -67,6 +71,7 @@ interface SearchProps {
   sort: SortType;
   listingType: ListingType;
   communityId: number;
+  creatorId: number;
   page: number;
 }
 
@@ -76,9 +81,11 @@ interface SearchState {
   sort: SortType;
   listingType: ListingType;
   communityId: number;
+  creatorId: number;
   page: number;
   searchResponse: SearchResponse;
   communities: CommunityView[];
+  creator?: PersonViewSafe;
   loading: boolean;
   site: Site;
   searchText: string;
@@ -90,12 +97,14 @@ interface UrlParams {
   sort?: SortType;
   listingType?: ListingType;
   communityId?: number;
+  creatorId?: number;
   page?: number;
 }
 
 export class Search extends Component<any, SearchState> {
   private isoData = setIsoData(this.context);
-  private choices: any;
+  private communityChoices: any;
+  private creatorChoices: any;
   private subscription: Subscription;
   private emptyState: SearchState = {
     q: Search.getSearchQueryFromProps(this.props.match.params.q),
@@ -109,6 +118,7 @@ export class Search extends Component<any, SearchState> {
     communityId: Search.getCommunityIdFromProps(
       this.props.match.params.community_id
     ),
+    creatorId: Search.getCreatorIdFromProps(this.props.match.params.creator_id),
     searchResponse: {
       type_: null,
       posts: [],
@@ -141,6 +151,10 @@ export class Search extends Component<any, SearchState> {
     return id ? Number(id) : 0;
   }
 
+  static getCreatorIdFromProps(id: string): number {
+    return id ? Number(id) : 0;
+  }
+
   static getPageFromProps(page: string): number {
     return page ? Number(page) : 1;
   }
@@ -163,8 +177,13 @@ export class Search extends Component<any, SearchState> {
       } else {
         this.state.communities = [this.isoData.routeData[0].community_view];
       }
+
+      let creator = this.isoData.routeData[1];
+      if (creator?.person_view) {
+        this.state.creator = this.isoData.routeData[1].person_view;
+      }
       if (this.state.q != "") {
-        this.state.searchResponse = this.isoData.routeData[1];
+        this.state.searchResponse = this.isoData.routeData[2];
         this.state.loading = false;
       } else {
         this.search();
@@ -182,6 +201,7 @@ export class Search extends Component<any, SearchState> {
 
   componentDidMount() {
     this.setupCommunityFilter();
+    this.setupCreatorFilter();
   }
 
   static getDerivedStateFromProps(props: any): SearchProps {
@@ -195,6 +215,7 @@ export class Search extends Component<any, SearchState> {
       communityId: Search.getCommunityIdFromProps(
         props.match.params.community_id
       ),
+      creatorId: Search.getCreatorIdFromProps(props.match.params.creator_id),
       page: Search.getPageFromProps(props.match.params.page),
     };
   }
@@ -215,13 +236,13 @@ export class Search extends Component<any, SearchState> {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
-    let cId = this.getCommunityIdFromProps(pathSplit[11]);
-    if (cId !== 0) {
-      let f: GetCommunity = {
-        id: cId,
+    let communityId = this.getCommunityIdFromProps(pathSplit[11]);
+    if (communityId !== 0) {
+      let getCommunityForm: GetCommunity = {
+        id: communityId,
       };
-      setOptionalAuth(f, req.auth);
-      promises.push(req.client.getCommunity(f));
+      setOptionalAuth(getCommunityForm, req.auth);
+      promises.push(req.client.getCommunity(getCommunityForm));
     } else {
       let listCommunitiesForm: ListCommunities = {
         type_: ListingType.All,
@@ -232,16 +253,30 @@ export class Search extends Component<any, SearchState> {
       promises.push(req.client.listCommunities(listCommunitiesForm));
     }
 
+    let creatorId = this.getCreatorIdFromProps(pathSplit[13]);
+    if (creatorId !== 0) {
+      let getCreatorForm: GetPersonDetails = {
+        person_id: creatorId,
+      };
+      setOptionalAuth(getCreatorForm, req.auth);
+      promises.push(req.client.getPersonDetails(getCreatorForm));
+    } else {
+      promises.push(Promise.resolve());
+    }
+
     let form: SearchForm = {
       q: this.getSearchQueryFromProps(pathSplit[3]),
       type_: this.getSearchTypeFromProps(pathSplit[5]),
       sort: this.getSortTypeFromProps(pathSplit[7]),
       listing_type: this.getListingTypeFromProps(pathSplit[9]),
-      page: this.getPageFromProps(pathSplit[13]),
+      page: this.getPageFromProps(pathSplit[15]),
       limit: fetchLimit,
     };
-    if (cId !== 0) {
-      form.community_id = cId;
+    if (communityId !== 0) {
+      form.community_id = communityId;
+    }
+    if (creatorId !== 0) {
+      form.creator_id = creatorId;
     }
     setOptionalAuth(form, req.auth);
 
@@ -259,6 +294,7 @@ export class Search extends Component<any, SearchState> {
       lastState.sort !== this.state.sort ||
       lastState.listingType !== this.state.listingType ||
       lastState.communityId !== this.state.communityId ||
+      lastState.creatorId !== this.state.creatorId ||
       lastState.page !== this.state.page
     ) {
       this.setState({ loading: true, searchText: this.state.q });
@@ -353,7 +389,10 @@ export class Search extends Component<any, SearchState> {
             hideMostComments
           />
         </span>
-        {this.state.communities.length > 0 && this.communityFilter()}
+        <div class="form-row">
+          {this.state.communities.length > 0 && this.communityFilter()}
+          {this.creatorFilter()}
+        </div>
       </div>
     );
   }
@@ -519,11 +558,11 @@ export class Search extends Component<any, SearchState> {
 
   communityFilter() {
     return (
-      <div class="form-group row">
-        <label class="col-sm-2 col-form-label" htmlFor="post-community">
+      <div class="form-group col-sm-6">
+        <label class="col-form-label" htmlFor="community-filter">
           {i18n.t("community")}
         </label>
-        <div class="col-sm-4">
+        <div>
           <select
             class="form-control"
             id="community-filter"
@@ -537,6 +576,34 @@ export class Search extends Component<any, SearchState> {
                   : `${hostname(cv.community.actor_id)}/${cv.community.name}`}
               </option>
             ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  creatorFilter() {
+    return (
+      <div class="form-group col-sm-6">
+        <label class="col-form-label" htmlFor="creator-filter">
+          {capitalizeFirstLetter(i18n.t("creator"))}
+        </label>
+        <div>
+          <select
+            class="form-control"
+            id="creator-filter"
+            value={this.state.creatorId}
+          >
+            <option value="0">{i18n.t("all")}</option>
+            {this.state.creator && (
+              <option value={this.state.creator.person.id}>
+                {this.state.creator.person.local
+                  ? this.state.creator.person.name
+                  : `${hostname(this.state.creator.person.actor_id)}/${
+                      this.state.creator.person.name
+                    }`}
+              </option>
+            )}
           </select>
         </div>
       </div>
@@ -598,6 +665,9 @@ export class Search extends Component<any, SearchState> {
     if (this.state.communityId !== 0) {
       form.community_id = this.state.communityId;
     }
+    if (this.state.creatorId !== 0) {
+      form.creator_id = this.state.creatorId;
+    }
 
     if (this.state.q != "") {
       WebSocketService.Instance.send(wsClient.search(form));
@@ -608,25 +678,48 @@ export class Search extends Component<any, SearchState> {
     if (isBrowser()) {
       let selectId: any = document.getElementById("community-filter");
       if (selectId) {
-        this.choices = new Choices(selectId, choicesConfig);
-        this.choices.passedElement.element.addEventListener(
+        this.communityChoices = new Choices(selectId, choicesConfig);
+        this.communityChoices.passedElement.element.addEventListener(
           "choice",
           (e: any) => {
             this.handleCommunityFilterChange(Number(e.detail.choice.value));
           },
           false
         );
-        this.choices.passedElement.element.addEventListener(
+        this.communityChoices.passedElement.element.addEventListener(
           "search",
           debounce(async (e: any) => {
             let communities = (await fetchCommunities(e.detail.value))
               .communities;
-            this.choices.setChoices(
-              communities.map(cv => communityToChoice(cv)),
-              "value",
-              "label",
-              true
-            );
+            let choices = communities.map(cv => communityToChoice(cv));
+            choices.unshift({ value: "0", label: i18n.t("all") });
+            this.communityChoices.setChoices(choices, "value", "label", true);
+          }, 400),
+          false
+        );
+      }
+    }
+  }
+
+  setupCreatorFilter() {
+    if (isBrowser()) {
+      let selectId: any = document.getElementById("creator-filter");
+      if (selectId) {
+        this.creatorChoices = new Choices(selectId, choicesConfig);
+        this.creatorChoices.passedElement.element.addEventListener(
+          "choice",
+          (e: any) => {
+            this.handleCreatorFilterChange(Number(e.detail.choice.value));
+          },
+          false
+        );
+        this.creatorChoices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            let creators = (await fetchUsers(e.detail.value)).users;
+            let choices = creators.map(pvs => personToChoice(pvs));
+            choices.unshift({ value: "0", label: i18n.t("all") });
+            this.creatorChoices.setChoices(choices, "value", "label", true);
           }, 400),
           false
         );
@@ -659,6 +752,13 @@ export class Search extends Component<any, SearchState> {
     });
   }
 
+  handleCreatorFilterChange(creatorId: number) {
+    this.updateUrl({
+      creatorId,
+      page: 1,
+    });
+  }
+
   handleSearchSubmit(i: Search, event: any) {
     event.preventDefault();
     i.updateUrl({
@@ -666,6 +766,7 @@ export class Search extends Component<any, SearchState> {
       type_: i.state.type_,
       listingType: i.state.listingType,
       communityId: i.state.communityId,
+      creatorId: i.state.creatorId,
       sort: i.state.sort,
       page: i.state.page,
     });
@@ -682,10 +783,16 @@ export class Search extends Component<any, SearchState> {
     const listingTypeStr = paramUpdates.listingType || this.state.listingType;
     const sortStr = paramUpdates.sort || this.state.sort;
     const communityId =
-      paramUpdates.communityId || "0" || this.state.communityId;
+      paramUpdates.communityId == 0
+        ? 0
+        : paramUpdates.communityId || this.state.communityId;
+    const creatorId =
+      paramUpdates.creatorId == 0
+        ? 0
+        : paramUpdates.creatorId || this.state.creatorId;
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
-      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/listing_type/${listingTypeStr}/community_id/${communityId}/page/${page}`
+      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/listing_type/${listingTypeStr}/community_id/${communityId}/creator_id/${creatorId}/page/${page}`
     );
   }
 

@@ -1248,6 +1248,14 @@ export function communityToChoice(cv: CommunityView): ChoicesValue {
   return choice;
 }
 
+export function personToChoice(pvs: PersonViewSafe): ChoicesValue {
+  let choice: ChoicesValue = {
+    value: pvs.person.id.toString(),
+    label: pvs.person.name,
+  };
+  return choice;
+}
+
 export async function fetchCommunities(q: string) {
   let form: Search = {
     q,
@@ -1262,8 +1270,23 @@ export async function fetchCommunities(q: string) {
   return client.search(form);
 }
 
+export async function fetchUsers(q: string) {
+  let form: Search = {
+    q,
+    type_: SearchType.Users,
+    sort: SortType.TopAll,
+    listing_type: ListingType.All,
+    page: 1,
+    limit: fetchLimit,
+    auth: authField(false),
+  };
+  let client = new LemmyHttp(httpBase);
+  return client.search(form);
+}
+
 export const choicesConfig = {
   shouldSort: false,
+  searchResultLimit: fetchLimit,
   classNames: {
     containerOuter: "choices",
     containerInner: "choices__inner bg-light border-0",
