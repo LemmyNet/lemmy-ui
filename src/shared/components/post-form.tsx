@@ -15,6 +15,7 @@ import {
   Search,
   SearchType,
   SearchResponse,
+  ListingType,
 } from "lemmy-js-client";
 import { WebSocketService, UserService } from "../services";
 import { PostFormParams } from "../interfaces";
@@ -36,6 +37,9 @@ import {
   wsUserOp,
   wsClient,
   authField,
+  communityToChoice,
+  fetchCommunities,
+  choicesConfig,
 } from "../utils";
 import autosize from "autosize";
 
@@ -406,6 +410,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         q: this.state.postForm.url,
         type_: SearchType.Url,
         sort: SortType.TopAll,
+        listing_type: ListingType.All,
         page: 1,
         limit: 6,
         auth: authField(false),
@@ -435,6 +440,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       q: this.state.postForm.name,
       type_: SearchType.Posts,
       sort: SortType.TopAll,
+      listing_type: ListingType.All,
       community_id: this.state.postForm.community_id,
       page: 1,
       limit: 6,
@@ -536,43 +542,27 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (isBrowser()) {
       let selectId: any = document.getElementById("post-community");
       if (selectId) {
-        this.choices = new Choices(selectId, {
-          shouldSort: false,
-          classNames: {
-            containerOuter: "choices",
-            containerInner: "choices__inner bg-light border-0",
-            input: "form-control",
-            inputCloned: "choices__input--cloned",
-            list: "choices__list",
-            listItems: "choices__list--multiple",
-            listSingle: "choices__list--single",
-            listDropdown: "choices__list--dropdown",
-            item: "choices__item bg-light",
-            itemSelectable: "choices__item--selectable",
-            itemDisabled: "choices__item--disabled",
-            itemChoice: "choices__item--choice",
-            placeholder: "choices__placeholder",
-            group: "choices__group",
-            groupHeading: "choices__heading",
-            button: "choices__button",
-            activeState: "is-active",
-            focusState: "is-focused",
-            openState: "is-open",
-            disabledState: "is-disabled",
-            highlightedState: "text-info",
-            selectedState: "text-info",
-            flippedState: "is-flipped",
-            loadingState: "is-loading",
-            noResults: "has-no-results",
-            noChoices: "has-no-choices",
-          },
-        });
+        this.choices = new Choices(selectId, choicesConfig);
         this.choices.passedElement.element.addEventListener(
           "choice",
           (e: any) => {
             this.state.postForm.community_id = Number(e.detail.choice.value);
             this.setState(this.state);
           },
+          false
+        );
+        this.choices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            let communities = (await fetchCommunities(e.detail.value))
+              .communities;
+            this.choices.setChoices(
+              communities.map(cv => communityToChoice(cv)),
+              "value",
+              "label",
+              true
+            );
+          }, 400),
           false
         );
       }

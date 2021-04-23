@@ -13,6 +13,11 @@ import {
   PostResponse,
   CommentResponse,
   Site,
+  ListingType,
+  ListCommunities,
+  ListCommunitiesResponse,
+  GetCommunity,
+  GetPersonDetails,
 } from "lemmy-js-client";
 import { WebSocketService } from "../services";
 import {
@@ -32,6 +37,17 @@ import {
   setOptionalAuth,
   saveScrollPosition,
   restoreScrollPosition,
+  routeListingTypeToEnum,
+  showLocal,
+  isBrowser,
+  choicesConfig,
+  debounce,
+  fetchCommunities,
+  communityToChoice,
+  hostname,
+  fetchUsers,
+  personToChoice,
+  capitalizeFirstLetter,
 } from "../utils";
 import { PostListing } from "./post-listing";
 import { HtmlTags } from "./html-tags";
@@ -39,14 +55,23 @@ import { Spinner } from "./icon";
 import { PersonListing } from "./person-listing";
 import { CommunityLink } from "./community-link";
 import { SortSelect } from "./sort-select";
+import { ListingTypeSelect } from "./listing-type-select";
 import { CommentNodes } from "./comment-nodes";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "shared/interfaces";
+
+var Choices;
+if (isBrowser()) {
+  Choices = require("choices.js");
+}
 
 interface SearchProps {
   q: string;
   type_: SearchType;
   sort: SortType;
+  listingType: ListingType;
+  communityId: number;
+  creatorId: number;
   page: number;
 }
 
@@ -54,8 +79,13 @@ interface SearchState {
   q: string;
   type_: SearchType;
   sort: SortType;
+  listingType: ListingType;
+  communityId: number;
+  creatorId: number;
   page: number;
   searchResponse: SearchResponse;
+  communities: CommunityView[];
+  creator?: PersonViewSafe;
   loading: boolean;
   site: Site;
   searchText: string;
@@ -65,18 +95,30 @@ interface UrlParams {
   q?: string;
   type_?: SearchType;
   sort?: SortType;
+  listingType?: ListingType;
+  communityId?: number;
+  creatorId?: number;
   page?: number;
 }
 
 export class Search extends Component<any, SearchState> {
   private isoData = setIsoData(this.context);
+  private communityChoices: any;
+  private creatorChoices: any;
   private subscription: Subscription;
   private emptyState: SearchState = {
     q: Search.getSearchQueryFromProps(this.props.match.params.q),
     type_: Search.getSearchTypeFromProps(this.props.match.params.type),
     sort: Search.getSortTypeFromProps(this.props.match.params.sort),
+    listingType: Search.getListingTypeFromProps(
+      this.props.match.params.listing_type
+    ),
     page: Search.getPageFromProps(this.props.match.params.page),
     searchText: Search.getSearchQueryFromProps(this.props.match.params.q),
+    communityId: Search.getCommunityIdFromProps(
+      this.props.match.params.community_id
+    ),
+    creatorId: Search.getCreatorIdFromProps(this.props.match.params.creator_id),
     searchResponse: {
       type_: null,
       posts: [],
@@ -86,6 +128,7 @@ export class Search extends Component<any, SearchState> {
     },
     loading: true,
     site: this.isoData.site_res.site_view.site,
+    communities: [],
   };
 
   static getSearchQueryFromProps(q: string): string {
@@ -100,6 +143,18 @@ export class Search extends Component<any, SearchState> {
     return sort ? routeSortTypeToEnum(sort) : SortType.TopAll;
   }
 
+  static getListingTypeFromProps(listingType: string): ListingType {
+    return listingType ? routeListingTypeToEnum(listingType) : ListingType.All;
+  }
+
+  static getCommunityIdFromProps(id: string): number {
+    return id ? Number(id) : 0;
+  }
+
+  static getCreatorIdFromProps(id: string): number {
+    return id ? Number(id) : 0;
+  }
+
   static getPageFromProps(page: string): number {
     return page ? Number(page) : 1;
   }
@@ -109,18 +164,33 @@ export class Search extends Component<any, SearchState> {
 
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.state.q != "") {
-      if (this.isoData.path == this.context.router.route.match.url) {
-        this.state.searchResponse = this.isoData.routeData[0];
+    if (this.isoData.path == this.context.router.route.match.url) {
+      let singleOrMultipleCommunities = this.isoData.routeData[0];
+      if (singleOrMultipleCommunities.communities) {
+        this.state.communities = this.isoData.routeData[0].communities;
+      } else {
+        this.state.communities = [this.isoData.routeData[0].community_view];
+      }
+
+      let creator = this.isoData.routeData[1];
+      if (creator?.person_view) {
+        this.state.creator = this.isoData.routeData[1].person_view;
+      }
+      if (this.state.q != "") {
+        this.state.searchResponse = this.isoData.routeData[2];
         this.state.loading = false;
       } else {
         this.search();
       }
+    } else {
+      this.fetchCommunities();
+      this.search();
     }
   }
 
@@ -129,26 +199,85 @@ export class Search extends Component<any, SearchState> {
     saveScrollPosition(this.context);
   }
 
+  componentDidMount() {
+    this.setupCommunityFilter();
+    this.setupCreatorFilter();
+  }
+
   static getDerivedStateFromProps(props: any): SearchProps {
     return {
       q: Search.getSearchQueryFromProps(props.match.params.q),
       type_: Search.getSearchTypeFromProps(props.match.params.type),
       sort: Search.getSortTypeFromProps(props.match.params.sort),
+      listingType: Search.getListingTypeFromProps(
+        props.match.params.listing_type
+      ),
+      communityId: Search.getCommunityIdFromProps(
+        props.match.params.community_id
+      ),
+      creatorId: Search.getCreatorIdFromProps(props.match.params.creator_id),
       page: Search.getPageFromProps(props.match.params.page),
     };
+  }
+
+  fetchCommunities() {
+    let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.All,
+      sort: SortType.TopAll,
+      limit: fetchLimit,
+      auth: authField(false),
+    };
+    WebSocketService.Instance.send(
+      wsClient.listCommunities(listCommunitiesForm)
+    );
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
+    let communityId = this.getCommunityIdFromProps(pathSplit[11]);
+    if (communityId !== 0) {
+      let getCommunityForm: GetCommunity = {
+        id: communityId,
+      };
+      setOptionalAuth(getCommunityForm, req.auth);
+      promises.push(req.client.getCommunity(getCommunityForm));
+    } else {
+      let listCommunitiesForm: ListCommunities = {
+        type_: ListingType.All,
+        sort: SortType.TopAll,
+        limit: fetchLimit,
+      };
+      setOptionalAuth(listCommunitiesForm, req.auth);
+      promises.push(req.client.listCommunities(listCommunitiesForm));
+    }
+
+    let creatorId = this.getCreatorIdFromProps(pathSplit[13]);
+    if (creatorId !== 0) {
+      let getCreatorForm: GetPersonDetails = {
+        person_id: creatorId,
+      };
+      setOptionalAuth(getCreatorForm, req.auth);
+      promises.push(req.client.getPersonDetails(getCreatorForm));
+    } else {
+      promises.push(Promise.resolve());
+    }
+
     let form: SearchForm = {
       q: this.getSearchQueryFromProps(pathSplit[3]),
       type_: this.getSearchTypeFromProps(pathSplit[5]),
       sort: this.getSortTypeFromProps(pathSplit[7]),
-      page: this.getPageFromProps(pathSplit[9]),
+      listing_type: this.getListingTypeFromProps(pathSplit[9]),
+      page: this.getPageFromProps(pathSplit[15]),
       limit: fetchLimit,
     };
+    if (communityId !== 0) {
+      form.community_id = communityId;
+    }
+    if (creatorId !== 0) {
+      form.creator_id = creatorId;
+    }
     setOptionalAuth(form, req.auth);
 
     if (form.q != "") {
@@ -163,6 +292,9 @@ export class Search extends Component<any, SearchState> {
       lastState.q !== this.state.q ||
       lastState.type_ !== this.state.type_ ||
       lastState.sort !== this.state.sort ||
+      lastState.listingType !== this.state.listingType ||
+      lastState.communityId !== this.state.communityId ||
+      lastState.creatorId !== this.state.creatorId ||
       lastState.page !== this.state.page
     ) {
       this.setState({ loading: true, searchText: this.state.q });
@@ -243,6 +375,13 @@ export class Search extends Component<any, SearchState> {
           <option value={SearchType.Users}>{i18n.t("users")}</option>
         </select>
         <span class="ml-2">
+          <ListingTypeSelect
+            type_={this.state.listingType}
+            showLocal={showLocal(this.isoData)}
+            onChange={this.handleListingTypeChange}
+          />
+        </span>
+        <span class="ml-2">
           <SortSelect
             sort={this.state.sort}
             onChange={this.handleSortChange}
@@ -250,6 +389,10 @@ export class Search extends Component<any, SearchState> {
             hideMostComments
           />
         </span>
+        <div class="form-row">
+          {this.state.communities.length > 0 && this.communityFilter()}
+          {this.creatorFilter()}
+        </div>
       </div>
     );
   }
@@ -413,6 +556,60 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
+  communityFilter() {
+    return (
+      <div class="form-group col-sm-6">
+        <label class="col-form-label" htmlFor="community-filter">
+          {i18n.t("community")}
+        </label>
+        <div>
+          <select
+            class="form-control"
+            id="community-filter"
+            value={this.state.communityId}
+          >
+            <option value="0">{i18n.t("all")}</option>
+            {this.state.communities.map(cv => (
+              <option value={cv.community.id}>
+                {cv.community.local
+                  ? cv.community.name
+                  : `${hostname(cv.community.actor_id)}/${cv.community.name}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  creatorFilter() {
+    return (
+      <div class="form-group col-sm-6">
+        <label class="col-form-label" htmlFor="creator-filter">
+          {capitalizeFirstLetter(i18n.t("creator"))}
+        </label>
+        <div>
+          <select
+            class="form-control"
+            id="creator-filter"
+            value={this.state.creatorId}
+          >
+            <option value="0">{i18n.t("all")}</option>
+            {this.state.creator && (
+              <option value={this.state.creator.person.id}>
+                {this.state.creator.person.local
+                  ? this.state.creator.person.name
+                  : `${hostname(this.state.creator.person.actor_id)}/${
+                      this.state.creator.person.name
+                    }`}
+              </option>
+            )}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
   paginator() {
     return (
       <div class="mt-2">
@@ -460,13 +657,73 @@ export class Search extends Component<any, SearchState> {
       q: this.state.q,
       type_: this.state.type_,
       sort: this.state.sort,
+      listing_type: this.state.listingType,
       page: this.state.page,
       limit: fetchLimit,
       auth: authField(false),
     };
+    if (this.state.communityId !== 0) {
+      form.community_id = this.state.communityId;
+    }
+    if (this.state.creatorId !== 0) {
+      form.creator_id = this.state.creatorId;
+    }
 
     if (this.state.q != "") {
       WebSocketService.Instance.send(wsClient.search(form));
+    }
+  }
+
+  setupCommunityFilter() {
+    if (isBrowser()) {
+      let selectId: any = document.getElementById("community-filter");
+      if (selectId) {
+        this.communityChoices = new Choices(selectId, choicesConfig);
+        this.communityChoices.passedElement.element.addEventListener(
+          "choice",
+          (e: any) => {
+            this.handleCommunityFilterChange(Number(e.detail.choice.value));
+          },
+          false
+        );
+        this.communityChoices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            let communities = (await fetchCommunities(e.detail.value))
+              .communities;
+            let choices = communities.map(cv => communityToChoice(cv));
+            choices.unshift({ value: "0", label: i18n.t("all") });
+            this.communityChoices.setChoices(choices, "value", "label", true);
+          }, 400),
+          false
+        );
+      }
+    }
+  }
+
+  setupCreatorFilter() {
+    if (isBrowser()) {
+      let selectId: any = document.getElementById("creator-filter");
+      if (selectId) {
+        this.creatorChoices = new Choices(selectId, choicesConfig);
+        this.creatorChoices.passedElement.element.addEventListener(
+          "choice",
+          (e: any) => {
+            this.handleCreatorFilterChange(Number(e.detail.choice.value));
+          },
+          false
+        );
+        this.creatorChoices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            let creators = (await fetchUsers(e.detail.value)).users;
+            let choices = creators.map(pvs => personToChoice(pvs));
+            choices.unshift({ value: "0", label: i18n.t("all") });
+            this.creatorChoices.setChoices(choices, "value", "label", true);
+          }, 400),
+          false
+        );
+      }
     }
   }
 
@@ -481,11 +738,35 @@ export class Search extends Component<any, SearchState> {
     });
   }
 
+  handleListingTypeChange(val: ListingType) {
+    this.updateUrl({
+      listingType: val,
+      page: 1,
+    });
+  }
+
+  handleCommunityFilterChange(communityId: number) {
+    this.updateUrl({
+      communityId,
+      page: 1,
+    });
+  }
+
+  handleCreatorFilterChange(creatorId: number) {
+    this.updateUrl({
+      creatorId,
+      page: 1,
+    });
+  }
+
   handleSearchSubmit(i: Search, event: any) {
     event.preventDefault();
     i.updateUrl({
       q: i.state.searchText,
       type_: i.state.type_,
+      listingType: i.state.listingType,
+      communityId: i.state.communityId,
+      creatorId: i.state.creatorId,
       sort: i.state.sort,
       page: i.state.page,
     });
@@ -499,10 +780,19 @@ export class Search extends Component<any, SearchState> {
     const qStr = paramUpdates.q || this.state.q;
     const qStrEncoded = encodeURIComponent(qStr);
     const typeStr = paramUpdates.type_ || this.state.type_;
+    const listingTypeStr = paramUpdates.listingType || this.state.listingType;
     const sortStr = paramUpdates.sort || this.state.sort;
+    const communityId =
+      paramUpdates.communityId == 0
+        ? 0
+        : paramUpdates.communityId || this.state.communityId;
+    const creatorId =
+      paramUpdates.creatorId == 0
+        ? 0
+        : paramUpdates.creatorId || this.state.creatorId;
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
-      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/page/${page}`
+      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/listing_type/${listingTypeStr}/community_id/${communityId}/creator_id/${creatorId}/page/${page}`
     );
   }
 
@@ -530,6 +820,11 @@ export class Search extends Component<any, SearchState> {
       let data = wsJsonToRes<PostResponse>(msg).data;
       createPostLikeFindRes(data.post_view, this.state.searchResponse.posts);
       this.setState(this.state);
+    } else if (op == UserOperation.ListCommunities) {
+      let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
+      this.state.communities = data.communities;
+      this.setState(this.state);
+      this.setupCommunityFilter();
     }
   }
 }

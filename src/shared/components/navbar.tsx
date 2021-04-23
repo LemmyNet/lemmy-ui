@@ -134,7 +134,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     } else {
       const searchParamEncoded = encodeURIComponent(searchParam);
       this.context.router.history.push(
-        `/search/q/${searchParamEncoded}/type/All/sort/TopAll/page/1`
+        `/search/q/${searchParamEncoded}/type/All/sort/TopAll/listing_type/All/community_id/0/creator_id/0/page/1`
       );
     }
   }

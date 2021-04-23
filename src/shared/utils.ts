@@ -46,6 +46,7 @@ import {
   LemmyWebsocket,
   PersonViewSafe,
   CommunityView,
+  LemmyHttp,
 } from "lemmy-js-client";
 
 import {
@@ -70,6 +71,7 @@ import moment from "moment";
 import { Subscription } from "rxjs";
 import { retryWhen, delay, take } from "rxjs/operators";
 import { i18n } from "./i18next";
+import { httpBase } from "./env";
 
 export const wsClient = new LemmyWebsocket();
 
@@ -747,6 +749,7 @@ function personSearch(text: string, cb: (persons: PersonTribute[]) => any) {
       q: text,
       type_: SearchType.Users,
       sort: SortType.TopAll,
+      listing_type: ListingType.All,
       page: 1,
       limit: mentionDropdownFetchLimit,
       auth: authField(false),
@@ -792,6 +795,7 @@ function communitySearch(
       q: text,
       type_: SearchType.Communities,
       sort: SortType.TopAll,
+      listing_type: ListingType.All,
       page: 1,
       limit: mentionDropdownFetchLimit,
       auth: authField(false),
@@ -1226,3 +1230,89 @@ export function restoreScrollPosition(context: any) {
   let y = Number(sessionStorage.getItem(`scrollPosition_${path}`));
   window.scrollTo(0, y);
 }
+
+export function showLocal(isoData: IsoData): boolean {
+  return isoData.site_res.federated_instances?.linked.length > 0;
+}
+
+interface ChoicesValue {
+  value: string;
+  label: string;
+}
+
+export function communityToChoice(cv: CommunityView): ChoicesValue {
+  let choice: ChoicesValue = {
+    value: cv.community.id.toString(),
+    label: cv.community.name,
+  };
+  return choice;
+}
+
+export function personToChoice(pvs: PersonViewSafe): ChoicesValue {
+  let choice: ChoicesValue = {
+    value: pvs.person.id.toString(),
+    label: pvs.person.name,
+  };
+  return choice;
+}
+
+export async function fetchCommunities(q: string) {
+  let form: Search = {
+    q,
+    type_: SearchType.Communities,
+    sort: SortType.TopAll,
+    listing_type: ListingType.All,
+    page: 1,
+    limit: fetchLimit,
+    auth: authField(false),
+  };
+  let client = new LemmyHttp(httpBase);
+  return client.search(form);
+}
+
+export async function fetchUsers(q: string) {
+  let form: Search = {
+    q,
+    type_: SearchType.Users,
+    sort: SortType.TopAll,
+    listing_type: ListingType.All,
+    page: 1,
+    limit: fetchLimit,
+    auth: authField(false),
+  };
+  let client = new LemmyHttp(httpBase);
+  return client.search(form);
+}
+
+export const choicesConfig = {
+  shouldSort: false,
+  searchResultLimit: fetchLimit,
+  classNames: {
+    containerOuter: "choices",
+    containerInner: "choices__inner bg-light border-0",
+    input: "form-control",
+    inputCloned: "choices__input--cloned",
+    list: "choices__list",
+    listItems: "choices__list--multiple",
+    listSingle: "choices__list--single",
+    listDropdown: "choices__list--dropdown",
+    item: "choices__item bg-light",
+    itemSelectable: "choices__item--selectable",
+    itemDisabled: "choices__item--disabled",
+    itemChoice: "choices__item--choice",
+    placeholder: "choices__placeholder",
+    group: "choices__group",
+    groupHeading: "choices__heading",
+    button: "choices__button",
+    activeState: "is-active",
+    focusState: "is-focused",
+    openState: "is-open",
+    disabledState: "is-disabled",
+    highlightedState: "text-info",
+    selectedState: "text-info",
+    flippedState: "is-flipped",
+    loadingState: "is-loading",
+    noResults: "has-no-results",
+    noChoices: "has-no-choices",
+  },
+};

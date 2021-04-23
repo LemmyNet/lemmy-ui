@@ -21,6 +21,7 @@ import {
   SearchResponse,
   GetSiteResponse,
   GetCommunityResponse,
+  ListingType,
 } from "lemmy-js-client";
 import {
   CommentSortType,
@@ -132,6 +133,7 @@ export class Post extends Component<any, PostState> {
         q: this.state.postRes.post_view.post.url,
         type_: SearchType.Url,
         sort: SortType.TopAll,
+        listing_type: ListingType.All,
         page: 1,
         limit: 6,
         auth: authField(false),

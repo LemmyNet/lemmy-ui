@@ -3,7 +3,7 @@ import { Prompt } from "inferno-router";
 import { MarkdownTextArea } from "./markdown-textarea";
 import { Spinner } from "./icon";
 import { ImageUploadForm } from "./image-upload-form";
-import { Site, EditSite } from "lemmy-js-client";
+import { Site, EditSite, CreateSite } from "lemmy-js-client";
 import { WebSocketService } from "../services";
 import {
   authField,
@@ -250,7 +250,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     if (i.props.site) {
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
     } else {
-      WebSocketService.Instance.send(wsClient.createSite(i.state.siteForm));
+      let form: CreateSite = {
+        name: i.state.siteForm.name || "My site",
+        ...i.state.siteForm,
+      };
+      WebSocketService.Instance.send(wsClient.createSite(form));
     }
     i.setState(i.state);
   }

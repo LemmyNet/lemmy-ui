@@ -5,6 +5,7 @@ import { HtmlTags } from "./html-tags";
 import { Spinner } from "./icon";
 import {
   authField,
+  fetchLimit,
   isBrowser,
   setIsoData,
   setOptionalAuth,
@@ -24,6 +25,8 @@ import {
   SortType,
   ListingType,
   PostView,
+  GetCommunity,
+  GetCommunityResponse,
 } from "lemmy-js-client";
 import { i18n } from "../i18next";
 import { InitialFetchRequest, PostFormParams } from "shared/interfaces";
@@ -66,15 +69,27 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   refetch() {
-    let listCommunitiesForm: ListCommunities = {
-      type_: ListingType.All,
-      sort: SortType.TopAll,
-      limit: 9999,
-      auth: authField(false),
-    };
-    WebSocketService.Instance.send(
-      wsClient.listCommunities(listCommunitiesForm)
-    );
+    if (this.params.community_id) {
+      let form: GetCommunity = {
+        id: this.params.community_id,
+      };
+      WebSocketService.Instance.send(wsClient.getCommunity(form));
+    } else if (this.params.community_name) {
+      let form: GetCommunity = {
+        name: this.params.community_name,
+      };
+      WebSocketService.Instance.send(wsClient.getCommunity(form));
+    } else {
+      let listCommunitiesForm: ListCommunities = {
+        type_: ListingType.All,
+        sort: SortType.TopAll,
+        limit: fetchLimit,
+        auth: authField(false),
+      };
+      WebSocketService.Instance.send(
+        wsClient.listCommunities(listCommunitiesForm)
+      );
+    }
   }
 
   componentWillUnmount() {
@@ -163,7 +178,7 @@ export class CreatePost extends Component<any, CreatePostState> {
     let listCommunitiesForm: ListCommunities = {
       type_: ListingType.All,
       sort: SortType.TopAll,
-      limit: 9999,
+      limit: fetchLimit,
     };
     setOptionalAuth(listCommunitiesForm, req.auth);
     return [req.client.listCommunities(listCommunitiesForm)];
@@ -178,6 +193,11 @@ export class CreatePost extends Component<any, CreatePostState> {
     } else if (op == UserOperation.ListCommunities) {
       let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
       this.state.communities = data.communities;
+      this.state.loading = false;
+      this.setState(this.state);
+    } else if (op == UserOperation.GetCommunity) {
+      let data = wsJsonToRes<GetCommunityResponse>(msg).data;
+      this.state.communities = [data.community_view];
       this.state.loading = false;
       this.setState(this.state);
     }
