@@ -1,5 +1,5 @@
 import { Component, linkEvent, createRef, RefObject } from "inferno";
-import { Link } from "inferno-router";
+import { NavLink } from "inferno-router";
 import { Subscription } from "rxjs";
 import { WebSocketService, UserService } from "../services";
 import {
@@ -171,8 +171,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     this.userSub.unsubscribe();
     this.unreadCountSub.unsubscribe();
   }
-
-  // TODO class active corresponding to current page
+  
   navbar() {
     let localUserView =
       UserService.Instance.localUserView || this.props.site_res.my_user;
@@ -180,10 +179,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
           {this.props.site_res.site_view && (
-            <Link
+            <NavLink
               title={this.props.site_res.version}
               className="d-flex align-items-center navbar-brand mr-md-3"
               to="/"
+              exact={true}
             >
               {this.props.site_res.site_view.site.icon && showAvatars() && (
                 <PictrsImage
@@ -192,10 +192,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 />
               )}
               {this.props.site_res.site_view.site.name}
-            </Link>
+            </NavLink>
           )}
           {this.state.isLoggedIn && (
-            <Link
+            <NavLink
               className="ml-auto p-1 navbar-toggler nav-link border-0"
               to="/inbox"
               title={i18n.t("inbox")}
@@ -211,7 +211,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {this.state.unreadCount}
                 </span>
               )}
-            </Link>
+            </NavLink>
           )}
           <button
             class="navbar-toggler border-0 p-1"
@@ -227,16 +227,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           >
             <ul class="navbar-nav my-2 mr-auto">
               <li class="nav-item">
-                <Link
+                <NavLink
                   className="nav-link"
                   to="/communities"
                   title={i18n.t("communities")}
                 >
                   {i18n.t("communities")}
-                </Link>
+                </NavLink>
               </li>
               <li class="nav-item">
-                <Link
+                <NavLink
                   className="nav-link"
                   to={{
                     pathname: "/create_post",
@@ -245,16 +245,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   title={i18n.t("create_post")}
                 >
                   {i18n.t("create_post")}
-                </Link>
+                </NavLink>
               </li>
               <li class="nav-item">
-                <Link
+                <NavLink
                   className="nav-link"
                   to="/create_community"
                   title={i18n.t("create_community")}
                 >
                   {i18n.t("create_community")}
-                </Link>
+                </NavLink>
               </li>
               <li class="nav-item">
                 <a
@@ -269,13 +269,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <ul class="navbar-nav my-2">
               {this.canAdmin && (
                 <li className="nav-item">
-                  <Link
+                  <NavLink
                     className="nav-link"
                     to={`/admin`}
                     title={i18n.t("admin_settings")}
                   >
                     <Icon icon="settings" />
-                  </Link>
+                  </NavLink>
                 </li>
               )}
             </ul>
@@ -289,7 +289,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <input
                   id="search-input"
                   class={`form-control mr-0 search-input ${
-                    this.state.toggleSearch ? "show-input" : "hide-input"
+                      this.state.toggleSearch ? "show-input" : "hide-input"
                   }`}
                   onInput={linkEvent(this, this.handleSearchParam)}
                   value={this.state.searchParam}
@@ -297,7 +297,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   type="text"
                   placeholder={i18n.t("search")}
                   onBlur={linkEvent(this, this.handleSearchBlur)}
-                ></input>
+                  />
                 <label class="sr-only" htmlFor="search-input">
                   {i18n.t("search")}
                 </label>
@@ -316,7 +316,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <>
                 <ul class="navbar-nav my-2">
                   <li className="nav-item">
-                    <Link
+                    <NavLink
                       className="nav-link"
                       to="/inbox"
                       title={i18n.t("inbox")}
@@ -332,12 +332,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           {this.state.unreadCount}
                         </span>
                       )}
-                    </Link>
+                    </NavLink>
                   </li>
                 </ul>
                 <ul class="navbar-nav">
                   <li className="nav-item">
-                    <Link
+                    <NavLink
                       className="nav-link"
                       to={`/u/${localUserView.person.name}`}
                       title={i18n.t("settings")}
@@ -350,20 +350,20 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           ? localUserView.person.display_name
                           : localUserView.person.name}
                       </span>
-                    </Link>
+                    </NavLink>
                   </li>
                 </ul>
               </>
             ) : (
               <ul class="navbar-nav my-2">
                 <li className="ml-2 nav-item">
-                  <Link
+                  <NavLink
                     className="btn btn-success"
                     to="/login"
                     title={i18n.t("login_sign_up")}
                   >
                     {i18n.t("login_sign_up")}
-                  </Link>
+                  </NavLink>
                 </li>
               </ul>
             )}

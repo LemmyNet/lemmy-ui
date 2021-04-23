@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { Link } from "inferno-router";
+import { NavLink } from "inferno-router";
 import { i18n } from "../i18next";
 import { repoUrl, joinLemmyUrl, docsUrl } from "../utils";
 import { GetSiteResponse } from "lemmy-js-client";
@@ -22,15 +22,15 @@ export class Footer extends Component<FooterProps, any> {
               <span class="navbar-text">{this.props.site.version}</span>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/modlog">
+              <NavLink className="nav-link" to="/modlog">
                 {i18n.t("modlog")}
-              </Link>
+              </NavLink>
             </li>
             {this.props.site.federated_instances && (
               <li class="nav-item">
-                <Link className="nav-link" to="/instances">
+                <NavLink className="nav-link" to="/instances">
                   {i18n.t("instances")}
-                </Link>
+                </NavLink>
               </li>
             )}
             <li class="nav-item">
