@@ -628,6 +628,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       } else if (data.type_ == SearchType[SearchType.Url]) {
         this.state.crossPosts = data.posts;
       }
+      this.setState(this.state);
     }
   }
 }
