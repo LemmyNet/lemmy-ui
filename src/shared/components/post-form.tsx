@@ -16,7 +16,6 @@ import {
   SearchType,
   SearchResponse,
   ListingType,
-  LemmyHttp,
 } from "lemmy-js-client";
 import { WebSocketService, UserService } from "../services";
 import { PostFormParams } from "../interfaces";
@@ -39,7 +38,8 @@ import {
   wsClient,
   authField,
   communityToChoice,
-  fetchLimit,
+  fetchCommunities,
+  choicesConfig,
 } from "../utils";
 import autosize from "autosize";
 
@@ -49,7 +49,7 @@ if (isBrowser()) {
 }
 
 import { i18n } from "../i18next";
-import { httpBase, pictrsUri } from "../env";
+import { pictrsUri } from "../env";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -456,20 +456,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.setState(this.state);
   }
 
-  async fetchCommunities(q: string) {
-    let form: Search = {
-      q,
-      type_: SearchType.Communities,
-      sort: SortType.TopAll,
-      listing_type: ListingType.All,
-      page: 1,
-      limit: fetchLimit,
-      auth: authField(false),
-    };
-    let client = new LemmyHttp(httpBase);
-    return client.search(form);
-  }
-
   handlePostBodyChange(val: string) {
     this.state.postForm.body = val;
     this.setState(this.state);
@@ -556,37 +542,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (isBrowser()) {
       let selectId: any = document.getElementById("post-community");
       if (selectId) {
-        this.choices = new Choices(selectId, {
-          shouldSort: false,
-          classNames: {
-            containerOuter: "choices",
-            containerInner: "choices__inner bg-light border-0",
-            input: "form-control",
-            inputCloned: "choices__input--cloned",
-            list: "choices__list",
-            listItems: "choices__list--multiple",
-            listSingle: "choices__list--single",
-            listDropdown: "choices__list--dropdown",
-            item: "choices__item bg-light",
-            itemSelectable: "choices__item--selectable",
-            itemDisabled: "choices__item--disabled",
-            itemChoice: "choices__item--choice",
-            placeholder: "choices__placeholder",
-            group: "choices__group",
-            groupHeading: "choices__heading",
-            button: "choices__button",
-            activeState: "is-active",
-            focusState: "is-focused",
-            openState: "is-open",
-            disabledState: "is-disabled",
-            highlightedState: "text-info",
-            selectedState: "text-info",
-            flippedState: "is-flipped",
-            loadingState: "is-loading",
-            noResults: "has-no-results",
-            noChoices: "has-no-choices",
-          },
-        });
+        this.choices = new Choices(selectId, choicesConfig);
         this.choices.passedElement.element.addEventListener(
           "choice",
           (e: any) => {
@@ -598,7 +554,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         this.choices.passedElement.element.addEventListener(
           "search",
           debounce(async (e: any) => {
-            let communities = (await this.fetchCommunities(e.detail.value))
+            let communities = (await fetchCommunities(e.detail.value))
               .communities;
             this.choices.setChoices(
               communities.map(cv => communityToChoice(cv)),

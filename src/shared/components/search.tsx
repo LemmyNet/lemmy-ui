@@ -14,6 +14,9 @@ import {
   CommentResponse,
   Site,
   ListingType,
+  ListCommunities,
+  ListCommunitiesResponse,
+  GetCommunity,
 } from "lemmy-js-client";
 import { WebSocketService } from "../services";
 import {
@@ -35,6 +38,12 @@ import {
   restoreScrollPosition,
   routeListingTypeToEnum,
   showLocal,
+  isBrowser,
+  choicesConfig,
+  debounce,
+  fetchCommunities,
+  communityToChoice,
+  hostname,
 } from "../utils";
 import { PostListing } from "./post-listing";
 import { HtmlTags } from "./html-tags";
@@ -47,11 +56,17 @@ import { CommentNodes } from "./comment-nodes";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "shared/interfaces";
 
+var Choices;
+if (isBrowser()) {
+  Choices = require("choices.js");
+}
+
 interface SearchProps {
   q: string;
   type_: SearchType;
   sort: SortType;
   listingType: ListingType;
+  communityId: number;
   page: number;
 }
 
@@ -60,8 +75,10 @@ interface SearchState {
   type_: SearchType;
   sort: SortType;
   listingType: ListingType;
+  communityId: number;
   page: number;
   searchResponse: SearchResponse;
+  communities: CommunityView[];
   loading: boolean;
   site: Site;
   searchText: string;
@@ -72,11 +89,13 @@ interface UrlParams {
   type_?: SearchType;
   sort?: SortType;
   listingType?: ListingType;
+  communityId?: number;
   page?: number;
 }
 
 export class Search extends Component<any, SearchState> {
   private isoData = setIsoData(this.context);
+  private choices: any;
   private subscription: Subscription;
   private emptyState: SearchState = {
     q: Search.getSearchQueryFromProps(this.props.match.params.q),
@@ -87,6 +106,9 @@ export class Search extends Component<any, SearchState> {
     ),
     page: Search.getPageFromProps(this.props.match.params.page),
     searchText: Search.getSearchQueryFromProps(this.props.match.params.q),
+    communityId: Search.getCommunityIdFromProps(
+      this.props.match.params.community_id
+    ),
     searchResponse: {
       type_: null,
       posts: [],
@@ -96,6 +118,7 @@ export class Search extends Component<any, SearchState> {
     },
     loading: true,
     site: this.isoData.site_res.site_view.site,
+    communities: [],
   };
 
   static getSearchQueryFromProps(q: string): string {
@@ -114,6 +137,10 @@ export class Search extends Component<any, SearchState> {
     return listingType ? routeListingTypeToEnum(listingType) : ListingType.All;
   }
 
+  static getCommunityIdFromProps(id: string): number {
+    return id ? Number(id) : 0;
+  }
+
   static getPageFromProps(page: string): number {
     return page ? Number(page) : 1;
   }
@@ -129,19 +156,32 @@ export class Search extends Component<any, SearchState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.state.q != "") {
-      if (this.isoData.path == this.context.router.route.match.url) {
-        this.state.searchResponse = this.isoData.routeData[0];
+    if (this.isoData.path == this.context.router.route.match.url) {
+      let singleOrMultipleCommunities = this.isoData.routeData[0];
+      if (singleOrMultipleCommunities.communities) {
+        this.state.communities = this.isoData.routeData[0].communities;
+      } else {
+        this.state.communities = [this.isoData.routeData[0].community_view];
+      }
+      if (this.state.q != "") {
+        this.state.searchResponse = this.isoData.routeData[1];
         this.state.loading = false;
       } else {
         this.search();
       }
+    } else {
+      this.fetchCommunities();
+      this.search();
     }
   }
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
     saveScrollPosition(this.context);
+  }
+
+  componentDidMount() {
+    this.setupCommunityFilter();
   }
 
   static getDerivedStateFromProps(props: any): SearchProps {
@@ -152,22 +192,57 @@ export class Search extends Component<any, SearchState> {
       listingType: Search.getListingTypeFromProps(
         props.match.params.listing_type
       ),
+      communityId: Search.getCommunityIdFromProps(
+        props.match.params.community_id
+      ),
       page: Search.getPageFromProps(props.match.params.page),
     };
+  }
+
+  fetchCommunities() {
+    let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.All,
+      sort: SortType.TopAll,
+      limit: fetchLimit,
+      auth: authField(false),
+    };
+    WebSocketService.Instance.send(
+      wsClient.listCommunities(listCommunitiesForm)
+    );
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
+    let cId = this.getCommunityIdFromProps(pathSplit[11]);
+    if (cId !== 0) {
+      let f: GetCommunity = {
+        id: cId,
+      };
+      setOptionalAuth(f, req.auth);
+      promises.push(req.client.getCommunity(f));
+    } else {
+      let listCommunitiesForm: ListCommunities = {
+        type_: ListingType.All,
+        sort: SortType.TopAll,
+        limit: fetchLimit,
+      };
+      setOptionalAuth(listCommunitiesForm, req.auth);
+      promises.push(req.client.listCommunities(listCommunitiesForm));
+    }
+
     let form: SearchForm = {
       q: this.getSearchQueryFromProps(pathSplit[3]),
       type_: this.getSearchTypeFromProps(pathSplit[5]),
       sort: this.getSortTypeFromProps(pathSplit[7]),
       listing_type: this.getListingTypeFromProps(pathSplit[9]),
-      page: this.getPageFromProps(pathSplit[11]),
+      page: this.getPageFromProps(pathSplit[13]),
       limit: fetchLimit,
     };
+    if (cId !== 0) {
+      form.community_id = cId;
+    }
     setOptionalAuth(form, req.auth);
 
     if (form.q != "") {
@@ -183,6 +258,7 @@ export class Search extends Component<any, SearchState> {
       lastState.type_ !== this.state.type_ ||
       lastState.sort !== this.state.sort ||
       lastState.listingType !== this.state.listingType ||
+      lastState.communityId !== this.state.communityId ||
       lastState.page !== this.state.page
     ) {
       this.setState({ loading: true, searchText: this.state.q });
@@ -277,6 +353,7 @@ export class Search extends Component<any, SearchState> {
             hideMostComments
           />
         </span>
+        {this.state.communities.length > 0 && this.communityFilter()}
       </div>
     );
   }
@@ -440,6 +517,32 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
+  communityFilter() {
+    return (
+      <div class="form-group row">
+        <label class="col-sm-2 col-form-label" htmlFor="post-community">
+          {i18n.t("community")}
+        </label>
+        <div class="col-sm-4">
+          <select
+            class="form-control"
+            id="community-filter"
+            value={this.state.communityId}
+          >
+            <option value="0">{i18n.t("all")}</option>
+            {this.state.communities.map(cv => (
+              <option value={cv.community.id}>
+                {cv.community.local
+                  ? cv.community.name
+                  : `${hostname(cv.community.actor_id)}/${cv.community.name}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
   paginator() {
     return (
       <div class="mt-2">
@@ -492,9 +595,42 @@ export class Search extends Component<any, SearchState> {
       limit: fetchLimit,
       auth: authField(false),
     };
+    if (this.state.communityId !== 0) {
+      form.community_id = this.state.communityId;
+    }
 
     if (this.state.q != "") {
       WebSocketService.Instance.send(wsClient.search(form));
+    }
+  }
+
+  setupCommunityFilter() {
+    if (isBrowser()) {
+      let selectId: any = document.getElementById("community-filter");
+      if (selectId) {
+        this.choices = new Choices(selectId, choicesConfig);
+        this.choices.passedElement.element.addEventListener(
+          "choice",
+          (e: any) => {
+            this.handleCommunityFilterChange(Number(e.detail.choice.value));
+          },
+          false
+        );
+        this.choices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            let communities = (await fetchCommunities(e.detail.value))
+              .communities;
+            this.choices.setChoices(
+              communities.map(cv => communityToChoice(cv)),
+              "value",
+              "label",
+              true
+            );
+          }, 400),
+          false
+        );
+      }
     }
   }
 
@@ -516,12 +652,20 @@ export class Search extends Component<any, SearchState> {
     });
   }
 
+  handleCommunityFilterChange(communityId: number) {
+    this.updateUrl({
+      communityId,
+      page: 1,
+    });
+  }
+
   handleSearchSubmit(i: Search, event: any) {
     event.preventDefault();
     i.updateUrl({
       q: i.state.searchText,
       type_: i.state.type_,
       listingType: i.state.listingType,
+      communityId: i.state.communityId,
       sort: i.state.sort,
       page: i.state.page,
     });
@@ -537,9 +681,11 @@ export class Search extends Component<any, SearchState> {
     const typeStr = paramUpdates.type_ || this.state.type_;
     const listingTypeStr = paramUpdates.listingType || this.state.listingType;
     const sortStr = paramUpdates.sort || this.state.sort;
+    const communityId =
+      paramUpdates.communityId || "0" || this.state.communityId;
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
-      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/listing_type/${listingTypeStr}/page/${page}`
+      `/search/q/${qStrEncoded}/type/${typeStr}/sort/${sortStr}/listing_type/${listingTypeStr}/community_id/${communityId}/page/${page}`
     );
   }
 
@@ -567,6 +713,11 @@ export class Search extends Component<any, SearchState> {
       let data = wsJsonToRes<PostResponse>(msg).data;
       createPostLikeFindRes(data.post_view, this.state.searchResponse.posts);
       this.setState(this.state);
+    } else if (op == UserOperation.ListCommunities) {
+      let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
+      this.state.communities = data.communities;
+      this.setState(this.state);
+      this.setupCommunityFilter();
     }
   }
 }
