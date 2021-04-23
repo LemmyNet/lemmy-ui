@@ -42,9 +42,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     super(props, context);
 
     this.state = this.emptyState;
-    this.handleSiteDescriptionChange = this.handleSiteDescriptionChange.bind(
-      this
-    );
+    this.handleSiteSidebarChange = this.handleSiteSidebarChange.bind(this);
 
     this.handleIconUpload = this.handleIconUpload.bind(this);
     this.handleIconRemove = this.handleIconRemove.bind(this);
@@ -55,6 +53,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     if (this.props.site) {
       this.state.siteForm = {
         name: this.props.site.name,
+        sidebar: this.props.site.sidebar,
         description: this.props.site.description,
         enable_downvotes: this.props.site.enable_downvotes,
         open_registration: this.props.site.open_registration,
@@ -76,7 +75,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     if (
       !this.state.loading &&
       !this.props.site &&
-      (this.state.siteForm.name || this.state.siteForm.description)
+      (this.state.siteForm.name ||
+        this.state.siteForm.sidebar ||
+        this.state.siteForm.description)
     ) {
       window.onbeforeunload = () => true;
     } else {
@@ -95,7 +96,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           when={
             !this.state.loading &&
             !this.props.site &&
-            (this.state.siteForm.name || this.state.siteForm.description)
+            (this.state.siteForm.name ||
+              this.state.siteForm.sidebar ||
+              this.state.siteForm.description)
           }
           message={i18n.t("block_leaving")}
         />
@@ -142,13 +145,28 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
           <div class="form-group row">
+            <label class="col-12 col-form-label" htmlFor="site-desc">
+              {i18n.t("description")}
+            </label>
+            <div class="col-12">
+              <input
+                type="text"
+                class="form-control"
+                id="site-desc"
+                value={this.state.siteForm.description}
+                onInput={linkEvent(this, this.handleSiteDescChange)}
+                maxLength={150}
+              />
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-12 col-form-label" htmlFor={this.id}>
               {i18n.t("sidebar")}
             </label>
             <div class="col-12">
               <MarkdownTextArea
-                initialContent={this.state.siteForm.description}
-                onContentChange={this.handleSiteDescriptionChange}
+                initialContent={this.state.siteForm.sidebar}
+                onContentChange={this.handleSiteSidebarChange}
                 hideNavigationWarnings
               />
             </div>
@@ -264,9 +282,14 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
-  handleSiteDescriptionChange(val: string) {
-    this.state.siteForm.description = val;
+  handleSiteSidebarChange(val: string) {
+    this.state.siteForm.sidebar = val;
     this.setState(this.state);
+  }
+
+  handleSiteDescChange(i: SiteForm, event: any) {
+    i.state.siteForm.description = event.target.value;
+    i.setState(i.state);
   }
 
   handleSiteEnableNsfwChange(i: SiteForm, event: any) {
