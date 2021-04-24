@@ -247,15 +247,17 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {i18n.t("create_post")}
                 </Link>
               </li>
-              <li class="nav-item">
-                <Link
-                  className="nav-link"
-                  to="/create_community"
-                  title={i18n.t("create_community")}
-                >
-                  {i18n.t("create_community")}
-                </Link>
-              </li>
+              {this.canCreateCommunity && (
+                <li class="nav-item">
+                  <Link
+                    className="nav-link"
+                    to="/create_community"
+                    title={i18n.t("create_community")}
+                  >
+                    {i18n.t("create_community")}
+                  </Link>
+                </li>
+              )}
               <li class="nav-item">
                 <a
                   className="nav-link"
@@ -522,6 +524,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         .map(a => a.person.id)
         .includes(UserService.Instance.localUserView.person.id)
     );
+  }
+
+  get canCreateCommunity(): boolean {
+    let adminOnly = this.props.site_res.site_view.site
+      .community_creation_admin_only;
+    return !adminOnly || this.canAdmin;
   }
 
   requestNotificationPermission() {
