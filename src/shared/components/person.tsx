@@ -439,12 +439,23 @@ export class Person extends Component<any, PersonState> {
                   {i18n.t("logout")}
                 </button>
               ) : (
-                <Link
-                  className={"d-flex align-self-start btn btn-secondary"}
-                  to={`/create_private_message/recipient/${pv.person.id}`}
-                >
-                  {i18n.t("send_message")}
-                </Link>
+                <>
+                  <a
+                    className={`d-flex align-self-start btn btn-secondary mr-2 ${
+                      !pv.person.matrix_user_id && "invisible"
+                    }`}
+                    rel="noopener"
+                    href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
+                  >
+                    {i18n.t("send_secure_message")}
+                  </a>
+                  <Link
+                    className={"d-flex align-self-start btn btn-secondary"}
+                    to={`/create_private_message/recipient/${pv.person.id}`}
+                  >
+                    {i18n.t("send_message")}
+                  </Link>
+                </>
               )}
             </div>
             {pv.person.bio && (
@@ -483,21 +494,6 @@ export class Person extends Component<any, PersonState> {
       </div>
     );
   }
-
-  // TODO this isn't used currently
-  // matrixButton() {
-  //   return (
-  //     <a
-  //     className={`d-flex align-self-start btn btn-secondary mr-2 ${
-  //       !pv.local_user.matrix_user_id && "invisible"
-  //     }`}
-  //     rel="noopener"
-  //     href={`https://matrix.to/#/${pv.local_user.matrix_user_id}`}
-  //   >
-  //       {i18n.t("send_secure_message")}
-  //   </a>
-  //   );
-  // }
 
   userSettings() {
     return (
@@ -801,6 +797,37 @@ export class Person extends Component<any, PersonState> {
             <div class="form-check">
               <input
                 class="form-check-input"
+                id="user-bot-account"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.bot_account}
+                onChange={linkEvent(this, this.handleUserSettingsBotAccount)}
+              />
+              <label class="form-check-label" htmlFor="user-bot-account">
+                {i18n.t("bot_account")}
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                id="user-show-bot-accounts"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_bot_accounts}
+                onChange={linkEvent(
+                  this,
+                  this.handleUserSettingsShowBotAccounts
+                )}
+              />
+              <label class="form-check-label" htmlFor="user-show-bot-accounts">
+                {i18n.t("show_bot_accounts")}
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <input
+                class="form-check-input"
                 id="user-send-notifications-to-email"
                 type="checkbox"
                 disabled={!this.state.saveUserSettingsForm.email}
@@ -967,6 +994,16 @@ export class Person extends Component<any, PersonState> {
     i.state.saveUserSettingsForm.show_avatars = event.target.checked;
     UserService.Instance.localUserView.local_user.show_avatars =
       event.target.checked; // Just for instant updates
+    i.setState(i.state);
+  }
+
+  handleUserSettingsBotAccount(i: Person, event: any) {
+    i.state.saveUserSettingsForm.bot_account = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleUserSettingsShowBotAccounts(i: Person, event: any) {
+    i.state.saveUserSettingsForm.show_bot_accounts = event.target.checked;
     i.setState(i.state);
   }
 
@@ -1148,6 +1185,10 @@ export class Person extends Component<any, PersonState> {
         UserService.Instance.localUserView.person.display_name;
       this.state.saveUserSettingsForm.show_avatars =
         UserService.Instance.localUserView.local_user.show_avatars;
+      this.state.saveUserSettingsForm.bot_account =
+        UserService.Instance.localUserView.person.bot_account;
+      this.state.saveUserSettingsForm.show_bot_accounts =
+        UserService.Instance.localUserView.local_user.show_bot_accounts;
       this.state.saveUserSettingsForm.show_scores =
         UserService.Instance.localUserView.local_user.show_scores;
       this.state.saveUserSettingsForm.email =
