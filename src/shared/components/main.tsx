@@ -398,10 +398,11 @@ export class Main extends Component<any, MainState> {
   }
 
   siteInfo() {
+    let site = this.state.siteRes.site_view.site;
     return (
       <div>
-        {this.state.siteRes.site_view.site.description &&
-          this.siteDescription()}
+        {site.description && <h6>{site.description}</h6>}
+        {site.sidebar && this.siteSidebar()}
         {this.badges()}
         {this.admins()}
       </div>
@@ -527,12 +528,12 @@ export class Main extends Component<any, MainState> {
     );
   }
 
-  siteDescription() {
+  siteSidebar() {
     return (
       <div
         className="md-div"
         dangerouslySetInnerHTML={mdToHtml(
-          this.state.siteRes.site_view.site.description
+          this.state.siteRes.site_view.site.sidebar
         )}
       />
     );
