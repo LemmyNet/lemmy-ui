@@ -58,6 +58,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         enable_downvotes: this.props.site.enable_downvotes,
         open_registration: this.props.site.open_registration,
         enable_nsfw: this.props.site.enable_nsfw,
+        community_creation_admin_only: this.props.site
+          .community_creation_admin_only,
         icon: this.props.site.icon,
         banner: this.props.site.banner,
         auth: authField(),
@@ -233,6 +235,28 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
           <div class="form-group row">
             <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-community-creation-admin-only"
+                  type="checkbox"
+                  checked={this.state.siteForm.community_creation_admin_only}
+                  onChange={linkEvent(
+                    this,
+                    this.handleSiteCommunityCreationAdminOnly
+                  )}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-community-creation-admin-only"
+                >
+                  {i18n.t("community_creation_admin_only")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
               <button
                 type="submit"
                 class="btn btn-secondary mr-2"
@@ -299,6 +323,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteOpenRegistrationChange(i: SiteForm, event: any) {
     i.state.siteForm.open_registration = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSiteCommunityCreationAdminOnly(i: SiteForm, event: any) {
+    i.state.siteForm.community_creation_admin_only = event.target.checked;
     i.setState(i.state);
   }
 
