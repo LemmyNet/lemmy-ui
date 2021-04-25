@@ -3,6 +3,7 @@ import { Link } from "inferno-router";
 import { i18n } from "../i18next";
 import { repoUrl, joinLemmyUrl, docsUrl } from "../utils";
 import { GetSiteResponse } from "lemmy-js-client";
+import { VERSION } from "../version";
 
 interface FooterProps {
   site: GetSiteResponse;
@@ -19,7 +20,10 @@ export class Footer extends Component<FooterProps, any> {
         <div className="navbar-collapse">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-              <span class="navbar-text">{this.props.site.version}</span>
+              <span class="nav-link">UI: {VERSION}</span>
+            </li>
+            <li class="nav-item">
+              <span class="nav-link">BE: {this.props.site.version}</span>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/modlog">

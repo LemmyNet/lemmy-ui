@@ -181,7 +181,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         <div class="container">
           {this.props.site_res.site_view && (
             <Link
-              title={this.props.site_res.version}
+              title={
+                this.props.site_res.site_view.site.description ||
+                this.props.site_res.site_view.site.name
+              }
               className="d-flex align-items-center navbar-brand mr-md-3"
               to="/"
             >
