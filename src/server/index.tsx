@@ -16,7 +16,7 @@ import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import process from "process";
 import { Helmet } from "inferno-helmet";
 import { initializeSite } from "../shared/initialize";
-import { httpBase } from "../shared/env";
+import { httpBaseInternal } from "../shared/env";
 import { IncomingHttpHeaders } from "http";
 import { setOptionalAuth } from "../shared/utils";
 
@@ -44,7 +44,7 @@ server.get("/*", async (req, res) => {
   let headers = setForwardedHeaders(req.headers);
 
   let initialFetchReq: InitialFetchRequest = {
-    client: new LemmyHttp(httpBase, headers),
+    client: new LemmyHttp(httpBaseInternal, headers),
     auth,
     path: req.path,
   };
