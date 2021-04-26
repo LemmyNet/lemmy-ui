@@ -1243,7 +1243,7 @@ interface ChoicesValue {
 export function communityToChoice(cv: CommunityView): ChoicesValue {
   let choice: ChoicesValue = {
     value: cv.community.id.toString(),
-    label: cv.community.name,
+    label: communitySelectName(cv),
   };
   return choice;
 }
@@ -1251,7 +1251,7 @@ export function communityToChoice(cv: CommunityView): ChoicesValue {
 export function personToChoice(pvs: PersonViewSafe): ChoicesValue {
   let choice: ChoicesValue = {
     value: pvs.person.id.toString(),
-    label: pvs.person.name,
+    label: personSelectName(pvs),
   };
   return choice;
 }
@@ -1316,3 +1316,15 @@ export const choicesConfig = {
     noChoices: "has-no-choices",
   },
 };
+
+export function communitySelectName(cv: CommunityView): string {
+  return cv.community.local
+    ? cv.community.name
+    : `${hostname(cv.community.actor_id)}/${cv.community.name}`;
+}
+
+export function personSelectName(pvs: PersonViewSafe): string {
+  return pvs.person.local
+    ? pvs.person.name
+    : `${hostname(pvs.person.actor_id)}/${pvs.person.name}`;
+}

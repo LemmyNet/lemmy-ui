@@ -29,7 +29,6 @@ import {
   isImage,
   toast,
   setupTippy,
-  hostname,
   pictrsDeleteToast,
   validTitle,
   wsSubscribe,
@@ -40,6 +39,7 @@ import {
   communityToChoice,
   fetchCommunities,
   choicesConfig,
+  communitySelectName,
 } from "../utils";
 import autosize from "autosize";
 
@@ -302,11 +302,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   <option>{i18n.t("select_a_community")}</option>
                   {this.props.communities.map(cv => (
                     <option value={cv.community.id}>
-                      {cv.community.local
-                        ? cv.community.name
-                        : `${hostname(cv.community.actor_id)}/${
-                            cv.community.name
-                          }`}
+                      {communitySelectName(cv)}
                     </option>
                   ))}
                 </select>

@@ -44,10 +44,11 @@ import {
   debounce,
   fetchCommunities,
   communityToChoice,
-  hostname,
   fetchUsers,
   personToChoice,
   capitalizeFirstLetter,
+  communitySelectName,
+  personSelectName,
 } from "../utils";
 import { PostListing } from "./post-listing";
 import { HtmlTags } from "./html-tags";
@@ -570,11 +571,7 @@ export class Search extends Component<any, SearchState> {
           >
             <option value="0">{i18n.t("all")}</option>
             {this.state.communities.map(cv => (
-              <option value={cv.community.id}>
-                {cv.community.local
-                  ? cv.community.name
-                  : `${hostname(cv.community.actor_id)}/${cv.community.name}`}
-              </option>
+              <option value={cv.community.id}>{communitySelectName(cv)}</option>
             ))}
           </select>
         </div>
@@ -597,11 +594,7 @@ export class Search extends Component<any, SearchState> {
             <option value="0">{i18n.t("all")}</option>
             {this.state.creator && (
               <option value={this.state.creator.person.id}>
-                {this.state.creator.person.local
-                  ? this.state.creator.person.name
-                  : `${hostname(this.state.creator.person.actor_id)}/${
-                      this.state.creator.person.name
-                    }`}
+                {personSelectName(this.state.creator)}
               </option>
             )}
           </select>
