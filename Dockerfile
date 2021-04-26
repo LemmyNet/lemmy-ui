@@ -16,6 +16,10 @@ COPY generate_translations.js \
 
 COPY lemmy-translations lemmy-translations
 COPY src src
+COPY .git .git
+
+# Set UI version 
+RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version.ts"
 
 RUN yarn
 RUN yarn build:prod

@@ -263,7 +263,9 @@ export class Main extends Component<any, MainState> {
   get documentTitle(): string {
     return `${
       this.state.siteRes.site_view
-        ? this.state.siteRes.site_view.site.name
+        ? this.state.siteRes.site_view.site.description
+          ? `${this.state.siteRes.site_view.site.name} - ${this.state.siteRes.site_view.site.description}`
+          : this.state.siteRes.site_view.site.name
         : "Lemmy"
     }`;
   }
