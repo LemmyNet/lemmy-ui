@@ -326,6 +326,7 @@ export class Search extends Component<any, SearchState> {
         {this.state.type_ == SearchType.Posts && this.posts()}
         {this.state.type_ == SearchType.Communities && this.communities()}
         {this.state.type_ == SearchType.Users && this.users()}
+        {this.state.type_ == SearchType.Url && this.posts()}
         {this.resultsCount() == 0 && <span>{i18n.t("no_results")}</span>}
         {this.paginator()}
       </div>
@@ -374,6 +375,7 @@ export class Search extends Component<any, SearchState> {
             {i18n.t("communities")}
           </option>
           <option value={SearchType.Users}>{i18n.t("users")}</option>
+          <option value={SearchType.Url}>{i18n.t("url")}</option>
         </select>
         <span class="ml-2">
           <ListingTypeSelect
