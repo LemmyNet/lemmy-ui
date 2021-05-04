@@ -21,10 +21,12 @@ import {
   wsUserOp,
   wsClient,
   authField,
+  joinLemmyUrl,
 } from "../utils";
 import { i18n } from "../i18next";
 import { HtmlTags } from "./html-tags";
 import { Icon, Spinner } from "./icon";
+import { T } from "inferno-i18next";
 
 interface State {
   loginForm: LoginForm;
@@ -81,6 +83,10 @@ export class Login extends Component<any, State> {
 
   get documentTitle(): string {
     return `${i18n.t("login")} - ${this.state.site_view.site.name}`;
+  }
+
+  get isLemmyMl(): boolean {
+    return isBrowser() && window.location.hostname == "lemmy.ml";
   }
 
   render() {
@@ -294,6 +300,13 @@ export class Login extends Component<any, State> {
                 </label>
               </div>
             </div>
+          </div>
+        )}
+        {this.isLemmyMl && (
+          <div class="mt-2 mb-0 alert alert-light" role="alert">
+            <T i18nKey="lemmy_ml_registration_message">
+              #<a href={joinLemmyUrl}>#</a>
+            </T>
           </div>
         )}
         <div class="form-group row">
