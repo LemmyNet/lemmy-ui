@@ -15,8 +15,11 @@ import {
   ModBanView,
   ModAddCommunityView,
   ModAddView,
+  GetCommunity,
+  GetCommunityResponse,
+  CommunityModeratorView,
 } from "lemmy-js-client";
-import { WebSocketService } from "../services";
+import { WebSocketService, UserService } from "../services";
 import {
   wsJsonToRes,
   fetchLimit,
@@ -68,6 +71,7 @@ interface ModlogState {
   res: GetModlogResponse;
   communityId?: number;
   communityName?: string;
+  communityMods?: CommunityModeratorView[];
   page: number;
   site_view: SiteView;
   loading: boolean;
@@ -109,6 +113,11 @@ export class Modlog extends Component<any, ModlogState> {
       let data = this.isoData.routeData[0];
       this.state.res = data;
       this.state.loading = false;
+
+      // Getting the moderators
+      if (this.isoData.routeData[1]) {
+        this.state.communityMods = this.isoData.routeData[1].moderators;
+      }
     } else {
       this.refetch();
     }
@@ -353,13 +362,32 @@ export class Modlog extends Component<any, ModlogState> {
               <MomentTime data={i} />
             </td>
             <td>
-              <PersonListing person={i.view.moderator} />
+              {this.isAdminOrMod ? (
+                <PersonListing person={i.view.moderator} />
+              ) : (
+                <div>{i18n.t("mod")}</div>
+              )}
             </td>
             <td>{this.renderModlogType(i)}</td>
           </tr>
         ))}
       </tbody>
     );
+  }
+
+  get isAdminOrMod(): boolean {
+    let isAdmin =
+      UserService.Instance.localUserView &&
+      this.isoData.site_res.admins
+        .map(a => a.person.id)
+        .includes(UserService.Instance.localUserView.person.id);
+    let isMod =
+      UserService.Instance.localUserView &&
+      this.state.communityMods &&
+      this.state.communityMods
+        .map(m => m.moderator.id)
+        .includes(UserService.Instance.localUserView.person.id);
+    return isAdmin || isMod;
   }
 
   get documentTitle(): string {
@@ -449,6 +477,14 @@ export class Modlog extends Component<any, ModlogState> {
       limit: fetchLimit,
     };
     WebSocketService.Instance.send(wsClient.getModlog(modlogForm));
+
+    if (this.state.communityId) {
+      let communityForm: GetCommunity = {
+        id: this.state.communityId,
+        name: this.state.communityName,
+      };
+      WebSocketService.Instance.send(wsClient.getCommunity(communityForm));
+    }
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -466,6 +502,13 @@ export class Modlog extends Component<any, ModlogState> {
     }
 
     promises.push(req.client.getModlog(modlogForm));
+
+    if (communityId) {
+      let communityForm: GetCommunity = {
+        id: Number(communityId),
+      };
+      promises.push(req.client.getCommunity(communityForm));
+    }
     return promises;
   }
 
@@ -481,6 +524,9 @@ export class Modlog extends Component<any, ModlogState> {
       window.scrollTo(0, 0);
       this.state.res = data;
       this.setState(this.state);
+    } else if (op == UserOperation.GetCommunity) {
+      let data = wsJsonToRes<GetCommunityResponse>(msg).data;
+      this.state.communityMods = data.moderators;
     }
   }
 }
