@@ -36,17 +36,34 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
 
     let apubName = `!${name_}`;
     let displayName = this.props.useApubName ? apubName : title;
-    return (
+    return !this.props.realLink ? (
       <Link
         title={apubName}
         className={`${this.props.muted ? "text-muted" : ""}`}
         to={link}
       >
+        {this.avatarAndName(displayName)}
+      </Link>
+    ) : (
+      <a
+        title={apubName}
+        className={`${this.props.muted ? "text-muted" : ""}`}
+        href={link}
+      >
+        {this.avatarAndName(displayName)}
+      </a>
+    );
+  }
+
+  avatarAndName(displayName: string) {
+    let community = this.props.community;
+    return (
+      <>
         {!this.props.hideAvatar && community.icon && showAvatars() && (
           <PictrsImage src={community.icon} icon />
         )}
         <span>{displayName}</span>
-      </Link>
+      </>
     );
   }
 }

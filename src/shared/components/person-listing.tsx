@@ -44,18 +44,37 @@ export class PersonListing extends Component<PersonListingProps, any> {
 
     return (
       <>
-        <Link
-          title={apubName}
-          className={this.props.muted ? "text-muted" : "text-info"}
-          to={link}
-        >
-          {!this.props.hideAvatar && person.avatar && showAvatars() && (
-            <PictrsImage src={person.avatar} icon />
-          )}
-          <span>{displayName}</span>
-        </Link>
+        {!this.props.realLink ? (
+          <Link
+            title={apubName}
+            className={this.props.muted ? "text-muted" : "text-info"}
+            to={link}
+          >
+            {this.avatarAndName(displayName)}
+          </Link>
+        ) : (
+          <a
+            title={apubName}
+            className={this.props.muted ? "text-muted" : "text-info"}
+            href={link}
+          >
+            {this.avatarAndName(displayName)}
+          </a>
+        )}
 
         {isCakeDay(person.published) && <CakeDay creatorName={apubName} />}
+      </>
+    );
+  }
+
+  avatarAndName(displayName: string) {
+    let person = this.props.person;
+    return (
+      <>
+        {!this.props.hideAvatar && person.avatar && showAvatars() && (
+          <PictrsImage src={person.avatar} icon />
+        )}
+        <span>{displayName}</span>
       </>
     );
   }
