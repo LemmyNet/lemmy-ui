@@ -412,7 +412,8 @@ export class Main extends Component<any, MainState> {
   }
 
   siteName() {
-    return <h5 class="mb-0">{`${this.documentTitle}`}</h5>;
+    let site = this.state.siteRes.site_view.site;
+    return site.name && <h5 class="mb-0">{site.name}</h5>;
   }
 
   admins() {
