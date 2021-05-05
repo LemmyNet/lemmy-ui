@@ -530,7 +530,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get canCreateCommunity(): boolean {
-    let adminOnly = this.props.site_res.site_view.site
+    let adminOnly = this.props.site_res.site_view?.site
       .community_creation_admin_only;
     return !adminOnly || this.canAdmin;
   }
