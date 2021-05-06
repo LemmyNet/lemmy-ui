@@ -1179,7 +1179,6 @@ export class Person extends Component<any, PersonState> {
     WebSocketService.Instance.send(
       wsClient.deleteAccount(i.state.deleteAccountForm)
     );
-    i.handleLogoutClick(i);
   }
 
   setUserInfo() {
@@ -1273,7 +1272,8 @@ export class Person extends Component<any, PersonState> {
         deleteAccountLoading: false,
         deleteAccountShowConfirm: false,
       });
-      this.context.router.history.push("/");
+      UserService.Instance.logout();
+      window.location.href = "/";
     } else if (op == UserOperation.AddAdmin) {
       let data = wsJsonToRes<AddAdminResponse>(msg).data;
       this.state.siteRes.admins = data.admins;
