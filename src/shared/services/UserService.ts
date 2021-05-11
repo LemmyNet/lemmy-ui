@@ -41,7 +41,7 @@ export class UserService {
     this.claims = undefined;
     this.localUserView = undefined;
     // setTheme();
-    this.jwtSub.next();
+    this.jwtSub.next("");
     console.log("Logged out.");
   }
 
