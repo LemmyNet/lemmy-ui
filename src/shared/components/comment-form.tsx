@@ -82,6 +82,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             disabled={this.props.disabled}
             onSubmit={this.handleCommentSubmit}
             onReplyCancel={this.handleReplyCancel}
+            placeholder={i18n.t("comment_here")}
           />
         ) : (
           <div class="alert alert-light" role="alert">
