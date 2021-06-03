@@ -28,6 +28,7 @@ interface MarkdownTextAreaProps {
   onContentChange?(val: string): any;
   onReplyCancel?(): any;
   hideNavigationWarnings?: boolean;
+  placeholder?: string;
 }
 
 interface MarkdownTextAreaState {
@@ -131,6 +132,7 @@ export class MarkdownTextArea extends Component<
               disabled={this.props.disabled}
               rows={2}
               maxLength={this.props.maxLength || 10000}
+              placeholder={this.props.placeholder}
             />
             {this.state.previewMode && (
               <div
