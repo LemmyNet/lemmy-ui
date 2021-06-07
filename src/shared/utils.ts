@@ -80,10 +80,10 @@ export const favIconPngUrl = "/static/assets/icons/apple-touch-icon.png";
 // TODO
 // export const defaultFavIcon = `${window.location.protocol}//${window.location.host}${favIconPngUrl}`;
 export const repoUrl = "https://github.com/LemmyNet";
-export const joinLemmyUrl = "https://join.lemmy.ml";
-export const supportLemmyUrl = "https://join.lemmy.ml/support";
-export const docsUrl = "https://join.lemmy.ml/docs/en/index.html";
-export const helpGuideUrl = "https://join.lemmy.ml/docs/en/about/guide.html"; // TODO find a way to redirect to the non-en folder
+export const joinLemmyUrl = "https://join-lemmy.org";
+export const supportLemmyUrl = `${joinLemmyUrl}/support`;
+export const docsUrl = `${joinLemmyUrl}/docs/en/index.html`;
+export const helpGuideUrl = `${joinLemmyUrl}/docs/en/about/guide.html`; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
 export const archiveUrl = "https://archive.is";
@@ -290,7 +290,8 @@ export function communityRSSUrl(actorId: string, sort: string): string {
 }
 
 export function validEmail(email: string) {
-  let re = /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z\-]+\.)+[A-Za-z]{2,}))$/;
+  let re =
+    /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z\-]+\.)+[A-Za-z]{2,}))$/;
   return re.test(String(email).toLowerCase());
 }
 
