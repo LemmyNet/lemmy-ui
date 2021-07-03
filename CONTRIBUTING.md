@@ -1,3 +1,3 @@
 # Contributing
 
-See [here](https://dev.lemmy.ml/docs/contributing.html) for contributing Instructions.
+See [here](https://join-lemmy.org/docs/en/contributing/contributing.html) for contributing Instructions.
