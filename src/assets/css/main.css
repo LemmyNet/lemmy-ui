@@ -168,7 +168,6 @@ blockquote {
 .thumbnail {
   object-fit: cover;
   min-height: 60px;
-  max-height: 80px;
   width: 100%;
 }
 
