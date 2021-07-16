@@ -475,7 +475,11 @@ export class MarkdownTextArea extends Component<
 
   handleInsertCode(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround("`");
+    if (i.getSelectedText().split(/\r*\n/).length > 1){
+      i.simpleSurroundBeforeAfter("```\n", "\n```");
+    } else {
+      i.simpleSurround('`');
+    }
   }
 
   handleInsertStrikethrough(i: MarkdownTextArea, event: any) {
@@ -551,5 +555,12 @@ export class MarkdownTextArea extends Component<
       // Not sure why this needs a delay
       setTimeout(() => autosize.update(textarea), 10);
     }
+  }
+
+  getSelectedText(): string {
+    let textarea: any = document.getElementById(this.id);
+    let start: number = textarea.selectionStart;
+    let end: number = textarea.selectionEnd;
+    return start !== end ? this.state.content.substring(start, end) : '';
   }
 }
