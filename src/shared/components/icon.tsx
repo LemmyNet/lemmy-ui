@@ -13,10 +13,10 @@ export class Icon extends Component<IconProps, any> {
   render() {
     return (
       <svg class={`icon ${this.props.classes}`}>
+        <use xlinkHref={`#icon-${this.props.icon}`}></use>
         <div class="sr-only">
           <title>{this.props.icon}</title>
         </div>
-        <use xlinkHref={`#icon-${this.props.icon}`}></use>
       </svg>
     );
   }

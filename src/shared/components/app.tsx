@@ -8,7 +8,6 @@ import { Navbar } from "./navbar";
 import { Footer } from "./footer";
 import { NoMatch } from "./no-match";
 import { Theme } from "./theme";
-import { Symbols } from "./symbols";
 import { GetSiteResponse } from "lemmy-js-client";
 import "./styles.scss";
 import { favIconPngUrl, favIconUrl } from "../utils";
@@ -59,7 +58,6 @@ export class App extends Component<AppProps, any> {
                 ))}
                 <Route render={props => <NoMatch {...props} />} />
               </Switch>
-              <Symbols />
             </div>
             <Footer site={this.props.siteRes} />
           </div>
