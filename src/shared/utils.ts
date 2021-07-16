@@ -392,7 +392,12 @@ export function getLanguage(override?: string): string {
 }
 
 export function getBrowserLanguage(): string {
-  return navigator.language;
+  // Intersect lemmy's langs, with the browser langs
+  let langs = languages ? languages.map(l => l.code) : ["en"];
+  let allowedLangs = navigator.languages.filter(v => langs.includes(v)) || [
+    "en",
+  ];
+  return allowedLangs[0];
 }
 
 export function getMomentLanguage(): string {
