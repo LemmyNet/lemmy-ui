@@ -76,20 +76,10 @@ server.get("/*", async (req, res) => {
     return res.redirect(`/404?err=${errCode}`);
   }
 
-  let acceptLang = req.headers["accept-language"]
-    ? req.headers["accept-language"].split(",")[0]
-    : "en";
-  let lang = site.my_user
-    ? site.my_user.local_user.lang == "browser"
-      ? acceptLang
-      : "en"
-    : acceptLang;
-
   let isoData: IsoData = {
     path: req.path,
     site_res: site,
     routeData,
-    lang,
   };
 
   const wrapper = (
@@ -160,9 +150,9 @@ server.listen(Number(port), hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });
 
-function setForwardedHeaders(
-  headers: IncomingHttpHeaders
-): { [key: string]: string } {
+function setForwardedHeaders(headers: IncomingHttpHeaders): {
+  [key: string]: string;
+} {
   let out = {
     host: headers.host,
   };
