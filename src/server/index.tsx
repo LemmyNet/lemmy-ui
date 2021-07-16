@@ -15,6 +15,7 @@ import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import process from "process";
 import { Helmet } from "inferno-helmet";
+import { SYMBOLS } from "../shared/components/symbols";
 import { initializeSite } from "../shared/initialize";
 import { httpBaseInternal } from "../shared/env";
 import { IncomingHttpHeaders } from "http";
@@ -99,6 +100,7 @@ server.get("/*", async (req, res) => {
   );
 
   const root = renderToString(wrapper);
+  const symbols = renderToString(SYMBOLS);
   const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : "";
   const helmet = Helmet.renderStatic();
 
@@ -130,6 +132,10 @@ server.get("/*", async (req, res) => {
 
            <!-- Current theme and more -->
            ${helmet.link.toString()}
+           
+           <!-- Icons -->
+           ${symbols}
+
            </head>
 
            <body ${helmet.bodyAttributes.toString()}>
