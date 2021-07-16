@@ -35,6 +35,9 @@ import { th } from "./translations/th";
 import { bg } from "./translations/bg";
 import { ar } from "./translations/ar";
 import { ko } from "./translations/ko";
+import { id } from "./translations/id";
+import { nb_NO } from "./translations/nb_NO";
+import { zh_Hant } from "./translations/zh_Hant";
 
 // https://github.com/nimbusec-oss/inferno-i18next/blob/master/tests/T.test.js#L66
 const resources = {
@@ -72,7 +75,10 @@ const resources = {
   th,
   bg,
   ar,
-  ko
+  ko,
+  id,
+  nb_NO,
+  zh_Hant,
 };
 
 function format(value: any, format: any): any {

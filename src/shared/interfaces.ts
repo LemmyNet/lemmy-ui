@@ -9,9 +9,6 @@ export interface IsoData {
   path: string;
   routeData: any[];
   site_res: GetSiteResponse;
-  // Lang and theme
-  lang: string;
-  // communities?: ListCommunitiesResponse;
 }
 
 export interface ILemmyConfig {
