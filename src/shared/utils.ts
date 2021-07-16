@@ -29,6 +29,8 @@ import "moment/locale/ko";
 import "moment/locale/da";
 import "moment/locale/hr";
 import "moment/locale/bg";
+import "moment/locale/id";
+import "moment/locale/nb";
 
 import {
   UserOperation,
@@ -106,6 +108,7 @@ export const languages = [
   { code: "gl" },
   { code: "hr" },
   { code: "hu" },
+  { code: "id" },
   { code: "ka" },
   { code: "ko" },
   { code: "km" },
@@ -113,6 +116,7 @@ export const languages = [
   { code: "fa" },
   { code: "ja" },
   { code: "oc" },
+  { code: "nb_NO" },
   { code: "pl" },
   { code: "pt_BR" },
   { code: "zh" },
@@ -128,6 +132,7 @@ export const languages = [
   { code: "nl" },
   { code: "it" },
   { code: "bg" },
+  { code: "zh_Hant" },
 ];
 
 export const themes = [
@@ -458,6 +463,10 @@ export function getMomentLanguage(): string {
     lang = "th";
   } else if (lang.startsWith("bg")) {
     lang = "bg";
+  } else if (lang.startsWith("id")) {
+    lang = "id";
+  } else if (lang.startsWith("nb")) {
+    lang = "nb";
   } else {
     lang = "en";
   }
