@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent, createRef, RefObject } from "inferno";
 import { HtmlTags } from "./html-tags";
 import { Spinner } from "./icon";
 import { Subscription } from "rxjs";
@@ -73,6 +73,7 @@ interface PostState {
   loading: boolean;
   crossPosts: PostView[];
   siteRes: GetSiteResponse;
+  commentSectionRef?: RefObject<HTMLDivElement>;
 }
 
 export class Post extends Component<any, PostState> {
@@ -89,6 +90,7 @@ export class Post extends Component<any, PostState> {
     loading: true,
     crossPosts: [],
     siteRes: this.isoData.site_res,
+    commentSectionRef: null
   };
 
   constructor(props: any, context: any) {
@@ -165,6 +167,9 @@ export class Post extends Component<any, PostState> {
   }
 
   componentDidMount() {
+    if(isBrowser()) {
+      this.state.commentSectionRef = createRef();
+    }
     WebSocketService.Instance.send(
       wsClient.postJoin({ post_id: this.state.postId })
     );
@@ -274,6 +279,7 @@ export class Post extends Component<any, PostState> {
                   this.state.siteRes.site_view.site.enable_downvotes
                 }
                 enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
+                commentSectionRef={this.state.commentSectionRef}
               />
               <div className="mb-2" />
               <CommentForm
@@ -424,7 +430,7 @@ export class Post extends Component<any, PostState> {
 
   commentsTree() {
     return (
-      <div>
+      <div ref={this.state.commentSectionRef}>
         <CommentNodes
           nodes={this.state.commentTree}
           locked={this.state.postRes.post_view.post.locked}

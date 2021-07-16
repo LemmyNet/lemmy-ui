@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent, RefObject } from "inferno";
 import { Link } from "inferno-router";
 import { WebSocketService, UserService } from "../services";
 import {
@@ -75,6 +75,7 @@ interface PostListingProps {
   admins?: PersonViewSafe[];
   enableDownvotes: boolean;
   enableNsfw: boolean;
+  commentSectionRef?: RefObject<HTMLDivElement>;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -466,7 +467,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post_view = this.props.post_view;
     return (
       <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold mb-1">
-        <button class="btn btn-link text-muted p-0">
+        <button 
+          onClick={linkEvent(this, this.handleCommentCountButtonClick)}
+          class="btn btn-link text-muted p-0"
+        >
           <Link
             className="text-muted small"
             title={i18n.t("number_of_comments", {
@@ -1302,6 +1306,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     };
 
     WebSocketService.Instance.send(wsClient.savePost(form));
+  }
+
+  handleCommentCountButtonClick(i: PostListing, event: any) {
+    event.preventDefault();
+    i.props.commentSectionRef?.current?.scrollIntoView();
   }
 
   get crossPostParams(): string {
