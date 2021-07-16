@@ -43,8 +43,11 @@ export class WebSocketService {
     }).pipe(share());
 
     if (isBrowser()) {
-      window.onbeforeunload = () => {
+      window.onunload = () => {
         this.ws.close();
+
+        // Clears out scroll positions.
+        sessionStorage.clear();
       };
     }
   }
