@@ -1,5 +1,4 @@
-import { Component, linkEvent } from "inferno";
-import { i18n } from "../i18next";
+import { Component } from "inferno";
 import {
   PostView,
   CommentView,
@@ -11,6 +10,7 @@ import { PersonDetailsView } from "../interfaces";
 import { commentsToFlatNodes, setupTippy } from "../utils";
 import { PostListing } from "./post-listing";
 import { CommentNodes } from "./comment-nodes";
+import { Paginator } from "./paginator";
 
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
@@ -39,6 +39,7 @@ type ItemType = {
 export class PersonDetails extends Component<PersonDetailsProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
+    this.handlePageChange = this.handlePageChange.bind(this);
   }
 
   // TODO needed here?
@@ -60,7 +61,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     return (
       <div>
         {this.viewSelector(this.props.view)}
-        {this.paginator()}
+
+        <Paginator page={this.props.page} onChange={this.handlePageChange} />
       </div>
     );
   }
@@ -182,36 +184,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     );
   }
 
-  paginator() {
-    return (
-      <div class="my-2">
-        {this.props.page > 1 && (
-          <button
-            class="btn btn-secondary mr-1"
-            onClick={linkEvent(this, this.prevPage)}
-          >
-            {i18n.t("prev")}
-          </button>
-        )}
-        {this.props.personRes.comments.length +
-          this.props.personRes.posts.length >
-          0 && (
-          <button
-            class="btn btn-secondary"
-            onClick={linkEvent(this, this.nextPage)}
-          >
-            {i18n.t("next")}
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  nextPage(i: PersonDetails) {
-    i.props.onPageChange(i.props.page + 1);
-  }
-
-  prevPage(i: PersonDetails) {
-    i.props.onPageChange(i.props.page - 1);
+  handlePageChange(val: number) {
+    this.props.onPageChange(val);
   }
 }

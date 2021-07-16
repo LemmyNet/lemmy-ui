@@ -58,6 +58,7 @@ import { CommunityLink } from "./community-link";
 import { SortSelect } from "./sort-select";
 import { ListingTypeSelect } from "./listing-type-select";
 import { CommentNodes } from "./comment-nodes";
+import { Paginator } from "./paginator";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "shared/interfaces";
 
@@ -166,6 +167,7 @@ export class Search extends Component<any, SearchState> {
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -328,7 +330,7 @@ export class Search extends Component<any, SearchState> {
         {this.state.type_ == SearchType.Users && this.users()}
         {this.state.type_ == SearchType.Url && this.posts()}
         {this.resultsCount() == 0 && <span>{i18n.t("no_results")}</span>}
-        {this.paginator()}
+        <Paginator page={this.state.page} onChange={this.handlePageChange} />
       </div>
     );
   }
@@ -605,30 +607,6 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  paginator() {
-    return (
-      <div class="mt-2">
-        {this.state.page > 1 && (
-          <button
-            class="btn btn-secondary mr-1"
-            onClick={linkEvent(this, this.prevPage)}
-          >
-            {i18n.t("prev")}
-          </button>
-        )}
-
-        {this.resultsCount() > 0 && (
-          <button
-            class="btn btn-secondary"
-            onClick={linkEvent(this, this.nextPage)}
-          >
-            {i18n.t("next")}
-          </button>
-        )}
-      </div>
-    );
-  }
-
   resultsCount(): number {
     let res = this.state.searchResponse;
     return (
@@ -639,12 +617,8 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  nextPage(i: Search) {
-    i.updateUrl({ page: i.state.page + 1 });
-  }
-
-  prevPage(i: Search) {
-    i.updateUrl({ page: i.state.page - 1 });
+  handlePageChange(page: number) {
+    this.updateUrl({ page });
   }
 
   search() {
