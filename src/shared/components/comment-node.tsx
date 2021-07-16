@@ -193,11 +193,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <button
                 class="btn btn-sm text-muted"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
-                aria-label={
-                  this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
-                }
+                aria-label={this.expandText}
+                data-tippy-content={this.expandText}
               >
-                {this.state.collapsed ? "+" : "—"}
+                {this.state.collapsed ? (
+                  <Icon icon="plus-square" classes="icon-inline" />
+                ) : (
+                  <Icon icon="minus-square" classes="icon-inline" />
+                )}
               </button>
               {/* This is an expanding spacer for mobile */}
               <div className="mr-lg-4 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2"></div>
@@ -1232,6 +1235,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleCommentCollapse(i: CommentNode) {
     i.state.collapsed = !i.state.collapsed;
     i.setState(i.state);
+    setupTippy();
   }
 
   handleViewSource(i: CommentNode) {
@@ -1269,5 +1273,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;
+  }
+
+  get expandText(): string {
+    return this.state.collapsed ? i18n.t("expand") : i18n.t("collapse");
   }
 }
