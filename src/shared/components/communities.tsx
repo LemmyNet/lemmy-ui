@@ -26,6 +26,7 @@ import {
   setOptionalAuth,
 } from "../utils";
 import { CommunityLink } from "./community-link";
+import { Paginator } from "./paginator";
 import { Spinner } from "./icon";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "shared/interfaces";
@@ -58,6 +59,7 @@ export class Communities extends Component<any, CommunitiesState> {
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -178,7 +180,10 @@ export class Communities extends Component<any, CommunitiesState> {
                 </tbody>
               </table>
             </div>
-            {this.paginator()}
+            <Paginator
+              page={this.state.page}
+              onChange={this.handlePageChange}
+            />
           </div>
         )}
       </div>
@@ -211,41 +216,13 @@ export class Communities extends Component<any, CommunitiesState> {
     );
   }
 
-  paginator() {
-    return (
-      <div class="mt-2">
-        {this.state.page > 1 && (
-          <button
-            class="btn btn-secondary mr-1"
-            onClick={linkEvent(this, this.prevPage)}
-          >
-            {i18n.t("prev")}
-          </button>
-        )}
-
-        {this.state.communities.length > 0 && (
-          <button
-            class="btn btn-secondary"
-            onClick={linkEvent(this, this.nextPage)}
-          >
-            {i18n.t("next")}
-          </button>
-        )}
-      </div>
-    );
-  }
-
   updateUrl(paramUpdates: CommunitiesProps) {
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(`/communities/page/${page}`);
   }
 
-  nextPage(i: Communities) {
-    i.updateUrl({ page: i.state.page + 1 });
-  }
-
-  prevPage(i: Communities) {
-    i.updateUrl({ page: i.state.page - 1 });
+  handlePageChange(page: number) {
+    this.updateUrl({ page });
   }
 
   handleUnsubscribe(communityId: number) {

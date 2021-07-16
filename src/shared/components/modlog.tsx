@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { Subscription } from "rxjs";
 import {
@@ -38,6 +38,7 @@ import { InitialFetchRequest } from "shared/interfaces";
 import { PersonListing } from "./person-listing";
 import { CommunityLink } from "./community-link";
 import { Spinner } from "./icon";
+import { Paginator } from "./paginator";
 
 enum ModlogEnum {
   ModRemovePost,
@@ -101,6 +102,8 @@ export class Modlog extends Component<any, ModlogState> {
     super(props, context);
 
     this.state = this.emptyState;
+    this.handlePageChange = this.handlePageChange.bind(this);
+
     this.state.communityId = this.props.match.params.community_id
       ? Number(this.props.match.params.community_id)
       : undefined;
@@ -208,8 +211,9 @@ export class Modlog extends Component<any, ModlogState> {
     combined.push(...banned);
 
     if (this.state.communityId && combined.length > 0) {
-      this.state.communityName = (combined[0]
-        .view as ModRemovePostView).community.name;
+      this.state.communityName = (
+        combined[0].view as ModRemovePostView
+      ).community.name;
     }
 
     // Sort them by time
@@ -429,7 +433,10 @@ export class Modlog extends Component<any, ModlogState> {
                 </thead>
                 {this.combined()}
               </table>
-              {this.paginator()}
+              <Paginator
+                page={this.state.page}
+                onChange={this.handlePageChange}
+              />
             </div>
           </div>
         )}
@@ -437,37 +444,9 @@ export class Modlog extends Component<any, ModlogState> {
     );
   }
 
-  paginator() {
-    return (
-      <div class="mt-2">
-        {this.state.page > 1 && (
-          <button
-            class="btn btn-secondary mr-1"
-            onClick={linkEvent(this, this.prevPage)}
-          >
-            {i18n.t("prev")}
-          </button>
-        )}
-        <button
-          class="btn btn-secondary"
-          onClick={linkEvent(this, this.nextPage)}
-        >
-          {i18n.t("next")}
-        </button>
-      </div>
-    );
-  }
-
-  nextPage(i: Modlog) {
-    i.state.page++;
-    i.setState(i.state);
-    i.refetch();
-  }
-
-  prevPage(i: Modlog) {
-    i.state.page--;
-    i.setState(i.state);
-    i.refetch();
+  handlePageChange(val: number) {
+    this.setState({ page: val });
+    this.refetch();
   }
 
   refetch() {

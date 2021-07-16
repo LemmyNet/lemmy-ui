@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { Subscription } from "rxjs";
 import { DataType, InitialFetchRequest } from "../interfaces";
 import {
@@ -30,6 +30,7 @@ import { Sidebar } from "./sidebar";
 import { CommunityLink } from "./community-link";
 import { BannerIconHeader } from "./banner-icon-header";
 import { Icon, Spinner } from "./icon";
+import { Paginator } from "./paginator";
 import {
   wsJsonToRes,
   fetchLimit,
@@ -108,6 +109,7 @@ export class Community extends Component<any, State> {
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -255,7 +257,10 @@ export class Community extends Component<any, State> {
               {this.communityInfo()}
               {this.selects()}
               {this.listings()}
-              {this.paginator()}
+              <Paginator
+                page={this.state.page}
+                onChange={this.handlePageChange}
+              />
             </div>
             <div class="col-12 col-md-4">
               <Sidebar
@@ -345,36 +350,8 @@ export class Community extends Component<any, State> {
     );
   }
 
-  paginator() {
-    return (
-      <div class="my-2">
-        {this.state.page > 1 && (
-          <button
-            class="btn btn-secondary mr-1"
-            onClick={linkEvent(this, this.prevPage)}
-          >
-            {i18n.t("prev")}
-          </button>
-        )}
-        {this.state.posts.length > 0 && (
-          <button
-            class="btn btn-secondary"
-            onClick={linkEvent(this, this.nextPage)}
-          >
-            {i18n.t("next")}
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  nextPage(i: Community) {
-    i.updateUrl({ page: i.state.page + 1 });
-    window.scrollTo(0, 0);
-  }
-
-  prevPage(i: Community) {
-    i.updateUrl({ page: i.state.page - 1 });
+  handlePageChange(page: number) {
+    this.updateUrl({ page });
     window.scrollTo(0, 0);
   }
 

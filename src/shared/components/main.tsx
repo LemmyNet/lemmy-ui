@@ -65,6 +65,7 @@ import {
 import { i18n } from "../i18next";
 import { T } from "inferno-i18next";
 import { HtmlTags } from "./html-tags";
+import { Paginator } from "./paginator";
 
 interface MainState {
   subscribedCommunities: CommunityFollowerView[];
@@ -119,6 +120,7 @@ export class Main extends Component<any, MainState> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -132,7 +134,8 @@ export class Main extends Component<any, MainState> {
       }
       this.state.trendingCommunities = this.isoData.routeData[1].communities;
       if (UserService.Instance.localUserView) {
-        this.state.subscribedCommunities = this.isoData.routeData[2].communities;
+        this.state.subscribedCommunities =
+          this.isoData.routeData[2].communities;
       }
       this.state.loading = false;
     } else {
@@ -553,7 +556,10 @@ export class Main extends Component<any, MainState> {
           <div>
             {this.selects()}
             {this.listings()}
-            {this.paginator()}
+            <Paginator
+              page={this.state.page}
+              onChange={this.handlePageChange}
+            />
           </div>
         )}
       </div>
@@ -632,29 +638,6 @@ export class Main extends Component<any, MainState> {
     );
   }
 
-  paginator() {
-    return (
-      <div class="my-2">
-        {this.state.page > 1 && (
-          <button
-            class="btn btn-secondary mr-1"
-            onClick={linkEvent(this, this.prevPage)}
-          >
-            {i18n.t("prev")}
-          </button>
-        )}
-        {this.state.posts.length > 0 && (
-          <button
-            class="btn btn-secondary"
-            onClick={linkEvent(this, this.nextPage)}
-          >
-            {i18n.t("next")}
-          </button>
-        )}
-      </div>
-    );
-  }
-
   get canAdmin(): boolean {
     return (
       UserService.Instance.localUserView &&
@@ -674,13 +657,8 @@ export class Main extends Component<any, MainState> {
     this.setState(this.state);
   }
 
-  nextPage(i: Main) {
-    i.updateUrl({ page: i.state.page + 1 });
-    window.scrollTo(0, 0);
-  }
-
-  prevPage(i: Main) {
-    i.updateUrl({ page: i.state.page - 1 });
+  handlePageChange(page: number) {
+    this.updateUrl({ page });
     window.scrollTo(0, 0);
   }
 

@@ -37,6 +37,7 @@ import {
 import { CommentNodes } from "./comment-nodes";
 import { PrivateMessage } from "./private-message";
 import { HtmlTags } from "./html-tags";
+import { Paginator } from "./paginator";
 import { SortSelect } from "./sort-select";
 import { Icon, Spinner } from "./icon";
 import { i18n } from "../i18next";
@@ -100,6 +101,7 @@ export class Inbox extends Component<any, InboxState> {
 
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     if (!UserService.Instance.localUserView && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
@@ -183,7 +185,10 @@ export class Inbox extends Component<any, InboxState> {
                 this.mentions()}
               {this.state.messageType == MessageType.Messages &&
                 this.messages()}
-              {this.paginator()}
+              <Paginator
+                page={this.state.page}
+                onChange={this.handlePageChange}
+              />
             </div>
           </div>
         )}
@@ -429,39 +434,9 @@ export class Inbox extends Component<any, InboxState> {
     );
   }
 
-  paginator() {
-    return (
-      <div class="mt-2">
-        {this.state.page > 1 && (
-          <button
-            class="btn btn-secondary mr-1"
-            onClick={linkEvent(this, this.prevPage)}
-          >
-            {i18n.t("prev")}
-          </button>
-        )}
-        {this.unreadCount() > 0 && (
-          <button
-            class="btn btn-secondary"
-            onClick={linkEvent(this, this.nextPage)}
-          >
-            {i18n.t("next")}
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  nextPage(i: Inbox) {
-    i.state.page++;
-    i.setState(i.state);
-    i.refetch();
-  }
-
-  prevPage(i: Inbox) {
-    i.state.page--;
-    i.setState(i.state);
-    i.refetch();
+  handlePageChange(page: number) {
+    this.setState({ page });
+    this.refetch();
   }
 
   handleUnreadOrAllChange(i: Inbox, event: any) {
