@@ -111,7 +111,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         />
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div class="row">

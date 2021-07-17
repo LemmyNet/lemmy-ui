@@ -407,7 +407,7 @@ export class Modlog extends Component<any, ModlogState> {
         />
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div>

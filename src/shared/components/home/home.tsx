@@ -549,7 +549,7 @@ export class Home extends Component<any, HomeState> {
       <div class="main-content-wrapper">
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div>

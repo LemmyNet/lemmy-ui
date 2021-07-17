@@ -105,7 +105,7 @@ export class Communities extends Component<any, CommunitiesState> {
         />
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div>
