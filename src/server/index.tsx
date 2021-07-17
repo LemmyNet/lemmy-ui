@@ -1,25 +1,23 @@
-import serialize from "serialize-javascript";
 import express from "express";
-import { StaticRouter } from "inferno-router";
+import { IncomingHttpHeaders } from "http";
+import { Helmet } from "inferno-helmet";
+import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
-import { matchPath } from "inferno-router";
+import IsomorphicCookie from "isomorphic-cookie";
+import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import path from "path";
-import { App } from "../shared/components/app";
+import process from "process";
+import serialize from "serialize-javascript";
+import { App } from "../shared/components/app/app";
+import { SYMBOLS } from "../shared/components/common/symbols";
+import { httpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
-import process from "process";
-import { Helmet } from "inferno-helmet";
-import { SYMBOLS } from "../shared/components/symbols";
-import { initializeSite } from "../shared/initialize";
-import { httpBaseInternal } from "../shared/env";
-import { IncomingHttpHeaders } from "http";
-import { setOptionalAuth } from "../shared/utils";
+import { initializeSite, setOptionalAuth } from "../shared/utils";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]

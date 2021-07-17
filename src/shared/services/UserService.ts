@@ -1,8 +1,8 @@
 // import Cookies from 'js-cookie';
 import IsomorphicCookie from "isomorphic-cookie";
-import { LocalUserSettingsView, LoginResponse } from "lemmy-js-client";
 import jwt_decode from "jwt-decode";
-import { Subject, BehaviorSubject } from "rxjs";
+import { LocalUserSettingsView, LoginResponse } from "lemmy-js-client";
+import { BehaviorSubject, Subject } from "rxjs";
 
 interface Claims {
   sub: number;

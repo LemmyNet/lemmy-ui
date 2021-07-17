@@ -1,44 +1,44 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { Subscription } from "rxjs";
 import {
-  UserOperation,
-  GetModlog,
-  GetModlogResponse,
-  SiteView,
-  ModRemovePostView,
-  ModLockPostView,
-  ModStickyPostView,
-  ModRemoveCommentView,
-  ModRemoveCommunityView,
-  ModBanFromCommunityView,
-  ModBanView,
-  ModAddCommunityView,
-  ModAddView,
+  CommunityModeratorView,
   GetCommunity,
   GetCommunityResponse,
-  CommunityModeratorView,
+  GetModlog,
+  GetModlogResponse,
+  ModAddCommunityView,
+  ModAddView,
+  ModBanFromCommunityView,
+  ModBanView,
+  ModLockPostView,
+  ModRemoveCommentView,
+  ModRemoveCommunityView,
+  ModRemovePostView,
+  ModStickyPostView,
+  SiteView,
+  UserOperation,
 } from "lemmy-js-client";
-import { WebSocketService, UserService } from "../services";
-import {
-  wsJsonToRes,
-  fetchLimit,
-  toast,
-  setIsoData,
-  wsSubscribe,
-  isBrowser,
-  wsUserOp,
-  wsClient,
-} from "../utils";
-import { MomentTime } from "./moment-time";
-import { HtmlTags } from "./html-tags";
 import moment from "moment";
+import { Subscription } from "rxjs";
 import { i18n } from "../i18next";
-import { InitialFetchRequest } from "shared/interfaces";
-import { PersonListing } from "./person-listing";
-import { CommunityLink } from "./community-link";
-import { Spinner } from "./icon";
-import { Paginator } from "./paginator";
+import { InitialFetchRequest } from "../interfaces";
+import { UserService, WebSocketService } from "../services";
+import {
+  fetchLimit,
+  isBrowser,
+  setIsoData,
+  toast,
+  wsClient,
+  wsJsonToRes,
+  wsSubscribe,
+  wsUserOp,
+} from "../utils";
+import { HtmlTags } from "./common/html-tags";
+import { Spinner } from "./common/icon";
+import { MomentTime } from "./common/moment-time";
+import { Paginator } from "./common/paginator";
+import { CommunityLink } from "./community/community-link";
+import { PersonListing } from "./person/person-listing";
 
 enum ModlogEnum {
   ModRemovePost,

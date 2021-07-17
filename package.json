@@ -67,6 +67,7 @@
     "eslint": "^7.30.0",
     "eslint-plugin-prettier": "^3.4.0",
     "husky": "^7.0.1",
+    "import-sort-style-module": "^6.0.0",
     "iso-639-1": "^2.1.9",
     "lemmy-js-client": "0.11.0",
     "lint-staged": "^11.0.1",
@@ -74,6 +75,9 @@
     "node-fetch": "^2.6.1",
     "node-sass": "^6.0.1",
     "prettier": "^2.3.2",
+    "prettier-plugin-import-sort": "^0.0.7",
+    "prettier-plugin-organize-imports": "^2.2.0",
+    "prettier-plugin-packagejson": "^2.2.11",
     "rimraf": "^3.0.2",
     "run-node-webpack-plugin": "^1.3.0",
     "sass-loader": "^12.1.0",
@@ -98,5 +102,11 @@
     "package.json": [
       "sortpack"
     ]
+  },
+  "importSort": {
+    ".js, .jsx, .ts, .tsx": {
+      "style": "module",
+      "parser": "typescript"
+    }
   }
 }

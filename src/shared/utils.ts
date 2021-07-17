@@ -1,79 +1,79 @@
-import "moment/locale/es";
-import "moment/locale/el";
-import "moment/locale/eu";
-import "moment/locale/eo";
-import "moment/locale/de";
-import "moment/locale/zh-cn";
-import "moment/locale/fr";
-import "moment/locale/sv";
-import "moment/locale/ru";
-import "moment/locale/nl";
-import "moment/locale/it";
-import "moment/locale/fi";
-import "moment/locale/ca";
-import "moment/locale/fa";
-import "moment/locale/pl";
-import "moment/locale/pt-br";
-import "moment/locale/ja";
-import "moment/locale/ka";
-import "moment/locale/hi";
-import "moment/locale/gl";
-import "moment/locale/tr";
-import "moment/locale/hu";
-import "moment/locale/uk";
-import "moment/locale/sq";
-import "moment/locale/km";
-import "moment/locale/ga";
-import "moment/locale/sr";
-import "moment/locale/ko";
-import "moment/locale/da";
-import "moment/locale/hr";
-import "moment/locale/bg";
-import "moment/locale/id";
-import "moment/locale/nb";
-
+import emojiShortName from "emoji-short-name";
 import {
-  UserOperation,
   CommentView,
-  LocalUserSettingsView,
-  SortType,
+  CommunityView,
+  GetSiteResponse,
+  LemmyHttp,
+  LemmyWebsocket,
   ListingType,
-  SearchType,
-  WebSocketResponse,
-  WebSocketJsonResponse,
-  Search,
-  SearchResponse,
+  LocalUserSettingsView,
+  PersonViewSafe,
   PostView,
   PrivateMessageView,
-  LemmyWebsocket,
-  PersonViewSafe,
-  CommunityView,
-  LemmyHttp,
+  Search,
+  SearchResponse,
+  SearchType,
+  SortType,
+  UserOperation,
+  WebSocketJsonResponse,
+  WebSocketResponse,
 } from "lemmy-js-client";
-
+import markdown_it from "markdown-it";
+import markdown_it_container from "markdown-it-container";
+import markdown_it_sub from "markdown-it-sub";
+import markdown_it_sup from "markdown-it-sup";
+import moment from "moment";
+import "moment/locale/bg";
+import "moment/locale/ca";
+import "moment/locale/da";
+import "moment/locale/de";
+import "moment/locale/el";
+import "moment/locale/eo";
+import "moment/locale/es";
+import "moment/locale/eu";
+import "moment/locale/fa";
+import "moment/locale/fi";
+import "moment/locale/fr";
+import "moment/locale/ga";
+import "moment/locale/gl";
+import "moment/locale/hi";
+import "moment/locale/hr";
+import "moment/locale/hu";
+import "moment/locale/id";
+import "moment/locale/it";
+import "moment/locale/ja";
+import "moment/locale/ka";
+import "moment/locale/km";
+import "moment/locale/ko";
+import "moment/locale/nb";
+import "moment/locale/nl";
+import "moment/locale/pl";
+import "moment/locale/pt-br";
+import "moment/locale/ru";
+import "moment/locale/sq";
+import "moment/locale/sr";
+import "moment/locale/sv";
+import "moment/locale/tr";
+import "moment/locale/uk";
+import "moment/locale/zh-cn";
+import { Subscription } from "rxjs";
+import { delay, retryWhen, take } from "rxjs/operators";
+import tippy from "tippy.js";
+import Toastify from "toastify-js";
+import { httpBase } from "./env";
+import { i18n } from "./i18next";
 import {
+  CommentNode as CommentNodeI,
   CommentSortType,
   DataType,
   IsoData,
-  CommentNode as CommentNodeI,
 } from "./interfaces";
 import { UserService, WebSocketService } from "./services";
+
 var Tribute: any;
 if (isBrowser()) {
   Tribute = require("tributejs");
 }
-import markdown_it from "markdown-it";
-import markdown_it_sub from "markdown-it-sub";
-import markdown_it_sup from "markdown-it-sup";
-import markdown_it_container from "markdown-it-container";
-import emojiShortName from "emoji-short-name";
-import Toastify from "toastify-js";
-import tippy from "tippy.js";
-import moment from "moment";
-import { Subscription } from "rxjs";
-import { retryWhen, delay, take } from "rxjs/operators";
-import { i18n } from "./i18next";
-import { httpBase } from "./env";
 
 export const wsClient = new LemmyWebsocket();
 
@@ -1342,4 +1342,9 @@ export function personSelectName(pvs: PersonViewSafe): string {
   return pvs.person.local
     ? pvs.person.name
     : `${hostname(pvs.person.actor_id)}/${pvs.person.name}`;
+}
+
+export function initializeSite(site: GetSiteResponse) {
+  UserService.Instance.localUserView = site.my_user;
+  i18n.changeLanguage(getLanguage());
 }
