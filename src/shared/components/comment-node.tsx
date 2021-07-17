@@ -202,8 +202,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   <Icon icon="minus-square" classes="icon-inline" />
                 )}
               </button>
+              {this.linkBtn(true)}
               {/* This is an expanding spacer for mobile */}
-              <div className="mr-lg-4 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2"></div>
+              <div className="mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2"></div>
               {showScores() && (
                 <>
                   <a
@@ -250,7 +251,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   />
                 )}
                 <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold">
-                  {this.props.showContext && this.linkBtn}
+                  {this.props.showContext && this.linkBtn()}
                   {this.props.markable && (
                     <button
                       class="btn btn-link btn-animate text-muted"
@@ -342,7 +343,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               </Link>
                             </button>
                           )}
-                          {!this.props.showContext && this.linkBtn}
                           <button
                             class="btn btn-link btn-animate text-muted"
                             onClick={linkEvent(
@@ -805,11 +805,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : cv.comment.read;
   }
 
-  get linkBtn() {
+  linkBtn(small = false) {
     let cv = this.props.node.comment_view;
     return (
       <Link
-        className="btn btn-link btn-animate text-muted"
+        className={`btn ${small && "btn-sm"} btn-link btn-animate text-muted`}
         to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
         title={this.props.showContext ? i18n.t("show_context") : i18n.t("link")}
       >
