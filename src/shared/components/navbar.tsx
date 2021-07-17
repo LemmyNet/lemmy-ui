@@ -81,6 +81,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   componentDidMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
+      this.websocketEvents();
+
       this.searchTextField = createRef();
       console.log(`isLoggedIn = ${this.state.isLoggedIn}`);
 
@@ -393,6 +395,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       }
       return;
     } else if (msg.reconnect) {
+      toast(i18n.t("websocket_reconnected"), "success");
       WebSocketService.Instance.send(
         wsClient.userJoin({
           auth: authField(),
@@ -530,9 +533,17 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get canCreateCommunity(): boolean {
-    let adminOnly = this.props.site_res.site_view?.site
-      .community_creation_admin_only;
+    let adminOnly =
+      this.props.site_res.site_view?.site.community_creation_admin_only;
     return !adminOnly || this.canAdmin;
+  }
+
+  /// Listens for some websocket errors
+  websocketEvents() {
+    let msg = i18n.t("websocket_disconnected");
+    WebSocketService.Instance.closeEventListener(() => {
+      toast(msg, "danger");
+    });
   }
 
   requestNotificationPermission() {
