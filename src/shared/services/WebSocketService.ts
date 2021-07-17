@@ -1,12 +1,12 @@
-import { wsUri } from "../env";
 import { PersonViewSafe, WebSocketJsonResponse } from "lemmy-js-client";
-import { isBrowser } from "../utils";
+import {
+  default as ReconnectingWebSocket,
+  Options as WSOptions,
+} from "reconnecting-websocket";
 import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
-import {
-  Options as WSOptions,
-  default as ReconnectingWebSocket,
-} from "reconnecting-websocket";
+import { wsUri } from "../env";
+import { isBrowser } from "../utils";
 
 export class WebSocketService {
   private static _instance: WebSocketService;

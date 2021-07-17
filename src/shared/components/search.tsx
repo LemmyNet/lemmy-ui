@@ -1,68 +1,68 @@
 import { Component, linkEvent } from "inferno";
-import { Subscription } from "rxjs";
 import {
-  UserOperation,
-  PostView,
+  CommentResponse,
   CommentView,
   CommunityView,
+  GetCommunity,
+  GetPersonDetails,
+  ListCommunities,
+  ListCommunitiesResponse,
+  ListingType,
   PersonViewSafe,
-  SortType,
+  PostResponse,
+  PostView,
   Search as SearchForm,
   SearchResponse,
   SearchType,
-  PostResponse,
-  CommentResponse,
   Site,
-  ListingType,
-  ListCommunities,
-  ListCommunitiesResponse,
-  GetCommunity,
-  GetPersonDetails,
+  SortType,
+  UserOperation,
 } from "lemmy-js-client";
+import { Subscription } from "rxjs";
+import { InitialFetchRequest } from "shared/interfaces";
+import { i18n } from "../i18next";
 import { WebSocketService } from "../services";
 import {
-  wsJsonToRes,
-  fetchLimit,
-  routeSearchTypeToEnum,
-  routeSortTypeToEnum,
-  toast,
+  authField,
+  capitalizeFirstLetter,
+  choicesConfig,
+  commentsToFlatNodes,
+  communitySelectName,
+  communityToChoice,
   createCommentLikeRes,
   createPostLikeFindRes,
-  commentsToFlatNodes,
-  setIsoData,
-  wsSubscribe,
-  wsUserOp,
-  wsClient,
-  authField,
-  setOptionalAuth,
-  saveScrollPosition,
-  restoreScrollPosition,
-  routeListingTypeToEnum,
-  showLocal,
-  isBrowser,
-  choicesConfig,
   debounce,
   fetchCommunities,
-  communityToChoice,
+  fetchLimit,
   fetchUsers,
-  personToChoice,
-  capitalizeFirstLetter,
-  communitySelectName,
+  isBrowser,
   personSelectName,
+  personToChoice,
+  restoreScrollPosition,
+  routeListingTypeToEnum,
+  routeSearchTypeToEnum,
+  routeSortTypeToEnum,
+  saveScrollPosition,
+  setIsoData,
+  setOptionalAuth,
+  showLocal,
+  toast,
+  wsClient,
+  wsJsonToRes,
+  wsSubscribe,
+  wsUserOp,
 } from "../utils";
-import { PostListing } from "./post-listing";
-import { HtmlTags } from "./html-tags";
-import { Spinner } from "./icon";
-import { PersonListing } from "./person-listing";
-import { CommunityLink } from "./community-link";
-import { SortSelect } from "./sort-select";
-import { ListingTypeSelect } from "./listing-type-select";
-import { CommentNodes } from "./comment-nodes";
-import { Paginator } from "./paginator";
-import { i18n } from "../i18next";
-import { InitialFetchRequest } from "shared/interfaces";
+import { CommentNodes } from "./comment/comment-nodes";
+import { HtmlTags } from "./common/html-tags";
+import { Spinner } from "./common/icon";
+import { ListingTypeSelect } from "./common/listing-type-select";
+import { Paginator } from "./common/paginator";
+import { SortSelect } from "./common/sort-select";
+import { CommunityLink } from "./community/community-link";
+import { PersonListing } from "./person/person-listing";
+import { PostListing } from "./post/post-listing";
 
-var Choices;
+var Choices: any;
 if (isBrowser()) {
   Choices = require("choices.js");
 }

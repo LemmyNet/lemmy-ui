@@ -11,8 +11,8 @@ import {
   UserOperation,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { i18n } from "../i18next";
-import { UserService, WebSocketService } from "../services";
+import { i18n } from "../../i18next";
+import { UserService, WebSocketService } from "../../services";
 import {
   authField,
   isBrowser,
@@ -24,9 +24,9 @@ import {
   wsJsonToRes,
   wsSubscribe,
   wsUserOp,
-} from "../utils";
-import { HtmlTags } from "./common/html-tags";
-import { Icon, Spinner } from "./common/icon";
+} from "../../utils";
+import { HtmlTags } from "../common/html-tags";
+import { Icon, Spinner } from "../common/icon";
 
 interface State {
   loginForm: LoginForm;
