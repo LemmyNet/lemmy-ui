@@ -520,7 +520,7 @@ export class Home extends Component<any, HomeState> {
         <ul class="list-inline mb-1 text-muted font-weight-bold">
           <li className="list-inline-item-action">
             <button
-              class="btn btn-link d-inline-block"
+              class="btn btn-link d-inline-block text-muted"
               onClick={linkEvent(this, this.handleEditClick)}
               aria-label={i18n.t("edit")}
               data-tippy-content={i18n.t("edit")}
