@@ -48,9 +48,8 @@ export class CreatePrivateMessage extends Component<
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
-    this.handlePrivateMessageCreate = this.handlePrivateMessageCreate.bind(
-      this
-    );
+    this.handlePrivateMessageCreate =
+      this.handlePrivateMessageCreate.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -111,7 +110,7 @@ export class CreatePrivateMessage extends Component<
         />
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div class="row">

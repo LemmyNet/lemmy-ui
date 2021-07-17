@@ -243,7 +243,7 @@ export class Community extends Component<any, State> {
       <div class="container">
         {this.state.communityLoading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div class="row">
@@ -282,7 +282,7 @@ export class Community extends Component<any, State> {
     return this.state.dataType == DataType.Post ? (
       this.state.postsLoading ? (
         <h5>
-          <Spinner />
+          <Spinner large />
         </h5>
       ) : (
         <PostListings
@@ -294,7 +294,7 @@ export class Community extends Component<any, State> {
       )
     ) : this.state.commentsLoading ? (
       <h5>
-        <Spinner />
+        <Spinner large />
       </h5>
     ) : (
       <CommentNodes

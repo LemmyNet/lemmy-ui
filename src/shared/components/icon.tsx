@@ -22,12 +22,21 @@ export class Icon extends Component<IconProps, any> {
   }
 }
 
-export class Spinner extends Component<any, any> {
+interface SpinnerProps {
+  large?: boolean;
+}
+
+export class Spinner extends Component<SpinnerProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }
 
   render() {
-    return <Icon icon="spinner" classes="icon-spinner spin" />;
+    return (
+      <Icon
+        icon="spinner"
+        classes={`spin ${this.props.large && "spinner-large"}`}
+      />
+    );
   }
 }

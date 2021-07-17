@@ -252,7 +252,7 @@ export class Post extends Component<any, PostState> {
       <div class="container">
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div class="row">

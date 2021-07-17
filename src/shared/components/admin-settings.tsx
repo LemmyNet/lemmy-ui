@@ -65,7 +65,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.siteConfigRes = this.isoData.routeData[0];
-      this.state.siteConfigForm.config_hjson = this.state.siteConfigRes.config_hjson;
+      this.state.siteConfigForm.config_hjson =
+        this.state.siteConfigRes.config_hjson;
       this.state.siteConfigLoading = false;
       this.state.loading = false;
     } else {
@@ -110,7 +111,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         />
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div class="row">
@@ -228,14 +229,16 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
       this.state.loading = false;
-      this.state.siteConfigForm.config_hjson = this.state.siteConfigRes.config_hjson;
+      this.state.siteConfigForm.config_hjson =
+        this.state.siteConfigRes.config_hjson;
       this.setState(this.state);
       var textarea: any = document.getElementById(this.siteConfigTextAreaId);
       autosize(textarea);
     } else if (op == UserOperation.SaveSiteConfig) {
       let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
-      this.state.siteConfigForm.config_hjson = this.state.siteConfigRes.config_hjson;
+      this.state.siteConfigForm.config_hjson =
+        this.state.siteConfigRes.config_hjson;
       this.state.siteConfigLoading = false;
       toast(i18n.t("site_saved"));
       this.setState(this.state);

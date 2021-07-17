@@ -111,7 +111,7 @@ export class CreatePost extends Component<any, CreatePostState> {
         />
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div class="row">
