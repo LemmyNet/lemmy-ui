@@ -140,7 +140,7 @@ export class Inbox extends Component<any, InboxState> {
       <div class="container">
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div class="row">

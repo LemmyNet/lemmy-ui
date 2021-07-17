@@ -133,16 +133,13 @@ export class Person extends Component<any, PersonState> {
 
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
-    this.handleUserSettingsSortTypeChange = this.handleUserSettingsSortTypeChange.bind(
-      this
-    );
-    this.handleUserSettingsListingTypeChange = this.handleUserSettingsListingTypeChange.bind(
-      this
-    );
+    this.handleUserSettingsSortTypeChange =
+      this.handleUserSettingsSortTypeChange.bind(this);
+    this.handleUserSettingsListingTypeChange =
+      this.handleUserSettingsListingTypeChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleUserSettingsBioChange = this.handleUserSettingsBioChange.bind(
-      this
-    );
+    this.handleUserSettingsBioChange =
+      this.handleUserSettingsBioChange.bind(this);
 
     this.handleAvatarUpload = this.handleAvatarUpload.bind(this);
     this.handleAvatarRemove = this.handleAvatarRemove.bind(this);
@@ -276,7 +273,7 @@ export class Person extends Component<any, PersonState> {
       <div class="container">
         {this.state.loading ? (
           <h5>
-            <Spinner />
+            <Spinner large />
           </h5>
         ) : (
           <div class="row">
@@ -1052,16 +1049,14 @@ export class Person extends Component<any, PersonState> {
   }
 
   handleUserSettingsSortTypeChange(val: SortType) {
-    this.state.saveUserSettingsForm.default_sort_type = Object.keys(
-      SortType
-    ).indexOf(val);
+    this.state.saveUserSettingsForm.default_sort_type =
+      Object.keys(SortType).indexOf(val);
     this.setState(this.state);
   }
 
   handleUserSettingsListingTypeChange(val: ListingType) {
-    this.state.saveUserSettingsForm.default_listing_type = Object.keys(
-      ListingType
-    ).indexOf(val);
+    this.state.saveUserSettingsForm.default_listing_type =
+      Object.keys(ListingType).indexOf(val);
     this.setState(this.state);
   }
 
@@ -1252,10 +1247,14 @@ export class Person extends Component<any, PersonState> {
     } else if (op == UserOperation.SaveUserSettings) {
       let data = wsJsonToRes<LoginResponse>(msg).data;
       UserService.Instance.login(data);
-      this.state.personRes.person_view.person.bio = this.state.saveUserSettingsForm.bio;
-      this.state.personRes.person_view.person.display_name = this.state.saveUserSettingsForm.display_name;
-      this.state.personRes.person_view.person.banner = this.state.saveUserSettingsForm.banner;
-      this.state.personRes.person_view.person.avatar = this.state.saveUserSettingsForm.avatar;
+      this.state.personRes.person_view.person.bio =
+        this.state.saveUserSettingsForm.bio;
+      this.state.personRes.person_view.person.display_name =
+        this.state.saveUserSettingsForm.display_name;
+      this.state.personRes.person_view.person.banner =
+        this.state.saveUserSettingsForm.banner;
+      this.state.personRes.person_view.person.avatar =
+        this.state.saveUserSettingsForm.avatar;
       this.state.saveUserSettingsLoading = false;
       this.setState(this.state);
 
