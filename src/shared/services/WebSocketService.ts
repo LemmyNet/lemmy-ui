@@ -56,6 +56,10 @@ export class WebSocketService {
     this.ws.send(data);
   }
 
+  public closeEventListener(listener: (event: CloseEvent) => void) {
+    this.ws.addEventListener("close", listener);
+  }
+
   public static get Instance() {
     return this._instance || (this._instance = new this());
   }
