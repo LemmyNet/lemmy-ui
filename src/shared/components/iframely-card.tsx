@@ -1,6 +1,5 @@
 import { Component, linkEvent } from "inferno";
 import { Post } from "lemmy-js-client";
-import { mdToHtml } from "../utils";
 import { i18n } from "../i18next";
 import { Icon } from "./icon";
 
@@ -54,7 +53,9 @@ export class IFramelyCard extends Component<
                   {post.embed_description && (
                     <div
                       className="card-text small text-muted md-div"
-                      dangerouslySetInnerHTML={mdToHtml(post.embed_description)}
+                      dangerouslySetInnerHTML={{
+                        __html: post.embed_description,
+                      }}
                     />
                   )}
                   {post.embed_html && (
