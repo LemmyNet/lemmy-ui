@@ -58,7 +58,7 @@ import {
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
 import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 
@@ -73,6 +73,7 @@ interface PostState {
   loading: boolean;
   crossPosts: PostView[];
   siteRes: GetSiteResponse;
+  showSidebarMobile: boolean;
 }
 
 export class Post extends Component<any, PostState> {
@@ -89,6 +90,7 @@ export class Post extends Component<any, PostState> {
     loading: true,
     crossPosts: [],
     siteRes: this.isoData.site_res,
+    showSidebarMobile: false,
   };
 
   constructor(props: any, context: any) {
@@ -280,13 +282,30 @@ export class Post extends Component<any, PostState> {
                 postId={this.state.postId}
                 disabled={pv.post.locked}
               />
+              <div class="d-block d-md-none">
+                <button
+                  class="btn btn-secondary d-inline-block mb-2 mr-3"
+                  onClick={linkEvent(this, this.handleShowSidebarMobile)}
+                >
+                  {i18n.t("sidebar")}{" "}
+                  <Icon
+                    icon={
+                      this.state.showSidebarMobile
+                        ? `minus-square`
+                        : `plus-square`
+                    }
+                    classes="icon-inline"
+                  />
+                </button>
+                {this.state.showSidebarMobile && this.sidebar()}
+              </div>
               {this.state.postRes.comments.length > 0 && this.sortRadios()}
               {this.state.commentViewType == CommentViewType.Tree &&
                 this.commentsTree()}
               {this.state.commentViewType == CommentViewType.Chat &&
                 this.commentsFlat()}
             </div>
-            <div class="col-12 col-sm-12 col-md-4">{this.sidebar()}</div>
+            <div class="d-none d-md-block col-md-4">{this.sidebar()}</div>
           </div>
         )}
       </div>
@@ -419,6 +438,11 @@ export class Post extends Component<any, PostState> {
       i.state.postRes.comments,
       i.state.commentSort
     );
+    i.setState(i.state);
+  }
+
+  handleShowSidebarMobile(i: Post) {
+    i.state.showSidebarMobile = !i.state.showSidebarMobile;
     i.setState(i.state);
   }
 

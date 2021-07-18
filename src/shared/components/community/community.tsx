@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, linkEvent } from "inferno";
 import {
   AddModToCommunityResponse,
   BanFromCommunityResponse,
@@ -71,6 +71,7 @@ interface State {
   dataType: DataType;
   sort: SortType;
   page: number;
+  showSidebarMobile: boolean;
 }
 
 interface CommunityProps {
@@ -101,6 +102,7 @@ export class Community extends Component<any, State> {
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
     siteRes: this.isoData.site_res,
+    showSidebarMobile: false,
   };
 
   constructor(props: any, context: any) {
@@ -246,32 +248,60 @@ export class Community extends Component<any, State> {
             <Spinner large />
           </h5>
         ) : (
-          <div class="row">
-            <div class="col-12 col-md-8">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-                description={cv.community.description}
-                image={cv.community.icon}
-              />
-              {this.communityInfo()}
-              {this.selects()}
-              {this.listings()}
-              <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
-              />
+          <>
+            <HtmlTags
+              title={this.documentTitle}
+              path={this.context.router.route.match.url}
+              description={cv.community.description}
+              image={cv.community.icon}
+            />
+
+            <div class="row">
+              <div class="col-12 col-md-8">
+                {this.communityInfo()}
+                <div class="d-block d-md-none">
+                  <button
+                    class="btn btn-secondary d-inline-block mb-2 mr-3"
+                    onClick={linkEvent(this, this.handleShowSidebarMobile)}
+                  >
+                    {i18n.t("sidebar")}{" "}
+                    <Icon
+                      icon={
+                        this.state.showSidebarMobile
+                          ? `minus-square`
+                          : `plus-square`
+                      }
+                      classes="icon-inline"
+                    />
+                  </button>
+                  {this.state.showSidebarMobile && (
+                    <Sidebar
+                      community_view={cv}
+                      moderators={this.state.communityRes.moderators}
+                      admins={this.state.siteRes.admins}
+                      online={this.state.communityRes.online}
+                      enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
+                    />
+                  )}
+                </div>
+                {this.selects()}
+                {this.listings()}
+                <Paginator
+                  page={this.state.page}
+                  onChange={this.handlePageChange}
+                />
+              </div>
+              <div class="d-none d-md-block col-md-4">
+                <Sidebar
+                  community_view={cv}
+                  moderators={this.state.communityRes.moderators}
+                  admins={this.state.siteRes.admins}
+                  online={this.state.communityRes.online}
+                  enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
+                />
+              </div>
             </div>
-            <div class="col-12 col-md-4">
-              <Sidebar
-                community_view={cv}
-                moderators={this.state.communityRes.moderators}
-                admins={this.state.siteRes.admins}
-                online={this.state.communityRes.online}
-                enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
-              />
-            </div>
-          </div>
+          </>
         )}
       </div>
     );
@@ -309,7 +339,7 @@ export class Community extends Component<any, State> {
   communityInfo() {
     let community = this.state.communityRes.community_view.community;
     return (
-      <div>
+      <div class="mb-2">
         <BannerIconHeader banner={community.banner} icon={community.icon} />
         <h5 class="mb-0">{community.title}</h5>
         <CommunityLink
@@ -319,7 +349,6 @@ export class Community extends Component<any, State> {
           muted
           hideAvatar
         />
-        <hr />
       </div>
     );
   }
@@ -363,6 +392,11 @@ export class Community extends Component<any, State> {
   handleDataTypeChange(val: DataType) {
     this.updateUrl({ dataType: DataType[val], page: 1 });
     window.scrollTo(0, 0);
+  }
+
+  handleShowSidebarMobile(i: Community) {
+    i.state.showSidebarMobile = !i.state.showSidebarMobile;
+    i.setState(i.state);
   }
 
   updateUrl(paramUpdates: UrlParams) {
