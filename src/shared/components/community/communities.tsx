@@ -13,13 +13,15 @@ import {
 import { Subscription } from "rxjs";
 import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
+import { UserService, WebSocketService } from "../../services";
 import {
   authField,
+  getListingTypeFromProps,
   getPageFromProps,
   isBrowser,
   setIsoData,
   setOptionalAuth,
+  showLocal,
   toast,
   wsClient,
   wsJsonToRes,
@@ -28,6 +30,7 @@ import {
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import { ListingTypeSelect } from "../common/listing-type-select";
 import { Paginator } from "../common/paginator";
 import { CommunityLink } from "./community-link";
 
@@ -39,10 +42,12 @@ interface CommunitiesState {
   loading: boolean;
   site_view: SiteView;
   searchText: string;
+  listingType: ListingType;
 }
 
 interface CommunitiesProps {
-  page: number;
+  listingType?: ListingType;
+  page?: number;
 }
 
 export class Communities extends Component<any, CommunitiesState> {
@@ -52,6 +57,7 @@ export class Communities extends Component<any, CommunitiesState> {
     communities: [],
     loading: true,
     page: getPageFromProps(this.props),
+    listingType: getListingTypeFromProps(this.props),
     site_view: this.isoData.site_res.site_view,
     searchText: "",
   };
@@ -60,6 +66,7 @@ export class Communities extends Component<any, CommunitiesState> {
     super(props, context);
     this.state = this.emptyState;
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -81,12 +88,16 @@ export class Communities extends Component<any, CommunitiesState> {
 
   static getDerivedStateFromProps(props: any): CommunitiesProps {
     return {
+      listingType: getListingTypeFromProps(props),
       page: getPageFromProps(props),
     };
   }
 
   componentDidUpdate(_: any, lastState: CommunitiesState) {
-    if (lastState.page !== this.state.page) {
+    if (
+      lastState.page !== this.state.page ||
+      lastState.listingType !== this.state.listingType
+    ) {
       this.setState({ loading: true });
       this.refetch();
     }
@@ -112,6 +123,13 @@ export class Communities extends Component<any, CommunitiesState> {
             <div class="row">
               <div class="col-md-6">
                 <h4>{i18n.t("list_of_communities")}</h4>
+                <span class="mb-2">
+                  <ListingTypeSelect
+                    type_={this.state.listingType}
+                    showLocal={showLocal(this.isoData)}
+                    onChange={this.handleListingTypeChange}
+                  />
+                </span>
               </div>
               <div class="col-md-6">
                 <div class="float-md-right">{this.searchForm()}</div>
@@ -216,11 +234,21 @@ export class Communities extends Component<any, CommunitiesState> {
 
   updateUrl(paramUpdates: CommunitiesProps) {
     const page = paramUpdates.page || this.state.page;
-    this.props.history.push(`/communities/page/${page}`);
+    const listingTypeStr = paramUpdates.listingType || this.state.listingType;
+    this.props.history.push(
+      `/communities/listing_type/${listingTypeStr}/page/${page}`
+    );
   }
 
   handlePageChange(page: number) {
     this.updateUrl({ page });
+  }
+
+  handleListingTypeChange(val: ListingType) {
+    this.updateUrl({
+      listingType: val,
+      page: 1,
+    });
   }
 
   handleUnsubscribe(communityId: number) {
@@ -254,7 +282,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   refetch() {
     let listCommunitiesForm: ListCommunities = {
-      type_: ListingType.All,
+      type_: this.state.listingType,
       sort: SortType.TopMonth,
       limit: communityLimit,
       page: this.state.page,
@@ -268,9 +296,16 @@ export class Communities extends Component<any, CommunitiesState> {
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split("/");
-    let page = pathSplit[3] ? Number(pathSplit[3]) : 1;
+    let type_: ListingType = pathSplit[3]
+      ? ListingType[pathSplit[3]]
+      : UserService.Instance.localUserView
+      ? Object.values(ListingType)[
+          UserService.Instance.localUserView.local_user.default_listing_type
+        ]
+      : ListingType.Local;
+    let page = pathSplit[5] ? Number(pathSplit[5]) : 1;
     let listCommunitiesForm: ListCommunities = {
-      type_: ListingType.All,
+      type_,
       sort: SortType.TopMonth,
       limit: communityLimit,
       page,
