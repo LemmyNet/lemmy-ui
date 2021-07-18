@@ -394,9 +394,11 @@ export function getLanguage(override?: string): string {
 export function getBrowserLanguage(): string {
   // Intersect lemmy's langs, with the browser langs
   let langs = languages ? languages.map(l => l.code) : ["en"];
-  let allowedLangs = navigator.languages.filter(v => langs.includes(v)) || [
-    "en",
-  ];
+
+  // NOTE, mobile browsers seem to be missing this list, so append en
+  let allowedLangs = navigator.languages
+    .concat("en")
+    .filter(v => langs.includes(v));
   return allowedLangs[0];
 }
 

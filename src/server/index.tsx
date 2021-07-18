@@ -111,6 +111,11 @@ server.get("/*", async (req, res) => {
            <script>window.isoData = ${serialize(isoData)}</script>
            <script>window.lemmyConfig = ${serialize(config)}</script>
 
+           <!-- A remote debugging utility for mobile
+           <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+           <script>eruda.init();</script>
+           -->
+
            ${helmet.title.toString()}
            ${helmet.meta.toString()}
 
