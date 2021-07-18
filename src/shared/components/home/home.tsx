@@ -72,6 +72,9 @@ interface HomeState {
   trendingCommunities: CommunityView[];
   siteRes: GetSiteResponse;
   showEditSite: boolean;
+  showSubscribedMobile: boolean;
+  showTrendingMobile: boolean;
+  showSidebarMobile: boolean;
   loading: boolean;
   posts: PostView[];
   comments: CommentView[];
@@ -103,6 +106,9 @@ export class Home extends Component<any, HomeState> {
     trendingCommunities: [],
     siteRes: this.isoData.site_res,
     showEditSite: false,
+    showSubscribedMobile: false,
+    showTrendingMobile: false,
+    showSidebarMobile: false,
     loading: true,
     posts: [],
     comments: [],
@@ -283,11 +289,77 @@ export class Home extends Component<any, HomeState> {
         {this.state.siteRes.site_view?.site && (
           <div class="row">
             <main role="main" class="col-12 col-md-8">
+              <div class="d-block d-md-none">{this.mobileView()}</div>
               {this.posts()}
             </main>
-            <aside class="col-12 col-md-4">{this.mySidebar()}</aside>
+            <aside class="d-none d-md-block col-md-4">{this.mySidebar()}</aside>
           </div>
         )}
+      </div>
+    );
+  }
+
+  mobileView() {
+    return (
+      <div class="row">
+        <div class="col-12">
+          {UserService.Instance.localUserView &&
+            this.state.subscribedCommunities.length > 0 && (
+              <button
+                class="btn btn-secondary d-inline-block mb-2 mr-3"
+                onClick={linkEvent(this, this.handleShowSubscribedMobile)}
+              >
+                {i18n.t("subscribed")}{" "}
+                <Icon
+                  icon={
+                    this.state.showSubscribedMobile
+                      ? `minus-square`
+                      : `plus-square`
+                  }
+                  classes="icon-inline"
+                />
+              </button>
+            )}
+          <button
+            class="btn btn-secondary d-inline-block mb-2 mr-3"
+            onClick={linkEvent(this, this.handleShowTrendingMobile)}
+          >
+            {i18n.t("trending")}{" "}
+            <Icon
+              icon={
+                this.state.showTrendingMobile ? `minus-square` : `plus-square`
+              }
+              classes="icon-inline"
+            />
+          </button>
+          <button
+            class="btn btn-secondary d-inline-block mb-2 mr-3"
+            onClick={linkEvent(this, this.handleShowSidebarMobile)}
+          >
+            {i18n.t("sidebar")}{" "}
+            <Icon
+              icon={
+                this.state.showSidebarMobile ? `minus-square` : `plus-square`
+              }
+              classes="icon-inline"
+            />
+          </button>
+          {this.state.showSubscribedMobile && (
+            <div class="col-12 card border-secondary mb-3">
+              <div class="card-body">{this.subscribedCommunities()}</div>
+            </div>
+          )}
+          {this.state.showTrendingMobile && (
+            <div class="col-12 card border-secondary mb-3">
+              <div class="card-body">{this.trendingCommunities()}</div>
+            </div>
+          )}
+          {this.state.showSidebarMobile && (
+            <div class="col-12 card border-secondary mb-3">
+              <div class="card-body">{this.sidebar()}</div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -654,6 +726,21 @@ export class Home extends Component<any, HomeState> {
   handleEditCancel() {
     this.state.showEditSite = false;
     this.setState(this.state);
+  }
+
+  handleShowSubscribedMobile(i: Home) {
+    i.state.showSubscribedMobile = !i.state.showSubscribedMobile;
+    i.setState(i.state);
+  }
+
+  handleShowTrendingMobile(i: Home) {
+    i.state.showTrendingMobile = !i.state.showTrendingMobile;
+    i.setState(i.state);
+  }
+
+  handleShowSidebarMobile(i: Home) {
+    i.state.showSidebarMobile = !i.state.showSidebarMobile;
+    i.setState(i.state);
   }
 
   handlePageChange(page: number) {
