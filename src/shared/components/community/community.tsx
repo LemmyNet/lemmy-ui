@@ -61,7 +61,6 @@ import { CommunityLink } from "./community-link";
 interface State {
   communityRes: GetCommunityResponse;
   siteRes: GetSiteResponse;
-  communityId: number;
   communityName: string;
   communityLoading: boolean;
   postsLoading: boolean;
@@ -91,7 +90,6 @@ export class Community extends Component<any, State> {
   private subscription: Subscription;
   private emptyState: State = {
     communityRes: undefined,
-    communityId: Number(this.props.match.params.id),
     communityName: this.props.match.params.name,
     communityLoading: true,
     postsLoading: true,
@@ -136,7 +134,6 @@ export class Community extends Component<any, State> {
 
   fetchCommunity() {
     let form: GetCommunity = {
-      id: this.state.communityId ? this.state.communityId : null,
       name: this.state.communityName ? this.state.communityName : null,
       auth: authField(false),
     };
@@ -198,7 +195,7 @@ export class Community extends Component<any, State> {
         saved_only: false,
       };
       setOptionalAuth(getPostsForm, req.auth);
-      this.setIdOrName(getPostsForm, id, name_);
+      this.setName(getPostsForm, name_);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetComments = {
@@ -209,19 +206,14 @@ export class Community extends Component<any, State> {
         saved_only: false,
       };
       setOptionalAuth(getCommentsForm, req.auth);
-      this.setIdOrName(getCommentsForm, id, name_);
       promises.push(req.client.getComments(getCommentsForm));
     }
 
     return promises;
   }
 
-  static setIdOrName(obj: any, id: number, name_: string) {
-    if (id) {
-      obj.community_id = id;
-    } else {
-      obj.community_name = name_;
-    }
+  static setName(obj: any, name_: string) {
+    obj.community_name = name_;
   }
 
   componentDidUpdate(_: any, lastState: State) {
@@ -404,9 +396,7 @@ export class Community extends Component<any, State> {
     const sortStr = paramUpdates.sort || this.state.sort;
     const page = paramUpdates.page || this.state.page;
 
-    let typeView = this.state.communityName
-      ? `/c/${this.state.communityName}`
-      : `/community/${this.state.communityId}`;
+    let typeView = `/c/${this.state.communityName}`;
 
     this.props.history.push(
       `${typeView}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
@@ -420,7 +410,6 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort: this.state.sort,
         type_: ListingType.Community,
-        community_id: this.state.communityId,
         community_name: this.state.communityName,
         saved_only: false,
         auth: authField(false),
@@ -432,7 +421,6 @@ export class Community extends Component<any, State> {
         limit: fetchLimit,
         sort: this.state.sort,
         type_: ListingType.Community,
-        community_id: this.state.communityId,
         community_name: this.state.communityName,
         saved_only: false,
         auth: authField(false),
