@@ -40,6 +40,7 @@ export class ListingTypeSelect extends Component<
     return (
       <div class="btn-group btn-group-toggle flex-wrap mb-2">
         <label
+          title={i18n.t("subscribed_description")}
           className={`btn btn-outline-secondary 
             ${this.state.type_ == ListingType.Subscribed && "active"}
             ${
@@ -61,6 +62,7 @@ export class ListingTypeSelect extends Component<
         </label>
         {this.props.showLocal && (
           <label
+            title={i18n.t("local_description")}
             className={`pointer btn btn-outline-secondary ${
               this.state.type_ == ListingType.Local && "active"
             }`}
@@ -76,6 +78,7 @@ export class ListingTypeSelect extends Component<
           </label>
         )}
         <label
+          title={i18n.t("all_description")}
           className={`pointer btn btn-outline-secondary ${
             (this.state.type_ == ListingType.All && "active") ||
             (!this.props.showLocal &&
