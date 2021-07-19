@@ -373,6 +373,7 @@ export class Home extends Component<any, HomeState> {
               <div class="card-body">
                 {this.trendingCommunities()}
                 {this.createCommunityButton()}
+                {this.exploreCommunitiesButton()}
               </div>
             </div>
 
@@ -394,8 +395,16 @@ export class Home extends Component<any, HomeState> {
 
   createCommunityButton() {
     return (
-      <Link className="btn btn-secondary btn-block" to="/create_community">
+      <Link className="mt-2 btn btn-secondary btn-block" to="/create_community">
         {i18n.t("create_a_community")}
+      </Link>
+    );
+  }
+
+  exploreCommunitiesButton() {
+    return (
+      <Link className="btn btn-secondary btn-block" to="/communities">
+        {i18n.t("explore_communities")}
       </Link>
     );
   }
@@ -411,7 +420,7 @@ export class Home extends Component<any, HomeState> {
             </Link>
           </T>
         </h5>
-        <ul class="list-inline">
+        <ul class="list-inline mb-0">
           {this.state.trendingCommunities.map(cv => (
             <li class="list-inline-item d-inline-block">
               <CommunityLink community={cv.community} />
