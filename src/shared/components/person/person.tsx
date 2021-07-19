@@ -839,6 +839,26 @@ export class Person extends Component<any, PersonState> {
             <div class="form-check">
               <input
                 class="form-check-input"
+                id="user-show-new-post-notifs"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_new_post_notifs}
+                onChange={linkEvent(
+                  this,
+                  this.handleUserSettingsShowNewPostNotifs
+                )}
+              />
+              <label
+                class="form-check-label"
+                htmlFor="user-show-new-post-notifs"
+              >
+                {i18n.t("show_new_post_notifs")}
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <input
+                class="form-check-input"
                 id="user-send-notifications-to-email"
                 type="checkbox"
                 disabled={!this.state.saveUserSettingsForm.email}
@@ -1020,6 +1040,11 @@ export class Person extends Component<any, PersonState> {
 
   handleUserSettingsShowReadPosts(i: Person, event: any) {
     i.state.saveUserSettingsForm.show_read_posts = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleUserSettingsShowNewPostNotifs(i: Person, event: any) {
+    i.state.saveUserSettingsForm.show_new_post_notifs = event.target.checked;
     i.setState(i.state);
   }
 
@@ -1206,6 +1231,8 @@ export class Person extends Component<any, PersonState> {
         UserService.Instance.localUserView.local_user.show_scores;
       this.state.saveUserSettingsForm.show_read_posts =
         UserService.Instance.localUserView.local_user.show_read_posts;
+      this.state.saveUserSettingsForm.show_new_post_notifs =
+        UserService.Instance.localUserView.local_user.show_new_post_notifs;
       this.state.saveUserSettingsForm.email =
         UserService.Instance.localUserView.local_user.email;
       this.state.saveUserSettingsForm.bio =
