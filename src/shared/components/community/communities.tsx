@@ -13,10 +13,10 @@ import {
 import { Subscription } from "rxjs";
 import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
+import { WebSocketService } from "../../services";
 import {
   authField,
-  getListingTypeFromProps,
+  getListingTypeFromPropsNoDefault,
   getPageFromProps,
   isBrowser,
   setIsoData,
@@ -57,7 +57,7 @@ export class Communities extends Component<any, CommunitiesState> {
     communities: [],
     loading: true,
     page: getPageFromProps(this.props),
-    listingType: getListingTypeFromProps(this.props),
+    listingType: getListingTypeFromPropsNoDefault(this.props),
     site_view: this.isoData.site_res.site_view,
     searchText: "",
   };
@@ -88,7 +88,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   static getDerivedStateFromProps(props: any): CommunitiesProps {
     return {
-      listingType: getListingTypeFromProps(props),
+      listingType: getListingTypeFromPropsNoDefault(props),
       page: getPageFromProps(props),
     };
   }
@@ -298,10 +298,6 @@ export class Communities extends Component<any, CommunitiesState> {
     let pathSplit = req.path.split("/");
     let type_: ListingType = pathSplit[3]
       ? ListingType[pathSplit[3]]
-      : UserService.Instance.localUserView
-      ? Object.values(ListingType)[
-          UserService.Instance.localUserView.local_user.default_listing_type
-        ]
       : ListingType.Local;
     let page = pathSplit[5] ? Number(pathSplit[5]) : 1;
     let listCommunitiesForm: ListCommunities = {
