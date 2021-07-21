@@ -31,7 +31,6 @@ import {
   editPostFindRes,
   elementUrl,
   fetchLimit,
-  getIdFromProps,
   getLanguage,
   getUsernameFromProps,
   languages,
@@ -67,7 +66,6 @@ import { PersonListing } from "./person-listing";
 
 interface PersonState {
   personRes: GetPersonDetailsResponse;
-  personId: number;
   userName: string;
   view: PersonDetailsView;
   sort: SortType;
@@ -102,7 +100,6 @@ export class Person extends Component<any, PersonState> {
   private subscription: Subscription;
   private emptyState: PersonState = {
     personRes: undefined,
-    personId: getIdFromProps(this.props),
     userName: getUsernameFromProps(this.props),
     loading: true,
     view: Person.getViewFromProps(this.props.match.view),
@@ -164,7 +161,6 @@ export class Person extends Component<any, PersonState> {
 
   fetchUserData() {
     let form: GetPersonDetails = {
-      person_id: this.state.personId,
       username: this.state.userName,
       sort: this.state.sort,
       saved_only: this.state.view === PersonDetailsView.Saved,
@@ -969,9 +965,7 @@ export class Person extends Component<any, PersonState> {
     const viewStr = paramUpdates.view || PersonDetailsView[this.state.view];
     const sortStr = paramUpdates.sort || this.state.sort;
 
-    let typeView = this.state.userName
-      ? `/u/${this.state.userName}`
-      : `/user/${this.state.personId}`;
+    let typeView = `/u/${this.state.userName}`;
 
     this.props.history.push(
       `${typeView}/view/${viewStr}/sort/${sortStr}/page/${page}`

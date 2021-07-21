@@ -72,16 +72,6 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: req => Post.fetchInitialData(req),
   },
   {
-    path: `/community/:id/data_type/:data_type/sort/:sort/page/:page`,
-    component: Community,
-    fetchInitialData: req => Community.fetchInitialData(req),
-  },
-  {
-    path: `/community/:id`,
-    component: Community,
-    fetchInitialData: req => Community.fetchInitialData(req),
-  },
-  {
     path: `/c/:name/data_type/:data_type/sort/:sort/page/:page`,
     component: Community,
     fetchInitialData: req => Community.fetchInitialData(req),
@@ -93,16 +83,6 @@ export const routes: IRoutePropsWithFetch[] = [
   },
   {
     path: `/u/:username/view/:view/sort/:sort/page/:page`,
-    component: Person,
-    fetchInitialData: req => Person.fetchInitialData(req),
-  },
-  {
-    path: `/user/:id/view/:view/sort/:sort/page/:page`,
-    component: Person,
-    fetchInitialData: req => Person.fetchInitialData(req),
-  },
-  {
-    path: `/user/:id`,
     component: Person,
     fetchInitialData: req => Person.fetchInitialData(req),
   },

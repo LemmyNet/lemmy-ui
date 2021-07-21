@@ -28,8 +28,11 @@ export class PersonListing extends Component<PersonListingProps, any> {
       apubName = `@${person.name}`;
       link = `/u/${person.name}`;
     } else {
-      apubName = `@${person.name}@${hostname(person.actor_id)}`;
-      link = !this.props.realLink ? `/user/${person.id}` : person.actor_id;
+      let domain = hostname(person.actor_id);
+      apubName = `@${person.name}@${domain}`;
+      link = !this.props.realLink
+        ? `/u/${person.name}@${domain}`
+        : person.actor_id;
     }
 
     let displayName = this.props.useApubName

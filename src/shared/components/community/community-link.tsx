@@ -27,11 +27,10 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
       title = community.title;
       link = `/c/${community.name}`;
     } else {
-      name_ = `${community.name}@${hostname(community.actor_id)}`;
-      title = `${community.title}@${hostname(community.actor_id)}`;
-      link = !this.props.realLink
-        ? `/community/${community.id}`
-        : community.actor_id;
+      let domain = hostname(community.actor_id);
+      name_ = `${community.name}@${domain}`;
+      title = `${community.title}@${domain}`;
+      link = !this.props.realLink ? `/c/${name_}` : community.actor_id;
     }
 
     let apubName = `!${name_}`;

@@ -161,11 +161,6 @@ export class CreatePost extends Component<any, CreatePostState> {
   get prevCommunityId(): number {
     if (this.props.match.params.id) {
       return this.props.match.params.id;
-    } else if (this.props.location.state) {
-      let lastLocation = this.props.location.state.prevPath;
-      if (lastLocation.includes("/community/")) {
-        return Number(lastLocation.split("/community/")[1]);
-      }
     }
     return null;
   }
