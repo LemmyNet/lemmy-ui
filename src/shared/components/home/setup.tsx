@@ -89,7 +89,6 @@ export class Setup extends Component<any, State> {
               onInput={linkEvent(this, this.handleRegisterUsernameChange)}
               required
               minLength={3}
-              maxLength={20}
               pattern="[a-zA-Z0-9_]+"
             />
           </div>
