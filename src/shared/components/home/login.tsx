@@ -41,6 +41,7 @@ interface State {
 export class Login extends Component<any, State> {
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
+  private audio: HTMLAudioElement;
 
   emptyState: State = {
     loginForm: {
@@ -406,8 +407,8 @@ export class Login extends Component<any, State> {
     i.setState(i.state);
   }
 
-  handleRegenCaptcha(_i: Login, event: any) {
-    event.preventDefault();
+  handleRegenCaptcha(i: Login) {
+    i.audio = null;
     WebSocketService.Instance.send(wsClient.getCaptcha());
   }
 
@@ -419,16 +420,23 @@ export class Login extends Component<any, State> {
     WebSocketService.Instance.send(wsClient.passwordReset(resetForm));
   }
 
-  handleCaptchaPlay(i: Login, event: any) {
-    event.preventDefault();
-    let snd = new Audio("data:audio/wav;base64," + i.state.captcha.ok.wav);
-    snd.play();
+  handleCaptchaPlay(i: Login) {
+    // This was a bad bug, it should only build the new audio on a new file.
+    // Replays would stop prematurely if this was rebuilt every time.
+    if (i.audio == null) {
+      let base64 = `data:audio/wav;base64,${i.state.captcha.ok.wav}`;
+      i.audio = new Audio(base64);
+    }
+
+    i.audio.play();
+
     i.state.captchaPlaying = true;
     i.setState(i.state);
-    snd.addEventListener("ended", () => {
-      snd.currentTime = 0;
+
+    i.audio.addEventListener("ended", () => {
+      i.audio.currentTime = 0;
       i.state.captchaPlaying = false;
-      i.setState(this.state);
+      i.setState(i.state);
     });
   }
 
