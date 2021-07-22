@@ -490,7 +490,9 @@ export class Community extends Component<any, State> {
     } else if (op == UserOperation.CreatePost) {
       let data = wsJsonToRes<PostResponse>(msg).data;
       this.state.posts.unshift(data.post_view);
-      notifyPost(data.post_view, this.context.router);
+      if (UserService.Instance.localUserView?.local_user.show_new_post_notifs) {
+        notifyPost(data.post_view, this.context.router);
+      }
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
       let data = wsJsonToRes<PostResponse>(msg).data;
