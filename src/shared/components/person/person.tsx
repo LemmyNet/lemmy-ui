@@ -679,7 +679,6 @@ export class Person extends Component<any, PersonState> {
                 )}
                 pattern="^(?!@)(.+)$"
                 minLength={3}
-                maxLength={20}
               />
             </div>
           </div>
