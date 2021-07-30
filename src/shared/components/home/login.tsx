@@ -408,6 +408,8 @@ export class Login extends Component<any, State> {
 
   handleRegenCaptcha(i: Login) {
     i.audio = null;
+    i.state.captchaPlaying = false;
+    i.setState(i.state);
     WebSocketService.Instance.send(wsClient.getCaptcha());
   }
 
