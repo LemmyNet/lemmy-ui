@@ -395,7 +395,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       }
       return;
     } else if (msg.reconnect) {
-      toast(i18n.t("websocket_reconnected"), "success");
+      console.log(i18n.t("websocket_reconnected"));
       WebSocketService.Instance.send(
         wsClient.userJoin({
           auth: authField(),
@@ -542,7 +542,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   websocketEvents() {
     let msg = i18n.t("websocket_disconnected");
     WebSocketService.Instance.closeEventListener(() => {
-      toast(msg, "danger");
+      console.error(msg);
     });
   }
 
