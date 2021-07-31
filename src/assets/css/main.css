@@ -133,8 +133,10 @@
 }
 
 .spinner-large {
-  width: 4em;
-  height: 4em;
+  display: block;
+  margin: 1em auto;
+  width: 2em;
+  height: 2em;
 }
 
 .spin {
