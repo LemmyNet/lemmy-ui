@@ -1,67 +1,68 @@
 import { Component, linkEvent } from "inferno";
-import { Subscription } from "rxjs";
 import {
-  UserOperation,
-  PostView,
+  CommentResponse,
   CommentView,
   CommunityView,
+  GetCommunity,
+  GetPersonDetails,
+  ListCommunities,
+  ListCommunitiesResponse,
+  ListingType,
   PersonViewSafe,
-  SortType,
+  PostResponse,
+  PostView,
   Search as SearchForm,
   SearchResponse,
   SearchType,
-  PostResponse,
-  CommentResponse,
   Site,
-  ListingType,
-  ListCommunities,
-  ListCommunitiesResponse,
-  GetCommunity,
-  GetPersonDetails,
+  SortType,
+  UserOperation,
 } from "lemmy-js-client";
+import { Subscription } from "rxjs";
+import { InitialFetchRequest } from "shared/interfaces";
+import { i18n } from "../i18next";
 import { WebSocketService } from "../services";
 import {
-  wsJsonToRes,
-  fetchLimit,
-  routeSearchTypeToEnum,
-  routeSortTypeToEnum,
-  toast,
+  authField,
+  capitalizeFirstLetter,
+  choicesConfig,
+  commentsToFlatNodes,
+  communitySelectName,
+  communityToChoice,
   createCommentLikeRes,
   createPostLikeFindRes,
-  commentsToFlatNodes,
-  setIsoData,
-  wsSubscribe,
-  wsUserOp,
-  wsClient,
-  authField,
-  setOptionalAuth,
-  saveScrollPosition,
-  restoreScrollPosition,
-  routeListingTypeToEnum,
-  showLocal,
-  isBrowser,
-  choicesConfig,
   debounce,
   fetchCommunities,
-  communityToChoice,
+  fetchLimit,
   fetchUsers,
-  personToChoice,
-  capitalizeFirstLetter,
-  communitySelectName,
+  isBrowser,
   personSelectName,
+  personToChoice,
+  restoreScrollPosition,
+  routeListingTypeToEnum,
+  routeSearchTypeToEnum,
+  routeSortTypeToEnum,
+  saveScrollPosition,
+  setIsoData,
+  setOptionalAuth,
+  showLocal,
+  toast,
+  wsClient,
+  wsJsonToRes,
+  wsSubscribe,
+  wsUserOp,
 } from "../utils";
-import { PostListing } from "./post-listing";
-import { HtmlTags } from "./html-tags";
-import { Spinner } from "./icon";
-import { PersonListing } from "./person-listing";
-import { CommunityLink } from "./community-link";
-import { SortSelect } from "./sort-select";
-import { ListingTypeSelect } from "./listing-type-select";
-import { CommentNodes } from "./comment-nodes";
-import { i18n } from "../i18next";
-import { InitialFetchRequest } from "shared/interfaces";
+import { CommentNodes } from "./comment/comment-nodes";
+import { HtmlTags } from "./common/html-tags";
+import { Spinner } from "./common/icon";
+import { ListingTypeSelect } from "./common/listing-type-select";
+import { Paginator } from "./common/paginator";
+import { SortSelect } from "./common/sort-select";
+import { CommunityLink } from "./community/community-link";
+import { PersonListing } from "./person/person-listing";
+import { PostListing } from "./post/post-listing";
 
-var Choices;
+var Choices: any;
 if (isBrowser()) {
   Choices = require("choices.js");
 }
@@ -166,6 +167,7 @@ export class Search extends Component<any, SearchState> {
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -328,7 +330,7 @@ export class Search extends Component<any, SearchState> {
         {this.state.type_ == SearchType.Users && this.users()}
         {this.state.type_ == SearchType.Url && this.posts()}
         {this.resultsCount() == 0 && <span>{i18n.t("no_results")}</span>}
-        {this.paginator()}
+        <Paginator page={this.state.page} onChange={this.handlePageChange} />
       </div>
     );
   }
@@ -605,30 +607,6 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  paginator() {
-    return (
-      <div class="mt-2">
-        {this.state.page > 1 && (
-          <button
-            class="btn btn-secondary mr-1"
-            onClick={linkEvent(this, this.prevPage)}
-          >
-            {i18n.t("prev")}
-          </button>
-        )}
-
-        {this.resultsCount() > 0 && (
-          <button
-            class="btn btn-secondary"
-            onClick={linkEvent(this, this.nextPage)}
-          >
-            {i18n.t("next")}
-          </button>
-        )}
-      </div>
-    );
-  }
-
   resultsCount(): number {
     let res = this.state.searchResponse;
     return (
@@ -639,12 +617,8 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  nextPage(i: Search) {
-    i.updateUrl({ page: i.state.page + 1 });
-  }
-
-  prevPage(i: Search) {
-    i.updateUrl({ page: i.state.page - 1 });
+  handlePageChange(page: number) {
+    this.updateUrl({ page });
   }
 
   search() {

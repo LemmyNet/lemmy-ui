@@ -1,40 +1,43 @@
 import i18next, { i18nTyped } from "i18next";
-import { getLanguage } from "./utils";
-import { en } from "./translations/en";
+import { ar } from "./translations/ar";
+import { bg } from "./translations/bg";
+import { ca } from "./translations/ca";
+import { da } from "./translations/da";
+import { de } from "./translations/de";
 import { el } from "./translations/el";
-import { eu } from "./translations/eu";
+import { en } from "./translations/en";
 import { eo } from "./translations/eo";
 import { es } from "./translations/es";
-import { de } from "./translations/de";
-import { fr } from "./translations/fr";
-import { sv } from "./translations/sv";
-import { ru } from "./translations/ru";
-import { zh } from "./translations/zh";
-import { nl } from "./translations/nl";
-import { it } from "./translations/it";
-import { fi } from "./translations/fi";
-import { ca } from "./translations/ca";
+import { eu } from "./translations/eu";
 import { fa } from "./translations/fa";
+import { fi } from "./translations/fi";
+import { fr } from "./translations/fr";
+import { ga } from "./translations/ga";
+import { gl } from "./translations/gl";
 import { hi } from "./translations/hi";
-import { pl } from "./translations/pl";
-import { pt_BR } from "./translations/pt_BR";
+import { hr } from "./translations/hr";
+import { hu } from "./translations/hu";
+import { id } from "./translations/id";
+import { it } from "./translations/it";
 import { ja } from "./translations/ja";
 import { ka } from "./translations/ka";
-import { gl } from "./translations/gl";
-import { tr } from "./translations/tr";
-import { hu } from "./translations/hu";
-import { uk } from "./translations/uk";
-import { sq } from "./translations/sq";
 import { km } from "./translations/km";
-import { ga } from "./translations/ga";
-import { sr_Latn } from "./translations/sr_Latn";
-import { da } from "./translations/da";
-import { oc } from "./translations/oc";
-import { hr } from "./translations/hr";
-import { th } from "./translations/th";
-import { bg } from "./translations/bg";
-import { ar } from "./translations/ar";
 import { ko } from "./translations/ko";
+import { nb_NO } from "./translations/nb_NO";
+import { nl } from "./translations/nl";
+import { oc } from "./translations/oc";
+import { pl } from "./translations/pl";
+import { pt_BR } from "./translations/pt_BR";
+import { ru } from "./translations/ru";
+import { sq } from "./translations/sq";
+import { sr_Latn } from "./translations/sr_Latn";
+import { sv } from "./translations/sv";
+import { th } from "./translations/th";
+import { tr } from "./translations/tr";
+import { uk } from "./translations/uk";
+import { zh } from "./translations/zh";
+import { zh_Hant } from "./translations/zh_Hant";
+import { getLanguage } from "./utils";
 
 // https://github.com/nimbusec-oss/inferno-i18next/blob/master/tests/T.test.js#L66
 const resources = {
@@ -72,7 +75,10 @@ const resources = {
   th,
   bg,
   ar,
-  ko
+  ko,
+  id,
+  nb_NO,
+  zh_Hant,
 };
 
 function format(value: any, format: any): any {

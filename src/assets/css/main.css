@@ -132,6 +132,11 @@
   margin-bottom: 2px;
 }
 
+.spinner-large {
+  width: 4em;
+  height: 4em;
+}
+
 .spin {
   animation: spins 2s linear infinite;
 }

@@ -1,24 +1,23 @@
-import serialize from "serialize-javascript";
 import express from "express";
-import { StaticRouter } from "inferno-router";
+import { IncomingHttpHeaders } from "http";
+import { Helmet } from "inferno-helmet";
+import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
-import { matchPath } from "inferno-router";
+import IsomorphicCookie from "isomorphic-cookie";
+import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import path from "path";
-import { App } from "../shared/components/app";
+import process from "process";
+import serialize from "serialize-javascript";
+import { App } from "../shared/components/app/app";
+import { SYMBOLS } from "../shared/components/common/symbols";
+import { httpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
-import process from "process";
-import { Helmet } from "inferno-helmet";
-import { initializeSite } from "../shared/initialize";
-import { httpBaseInternal } from "../shared/env";
-import { IncomingHttpHeaders } from "http";
-import { setOptionalAuth } from "../shared/utils";
+import { initializeSite, setOptionalAuth } from "../shared/utils";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -76,20 +75,10 @@ server.get("/*", async (req, res) => {
     return res.redirect(`/404?err=${errCode}`);
   }
 
-  let acceptLang = req.headers["accept-language"]
-    ? req.headers["accept-language"].split(",")[0]
-    : "en";
-  let lang = site.my_user
-    ? site.my_user.local_user.lang == "browser"
-      ? acceptLang
-      : "en"
-    : acceptLang;
-
   let isoData: IsoData = {
     path: req.path,
     site_res: site,
     routeData,
-    lang,
   };
 
   const wrapper = (
@@ -109,6 +98,7 @@ server.get("/*", async (req, res) => {
   );
 
   const root = renderToString(wrapper);
+  const symbols = renderToString(SYMBOLS);
   const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : "";
   const helmet = Helmet.renderStatic();
 
@@ -120,6 +110,11 @@ server.get("/*", async (req, res) => {
            <head>
            <script>window.isoData = ${serialize(isoData)}</script>
            <script>window.lemmyConfig = ${serialize(config)}</script>
+
+           <!-- A remote debugging utility for mobile
+           <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+           <script>eruda.init();</script>
+           -->
 
            ${helmet.title.toString()}
            ${helmet.meta.toString()}
@@ -140,6 +135,10 @@ server.get("/*", async (req, res) => {
 
            <!-- Current theme and more -->
            ${helmet.link.toString()}
+           
+           <!-- Icons -->
+           ${symbols}
+
            </head>
 
            <body ${helmet.bodyAttributes.toString()}>
@@ -160,9 +159,9 @@ server.listen(Number(port), hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });
 
-function setForwardedHeaders(
-  headers: IncomingHttpHeaders
-): { [key: string]: string } {
+function setForwardedHeaders(headers: IncomingHttpHeaders): {
+  [key: string]: string;
+} {
   let out = {
     host: headers.host,
   };

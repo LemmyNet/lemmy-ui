@@ -1,20 +1,20 @@
 import { IRouteProps } from "inferno-router/dist/Route";
-import { Main } from "./components/main";
-import { Login } from "./components/login";
-import { CreatePost } from "./components/create-post";
-import { CreateCommunity } from "./components/create-community";
-import { CreatePrivateMessage } from "./components/create-private-message";
-import { PasswordChange } from "./components/password_change";
-import { Post } from "./components/post";
-import { Community } from "./components/community";
-import { Communities } from "./components/communities";
-import { Person } from "./components/person";
+import { Communities } from "./components/community/communities";
+import { Community } from "./components/community/community";
+import { CreateCommunity } from "./components/community/create-community";
+import { AdminSettings } from "./components/home/admin-settings";
+import { Home } from "./components/home/home";
+import { Instances } from "./components/home/instances";
+import { Login } from "./components/home/login";
+import { PasswordChange } from "./components/home/password_change";
+import { Setup } from "./components/home/setup";
 import { Modlog } from "./components/modlog";
-import { Setup } from "./components/setup";
-import { AdminSettings } from "./components/admin-settings";
-import { Inbox } from "./components/inbox";
+import { Inbox } from "./components/person/inbox";
+import { Person } from "./components/person/person";
+import { CreatePost } from "./components/post/create-post";
+import { Post } from "./components/post/post";
+import { CreatePrivateMessage } from "./components/private_message/create-private-message";
 import { Search } from "./components/search";
-import { Instances } from "./components/instances";
 import { InitialFetchRequest } from "./interfaces";
 
 interface IRoutePropsWithFetch extends IRouteProps {
@@ -25,13 +25,13 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/`,
     exact: true,
-    component: Main,
-    fetchInitialData: req => Main.fetchInitialData(req),
+    component: Home,
+    fetchInitialData: req => Home.fetchInitialData(req),
   },
   {
     path: `/home/data_type/:data_type/listing_type/:listing_type/sort/:sort/page/:page`,
-    component: Main,
-    fetchInitialData: req => Main.fetchInitialData(req),
+    component: Home,
+    fetchInitialData: req => Home.fetchInitialData(req),
   },
   {
     path: `/login`,
@@ -52,7 +52,7 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: req => CreatePrivateMessage.fetchInitialData(req),
   },
   {
-    path: `/communities/page/:page`,
+    path: `/communities/listing_type/:listing_type/page/:page`,
     component: Communities,
     fetchInitialData: req => Communities.fetchInitialData(req),
   },
@@ -72,16 +72,6 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: req => Post.fetchInitialData(req),
   },
   {
-    path: `/community/:id/data_type/:data_type/sort/:sort/page/:page`,
-    component: Community,
-    fetchInitialData: req => Community.fetchInitialData(req),
-  },
-  {
-    path: `/community/:id`,
-    component: Community,
-    fetchInitialData: req => Community.fetchInitialData(req),
-  },
-  {
     path: `/c/:name/data_type/:data_type/sort/:sort/page/:page`,
     component: Community,
     fetchInitialData: req => Community.fetchInitialData(req),
@@ -93,16 +83,6 @@ export const routes: IRoutePropsWithFetch[] = [
   },
   {
     path: `/u/:username/view/:view/sort/:sort/page/:page`,
-    component: Person,
-    fetchInitialData: req => Person.fetchInitialData(req),
-  },
-  {
-    path: `/user/:id/view/:view/sort/:sort/page/:page`,
-    component: Person,
-    fetchInitialData: req => Person.fetchInitialData(req),
-  },
-  {
-    path: `/user/:id`,
     component: Person,
     fetchInitialData: req => Person.fetchInitialData(req),
   },

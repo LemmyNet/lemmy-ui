@@ -1,12 +1,12 @@
-import { wsUri } from "../env";
 import { PersonViewSafe, WebSocketJsonResponse } from "lemmy-js-client";
-import { isBrowser } from "../utils";
+import {
+  default as ReconnectingWebSocket,
+  Options as WSOptions,
+} from "reconnecting-websocket";
 import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
-import {
-  Options as WSOptions,
-  default as ReconnectingWebSocket,
-} from "reconnecting-websocket";
+import { wsUri } from "../env";
+import { isBrowser } from "../utils";
 
 export class WebSocketService {
   private static _instance: WebSocketService;
@@ -43,14 +43,21 @@ export class WebSocketService {
     }).pipe(share());
 
     if (isBrowser()) {
-      window.onbeforeunload = () => {
+      window.onunload = () => {
         this.ws.close();
+
+        // Clears out scroll positions.
+        sessionStorage.clear();
       };
     }
   }
 
   public send(data: string) {
     this.ws.send(data);
+  }
+
+  public closeEventListener(listener: (event: CloseEvent) => void) {
+    this.ws.addEventListener("close", listener);
   }
 
   public static get Instance() {

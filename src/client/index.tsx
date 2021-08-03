@@ -1,7 +1,7 @@
 import { hydrate } from "inferno-hydrate";
 import { BrowserRouter } from "inferno-router";
-import { initializeSite } from "../shared/initialize";
-import { App } from "../shared/components/app";
+import { App } from "../shared/components/app/app";
+import { initializeSite } from "../shared/utils";
 
 const site = window.isoData.site_res;
 initializeSite(site);
