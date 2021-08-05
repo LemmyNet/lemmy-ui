@@ -1,4 +1,4 @@
-import { Component, linkEvent, RefObject } from "inferno";
+import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
@@ -75,7 +75,6 @@ interface PostListingProps {
   admins?: PersonViewSafe[];
   enableDownvotes: boolean;
   enableNsfw: boolean;
-  commentSectionRef?: RefObject<HTMLDivElement>;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -468,7 +467,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold mb-1">
         <button 
-          onClick={linkEvent(this, this.handleCommentCountButtonClick)}
           class="btn btn-link text-muted p-0"
         >
           <Link
@@ -476,7 +474,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             title={i18n.t("number_of_comments", {
               count: post_view.counts.comments,
             })}
-            to={`/post/${post_view.post.id}`}
+            to={`/post/${post_view.post.id}?scrollToComments=true`}
           >
             <Icon icon="message-square" classes="icon-inline mr-1" />
             {i18n.t("number_of_comments", {
@@ -1306,11 +1304,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     };
 
     WebSocketService.Instance.send(wsClient.savePost(form));
-  }
-
-  handleCommentCountButtonClick(i: PostListing, event: any) {
-    event.preventDefault();
-    i.props.commentSectionRef?.current?.scrollIntoView();
   }
 
   get crossPostParams(): string {

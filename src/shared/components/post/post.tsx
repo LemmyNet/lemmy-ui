@@ -99,6 +99,7 @@ export class Post extends Component<any, PostState> {
     super(props, context);
 
     this.state = this.emptyState;
+    this.state.commentSectionRef = createRef();
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -116,6 +117,8 @@ export class Post extends Component<any, PostState> {
         this.fetchCrossPosts();
         if (this.state.commentId) {
           this.scrollCommentIntoView();
+        } else if (new URLSearchParams(this.props.location.search).get('scrollToComments')) {
+          this.scrollIntoCommentSection();
         }
       }
     } else {
@@ -169,9 +172,6 @@ export class Post extends Component<any, PostState> {
   }
 
   componentDidMount() {
-    if(isBrowser()) {
-      this.state.commentSectionRef = createRef();
-    }
     WebSocketService.Instance.send(
       wsClient.postJoin({ post_id: this.state.postId })
     );
@@ -186,6 +186,10 @@ export class Post extends Component<any, PostState> {
       lastState.postRes.comments.length > 0
     ) {
       this.scrollCommentIntoView();
+    }
+
+    if (new URLSearchParams(this.props.location.search).get('scrollToComments') ) {
+      this.scrollIntoCommentSection();
     }
 
     // Necessary if you are on a post and you click another post (same route)
@@ -206,6 +210,10 @@ export class Post extends Component<any, PostState> {
     elmnt.classList.add("mark");
     this.state.scrolled = true;
     this.markScrolledAsRead(this.state.commentId);
+  }
+
+  scrollIntoCommentSection() {
+    this.state.commentSectionRef.current?.scrollIntoView();
   }
 
   // TODO this needs some re-work
@@ -281,9 +289,8 @@ export class Post extends Component<any, PostState> {
                   this.state.siteRes.site_view.site.enable_downvotes
                 }
                 enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
-                commentSectionRef={this.state.commentSectionRef}
               />
-              <div className="mb-2" />
+              <div ref={this.state.commentSectionRef} className="mb-2" />
               <CommentForm
                 postId={this.state.postId}
                 disabled={pv.post.locked}
@@ -454,7 +461,7 @@ export class Post extends Component<any, PostState> {
 
   commentsTree() {
     return (
-      <div ref={this.state.commentSectionRef}>
+      <div>
         <CommentNodes
           nodes={this.state.commentTree}
           locked={this.state.postRes.post_view.post.locked}
@@ -496,6 +503,9 @@ export class Post extends Component<any, PostState> {
       this.setState(this.state);
       setupTippy();
       if (!this.state.commentId) restoreScrollPosition(this.context);
+      if (new URLSearchParams(this.props.location.search).get('scrollToComments') ) {
+        this.scrollIntoCommentSection();
+      }
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
