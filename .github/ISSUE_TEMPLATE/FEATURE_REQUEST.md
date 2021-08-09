@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-For backend issues, use [lemmy-ui](https://github.com/LemmyNet/lemmy)
+For backend issues, use [lemmy](https://github.com/LemmyNet/lemmy)
 
 ### Is your proposal related to a problem?
 
