@@ -50,6 +50,7 @@ interface NavbarState {
   unreadCount: number;
   searchParam: string;
   toggleSearch: boolean;
+  showDropdown: boolean;
   onSiteBanner?(url: string): any;
 }
 
@@ -67,6 +68,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     expanded: false,
     searchParam: "",
     toggleSearch: false,
+    showDropdown: false,
   };
   subscription: any;
 
@@ -122,15 +124,17 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     }
   }
 
-  handleSearchParam(i: Navbar, event: any) {
-    i.state.searchParam = event.target.value;
-    i.setState(i.state);
+  componentWillUnmount() {
+    this.wsSub.unsubscribe();
+    this.userSub.unsubscribe();
+    this.unreadCountSub.unsubscribe();
   }
 
   updateUrl() {
     const searchParam = this.state.searchParam;
     this.setState({ searchParam: "" });
     this.setState({ toggleSearch: false });
+    this.setState({ showDropdown: false, expanded: false });
     if (searchParam === "") {
       this.context.router.history.push(`/search/`);
     } else {
@@ -141,37 +145,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     }
   }
 
-  handleSearchSubmit(i: Navbar, event: any) {
-    event.preventDefault();
-    i.updateUrl();
-  }
-
-  handleSearchBtn(i: Navbar, event: any) {
-    event.preventDefault();
-    i.setState({ toggleSearch: true });
-
-    i.searchTextField.current.focus();
-    const offsetWidth = i.searchTextField.current.offsetWidth;
-    if (i.state.searchParam && offsetWidth > 100) {
-      i.updateUrl();
-    }
-  }
-
-  handleSearchBlur(i: Navbar, event: any) {
-    if (!(event.relatedTarget && event.relatedTarget.name !== "search-btn")) {
-      i.state.toggleSearch = false;
-      i.setState(i.state);
-    }
-  }
-
   render() {
     return this.navbar();
-  }
-
-  componentWillUnmount() {
-    this.wsSub.unsubscribe();
-    this.userSub.unsubscribe();
-    this.unreadCountSub.unsubscribe();
   }
 
   // TODO class active corresponding to current page
@@ -182,13 +157,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
           {this.props.site_res.site_view && (
-            <Link
+            <button
               title={
                 this.props.site_res.site_view.site.description ||
                 this.props.site_res.site_view.site.name
               }
-              className="d-flex align-items-center navbar-brand mr-md-3"
-              to="/"
+              className="d-flex align-items-center navbar-brand mr-md-3 btn btn-link"
+              onClick={linkEvent(this, this.handleGotoHome)}
             >
               {this.props.site_res.site_view.site.icon && showAvatars() && (
                 <PictrsImage
@@ -197,12 +172,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 />
               )}
               {this.props.site_res.site_view.site.name}
-            </Link>
+            </button>
           )}
           {this.state.isLoggedIn && (
-            <Link
-              className="ml-auto p-1 navbar-toggler nav-link border-0"
-              to="/inbox"
+            <button
+              className="ml-auto p-1 navbar-toggler nav-link border-0 btn btn-link"
+              onClick={linkEvent(this, this.handleGotoInbox)}
               title={i18n.t("inbox")}
             >
               <Icon icon="bell" />
@@ -216,7 +191,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {this.state.unreadCount}
                 </span>
               )}
-            </Link>
+            </button>
           )}
           <button
             class="navbar-toggler border-0 p-1"
@@ -232,35 +207,32 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           >
             <ul class="navbar-nav my-2 mr-auto">
               <li class="nav-item">
-                <Link
-                  className="nav-link"
-                  to="/communities"
+                <button
+                  className="nav-link btn btn-link"
+                  onClick={linkEvent(this, this.handleGotoCommunities)}
                   title={i18n.t("communities")}
                 >
                   {i18n.t("communities")}
-                </Link>
+                </button>
               </li>
               <li class="nav-item">
-                <Link
-                  className="nav-link"
-                  to={{
-                    pathname: "/create_post",
-                    state: { prevPath: this.currentLocation },
-                  }}
+                <button
+                  className="nav-link btn btn-link"
+                  onClick={linkEvent(this, this.handleGotoCreatePost)}
                   title={i18n.t("create_post")}
                 >
                   {i18n.t("create_post")}
-                </Link>
+                </button>
               </li>
               {this.canCreateCommunity && (
                 <li class="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="/create_community"
+                  <button
+                    className="nav-link btn btn-link"
+                    onClick={linkEvent(this, this.handleGotoCreateCommunity)}
                     title={i18n.t("create_community")}
                   >
                     {i18n.t("create_community")}
-                  </Link>
+                  </button>
                 </li>
               )}
               <li class="nav-item">
@@ -276,13 +248,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <ul class="navbar-nav my-2">
               {this.canAdmin && (
                 <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to={`/admin`}
+                  <button
+                    className="nav-link btn btn-link"
+                    onClick={linkEvent(this, this.handleGotoAdmin)}
                     title={i18n.t("admin_settings")}
                   >
                     <Icon icon="settings" />
-                  </Link>
+                  </button>
                 </li>
               )}
             </ul>
@@ -343,11 +315,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 </ul>
                 <ul class="navbar-nav">
-                  <li className="nav-item">
-                    <Link
-                      className="nav-link"
-                      to={`/u/${localUserView.person.name}`}
-                      title={i18n.t("settings")}
+                  <li class="nav-item dropdown">
+                    <button
+                      class="nav-link btn btn-link dropdown-toggle"
+                      onClick={linkEvent(this, this.handleShowDropdown)}
+                      id="navbarDropdown"
+                      role="button"
+                      aria-expanded="false"
                     >
                       <span>
                         {localUserView.person.avatar && showAvatars() && (
@@ -357,20 +331,57 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           ? localUserView.person.display_name
                           : localUserView.person.name}
                       </span>
-                    </Link>
+                    </button>
+                    {this.state.showDropdown && (
+                      <div class="dropdown-content">
+                        <li className="nav-item">
+                          <button
+                            className="nav-link btn btn-link"
+                            onClick={linkEvent(this, this.handleGotoProfile)}
+                            title={i18n.t("profile")}
+                          >
+                            <Icon icon="user" classes="mr-1" />
+                            {i18n.t("profile")}
+                          </button>
+                        </li>
+                        <li className="nav-item">
+                          <button
+                            className="nav-link btn btn-link"
+                            onClick={linkEvent(this, this.handleGotoSettings)}
+                            title={i18n.t("settings")}
+                          >
+                            <Icon icon="settings" classes="mr-1" />
+                            {i18n.t("settings")}
+                          </button>
+                        </li>
+                        <li>
+                          <hr class="dropdown-divider" />
+                        </li>
+                        <li className="nav-item">
+                          <button
+                            className="nav-link btn btn-link"
+                            onClick={linkEvent(this, this.handleLogoutClick)}
+                            title="test"
+                          >
+                            <Icon icon="log-out" classes="mr-1" />
+                            {i18n.t("logout")}
+                          </button>
+                        </li>
+                      </div>
+                    )}
                   </li>
                 </ul>
               </>
             ) : (
               <ul class="navbar-nav my-2">
                 <li className="ml-2 nav-item">
-                  <Link
+                  <button
                     className="btn btn-success"
-                    to="/login"
+                    onClick={linkEvent(this, this.handleGotoLogin)}
                     title={i18n.t("login_sign_up")}
                   >
                     {i18n.t("login_sign_up")}
-                  </Link>
+                  </button>
                 </li>
               </ul>
             )}
@@ -382,6 +393,95 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   expandNavbar(i: Navbar) {
     i.state.expanded = !i.state.expanded;
+    i.setState(i.state);
+  }
+
+  handleSearchParam(i: Navbar, event: any) {
+    i.state.searchParam = event.target.value;
+    i.setState(i.state);
+  }
+
+  handleSearchSubmit(i: Navbar, event: any) {
+    event.preventDefault();
+    i.updateUrl();
+  }
+
+  handleSearchBtn(i: Navbar, event: any) {
+    event.preventDefault();
+    i.setState({ toggleSearch: true });
+
+    i.searchTextField.current.focus();
+    const offsetWidth = i.searchTextField.current.offsetWidth;
+    if (i.state.searchParam && offsetWidth > 100) {
+      i.updateUrl();
+    }
+  }
+
+  handleSearchBlur(i: Navbar, event: any) {
+    if (!(event.relatedTarget && event.relatedTarget.name !== "search-btn")) {
+      i.state.toggleSearch = false;
+      i.setState(i.state);
+    }
+  }
+
+  handleLogoutClick(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    UserService.Instance.logout();
+    i.context.router.history.push("/");
+    location.reload();
+  }
+
+  handleGotoSettings(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push("/settings");
+  }
+
+  handleGotoProfile(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push(
+      `/u/${UserService.Instance.localUserView.person.name}`
+    );
+  }
+
+  handleGotoCreatePost(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push("/create_post", {
+      prevPath: i.currentLocation,
+    });
+  }
+
+  handleGotoCreateCommunity(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push(`/create_community`);
+  }
+
+  handleGotoCommunities(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push(`/communities`);
+  }
+
+  handleGotoHome(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push(`/`);
+  }
+
+  handleGotoInbox(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push(`/inbox`);
+  }
+
+  handleGotoAdmin(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push(`/admin`);
+  }
+
+  handleGotoLogin(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push(`/login`);
+  }
+
+  handleShowDropdown(i: Navbar) {
+    i.state.showDropdown = !i.state.showDropdown;
     i.setState(i.state);
   }
 

@@ -10,7 +10,8 @@ import { PasswordChange } from "./components/home/password_change";
 import { Setup } from "./components/home/setup";
 import { Modlog } from "./components/modlog";
 import { Inbox } from "./components/person/inbox";
-import { Person } from "./components/person/person";
+import { Profile } from "./components/person/profile";
+import { Settings } from "./components/person/settings";
 import { CreatePost } from "./components/post/create-post";
 import { Post } from "./components/post/post";
 import { CreatePrivateMessage } from "./components/private_message/create-private-message";
@@ -83,18 +84,22 @@ export const routes: IRoutePropsWithFetch[] = [
   },
   {
     path: `/u/:username/view/:view/sort/:sort/page/:page`,
-    component: Person,
-    fetchInitialData: req => Person.fetchInitialData(req),
+    component: Profile,
+    fetchInitialData: req => Profile.fetchInitialData(req),
   },
   {
     path: `/u/:username`,
-    component: Person,
-    fetchInitialData: req => Person.fetchInitialData(req),
+    component: Profile,
+    fetchInitialData: req => Profile.fetchInitialData(req),
   },
   {
     path: `/inbox`,
     component: Inbox,
     fetchInitialData: req => Inbox.fetchInitialData(req),
+  },
+  {
+    path: `/settings`,
+    component: Settings,
   },
   {
     path: `/modlog/community/:community_id`,

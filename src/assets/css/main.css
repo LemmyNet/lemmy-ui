@@ -152,7 +152,11 @@
   }
 }
 
-.dropdown-menu {
+.dropdown-content {
+  position: absolute;
+  background-color: var(--light);
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 2000;
 }
 
