@@ -9,7 +9,7 @@ import {
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
+import { UserService, WebSocketService } from "../../services";
 import {
   authField,
   capitalizeFirstLetter,
@@ -321,10 +321,39 @@ export class CommunityForm extends Component<
       let data = wsJsonToRes<CommunityResponse>(msg).data;
       this.state.loading = false;
       this.props.onCreate(data.community_view);
+
+      // Update myUserInfo
+      let community = data.community_view.community;
+      let person = UserService.Instance.myUserInfo.local_user_view.person;
+      UserService.Instance.myUserInfo.follows.push({
+        community,
+        follower: person,
+      });
+      UserService.Instance.myUserInfo.moderates.push({
+        community,
+        moderator: person,
+      });
     } else if (op == UserOperation.EditCommunity) {
       let data = wsJsonToRes<CommunityResponse>(msg).data;
       this.state.loading = false;
       this.props.onEdit(data.community_view);
+      let community = data.community_view.community;
+
+      let followFound = UserService.Instance.myUserInfo.follows.findIndex(
+        f => f.community.id == community.id
+      );
+      if (followFound) {
+        UserService.Instance.myUserInfo.follows[followFound].community =
+          community;
+      }
+
+      let moderatesFound = UserService.Instance.myUserInfo.moderates.findIndex(
+        f => f.community.id == community.id
+      );
+      if (moderatesFound) {
+        UserService.Instance.myUserInfo.moderates[moderatesFound].community =
+          community;
+      }
     }
   }
 }

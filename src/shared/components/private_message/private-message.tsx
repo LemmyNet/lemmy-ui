@@ -47,8 +47,8 @@ export class PrivateMessage extends Component<
 
   get mine(): boolean {
     return (
-      UserService.Instance.localUserView &&
-      UserService.Instance.localUserView.person.id ==
+      UserService.Instance.myUserInfo &&
+      UserService.Instance.myUserInfo.local_user_view.person.id ==
         this.props.private_message_view.creator.id
     );
   }
@@ -272,8 +272,9 @@ export class PrivateMessage extends Component<
 
   handlePrivateMessageCreate(message: PrivateMessageView) {
     if (
-      UserService.Instance.localUserView &&
-      message.creator.id == UserService.Instance.localUserView.person.id
+      UserService.Instance.myUserInfo &&
+      message.creator.id ==
+        UserService.Instance.myUserInfo.local_user_view.person.id
     ) {
       this.state.showReply = false;
       this.setState(this.state);

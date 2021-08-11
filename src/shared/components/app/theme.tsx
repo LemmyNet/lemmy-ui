@@ -1,15 +1,15 @@
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { LocalUserSettingsView } from "lemmy-js-client";
+import { MyUserInfo } from "lemmy-js-client";
 
 interface Props {
-  localUserView: LocalUserSettingsView | undefined;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 export class Theme extends Component<Props> {
   render() {
-    let user = this.props.localUserView;
-    let hasTheme = user && user.local_user.theme !== "browser";
+    let user = this.props.myUserInfo;
+    let hasTheme = user && user.local_user_view.local_user.theme !== "browser";
 
     return (
       <Helmet>
@@ -17,7 +17,7 @@ export class Theme extends Component<Props> {
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/static/assets/css/themes/${user.local_user.theme}.min.css`}
+            href={`/static/assets/css/themes/${user.local_user_view.local_user.theme}.min.css`}
           />
         ) : (
           [

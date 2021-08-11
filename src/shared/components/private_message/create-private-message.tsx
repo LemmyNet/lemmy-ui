@@ -54,7 +54,7 @@ export class CreatePrivateMessage extends Component<
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    if (!UserService.Instance.localUserView) {
+    if (!UserService.Instance.myUserInfo) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }

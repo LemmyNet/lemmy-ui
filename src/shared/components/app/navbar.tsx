@@ -151,8 +151,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
-    let localUserView =
-      UserService.Instance.localUserView || this.props.site_res.my_user;
+    let myUserInfo =
+      UserService.Instance.myUserInfo || this.props.site_res.my_user;
+    let person = myUserInfo?.local_user_view.person;
     return (
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
@@ -324,12 +325,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       aria-expanded="false"
                     >
                       <span>
-                        {localUserView.person.avatar && showAvatars() && (
-                          <PictrsImage src={localUserView.person.avatar} icon />
+                        {person.avatar && showAvatars() && (
+                          <PictrsImage src={person.avatar} icon />
                         )}
-                        {localUserView.person.display_name
-                          ? localUserView.person.display_name
-                          : localUserView.person.name}
+                        {person.display_name
+                          ? person.display_name
+                          : person.name}
                       </span>
                     </button>
                     {this.state.showDropdown && (
@@ -439,7 +440,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   handleGotoProfile(i: Navbar) {
     i.setState({ showDropdown: false, expanded: false });
     i.context.router.history.push(
-      `/u/${UserService.Instance.localUserView.person.name}`
+      `/u/${UserService.Instance.myUserInfo.local_user_view.person.name}`
     );
   }
 
@@ -532,8 +533,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       // This is only called on a successful login
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
       console.log(data.my_user);
-      UserService.Instance.localUserView = data.my_user;
-      setTheme(UserService.Instance.localUserView.local_user.theme);
+      UserService.Instance.myUserInfo = data.my_user;
+      setTheme(
+        UserService.Instance.myUserInfo.local_user_view.local_user.theme
+      );
       i18n.changeLanguage(getLanguage());
       this.state.isLoggedIn = true;
       this.setState(this.state);
@@ -543,7 +546,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       if (this.state.isLoggedIn) {
         if (
           data.recipient_ids.includes(
-            UserService.Instance.localUserView.local_user.id
+            UserService.Instance.myUserInfo.local_user_view.local_user.id
           )
         ) {
           this.state.replies.push(data.comment_view);
@@ -559,7 +562,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       if (this.state.isLoggedIn) {
         if (
           data.private_message_view.recipient.id ==
-          UserService.Instance.localUserView.person.id
+          UserService.Instance.myUserInfo.local_user_view.person.id
         ) {
           this.state.messages.push(data.private_message_view);
           this.state.unreadCount++;
@@ -625,10 +628,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   get canAdmin(): boolean {
     return (
-      UserService.Instance.localUserView &&
+      UserService.Instance.myUserInfo &&
       this.props.site_res.admins
         .map(a => a.person.id)
-        .includes(UserService.Instance.localUserView.person.id)
+        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
     );
   }
 
@@ -647,7 +650,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   requestNotificationPermission() {
-    if (UserService.Instance.localUserView) {
+    if (UserService.Instance.myUserInfo) {
       document.addEventListener("DOMContentLoaded", function () {
         if (!Notification) {
           toast(i18n.t("notifications_error"), "danger");

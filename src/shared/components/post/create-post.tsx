@@ -51,7 +51,7 @@ export class CreatePost extends Component<any, CreatePostState> {
     this.handlePostCreate = this.handlePostCreate.bind(this);
     this.state = this.emptyState;
 
-    if (!UserService.Instance.localUserView && isBrowser()) {
+    if (!UserService.Instance.myUserInfo && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }

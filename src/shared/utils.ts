@@ -1,13 +1,17 @@
 import emojiShortName from "emoji-short-name";
 import {
+  BlockCommunityResponse,
+  BlockPersonResponse,
   CommentView,
+  CommunityBlockView,
   CommunityView,
   GetSiteMetadata,
   GetSiteResponse,
   LemmyHttp,
   LemmyWebsocket,
   ListingType,
-  LocalUserSettingsView,
+  MyUserInfo,
+  PersonBlockView,
   PersonViewSafe,
   PostView,
   PrivateMessageView,
@@ -249,14 +253,16 @@ export function getUnixTime(text: string): number {
 }
 
 export function canMod(
-  localUserView: LocalUserSettingsView,
+  myUserInfo: MyUserInfo,
   modIds: number[],
   creator_id: number,
   onSelf = false
 ): boolean {
   // You can do moderator actions only on the mods added after you.
-  if (localUserView) {
-    let yourIndex = modIds.findIndex(id => id == localUserView.person.id);
+  if (myUserInfo) {
+    let yourIndex = modIds.findIndex(
+      id => id == myUserInfo.local_user_view.person.id
+    );
     if (yourIndex == -1) {
       return false;
     } else {
@@ -380,11 +386,11 @@ export function debounce(func: any, wait = 1000, immediate = false) {
 
 // TODO
 export function getLanguage(override?: string): string {
-  let localUserView = UserService.Instance.localUserView;
+  let myUserInfo = UserService.Instance.myUserInfo;
   let lang =
     override ||
-    (localUserView?.local_user.lang
-      ? localUserView.local_user.lang
+    (myUserInfo?.local_user_view.local_user.lang
+      ? myUserInfo.local_user_view.local_user.lang
       : "browser");
 
   if (lang == "browser" && isBrowser()) {
@@ -537,15 +543,15 @@ export function objectFlip(obj: any) {
 
 export function showAvatars(): boolean {
   return (
-    UserService.Instance.localUserView?.local_user.show_avatars ||
-    !UserService.Instance.localUserView
+    UserService.Instance.myUserInfo?.local_user_view.local_user.show_avatars ||
+    !UserService.Instance.myUserInfo
   );
 }
 
 export function showScores(): boolean {
   return (
-    UserService.Instance.localUserView?.local_user.show_scores ||
-    !UserService.Instance.localUserView
+    UserService.Instance.myUserInfo?.local_user_view.local_user.show_scores ||
+    !UserService.Instance.myUserInfo
   );
 }
 
@@ -850,9 +856,10 @@ function communitySearch(
 export function getListingTypeFromProps(props: any): ListingType {
   return props.match.params.listing_type
     ? routeListingTypeToEnum(props.match.params.listing_type)
-    : UserService.Instance.localUserView
+    : UserService.Instance.myUserInfo
     ? Object.values(ListingType)[
-        UserService.Instance.localUserView.local_user.default_listing_type
+        UserService.Instance.myUserInfo.local_user_view.local_user
+          .default_listing_type
       ]
     : ListingType.Local;
 }
@@ -873,9 +880,10 @@ export function getDataTypeFromProps(props: any): DataType {
 export function getSortTypeFromProps(props: any): SortType {
   return props.match.params.sort
     ? routeSortTypeToEnum(props.match.params.sort)
-    : UserService.Instance.localUserView
+    : UserService.Instance.myUserInfo
     ? Object.values(SortType)[
-        UserService.Instance.localUserView.local_user.default_sort_type
+        UserService.Instance.myUserInfo.local_user_view.local_user
+          .default_sort_type
       ]
     : SortType.Active;
 }
@@ -920,6 +928,44 @@ export function saveCommentRes(data: CommentView, comments: CommentView[]) {
   if (found) {
     found.saved = data.saved;
   }
+}
+
+export function updatePersonBlock(
+  data: BlockPersonResponse
+): PersonBlockView[] {
+  if (data.blocked) {
+    UserService.Instance.myUserInfo.person_blocks.push({
+      person: UserService.Instance.myUserInfo.local_user_view.person,
+      recipient: data.person_view.person,
+    });
+    toast(`${i18n.t("blocked")} ${data.person_view.person.name}`);
+  } else {
+    UserService.Instance.myUserInfo.person_blocks =
+      UserService.Instance.myUserInfo.person_blocks.filter(
+        i => i.recipient.id != data.person_view.person.id
+      );
+    toast(`${i18n.t("unblocked")} ${data.person_view.person.name}`);
+  }
+  return UserService.Instance.myUserInfo.person_blocks;
+}
+
+export function updateCommunityBlock(
+  data: BlockCommunityResponse
+): CommunityBlockView[] {
+  if (data.blocked) {
+    UserService.Instance.myUserInfo.community_blocks.push({
+      person: UserService.Instance.myUserInfo.local_user_view.person,
+      community: data.community_view.community,
+    });
+    toast(`${i18n.t("blocked")} ${data.community_view.community.name}`);
+  } else {
+    UserService.Instance.myUserInfo.community_blocks =
+      UserService.Instance.myUserInfo.community_blocks.filter(
+        i => i.community.id != data.community_view.community.id
+      );
+    toast(`${i18n.t("unblocked")} ${data.community_view.community.name}`);
+  }
+  return UserService.Instance.myUserInfo.community_blocks;
 }
 
 export function createCommentLikeRes(
@@ -1065,9 +1111,13 @@ export function buildCommentsTree(
   let tree: CommentNodeI[] = [];
   for (let comment_view of comments) {
     let child = map.get(comment_view.comment.id);
-    if (comment_view.comment.parent_id) {
-      let parent_ = map.get(comment_view.comment.parent_id);
-      parent_.children.push(child);
+    let parent_id = comment_view.comment.parent_id;
+    if (parent_id) {
+      let parent = map.get(parent_id);
+      // Necessary because blocked comment might not exist
+      if (parent) {
+        parent.children.push(child);
+      }
     } else {
       tree.push(child);
     }
@@ -1315,14 +1365,14 @@ export const choicesConfig = {
   searchResultLimit: fetchLimit,
   classNames: {
     containerOuter: "choices",
-    containerInner: "choices__inner bg-light border-0",
+    containerInner: "choices__inner bg-secondary border-0",
     input: "form-control",
     inputCloned: "choices__input--cloned",
     list: "choices__list",
     listItems: "choices__list--multiple",
     listSingle: "choices__list--single",
     listDropdown: "choices__list--dropdown",
-    item: "choices__item bg-light",
+    item: "choices__item bg-secondary",
     itemSelectable: "choices__item--selectable",
     itemDisabled: "choices__item--disabled",
     itemChoice: "choices__item--choice",
@@ -1356,6 +1406,6 @@ export function personSelectName(pvs: PersonViewSafe): string {
 }
 
 export function initializeSite(site: GetSiteResponse) {
-  UserService.Instance.localUserView = site.my_user;
+  UserService.Instance.myUserInfo = site.my_user;
   i18n.changeLanguage(getLanguage());
 }

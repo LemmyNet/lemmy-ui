@@ -1,12 +1,19 @@
 import { Component, linkEvent } from "inferno";
 import ISO6391 from "iso-639-1";
 import {
+  BlockCommunity,
+  BlockCommunityResponse,
+  BlockPerson,
   BlockPersonResponse,
   ChangePassword,
+  CommunityBlockView,
+  CommunityView,
   DeleteAccount,
   GetSiteResponse,
   ListingType,
   LoginResponse,
+  PersonBlockView,
+  PersonViewSafe,
   SaveUserSettings,
   SortType,
   UserOperation,
@@ -17,26 +24,44 @@ import { UserService, WebSocketService } from "../../services";
 import {
   authField,
   capitalizeFirstLetter,
+  choicesConfig,
+  communitySelectName,
+  communityToChoice,
+  debounce,
   elementUrl,
+  fetchCommunities,
+  fetchUsers,
   getLanguage,
+  isBrowser,
   languages,
+  personSelectName,
+  personToChoice,
   setIsoData,
   setTheme,
   setupTippy,
   showLocal,
   themes,
   toast,
+  updateCommunityBlock,
+  updatePersonBlock,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
   wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SortSelect } from "../common/sort-select";
+import { CommunityLink } from "../community/community-link";
+import { PersonListing } from "./person-listing";
+
+var Choices: any;
+if (isBrowser()) {
+  Choices = require("choices.js");
+}
 
 interface SettingsState {
   saveUserSettingsForm: SaveUserSettings;
@@ -46,11 +71,20 @@ interface SettingsState {
   deleteAccountLoading: boolean;
   deleteAccountShowConfirm: boolean;
   deleteAccountForm: DeleteAccount;
+  personBlocks: PersonBlockView[];
+  blockPersonId: number;
+  blockPerson?: PersonViewSafe;
+  communityBlocks: CommunityBlockView[];
+  blockCommunityId: number;
+  blockCommunity?: CommunityView;
+  currentTab: string;
   siteRes: GetSiteResponse;
 }
 
 export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData(this.context);
+  private blockPersonChoices: any;
+  private blockCommunityChoices: any;
   private subscription: Subscription;
   private emptyState: SettingsState = {
     saveUserSettingsForm: {
@@ -70,6 +104,11 @@ export class Settings extends Component<any, SettingsState> {
       password: null,
       auth: authField(false),
     },
+    personBlocks: [],
+    blockPersonId: 0,
+    communityBlocks: [],
+    blockCommunityId: 0,
+    currentTab: "settings",
     siteRes: this.isoData.site_res,
   };
 
@@ -77,12 +116,9 @@ export class Settings extends Component<any, SettingsState> {
     super(props, context);
 
     this.state = this.emptyState;
-    this.handleUserSettingsSortTypeChange =
-      this.handleUserSettingsSortTypeChange.bind(this);
-    this.handleUserSettingsListingTypeChange =
-      this.handleUserSettingsListingTypeChange.bind(this);
-    this.handleUserSettingsBioChange =
-      this.handleUserSettingsBioChange.bind(this);
+    this.handleSortTypeChange = this.handleSortTypeChange.bind(this);
+    this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handleBioChange = this.handleBioChange.bind(this);
 
     this.handleAvatarUpload = this.handleAvatarUpload.bind(this);
     this.handleAvatarRemove = this.handleAvatarRemove.bind(this);
@@ -116,7 +152,36 @@ export class Settings extends Component<any, SettingsState> {
             description={this.documentTitle}
             image={this.state.saveUserSettingsForm.avatar}
           />
-          {this.userSettings()}
+          <ul class="nav nav-tabs mb-2">
+            <li class="nav-item">
+              <button
+                class={`nav-link btn ${
+                  this.state.currentTab == "settings" && "active"
+                }`}
+                onClick={linkEvent(
+                  { ctx: this, tab: "settings" },
+                  this.handleSwitchTab
+                )}
+              >
+                {i18n.t("settings")}
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                class={`nav-link btn ${
+                  this.state.currentTab == "blocks" && "active"
+                }`}
+                onClick={linkEvent(
+                  { ctx: this, tab: "blocks" },
+                  this.handleSwitchTab
+                )}
+              >
+                {i18n.t("blocks")}
+              </button>
+            </li>
+          </ul>
+          {this.state.currentTab == "settings" && this.userSettings()}
+          {this.state.currentTab == "blocks" && this.blockCards()}
         </>
       </div>
     );
@@ -133,6 +198,23 @@ export class Settings extends Component<any, SettingsState> {
         <div class="col-12 col-md-6">
           <div class="card border-secondary mb-3">
             <div class="card-body">{this.changePasswordHtmlForm()}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  blockCards() {
+    return (
+      <div class="row">
+        <div class="col-12 col-md-6">
+          <div class="card border-secondary mb-3">
+            <div class="card-body">{this.blockUserCard()}</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card border-secondary mb-3">
+            <div class="card-body">{this.blockCommunityCard()}</div>
           </div>
         </div>
       </div>
@@ -209,11 +291,131 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
+  blockUserCard() {
+    return (
+      <div>
+        {this.blockUserForm()}
+        {this.blockedUsersList()}
+      </div>
+    );
+  }
+
+  blockedUsersList() {
+    return (
+      <>
+        <h5>{i18n.t("blocked_users")}</h5>
+        <ul class="list-unstyled mb-0">
+          {this.state.personBlocks.map(pb => (
+            <li>
+              <span>
+                <PersonListing person={pb.recipient} />
+                <button
+                  className="btn btn-sm"
+                  onClick={linkEvent(
+                    { ctx: this, recipientId: pb.recipient.id },
+                    this.handleUnblockPerson
+                  )}
+                  data-tippy-content={i18n.t("unblock_user")}
+                >
+                  <Icon icon="x" classes="icon-inline" />
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </>
+    );
+  }
+
+  blockUserForm() {
+    return (
+      <div class="form-group row">
+        <label class="col-md-4 col-form-label" htmlFor="block-person-filter">
+          {i18n.t("block_user")}
+        </label>
+        <div class="col-md-8">
+          <select
+            class="form-control"
+            id="block-person-filter"
+            value={this.state.blockPersonId}
+          >
+            <option value="0">—</option>
+            {this.state.blockPerson && (
+              <option value={this.state.blockPerson.person.id}>
+                {personSelectName(this.state.blockPerson)}
+              </option>
+            )}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  blockCommunityCard() {
+    return (
+      <div>
+        {this.blockCommunityForm()}
+        {this.blockedCommunitiesList()}
+      </div>
+    );
+  }
+
+  blockedCommunitiesList() {
+    return (
+      <>
+        <h5>{i18n.t("blocked_communities")}</h5>
+        <ul class="list-unstyled mb-0">
+          {this.state.communityBlocks.map(cb => (
+            <li>
+              <span>
+                <CommunityLink community={cb.community} />
+                <button
+                  className="btn btn-sm"
+                  onClick={linkEvent(
+                    { ctx: this, communityId: cb.community.id },
+                    this.handleUnblockCommunity
+                  )}
+                  data-tippy-content={i18n.t("unblock_community")}
+                >
+                  <Icon icon="x" classes="icon-inline" />
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </>
+    );
+  }
+
+  blockCommunityForm() {
+    return (
+      <div class="form-group row">
+        <label class="col-md-4 col-form-label" htmlFor="block-community-filter">
+          {i18n.t("block_community")}
+        </label>
+        <div class="col-md-8">
+          <select
+            class="form-control"
+            id="block-community-filter"
+            value={this.state.blockCommunityId}
+          >
+            <option value="0">—</option>
+            {this.state.blockCommunity && (
+              <option value={this.state.blockCommunity.community.id}>
+                {communitySelectName(this.state.blockCommunity)}
+              </option>
+            )}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
   saveUserSettingsHtmlForm() {
     return (
       <>
         <h5>{i18n.t("settings")}</h5>
-        <form onSubmit={linkEvent(this, this.handleSaveUserSettingsSubmit)}>
+        <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
           <div class="form-group row">
             <label class="col-lg-5 col-form-label" htmlFor="display-name">
               {i18n.t("display_name")}
@@ -225,10 +427,7 @@ export class Settings extends Component<any, SettingsState> {
                 class="form-control"
                 placeholder={i18n.t("optional")}
                 value={this.state.saveUserSettingsForm.display_name}
-                onInput={linkEvent(
-                  this,
-                  this.handleUserSettingsPreferredUsernameChange
-                )}
+                onInput={linkEvent(this, this.handleDisplayNameChange)}
                 pattern="^(?!@)(.+)$"
                 minLength={3}
               />
@@ -241,7 +440,7 @@ export class Settings extends Component<any, SettingsState> {
             <div class="col-lg-9">
               <MarkdownTextArea
                 initialContent={this.state.saveUserSettingsForm.bio}
-                onContentChange={this.handleUserSettingsBioChange}
+                onContentChange={this.handleBioChange}
                 maxLength={300}
                 hideNavigationWarnings
               />
@@ -258,7 +457,7 @@ export class Settings extends Component<any, SettingsState> {
                 class="form-control"
                 placeholder={i18n.t("optional")}
                 value={this.state.saveUserSettingsForm.email}
-                onInput={linkEvent(this, this.handleUserSettingsEmailChange)}
+                onInput={linkEvent(this, this.handleEmailChange)}
                 minLength={3}
               />
             </div>
@@ -276,10 +475,7 @@ export class Settings extends Component<any, SettingsState> {
                 class="form-control"
                 placeholder="@user:example.com"
                 value={this.state.saveUserSettingsForm.matrix_user_id}
-                onInput={linkEvent(
-                  this,
-                  this.handleUserSettingsMatrixUserIdChange
-                )}
+                onInput={linkEvent(this, this.handleMatrixUserIdChange)}
                 pattern="^@[A-Za-z0-9._=-]+:[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
               />
             </div>
@@ -308,7 +504,7 @@ export class Settings extends Component<any, SettingsState> {
             <select
               id="user-language"
               value={this.state.saveUserSettingsForm.lang}
-              onChange={linkEvent(this, this.handleUserSettingsLangChange)}
+              onChange={linkEvent(this, this.handleLangChange)}
               class="ml-2 custom-select w-auto"
             >
               <option disabled aria-hidden="true">
@@ -330,7 +526,7 @@ export class Settings extends Component<any, SettingsState> {
             <select
               id="user-theme"
               value={this.state.saveUserSettingsForm.theme}
-              onChange={linkEvent(this, this.handleUserSettingsThemeChange)}
+              onChange={linkEvent(this, this.handleThemeChange)}
               class="ml-2 custom-select w-auto"
             >
               <option disabled aria-hidden="true">
@@ -353,7 +549,7 @@ export class Settings extends Component<any, SettingsState> {
                 ]
               }
               showLocal={showLocal(this.isoData)}
-              onChange={this.handleUserSettingsListingTypeChange}
+              onChange={this.handleListingTypeChange}
             />
           </form>
           <form className="form-group">
@@ -366,7 +562,7 @@ export class Settings extends Component<any, SettingsState> {
                   this.state.saveUserSettingsForm.default_sort_type
                 ]
               }
-              onChange={this.handleUserSettingsSortTypeChange}
+              onChange={this.handleSortTypeChange}
             />
           </form>
           {this.state.siteRes.site_view.site.enable_nsfw && (
@@ -377,10 +573,7 @@ export class Settings extends Component<any, SettingsState> {
                   id="user-show-nsfw"
                   type="checkbox"
                   checked={this.state.saveUserSettingsForm.show_nsfw}
-                  onChange={linkEvent(
-                    this,
-                    this.handleUserSettingsShowNsfwChange
-                  )}
+                  onChange={linkEvent(this, this.handleShowNsfwChange)}
                 />
                 <label class="form-check-label" htmlFor="user-show-nsfw">
                   {i18n.t("show_nsfw")}
@@ -395,10 +588,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-show-scores"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_scores}
-                onChange={linkEvent(
-                  this,
-                  this.handleUserSettingsShowScoresChange
-                )}
+                onChange={linkEvent(this, this.handleShowScoresChange)}
               />
               <label class="form-check-label" htmlFor="user-show-scores">
                 {i18n.t("show_scores")}
@@ -412,10 +602,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-show-avatars"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_avatars}
-                onChange={linkEvent(
-                  this,
-                  this.handleUserSettingsShowAvatarsChange
-                )}
+                onChange={linkEvent(this, this.handleShowAvatarsChange)}
               />
               <label class="form-check-label" htmlFor="user-show-avatars">
                 {i18n.t("show_avatars")}
@@ -429,7 +616,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-bot-account"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.bot_account}
-                onChange={linkEvent(this, this.handleUserSettingsBotAccount)}
+                onChange={linkEvent(this, this.handleBotAccount)}
               />
               <label class="form-check-label" htmlFor="user-bot-account">
                 {i18n.t("bot_account")}
@@ -443,10 +630,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-show-bot-accounts"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_bot_accounts}
-                onChange={linkEvent(
-                  this,
-                  this.handleUserSettingsShowBotAccounts
-                )}
+                onChange={linkEvent(this, this.handleShowBotAccounts)}
               />
               <label class="form-check-label" htmlFor="user-show-bot-accounts">
                 {i18n.t("show_bot_accounts")}
@@ -460,7 +644,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-show-read-posts"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_read_posts}
-                onChange={linkEvent(this, this.handleUserSettingsShowReadPosts)}
+                onChange={linkEvent(this, this.handleReadPosts)}
               />
               <label class="form-check-label" htmlFor="user-show-read-posts">
                 {i18n.t("show_read_posts")}
@@ -474,10 +658,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-show-new-post-notifs"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_new_post_notifs}
-                onChange={linkEvent(
-                  this,
-                  this.handleUserSettingsShowNewPostNotifs
-                )}
+                onChange={linkEvent(this, this.handleShowNewPostNotifs)}
               />
               <label
                 class="form-check-label"
@@ -499,7 +680,7 @@ export class Settings extends Component<any, SettingsState> {
                 }
                 onChange={linkEvent(
                   this,
-                  this.handleUserSettingsSendNotificationsToEmailChange
+                  this.handleSendNotificationsToEmailChange
                 )}
               />
               <label
@@ -574,81 +755,179 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  handleUserSettingsShowNsfwChange(i: Settings, event: any) {
+  setupBlockPersonChoices() {
+    if (isBrowser()) {
+      let selectId: any = document.getElementById("block-person-filter");
+      if (selectId) {
+        this.blockPersonChoices = new Choices(selectId, choicesConfig);
+        this.blockPersonChoices.passedElement.element.addEventListener(
+          "choice",
+          (e: any) => {
+            this.handleBlockPerson(Number(e.detail.choice.value));
+          },
+          false
+        );
+        this.blockPersonChoices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            let persons = (await fetchUsers(e.detail.value)).users;
+            let choices = persons.map(pvs => personToChoice(pvs));
+            this.blockPersonChoices.setChoices(choices, "value", "label", true);
+          }, 400),
+          false
+        );
+      }
+    }
+  }
+
+  setupBlockCommunityChoices() {
+    if (isBrowser()) {
+      let selectId: any = document.getElementById("block-community-filter");
+      if (selectId) {
+        this.blockCommunityChoices = new Choices(selectId, choicesConfig);
+        this.blockCommunityChoices.passedElement.element.addEventListener(
+          "choice",
+          (e: any) => {
+            this.handleBlockCommunity(Number(e.detail.choice.value));
+          },
+          false
+        );
+        this.blockCommunityChoices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            let communities = (await fetchCommunities(e.detail.value))
+              .communities;
+            let choices = communities.map(cv => communityToChoice(cv));
+            this.blockCommunityChoices.setChoices(
+              choices,
+              "value",
+              "label",
+              true
+            );
+          }, 400),
+          false
+        );
+      }
+    }
+  }
+
+  handleBlockPerson(personId: number) {
+    if (personId != 0) {
+      let blockUserForm: BlockPerson = {
+        person_id: personId,
+        block: true,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+    }
+  }
+
+  handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
+    let blockUserForm: BlockPerson = {
+      person_id: i.recipientId,
+      block: false,
+      auth: authField(),
+    };
+    WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+  }
+
+  handleBlockCommunity(community_id: number) {
+    if (community_id != 0) {
+      let blockCommunityForm: BlockCommunity = {
+        community_id,
+        block: true,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(
+        wsClient.blockCommunity(blockCommunityForm)
+      );
+    }
+  }
+
+  handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
+    let blockCommunityForm: BlockCommunity = {
+      community_id: i.communityId,
+      block: false,
+      auth: authField(),
+    };
+    WebSocketService.Instance.send(wsClient.blockCommunity(blockCommunityForm));
+  }
+
+  handleShowNsfwChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_nsfw = event.target.checked;
     i.setState(i.state);
   }
 
-  handleUserSettingsShowAvatarsChange(i: Settings, event: any) {
+  handleShowAvatarsChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_avatars = event.target.checked;
-    UserService.Instance.localUserView.local_user.show_avatars =
+    UserService.Instance.myUserInfo.local_user_view.local_user.show_avatars =
       event.target.checked; // Just for instant updates
     i.setState(i.state);
   }
 
-  handleUserSettingsBotAccount(i: Settings, event: any) {
+  handleBotAccount(i: Settings, event: any) {
     i.state.saveUserSettingsForm.bot_account = event.target.checked;
     i.setState(i.state);
   }
 
-  handleUserSettingsShowBotAccounts(i: Settings, event: any) {
+  handleShowBotAccounts(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_bot_accounts = event.target.checked;
     i.setState(i.state);
   }
 
-  handleUserSettingsShowReadPosts(i: Settings, event: any) {
+  handleReadPosts(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_read_posts = event.target.checked;
     i.setState(i.state);
   }
 
-  handleUserSettingsShowNewPostNotifs(i: Settings, event: any) {
+  handleShowNewPostNotifs(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_new_post_notifs = event.target.checked;
     i.setState(i.state);
   }
 
-  handleUserSettingsShowScoresChange(i: Settings, event: any) {
+  handleShowScoresChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_scores = event.target.checked;
-    UserService.Instance.localUserView.local_user.show_scores =
+    UserService.Instance.myUserInfo.local_user_view.local_user.show_scores =
       event.target.checked; // Just for instant updates
     i.setState(i.state);
   }
 
-  handleUserSettingsSendNotificationsToEmailChange(i: Settings, event: any) {
+  handleSendNotificationsToEmailChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.send_notifications_to_email =
       event.target.checked;
     i.setState(i.state);
   }
 
-  handleUserSettingsThemeChange(i: Settings, event: any) {
+  handleThemeChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.theme = event.target.value;
     setTheme(event.target.value, true);
     i.setState(i.state);
   }
 
-  handleUserSettingsLangChange(i: Settings, event: any) {
+  handleLangChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.lang = event.target.value;
     i18n.changeLanguage(getLanguage(i.state.saveUserSettingsForm.lang));
     i.setState(i.state);
   }
 
-  handleUserSettingsSortTypeChange(val: SortType) {
+  handleSortTypeChange(val: SortType) {
     this.state.saveUserSettingsForm.default_sort_type =
       Object.keys(SortType).indexOf(val);
     this.setState(this.state);
   }
 
-  handleUserSettingsListingTypeChange(val: ListingType) {
+  handleListingTypeChange(val: ListingType) {
     this.state.saveUserSettingsForm.default_listing_type =
       Object.keys(ListingType).indexOf(val);
     this.setState(this.state);
   }
 
-  handleUserSettingsEmailChange(i: Settings, event: any) {
+  handleEmailChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.email = event.target.value;
     i.setState(i.state);
   }
 
-  handleUserSettingsBioChange(val: string) {
+  handleBioChange(val: string) {
     this.state.saveUserSettingsForm.bio = val;
     this.setState(this.state);
   }
@@ -673,16 +952,16 @@ export class Settings extends Component<any, SettingsState> {
     this.setState(this.state);
   }
 
-  handleUserSettingsPreferredUsernameChange(i: Settings, event: any) {
+  handleDisplayNameChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.display_name = event.target.value;
     i.setState(i.state);
   }
 
-  handleUserSettingsMatrixUserIdChange(i: Settings, event: any) {
+  handleMatrixUserIdChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.matrix_user_id = event.target.value;
     if (
       i.state.saveUserSettingsForm.matrix_user_id == "" &&
-      !UserService.Instance.localUserView.person.matrix_user_id
+      !UserService.Instance.myUserInfo.local_user_view.person.matrix_user_id
     ) {
       i.state.saveUserSettingsForm.matrix_user_id = undefined;
     }
@@ -713,7 +992,7 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(i.state);
   }
 
-  handleSaveUserSettingsSubmit(i: Settings, event: any) {
+  handleSaveSettingsSubmit(i: Settings, event: any) {
     event.preventDefault();
     i.state.saveUserSettingsLoading = true;
     i.setState(i.state);
@@ -759,45 +1038,46 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
+  handleSwitchTab(i: { ctx: Settings; tab: string }) {
+    i.ctx.setState({ currentTab: i.tab });
+
+    if (i.ctx.state.currentTab == "blocks") {
+      i.ctx.setupBlockPersonChoices();
+      i.ctx.setupBlockCommunityChoices();
+    }
+  }
+
   setUserInfo() {
-    this.state.saveUserSettingsForm.show_nsfw =
-      UserService.Instance.localUserView.local_user.show_nsfw;
-    this.state.saveUserSettingsForm.theme = UserService.Instance.localUserView
-      .local_user.theme
-      ? UserService.Instance.localUserView.local_user.theme
+    let luv = UserService.Instance.myUserInfo.local_user_view;
+    this.state.saveUserSettingsForm.show_nsfw = luv.local_user.show_nsfw;
+    this.state.saveUserSettingsForm.theme = luv.local_user.theme
+      ? luv.local_user.theme
       : "browser";
     this.state.saveUserSettingsForm.default_sort_type =
-      UserService.Instance.localUserView.local_user.default_sort_type;
+      luv.local_user.default_sort_type;
     this.state.saveUserSettingsForm.default_listing_type =
-      UserService.Instance.localUserView.local_user.default_listing_type;
-    this.state.saveUserSettingsForm.lang =
-      UserService.Instance.localUserView.local_user.lang;
-    this.state.saveUserSettingsForm.avatar =
-      UserService.Instance.localUserView.person.avatar;
-    this.state.saveUserSettingsForm.banner =
-      UserService.Instance.localUserView.person.banner;
-    this.state.saveUserSettingsForm.display_name =
-      UserService.Instance.localUserView.person.display_name;
-    this.state.saveUserSettingsForm.show_avatars =
-      UserService.Instance.localUserView.local_user.show_avatars;
-    this.state.saveUserSettingsForm.bot_account =
-      UserService.Instance.localUserView.person.bot_account;
+      luv.local_user.default_listing_type;
+    this.state.saveUserSettingsForm.lang = luv.local_user.lang;
+    this.state.saveUserSettingsForm.avatar = luv.person.avatar;
+    this.state.saveUserSettingsForm.banner = luv.person.banner;
+    this.state.saveUserSettingsForm.display_name = luv.person.display_name;
+    this.state.saveUserSettingsForm.show_avatars = luv.local_user.show_avatars;
+    this.state.saveUserSettingsForm.bot_account = luv.person.bot_account;
     this.state.saveUserSettingsForm.show_bot_accounts =
-      UserService.Instance.localUserView.local_user.show_bot_accounts;
-    this.state.saveUserSettingsForm.show_scores =
-      UserService.Instance.localUserView.local_user.show_scores;
+      luv.local_user.show_bot_accounts;
+    this.state.saveUserSettingsForm.show_scores = luv.local_user.show_scores;
     this.state.saveUserSettingsForm.show_read_posts =
-      UserService.Instance.localUserView.local_user.show_read_posts;
+      luv.local_user.show_read_posts;
     this.state.saveUserSettingsForm.show_new_post_notifs =
-      UserService.Instance.localUserView.local_user.show_new_post_notifs;
-    this.state.saveUserSettingsForm.email =
-      UserService.Instance.localUserView.local_user.email;
-    this.state.saveUserSettingsForm.bio =
-      UserService.Instance.localUserView.person.bio;
+      luv.local_user.show_new_post_notifs;
+    this.state.saveUserSettingsForm.email = luv.local_user.email;
+    this.state.saveUserSettingsForm.bio = luv.person.bio;
     this.state.saveUserSettingsForm.send_notifications_to_email =
-      UserService.Instance.localUserView.local_user.send_notifications_to_email;
-    this.state.saveUserSettingsForm.matrix_user_id =
-      UserService.Instance.localUserView.person.matrix_user_id;
+      luv.local_user.send_notifications_to_email;
+    this.state.saveUserSettingsForm.matrix_user_id = luv.person.matrix_user_id;
+    this.state.personBlocks = UserService.Instance.myUserInfo.person_blocks;
+    this.state.communityBlocks =
+      UserService.Instance.myUserInfo.community_blocks;
   }
 
   parseMessage(msg: any) {
@@ -829,12 +1109,10 @@ export class Settings extends Component<any, SettingsState> {
       window.location.href = "/";
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
-      let personName = data.person_view.person.name;
-      let blocked = data.blocked;
-      toast(
-        `${personName} has been ${blocked ? "blocked" : "unblocked"}`,
-        "success"
-      );
+      this.setState({ personBlocks: updatePersonBlock(data) });
+    } else if (op == UserOperation.BlockCommunity) {
+      let data = wsJsonToRes<BlockCommunityResponse>(msg).data;
+      this.setState({ communityBlocks: updateCommunityBlock(data) });
     }
   }
 }

@@ -35,6 +35,7 @@ import {
   setOptionalAuth,
   setupTippy,
   toast,
+  updatePersonBlock,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -120,7 +121,7 @@ export class Profile extends Component<any, ProfileState> {
 
   get isCurrentUser() {
     return (
-      UserService.Instance.localUserView?.person.id ==
+      UserService.Instance.myUserInfo?.local_user_view.person.id ==
       this.state.personRes.person_view.person.id
     );
   }
@@ -250,7 +251,7 @@ export class Profile extends Component<any, ProfileState> {
             {!this.state.loading && (
               <div class="col-12 col-md-4">
                 {this.moderates()}
-                {this.follows()}
+                {UserService.Instance.myUserInfo && this.follows()}
               </div>
             )}
           </div>
@@ -449,14 +450,15 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   follows() {
+    let follows = UserService.Instance.myUserInfo.follows;
     return (
       <div>
-        {this.state.personRes.follows.length > 0 && (
+        {follows.length > 0 && (
           <div class="card border-secondary mb-3">
             <div class="card-body">
               <h5>{i18n.t("subscribed")}</h5>
               <ul class="list-unstyled mb-0">
-                {this.state.personRes.follows.map(cfv => (
+                {follows.map(cfv => (
                   <li>
                     <CommunityLink community={cfv.community} />
                   </li>
@@ -539,9 +541,9 @@ export class Profile extends Component<any, ProfileState> {
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       if (
-        UserService.Instance.localUserView &&
+        UserService.Instance.myUserInfo &&
         data.comment_view.creator.id ==
-          UserService.Instance.localUserView.person.id
+          UserService.Instance.myUserInfo.local_user_view.person.id
       ) {
         toast(i18n.t("reply_sent"));
       }
@@ -575,12 +577,7 @@ export class Profile extends Component<any, ProfileState> {
       this.setState(this.state);
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
-      let personName = data.person_view.person.name;
-      let blocked = data.blocked;
-      toast(
-        `${personName} has been ${blocked ? "blocked" : "unblocked"}`,
-        "success"
-      );
+      updatePersonBlock(data);
     }
   }
 }

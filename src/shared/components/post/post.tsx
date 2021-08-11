@@ -5,6 +5,7 @@ import {
   AddModToCommunityResponse,
   BanFromCommunityResponse,
   BanPersonResponse,
+  BlockPersonResponse,
   CommentResponse,
   CommunityResponse,
   GetCommunityResponse,
@@ -50,6 +51,7 @@ import {
   setOptionalAuth,
   setupTippy,
   toast,
+  updatePersonBlock,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -237,8 +239,9 @@ export class Post extends Component<any, PostState> {
       : this.state.postRes.post_view.creator.id;
 
     if (
-      UserService.Instance.localUserView &&
-      UserService.Instance.localUserView.person.id == parent_person_id
+      UserService.Instance.myUserInfo &&
+      UserService.Instance.myUserInfo.local_user_view.person.id ==
+        parent_person_id
     ) {
       let form: MarkCommentAsRead = {
         comment_id: found.comment.id,
@@ -617,6 +620,9 @@ export class Post extends Component<any, PostState> {
       this.state.postRes.post_view.community = data.community_view.community;
       this.state.postRes.moderators = data.moderators;
       this.setState(this.state);
+    } else if (op == UserOperation.BlockPerson) {
+      let data = wsJsonToRes<BlockPersonResponse>(msg).data;
+      updatePersonBlock(data);
     }
   }
 }
