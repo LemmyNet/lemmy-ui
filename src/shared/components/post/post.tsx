@@ -1,5 +1,5 @@
-import { Component, linkEvent, createRef, RefObject } from "inferno";
 import autosize from "autosize";
+import { Component, createRef, linkEvent, RefObject } from "inferno";
 import {
   AddAdminResponse,
   AddModToCommunityResponse,
@@ -117,7 +117,9 @@ export class Post extends Component<any, PostState> {
         this.fetchCrossPosts();
         if (this.state.commentId) {
           this.scrollCommentIntoView();
-        } else if (new URLSearchParams(this.props.location.search).get('scrollToComments')) {
+        }
+
+        if (this.checkScrollIntoCommentsParam) {
           this.scrollIntoCommentSection();
         }
       }
@@ -188,7 +190,7 @@ export class Post extends Component<any, PostState> {
       this.scrollCommentIntoView();
     }
 
-    if (new URLSearchParams(this.props.location.search).get('scrollToComments') ) {
+    if (this.checkScrollIntoCommentsParam) {
       this.scrollIntoCommentSection();
     }
 
@@ -210,6 +212,12 @@ export class Post extends Component<any, PostState> {
     elmnt.classList.add("mark");
     this.state.scrolled = true;
     this.markScrolledAsRead(this.state.commentId);
+  }
+
+  get checkScrollIntoCommentsParam() {
+    return Boolean(
+      new URLSearchParams(this.props.location.search).get("scrollToComments")
+    );
   }
 
   scrollIntoCommentSection() {
@@ -503,7 +511,8 @@ export class Post extends Component<any, PostState> {
       this.setState(this.state);
       setupTippy();
       if (!this.state.commentId) restoreScrollPosition(this.context);
-      if (new URLSearchParams(this.props.location.search).get('scrollToComments') ) {
+
+      if (this.checkScrollIntoCommentsParam) {
         this.scrollIntoCommentSection();
       }
     } else if (op == UserOperation.CreateComment) {
