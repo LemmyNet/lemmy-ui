@@ -466,13 +466,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post_view = this.props.post_view;
     return (
       <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold mb-1">
-        <button class="btn btn-link text-muted p-0">
+        <button 
+          class="btn btn-link text-muted p-0"
+        >
           <Link
             className="text-muted small"
             title={i18n.t("number_of_comments", {
               count: post_view.counts.comments,
             })}
-            to={`/post/${post_view.post.id}`}
+            to={`/post/${post_view.post.id}?scrollToComments=true`}
           >
             <Icon icon="message-square" classes="icon-inline mr-1" />
             {i18n.t("number_of_comments", {
