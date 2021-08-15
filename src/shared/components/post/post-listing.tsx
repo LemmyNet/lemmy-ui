@@ -466,9 +466,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post_view = this.props.post_view;
     return (
       <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold mb-1">
-        <button 
-          class="btn btn-link text-muted p-0"
-        >
+        <button class="btn btn-link text-muted p-0">
           <Link
             className="text-muted small"
             title={i18n.t("number_of_comments", {
@@ -998,8 +996,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     checked={this.state.removeData}
                     onChange={linkEvent(this, this.handleModRemoveDataChange)}
                   />
-                  <label class="form-check-label" htmlFor="mod-ban-remove-data">
-                    {i18n.t("remove_posts_comments")}
+                  <label
+                    class="form-check-label"
+                    htmlFor="mod-ban-remove-data"
+                    data-tippy-content={i18n.t("remove_content_more")}
+                  >
+                    {i18n.t("remove_content")}
                   </label>
                 </div>
               </div>

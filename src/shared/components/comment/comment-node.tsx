@@ -752,8 +752,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     checked={this.state.removeData}
                     onChange={linkEvent(this, this.handleModRemoveDataChange)}
                   />
-                  <label class="form-check-label" htmlFor="mod-ban-remove-data">
-                    {i18n.t("remove_posts_comments")}
+                  <label
+                    class="form-check-label"
+                    htmlFor="mod-ban-remove-data"
+                    data-tippy-content={i18n.t("remove_content_more")}
+                  >
+                    {i18n.t("remove_content")}
                   </label>
                 </div>
               </div>
