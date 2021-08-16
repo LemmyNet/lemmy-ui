@@ -999,7 +999,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <label
                     class="form-check-label"
                     htmlFor="mod-ban-remove-data"
-                    data-tippy-content={i18n.t("remove_content_more")}
+                    title={i18n.t("remove_content_more")}
                   >
                     {i18n.t("remove_content")}
                   </label>
