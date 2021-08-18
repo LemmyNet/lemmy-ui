@@ -41,7 +41,7 @@ import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
-import { IFramelyCard } from "./iframely-card";
+import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
 
 interface PostListingState {
@@ -150,7 +150,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <div class="row">
         <div class="col-12">
           {post.url && this.showBody && post.embed_title && (
-            <IFramelyCard post={post} />
+            <MetadataCard post={post} />
           )}
           {this.showBody &&
             post.body &&

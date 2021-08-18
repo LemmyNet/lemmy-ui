@@ -3,19 +3,19 @@ import { Post } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { Icon } from "../common/icon";
 
-interface FramelyCardProps {
+interface MetadataCardProps {
   post: Post;
 }
 
-interface FramelyCardState {
+interface MetadataCardState {
   expanded: boolean;
 }
 
-export class IFramelyCard extends Component<
-  FramelyCardProps,
-  FramelyCardState
+export class MetadataCard extends Component<
+  MetadataCardProps,
+  MetadataCardState
 > {
-  private emptyState: FramelyCardState = {
+  private emptyState: MetadataCardState = {
     expanded: false,
   };
 
@@ -82,7 +82,7 @@ export class IFramelyCard extends Component<
     );
   }
 
-  handleIframeExpand(i: IFramelyCard) {
+  handleIframeExpand(i: MetadataCard) {
     i.state.expanded = !i.state.expanded;
     i.setState(i.state);
   }
