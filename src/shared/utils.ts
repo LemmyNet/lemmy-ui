@@ -2,6 +2,7 @@ import emojiShortName from "emoji-short-name";
 import {
   CommentView,
   CommunityView,
+  GetSiteMetadata,
   GetSiteResponse,
   LemmyHttp,
   LemmyWebsocket,
@@ -328,10 +329,12 @@ export function routeSearchTypeToEnum(type: string): SearchType {
   return SearchType[type];
 }
 
-export async function getPageTitle(url: string) {
-  let res = await fetch(`/iframely/oembed?url=${url}`).then(res => res.json());
-  let title = await res.title;
-  return title;
+export async function getSiteMetadata(url: string) {
+  let form: GetSiteMetadata = {
+    url,
+  };
+  let client = new LemmyHttp(httpBase);
+  return client.getSiteMetadata(form);
 }
 
 export function debounce(func: any, wait = 1000, immediate = false) {
