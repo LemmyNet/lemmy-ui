@@ -28,7 +28,7 @@ import {
   communityToChoice,
   debounce,
   fetchCommunities,
-  getPageTitle,
+  getSiteMetadata,
   isBrowser,
   isImage,
   pictrsDeleteToast,
@@ -414,8 +414,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       WebSocketService.Instance.send(wsClient.search(form));
 
       // Fetch the page title
-      getPageTitle(this.state.postForm.url).then(d => {
-        this.state.suggestedTitle = d;
+      getSiteMetadata(this.state.postForm.url).then(d => {
+        this.state.suggestedTitle = d.metadata.title;
         this.setState(this.state);
       });
     } else {
