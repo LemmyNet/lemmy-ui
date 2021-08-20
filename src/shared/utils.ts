@@ -936,13 +936,13 @@ export function updatePersonBlock(
   if (data.blocked) {
     UserService.Instance.myUserInfo.person_blocks.push({
       person: UserService.Instance.myUserInfo.local_user_view.person,
-      recipient: data.person_view.person,
+      target: data.person_view.person,
     });
     toast(`${i18n.t("blocked")} ${data.person_view.person.name}`);
   } else {
     UserService.Instance.myUserInfo.person_blocks =
       UserService.Instance.myUserInfo.person_blocks.filter(
-        i => i.recipient.id != data.person_view.person.id
+        i => i.target.id != data.person_view.person.id
       );
     toast(`${i18n.t("unblocked")} ${data.person_view.person.name}`);
   }

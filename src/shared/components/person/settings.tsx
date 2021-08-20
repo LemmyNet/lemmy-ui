@@ -308,11 +308,11 @@ export class Settings extends Component<any, SettingsState> {
           {this.state.personBlocks.map(pb => (
             <li>
               <span>
-                <PersonListing person={pb.recipient} />
+                <PersonListing person={pb.target} />
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
-                    { ctx: this, recipientId: pb.recipient.id },
+                    { ctx: this, recipientId: pb.target.id },
                     this.handleUnblockPerson
                   )}
                   data-tippy-content={i18n.t("unblock_user")}
