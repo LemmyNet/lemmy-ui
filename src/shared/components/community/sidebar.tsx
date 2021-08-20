@@ -104,7 +104,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <a
               class="btn btn-secondary btn-sm mr-2"
               href="#"
-              onClick={linkEvent(community.id, this.handleUnsubscribe)}
+              onClick={linkEvent(this, this.handleUnsubscribe)}
             >
               <Icon icon="check" classes="icon-inline text-success mr-1" />
               {i18n.t("joined")}
@@ -257,10 +257,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           <a
             class="btn btn-secondary btn-block"
             href="#"
-            onClick={linkEvent(
-              community_view.community.id,
-              this.handleSubscribe
-            )}
+            onClick={linkEvent(this, this.handleSubscribe)}
           >
             {i18n.t("subscribe")}
           </a>
@@ -447,7 +444,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleLeaveModTeamClick(i: Sidebar) {
     let form: AddModToCommunity = {
-      person_id: UserService.Instance.localUserView.person.id,
+      person_id: UserService.Instance.myUserInfo.local_user_view.person.id,
       community_id: i.props.community_view.community.id,
       added: false,
       auth: authField(),
@@ -462,48 +459,62 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.setState(i.state);
   }
 
-  handleUnsubscribe(communityId: number, event: any) {
+  handleUnsubscribe(i: Sidebar, event: any) {
     event.preventDefault();
+    let community_id = i.props.community_view.community.id;
     let form: FollowCommunity = {
-      community_id: communityId,
+      community_id,
       follow: false,
       auth: authField(),
     };
     WebSocketService.Instance.send(wsClient.followCommunity(form));
+
+    // Update myUserInfo
+    UserService.Instance.myUserInfo.follows =
+      UserService.Instance.myUserInfo.follows.filter(
+        i => i.community.id != community_id
+      );
   }
 
-  handleSubscribe(communityId: number, event: any) {
+  handleSubscribe(i: Sidebar, event: any) {
     event.preventDefault();
+    let community_id = i.props.community_view.community.id;
     let form: FollowCommunity = {
-      community_id: communityId,
+      community_id,
       follow: true,
       auth: authField(),
     };
     WebSocketService.Instance.send(wsClient.followCommunity(form));
+
+    // Update myUserInfo
+    UserService.Instance.myUserInfo.follows.push({
+      community: i.props.community_view.community,
+      follower: UserService.Instance.myUserInfo.local_user_view.person,
+    });
   }
 
   private get amTopMod(): boolean {
     return (
       this.props.moderators[0].moderator.id ==
-      UserService.Instance.localUserView.person.id
+      UserService.Instance.myUserInfo.local_user_view.person.id
     );
   }
 
   get canMod(): boolean {
     return (
-      UserService.Instance.localUserView &&
+      UserService.Instance.myUserInfo &&
       this.props.moderators
         .map(m => m.moderator.id)
-        .includes(UserService.Instance.localUserView.person.id)
+        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
     );
   }
 
   get canAdmin(): boolean {
     return (
-      UserService.Instance.localUserView &&
+      UserService.Instance.myUserInfo &&
       this.props.admins
         .map(a => a.person.id)
-        .includes(UserService.Instance.localUserView.person.id)
+        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
     );
   }
 

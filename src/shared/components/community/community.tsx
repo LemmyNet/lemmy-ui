@@ -2,6 +2,7 @@ import { Component, linkEvent } from "inferno";
 import {
   AddModToCommunityResponse,
   BanFromCommunityResponse,
+  BlockPersonResponse,
   CommentResponse,
   CommentView,
   CommunityResponse,
@@ -42,6 +43,7 @@ import {
   setOptionalAuth,
   setupTippy,
   toast,
+  updatePersonBlock,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -178,9 +180,10 @@ export class Community extends Component<any, State> {
 
     let sort: SortType = pathSplit[6]
       ? SortType[pathSplit[6]]
-      : UserService.Instance.localUserView
+      : UserService.Instance.myUserInfo
       ? Object.values(SortType)[
-          UserService.Instance.localUserView.local_user.default_sort_type
+          UserService.Instance.myUserInfo.local_user_view.local_user
+            .default_sort_type
         ]
       : SortType.Active;
 
@@ -490,7 +493,10 @@ export class Community extends Component<any, State> {
     } else if (op == UserOperation.CreatePost) {
       let data = wsJsonToRes<PostResponse>(msg).data;
       this.state.posts.unshift(data.post_view);
-      if (UserService.Instance.localUserView?.local_user.show_new_post_notifs) {
+      if (
+        UserService.Instance.myUserInfo?.local_user_view.local_user
+          .show_new_post_notifs
+      ) {
         notifyPost(data.post_view, this.context.router);
       }
       this.setState(this.state);
@@ -540,6 +546,9 @@ export class Community extends Component<any, State> {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       createCommentLikeRes(data.comment_view, this.state.comments);
       this.setState(this.state);
+    } else if (op == UserOperation.BlockPerson) {
+      let data = wsJsonToRes<BlockPersonResponse>(msg).data;
+      updatePersonBlock(data);
     }
   }
 }

@@ -4,13 +4,12 @@ import { Link } from "inferno-router";
 import {
   AddAdminResponse,
   BanPersonResponse,
+  BlockPersonResponse,
   CommentResponse,
   CommentView,
-  CommunityFollowerView,
   CommunityView,
   GetComments,
   GetCommentsResponse,
-  GetFollowedCommunitiesResponse,
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
@@ -49,6 +48,7 @@ import {
   setupTippy,
   showLocal,
   toast,
+  updatePersonBlock,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -68,7 +68,6 @@ import { PostListings } from "../post/post-listings";
 import { SiteForm } from "./site-form";
 
 interface HomeState {
-  subscribedCommunities: CommunityFollowerView[];
   trendingCommunities: CommunityView[];
   siteRes: GetSiteResponse;
   showEditSite: boolean;
@@ -102,7 +101,6 @@ export class Home extends Component<any, HomeState> {
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: HomeState = {
-    subscribedCommunities: [],
     trendingCommunities: [],
     siteRes: this.isoData.site_res,
     showEditSite: false,
@@ -139,21 +137,10 @@ export class Home extends Component<any, HomeState> {
         this.state.comments = this.isoData.routeData[0].comments;
       }
       this.state.trendingCommunities = this.isoData.routeData[1].communities;
-      if (UserService.Instance.localUserView) {
-        this.state.subscribedCommunities =
-          this.isoData.routeData[2].communities;
-      }
       this.state.loading = false;
     } else {
       this.fetchTrendingCommunities();
       this.fetchData();
-      if (UserService.Instance.localUserView) {
-        WebSocketService.Instance.send(
-          wsClient.getFollowedCommunities({
-            auth: authField(),
-          })
-        );
-      }
     }
 
     setupTippy();
@@ -204,16 +191,18 @@ export class Home extends Component<any, HomeState> {
     // TODO figure out auth default_listingType, default_sort_type
     let type_: ListingType = pathSplit[5]
       ? ListingType[pathSplit[5]]
-      : UserService.Instance.localUserView
+      : UserService.Instance.myUserInfo
       ? Object.values(ListingType)[
-          UserService.Instance.localUserView.local_user.default_listing_type
+          UserService.Instance.myUserInfo.local_user_view.local_user
+            .default_listing_type
         ]
       : ListingType.Local;
     let sort: SortType = pathSplit[7]
       ? SortType[pathSplit[7]]
-      : UserService.Instance.localUserView
+      : UserService.Instance.myUserInfo
       ? Object.values(SortType)[
-          UserService.Instance.localUserView.local_user.default_sort_type
+          UserService.Instance.myUserInfo.local_user_view.local_user
+            .default_sort_type
         ]
       : SortType.Active;
 
@@ -249,10 +238,6 @@ export class Home extends Component<any, HomeState> {
       limit: 6,
     };
     promises.push(req.client.listCommunities(trendingCommunitiesForm));
-
-    if (req.auth) {
-      promises.push(req.client.getFollowedCommunities({ auth: req.auth }));
-    }
 
     return promises;
   }
@@ -303,8 +288,8 @@ export class Home extends Component<any, HomeState> {
     return (
       <div class="row">
         <div class="col-12">
-          {UserService.Instance.localUserView &&
-            this.state.subscribedCommunities.length > 0 && (
+          {UserService.Instance.myUserInfo &&
+            UserService.Instance.myUserInfo.follows.length > 0 && (
               <button
                 class="btn btn-secondary d-inline-block mb-2 mr-3"
                 onClick={linkEvent(this, this.handleShowSubscribedMobile)}
@@ -377,8 +362,8 @@ export class Home extends Component<any, HomeState> {
               </div>
             </div>
 
-            {UserService.Instance.localUserView &&
-              this.state.subscribedCommunities.length > 0 && (
+            {UserService.Instance.myUserInfo &&
+              UserService.Instance.myUserInfo.follows.length > 0 && (
                 <div class="card border-secondary mb-3">
                   <div class="card-body">{this.subscribedCommunities()}</div>
                 </div>
@@ -443,7 +428,7 @@ export class Home extends Component<any, HomeState> {
           </T>
         </h5>
         <ul class="list-inline mb-0">
-          {this.state.subscribedCommunities.map(cfv => (
+          {UserService.Instance.myUserInfo.follows.map(cfv => (
             <li class="list-inline-item d-inline-block">
               <CommunityLink community={cfv.community} />
             </li>
@@ -704,7 +689,7 @@ export class Home extends Component<any, HomeState> {
             <Icon icon="rss" classes="text-muted small" />
           </a>
         )}
-        {UserService.Instance.localUserView &&
+        {UserService.Instance.myUserInfo &&
           this.state.listingType == ListingType.Subscribed && (
             <a
               href={`/feeds/front/${UserService.Instance.auth}.xml?sort=${this.state.sort}`}
@@ -720,10 +705,10 @@ export class Home extends Component<any, HomeState> {
 
   get canAdmin(): boolean {
     return (
-      UserService.Instance.localUserView &&
+      UserService.Instance.myUserInfo &&
       this.state.siteRes.admins
         .map(a => a.person.id)
-        .includes(UserService.Instance.localUserView.person.id)
+        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
     );
   }
 
@@ -807,10 +792,6 @@ export class Home extends Component<any, HomeState> {
         wsClient.communityJoin({ community_id: 0 })
       );
       this.fetchData();
-    } else if (op == UserOperation.GetFollowedCommunities) {
-      let data = wsJsonToRes<GetFollowedCommunitiesResponse>(msg).data;
-      this.state.subscribedCommunities = data.communities;
-      this.setState(this.state);
     } else if (op == UserOperation.ListCommunities) {
       let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
       this.state.trendingCommunities = data.communities;
@@ -836,21 +817,21 @@ export class Home extends Component<any, HomeState> {
       let nsfwCheck =
         !nsfw ||
         (nsfw &&
-          UserService.Instance.localUserView &&
-          UserService.Instance.localUserView.local_user.show_nsfw);
+          UserService.Instance.myUserInfo &&
+          UserService.Instance.myUserInfo.local_user_view.local_user.show_nsfw);
 
       // Only push these if you're on the first page, and you pass the nsfw check
       if (this.state.page == 1 && nsfwCheck) {
         // If you're on subscribed, only push it if you're subscribed.
         if (this.state.listingType == ListingType.Subscribed) {
           if (
-            this.state.subscribedCommunities
+            UserService.Instance.myUserInfo.follows
               .map(c => c.community.id)
               .includes(data.post_view.community.id)
           ) {
             this.state.posts.unshift(data.post_view);
             if (
-              UserService.Instance.localUserView?.local_user
+              UserService.Instance.myUserInfo?.local_user_view.local_user
                 .show_new_post_notifs
             ) {
               notifyPost(data.post_view, this.context.router);
@@ -861,7 +842,7 @@ export class Home extends Component<any, HomeState> {
           if (data.post_view.post.local) {
             this.state.posts.unshift(data.post_view);
             if (
-              UserService.Instance.localUserView?.local_user
+              UserService.Instance.myUserInfo?.local_user_view.local_user
                 .show_new_post_notifs
             ) {
               notifyPost(data.post_view, this.context.router);
@@ -870,7 +851,8 @@ export class Home extends Component<any, HomeState> {
         } else {
           this.state.posts.unshift(data.post_view);
           if (
-            UserService.Instance.localUserView?.local_user.show_new_post_notifs
+            UserService.Instance.myUserInfo?.local_user_view.local_user
+              .show_new_post_notifs
           ) {
             notifyPost(data.post_view, this.context.router);
           }
@@ -937,7 +919,7 @@ export class Home extends Component<any, HomeState> {
         // If you're on subscribed, only push it if you're subscribed.
         if (this.state.listingType == ListingType.Subscribed) {
           if (
-            this.state.subscribedCommunities
+            UserService.Instance.myUserInfo.follows
               .map(c => c.community.id)
               .includes(data.comment_view.community.id)
           ) {
@@ -956,6 +938,9 @@ export class Home extends Component<any, HomeState> {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       createCommentLikeRes(data.comment_view, this.state.comments);
       this.setState(this.state);
+    } else if (op == UserOperation.BlockPerson) {
+      let data = wsJsonToRes<BlockPersonResponse>(msg).data;
+      updatePersonBlock(data);
     }
   }
 }

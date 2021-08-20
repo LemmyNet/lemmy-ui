@@ -1,7 +1,7 @@
 // import Cookies from 'js-cookie';
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
-import { LocalUserSettingsView, LoginResponse } from "lemmy-js-client";
+import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { BehaviorSubject, Subject } from "rxjs";
 
 interface Claims {
@@ -12,7 +12,7 @@ interface Claims {
 
 export class UserService {
   private static _instance: UserService;
-  public localUserView: LocalUserSettingsView;
+  public myUserInfo: MyUserInfo;
   public claims: Claims;
   public jwtSub: Subject<string> = new Subject<string>();
   public unreadCountSub: BehaviorSubject<number> = new BehaviorSubject<number>(
@@ -39,7 +39,7 @@ export class UserService {
   public logout() {
     IsomorphicCookie.remove("jwt", { secure: false });
     this.claims = undefined;
-    this.localUserView = undefined;
+    this.myUserInfo = undefined;
     // setTheme();
     this.jwtSub.next("");
     console.log("Logged out.");

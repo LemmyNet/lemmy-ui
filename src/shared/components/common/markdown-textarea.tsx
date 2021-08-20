@@ -209,7 +209,7 @@ export class MarkdownTextArea extends Component<
               <label
                 htmlFor={`file-upload-${this.id}`}
                 className={`mb-0 ${
-                  UserService.Instance.localUserView && "pointer"
+                  UserService.Instance.myUserInfo && "pointer"
                 }`}
                 data-tippy-content={i18n.t("upload_image")}
               >
@@ -225,7 +225,7 @@ export class MarkdownTextArea extends Component<
                 accept="image/*,video/*"
                 name="file"
                 class="d-none"
-                disabled={!UserService.Instance.localUserView}
+                disabled={!UserService.Instance.myUserInfo}
                 onChange={linkEvent(this, this.handleImageUpload)}
               />
             </form>

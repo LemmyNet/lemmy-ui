@@ -409,16 +409,16 @@ export class Modlog extends Component<any, ModlogState> {
 
   get isAdminOrMod(): boolean {
     let isAdmin =
-      UserService.Instance.localUserView &&
+      UserService.Instance.myUserInfo &&
       this.isoData.site_res.admins
         .map(a => a.person.id)
-        .includes(UserService.Instance.localUserView.person.id);
+        .includes(UserService.Instance.myUserInfo.local_user_view.person.id);
     let isMod =
-      UserService.Instance.localUserView &&
+      UserService.Instance.myUserInfo &&
       this.state.communityMods &&
       this.state.communityMods
         .map(m => m.moderator.id)
-        .includes(UserService.Instance.localUserView.person.id);
+        .includes(UserService.Instance.myUserInfo.local_user_view.person.id);
     return isAdmin || isMod;
   }
 

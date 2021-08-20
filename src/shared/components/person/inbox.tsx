@@ -1,5 +1,6 @@
 import { Component, linkEvent } from "inferno";
 import {
+  BlockPersonResponse,
   CommentResponse,
   CommentView,
   GetPersonMentions,
@@ -31,6 +32,7 @@ import {
   setIsoData,
   setupTippy,
   toast,
+  updatePersonBlock,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -103,7 +105,7 @@ export class Inbox extends Component<any, InboxState> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
 
-    if (!UserService.Instance.localUserView && isBrowser()) {
+    if (!UserService.Instance.myUserInfo && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
@@ -130,9 +132,9 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   get documentTitle(): string {
-    return `@${UserService.Instance.localUserView.person.name} ${i18n.t(
-      "inbox"
-    )} - ${this.state.site_view.site.name}`;
+    return `@${
+      UserService.Instance.myUserInfo.local_user_view.person.name
+    } ${i18n.t("inbox")} - ${this.state.site_view.site.name}`;
   }
 
   render() {
@@ -722,7 +724,7 @@ export class Inbox extends Component<any, InboxState> {
 
       if (
         data.recipient_ids.includes(
-          UserService.Instance.localUserView.local_user.id
+          UserService.Instance.myUserInfo.local_user_view.local_user.id
         )
       ) {
         this.state.replies.unshift(data.comment_view);
@@ -730,7 +732,7 @@ export class Inbox extends Component<any, InboxState> {
         this.setState(this.state);
       } else if (
         data.comment_view.creator.id ==
-        UserService.Instance.localUserView.person.id
+        UserService.Instance.myUserInfo.local_user_view.person.id
       ) {
         // TODO this seems wrong, you should be using form_id
         toast(i18n.t("reply_sent"));
@@ -739,7 +741,7 @@ export class Inbox extends Component<any, InboxState> {
       let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
       if (
         data.private_message_view.recipient.id ==
-        UserService.Instance.localUserView.person.id
+        UserService.Instance.myUserInfo.local_user_view.person.id
       ) {
         this.state.messages.unshift(data.private_message_view);
         this.state.combined.unshift(
@@ -756,6 +758,9 @@ export class Inbox extends Component<any, InboxState> {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       createCommentLikeRes(data.comment_view, this.state.replies);
       this.setState(this.state);
+    } else if (op == UserOperation.BlockPerson) {
+      let data = wsJsonToRes<BlockPersonResponse>(msg).data;
+      updatePersonBlock(data);
     }
   }
 
@@ -769,10 +774,11 @@ export class Inbox extends Component<any, InboxState> {
       this.state.mentions.filter(r => !r.person_mention.read).length +
       this.state.messages.filter(
         r =>
-          UserService.Instance.localUserView &&
+          UserService.Instance.myUserInfo &&
           !r.private_message.read &&
           // TODO also seems very strange and wrong
-          r.creator.id !== UserService.Instance.localUserView.person.id
+          r.creator.id !==
+            UserService.Instance.myUserInfo.local_user_view.person.id
       ).length
     );
   }
