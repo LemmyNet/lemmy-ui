@@ -27,6 +27,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
         <img
           src={this.src("jpg")}
           alt={this.alt()}
+          loading="lazy"
           className={`
         ${!this.props.icon && !this.props.iconOverlay && "img-fluid "}
         ${
