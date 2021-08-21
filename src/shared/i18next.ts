@@ -2,6 +2,7 @@ import i18next, { i18nTyped } from "i18next";
 import { ar } from "./translations/ar";
 import { bg } from "./translations/bg";
 import { ca } from "./translations/ca";
+import { cy } from "./translations/cy";
 import { da } from "./translations/da";
 import { de } from "./translations/de";
 import { el } from "./translations/el";
@@ -23,18 +24,21 @@ import { ja } from "./translations/ja";
 import { ka } from "./translations/ka";
 import { km } from "./translations/km";
 import { ko } from "./translations/ko";
+import { mnc } from "./translations/mnc";
 import { nb_NO } from "./translations/nb_NO";
 import { nl } from "./translations/nl";
 import { oc } from "./translations/oc";
 import { pl } from "./translations/pl";
 import { pt_BR } from "./translations/pt_BR";
 import { ru } from "./translations/ru";
+import { sk } from "./translations/sk";
 import { sq } from "./translations/sq";
 import { sr_Latn } from "./translations/sr_Latn";
 import { sv } from "./translations/sv";
 import { th } from "./translations/th";
 import { tr } from "./translations/tr";
 import { uk } from "./translations/uk";
+import { vi } from "./translations/vi";
 import { zh } from "./translations/zh";
 import { zh_Hant } from "./translations/zh_Hant";
 import { getLanguage } from "./utils";
@@ -79,6 +83,10 @@ const resources = {
   id,
   nb_NO,
   zh_Hant,
+  cy,
+  mnc,
+  sk,
+  vi,
 };
 
 function format(value: any, format: any): any {
