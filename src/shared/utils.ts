@@ -30,6 +30,7 @@ import markdown_it_sup from "markdown-it-sup";
 import moment from "moment";
 import "moment/locale/bg";
 import "moment/locale/ca";
+import "moment/locale/cy";
 import "moment/locale/da";
 import "moment/locale/de";
 import "moment/locale/el";
@@ -55,11 +56,13 @@ import "moment/locale/nl";
 import "moment/locale/pl";
 import "moment/locale/pt-br";
 import "moment/locale/ru";
+import "moment/locale/sk";
 import "moment/locale/sq";
 import "moment/locale/sr";
 import "moment/locale/sv";
 import "moment/locale/tr";
 import "moment/locale/uk";
+import "moment/locale/vi";
 import "moment/locale/zh-cn";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
@@ -138,6 +141,10 @@ export const languages = [
   { code: "it" },
   { code: "bg" },
   { code: "zh_Hant" },
+  { code: "cy" },
+  { code: "mnc" },
+  { code: "sk" },
+  { code: "vi" },
 ];
 
 export const themes = [
@@ -483,6 +490,12 @@ export function getMomentLanguage(): string {
     lang = "id";
   } else if (lang.startsWith("nb")) {
     lang = "nb";
+  } else if (lang.startsWith("cy")) {
+    lang = "cy";
+  } else if (lang.startsWith("sk")) {
+    lang = "sk";
+  } else if (lang.startsWith("vi")) {
+    lang = "vi";
   } else {
     lang = "en";
   }
