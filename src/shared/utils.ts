@@ -145,6 +145,7 @@ export const languages = [
   { code: "mnc" },
   { code: "sk" },
   { code: "vi" },
+  { code: "pt" },
 ];
 
 export const themes = [
@@ -446,7 +447,7 @@ export function getMomentLanguage(): string {
     lang = "fa";
   } else if (lang.startsWith("pl")) {
     lang = "pl";
-  } else if (lang.startsWith("pt")) {
+  } else if (lang.startsWith("pt_BR")) {
     lang = "pt-br";
   } else if (lang.startsWith("ja")) {
     lang = "ja";
@@ -496,6 +497,8 @@ export function getMomentLanguage(): string {
     lang = "sk";
   } else if (lang.startsWith("vi")) {
     lang = "vi";
+  } else if (lang.startsWith("pt")) {
+    lang = "pt";
   } else {
     lang = "en";
   }

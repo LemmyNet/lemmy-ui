@@ -29,6 +29,7 @@ import { nb_NO } from "./translations/nb_NO";
 import { nl } from "./translations/nl";
 import { oc } from "./translations/oc";
 import { pl } from "./translations/pl";
+import { pt } from "./translations/pt";
 import { pt_BR } from "./translations/pt_BR";
 import { ru } from "./translations/ru";
 import { sk } from "./translations/sk";
@@ -87,6 +88,7 @@ const resources = {
   mnc,
   sk,
   vi,
+  pt,
 };
 
 function format(value: any, format: any): any {
