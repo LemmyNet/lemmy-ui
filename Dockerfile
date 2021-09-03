@@ -1,4 +1,4 @@
-FROM node:14-alpine as builder
+FROM node:alpine as builder
 RUN apk update && apk add yarn python3 build-base gcc wget git --no-cache
 
 WORKDIR /usr/src/app
@@ -24,7 +24,7 @@ RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version
 RUN yarn
 RUN yarn build:prod
 
-FROM node:14-alpine as runner
+FROM node:alpine as runner
 COPY --from=builder /usr/src/app/dist /app/dist
 COPY --from=builder /usr/src/app/node_modules /app/node_modules
 
