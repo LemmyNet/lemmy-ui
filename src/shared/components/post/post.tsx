@@ -192,10 +192,6 @@ export class Post extends Component<any, PostState> {
       this.scrollCommentIntoView();
     }
 
-    if (this.checkScrollIntoCommentsParam) {
-      this.scrollIntoCommentSection();
-    }
-
     // Necessary if you are on a post and you click another post (same route)
     if (_lastProps.location.pathname !== _lastProps.history.location.pathname) {
       // TODO Couldnt get a refresh working. This does for now.
