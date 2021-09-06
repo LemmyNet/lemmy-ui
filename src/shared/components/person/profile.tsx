@@ -251,7 +251,7 @@ export class Profile extends Component<any, ProfileState> {
             {!this.state.loading && (
               <div class="col-12 col-md-4">
                 {this.moderates()}
-                {UserService.Instance.myUserInfo && this.follows()}
+                {this.isCurrentUser && this.follows()}
               </div>
             )}
           </div>
