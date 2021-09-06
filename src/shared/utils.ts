@@ -146,6 +146,7 @@ export const languages = [
   { code: "sk" },
   { code: "vi" },
   { code: "pt" },
+  { code: "ar" },
 ];
 
 export const themes = [
@@ -499,6 +500,8 @@ export function getMomentLanguage(): string {
     lang = "vi";
   } else if (lang.startsWith("pt")) {
     lang = "pt";
+  } else if (lang.startsWith("ar")) {
+    lang = "ar";
   } else {
     lang = "en";
   }
