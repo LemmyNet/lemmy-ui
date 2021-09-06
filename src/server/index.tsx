@@ -28,21 +28,25 @@ server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 server.use("/static", express.static(path.resolve("./dist")));
 
-const robotstxt =
-`User-Agent: *
+const robotstxt = `User-Agent: *
 Disallow: /login
 Disallow: /settings
 Disallow: /create_community
 Disallow: /create_post
+Disallow: /create_private_message
 Disallow: /inbox
+Disallow: /setup
+Disallow: /admin
+Disallow: /password_change
 Disallow: /search/
 `;
-// server.use(cookieParser());
-server.get("/robots.txt", async (req, res) => {
-  res.setHeader("content-type","text/plain; charset=utf-8") 
-  res.send(robotstxt)
+
+server.get("/robots.txt", async (_req, res) => {
+  res.setHeader("content-type", "text/plain; charset=utf-8");
+  res.send(robotstxt);
 });
 
+// server.use(cookieParser());
 server.get("/*", async (req, res) => {
   const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
   const context = {} as any;
