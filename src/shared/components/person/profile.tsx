@@ -3,6 +3,7 @@ import { Link } from "inferno-router";
 import {
   AddAdminResponse,
   BanPersonResponse,
+  BlockPerson,
   BlockPersonResponse,
   CommentResponse,
   GetPersonDetails,
@@ -10,6 +11,7 @@ import {
   GetSiteResponse,
   PostResponse,
   SortType,
+  PersonBlockView,
   UserOperation,
 } from "lemmy-js-client";
 import moment from "moment";
@@ -57,6 +59,7 @@ interface ProfileState {
   sort: SortType;
   page: number;
   loading: boolean;
+  personBlocks: PersonBlockView[];
   siteRes: GetSiteResponse;
 }
 
@@ -84,6 +87,7 @@ export class Profile extends Component<any, ProfileState> {
     view: Profile.getViewFromProps(this.props.match.view),
     sort: Profile.getSortTypeFromProps(this.props.match.sort),
     page: Profile.getPageFromProps(this.props.match.page),
+    personBlocks: UserService.Instance.myUserInfo.person_blocks,
     siteRes: this.isoData.site_res,
   };
 
@@ -124,6 +128,15 @@ export class Profile extends Component<any, ProfileState> {
       UserService.Instance.myUserInfo?.local_user_view.person.id ==
       this.state.personRes.person_view.person.id
     );
+  }
+  isBlocked() {
+    // this.state.personRes?.person_view.person.name
+    for (var k of this.state.personBlocks) {
+      if (k.target.id == this.state.personRes.person_view.person.id) {
+        return true;
+      }
+    }
+    return false
   }
 
   static getViewFromProps(view: string): PersonDetailsView {
@@ -339,6 +352,24 @@ export class Profile extends Component<any, ProfileState> {
       </div>
     );
   }
+  handleBlockPerson(personId: number) {
+    if (personId != 0) {
+      let blockUserForm: BlockPerson = {
+        person_id: personId,
+        block: true,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+    }
+  }
+  handleUnblockPerson(recipientId: number ) {
+    let blockUserForm: BlockPerson = {
+      person_id: recipientId,
+      block: false,
+      auth: authField(),
+    };
+    WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+  }
 
   userInfo() {
     let pv = this.state.personRes?.person_view;
@@ -383,11 +414,31 @@ export class Profile extends Component<any, ProfileState> {
                     {i18n.t("send_secure_message")}
                   </a>
                   <Link
-                    className={"d-flex align-self-start btn btn-secondary"}
+                    className={"d-flex align-self-start btn btn-secondary mr-2"}
                     to={`/create_private_message/recipient/${pv.person.id}`}
                   >
                     {i18n.t("send_message")}
                   </Link>
+                  {!this.isBlocked() && (
+                  <a
+                    id="blockbtn"
+                    className={"d-flex align-self-start btn btn-secondary"}
+                    onClick={linkEvent(pv.person.id, this.handleBlockPerson)}
+                    href="#"
+                  >
+                    {i18n.t("block_user")}
+                  </a>
+                  )}
+                  {this.isBlocked() && (
+                  <a
+                    id="unblockbtn"
+                    className={"d-flex align-self-start btn btn-secondary"}
+                    onClick={linkEvent(pv.person.id, this.handleUnblockPerson)}
+                    href="#"
+                  >
+                    {i18n.t("unblock_user")}
+                  </a>
+                  )}
                 </>
               )}
             </div>
@@ -577,7 +628,8 @@ export class Profile extends Component<any, ProfileState> {
       this.setState(this.state);
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
-      updatePersonBlock(data);
-    }
+      this.setState({ personBlocks: updatePersonBlock(data) });
+      this.setState(this.state);
+    } 
   }
 }
