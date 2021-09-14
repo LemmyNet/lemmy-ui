@@ -7,5 +7,9 @@ new_tag="$1"
 # sudo docker build . --tag dessalines/lemmy-ui:$new_tag
 # sudo docker push dessalines/lemmy-ui:$new_tag
 
+# Upgrade version
+yarn version --new-version $new_tag
+git push
+
 git tag $new_tag
 git push origin $new_tag
