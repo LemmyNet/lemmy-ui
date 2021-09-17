@@ -244,7 +244,7 @@ export class Profile extends Component<any, ProfileState> {
                 }
                 enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
                 view={this.state.view}
-                onPageChange={this.handlePageChange}
+                onPageChange={this.handlePageChange.bind(this)}
               />
             </div>
 
