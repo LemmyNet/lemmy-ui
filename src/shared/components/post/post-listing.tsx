@@ -32,6 +32,7 @@ import {
   isVideo,
   md,
   mdToHtml,
+  numToSI,
   previewLines,
   setupTippy,
   showScores,
@@ -356,7 +357,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             class={`unselectable pointer font-weight-bold text-muted px-1`}
             data-tippy-content={this.pointsTippy}
           >
-            {this.state.score}
+            {numToSI(this.state.score)}
           </div>
         ) : (
           <div class="p-1"></div>
@@ -475,12 +476,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className="text-muted small"
             title={i18n.t("number_of_comments", {
               count: post_view.counts.comments,
+              formattedCount: post_view.counts.comments,
             })}
             to={`/post/${post_view.post.id}?scrollToComments=true`}
           >
             <Icon icon="message-square" classes="icon-inline mr-1" />
             {i18n.t("number_of_comments", {
               count: post_view.counts.comments,
+              formattedCount: numToSI(post_view.counts.comments),
             })}
           </Link>
         </button>
@@ -494,7 +497,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               >
                 <small>
                   <Icon icon="arrow-down1" classes="icon-inline mr-1" />
-                  <span>{this.state.downvotes}</span>
+                  <span>{numToSI(this.state.downvotes)}</span>
                 </small>
               </button>
             )}
@@ -532,7 +535,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   aria-label={i18n.t("upvote")}
                 >
                   <Icon icon="arrow-up1" classes="icon-inline small mr-2" />
-                  {this.state.upvotes}
+                  {numToSI(this.state.upvotes)}
                 </button>
               ) : (
                 <button
@@ -557,7 +560,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   >
                     <Icon icon="arrow-down1" classes="icon-inline small mr-2" />
                     {this.state.downvotes !== 0 && (
-                      <span>{this.state.downvotes}</span>
+                      <span>{numToSI(this.state.downvotes)}</span>
                     )}
                   </button>
                 ) : (
@@ -1571,14 +1574,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get pointsTippy(): string {
     let points = i18n.t("number_of_points", {
       count: this.state.score,
+      formattedCount: this.state.score,
     });
 
     let upvotes = i18n.t("number_of_upvotes", {
       count: this.state.upvotes,
+      formattedCount: this.state.upvotes,
     });
 
     let downvotes = i18n.t("number_of_downvotes", {
       count: this.state.downvotes,
+      formattedCount: this.state.downvotes,
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;
