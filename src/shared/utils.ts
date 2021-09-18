@@ -1431,3 +1431,14 @@ export function initializeSite(site: GetSiteResponse) {
   UserService.Instance.myUserInfo = site.my_user;
   i18n.changeLanguage(getLanguage());
 }
+
+let SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 1,
+  //@ts-ignore
+  notation: "compact",
+  compactDisplay: "short",
+});
+
+export function numToSI(value: any) {
+  return SHORTNUM_SI_FORMAT.format(value);
+}

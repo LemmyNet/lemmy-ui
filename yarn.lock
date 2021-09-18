@@ -4045,9 +4045,10 @@ inferno-hydrate@^7.4.9:
   dependencies:
     inferno "7.4.9"
 
-"inferno-i18next@github:nimbusec-oss/inferno-i18next#semver:^7.4.2":
-  version "7.4.2"
-  resolved "https://codeload.github.com/nimbusec-oss/inferno-i18next/tar.gz/54b9be591ccd62c53799ad23e35f17144a62f909"
+inferno-i18next-dess@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/inferno-i18next-dess/-/inferno-i18next-dess-0.0.1.tgz#48ae6bb4c3a617e59ff8dc97b9ed70f2ef762206"
+  integrity sha512-z/6UnuWFMyBivfR3SI9AmgA0/JvXARqtG/9BQryaLPenlG7iAb4cN2TeSt0mHIgFOo01QHVWZ8dqn7jZRijp2Q==
   dependencies:
     html-parse-stringify2 "^2.0.1"
     inferno "^7.4.2"
