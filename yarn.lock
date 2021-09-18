@@ -2800,6 +2800,11 @@ enquirer@^2.3.5, enquirer@^2.3.6:
   dependencies:
     ansi-colors "^4.1.1"
 
+entities@~1.1.1:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/entities/-/entities-1.1.2.tgz#bdfa735299664dfafd34529ed4f8522a275fea56"
+  integrity sha512-f2LZMYl1Fzu7YSBKg+RoROelpOaNrcGmE9AZubeDfrCEia483oW4MI4VyFd5VNHIgQ/7qm1I0wUHK1eJnn2y2w==
+
 entities@~2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/entities/-/entities-2.1.0.tgz#992d3129cf7df6870b96c57858c249a120f8b8b5"
@@ -4716,6 +4721,13 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
+linkify-it@^2.0.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-2.2.0.tgz#e3b54697e78bf915c70a38acd78fd09e0058b1cf"
+  integrity sha512-GnAl/knGn+i1U/wjBz3akz2stz+HrHLsxMwHQGofCDfPvlf+gDKN58UtfmUquTY4/MXeE2x7k19KQmeoZi94Iw==
+  dependencies:
+    uc.micro "^1.0.1"
+
 linkify-it@^3.0.1:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-3.0.2.tgz#f55eeb8bc1d3ae754049e124ab3bb56d97797fb8"
@@ -5026,6 +5038,14 @@ markdown-it-container@^3.0.0:
   resolved "https://registry.yarnpkg.com/markdown-it-container/-/markdown-it-container-3.0.0.tgz#1d19b06040a020f9a827577bb7dbf67aa5de9a5b"
   integrity sha512-y6oKTq4BB9OQuY/KLfk/O3ysFhB3IMYoIWhGJEidXt1NQFocFK2sA2t0NYZAMyMShAGL6x5OPIbrmXPIqaN9rw==
 
+markdown-it-html5-embed@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/markdown-it-html5-embed/-/markdown-it-html5-embed-1.0.0.tgz#f36bedca1eb12ce4df2d53b5ec72f62ba5e094b3"
+  integrity sha512-SPgugO/1+/9sZcgxoxijoTHSUpCUgFCNe1MSuTmDxDkV6NQrVzMclhRMFgE/rcHO+2rhIg3U7Oy80XA/E8ytpg==
+  dependencies:
+    markdown-it "^8.4.0"
+    mimoza "~1.0.0"
+
 markdown-it-sub@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/markdown-it-sub/-/markdown-it-sub-1.0.0.tgz#375fd6026eae7ddcb012497f6411195ea1e3afe8"
@@ -5044,6 +5064,17 @@ markdown-it@^12.1.0:
     argparse "^2.0.1"
     entities "~2.1.0"
     linkify-it "^3.0.1"
+    mdurl "^1.0.1"
+    uc.micro "^1.0.5"
+
+markdown-it@^8.4.0:
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/markdown-it/-/markdown-it-8.4.2.tgz#386f98998dc15a37722aa7722084f4020bdd9b54"
+  integrity sha512-GcRz3AWTqSUphY3vsUqQSFMbgR38a4Lh3GWlHRh/7MRwz8mcu9n2IO7HOh+bXHrR9kOPDl5RNCaEsrneb+xhHQ==
+  dependencies:
+    argparse "^1.0.7"
+    entities "~1.1.1"
+    linkify-it "^2.0.0"
     mdurl "^1.0.1"
     uc.micro "^1.0.5"
 
@@ -5135,6 +5166,11 @@ mime-db@1.49.0, "mime-db@>= 1.43.0 < 2":
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.49.0.tgz#f3dfde60c99e9cf3bc9701d687778f537001cbed"
   integrity sha512-CIc8j9URtOVApSFCQIF+VBkX1RwXp/oMMOrqdyXSBXq5RWNEsRfyj1kiRnQgmNXmHxPoFIxOroKA3zcU9P+nAA==
 
+mime-db@^1.6.0:
+  version "1.50.0"
+  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.50.0.tgz#abd4ac94e98d3c0e185016c67ab45d5fde40c11f"
+  integrity sha512-9tMZCDlYHqeERXEHO9f/hKfNXhre5dK2eE/krIvUjZbS2KPcqGDfNShIWS1uW9XOTKQKqK6qbeOci18rbfW77A==
+
 mime-types@^2.1.12, mime-types@^2.1.27, mime-types@^2.1.31, mime-types@~2.1.17, mime-types@~2.1.19, mime-types@~2.1.24:
   version "2.1.32"
   resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.32.tgz#1d00e89e7de7fe02008db61001d9e02852670fd5"
@@ -5161,6 +5197,13 @@ mimic-fn@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/mimic-fn/-/mimic-fn-3.1.0.tgz#65755145bbf3e36954b949c16450427451d5ca74"
   integrity sha512-Ysbi9uYW9hFyfrThdDEQuykN4Ey6BuwPD2kpI5ES/nFTDn/98yxYNLZJcgUAKPT/mcrLLKaGzJR9YVxJrIdASQ==
+
+mimoza@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/mimoza/-/mimoza-1.0.0.tgz#d74aa4fe08932f005e430bdc7bfcfa95fcab4e62"
+  integrity sha1-10qk/giTLwBeQwvce/z6lfyrTmI=
+  dependencies:
+    mime-db "^1.6.0"
 
 min-indent@^1.0.0:
   version "1.0.1"
