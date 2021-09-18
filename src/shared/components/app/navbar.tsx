@@ -20,6 +20,7 @@ import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
+  donateLemmyUrl,
   fetchLimit,
   getLanguage,
   isBrowser,
@@ -28,7 +29,6 @@ import {
   numToSI,
   setTheme,
   showAvatars,
-  supportLemmyUrl,
   toast,
   wsClient,
   wsJsonToRes,
@@ -241,7 +241,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <a
                   className="nav-link"
                   title={i18n.t("support_lemmy")}
-                  href={supportLemmyUrl}
+                  href={donateLemmyUrl}
                 >
                   <Icon icon="heart" classes="small" />
                 </a>

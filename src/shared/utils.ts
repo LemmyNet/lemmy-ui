@@ -92,13 +92,13 @@ export const favIconPngUrl = "/static/assets/icons/apple-touch-icon.png";
 // export const defaultFavIcon = `${window.location.protocol}//${window.location.host}${favIconPngUrl}`;
 export const repoUrl = "https://github.com/LemmyNet";
 export const joinLemmyUrl = "https://join-lemmy.org";
-export const supportLemmyUrl = `${joinLemmyUrl}/support`;
+export const donateLemmyUrl = `${joinLemmyUrl}/donate`;
 export const docsUrl = `${joinLemmyUrl}/docs/en/index.html`;
 export const helpGuideUrl = `${joinLemmyUrl}/docs/en/about/guide.html`; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
 export const archiveUrl = "https://archive.is";
-export const elementUrl = "https://element.io/";
+export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit = 20;

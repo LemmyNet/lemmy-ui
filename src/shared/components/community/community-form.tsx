@@ -121,16 +121,19 @@ export class CommunityForm extends Component<
         <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
           {!this.props.community_view && (
             <div class="form-group row">
-              <label class="col-12 col-form-label" htmlFor="community-name">
+              <label
+                class="col-12 col-sm-2 col-form-label"
+                htmlFor="community-name"
+              >
                 {i18n.t("name")}
                 <span
-                  class="pointer unselectable ml-2 text-muted"
+                  class="position-absolute pointer unselectable ml-2 text-muted"
                   data-tippy-content={i18n.t("name_explain")}
                 >
                   <Icon icon="help-circle" classes="icon-inline" />
                 </span>
               </label>
-              <div class="col-12">
+              <div class="col-12 col-sm-10">
                 <input
                   type="text"
                   id="community-name"
@@ -146,16 +149,19 @@ export class CommunityForm extends Component<
             </div>
           )}
           <div class="form-group row">
-            <label class="col-12 col-form-label" htmlFor="community-title">
+            <label
+              class="col-12 col-sm-2 col-form-label"
+              htmlFor="community-title"
+            >
               {i18n.t("display_name")}
               <span
-                class="pointer unselectable ml-2 text-muted"
+                class="position-absolute pointer unselectable ml-2 text-muted"
                 data-tippy-content={i18n.t("display_name_explain")}
               >
                 <Icon icon="help-circle" classes="icon-inline" />
               </span>
             </label>
-            <div class="col-12">
+            <div class="col-12 col-sm-10">
               <input
                 type="text"
                 id="community-title"
@@ -168,30 +174,34 @@ export class CommunityForm extends Component<
               />
             </div>
           </div>
-          <div class="form-group">
-            <label>{i18n.t("icon")}</label>
-            <ImageUploadForm
-              uploadTitle={i18n.t("upload_icon")}
-              imageSrc={this.state.communityForm.icon}
-              onUpload={this.handleIconUpload}
-              onRemove={this.handleIconRemove}
-              rounded
-            />
-          </div>
-          <div class="form-group">
-            <label>{i18n.t("banner")}</label>
-            <ImageUploadForm
-              uploadTitle={i18n.t("upload_banner")}
-              imageSrc={this.state.communityForm.banner}
-              onUpload={this.handleBannerUpload}
-              onRemove={this.handleBannerRemove}
-            />
+          <div class="form-group row">
+            <label class="col-12 col-sm-2">{i18n.t("icon")}</label>
+            <div class="col-12 col-sm-10">
+              <ImageUploadForm
+                uploadTitle={i18n.t("upload_icon")}
+                imageSrc={this.state.communityForm.icon}
+                onUpload={this.handleIconUpload}
+                onRemove={this.handleIconRemove}
+                rounded
+              />
+            </div>
           </div>
           <div class="form-group row">
-            <label class="col-12 col-form-label" htmlFor={this.id}>
+            <label class="col-12 col-sm-2">{i18n.t("banner")}</label>
+            <div class="col-12 col-sm-10">
+              <ImageUploadForm
+                uploadTitle={i18n.t("upload_banner")}
+                imageSrc={this.state.communityForm.banner}
+                onUpload={this.handleBannerUpload}
+                onRemove={this.handleBannerRemove}
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
               {i18n.t("sidebar")}
             </label>
-            <div class="col-12">
+            <div class="col-12 col-sm-10">
               <MarkdownTextArea
                 initialContent={this.state.communityForm.description}
                 onContentChange={this.handleCommunityDescriptionChange}
@@ -201,18 +211,18 @@ export class CommunityForm extends Component<
 
           {this.props.enableNsfw && (
             <div class="form-group row">
-              <div class="col-12">
+              <legend class="col-form-label col-sm-2 pt-0">
+                {i18n.t("nsfw")}
+              </legend>
+              <div class="col-10">
                 <div class="form-check">
                   <input
-                    class="form-check-input"
+                    class="form-check-input position-static"
                     id="community-nsfw"
                     type="checkbox"
                     checked={this.state.communityForm.nsfw}
                     onChange={linkEvent(this, this.handleCommunityNsfwChange)}
                   />
-                  <label class="form-check-label" htmlFor="community-nsfw">
-                    {i18n.t("nsfw")}
-                  </label>
                 </div>
               </div>
             </div>
