@@ -37,7 +37,7 @@ export class UserService {
   }
 
   public logout() {
-    IsomorphicCookie.remove("jwt", { secure: false });
+    IsomorphicCookie.remove("jwt");
     this.claims = undefined;
     this.myUserInfo = undefined;
     // setTheme();
