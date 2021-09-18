@@ -156,10 +156,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t("number_of_users", {
+          data-tippy-content={i18n.t("active_users_in_the_last_day", {
             count: counts.users_active_day,
             formattedCount: counts.users_active_day,
-          })} ${i18n.t("active_in_the_last")} ${i18n.t("day")}`}
+          })}
         >
           {i18n.t("number_of_users", {
             count: counts.users_active_day,
@@ -169,10 +169,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t("number_of_users", {
+          data-tippy-content={i18n.t("active_users_in_the_last_week", {
             count: counts.users_active_week,
             formattedCount: counts.users_active_week,
-          })} ${i18n.t("active_in_the_last")} ${i18n.t("week")}`}
+          })}
         >
           {i18n.t("number_of_users", {
             count: counts.users_active_week,
@@ -182,10 +182,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t("number_of_users", {
+          data-tippy-content={i18n.t("active_users_in_the_last_month", {
             count: counts.users_active_month,
             formattedCount: counts.users_active_month,
-          })} ${i18n.t("active_in_the_last")} ${i18n.t("month")}`}
+          })}
         >
           {i18n.t("number_of_users", {
             count: counts.users_active_month,
@@ -195,13 +195,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t("number_of_users", {
+          data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
             count: counts.users_active_half_year,
             formattedCount: counts.users_active_half_year,
-          })} ${i18n.t("active_in_the_last")} ${i18n.t("number_of_months", {
-            count: 6,
-            formattedCount: 6,
-          })}`}
+          })}
         >
           {i18n.t("number_of_users", {
             count: counts.users_active_half_year,
