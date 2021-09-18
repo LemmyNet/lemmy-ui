@@ -36,7 +36,7 @@ export class ImageUploadForm extends Component<
       <form class="d-inline">
         <label
           htmlFor={this.id}
-          class="pointer ml-4 text-muted small font-weight-bold"
+          class="pointer text-muted small font-weight-bold"
         >
           {!this.props.imageSrc ? (
             <span class="btn btn-secondary">{this.props.uploadTitle}</span>

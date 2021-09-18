@@ -310,18 +310,18 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           )}
           {this.props.enableNsfw && (
             <div class="form-group row">
+              <legend class="col-form-label col-sm-2 pt-0">
+                {i18n.t("nsfw")}
+              </legend>
               <div class="col-sm-10">
                 <div class="form-check">
                   <input
-                    class="form-check-input"
+                    class="form-check-input position-static"
                     id="post-nsfw"
                     type="checkbox"
                     checked={this.state.postForm.nsfw}
                     onChange={linkEvent(this, this.handlePostNsfwChange)}
                   />
-                  <label class="form-check-label" htmlFor="post-nsfw">
-                    {i18n.t("nsfw")}
-                  </label>
                 </div>
               </div>
             </div>
