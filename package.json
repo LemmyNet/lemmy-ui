@@ -33,6 +33,7 @@
     "jwt-decode": "^3.1.2",
     "markdown-it": "^12.1.0",
     "markdown-it-container": "^3.0.0",
+    "markdown-it-html5-embed": "^1.0.0",
     "markdown-it-sub": "^1.0.0",
     "markdown-it-sup": "^1.0.0",
     "moment": "^2.29.1",
