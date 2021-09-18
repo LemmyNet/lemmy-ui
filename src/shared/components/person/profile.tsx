@@ -92,6 +92,7 @@ export class Profile extends Component<any, ProfileState> {
 
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
