@@ -207,6 +207,10 @@ hr {
   text-overflow: ellipsis;
 }
 
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+
 #app {
   display: flex;
   flex-direction: column;

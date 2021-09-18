@@ -61,7 +61,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
         {!this.props.hideAvatar && community.icon && showAvatars() && (
           <PictrsImage src={community.icon} icon />
         )}
-        <span>{displayName}</span>
+        <span class="overflow-wrap-anywhere">{displayName}</span>
       </>
     );
   }

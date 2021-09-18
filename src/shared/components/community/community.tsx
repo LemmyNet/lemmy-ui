@@ -336,7 +336,7 @@ export class Community extends Component<any, State> {
     return (
       <div class="mb-2">
         <BannerIconHeader banner={community.banner} icon={community.icon} />
-        <h5 class="mb-0">{community.title}</h5>
+        <h5 class="mb-0 overflow-wrap-anywhere">{community.title}</h5>
         <CommunityLink
           community={community}
           realLink
