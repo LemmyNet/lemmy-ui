@@ -18,6 +18,7 @@
   "dependencies": {
     "@typescript-eslint/parser": "^4.31.1",
     "autosize": "^5.0.1",
+    "check-password-strength": "^2.0.3",
     "choices.js": "^9.0.1",
     "emoji-short-name": "^1.0.0",
     "express": "~4.17.1",

@@ -1035,12 +1035,6 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(i.state);
   }
 
-  handleLogoutClick(_i: Settings) {
-    UserService.Instance.logout();
-    window.location.href = "/";
-    location.reload();
-  }
-
   handleDeleteAccount(i: Settings, event: any) {
     event.preventDefault();
     i.state.deleteAccountLoading = true;
