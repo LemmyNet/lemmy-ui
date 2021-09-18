@@ -1,6 +1,6 @@
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { Provider } from "inferno-i18next";
+import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";

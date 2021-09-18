@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { T } from "inferno-i18next";
+import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
   CommentResponse,

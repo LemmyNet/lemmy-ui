@@ -25,7 +25,7 @@
     "inferno-create-element": "^7.4.9",
     "inferno-helmet": "^5.2.1",
     "inferno-hydrate": "^7.4.9",
-    "inferno-i18next": "github:nimbusec-oss/inferno-i18next#semver:^7.4.2",
+    "inferno-i18next-dess": "^0.0.1",
     "inferno-router": "^7.4.9",
     "inferno-server": "^7.4.9",
     "isomorphic-cookie": "^1.2.4",
