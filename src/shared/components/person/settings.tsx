@@ -1035,9 +1035,10 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(i.state);
   }
 
-  handleLogoutClick(i: Settings) {
+  handleLogoutClick(_i: Settings) {
     UserService.Instance.logout();
-    i.context.router.history.push("/");
+    window.location.href = "/";
+    location.reload();
   }
 
   handleDeleteAccount(i: Settings, event: any) {
@@ -1119,6 +1120,7 @@ export class Settings extends Component<any, SettingsState> {
       });
       UserService.Instance.logout();
       window.location.href = "/";
+      location.reload();
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       this.setState({ personBlocks: updatePersonBlock(data) });
