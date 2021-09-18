@@ -25,6 +25,7 @@ import {
   isBrowser,
   notifyComment,
   notifyPrivateMessage,
+  numToSI,
   setTheme,
   showAvatars,
   supportLemmyUrl,
@@ -189,7 +190,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     "unread_messages"
                   )}`}
                 >
-                  {this.state.unreadCount}
+                  {numToSI(this.state.unreadCount)}
                 </span>
               )}
             </button>
@@ -309,7 +310,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             "unread_messages"
                           )}`}
                         >
-                          {this.state.unreadCount}
+                          {numToSI(this.state.unreadCount)}
                         </span>
                       )}
                     </Link>

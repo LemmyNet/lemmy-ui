@@ -38,6 +38,7 @@ import {
   fetchLimit,
   fetchUsers,
   isBrowser,
+  numToSI,
   personSelectName,
   personToChoice,
   restoreScrollPosition,
@@ -649,6 +650,7 @@ export class Search extends Component<any, SearchState> {
         <span>{` -
         ${i18n.t("number_of_subscribers", {
           count: community_view.counts.subscribers,
+          formattedCount: numToSI(community_view.counts.subscribers),
         })}
       `}</span>
       </>
@@ -662,6 +664,7 @@ export class Search extends Component<any, SearchState> {
       </span>,
       <span>{` - ${i18n.t("number_of_comments", {
         count: person_view.counts.comment_count,
+        formattedCount: numToSI(person_view.counts.comment_count),
       })}`}</span>,
     ];
   }

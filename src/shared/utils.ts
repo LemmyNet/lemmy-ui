@@ -1439,6 +1439,6 @@ const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
   compactDisplay: "short",
 });
 
-export function numToSI(value: any) {
+export function numToSI(value: number): string {
   return SHORTNUM_SI_FORMAT.format(value);
 }
