@@ -1432,8 +1432,8 @@ export function initializeSite(site: GetSiteResponse) {
   i18n.changeLanguage(getLanguage());
 }
 
-let SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 1,
+const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
+  maximumSignificantDigits: 3,
   //@ts-ignore
   notation: "compact",
   compactDisplay: "short",
