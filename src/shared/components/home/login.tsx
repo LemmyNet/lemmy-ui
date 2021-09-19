@@ -1,3 +1,5 @@
+import { Options, passwordStrength } from "check-password-strength";
+import { I18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -27,6 +29,33 @@ import {
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
+
+const passwordStrengthOptions: Options<string> = [
+  {
+    id: 0,
+    value: "too_weak",
+    minDiversity: 0,
+    minLength: 0,
+  },
+  {
+    id: 1,
+    value: "weak",
+    minDiversity: 2,
+    minLength: 10,
+  },
+  {
+    id: 2,
+    value: "medium",
+    minDiversity: 3,
+    minLength: 12,
+  },
+  {
+    id: 3,
+    value: "strong",
+    minDiversity: 4,
+    minLength: 14,
+  },
+];
 
 interface State {
   loginForm: LoginForm;
@@ -227,10 +256,16 @@ export class Login extends Component<any, State> {
               value={this.state.registerForm.password}
               autoComplete="new-password"
               onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+              minLength={10}
               maxLength={60}
               class="form-control"
               required
             />
+            {this.state.registerForm.password && (
+              <div class={this.passwordColorClass}>
+                {i18n.t(this.passwordStrength as I18nKeys)}
+              </div>
+            )}
           </div>
         </div>
 
@@ -347,6 +382,25 @@ export class Login extends Component<any, State> {
         )}
       </div>
     );
+  }
+
+  get passwordStrength() {
+    return passwordStrength(
+      this.state.registerForm.password,
+      passwordStrengthOptions
+    ).value;
+  }
+
+  get passwordColorClass(): string {
+    let strength = this.passwordStrength;
+
+    if (["weak", "medium"].includes(strength)) {
+      return "text-warning";
+    } else if (strength == "strong") {
+      return "text-success";
+    } else {
+      return "text-danger";
+    }
   }
 
   handleLoginSubmit(i: Login, event: any) {
