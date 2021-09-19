@@ -8,6 +8,7 @@ import { Instances } from "./components/home/instances";
 import { Login } from "./components/home/login";
 import { PasswordChange } from "./components/home/password_change";
 import { Setup } from "./components/home/setup";
+import { Signup } from "./components/home/signup";
 import { Modlog } from "./components/modlog";
 import { Inbox } from "./components/person/inbox";
 import { Profile } from "./components/person/profile";
@@ -37,6 +38,10 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/login`,
     component: Login,
+  },
+  {
+    path: `/signup`,
+    component: Signup,
   },
   {
     path: `/create_post`,
