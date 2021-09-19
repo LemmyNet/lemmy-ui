@@ -217,6 +217,7 @@ export class Login extends Component<any, State> {
               required
               minLength={3}
               pattern="[a-zA-Z0-9_]+"
+              title={i18n.t("community_reqs")}
             />
           </div>
         </div>
