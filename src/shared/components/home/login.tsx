@@ -105,6 +105,13 @@ export class Login extends Component<any, State> {
     }
   }
 
+  componentDidMount() {
+    // Navigate to home if already logged in
+    if (UserService.Instance.myUserInfo) {
+      this.context.router.history.push("/");
+    }
+  }
+
   componentWillUnmount() {
     if (isBrowser()) {
       this.subscription.unsubscribe();
