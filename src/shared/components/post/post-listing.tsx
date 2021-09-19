@@ -203,16 +203,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (isImage(post.url)) {
       return (
-        <div
-          class="float-right text-body pointer d-inline-block position-relative mb-2"
+        <a
+          href={this.getImageSrc()}
+          class="float-right text-body d-inline-block position-relative mb-2"
           data-tippy-content={i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
-          role="button"
           aria-label={i18n.t("expand_here")}
         >
           {this.imgThumb(this.getImageSrc())}
           <Icon icon="image" classes="mini-overlay" />
-        </div>
+        </a>
       );
     } else if (post.thumbnail_url) {
       return (
@@ -419,12 +419,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <Icon icon="minus-square" classes="icon-inline" />
                 </button>
                 <div>
-                  <button
+                  <a
+                    href={this.getImageSrc()}
                     class="btn btn-link d-inline-block"
                     onClick={linkEvent(this, this.handleImageExpandClick)}
                   >
                     <PictrsImage src={this.getImageSrc()} />
-                  </button>
+                  </a>
                 </div>
               </span>
             ))}
@@ -1542,7 +1543,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState(i.state);
   }
 
-  handleImageExpandClick(i: PostListing) {
+  handleImageExpandClick(i: PostListing, event: any) {
+    event.preventDefault();
     i.state.imageExpanded = !i.state.imageExpanded;
     i.setState(i.state);
   }
