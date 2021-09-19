@@ -3,6 +3,7 @@ import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { BehaviorSubject, Subject } from "rxjs";
+import { isHttps } from "../env";
 
 interface Claims {
   sub: number;
@@ -31,17 +32,18 @@ export class UserService {
   public login(res: LoginResponse) {
     let expires = new Date();
     expires.setDate(expires.getDate() + 365);
-    IsomorphicCookie.save("jwt", res.jwt, { expires, secure: false });
+    IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps });
     console.log("jwt cookie set");
     this.setClaims(res.jwt);
   }
 
   public logout() {
-    IsomorphicCookie.remove("jwt", { secure: false });
     this.claims = undefined;
     this.myUserInfo = undefined;
     // setTheme();
     this.jwtSub.next("");
+    IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
+    document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.host;
     console.log("Logged out.");
   }
 

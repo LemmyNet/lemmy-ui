@@ -1164,14 +1164,14 @@
     eslint-scope "^5.1.1"
     eslint-utils "^3.0.0"
 
-"@typescript-eslint/parser@^4.28.3":
-  version "4.29.2"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-4.29.2.tgz#1c7744f4c27aeb74610c955d3dce9250e95c370a"
-  integrity sha512-WQ6BPf+lNuwteUuyk1jD/aHKqMQ9jrdCn7Gxt9vvBnzbpj7aWEf+aZsJ1zvTjx5zFxGCt000lsbD9tQPEL8u6g==
+"@typescript-eslint/parser@^4.31.1":
+  version "4.31.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-4.31.1.tgz#8f9a2672033e6f6d33b1c0260eebdc0ddf539064"
+  integrity sha512-dnVZDB6FhpIby6yVbHkwTKkn2ypjVIfAR9nh+kYsA/ZL0JlTsd22BiDjouotisY3Irmd3OW1qlk9EI5R8GrvRQ==
   dependencies:
-    "@typescript-eslint/scope-manager" "4.29.2"
-    "@typescript-eslint/types" "4.29.2"
-    "@typescript-eslint/typescript-estree" "4.29.2"
+    "@typescript-eslint/scope-manager" "4.31.1"
+    "@typescript-eslint/types" "4.31.1"
+    "@typescript-eslint/typescript-estree" "4.31.1"
     debug "^4.3.1"
 
 "@typescript-eslint/scope-manager@4.29.2":
@@ -1182,10 +1182,23 @@
     "@typescript-eslint/types" "4.29.2"
     "@typescript-eslint/visitor-keys" "4.29.2"
 
+"@typescript-eslint/scope-manager@4.31.1":
+  version "4.31.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-4.31.1.tgz#0c21e8501f608d6a25c842fcf59541ef4f1ab561"
+  integrity sha512-N1Uhn6SqNtU2XpFSkD4oA+F0PfKdWHyr4bTX0xTj8NRx1314gBDRL1LUuZd5+L3oP+wo6hCbZpaa1in6SwMcVQ==
+  dependencies:
+    "@typescript-eslint/types" "4.31.1"
+    "@typescript-eslint/visitor-keys" "4.31.1"
+
 "@typescript-eslint/types@4.29.2":
   version "4.29.2"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-4.29.2.tgz#fc0489c6b89773f99109fb0aa0aaddff21f52fcd"
   integrity sha512-K6ApnEXId+WTGxqnda8z4LhNMa/pZmbTFkDxEBLQAbhLZL50DjeY0VIDCml/0Y3FlcbqXZrABqrcKxq+n0LwzQ==
+
+"@typescript-eslint/types@4.31.1":
+  version "4.31.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-4.31.1.tgz#5f255b695627a13401d2fdba5f7138bc79450d66"
+  integrity sha512-kixltt51ZJGKENNW88IY5MYqTBA8FR0Md8QdGbJD2pKZ+D5IvxjTYDNtJPDxFBiXmka2aJsITdB1BtO1fsgmsQ==
 
 "@typescript-eslint/typescript-estree@4.29.2":
   version "4.29.2"
@@ -1200,12 +1213,33 @@
     semver "^7.3.5"
     tsutils "^3.21.0"
 
+"@typescript-eslint/typescript-estree@4.31.1":
+  version "4.31.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-4.31.1.tgz#4a04d5232cf1031232b7124a9c0310b577a62d17"
+  integrity sha512-EGHkbsUvjFrvRnusk6yFGqrqMBTue5E5ROnS5puj3laGQPasVUgwhrxfcgkdHNFECHAewpvELE1Gjv0XO3mdWg==
+  dependencies:
+    "@typescript-eslint/types" "4.31.1"
+    "@typescript-eslint/visitor-keys" "4.31.1"
+    debug "^4.3.1"
+    globby "^11.0.3"
+    is-glob "^4.0.1"
+    semver "^7.3.5"
+    tsutils "^3.21.0"
+
 "@typescript-eslint/visitor-keys@4.29.2":
   version "4.29.2"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-4.29.2.tgz#d2da7341f3519486f50655159f4e5ecdcb2cd1df"
   integrity sha512-bDgJLQ86oWHJoZ1ai4TZdgXzJxsea3Ee9u9wsTAvjChdj2WLcVsgWYAPeY7RQMn16tKrlQaBnpKv7KBfs4EQag==
   dependencies:
     "@typescript-eslint/types" "4.29.2"
+    eslint-visitor-keys "^2.0.0"
+
+"@typescript-eslint/visitor-keys@4.31.1":
+  version "4.31.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-4.31.1.tgz#f2e7a14c7f20c4ae07d7fc3c5878c4441a1da9cc"
+  integrity sha512-PCncP8hEqKw6SOJY+3St4LVtoZpPPn+Zlpm7KW5xnviMhdqcsBty4Lsg4J/VECpJjw1CkROaZhH4B8M1OfnXTQ==
+  dependencies:
+    "@typescript-eslint/types" "4.31.1"
     eslint-visitor-keys "^2.0.0"
 
 "@webassemblyjs/ast@1.11.1":
@@ -2028,6 +2062,11 @@ chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+check-password-strength@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/check-password-strength/-/check-password-strength-2.0.3.tgz#fed038b1c457ac11a2999bd96f3185af34e88895"
+  integrity sha512-UW3YgMUne9QuejgnNWjWwYi4QhWArVj+1OXqDR1NkEQcmMKKO74O3P5ZvXr9JZNbTBfcwlK3yurYCMuJsck83A==
+
 choices.js@^9.0.1:
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/choices.js/-/choices.js-9.0.1.tgz#745fb29af8670428fdc0bf1cc9dfaa404e9d0510"
@@ -2799,6 +2838,11 @@ enquirer@^2.3.5, enquirer@^2.3.6:
   integrity sha512-yjNnPr315/FjS4zIsUxYguYUPP2e1NK4d7E7ZOLiyYCcbFBiTMyID+2wvm2w6+pZ/odMA7cRkjhsPbltwBOrLg==
   dependencies:
     ansi-colors "^4.1.1"
+
+entities@~1.1.1:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/entities/-/entities-1.1.2.tgz#bdfa735299664dfafd34529ed4f8522a275fea56"
+  integrity sha512-f2LZMYl1Fzu7YSBKg+RoROelpOaNrcGmE9AZubeDfrCEia483oW4MI4VyFd5VNHIgQ/7qm1I0wUHK1eJnn2y2w==
 
 entities@~2.1.0:
   version "2.1.0"
@@ -3862,10 +3906,10 @@ husky@^7.0.1:
   resolved "https://registry.yarnpkg.com/husky/-/husky-7.0.1.tgz#579f4180b5da4520263e8713cc832942b48e1f1c"
   integrity sha512-gceRaITVZ+cJH9sNHqx5tFwbzlLCVxtVZcusME8JYQ8Edy5mpGDOqD8QBCdMhpyo9a+JXddnujQ4rpY2Ff9SJA==
 
-i18next@^20.3.3:
-  version "20.4.0"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-20.4.0.tgz#6897229a7898e23f3c4885f10315c978b594d3b9"
-  integrity sha512-89iWWJudmaHJwzIdJ/1eu98GtsJnwBhOUWwlAre70itPMuTE/NTPtgVeaS1CGaB8Q3XrYBGpEqlq4jsScDx9kg==
+i18next@^20.6.1:
+  version "20.6.1"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-20.6.1.tgz#535e5f6e5baeb685c7d25df70db63bf3cc0aa345"
+  integrity sha512-yCMYTMEJ9ihCwEQQ3phLo7I/Pwycf8uAx+sRHwwk5U9Aui/IZYgQRyMqXafQOw5QQ7DM1Z+WyEXWIqSuJHhG2A==
   dependencies:
     "@babel/runtime" "^7.12.0"
 
@@ -4015,19 +4059,19 @@ inferno-clone-vnode@^7.4.2:
   dependencies:
     inferno "7.4.8"
 
+inferno-create-element@^7.4.10:
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/inferno-create-element/-/inferno-create-element-7.4.10.tgz#a4d143c98aa141345fd9969b55b56f57336e0329"
+  integrity sha512-Gvq0FHL7qHofYjItVkpsOJtr8f2Ok1kxftBedbQb1fCUpHIEwiUvJSh+HX83ZunVwE9tisoPc/ddQPYFJ+x72Q==
+  dependencies:
+    inferno "7.4.10"
+
 inferno-create-element@^7.4.2:
   version "7.4.8"
   resolved "https://registry.yarnpkg.com/inferno-create-element/-/inferno-create-element-7.4.8.tgz#77bbf24288645c359cf65b4821a3938c6537eb5e"
   integrity sha512-hCkA+RAiqoeWlmmCrb3VIUDV+4lEeLDCI98RcB4HqzAJwjH8dMR4ZeDQO3f9crygPnmSW7r1L0Ykjf0O2oHYFQ==
   dependencies:
     inferno "7.4.8"
-
-inferno-create-element@^7.4.9:
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/inferno-create-element/-/inferno-create-element-7.4.9.tgz#0538b100442163e1c361f2a78664ee3dd5e6f2bb"
-  integrity sha512-wQ/gnd66pdrlm8uPAjGDlSCF6sX9mQ/mGtq8yYKHBTAmWPdE9P3mVsw5Wg9Iyy5NxRVsJqB9emBXIA8PNNkMCg==
-  dependencies:
-    inferno "7.4.9"
 
 inferno-helmet@^5.2.1:
   version "5.2.1"
@@ -4038,16 +4082,17 @@ inferno-helmet@^5.2.1:
     inferno-side-effect "^1.1.5"
     object-assign "^4.1.1"
 
-inferno-hydrate@^7.4.9:
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/inferno-hydrate/-/inferno-hydrate-7.4.9.tgz#ba355f2e17cc273d7adfd957bb19fce4447d8b29"
-  integrity sha512-QP8zmgTddI4WShmQO9VF+wqC3OXmwaGaZkQQNZsp7ZfprhhYuW6ulSPyckWEB/zGZxxYPdG8ZthEeQZF4NS5Jw==
+inferno-hydrate@^7.4.10:
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/inferno-hydrate/-/inferno-hydrate-7.4.10.tgz#678c2423fa47233d905b79d0597b39e1075da12e"
+  integrity sha512-bHJo7wd0ZKAmRlzoHqBjGhEgmOYFBh9LL58bIOeOXiuuyXJFUA6tP/vW91sx7j68K9Zq36SMwtbb/QnQ7R4mug==
   dependencies:
-    inferno "7.4.9"
+    inferno "7.4.10"
 
-"inferno-i18next@github:nimbusec-oss/inferno-i18next#semver:^7.4.2":
-  version "7.4.2"
-  resolved "https://codeload.github.com/nimbusec-oss/inferno-i18next/tar.gz/54b9be591ccd62c53799ad23e35f17144a62f909"
+inferno-i18next-dess@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/inferno-i18next-dess/-/inferno-i18next-dess-0.0.1.tgz#48ae6bb4c3a617e59ff8dc97b9ed70f2ef762206"
+  integrity sha512-z/6UnuWFMyBivfR3SI9AmgA0/JvXARqtG/9BQryaLPenlG7iAb4cN2TeSt0mHIgFOo01QHVWZ8dqn7jZRijp2Q==
   dependencies:
     html-parse-stringify2 "^2.0.1"
     inferno "^7.4.2"
@@ -4056,32 +4101,32 @@ inferno-hydrate@^7.4.9:
     inferno-shared "^7.4.2"
     inferno-vnode-flags "^7.4.2"
 
-inferno-router@^7.4.9:
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/inferno-router/-/inferno-router-7.4.9.tgz#6f3d708f8e01d47f982b41ae18c9312a4c51220b"
-  integrity sha512-MunV594oIw0lGjcf6HMyPIx/F5bsz2+nz+ao4Jd6cLWy1zUCD8eowqCfZe3Re82wbW8+w7zNp5bCpuV+4IiWNQ==
+inferno-router@^7.4.10:
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/inferno-router/-/inferno-router-7.4.10.tgz#6fb27831b8864204bfab5ed192a2c7280e6420ed"
+  integrity sha512-XIeqmmPVwkRE445uMLqjimsh/zxtCsjA25Vt18y52zZaBH1R3Me6FoEoPsnZhH3j9zyOfzpHpxEPpUGWKfyZoA==
   dependencies:
     history "^4.10.1"
     hoist-non-inferno-statics "^1.1.3"
-    inferno "7.4.9"
+    inferno "7.4.10"
     path-to-regexp-es6 "1.7.0"
 
-inferno-server@^7.4.9:
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/inferno-server/-/inferno-server-7.4.9.tgz#05e73aa14512f492d9eec30698c55f30c39493bb"
-  integrity sha512-x9kE+Tk34QfRM1OL4+KSWY86t7dLVanRhDWikBs3jsHuFU+bQ9VGuEp4cf4wEBnv0DbPQiH+/XY5aoaQ6S8zFQ==
+inferno-server@^7.4.10:
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/inferno-server/-/inferno-server-7.4.10.tgz#959af7c0946541f29c2258b67a80b7dd11db9df5"
+  integrity sha512-L9BDXUc6nwmZxo2SPeZl3MtvxiBi5fMmutHe7f6uOVlZoFyylg45CY0KS4+1ySxALxW2fb9ZKJJw/8pBXjmgQA==
   dependencies:
-    inferno "7.4.9"
+    inferno "7.4.10"
+
+inferno-shared@7.4.10:
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/inferno-shared/-/inferno-shared-7.4.10.tgz#d4ca2c7fd6b580f86a623e923d080aa1d7259014"
+  integrity sha512-d7wlcW8NhchfX4vSg+6k9/FwFHAooo81GfWZtnDXtUvZNS4WEMaPH2j1YV6VnN4X3R0850dHRxR7830PdKh4Iw==
 
 inferno-shared@7.4.8, inferno-shared@^7.4.2:
   version "7.4.8"
   resolved "https://registry.yarnpkg.com/inferno-shared/-/inferno-shared-7.4.8.tgz#2b554a36683b770339008749096d9704846dd337"
   integrity sha512-I0jnqsBcQvGJ7hqZF3vEzspQ80evViCe8joP3snWkPXPElk9WBVGLBHX5tHwuFuXv6wW4zeVVA4kBRAs47B+NQ==
-
-inferno-shared@7.4.9:
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/inferno-shared/-/inferno-shared-7.4.9.tgz#f3cc5e85adadd7471a5e1c72da7df93a0bb98340"
-  integrity sha512-WNBz7OJ1DiVN+NeHgflwBHqvD589B9xMPkFGTj6mNs1cQCxYIZtslp5cqpkEo5TnA8O3FgEF00LMaLfc/i8fyw==
 
 inferno-side-effect@^1.1.5:
   version "1.1.5"
@@ -4092,15 +4137,24 @@ inferno-side-effect@^1.1.5:
     npm "^5.8.0"
     shallowequal "^1.0.1"
 
+inferno-vnode-flags@7.4.10:
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/inferno-vnode-flags/-/inferno-vnode-flags-7.4.10.tgz#a255931fc1df1e6896b29226d837f28e1c5ac968"
+  integrity sha512-OzfnqXrJx8Rl3FtyjhdFk7gzuCLMPCbDTiO8Bz0lw6P3ngW9Md5N5LPeg7Jz510PM0NisScQtxxHPwsFQxDIfw==
+
 inferno-vnode-flags@7.4.8, inferno-vnode-flags@^7.4.2:
   version "7.4.8"
   resolved "https://registry.yarnpkg.com/inferno-vnode-flags/-/inferno-vnode-flags-7.4.8.tgz#275d70e3c8b2b3f4eb56041cc9b8c832ce1fb26d"
   integrity sha512-wOUeO7Aho8VH+s2V2K/53KwS0DtQFgT7TdzPE/s6P26ZIxQj+vt7oTJqzXn+xjRIjnfkTLm2eQ8qfInOWCu1rw==
 
-inferno-vnode-flags@7.4.9:
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/inferno-vnode-flags/-/inferno-vnode-flags-7.4.9.tgz#26fe1a40f00de2ebc05b9e7543c8577c674c074b"
-  integrity sha512-pIGvc1MRSRrvjAOpARRz9OCyGrODKYfhw02ctWTIt3Jtn8dyqsjV0ZIaXOQEjpCi5ii7yfE5xwI+ZRI/g3pviQ==
+inferno@7.4.10, inferno@^7.4.10:
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/inferno/-/inferno-7.4.10.tgz#edfeca0db7dd1790aaf60e6aaf7edae8fe97dc63"
+  integrity sha512-L/qPVapN/b4WSrQND6fN0LOvhIeCVpGFQRbDplZvovOJoxRRZyE21k92tL/C76hQVFOp2FIgjZ7fjy9AnKPS+A==
+  dependencies:
+    inferno-shared "7.4.10"
+    inferno-vnode-flags "7.4.10"
+    opencollective-postinstall "^2.0.3"
 
 inferno@7.4.8, inferno@^7.4.2:
   version "7.4.8"
@@ -4109,15 +4163,6 @@ inferno@7.4.8, inferno@^7.4.2:
   dependencies:
     inferno-shared "7.4.8"
     inferno-vnode-flags "7.4.8"
-    opencollective-postinstall "^2.0.3"
-
-inferno@7.4.9, inferno@^7.4.9:
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/inferno/-/inferno-7.4.9.tgz#3722319b53b7e902ab194ad26fa6e80332d85c47"
-  integrity sha512-YxUYo3CyFGRkeSne87DacSAV1yXOp6dAu0toaEkwxb4dIIMilxDmJ8ap0EKxr3ZnQpX7EKmGrLBXrkYQVcmfvg==
-  dependencies:
-    inferno-shared "7.4.9"
-    inferno-vnode-flags "7.4.9"
     opencollective-postinstall "^2.0.3"
 
 inflight@^1.0.4, inflight@~1.0.6:
@@ -4715,6 +4760,13 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
+linkify-it@^2.0.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-2.2.0.tgz#e3b54697e78bf915c70a38acd78fd09e0058b1cf"
+  integrity sha512-GnAl/knGn+i1U/wjBz3akz2stz+HrHLsxMwHQGofCDfPvlf+gDKN58UtfmUquTY4/MXeE2x7k19KQmeoZi94Iw==
+  dependencies:
+    uc.micro "^1.0.1"
+
 linkify-it@^3.0.1:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-3.0.2.tgz#f55eeb8bc1d3ae754049e124ab3bb56d97797fb8"
@@ -5025,6 +5077,14 @@ markdown-it-container@^3.0.0:
   resolved "https://registry.yarnpkg.com/markdown-it-container/-/markdown-it-container-3.0.0.tgz#1d19b06040a020f9a827577bb7dbf67aa5de9a5b"
   integrity sha512-y6oKTq4BB9OQuY/KLfk/O3ysFhB3IMYoIWhGJEidXt1NQFocFK2sA2t0NYZAMyMShAGL6x5OPIbrmXPIqaN9rw==
 
+markdown-it-html5-embed@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/markdown-it-html5-embed/-/markdown-it-html5-embed-1.0.0.tgz#f36bedca1eb12ce4df2d53b5ec72f62ba5e094b3"
+  integrity sha512-SPgugO/1+/9sZcgxoxijoTHSUpCUgFCNe1MSuTmDxDkV6NQrVzMclhRMFgE/rcHO+2rhIg3U7Oy80XA/E8ytpg==
+  dependencies:
+    markdown-it "^8.4.0"
+    mimoza "~1.0.0"
+
 markdown-it-sub@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/markdown-it-sub/-/markdown-it-sub-1.0.0.tgz#375fd6026eae7ddcb012497f6411195ea1e3afe8"
@@ -5043,6 +5103,17 @@ markdown-it@^12.1.0:
     argparse "^2.0.1"
     entities "~2.1.0"
     linkify-it "^3.0.1"
+    mdurl "^1.0.1"
+    uc.micro "^1.0.5"
+
+markdown-it@^8.4.0:
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/markdown-it/-/markdown-it-8.4.2.tgz#386f98998dc15a37722aa7722084f4020bdd9b54"
+  integrity sha512-GcRz3AWTqSUphY3vsUqQSFMbgR38a4Lh3GWlHRh/7MRwz8mcu9n2IO7HOh+bXHrR9kOPDl5RNCaEsrneb+xhHQ==
+  dependencies:
+    argparse "^1.0.7"
+    entities "~1.1.1"
+    linkify-it "^2.0.0"
     mdurl "^1.0.1"
     uc.micro "^1.0.5"
 
@@ -5134,6 +5205,11 @@ mime-db@1.49.0, "mime-db@>= 1.43.0 < 2":
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.49.0.tgz#f3dfde60c99e9cf3bc9701d687778f537001cbed"
   integrity sha512-CIc8j9URtOVApSFCQIF+VBkX1RwXp/oMMOrqdyXSBXq5RWNEsRfyj1kiRnQgmNXmHxPoFIxOroKA3zcU9P+nAA==
 
+mime-db@^1.6.0:
+  version "1.50.0"
+  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.50.0.tgz#abd4ac94e98d3c0e185016c67ab45d5fde40c11f"
+  integrity sha512-9tMZCDlYHqeERXEHO9f/hKfNXhre5dK2eE/krIvUjZbS2KPcqGDfNShIWS1uW9XOTKQKqK6qbeOci18rbfW77A==
+
 mime-types@^2.1.12, mime-types@^2.1.27, mime-types@^2.1.31, mime-types@~2.1.17, mime-types@~2.1.19, mime-types@~2.1.24:
   version "2.1.32"
   resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.32.tgz#1d00e89e7de7fe02008db61001d9e02852670fd5"
@@ -5160,6 +5236,13 @@ mimic-fn@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/mimic-fn/-/mimic-fn-3.1.0.tgz#65755145bbf3e36954b949c16450427451d5ca74"
   integrity sha512-Ysbi9uYW9hFyfrThdDEQuykN4Ey6BuwPD2kpI5ES/nFTDn/98yxYNLZJcgUAKPT/mcrLLKaGzJR9YVxJrIdASQ==
+
+mimoza@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/mimoza/-/mimoza-1.0.0.tgz#d74aa4fe08932f005e430bdc7bfcfa95fcab4e62"
+  integrity sha1-10qk/giTLwBeQwvce/z6lfyrTmI=
+  dependencies:
+    mime-db "^1.6.0"
 
 min-indent@^1.0.0:
   version "1.0.1"
@@ -8350,10 +8433,15 @@ write-file-atomic@^2.0.0, write-file-atomic@^2.3.0:
     imurmurhash "^0.1.4"
     signal-exit "^3.0.2"
 
-ws@^8.1.0, ws@^8.2.0:
+ws@^8.1.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.2.0.tgz#0b738cd484bfc9303421914b11bb4011e07615bb"
   integrity sha512-uYhVJ/m9oXwEI04iIVmgLmugh2qrZihkywG9y5FfZV2ATeLIzHf93qs+tUNqlttbQK957/VX3mtwAS+UfIwA4g==
+
+ws@^8.2.2:
+  version "8.2.2"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.2.2.tgz#ca684330c6dd6076a737250ed81ac1606cb0a63e"
+  integrity sha512-Q6B6H2oc8QY3llc3cB8kVmQ6pnJWVQbP7Q5algTcIxx7YEpc0oU4NBVHlztA7Ekzfhw2r0rPducMUiCGWKQRzw==
 
 xdg-basedir@^3.0.0:
   version "3.0.0"

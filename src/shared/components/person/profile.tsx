@@ -28,6 +28,7 @@ import {
   fetchLimit,
   getUsernameFromProps,
   mdToHtml,
+  numToSI,
   previewLines,
   restoreScrollPosition,
   routeSortTypeToEnum,
@@ -96,6 +97,7 @@ export class Profile extends Component<any, ProfileState> {
 
     this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -453,11 +455,15 @@ export class Profile extends Component<any, ProfileState> {
             <div>
               <ul class="list-inline mb-2">
                 <li className="list-inline-item badge badge-light">
-                  {i18n.t("number_of_posts", { count: pv.counts.post_count })}
+                  {i18n.t("number_of_posts", {
+                    count: pv.counts.post_count,
+                    formattedCount: numToSI(pv.counts.post_count),
+                  })}
                 </li>
                 <li className="list-inline-item badge badge-light">
                   {i18n.t("number_of_comments", {
                     count: pv.counts.comment_count,
+                    formattedCount: numToSI(pv.counts.comment_count),
                   })}
                 </li>
               </ul>

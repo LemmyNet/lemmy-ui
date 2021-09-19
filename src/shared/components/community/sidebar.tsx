@@ -11,7 +11,13 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
-import { authField, getUnixTime, mdToHtml, wsClient } from "../../utils";
+import {
+  authField,
+  getUnixTime,
+  mdToHtml,
+  numToSI,
+  wsClient,
+} from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { CommunityForm } from "../community/community-form";
@@ -143,67 +149,79 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <ul class="my-1 list-inline">
         <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_online", { count: this.props.online })}
+          {i18n.t("number_online", {
+            count: this.props.online,
+            formattedCount: numToSI(this.props.online),
+          })}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t("number_of_users", {
+          data-tippy-content={i18n.t("active_users_in_the_last_day", {
             count: counts.users_active_day,
-          })} ${i18n.t("active_in_the_last")} ${i18n.t("day")}`}
+            formattedCount: counts.users_active_day,
+          })}
         >
           {i18n.t("number_of_users", {
             count: counts.users_active_day,
+            formattedCount: numToSI(counts.users_active_day),
           })}{" "}
           / {i18n.t("day")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t("number_of_users", {
+          data-tippy-content={i18n.t("active_users_in_the_last_week", {
             count: counts.users_active_week,
-          })} ${i18n.t("active_in_the_last")} ${i18n.t("week")}`}
+            formattedCount: counts.users_active_week,
+          })}
         >
           {i18n.t("number_of_users", {
             count: counts.users_active_week,
+            formattedCount: numToSI(counts.users_active_week),
           })}{" "}
           / {i18n.t("week")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t("number_of_users", {
+          data-tippy-content={i18n.t("active_users_in_the_last_month", {
             count: counts.users_active_month,
-          })} ${i18n.t("active_in_the_last")} ${i18n.t("month")}`}
+            formattedCount: counts.users_active_month,
+          })}
         >
           {i18n.t("number_of_users", {
             count: counts.users_active_month,
+            formattedCount: numToSI(counts.users_active_month),
           })}{" "}
           / {i18n.t("month")}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={`${i18n.t("number_of_users", {
+          data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
             count: counts.users_active_half_year,
-          })} ${i18n.t("active_in_the_last")} ${i18n.t("number_of_months", {
-            count: 6,
-          })}`}
+            formattedCount: counts.users_active_half_year,
+          })}
         >
           {i18n.t("number_of_users", {
             count: counts.users_active_half_year,
+            formattedCount: numToSI(counts.users_active_half_year),
           })}{" "}
-          / {i18n.t("number_of_months", { count: 6 })}
+          / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_subscribers", {
             count: counts.subscribers,
+            formattedCount: numToSI(counts.subscribers),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_posts", {
             count: counts.posts,
+            formattedCount: numToSI(counts.posts),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_comments", {
             count: counts.comments,
+            formattedCount: numToSI(counts.comments),
           })}
         </li>
         <li className="list-inline-item">

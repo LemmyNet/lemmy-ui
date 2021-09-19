@@ -19,6 +19,7 @@ import {
   getListingTypeFromPropsNoDefault,
   getPageFromProps,
   isBrowser,
+  numToSI,
   setIsoData,
   setOptionalAuth,
   showLocal,
@@ -160,13 +161,17 @@ export class Communities extends Component<any, CommunitiesState> {
                       <td>
                         <CommunityLink community={cv.community} />
                       </td>
-                      <td class="text-right">{cv.counts.subscribers}</td>
-                      <td class="text-right">{cv.counts.users_active_month}</td>
-                      <td class="text-right d-none d-lg-table-cell">
-                        {cv.counts.posts}
+                      <td class="text-right">
+                        {numToSI(cv.counts.subscribers)}
+                      </td>
+                      <td class="text-right">
+                        {numToSI(cv.counts.users_active_month)}
                       </td>
                       <td class="text-right d-none d-lg-table-cell">
-                        {cv.counts.comments}
+                        {numToSI(cv.counts.posts)}
+                      </td>
+                      <td class="text-right d-none d-lg-table-cell">
+                        {numToSI(cv.counts.comments)}
                       </td>
                       <td class="text-right">
                         {cv.subscribed ? (

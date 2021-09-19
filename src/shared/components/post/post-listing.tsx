@@ -32,6 +32,7 @@ import {
   isVideo,
   md,
   mdToHtml,
+  numToSI,
   previewLines,
   setupTippy,
   showScores,
@@ -202,16 +203,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (isImage(post.url)) {
       return (
-        <div
-          class="float-right text-body pointer d-inline-block position-relative mb-2"
+        <a
+          href={this.getImageSrc()}
+          class="float-right text-body d-inline-block position-relative mb-2"
           data-tippy-content={i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
-          role="button"
           aria-label={i18n.t("expand_here")}
         >
           {this.imgThumb(this.getImageSrc())}
           <Icon icon="image" classes="mini-overlay" />
-        </div>
+        </a>
       );
     } else if (post.thumbnail_url) {
       return (
@@ -356,7 +357,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             class={`unselectable pointer font-weight-bold text-muted px-1`}
             data-tippy-content={this.pointsTippy}
           >
-            {this.state.score}
+            {numToSI(this.state.score)}
           </div>
         ) : (
           <div class="p-1"></div>
@@ -418,12 +419,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <Icon icon="minus-square" classes="icon-inline" />
                 </button>
                 <div>
-                  <button
+                  <a
+                    href={this.getImageSrc()}
                     class="btn btn-link d-inline-block"
                     onClick={linkEvent(this, this.handleImageExpandClick)}
                   >
                     <PictrsImage src={this.getImageSrc()} />
-                  </button>
+                  </a>
                 </div>
               </span>
             ))}
@@ -475,12 +477,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className="text-muted small"
             title={i18n.t("number_of_comments", {
               count: post_view.counts.comments,
+              formattedCount: post_view.counts.comments,
             })}
             to={`/post/${post_view.post.id}?scrollToComments=true`}
           >
             <Icon icon="message-square" classes="icon-inline mr-1" />
             {i18n.t("number_of_comments", {
               count: post_view.counts.comments,
+              formattedCount: numToSI(post_view.counts.comments),
             })}
           </Link>
         </button>
@@ -494,7 +498,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               >
                 <small>
                   <Icon icon="arrow-down1" classes="icon-inline mr-1" />
-                  <span>{this.state.downvotes}</span>
+                  <span>{numToSI(this.state.downvotes)}</span>
                 </small>
               </button>
             )}
@@ -532,7 +536,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   aria-label={i18n.t("upvote")}
                 >
                   <Icon icon="arrow-up1" classes="icon-inline small mr-2" />
-                  {this.state.upvotes}
+                  {numToSI(this.state.upvotes)}
                 </button>
               ) : (
                 <button
@@ -557,7 +561,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   >
                     <Icon icon="arrow-down1" classes="icon-inline small mr-2" />
                     {this.state.downvotes !== 0 && (
-                      <span>{this.state.downvotes}</span>
+                      <span>{numToSI(this.state.downvotes)}</span>
                     )}
                   </button>
                 ) : (
@@ -1539,7 +1543,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState(i.state);
   }
 
-  handleImageExpandClick(i: PostListing) {
+  handleImageExpandClick(i: PostListing, event: any) {
+    event.preventDefault();
     i.state.imageExpanded = !i.state.imageExpanded;
     i.setState(i.state);
   }
@@ -1571,14 +1576,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get pointsTippy(): string {
     let points = i18n.t("number_of_points", {
       count: this.state.score,
+      formattedCount: this.state.score,
     });
 
     let upvotes = i18n.t("number_of_upvotes", {
       count: this.state.upvotes,
+      formattedCount: this.state.upvotes,
     });
 
     let downvotes = i18n.t("number_of_downvotes", {
       count: this.state.downvotes,
+      formattedCount: this.state.downvotes,
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;

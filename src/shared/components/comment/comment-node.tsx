@@ -30,6 +30,7 @@ import {
   getUnixTime,
   isMod,
   mdToHtml,
+  numToSI,
   setupTippy,
   showScores,
   wsClient,
@@ -217,9 +218,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       class="mr-1 font-weight-bold"
                       aria-label={i18n.t("number_of_points", {
                         count: this.state.score,
+                        formattedCount: this.state.score,
                       })}
                     >
-                      {this.state.score}
+                      {numToSI(this.state.score)}
                     </span>
                   </a>
                   <span className="mr-1">•</span>
@@ -293,7 +295,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <Icon icon="arrow-up1" classes="icon-inline" />
                         {showScores() &&
                           this.state.upvotes !== this.state.score && (
-                            <span class="ml-1">{this.state.upvotes}</span>
+                            <span class="ml-1">
+                              {numToSI(this.state.upvotes)}
+                            </span>
                           )}
                       </button>
                       {this.props.enableDownvotes && (
@@ -310,7 +314,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           <Icon icon="arrow-down1" classes="icon-inline" />
                           {showScores() &&
                             this.state.upvotes !== this.state.score && (
-                              <span class="ml-1">{this.state.downvotes}</span>
+                              <span class="ml-1">
+                                {numToSI(this.state.downvotes)}
+                              </span>
                             )}
                         </button>
                       )}
@@ -1289,14 +1295,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   get pointsTippy(): string {
     let points = i18n.t("number_of_points", {
       count: this.state.score,
+      formattedCount: this.state.score,
     });
 
     let upvotes = i18n.t("number_of_upvotes", {
       count: this.state.upvotes,
+      formattedCount: this.state.upvotes,
     });
 
     let downvotes = i18n.t("number_of_downvotes", {
       count: this.state.downvotes,
+      formattedCount: this.state.downvotes,
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;

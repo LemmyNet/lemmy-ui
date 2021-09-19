@@ -227,10 +227,10 @@ export class Settings extends Component<any, SettingsState> {
         <h5>{i18n.t("change_password")}</h5>
         <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
           <div class="form-group row">
-            <label class="col-lg-5 col-form-label" htmlFor="user-password">
+            <label class="col-sm-5 col-form-label" htmlFor="user-password">
               {i18n.t("new_password")}
             </label>
-            <div class="col-lg-7">
+            <div class="col-sm-7">
               <input
                 type="password"
                 id="user-password"
@@ -244,12 +244,12 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           <div class="form-group row">
             <label
-              class="col-lg-5 col-form-label"
+              class="col-sm-5 col-form-label"
               htmlFor="user-verify-password"
             >
               {i18n.t("verify_password")}
             </label>
-            <div class="col-lg-7">
+            <div class="col-sm-7">
               <input
                 type="password"
                 id="user-verify-password"
@@ -262,10 +262,10 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-5 col-form-label" htmlFor="user-old-password">
+            <label class="col-sm-5 col-form-label" htmlFor="user-old-password">
               {i18n.t("old_password")}
             </label>
-            <div class="col-lg-7">
+            <div class="col-sm-7">
               <input
                 type="password"
                 id="user-old-password"
@@ -417,10 +417,10 @@ export class Settings extends Component<any, SettingsState> {
         <h5>{i18n.t("settings")}</h5>
         <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
           <div class="form-group row">
-            <label class="col-lg-5 col-form-label" htmlFor="display-name">
+            <label class="col-sm-5 col-form-label" htmlFor="display-name">
               {i18n.t("display_name")}
             </label>
-            <div class="col-lg-7">
+            <div class="col-sm-7">
               <input
                 id="display-name"
                 type="text"
@@ -434,10 +434,10 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-3 col-form-label" htmlFor="user-bio">
+            <label class="col-sm-3 col-form-label" htmlFor="user-bio">
               {i18n.t("bio")}
             </label>
-            <div class="col-lg-9">
+            <div class="col-sm-9">
               <MarkdownTextArea
                 initialContent={this.state.saveUserSettingsForm.bio}
                 onContentChange={this.handleBioChange}
@@ -447,10 +447,10 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-3 col-form-label" htmlFor="user-email">
+            <label class="col-sm-3 col-form-label" htmlFor="user-email">
               {i18n.t("email")}
             </label>
-            <div class="col-lg-9">
+            <div class="col-sm-9">
               <input
                 type="email"
                 id="user-email"
@@ -463,12 +463,12 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-5 col-form-label" htmlFor="matrix-user-id">
+            <label class="col-sm-5 col-form-label" htmlFor="matrix-user-id">
               <a href={elementUrl} rel="noopener">
                 {i18n.t("matrix_user_id")}
               </a>
             </label>
-            <div class="col-lg-7">
+            <div class="col-sm-7">
               <input
                 id="matrix-user-id"
                 type="text"
@@ -480,90 +480,102 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group">
-            <label>{i18n.t("avatar")}</label>
-            <ImageUploadForm
-              uploadTitle={i18n.t("upload_avatar")}
-              imageSrc={this.state.saveUserSettingsForm.avatar}
-              onUpload={this.handleAvatarUpload}
-              onRemove={this.handleAvatarRemove}
-              rounded
-            />
+          <div class="form-group row">
+            <label class="col-sm-3">{i18n.t("avatar")}</label>
+            <div class="col-sm-9">
+              <ImageUploadForm
+                uploadTitle={i18n.t("upload_avatar")}
+                imageSrc={this.state.saveUserSettingsForm.avatar}
+                onUpload={this.handleAvatarUpload}
+                onRemove={this.handleAvatarRemove}
+                rounded
+              />
+            </div>
           </div>
-          <div class="form-group">
-            <label>{i18n.t("banner")}</label>
-            <ImageUploadForm
-              uploadTitle={i18n.t("upload_banner")}
-              imageSrc={this.state.saveUserSettingsForm.banner}
-              onUpload={this.handleBannerUpload}
-              onRemove={this.handleBannerRemove}
-            />
+          <div class="form-group row">
+            <label class="col-sm-3">{i18n.t("banner")}</label>
+            <div class="col-sm-9">
+              <ImageUploadForm
+                uploadTitle={i18n.t("upload_banner")}
+                imageSrc={this.state.saveUserSettingsForm.banner}
+                onUpload={this.handleBannerUpload}
+                onRemove={this.handleBannerRemove}
+              />
+            </div>
           </div>
-          <div class="form-group">
-            <label htmlFor="user-language">{i18n.t("language")}</label>
-            <select
-              id="user-language"
-              value={this.state.saveUserSettingsForm.lang}
-              onChange={linkEvent(this, this.handleLangChange)}
-              class="ml-2 custom-select w-auto"
-            >
-              <option disabled aria-hidden="true">
-                {i18n.t("language")}
-              </option>
-              <option value="browser">{i18n.t("browser_default")}</option>
-              <option disabled aria-hidden="true">
-                ──
-              </option>
-              {languages.sort().map(lang => (
-                <option value={lang.code}>
-                  {ISO6391.getNativeName(lang.code) || lang.code}
+          <div class="form-group row">
+            <label class="col-sm-3" htmlFor="user-language">
+              {i18n.t("language")}
+            </label>
+            <div class="col-sm-9">
+              <select
+                id="user-language"
+                value={this.state.saveUserSettingsForm.lang}
+                onChange={linkEvent(this, this.handleLangChange)}
+                class="custom-select w-auto"
+              >
+                <option disabled aria-hidden="true">
+                  {i18n.t("language")}
                 </option>
-              ))}
-            </select>
+                <option value="browser">{i18n.t("browser_default")}</option>
+                <option disabled aria-hidden="true">
+                  ──
+                </option>
+                {languages.sort().map(lang => (
+                  <option value={lang.code}>
+                    {ISO6391.getNativeName(lang.code) || lang.code}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div class="form-group">
-            <label htmlFor="user-theme">{i18n.t("theme")}</label>
-            <select
-              id="user-theme"
-              value={this.state.saveUserSettingsForm.theme}
-              onChange={linkEvent(this, this.handleThemeChange)}
-              class="ml-2 custom-select w-auto"
-            >
-              <option disabled aria-hidden="true">
-                {i18n.t("theme")}
-              </option>
-              <option value="browser">{i18n.t("browser_default")}</option>
-              {themes.map(theme => (
-                <option value={theme}>{theme}</option>
-              ))}
-            </select>
-          </div>
-          <form className="form-group">
-            <label>
-              <div class="mr-2">{i18n.t("type")}</div>
+          <div class="form-group row">
+            <label class="col-sm-3" htmlFor="user-theme">
+              {i18n.t("theme")}
             </label>
-            <ListingTypeSelect
-              type_={
-                Object.values(ListingType)[
-                  this.state.saveUserSettingsForm.default_listing_type
-                ]
-              }
-              showLocal={showLocal(this.isoData)}
-              onChange={this.handleListingTypeChange}
-            />
+            <div class="col-sm-9">
+              <select
+                id="user-theme"
+                value={this.state.saveUserSettingsForm.theme}
+                onChange={linkEvent(this, this.handleThemeChange)}
+                class="custom-select w-auto"
+              >
+                <option disabled aria-hidden="true">
+                  {i18n.t("theme")}
+                </option>
+                <option value="browser">{i18n.t("browser_default")}</option>
+                {themes.map(theme => (
+                  <option value={theme}>{theme}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <form className="form-group row">
+            <label class="col-sm-3">{i18n.t("type")}</label>
+            <div class="col-sm-9">
+              <ListingTypeSelect
+                type_={
+                  Object.values(ListingType)[
+                    this.state.saveUserSettingsForm.default_listing_type
+                  ]
+                }
+                showLocal={showLocal(this.isoData)}
+                onChange={this.handleListingTypeChange}
+              />
+            </div>
           </form>
-          <form className="form-group">
-            <label>
-              <div class="mr-2">{i18n.t("sort_type")}</div>
-            </label>
-            <SortSelect
-              sort={
-                Object.values(SortType)[
-                  this.state.saveUserSettingsForm.default_sort_type
-                ]
-              }
-              onChange={this.handleSortTypeChange}
-            />
+          <form className="form-group row">
+            <label class="col-sm-3">{i18n.t("sort_type")}</label>
+            <div class="col-sm-9">
+              <SortSelect
+                sort={
+                  Object.values(SortType)[
+                    this.state.saveUserSettingsForm.default_sort_type
+                  ]
+                }
+                onChange={this.handleSortTypeChange}
+              />
+            </div>
           </form>
           {this.state.siteRes.site_view.site.enable_nsfw && (
             <div class="form-group">
@@ -1023,11 +1035,6 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(i.state);
   }
 
-  handleLogoutClick(i: Settings) {
-    UserService.Instance.logout();
-    i.context.router.history.push("/");
-  }
-
   handleDeleteAccount(i: Settings, event: any) {
     event.preventDefault();
     i.state.deleteAccountLoading = true;
@@ -1107,6 +1114,7 @@ export class Settings extends Component<any, SettingsState> {
       });
       UserService.Instance.logout();
       window.location.href = "/";
+      location.reload();
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       this.setState({ personBlocks: updatePersonBlock(data) });

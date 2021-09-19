@@ -25,6 +25,7 @@ import {
 } from "lemmy-js-client";
 import markdown_it from "markdown-it";
 import markdown_it_container from "markdown-it-container";
+import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import moment from "moment";
@@ -91,13 +92,13 @@ export const favIconPngUrl = "/static/assets/icons/apple-touch-icon.png";
 // export const defaultFavIcon = `${window.location.protocol}//${window.location.host}${favIconPngUrl}`;
 export const repoUrl = "https://github.com/LemmyNet";
 export const joinLemmyUrl = "https://join-lemmy.org";
-export const supportLemmyUrl = `${joinLemmyUrl}/support`;
+export const donateLemmyUrl = `${joinLemmyUrl}/donate`;
 export const docsUrl = `${joinLemmyUrl}/docs/en/index.html`;
 export const helpGuideUrl = `${joinLemmyUrl}/docs/en/about/guide.html`; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
 export const archiveUrl = "https://archive.is";
-export const elementUrl = "https://element.io/";
+export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit = 20;
@@ -208,6 +209,16 @@ export const md = new markdown_it({
 })
   .use(markdown_it_sub)
   .use(markdown_it_sup)
+  .use(markdown_it_html5_embed, {
+    html5embed: {
+      useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
+      attributes: {
+        audio: 'controls preload="metadata"',
+        video:
+          'width="100%" max-height="100%" controls loop preload="metadata"',
+      },
+    },
+  })
   .use(markdown_it_container, "spoiler", {
     validate: function (params: any) {
       return params.trim().match(/^spoiler\s+(.*)$/);
@@ -1430,4 +1441,15 @@ export function personSelectName(pvs: PersonViewSafe): string {
 export function initializeSite(site: GetSiteResponse) {
   UserService.Instance.myUserInfo = site.my_user;
   i18n.changeLanguage(getLanguage());
+}
+
+const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
+  maximumSignificantDigits: 3,
+  //@ts-ignore
+  notation: "compact",
+  compactDisplay: "short",
+});
+
+export function numToSI(value: number): string {
+  return SHORTNUM_SI_FORMAT.format(value);
 }
