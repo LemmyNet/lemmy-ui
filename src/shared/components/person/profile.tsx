@@ -11,7 +11,6 @@ import {
   GetSiteResponse,
   PostResponse,
   SortType,
-  PersonBlockView,
   UserOperation,
 } from "lemmy-js-client";
 import moment from "moment";
