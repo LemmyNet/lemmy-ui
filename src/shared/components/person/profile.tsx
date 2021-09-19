@@ -60,7 +60,7 @@ interface ProfileState {
   sort: SortType;
   page: number;
   loading: boolean;
-  personBlocks: PersonBlockView[];
+  personBlocks: boolean;
   siteRes: GetSiteResponse;
 }
 
@@ -88,7 +88,7 @@ export class Profile extends Component<any, ProfileState> {
     view: Profile.getViewFromProps(this.props.match.view),
     sort: Profile.getSortTypeFromProps(this.props.match.sort),
     page: Profile.getPageFromProps(this.props.match.page),
-    personBlocks: UserService.Instance.myUserInfo.person_blocks,
+    personBlocks: false,
     siteRes: this.isoData.site_res,
   };
 
@@ -131,14 +131,10 @@ export class Profile extends Component<any, ProfileState> {
       this.state.personRes.person_view.person.id
     );
   }
-  isBlocked() {
-    // this.state.personRes?.person_view.person.name
-    for (var k of this.state.personBlocks) {
-      if (k.target.id == this.state.personRes.person_view.person.id) {
-        return true;
-      }
-    }
-    return false
+  get isBlocked() {
+    this.state.personBlocks = UserService.Instance.myUserInfo.person_blocks.
+    map(a => a.target.id).includes(this.state.personRes.person_view.person.id) 
+    return this.state.personBlocks
   }
 
   static getViewFromProps(view: string): PersonDetailsView {
@@ -421,25 +417,24 @@ export class Profile extends Component<any, ProfileState> {
                   >
                     {i18n.t("send_message")}
                   </Link>
-                  {!this.isBlocked() && (
+                  {this.isBlocked ?  
+                   (
                   <a
-                    id="blockbtn"
-                    className={"d-flex align-self-start btn btn-secondary"}
-                    onClick={linkEvent(pv.person.id, this.handleBlockPerson)}
-                    href="#"
-                  >
-                    {i18n.t("block_user")}
-                  </a>
-                  )}
-                  {this.isBlocked() && (
-                  <a
-                    id="unblockbtn"
                     className={"d-flex align-self-start btn btn-secondary"}
                     onClick={linkEvent(pv.person.id, this.handleUnblockPerson)}
                     href="#"
                   >
                     {i18n.t("unblock_user")}
                   </a>
+                  ) :
+                  (
+                    <a
+                      className={"d-flex align-self-start btn btn-secondary"}
+                      onClick={linkEvent(pv.person.id, this.handleBlockPerson)}
+                      href="#"
+                    >
+                      {i18n.t("block_user")}
+                    </a>
                   )}
                 </>
               )}
@@ -634,7 +629,7 @@ export class Profile extends Component<any, ProfileState> {
       this.setState(this.state);
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
-      this.setState({ personBlocks: updatePersonBlock(data) });
+      updatePersonBlock(data);
       this.setState(this.state);
     } 
   }
