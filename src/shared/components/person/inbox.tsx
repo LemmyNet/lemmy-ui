@@ -765,7 +765,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   sendUnreadCount() {
-    UserService.Instance.unreadCountSub.next(this.unreadCount());
+    UserService.Instance.unreadInboxCountSub.next(this.unreadCount());
   }
 
   unreadCount(): number {
