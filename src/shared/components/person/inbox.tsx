@@ -1,6 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import {
   BlockPersonResponse,
+  CommentReportResponse,
   CommentResponse,
   CommentView,
   GetPersonMentions,
@@ -10,6 +11,7 @@ import {
   GetRepliesResponse,
   PersonMentionResponse,
   PersonMentionView,
+  PostReportResponse,
   PrivateMessageResponse,
   PrivateMessagesResponse,
   PrivateMessageView,
@@ -761,11 +763,21 @@ export class Inbox extends Component<any, InboxState> {
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       updatePersonBlock(data);
+    } else if (op == UserOperation.CreatePostReport) {
+      let data = wsJsonToRes<PostReportResponse>(msg).data;
+      if (data) {
+        toast(i18n.t("report_created"));
+      }
+    } else if (op == UserOperation.CreateCommentReport) {
+      let data = wsJsonToRes<CommentReportResponse>(msg).data;
+      if (data) {
+        toast(i18n.t("report_created"));
+      }
     }
   }
 
   sendUnreadCount() {
-    UserService.Instance.unreadCountSub.next(this.unreadCount());
+    UserService.Instance.unreadInboxCountSub.next(this.unreadCount());
   }
 
   unreadCount(): number {

@@ -2,6 +2,7 @@ import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
+  CommentReportView,
   CommentView,
   CommunityBlockView,
   CommunityView,
@@ -13,6 +14,7 @@ import {
   MyUserInfo,
   PersonBlockView,
   PersonViewSafe,
+  PostReportView,
   PostView,
   PrivateMessageView,
   Search,
@@ -1052,6 +1054,26 @@ export function editPostRes(data: PostView, post: PostView) {
     post.post.body = data.post.body;
     post.post.locked = data.post.locked;
     post.saved = data.saved;
+  }
+}
+
+export function updatePostReportRes(
+  data: PostReportView,
+  reports: PostReportView[]
+) {
+  let found = reports.find(p => p.post.id == data.post.id);
+  if (found) {
+    found.post_report = data.post_report;
+  }
+}
+
+export function updateCommentReportRes(
+  data: CommentReportView,
+  reports: CommentReportView[]
+) {
+  let found = reports.find(c => c.comment.id == data.comment.id);
+  if (found) {
+    found.comment_report = data.comment_report;
   }
 }
 

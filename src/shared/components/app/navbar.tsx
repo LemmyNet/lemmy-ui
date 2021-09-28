@@ -8,6 +8,8 @@ import {
   GetPrivateMessages,
   GetReplies,
   GetRepliesResponse,
+  GetReportCount,
+  GetReportCountResponse,
   GetSiteResponse,
   PrivateMessageResponse,
   PrivateMessagesResponse,
@@ -48,7 +50,8 @@ interface NavbarState {
   replies: CommentView[];
   mentions: CommentView[];
   messages: PrivateMessageView[];
-  unreadCount: number;
+  unreadInboxCount: number;
+  unreadReportCount: number;
   searchParam: string;
   toggleSearch: boolean;
   showDropdown: boolean;
@@ -58,11 +61,13 @@ interface NavbarState {
 export class Navbar extends Component<NavbarProps, NavbarState> {
   private wsSub: Subscription;
   private userSub: Subscription;
-  private unreadCountSub: Subscription;
+  private unreadInboxCountSub: Subscription;
+  private unreadReportCountSub: Subscription;
   private searchTextField: RefObject<HTMLInputElement>;
   emptyState: NavbarState = {
     isLoggedIn: !!this.props.site_res.my_user,
-    unreadCount: 0,
+    unreadInboxCount: 0,
+    unreadReportCount: 0,
     replies: [],
     mentions: [],
     messages: [],
@@ -117,18 +122,23 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       });
 
       // Subscribe to unread count changes
-      this.unreadCountSub = UserService.Instance.unreadCountSub.subscribe(
-        res => {
-          this.setState({ unreadCount: res });
-        }
-      );
+      this.unreadInboxCountSub =
+        UserService.Instance.unreadInboxCountSub.subscribe(res => {
+          this.setState({ unreadInboxCount: res });
+        });
+      // Subscribe to unread report count changes
+      this.unreadReportCountSub =
+        UserService.Instance.unreadReportCountSub.subscribe(res => {
+          this.setState({ unreadReportCount: res });
+        });
     }
   }
 
   componentWillUnmount() {
     this.wsSub.unsubscribe();
     this.userSub.unsubscribe();
-    this.unreadCountSub.unsubscribe();
+    this.unreadInboxCountSub.unsubscribe();
+    this.unreadReportCountSub.unsubscribe();
   }
 
   updateUrl() {
@@ -177,23 +187,48 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             </button>
           )}
           {this.state.isLoggedIn && (
-            <button
-              className="ml-auto p-1 navbar-toggler nav-link border-0 btn btn-link"
-              onClick={linkEvent(this, this.handleGotoInbox)}
-              title={i18n.t("inbox")}
-            >
-              <Icon icon="bell" />
-              {this.state.unreadCount > 0 && (
-                <span
-                  class="mx-1 badge badge-light"
-                  aria-label={`${this.state.unreadCount} ${i18n.t(
-                    "unread_messages"
-                  )}`}
-                >
-                  {numToSI(this.state.unreadCount)}
-                </span>
+            <>
+              <ul class="navbar-nav ml-auto">
+                <li className="nav-item">
+                  <button
+                    className="p-1 navbar-toggler nav-link border-0 btn btn-link"
+                    onClick={linkEvent(this, this.handleGotoInbox)}
+                    title={i18n.t("unread_messages", {
+                      count: this.state.unreadInboxCount,
+                      formattedCount: numToSI(this.state.unreadInboxCount),
+                    })}
+                  >
+                    <Icon icon="bell" />
+                    {this.state.unreadInboxCount > 0 && (
+                      <span class="mx-1 badge badge-light">
+                        {numToSI(this.state.unreadInboxCount)}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              </ul>
+              {UserService.Instance.myUserInfo?.moderates.length > 0 && (
+                <ul class="navbar-nav ml-1">
+                  <li className="nav-item">
+                    <button
+                      className="p-1 navbar-toggler nav-link border-0 btn btn-link"
+                      onClick={linkEvent(this, this.handleGotoReports)}
+                      title={i18n.t("unread_reports", {
+                        count: this.state.unreadReportCount,
+                        formattedCount: numToSI(this.state.unreadReportCount),
+                      })}
+                    >
+                      <Icon icon="shield" />
+                      {this.state.unreadReportCount > 0 && (
+                        <span class="mx-1 badge badge-light">
+                          {numToSI(this.state.unreadReportCount)}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                </ul>
               )}
-            </button>
+            </>
           )}
           <button
             class="navbar-toggler border-0 p-1"
@@ -300,22 +335,41 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <Link
                       className="nav-link"
                       to="/inbox"
-                      title={i18n.t("inbox")}
+                      title={i18n.t("unread_messages", {
+                        count: this.state.unreadInboxCount,
+                        formattedCount: numToSI(this.state.unreadInboxCount),
+                      })}
                     >
                       <Icon icon="bell" />
-                      {this.state.unreadCount > 0 && (
-                        <span
-                          class="ml-1 badge badge-light"
-                          aria-label={`${this.state.unreadCount} ${i18n.t(
-                            "unread_messages"
-                          )}`}
-                        >
-                          {numToSI(this.state.unreadCount)}
+                      {this.state.unreadInboxCount > 0 && (
+                        <span class="ml-1 badge badge-light">
+                          {numToSI(this.state.unreadInboxCount)}
                         </span>
                       )}
                     </Link>
                   </li>
                 </ul>
+                {UserService.Instance.myUserInfo?.moderates.length > 0 && (
+                  <ul class="navbar-nav my-2">
+                    <li className="nav-item">
+                      <Link
+                        className="nav-link"
+                        to="/reports"
+                        title={i18n.t("unread_reports", {
+                          count: this.state.unreadReportCount,
+                          formattedCount: numToSI(this.state.unreadReportCount),
+                        })}
+                      >
+                        <Icon icon="shield" />
+                        {this.state.unreadReportCount > 0 && (
+                          <span class="ml-1 badge badge-light">
+                            {numToSI(this.state.unreadReportCount)}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  </ul>
+                )}
                 <ul class="navbar-nav">
                   <li class="nav-item dropdown">
                     <button
@@ -481,6 +535,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     i.context.router.history.push(`/inbox`);
   }
 
+  handleGotoReports(i: Navbar) {
+    i.setState({ showDropdown: false, expanded: false });
+    i.context.router.history.push(`/reports`);
+  }
+
   handleGotoAdmin(i: Navbar) {
     i.setState({ showDropdown: false, expanded: false });
     i.context.router.history.push(`/admin`);
@@ -523,7 +582,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       let unreadReplies = data.replies.filter(r => !r.comment.read);
 
       this.state.replies = unreadReplies;
-      this.state.unreadCount = this.calculateUnreadCount();
+      this.state.unreadInboxCount = this.calculateUnreadInboxCount();
       this.setState(this.state);
       this.sendUnreadCount();
     } else if (op == UserOperation.GetPersonMentions) {
@@ -531,7 +590,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       let unreadMentions = data.mentions.filter(r => !r.comment.read);
 
       this.state.mentions = unreadMentions;
-      this.state.unreadCount = this.calculateUnreadCount();
+      this.state.unreadInboxCount = this.calculateUnreadInboxCount();
       this.setState(this.state);
       this.sendUnreadCount();
     } else if (op == UserOperation.GetPrivateMessages) {
@@ -541,9 +600,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       );
 
       this.state.messages = unreadMessages;
-      this.state.unreadCount = this.calculateUnreadCount();
+      this.state.unreadInboxCount = this.calculateUnreadInboxCount();
       this.setState(this.state);
       this.sendUnreadCount();
+    } else if (op == UserOperation.GetReportCount) {
+      let data = wsJsonToRes<GetReportCountResponse>(msg).data;
+      this.state.unreadReportCount = data.post_reports + data.comment_reports;
+      this.setState(this.state);
+      this.sendReportUnread();
     } else if (op == UserOperation.GetSite) {
       // This is only called on a successful login
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
@@ -565,7 +629,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           )
         ) {
           this.state.replies.push(data.comment_view);
-          this.state.unreadCount++;
+          this.state.unreadInboxCount++;
           this.setState(this.state);
           this.sendUnreadCount();
           notifyComment(data.comment_view, this.context.router);
@@ -580,7 +644,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           UserService.Instance.myUserInfo.local_user_view.person.id
         ) {
           this.state.messages.push(data.private_message_view);
-          this.state.unreadCount++;
+          this.state.unreadInboxCount++;
           this.setState(this.state);
           this.sendUnreadCount();
           notifyPrivateMessage(data.private_message_view, this.context.router);
@@ -590,31 +654,33 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   fetchUnreads() {
-    console.log("Fetching unreads...");
-    let repliesForm: GetReplies = {
-      sort: SortType.New,
-      unread_only: true,
-      page: 1,
-      limit: fetchLimit,
-      auth: authField(),
-    };
-
-    let personMentionsForm: GetPersonMentions = {
-      sort: SortType.New,
-      unread_only: true,
-      page: 1,
-      limit: fetchLimit,
-      auth: authField(),
-    };
-
-    let privateMessagesForm: GetPrivateMessages = {
-      unread_only: true,
-      page: 1,
-      limit: fetchLimit,
-      auth: authField(),
-    };
-
+    // TODO we should just add a count call to the API for these, because this is a limited fetch,
+    // and it shouldn't have to fetch the actual content
     if (this.currentLocation !== "/inbox") {
+      console.log("Fetching inbox unreads...");
+      let repliesForm: GetReplies = {
+        sort: SortType.New,
+        unread_only: true,
+        page: 1,
+        limit: fetchLimit,
+        auth: authField(),
+      };
+
+      let personMentionsForm: GetPersonMentions = {
+        sort: SortType.New,
+        unread_only: true,
+        page: 1,
+        limit: fetchLimit,
+        auth: authField(),
+      };
+
+      let privateMessagesForm: GetPrivateMessages = {
+        unread_only: true,
+        page: 1,
+        limit: fetchLimit,
+        auth: authField(),
+      };
+
       WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
       WebSocketService.Instance.send(
         wsClient.getPersonMentions(personMentionsForm)
@@ -623,6 +689,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         wsClient.getPrivateMessages(privateMessagesForm)
       );
     }
+
+    console.log("Fetching reports...");
+
+    let reportCountForm: GetReportCount = {
+      auth: authField(),
+    };
+
+    WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
   }
 
   get currentLocation() {
@@ -630,10 +704,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   sendUnreadCount() {
-    UserService.Instance.unreadCountSub.next(this.state.unreadCount);
+    UserService.Instance.unreadInboxCountSub.next(this.state.unreadInboxCount);
   }
 
-  calculateUnreadCount(): number {
+  sendReportUnread() {
+    UserService.Instance.unreadReportCountSub.next(
+      this.state.unreadReportCount
+    );
+  }
+
+  calculateUnreadInboxCount(): number {
     return (
       this.state.replies.filter(r => !r.comment.read).length +
       this.state.mentions.filter(r => !r.comment.read).length +
