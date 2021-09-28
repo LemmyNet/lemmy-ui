@@ -6,6 +6,7 @@ import {
   BanFromCommunityResponse,
   BanPersonResponse,
   BlockPersonResponse,
+  CommentReportResponse,
   CommentResponse,
   CommunityResponse,
   GetCommunityResponse,
@@ -14,6 +15,7 @@ import {
   GetSiteResponse,
   ListingType,
   MarkCommentAsRead,
+  PostReportResponse,
   PostResponse,
   PostView,
   Search,
@@ -245,8 +247,8 @@ export class Post extends Component<any, PostState> {
         auth: authField(),
       };
       WebSocketService.Instance.send(wsClient.markCommentAsRead(form));
-      UserService.Instance.unreadCountSub.next(
-        UserService.Instance.unreadCountSub.value - 1
+      UserService.Instance.unreadInboxCountSub.next(
+        UserService.Instance.unreadInboxCountSub.value - 1
       );
     }
   }
@@ -619,6 +621,16 @@ export class Post extends Component<any, PostState> {
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       updatePersonBlock(data);
+    } else if (op == UserOperation.CreatePostReport) {
+      let data = wsJsonToRes<PostReportResponse>(msg).data;
+      if (data) {
+        toast(i18n.t("report_created"));
+      }
+    } else if (op == UserOperation.CreateCommentReport) {
+      let data = wsJsonToRes<CommentReportResponse>(msg).data;
+      if (data) {
+        toast(i18n.t("report_created"));
+      }
     }
   }
 }

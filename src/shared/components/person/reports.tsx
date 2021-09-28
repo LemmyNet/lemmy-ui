@@ -104,7 +104,6 @@ export class Reports extends Component<any, ReportsState> {
       this.state.postReports = this.isoData.routeData[1].post_reports || [];
       this.state.combined = this.buildCombined();
       this.state.loading = false;
-      console.log(this.isoData.routeData[1]);
     } else {
       this.refetch();
     }
