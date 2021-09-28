@@ -32,7 +32,9 @@ import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import moment from "moment";
 import "moment/locale/bg";
+import "moment/locale/bn";
 import "moment/locale/ca";
+import "moment/locale/cs";
 import "moment/locale/cy";
 import "moment/locale/da";
 import "moment/locale/de";
@@ -54,6 +56,7 @@ import "moment/locale/ja";
 import "moment/locale/ka";
 import "moment/locale/km";
 import "moment/locale/ko";
+import "moment/locale/ml";
 import "moment/locale/nb";
 import "moment/locale/nl";
 import "moment/locale/pl";
@@ -150,6 +153,9 @@ export const languages = [
   { code: "vi" },
   { code: "pt" },
   { code: "ar" },
+  { code: "bn" },
+  { code: "ml" },
+  { code: "cs" },
 ];
 
 export const themes = [
@@ -515,6 +521,12 @@ export function getMomentLanguage(): string {
     lang = "pt";
   } else if (lang.startsWith("ar")) {
     lang = "ar";
+  } else if (lang.startsWith("bn")) {
+    lang = "bn";
+  } else if (lang.startsWith("ml")) {
+    lang = "ml";
+  } else if (lang.startsWith("cs")) {
+    lang = "cs";
   } else {
     lang = "en";
   }
