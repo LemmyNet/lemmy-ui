@@ -364,3 +364,7 @@ br.big {
 .tribute-container .menu-highlighted {
   font-weight: bold;
 }
+
+.honeypot {
+  display:none !important;
+}
