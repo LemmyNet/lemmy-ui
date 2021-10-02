@@ -278,7 +278,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   title={i18n.t("support_lemmy")}
                   href={donateLemmyUrl}
                 >
-                  <Icon icon="heart" classes="small" />
+                 {i18n.t("support_lemmy")}
                 </a>
               </li>
             </ul>
@@ -290,12 +290,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     onClick={linkEvent(this, this.handleGotoAdmin)}
                     title={i18n.t("admin_settings")}
                   >
-                    <Icon icon="settings" />
+                    {!this.state.expanded?<Icon icon="settings" />:i18n.t("admin_settings")}
                   </button>
                 </li>
               )}
-            </ul>
-            {!this.context.router.history.location.pathname.match(
+              <li className="nav-item">{!this.context.router.history.location.pathname.match(
               /^\/search/
             ) && (
               <form
@@ -320,14 +319,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <button
                   name="search-btn"
                   onClick={linkEvent(this, this.handleSearchBtn)}
-                  class="px-1 btn btn-link"
-                  style="color: var(--gray)"
+                  class="nav-link btn btn-link"
                   aria-label={i18n.t("search")}
                 >
-                  <Icon icon="search" />
+                  {!this.state.expanded || this.state.toggleSearch?<Icon icon="search" />: i18n.t("search")}
                 </button>
               </form>
-            )}
+            )}</li>
+              
+            </ul>
             {this.state.isLoggedIn ? (
               <>
                 <ul class="navbar-nav my-2">
@@ -340,7 +340,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         formattedCount: numToSI(this.state.unreadInboxCount),
                       })}
                     >
-                      <Icon icon="bell" />
+                      {!this.state.expanded && <Icon icon="bell" />}
                       {this.state.unreadInboxCount > 0 && (
                         <span class="ml-1 badge badge-light">
                           {numToSI(this.state.unreadInboxCount)}
@@ -360,7 +360,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           formattedCount: numToSI(this.state.unreadReportCount),
                         })}
                       >
-                        <Icon icon="shield" />
+                      {!this.state.expanded && (
+                        <Icon icon="shield" />)}
+                        
                         {this.state.unreadReportCount > 0 && (
                           <span class="ml-1 badge badge-light">
                             {numToSI(this.state.unreadReportCount)}
