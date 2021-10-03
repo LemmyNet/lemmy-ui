@@ -1111,7 +1111,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModRemoveShow(i: CommentNode) {
-    i.state.showRemoveDialog = true;
+    i.state.showRemoveDialog = !i.state.showRemoveDialog;
+    i.state.showBanDialog = false;
     i.setState(i.state);
   }
 
@@ -1167,14 +1168,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModBanFromCommunityShow(i: CommentNode) {
-    i.state.showBanDialog = !i.state.showBanDialog;
+    i.state.showBanDialog = true;
     i.state.banType = BanType.Community;
+    i.state.showRemoveDialog = false;
     i.setState(i.state);
   }
 
   handleModBanShow(i: CommentNode) {
-    i.state.showBanDialog = !i.state.showBanDialog;
+    i.state.showBanDialog = true;
     i.state.banType = BanType.Site;
+    i.state.showRemoveDialog = false;
     i.setState(i.state);
   }
 
