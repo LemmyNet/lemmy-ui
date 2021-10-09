@@ -59,7 +59,7 @@ interface ProfileState {
   sort: SortType;
   page: number;
   loading: boolean;
-  personBlocks: boolean;
+  personBlocked: boolean;
   siteRes: GetSiteResponse;
 }
 
@@ -87,7 +87,7 @@ export class Profile extends Component<any, ProfileState> {
     view: Profile.getViewFromProps(this.props.match.view),
     sort: Profile.getSortTypeFromProps(this.props.match.sort),
     page: Profile.getPageFromProps(this.props.match.page),
-    personBlocks: false,
+    personBlocked: false,
     siteRes: this.isoData.site_res,
   };
 
@@ -131,9 +131,9 @@ export class Profile extends Component<any, ProfileState> {
     );
   }
   get isBlocked() {
-    this.state.personBlocks = UserService.Instance.myUserInfo.person_blocks.
+    this.state.personBlocked = UserService.Instance.myUserInfo.person_blocks.
     map(a => a.target.id).includes(this.state.personRes.person_view.person.id) 
-    return this.state.personBlocks
+    return this.state.personBlocked
   }
 
   static getViewFromProps(view: string): PersonDetailsView {
