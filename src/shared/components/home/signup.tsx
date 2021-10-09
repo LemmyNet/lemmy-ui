@@ -1,3 +1,5 @@
+import { Options, passwordStrength } from "check-password-strength";
+import { I18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -10,7 +12,6 @@ import {
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { Options, passwordStrength } from "check-password-strength";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
@@ -26,7 +27,6 @@ import {
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import {I18nKeys} from "i18next";
 
 const passwordStrengthOptions: Options<string> = [
   {
@@ -76,6 +76,7 @@ export class Signup extends Component<any, State> {
       show_nsfw: false,
       captcha_uuid: undefined,
       captcha_answer: undefined,
+      honeypot: undefined,
     },
     registerLoading: false,
     captcha: undefined,
@@ -272,6 +273,16 @@ export class Signup extends Component<any, State> {
             </T>
           </div>
         )}
+        <input
+          tabIndex={-1}
+          autoComplete="false"
+          name="a_password"
+          type="text"
+          class="form-control honeypot"
+          id="register-honey"
+          value={this.state.registerForm.honeypot}
+          onInput={linkEvent(this, this.handleHoneyPotChange)}
+        />
         <div class="form-group row">
           <div class="col-sm-10">
             <button type="submit" class="btn btn-secondary">
@@ -368,6 +379,11 @@ export class Signup extends Component<any, State> {
 
   handleRegisterCaptchaAnswerChange(i: Signup, event: any) {
     i.state.registerForm.captcha_answer = event.target.value;
+    i.setState(i.state);
+  }
+
+  handleHoneyPotChange(i: Signup, event: any) {
+    i.state.registerForm.honeypot = event.target.value;
     i.setState(i.state);
   }
 

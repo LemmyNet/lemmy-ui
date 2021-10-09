@@ -9,6 +9,7 @@ import {
   CommentView,
   CommunityModeratorView,
   CreateCommentLike,
+  CreateCommentReport,
   DeleteComment,
   MarkCommentAsRead,
   MarkPersonMentionAsRead,
@@ -59,6 +60,8 @@ interface CommentNodeState {
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
+  showReportDialog: boolean;
+  reportReason: string;
   my_vote: number;
   score: number;
   upvotes: number;
@@ -102,6 +105,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showConfirmTransferCommunity: false,
     showConfirmAppointAsMod: false,
     showConfirmAppointAsAdmin: false,
+    showReportDialog: false,
+    reportReason: null,
     my_vote: this.props.node.comment_view.my_vote,
     score: this.props.node.comment_view.counts.score,
     upvotes: this.props.node.comment_view.counts.upvotes,
@@ -349,6 +354,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 >
                                   <Icon icon="mail" />
                                 </Link>
+                              </button>
+                              <button
+                                class="btn btn-link btn-animate text-muted"
+                                onClick={linkEvent(
+                                  this,
+                                  this.handleShowReportDialog
+                                )}
+                                data-tippy-content={i18n.t(
+                                  "show_report_dialog"
+                                )}
+                                aria-label={i18n.t("show_report_dialog")}
+                              >
+                                <Icon icon="flag" />
                               </button>
                               <button
                                 class="btn btn-link btn-animate text-muted"
@@ -746,6 +764,32 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             </button>
           </form>
         )}
+        {this.state.showReportDialog && (
+          <form
+            class="form-inline"
+            onSubmit={linkEvent(this, this.handleReportSubmit)}
+          >
+            <label class="sr-only" htmlFor={`report-reason-${cv.comment.id}`}>
+              {i18n.t("reason")}
+            </label>
+            <input
+              type="text"
+              required
+              id={`report-reason-${cv.comment.id}`}
+              class="form-control mr-2"
+              placeholder={i18n.t("reason")}
+              value={this.state.reportReason}
+              onInput={linkEvent(this, this.handleReportReasonChange)}
+            />
+            <button
+              type="submit"
+              class="btn btn-secondary"
+              aria-label={i18n.t("create_report")}
+            >
+              {i18n.t("create_report")}
+            </button>
+          </form>
+        )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
             <div class="form-group row">
@@ -1043,8 +1087,32 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     setupTippy();
   }
 
+  handleShowReportDialog(i: CommentNode) {
+    i.state.showReportDialog = !i.state.showReportDialog;
+    i.setState(i.state);
+  }
+
+  handleReportReasonChange(i: CommentNode, event: any) {
+    i.state.reportReason = event.target.value;
+    i.setState(i.state);
+  }
+
+  handleReportSubmit(i: CommentNode) {
+    let comment = i.props.node.comment_view.comment;
+    let form: CreateCommentReport = {
+      comment_id: comment.id,
+      reason: i.state.reportReason,
+      auth: authField(),
+    };
+    WebSocketService.Instance.send(wsClient.createCommentReport(form));
+
+    i.state.showReportDialog = false;
+    i.setState(i.state);
+  }
+
   handleModRemoveShow(i: CommentNode) {
-    i.state.showRemoveDialog = true;
+    i.state.showRemoveDialog = !i.state.showRemoveDialog;
+    i.state.showBanDialog = false;
     i.setState(i.state);
   }
 
@@ -1100,14 +1168,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModBanFromCommunityShow(i: CommentNode) {
-    i.state.showBanDialog = !i.state.showBanDialog;
+    i.state.showBanDialog = true;
     i.state.banType = BanType.Community;
+    i.state.showRemoveDialog = false;
     i.setState(i.state);
   }
 
   handleModBanShow(i: CommentNode) {
-    i.state.showBanDialog = !i.state.showBanDialog;
+    i.state.showBanDialog = true;
     i.state.banType = BanType.Site;
+    i.state.showRemoveDialog = false;
     i.setState(i.state);
   }
 

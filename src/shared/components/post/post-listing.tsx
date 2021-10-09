@@ -8,6 +8,7 @@ import {
   BlockPerson,
   CommunityModeratorView,
   CreatePostLike,
+  CreatePostReport,
   DeletePost,
   LockPost,
   PersonViewSafe,
@@ -62,6 +63,8 @@ interface PostListingState {
   showAdvanced: boolean;
   showMoreMobile: boolean;
   showBody: boolean;
+  showReportDialog: boolean;
+  reportReason: string;
   my_vote: number;
   score: number;
   upvotes: number;
@@ -96,6 +99,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showAdvanced: false,
     showMoreMobile: false,
     showBody: false,
+    showReportDialog: false,
+    reportReason: null,
     my_vote: this.props.post_view.my_vote,
     score: this.props.post_view.counts.score,
     upvotes: this.props.post_view.counts.upvotes,
@@ -664,14 +669,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <Icon icon="copy" classes="icon-inline" />
               </Link>
               {!this.myPost && (
-                <button
-                  class="btn btn-link btn-animate text-muted py-0"
-                  onClick={linkEvent(this, this.handleBlockUserClick)}
-                  data-tippy-content={i18n.t("block_user")}
-                  aria-label={i18n.t("block_user")}
-                >
-                  <Icon icon="slash" classes="icon-inline" />
-                </button>
+                <>
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
+                    onClick={linkEvent(this, this.handleShowReportDialog)}
+                    data-tippy-content={i18n.t("show_report_dialog")}
+                    aria-label={i18n.t("show_report_dialog")}
+                  >
+                    <Icon icon="flag" classes="icon-inline" />
+                  </button>
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
+                    onClick={linkEvent(this, this.handleBlockUserClick)}
+                    data-tippy-content={i18n.t("block_user")}
+                    aria-label={i18n.t("block_user")}
+                  >
+                    <Icon icon="slash" classes="icon-inline" />
+                  </button>
+                </>
               )}
             </>
           )}
@@ -1040,6 +1055,32 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </div>
           </form>
         )}
+        {this.state.showReportDialog && (
+          <form
+            class="form-inline"
+            onSubmit={linkEvent(this, this.handleReportSubmit)}
+          >
+            <label class="sr-only" htmlFor="post-report-reason">
+              {i18n.t("reason")}
+            </label>
+            <input
+              type="text"
+              id="post-report-reason"
+              class="form-control mr-2"
+              placeholder={i18n.t("reason")}
+              required
+              value={this.state.reportReason}
+              onInput={linkEvent(this, this.handleReportReasonChange)}
+            />
+            <button
+              type="submit"
+              class="btn btn-secondary"
+              aria-label={i18n.t("create_report")}
+            >
+              {i18n.t("create_report")}
+            </button>
+          </form>
+        )}
       </>
     );
   }
@@ -1305,6 +1346,29 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.setState(this.state);
   }
 
+  handleShowReportDialog(i: PostListing) {
+    i.state.showReportDialog = !i.state.showReportDialog;
+    i.setState(this.state);
+  }
+
+  handleReportReasonChange(i: PostListing, event: any) {
+    i.state.reportReason = event.target.value;
+    i.setState(i.state);
+  }
+
+  handleReportSubmit(i: PostListing, event: any) {
+    event.preventDefault();
+    let form: CreatePostReport = {
+      post_id: i.props.post_view.post.id,
+      reason: i.state.reportReason,
+      auth: authField(),
+    };
+    WebSocketService.Instance.send(wsClient.createPostReport(form));
+
+    i.state.showReportDialog = false;
+    i.setState(i.state);
+  }
+
   handleBlockUserClick(i: PostListing) {
     let blockUserForm: BlockPerson = {
       person_id: i.props.post_view.creator.id,
@@ -1361,7 +1425,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModRemoveShow(i: PostListing) {
-    i.state.showRemoveDialog = true;
+    i.state.showRemoveDialog = !i.state.showRemoveDialog;
+    i.state.showBanDialog = false;
     i.setState(i.state);
   }
 
@@ -1410,12 +1475,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModBanFromCommunityShow(i: PostListing) {
     i.state.showBanDialog = true;
     i.state.banType = BanType.Community;
+    i.state.showRemoveDialog = false;
     i.setState(i.state);
   }
 
   handleModBanShow(i: PostListing) {
     i.state.showBanDialog = true;
     i.state.banType = BanType.Site;
+    i.state.showRemoveDialog = false;
     i.setState(i.state);
   }
 

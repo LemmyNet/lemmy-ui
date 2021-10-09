@@ -326,6 +326,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </div>
             </div>
           )}
+          <input
+            tabIndex={-1}
+            autoComplete="false"
+            name="a_password"
+            type="text"
+            class="form-control honeypot"
+            id="register-honey"
+            value={this.state.postForm.honeypot}
+            onInput={linkEvent(this, this.handleHoneyPotChange)}
+          />
           <div class="form-group row">
             <div class="col-sm-10">
               <button
@@ -463,6 +473,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   handlePostNsfwChange(i: PostForm, event: any) {
     i.state.postForm.nsfw = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleHoneyPotChange(i: PostForm, event: any) {
+    i.state.postForm.honeypot = event.target.value;
     i.setState(i.state);
   }
 

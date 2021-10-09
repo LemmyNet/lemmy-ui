@@ -16,9 +16,10 @@ export class UserService {
   public myUserInfo: MyUserInfo;
   public claims: Claims;
   public jwtSub: Subject<string> = new Subject<string>();
-  public unreadCountSub: BehaviorSubject<number> = new BehaviorSubject<number>(
-    0
-  );
+  public unreadInboxCountSub: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
+  public unreadReportCountSub: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
 
   private constructor() {
     if (this.auth) {

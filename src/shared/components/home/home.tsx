@@ -5,6 +5,7 @@ import {
   AddAdminResponse,
   BanPersonResponse,
   BlockPersonResponse,
+  CommentReportResponse,
   CommentResponse,
   CommentView,
   CommunityView,
@@ -16,6 +17,7 @@ import {
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
+  PostReportResponse,
   PostResponse,
   PostView,
   SiteResponse,
@@ -955,6 +957,16 @@ export class Home extends Component<any, HomeState> {
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       updatePersonBlock(data);
+    } else if (op == UserOperation.CreatePostReport) {
+      let data = wsJsonToRes<PostReportResponse>(msg).data;
+      if (data) {
+        toast(i18n.t("report_created"));
+      }
+    } else if (op == UserOperation.CreateCommentReport) {
+      let data = wsJsonToRes<CommentReportResponse>(msg).data;
+      if (data) {
+        toast(i18n.t("report_created"));
+      }
     }
   }
 }
