@@ -741,22 +741,27 @@ export class Inbox extends Component<any, InboxState> {
           this.state.replies = this.state.replies.filter(
             r => r.comment.id !== data.comment_view.comment.parent_id
           );
+          this.state.mentions = this.state.mentions.filter(
+            m => m.comment.id !== data.comment_view.comment.parent_id
+          );
           this.state.combined = this.state.combined.filter(r => {
             if (this.isMention(r.view))
               return r.view.comment.id !== data.comment_view.comment.parent_id;
             else return r.id !== data.comment_view.comment.parent_id;
           });
         } else {
-          this.state.mentions.forEach(i => {
-            if (i.comment.id == data.comment_view.comment.parent_id) {
-              i.person_mention.read = true;
-            }
-          });
-          this.state.replies.forEach(i => {
-            if (i.comment.id == data.comment_view.comment.parent_id) {
-              i.comment.read = true;
-            }
-          });
+          let mention_found = this.state.mentions.find(
+            i => i.comment.id == data.comment_view.comment.parent_id
+          );
+          if (mention_found) {
+            mention_found.person_mention.read = true;
+          }
+          let reply_found = this.state.replies.find(
+            i => i.comment.id == data.comment_view.comment.parent_id
+          );
+          if (reply_found) {
+            reply_found.comment.read = true;
+          }
           this.state.combined = this.buildCombined();
         }
         this.sendUnreadCount();
@@ -820,7 +825,7 @@ export class Inbox extends Component<any, InboxState> {
       ).length
     );
   }
-  
+
   isMention(view: any): view is PersonMentionView {
     return (view as PersonMentionView).person_mention !== undefined;
   }
