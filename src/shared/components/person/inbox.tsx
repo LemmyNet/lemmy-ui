@@ -736,6 +736,37 @@ export class Inbox extends Component<any, InboxState> {
         data.comment_view.creator.id ==
         UserService.Instance.myUserInfo.local_user_view.person.id
       ) {
+        // If youre in the unread view, just remove it from the list
+        if (this.state.unreadOrAll == UnreadOrAll.Unread) {
+          this.state.replies = this.state.replies.filter(
+            r => r.comment.id !== data.comment_view.comment.parent_id
+          );
+          this.state.mentions = this.state.mentions.filter(
+            m => m.comment.id !== data.comment_view.comment.parent_id
+          );
+          this.state.combined = this.state.combined.filter(r => {
+            if (this.isMention(r.view))
+              return r.view.comment.id !== data.comment_view.comment.parent_id;
+            else return r.id !== data.comment_view.comment.parent_id;
+          });
+        } else {
+          let mention_found = this.state.mentions.find(
+            i => i.comment.id == data.comment_view.comment.parent_id
+          );
+          if (mention_found) {
+            mention_found.person_mention.read = true;
+          }
+          let reply_found = this.state.replies.find(
+            i => i.comment.id == data.comment_view.comment.parent_id
+          );
+          if (reply_found) {
+            reply_found.comment.read = true;
+          }
+          this.state.combined = this.buildCombined();
+        }
+        this.sendUnreadCount();
+        this.setState(this.state);
+        setupTippy();
         // TODO this seems wrong, you should be using form_id
         toast(i18n.t("reply_sent"));
       }
@@ -793,5 +824,9 @@ export class Inbox extends Component<any, InboxState> {
             UserService.Instance.myUserInfo.local_user_view.person.id
       ).length
     );
+  }
+
+  isMention(view: any): view is PersonMentionView {
+    return (view as PersonMentionView).person_mention !== undefined;
   }
 }
