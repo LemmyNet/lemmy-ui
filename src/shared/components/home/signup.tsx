@@ -31,7 +31,7 @@ import { Icon, Spinner } from "../common/icon";
 const passwordStrengthOptions: Options<string> = [
   {
     id: 0,
-    value: "too_weak",
+    value: "very_weak",
     minDiversity: 0,
     minLength: 0,
   },
