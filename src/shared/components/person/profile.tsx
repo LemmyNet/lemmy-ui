@@ -370,6 +370,16 @@ export class Profile extends Component<any, ProfileState> {
                       {i18n.t("banned")}
                     </li>
                   )}
+                  {pv.person.admin && (
+                    <li className="list-inline-item badge badge-light">
+                      {i18n.t("admin")}
+                    </li>
+                  )}
+                  {pv.person.bot_account && (
+                    <li className="list-inline-item badge badge-light">
+                      {i18n.t("bot_account").toLowerCase()}
+                    </li>
+                  )}
                 </ul>
               </div>
               <div className="flex-grow-1 unselectable pointer mx-2"></div>

@@ -182,6 +182,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {i18n.t("creator")}
                 </div>
               )}
+              {cv.creator.bot_account && (
+                <div className="badge badge-light d-none d-sm-inline mr-2">
+                  {i18n.t("bot_account").toLowerCase()}
+                </div>
+              )}
               {(cv.creator_banned_from_community || cv.creator.banned) && (
                 <div className="badge badge-danger mr-2">
                   {i18n.t("banned")}
