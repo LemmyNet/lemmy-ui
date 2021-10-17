@@ -1,6 +1,10 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import {
+  AdminPurgeCommentView,
+  AdminPurgeCommunityView,
+  AdminPurgePersonView,
+  AdminPurgePostView,
   CommunityModeratorView,
   GetCommunity,
   GetCommunityResponse,
@@ -16,6 +20,7 @@ import {
   ModRemovePostView,
   ModStickyPostView,
   ModTransferCommunityView,
+  PersonSafe,
   SiteView,
   UserOperation,
 } from "lemmy-js-client";
@@ -52,11 +57,16 @@ enum ModlogEnum {
   ModTransferCommunity,
   ModAdd,
   ModBan,
+  AdminPurgePerson,
+  AdminPurgeCommunity,
+  AdminPurgePost,
+  AdminPurgeComment,
 }
 
 type ModlogType = {
   id: number;
   type_: ModlogEnum;
+  moderator: PersonSafe;
   view:
     | ModRemovePostView
     | ModLockPostView
@@ -67,7 +77,11 @@ type ModlogType = {
     | ModBanView
     | ModAddCommunityView
     | ModTransferCommunityView
-    | ModAddView;
+    | ModAddView
+    | AdminPurgePersonView
+    | AdminPurgeCommunityView
+    | AdminPurgePostView
+    | AdminPurgeCommentView;
   when_: string;
 };
 
@@ -96,6 +110,10 @@ export class Modlog extends Component<any, ModlogState> {
       added_to_community: [],
       transferred_to_community: [],
       added: [],
+      admin_purged_persons: [],
+      admin_purged_communities: [],
+      admin_purged_posts: [],
+      admin_purged_comments: [],
     },
     page: 1,
     loading: true,
@@ -141,6 +159,7 @@ export class Modlog extends Component<any, ModlogState> {
       id: r.mod_remove_post.id,
       type_: ModlogEnum.ModRemovePost,
       view: r,
+      moderator: r.moderator,
       when_: r.mod_remove_post.when_,
     }));
 
@@ -148,6 +167,7 @@ export class Modlog extends Component<any, ModlogState> {
       id: r.mod_lock_post.id,
       type_: ModlogEnum.ModLockPost,
       view: r,
+      moderator: r.moderator,
       when_: r.mod_lock_post.when_,
     }));
 
@@ -155,6 +175,7 @@ export class Modlog extends Component<any, ModlogState> {
       id: r.mod_sticky_post.id,
       type_: ModlogEnum.ModStickyPost,
       view: r,
+      moderator: r.moderator,
       when_: r.mod_sticky_post.when_,
     }));
 
@@ -162,6 +183,7 @@ export class Modlog extends Component<any, ModlogState> {
       id: r.mod_remove_comment.id,
       type_: ModlogEnum.ModRemoveComment,
       view: r,
+      moderator: r.moderator,
       when_: r.mod_remove_comment.when_,
     }));
 
@@ -169,6 +191,7 @@ export class Modlog extends Component<any, ModlogState> {
       id: r.mod_remove_community.id,
       type_: ModlogEnum.ModRemoveCommunity,
       view: r,
+      moderator: r.moderator,
       when_: r.mod_remove_community.when_,
     }));
 
@@ -177,6 +200,7 @@ export class Modlog extends Component<any, ModlogState> {
         id: r.mod_ban_from_community.id,
         type_: ModlogEnum.ModBanFromCommunity,
         view: r,
+        moderator: r.moderator,
         when_: r.mod_ban_from_community.when_,
       })
     );
@@ -185,6 +209,7 @@ export class Modlog extends Component<any, ModlogState> {
       id: r.mod_add_community.id,
       type_: ModlogEnum.ModAddCommunity,
       view: r,
+      moderator: r.moderator,
       when_: r.mod_add_community.when_,
     }));
 
@@ -193,6 +218,7 @@ export class Modlog extends Component<any, ModlogState> {
         id: r.mod_transfer_community.id,
         type_: ModlogEnum.ModTransferCommunity,
         view: r,
+        moderator: r.moderator,
         when_: r.mod_transfer_community.when_,
       }));
 
@@ -200,6 +226,7 @@ export class Modlog extends Component<any, ModlogState> {
       id: r.mod_add.id,
       type_: ModlogEnum.ModAdd,
       view: r,
+      moderator: r.moderator,
       when_: r.mod_add.when_,
     }));
 
@@ -207,7 +234,42 @@ export class Modlog extends Component<any, ModlogState> {
       id: r.mod_ban.id,
       type_: ModlogEnum.ModBan,
       view: r,
+      moderator: r.moderator,
       when_: r.mod_ban.when_,
+    }));
+
+    let purged_persons: ModlogType[] = res.admin_purged_persons.map(r => ({
+      id: r.admin_purge_person.id,
+      type_: ModlogEnum.AdminPurgePerson,
+      view: r,
+      moderator: r.admin,
+      when_: r.admin_purge_person.when_,
+    }));
+
+    let purged_communities: ModlogType[] = res.admin_purged_communities.map(
+      r => ({
+        id: r.admin_purge_community.id,
+        type_: ModlogEnum.AdminPurgeCommunity,
+        view: r,
+        moderator: r.admin,
+        when_: r.admin_purge_community.when_,
+      })
+    );
+
+    let purged_posts: ModlogType[] = res.admin_purged_posts.map(r => ({
+      id: r.admin_purge_post.id,
+      type_: ModlogEnum.AdminPurgePost,
+      view: r,
+      moderator: r.admin,
+      when_: r.admin_purge_post.when_,
+    }));
+
+    let purged_comments: ModlogType[] = res.admin_purged_comments.map(r => ({
+      id: r.admin_purge_comment.id,
+      type_: ModlogEnum.AdminPurgeComment,
+      view: r,
+      moderator: r.admin,
+      when_: r.admin_purge_comment.when_,
     }));
 
     let combined: ModlogType[] = [];
@@ -222,6 +284,10 @@ export class Modlog extends Component<any, ModlogState> {
     combined.push(...transferred_to_community);
     combined.push(...added);
     combined.push(...banned);
+    combined.push(...purged_persons);
+    combined.push(...purged_communities);
+    combined.push(...purged_posts);
+    combined.push(...purged_comments);
 
     if (this.state.communityId && combined.length > 0) {
       this.state.communityName = (
@@ -378,6 +444,38 @@ export class Modlog extends Component<any, ModlogState> {
           <span> as an admin </span>,
         ];
       }
+      case ModlogEnum.AdminPurgePerson: {
+        let ap = i.view as AdminPurgePersonView;
+        return [
+          <span>Purged a Person</span>,
+          ap.admin_purge_person.reason &&
+            ` reason: ${ap.admin_purge_person.reason}`,
+        ];
+      }
+      case ModlogEnum.AdminPurgeCommunity: {
+        let ap = i.view as AdminPurgeCommunityView;
+        return [
+          <span>Purged a Community</span>,
+          ap.admin_purge_community.reason &&
+            ` reason: ${ap.admin_purge_community.reason}`,
+        ];
+      }
+      case ModlogEnum.AdminPurgePost: {
+        let ap = i.view as AdminPurgePostView;
+        return [
+          <span>Purged a Post</span>,
+          ap.admin_purge_post.reason &&
+            ` reason: ${ap.admin_purge_post.reason}`,
+        ];
+      }
+      case ModlogEnum.AdminPurgeComment: {
+        let ap = i.view as AdminPurgeCommentView;
+        return [
+          <span>Purged a Comment</span>,
+          ap.admin_purge_comment.reason &&
+            ` reason: ${ap.admin_purge_comment.reason}`,
+        ];
+      }
       default:
         return <div />;
     }
@@ -395,7 +493,7 @@ export class Modlog extends Component<any, ModlogState> {
             </td>
             <td>
               {this.isAdminOrMod ? (
-                <PersonListing person={i.view.moderator} />
+                <PersonListing person={i.moderator} />
               ) : (
                 <div>{i18n.t("mod")}</div>
               )}

@@ -70,3 +70,10 @@ export enum PersonDetailsView {
   Posts,
   Saved,
 }
+
+export enum PurgeType {
+  Person,
+  Community,
+  Post,
+  Comment,
+}

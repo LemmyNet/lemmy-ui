@@ -21,7 +21,7 @@ import {
 } from "lemmy-js-client";
 import { externalHost } from "../../env";
 import { i18n } from "../../i18next";
-import { BanType } from "../../interfaces";
+import { BanType, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
@@ -50,6 +50,9 @@ import { PostForm } from "./post-form";
 interface PostListingState {
   showEdit: boolean;
   showRemoveDialog: boolean;
+  showPurgePersonDialog: boolean;
+  purgeReason: string;
+  purgeType: PurgeType;
   removeReason: string;
   showBanDialog: boolean;
   removeData: boolean;
@@ -86,6 +89,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   private emptyState: PostListingState = {
     showEdit: false,
     showRemoveDialog: false,
+    showPurgePersonDialog: false,
+    purgeReason: null,
+    purgeType: PurgeType.Person,
     removeReason: null,
     showBanDialog: false,
     removeData: false,
@@ -904,13 +910,26 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                         {i18n.t("ban_from_site")}
                       </button>
                     ) : (
-                      <button
-                        class="btn btn-link btn-animate text-muted py-0"
-                        onClick={linkEvent(this, this.handleModBanSubmit)}
-                        aria-label={i18n.t("unban_from_site")}
-                      >
-                        {i18n.t("unban_from_site")}
-                      </button>
+                      (
+                        <button
+                          class="btn btn-link btn-animate text-muted py-0"
+                          onClick={linkEvent(this, this.handleModBanSubmit)}
+                          aria-label={i18n.t("unban_from_site")}
+                        >
+                          {i18n.t("unban_from_site")}
+                        </button>
+                      ) && (
+                        <button
+                          class="btn btn-link btn-animate text-muted py-0"
+                          onClick={linkEvent(
+                            this,
+                            this.handleAdminPurgePersonShow
+                          )}
+                          aria-label="PURGEPERSON"
+                        >
+                          PURGEPERSON
+                        </button>
+                      )
                     ))}
                   {!post_view.creator.banned && post_view.creator.local && (
                     <button
@@ -1483,6 +1502,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.state.showBanDialog = true;
     i.state.banType = BanType.Site;
     i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handleAdminPurgePersonShow(i: PostListing) {
+    i.state.showPurgePersonDialog = true;
+    i.state.purgeType = PurgeType.Person;
+    i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgeReasonChange(i: PostListing, event: any) {
+    i.state.purgeReason = event.target.value;
     i.setState(i.state);
   }
 
