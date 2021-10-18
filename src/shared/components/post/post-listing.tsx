@@ -288,6 +288,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.isAdmin && (
             <span className="mx-1 badge badge-light">{i18n.t("admin")}</span>
           )}
+          {post_view.creator.bot_account && (
+            <span className="mx-1 badge badge-light">
+              {i18n.t("bot_account").toLowerCase()}
+            </span>
+          )}
           {(post_view.creator_banned_from_community ||
             post_view.creator.banned) && (
             <span className="mx-1 badge badge-danger">{i18n.t("banned")}</span>
