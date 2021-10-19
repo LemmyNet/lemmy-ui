@@ -103,6 +103,7 @@ function format(value: any, format: any): any {
 
 i18next.init({
   debug: false,
+  compatibilityJSON: "v3",
   // load: 'languageOnly',
 
   // initImmediate: false,
