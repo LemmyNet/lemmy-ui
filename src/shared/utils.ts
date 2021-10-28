@@ -1462,7 +1462,7 @@ export const choicesConfig = {
 
 export function communitySelectName(cv: CommunityView): string {
   return cv.community.local
-    ? cv.community.name
+    ? cv.community.title
     : `${hostname(cv.community.actor_id)}/${cv.community.name}`;
 }
 
