@@ -214,33 +214,33 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </form>
               {this.state.postForm.url && validURL(this.state.postForm.url) && (
                 <div>
-                <a
-                  href={`${webArchiveUrl}/save/${encodeURIComponent(
-                    this.state.postForm.url
-                  )}`}
-                  class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                  rel="noopener"
-                >
-                  archive.org {i18n.t("archive_link")}
-                </a>
-                <a
-                  href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
-                    this.state.postForm.url
-                  )}`}
-                  class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                  rel="noopener"
-                >
-                  ghostarchive.org {i18n.t("archive_link")}
-                </a>
-                <a
-                  href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
-                    this.state.postForm.url
-                  )}`}
-                  class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                  rel="noopener"
-                >
-                 archive.today {i18n.t("archive_link")}
-                </a>
+                  <a
+                    href={`${webArchiveUrl}/save/${encodeURIComponent(
+                      this.state.postForm.url
+                    )}`}
+                    class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                    rel="noopener"
+                  >
+                    archive.org {i18n.t("archive_link")}
+                  </a>
+                  <a
+                    href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
+                      this.state.postForm.url
+                    )}`}
+                    class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                    rel="noopener"
+                  >
+                    ghostarchive.org {i18n.t("archive_link")}
+                  </a>
+                  <a
+                    href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
+                      this.state.postForm.url
+                    )}`}
+                    class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                    rel="noopener"
+                  >
+                    archive.today {i18n.t("archive_link")}
+                  </a>
                 </div>
               )}
               {this.state.imageLoading && <Spinner />}
