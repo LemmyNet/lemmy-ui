@@ -1468,7 +1468,7 @@ export function communitySelectName(cv: CommunityView): string {
 
 export function personSelectName(pvs: PersonViewSafe): string {
   return pvs.person.local
-    ? pvs.person.display_name
+    ? pvs.person.display_name || pvs.person.name
     : `${hostname(pvs.person.actor_id)}/${pvs.person.name}`;
 }
 
