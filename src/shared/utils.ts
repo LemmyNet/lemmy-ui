@@ -1465,13 +1465,12 @@ export const choicesConfig = {
 export function communitySelectName(cv: CommunityView): string {
   return cv.community.local
     ? cv.community.title
-    : `${hostname(cv.community.actor_id)}/${cv.community.name}`;
+    : `${hostname(cv.community.actor_id)}/${cv.community.title}`;
 }
 
 export function personSelectName(pvs: PersonViewSafe): string {
-  return pvs.person.local
-    ? pvs.person.display_name || pvs.person.name
-    : `${hostname(pvs.person.actor_id)}/${pvs.person.name}`;
+  let pName = pvs.person.display_name || pvs.person.name;
+  return pvs.person.local ? pName : `${hostname(pvs.person.actor_id)}/${pName}`;
 }
 
 export function initializeSite(site: GetSiteResponse) {
