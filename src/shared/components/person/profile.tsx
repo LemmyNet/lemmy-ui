@@ -110,6 +110,7 @@ export class Profile extends Component<any, ProfileState> {
     }
 
     setupTippy();
+    this.setPersonBlock()
   }
 
   fetchUserData() {
@@ -130,10 +131,9 @@ export class Profile extends Component<any, ProfileState> {
       this.state.personRes.person_view.person.id
     );
   }
-  get isBlocked() {
+  setPersonBlock() {
     this.state.personBlocked = UserService.Instance.myUserInfo.person_blocks.
     map(a => a.target.id).includes(this.state.personRes.person_view.person.id) 
-    return this.state.personBlocked
   }
 
   static getViewFromProps(view: string): PersonDetailsView {
@@ -426,7 +426,7 @@ export class Profile extends Component<any, ProfileState> {
                   >
                     {i18n.t("send_message")}
                   </Link>
-                  {this.isBlocked ?  
+                  {this.state.personBlocked ?  
                    (
                   <a
                     className={"d-flex align-self-start btn btn-secondary"}
@@ -639,6 +639,8 @@ export class Profile extends Component<any, ProfileState> {
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       updatePersonBlock(data);
+      this.setPersonBlock()
+      console.log(this.state.personBlocked)
       this.setState(this.state);
     } 
   }
