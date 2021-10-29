@@ -1464,13 +1464,13 @@ export const choicesConfig = {
 
 export function communitySelectName(cv: CommunityView): string {
   return cv.community.local
-    ? cv.community.name
+    ? cv.community.title
     : `${hostname(cv.community.actor_id)}/${cv.community.name}`;
 }
 
 export function personSelectName(pvs: PersonViewSafe): string {
   return pvs.person.local
-    ? pvs.person.name
+    ? pvs.person.display_name || pvs.person.name
     : `${hostname(pvs.person.actor_id)}/${pvs.person.name}`;
 }
 
