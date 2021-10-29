@@ -533,9 +533,18 @@ export class Inbox extends Component<any, InboxState> {
     i.state.replies = [];
     i.state.mentions = [];
     i.state.messages = [];
-    i.sendUnreadCount();
+    UserService.Instance.unreadInboxCountSub.next(0);
     window.scrollTo(0, 0);
     i.setState(i.state);
+  }
+
+  sendUnreadCount(read: boolean) {
+    let urcs = UserService.Instance.unreadInboxCountSub;
+    if (read) {
+      urcs.next(urcs.getValue() - 1);
+    } else {
+      urcs.next(urcs.getValue() + 1);
+    }
   }
 
   parseMessage(msg: any) {
@@ -551,7 +560,6 @@ export class Inbox extends Component<any, InboxState> {
       this.state.replies = data.replies;
       this.state.combined = this.buildCombined();
       this.state.loading = false;
-      this.sendUnreadCount();
       window.scrollTo(0, 0);
       this.setState(this.state);
       setupTippy();
@@ -559,7 +567,6 @@ export class Inbox extends Component<any, InboxState> {
       let data = wsJsonToRes<GetPersonMentionsResponse>(msg).data;
       this.state.mentions = data.mentions;
       this.state.combined = this.buildCombined();
-      this.sendUnreadCount();
       window.scrollTo(0, 0);
       this.setState(this.state);
       setupTippy();
@@ -567,7 +574,6 @@ export class Inbox extends Component<any, InboxState> {
       let data = wsJsonToRes<PrivateMessagesResponse>(msg).data;
       this.state.messages = data.private_messages;
       this.state.combined = this.buildCombined();
-      this.sendUnreadCount();
       window.scrollTo(0, 0);
       this.setState(this.state);
       setupTippy();
@@ -635,7 +641,7 @@ export class Inbox extends Component<any, InboxState> {
             data.private_message_view.private_message.read;
         }
       }
-      this.sendUnreadCount();
+      this.sendUnreadCount(data.private_message_view.private_message.read);
       this.setState(this.state);
     } else if (op == UserOperation.MarkAllAsRead) {
       // Moved to be instant
@@ -671,7 +677,8 @@ export class Inbox extends Component<any, InboxState> {
         found.comment.read = combinedView.comment.read =
           data.comment_view.comment.read;
       }
-      this.sendUnreadCount();
+
+      this.sendUnreadCount(data.comment_view.comment.read);
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.MarkPersonMentionAsRead) {
@@ -719,7 +726,7 @@ export class Inbox extends Component<any, InboxState> {
             data.person_mention_view.person_mention.read;
         }
       }
-      this.sendUnreadCount();
+      this.sendUnreadCount(data.person_mention_view.person_mention.read);
       this.setState(this.state);
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
@@ -736,6 +743,37 @@ export class Inbox extends Component<any, InboxState> {
         data.comment_view.creator.id ==
         UserService.Instance.myUserInfo.local_user_view.person.id
       ) {
+        // If youre in the unread view, just remove it from the list
+        if (this.state.unreadOrAll == UnreadOrAll.Unread) {
+          this.state.replies = this.state.replies.filter(
+            r => r.comment.id !== data.comment_view.comment.parent_id
+          );
+          this.state.mentions = this.state.mentions.filter(
+            m => m.comment.id !== data.comment_view.comment.parent_id
+          );
+          this.state.combined = this.state.combined.filter(r => {
+            if (this.isMention(r.view))
+              return r.view.comment.id !== data.comment_view.comment.parent_id;
+            else return r.id !== data.comment_view.comment.parent_id;
+          });
+        } else {
+          let mention_found = this.state.mentions.find(
+            i => i.comment.id == data.comment_view.comment.parent_id
+          );
+          if (mention_found) {
+            mention_found.person_mention.read = true;
+          }
+          let reply_found = this.state.replies.find(
+            i => i.comment.id == data.comment_view.comment.parent_id
+          );
+          if (reply_found) {
+            reply_found.comment.read = true;
+          }
+          this.state.combined = this.buildCombined();
+        }
+        this.sendUnreadCount(true);
+        this.setState(this.state);
+        setupTippy();
         // TODO this seems wrong, you should be using form_id
         toast(i18n.t("reply_sent"));
       }
@@ -776,22 +814,7 @@ export class Inbox extends Component<any, InboxState> {
     }
   }
 
-  sendUnreadCount() {
-    UserService.Instance.unreadInboxCountSub.next(this.unreadCount());
-  }
-
-  unreadCount(): number {
-    return (
-      this.state.replies.filter(r => !r.comment.read).length +
-      this.state.mentions.filter(r => !r.person_mention.read).length +
-      this.state.messages.filter(
-        r =>
-          UserService.Instance.myUserInfo &&
-          !r.private_message.read &&
-          // TODO also seems very strange and wrong
-          r.creator.id !==
-            UserService.Instance.myUserInfo.local_user_view.person.id
-      ).length
-    );
+  isMention(view: any): view is PersonMentionView {
+    return (view as PersonMentionView).person_mention !== undefined;
   }
 }

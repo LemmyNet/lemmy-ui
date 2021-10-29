@@ -2,19 +2,12 @@ import { Component, createRef, linkEvent, RefObject } from "inferno";
 import { Link } from "inferno-router";
 import {
   CommentResponse,
-  CommentView,
-  GetPersonMentions,
-  GetPersonMentionsResponse,
-  GetPrivateMessages,
-  GetReplies,
-  GetRepliesResponse,
   GetReportCount,
   GetReportCountResponse,
   GetSiteResponse,
+  GetUnreadCount,
+  GetUnreadCountResponse,
   PrivateMessageResponse,
-  PrivateMessagesResponse,
-  PrivateMessageView,
-  SortType,
   UserOperation,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
@@ -23,7 +16,6 @@ import { UserService, WebSocketService } from "../../services";
 import {
   authField,
   donateLemmyUrl,
-  fetchLimit,
   getLanguage,
   isBrowser,
   notifyComment,
@@ -47,9 +39,6 @@ interface NavbarProps {
 interface NavbarState {
   isLoggedIn: boolean;
   expanded: boolean;
-  replies: CommentView[];
-  mentions: CommentView[];
-  messages: PrivateMessageView[];
   unreadInboxCount: number;
   unreadReportCount: number;
   searchParam: string;
@@ -68,9 +57,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     isLoggedIn: !!this.props.site_res.my_user,
     unreadInboxCount: 0,
     unreadReportCount: 0,
-    replies: [],
-    mentions: [],
-    messages: [],
     expanded: false,
     searchParam: "",
     toggleSearch: false,
@@ -577,30 +563,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         })
       );
       this.fetchUnreads();
-    } else if (op == UserOperation.GetReplies) {
-      let data = wsJsonToRes<GetRepliesResponse>(msg).data;
-      let unreadReplies = data.replies.filter(r => !r.comment.read);
-
-      this.state.replies = unreadReplies;
-      this.state.unreadInboxCount = this.calculateUnreadInboxCount();
-      this.setState(this.state);
-      this.sendUnreadCount();
-    } else if (op == UserOperation.GetPersonMentions) {
-      let data = wsJsonToRes<GetPersonMentionsResponse>(msg).data;
-      let unreadMentions = data.mentions.filter(r => !r.comment.read);
-
-      this.state.mentions = unreadMentions;
-      this.state.unreadInboxCount = this.calculateUnreadInboxCount();
-      this.setState(this.state);
-      this.sendUnreadCount();
-    } else if (op == UserOperation.GetPrivateMessages) {
-      let data = wsJsonToRes<PrivateMessagesResponse>(msg).data;
-      let unreadMessages = data.private_messages.filter(
-        r => !r.private_message.read
-      );
-
-      this.state.messages = unreadMessages;
-      this.state.unreadInboxCount = this.calculateUnreadInboxCount();
+    } else if (op == UserOperation.GetUnreadCount) {
+      let data = wsJsonToRes<GetUnreadCountResponse>(msg).data;
+      this.state.unreadInboxCount =
+        data.replies + data.mentions + data.private_messages;
       this.setState(this.state);
       this.sendUnreadCount();
     } else if (op == UserOperation.GetReportCount) {
@@ -628,7 +594,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             UserService.Instance.myUserInfo.local_user_view.local_user.id
           )
         ) {
-          this.state.replies.push(data.comment_view);
           this.state.unreadInboxCount++;
           this.setState(this.state);
           this.sendUnreadCount();
@@ -643,7 +608,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           data.private_message_view.recipient.id ==
           UserService.Instance.myUserInfo.local_user_view.person.id
         ) {
-          this.state.messages.push(data.private_message_view);
           this.state.unreadInboxCount++;
           this.setState(this.state);
           this.sendUnreadCount();
@@ -654,41 +618,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   fetchUnreads() {
-    // TODO we should just add a count call to the API for these, because this is a limited fetch,
-    // and it shouldn't have to fetch the actual content
-    if (this.currentLocation !== "/inbox") {
-      console.log("Fetching inbox unreads...");
-      let repliesForm: GetReplies = {
-        sort: SortType.New,
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth: authField(),
-      };
+    console.log("Fetching inbox unreads...");
 
-      let personMentionsForm: GetPersonMentions = {
-        sort: SortType.New,
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth: authField(),
-      };
+    let unreadForm: GetUnreadCount = {
+      auth: authField(),
+    };
 
-      let privateMessagesForm: GetPrivateMessages = {
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth: authField(),
-      };
-
-      WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
-      WebSocketService.Instance.send(
-        wsClient.getPersonMentions(personMentionsForm)
-      );
-      WebSocketService.Instance.send(
-        wsClient.getPrivateMessages(privateMessagesForm)
-      );
-    }
+    WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
 
     console.log("Fetching reports...");
 
@@ -710,14 +646,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   sendReportUnread() {
     UserService.Instance.unreadReportCountSub.next(
       this.state.unreadReportCount
-    );
-  }
-
-  calculateUnreadInboxCount(): number {
-    return (
-      this.state.replies.filter(r => !r.comment.read).length +
-      this.state.mentions.filter(r => !r.comment.read).length +
-      this.state.messages.filter(r => !r.private_message.read).length
     );
   }
 

@@ -13,18 +13,35 @@ interface PostListingsProps {
   enableNsfw: boolean;
 }
 
-export class PostListings extends Component<PostListingsProps, any> {
-  private duplicatesMap = new Map<number, PostView[]>();
+interface PostListingsState {
+  posts: PostView[];
+}
+
+export class PostListings extends Component<
+  PostListingsProps,
+  PostListingsState
+> {
+  duplicatesMap = new Map<number, PostView[]>();
+
+  private emptyState: PostListingsState = {
+    posts: [],
+  };
 
   constructor(props: any, context: any) {
     super(props, context);
+    this.state = this.emptyState;
+    if (this.props.removeDuplicates) {
+      this.state.posts = this.removeDuplicates();
+    } else {
+      this.state.posts = this.props.posts;
+    }
   }
 
   render() {
     return (
       <div>
-        {this.props.posts.length > 0 ? (
-          this.outer().map(post_view => (
+        {this.state.posts.length > 0 ? (
+          this.state.posts.map(post_view => (
             <>
               <PostListing
                 post_view={post_view}
@@ -50,16 +67,10 @@ export class PostListings extends Component<PostListingsProps, any> {
     );
   }
 
-  outer(): PostView[] {
-    let out = this.props.posts;
-    if (this.props.removeDuplicates) {
-      out = this.removeDuplicates(out);
-    }
+  removeDuplicates(): PostView[] {
+    // Must use a spread to clone the props, because splice will fail below otherwise.
+    let posts = [...this.props.posts];
 
-    return out;
-  }
-
-  removeDuplicates(posts: PostView[]): PostView[] {
     // A map from post url to list of posts (dupes)
     let urlMap = new Map<string, PostView[]>();
 
