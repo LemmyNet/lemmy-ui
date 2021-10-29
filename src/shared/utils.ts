@@ -102,7 +102,9 @@ export const docsUrl = `${joinLemmyUrl}/docs/en/index.html`;
 export const helpGuideUrl = `${joinLemmyUrl}/docs/en/about/guide.html`; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
-export const archiveUrl = "https://archive.is";
+export const archiveTodayUrl = "https://archive.today";
+export const ghostArchiveUrl = "https://ghostarchive.org";
+export const webArchiveUrl = "https://web.archive.org";
 export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
