@@ -640,7 +640,6 @@ export class Profile extends Component<any, ProfileState> {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       updatePersonBlock(data);
       this.setPersonBlock()
-      console.log(this.state.personBlocked)
       this.setState(this.state);
     } 
   }
