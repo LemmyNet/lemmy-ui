@@ -155,13 +155,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
           {this.props.site_res.site_view && (
-            <button
+            <Link
+              to="/"
               title={
                 this.props.site_res.site_view.site.description ||
                 this.props.site_res.site_view.site.name
               }
-              className="d-flex align-items-center navbar-brand mr-md-3 btn btn-link"
-              onClick={linkEvent(this, this.handleGotoHome)}
+              className="d-flex align-items-center navbar-brand mr-md-3"
+              onClick={linkEvent(this, this.handleUnExpand)}
             >
               {this.props.site_res.site_view.site.icon && showAvatars() && (
                 <PictrsImage
@@ -170,15 +171,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 />
               )}
               {this.props.site_res.site_view.site.name}
-            </button>
+            </Link>
           )}
           {this.state.isLoggedIn && (
             <>
               <ul class="navbar-nav ml-auto">
                 <li className="nav-item">
-                  <button
-                    className="p-1 navbar-toggler nav-link border-0 btn btn-link"
-                    onClick={linkEvent(this, this.handleGotoInbox)}
+                  <Link
+                    to="/inbox"
+                    className="p-1 navbar-toggler nav-link border-0"
+                    onClick={linkEvent(this, this.handleUnExpand)}
                     title={i18n.t("unread_messages", {
                       count: this.state.unreadInboxCount,
                       formattedCount: numToSI(this.state.unreadInboxCount),
@@ -190,15 +192,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         {numToSI(this.state.unreadInboxCount)}
                       </span>
                     )}
-                  </button>
+                  </Link>
                 </li>
               </ul>
               {UserService.Instance.myUserInfo?.moderates.length > 0 && (
                 <ul class="navbar-nav ml-1">
                   <li className="nav-item">
-                    <button
-                      className="p-1 navbar-toggler nav-link border-0 btn btn-link"
-                      onClick={linkEvent(this, this.handleGotoReports)}
+                    <Link
+                      to="/reports"
+                      className="p-1 navbar-toggler nav-link border-0"
+                      onClick={linkEvent(this, this.handleUnExpand)}
                       title={i18n.t("unread_reports", {
                         count: this.state.unreadReportCount,
                         formattedCount: numToSI(this.state.unreadReportCount),
@@ -210,7 +213,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           {numToSI(this.state.unreadReportCount)}
                         </span>
                       )}
-                    </button>
+                    </Link>
                   </li>
                 </ul>
               )}
@@ -230,32 +233,38 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           >
             <ul class="navbar-nav my-2 mr-auto">
               <li class="nav-item">
-                <button
-                  className="nav-link btn btn-link"
-                  onClick={linkEvent(this, this.handleGotoCommunities)}
+                <Link
+                  to="/communities"
+                  className="nav-link"
+                  onClick={linkEvent(this, this.handleUnExpand)}
                   title={i18n.t("communities")}
                 >
                   {i18n.t("communities")}
-                </button>
+                </Link>
               </li>
               <li class="nav-item">
-                <button
-                  className="nav-link btn btn-link"
-                  onClick={linkEvent(this, this.handleGotoCreatePost)}
+                <Link
+                  to={{
+                    pathname: "/create_post",
+                    prevPath: this.currentLocation,
+                  }}
+                  className="nav-link"
+                  onClick={linkEvent(this, this.handleUnExpand)}
                   title={i18n.t("create_post")}
                 >
                   {i18n.t("create_post")}
-                </button>
+                </Link>
               </li>
               {this.canCreateCommunity && (
                 <li class="nav-item">
-                  <button
-                    className="nav-link btn btn-link"
-                    onClick={linkEvent(this, this.handleGotoCreateCommunity)}
+                  <Link
+                    to="/create_community"
+                    className="nav-link"
+                    onClick={linkEvent(this, this.handleUnExpand)}
                     title={i18n.t("create_community")}
                   >
                     {i18n.t("create_community")}
-                  </button>
+                  </Link>
                 </li>
               )}
               <li class="nav-item">
@@ -271,13 +280,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <ul class="navbar-nav my-2">
               {this.canAdmin && (
                 <li className="nav-item">
-                  <button
-                    className="nav-link btn btn-link"
-                    onClick={linkEvent(this, this.handleGotoAdmin)}
+                  <Link
+                    to="/admin"
+                    className="nav-link"
+                    onClick={linkEvent(this, this.handleUnExpand)}
                     title={i18n.t("admin_settings")}
                   >
                     <Icon icon="settings" />
-                  </button>
+                  </Link>
                 </li>
               )}
             </ul>
@@ -377,24 +387,26 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     {this.state.showDropdown && (
                       <div class="dropdown-content">
                         <li className="nav-item">
-                          <button
-                            className="nav-link btn btn-link"
-                            onClick={linkEvent(this, this.handleGotoProfile)}
+                          <Link
+                            to={`/u/${UserService.Instance.myUserInfo.local_user_view.person.name}`}
+                            className="nav-link"
+                            onClick={linkEvent(this, this.handleUnExpand)}
                             title={i18n.t("profile")}
                           >
                             <Icon icon="user" classes="mr-1" />
                             {i18n.t("profile")}
-                          </button>
+                          </Link>
                         </li>
                         <li className="nav-item">
-                          <button
-                            className="nav-link btn btn-link"
-                            onClick={linkEvent(this, this.handleGotoSettings)}
+                          <Link
+                            to="/settings"
+                            className="nav-link"
+                            onClick={linkEvent(this, this.handleUnExpand)}
                             title={i18n.t("settings")}
                           >
                             <Icon icon="settings" classes="mr-1" />
                             {i18n.t("settings")}
-                          </button>
+                          </Link>
                         </li>
                         <li>
                           <hr class="dropdown-divider" />
@@ -417,22 +429,24 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             ) : (
               <ul class="navbar-nav my-2">
                 <li className="nav-item">
-                  <button
-                    className="nav-link btn btn-link"
-                    onClick={linkEvent(this, this.handleGotoLogin)}
+                  <Link
+                    to="/login"
+                    className="nav-link"
+                    onClick={linkEvent(this, this.handleUnExpand)}
                     title={i18n.t("login")}
                   >
                     {i18n.t("login")}
-                  </button>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <button
-                    className="nav-link btn btn-link"
-                    onClick={linkEvent(this, this.handleGotoSignup)}
+                  <Link
+                    to="/signup"
+                    className="nav-link"
+                    onClick={linkEvent(this, this.handleUnExpand)}
                     title={i18n.t("sign_up")}
                   >
                     {i18n.t("sign_up")}
-                  </button>
+                  </Link>
                 </li>
               </ul>
             )}
@@ -482,63 +496,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     location.reload();
   }
 
-  handleGotoSettings(i: Navbar) {
+  handleUnExpand(i: Navbar) {
     i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push("/settings");
-  }
-
-  handleGotoProfile(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(
-      `/u/${UserService.Instance.myUserInfo.local_user_view.person.name}`
-    );
-  }
-
-  handleGotoCreatePost(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push("/create_post", {
-      prevPath: i.currentLocation,
-    });
-  }
-
-  handleGotoCreateCommunity(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(`/create_community`);
-  }
-
-  handleGotoCommunities(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(`/communities`);
-  }
-
-  handleGotoHome(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(`/`);
-  }
-
-  handleGotoInbox(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(`/inbox`);
-  }
-
-  handleGotoReports(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(`/reports`);
-  }
-
-  handleGotoAdmin(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(`/admin`);
-  }
-
-  handleGotoLogin(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(`/login`);
-  }
-
-  handleGotoSignup(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    i.context.router.history.push(`/signup`);
   }
 
   handleShowDropdown(i: Navbar) {
