@@ -110,7 +110,7 @@ export class Profile extends Component<any, ProfileState> {
     }
 
     setupTippy();
-    this.setPersonBlock()
+    this.setPersonBlock();
   }
 
   fetchUserData() {
@@ -131,9 +131,11 @@ export class Profile extends Component<any, ProfileState> {
       this.state.personRes.person_view.person.id
     );
   }
+
   setPersonBlock() {
-    this.state.personBlocked = UserService.Instance.myUserInfo.person_blocks.
-    map(a => a.target.id).includes(this.state.personRes.person_view.person.id) 
+    this.state.personBlocked = UserService.Instance.myUserInfo.person_blocks
+      .map(a => a.target.id)
+      .includes(this.state.personRes?.person_view.person.id);
   }
 
   static getViewFromProps(view: string): PersonDetailsView {
@@ -359,7 +361,7 @@ export class Profile extends Component<any, ProfileState> {
       WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
     }
   }
-  handleUnblockPerson(recipientId: number ) {
+  handleUnblockPerson(recipientId: number) {
     let blockUserForm: BlockPerson = {
       person_id: recipientId,
       block: false,
@@ -426,24 +428,23 @@ export class Profile extends Component<any, ProfileState> {
                   >
                     {i18n.t("send_message")}
                   </Link>
-                  {this.state.personBlocked ?  
-                   (
-                  <a
-                    className={"d-flex align-self-start btn btn-secondary"}
-                    onClick={linkEvent(pv.person.id, this.handleUnblockPerson)}
-                    href="#"
-                  >
-                    {i18n.t("unblock_user")}
-                  </a>
-                  ) :
-                  (
-                    <a
+                  {this.state.personBlocked ? (
+                    <button
+                      className={"d-flex align-self-start btn btn-secondary"}
+                      onClick={linkEvent(
+                        pv.person.id,
+                        this.handleUnblockPerson
+                      )}
+                    >
+                      {i18n.t("unblock_user")}
+                    </button>
+                  ) : (
+                    <button
                       className={"d-flex align-self-start btn btn-secondary"}
                       onClick={linkEvent(pv.person.id, this.handleBlockPerson)}
-                      href="#"
                     >
                       {i18n.t("block_user")}
-                    </a>
+                    </button>
                   )}
                 </>
               )}
@@ -581,6 +582,7 @@ export class Profile extends Component<any, ProfileState> {
       this.state.personRes = data;
       console.log(data);
       this.state.loading = false;
+      this.setPersonBlock();
       this.setState(this.state);
       restoreScrollPosition(this.context);
     } else if (op == UserOperation.AddAdmin) {
@@ -639,8 +641,8 @@ export class Profile extends Component<any, ProfileState> {
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       updatePersonBlock(data);
-      this.setPersonBlock()
+      this.setPersonBlock();
       this.setState(this.state);
-    } 
+    }
   }
 }
