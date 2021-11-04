@@ -157,12 +157,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           {this.props.site_res.site_view && (
             <Link
               to="/"
+              onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+              onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
               title={
                 this.props.site_res.site_view.site.description ||
                 this.props.site_res.site_view.site.name
               }
               className="d-flex align-items-center navbar-brand mr-md-3"
-              onClick={linkEvent(this, this.handleUnExpand)}
             >
               {this.props.site_res.site_view.site.icon && showAvatars() && (
                 <PictrsImage
@@ -180,7 +181,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/inbox"
                     className="p-1 navbar-toggler nav-link border-0"
-                    onClick={linkEvent(this, this.handleUnExpand)}
+                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                    onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("unread_messages", {
                       count: this.state.unreadInboxCount,
                       formattedCount: numToSI(this.state.unreadInboxCount),
@@ -201,7 +203,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <Link
                       to="/reports"
                       className="p-1 navbar-toggler nav-link border-0"
-                      onClick={linkEvent(this, this.handleUnExpand)}
+                      onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                      onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_reports", {
                         count: this.state.unreadReportCount,
                         formattedCount: numToSI(this.state.unreadReportCount),
@@ -223,7 +226,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             class="navbar-toggler border-0 p-1"
             type="button"
             aria-label="menu"
-            onClick={linkEvent(this, this.expandNavbar)}
+            onClick={linkEvent(this, this.handleToggleExpandNavbar)}
             data-tippy-content={i18n.t("expand_here")}
           >
             <Icon icon="menu" />
@@ -236,7 +239,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <Link
                   to="/communities"
                   className="nav-link"
-                  onClick={linkEvent(this, this.handleUnExpand)}
+                  onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                  onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                   title={i18n.t("communities")}
                 >
                   {i18n.t("communities")}
@@ -249,7 +253,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     prevPath: this.currentLocation,
                   }}
                   className="nav-link"
-                  onClick={linkEvent(this, this.handleUnExpand)}
+                  onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                  onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                   title={i18n.t("create_post")}
                 >
                   {i18n.t("create_post")}
@@ -260,7 +265,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/create_community"
                     className="nav-link"
-                    onClick={linkEvent(this, this.handleUnExpand)}
+                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                    onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("create_community")}
                   >
                     {i18n.t("create_community")}
@@ -283,7 +289,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/admin"
                     className="nav-link"
-                    onClick={linkEvent(this, this.handleUnExpand)}
+                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                    onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("admin_settings")}
                   >
                     <Icon icon="settings" />
@@ -331,6 +338,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <Link
                       className="nav-link"
                       to="/inbox"
+                      onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                      onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_messages", {
                         count: this.state.unreadInboxCount,
                         formattedCount: numToSI(this.state.unreadInboxCount),
@@ -351,6 +360,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       <Link
                         className="nav-link"
                         to="/reports"
+                        onTouchEnd={linkEvent(
+                          this,
+                          this.handleHideExpandNavbar
+                        )}
+                        onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                         title={i18n.t("unread_reports", {
                           count: this.state.unreadReportCount,
                           formattedCount: numToSI(this.state.unreadReportCount),
@@ -370,7 +384,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <li class="nav-item dropdown">
                     <button
                       class="nav-link btn btn-link dropdown-toggle"
-                      onClick={linkEvent(this, this.handleShowDropdown)}
+                      onClick={linkEvent(this, this.handleToggleDropdown)}
                       id="navbarDropdown"
                       role="button"
                       aria-expanded="false"
@@ -385,12 +399,17 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       </span>
                     </button>
                     {this.state.showDropdown && (
-                      <div class="dropdown-content">
+                      <div
+                        class="dropdown-content"
+                        onMouseLeave={linkEvent(
+                          this,
+                          this.handleToggleDropdown
+                        )}
+                      >
                         <li className="nav-item">
                           <Link
                             to={`/u/${UserService.Instance.myUserInfo.local_user_view.person.name}`}
                             className="nav-link"
-                            onClick={linkEvent(this, this.handleUnExpand)}
                             title={i18n.t("profile")}
                           >
                             <Icon icon="user" classes="mr-1" />
@@ -401,7 +420,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           <Link
                             to="/settings"
                             className="nav-link"
-                            onClick={linkEvent(this, this.handleUnExpand)}
                             title={i18n.t("settings")}
                           >
                             <Icon icon="settings" classes="mr-1" />
@@ -432,7 +450,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/login"
                     className="nav-link"
-                    onClick={linkEvent(this, this.handleUnExpand)}
+                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                    onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("login")}
                   >
                     {i18n.t("login")}
@@ -442,7 +461,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/signup"
                     className="nav-link"
-                    onClick={linkEvent(this, this.handleUnExpand)}
+                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
+                    onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("sign_up")}
                   >
                     {i18n.t("sign_up")}
@@ -456,9 +476,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     );
   }
 
-  expandNavbar(i: Navbar) {
+  handleToggleExpandNavbar(i: Navbar) {
     i.state.expanded = !i.state.expanded;
     i.setState(i.state);
+  }
+
+  handleHideExpandNavbar(i: Navbar) {
+    i.setState({ expanded: false, showDropdown: false });
   }
 
   handleSearchParam(i: Navbar, event: any) {
@@ -496,11 +520,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     location.reload();
   }
 
-  handleUnExpand(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-  }
-
-  handleShowDropdown(i: Navbar) {
+  handleToggleDropdown(i: Navbar) {
     i.state.showDropdown = !i.state.showDropdown;
     i.setState(i.state);
   }
