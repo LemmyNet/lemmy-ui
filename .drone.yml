@@ -31,38 +31,6 @@ steps:
     commands:
       - yarn build:dev
 
-  - name: publish dev docker image
-    image: plugins/docker
-    settings:
-      dockerfile: Dockerfile
-      repo: dessalines/lemmy-ui
-      tags:
-        - dev-linux-amd64
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-    when:
-      ref:
-        - refs/heads/main
-
-  - name: publish dev docker manifest
-    image: plugins/manifest
-    settings:
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      target: "dessalines/lemmy-ui:dev"
-      template: "dessalines/lemmy-ui:dev-OS-ARCH"
-      platforms:
-        - linux/amd64
-        - linux/arm64
-      ignore_missing: true
-    when:
-      ref:
-        - refs/heads/main
-
   - name: publish release docker image
     image: plugins/docker
     settings:
@@ -116,38 +84,6 @@ steps:
       ref:
         - refs/heads/main
         - refs/tags/*
-
-  - name: publish dev docker image
-    image: plugins/docker
-    settings:
-      dockerfile: Dockerfile
-      repo: dessalines/lemmy-ui
-      tags:
-        - dev-linux-arm64
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-    when:
-      ref:
-        - refs/heads/main
-
-  - name: publish dev docker manifest
-    image: plugins/manifest
-    settings:
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      target: "dessalines/lemmy-ui:dev"
-      template: "dessalines/lemmy-ui:dev-OS-ARCH"
-      platforms:
-        - linux/amd64
-        - linux/arm64
-      ignore_missing: true
-    when:
-      ref:
-        - refs/heads/main
 
   - name: publish release docker image
     image: plugins/docker
