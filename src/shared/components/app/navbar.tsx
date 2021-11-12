@@ -157,7 +157,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           {this.props.site_res.site_view && (
             <Link
               to="/"
-              onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
               onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
               title={
                 this.props.site_res.site_view.site.description ||
@@ -181,7 +180,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/inbox"
                     className="p-1 navbar-toggler nav-link border-0"
-                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("unread_messages", {
                       count: this.state.unreadInboxCount,
@@ -203,7 +201,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <Link
                       to="/reports"
                       className="p-1 navbar-toggler nav-link border-0"
-                      onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_reports", {
                         count: this.state.unreadReportCount,
@@ -239,7 +236,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <Link
                   to="/communities"
                   className="nav-link"
-                  onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                   onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                   title={i18n.t("communities")}
                 >
@@ -253,7 +249,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     prevPath: this.currentLocation,
                   }}
                   className="nav-link"
-                  onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                   onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                   title={i18n.t("create_post")}
                 >
@@ -265,7 +260,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/create_community"
                     className="nav-link"
-                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("create_community")}
                   >
@@ -289,7 +283,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/admin"
                     className="nav-link"
-                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("admin_settings")}
                   >
@@ -338,7 +331,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <Link
                       className="nav-link"
                       to="/inbox"
-                      onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_messages", {
                         count: this.state.unreadInboxCount,
@@ -450,7 +442,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/login"
                     className="nav-link"
-                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("login")}
                   >
@@ -461,7 +452,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <Link
                     to="/signup"
                     className="nav-link"
-                    onTouchEnd={linkEvent(this, this.handleHideExpandNavbar)}
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("sign_up")}
                   >
