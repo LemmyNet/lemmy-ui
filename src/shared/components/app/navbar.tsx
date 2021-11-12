@@ -352,10 +352,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       <Link
                         className="nav-link"
                         to="/reports"
-                        onTouchEnd={linkEvent(
-                          this,
-                          this.handleHideExpandNavbar
-                        )}
                         onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                         title={i18n.t("unread_reports", {
                           count: this.state.unreadReportCount,
