@@ -1,5 +1,5 @@
 import { Component, createRef, linkEvent, RefObject } from "inferno";
-import { Link } from "inferno-router";
+import { NavLink } from "inferno-router";
 import {
   CommentResponse,
   GetReportCount,
@@ -155,7 +155,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
         <div class="container">
           {this.props.site_res.site_view && (
-            <Link
+            <NavLink
               to="/"
               onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
               title={
@@ -171,13 +171,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 />
               )}
               {this.props.site_res.site_view.site.name}
-            </Link>
+            </NavLink>
           )}
           {this.state.isLoggedIn && (
             <>
               <ul class="navbar-nav ml-auto">
                 <li className="nav-item">
-                  <Link
+                  <NavLink
                     to="/inbox"
                     className="p-1 navbar-toggler nav-link border-0"
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
@@ -192,13 +192,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         {numToSI(this.state.unreadInboxCount)}
                       </span>
                     )}
-                  </Link>
+                  </NavLink>
                 </li>
               </ul>
               {UserService.Instance.myUserInfo?.moderates.length > 0 && (
                 <ul class="navbar-nav ml-1">
                   <li className="nav-item">
-                    <Link
+                    <NavLink
                       to="/reports"
                       className="p-1 navbar-toggler nav-link border-0"
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
@@ -213,7 +213,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           {numToSI(this.state.unreadReportCount)}
                         </span>
                       )}
-                    </Link>
+                    </NavLink>
                   </li>
                 </ul>
               )}
@@ -233,17 +233,17 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           >
             <ul class="navbar-nav my-2 mr-auto">
               <li class="nav-item">
-                <Link
+                <NavLink
                   to="/communities"
                   className="nav-link"
                   onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                   title={i18n.t("communities")}
                 >
                   {i18n.t("communities")}
-                </Link>
+                </NavLink>
               </li>
               <li class="nav-item">
-                <Link
+                <NavLink
                   to={{
                     pathname: "/create_post",
                     prevPath: this.currentLocation,
@@ -253,18 +253,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   title={i18n.t("create_post")}
                 >
                   {i18n.t("create_post")}
-                </Link>
+                </NavLink>
               </li>
               {this.canCreateCommunity && (
                 <li class="nav-item">
-                  <Link
+                  <NavLink
                     to="/create_community"
                     className="nav-link"
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("create_community")}
                   >
                     {i18n.t("create_community")}
-                  </Link>
+                  </NavLink>
                 </li>
               )}
               <li class="nav-item">
@@ -280,14 +280,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <ul class="navbar-nav my-2">
               {this.canAdmin && (
                 <li className="nav-item">
-                  <Link
+                  <NavLink
                     to="/admin"
                     className="nav-link"
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("admin_settings")}
                   >
                     <Icon icon="settings" />
-                  </Link>
+                  </NavLink>
                 </li>
               )}
             </ul>
@@ -328,7 +328,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <>
                 <ul class="navbar-nav my-2">
                   <li className="nav-item">
-                    <Link
+                    <NavLink
                       className="nav-link"
                       to="/inbox"
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
@@ -343,13 +343,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           {numToSI(this.state.unreadInboxCount)}
                         </span>
                       )}
-                    </Link>
+                    </NavLink>
                   </li>
                 </ul>
                 {UserService.Instance.myUserInfo?.moderates.length > 0 && (
                   <ul class="navbar-nav my-2">
                     <li className="nav-item">
-                      <Link
+                      <NavLink
                         className="nav-link"
                         to="/reports"
                         onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
@@ -364,7 +364,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             {numToSI(this.state.unreadReportCount)}
                           </span>
                         )}
-                      </Link>
+                      </NavLink>
                     </li>
                   </ul>
                 )}
@@ -395,24 +395,24 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         )}
                       >
                         <li className="nav-item">
-                          <Link
+                          <NavLink
                             to={`/u/${UserService.Instance.myUserInfo.local_user_view.person.name}`}
                             className="nav-link"
                             title={i18n.t("profile")}
                           >
                             <Icon icon="user" classes="mr-1" />
                             {i18n.t("profile")}
-                          </Link>
+                          </NavLink>
                         </li>
                         <li className="nav-item">
-                          <Link
+                          <NavLink
                             to="/settings"
                             className="nav-link"
                             title={i18n.t("settings")}
                           >
                             <Icon icon="settings" classes="mr-1" />
                             {i18n.t("settings")}
-                          </Link>
+                          </NavLink>
                         </li>
                         <li>
                           <hr class="dropdown-divider" />
@@ -435,24 +435,24 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             ) : (
               <ul class="navbar-nav my-2">
                 <li className="nav-item">
-                  <Link
+                  <NavLink
                     to="/login"
                     className="nav-link"
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("login")}
                   >
                     {i18n.t("login")}
-                  </Link>
+                  </NavLink>
                 </li>
                 <li className="nav-item">
-                  <Link
+                  <NavLink
                     to="/signup"
                     className="nav-link"
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("sign_up")}
                   >
                     {i18n.t("sign_up")}
-                  </Link>
+                  </NavLink>
                 </li>
               </ul>
             )}
