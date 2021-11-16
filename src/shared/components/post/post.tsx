@@ -88,6 +88,7 @@ interface PostState {
 export class Post extends Component<any, PostState> {
   private subscription: Subscription;
   private isoData = setIsoData(this.context);
+  private commentScrollDebounced: () => void;
   private emptyState: PostState = {
     postRes: null,
     postId: getIdFromProps(this.props),
@@ -178,7 +179,8 @@ export class Post extends Component<any, PostState> {
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
-    document.removeEventListener("scroll", this.trackCommentsBoxScrolling);
+    document.removeEventListener("scroll", this.commentScrollDebounced);
+
     window.isoData.path = undefined;
     saveScrollPosition(this.context);
   }
@@ -189,10 +191,8 @@ export class Post extends Component<any, PostState> {
     );
     autosize(document.querySelectorAll("textarea"));
 
-    document.addEventListener(
-      "scroll",
-      debounce(this.trackCommentsBoxScrolling, 100)
-    );
+    this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
+    document.addEventListener("scroll", this.commentScrollDebounced);
   }
 
   componentDidUpdate(_lastProps: any, lastState: PostState) {
