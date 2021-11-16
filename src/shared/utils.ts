@@ -5,6 +5,7 @@ import {
   CommentReportView,
   CommentView,
   CommunityBlockView,
+  CommunityModeratorView,
   CommunityView,
   GetSiteMetadata,
   GetSiteResponse,
@@ -305,8 +306,15 @@ export function canMod(
   }
 }
 
-export function isMod(modIds: number[], creator_id: number): boolean {
-  return modIds.includes(creator_id);
+export function isMod(
+  mods: CommunityModeratorView[],
+  personId: number
+): boolean {
+  return mods && mods.map(m => m.moderator.id).includes(personId);
+}
+
+export function isAdmin(admins: PersonViewSafe[], personId: number): boolean {
+  return admins && admins.map(m => m.person.id).includes(personId);
 }
 
 const imageRegex = new RegExp(

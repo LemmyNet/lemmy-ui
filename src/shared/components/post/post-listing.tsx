@@ -28,6 +28,7 @@ import {
   canMod,
   getUnixTime,
   hostname,
+  isAdmin,
   isImage,
   isMod,
   isVideo,
@@ -276,48 +277,35 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   createdLine() {
-    let post_view = this.props.post_view;
+    let pv = this.props.post_view;
     return (
       <ul class="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
-          <PersonListing person={post_view.creator} />
-
-          {this.isMod && (
-            <span className="mx-1 badge badge-light">{i18n.t("mod")}</span>
-          )}
-          {this.isAdmin && (
-            <span className="mx-1 badge badge-light">{i18n.t("admin")}</span>
-          )}
-          {post_view.creator.bot_account && (
-            <span className="mx-1 badge badge-light">
-              {i18n.t("bot_account").toLowerCase()}
-            </span>
-          )}
-          {(post_view.creator_banned_from_community ||
-            post_view.creator.banned) && (
-            <span className="mx-1 badge badge-danger">{i18n.t("banned")}</span>
-          )}
-          {post_view.creator_blocked && (
-            <span className="mx-1 badge badge-danger">{"blocked"}</span>
-          )}
+          <PersonListing
+            person={pv.creator}
+            isMod={this.isMod}
+            isAdmin={this.isAdmin}
+            isCommunityBanned={pv.creator_banned_from_community}
+            isCreatorBlocked={pv.creator_blocked}
+          />
           {this.props.showCommunity && (
             <span>
               <span class="mx-1"> {i18n.t("to")} </span>
-              <CommunityLink community={post_view.community} />
+              <CommunityLink community={pv.community} />
             </span>
           )}
         </li>
         <li className="list-inline-item">•</li>
-        {post_view.post.url && !(hostname(post_view.post.url) == externalHost) && (
+        {pv.post.url && !(hostname(pv.post.url) == externalHost) && (
           <>
             <li className="list-inline-item">
               <a
                 className="text-muted font-italic"
-                href={post_view.post.url}
-                title={post_view.post.url}
+                href={pv.post.url}
+                title={pv.post.url}
                 rel="noopener"
               >
-                {hostname(post_view.post.url)}
+                {hostname(pv.post.url)}
               </a>
             </li>
             <li className="list-inline-item">•</li>
@@ -325,18 +313,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         <li className="list-inline-item">
           <span>
-            <MomentTime data={post_view.post} />
+            <MomentTime data={pv.post} />
           </span>
         </li>
-        {post_view.post.body && (
+        {pv.post.body && (
           <>
             <li className="list-inline-item">•</li>
             <li className="list-inline-item">
               <button
                 className="text-muted btn btn-sm btn-link p-0"
-                data-tippy-content={md.render(
-                  previewLines(post_view.post.body)
-                )}
+                data-tippy-content={md.render(previewLines(pv.post.body))}
                 data-tippy-allowHtml={true}
                 onClick={linkEvent(this, this.handleShowBody)}
               >
@@ -1184,23 +1170,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get isMod(): boolean {
-    return (
-      this.props.moderators &&
-      isMod(
-        this.props.moderators.map(m => m.moderator.id),
-        this.props.post_view.creator.id
-      )
-    );
+    return isMod(this.props.moderators, this.props.post_view.creator.id);
   }
 
   get isAdmin(): boolean {
-    return (
-      this.props.admins &&
-      isMod(
-        this.props.admins.map(a => a.person.id),
-        this.props.post_view.creator.id
-      )
-    );
+    return isAdmin(this.props.admins, this.props.post_view.creator.id);
   }
 
   get canMod(): boolean {

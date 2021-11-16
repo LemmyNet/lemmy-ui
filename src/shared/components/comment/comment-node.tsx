@@ -29,6 +29,7 @@ import {
   canMod,
   colorList,
   getUnixTime,
+  isAdmin,
   isMod,
   mdToHtml,
   numToSI,
@@ -164,34 +165,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           >
             <div class="d-flex flex-wrap align-items-center text-muted small">
               <span class="mr-2">
-                <PersonListing person={cv.creator} />
+                <PersonListing
+                  person={cv.creator}
+                  isMod={this.isMod}
+                  isAdmin={this.isAdmin}
+                  isCreator={this.isPostCreator}
+                  isCommunityBanned={cv.creator_banned_from_community}
+                />
               </span>
 
-              {this.isMod && (
-                <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t("mod")}
-                </div>
-              )}
-              {this.isAdmin && (
-                <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t("admin")}
-                </div>
-              )}
-              {this.isPostCreator && (
-                <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t("creator")}
-                </div>
-              )}
-              {cv.creator.bot_account && (
-                <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t("bot_account").toLowerCase()}
-                </div>
-              )}
-              {(cv.creator_banned_from_community || cv.creator.banned) && (
-                <div className="badge badge-danger mr-2">
-                  {i18n.t("banned")}
-                </div>
-              )}
               {this.props.showCommunity && (
                 <>
                   <span class="mx-1">{i18n.t("to")}</span>
@@ -903,23 +885,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get isMod(): boolean {
-    return (
-      this.props.moderators &&
-      isMod(
-        this.props.moderators.map(m => m.moderator.id),
-        this.props.node.comment_view.creator.id
-      )
+    return isMod(
+      this.props.moderators,
+      this.props.node.comment_view.creator.id
     );
   }
 
   get isAdmin(): boolean {
-    return (
-      this.props.admins &&
-      isMod(
-        this.props.admins.map(a => a.person.id),
-        this.props.node.comment_view.creator.id
-      )
-    );
+    return isAdmin(this.props.admins, this.props.node.comment_view.creator.id);
   }
 
   get isPostCreator(): boolean {
