@@ -285,10 +285,15 @@ export function getUnixTime(text: string): number {
 
 export function canMod(
   myUserInfo: MyUserInfo,
-  modIds: number[],
   creator_id: number,
+  admins: PersonViewSafe[] = [],
+  moderators: CommunityModeratorView[] = [],
   onSelf = false
 ): boolean {
+  let modIds = admins
+    .map(a => a.person.id)
+    .concat(moderators.map(m => m.moderator.id));
+
   // You can do moderator actions only on the mods added after you.
   if (myUserInfo) {
     let yourIndex = modIds.findIndex(

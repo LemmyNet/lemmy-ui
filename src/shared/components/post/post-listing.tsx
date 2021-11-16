@@ -737,7 +737,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   />
                 </button>
               )}
-              {this.canModOnSelf && (
+              {this.canMod(true) && (
                 <>
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
@@ -780,7 +780,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 </>
               )}
               {/* Mods can ban from community, and appoint as mods to community */}
-              {(this.canMod || this.canAdmin) &&
+              {(this.canMod() || this.canAdmin) &&
                 (!post_view.post.removed ? (
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
@@ -798,7 +798,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     {i18n.t("restore")}
                   </button>
                 ))}
-              {this.canMod && (
+              {this.canMod() && (
                 <>
                   {!this.isMod &&
                     (!post_view.creator_banned_from_community ? (
@@ -1177,47 +1177,21 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return isAdmin(this.props.admins, this.props.post_view.creator.id);
   }
 
-  get canMod(): boolean {
-    if (this.props.admins && this.props.moderators) {
-      let adminsThenMods = this.props.admins
-        .map(a => a.person.id)
-        .concat(this.props.moderators.map(m => m.moderator.id));
-
-      return canMod(
-        UserService.Instance.myUserInfo,
-        adminsThenMods,
-        this.props.post_view.creator.id
-      );
-    } else {
-      return false;
-    }
-  }
-
-  get canModOnSelf(): boolean {
-    if (this.props.admins && this.props.moderators) {
-      let adminsThenMods = this.props.admins
-        .map(a => a.person.id)
-        .concat(this.props.moderators.map(m => m.moderator.id));
-
-      return canMod(
-        UserService.Instance.myUserInfo,
-        adminsThenMods,
-        this.props.post_view.creator.id,
-        true
-      );
-    } else {
-      return false;
-    }
+  canMod(onSelf = false): boolean {
+    return canMod(
+      UserService.Instance.myUserInfo,
+      this.props.post_view.creator.id,
+      this.props.admins,
+      this.props.moderators,
+      onSelf
+    );
   }
 
   get canAdmin(): boolean {
-    return (
-      this.props.admins &&
-      canMod(
-        UserService.Instance.myUserInfo,
-        this.props.admins.map(a => a.person.id),
-        this.props.post_view.creator.id
-      )
+    return canMod(
+      UserService.Instance.myUserInfo,
+      this.props.post_view.creator.id,
+      this.props.admins
     );
   }
 
