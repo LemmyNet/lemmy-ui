@@ -39,6 +39,7 @@ import {
   commentsToFlatNodes,
   createCommentLikeRes,
   createPostLikeRes,
+  debounce,
   editCommentRes,
   getCommentIdFromProps,
   getIdFromProps,
@@ -66,6 +67,8 @@ import { Icon, Spinner } from "../common/icon";
 import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 
+const commentsShownInterval = 15;
+
 interface PostState {
   postRes: GetPostResponse;
   postId: number;
@@ -79,6 +82,7 @@ interface PostState {
   siteRes: GetSiteResponse;
   commentSectionRef?: RefObject<HTMLDivElement>;
   showSidebarMobile: boolean;
+  maxCommentsShown: number;
 }
 
 export class Post extends Component<any, PostState> {
@@ -97,6 +101,7 @@ export class Post extends Component<any, PostState> {
     siteRes: this.isoData.site_res,
     commentSectionRef: null,
     showSidebarMobile: false,
+    maxCommentsShown: commentsShownInterval,
   };
 
   constructor(props: any, context: any) {
@@ -173,6 +178,7 @@ export class Post extends Component<any, PostState> {
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
+    document.removeEventListener("scroll", this.trackCommentsBoxScrolling);
     window.isoData.path = undefined;
     saveScrollPosition(this.context);
   }
@@ -182,6 +188,11 @@ export class Post extends Component<any, PostState> {
       wsClient.postJoin({ post_id: this.state.postId })
     );
     autosize(document.querySelectorAll("textarea"));
+
+    document.addEventListener(
+      "scroll",
+      debounce(this.trackCommentsBoxScrolling, 100)
+    );
   }
 
   componentDidUpdate(_lastProps: any, lastState: PostState) {
@@ -252,6 +263,21 @@ export class Post extends Component<any, PostState> {
       );
     }
   }
+
+  isBottom(el: Element) {
+    return el.getBoundingClientRect().bottom <= window.innerHeight;
+  }
+
+  /**
+   * Shows new comments when scrolling to the bottom of the comments div
+   */
+  trackCommentsBoxScrolling = () => {
+    const wrappedElement = document.getElementsByClassName("comments")[0];
+    if (this.isBottom(wrappedElement)) {
+      this.state.maxCommentsShown += commentsShownInterval;
+      this.setState(this.state);
+    }
+  };
 
   get documentTitle(): string {
     return `${this.state.postRes.post_view.post.name} - ${this.state.siteRes.site_view.site.name}`;
@@ -416,6 +442,7 @@ export class Post extends Component<any, PostState> {
       <div>
         <CommentNodes
           nodes={commentsToFlatNodes(this.state.postRes.comments)}
+          maxCommentsShown={this.state.maxCommentsShown}
           noIndent
           locked={this.state.postRes.post_view.post.locked}
           moderators={this.state.postRes.moderators}
@@ -473,6 +500,7 @@ export class Post extends Component<any, PostState> {
       <div>
         <CommentNodes
           nodes={this.state.commentTree}
+          maxCommentsShown={this.state.maxCommentsShown}
           locked={this.state.postRes.post_view.post.locked}
           moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
