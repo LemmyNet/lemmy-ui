@@ -782,9 +782,18 @@ export class Settings extends Component<any, SettingsState> {
         this.blockPersonChoices.passedElement.element.addEventListener(
           "search",
           debounce(async (e: any) => {
-            let persons = (await fetchUsers(e.detail.value)).users;
-            let choices = persons.map(pvs => personToChoice(pvs));
-            this.blockPersonChoices.setChoices(choices, "value", "label", true);
+            try {
+              let persons = (await fetchUsers(e.detail.value)).users;
+              let choices = persons.map(pvs => personToChoice(pvs));
+              this.blockPersonChoices.setChoices(
+                choices,
+                "value",
+                "label",
+                true
+              );
+            } catch (err) {
+              console.log(err);
+            }
           }, 400),
           false
         );
@@ -807,15 +816,19 @@ export class Settings extends Component<any, SettingsState> {
         this.blockCommunityChoices.passedElement.element.addEventListener(
           "search",
           debounce(async (e: any) => {
-            let communities = (await fetchCommunities(e.detail.value))
-              .communities;
-            let choices = communities.map(cv => communityToChoice(cv));
-            this.blockCommunityChoices.setChoices(
-              choices,
-              "value",
-              "label",
-              true
-            );
+            try {
+              let communities = (await fetchCommunities(e.detail.value))
+                .communities;
+              let choices = communities.map(cv => communityToChoice(cv));
+              this.blockCommunityChoices.setChoices(
+                choices,
+                "value",
+                "label",
+                true
+              );
+            } catch (err) {
+              console.log(err);
+            }
           }, 400),
           false
         );
