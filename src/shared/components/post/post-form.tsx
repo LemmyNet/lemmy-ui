@@ -586,14 +586,18 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         this.choices.passedElement.element.addEventListener(
           "search",
           debounce(async (e: any) => {
-            let communities = (await fetchCommunities(e.detail.value))
-              .communities;
-            this.choices.setChoices(
-              communities.map(cv => communityToChoice(cv)),
-              "value",
-              "label",
-              true
-            );
+            try {
+              let communities = (await fetchCommunities(e.detail.value))
+                .communities;
+              this.choices.setChoices(
+                communities.map(cv => communityToChoice(cv)),
+                "value",
+                "label",
+                true
+              );
+            } catch (err) {
+              console.log(err);
+            }
           }, 400),
           false
         );
