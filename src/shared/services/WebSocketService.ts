@@ -26,7 +26,11 @@ export class WebSocketService {
 
     this.subject = new Observable((obs: any) => {
       this.ws.onmessage = e => {
-        obs.next(JSON.parse(e.data));
+        try {
+          obs.next(JSON.parse(e.data));
+        } catch (err) {
+          console.log(err);
+        }
       };
       this.ws.onopen = () => {
         console.log(`Connected to ${wsUri}`);

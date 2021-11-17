@@ -48,80 +48,83 @@ server.get("/robots.txt", async (_req, res) => {
 
 // server.use(cookieParser());
 server.get("/*", async (req, res) => {
-  const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
-  const context = {} as any;
-  let auth: string = IsomorphicCookie.load("jwt", req);
+  try {
+    const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
+    const context = {} as any;
+    let auth: string = IsomorphicCookie.load("jwt", req);
 
-  let getSiteForm: GetSite = {};
-  setOptionalAuth(getSiteForm, auth);
+    let getSiteForm: GetSite = {};
+    setOptionalAuth(getSiteForm, auth);
 
-  let promises: Promise<any>[] = [];
+    let promises: Promise<any>[] = [];
 
-  let headers = setForwardedHeaders(req.headers);
+    let headers = setForwardedHeaders(req.headers);
 
-  let initialFetchReq: InitialFetchRequest = {
-    client: new LemmyHttp(httpBaseInternal, headers),
-    auth,
-    path: req.path,
-  };
+    let initialFetchReq: InitialFetchRequest = {
+      client: new LemmyHttp(httpBaseInternal, headers),
+      auth,
+      path: req.path,
+    };
 
-  // Get site data first
-  // This bypasses errors, so that the client can hit the error on its own,
-  // in order to remove the jwt on the browser. Necessary for wrong jwts
-  let try_site: any = await initialFetchReq.client.getSite(getSiteForm);
-  if (try_site.error == "not_logged_in") {
-    console.error(
-      "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
+    // Get site data first
+    // This bypasses errors, so that the client can hit the error on its own,
+    // in order to remove the jwt on the browser. Necessary for wrong jwts
+    let try_site: any = await initialFetchReq.client.getSite(getSiteForm);
+    if (try_site.error == "not_logged_in") {
+      console.error(
+        "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
+      );
+      delete getSiteForm.auth;
+      delete initialFetchReq.auth;
+      try_site = await initialFetchReq.client.getSite(getSiteForm);
+    }
+    let site: GetSiteResponse = try_site;
+    initializeSite(site);
+
+    if (activeRoute.fetchInitialData) {
+      promises.push(...activeRoute.fetchInitialData(initialFetchReq));
+    }
+
+    let routeData = await Promise.all(promises);
+
+    // Redirect to the 404 if there's an API error
+    if (routeData[0] && routeData[0].error) {
+      let errCode = routeData[0].error;
+      return res.redirect(`/404?err=${errCode}`);
+    }
+
+    let isoData: IsoData = {
+      path: req.path,
+      site_res: site,
+      routeData,
+    };
+
+    const wrapper = (
+      <StaticRouter location={req.url} context={isoData}>
+        <App siteRes={isoData.site_res} />
+      </StaticRouter>
     );
-    delete getSiteForm.auth;
-    delete initialFetchReq.auth;
-    try_site = await initialFetchReq.client.getSite(getSiteForm);
-  }
-  let site: GetSiteResponse = try_site;
-  initializeSite(site);
+    if (context.url) {
+      return res.redirect(context.url);
+    }
 
-  if (activeRoute.fetchInitialData) {
-    promises.push(...activeRoute.fetchInitialData(initialFetchReq));
-  }
+    const cspHtml = (
+      <meta
+        http-equiv="Content-Security-Policy"
+        content="default-src data: 'self'; connect-src * ws: wss:; frame-src *; img-src * data:; script-src 'self'; style-src 'self' 'unsafe-inline'; manifest-src 'self'"
+      />
+    );
 
-  let routeData = await Promise.all(promises);
+    const root = renderToString(wrapper);
+    const symbols = renderToString(SYMBOLS);
+    const cspStr = process.env.LEMMY_EXTERNAL_HOST
+      ? renderToString(cspHtml)
+      : "";
+    const helmet = Helmet.renderStatic();
 
-  // Redirect to the 404 if there's an API error
-  if (routeData[0] && routeData[0].error) {
-    let errCode = routeData[0].error;
-    return res.redirect(`/404?err=${errCode}`);
-  }
+    const config: ILemmyConfig = { wsHost: process.env.LEMMY_WS_HOST };
 
-  let isoData: IsoData = {
-    path: req.path,
-    site_res: site,
-    routeData,
-  };
-
-  const wrapper = (
-    <StaticRouter location={req.url} context={isoData}>
-      <App siteRes={isoData.site_res} />
-    </StaticRouter>
-  );
-  if (context.url) {
-    return res.redirect(context.url);
-  }
-
-  const cspHtml = (
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src data: 'self'; connect-src * ws: wss:; frame-src *; img-src * data:; script-src 'self'; style-src 'self' 'unsafe-inline'; manifest-src 'self'"
-    />
-  );
-
-  const root = renderToString(wrapper);
-  const symbols = renderToString(SYMBOLS);
-  const cspStr = process.env.LEMMY_EXTERNAL_HOST ? renderToString(cspHtml) : "";
-  const helmet = Helmet.renderStatic();
-
-  const config: ILemmyConfig = { wsHost: process.env.LEMMY_WS_HOST };
-
-  res.send(`
+    res.send(`
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
@@ -170,6 +173,9 @@ server.get("/*", async (req, res) => {
            </body>
          </html>
 `);
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 server.listen(Number(port), hostname, () => {
