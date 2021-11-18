@@ -218,11 +218,15 @@ export class Post extends Component<any, PostState> {
   }
 
   scrollCommentIntoView() {
-    var elmnt = document.getElementById(`comment-${this.state.commentId}`);
-    elmnt.scrollIntoView();
-    elmnt.classList.add("mark");
-    this.state.scrolled = true;
-    this.markScrolledAsRead(this.state.commentId);
+    let commentElement = document.getElementById(
+      `comment-${this.state.commentId}`
+    );
+    if (commentElement) {
+      commentElement.scrollIntoView();
+      commentElement.classList.add("mark");
+      this.state.scrolled = true;
+      this.markScrolledAsRead(this.state.commentId);
+    }
   }
 
   get checkScrollIntoCommentsParam() {
