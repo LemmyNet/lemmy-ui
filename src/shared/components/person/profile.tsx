@@ -133,7 +133,7 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   setPersonBlock() {
-    this.state.personBlocked = UserService.Instance.myUserInfo.person_blocks
+    this.state.personBlocked = UserService.Instance.myUserInfo?.person_blocks
       .map(a => a.target.id)
       .includes(this.state.personRes?.person_view.person.id);
   }
@@ -411,7 +411,7 @@ export class Profile extends Component<any, ProfileState> {
                 </ul>
               </div>
               <div className="flex-grow-1 unselectable pointer mx-2"></div>
-              {!this.isCurrentUser && (
+              {!this.isCurrentUser && UserService.Instance.myUserInfo && (
                 <>
                   <a
                     className={`d-flex align-self-start btn btn-secondary mr-2 ${
