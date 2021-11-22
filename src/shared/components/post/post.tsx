@@ -269,7 +269,7 @@ export class Post extends Component<any, PostState> {
   }
 
   isBottom(el: Element) {
-    return el.getBoundingClientRect().bottom <= window.innerHeight;
+    return el?.getBoundingClientRect().bottom <= window.innerHeight;
   }
 
   /**
@@ -277,7 +277,7 @@ export class Post extends Component<any, PostState> {
    */
   trackCommentsBoxScrolling = () => {
     const wrappedElement = document.getElementsByClassName("comments")[0];
-    if (this.isBottom(wrappedElement)) {
+    if (wrappedElement && this.isBottom(wrappedElement)) {
       this.state.maxCommentsShown += commentsShownInterval;
       this.setState(this.state);
     }

@@ -809,10 +809,14 @@ export class Search extends Component<any, SearchState> {
         this.creatorChoices.passedElement.element.addEventListener(
           "search",
           debounce(async (e: any) => {
-            let creators = (await fetchUsers(e.detail.value)).users;
-            let choices = creators.map(pvs => personToChoice(pvs));
-            choices.unshift({ value: "0", label: i18n.t("all") });
-            this.creatorChoices.setChoices(choices, "value", "label", true);
+            try {
+              let creators = (await fetchUsers(e.detail.value)).users;
+              let choices = creators.map(pvs => personToChoice(pvs));
+              choices.unshift({ value: "0", label: i18n.t("all") });
+              this.creatorChoices.setChoices(choices, "value", "label", true);
+            } catch (err) {
+              console.log(err);
+            }
           }, 400),
           false
         );

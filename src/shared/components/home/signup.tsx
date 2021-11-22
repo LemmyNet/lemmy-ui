@@ -426,7 +426,7 @@ export class Signup extends Component<any, State> {
       this.state = this.emptyState;
       this.state.registerForm.captcha_answer = undefined;
       // Refetch another captcha
-      WebSocketService.Instance.send(wsClient.getCaptcha());
+      // WebSocketService.Instance.send(wsClient.getCaptcha());
       this.setState(this.state);
       return;
     } else {
