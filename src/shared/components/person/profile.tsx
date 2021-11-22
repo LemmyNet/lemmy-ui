@@ -606,7 +606,7 @@ export class Profile extends Component<any, ProfileState> {
       if (
         UserService.Instance.myUserInfo &&
         data.comment_view.creator.id ==
-          UserService.Instance.myUserInfo.local_user_view.person.id
+          UserService.Instance.myUserInfo?.local_user_view.person.id
       ) {
         toast(i18n.t("reply_sent"));
       }
