@@ -130,7 +130,9 @@ export class Settings extends Component<any, SettingsState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     this.setUserInfo();
+  }
 
+  componentDidMount() {
     setupTippy();
   }
 

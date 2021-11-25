@@ -109,7 +109,6 @@ export class Profile extends Component<any, ProfileState> {
       this.fetchUserData();
     }
 
-    setupTippy();
     this.setPersonBlock();
   }
 
@@ -186,6 +185,10 @@ export class Profile extends Component<any, ProfileState> {
     } else {
       obj.username = name_;
     }
+  }
+
+  componentDidMount() {
+    setupTippy();
   }
 
   componentWillUnmount() {

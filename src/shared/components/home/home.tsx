@@ -145,8 +145,6 @@ export class Home extends Component<any, HomeState> {
       this.fetchTrendingCommunities();
       this.fetchData();
     }
-
-    setupTippy();
   }
 
   fetchTrendingCommunities() {
@@ -168,6 +166,7 @@ export class Home extends Component<any, HomeState> {
     }
 
     WebSocketService.Instance.send(wsClient.communityJoin({ community_id: 0 }));
+    setupTippy();
   }
 
   componentWillUnmount() {

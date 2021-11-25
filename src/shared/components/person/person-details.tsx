@@ -42,7 +42,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     this.handlePageChange = this.handlePageChange.bind(this);
   }
 
-  // TODO needed here?
   componentDidMount() {
     setupTippy();
   }
