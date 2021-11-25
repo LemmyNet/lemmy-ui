@@ -42,8 +42,6 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      tags:
-        - latest
     when:
       ref:
         - refs/tags/*
@@ -55,7 +53,7 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      target: "dessalines/lemmy-ui:${DRONE_TAG}"
+      target: "[dessalines/lemmy-ui:${DRONE_TAG}, dessalines/lemmy-ui:latest]"
       template: "dessalines/lemmy-ui:${DRONE_TAG}-OS-ARCH"
       platforms:
         - linux/amd64
@@ -98,8 +96,6 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      tags:
-        - latest
     when:
       ref:
         - refs/tags/*
