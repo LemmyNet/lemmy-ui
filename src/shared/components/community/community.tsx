@@ -133,7 +133,6 @@ export class Community extends Component<any, State> {
       this.fetchCommunity();
       this.fetchData();
     }
-    setupTippy();
   }
 
   fetchCommunity() {
@@ -142,6 +141,10 @@ export class Community extends Component<any, State> {
       auth: authField(false),
     };
     WebSocketService.Instance.send(wsClient.getCommunity(form));
+  }
+
+  componentDidMount() {
+    setupTippy();
   }
 
   componentWillUnmount() {
