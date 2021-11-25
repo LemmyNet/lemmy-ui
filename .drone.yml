@@ -42,6 +42,8 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      tags:
+        - latest
     when:
       ref:
         - refs/tags/*
@@ -96,6 +98,8 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      tags:
+        - latest
     when:
       ref:
         - refs/tags/*
