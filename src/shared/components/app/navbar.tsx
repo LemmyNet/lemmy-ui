@@ -75,8 +75,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   componentDidMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
-      this.websocketEvents();
-
       this.searchTextField = createRef();
       console.log(`isLoggedIn = ${this.state.isLoggedIn}`);
 
@@ -627,14 +625,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     let adminOnly =
       this.props.site_res.site_view?.site.community_creation_admin_only;
     return !adminOnly || this.canAdmin;
-  }
-
-  /// Listens for some websocket errors
-  websocketEvents() {
-    let msg = i18n.t("websocket_disconnected");
-    WebSocketService.Instance.closeEventListener(() => {
-      console.error(msg);
-    });
   }
 
   requestNotificationPermission() {

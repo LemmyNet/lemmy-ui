@@ -1,49 +1,53 @@
 import { PersonViewSafe, WebSocketJsonResponse } from "lemmy-js-client";
-import {
-  default as ReconnectingWebSocket,
-  Options as WSOptions,
-} from "reconnecting-websocket";
 import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
+import {
+  ExponentialBackoff,
+  Websocket as WS,
+  WebsocketBuilder,
+} from "websocket-ts";
 import { wsUri } from "../env";
 import { isBrowser } from "../utils";
 
 export class WebSocketService {
   private static _instance: WebSocketService;
-  private ws: ReconnectingWebSocket;
-  public wsOptions: WSOptions = {
-    connectionTimeout: 5000,
-    maxRetries: 10,
-  };
+  private ws: WS;
   public subject: Observable<any>;
 
   public admins: PersonViewSafe[];
   public banned: PersonViewSafe[];
 
   private constructor() {
-    this.ws = new ReconnectingWebSocket(wsUri, [], this.wsOptions);
     let firstConnect = true;
 
     this.subject = new Observable((obs: any) => {
-      this.ws.onmessage = e => {
-        try {
-          obs.next(JSON.parse(e.data));
-        } catch (err) {
-          console.log(err);
-        }
-      };
-      this.ws.onopen = () => {
-        console.log(`Connected to ${wsUri}`);
+      this.ws = new WebsocketBuilder(wsUri)
+        .onMessage((_i, e) => {
+          try {
+            obs.next(JSON.parse(e.data.toString()));
+          } catch (err) {
+            console.log(err);
+          }
+        })
+        .onOpen(() => {
+          console.log(`Connected to ${wsUri}`);
 
-        if (!firstConnect) {
-          let res: WebSocketJsonResponse<any> = {
-            reconnect: true,
-          };
-          obs.next(res);
-        }
-
-        firstConnect = false;
-      };
+          if (!firstConnect) {
+            let res: WebSocketJsonResponse<any> = {
+              reconnect: true,
+            };
+            obs.next(res);
+          }
+          firstConnect = false;
+        })
+        .onRetry(() => {
+          console.log("Retrying websocket connection...");
+        })
+        .onClose(() => {
+          console.error("Websocket closed.");
+        })
+        .withBackoff(new ExponentialBackoff(100, 7))
+        .build();
     }).pipe(share());
 
     if (isBrowser()) {
@@ -58,10 +62,6 @@ export class WebSocketService {
 
   public send(data: string) {
     this.ws.send(data);
-  }
-
-  public closeEventListener(listener: (event: CloseEvent) => void) {
-    this.ws.addEventListener("close", listener);
   }
 
   public static get Instance() {
