@@ -1,5 +1,4 @@
 import { Component, linkEvent } from "inferno";
-import ISO6391 from "iso-639-1";
 import {
   BlockCommunity,
   BlockCommunityResponse,
@@ -32,6 +31,7 @@ import {
   fetchCommunities,
   fetchUsers,
   getLanguage,
+  getNativeLanguageName,
   isBrowser,
   languages,
   personSelectName,
@@ -523,11 +523,13 @@ export class Settings extends Component<any, SettingsState> {
                 <option disabled aria-hidden="true">
                   ──
                 </option>
-                {languages.sort().map(lang => (
-                  <option value={lang.code}>
-                    {ISO6391.getNativeName(lang.code) || lang.code}
-                  </option>
-                ))}
+                {languages
+                  .sort((a, b) => a.code.localeCompare(b.code))
+                  .map(lang => (
+                    <option value={lang.code}>
+                      {getNativeLanguageName(lang.code)}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
