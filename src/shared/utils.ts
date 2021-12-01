@@ -1,4 +1,5 @@
 import emojiShortName from "emoji-short-name";
+import ISO6391 from "iso-639-1";
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
@@ -412,6 +413,18 @@ export function debounce(func: any, wait = 1000, immediate = false) {
     // Immediate mode and no wait timer? Execute the function..
     if (callNow) func.apply(this, args);
   };
+}
+
+export function getNativeLanguageName(code: string): string {
+  let [isoCode, qualifier] = code.split("_");
+
+  let native = ISO6391.getNativeName(isoCode) || code;
+
+  if (qualifier) {
+    return `${native}_${qualifier}`;
+  } else {
+    return native;
+  }
 }
 
 // TODO
