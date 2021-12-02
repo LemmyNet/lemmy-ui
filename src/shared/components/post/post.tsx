@@ -551,8 +551,13 @@ export class Post extends Component<any, PostState> {
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
+      // Don't get comments from the post room, if the creator is blocked
+      let creatorBlocked = UserService.Instance.myUserInfo?.person_blocks
+        .map(pb => pb.target.id)
+        .includes(data.comment_view.creator.id);
+
       // Necessary since it might be a user reply, which has the recipients, to avoid double
-      if (data.recipient_ids.length == 0) {
+      if (data.recipient_ids.length == 0 && !creatorBlocked) {
         this.state.postRes.comments.unshift(data.comment_view);
         insertCommentIntoTree(this.state.commentTree, data.comment_view);
         this.state.postRes.post_view.counts.comments++;
