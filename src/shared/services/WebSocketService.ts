@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
 import {
   ExponentialBackoff,
+  LRUBuffer,
   Websocket as WS,
   WebsocketBuilder,
 } from "websocket-ts";
@@ -47,6 +48,7 @@ export class WebSocketService {
           console.error("Websocket closed.");
         })
         .withBackoff(new ExponentialBackoff(100, 7))
+        .withBuffer(new LRUBuffer(1000))
         .build();
     }).pipe(share());
 
