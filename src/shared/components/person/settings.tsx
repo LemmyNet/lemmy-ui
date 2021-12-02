@@ -796,7 +796,7 @@ export class Settings extends Component<any, SettingsState> {
                 true
               );
             } catch (err) {
-              console.log(err);
+              console.error(err);
             }
           }, 400),
           false

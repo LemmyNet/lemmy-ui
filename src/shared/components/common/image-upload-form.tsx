@@ -104,6 +104,7 @@ export class ImageUploadForm extends Component<
       .catch(error => {
         i.state.loading = false;
         i.setState(i.state);
+        console.error(error);
         toast(error, "danger");
       });
   }
