@@ -90,6 +90,7 @@ server.get("/*", async (req, res) => {
     // Redirect to the 404 if there's an API error
     if (routeData[0] && routeData[0].error) {
       let errCode = routeData[0].error;
+      console.error(errCode);
       return res.redirect(`/404?err=${errCode}`);
     }
 
@@ -174,7 +175,8 @@ server.get("/*", async (req, res) => {
          </html>
 `);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    return res.redirect(`/404?err=${err}`);
   }
 });
 

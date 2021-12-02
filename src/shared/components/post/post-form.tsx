@@ -565,6 +565,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       .catch(error => {
         i.state.imageLoading = false;
         i.setState(i.state);
+        console.error(error);
         toast(error, "danger");
       });
   }

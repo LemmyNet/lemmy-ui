@@ -365,6 +365,7 @@ export class MarkdownTextArea extends Component<
       .catch(error => {
         i.state.imageLoading = false;
         i.setState(i.state);
+        console.error(error);
         toast(error, "danger");
       });
   }

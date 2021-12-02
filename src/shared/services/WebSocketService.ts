@@ -27,7 +27,7 @@ export class WebSocketService {
           try {
             obs.next(JSON.parse(e.data.toString()));
           } catch (err) {
-            console.log(err);
+            console.error(err);
           }
         })
         .onOpen(() => {

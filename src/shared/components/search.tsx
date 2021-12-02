@@ -785,7 +785,7 @@ export class Search extends Component<any, SearchState> {
               choices.unshift({ value: "0", label: i18n.t("all") });
               this.communityChoices.setChoices(choices, "value", "label", true);
             } catch (err) {
-              console.log(err);
+              console.error(err);
             }
           }, 400),
           false
