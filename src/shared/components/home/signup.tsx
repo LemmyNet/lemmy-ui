@@ -240,7 +240,7 @@ export class Signup extends Component<any, State> {
                 <div
                   className="md-div"
                   dangerouslySetInnerHTML={mdToHtml(
-                    this.state.site_view.site.application_question
+                    this.state.site_view.site.application_question || ""
                   )}
                 />
               </div>
