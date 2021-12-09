@@ -6,15 +6,16 @@ import { AdminSettings } from "./components/home/admin-settings";
 import { Home } from "./components/home/home";
 import { Instances } from "./components/home/instances";
 import { Login } from "./components/home/login";
-import { PasswordChange } from "./components/home/password-change";
 import { Setup } from "./components/home/setup";
 import { Signup } from "./components/home/signup";
 import { Modlog } from "./components/modlog";
 import { Inbox } from "./components/person/inbox";
+import { PasswordChange } from "./components/person/password-change";
 import { Profile } from "./components/person/profile";
 import { RegistrationApplications } from "./components/person/registration-applications";
 import { Reports } from "./components/person/reports";
 import { Settings } from "./components/person/settings";
+import { VerifyEmail } from "./components/person/verify-email";
 import { CreatePost } from "./components/post/create-post";
 import { Post } from "./components/post/post";
 import { CreatePrivateMessage } from "./components/private_message/create-private-message";
@@ -147,6 +148,10 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/password_change/:token`,
     component: PasswordChange,
+  },
+  {
+    path: `/verify_email/:token`,
+    component: VerifyEmail,
   },
   { path: `/instances`, component: Instances },
 ];
