@@ -3,12 +3,7 @@ import { Prompt } from "inferno-router";
 import { CreateSite, EditSite, Site } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
-import {
-  authField,
-  capitalizeFirstLetter,
-  randomStr,
-  wsClient,
-} from "../../utils";
+import { authField, capitalizeFirstLetter, wsClient } from "../../utils";
 import { Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -24,7 +19,6 @@ interface SiteFormState {
 }
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
-  private id = `site-form-${randomStr()}`;
   private emptyState: SiteFormState = {
     siteForm: {
       enable_downvotes: true,
@@ -33,6 +27,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       name: null,
       icon: null,
       banner: null,
+      require_email_verification: null,
+      require_application: null,
+      application_question: null,
+      private_instance: null,
       auth: authField(),
     },
     loading: false,
@@ -43,6 +41,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.state = this.emptyState;
     this.handleSiteSidebarChange = this.handleSiteSidebarChange.bind(this);
+    this.handleSiteApplicationQuestionChange =
+      this.handleSiteApplicationQuestionChange.bind(this);
 
     this.handleIconUpload = this.handleIconUpload.bind(this);
     this.handleIconRemove = this.handleIconRemove.bind(this);
@@ -51,17 +51,21 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
     if (this.props.site) {
+      let site = this.props.site;
       this.state.siteForm = {
-        name: this.props.site.name,
-        sidebar: this.props.site.sidebar,
-        description: this.props.site.description,
-        enable_downvotes: this.props.site.enable_downvotes,
-        open_registration: this.props.site.open_registration,
-        enable_nsfw: this.props.site.enable_nsfw,
-        community_creation_admin_only:
-          this.props.site.community_creation_admin_only,
-        icon: this.props.site.icon,
-        banner: this.props.site.banner,
+        name: site.name,
+        sidebar: site.sidebar,
+        description: site.description,
+        enable_downvotes: site.enable_downvotes,
+        open_registration: site.open_registration,
+        enable_nsfw: site.enable_nsfw,
+        community_creation_admin_only: site.community_creation_admin_only,
+        icon: site.icon,
+        banner: site.banner,
+        require_email_verification: site.require_email_verification,
+        require_application: site.require_application,
+        application_question: site.application_question,
+        private_instance: site.private_instance,
         auth: authField(),
       };
     }
@@ -79,6 +83,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       !this.props.site &&
       (this.state.siteForm.name ||
         this.state.siteForm.sidebar ||
+        this.state.siteForm.application_question ||
         this.state.siteForm.description)
     ) {
       window.onbeforeunload = () => true;
@@ -100,6 +105,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !this.props.site &&
             (this.state.siteForm.name ||
               this.state.siteForm.sidebar ||
+              this.state.siteForm.application_question ||
               this.state.siteForm.description)
           }
           message={i18n.t("block_leaving")}
@@ -162,9 +168,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-12 col-form-label" htmlFor={this.id}>
-              {i18n.t("sidebar")}
-            </label>
+            <label class="col-12 col-form-label">{i18n.t("sidebar")}</label>
             <div class="col-12">
               <MarkdownTextArea
                 initialContent={this.state.siteForm.sidebar}
@@ -173,6 +177,20 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           </div>
+          {this.state.siteForm.require_application && (
+            <div class="form-group row">
+              <label class="col-12 col-form-label">
+                {i18n.t("application_questionnaire")}
+              </label>
+              <div class="col-12">
+                <MarkdownTextArea
+                  initialContent={this.state.siteForm.application_question}
+                  onContentChange={this.handleSiteApplicationQuestionChange}
+                  hideNavigationWarnings
+                />
+              </div>
+            </div>
+          )}
           <div class="form-group row">
             <div class="col-12">
               <div class="form-check">
@@ -257,6 +275,66 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
           <div class="form-group row">
             <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-require-email-verification"
+                  type="checkbox"
+                  checked={this.state.siteForm.require_email_verification}
+                  onChange={linkEvent(
+                    this,
+                    this.handleSiteRequireEmailVerification
+                  )}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-require-email-verification"
+                >
+                  {i18n.t("require_email_verification")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-require-application"
+                  type="checkbox"
+                  checked={this.state.siteForm.require_application}
+                  onChange={linkEvent(this, this.handleSiteRequireApplication)}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-require-application"
+                >
+                  {i18n.t("require_registration_application")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-private-instance"
+                  type="checkbox"
+                  checked={this.state.siteForm.private_instance}
+                  onChange={linkEvent(this, this.handleSitePrivateInstance)}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-private-instance"
+                >
+                  {i18n.t("private_instance")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
               <button
                 type="submit"
                 class="btn btn-secondary mr-2"
@@ -311,6 +389,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.setState(this.state);
   }
 
+  handleSiteApplicationQuestionChange(val: string) {
+    this.state.siteForm.application_question = val;
+    this.setState(this.state);
+  }
+
   handleSiteDescChange(i: SiteForm, event: any) {
     i.state.siteForm.description = event.target.value;
     i.setState(i.state);
@@ -333,6 +416,21 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteEnableDownvotesChange(i: SiteForm, event: any) {
     i.state.siteForm.enable_downvotes = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSiteRequireApplication(i: SiteForm, event: any) {
+    i.state.siteForm.require_application = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSiteRequireEmailVerification(i: SiteForm, event: any) {
+    i.state.siteForm.require_email_verification = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSitePrivateInstance(i: SiteForm, event: any) {
+    i.state.siteForm.private_instance = event.target.checked;
     i.setState(i.state);
   }
 

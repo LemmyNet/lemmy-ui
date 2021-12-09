@@ -185,8 +185,6 @@ export class Login extends Component<any, State> {
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       this.state = this.emptyState;
-      // Refetch another captcha
-      WebSocketService.Instance.send(wsClient.getCaptcha());
       this.setState(this.state);
       return;
     } else {

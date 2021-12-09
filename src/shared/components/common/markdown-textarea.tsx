@@ -17,7 +17,7 @@ import {
 import { Icon, Spinner } from "./icon";
 
 interface MarkdownTextAreaProps {
-  initialContent: string;
+  initialContent?: string;
   finished?: boolean;
   buttonTitle?: string;
   replyType?: boolean;

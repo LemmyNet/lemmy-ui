@@ -20,6 +20,8 @@ export class UserService {
     new BehaviorSubject<number>(0);
   public unreadReportCountSub: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
+  public unreadApplicationCountSub: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
 
   private constructor() {
     if (this.auth) {
