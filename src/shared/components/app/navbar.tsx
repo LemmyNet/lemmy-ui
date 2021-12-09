@@ -7,6 +7,8 @@ import {
   GetSiteResponse,
   GetUnreadCount,
   GetUnreadCountResponse,
+  GetUnreadRegistrationApplicationCount,
+  GetUnreadRegistrationApplicationCountResponse,
   PrivateMessageResponse,
   UserOperation,
 } from "lemmy-js-client";
@@ -41,6 +43,7 @@ interface NavbarState {
   expanded: boolean;
   unreadInboxCount: number;
   unreadReportCount: number;
+  unreadApplicationCount: number;
   searchParam: string;
   toggleSearch: boolean;
   showDropdown: boolean;
@@ -52,11 +55,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   private userSub: Subscription;
   private unreadInboxCountSub: Subscription;
   private unreadReportCountSub: Subscription;
+  private unreadApplicationCountSub: Subscription;
   private searchTextField: RefObject<HTMLInputElement>;
   emptyState: NavbarState = {
     isLoggedIn: !!this.props.site_res.my_user,
     unreadInboxCount: 0,
     unreadReportCount: 0,
+    unreadApplicationCount: 0,
     expanded: false,
     searchParam: "",
     toggleSearch: false,
@@ -115,6 +120,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         UserService.Instance.unreadReportCountSub.subscribe(res => {
           this.setState({ unreadReportCount: res });
         });
+      // Subscribe to unread application count
+      this.unreadApplicationCountSub =
+        UserService.Instance.unreadApplicationCountSub.subscribe(res => {
+          this.setState({ unreadApplicationCount: res });
+        });
     }
   }
 
@@ -123,6 +133,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     this.userSub.unsubscribe();
     this.unreadInboxCountSub.unsubscribe();
     this.unreadReportCountSub.unsubscribe();
+    this.unreadApplicationCountSub.unsubscribe();
   }
 
   updateUrl() {
@@ -209,6 +220,31 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       {this.state.unreadReportCount > 0 && (
                         <span class="mx-1 badge badge-light">
                           {numToSI(this.state.unreadReportCount)}
+                        </span>
+                      )}
+                    </NavLink>
+                  </li>
+                </ul>
+              )}
+              {UserService.Instance.myUserInfo?.local_user_view.person
+                .admin && (
+                <ul class="navbar-nav ml-1">
+                  <li className="nav-item">
+                    <NavLink
+                      to="/registration_applications"
+                      className="p-1 navbar-toggler nav-link border-0"
+                      onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
+                      title={i18n.t("unread_registration_applications", {
+                        count: this.state.unreadApplicationCount,
+                        formattedCount: numToSI(
+                          this.state.unreadApplicationCount
+                        ),
+                      })}
+                    >
+                      <Icon icon="edit" />
+                      {this.state.unreadApplicationCount > 0 && (
+                        <span class="mx-1 badge badge-light">
+                          {numToSI(this.state.unreadApplicationCount)}
                         </span>
                       )}
                     </NavLink>
@@ -360,6 +396,31 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         {this.state.unreadReportCount > 0 && (
                           <span class="ml-1 badge badge-light">
                             {numToSI(this.state.unreadReportCount)}
+                          </span>
+                        )}
+                      </NavLink>
+                    </li>
+                  </ul>
+                )}
+                {UserService.Instance.myUserInfo?.local_user_view.person
+                  .admin && (
+                  <ul class="navbar-nav my-2">
+                    <li className="nav-item">
+                      <NavLink
+                        to="/registration_applications"
+                        className="nav-link"
+                        onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
+                        title={i18n.t("unread_registration_applications", {
+                          count: this.state.unreadApplicationCount,
+                          formattedCount: numToSI(
+                            this.state.unreadApplicationCount
+                          ),
+                        })}
+                      >
+                        <Icon icon="edit" />
+                        {this.state.unreadApplicationCount > 0 && (
+                          <span class="mx-1 badge badge-light">
+                            {numToSI(this.state.unreadApplicationCount)}
                           </span>
                         )}
                       </NavLink>
@@ -537,6 +598,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.state.unreadReportCount = data.post_reports + data.comment_reports;
       this.setState(this.state);
       this.sendReportUnread();
+    } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
+      let data =
+        wsJsonToRes<GetUnreadRegistrationApplicationCountResponse>(msg).data;
+      this.state.unreadApplicationCount = data.registration_applications;
+      this.setState(this.state);
+      this.sendApplicationUnread();
     } else if (op == UserOperation.GetSite) {
       // This is only called on a successful login
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
@@ -586,7 +653,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     let unreadForm: GetUnreadCount = {
       auth: authField(),
     };
-
     WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
 
     console.log("Fetching reports...");
@@ -594,8 +660,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     let reportCountForm: GetReportCount = {
       auth: authField(),
     };
-
     WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
+
+    if (UserService.Instance.myUserInfo?.local_user_view.person.admin) {
+      console.log("Fetching applications...");
+
+      let applicationCountForm: GetUnreadRegistrationApplicationCount = {
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(
+        wsClient.getUnreadRegistrationApplicationCount(applicationCountForm)
+      );
+    }
   }
 
   get currentLocation() {
@@ -609,6 +685,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   sendReportUnread() {
     UserService.Instance.unreadReportCountSub.next(
       this.state.unreadReportCount
+    );
+  }
+
+  sendApplicationUnread() {
+    UserService.Instance.unreadApplicationCountSub.next(
+      this.state.unreadApplicationCount
     );
   }
 

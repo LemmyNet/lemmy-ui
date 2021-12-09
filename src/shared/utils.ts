@@ -18,6 +18,7 @@ import {
   PostReportView,
   PostView,
   PrivateMessageView,
+  RegistrationApplicationView,
   Search,
   SearchResponse,
   SearchType,
@@ -1101,6 +1102,20 @@ export function updateCommentReportRes(
   let found = reports.find(c => c.comment.id == data.comment.id);
   if (found) {
     found.comment_report = data.comment_report;
+  }
+}
+
+export function updateRegistrationApplicationRes(
+  data: RegistrationApplicationView,
+  applications: RegistrationApplicationView[]
+) {
+  let found = applications.find(
+    ra => ra.registration_application.id == data.registration_application.id
+  );
+  if (found) {
+    found.registration_application = data.registration_application;
+    found.admin = data.admin;
+    found.creator_local_user = data.creator_local_user;
   }
 }
 
