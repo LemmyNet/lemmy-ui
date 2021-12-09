@@ -239,6 +239,7 @@ export class Home extends Component<any, HomeState> {
       sort: SortType.Hot,
       limit: 6,
     };
+    setOptionalAuth(trendingCommunitiesForm, req.auth);
     promises.push(req.client.listCommunities(trendingCommunitiesForm));
 
     return promises;

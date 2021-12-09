@@ -91,7 +91,11 @@ server.get("/*", async (req, res) => {
     if (routeData[0] && routeData[0].error) {
       let errCode = routeData[0].error;
       console.error(errCode);
-      return res.redirect(`/404?err=${errCode}`);
+      if (errCode == "instance_is_private") {
+        return res.redirect(`/login`);
+      } else {
+        return res.redirect(`/404?err=${errCode}`);
+      }
     }
 
     let isoData: IsoData = {
