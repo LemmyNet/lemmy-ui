@@ -1,13 +1,13 @@
 import { Component } from "inferno";
 import {
-  LoginResponse,
   SiteView,
   UserOperation,
   VerifyEmail as VerifyEmailForm,
+  VerifyEmailResponse,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
+import { WebSocketService } from "../../services";
 import {
   isBrowser,
   setIsoData,
@@ -85,13 +85,12 @@ export class VerifyEmail extends Component<any, State> {
       this.props.history.push("/");
       return;
     } else if (op == UserOperation.VerifyEmail) {
-      let data = wsJsonToRes<LoginResponse>(msg).data;
-      if (data.jwt) {
+      let data = wsJsonToRes<VerifyEmailResponse>(msg).data;
+      if (data) {
         toast(i18n.t("email_verified"));
         this.state = this.emptyState;
         this.setState(this.state);
-        UserService.Instance.login(data);
-        this.props.history.push("/");
+        this.props.history.push("/login");
       }
     }
   }

@@ -1108,6 +1108,11 @@ export class Settings extends Component<any, SettingsState> {
     let op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
+      this.setState({
+        saveUserSettingsLoading: false,
+        changePasswordLoading: false,
+        deleteAccountLoading: false,
+      });
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.SaveUserSettings) {

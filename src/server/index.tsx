@@ -92,7 +92,7 @@ server.get("/*", async (req, res) => {
       let errCode = routeData[0].error;
       console.error(errCode);
       if (errCode == "instance_is_private") {
-        return res.redirect(`/login`);
+        return res.redirect(`/signup`);
       } else {
         return res.redirect(`/404?err=${errCode}`);
       }

@@ -72,7 +72,7 @@
     "husky": "^7.0.4",
     "import-sort-style-module": "^6.0.0",
     "iso-639-1": "^2.1.10",
-    "lemmy-js-client": "0.15.0-rc.3",
+    "lemmy-js-client": "0.15.0-rc.2",
     "lint-staged": "^12.1.2",
     "mini-css-extract-plugin": "^2.4.5",
     "node-fetch": "^2.6.1",

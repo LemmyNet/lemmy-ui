@@ -108,7 +108,13 @@ export class Signup extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("login")} - ${this.state.site_view.site.name}`;
+    return `${this.titleName} - ${this.state.site_view.site.name}`;
+  }
+
+  get titleName(): string {
+    return `${i18n.t(
+      this.state.site_view.site.private_instance ? "apply_to_join" : "sign_up"
+    )}`;
   }
 
   get isLemmyMl(): boolean {
@@ -132,7 +138,7 @@ export class Signup extends Component<any, State> {
   registerForm() {
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
-        <h5>{i18n.t("sign_up")}</h5>
+        <h5>{this.titleName}</h5>
 
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="register-username">
@@ -330,7 +336,7 @@ export class Signup extends Component<any, State> {
         <div class="form-group row">
           <div class="col-sm-10">
             <button type="submit" class="btn btn-secondary">
-              {this.state.registerLoading ? <Spinner /> : i18n.t("sign_up")}
+              {this.state.registerLoading ? <Spinner /> : this.titleName}
             </button>
           </div>
         </div>
