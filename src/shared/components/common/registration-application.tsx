@@ -17,6 +17,7 @@ interface RegistrationApplicationProps {
 
 interface RegistrationApplicationState {
   denyReason?: string;
+  denyExpanded: boolean;
 }
 
 export class RegistrationApplication extends Component<
@@ -25,6 +26,7 @@ export class RegistrationApplication extends Component<
 > {
   private emptyState: RegistrationApplicationState = {
     denyReason: this.props.application.registration_application.deny_reason,
+    denyExpanded: false,
   };
 
   constructor(props: any, context: any) {
@@ -63,23 +65,34 @@ export class RegistrationApplication extends Component<
                   #
                   <PersonListing person={a.admin} />
                 </T>
+                <div>
+                  {i18n.t("deny_reason")}:{" "}
+                  <div
+                    className="md-div d-inline-flex"
+                    dangerouslySetInnerHTML={mdToHtml(ra.deny_reason || "")}
+                  />
+                </div>
               </div>
             )}
           </div>
         )}
 
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label">{i18n.t("deny_reason")}</label>
-          <div class="col-sm-10">
-            <MarkdownTextArea
-              initialContent={this.state.denyReason}
-              onContentChange={this.handleDenyReasonChange}
-              hideNavigationWarnings
-            />
+        {this.state.denyExpanded && (
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">
+              {i18n.t("deny_reason")}
+            </label>
+            <div class="col-sm-10">
+              <MarkdownTextArea
+                initialContent={this.state.denyReason}
+                onContentChange={this.handleDenyReasonChange}
+                hideNavigationWarnings
+              />
+            </div>
           </div>
-        </div>
+        )}
         <button
-          className="btn btn-secondary mr-2"
+          className="btn btn-secondary mr-2 my-2"
           onClick={linkEvent(this, this.handleApprove)}
           aria-label={i18n.t("approve")}
         >
@@ -99,6 +112,7 @@ export class RegistrationApplication extends Component<
   }
 
   handleApprove(i: RegistrationApplication) {
+    i.setState({ denyExpanded: false });
     let form: ApproveRegistrationApplication = {
       id: i.props.application.registration_application.id,
       deny_reason: "",
@@ -111,15 +125,20 @@ export class RegistrationApplication extends Component<
   }
 
   handleDeny(i: RegistrationApplication) {
-    let form: ApproveRegistrationApplication = {
-      id: i.props.application.registration_application.id,
-      approve: false,
-      deny_reason: i.state.denyReason,
-      auth: authField(),
-    };
-    WebSocketService.Instance.send(
-      wsClient.approveRegistrationApplication(form)
-    );
+    if (i.state.denyExpanded) {
+      i.setState({ denyExpanded: false });
+      let form: ApproveRegistrationApplication = {
+        id: i.props.application.registration_application.id,
+        approve: false,
+        deny_reason: i.state.denyReason,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(
+        wsClient.approveRegistrationApplication(form)
+      );
+    } else {
+      i.setState({ denyExpanded: true });
+    }
   }
 
   handleDenyReasonChange(val: string) {

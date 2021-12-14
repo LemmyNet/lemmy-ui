@@ -241,7 +241,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         ),
                       })}
                     >
-                      <Icon icon="edit" />
+                      <Icon icon="clipboard" />
                       {this.state.unreadApplicationCount > 0 && (
                         <span class="mx-1 badge badge-light">
                           {numToSI(this.state.unreadApplicationCount)}
@@ -417,7 +417,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           ),
                         })}
                       >
-                        <Icon icon="edit" />
+                        <Icon icon="clipboard" />
                         {this.state.unreadApplicationCount > 0 && (
                           <span class="mx-1 badge badge-light">
                             {numToSI(this.state.unreadApplicationCount)}
