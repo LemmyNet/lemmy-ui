@@ -28,7 +28,8 @@ import {
   authField,
   canMod,
   colorList,
-  getUnixTime,
+  futureDaysToUnixTime,
+  isBanned,
   isMod,
   mdToHtml,
   numToSI,
@@ -51,7 +52,7 @@ interface CommentNodeState {
   showBanDialog: boolean;
   removeData: boolean;
   banReason: string;
-  banExpires: string;
+  banExpireDays: number;
   banType: BanType;
   showConfirmTransferSite: boolean;
   showConfirmTransferCommunity: boolean;
@@ -96,7 +97,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showBanDialog: false,
     removeData: false,
     banReason: null,
-    banExpires: null,
+    banExpireDays: null,
     banType: BanType.Community,
     collapsed: false,
     viewSource: false,
@@ -187,7 +188,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {i18n.t("bot_account").toLowerCase()}
                 </div>
               )}
-              {(cv.creator_banned_from_community || cv.creator.banned) && (
+              {(cv.creator_banned_from_community || isBanned(cv.creator)) && (
                 <div className="badge badge-danger mr-2">
                   {i18n.t("banned")}
                 </div>
@@ -614,7 +615,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {this.canAdmin && (
                             <>
                               {!this.isAdmin &&
-                                (!cv.creator.banned ? (
+                                (!isBanned(cv.creator) ? (
                                   <button
                                     class="btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
@@ -637,7 +638,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     {i18n.t("unban_from_site")}
                                   </button>
                                 ))}
-                              {!cv.creator.banned &&
+                              {!isBanned(cv.creator) &&
                                 cv.creator.local &&
                                 (!this.state.showConfirmAppointAsAdmin ? (
                                   <button
@@ -797,7 +798,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div class="form-group row">
+            <div class="form-group row col-12">
               <label
                 class="col-form-label"
                 htmlFor={`mod-ban-reason-${cv.comment.id}`}
@@ -811,6 +812,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 placeholder={i18n.t("reason")}
                 value={this.state.banReason}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
+              />
+              <label
+                class="col-form-label"
+                htmlFor={`mod-ban-expires-${cv.comment.id}`}
+              >
+                {i18n.t("expires")}
+              </label>
+              <input
+                type="number"
+                id={`mod-ban-expires-${cv.comment.id}`}
+                class="form-control mr-2"
+                placeholder={i18n.t("number_of_days")}
+                value={this.state.banExpireDays}
+                onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
               />
               <div class="form-group">
                 <div class="form-check">
@@ -1191,8 +1206,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState(i.state);
   }
 
-  handleModBanExpiresChange(i: CommentNode, event: any) {
-    i.state.banExpires = event.target.value;
+  handleModBanExpireDaysChange(i: CommentNode, event: any) {
+    i.state.banExpireDays = event.target.value;
     i.setState(i.state);
   }
 
@@ -1223,7 +1238,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
-        expires: getUnixTime(i.state.banExpires),
+        expires: futureDaysToUnixTime(i.state.banExpireDays),
         auth: authField(),
       };
       WebSocketService.Instance.send(wsClient.banFromCommunity(form));
@@ -1238,7 +1253,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
-        expires: getUnixTime(i.state.banExpires),
+        expires: futureDaysToUnixTime(i.state.banExpireDays),
         auth: authField(),
       };
       WebSocketService.Instance.send(wsClient.banPerson(form));
