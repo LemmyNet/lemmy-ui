@@ -1,8 +1,8 @@
+import classNames from "classnames";
 import { Component } from "inferno";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
-const maxImageSize = 3000;
 
 interface PictrsImageProps {
   src: string;
@@ -23,23 +23,22 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     return (
       <picture>
         <source srcSet={this.src("webp")} type="image/webp" />
+        <source srcSet={this.props.src} />
         <source srcSet={this.src("jpg")} type="image/jpeg" />
         <img
-          src={this.src("jpg")}
+          src={this.props.src}
           alt={this.alt()}
           loading="lazy"
-          className={`
-        ${!this.props.icon && !this.props.iconOverlay && "img-fluid "}
-        ${
-          this.props.thumbnail && !this.props.icon
-            ? "thumbnail rounded "
-            : "img-expanded "
-        }
-        ${this.props.thumbnail && this.props.nsfw && "img-blur "}
-        ${this.props.icon && "rounded-circle img-icon mr-2 "}
-        ${this.props.iconOverlay && "ml-2 mb-0 rounded-circle avatar-overlay "}
-        ${this.props.pushup && "avatar-pushup "}
-        `}
+          className={classNames({
+            "img-fluid": !this.props.icon && !this.props.iconOverlay,
+            "thumbnail rounded": this.props.thumbnail && !this.props.icon,
+            "img-expanded slight-radius":
+              !this.props.thumbnail && !this.props.icon,
+            "img-blur": this.props.thumbnail && this.props.nsfw,
+            "rounded-circle img-icon mr-2": this.props.icon,
+            "ml-2 mb-0 rounded-circle avatar-overlay": this.props.iconOverlay,
+            "avatar-pushup": this.props.pushup,
+          })}
         />
       </picture>
     );
@@ -65,12 +64,10 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
       params["thumbnail"] = thumbnailSize;
     } else if (this.props.icon) {
       params["thumbnail"] = iconThumbnailSize;
-    } else {
-      params["thumbnail"] = maxImageSize;
     }
 
-    let paramsStr = `?${new URLSearchParams(params).toString()}`;
-    let out = `${host}/pictrs/image/${path}${paramsStr}`;
+    let paramsStr = new URLSearchParams(params).toString();
+    let out = `${host}/pictrs/image/${path}?${paramsStr}`;
 
     return out;
   }

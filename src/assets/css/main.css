@@ -368,3 +368,7 @@ br.big {
 .honeypot {
   display:none !important;
 }
+
+.slight-radius {
+  border-radius: 4px;
+}
