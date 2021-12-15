@@ -91,14 +91,16 @@ export class RegistrationApplication extends Component<
             </div>
           </div>
         )}
-        <button
-          className="btn btn-secondary mr-2 my-2"
-          onClick={linkEvent(this, this.handleApprove)}
-          aria-label={i18n.t("approve")}
-        >
-          {i18n.t("approve")}
-        </button>
-        {!this.props.application.registration_application.deny_reason && (
+        {(!ra.admin_id || (ra.admin_id && !accepted)) && (
+          <button
+            className="btn btn-secondary mr-2 my-2"
+            onClick={linkEvent(this, this.handleApprove)}
+            aria-label={i18n.t("approve")}
+          >
+            {i18n.t("approve")}
+          </button>
+        )}
+        {(!ra.admin_id || (ra.admin_id && accepted)) && (
           <button
             className="btn btn-secondary mr-2"
             onClick={linkEvent(this, this.handleDeny)}
