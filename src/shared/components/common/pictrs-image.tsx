@@ -33,7 +33,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
         ${
           this.props.thumbnail && !this.props.icon
             ? "thumbnail rounded "
-            : "img-expanded "
+            : "banner "
         }
         ${this.props.thumbnail && this.props.nsfw && "img-blur "}
         ${this.props.icon && "rounded-circle img-icon mr-2 "}
