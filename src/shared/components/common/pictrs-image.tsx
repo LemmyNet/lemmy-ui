@@ -8,6 +8,7 @@ interface PictrsImageProps {
   src: string;
   alt?: string;
   icon?: boolean;
+  banner?: boolean;
   thumbnail?: boolean;
   nsfw?: boolean;
   iconOverlay?: boolean;
@@ -30,8 +31,9 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
           loading="lazy"
           className={`
         ${!this.props.icon && !this.props.iconOverlay && "img-fluid "}
+        ${this.props.banner && "banner "}
         ${
-          this.props.thumbnail && !this.props.icon
+          this.props.thumbnail && !this.props.icon && !this.props.banner
             ? "thumbnail rounded "
             : "img-expanded "
         }
