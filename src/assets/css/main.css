@@ -112,8 +112,8 @@
 }
 
 .icon {
-  display: inline-flex;
   display: inline-grid;
+  display: inline-flex;
   width: 1em;
   height: 1em;
   stroke-width: 0;
@@ -134,8 +134,8 @@
 }
 
 .spinner-large {
-  display: block;
   display: grid;
+  display: block;
   margin: 1em auto;
   width: 2em;
   height: 2em;
@@ -317,8 +317,8 @@ pre {
 }
 
 br.big {
-  display: block;
   display: grid;
+  display: block;
   content: "";
   margin-top: 1rem;
 }
