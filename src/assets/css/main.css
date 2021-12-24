@@ -311,6 +311,7 @@ pre {
   background-color: transparent !important;
   width: 0px !important;
   padding: 0 !important;
+  border: 0 !important;
 }
 
 br.big {
