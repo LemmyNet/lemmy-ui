@@ -113,7 +113,7 @@
 
 .icon {
   display: inline-flex;
-  display: inline-grid
+  display: inline-grid;
   width: 1em;
   height: 1em;
   stroke-width: 0;
