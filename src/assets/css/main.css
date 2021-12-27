@@ -112,6 +112,7 @@
 }
 
 .icon {
+  display: inline-grid;
   display: inline-flex;
   width: 1em;
   height: 1em;
@@ -312,7 +313,6 @@ pre {
   background-color: transparent !important;
   width: 0px !important;
   padding: 0 !important;
-  border: 0 !important;
 }
 
 br.big {
