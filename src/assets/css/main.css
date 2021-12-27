@@ -112,7 +112,6 @@
 }
 
 .icon {
-  display: inline-grid;
   display: inline-flex;
   width: 1em;
   height: 1em;
@@ -317,7 +316,6 @@ pre {
 }
 
 br.big {
-  display: grid;
   display: block;
   content: "";
   margin-top: 1rem;
