@@ -17,6 +17,7 @@ import {
   authField,
   isBrowser,
   joinLemmyUrl,
+  mdToHtml,
   setIsoData,
   toast,
   validEmail,
@@ -27,6 +28,7 @@ import {
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
+import { MarkdownTextArea } from "../common/markdown-textarea";
 
 const passwordStrengthOptions: Options<string> = [
   {
@@ -77,6 +79,7 @@ export class Signup extends Component<any, State> {
       captcha_uuid: undefined,
       captcha_answer: undefined,
       honeypot: undefined,
+      answer: undefined,
     },
     registerLoading: false,
     captcha: undefined,
@@ -88,6 +91,7 @@ export class Signup extends Component<any, State> {
     super(props, context);
 
     this.state = this.emptyState;
+    this.handleAnswerChange = this.handleAnswerChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -104,7 +108,13 @@ export class Signup extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("login")} - ${this.state.site_view.site.name}`;
+    return `${this.titleName} - ${this.state.site_view.site.name}`;
+  }
+
+  get titleName(): string {
+    return `${i18n.t(
+      this.state.site_view.site.private_instance ? "apply_to_join" : "sign_up"
+    )}`;
   }
 
   get isLemmyMl(): boolean {
@@ -128,7 +138,7 @@ export class Signup extends Component<any, State> {
   registerForm() {
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
-        <h5>{i18n.t("sign_up")}</h5>
+        <h5>{this.titleName}</h5>
 
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="register-username">
@@ -159,18 +169,24 @@ export class Signup extends Component<any, State> {
               type="email"
               id="register-email"
               class="form-control"
-              placeholder={i18n.t("optional")}
+              placeholder={
+                this.state.site_view.site.require_email_verification
+                  ? i18n.t("required")
+                  : i18n.t("optional")
+              }
               value={this.state.registerForm.email}
               autoComplete="email"
               onInput={linkEvent(this, this.handleRegisterEmailChange)}
+              required={this.state.site_view.site.require_email_verification}
               minLength={3}
             />
-            {!validEmail(this.state.registerForm.email) && (
-              <div class="mt-2 mb-0 alert alert-light" role="alert">
-                <Icon icon="alert-triangle" classes="icon-inline mr-2" />
-                {i18n.t("no_password_reset")}
-              </div>
-            )}
+            {!this.state.site_view.site.require_email_verification &&
+              !validEmail(this.state.registerForm.email) && (
+                <div class="mt-2 mb-0 alert alert-light" role="alert">
+                  <Icon icon="alert-triangle" classes="icon-inline mr-2" />
+                  {i18n.t("no_password_reset")}
+                </div>
+              )}
           </div>
         </div>
 
@@ -218,6 +234,40 @@ export class Signup extends Component<any, State> {
             />
           </div>
         </div>
+
+        {this.state.site_view.site.require_application && (
+          <>
+            <div class="form-group row">
+              <div class="offset-sm-2 col-sm-10">
+                <div class="mt-2 alert alert-light" role="alert">
+                  <Icon icon="alert-triangle" classes="icon-inline mr-2" />
+                  {i18n.t("fill_out_application")}
+                </div>
+                <div
+                  className="md-div"
+                  dangerouslySetInnerHTML={mdToHtml(
+                    this.state.site_view.site.application_question || ""
+                  )}
+                />
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label
+                class="col-sm-2 col-form-label"
+                htmlFor="application_answer"
+              >
+                {i18n.t("answer")}
+              </label>
+              <div class="col-sm-10">
+                <MarkdownTextArea
+                  onContentChange={this.handleAnswerChange}
+                  hideNavigationWarnings
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         {this.state.captcha && (
           <div class="form-group row">
@@ -286,7 +336,7 @@ export class Signup extends Component<any, State> {
         <div class="form-group row">
           <div class="col-sm-10">
             <button type="submit" class="btn btn-secondary">
-              {this.state.registerLoading ? <Spinner /> : i18n.t("sign_up")}
+              {this.state.registerLoading ? <Spinner /> : this.titleName}
             </button>
           </div>
         </div>
@@ -382,6 +432,11 @@ export class Signup extends Component<any, State> {
     i.setState(i.state);
   }
 
+  handleAnswerChange(val: string) {
+    this.state.registerForm.answer = val;
+    this.setState(this.state);
+  }
+
   handleHoneyPotChange(i: Signup, event: any) {
     i.state.registerForm.honeypot = event.target.value;
     i.setState(i.state);
@@ -434,13 +489,24 @@ export class Signup extends Component<any, State> {
         let data = wsJsonToRes<LoginResponse>(msg).data;
         this.state = this.emptyState;
         this.setState(this.state);
-        UserService.Instance.login(data);
-        WebSocketService.Instance.send(
-          wsClient.userJoin({
-            auth: authField(),
-          })
-        );
-        this.props.history.push("/communities");
+        // Only log them in if a jwt was set
+        if (data.jwt) {
+          UserService.Instance.login(data);
+          WebSocketService.Instance.send(
+            wsClient.userJoin({
+              auth: authField(),
+            })
+          );
+          this.props.history.push("/communities");
+        } else {
+          if (data.verify_email_sent) {
+            toast(i18n.t("verify_email_sent"));
+          }
+          if (data.registration_created) {
+            toast(i18n.t("registration_application_sent"));
+          }
+          this.props.history.push("/");
+        }
       } else if (op == UserOperation.GetCaptcha) {
         let data = wsJsonToRes<GetCaptchaResponse>(msg).data;
         if (data.ok) {
