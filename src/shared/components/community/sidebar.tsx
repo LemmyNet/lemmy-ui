@@ -226,7 +226,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         </li>
         <li className="list-inline-item">
           <Link
-            className="badge badge-secondary"
+            className="badge badge-primary"
             to={`/modlog/community/${this.props.community_view.community.id}`}
           >
             {i18n.t("modlog")}
