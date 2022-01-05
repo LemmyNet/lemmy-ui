@@ -177,6 +177,7 @@ export const themes = [
   "i386",
   "litely",
   "nord",
+  "bootstrap"
 ];
 
 const DEFAULT_ALPHABET =
