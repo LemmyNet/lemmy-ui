@@ -154,7 +154,7 @@ export class Signup extends Component<any, State> {
               onInput={linkEvent(this, this.handleRegisterUsernameChange)}
               required
               minLength={3}
-              pattern="[a-z0-9_]+"
+              pattern="[a-zA-Z0-9_]+"
               title={i18n.t("community_reqs")}
             />
           </div>
