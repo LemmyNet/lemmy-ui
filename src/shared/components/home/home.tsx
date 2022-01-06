@@ -588,7 +588,7 @@ export class Home extends Component<any, HomeState> {
           })}
         </li>
         <li className="list-inline-item">
-          <Link className="badge badge-secondary" to="/modlog">
+          <Link className="badge badge-primary" to="/modlog">
             {i18n.t("modlog")}
           </Link>
         </li>
