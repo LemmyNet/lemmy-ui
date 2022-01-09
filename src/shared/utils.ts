@@ -161,6 +161,8 @@ export const languages = [
   { code: "bn" },
   { code: "ml" },
   { code: "cs" },
+  { code: "as" },
+  { code: "lt" },
 ];
 
 export const themes = [
@@ -553,6 +555,10 @@ export function getMomentLanguage(): string {
     lang = "ml";
   } else if (lang.startsWith("cs")) {
     lang = "cs";
+  } else if (lang.startsWith("as")) {
+    lang = "as";
+  } else if (lang.startsWith("lt")) {
+    lang = "lt";
   } else {
     lang = "en";
   }
