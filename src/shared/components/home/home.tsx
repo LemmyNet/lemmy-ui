@@ -896,19 +896,6 @@ export class Home extends Component<any, HomeState> {
       this.setState(this.state);
     } else if (op == UserOperation.BanPerson) {
       let data = wsJsonToRes<BanPersonResponse>(msg).data;
-      let found = this.state.siteRes.banned.find(
-        p => (p.person.id = data.person_view.person.id)
-      );
-
-      // Remove the banned if its found in the list, and the action is an unban
-      if (found && !data.banned) {
-        this.state.siteRes.banned = this.state.siteRes.banned.filter(
-          i => i.person.id !== data.person_view.person.id
-        );
-      } else {
-        this.state.siteRes.banned.push(data.person_view);
-      }
-
       this.state.posts
         .filter(p => p.creator.id == data.person_view.person.id)
         .forEach(p => (p.creator.banned = data.banned));
