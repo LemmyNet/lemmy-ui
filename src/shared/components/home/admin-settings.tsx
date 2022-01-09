@@ -1,9 +1,12 @@
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import {
+  BannedPersonsResponse,
+  GetBannedPersons,
   GetSiteConfig,
   GetSiteConfigResponse,
   GetSiteResponse,
+  PersonViewSafe,
   SaveSiteConfig,
   SiteResponse,
   UserOperation,
@@ -34,6 +37,7 @@ interface AdminSettingsState {
   siteConfigRes: GetSiteConfigResponse;
   siteConfigForm: SaveSiteConfig;
   loading: boolean;
+  banned: PersonViewSafe[];
   siteConfigLoading: boolean;
 }
 
@@ -45,11 +49,12 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     siteRes: this.isoData.site_res,
     siteConfigForm: {
       config_hjson: null,
-      auth: authField(),
+      auth: null,
     },
     siteConfigRes: {
       config_hjson: null,
     },
+    banned: [],
     loading: true,
     siteConfigLoading: null,
   };
@@ -67,11 +72,18 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state.siteConfigRes = this.isoData.routeData[0];
       this.state.siteConfigForm.config_hjson =
         this.state.siteConfigRes.config_hjson;
+      this.state.banned = this.isoData.routeData[1].banned;
       this.state.siteConfigLoading = false;
       this.state.loading = false;
     } else {
+      this.state.siteConfigForm.auth = authField();
       WebSocketService.Instance.send(
         wsClient.getSiteConfig({
+          auth: authField(),
+        })
+      );
+      WebSocketService.Instance.send(
+        wsClient.getBannedPersons({
           auth: authField(),
         })
       );
@@ -79,8 +91,15 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let form: GetSiteConfig = { auth: req.auth };
-    return [req.client.getSiteConfig(form)];
+    let promises: Promise<any>[] = [];
+
+    let siteConfigForm: GetSiteConfig = { auth: req.auth };
+    promises.push(req.client.getSiteConfig(siteConfigForm));
+
+    let bannedPersonsForm: GetBannedPersons = { auth: req.auth };
+    promises.push(req.client.getBannedPersons(bannedPersonsForm));
+
+    return promises;
   }
 
   componentDidMount() {
@@ -105,10 +124,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   render() {
     return (
       <div class="container">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         {this.state.loading ? (
           <h5>
             <Spinner large />
@@ -116,6 +131,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         ) : (
           <div class="row">
             <div class="col-12 col-md-6">
+              <HtmlTags
+                title={this.documentTitle}
+                path={this.context.router.route.match.url}
+              />
               {this.state.siteRes.site_view.site.id && (
                 <SiteForm site={this.state.siteRes.site_view.site} />
               )}
@@ -149,7 +168,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       <>
         <h5>{i18n.t("banned_users")}</h5>
         <ul class="list-unstyled">
-          {this.state.siteRes.banned.map(banned => (
+          {this.state.banned.map(banned => (
             <li class="list-inline-item">
               <PersonListing person={banned.person} />
             </li>
@@ -225,6 +244,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state.siteRes.site_view = data.site_view;
       this.setState(this.state);
       toast(i18n.t("site_saved"));
+    } else if (op == UserOperation.GetBannedPersons) {
+      let data = wsJsonToRes<BannedPersonsResponse>(msg).data;
+      this.state.banned = data.banned;
+      this.setState(this.state);
     } else if (op == UserOperation.GetSiteConfig) {
       let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
