@@ -43,6 +43,7 @@ import {
   mdToHtml,
   notifyPost,
   numToSI,
+  relTags,
   restoreScrollPosition,
   saveCommentRes,
   saveScrollPosition,
@@ -695,7 +696,9 @@ export class Home extends Component<any, HomeState> {
         </span>
         {this.state.listingType == ListingType.All && (
           <>
-            <a href={allRss} rel="noopener" title="RSS">
+        <a href={allRss} 
+            rel={relTags}
+        title="RSS">
               <Icon icon="rss" classes="text-muted small" />
             </a>
             <link rel="alternate" type="application/atom+xml" href={allRss} />
@@ -703,7 +706,9 @@ export class Home extends Component<any, HomeState> {
         )}
         {this.state.listingType == ListingType.Local && (
           <>
-            <a href={localRss} rel="noopener" title="RSS">
+          <a href={localRss} 
+            rel={relTags}
+          title="RSS">
               <Icon icon="rss" classes="text-muted small" />
             </a>
             <link rel="alternate" type="application/atom+xml" href={localRss} />
@@ -712,7 +717,9 @@ export class Home extends Component<any, HomeState> {
         {UserService.Instance.myUserInfo &&
           this.state.listingType == ListingType.Subscribed && (
             <>
-              <a href={frontRss} title="RSS" rel="noopener">
+          <a href={frontRss} title="RSS"
+            rel={relTags}
+        >
                 <Icon icon="rss" classes="text-muted small" />
               </a>
               <link

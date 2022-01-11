@@ -29,6 +29,7 @@ import {
   mdToHtml,
   numToSI,
   previewLines,
+  relTags,
   restoreScrollPosition,
   routeSortTypeToEnum,
   saveCommentRes,
@@ -346,7 +347,9 @@ export class Profile extends Component<any, ProfileState> {
           hideHot
           hideMostComments
         />
-        <a href={profileRss} rel="noopener" title="RSS">
+        <a href={profileRss} 
+          rel={relTags}
+        title="RSS">
           <Icon icon="rss" classes="text-muted small mx-2" />
         </a>
         <link rel="alternate" type="application/atom+xml" href={profileRss} />
@@ -419,7 +422,7 @@ export class Profile extends Component<any, ProfileState> {
                     className={`d-flex align-self-start btn btn-secondary mr-2 ${
                       !pv.person.matrix_user_id && "invisible"
                     }`}
-                    rel="noopener"
+                    rel={relTags}
                     href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
                   >
                     {i18n.t("send_secure_message")}

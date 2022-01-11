@@ -38,6 +38,7 @@ import {
   getPageFromProps,
   getSortTypeFromProps,
   notifyPost,
+  relTags,
   restoreScrollPosition,
   saveCommentRes,
   saveScrollPosition,
@@ -370,7 +371,11 @@ export class Community extends Component<any, State> {
         <span class="mr-2">
           <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
         </span>
-        <a href={communityRss} title="RSS" rel="noopener">
+        <a
+          href={communityRss}
+          title="RSS"
+          rel={relTags}
+        >
           <Icon icon="rss" classes="text-muted small" />
         </a>
         <link rel="alternate" type="application/atom+xml" href={communityRss} />
