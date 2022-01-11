@@ -27,8 +27,9 @@ import { UserService, WebSocketService } from "../../services";
 import {
   authField,
   canMod,
-  getUnixTime,
+  futureDaysToUnixTime,
   hostname,
+  isBanned,
   isImage,
   isMod,
   isVideo,
@@ -55,7 +56,7 @@ interface PostListingState {
   showBanDialog: boolean;
   removeData: boolean;
   banReason: string;
-  banExpires: string;
+  banExpireDays: number;
   banType: BanType;
   showConfirmTransferSite: boolean;
   showConfirmTransferCommunity: boolean;
@@ -91,7 +92,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showBanDialog: false,
     removeData: false,
     banReason: null,
-    banExpires: null,
+    banExpireDays: null,
     banType: BanType.Community,
     showConfirmTransferSite: false,
     showConfirmTransferCommunity: false,
@@ -177,7 +178,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         <div class="offset-sm-3 my-2 d-none d-sm-block">
-          <a href={this.imageSrc} class="d-inline-block" target="_blank">
+          <a href={this.imageSrc} class="d-inline-block">
             <PictrsImage src={this.imageSrc} />
           </a>
         </div>
@@ -313,7 +314,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </span>
           )}
           {(post_view.creator_banned_from_community ||
-            post_view.creator.banned) && (
+            isBanned(post_view.creator)) && (
             <span className="mx-1 badge badge-danger">{i18n.t("banned")}</span>
           )}
           {post_view.creator_blocked && (
@@ -899,7 +900,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.canAdmin && (
             <>
               {!this.creatorIsAdmin &&
-                (!post_view.creator.banned ? (
+                (!isBanned(post_view.creator) ? (
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handleModBanShow)}
@@ -916,7 +917,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     {i18n.t("unban_from_site")}
                   </button>
                 ))}
-              {!post_view.creator.banned && post_view.creator.local && (
+              {!isBanned(post_view.creator) && post_view.creator.local && (
                 <button
                   class="btn btn-link btn-animate text-muted py-0"
                   onClick={linkEvent(this, this.handleAddAdmin)}
@@ -1007,7 +1008,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div class="form-group row">
+            <div class="form-group row col-12">
               <label class="col-form-label" htmlFor="post-listing-ban-reason">
                 {i18n.t("reason")}
               </label>
@@ -1018,6 +1019,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 placeholder={i18n.t("reason")}
                 value={this.state.banReason}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
+              />
+              <label class="col-form-label" htmlFor={`mod-ban-expires`}>
+                {i18n.t("expires")}
+              </label>
+              <input
+                type="number"
+                id={`mod-ban-expires`}
+                class="form-control mr-2"
+                placeholder={i18n.t("number_of_days")}
+                value={this.state.banExpireDays}
+                onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
               />
               <div class="form-group">
                 <div class="form-check">
@@ -1493,8 +1505,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState(i.state);
   }
 
-  handleModBanExpiresChange(i: PostListing, event: any) {
-    i.state.banExpires = event.target.value;
+  handleModBanExpireDaysChange(i: PostListing, event: any) {
+    i.state.banExpireDays = event.target.value;
     i.setState(i.state);
   }
 
@@ -1525,7 +1537,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
-        expires: getUnixTime(i.state.banExpires),
+        expires: futureDaysToUnixTime(i.state.banExpireDays),
         auth: authField(),
       };
       WebSocketService.Instance.send(wsClient.banFromCommunity(form));
@@ -1540,7 +1552,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
-        expires: getUnixTime(i.state.banExpires),
+        expires: futureDaysToUnixTime(i.state.banExpireDays),
         auth: authField(),
       };
       WebSocketService.Instance.send(wsClient.banPerson(form));

@@ -1,5 +1,6 @@
 import i18next, { i18nTyped } from "i18next";
 import { ar } from "./translations/ar";
+import { as } from "./translations/as";
 import { bg } from "./translations/bg";
 import { bn } from "./translations/bn";
 import { ca } from "./translations/ca";
@@ -26,6 +27,7 @@ import { ja } from "./translations/ja";
 import { ka } from "./translations/ka";
 import { km } from "./translations/km";
 import { ko } from "./translations/ko";
+import { lt } from "./translations/lt";
 import { ml } from "./translations/ml";
 import { mnc } from "./translations/mnc";
 import { nb_NO } from "./translations/nb_NO";
@@ -95,6 +97,8 @@ const resources = {
   bn,
   ml,
   cs,
+  as,
+  lt,
 };
 
 function format(value: any, format: any): any {
