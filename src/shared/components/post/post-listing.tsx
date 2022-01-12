@@ -161,7 +161,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   body() {
     let post = this.props.post_view.post;
     return (
-      <div class="col-12 col-sm-9 offset-sm-3 card my-2 p-2">
+      <div class="col-12 card my-2 p-2">
         {this.state.viewSource ? (
           <pre>{post.body}</pre>
         ) : (

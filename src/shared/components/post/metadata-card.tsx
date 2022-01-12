@@ -29,7 +29,7 @@ export class MetadataCard extends Component<
     return (
       <>
         {post.embed_title && !this.state.expanded && (
-          <div class="card border-secondary mt-3 mb-2 offset-sm-3">
+          <div class="card border-secondary mt-3 mb-2">
             <div class="row">
               <div class="col-12">
                 <div class="card-body">
