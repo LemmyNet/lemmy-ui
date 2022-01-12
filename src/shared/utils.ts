@@ -323,10 +323,8 @@ export function isMod(modIds: number[], creator_id: number): boolean {
   return modIds.includes(creator_id);
 }
 
-const imageRegex = new RegExp(
-  /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/
-);
-const videoRegex = new RegExp(`(http)?s?:?(\/\/[^"']*\.(?:mp4))`);
+const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
+const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);

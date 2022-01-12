@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
@@ -130,12 +131,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   render() {
+    let post = this.props.post_view.post;
     return (
-      <div class="">
+      <div class="post-listing">
         {!this.state.showEdit ? (
           <>
             {this.listing()}
-            {this.body()}
+            {this.state.imageExpanded && this.img}
+            {post.url && this.showBody && post.embed_title && (
+              <MetadataCard post={post} />
+            )}
+            {this.showBody && post.body && this.body()}
           </>
         ) : (
           <div class="col-12">
@@ -155,23 +161,36 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   body() {
     let post = this.props.post_view.post;
     return (
-      <div class="row">
-        <div class="col-12">
-          {post.url && this.showBody && post.embed_title && (
-            <MetadataCard post={post} />
-          )}
-          {this.showBody &&
-            post.body &&
-            (this.state.viewSource ? (
-              <pre>{post.body}</pre>
-            ) : (
-              <div
-                className="md-div"
-                dangerouslySetInnerHTML={mdToHtml(post.body)}
-              />
-            ))}
-        </div>
+      <div class="col-12 col-sm-9 offset-sm-3 card my-2 p-2">
+        {this.state.viewSource ? (
+          <pre>{post.body}</pre>
+        ) : (
+          <div
+            className="md-div"
+            dangerouslySetInnerHTML={mdToHtml(post.body)}
+          />
+        )}
       </div>
+    );
+  }
+
+  get img() {
+    return (
+      <>
+        <div class="offset-sm-3 my-2 d-none d-sm-block">
+          <a href={this.imageSrc} class="d-inline-block">
+            <PictrsImage src={this.imageSrc} />
+          </a>
+        </div>
+        <div className="my-2 d-block d-sm-none">
+          <a
+            class="d-inline-block"
+            onClick={linkEvent(this, this.handleImageExpandClick)}
+          >
+            <PictrsImage src={this.imageSrc} />
+          </a>
+        </div>
+      </>
     );
   }
 
@@ -187,7 +206,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  getImageSrc(): string {
+  get imageSrc(): string {
     let post = this.props.post_view.post;
     if (isImage(post.url)) {
       if (post.url.includes("pictrs")) {
@@ -210,25 +229,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (isImage(post.url)) {
       return (
         <a
-          href={this.getImageSrc()}
-          class="float-right text-body d-inline-block position-relative mb-2"
+          href={this.imageSrc}
+          class="text-body d-inline-block position-relative mb-2"
           data-tippy-content={i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={i18n.t("expand_here")}
         >
-          {this.imgThumb(this.getImageSrc())}
+          {this.imgThumb(this.imageSrc)}
           <Icon icon="image" classes="mini-overlay" />
         </a>
       );
     } else if (post.thumbnail_url) {
       return (
         <a
-          class="float-right text-body d-inline-block position-relative mb-2"
+          class="text-body d-inline-block position-relative mb-2"
           href={post.url}
           rel="noopener"
           title={post.url}
         >
-          {this.imgThumb(this.getImageSrc())}
+          {this.imgThumb(this.imageSrc)}
           <Icon icon="external-link" classes="mini-overlay" />
         </a>
       );
@@ -283,10 +302,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
 
-          {this.isMod && (
+          {this.creatorIsMod && (
             <span className="mx-1 badge badge-light">{i18n.t("mod")}</span>
           )}
-          {this.isAdmin && (
+          {this.creatorIsAdmin && (
             <span className="mx-1 badge badge-light">{i18n.t("admin")}</span>
           )}
           {post_view.creator.bot_account && (
@@ -412,34 +431,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {post.name}
             </Link>
           )}
-          {(isImage(post.url) || post.thumbnail_url) &&
-            (!this.state.imageExpanded ? (
-              <button
-                class="btn btn-link text-monospace text-muted small d-inline-block ml-2"
-                data-tippy-content={i18n.t("expand_here")}
-                onClick={linkEvent(this, this.handleImageExpandClick)}
-              >
-                <Icon icon="plus-square" classes="icon-inline" />
-              </button>
-            ) : (
-              <span>
-                <button
-                  class="btn btn-link text-monospace text-muted small d-inline-block ml-2"
-                  onClick={linkEvent(this, this.handleImageExpandClick)}
-                >
-                  <Icon icon="minus-square" classes="icon-inline" />
-                </button>
-                <div>
-                  <a
-                    href={this.getImageSrc()}
-                    class="btn btn-link d-inline-block"
-                    onClick={linkEvent(this, this.handleImageExpandClick)}
-                  >
-                    <PictrsImage src={this.getImageSrc()} />
-                  </a>
-                </div>
-              </span>
-            ))}
+          {(isImage(post.url) || post.thumbnail_url) && (
+            <button
+              class="btn btn-link text-monospace text-muted small d-inline-block ml-2"
+              data-tippy-content={i18n.t("expand_here")}
+              onClick={linkEvent(this, this.handleImageExpandClick)}
+            >
+              <Icon
+                icon={
+                  !this.state.imageExpanded ? "plus-square" : "minus-square"
+                }
+                classes="icon-inline"
+              />
+            </button>
+          )}
           {post.removed && (
             <small className="ml-2 text-muted font-italic">
               {i18n.t("removed")}
@@ -479,145 +484,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  commentsLine(mobile = false) {
-    let post_view = this.props.post_view;
-    return (
-      <div class="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold mb-1">
-        <button class="btn btn-link text-muted p-0">
-          <Link
-            className="text-muted small"
-            title={i18n.t("number_of_comments", {
-              count: post_view.counts.comments,
-              formattedCount: post_view.counts.comments,
-            })}
-            to={`/post/${post_view.post.id}?scrollToComments=true`}
-          >
-            <Icon icon="message-square" classes="icon-inline mr-1" />
-            {i18n.t("number_of_comments", {
-              count: post_view.counts.comments,
-              formattedCount: numToSI(post_view.counts.comments),
-            })}
-          </Link>
-        </button>
-        {!mobile && (
-          <>
-            {this.state.downvotes !== 0 && showScores() && (
-              <button
-                class="btn text-muted py-0 pr-0"
-                data-tippy-content={this.pointsTippy}
-                aria-label={i18n.t("downvote")}
-              >
-                <small>
-                  <Icon icon="arrow-down1" classes="icon-inline mr-1" />
-                  <span>{numToSI(this.state.downvotes)}</span>
-                </small>
-              </button>
-            )}
-            {!this.showBody && (
-              <button
-                class="btn btn-link btn-animate text-muted py-0"
-                onClick={linkEvent(this, this.handleSavePostClick)}
-                data-tippy-content={
-                  post_view.saved ? i18n.t("unsave") : i18n.t("save")
-                }
-                aria-label={post_view.saved ? i18n.t("unsave") : i18n.t("save")}
-              >
-                <small>
-                  <Icon
-                    icon="star"
-                    classes={`icon-inline ${post_view.saved && "text-warning"}`}
-                  />
-                </small>
-              </button>
-            )}
-          </>
-        )}
-        {/* This is an expanding spacer for mobile */}
-        <div className="flex-grow-1"></div>
-        {mobile && (
-          <>
-            <div>
-              {showScores() ? (
-                <button
-                  className={`btn-animate btn py-0 px-1 ${
-                    this.state.my_vote == 1 ? "text-info" : "text-muted"
-                  }`}
-                  data-tippy-content={this.pointsTippy}
-                  onClick={linkEvent(this, this.handlePostLike)}
-                  aria-label={i18n.t("upvote")}
-                >
-                  <Icon icon="arrow-up1" classes="icon-inline small mr-2" />
-                  {numToSI(this.state.upvotes)}
-                </button>
-              ) : (
-                <button
-                  className={`btn-animate btn py-0 px-1 ${
-                    this.state.my_vote == 1 ? "text-info" : "text-muted"
-                  }`}
-                  onClick={linkEvent(this, this.handlePostLike)}
-                  aria-label={i18n.t("upvote")}
-                >
-                  <Icon icon="arrow-up1" classes="icon-inline small" />
-                </button>
-              )}
-              {this.props.enableDownvotes &&
-                (showScores() ? (
-                  <button
-                    className={`ml-2 btn-animate btn py-0 pl-1 ${
-                      this.state.my_vote == -1 ? "text-danger" : "text-muted"
-                    }`}
-                    onClick={linkEvent(this, this.handlePostDisLike)}
-                    data-tippy-content={this.pointsTippy}
-                    aria-label={i18n.t("downvote")}
-                  >
-                    <Icon icon="arrow-down1" classes="icon-inline small mr-2" />
-                    {this.state.downvotes !== 0 && (
-                      <span>{numToSI(this.state.downvotes)}</span>
-                    )}
-                  </button>
-                ) : (
-                  <button
-                    className={`ml-2 btn-animate btn py-0 pl-1 ${
-                      this.state.my_vote == -1 ? "text-danger" : "text-muted"
-                    }`}
-                    onClick={linkEvent(this, this.handlePostDisLike)}
-                    aria-label={i18n.t("downvote")}
-                  >
-                    <Icon icon="arrow-down1" classes="icon-inline small" />
-                  </button>
-                ))}
-            </div>
-            <button
-              class="btn btn-link btn-animate text-muted py-0 pl-1 pr-0"
-              onClick={linkEvent(this, this.handleSavePostClick)}
-              aria-label={post_view.saved ? i18n.t("unsave") : i18n.t("save")}
-              data-tippy-content={
-                post_view.saved ? i18n.t("unsave") : i18n.t("save")
-              }
-            >
-              <Icon
-                icon="star"
-                classes={`icon-inline ${post_view.saved && "text-warning"}`}
-              />
-            </button>
-
-            {!this.state.showMoreMobile && this.showBody && (
-              <button
-                class="btn btn-link btn-animate text-muted py-0"
-                onClick={linkEvent(this, this.handleShowMoreMobile)}
-                aria-label={i18n.t("more")}
-                data-tippy-content={i18n.t("more")}
-              >
-                <Icon icon="more-vertical" classes="icon-inline" />
-              </button>
-            )}
-            {this.state.showMoreMobile && this.postActions(mobile)}
-          </>
-        )}
-      </div>
-    );
-  }
-
   duplicatesLine() {
     let dupes = this.props.duplicates;
     return (
@@ -643,341 +509,469 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  commentsLine(mobile = false) {
+    return (
+      <div class="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
+        {this.commentsButton}
+        {mobile && this.mobileVotes}
+        {UserService.Instance.myUserInfo && this.postActions(mobile)}
+      </div>
+    );
+  }
+
   postActions(mobile = false) {
+    // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
+    // Possible enhancement: Make each button a component.
     let post_view = this.props.post_view;
     return (
-      UserService.Instance.myUserInfo && (
-        <>
-          {this.showBody && (
-            <>
-              {!mobile && (
-                <button
-                  class="btn btn-link btn-animate text-muted py-0 pl-0"
-                  onClick={linkEvent(this, this.handleSavePostClick)}
-                  data-tippy-content={
-                    post_view.saved ? i18n.t("unsave") : i18n.t("save")
-                  }
-                  aria-label={
-                    post_view.saved ? i18n.t("unsave") : i18n.t("save")
-                  }
-                >
-                  <Icon
-                    icon="star"
-                    classes={`icon-inline ${post_view.saved && "text-warning"}`}
-                  />
-                </button>
-              )}
-              <Link
-                className="btn btn-link btn-animate text-muted py-0"
-                to={`/create_post${this.crossPostParams}`}
-                title={i18n.t("cross_post")}
-              >
-                <Icon icon="copy" classes="icon-inline" />
-              </Link>
-              {!this.myPost && (
-                <>
-                  <button
-                    class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handleShowReportDialog)}
-                    data-tippy-content={i18n.t("show_report_dialog")}
-                    aria-label={i18n.t("show_report_dialog")}
-                  >
-                    <Icon icon="flag" classes="icon-inline" />
-                  </button>
-                  <button
-                    class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handleBlockUserClick)}
-                    data-tippy-content={i18n.t("block_user")}
-                    aria-label={i18n.t("block_user")}
-                  >
-                    <Icon icon="slash" classes="icon-inline" />
-                  </button>
-                </>
-              )}
-            </>
-          )}
-          {this.myPost && this.showBody && (
-            <>
-              <button
-                class="btn btn-link btn-animate text-muted py-0"
-                onClick={linkEvent(this, this.handleEditClick)}
-                data-tippy-content={i18n.t("edit")}
-                aria-label={i18n.t("edit")}
-              >
-                <Icon icon="edit" classes="icon-inline" />
-              </button>
-              <button
-                class="btn btn-link btn-animate text-muted py-0"
-                onClick={linkEvent(this, this.handleDeleteClick)}
-                data-tippy-content={
-                  !post_view.post.deleted ? i18n.t("delete") : i18n.t("restore")
-                }
-                aria-label={
-                  !post_view.post.deleted ? i18n.t("delete") : i18n.t("restore")
-                }
-              >
-                <Icon
-                  icon="trash"
-                  classes={`icon-inline ${
-                    post_view.post.deleted && "text-danger"
-                  }`}
-                />
-              </button>
-            </>
-          )}
+      <>
+        {this.saveButton}
+        {this.crossPostButton}
+        {mobile && this.showMoreButton}
+        {(!mobile || this.state.showAdvanced) && (
+          <>
+            {!this.myPost && (
+              <>
+                {this.reportButton}
+                {this.blockButton}
+              </>
+            )}
+            {this.myPost && (this.showBody || this.state.showAdvanced) && (
+              <>
+                {this.editButton}
+                {this.deleteButton}
+              </>
+            )}
+          </>
+        )}
+        {this.state.showAdvanced && (
+          <>
+            {this.showBody && post_view.post.body && this.viewSourceButton}
+            {this.canModOnSelf && (
+              <>
+                {this.lockButton}
+                {this.stickyButton}
+              </>
+            )}
+            {(this.canMod || this.canAdmin || true) && (
+              <>{this.modRemoveButton}</>
+            )}
+          </>
+        )}
+        {!mobile && this.showMoreButton}
+      </>
+    );
+  }
 
-          {!this.state.showAdvanced && this.showBody ? (
+  get commentsButton() {
+    let post_view = this.props.post_view;
+    return (
+      <button class="btn btn-link text-muted py-0 pl-0">
+        <Link
+          className="text-muted"
+          title={i18n.t("number_of_comments", {
+            count: post_view.counts.comments,
+            formattedCount: post_view.counts.comments,
+          })}
+          to={`/post/${post_view.post.id}?scrollToComments=true`}
+        >
+          <Icon icon="message-square" classes="mr-1" inline />
+          {i18n.t("number_of_comments", {
+            count: post_view.counts.comments,
+            formattedCount: numToSI(post_view.counts.comments),
+          })}
+        </Link>
+      </button>
+    );
+  }
+
+  get mobileVotes() {
+    // TODO: make nicer
+    let tippy = showScores() ? { "data-tippy-content": this.pointsTippy } : {};
+    return (
+      <>
+        <div>
+          <button
+            className={`btn-animate btn py-0 px-1 ${
+              this.state.my_vote == 1 ? "text-info" : "text-muted"
+            }`}
+            {...tippy}
+            onClick={linkEvent(this, this.handlePostLike)}
+            aria-label={i18n.t("upvote")}
+          >
+            <Icon icon="arrow-up1" classes="icon-inline small" />
+            {showScores() && (
+              <span class="ml-2">{numToSI(this.state.upvotes)}</span>
+            )}
+          </button>
+          {this.props.enableDownvotes && (
             <button
-              class="btn btn-link btn-animate text-muted py-0"
-              onClick={linkEvent(this, this.handleShowAdvanced)}
-              data-tippy-content={i18n.t("more")}
-              aria-label={i18n.t("more")}
+              className={`ml-2 btn-animate btn py-0 px-1 ${
+                this.state.my_vote == -1 ? "text-danger" : "text-muted"
+              }`}
+              onClick={linkEvent(this, this.handlePostDisLike)}
+              {...tippy}
+              aria-label={i18n.t("downvote")}
             >
-              <Icon icon="more-vertical" classes="icon-inline" />
+              <Icon icon="arrow-down1" classes="icon-inline small" />
+              {showScores() && (
+                <span
+                  class={classNames("ml-2", {
+                    invisible: this.state.downvotes === 0,
+                  })}
+                >
+                  {numToSI(this.state.downvotes)}
+                </span>
+              )}
             </button>
-          ) : (
+          )}
+        </div>
+      </>
+    );
+  }
+
+  get saveButton() {
+    let saved = this.props.post_view.saved;
+    let label = saved ? i18n.t("unsave") : i18n.t("save");
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleSavePostClick)}
+        data-tippy-content={label}
+        aria-label={label}
+      >
+        <Icon
+          icon="star"
+          classes={classNames({ "text-warning": saved })}
+          inline
+        />
+      </button>
+    );
+  }
+
+  get crossPostButton() {
+    return (
+      <Link
+        className="btn btn-link btn-animate text-muted py-0"
+        to={`/create_post${this.crossPostParams}`}
+        title={i18n.t("cross_post")}
+      >
+        <Icon icon="copy" inline />
+      </Link>
+    );
+  }
+
+  get reportButton() {
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleShowReportDialog)}
+        data-tippy-content={i18n.t("show_report_dialog")}
+        aria-label={i18n.t("show_report_dialog")}
+      >
+        <Icon icon="flag" inline />
+      </button>
+    );
+  }
+
+  get blockButton() {
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleBlockUserClick)}
+        data-tippy-content={i18n.t("block_user")}
+        aria-label={i18n.t("block_user")}
+      >
+        <Icon icon="slash" inline />
+      </button>
+    );
+  }
+
+  get editButton() {
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleEditClick)}
+        data-tippy-content={i18n.t("edit")}
+        aria-label={i18n.t("edit")}
+      >
+        <Icon icon="edit" inline />
+      </button>
+    );
+  }
+
+  get deleteButton() {
+    let deleted = this.props.post_view.post.deleted;
+    let label = !deleted ? i18n.t("delete") : i18n.t("restore");
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleDeleteClick)}
+        data-tippy-content={label}
+        aria-label={label}
+      >
+        <Icon
+          icon="trash"
+          classes={classNames({ "text-danger": deleted })}
+          inline
+        />
+      </button>
+    );
+  }
+
+  get showMoreButton() {
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleShowAdvanced)}
+        data-tippy-content={i18n.t("more")}
+        aria-label={i18n.t("more")}
+      >
+        <Icon icon="more-vertical" inline />
+      </button>
+    );
+  }
+
+  get viewSourceButton() {
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleViewSource)}
+        data-tippy-content={i18n.t("view_source")}
+        aria-label={i18n.t("view_source")}
+      >
+        <Icon
+          icon="file-text"
+          classes={classNames({ "text-success": this.state.viewSource })}
+          inline
+        />
+      </button>
+    );
+  }
+
+  get lockButton() {
+    let locked = this.props.post_view.post.locked;
+    let label = locked ? i18n.t("unlock") : i18n.t("lock");
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleModLock)}
+        data-tippy-content={label}
+        aria-label={label}
+      >
+        <Icon
+          icon="lock"
+          classes={classNames({ "text-danger": locked })}
+          inline
+        />
+      </button>
+    );
+  }
+
+  get stickyButton() {
+    let stickied = this.props.post_view.post.stickied;
+    let label = stickied ? i18n.t("unsticky") : i18n.t("sticky");
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleModSticky)}
+        data-tippy-content={label}
+        aria-label={label}
+      >
+        <Icon
+          icon="pin"
+          classes={classNames({ "text-success": stickied })}
+          inline
+        />
+      </button>
+    );
+  }
+
+  get modRemoveButton() {
+    let removed = this.props.post_view.post.removed;
+    return (
+      <button
+        class="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(
+          this,
+          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit
+        )}
+      >
+        {/* TODO: Find an icon for this. */}
+        {!removed ? i18n.t("remove") : i18n.t("restore")}
+      </button>
+    );
+  }
+
+  /**
+   * Mod/Admin actions to be taken against the author.
+   */
+  userActionsLine() {
+    // TODO: make nicer
+    let post_view = this.props.post_view;
+    return (
+      this.state.showAdvanced && (
+        <>
+          {this.canMod && (
             <>
-              {this.showBody && post_view.post.body && (
+              {!this.creatorIsMod &&
+                (!post_view.creator_banned_from_community ? (
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
+                    onClick={linkEvent(
+                      this,
+                      this.handleModBanFromCommunityShow
+                    )}
+                    aria-label={i18n.t("ban")}
+                  >
+                    {i18n.t("ban")}
+                  </button>
+                ) : (
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
+                    onClick={linkEvent(
+                      this,
+                      this.handleModBanFromCommunitySubmit
+                    )}
+                    aria-label={i18n.t("unban")}
+                  >
+                    {i18n.t("unban")}
+                  </button>
+                ))}
+              {!post_view.creator_banned_from_community && (
                 <button
                   class="btn btn-link btn-animate text-muted py-0"
-                  onClick={linkEvent(this, this.handleViewSource)}
-                  data-tippy-content={i18n.t("view_source")}
-                  aria-label={i18n.t("view_source")}
+                  onClick={linkEvent(this, this.handleAddModToCommunity)}
+                  aria-label={
+                    this.creatorIsMod
+                      ? i18n.t("remove_as_mod")
+                      : i18n.t("appoint_as_mod")
+                  }
                 >
-                  <Icon
-                    icon="file-text"
-                    classes={`icon-inline ${
-                      this.state.viewSource && "text-success"
-                    }`}
-                  />
+                  {this.creatorIsMod
+                    ? i18n.t("remove_as_mod")
+                    : i18n.t("appoint_as_mod")}
                 </button>
               )}
-              {this.canModOnSelf && (
-                <>
-                  <button
-                    class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handleModLock)}
-                    data-tippy-content={
-                      post_view.post.locked ? i18n.t("unlock") : i18n.t("lock")
-                    }
-                    aria-label={
-                      post_view.post.locked ? i18n.t("unlock") : i18n.t("lock")
-                    }
-                  >
-                    <Icon
-                      icon="lock"
-                      classes={`icon-inline ${
-                        post_view.post.locked && "text-danger"
-                      }`}
-                    />
-                  </button>
-                  <button
-                    class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handleModSticky)}
-                    data-tippy-content={
-                      post_view.post.stickied
-                        ? i18n.t("unsticky")
-                        : i18n.t("sticky")
-                    }
-                    aria-label={
-                      post_view.post.stickied
-                        ? i18n.t("unsticky")
-                        : i18n.t("sticky")
-                    }
-                  >
-                    <Icon
-                      icon="pin"
-                      classes={`icon-inline ${
-                        post_view.post.stickied && "text-success"
-                      }`}
-                    />
-                  </button>
-                </>
-              )}
-              {/* Mods can ban from community, and appoint as mods to community */}
-              {(this.canMod || this.canAdmin) &&
-                (!post_view.post.removed ? (
-                  <button
-                    class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handleModRemoveShow)}
-                    aria-label={i18n.t("remove")}
-                  >
-                    {i18n.t("remove")}
-                  </button>
-                ) : (
-                  <button
-                    class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handleModRemoveSubmit)}
-                    aria-label={i18n.t("restore")}
-                  >
-                    {i18n.t("restore")}
-                  </button>
-                ))}
-              {this.canMod && (
-                <>
-                  {!this.isMod &&
-                    (!post_view.creator_banned_from_community ? (
-                      <button
-                        class="btn btn-link btn-animate text-muted py-0"
-                        onClick={linkEvent(
-                          this,
-                          this.handleModBanFromCommunityShow
-                        )}
-                        aria-label={i18n.t("ban")}
-                      >
-                        {i18n.t("ban")}
-                      </button>
-                    ) : (
-                      <button
-                        class="btn btn-link btn-animate text-muted py-0"
-                        onClick={linkEvent(
-                          this,
-                          this.handleModBanFromCommunitySubmit
-                        )}
-                        aria-label={i18n.t("unban")}
-                      >
-                        {i18n.t("unban")}
-                      </button>
-                    ))}
-                  {!post_view.creator_banned_from_community && (
-                    <button
-                      class="btn btn-link btn-animate text-muted py-0"
-                      onClick={linkEvent(this, this.handleAddModToCommunity)}
-                      aria-label={
-                        this.isMod
-                          ? i18n.t("remove_as_mod")
-                          : i18n.t("appoint_as_mod")
-                      }
-                    >
-                      {this.isMod
-                        ? i18n.t("remove_as_mod")
-                        : i18n.t("appoint_as_mod")}
-                    </button>
-                  )}
-                </>
-              )}
-              {/* Community creators and admins can transfer community to another mod */}
-              {(this.amCommunityCreator || this.canAdmin) &&
-                this.isMod &&
-                (!this.state.showConfirmTransferCommunity ? (
-                  <button
-                    class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(
-                      this,
-                      this.handleShowConfirmTransferCommunity
-                    )}
-                    aria-label={i18n.t("transfer_community")}
-                  >
-                    {i18n.t("transfer_community")}
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      class="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
-                      aria-label={i18n.t("are_you_sure")}
-                    >
-                      {i18n.t("are_you_sure")}
-                    </button>
-                    <button
-                      class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
-                      aria-label={i18n.t("yes")}
-                      onClick={linkEvent(this, this.handleTransferCommunity)}
-                    >
-                      {i18n.t("yes")}
-                    </button>
-                    <button
-                      class="btn btn-link btn-animate text-muted py-0 d-inline-block"
-                      onClick={linkEvent(
-                        this,
-                        this.handleCancelShowConfirmTransferCommunity
-                      )}
-                      aria-label={i18n.t("no")}
-                    >
-                      {i18n.t("no")}
-                    </button>
-                  </>
-                ))}
-              {/* Admins can ban from all, and appoint other admins */}
-              {this.canAdmin && (
-                <>
-                  {!this.isAdmin &&
-                    (!isBanned(post_view.creator) ? (
-                      <button
-                        class="btn btn-link btn-animate text-muted py-0"
-                        onClick={linkEvent(this, this.handleModBanShow)}
-                        aria-label={i18n.t("ban_from_site")}
-                      >
-                        {i18n.t("ban_from_site")}
-                      </button>
-                    ) : (
-                      <button
-                        class="btn btn-link btn-animate text-muted py-0"
-                        onClick={linkEvent(this, this.handleModBanSubmit)}
-                        aria-label={i18n.t("unban_from_site")}
-                      >
-                        {i18n.t("unban_from_site")}
-                      </button>
-                    ))}
-                  {!isBanned(post_view.creator) && post_view.creator.local && (
-                    <button
-                      class="btn btn-link btn-animate text-muted py-0"
-                      onClick={linkEvent(this, this.handleAddAdmin)}
-                      aria-label={
-                        this.isAdmin
-                          ? i18n.t("remove_as_admin")
-                          : i18n.t("appoint_as_admin")
-                      }
-                    >
-                      {this.isAdmin
-                        ? i18n.t("remove_as_admin")
-                        : i18n.t("appoint_as_admin")}
-                    </button>
-                  )}
-                </>
-              )}
-              {/* Site Creator can transfer to another admin */}
-              {this.amSiteCreator &&
-                this.isAdmin &&
-                (!this.state.showConfirmTransferSite ? (
-                  <button
-                    class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(
-                      this,
-                      this.handleShowConfirmTransferSite
-                    )}
-                    aria-label={i18n.t("transfer_site")}
-                  >
-                    {i18n.t("transfer_site")}
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
-                      aria-label={i18n.t("are_you_sure")}
-                    >
-                      {i18n.t("are_you_sure")}
-                    </button>
-                    <button
-                      class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
-                      onClick={linkEvent(this, this.handleTransferSite)}
-                      aria-label={i18n.t("yes")}
-                    >
-                      {i18n.t("yes")}
-                    </button>
-                    <button
-                      class="btn btn-link btn-animate text-muted py-0 d-inline-block"
-                      onClick={linkEvent(
-                        this,
-                        this.handleCancelShowConfirmTransferSite
-                      )}
-                      aria-label={i18n.t("no")}
-                    >
-                      {i18n.t("no")}
-                    </button>
-                  </>
-                ))}
             </>
           )}
+          {/* Community creators and admins can transfer community to another mod */}
+          {(this.amCommunityCreator || this.canAdmin) &&
+            this.creatorIsMod &&
+            (!this.state.showConfirmTransferCommunity ? (
+              <button
+                class="btn btn-link btn-animate text-muted py-0"
+                onClick={linkEvent(
+                  this,
+                  this.handleShowConfirmTransferCommunity
+                )}
+                aria-label={i18n.t("transfer_community")}
+              >
+                {i18n.t("transfer_community")}
+              </button>
+            ) : (
+              <>
+                <button
+                  class="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
+                  aria-label={i18n.t("are_you_sure")}
+                >
+                  {i18n.t("are_you_sure")}
+                </button>
+                <button
+                  class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                  aria-label={i18n.t("yes")}
+                  onClick={linkEvent(this, this.handleTransferCommunity)}
+                >
+                  {i18n.t("yes")}
+                </button>
+                <button
+                  class="btn btn-link btn-animate text-muted py-0 d-inline-block"
+                  onClick={linkEvent(
+                    this,
+                    this.handleCancelShowConfirmTransferCommunity
+                  )}
+                  aria-label={i18n.t("no")}
+                >
+                  {i18n.t("no")}
+                </button>
+              </>
+            ))}
+          {/* Admins can ban from all, and appoint other admins */}
+          {this.canAdmin && (
+            <>
+              {!this.creatorIsAdmin &&
+                (!isBanned(post_view.creator) ? (
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
+                    onClick={linkEvent(this, this.handleModBanShow)}
+                    aria-label={i18n.t("ban_from_site")}
+                  >
+                    {i18n.t("ban_from_site")}
+                  </button>
+                ) : (
+                  <button
+                    class="btn btn-link btn-animate text-muted py-0"
+                    onClick={linkEvent(this, this.handleModBanSubmit)}
+                    aria-label={i18n.t("unban_from_site")}
+                  >
+                    {i18n.t("unban_from_site")}
+                  </button>
+                ))}
+              {!isBanned(post_view.creator) && post_view.creator.local && (
+                <button
+                  class="btn btn-link btn-animate text-muted py-0"
+                  onClick={linkEvent(this, this.handleAddAdmin)}
+                  aria-label={
+                    this.creatorIsAdmin
+                      ? i18n.t("remove_as_admin")
+                      : i18n.t("appoint_as_admin")
+                  }
+                >
+                  {this.creatorIsAdmin
+                    ? i18n.t("remove_as_admin")
+                    : i18n.t("appoint_as_admin")}
+                </button>
+              )}
+            </>
+          )}
+          {/* Site Creator can transfer to another admin */}
+          {this.amSiteCreator &&
+            this.creatorIsAdmin &&
+            (!this.state.showConfirmTransferSite ? (
+              <button
+                class="btn btn-link btn-animate text-muted py-0"
+                onClick={linkEvent(this, this.handleShowConfirmTransferSite)}
+                aria-label={i18n.t("transfer_site")}
+              >
+                {i18n.t("transfer_site")}
+              </button>
+            ) : (
+              <>
+                <button
+                  class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                  aria-label={i18n.t("are_you_sure")}
+                >
+                  {i18n.t("are_you_sure")}
+                </button>
+                <button
+                  class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                  onClick={linkEvent(this, this.handleTransferSite)}
+                  aria-label={i18n.t("yes")}
+                >
+                  {i18n.t("yes")}
+                </button>
+                <button
+                  class="btn btn-link btn-animate text-muted py-0 d-inline-block"
+                  onClick={linkEvent(
+                    this,
+                    this.handleCancelShowConfirmTransferSite
+                  )}
+                  aria-label={i18n.t("no")}
+                >
+                  {i18n.t("no")}
+                </button>
+              </>
+            ))}
         </>
       )
     );
@@ -1150,6 +1144,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.showMobilePreview()}
 
               {this.commentsLine(true)}
+              {this.userActionsLine()}
               {this.duplicatesLine()}
               {this.removeAndBanDialogs()}
             </div>
@@ -1160,23 +1155,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div class="d-none d-sm-block">
           <div class="row">
             {this.voteBar()}
-            {!this.state.imageExpanded && (
-              <div class="col-sm-2 pr-0">
-                <div class="">{this.thumbnail()}</div>
-              </div>
-            )}
-            <div
-              class={`${
-                this.state.imageExpanded ? "col-12" : "col-12 col-sm-9"
-              }`}
-            >
+            <div class="col-sm-2 pr-0">
+              <div class="">{this.thumbnail()}</div>
+            </div>
+            <div class="col-12 col-sm-9">
               <div class="row">
                 <div className="col-12">
                   {this.postTitleLine()}
                   {this.createdLine()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
-                  {this.postActions()}
+                  {this.userActionsLine()}
                   {this.removeAndBanDialogs()}
                 </div>
               </div>
@@ -1195,7 +1184,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get isMod(): boolean {
+  get creatorIsMod(): boolean {
     return (
       this.props.moderators &&
       isMod(
@@ -1205,7 +1194,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get isAdmin(): boolean {
+  get creatorIsAdmin(): boolean {
     return (
       this.props.admins &&
       isMod(
@@ -1215,6 +1204,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  /**
+   * If the current user is allowed to mod this post.
+   * The creator of this post is not allowed even if they are a mod.
+   */
   get canMod(): boolean {
     if (this.props.admins && this.props.moderators) {
       let adminsThenMods = this.props.admins
@@ -1231,6 +1224,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
+  /**
+   * If the current user is allowed to mod this post.
+   * The creator of this post is allowed if they are a mod.
+   */
   get canModOnSelf(): boolean {
     if (this.props.admins && this.props.moderators) {
       let adminsThenMods = this.props.admins
@@ -1569,7 +1566,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let form: AddModToCommunity = {
       person_id: i.props.post_view.creator.id,
       community_id: i.props.post_view.community.id,
-      added: !i.isMod,
+      added: !i.creatorIsMod,
       auth: authField(),
     };
     WebSocketService.Instance.send(wsClient.addModToCommunity(form));
@@ -1579,7 +1576,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleAddAdmin(i: PostListing) {
     let form: AddAdmin = {
       person_id: i.props.post_view.creator.id,
-      added: !i.isAdmin,
+      added: !i.creatorIsAdmin,
       auth: authField(),
     };
     WebSocketService.Instance.send(wsClient.addAdmin(form));
@@ -1630,7 +1627,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
     i.state.imageExpanded = !i.state.imageExpanded;
+    i.state.showBody = i.state.imageExpanded;
     i.setState(i.state);
+    setupTippy();
   }
 
   handleViewSource(i: PostListing) {
