@@ -354,6 +354,10 @@ export class Community extends Component<any, State> {
   }
 
   selects() {
+    let communityRss = communityRSSUrl(
+      this.state.communityRes.community_view.community.actor_id,
+      this.state.sort
+    );
     return (
       <div class="mb-3">
         <span class="mr-3">
@@ -365,16 +369,10 @@ export class Community extends Component<any, State> {
         <span class="mr-2">
           <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
         </span>
-        <a
-          href={communityRSSUrl(
-            this.state.communityRes.community_view.community.actor_id,
-            this.state.sort
-          )}
-          title="RSS"
-          rel="noopener"
-        >
+        <a href={communityRss} title="RSS" rel="noopener">
           <Icon icon="rss" classes="text-muted small" />
         </a>
+        <link rel="alternate" type="application/atom+xml" href={communityRss} />
       </div>
     );
   }
