@@ -645,7 +645,7 @@ export class Post extends Component<any, PostState> {
         p => p.post.id != Number(this.props.match.params.id)
       );
       this.setState(this.state);
-    } else if (op == UserOperation.TransferSite) {
+    } else if (op == UserOperation.LeaveAdmin) {
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
       this.state.siteRes = data;
       this.setState(this.state);

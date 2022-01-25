@@ -18,7 +18,6 @@ import {
   SavePost,
   StickyPost,
   TransferCommunity,
-  TransferSite,
 } from "lemmy-js-client";
 import { externalHost } from "../../env";
 import { i18n } from "../../i18next";
@@ -934,44 +933,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               )}
             </>
           )}
-          {/* Site Creator can transfer to another admin */}
-          {this.amSiteCreator &&
-            this.creatorIsAdmin &&
-            (!this.state.showConfirmTransferSite ? (
-              <button
-                class="btn btn-link btn-animate text-muted py-0"
-                onClick={linkEvent(this, this.handleShowConfirmTransferSite)}
-                aria-label={i18n.t("transfer_site")}
-              >
-                {i18n.t("transfer_site")}
-              </button>
-            ) : (
-              <>
-                <button
-                  class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
-                  aria-label={i18n.t("are_you_sure")}
-                >
-                  {i18n.t("are_you_sure")}
-                </button>
-                <button
-                  class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
-                  onClick={linkEvent(this, this.handleTransferSite)}
-                  aria-label={i18n.t("yes")}
-                >
-                  {i18n.t("yes")}
-                </button>
-                <button
-                  class="btn btn-link btn-animate text-muted py-0 d-inline-block"
-                  onClick={linkEvent(
-                    this,
-                    this.handleCancelShowConfirmTransferSite
-                  )}
-                  aria-label={i18n.t("no")}
-                >
-                  {i18n.t("no")}
-                </button>
-              </>
-            ))}
         </>
       )
     );
@@ -1610,16 +1571,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleCancelShowConfirmTransferSite(i: PostListing) {
-    i.state.showConfirmTransferSite = false;
-    i.setState(i.state);
-  }
-
-  handleTransferSite(i: PostListing) {
-    let form: TransferSite = {
-      person_id: i.props.post_view.creator.id,
-      auth: authField(),
-    };
-    WebSocketService.Instance.send(wsClient.transferSite(form));
     i.state.showConfirmTransferSite = false;
     i.setState(i.state);
   }
