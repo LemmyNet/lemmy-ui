@@ -141,6 +141,14 @@ export class Signup extends Component<any, State> {
         <h5>{this.titleName}</h5>
 
         <div class="form-group row">
+          {this.isLemmyMl && (
+            <div class="mt-2 mb-0 alert alert-light" role="alert">
+              <T i18nKey="lemmy_ml_registration_message">
+                #<a href={joinLemmyUrl}>#</a>
+              </T>
+            </div>
+          )}
+
           <label class="col-sm-2 col-form-label" htmlFor="register-username">
             {i18n.t("username")}
           </label>
@@ -314,13 +322,6 @@ export class Signup extends Component<any, State> {
                 </label>
               </div>
             </div>
-          </div>
-        )}
-        {this.isLemmyMl && (
-          <div class="mt-2 mb-0 alert alert-light" role="alert">
-            <T i18nKey="lemmy_ml_registration_message">
-              #<a href={joinLemmyUrl}>#</a>
-            </T>
           </div>
         )}
         <input
