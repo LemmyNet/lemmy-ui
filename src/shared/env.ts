@@ -1,6 +1,6 @@
 import { isBrowser } from "./utils";
 
-const testHost = "localhost:8536";
+const testHost = "127.0.0.1:8536";
 
 let internalHost =
   (!isBrowser() && process.env.LEMMY_INTERNAL_HOST) || testHost; // used for local dev
