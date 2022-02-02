@@ -669,6 +669,12 @@ export class Home extends Component<any, HomeState> {
   }
 
   selects() {
+    let allRss = `/feeds/all.xml?sort=${this.state.sort}`;
+    let localRss = `/feeds/local.xml?sort=${this.state.sort}`;
+    let frontRss = UserService.Instance.myUserInfo
+      ? `/feeds/front/${UserService.Instance.auth}.xml?sort=${this.state.sort}`
+      : "";
+
     return (
       <div className="mb-3">
         <span class="mr-3">
@@ -688,32 +694,33 @@ export class Home extends Component<any, HomeState> {
           <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
         </span>
         {this.state.listingType == ListingType.All && (
-          <a
-            href={`/feeds/all.xml?sort=${this.state.sort}`}
-            rel="noopener"
-            title="RSS"
-          >
-            <Icon icon="rss" classes="text-muted small" />
-          </a>
+          <>
+            <a href={allRss} rel="noopener" title="RSS">
+              <Icon icon="rss" classes="text-muted small" />
+            </a>
+            <link rel="alternate" type="application/atom+xml" href={allRss} />
+          </>
         )}
         {this.state.listingType == ListingType.Local && (
-          <a
-            href={`/feeds/local.xml?sort=${this.state.sort}`}
-            rel="noopener"
-            title="RSS"
-          >
-            <Icon icon="rss" classes="text-muted small" />
-          </a>
+          <>
+            <a href={localRss} rel="noopener" title="RSS">
+              <Icon icon="rss" classes="text-muted small" />
+            </a>
+            <link rel="alternate" type="application/atom+xml" href={localRss} />
+          </>
         )}
         {UserService.Instance.myUserInfo &&
           this.state.listingType == ListingType.Subscribed && (
-            <a
-              href={`/feeds/front/${UserService.Instance.auth}.xml?sort=${this.state.sort}`}
-              title="RSS"
-              rel="noopener"
-            >
-              <Icon icon="rss" classes="text-muted small" />
-            </a>
+            <>
+              <a href={frontRss} title="RSS" rel="noopener">
+                <Icon icon="rss" classes="text-muted small" />
+              </a>
+              <link
+                rel="alternate"
+                type="application/atom+xml"
+                href={frontRss}
+              />
+            </>
           )}
       </div>
     );

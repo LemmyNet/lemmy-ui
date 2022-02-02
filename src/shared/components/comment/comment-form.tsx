@@ -85,7 +85,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             placeholder={i18n.t("comment_here")}
           />
         ) : (
-          <div class="alert alert-light" role="alert">
+          <div class="alert alert-warning" role="alert">
             <Icon icon="alert-triangle" classes="icon-inline mr-2" />
             <T i18nKey="must_login" class="d-inline">
               #

@@ -30,6 +30,7 @@ import {
 } from "lemmy-js-client";
 import markdown_it from "markdown-it";
 import markdown_it_container from "markdown-it-container";
+import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
@@ -225,6 +226,7 @@ export const md = new markdown_it({
 })
   .use(markdown_it_sub)
   .use(markdown_it_sup)
+  .use(markdown_it_footnote)
   .use(markdown_it_html5_embed, {
     html5embed: {
       useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
@@ -1103,7 +1105,7 @@ export function updatePostReportRes(
   data: PostReportView,
   reports: PostReportView[]
 ) {
-  let found = reports.find(p => p.post.id == data.post.id);
+  let found = reports.find(p => p.post_report.id == data.post_report.id);
   if (found) {
     found.post_report = data.post_report;
   }
@@ -1113,7 +1115,7 @@ export function updateCommentReportRes(
   data: CommentReportView,
   reports: CommentReportView[]
 ) {
-  let found = reports.find(c => c.comment.id == data.comment.id);
+  let found = reports.find(c => c.comment_report.id == data.comment_report.id);
   if (found) {
     found.comment_report = data.comment_report;
   }

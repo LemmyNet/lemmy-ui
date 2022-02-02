@@ -140,6 +140,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   render() {
+    let inboxRss = `/feeds/inbox/${UserService.Instance.auth}.xml`;
     return (
       <div class="container">
         {this.state.loading ? (
@@ -156,13 +157,14 @@ export class Inbox extends Component<any, InboxState> {
               <h5 class="mb-2">
                 {i18n.t("inbox")}
                 <small>
-                  <a
-                    href={`/feeds/inbox/${UserService.Instance.auth}.xml`}
-                    title="RSS"
-                    rel="noopener"
-                  >
+                  <a href={inboxRss} title="RSS" rel="noopener">
                     <Icon icon="rss" classes="ml-2 text-muted small" />
                   </a>
+                  <link
+                    rel="alternate"
+                    type="application/atom+xml"
+                    href={inboxRss}
+                  />
                 </small>
               </h5>
               {this.state.replies.length +

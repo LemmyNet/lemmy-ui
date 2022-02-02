@@ -335,6 +335,8 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   selects() {
+    let profileRss = `/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`;
+
     return (
       <div className="mb-2">
         <span class="mr-3">{this.viewRadios()}</span>
@@ -344,13 +346,10 @@ export class Profile extends Component<any, ProfileState> {
           hideHot
           hideMostComments
         />
-        <a
-          href={`/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`}
-          rel="noopener"
-          title="RSS"
-        >
+        <a href={profileRss} rel="noopener" title="RSS">
           <Icon icon="rss" classes="text-muted small mx-2" />
         </a>
+        <link rel="alternate" type="application/atom+xml" href={profileRss} />
       </div>
     );
   }

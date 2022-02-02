@@ -140,6 +140,16 @@ export class Signup extends Component<any, State> {
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
         <h5>{this.titleName}</h5>
 
+        {this.isLemmyMl && (
+          <div class="form-group row">
+            <div class="mt-2 mb-0 alert alert-warning" role="alert">
+              <T i18nKey="lemmy_ml_registration_message">
+                #<a href={joinLemmyUrl}>#</a>
+              </T>
+            </div>
+          </div>
+        )}
+
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" htmlFor="register-username">
             {i18n.t("username")}
@@ -182,7 +192,7 @@ export class Signup extends Component<any, State> {
             />
             {!this.state.site_view.site.require_email_verification &&
               !validEmail(this.state.registerForm.email) && (
-                <div class="mt-2 mb-0 alert alert-light" role="alert">
+                <div class="mt-2 mb-0 alert alert-warning" role="alert">
                   <Icon icon="alert-triangle" classes="icon-inline mr-2" />
                   {i18n.t("no_password_reset")}
                 </div>
@@ -239,7 +249,7 @@ export class Signup extends Component<any, State> {
           <>
             <div class="form-group row">
               <div class="offset-sm-2 col-sm-10">
-                <div class="mt-2 alert alert-light" role="alert">
+                <div class="mt-2 alert alert-warning" role="alert">
                   <Icon icon="alert-triangle" classes="icon-inline mr-2" />
                   {i18n.t("fill_out_application")}
                 </div>
@@ -314,13 +324,6 @@ export class Signup extends Component<any, State> {
                 </label>
               </div>
             </div>
-          </div>
-        )}
-        {this.isLemmyMl && (
-          <div class="mt-2 mb-0 alert alert-light" role="alert">
-            <T i18nKey="lemmy_ml_registration_message">
-              #<a href={joinLemmyUrl}>#</a>
-            </T>
           </div>
         )}
         <input
