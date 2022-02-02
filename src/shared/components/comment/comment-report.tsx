@@ -56,6 +56,8 @@ export class CommentReport extends Component<CommentReportProps, any> {
           moderators={[]}
           admins={[]}
           enableDownvotes={true}
+          viewOnly={true}
+          showCommunity={true}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />

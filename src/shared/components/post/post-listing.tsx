@@ -82,6 +82,7 @@ interface PostListingProps {
   admins?: PersonViewSafe[];
   enableDownvotes: boolean;
   enableNsfw: boolean;
+  viewOnly?: boolean;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -513,8 +514,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <div class="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
-        {mobile && this.mobileVotes}
-        {UserService.Instance.myUserInfo && this.postActions(mobile)}
+        {mobile && !this.props.viewOnly && this.mobileVotes}
+        {UserService.Instance.myUserInfo &&
+          !this.props.viewOnly &&
+          this.postActions(mobile)}
       </div>
     );
   }
@@ -1154,7 +1157,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {/* The larger view*/}
         <div class="d-none d-sm-block">
           <div class="row">
-            {this.voteBar()}
+            {!this.props.viewOnly && this.voteBar()}
             <div class="col-sm-2 pr-0">
               <div class="">{this.thumbnail()}</div>
             </div>

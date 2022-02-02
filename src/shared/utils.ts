@@ -1103,7 +1103,7 @@ export function updatePostReportRes(
   data: PostReportView,
   reports: PostReportView[]
 ) {
-  let found = reports.find(p => p.post.id == data.post.id);
+  let found = reports.find(p => p.post_report.id == data.post_report.id);
   if (found) {
     found.post_report = data.post_report;
   }
@@ -1113,7 +1113,7 @@ export function updateCommentReportRes(
   data: CommentReportView,
   reports: CommentReportView[]
 ) {
-  let found = reports.find(c => c.comment.id == data.comment.id);
+  let found = reports.find(c => c.comment_report.id == data.comment_report.id);
   if (found) {
     found.comment_report = data.comment_report;
   }
