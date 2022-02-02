@@ -118,7 +118,6 @@ export class Signup extends Component<any, State> {
   }
 
   get isLemmyMl(): boolean {
-    return true;
     return isBrowser() && window.location.hostname == "lemmy.ml";
   }
 
