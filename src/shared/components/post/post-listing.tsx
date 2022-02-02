@@ -1627,7 +1627,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
     i.state.imageExpanded = !i.state.imageExpanded;
-    i.state.showBody = i.state.imageExpanded;
     i.setState(i.state);
     setupTippy();
   }
