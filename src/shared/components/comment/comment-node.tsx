@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
@@ -849,14 +850,30 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   linkBtn(small = false) {
     let cv = this.props.node.comment_view;
+    let classnames = classNames("btn btn-link btn-animate text-muted", {
+      "btn-sm": small,
+    });
+
+    let title = this.props.showContext
+      ? i18n.t("show_context")
+      : i18n.t("link");
+
     return (
-      <Link
-        className={`btn ${small && "btn-sm"} btn-link btn-animate text-muted`}
-        to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
-        title={this.props.showContext ? i18n.t("show_context") : i18n.t("link")}
-      >
-        <Icon icon="link" classes="icon-inline" />
-      </Link>
+      <>
+        <Link
+          className={classnames}
+          to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
+          title={title}
+        >
+          <Icon icon="link" classes="icon-inline" />
+        </Link>
+        {/* TODO comment ap_ids are currently broken anyway, so use post.ap_id, and wait until comment tree / endpoint refactor */}
+        {!cv.comment.local && (
+          <a className={classnames} title={title} href={cv.post.ap_id}>
+            <Icon icon="fedilink" classes="icon-inline" />
+          </a>
+        )}
+      </>
     );
   }
 
