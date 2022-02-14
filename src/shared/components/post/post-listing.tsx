@@ -445,6 +445,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               />
             </button>
           )}
+          {!post.local && (
+            <a className="ml-2" title={i18n.t("link")} href={post.ap_id}>
+              <Icon icon="fedilink" />
+            </a>
+          )}
           {post.removed && (
             <small className="ml-2 text-muted font-italic">
               {i18n.t("removed")}
