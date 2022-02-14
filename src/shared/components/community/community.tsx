@@ -213,6 +213,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         saved_only: false,
       };
+      this.setName(getCommentsForm, name_);
       setOptionalAuth(getCommentsForm, req.auth);
       promises.push(req.client.getComments(getCommentsForm));
     }
