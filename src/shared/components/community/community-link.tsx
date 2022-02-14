@@ -58,7 +58,6 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     let community = this.props.community;
     return (
       <>
-        <!-- deleteme: if community doesn't have an icon, create an empty placeholder -->
         {!this.props.hideAvatar && showAvatars() && (
           <PictrsImage src={community.icon || ""} icon />
         )}
