@@ -195,16 +195,7 @@ export class Post extends Component<any, PostState> {
     document.addEventListener("scroll", this.commentScrollDebounced);
   }
 
-  componentDidUpdate(_lastProps: any, lastState: PostState) {
-    if (
-      this.state.commentId &&
-      !this.state.scrolled &&
-      lastState.postRes &&
-      lastState.postRes.comments.length > 0
-    ) {
-      this.scrollCommentIntoView();
-    }
-
+  componentDidUpdate(_lastProps: any) {
     // Necessary if you are on a post and you click another post (same route)
     if (_lastProps.location.pathname !== _lastProps.history.location.pathname) {
       // TODO Couldnt get a refresh working. This does for now.
@@ -547,6 +538,10 @@ export class Post extends Component<any, PostState> {
 
       if (this.checkScrollIntoCommentsParam) {
         this.scrollIntoCommentSection();
+      }
+
+      if (this.state.commentId && !this.state.scrolled) {
+        this.scrollCommentIntoView();
       }
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
