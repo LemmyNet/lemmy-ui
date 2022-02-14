@@ -3,7 +3,6 @@ import { Link } from "inferno-router";
 import { CommunitySafe } from "lemmy-js-client";
 import { hostname, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
-import { BannerIconHeader } from "../common/banner-icon-header";
 
 interface CommunityLinkProps {
   // TODO figure this out better
@@ -12,7 +11,6 @@ interface CommunityLinkProps {
   useApubName?: boolean;
   muted?: boolean;
   hideAvatar?: boolean;
-  defaultIcon: string;
 }
 
 export class CommunityLink extends Component<CommunityLinkProps, any> {
