@@ -39,6 +39,7 @@ interface AdminSettingsState {
   loading: boolean;
   banned: PersonViewSafe[];
   siteConfigLoading: boolean;
+  leaveAdminTeamLoading: boolean;
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
@@ -57,6 +58,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     banned: [],
     loading: true,
     siteConfigLoading: null,
+    leaveAdminTeamLoading: null,
   };
 
   constructor(props: any, context: any) {
@@ -159,7 +161,23 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             </li>
           ))}
         </ul>
+        {this.leaveAdmin()}
       </>
+    );
+  }
+
+  leaveAdmin() {
+    return (
+      <button
+        onClick={linkEvent(this, this.handleLeaveAdminTeam)}
+        class="btn btn-danger mb-2"
+      >
+        {this.state.leaveAdminTeamLoading ? (
+          <Spinner />
+        ) : (
+          i18n.t("leave_admin_team")
+        )}
+      </button>
     );
   }
 
@@ -230,6 +248,12 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     i.setState(i.state);
   }
 
+  handleLeaveAdminTeam(i: AdminSettings) {
+    i.state.leaveAdminTeamLoading = true;
+    WebSocketService.Instance.send(wsClient.leaveAdmin({ auth: authField() }));
+    i.setState(i.state);
+  }
+
   parseMessage(msg: any) {
     let op = wsUserOp(msg);
     console.log(msg);
@@ -257,6 +281,14 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.setState(this.state);
       var textarea: any = document.getElementById(this.siteConfigTextAreaId);
       autosize(textarea);
+    } else if (op == UserOperation.LeaveAdmin) {
+      let data = wsJsonToRes<GetSiteResponse>(msg).data;
+      this.state.siteRes.site_view = data.site_view;
+      this.setState(this.state);
+      this.state.leaveAdminTeamLoading = false;
+      toast(i18n.t("left_admin_team"));
+      this.setState(this.state);
+      this.context.router.history.push("/");
     } else if (op == UserOperation.SaveSiteConfig) {
       let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
