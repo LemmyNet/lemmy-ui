@@ -459,6 +459,21 @@ export class MarkdownTextArea extends Component<
     }
     this.contentChange();
     this.setState(this.state);
+
+    textarea.focus();
+
+    if (start !== end) {
+      textarea.setSelectionRange(
+        start + beforeChars.length,
+        end + afterChars.length
+      );
+    } else {
+      textarea.setSelectionRange(
+        start + beforeChars.length,
+        end + emptyChars.length + afterChars.length
+      );
+    }
+
     setTimeout(() => {
       autosize.update(textarea);
     }, 10);
