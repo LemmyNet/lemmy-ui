@@ -213,6 +213,14 @@ hr {
   overflow-wrap: anywhere;
 }
 
+.avatar-name-container {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  line-height: 1.2rem;
+  margin-top: 0.5rem;
+}
+
 #app {
   display: flex;
   flex-direction: column;
