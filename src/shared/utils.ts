@@ -1,5 +1,4 @@
 import emojiShortName from "emoji-short-name";
-import ISO6391 from "iso-639-1";
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
@@ -116,54 +115,54 @@ export const fetchLimit = 20;
 export const mentionDropdownFetchLimit = 10;
 
 export const languages = [
-  { code: "ca" },
-  { code: "en" },
-  { code: "el" },
-  { code: "eu" },
-  { code: "eo" },
-  { code: "es" },
-  { code: "da" },
-  { code: "de" },
-  { code: "ga" },
-  { code: "gl" },
-  { code: "hr" },
-  { code: "hu" },
-  { code: "id" },
-  { code: "ka" },
-  { code: "ko" },
-  { code: "km" },
-  { code: "hi" },
-  { code: "fa" },
-  { code: "ja" },
-  { code: "oc" },
-  { code: "nb_NO" },
-  { code: "pl" },
-  { code: "pt_BR" },
-  { code: "zh" },
-  { code: "fi" },
-  { code: "fr" },
-  { code: "sv" },
-  { code: "sq" },
-  { code: "sr_Latn" },
-  { code: "th" },
-  { code: "tr" },
-  { code: "uk" },
-  { code: "ru" },
-  { code: "nl" },
-  { code: "it" },
-  { code: "bg" },
-  { code: "zh_Hant" },
-  { code: "cy" },
-  { code: "mnc" },
-  { code: "sk" },
-  { code: "vi" },
-  { code: "pt" },
-  { code: "ar" },
-  { code: "bn" },
-  { code: "ml" },
-  { code: "cs" },
-  { code: "as" },
-  { code: "lt" },
+  { code: "ca", name: "Català" },
+  { code: "en", name: "English" },
+  { code: "el", name: "Ελληνικά" },
+  { code: "eu", name: "Euskara" },
+  { code: "eo", name: "Esperanto" },
+  { code: "es", name: "Español" },
+  { code: "da", name: "Dansk" },
+  { code: "de", name: "Deutsch" },
+  { code: "ga", name: "Gaeilge" },
+  { code: "gl", name: "Galego" },
+  { code: "hr", name: "Hrvatski" },
+  { code: "hu", name: "Magyar" },
+  { code: "id", name: "Bahasa Indonesia" },
+  { code: "ka", name: "ქართული" },
+  { code: "ko", name: "한국어" },
+  { code: "km", name: "ខេមរភាសា" },
+  { code: "hi", name: "हिन्दी" },
+  { code: "fa", name: "فارسی" },
+  { code: "ja", name: "日本語" },
+  { code: "oc", name: "Occitan" },
+  { code: "nb_NO", name: "Norsk (bokmål)" },
+  { code: "pl", name: "Polski" },
+  { code: "pt_BR", name: "Português (Brasil)" },
+  { code: "zh", name: "中文" },
+  { code: "fi", name: "Suomi" },
+  { code: "fr", name: "Français" },
+  { code: "sv", name: "Svenska" },
+  { code: "sq", name: "Shqip" },
+  { code: "sr_Latn", name: "Српски" },
+  { code: "th", name: "ไทย" },
+  { code: "tr", name: "Türkçe" },
+  { code: "uk", name: "Українська" },
+  { code: "ru", name: "Русский" },
+  { code: "nl", name: "Nederlands" },
+  { code: "it", name: "Italiano" },
+  { code: "bg", name: "Български" },
+  { code: "zh_Hant", name: "文言" },
+  { code: "cy", name: "Cymraeg" },
+  { code: "mnc", name: "ᠮᠠᠨᠵᡠ ᡤᡳᠰᡠᠨ" },
+  { code: "sk", name: "Slovenčina" },
+  { code: "vi", name: "Tiếng Việt" },
+  { code: "pt", name: "Português" },
+  { code: "ar", name: "العربية" },
+  { code: "bn", name: "বাংলা" },
+  { code: "ml", name: "മലയാളം" },
+  { code: "cs", name: "Česky" },
+  { code: "as", name: "অসমীয়া" },
+  { code: "lt", name: "Lietuvių" },
 ];
 
 export const themes = [
@@ -429,15 +428,7 @@ export function debounce(func: any, wait = 1000, immediate = false) {
 }
 
 export function getNativeLanguageName(code: string): string {
-  let [isoCode, qualifier] = code.split("_");
-
-  let native = ISO6391.getNativeName(isoCode) || code;
-
-  if (qualifier) {
-    return `${native}_${qualifier}`;
-  } else {
-    return native;
-  }
+  return languages.filter(c => c.code === code).map(l => l.name)[0];
 }
 
 // TODO
