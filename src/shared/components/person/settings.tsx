@@ -29,6 +29,7 @@ import {
   debounce,
   elementUrl,
   fetchCommunities,
+  fetchThemes,
   fetchUsers,
   getLanguage,
   getNativeLanguageName,
@@ -40,7 +41,6 @@ import {
   setTheme,
   setupTippy,
   showLocal,
-  themes,
   toast,
   updateCommunityBlock,
   updatePersonBlock,
@@ -548,7 +548,7 @@ export class Settings extends Component<any, SettingsState> {
                   {i18n.t("theme")}
                 </option>
                 <option value="browser">{i18n.t("browser_default")}</option>
-                {themes.map(theme => (
+                {fetchThemes().map(theme => (
                   <option value={theme}>{theme}</option>
                 ))}
               </select>

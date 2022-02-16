@@ -166,24 +166,22 @@ export const languages = [
   { code: "lt" },
 ];
 
-export function themes() {
-  const builtinThemes = [
-    "litera",
-    "materia",
-    "minty",
-    "solar",
-    "united",
-    "cyborg",
-    "darkly",
-    "journal",
-    "sketchy",
-    "vaporwave",
-    "vaporwave-dark",
-    "i386",
-    "litely",
-    "nord",
-  ];
-  return builtinThemes;
+export function fetchThemes(): Promise<string[]> {
+  var promise = new Promise<string[]>((resolve, reject) => {
+    if (isBrowser()) {
+      const url = `${window.location.protocol}//${window.location.host}/css/themes-list`;
+      console.log(url);
+      fetch(url).then(res => {
+        res.json().then(json => {
+          console.log(json);
+          resolve(json);
+        });
+      });
+    } else {
+      listThemes().then(themes => resolve(themes));
+    }
+  });
+  return promise;
 }
 
 const DEFAULT_ALPHABET =

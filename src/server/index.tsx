@@ -66,18 +66,23 @@ server.get("/css/themes-list", async (req, res) => {
     "litely",
     "nord",
   ];
-  fs.readdir(extraThemesFolder, function (err, data) {
-    data = data
-      .filter(d => d.endsWith(".min.css"))
-      .map(d => d.replace(".min.css", ""));
-    data = builtinThemes.concat(data);
-    // use set to remove duplicate values
-    data = Array.from(new Set(data));
-    res.send(data);
+  fs.readdir(extraThemesFolder, function (_, data) {
+    if (data != null) {
+      data = data
+        .filter(d => d.endsWith(".min.css"))
+        .map(d => d.replace(".min.css", ""));
+      data = builtinThemes.concat(data);
+      // use set to remove duplicate values
+      data = Array.from(new Set(data));
+      res.send(data);
+    } else {
+      res.send(builtinThemes);
+    }
   });
 });
 
 server.get("/css/themes/:name", async (req, res) => {
+  res.contentType("text/css");
   const theme = req.params.name;
   if (!theme.endsWith(".css")) {
     res.send("Theme must be a css file");
