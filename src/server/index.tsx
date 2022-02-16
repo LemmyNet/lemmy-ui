@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "fs";
 import { IncomingHttpHeaders } from "http";
 import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
@@ -23,6 +24,8 @@ const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
   ? process.env["LEMMY_UI_HOST"].split(":")
   : ["0.0.0.0", "1234"];
+const extraThemesFolder =
+  process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
@@ -44,6 +47,64 @@ Disallow: /search/
 server.get("/robots.txt", async (_req, res) => {
   res.setHeader("content-type", "text/plain; charset=utf-8");
   res.send(robotstxt);
+});
+
+server.get("/css/themes-list", async (req, res) => {
+  const builtinThemes = [
+    "litera",
+    "materia",
+    "minty",
+    "solar",
+    "united",
+    "cyborg",
+    "darkly",
+    "journal",
+    "sketchy",
+    "vaporwave",
+    "vaporwave-dark",
+    "i386",
+    "litely",
+    "nord",
+  ];
+  fs.readdir(extraThemesFolder, function (err, data) {
+    data = data
+      .filter(d => d.endsWith(".min.css"))
+      .map(d => d.replace(".min.css", ""));
+    data = builtinThemes.concat(data);
+    // use set to remove duplicate values
+    data = Array.from(new Set(data));
+    res.send(data);
+  });
+});
+
+server.get("/css/themes/:name", async (req, res) => {
+  const theme = req.params.name;
+  if (!theme.endsWith(".css")) {
+    res.send("Theme must be a css file");
+  }
+
+  // try extra themes first
+  fs.readFile(`${extraThemesFolder}/${theme}`, "utf8", function (err, data) {
+    if (err) {
+      // if no match found, fallback to builtin themes
+      fs.readFile(
+        `./dist/assets/css/themes/${theme}`,
+        "utf8",
+        function (err, data) {
+          if (err) {
+            const message = `No theme found for name ${theme}`;
+            res.send(message);
+            console.error(message);
+            return;
+          }
+          res.send(data);
+          return;
+        }
+      );
+      return;
+    }
+    res.send(data);
+  });
 });
 
 // server.use(cookieParser());

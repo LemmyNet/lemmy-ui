@@ -166,22 +166,25 @@ export const languages = [
   { code: "lt" },
 ];
 
-export const themes = [
-  "litera",
-  "materia",
-  "minty",
-  "solar",
-  "united",
-  "cyborg",
-  "darkly",
-  "journal",
-  "sketchy",
-  "vaporwave",
-  "vaporwave-dark",
-  "i386",
-  "litely",
-  "nord",
-];
+export function themes() {
+  const builtinThemes = [
+    "litera",
+    "materia",
+    "minty",
+    "solar",
+    "united",
+    "cyborg",
+    "darkly",
+    "journal",
+    "sketchy",
+    "vaporwave",
+    "vaporwave-dark",
+    "i386",
+    "litely",
+    "nord",
+  ];
+  return builtinThemes;
+}
 
 const DEFAULT_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
