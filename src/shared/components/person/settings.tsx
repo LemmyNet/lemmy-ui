@@ -18,7 +18,7 @@ import {
   UserOperation,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { i18n } from "../../i18next";
+import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
@@ -30,10 +30,8 @@ import {
   elementUrl,
   fetchCommunities,
   fetchUsers,
-  getLanguage,
-  getNativeLanguageName,
+  getLanguages,
   isBrowser,
-  languages,
   personSelectName,
   personToChoice,
   setIsoData,
@@ -527,7 +525,7 @@ export class Settings extends Component<any, SettingsState> {
                   .sort((a, b) => a.code.localeCompare(b.code))
                   .map(lang => (
                     <option value={lang.code}>
-                      {getNativeLanguageName(lang.code)}
+                      {getLanguages(lang.code)[0]}
                     </option>
                   ))}
               </select>
@@ -935,7 +933,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleLangChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.lang = event.target.value;
-    i18n.changeLanguage(getLanguage(i.state.saveUserSettingsForm.lang));
+    i18n.changeLanguage(getLanguages(i.state.saveUserSettingsForm.lang)[0]);
     i.setState(i.state);
   }
 

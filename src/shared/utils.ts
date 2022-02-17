@@ -34,51 +34,12 @@ import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import moment from "moment";
-import "moment/locale/bg";
-import "moment/locale/bn";
-import "moment/locale/ca";
-import "moment/locale/cs";
-import "moment/locale/cy";
-import "moment/locale/da";
-import "moment/locale/de";
-import "moment/locale/el";
-import "moment/locale/eo";
-import "moment/locale/es";
-import "moment/locale/eu";
-import "moment/locale/fa";
-import "moment/locale/fi";
-import "moment/locale/fr";
-import "moment/locale/ga";
-import "moment/locale/gl";
-import "moment/locale/hi";
-import "moment/locale/hr";
-import "moment/locale/hu";
-import "moment/locale/id";
-import "moment/locale/it";
-import "moment/locale/ja";
-import "moment/locale/ka";
-import "moment/locale/km";
-import "moment/locale/ko";
-import "moment/locale/ml";
-import "moment/locale/nb";
-import "moment/locale/nl";
-import "moment/locale/pl";
-import "moment/locale/pt-br";
-import "moment/locale/ru";
-import "moment/locale/sk";
-import "moment/locale/sq";
-import "moment/locale/sr";
-import "moment/locale/sv";
-import "moment/locale/tr";
-import "moment/locale/uk";
-import "moment/locale/vi";
-import "moment/locale/zh-cn";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { httpBase } from "./env";
-import { i18n } from "./i18next";
+import { i18n, languages } from "./i18next";
 import {
   CommentNode as CommentNodeI,
   CommentSortType,
@@ -113,57 +74,6 @@ export const elementUrl = "https://element.io";
 export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit = 20;
 export const mentionDropdownFetchLimit = 10;
-
-export const languages = [
-  { code: "ca", name: "Català" },
-  { code: "en", name: "English" },
-  { code: "el", name: "Ελληνικά" },
-  { code: "eu", name: "Euskara" },
-  { code: "eo", name: "Esperanto" },
-  { code: "es", name: "Español" },
-  { code: "da", name: "Dansk" },
-  { code: "de", name: "Deutsch" },
-  { code: "ga", name: "Gaeilge" },
-  { code: "gl", name: "Galego" },
-  { code: "hr", name: "Hrvatski" },
-  { code: "hu", name: "Magyar" },
-  { code: "id", name: "Bahasa Indonesia" },
-  { code: "ka", name: "ქართული" },
-  { code: "ko", name: "한국어" },
-  { code: "km", name: "ខេមរភាសា" },
-  { code: "hi", name: "हिन्दी" },
-  { code: "fa", name: "فارسی" },
-  { code: "ja", name: "日本語" },
-  { code: "oc", name: "Occitan" },
-  { code: "nb_NO", name: "Norsk (bokmål)" },
-  { code: "pl", name: "Polski" },
-  { code: "pt_BR", name: "Português (Brasil)" },
-  { code: "zh", name: "中文" },
-  { code: "fi", name: "Suomi" },
-  { code: "fr", name: "Français" },
-  { code: "sv", name: "Svenska" },
-  { code: "sq", name: "Shqip" },
-  { code: "sr_Latn", name: "Српски" },
-  { code: "th", name: "ไทย" },
-  { code: "tr", name: "Türkçe" },
-  { code: "uk", name: "Українська" },
-  { code: "ru", name: "Русский" },
-  { code: "nl", name: "Nederlands" },
-  { code: "it", name: "Italiano" },
-  { code: "bg", name: "Български" },
-  { code: "zh_Hant", name: "文言" },
-  { code: "cy", name: "Cymraeg" },
-  { code: "mnc", name: "ᠮᠠᠨᠵᡠ ᡤᡳᠰᡠᠨ" },
-  { code: "sk", name: "Slovenčina" },
-  { code: "vi", name: "Tiếng Việt" },
-  { code: "pt", name: "Português" },
-  { code: "ar", name: "العربية" },
-  { code: "bn", name: "বাংলা" },
-  { code: "ml", name: "മലയാളം" },
-  { code: "cs", name: "Česky" },
-  { code: "as", name: "অসমীয়া" },
-  { code: "lt", name: "Lietuvių" },
-];
 
 export const themes = [
   "litera",
@@ -427,12 +337,7 @@ export function debounce(func: any, wait = 1000, immediate = false) {
   };
 }
 
-export function getNativeLanguageName(code: string): string {
-  return languages.filter(c => c.code === code).map(l => l.name)[0];
-}
-
-// TODO
-export function getLanguage(override?: string): string {
+export function getLanguages(override?: string): string[] {
   let myUserInfo = UserService.Instance.myUserInfo;
   let lang =
     override ||
@@ -441,13 +346,13 @@ export function getLanguage(override?: string): string {
       : "browser");
 
   if (lang == "browser" && isBrowser()) {
-    return getBrowserLanguage();
+    return getBrowserLanguages();
   } else {
-    return lang;
+    return [lang];
   }
 }
 
-export function getBrowserLanguage(): string {
+function getBrowserLanguages(): string[] {
   // Intersect lemmy's langs, with the browser langs
   let langs = languages ? languages.map(l => l.code) : ["en"];
 
@@ -455,105 +360,7 @@ export function getBrowserLanguage(): string {
   let allowedLangs = navigator.languages
     .concat("en")
     .filter(v => langs.includes(v));
-  return allowedLangs[0];
-}
-
-export function getMomentLanguage(): string {
-  let lang = getLanguage();
-  if (lang.startsWith("zh")) {
-    lang = "zh-cn";
-  } else if (lang.startsWith("sv")) {
-    lang = "sv";
-  } else if (lang.startsWith("fr")) {
-    lang = "fr";
-  } else if (lang.startsWith("de")) {
-    lang = "de";
-  } else if (lang.startsWith("ru")) {
-    lang = "ru";
-  } else if (lang.startsWith("es")) {
-    lang = "es";
-  } else if (lang.startsWith("eo")) {
-    lang = "eo";
-  } else if (lang.startsWith("nl")) {
-    lang = "nl";
-  } else if (lang.startsWith("it")) {
-    lang = "it";
-  } else if (lang.startsWith("fi")) {
-    lang = "fi";
-  } else if (lang.startsWith("ca")) {
-    lang = "ca";
-  } else if (lang.startsWith("fa")) {
-    lang = "fa";
-  } else if (lang.startsWith("pl")) {
-    lang = "pl";
-  } else if (lang.startsWith("pt_BR")) {
-    lang = "pt-br";
-  } else if (lang.startsWith("ja")) {
-    lang = "ja";
-  } else if (lang.startsWith("ka")) {
-    lang = "ka";
-  } else if (lang.startsWith("hi")) {
-    lang = "hi";
-  } else if (lang.startsWith("el")) {
-    lang = "el";
-  } else if (lang.startsWith("eu")) {
-    lang = "eu";
-  } else if (lang.startsWith("gl")) {
-    lang = "gl";
-  } else if (lang.startsWith("tr")) {
-    lang = "tr";
-  } else if (lang.startsWith("hu")) {
-    lang = "hu";
-  } else if (lang.startsWith("uk")) {
-    lang = "uk";
-  } else if (lang.startsWith("sq")) {
-    lang = "sq";
-  } else if (lang.startsWith("km")) {
-    lang = "km";
-  } else if (lang.startsWith("ga")) {
-    lang = "ga";
-  } else if (lang.startsWith("sr")) {
-    lang = "sr";
-  } else if (lang.startsWith("ko")) {
-    lang = "ko";
-  } else if (lang.startsWith("da")) {
-    lang = "da";
-  } else if (lang.startsWith("oc")) {
-    lang = "oc";
-  } else if (lang.startsWith("hr")) {
-    lang = "hr";
-  } else if (lang.startsWith("th")) {
-    lang = "th";
-  } else if (lang.startsWith("bg")) {
-    lang = "bg";
-  } else if (lang.startsWith("id")) {
-    lang = "id";
-  } else if (lang.startsWith("nb")) {
-    lang = "nb";
-  } else if (lang.startsWith("cy")) {
-    lang = "cy";
-  } else if (lang.startsWith("sk")) {
-    lang = "sk";
-  } else if (lang.startsWith("vi")) {
-    lang = "vi";
-  } else if (lang.startsWith("pt")) {
-    lang = "pt";
-  } else if (lang.startsWith("ar")) {
-    lang = "ar";
-  } else if (lang.startsWith("bn")) {
-    lang = "bn";
-  } else if (lang.startsWith("ml")) {
-    lang = "ml";
-  } else if (lang.startsWith("cs")) {
-    lang = "cs";
-  } else if (lang.startsWith("as")) {
-    lang = "as";
-  } else if (lang.startsWith("lt")) {
-    lang = "lt";
-  } else {
-    lang = "en";
-  }
-  return lang;
+  return allowedLangs;
 }
 
 export function setTheme(theme: string, forceReload = false) {
@@ -1510,7 +1317,7 @@ export function personSelectName(pvs: PersonViewSafe): string {
 
 export function initializeSite(site: GetSiteResponse) {
   UserService.Instance.myUserInfo = site.my_user;
-  i18n.changeLanguage(getLanguage());
+  i18n.changeLanguage(getLanguages()[0]);
 }
 
 const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
