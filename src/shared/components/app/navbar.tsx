@@ -18,7 +18,7 @@ import { UserService, WebSocketService } from "../../services";
 import {
   authField,
   donateLemmyUrl,
-  getLanguage,
+  getLanguages,
   isBrowser,
   notifyComment,
   notifyPrivateMessage,
@@ -612,7 +612,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       setTheme(
         UserService.Instance.myUserInfo.local_user_view.local_user.theme
       );
-      i18n.changeLanguage(getLanguage());
+      i18n.changeLanguage(getLanguages()[0]);
       this.state.isLoggedIn = true;
       this.setState(this.state);
     } else if (op == UserOperation.CreateComment) {
