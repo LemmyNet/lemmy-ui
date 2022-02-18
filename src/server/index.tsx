@@ -84,7 +84,7 @@ server.get("/css/themes-list", async (req, res) => {
 server.get("/css/themes/:name", async (req, res) => {
   res.contentType("text/css");
   const theme = req.params.name;
-  if (!theme.endsWith(".css")) {
+  if (!theme.endsWith(".min.css")) {
     res.send("Theme must be a css file");
   }
 
