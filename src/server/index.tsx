@@ -88,28 +88,13 @@ server.get("/css/themes/:name", async (req, res) => {
     res.send("Theme must be a css file");
   }
 
-  // try extra themes first
-  fs.readFile(`${extraThemesFolder}/${theme}`, "utf8", function (err, data) {
-    if (err) {
-      // if no match found, fallback to builtin themes
-      fs.readFile(
-        `./dist/assets/css/themes/${theme}`,
-        "utf8",
-        function (err, data) {
-          if (err) {
-            const message = `No theme found for name ${theme}`;
-            res.send(message);
-            console.error(message);
-            return;
-          }
-          res.send(data);
-          return;
-        }
-      );
-      return;
-    }
-    res.send(data);
-  });
+  const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
+  if (fs.existsSync(customTheme)) {
+    res.sendFile(customTheme);
+  } else {
+    const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
+    res.sendFile(internalTheme);
+  }
 });
 
 // server.use(cookieParser());
