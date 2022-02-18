@@ -524,9 +524,7 @@ export class Settings extends Component<any, SettingsState> {
                 {languages
                   .sort((a, b) => a.code.localeCompare(b.code))
                   .map(lang => (
-                    <option value={lang.code}>
-                      {getLanguages(lang.code)[0]}
-                    </option>
+                    <option value={lang.code}>{lang.name}</option>
                   ))}
               </select>
             </div>
