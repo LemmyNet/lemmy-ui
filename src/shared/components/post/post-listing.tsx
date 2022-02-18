@@ -445,11 +445,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               />
             </button>
           )}
-          {!post.local && (
-            <a className="ml-2" title={i18n.t("link")} href={post.ap_id}>
-              <Icon icon="fedilink" />
-            </a>
-          )}
           {post.removed && (
             <small className="ml-2 text-muted font-italic">
               {i18n.t("removed")}
@@ -515,9 +510,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
+    let post = this.props.post_view.post;
     return (
       <div class="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
+        {!post.local && (
+          <a
+            className="btn btn-link btn-animate text-muted py-0"
+            title={i18n.t("link")}
+            href={post.ap_id}
+          >
+            <Icon icon="fedilink" inline />
+          </a>
+        )}
         {mobile && !this.props.viewOnly && this.mobileVotes}
         {UserService.Instance.myUserInfo &&
           !this.props.viewOnly &&
