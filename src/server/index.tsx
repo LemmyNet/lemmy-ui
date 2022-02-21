@@ -175,6 +175,7 @@ server.get("/*", async (req, res) => {
 
              <div id='root'>${root}</div>
              <script defer src='/static/js/client.js'></script>
+             <script defer data-domain="lemmy.ml" src="https://plausible.lemmy.ml/js/plausible.js"></script>
            </body>
          </html>
 `);
