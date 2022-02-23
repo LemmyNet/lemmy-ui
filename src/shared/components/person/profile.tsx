@@ -347,9 +347,7 @@ export class Profile extends Component<any, ProfileState> {
           hideHot
           hideMostComments
         />
-        <a href={profileRss} 
-          rel={relTags}
-        title="RSS">
+        <a href={profileRss} rel={relTags} title="RSS">
           <Icon icon="rss" classes="text-muted small mx-2" />
         </a>
         <link rel="alternate" type="application/atom+xml" href={profileRss} />
