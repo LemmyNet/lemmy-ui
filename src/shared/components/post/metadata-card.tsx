@@ -1,6 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { Post } from "lemmy-js-client";
 import { i18n } from "../../i18next";
+import { relTags } from "../../utils";
 import { Icon } from "../common/icon";
 
 interface MetadataCardProps {
@@ -35,7 +36,7 @@ export class MetadataCard extends Component<
                 <div class="card-body">
                   {post.name !== post.embed_title && [
                     <h5 class="card-title d-inline">
-                      <a class="text-body" href={post.url} rel="noopener">
+                      <a class="text-body" href={post.url} rel={relTags}>
                         {post.embed_title}
                       </a>
                     </h5>,
@@ -43,7 +44,7 @@ export class MetadataCard extends Component<
                       <a
                         class="text-muted font-italic"
                         href={post.url}
-                        rel="noopener"
+                        rel={relTags}
                       >
                         {new URL(post.url).hostname}
                         <Icon icon="external-link" classes="ml-1" />

@@ -16,6 +16,7 @@ import {
   authField,
   capitalizeFirstLetter,
   isBrowser,
+  relTags,
   setupTippy,
   toast,
   wsClient,
@@ -141,7 +142,7 @@ export class PrivateMessageForm extends Component<
                     #
                     <a
                       class="alert-link"
-                      rel="noopener"
+                      rel={relTags}
                       href="https://element.io/get-started"
                     >
                       #

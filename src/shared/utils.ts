@@ -75,6 +75,8 @@ export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit = 20;
 export const mentionDropdownFetchLimit = 10;
 
+export const relTags = "noopener nofollow";
+
 export const themes = [
   "litera",
   "materia",
