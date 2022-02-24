@@ -36,6 +36,7 @@ import {
   mdToHtml,
   numToSI,
   previewLines,
+  relTags,
   setupTippy,
   showScores,
   wsClient,
@@ -244,7 +245,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <a
           class="text-body d-inline-block position-relative mb-2"
           href={post.url}
-          rel="noopener"
+          rel={relTags}
           title={post.url}
         >
           {this.imgThumb(this.imageSrc)}
@@ -272,7 +273,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className="text-body"
             href={post.url}
             title={post.url}
-            rel="noopener"
+            rel={relTags}
           >
             <div class="thumbnail rounded bg-light d-flex justify-content-center">
               <Icon icon="external-link" classes="d-flex align-items-center" />
@@ -335,7 +336,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 className="text-muted font-italic"
                 href={post_view.post.url}
                 title={post_view.post.url}
-                rel="noopener"
+                rel={relTags}
               >
                 {hostname(post_view.post.url)}
               </a>
@@ -418,7 +419,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className={!post.stickied ? "text-body" : "text-primary"}
               href={post.url}
               title={post.url}
-              rel="noopener"
+              rel={relTags}
             >
               {post.name}
             </a>
@@ -444,11 +445,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 classes="icon-inline"
               />
             </button>
-          )}
-          {!post.local && (
-            <a className="ml-2" title={i18n.t("link")} href={post.ap_id}>
-              <Icon icon="fedilink" />
-            </a>
           )}
           {post.removed && (
             <small className="ml-2 text-muted font-italic">
@@ -515,9 +511,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
+    let post = this.props.post_view.post;
     return (
       <div class="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
+        {!post.local && (
+          <a
+            className="btn btn-link btn-animate text-muted py-0"
+            title={i18n.t("link")}
+            href={post.ap_id}
+          >
+            <Icon icon="fedilink" inline />
+          </a>
+        )}
         {mobile && !this.props.viewOnly && this.mobileVotes}
         {UserService.Instance.myUserInfo &&
           !this.props.viewOnly &&

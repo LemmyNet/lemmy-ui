@@ -33,6 +33,7 @@ import {
   isBrowser,
   isImage,
   pictrsDeleteToast,
+  relTags,
   setupTippy,
   toast,
   validTitle,
@@ -219,7 +220,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                       this.state.postForm.url
                     )}`}
                     class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                    rel="noopener"
+                    rel={relTags}
                   >
                     archive.org {i18n.t("archive_link")}
                   </a>
@@ -228,7 +229,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                       this.state.postForm.url
                     )}`}
                     class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                    rel="noopener"
+                    rel={relTags}
                   >
                     ghostarchive.org {i18n.t("archive_link")}
                   </a>
@@ -237,7 +238,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                       this.state.postForm.url
                     )}`}
                     class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                    rel="noopener"
+                    rel={relTags}
                   >
                     archive.today {i18n.t("archive_link")}
                   </a>

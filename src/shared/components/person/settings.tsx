@@ -18,7 +18,7 @@ import {
   UserOperation,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { i18n } from "../../i18next";
+import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
@@ -31,12 +31,11 @@ import {
   fetchCommunities,
   fetchThemes,
   fetchUsers,
-  getLanguage,
-  getNativeLanguageName,
+  getLanguages,
   isBrowser,
-  languages,
   personSelectName,
   personToChoice,
+  relTags,
   setIsoData,
   setTheme,
   setupTippy,
@@ -466,7 +465,7 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           <div class="form-group row">
             <label class="col-sm-5 col-form-label" htmlFor="matrix-user-id">
-              <a href={elementUrl} rel="noopener">
+              <a href={elementUrl} rel={relTags}>
                 {i18n.t("matrix_user_id")}
               </a>
             </label>
@@ -526,9 +525,7 @@ export class Settings extends Component<any, SettingsState> {
                 {languages
                   .sort((a, b) => a.code.localeCompare(b.code))
                   .map(lang => (
-                    <option value={lang.code}>
-                      {getNativeLanguageName(lang.code)}
-                    </option>
+                    <option value={lang.code}>{lang.name}</option>
                   ))}
               </select>
             </div>
@@ -935,7 +932,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleLangChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.lang = event.target.value;
-    i18n.changeLanguage(getLanguage(i.state.saveUserSettingsForm.lang));
+    i18n.changeLanguage(getLanguages(i.state.saveUserSettingsForm.lang)[0]);
     i.setState(i.state);
   }
 

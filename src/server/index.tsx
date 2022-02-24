@@ -145,7 +145,7 @@ server.get("/*", async (req, res) => {
       if (errCode == "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        return res.redirect(`/404?err=${errCode}`);
+        return res.send(`404: ${errCode}`);
       }
     }
 
@@ -231,7 +231,7 @@ server.get("/*", async (req, res) => {
 `);
   } catch (err) {
     console.error(err);
-    return res.redirect(`/404?err=${err}`);
+    return res.send(`404: ${err}`);
   }
 });
 

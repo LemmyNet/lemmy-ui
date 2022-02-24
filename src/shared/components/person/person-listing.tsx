@@ -1,7 +1,7 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { PersonSafe } from "lemmy-js-client";
-import { hostname, isCakeDay, showAvatars } from "../../utils";
+import { hostname, isCakeDay, relTags, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
 
@@ -60,6 +60,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
             title={apubName}
             className={this.props.muted ? "text-muted" : "text-info"}
             href={link}
+            rel={relTags}
           >
             {this.avatarAndName(displayName)}
           </a>

@@ -30,6 +30,7 @@ import {
   editCommentRes,
   fetchLimit,
   isBrowser,
+  relTags,
   saveCommentRes,
   setIsoData,
   setupTippy,
@@ -157,7 +158,7 @@ export class Inbox extends Component<any, InboxState> {
               <h5 class="mb-2">
                 {i18n.t("inbox")}
                 <small>
-                  <a href={inboxRss} title="RSS" rel="noopener">
+                  <a href={inboxRss} title="RSS" rel={relTags}>
                     <Icon icon="rss" classes="ml-2 text-muted small" />
                   </a>
                   <link

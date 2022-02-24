@@ -1,7 +1,7 @@
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { setIsoData } from "../../utils";
+import { relTags, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 
 interface InstancesState {
@@ -60,7 +60,7 @@ export class Instances extends Component<any, InstancesState> {
       <ul>
         {items.map(i => (
           <li>
-            <a href={`https://${i}`} rel="noopener">
+            <a href={`https://${i}`} rel={relTags}>
               {i}
             </a>
           </li>
