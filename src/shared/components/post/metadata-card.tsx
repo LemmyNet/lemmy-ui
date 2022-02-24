@@ -1,7 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { Post } from "lemmy-js-client";
-import { relTags } from "shared/utils";
 import { i18n } from "../../i18next";
+import { relTags } from "../../utils";
 import { Icon } from "../common/icon";
 
 interface MetadataCardProps {
