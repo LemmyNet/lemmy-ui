@@ -27,6 +27,8 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
+export const themeList = buildThemeList();
+
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 server.use("/static", express.static(path.resolve("./dist")));
@@ -48,6 +50,38 @@ server.get("/robots.txt", async (_req, res) => {
   res.setHeader("content-type", "text/plain; charset=utf-8");
   res.send(robotstxt);
 });
+
+export const builtinThemes = [
+  "litera",
+  "materia",
+  "minty",
+  "solar",
+  "united",
+  "cyborg",
+  "darkly",
+  "journal",
+  "sketchy",
+  "vaporwave",
+  "vaporwave-dark",
+  "i386",
+  "litely",
+  "nord",
+];
+
+function buildThemeList(): string[] {
+  let data = fs.readdirSync(extraThemesFolder);
+  if (data != null) {
+    data = data
+      .filter(d => d.endsWith(".min.css"))
+      .map(d => d.replace(".min.css", ""));
+    data = builtinThemes.concat(data);
+    // use set to remove duplicate values
+    data = Array.from(new Set(data));
+    return data;
+  } else {
+    return builtinThemes;
+  }
+}
 
 server.get("/css/themes-list", async (req, res) => {
   const builtinThemes = [
