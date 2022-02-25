@@ -1,9 +1,10 @@
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { MyUserInfo } from "lemmy-js-client";
+import { MyUserInfo, Site } from "lemmy-js-client";
 
 interface Props {
   myUserInfo: MyUserInfo | undefined;
+  site: Site;
 }
 
 export class Theme extends Component<Props> {
@@ -20,22 +21,11 @@ export class Theme extends Component<Props> {
             href={`/static/assets/css/themes/${user.local_user_view.local_user.theme}.min.css`}
           />
         ) : (
-          [
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href="/static/assets/css/themes/litely.min.css"
-              id="default-light"
-              media="(prefers-color-scheme: light)"
-            />,
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href="/static/assets/css/themes/darkly.min.css"
-              id="default-dark"
-              media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
-            />,
-          ]
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href={`/static/assets/css/themes/${this.props.site.default_theme}.min.css`}
+          />
         )}
       </Helmet>
     );
