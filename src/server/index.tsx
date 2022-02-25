@@ -27,40 +27,6 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
-export const themeList = buildThemeList();
-
-export const builtinThemes = [
-  "litera",
-  "materia",
-  "minty",
-  "solar",
-  "united",
-  "cyborg",
-  "darkly",
-  "journal",
-  "sketchy",
-  "vaporwave",
-  "vaporwave-dark",
-  "i386",
-  "litely",
-  "nord",
-];
-
-function buildThemeList(): string[] {
-  let data = fs.readdirSync(extraThemesFolder);
-  if (data != null) {
-    data = data
-      .filter(d => d.endsWith(".min.css"))
-      .map(d => d.replace(".min.css", ""));
-    data = builtinThemes.concat(data);
-    // use set to remove duplicate values
-    data = Array.from(new Set(data));
-    return data;
-  } else {
-    return builtinThemes;
-  }
-}
-
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 server.use("/static", express.static(path.resolve("./dist")));
@@ -97,6 +63,38 @@ server.get("/css/themes/:name", async (req, res) => {
     const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
     res.sendFile(internalTheme);
   }
+});
+
+function buildThemeList(): string[] {
+  let themes = [
+    "litera",
+    "materia",
+    "minty",
+    "solar",
+    "united",
+    "cyborg",
+    "darkly",
+    "journal",
+    "sketchy",
+    "vaporwave",
+    "vaporwave-dark",
+    "i386",
+    "litely",
+    "nord",
+  ];
+  let dirThemes = fs.readdirSync(extraThemesFolder);
+  if (dirThemes != null) {
+    let minCssThemes = dirThemes
+      .filter(d => d.endsWith(".min.css"))
+      .map(d => d.replace(".min.css", ""));
+    themes.push(...minCssThemes);
+  }
+  return themes;
+}
+
+server.get("/css/themelist", async (_req, res) => {
+  res.type("json");
+  res.send(JSON.stringify(buildThemeList()));
 });
 
 // server.use(cookieParser());

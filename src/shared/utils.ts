@@ -36,7 +36,6 @@ import markdown_it_sup from "markdown-it-sup";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
-import { themeList } from "server";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { httpBase } from "./env";
@@ -349,7 +348,11 @@ function getBrowserLanguages(): string[] {
   return allowedLangs;
 }
 
-export function setTheme(theme: string, forceReload = false) {
+export async function fetchThemeList(): Promise<string[]> {
+  return fetch("/css/themelist").then(res => res.json());
+}
+
+export async function setTheme(theme: string, forceReload = false) {
   if (!isBrowser()) {
     return;
   }
@@ -360,6 +363,8 @@ export function setTheme(theme: string, forceReload = false) {
   if (theme == "browser") {
     theme = "darkly";
   }
+
+  let themeList = await fetchThemeList();
 
   // Unload all the other themes
   for (var i = 0; i < themeList.length; i++) {
@@ -375,7 +380,8 @@ export function setTheme(theme: string, forceReload = false) {
   document.getElementById("default-dark")?.setAttribute("disabled", "disabled");
 
   // Load the theme dynamically
-  let cssLoc = `/static/assets/css/themes/${theme}.min.css`;
+  let cssLoc = `/css/themes/${theme}.min.css`;
+
   loadCss(theme, cssLoc);
   document.getElementById(theme).removeAttribute("disabled");
 }
