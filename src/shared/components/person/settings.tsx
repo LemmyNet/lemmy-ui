@@ -19,6 +19,7 @@ import {
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n, languages } from "../../i18next";
+import { themeList } from "../../../server/index";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
@@ -39,7 +40,6 @@ import {
   setTheme,
   setupTippy,
   showLocal,
-  themes,
   toast,
   updateCommunityBlock,
   updatePersonBlock,
@@ -545,7 +545,7 @@ export class Settings extends Component<any, SettingsState> {
                   {i18n.t("theme")}
                 </option>
                 <option value="browser">{i18n.t("browser_default")}</option>
-                {themes.map(theme => (
+                {themeList.map(theme => (
                   <option value={theme}>{theme}</option>
                 ))}
               </select>

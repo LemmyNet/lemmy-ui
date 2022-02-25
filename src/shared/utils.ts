@@ -36,6 +36,7 @@ import markdown_it_sup from "markdown-it-sup";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
+import { themeList } from "server";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { httpBase } from "./env";
@@ -76,23 +77,6 @@ export const fetchLimit = 20;
 export const mentionDropdownFetchLimit = 10;
 
 export const relTags = "noopener nofollow";
-
-export const themes = [
-  "litera",
-  "materia",
-  "minty",
-  "solar",
-  "united",
-  "cyborg",
-  "darkly",
-  "journal",
-  "sketchy",
-  "vaporwave",
-  "vaporwave-dark",
-  "i386",
-  "litely",
-  "nord",
-];
 
 const DEFAULT_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -378,8 +362,8 @@ export function setTheme(theme: string, forceReload = false) {
   }
 
   // Unload all the other themes
-  for (var i = 0; i < themes.length; i++) {
-    let styleSheet = document.getElementById(themes[i]);
+  for (var i = 0; i < themeList.length; i++) {
+    let styleSheet = document.getElementById(themeList[i]);
     if (styleSheet) {
       styleSheet.setAttribute("disabled", "disabled");
     }

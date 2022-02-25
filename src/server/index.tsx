@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "fs";
 import { IncomingHttpHeaders } from "http";
 import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
@@ -23,6 +24,42 @@ const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
   ? process.env["LEMMY_UI_HOST"].split(":")
   : ["0.0.0.0", "1234"];
+const extraThemesFolder =
+  process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
+
+export const themeList = buildThemeList();
+
+export const builtinThemes = [
+  "litera",
+  "materia",
+  "minty",
+  "solar",
+  "united",
+  "cyborg",
+  "darkly",
+  "journal",
+  "sketchy",
+  "vaporwave",
+  "vaporwave-dark",
+  "i386",
+  "litely",
+  "nord",
+];
+
+function buildThemeList(): string[] {
+  let data = fs.readdirSync(extraThemesFolder);
+  if (data != null) {
+    data = data
+      .filter(d => d.endsWith(".min.css"))
+      .map(d => d.replace(".min.css", ""));
+    data = builtinThemes.concat(data);
+    // use set to remove duplicate values
+    data = Array.from(new Set(data));
+    return data;
+  } else {
+    return builtinThemes;
+  }
+}
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
@@ -44,6 +81,22 @@ Disallow: /search/
 server.get("/robots.txt", async (_req, res) => {
   res.setHeader("content-type", "text/plain; charset=utf-8");
   res.send(robotstxt);
+});
+
+server.get("/css/themes/:name", async (req, res) => {
+  res.contentType("text/css");
+  const theme = req.params.name;
+  if (!theme.endsWith(".min.css")) {
+    res.send("Theme must be a css file");
+  }
+
+  const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
+  if (fs.existsSync(customTheme)) {
+    res.sendFile(customTheme);
+  } else {
+    const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
+    res.sendFile(internalTheme);
+  }
 });
 
 // server.use(cookieParser());
