@@ -1,10 +1,10 @@
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { MyUserInfo, Site } from "lemmy-js-client";
+import { MyUserInfo } from "lemmy-js-client";
 
 interface Props {
   myUserInfo: MyUserInfo | undefined;
-  site: Site;
+  defaultTheme: string;
 }
 
 export class Theme extends Component<Props> {
@@ -12,22 +12,48 @@ export class Theme extends Component<Props> {
     let user = this.props.myUserInfo;
     let hasTheme = user && user.local_user_view.local_user.theme !== "browser";
 
-    return (
-      <Helmet>
-        {hasTheme ? (
+    if (hasTheme) {
+      return (
+        <Helmet>
           <link
             rel="stylesheet"
             type="text/css"
             href={`/static/assets/css/themes/${user.local_user_view.local_user.theme}.min.css`}
           />
-        ) : (
+        </Helmet>
+      );
+    } else if (this.props.defaultTheme != "browser") {
+      return (
+        <Helmet>
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/static/assets/css/themes/${this.props.site.default_theme}.min.css`}
+            href={`/static/assets/css/themes/${this.props.defaultTheme}.min.css`}
           />
-        )}
-      </Helmet>
-    );
+        </Helmet>
+      );
+    } else {
+      return (
+        <Helmet>
+          [
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href="/static/assets/css/themes/litely.min.css"
+            id="default-light"
+            media="(prefers-color-scheme: light)"
+          />
+          ,
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href="/static/assets/css/themes/darkly.min.css"
+            id="default-dark"
+            media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
+          />
+          ];
+        </Helmet>
+      );
+    }
   }
 }

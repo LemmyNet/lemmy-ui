@@ -324,7 +324,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div class="form-group row">
             <div class="col-12">
               <label
-                class="form-check-label"
+                class="form-check-label mr-2"
                 htmlFor="create-site-default-theme"
               >
                 {i18n.t("theme")}
