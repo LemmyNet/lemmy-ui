@@ -6,7 +6,7 @@ import { WebSocketService } from "../../services";
 import {
   authField,
   capitalizeFirstLetter,
-  themes,
+  fetchThemeList,
   wsClient,
 } from "../../utils";
 import { Spinner } from "../common/icon";
@@ -21,6 +21,7 @@ interface SiteFormProps {
 interface SiteFormState {
   siteForm: EditSite;
   loading: boolean;
+  themeList: string[];
 }
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
@@ -40,6 +41,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       auth: authField(),
     },
     loading: false,
+    themeList: [],
   };
 
   constructor(props: any, context: any) {
@@ -76,6 +78,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         auth: authField(),
       };
     }
+  }
+
+  async componentDidMount() {
+    this.state.themeList = await fetchThemeList();
+    this.setState(this.state);
   }
 
   // Necessary to stop the loading
@@ -336,7 +343,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 class="custom-select w-auto"
               >
                 <option value="browser">{i18n.t("browser_default")}</option>
-                {themes.map(theme => (
+                {this.state.themeList.map(theme => (
                   <option value={theme}>{theme}</option>
                 ))}
               </select>
