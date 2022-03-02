@@ -77,23 +77,6 @@ export const mentionDropdownFetchLimit = 10;
 
 export const relTags = "noopener nofollow";
 
-export const themes = [
-  "litera",
-  "materia",
-  "minty",
-  "solar",
-  "united",
-  "cyborg",
-  "darkly",
-  "journal",
-  "sketchy",
-  "vaporwave",
-  "vaporwave-dark",
-  "i386",
-  "litely",
-  "nord",
-];
-
 const DEFAULT_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -365,7 +348,11 @@ function getBrowserLanguages(): string[] {
   return allowedLangs;
 }
 
-export function setTheme(theme: string, forceReload = false) {
+export async function fetchThemeList(): Promise<string[]> {
+  return fetch("/css/themelist").then(res => res.json());
+}
+
+export async function setTheme(theme: string, forceReload = false) {
   if (!isBrowser()) {
     return;
   }
@@ -377,9 +364,11 @@ export function setTheme(theme: string, forceReload = false) {
     theme = "darkly";
   }
 
+  let themeList = await fetchThemeList();
+
   // Unload all the other themes
-  for (var i = 0; i < themes.length; i++) {
-    let styleSheet = document.getElementById(themes[i]);
+  for (var i = 0; i < themeList.length; i++) {
+    let styleSheet = document.getElementById(themeList[i]);
     if (styleSheet) {
       styleSheet.setAttribute("disabled", "disabled");
     }
@@ -391,7 +380,8 @@ export function setTheme(theme: string, forceReload = false) {
   document.getElementById("default-dark")?.setAttribute("disabled", "disabled");
 
   // Load the theme dynamically
-  let cssLoc = `/static/assets/css/themes/${theme}.min.css`;
+  let cssLoc = `/css/themes/${theme}.min.css`;
+
   loadCss(theme, cssLoc);
   document.getElementById(theme).removeAttribute("disabled");
 }

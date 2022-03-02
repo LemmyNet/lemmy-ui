@@ -29,6 +29,7 @@ import {
   debounce,
   elementUrl,
   fetchCommunities,
+  fetchThemeList,
   fetchUsers,
   getLanguages,
   isBrowser,
@@ -39,7 +40,6 @@ import {
   setTheme,
   setupTippy,
   showLocal,
-  themes,
   toast,
   updateCommunityBlock,
   updatePersonBlock,
@@ -78,6 +78,7 @@ interface SettingsState {
   blockCommunity?: CommunityView;
   currentTab: string;
   siteRes: GetSiteResponse;
+  themeList: string[];
 }
 
 export class Settings extends Component<any, SettingsState> {
@@ -109,6 +110,7 @@ export class Settings extends Component<any, SettingsState> {
     blockCommunityId: 0,
     currentTab: "settings",
     siteRes: this.isoData.site_res,
+    themeList: [],
   };
 
   constructor(props: any, context: any) {
@@ -131,8 +133,10 @@ export class Settings extends Component<any, SettingsState> {
     this.setUserInfo();
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     setupTippy();
+    this.state.themeList = await fetchThemeList();
+    this.setState(this.state);
   }
 
   componentWillUnmount() {
@@ -545,7 +549,7 @@ export class Settings extends Component<any, SettingsState> {
                   {i18n.t("theme")}
                 </option>
                 <option value="browser">{i18n.t("browser_default")}</option>
-                {themes.map(theme => (
+                {this.state.themeList.map(theme => (
                   <option value={theme}>{theme}</option>
                 ))}
               </select>
