@@ -18,7 +18,7 @@ export class Theme extends Component<Props> {
           <link
             rel="stylesheet"
             type="text/css"
-            href={`css/themes/${user.local_user_view.local_user.theme}.min.css`}
+            href={`/css/themes/${user.local_user_view.local_user.theme}.min.css`}
           />
         </Helmet>
       );
