@@ -380,7 +380,7 @@ export async function setTheme(theme: string, forceReload = false) {
   document.getElementById("default-dark")?.setAttribute("disabled", "disabled");
 
   // Load the theme dynamically
-  let cssLoc = `/css/themes/${theme}.min.css`;
+  let cssLoc = `/css/themes/${theme}.css`;
 
   loadCss(theme, cssLoc);
   document.getElementById(theme).removeAttribute("disabled");

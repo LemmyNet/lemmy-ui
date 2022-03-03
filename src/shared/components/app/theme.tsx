@@ -18,7 +18,7 @@ export class Theme extends Component<Props> {
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/themes/${user.local_user_view.local_user.theme}.min.css`}
+            href={`/css/themes/${user.local_user_view.local_user.theme}.css`}
           />
         </Helmet>
       );
@@ -28,7 +28,7 @@ export class Theme extends Component<Props> {
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/themes/${this.props.defaultTheme}.min.css`}
+            href={`/css/themes/${this.props.defaultTheme}.css`}
           />
         </Helmet>
       );
@@ -39,7 +39,7 @@ export class Theme extends Component<Props> {
           <link
             rel="stylesheet"
             type="text/css"
-            href="/css/themes/litely.min.css"
+            href="/css/themes/litely.css"
             id="default-light"
             media="(prefers-color-scheme: light)"
           />
@@ -47,7 +47,7 @@ export class Theme extends Component<Props> {
           <link
             rel="stylesheet"
             type="text/css"
-            href="/css/themes/darkly.min.css"
+            href="/css/themes/darkly.css"
             id="default-dark"
             media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
           />
