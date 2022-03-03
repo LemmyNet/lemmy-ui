@@ -52,7 +52,7 @@ server.get("/robots.txt", async (_req, res) => {
 server.get("/css/themes/:name", async (req, res) => {
   res.contentType("text/css");
   const theme = req.params.name;
-  if (!theme.endsWith(".min.css")) {
+  if (!theme.endsWith(".css")) {
     res.send("Theme must be a css file");
   }
 
@@ -84,10 +84,10 @@ function buildThemeList(): string[] {
   ];
   if (fs.existsSync(extraThemesFolder)) {
     let dirThemes = fs.readdirSync(extraThemesFolder);
-    let minCssThemes = dirThemes
-      .filter(d => d.endsWith(".min.css"))
-      .map(d => d.replace(".min.css", ""));
-    themes.push(...minCssThemes);
+    let cssThemes = dirThemes
+      .filter(d => d.endsWith(".css"))
+      .map(d => d.replace(".css", ""));
+    themes.push(...cssThemes);
   }
   return themes;
 }
