@@ -225,7 +225,6 @@ export class Modlog extends Component<any, ModlogState> {
     combined.push(...transferred_to_community);
     combined.push(...added);
     combined.push(...banned);
-    console.log(combined);
 
     if (this.state.communityId && combined.length > 0) {
       this.state.communityName = (
