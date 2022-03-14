@@ -28,7 +28,7 @@ export class App extends Component<AppProps, any> {
           <div>
             <Theme
               myUserInfo={siteRes.my_user}
-              defaultTheme={siteRes.site_view.site.default_theme}
+              defaultTheme={siteRes?.site_view?.site?.default_theme}
             />
             {siteRes &&
               siteRes.site_view &&
