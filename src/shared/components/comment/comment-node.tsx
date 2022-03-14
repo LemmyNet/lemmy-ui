@@ -867,12 +867,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         >
           <Icon icon="link" classes="icon-inline" />
         </Link>
-        {/* TODO comment ap_ids are currently broken anyway, so use post.ap_id, and wait until comment tree / endpoint refactor */}
-        {!cv.comment.local && (
-          <a className={classnames} title={title} href={cv.post.ap_id}>
+        {
+          <a className={classnames} title={title} href={cv.comment.ap_id}>
             <Icon icon="fedilink" classes="icon-inline" />
           </a>
-        )}
+        }
       </>
     );
   }
