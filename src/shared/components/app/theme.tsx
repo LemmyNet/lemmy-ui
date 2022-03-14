@@ -4,7 +4,7 @@ import { MyUserInfo } from "lemmy-js-client";
 
 interface Props {
   myUserInfo: MyUserInfo | undefined;
-  defaultTheme: string;
+  defaultTheme?: string;
 }
 
 export class Theme extends Component<Props> {
@@ -22,7 +22,10 @@ export class Theme extends Component<Props> {
           />
         </Helmet>
       );
-    } else if (this.props.defaultTheme != "browser") {
+    } else if (
+      this.props.defaultTheme != null &&
+      this.props.defaultTheme != "browser"
+    ) {
       return (
         <Helmet>
           <link
