@@ -145,7 +145,7 @@ server.get("/*", async (req, res) => {
       if (errCode == "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        return res.send(`404: ${errCode}`);
+        return res.send(`404: ${removeAuthParam(errCode)}`);
       }
     }
 
@@ -231,7 +231,7 @@ server.get("/*", async (req, res) => {
 `);
   } catch (err) {
     console.error(err);
-    return res.send(`404: ${err}`);
+    return res.send(`404: ${removeAuthParam(err)}`);
   }
 });
 
@@ -259,3 +259,13 @@ process.on("SIGINT", () => {
   console.info("Interrupted");
   process.exit(0);
 });
+
+function removeAuthParam(err: any): string {
+  return removeParam(err.toString(), "auth");
+}
+
+function removeParam(url: string, parameter: string): string {
+  return url
+    .replace(new RegExp("[?&]" + parameter + "=[^&#]*(#.*)?$"), "$1")
+    .replace(new RegExp("([?&])" + parameter + "=[^&]*&"), "$1");
+}
