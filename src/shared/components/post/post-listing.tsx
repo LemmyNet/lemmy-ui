@@ -321,13 +321,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {post_view.creator_blocked && (
             <span className="mx-1 badge badge-danger">{"blocked"}</span>
           )}
-          {this.props.showCommunity && (
-            <span>
-              <span class="mx-1"> {i18n.t("to")} </span>
-              <CommunityLink community={post_view.community} />
-            </span>
-          )}
         </li>
+        {this.props.showCommunity && (
+          <li className="list-inline-item">
+            <span class="mx-1"> {i18n.t("to")} </span>
+          </li>
+        )}
+        {this.props.showCommunity && (
+          <li className="list-inline-item">
+            <CommunityLink community={post_view.community} />
+          </li>
+        )}
         <li className="list-inline-item">•</li>
         {post_view.post.url && !(hostname(post_view.post.url) == externalHost) && (
           <>

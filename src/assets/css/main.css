@@ -226,6 +226,7 @@ hr {
 
 .list-flex-h .avatar-name-container {
     margin-left: 0.5rem;
+    margin-right: 0.5rem;
 }
 
 div.img-placeholder {
@@ -323,7 +324,7 @@ div.img-placeholder {
 .list-flex-h {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: baseline;
 }
 
 pre {
