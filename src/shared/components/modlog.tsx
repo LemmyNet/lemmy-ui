@@ -16,6 +16,7 @@ import {
   ModRemovePostView,
   ModStickyPostView,
   ModTransferCommunityView,
+  PersonSafe,
   SiteView,
   UserOperation,
 } from "lemmy-js-client";
@@ -399,7 +400,7 @@ export class Modlog extends Component<any, ModlogState> {
               {this.isAdminOrMod ? (
                 <PersonListing person={i.view.moderator} />
               ) : (
-                <div>{i18n.t("mod")}</div>
+                <div>{this.modOrAdminText(i.view.moderator)}</div>
               )}
             </td>
             <td>{this.renderModlogType(i)}</td>
@@ -422,6 +423,16 @@ export class Modlog extends Component<any, ModlogState> {
         .map(m => m.moderator.id)
         .includes(UserService.Instance.myUserInfo.local_user_view.person.id);
     return isAdmin || isMod;
+  }
+
+  modOrAdminText(person: PersonSafe): Text {
+    if (
+      this.isoData.site_res.admins.map(a => a.person.id).includes(person.id)
+    ) {
+      return i18n.t("admin");
+    } else {
+      return i18n.t("mod");
+    }
   }
 
   get documentTitle(): string {

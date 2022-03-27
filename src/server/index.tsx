@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "fs";
 import { IncomingHttpHeaders } from "http";
 import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
@@ -23,6 +24,8 @@ const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
   ? process.env["LEMMY_UI_HOST"].split(":")
   : ["0.0.0.0", "1234"];
+const extraThemesFolder =
+  process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
@@ -44,6 +47,54 @@ Disallow: /search/
 server.get("/robots.txt", async (_req, res) => {
   res.setHeader("content-type", "text/plain; charset=utf-8");
   res.send(robotstxt);
+});
+
+server.get("/css/themes/:name", async (req, res) => {
+  res.contentType("text/css");
+  const theme = req.params.name;
+  if (!theme.endsWith(".css")) {
+    res.send("Theme must be a css file");
+  }
+
+  const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
+  if (fs.existsSync(customTheme)) {
+    res.sendFile(customTheme);
+  } else {
+    const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
+    res.sendFile(internalTheme);
+  }
+});
+
+function buildThemeList(): string[] {
+  let themes = [
+    "litera",
+    "materia",
+    "minty",
+    "solar",
+    "united",
+    "cyborg",
+    "darkly",
+    "journal",
+    "sketchy",
+    "vaporwave",
+    "vaporwave-dark",
+    "i386",
+    "litely",
+    "nord",
+  ];
+  if (fs.existsSync(extraThemesFolder)) {
+    let dirThemes = fs.readdirSync(extraThemesFolder);
+    let cssThemes = dirThemes
+      .filter(d => d.endsWith(".css"))
+      .map(d => d.replace(".css", ""));
+    themes.push(...cssThemes);
+  }
+  return themes;
+}
+
+server.get("/css/themelist", async (_req, res) => {
+  res.type("json");
+  res.send(JSON.stringify(buildThemeList()));
 });
 
 // server.use(cookieParser());
@@ -94,7 +145,7 @@ server.get("/*", async (req, res) => {
       if (errCode == "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        return res.redirect(`/404?err=${errCode}`);
+        return res.send(`404: ${removeAuthParam(errCode)}`);
       }
     }
 
@@ -180,7 +231,7 @@ server.get("/*", async (req, res) => {
 `);
   } catch (err) {
     console.error(err);
-    return res.redirect(`/404?err=${err}`);
+    return res.send(`404: ${removeAuthParam(err)}`);
   }
 });
 
@@ -208,3 +259,13 @@ process.on("SIGINT", () => {
   console.info("Interrupted");
   process.exit(0);
 });
+
+function removeAuthParam(err: any): string {
+  return removeParam(err.toString(), "auth");
+}
+
+function removeParam(url: string, parameter: string): string {
+  return url
+    .replace(new RegExp("[?&]" + parameter + "=[^&#]*(#.*)?$"), "$1")
+    .replace(new RegExp("([?&])" + parameter + "=[^&]*&"), "$1");
+}

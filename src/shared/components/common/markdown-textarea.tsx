@@ -10,6 +10,7 @@ import {
   mdToHtml,
   pictrsDeleteToast,
   randomStr,
+  relTags,
   setupTippy,
   setupTribute,
   toast,
@@ -297,7 +298,7 @@ export class MarkdownTextArea extends Component<
               href={markdownHelpUrl}
               class="btn btn-sm text-muted font-weight-bold"
               title={i18n.t("formatting_help")}
-              rel="noopener"
+              rel={relTags}
             >
               <Icon icon="help-circle" classes="icon-inline" />
             </a>

@@ -18,7 +18,7 @@ import {
   UserOperation,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { i18n } from "../../i18next";
+import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
@@ -29,18 +29,17 @@ import {
   debounce,
   elementUrl,
   fetchCommunities,
+  fetchThemeList,
   fetchUsers,
-  getLanguage,
-  getNativeLanguageName,
+  getLanguages,
   isBrowser,
-  languages,
   personSelectName,
   personToChoice,
+  relTags,
   setIsoData,
   setTheme,
   setupTippy,
   showLocal,
-  themes,
   toast,
   updateCommunityBlock,
   updatePersonBlock,
@@ -79,6 +78,7 @@ interface SettingsState {
   blockCommunity?: CommunityView;
   currentTab: string;
   siteRes: GetSiteResponse;
+  themeList: string[];
 }
 
 export class Settings extends Component<any, SettingsState> {
@@ -110,6 +110,7 @@ export class Settings extends Component<any, SettingsState> {
     blockCommunityId: 0,
     currentTab: "settings",
     siteRes: this.isoData.site_res,
+    themeList: [],
   };
 
   constructor(props: any, context: any) {
@@ -132,8 +133,10 @@ export class Settings extends Component<any, SettingsState> {
     this.setUserInfo();
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     setupTippy();
+    this.state.themeList = await fetchThemeList();
+    this.setState(this.state);
   }
 
   componentWillUnmount() {
@@ -466,7 +469,7 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           <div class="form-group row">
             <label class="col-sm-5 col-form-label" htmlFor="matrix-user-id">
-              <a href={elementUrl} rel="noopener">
+              <a href={elementUrl} rel={relTags}>
                 {i18n.t("matrix_user_id")}
               </a>
             </label>
@@ -526,9 +529,7 @@ export class Settings extends Component<any, SettingsState> {
                 {languages
                   .sort((a, b) => a.code.localeCompare(b.code))
                   .map(lang => (
-                    <option value={lang.code}>
-                      {getNativeLanguageName(lang.code)}
-                    </option>
+                    <option value={lang.code}>{lang.name}</option>
                   ))}
               </select>
             </div>
@@ -548,7 +549,7 @@ export class Settings extends Component<any, SettingsState> {
                   {i18n.t("theme")}
                 </option>
                 <option value="browser">{i18n.t("browser_default")}</option>
-                {themes.map(theme => (
+                {this.state.themeList.map(theme => (
                   <option value={theme}>{theme}</option>
                 ))}
               </select>
@@ -935,7 +936,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleLangChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.lang = event.target.value;
-    i18n.changeLanguage(getLanguage(i.state.saveUserSettingsForm.lang));
+    i18n.changeLanguage(getLanguages(i.state.saveUserSettingsForm.lang)[0]);
     i.setState(i.state);
   }
 

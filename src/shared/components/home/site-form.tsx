@@ -3,7 +3,12 @@ import { Prompt } from "inferno-router";
 import { CreateSite, EditSite, Site } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
-import { authField, capitalizeFirstLetter, wsClient } from "../../utils";
+import {
+  authField,
+  capitalizeFirstLetter,
+  fetchThemeList,
+  wsClient,
+} from "../../utils";
 import { Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -16,6 +21,7 @@ interface SiteFormProps {
 interface SiteFormState {
   siteForm: EditSite;
   loading: boolean;
+  themeList: string[];
 }
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
@@ -31,9 +37,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       require_application: null,
       application_question: null,
       private_instance: null,
+      default_theme: null,
       auth: authField(),
     },
     loading: false,
+    themeList: [],
   };
 
   constructor(props: any, context: any) {
@@ -66,9 +74,15 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         require_application: site.require_application,
         application_question: site.application_question,
         private_instance: site.private_instance,
+        default_theme: site.default_theme,
         auth: authField(),
       };
     }
+  }
+
+  async componentDidMount() {
+    this.state.themeList = await fetchThemeList();
+    this.setState(this.state);
   }
 
   // Necessary to stop the loading
@@ -316,12 +330,33 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
           <div class="form-group row">
             <div class="col-12">
+              <label
+                class="form-check-label mr-2"
+                htmlFor="create-site-default-theme"
+              >
+                {i18n.t("theme")}
+              </label>
+              <select
+                id="create-site-default-theme"
+                value={this.state.siteForm.default_theme}
+                onChange={linkEvent(this, this.handleSiteDefaultTheme)}
+                class="custom-select w-auto"
+              >
+                <option value="browser">{i18n.t("browser_default")}</option>
+                {this.state.themeList.map(theme => (
+                  <option value={theme}>{theme}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
               <div class="form-check">
                 <input
                   class="form-check-input"
                   id="create-site-private-instance"
                   type="checkbox"
-                  checked={this.state.siteForm.private_instance}
+                  value={this.state.siteForm.default_theme}
                   onChange={linkEvent(this, this.handleSitePrivateInstance)}
                 />
                 <label
@@ -431,6 +466,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSitePrivateInstance(i: SiteForm, event: any) {
     i.state.siteForm.private_instance = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSiteDefaultTheme(i: SiteForm, event: any) {
+    i.state.siteForm.default_theme = event.target.value;
     i.setState(i.state);
   }
 
