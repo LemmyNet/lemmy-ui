@@ -218,7 +218,18 @@ hr {
   flex-direction: row;
   align-items: center;
   line-height: 1.2rem;
-  margin-top: 0.5rem;
+}
+
+.list-flex-v .avatar-name-container {
+    margin-top: 0.5rem;
+}
+
+.list-flex-h .avatar-name-container {
+    margin-left: 0.5rem;
+}
+
+div.img-placeholder {
+  background-color: #70707070;
 }
 
 #app {
@@ -301,6 +312,18 @@ hr {
 
 .list-inline-item-action:not(:last-child) {
   margin-right: 1.2rem;
+}
+
+.list-flex-v {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.list-flex-h {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 pre {

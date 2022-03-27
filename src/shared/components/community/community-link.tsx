@@ -38,7 +38,9 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     return !this.props.realLink ? (
       <Link
         title={apubName}
-        className={`${this.props.muted ? "text-muted" : ""} avatar-name-container`}
+        className={`${
+          this.props.muted ? "text-muted" : ""
+        } avatar-name-container`}
         to={link}
       >
         {this.avatarAndName(displayName)}
@@ -46,7 +48,9 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     ) : (
       <a
         title={apubName}
-        className={`${this.props.muted ? "text-muted" : ""} avatar-name-container`}
+        className={`${
+          this.props.muted ? "text-muted" : ""
+        } avatar-name-container`}
         href={link}
         rel={relTags}
       >
@@ -60,7 +64,11 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     return (
       <>
         {!this.props.hideAvatar && showAvatars() && (
-          <PictrsImage src={community.icon || ""} icon />
+          <PictrsImage
+            src={community.icon || ""}
+            placeholder={!((community.icon && true) || false)}
+            icon
+          />
         )}
         <span class="overflow-wrap-anywhere">{displayName}</span>
       </>

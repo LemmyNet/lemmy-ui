@@ -409,7 +409,7 @@ export class Home extends Component<any, HomeState> {
             </Link>
           </T>
         </h5>
-        <ul class="list-inline mb-0">
+        <ul class="list-inline mb-0 list-flex-v">
           {this.state.trendingCommunities.map(cv => (
             <li class="list-inline-item d-inline-block">
               <CommunityLink community={cv.community} />
@@ -431,7 +431,7 @@ export class Home extends Component<any, HomeState> {
             </Link>
           </T>
         </h5>
-        <ul class="list-inline mb-0">
+        <ul class="list-inline mb-0 list-flex-v">
           {UserService.Instance.myUserInfo.follows.map(cfv => (
             <li class="list-inline-item d-inline-block">
               <CommunityLink community={cfv.community} />

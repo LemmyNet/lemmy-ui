@@ -13,6 +13,7 @@ interface PictrsImageProps {
   nsfw?: boolean;
   iconOverlay?: boolean;
   pushup?: boolean;
+  placeholder?: boolean;
 }
 
 export class PictrsImage extends Component<PictrsImageProps, any> {
@@ -20,31 +21,39 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     super(props, context);
   }
 
+  getClassNames() {
+    return classNames({
+      "img-fluid": !this.props.icon && !this.props.iconOverlay,
+      banner: this.props.banner,
+      "thumbnail rounded":
+        this.props.thumbnail && !this.props.icon && !this.props.banner,
+      "img-expanded slight-radius": !this.props.thumbnail && !this.props.icon,
+      "img-blur": this.props.thumbnail && this.props.nsfw,
+      "rounded-circle img-icon mr-2": this.props.icon,
+      "ml-2 mb-0 rounded-circle avatar-overlay": this.props.iconOverlay,
+      "avatar-pushup": this.props.pushup,
+      "img-placeholder": this.props.placeholder,
+    });
+  }
+
   render() {
-    return (
-      <picture>
-        <source srcSet={this.src("webp")} type="image/webp" />
-        <source srcSet={this.props.src} />
-        <source srcSet={this.src("jpg")} type="image/jpeg" />
-        <img
-          src={this.props.src}
-          alt={this.alt()}
-          loading="lazy"
-          className={classNames({
-            "img-fluid": !this.props.icon && !this.props.iconOverlay,
-            banner: this.props.banner,
-            "thumbnail rounded":
-              this.props.thumbnail && !this.props.icon && !this.props.banner,
-            "img-expanded slight-radius":
-              !this.props.thumbnail && !this.props.icon,
-            "img-blur": this.props.thumbnail && this.props.nsfw,
-            "rounded-circle img-icon mr-2": this.props.icon,
-            "ml-2 mb-0 rounded-circle avatar-overlay": this.props.iconOverlay,
-            "avatar-pushup": this.props.pushup,
-          })}
-        />
-      </picture>
-    );
+    if (this.props.placeholder) {
+      return <div className={this.getClassNames()} />;
+    } else {
+      return (
+        <picture>
+          <source srcSet={this.src("webp")} type="image/webp" />
+          <source srcSet={this.props.src} />
+          <source srcSet={this.src("jpg")} type="image/jpeg" />
+          <img
+            src={this.props.src}
+            alt={this.alt()}
+            loading="lazy"
+            className={this.getClassNames()}
+          />
+        </picture>
+      );
+    }
   }
 
   src(format: string): string {
