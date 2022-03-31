@@ -88,13 +88,13 @@ interface SearchState {
   communityId: number;
   creatorId: number;
   page: number;
-  searchResponse: SearchResponse;
+  searchResponse?: SearchResponse;
   communities: CommunityView[];
   creator?: PersonViewSafe;
   loading: boolean;
   site: Site;
   searchText: string;
-  resolveObjectResponse: ResolveObjectResponse;
+  resolveObjectResponse?: ResolveObjectResponse;
 }
 
 interface UrlParams {
@@ -131,19 +131,8 @@ export class Search extends Component<any, SearchState> {
       this.props.match.params.community_id
     ),
     creatorId: Search.getCreatorIdFromProps(this.props.match.params.creator_id),
-    searchResponse: {
-      type_: null,
-      posts: [],
-      comments: [],
-      communities: [],
-      users: [],
-    },
-    resolveObjectResponse: {
-      comment: null,
-      post: null,
-      community: null,
-      person: null,
-    },
+    searchResponse: null,
+    resolveObjectResponse: null,
     loading: true,
     site: this.isoData.site_res.site_view.site,
     communities: [],
@@ -305,7 +294,9 @@ export class Search extends Component<any, SearchState> {
     };
     setOptionalAuth(resolveObjectForm, req.auth);
 
-    if (form.q != "") {
+    if (form.q != "") {      
+      //this.state.loading = false;
+      //this.setState(this.state);
       promises.push(req.client.search(form));
       promises.push(req.client.resolveObject(resolveObjectForm));
     }
@@ -323,7 +314,7 @@ export class Search extends Component<any, SearchState> {
       lastState.creatorId !== this.state.creatorId ||
       lastState.page !== this.state.page
     ) {
-      this.setState({ loading: true, searchText: this.state.q });
+      this.setState({ loading: true, searchText: this.state.q, searchResponse: null, resolveObjectResponse: null });
       this.search();
     }
   }
@@ -461,39 +452,39 @@ export class Search extends Component<any, SearchState> {
     let combined: Combined[] = [];
 
     // Push the possible resolve / federated objects first
-    let resolveComment = this.state.resolveObjectResponse.comment;
+    let resolveComment = this.state.resolveObjectResponse?.comment;
     if (resolveComment) {
       combined.push(this.commentViewToCombined(resolveComment));
     }
-    let resolvePost = this.state.resolveObjectResponse.post;
+    let resolvePost = this.state.resolveObjectResponse?.post;
     if (resolvePost) {
       combined.push(this.postViewToCombined(resolvePost));
     }
-    let resolveCommunity = this.state.resolveObjectResponse.community;
+    let resolveCommunity = this.state.resolveObjectResponse?.community;
     if (resolveCommunity) {
       combined.push(this.communityViewToCombined(resolveCommunity));
     }
-    let resolveUser = this.state.resolveObjectResponse.person;
+    let resolveUser = this.state.resolveObjectResponse?.person;
     if (resolveUser) {
       combined.push(this.personViewSafeToCombined(resolveUser));
     }
 
     // Push the search results
     combined.push(
-      ...this.state.searchResponse.comments.map(e =>
+      ...this.state.searchResponse?.comments?.map(e =>
         this.commentViewToCombined(e)
       )
     );
     combined.push(
-      ...this.state.searchResponse.posts.map(e => this.postViewToCombined(e))
+      ...this.state.searchResponse?.posts?.map(e => this.postViewToCombined(e))
     );
     combined.push(
-      ...this.state.searchResponse.communities.map(e =>
+      ...this.state.searchResponse?.communities?.map(e =>
         this.communityViewToCombined(e)
       )
     );
     combined.push(
-      ...this.state.searchResponse.users.map(e =>
+      ...this.state.searchResponse?.users?.map(e =>
         this.personViewSafeToCombined(e)
       )
     );
@@ -556,12 +547,12 @@ export class Search extends Component<any, SearchState> {
   comments() {
     let comments: CommentView[] = [];
 
-    let resolveComment = this.state.resolveObjectResponse.comment;
+    let resolveComment = this.state.resolveObjectResponse?.comment;
     if (resolveComment) {
       comments.push(resolveComment);
     }
 
-    comments.push(...this.state.searchResponse.comments);
+    comments.push(...this.state.searchResponse?.comments);
 
     return (
       <CommentNodes
@@ -576,12 +567,12 @@ export class Search extends Component<any, SearchState> {
   posts() {
     let posts: PostView[] = [];
 
-    let resolvePost = this.state.resolveObjectResponse.post;
+    let resolvePost = this.state.resolveObjectResponse?.post;
     if (resolvePost) {
       posts.push(resolvePost);
     }
 
-    posts.push(...this.state.searchResponse.posts);
+    posts.push(...this.state.searchResponse?.posts);
 
     return (
       <>
@@ -604,12 +595,12 @@ export class Search extends Component<any, SearchState> {
   communities() {
     let communities: CommunityView[] = [];
 
-    let resolveCommunity = this.state.resolveObjectResponse.community;
+    let resolveCommunity = this.state.resolveObjectResponse?.community;
     if (resolveCommunity) {
       communities.push(resolveCommunity);
     }
 
-    communities.push(...this.state.searchResponse.communities);
+    communities.push(...this.state.searchResponse?.communities);
     return (
       <>
         {communities.map(community => (
@@ -624,12 +615,12 @@ export class Search extends Component<any, SearchState> {
   users() {
     let users: PersonViewSafe[] = [];
 
-    let resolveUser = this.state.resolveObjectResponse.person;
+    let resolveUser = this.state.resolveObjectResponse?.person;
     if (resolveUser) {
       users.push(resolveUser);
     }
 
-    users.push(...this.state.searchResponse.users);
+    users.push(...this.state.searchResponse?.users);
     return (
       <>
         {users.map(user => (
@@ -719,14 +710,14 @@ export class Search extends Component<any, SearchState> {
     let res = this.state.searchResponse;
     let resObj = this.state.resolveObjectResponse;
     let resObjCount =
-      resObj.post || resObj.person || resObj.community || resObj.comment
+      resObj?.post || resObj?.person || resObj?.community || resObj?.comment
         ? 1
         : 0;
     return (
-      res.posts.length +
-      res.comments.length +
-      res.communities.length +
-      res.users.length +
+      res?.posts?.length +
+      res?.comments?.length +
+      res?.communities?.length +
+      res?.users?.length +
       resObjCount
     );
   }
@@ -757,7 +748,11 @@ export class Search extends Component<any, SearchState> {
       auth: authField(false),
     };
 
-    if (this.state.q != "") {
+    if (this.state.q != "") {     
+      this.state.searchResponse = null;
+      this.state.resolveObjectResponse = null; 
+      this.state.loading = true;
+      this.setState(this.state);
       WebSocketService.Instance.send(wsClient.search(form));
       WebSocketService.Instance.send(wsClient.resolveObject(resolveObjectForm));
     }
@@ -897,36 +892,34 @@ export class Search extends Component<any, SearchState> {
     console.log(msg);
     let op = wsUserOp(msg);
     if (msg.error) {
-      if (msg.error != "couldnt_find_object") {
+      if (msg.error == "couldnt_find_object") {
+        this.state.resolveObjectResponse = {
+          comment: null,
+          post: null,
+          community: null,
+          person: null,
+        }
+        this.checkFinishedLoading();
+      } else {
         toast(i18n.t(msg.error), "danger");
         return;
-      } else {
-        this.setState({
-          resolveObjectResponse: {
-            comment: null,
-            community: null,
-            person: null,
-            post: null,
-          },
-        });
       }
     } else if (op == UserOperation.Search) {
       let data = wsJsonToRes<SearchResponse>(msg).data;
       this.state.searchResponse = data;
-      this.state.loading = false;
       window.scrollTo(0, 0);
-      this.setState(this.state);
+      this.checkFinishedLoading();
       restoreScrollPosition(this.context);
     } else if (op == UserOperation.CreateCommentLike) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
       createCommentLikeRes(
         data.comment_view,
-        this.state.searchResponse.comments
+        this.state.searchResponse?.comments
       );
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
       let data = wsJsonToRes<PostResponse>(msg).data;
-      createPostLikeFindRes(data.post_view, this.state.searchResponse.posts);
+      createPostLikeFindRes(data.post_view, this.state.searchResponse?.posts);
       this.setState(this.state);
     } else if (op == UserOperation.ListCommunities) {
       let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
@@ -936,6 +929,13 @@ export class Search extends Component<any, SearchState> {
     } else if (op == UserOperation.ResolveObject) {
       let data = wsJsonToRes<ResolveObjectResponse>(msg).data;
       this.state.resolveObjectResponse = data;
+      this.checkFinishedLoading();
+    }
+  }
+
+  checkFinishedLoading() {    
+    if (this.state.searchResponse != null && this.state.resolveObjectResponse != null) {
+      this.state.loading = false;
       this.setState(this.state);
     }
   }
