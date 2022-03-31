@@ -294,7 +294,7 @@ export class Search extends Component<any, SearchState> {
     };
     setOptionalAuth(resolveObjectForm, req.auth);
 
-    if (form.q != "") {      
+    if (form.q != "") {
       //this.state.loading = false;
       //this.setState(this.state);
       promises.push(req.client.search(form));
@@ -314,7 +314,12 @@ export class Search extends Component<any, SearchState> {
       lastState.creatorId !== this.state.creatorId ||
       lastState.page !== this.state.page
     ) {
-      this.setState({ loading: true, searchText: this.state.q, searchResponse: null, resolveObjectResponse: null });
+      this.setState({
+        loading: true,
+        searchText: this.state.q,
+        searchResponse: null,
+        resolveObjectResponse: null,
+      });
       this.search();
     }
   }
@@ -470,23 +475,29 @@ export class Search extends Component<any, SearchState> {
     }
 
     // Push the search results
-    combined.push(
-      ...this.state.searchResponse?.comments?.map(e =>
-        this.commentViewToCombined(e)
-      )
+    pushNotNull(
+      combined,
+      this.state.searchResponse?.comments
+        ?.filter(e => e)
+        .map(e => this.commentViewToCombined(e))
     );
-    combined.push(
-      ...this.state.searchResponse?.posts?.map(e => this.postViewToCombined(e))
+    pushNotNull(
+      combined,
+      this.state.searchResponse?.posts
+        ?.filter(e => e)
+        .map(e => this.postViewToCombined(e))
     );
-    combined.push(
-      ...this.state.searchResponse?.communities?.map(e =>
-        this.communityViewToCombined(e)
-      )
+    pushNotNull(
+      combined,
+      this.state.searchResponse?.communities
+        ?.filter(e => e)
+        .map(e => this.communityViewToCombined(e))
     );
-    combined.push(
-      ...this.state.searchResponse?.users?.map(e =>
-        this.personViewSafeToCombined(e)
-      )
+    pushNotNull(
+      combined,
+      this.state.searchResponse?.users
+        ?.filter(e => e)
+        .map(e => this.personViewSafeToCombined(e))
     );
 
     // Sort it
@@ -547,12 +558,8 @@ export class Search extends Component<any, SearchState> {
   comments() {
     let comments: CommentView[] = [];
 
-    let resolveComment = this.state.resolveObjectResponse?.comment;
-    if (resolveComment) {
-      comments.push(resolveComment);
-    }
-
-    comments.push(...this.state.searchResponse?.comments);
+    pushNotNull(comments, this.state.resolveObjectResponse?.comment);
+    pushNotNull(comments, this.state.searchResponse?.comments);
 
     return (
       <CommentNodes
@@ -567,12 +574,8 @@ export class Search extends Component<any, SearchState> {
   posts() {
     let posts: PostView[] = [];
 
-    let resolvePost = this.state.resolveObjectResponse?.post;
-    if (resolvePost) {
-      posts.push(resolvePost);
-    }
-
-    posts.push(...this.state.searchResponse?.posts);
+    pushNotNull(posts, this.state.resolveObjectResponse?.post);
+    pushNotNull(posts, this.state.searchResponse?.posts);
 
     return (
       <>
@@ -595,12 +598,9 @@ export class Search extends Component<any, SearchState> {
   communities() {
     let communities: CommunityView[] = [];
 
-    let resolveCommunity = this.state.resolveObjectResponse?.community;
-    if (resolveCommunity) {
-      communities.push(resolveCommunity);
-    }
+    pushNotNull(communities, this.state.resolveObjectResponse?.community);
+    pushNotNull(communities, this.state.searchResponse?.communities);
 
-    communities.push(...this.state.searchResponse?.communities);
     return (
       <>
         {communities.map(community => (
@@ -615,12 +615,9 @@ export class Search extends Component<any, SearchState> {
   users() {
     let users: PersonViewSafe[] = [];
 
-    let resolveUser = this.state.resolveObjectResponse?.person;
-    if (resolveUser) {
-      users.push(resolveUser);
-    }
+    pushNotNull(users, this.state.resolveObjectResponse?.person);
+    pushNotNull(users, this.state.searchResponse?.users);
 
-    users.push(...this.state.searchResponse?.users);
     return (
       <>
         {users.map(user => (
@@ -748,9 +745,9 @@ export class Search extends Component<any, SearchState> {
       auth: authField(false),
     };
 
-    if (this.state.q != "") {     
+    if (this.state.q != "") {
       this.state.searchResponse = null;
-      this.state.resolveObjectResponse = null; 
+      this.state.resolveObjectResponse = null;
       this.state.loading = true;
       this.setState(this.state);
       WebSocketService.Instance.send(wsClient.search(form));
@@ -898,7 +895,7 @@ export class Search extends Component<any, SearchState> {
           post: null,
           community: null,
           person: null,
-        }
+        };
         this.checkFinishedLoading();
       } else {
         toast(i18n.t(msg.error), "danger");
@@ -933,10 +930,19 @@ export class Search extends Component<any, SearchState> {
     }
   }
 
-  checkFinishedLoading() {    
-    if (this.state.searchResponse != null && this.state.resolveObjectResponse != null) {
+  checkFinishedLoading() {
+    if (
+      this.state.searchResponse != null &&
+      this.state.resolveObjectResponse != null
+    ) {
       this.state.loading = false;
       this.setState(this.state);
     }
+  }
+}
+
+function pushNotNull(array, new_item?) {
+  if (new_item) {
+    array.push(...new_item);
   }
 }
