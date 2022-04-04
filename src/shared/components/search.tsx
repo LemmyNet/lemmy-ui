@@ -41,6 +41,7 @@ import {
   numToSI,
   personSelectName,
   personToChoice,
+  pushNotNull,
   restoreScrollPosition,
   routeListingTypeToEnum,
   routeSearchTypeToEnum,
@@ -938,11 +939,5 @@ export class Search extends Component<any, SearchState> {
       this.state.loading = false;
       this.setState(this.state);
     }
-  }
-}
-
-function pushNotNull(array, new_item?) {
-  if (new_item) {
-    array.push(...new_item);
   }
 }
