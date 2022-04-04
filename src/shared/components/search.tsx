@@ -478,27 +478,25 @@ export class Search extends Component<any, SearchState> {
     // Push the search results
     pushNotNull(
       combined,
-      this.state.searchResponse?.comments
-        ?.filter(e => e)
-        .map(e => this.commentViewToCombined(e))
+      this.state.searchResponse?.comments?.map(e =>
+        this.commentViewToCombined(e)
+      )
     );
     pushNotNull(
       combined,
-      this.state.searchResponse?.posts
-        ?.filter(e => e)
-        .map(e => this.postViewToCombined(e))
+      this.state.searchResponse?.posts?.map(e => this.postViewToCombined(e))
     );
     pushNotNull(
       combined,
-      this.state.searchResponse?.communities
-        ?.filter(e => e)
-        .map(e => this.communityViewToCombined(e))
+      this.state.searchResponse?.communities?.map(e =>
+        this.communityViewToCombined(e)
+      )
     );
     pushNotNull(
       combined,
-      this.state.searchResponse?.users
-        ?.filter(e => e)
-        .map(e => this.personViewSafeToCombined(e))
+      this.state.searchResponse?.users?.map(e =>
+        this.personViewSafeToCombined(e)
+      )
     );
 
     // Sort it
