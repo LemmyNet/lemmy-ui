@@ -166,17 +166,10 @@ export class Community extends Component<any, State> {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
-    // It can be /c/main, or /c/1
     let idOrName = pathSplit[2];
-    let id: number;
-    let name_: string;
-    if (isNaN(Number(idOrName))) {
-      name_ = idOrName;
-    } else {
-      id = Number(idOrName);
-    }
+    let name_ = idOrName;
 
-    let communityForm: GetCommunity = id ? { id } : { name: name_ };
+    let communityForm: GetCommunity = { name: name_ };
     setOptionalAuth(communityForm, req.auth);
     promises.push(req.client.getCommunity(communityForm));
 
