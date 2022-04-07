@@ -154,16 +154,6 @@ export class Profile extends Component<any, ProfileState> {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
-    // It can be /u/me, or /username/1
-    let idOrName = pathSplit[2];
-    let person_id: number;
-    let username: string;
-    if (isNaN(Number(idOrName))) {
-      username = idOrName;
-    } else {
-      person_id = Number(idOrName);
-    }
-
     let view = this.getViewFromProps(pathSplit[4]);
     let sort = this.getSortTypeFromProps(pathSplit[6]);
     let page = this.getPageFromProps(Number(pathSplit[8]));
@@ -173,19 +163,12 @@ export class Profile extends Component<any, ProfileState> {
       saved_only: view === PersonDetailsView.Saved,
       page,
       limit: fetchLimit,
+      username: pathSplit[2],
     };
     setOptionalAuth(form, req.auth);
-    this.setIdOrName(form, person_id, username);
+    form.username;
     promises.push(req.client.getPersonDetails(form));
     return promises;
-  }
-
-  static setIdOrName(obj: any, id: number, name_: string) {
-    if (id) {
-      obj.person_id = id;
-    } else {
-      obj.username = name_;
-    }
   }
 
   componentDidMount() {
