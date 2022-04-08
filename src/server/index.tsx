@@ -27,13 +27,6 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
-server.use(function (_req, res, next) {
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src data: 'self'; connect-src * ws: wss:; frame-src *; img-src * data:; script-src 'self'; style-src 'self' 'unsafe-inline'; manifest-src 'self'"
-  );
-  next();
-});
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 server.use("/static", express.static(path.resolve("./dist")));
@@ -171,8 +164,18 @@ server.get("/*", async (req, res) => {
       return res.redirect(context.url);
     }
 
+    const cspHtml = (
+      <meta
+        http-equiv="Content-Security-Policy"
+        content="default-src data: 'self'; connect-src * ws: wss:; frame-src *; img-src * data:; script-src 'self'; style-src 'self' 'unsafe-inline'; manifest-src 'self'"
+      />
+    );
+
     const root = renderToString(wrapper);
     const symbols = renderToString(SYMBOLS);
+    const cspStr = process.env.LEMMY_EXTERNAL_HOST
+      ? renderToString(cspHtml)
+      : "";
     const helmet = Helmet.renderStatic();
 
     const config: ILemmyConfig = { wsHost: process.env.LEMMY_WS_HOST };
@@ -196,6 +199,9 @@ server.get("/*", async (req, res) => {
            <meta name="Description" content="Lemmy">
            <meta charset="utf-8">
            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+           <!-- Content Security Policy -->
+           ${cspStr}
 
            <!-- Web app manifest -->
            <link rel="manifest" href="/static/assets/manifest.webmanifest">
