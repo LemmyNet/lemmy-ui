@@ -167,7 +167,6 @@ export class Profile extends Component<any, ProfileState> {
       username: username,
     };
     setOptionalAuth(form, req.auth);
-    form.username = username;
     promises.push(req.client.getPersonDetails(form));
     return promises;
   }
