@@ -154,6 +154,7 @@ export class Profile extends Component<any, ProfileState> {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
+    let username = pathSplit[2];
     let view = this.getViewFromProps(pathSplit[4]);
     let sort = this.getSortTypeFromProps(pathSplit[6]);
     let page = this.getPageFromProps(Number(pathSplit[8]));
@@ -163,10 +164,10 @@ export class Profile extends Component<any, ProfileState> {
       saved_only: view === PersonDetailsView.Saved,
       page,
       limit: fetchLimit,
-      username: pathSplit[2],
+      username: username,
     };
     setOptionalAuth(form, req.auth);
-    form.username;
+    form.username = username;
     promises.push(req.client.getPersonDetails(form));
     return promises;
   }

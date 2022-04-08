@@ -166,10 +166,8 @@ export class Community extends Component<any, State> {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
-    let idOrName = pathSplit[2];
-    let name_ = idOrName;
-
-    let communityForm: GetCommunity = { name: name_ };
+    let communityName = pathSplit[2];
+    let communityForm: GetCommunity = { name: communityName };
     setOptionalAuth(communityForm, req.auth);
     promises.push(req.client.getCommunity(communityForm));
 
@@ -197,7 +195,7 @@ export class Community extends Component<any, State> {
         saved_only: false,
       };
       setOptionalAuth(getPostsForm, req.auth);
-      this.setName(getPostsForm, name_);
+      this.setName(getPostsForm, communityName);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetComments = {
@@ -207,7 +205,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         saved_only: false,
       };
-      this.setName(getCommentsForm, name_);
+      this.setName(getCommentsForm, communityName);
       setOptionalAuth(getCommentsForm, req.auth);
       promises.push(req.client.getComments(getCommentsForm));
     }
