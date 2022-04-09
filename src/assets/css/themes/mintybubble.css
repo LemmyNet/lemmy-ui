@@ -12,7 +12,7 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /* This theme is based on the available theme called "Minty", A slight modification to fit a wallpaper. Made by 2xx04 */
-body {background-image: url(/pictrs/image/mintybubble2560x1600.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
+body {background-image: url(https://github.com/2xx04/lemmy-ui-themes/raw/main/pictrs/image/mintybubble2560x1600.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
 :root {
     --blue: #007bff;
     --indigo: #6610f2;
