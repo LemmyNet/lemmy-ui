@@ -1,6 +1,6 @@
 /* This is made from the original dark theme from lemmy, darkly. And is heavily inspired by Disqordia-FE. Made by 2xx04 */
 body {
-    background-image: url(https://github.com/2xx04/lemmy-ui-themes/raw/main/pictrs/image/darkspace2560x1440.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
+    background-image: url(/pictrs/image/darkspace2560x1440.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
 :root {
  --blue:#375a7f;
  --indigo:#6610f2;
@@ -373,7 +373,7 @@ hr {
  margin-top:1rem;
  margin-bottom:1rem;
  border:0;
- border-top:1px solid rgba(0,0,0,.1)
+ border-top:1px solid rgba(256,256,256,.1)
 }
 .small,
 small {
@@ -8811,9 +8811,11 @@ a.text-dark:hover {
   color:inherit;
   border-color:#444
 }
-hr {opacity:0;}
 label.btn.btn-outline-secondary.pointer.false {
     color: #fff ;
+}
+hr.my-3 {
+    opacity: 0;
 }
 /* button colors */
 .my-3 {
