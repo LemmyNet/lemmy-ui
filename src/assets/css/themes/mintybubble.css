@@ -12,7 +12,7 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /* This theme is based on the available theme called "Minty", A slight modification to fit a wallpaper. Made by 2xx04 */
-body {background-image: url(https://github.com/2xx04/lemmy-ui-themes/raw/main/pictrs/image/mintybubble2560x1600.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
+body {background-image: url(/pictrs/image/mintybubble2560x1600.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
 :root {
     --blue: #007bff;
     --indigo: #6610f2;
@@ -9909,9 +9909,11 @@ border-radius: 20px;
 border-style: solid;
 }
 .navbar {background: white;}
-hr {opacity:0;}
 label.btn.btn-outline-secondary.pointer.false {
 background: white;
+}
+hr.my-3 {
+    opacity: 0;
 }
 .my-3 {
 margin-top: 0.5rem !important;
@@ -9972,4 +9974,5 @@ html body div#root div div.mt-4.p-0.fl-1 div.container div.row div.col-12.col-md
     border-radius: 20px;
 }
 .border-light {
-    border-color: transparent !important;}
+    border-color: transparent !important;
+}
