@@ -78,6 +78,8 @@ interface HomeState {
   showSubscribedMobile: boolean;
   showTrendingMobile: boolean;
   showSidebarMobile: boolean;
+  sidebarCollapsed: boolean;
+  subscribedCollapsed: boolean;
   loading: boolean;
   posts: PostView[];
   comments: CommentView[];
@@ -111,6 +113,8 @@ export class Home extends Component<any, HomeState> {
     showSubscribedMobile: false,
     showTrendingMobile: false,
     showSidebarMobile: false,
+    subscribedCollapsed: false,
+    sidebarCollapsed: false,
     loading: true,
     posts: [],
     comments: [],
@@ -366,16 +370,16 @@ export class Home extends Component<any, HomeState> {
               </div>
             </div>
 
+            <div class="card border-secondary mb-3">
+              <div class="card-body">{this.sidebar()}</div>
+            </div>
+
             {UserService.Instance.myUserInfo &&
               UserService.Instance.myUserInfo.follows.length > 0 && (
                 <div class="card border-secondary mb-3">
                   <div class="card-body">{this.subscribedCommunities()}</div>
                 </div>
               )}
-
-            <div class="card border-secondary mb-3">
-              <div class="card-body">{this.sidebar()}</div>
-            </div>
           </div>
         )}
       </div>
@@ -424,20 +428,34 @@ export class Home extends Component<any, HomeState> {
     return (
       <div>
         <h5>
-          <T i18nKey="subscribed_to_communities">
+          <T class="d-inline" i18nKey="subscribed_to_communities">
             #
             <Link className="text-body" to="/communities">
               #
             </Link>
           </T>
+          <button
+            class="btn btn-sm text-muted"
+            onClick={linkEvent(this, this.handleCollapseSubscribe)}
+            aria-label={i18n.t("collapse")}
+            data-tippy-content={i18n.t("collapse")}
+          >
+            {this.state.subscribedCollapsed ? (
+              <Icon icon="plus-square" classes="icon-inline" />
+            ) : (
+              <Icon icon="minus-square" classes="icon-inline" />
+            )}
+          </button>
         </h5>
-        <ul class="list-inline mb-0">
-          {UserService.Instance.myUserInfo.follows.map(cfv => (
-            <li class="list-inline-item d-inline-block">
-              <CommunityLink community={cfv.community} />
-            </li>
-          ))}
-        </ul>
+        {!this.state.subscribedCollapsed && (
+          <ul class="list-inline mb-0">
+            {UserService.Instance.myUserInfo.follows.map(cfv => (
+              <li class="list-inline-item d-inline-block">
+                <CommunityLink community={cfv.community} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     );
   }
@@ -452,8 +470,12 @@ export class Home extends Component<any, HomeState> {
               {this.siteName()}
               {this.adminButtons()}
             </div>
-            <BannerIconHeader banner={site.banner} />
-            {this.siteInfo()}
+            {!this.state.sidebarCollapsed && (
+              <>
+                <BannerIconHeader banner={site.banner} />
+                {this.siteInfo()}
+              </>
+            )}
           </div>
         ) : (
           <SiteForm site={site} onCancel={this.handleEditCancel} />
@@ -486,7 +508,25 @@ export class Home extends Component<any, HomeState> {
 
   siteName() {
     let site = this.state.siteRes.site_view.site;
-    return site.name && <h5 class="mb-0">{site.name}</h5>;
+    return (
+      site.name && (
+        <h5 class="mb-0 d-inline">
+          {site.name}
+          <button
+            class="btn btn-sm text-muted"
+            onClick={linkEvent(this, this.handleCollapseSidebar)}
+            aria-label={i18n.t("collapse")}
+            data-tippy-content={i18n.t("collapse")}
+          >
+            {this.state.sidebarCollapsed ? (
+              <Icon icon="plus-square" classes="icon-inline" />
+            ) : (
+              <Icon icon="minus-square" classes="icon-inline" />
+            )}
+          </button>
+        </h5>
+      )
+    );
   }
 
   admins() {
@@ -758,6 +798,16 @@ export class Home extends Component<any, HomeState> {
 
   handleShowSidebarMobile(i: Home) {
     i.state.showSidebarMobile = !i.state.showSidebarMobile;
+    i.setState(i.state);
+  }
+
+  handleCollapseSubscribe(i: Home) {
+    i.state.subscribedCollapsed = !i.state.subscribedCollapsed;
+    i.setState(i.state);
+  }
+
+  handleCollapseSidebar(i: Home) {
+    i.state.sidebarCollapsed = !i.state.sidebarCollapsed;
     i.setState(i.state);
   }
 
