@@ -21,6 +21,7 @@ import { it } from "./translations/it";
 import { ja } from "./translations/ja";
 import { ko } from "./translations/ko";
 import { nl } from "./translations/nl";
+import { oc } from "./translations/oc";
 import { pl } from "./translations/pl";
 import { pt } from "./translations/pt";
 import { pt_BR } from "./translations/pt_BR";
@@ -54,6 +55,7 @@ export const languages = [
   { resource: ja, code: "ja", name: "日本語" },
   { resource: ko, code: "ko", name: "한국어" },
   { resource: nl, code: "nl", name: "Nederlands" },
+  { resource: oc, code: "oc", name: "Occitan" },
   { resource: pl, code: "pl", name: "Polski" },
   { resource: pt, code: "pt", name: "Português" },
   { resource: pt_BR, code: "pt_BR", name: "Português (Brasil)" },
