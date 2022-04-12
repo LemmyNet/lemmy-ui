@@ -68,12 +68,17 @@ server.get("/css/themes/:name", async (req, res) => {
 function buildThemeList(): string[] {
   let themes = [
     "litera",
+    "lora",
+    "lora-compact",
+    "lora-distractionless"
     "materia",
     "minty",
+    "mintybubble",
     "solar",
     "united",
     "cyborg",
     "darkly",
+    "darkspace",
     "journal",
     "sketchy",
     "vaporwave",
@@ -81,6 +86,7 @@ function buildThemeList(): string[] {
     "i386",
     "litely",
     "nord",
+    "winternord",
   ];
   if (fs.existsSync(extraThemesFolder)) {
     let dirThemes = fs.readdirSync(extraThemesFolder);
