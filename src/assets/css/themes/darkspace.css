@@ -1,6 +1,6 @@
 /* This is made from the original dark theme from lemmy, darkly. And is heavily inspired by Disqordia-FE. Made by 2xx04 */
 body {
-    background-image: url(/pictrs/image/darkspace2560x1440.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
+    background-image: url(https://github.com/2xx04/lemmy-ui-themes/raw/main/pictrs/image/darkspace2560x1440.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
 :root {
  --blue:#375a7f;
  --indigo:#6610f2;
