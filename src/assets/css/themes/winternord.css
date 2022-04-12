@@ -11,7 +11,7 @@ The github repository containing the source code of this CSS can be found here: 
 Modifications were done by 2xx04 for lemmy-ui
 
 */
-body {background-image: url(/pictrs/image/winternord1920x1080.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
+body {background-image: url(https://github.com/2xx04/lemmy-ui-themes/raw/main/pictrs/image/winternord1920x1080.wallpaper.jpg); background-attachment:fixed; background-size: cover; background-position: center;}
 :root {
     --blue: #88C0D0;
     --indigo: #5E81AC;
