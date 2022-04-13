@@ -171,6 +171,14 @@ server.get("/*", async (req, res) => {
       />
     );
 
+    const eruda = (
+      <>
+        <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+        <script>eruda.init();</script>
+      </>
+    );
+    const erudaStr = process.env["LEMMY_UI_DEBUG"] ? renderToString(eruda) : "";
+
     const root = renderToString(wrapper);
     const symbols = renderToString(SYMBOLS);
     const cspStr = process.env.LEMMY_EXTERNAL_HOST
@@ -187,10 +195,8 @@ server.get("/*", async (req, res) => {
            <script>window.isoData = ${serialize(isoData)}</script>
            <script>window.lemmyConfig = ${serialize(config)}</script>
 
-           <!-- A remote debugging utility for mobile
-           <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-           <script>eruda.init();</script>
-           -->
+           <!-- A remote debugging utility for mobile -->
+           ${erudaStr}
 
            ${helmet.title.toString()}
            ${helmet.meta.toString()}
