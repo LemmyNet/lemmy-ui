@@ -38,7 +38,6 @@ export class Theme extends Component<Props> {
     } else {
       return (
         <Helmet>
-          [
           <link
             rel="stylesheet"
             type="text/css"
@@ -46,7 +45,6 @@ export class Theme extends Component<Props> {
             id="default-light"
             media="(prefers-color-scheme: light)"
           />
-          ,
           <link
             rel="stylesheet"
             type="text/css"
@@ -54,7 +52,6 @@ export class Theme extends Component<Props> {
             id="default-dark"
             media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
           />
-          ];
         </Helmet>
       );
     }
