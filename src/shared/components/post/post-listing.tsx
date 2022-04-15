@@ -54,10 +54,10 @@ interface PostListingState {
   showRemoveDialog: boolean;
   removeReason: string;
   showBanDialog: boolean;
-  removeData: boolean;
   banReason: string;
   banExpireDays: number;
   banType: BanType;
+  removeData: boolean;
   showConfirmTransferSite: boolean;
   showConfirmTransferCommunity: boolean;
   imageExpanded: boolean;
@@ -91,10 +91,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showRemoveDialog: false,
     removeReason: null,
     showBanDialog: false,
-    removeData: false,
     banReason: null,
     banExpireDays: null,
     banType: BanType.Community,
+    removeData: false,
     showConfirmTransferSite: false,
     showConfirmTransferCommunity: false,
     imageExpanded: false,
