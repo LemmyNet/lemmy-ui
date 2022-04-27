@@ -778,7 +778,7 @@ export class Search extends Component<any, SearchState> {
             } catch (err) {
               console.error(err);
             }
-          }, 400),
+          }),
           false
         );
       }
@@ -808,7 +808,7 @@ export class Search extends Component<any, SearchState> {
             } catch (err) {
               console.log(err);
             }
-          }, 400),
+          }),
           false
         );
       }

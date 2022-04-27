@@ -799,7 +799,7 @@ export class Settings extends Component<any, SettingsState> {
             } catch (err) {
               console.error(err);
             }
-          }, 400),
+          }),
           false
         );
       }
@@ -834,7 +834,7 @@ export class Settings extends Component<any, SettingsState> {
             } catch (err) {
               console.log(err);
             }
-          }, 400),
+          }),
           false
         );
       }
