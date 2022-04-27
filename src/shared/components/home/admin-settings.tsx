@@ -35,7 +35,7 @@ import { SiteForm } from "./site-form";
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
   siteConfigRes: GetSiteConfigResponse;
-  siteConfigForm: SaveSiteConfig;
+  siteConfigHjson: string;
   loading: boolean;
   banned: PersonViewSafe[];
   siteConfigLoading: boolean;
@@ -48,10 +48,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   private subscription: Subscription;
   private emptyState: AdminSettingsState = {
     siteRes: this.isoData.site_res,
-    siteConfigForm: {
-      config_hjson: null,
-      auth: null,
-    },
+    siteConfigHjson: null,
     siteConfigRes: {
       config_hjson: null,
     },
@@ -72,13 +69,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.siteConfigRes = this.isoData.routeData[0];
-      this.state.siteConfigForm.config_hjson =
-        this.state.siteConfigRes.config_hjson;
+      this.state.siteConfigHjson = this.state.siteConfigRes.config_hjson;
       this.state.banned = this.isoData.routeData[1].banned;
       this.state.siteConfigLoading = false;
       this.state.loading = false;
     } else {
-      this.state.siteConfigForm.auth = authField();
       WebSocketService.Instance.send(
         wsClient.getSiteConfig({
           auth: authField(),
@@ -211,7 +206,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             <div class="col-12">
               <textarea
                 id={this.siteConfigTextAreaId}
-                value={this.state.siteConfigForm.config_hjson}
+                value={this.state.siteConfigHjson}
                 onInput={linkEvent(this, this.handleSiteConfigHjsonChange)}
                 class="form-control text-monospace"
                 rows={3}
@@ -237,14 +232,16 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   handleSiteConfigSubmit(i: AdminSettings, event: any) {
     event.preventDefault();
     i.state.siteConfigLoading = true;
-    WebSocketService.Instance.send(
-      wsClient.saveSiteConfig(i.state.siteConfigForm)
-    );
+    let form: SaveSiteConfig = {
+      config_hjson: this.state.siteConfigHjson,
+      auth: authField(),
+    };
+    WebSocketService.Instance.send(wsClient.saveSiteConfig(form));
     i.setState(i.state);
   }
 
   handleSiteConfigHjsonChange(i: AdminSettings, event: any) {
-    i.state.siteConfigForm.config_hjson = event.target.value;
+    i.state.siteConfigHjson = event.target.value;
     i.setState(i.state);
   }
 
@@ -276,8 +273,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
       this.state.loading = false;
-      this.state.siteConfigForm.config_hjson =
-        this.state.siteConfigRes.config_hjson;
+      this.state.siteConfigHjson = this.state.siteConfigRes.config_hjson;
       this.setState(this.state);
       var textarea: any = document.getElementById(this.siteConfigTextAreaId);
       autosize(textarea);
@@ -292,8 +288,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     } else if (op == UserOperation.SaveSiteConfig) {
       let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
       this.state.siteConfigRes = data;
-      this.state.siteConfigForm.config_hjson =
-        this.state.siteConfigRes.config_hjson;
+      this.state.siteConfigHjson = this.state.siteConfigRes.config_hjson;
       this.state.siteConfigLoading = false;
       toast(i18n.t("site_saved"));
       this.setState(this.state);
