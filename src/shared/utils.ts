@@ -20,7 +20,6 @@ import {
   PrivateMessageView,
   RegistrationApplicationView,
   Search,
-  SearchResponse,
   SearchType,
   SortType,
   UserOperation,
@@ -585,9 +584,9 @@ export function setupTribute() {
           let it: PersonTribute = item.original;
           return `[${it.key}](${it.view.person.actor_id})`;
         },
-        values: (text: string, cb: (persons: PersonTribute[]) => any) => {
-          personSearch(text, (persons: PersonTribute[]) => cb(persons));
-        },
+        values: debounce(async (text: string, cb: any) => {
+          cb(await personSearch(text));
+        }),
         allowSpaces: false,
         autocompleteMode: true,
         // TODO
@@ -602,11 +601,9 @@ export function setupTribute() {
           let it: CommunityTribute = item.original;
           return `[${it.key}](${it.view.community.actor_id})`;
         },
-        values: (text: string, cb: any) => {
-          communitySearch(text, (communities: CommunityTribute[]) =>
-            cb(communities)
-          );
-        },
+        values: debounce(async (text: string, cb: any) => {
+          cb(await communitySearch(text));
+        }),
         allowSpaces: false,
         autocompleteMode: true,
         // TODO
@@ -638,42 +635,16 @@ interface PersonTribute {
   view: PersonViewSafe;
 }
 
-function personSearch(text: string, cb: (persons: PersonTribute[]) => any) {
-  if (text) {
-    let form: Search = {
-      q: text,
-      type_: SearchType.Users,
-      sort: SortType.TopAll,
-      listing_type: ListingType.All,
-      page: 1,
-      limit: mentionDropdownFetchLimit,
-      auth: authField(false),
+async function personSearch(text: string): Promise<PersonTribute[]> {
+  let users = (await fetchUsers(text)).users;
+  let persons: PersonTribute[] = users.map(pv => {
+    let tribute: PersonTribute = {
+      key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
+      view: pv,
     };
-
-    WebSocketService.Instance.send(wsClient.search(form));
-
-    let personSub = WebSocketService.Instance.subject.subscribe(
-      msg => {
-        let res = wsJsonToRes(msg);
-        if (res.op == UserOperation.Search) {
-          let data = res.data as SearchResponse;
-          let persons: PersonTribute[] = data.users.map(pv => {
-            let tribute: PersonTribute = {
-              key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
-              view: pv,
-            };
-            return tribute;
-          });
-          cb(persons);
-          personSub.unsubscribe();
-        }
-      },
-      err => console.error(err),
-      () => console.log("complete")
-    );
-  } else {
-    cb([]);
-  }
+    return tribute;
+  });
+  return persons;
 }
 
 interface CommunityTribute {
@@ -681,45 +652,16 @@ interface CommunityTribute {
   view: CommunityView;
 }
 
-function communitySearch(
-  text: string,
-  cb: (communities: CommunityTribute[]) => any
-) {
-  if (text) {
-    let form: Search = {
-      q: text,
-      type_: SearchType.Communities,
-      sort: SortType.TopAll,
-      listing_type: ListingType.All,
-      page: 1,
-      limit: mentionDropdownFetchLimit,
-      auth: authField(false),
+async function communitySearch(text: string): Promise<CommunityTribute[]> {
+  let comms = (await fetchCommunities(text)).communities;
+  let communities: CommunityTribute[] = comms.map(cv => {
+    let tribute: CommunityTribute = {
+      key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
+      view: cv,
     };
-
-    WebSocketService.Instance.send(wsClient.search(form));
-
-    let communitySub = WebSocketService.Instance.subject.subscribe(
-      msg => {
-        let res = wsJsonToRes(msg);
-        if (res.op == UserOperation.Search) {
-          let data = res.data as SearchResponse;
-          let communities: CommunityTribute[] = data.communities.map(cv => {
-            let tribute: CommunityTribute = {
-              key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
-              view: cv,
-            };
-            return tribute;
-          });
-          cb(communities);
-          communitySub.unsubscribe();
-        }
-      },
-      err => console.error(err),
-      () => console.log("complete")
-    );
-  } else {
-    cb([]);
-  }
+    return tribute;
+  });
+  return communities;
 }
 
 export function getListingTypeFromProps(props: any): ListingType {

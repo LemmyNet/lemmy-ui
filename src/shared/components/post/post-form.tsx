@@ -600,7 +600,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             } catch (err) {
               console.log(err);
             }
-          }, 400),
+          }),
           false
         );
       }
