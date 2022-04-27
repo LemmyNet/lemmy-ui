@@ -74,12 +74,14 @@ function buildThemeList(): string[] {
     "united",
     "cyborg",
     "darkly",
+    "darkly-red",
     "journal",
     "sketchy",
     "vaporwave",
     "vaporwave-dark",
     "i386",
     "litely",
+    "litely-red",
     "nord",
   ];
   if (fs.existsSync(extraThemesFolder)) {
