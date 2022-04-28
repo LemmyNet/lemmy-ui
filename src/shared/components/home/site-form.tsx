@@ -16,6 +16,7 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 interface SiteFormProps {
   site?: Site; // If a site is given, that means this is an edit
   onCancel?(): any;
+  onEdit?(): any;
 }
 
 interface SiteFormState {
@@ -404,6 +405,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.state.loading = true;
     if (i.props.site) {
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
+      i.props.onEdit();
     } else {
       let form: CreateSite = {
         name: i.state.siteForm.name || "My site",

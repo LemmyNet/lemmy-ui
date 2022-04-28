@@ -60,6 +60,7 @@ import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { Sidebar } from "../community/sidebar";
+import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
 
@@ -268,13 +269,20 @@ export class Community extends Component<any, State> {
                     />
                   </button>
                   {this.state.showSidebarMobile && (
-                    <Sidebar
-                      community_view={cv}
-                      moderators={this.state.communityRes.moderators}
-                      admins={this.state.siteRes.admins}
-                      online={this.state.communityRes.online}
-                      enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
-                    />
+                    <>
+                      <Sidebar
+                        community_view={cv}
+                        moderators={this.state.communityRes.moderators}
+                        admins={this.state.siteRes.admins}
+                        online={this.state.communityRes.online}
+                        enableNsfw={
+                          this.state.siteRes.site_view.site.enable_nsfw
+                        }
+                      />
+                      {!cv.community.local && this.state.communityRes.site && (
+                        <SiteSidebar site={this.state.communityRes.site} />
+                      )}
+                    </>
                   )}
                 </div>
                 {this.selects()}
@@ -292,6 +300,9 @@ export class Community extends Component<any, State> {
                   online={this.state.communityRes.online}
                   enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
                 />
+                {!cv.community.local && this.state.communityRes.site && (
+                  <SiteSidebar site={this.state.communityRes.site} />
+                )}
               </div>
             </div>
           </>

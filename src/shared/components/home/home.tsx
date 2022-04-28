@@ -40,9 +40,7 @@ import {
   getListingTypeFromProps,
   getPageFromProps,
   getSortTypeFromProps,
-  mdToHtml,
   notifyPost,
-  numToSI,
   relTags,
   restoreScrollPosition,
   saveCommentRes,
@@ -59,7 +57,6 @@ import {
   wsUserOp,
 } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
-import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -67,18 +64,15 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
-import { PersonListing } from "../person/person-listing";
 import { PostListings } from "../post/post-listings";
-import { SiteForm } from "./site-form";
+import { SiteSidebar } from "./site-sidebar";
 
 interface HomeState {
   trendingCommunities: CommunityView[];
   siteRes: GetSiteResponse;
-  showEditSite: boolean;
   showSubscribedMobile: boolean;
   showTrendingMobile: boolean;
   showSidebarMobile: boolean;
-  sidebarCollapsed: boolean;
   subscribedCollapsed: boolean;
   loading: boolean;
   posts: PostView[];
@@ -109,12 +103,10 @@ export class Home extends Component<any, HomeState> {
   private emptyState: HomeState = {
     trendingCommunities: [],
     siteRes: this.isoData.site_res,
-    showEditSite: false,
     showSubscribedMobile: false,
     showTrendingMobile: false,
     showSidebarMobile: false,
     subscribedCollapsed: false,
-    sidebarCollapsed: false,
     loading: true,
     posts: [],
     comments: [],
@@ -128,7 +120,6 @@ export class Home extends Component<any, HomeState> {
     super(props, context);
 
     this.state = this.emptyState;
-    this.handleEditCancel = this.handleEditCancel.bind(this);
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
@@ -293,6 +284,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   mobileView() {
+    let siteRes = this.state.siteRes;
     return (
       <div class="row">
         <div class="col-12">
@@ -337,19 +329,22 @@ export class Home extends Component<any, HomeState> {
               classes="icon-inline"
             />
           </button>
-          {this.state.showSubscribedMobile && (
-            <div class="col-12 card border-secondary mb-3">
-              <div class="card-body">{this.subscribedCommunities()}</div>
-            </div>
+          {this.state.showSidebarMobile && (
+            <SiteSidebar
+              site={siteRes.site_view.site}
+              admins={siteRes.admins}
+              counts={siteRes.site_view.counts}
+              online={siteRes.online}
+            />
           )}
           {this.state.showTrendingMobile && (
             <div class="col-12 card border-secondary mb-3">
               <div class="card-body">{this.trendingCommunities()}</div>
             </div>
           )}
-          {this.state.showSidebarMobile && (
+          {this.state.showSubscribedMobile && (
             <div class="col-12 card border-secondary mb-3">
-              <div class="card-body">{this.sidebar()}</div>
+              <div class="card-body">{this.subscribedCommunities()}</div>
             </div>
           )}
         </div>
@@ -358,6 +353,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   mySidebar() {
+    let siteRes = this.state.siteRes;
     return (
       <div>
         {!this.state.loading && (
@@ -370,9 +366,12 @@ export class Home extends Component<any, HomeState> {
               </div>
             </div>
 
-            <div class="card border-secondary mb-3">
-              <div class="card-body">{this.sidebar()}</div>
-            </div>
+            <SiteSidebar
+              site={siteRes.site_view.site}
+              admins={siteRes.admins}
+              counts={siteRes.site_view.counts}
+              online={siteRes.online}
+            />
 
             {UserService.Instance.myUserInfo &&
               UserService.Instance.myUserInfo.follows.length > 0 && (
@@ -460,30 +459,6 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  sidebar() {
-    let site = this.state.siteRes.site_view.site;
-    return (
-      <div>
-        {!this.state.showEditSite ? (
-          <div>
-            <div class="mb-2">
-              {this.siteName()}
-              {this.adminButtons()}
-            </div>
-            {!this.state.sidebarCollapsed && (
-              <>
-                <BannerIconHeader banner={site.banner} />
-                {this.siteInfo()}
-              </>
-            )}
-          </div>
-        ) : (
-          <SiteForm site={site} onCancel={this.handleEditCancel} />
-        )}
-      </div>
-    );
-  }
-
   updateUrl(paramUpdates: UrlParams) {
     const listingTypeStr = paramUpdates.listingType || this.state.listingType;
     const dataTypeStr = paramUpdates.dataType || DataType[this.state.dataType];
@@ -491,179 +466,6 @@ export class Home extends Component<any, HomeState> {
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
       `/home/data_type/${dataTypeStr}/listing_type/${listingTypeStr}/sort/${sortStr}/page/${page}`
-    );
-  }
-
-  siteInfo() {
-    let site = this.state.siteRes.site_view.site;
-    return (
-      <div>
-        {site.description && <h6>{site.description}</h6>}
-        {site.sidebar && this.siteSidebar()}
-        {this.badges()}
-        {this.admins()}
-      </div>
-    );
-  }
-
-  siteName() {
-    let site = this.state.siteRes.site_view.site;
-    return (
-      site.name && (
-        <h5 class="mb-0 d-inline">
-          {site.name}
-          <button
-            class="btn btn-sm text-muted"
-            onClick={linkEvent(this, this.handleCollapseSidebar)}
-            aria-label={i18n.t("collapse")}
-            data-tippy-content={i18n.t("collapse")}
-          >
-            {this.state.sidebarCollapsed ? (
-              <Icon icon="plus-square" classes="icon-inline" />
-            ) : (
-              <Icon icon="minus-square" classes="icon-inline" />
-            )}
-          </button>
-        </h5>
-      )
-    );
-  }
-
-  admins() {
-    return (
-      <ul class="mt-1 list-inline small mb-0">
-        <li class="list-inline-item">{i18n.t("admins")}:</li>
-        {this.state.siteRes.admins.map(av => (
-          <li class="list-inline-item">
-            <PersonListing person={av.person} />
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  badges() {
-    let counts = this.state.siteRes.site_view.counts;
-    return (
-      <ul class="my-2 list-inline">
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_online", {
-            count: this.state.siteRes.online,
-            formattedCount: numToSI(this.state.siteRes.online),
-          })}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_day", {
-            count: counts.users_active_day,
-            formattedCount: numToSI(counts.users_active_day),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: counts.users_active_day,
-            formattedCount: numToSI(counts.users_active_day),
-          })}{" "}
-          / {i18n.t("day")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_week", {
-            count: counts.users_active_week,
-            formattedCount: counts.users_active_week,
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: counts.users_active_week,
-            formattedCount: numToSI(counts.users_active_week),
-          })}{" "}
-          / {i18n.t("week")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_month", {
-            count: counts.users_active_month,
-            formattedCount: counts.users_active_month,
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: counts.users_active_month,
-            formattedCount: numToSI(counts.users_active_month),
-          })}{" "}
-          / {i18n.t("month")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-            count: counts.users_active_half_year,
-            formattedCount: counts.users_active_half_year,
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: counts.users_active_half_year,
-            formattedCount: numToSI(counts.users_active_half_year),
-          })}{" "}
-          / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_users", {
-            count: counts.users,
-            formattedCount: numToSI(counts.users),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_communities", {
-            count: counts.communities,
-            formattedCount: numToSI(counts.communities),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_posts", {
-            count: counts.posts,
-            formattedCount: numToSI(counts.posts),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_comments", {
-            count: counts.comments,
-            formattedCount: numToSI(counts.comments),
-          })}
-        </li>
-        <li className="list-inline-item">
-          <Link className="badge badge-primary" to="/modlog">
-            {i18n.t("modlog")}
-          </Link>
-        </li>
-      </ul>
-    );
-  }
-
-  adminButtons() {
-    return (
-      this.canAdmin && (
-        <ul class="list-inline mb-1 text-muted font-weight-bold">
-          <li className="list-inline-item-action">
-            <button
-              class="btn btn-link d-inline-block text-muted"
-              onClick={linkEvent(this, this.handleEditClick)}
-              aria-label={i18n.t("edit")}
-              data-tippy-content={i18n.t("edit")}
-            >
-              <Icon icon="edit" classes="icon-inline" />
-            </button>
-          </li>
-        </ul>
-      )
-    );
-  }
-
-  siteSidebar() {
-    return (
-      <div
-        className="md-div"
-        dangerouslySetInnerHTML={mdToHtml(
-          this.state.siteRes.site_view.site.sidebar
-        )}
-      />
     );
   }
 
@@ -767,25 +569,6 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  get canAdmin(): boolean {
-    return (
-      UserService.Instance.myUserInfo &&
-      this.state.siteRes.admins
-        .map(a => a.person.id)
-        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
-    );
-  }
-
-  handleEditClick(i: Home) {
-    i.state.showEditSite = true;
-    i.setState(i.state);
-  }
-
-  handleEditCancel() {
-    this.state.showEditSite = false;
-    this.setState(this.state);
-  }
-
   handleShowSubscribedMobile(i: Home) {
     i.state.showSubscribedMobile = !i.state.showSubscribedMobile;
     i.setState(i.state);
@@ -803,11 +586,6 @@ export class Home extends Component<any, HomeState> {
 
   handleCollapseSubscribe(i: Home) {
     i.state.subscribedCollapsed = !i.state.subscribedCollapsed;
-    i.setState(i.state);
-  }
-
-  handleCollapseSidebar(i: Home) {
-    i.state.sidebarCollapsed = !i.state.sidebarCollapsed;
     i.setState(i.state);
   }
 
@@ -873,7 +651,6 @@ export class Home extends Component<any, HomeState> {
     } else if (op == UserOperation.EditSite) {
       let data = wsJsonToRes<SiteResponse>(msg).data;
       this.state.siteRes.site_view = data.site_view;
-      this.state.showEditSite = false;
       this.setState(this.state);
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetPosts) {
