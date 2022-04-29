@@ -82,7 +82,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {this.communityTitle()}
             {this.adminButtons()}
             {this.subscribe()}
-            {this.createPost()}
+            {this.canPost && this.createPost()}
           </div>
         </div>
         <div class="card border-secondary mb-3">
@@ -250,16 +250,14 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   createPost() {
-    let community_view = this.props.community_view;
+    let cv = this.props.community_view;
     return (
-      community_view.subscribed && (
+      cv.subscribed && (
         <Link
           className={`btn btn-secondary btn-block mb-2 ${
-            community_view.community.deleted || community_view.community.removed
-              ? "no-click"
-              : ""
+            cv.community.deleted || cv.community.removed ? "no-click" : ""
           }`}
-          to={`/create_post?community_id=${community_view.community.id}`}
+          to={`/create_post?community_id=${cv.community.id}`}
         >
           {i18n.t("create_a_post")}
         </Link>
@@ -533,6 +531,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       this.props.admins
         .map(a => a.person.id)
         .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
+    );
+  }
+
+  get canPost(): boolean {
+    return (
+      !this.props.community_view.community.posting_restricted_to_mods ||
+      (this.canMod && this.canAdmin)
     );
   }
 
