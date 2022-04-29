@@ -537,7 +537,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
-      (this.canMod && this.canAdmin)
+      this.canMod ||
+      this.canAdmin
     );
   }
 
