@@ -11,7 +11,7 @@ import process from "process";
 import serialize from "serialize-javascript";
 import { App } from "../shared/components/app/app";
 import { SYMBOLS } from "../shared/components/common/symbols";
-import { httpBaseInternal } from "../shared/env";
+import { httpBaseInternal, wsUriBase } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
@@ -27,6 +27,18 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
+server.use(function (_req, res, next) {
+  // in debug mode, websocket backend may be on another port, so we need to permit it in csp policy
+  var websocketBackend;
+  if (process.env.NODE_ENV == "development") {
+    websocketBackend = wsUriBase;
+  }
+  res.setHeader(
+    "Content-Security-Policy",
+    `default-src 'none'; connect-src 'self' ${websocketBackend}; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'`
+  );
+  next();
+});
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 server.use("/static", express.static(path.resolve("./dist")));
@@ -166,13 +178,6 @@ server.get("/*", async (req, res) => {
       return res.redirect(context.url);
     }
 
-    const cspHtml = (
-      <meta
-        http-equiv="Content-Security-Policy"
-        content="default-src data: 'self'; connect-src * ws: wss:; frame-src *; img-src * data:; script-src 'self'; style-src 'self' 'unsafe-inline'; manifest-src 'self'"
-      />
-    );
-
     const eruda = (
       <>
         <script src="//cdn.jsdelivr.net/npm/eruda"></script>
@@ -180,12 +185,8 @@ server.get("/*", async (req, res) => {
       </>
     );
     const erudaStr = process.env["LEMMY_UI_DEBUG"] ? renderToString(eruda) : "";
-
     const root = renderToString(wrapper);
     const symbols = renderToString(SYMBOLS);
-    const cspStr = process.env.LEMMY_EXTERNAL_HOST
-      ? renderToString(cspHtml)
-      : "";
     const helmet = Helmet.renderStatic();
 
     const config: ILemmyConfig = { wsHost: process.env.LEMMY_WS_HOST };
@@ -207,9 +208,6 @@ server.get("/*", async (req, res) => {
            <meta name="Description" content="Lemmy">
            <meta charset="utf-8">
            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-           <!-- Content Security Policy -->
-           ${cspStr}
 
            <!-- Web app manifest -->
            <link rel="manifest" href="/static/assets/manifest.webmanifest">
