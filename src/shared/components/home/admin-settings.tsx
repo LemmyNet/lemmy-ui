@@ -21,6 +21,7 @@ import {
   isBrowser,
   randomStr,
   setIsoData,
+  showLocal,
   toast,
   wsClient,
   wsJsonToRes,
@@ -133,7 +134,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 path={this.context.router.route.match.url}
               />
               {this.state.siteRes.site_view.site.id && (
-                <SiteForm site={this.state.siteRes.site_view.site} />
+                <SiteForm
+                  site={this.state.siteRes.site_view.site}
+                  showLocal={showLocal(this.isoData)}
+                />
               )}
               {this.admins()}
               {this.bannedUsers()}

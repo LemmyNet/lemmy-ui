@@ -664,7 +664,10 @@ async function communitySearch(text: string): Promise<CommunityTribute[]> {
   return communities;
 }
 
-export function getListingTypeFromProps(props: any): ListingType {
+export function getListingTypeFromProps(
+  props: any,
+  defaultListingType: ListingType
+): ListingType {
   return props.match.params.listing_type
     ? routeListingTypeToEnum(props.match.params.listing_type)
     : UserService.Instance.myUserInfo
@@ -672,7 +675,7 @@ export function getListingTypeFromProps(props: any): ListingType {
         UserService.Instance.myUserInfo.local_user_view.local_user
           .default_listing_type
       ]
-    : ListingType.Local;
+    : defaultListingType;
 }
 
 export function getListingTypeFromPropsNoDefault(props: any): ListingType {

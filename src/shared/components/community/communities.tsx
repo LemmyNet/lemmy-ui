@@ -128,6 +128,7 @@ export class Communities extends Component<any, CommunitiesState> {
                   <ListingTypeSelect
                     type_={this.state.listingType}
                     showLocal={showLocal(this.isoData)}
+                    showSubscribed
                     onChange={this.handleListingTypeChange}
                   />
                 </span>
