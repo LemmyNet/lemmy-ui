@@ -92,8 +92,11 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}
-        {site.sidebar && this.siteSidebar()}
-        {this.props.counts && this.badges()}
+        {site.sidebar.match({
+          some: sidebar => this.siteSidebar(sidebar),
+          none: <></>,
+        })}
+        ;{this.props.counts && this.badges()}
         {this.props.admins && this.admins()}
       </div>
     );
@@ -118,12 +121,9 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     );
   }
 
-  siteSidebar() {
+  siteSidebar(sidebar: string) {
     return (
-      <div
-        className="md-div"
-        dangerouslySetInnerHTML={mdToHtml(this.props.site.sidebar)}
-      />
+      <div className="md-div" dangerouslySetInnerHTML={mdToHtml(sidebar)} />
     );
   }
 

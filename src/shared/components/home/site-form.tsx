@@ -1,3 +1,4 @@
+import { None, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import { CreateSite, EditSite, Site } from "lemmy-js-client";
@@ -39,6 +40,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       application_question: null,
       private_instance: null,
       default_theme: null,
+      sidebar: None,
       auth: authField(false),
     },
     loading: false,
@@ -61,6 +63,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     if (this.props.site) {
       let site = this.props.site;
+      console.log(this.props.site);
       this.state.siteForm = {
         name: site.name,
         sidebar: site.sidebar,
@@ -186,7 +189,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <label class="col-12 col-form-label">{i18n.t("sidebar")}</label>
             <div class="col-12">
               <MarkdownTextArea
-                initialContent={this.state.siteForm.sidebar}
+                initialContent={this.state.siteForm.sidebar.unwrapOr("")}
                 onContentChange={this.handleSiteSidebarChange}
                 hideNavigationWarnings
               />
@@ -422,7 +425,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteSidebarChange(val: string) {
-    this.state.siteForm.sidebar = val;
+    this.state.siteForm.sidebar = Some(val);
     this.setState(this.state);
   }
 

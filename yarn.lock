@@ -1200,6 +1200,11 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.2.tgz#830beaec4b4091a9e9398ac50f865ddea52186b9"
   integrity sha512-92FRmppjjqz29VMJ2dn+xdyXZBrMlE42AV6Kq6BwjWV7CNUW1hs2FtxSNLQE+gJhaZ6AAmYuO9y8dshhcBl7vA==
 
+"@sniptt/monads@^0.5.10":
+  version "0.5.10"
+  resolved "https://registry.yarnpkg.com/@sniptt/monads/-/monads-0.5.10.tgz#a80cd00738bbd682d36d36dd36bdc0bddc96eb76"
+  integrity sha512-+agDOv9DpDV+9e2zN/Vmdk+XaqGx5Sykl0fqhqgiJ90r18nsBkxe44DmZ2sA1HYK+MSsBeZBiAr6pq4w+5uhfw==
+
 "@types/autosize@^4.0.0":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@types/autosize/-/autosize-4.0.1.tgz#999a7c305b96766248044ebaac1a0299961f3b61"
@@ -4813,10 +4818,12 @@ lcid@^1.0.0:
   dependencies:
     invert-kv "^1.0.0"
 
-lemmy-js-client@0.16.4-rc.1:
-  version "0.16.4-rc.1"
-  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.16.4-rc.1.tgz#dfa94a152a7abe75f50f2599a8d9b40c143f37ff"
-  integrity sha512-94Xh7A/WDywRaJ0GPXPaXZhyXqMzK0gAISNSB8m++2mC1WJalOqfjR72q/7PmLGxfjYO88/aWSz4Sk0SXWJjCw==
+lemmy-js-client@0.17.0-rc.8:
+  version "0.17.0-rc.8"
+  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.17.0-rc.8.tgz#32b41f60e02c704a08ed00a45a2410585903d6ca"
+  integrity sha512-B3qCRz1QdGBV6M9jUdC8FEospYxSS/6opjZOiKKzHHDjVGPEFX8tvnMI5KmhDinTJvBFF1DwyMWcR+kWM0giyQ==
+  dependencies:
+    "@sniptt/monads" "^0.5.10"
 
 levn@^0.4.1:
   version "0.4.1"

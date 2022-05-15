@@ -11,7 +11,7 @@ import process from "process";
 import serialize from "serialize-javascript";
 import { App } from "../shared/components/app/app";
 import { SYMBOLS } from "../shared/components/common/symbols";
-import { httpBaseInternal, wsUriBase } from "../shared/env";
+import { httpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
@@ -27,18 +27,18 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
-server.use(function (_req, res, next) {
-  // in debug mode, websocket backend may be on another port, so we need to permit it in csp policy
-  var websocketBackend;
-  if (process.env.NODE_ENV == "development") {
-    websocketBackend = wsUriBase;
-  }
-  res.setHeader(
-    "Content-Security-Policy",
-    `default-src 'none'; connect-src 'self' ${websocketBackend}; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'`
-  );
-  next();
-});
+// server.use(function (_req, res, next) {
+//   // in debug mode, websocket backend may be on another port, so we need to permit it in csp policy
+//   var websocketBackend;
+//   if (process.env.NODE_ENV == "development") {
+//     websocketBackend = wsUriBase;
+//   }
+//   res.setHeader(
+//     "Content-Security-Policy",
+//     `default-src 'none'; connect-src 'self' ${websocketBackend}; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'`
+//   );
+//   next();
+// });
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 server.use("/static", express.static(path.resolve("./dist")));
