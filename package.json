@@ -74,7 +74,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^7.0.4",
     "import-sort-style-module": "^6.0.0",
-    "lemmy-js-client": "0.16.4-rc.1",
+    "lemmy-js-client": "git+https://github.com/LemmyNet/lemmy-js-client.git#legal-info",
     "lint-staged": "^12.4.1",
     "mini-css-extract-plugin": "^2.6.0",
     "node-fetch": "^2.6.1",
