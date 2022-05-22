@@ -46,7 +46,6 @@ import {
   insertCommentIntoTree,
   isBrowser,
   isImage,
-  previewLines,
   restoreScrollPosition,
   saveCommentRes,
   saveScrollPosition,
@@ -287,8 +286,7 @@ export class Post extends Component<any, PostState> {
   }
 
   get descriptionTag(): string {
-    let body = this.state.postRes.post_view.post.body;
-    return body ? previewLines(body) : undefined;
+    return this.state.postRes.post_view.post.body;
   }
 
   render() {
