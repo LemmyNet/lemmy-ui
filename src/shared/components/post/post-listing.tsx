@@ -413,7 +413,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     return (
       <div className="post-title overflow-hidden">
-        <h5>
+        <h3>
           {this.showBody && post.url ? (
             <a
               className={!post.stickied ? "text-body" : "text-primary"}
@@ -480,7 +480,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {i18n.t("nsfw")}
             </small>
           )}
-        </h5>
+        </h3>
       </div>
     );
   }
