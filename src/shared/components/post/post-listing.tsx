@@ -516,7 +516,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     return (
       <div class="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
-        {this.commentsButton}
+        {this.commentsButton} {this.mobileVotes}
         {!post.local && (
           <a
             className="btn btn-link btn-animate text-muted py-0"
@@ -1131,7 +1131,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {/* The larger view*/}
         <div class="d-none d-sm-block">
           <div class="row">
-            {!this.props.viewOnly && this.voteBar()}
+            {!this.props.viewOnly}
             {/*            <div class="col-sm-2 pr-0">
               <div class="">{this.thumbnail()}</div>
             </div>*/}
