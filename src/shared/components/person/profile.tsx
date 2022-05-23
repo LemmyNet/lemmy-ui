@@ -34,7 +34,6 @@ import {
   isMod,
   mdToHtml,
   numToSI,
-  previewLines,
   relTags,
   restoreScrollPosition,
   routeSortTypeToEnum,
@@ -221,7 +220,7 @@ export class Profile extends Component<any, ProfileState> {
 
   get bioTag(): string {
     return this.state.personRes.person_view.person.bio
-      ? previewLines(this.state.personRes.person_view.person.bio)
+      ? this.state.personRes.person_view.person.bio
       : undefined;
   }
 

@@ -1034,21 +1034,6 @@ function hsl(num: number) {
   return `hsla(${num}, 35%, 50%, 1)`;
 }
 
-export function previewLines(
-  text: string,
-  maxChars = 300,
-  maxLines = 1
-): string {
-  return (
-    text
-      .slice(0, maxChars)
-      .split("\n")
-      // Use lines * 2 because markdown requires 2 lines
-      .slice(0, maxLines * 2)
-      .join("\n") + "..."
-  );
-}
-
 export function hostname(url: string): string {
   let cUrl = new URL(url);
   return cUrl.port ? `${cUrl.hostname}:${cUrl.port}` : `${cUrl.hostname}`;

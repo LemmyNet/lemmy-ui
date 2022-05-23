@@ -35,7 +35,6 @@ import {
   md,
   mdToHtml,
   numToSI,
-  previewLines,
   relTags,
   setupTippy,
   showScores,
@@ -355,9 +354,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <li className="list-inline-item">
               <button
                 className="text-muted btn btn-sm btn-link p-0"
-                data-tippy-content={md.render(
-                  previewLines(post_view.post.body)
-                )}
+                data-tippy-content={md.render(post_view.post.body)}
                 data-tippy-allowHtml={true}
                 onClick={linkEvent(this, this.handleShowBody)}
               >
@@ -1093,12 +1090,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       post.body &&
       !this.showBody && (
-        <div
-          className="md-div mb-1"
-          dangerouslySetInnerHTML={{
-            __html: md.render(previewLines(post.body)),
-          }}
-        />
+        <div className="md-div mb-1 preview-lines">{post.body}</div>
       )
     );
   }
