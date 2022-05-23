@@ -110,7 +110,12 @@ export class Home extends Component<any, HomeState> {
     loading: true,
     posts: [],
     comments: [],
-    listingType: getListingTypeFromProps(this.props),
+    listingType: getListingTypeFromProps(
+      this.props,
+      ListingType[
+        this.isoData.site_res.site_view.site.default_post_listing_type
+      ]
+    ),
     dataType: getDataTypeFromProps(this.props),
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
@@ -173,7 +178,7 @@ export class Home extends Component<any, HomeState> {
 
   static getDerivedStateFromProps(props: any): HomeProps {
     return {
-      listingType: getListingTypeFromProps(props),
+      listingType: getListingTypeFromProps(props, ListingType.Local),
       dataType: getDataTypeFromProps(props),
       sort: getSortTypeFromProps(props),
       page: getPageFromProps(props),
@@ -194,7 +199,7 @@ export class Home extends Component<any, HomeState> {
           UserService.Instance.myUserInfo.local_user_view.local_user
             .default_listing_type
         ]
-      : ListingType.Local;
+      : null;
     let sort: SortType = pathSplit[7]
       ? SortType[pathSplit[7]]
       : UserService.Instance.myUserInfo
@@ -213,9 +218,12 @@ export class Home extends Component<any, HomeState> {
         page,
         limit: fetchLimit,
         sort,
-        type_,
         saved_only: false,
       };
+      if (type_) {
+        getPostsForm.type_ = type_;
+      }
+
       setOptionalAuth(getPostsForm, req.auth);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
@@ -223,7 +231,7 @@ export class Home extends Component<any, HomeState> {
         page,
         limit: fetchLimit,
         sort,
-        type_,
+        type_: type_ || ListingType.Local,
         saved_only: false,
       };
       setOptionalAuth(getCommentsForm, req.auth);
@@ -335,6 +343,7 @@ export class Home extends Component<any, HomeState> {
               admins={siteRes.admins}
               counts={siteRes.site_view.counts}
               online={siteRes.online}
+              showLocal={showLocal(this.isoData)}
             />
           )}
           {this.state.showTrendingMobile && (
@@ -371,6 +380,7 @@ export class Home extends Component<any, HomeState> {
               admins={siteRes.admins}
               counts={siteRes.site_view.counts}
               online={siteRes.online}
+              showLocal={showLocal(this.isoData)}
             />
 
             {UserService.Instance.myUserInfo &&
@@ -530,6 +540,7 @@ export class Home extends Component<any, HomeState> {
           <ListingTypeSelect
             type_={this.state.listingType}
             showLocal={showLocal(this.isoData)}
+            showSubscribed
             onChange={this.handleListingTypeChange}
           />
         </span>
@@ -615,10 +626,13 @@ export class Home extends Component<any, HomeState> {
         page: this.state.page,
         limit: fetchLimit,
         sort: this.state.sort,
-        type_: this.state.listingType,
         saved_only: false,
         auth: authField(false),
       };
+      if (this.state.listingType) {
+        getPostsForm.type_ = this.state.listingType;
+      }
+
       WebSocketService.Instance.send(wsClient.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetComments = {

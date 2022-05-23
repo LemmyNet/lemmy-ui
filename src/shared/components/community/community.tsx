@@ -45,6 +45,7 @@ import {
   setIsoData,
   setOptionalAuth,
   setupTippy,
+  showLocal,
   toast,
   updatePersonBlock,
   wsClient,
@@ -280,7 +281,10 @@ export class Community extends Component<any, State> {
                         }
                       />
                       {!cv.community.local && this.state.communityRes.site && (
-                        <SiteSidebar site={this.state.communityRes.site} />
+                        <SiteSidebar
+                          site={this.state.communityRes.site}
+                          showLocal={showLocal(this.isoData)}
+                        />
                       )}
                     </>
                   )}
@@ -301,7 +305,10 @@ export class Community extends Component<any, State> {
                   enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
                 />
                 {!cv.community.local && this.state.communityRes.site && (
-                  <SiteSidebar site={this.state.communityRes.site} />
+                  <SiteSidebar
+                    site={this.state.communityRes.site}
+                    showLocal={showLocal(this.isoData)}
+                  />
                 )}
               </div>
             </div>
