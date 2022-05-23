@@ -498,9 +498,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {dupes.map(pv => (
               <li className="list-inline-item mr-2">
                 <Link to={`/post/${pv.post.id}`}>
-                  {pv.community.local
-                    ? pv.community.name
-                    : `${pv.community.name}@${hostname(pv.community.actor_id)}`}
+                  {pv.community.local ? (
+                    <CommunityLink community={pv.community} />
+                  ) : (
+                    `${pv.community.name}@${hostname(pv.community.actor_id)}`
+                  )}
                 </Link>
               </li>
             ))}
