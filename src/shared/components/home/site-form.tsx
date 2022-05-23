@@ -39,6 +39,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       application_question: null,
       private_instance: null,
       default_theme: null,
+      legal_information: null,
       auth: authField(false),
     },
     loading: false,
@@ -76,6 +77,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         application_question: site.application_question,
         private_instance: site.private_instance,
         default_theme: site.default_theme,
+        legal_information: site.legal_information,
         auth: authField(false),
       };
     }
