@@ -506,6 +506,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     UserService.Instance.myUserInfo.follows.push({
       community: i.props.community_view.community,
       follower: UserService.Instance.myUserInfo.local_user_view.person,
+      pending: false,
     });
   }
 
