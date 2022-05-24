@@ -36,7 +36,7 @@ if (process.env.NODE_ENV !== "development") {
     next();
   });
 }
-const customHtml = process.env["LEMMY_UI_CUSTOM_HTML"] || "";
+const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
@@ -201,7 +201,7 @@ server.get("/*", async (req, res) => {
            ${erudaStr}
 
            <!-- Custom injected script -->
-           ${customHtml}
+           ${customHtmlHeader}
 
            ${helmet.title.toString()}
            ${helmet.meta.toString()}
