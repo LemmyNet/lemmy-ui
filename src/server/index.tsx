@@ -58,19 +58,24 @@ server.get("/robots.txt", async (_req, res) => {
   res.send(robotstxt);
 });
 
-server.get("/css/themes/:name", async (req, res) => {
+server.get("/css/themes/:set?/:name", async (req, res) => {
   res.contentType("text/css");
   const theme = req.params.name;
   if (!theme.endsWith(".css")) {
     res.send("Theme must be a css file");
   }
 
-  const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
-  if (fs.existsSync(customTheme)) {
-    res.sendFile(customTheme);
+  if (req.params.set === 'hljs') {
+    const hljsTheme = path.resolve(`./node_modules/highlight.js/styles/${theme}`);
+    res.sendFile(hljsTheme);
   } else {
-    const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
-    res.sendFile(internalTheme);
+    const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
+    if (fs.existsSync(customTheme)) {
+      res.sendFile(customTheme);
+    } else {
+      const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
+      res.sendFile(internalTheme);
+    }
   }
 });
 

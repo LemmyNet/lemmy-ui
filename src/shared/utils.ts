@@ -32,6 +32,7 @@ import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
+import markdown_it_highlightjs from "markdown-it-highlightjs";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
@@ -120,6 +121,9 @@ export const md = new markdown_it({
   .use(markdown_it_sub)
   .use(markdown_it_sup)
   .use(markdown_it_footnote)
+  .use(markdown_it_highlightjs, {
+    inline: true,
+  })
   .use(markdown_it_html5_embed, {
     html5embed: {
       useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
