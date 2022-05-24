@@ -4,6 +4,7 @@ import {
   CommentReportView,
   CommentView,
   ResolveCommentReport,
+  SubscribedType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { CommentNode as CommentNodeI } from "../../interfaces";
@@ -39,7 +40,7 @@ export class CommentReport extends Component<CommentReportProps, any> {
       community: r.community,
       creator_banned_from_community: r.creator_banned_from_community,
       counts: r.counts,
-      subscribed: false,
+      subscribed: SubscribedType.NotSubscribed,
       saved: false,
       creator_blocked: false,
       my_vote: r.my_vote,

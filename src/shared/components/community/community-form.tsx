@@ -364,6 +364,7 @@ export class CommunityForm extends Component<
       UserService.Instance.myUserInfo.follows.push({
         community,
         follower: person,
+        pending: false,
       });
       UserService.Instance.myUserInfo.moderates.push({
         community,
