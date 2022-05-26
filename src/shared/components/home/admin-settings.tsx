@@ -237,7 +237,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     event.preventDefault();
     i.state.siteConfigLoading = true;
     let form: SaveSiteConfig = {
-      config_hjson: this.state.siteConfigHjson,
+      config_hjson: i.state.siteConfigHjson,
       auth: authField(),
     };
     WebSocketService.Instance.send(wsClient.saveSiteConfig(form));

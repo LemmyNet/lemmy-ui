@@ -32,6 +32,13 @@ export class Footer extends Component<FooterProps, any> {
                 {i18n.t("modlog")}
               </NavLink>
             </li>
+            {this.props.site.site_view?.site.legal_information && (
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/legal">
+                  {i18n.t("legal_information")}
+                </NavLink>
+              </li>
+            )}
             {this.props.site.federated_instances && (
               <li class="nav-item">
                 <NavLink className="nav-link" to="/instances">

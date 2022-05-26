@@ -5,6 +5,7 @@ import { CreateCommunity } from "./components/community/create-community";
 import { AdminSettings } from "./components/home/admin-settings";
 import { Home } from "./components/home/home";
 import { Instances } from "./components/home/instances";
+import { Legal } from "./components/home/legal";
 import { Login } from "./components/home/login";
 import { Setup } from "./components/home/setup";
 import { Signup } from "./components/home/signup";
@@ -154,4 +155,5 @@ export const routes: IRoutePropsWithFetch[] = [
     component: VerifyEmail,
   },
   { path: `/instances`, component: Instances },
+  { path: `/legal`, component: Legal },
 ];
