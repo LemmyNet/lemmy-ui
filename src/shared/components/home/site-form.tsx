@@ -54,6 +54,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.state = this.emptyState;
     this.handleSiteSidebarChange = this.handleSiteSidebarChange.bind(this);
+    this.handleSiteLegalInfoChange = this.handleSiteLegalInfoChange.bind(this);
     this.handleSiteApplicationQuestionChange =
       this.handleSiteApplicationQuestionChange.bind(this);
 
@@ -197,6 +198,18 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               <MarkdownTextArea
                 initialContent={this.state.siteForm.sidebar}
                 onContentChange={this.handleSiteSidebarChange}
+                hideNavigationWarnings
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-12 col-form-label">
+              {i18n.t("legal_information")}
+            </label>
+            <div class="col-12">
+              <MarkdownTextArea
+                initialContent={this.state.siteForm.legal_information}
+                onContentChange={this.handleSiteLegalInfoChange}
                 hideNavigationWarnings
               />
             </div>
@@ -447,6 +460,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteSidebarChange(val: string) {
     this.state.siteForm.sidebar = val;
+    this.setState(this.state);
+  }
+
+  handleSiteLegalInfoChange(val: string) {
+    this.state.siteForm.legal_information = val;
     this.setState(this.state);
   }
 

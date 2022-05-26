@@ -2,7 +2,6 @@ import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
-  EditSite,
   GetBannedPersons,
   GetSiteConfig,
   GetSiteConfigResponse,
@@ -38,7 +37,6 @@ interface AdminSettingsState {
   siteRes: GetSiteResponse;
   siteConfigRes: GetSiteConfigResponse;
   siteConfigHjson: string;
-  legalInfo: string;
   loading: boolean;
   banned: PersonViewSafe[];
   siteConfigLoading: boolean;
@@ -47,13 +45,11 @@ interface AdminSettingsState {
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
   private siteConfigTextAreaId = `site-config-${randomStr()}`;
-  private legalInfoTextAreaId = `legal-info-${randomStr()}`;
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     siteConfigHjson: null,
-    legalInfo: null,
     siteConfigRes: {
       config_hjson: null,
     },
@@ -75,8 +71,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.siteConfigRes = this.isoData.routeData[0];
       this.state.siteConfigHjson = this.state.siteConfigRes.config_hjson;
-      this.state.legalInfo =
-        this.state.siteRes.site_view.site.legal_information;
       this.state.banned = this.isoData.routeData[1].banned;
       this.state.siteConfigLoading = false;
       this.state.loading = false;
@@ -205,7 +199,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     return (
       <div>
         <h5>{i18n.t("admin_settings")}</h5>
-        <form onSubmit={linkEvent(this, this.handleAdminSettingsSubmit)}>
+        <form onSubmit={linkEvent(this, this.handleSiteConfigSubmit)}>
           <div class="form-group row">
             <label
               class="col-12 col-form-label"
@@ -218,23 +212,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 id={this.siteConfigTextAreaId}
                 value={this.state.siteConfigHjson}
                 onInput={linkEvent(this, this.handleSiteConfigHjsonChange)}
-                class="form-control text-monospace"
-                rows={3}
-              />
-            </div>
-          </div>
-          <div class="form-group row">
-            <label
-              class="col-12 col-form-label"
-              htmlFor={this.legalInfoTextAreaId}
-            >
-              {i18n.t("legal_information")}
-            </label>
-            <div class="col-12">
-              <textarea
-                id={this.legalInfoTextAreaId}
-                value={this.state.legalInfo}
-                onInput={linkEvent(this, this.handleLegalInfoChange)}
                 class="form-control text-monospace"
                 rows={3}
               />
@@ -256,34 +233,19 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     );
   }
 
-  handleAdminSettingsSubmit(i: AdminSettings, event: any) {
+  handleSiteConfigSubmit(i: AdminSettings, event: any) {
     event.preventDefault();
     i.state.siteConfigLoading = true;
-
-    // save config
-    let form1: SaveSiteConfig = {
+    let form: SaveSiteConfig = {
       config_hjson: i.state.siteConfigHjson,
       auth: authField(),
     };
-    WebSocketService.Instance.send(wsClient.saveSiteConfig(form1));
-
-    // save legal info
-    let form2: EditSite = {
-      legal_information: i.state.legalInfo,
-      auth: authField(),
-    };
-    WebSocketService.Instance.send(wsClient.editSite(form2));
-
+    WebSocketService.Instance.send(wsClient.saveSiteConfig(form));
     i.setState(i.state);
   }
 
   handleSiteConfigHjsonChange(i: AdminSettings, event: any) {
     i.state.siteConfigHjson = event.target.value;
-    i.setState(i.state);
-  }
-
-  handleLegalInfoChange(i: AdminSettings, event: any) {
-    i.state.legalInfo = event.target.value;
     i.setState(i.state);
   }
 

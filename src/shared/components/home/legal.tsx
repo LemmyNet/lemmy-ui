@@ -1,7 +1,8 @@
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { md, setIsoData } from "../../utils";
+import { mdToHtml, setIsoData } from "../../utils";
+import { HtmlTags } from "../common/html-tags";
 
 interface LegalState {
   siteRes: GetSiteResponse;
@@ -25,7 +26,16 @@ export class Legal extends Component<any, LegalState> {
   render() {
     return (
       <div class="container">
-        {md(this.state.siteRes.site_view.site.legal_information)}
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
+        <div
+          className="md-div"
+          dangerouslySetInnerHTML={mdToHtml(
+            this.state.siteRes.site_view.site.legal_information
+          )}
+        />
       </div>
     );
   }
