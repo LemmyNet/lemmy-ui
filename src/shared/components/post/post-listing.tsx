@@ -301,8 +301,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <ul class="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
+          <span>
+            <span class="mx-1">Posted by</span>
+          </span>
           <PersonListing person={post_view.creator} />
-
           {this.creatorIsMod && (
             <span className="mx-1 badge badge-light">{i18n.t("mod")}</span>
           )}
