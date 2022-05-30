@@ -26,6 +26,7 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
   : ["0.0.0.0", "1234"];
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
+
 if (!process.env["LEMMY_UI_DEBUG"]) {
   server.use(function (_req, res, next) {
     res.setHeader(
