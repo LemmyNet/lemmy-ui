@@ -35,7 +35,7 @@ if (isBrowser()) {
 
 export const httpBaseInternal = `http://${host}`; // Don't use secure here
 export const httpBase = `http${secure}://${host}`;
-export const wsUriBase = `ws${secure}://${externalHost}`;
+export const wsUriBase = `ws${secure}://${wsHost}`;
 export const wsUri = `${wsUriBase}/api/v3/ws`;
 export const wsWebKitUri = `wss${secure}://${externalHost}/api/v3/ws`;
 export const pictrsUri = `${httpBase}/pictrs/image`;
