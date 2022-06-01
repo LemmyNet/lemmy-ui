@@ -29,7 +29,7 @@ if (isBrowser()) {
   // server-side
   externalHost = process.env.LEMMY_EXTERNAL_HOST || testHost;
   host = internalHost;
-  wsHost = process.env.LEMMY_WS_HOST || host;
+  wsHost = process.env.LEMMY_WS_HOST || externalHost;
   secure = process.env.LEMMY_HTTPS == "true" ? "s" : "";
 }
 
