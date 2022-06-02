@@ -39,13 +39,13 @@ import {
   commentsToFlatNodes,
   createCommentLikeRes,
   createPostLikeRes,
+  debounce,
   editCommentRes,
   getCommentIdFromProps,
   getIdFromProps,
   insertCommentIntoTree,
   isBrowser,
   isImage,
-  previewLines,
   restoreScrollPosition,
   saveCommentRes,
   saveScrollPosition,
@@ -66,6 +66,8 @@ import { Icon, Spinner } from "../common/icon";
 import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 
+const commentsShownInterval = 15;
+
 interface PostState {
   postRes: GetPostResponse;
   postId: number;
@@ -79,11 +81,13 @@ interface PostState {
   siteRes: GetSiteResponse;
   commentSectionRef?: RefObject<HTMLDivElement>;
   showSidebarMobile: boolean;
+  maxCommentsShown: number;
 }
 
 export class Post extends Component<any, PostState> {
   private subscription: Subscription;
   private isoData = setIsoData(this.context);
+  private commentScrollDebounced: () => void;
   private emptyState: PostState = {
     postRes: null,
     postId: getIdFromProps(this.props),
@@ -97,6 +101,7 @@ export class Post extends Component<any, PostState> {
     siteRes: this.isoData.site_res,
     commentSectionRef: null,
     showSidebarMobile: false,
+    maxCommentsShown: commentsShownInterval,
   };
 
   constructor(props: any, context: any) {
@@ -173,6 +178,8 @@ export class Post extends Component<any, PostState> {
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
+    document.removeEventListener("scroll", this.commentScrollDebounced);
+
     window.isoData.path = undefined;
     saveScrollPosition(this.context);
   }
@@ -182,18 +189,12 @@ export class Post extends Component<any, PostState> {
       wsClient.postJoin({ post_id: this.state.postId })
     );
     autosize(document.querySelectorAll("textarea"));
+
+    this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
+    document.addEventListener("scroll", this.commentScrollDebounced);
   }
 
-  componentDidUpdate(_lastProps: any, lastState: PostState) {
-    if (
-      this.state.commentId &&
-      !this.state.scrolled &&
-      lastState.postRes &&
-      lastState.postRes.comments.length > 0
-    ) {
-      this.scrollCommentIntoView();
-    }
-
+  componentDidUpdate(_lastProps: any) {
     // Necessary if you are on a post and you click another post (same route)
     if (_lastProps.location.pathname !== _lastProps.history.location.pathname) {
       // TODO Couldnt get a refresh working. This does for now.
@@ -207,11 +208,15 @@ export class Post extends Component<any, PostState> {
   }
 
   scrollCommentIntoView() {
-    var elmnt = document.getElementById(`comment-${this.state.commentId}`);
-    elmnt.scrollIntoView();
-    elmnt.classList.add("mark");
-    this.state.scrolled = true;
-    this.markScrolledAsRead(this.state.commentId);
+    let commentElement = document.getElementById(
+      `comment-${this.state.commentId}`
+    );
+    if (commentElement) {
+      commentElement.scrollIntoView();
+      commentElement.classList.add("mark");
+      this.state.scrolled = true;
+      this.markScrolledAsRead(this.state.commentId);
+    }
   }
 
   get checkScrollIntoCommentsParam() {
@@ -253,6 +258,21 @@ export class Post extends Component<any, PostState> {
     }
   }
 
+  isBottom(el: Element) {
+    return el?.getBoundingClientRect().bottom <= window.innerHeight;
+  }
+
+  /**
+   * Shows new comments when scrolling to the bottom of the comments div
+   */
+  trackCommentsBoxScrolling = () => {
+    const wrappedElement = document.getElementsByClassName("comments")[0];
+    if (wrappedElement && this.isBottom(wrappedElement)) {
+      this.state.maxCommentsShown += commentsShownInterval;
+      this.setState(this.state);
+    }
+  };
+
   get documentTitle(): string {
     return `${this.state.postRes.post_view.post.name} - ${this.state.siteRes.site_view.site.name}`;
   }
@@ -266,8 +286,7 @@ export class Post extends Component<any, PostState> {
   }
 
   get descriptionTag(): string {
-    let body = this.state.postRes.post_view.post.body;
-    return body ? previewLines(body) : undefined;
+    return this.state.postRes.post_view.post.body;
   }
 
   render() {
@@ -416,6 +435,7 @@ export class Post extends Component<any, PostState> {
       <div>
         <CommentNodes
           nodes={commentsToFlatNodes(this.state.postRes.comments)}
+          maxCommentsShown={this.state.maxCommentsShown}
           noIndent
           locked={this.state.postRes.post_view.post.locked}
           moderators={this.state.postRes.moderators}
@@ -473,6 +493,7 @@ export class Post extends Component<any, PostState> {
       <div>
         <CommentNodes
           nodes={this.state.commentTree}
+          maxCommentsShown={this.state.maxCommentsShown}
           locked={this.state.postRes.post_view.post.locked}
           moderators={this.state.postRes.moderators}
           admins={this.state.siteRes.admins}
@@ -516,11 +537,20 @@ export class Post extends Component<any, PostState> {
       if (this.checkScrollIntoCommentsParam) {
         this.scrollIntoCommentSection();
       }
+
+      if (this.state.commentId && !this.state.scrolled) {
+        this.scrollCommentIntoView();
+      }
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
+      // Don't get comments from the post room, if the creator is blocked
+      let creatorBlocked = UserService.Instance.myUserInfo?.person_blocks
+        .map(pb => pb.target.id)
+        .includes(data.comment_view.creator.id);
+
       // Necessary since it might be a user reply, which has the recipients, to avoid double
-      if (data.recipient_ids.length == 0) {
+      if (data.recipient_ids.length == 0 && !creatorBlocked) {
         this.state.postRes.comments.unshift(data.comment_view);
         insertCommentIntoTree(this.state.commentTree, data.comment_view);
         this.state.postRes.post_view.counts.comments++;
@@ -608,7 +638,7 @@ export class Post extends Component<any, PostState> {
         p => p.post.id != Number(this.props.match.params.id)
       );
       this.setState(this.state);
-    } else if (op == UserOperation.TransferSite) {
+    } else if (op == UserOperation.LeaveAdmin) {
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
       this.state.siteRes = data;
       this.setState(this.state);

@@ -20,6 +20,9 @@ export class PostReport extends Component<PostReportProps, any> {
   render() {
     let r = this.props.report;
     let post = r.post;
+    let tippyContent = i18n.t(
+      r.post_report.resolved ? "unresolve_report" : "resolve_report"
+    );
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -45,6 +48,7 @@ export class PostReport extends Component<PostReportProps, any> {
           showCommunity={true}
           enableDownvotes={true}
           enableNsfw={true}
+          viewOnly={true}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />
@@ -70,12 +74,8 @@ export class PostReport extends Component<PostReportProps, any> {
         <button
           className="btn btn-link btn-animate text-muted py-0"
           onClick={linkEvent(this, this.handleResolveReport)}
-          data-tippy-content={
-            r.post_report.resolved ? "unresolve_report" : "resolve_report"
-          }
-          aria-label={
-            r.post_report.resolved ? "unresolve_report" : "resolve_report"
-          }
+          data-tippy-content={tippyContent}
+          aria-label={tippyContent}
         >
           <Icon
             icon="check"

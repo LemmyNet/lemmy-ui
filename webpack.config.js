@@ -1,9 +1,9 @@
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const nodeExternals = require('webpack-node-externals');
-const CopyPlugin = require('copy-webpack-plugin');
-const RunNodeWebpackPlugin = require('run-node-webpack-plugin');
-const { merge } = require('lodash');
+const webpack = require("webpack");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const nodeExternals = require("webpack-node-externals");
+const CopyPlugin = require("copy-webpack-plugin");
+const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
+const { merge } = require("lodash");
 
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
@@ -14,11 +14,12 @@ const banner = `
 
 const base = {
   output: {
-    filename: 'js/server.js',
-    publicPath: '/',
+    filename: "js/server.js",
+    publicPath: "/",
+    hashFunction: "xxhash64",
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
   },
   performance: {
     hints: false,
@@ -27,12 +28,12 @@ const base = {
     rules: [
       {
         test: /\.(scss|css)$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
       {
         test: /\.(js|jsx|tsx|ts)$/, // All ts and tsx files will be process by
         exclude: /node_modules/, // ignore node_modules
-        loader: 'babel-loader',
+        loader: "babel-loader",
       },
       // Due to some weird babel issue: https://github.com/webpack/webpack/issues/11467
       {
@@ -45,10 +46,10 @@ const base = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'styles/styles.css',
+      filename: "styles/styles.css",
     }),
     new CopyPlugin({
-      patterns: [{ from: './src/assets', to: './assets' }],
+      patterns: [{ from: "./src/assets", to: "./assets" }],
     }),
     new webpack.BannerPlugin({
       banner,
@@ -59,18 +60,18 @@ const base = {
 const createServerConfig = (_env, mode) => {
   const config = merge({}, base, {
     mode,
-    entry: './src/server/index.tsx',
+    entry: "./src/server/index.tsx",
     output: {
-      filename: 'js/server.js',
+      filename: "js/server.js",
     },
-    target: 'node',
-    externals: [nodeExternals(), 'inferno-helmet'],
+    target: "node",
+    externals: [nodeExternals(), "inferno-helmet"],
   });
 
-  if (mode === 'development') {
+  if (mode === "development") {
     config.cache = {
-      type: 'filesystem',
-      name: 'server',
+      type: "filesystem",
+      name: "server",
     };
 
     config.plugins.push(
@@ -85,16 +86,16 @@ const createServerConfig = (_env, mode) => {
 const createClientConfig = (_env, mode) => {
   const config = merge({}, base, {
     mode,
-    entry: './src/client/index.tsx',
+    entry: "./src/client/index.tsx",
     output: {
-      filename: 'js/client.js',
+      filename: "js/client.js",
     },
   });
 
-  if (mode === 'development') {
+  if (mode === "development") {
     config.cache = {
-      type: 'filesystem',
-      name: 'client',
+      type: "filesystem",
+      name: "client",
     };
   }
 
@@ -102,6 +103,6 @@ const createClientConfig = (_env, mode) => {
 };
 
 module.exports = (env, properties) => [
-  createServerConfig(env, properties.mode || 'development'),
-  createClientConfig(env, properties.mode || 'development'),
+  createServerConfig(env, properties.mode || "development"),
+  createClientConfig(env, properties.mode || "development"),
 ];

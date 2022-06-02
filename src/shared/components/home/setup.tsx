@@ -64,7 +64,7 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm />
+              <SiteForm showLocal />
             )}
           </div>
         </div>
@@ -122,6 +122,8 @@ export class Setup extends Component<any, State> {
               onInput={linkEvent(this, this.handleRegisterPasswordChange)}
               class="form-control"
               required
+              autoComplete="new-password"
+              minLength={10}
               maxLength={60}
             />
           </div>
@@ -138,6 +140,8 @@ export class Setup extends Component<any, State> {
               onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
               class="form-control"
               required
+              autoComplete="new-password"
+              minLength={10}
               maxLength={60}
             />
           </div>

@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
@@ -18,7 +19,6 @@ import {
   RemoveComment,
   SaveComment,
   TransferCommunity,
-  TransferSite,
 } from "lemmy-js-client";
 import moment from "moment";
 import { i18n } from "../../i18next";
@@ -28,7 +28,8 @@ import {
   authField,
   canMod,
   colorList,
-  getUnixTime,
+  futureDaysToUnixTime,
+  isBanned,
   isMod,
   mdToHtml,
   numToSI,
@@ -51,7 +52,7 @@ interface CommentNodeState {
   showBanDialog: boolean;
   removeData: boolean;
   banReason: string;
-  banExpires: string;
+  banExpireDays: number;
   banType: BanType;
   showConfirmTransferSite: boolean;
   showConfirmTransferCommunity: boolean;
@@ -96,7 +97,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showBanDialog: false,
     removeData: false,
     banReason: null,
-    banExpires: null,
+    banExpireDays: null,
     banType: BanType.Community,
     collapsed: false,
     viewSource: false,
@@ -182,7 +183,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {i18n.t("creator")}
                 </div>
               )}
-              {(cv.creator_banned_from_community || cv.creator.banned) && (
+              {cv.creator.bot_account && (
+                <div className="badge badge-light d-none d-sm-inline mr-2">
+                  {i18n.t("bot_account").toLowerCase()}
+                </div>
+              )}
+              {(cv.creator_banned_from_community || isBanned(cv.creator)) && (
                 <div className="badge badge-danger mr-2">
                   {i18n.t("banned")}
                 </div>
@@ -609,7 +615,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {this.canAdmin && (
                             <>
                               {!this.isAdmin &&
-                                (!cv.creator.banned ? (
+                                (!isBanned(cv.creator) ? (
                                   <button
                                     class="btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
@@ -632,7 +638,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     {i18n.t("unban_from_site")}
                                   </button>
                                 ))}
-                              {!cv.creator.banned &&
+                              {!isBanned(cv.creator) &&
                                 cv.creator.local &&
                                 (!this.state.showConfirmAppointAsAdmin ? (
                                   <button
@@ -680,51 +686,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 ))}
                             </>
                           )}
-                          {/* Site Creator can transfer to another admin */}
-                          {this.amSiteCreator &&
-                            this.isAdmin &&
-                            cv.creator.local &&
-                            (!this.state.showConfirmTransferSite ? (
-                              <button
-                                class="btn btn-link btn-animate text-muted"
-                                onClick={linkEvent(
-                                  this,
-                                  this.handleShowConfirmTransferSite
-                                )}
-                                aria-label={i18n.t("transfer_site")}
-                              >
-                                {i18n.t("transfer_site")}
-                              </button>
-                            ) : (
-                              <>
-                                <button
-                                  class="btn btn-link btn-animate text-muted"
-                                  aria-label={i18n.t("are_you_sure")}
-                                >
-                                  {i18n.t("are_you_sure")}
-                                </button>
-                                <button
-                                  class="btn btn-link btn-animate text-muted"
-                                  onClick={linkEvent(
-                                    this,
-                                    this.handleTransferSite
-                                  )}
-                                  aria-label={i18n.t("yes")}
-                                >
-                                  {i18n.t("yes")}
-                                </button>
-                                <button
-                                  class="btn btn-link btn-animate text-muted"
-                                  onClick={linkEvent(
-                                    this,
-                                    this.handleCancelShowConfirmTransferSite
-                                  )}
-                                  aria-label={i18n.t("no")}
-                                >
-                                  {i18n.t("no")}
-                                </button>
-                              </>
-                            ))}
                         </>
                       )}
                     </>
@@ -792,7 +753,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div class="form-group row">
+            <div class="form-group row col-12">
               <label
                 class="col-form-label"
                 htmlFor={`mod-ban-reason-${cv.comment.id}`}
@@ -806,6 +767,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 placeholder={i18n.t("reason")}
                 value={this.state.banReason}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
+              />
+              <label
+                class="col-form-label"
+                htmlFor={`mod-ban-expires-${cv.comment.id}`}
+              >
+                {i18n.t("expires")}
+              </label>
+              <input
+                type="number"
+                id={`mod-ban-expires-${cv.comment.id}`}
+                class="form-control mr-2"
+                placeholder={i18n.t("number_of_days")}
+                value={this.state.banExpireDays}
+                onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
               />
               <div class="form-group">
                 <div class="form-check">
@@ -875,14 +850,29 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   linkBtn(small = false) {
     let cv = this.props.node.comment_view;
+    let classnames = classNames("btn btn-link btn-animate text-muted", {
+      "btn-sm": small,
+    });
+
+    let title = this.props.showContext
+      ? i18n.t("show_context")
+      : i18n.t("link");
+
     return (
-      <Link
-        className={`btn ${small && "btn-sm"} btn-link btn-animate text-muted`}
-        to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
-        title={this.props.showContext ? i18n.t("show_context") : i18n.t("link")}
-      >
-        <Icon icon="link" classes="icon-inline" />
-      </Link>
+      <>
+        <Link
+          className={classnames}
+          to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
+          title={title}
+        >
+          <Icon icon="link" classes="icon-inline" />
+        </Link>
+        {
+          <a className={classnames} title={title} href={cv.comment.ap_id}>
+            <Icon icon="fedilink" classes="icon-inline" />
+          </a>
+        }
+      </>
     );
   }
 
@@ -1186,8 +1176,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState(i.state);
   }
 
-  handleModBanExpiresChange(i: CommentNode, event: any) {
-    i.state.banExpires = event.target.value;
+  handleModBanExpireDaysChange(i: CommentNode, event: any) {
+    i.state.banExpireDays = event.target.value;
     i.setState(i.state);
   }
 
@@ -1218,7 +1208,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
-        expires: getUnixTime(i.state.banExpires),
+        expires: futureDaysToUnixTime(i.state.banExpireDays),
         auth: authField(),
       };
       WebSocketService.Instance.send(wsClient.banFromCommunity(form));
@@ -1233,7 +1223,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         ban,
         remove_data: i.state.removeData,
         reason: i.state.banReason,
-        expires: getUnixTime(i.state.banExpires),
+        expires: futureDaysToUnixTime(i.state.banExpireDays),
         auth: authField(),
       };
       WebSocketService.Instance.send(wsClient.banPerson(form));
@@ -1315,16 +1305,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleCancelShowConfirmTransferSite(i: CommentNode) {
-    i.state.showConfirmTransferSite = false;
-    i.setState(i.state);
-  }
-
-  handleTransferSite(i: CommentNode) {
-    let form: TransferSite = {
-      person_id: i.props.node.comment_view.creator.id,
-      auth: authField(),
-    };
-    WebSocketService.Instance.send(wsClient.transferSite(form));
     i.state.showConfirmTransferSite = false;
     i.setState(i.state);
   }

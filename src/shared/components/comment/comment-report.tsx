@@ -25,6 +25,9 @@ export class CommentReport extends Component<CommentReportProps, any> {
   render() {
     let r = this.props.report;
     let comment = r.comment;
+    let tippyContent = i18n.t(
+      r.comment_report.resolved ? "unresolve_report" : "resolve_report"
+    );
 
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
@@ -53,6 +56,8 @@ export class CommentReport extends Component<CommentReportProps, any> {
           moderators={[]}
           admins={[]}
           enableDownvotes={true}
+          viewOnly={true}
+          showCommunity={true}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />
@@ -78,12 +83,8 @@ export class CommentReport extends Component<CommentReportProps, any> {
         <button
           className="btn btn-link btn-animate text-muted py-0"
           onClick={linkEvent(this, this.handleResolveReport)}
-          data-tippy-content={
-            r.comment_report.resolved ? "unresolve_report" : "resolve_report"
-          }
-          aria-label={
-            r.comment_report.resolved ? "unresolve_report" : "resolve_report"
-          }
+          data-tippy-content={tippyContent}
+          aria-label={tippyContent}
         >
           <Icon
             icon="check"

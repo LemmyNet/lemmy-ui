@@ -1,10 +1,8 @@
-import i18next, { i18nTyped } from "i18next";
+import i18next, { i18nTyped, Resource } from "i18next";
 import { ar } from "./translations/ar";
 import { bg } from "./translations/bg";
-import { bn } from "./translations/bn";
 import { ca } from "./translations/ca";
 import { cs } from "./translations/cs";
-import { cy } from "./translations/cy";
 import { da } from "./translations/da";
 import { de } from "./translations/de";
 import { el } from "./translations/el";
@@ -17,85 +15,59 @@ import { fi } from "./translations/fi";
 import { fr } from "./translations/fr";
 import { ga } from "./translations/ga";
 import { gl } from "./translations/gl";
-import { hi } from "./translations/hi";
 import { hr } from "./translations/hr";
-import { hu } from "./translations/hu";
 import { id } from "./translations/id";
 import { it } from "./translations/it";
 import { ja } from "./translations/ja";
-import { ka } from "./translations/ka";
-import { km } from "./translations/km";
 import { ko } from "./translations/ko";
-import { ml } from "./translations/ml";
-import { mnc } from "./translations/mnc";
-import { nb_NO } from "./translations/nb_NO";
 import { nl } from "./translations/nl";
 import { oc } from "./translations/oc";
 import { pl } from "./translations/pl";
 import { pt } from "./translations/pt";
 import { pt_BR } from "./translations/pt_BR";
 import { ru } from "./translations/ru";
-import { sk } from "./translations/sk";
-import { sq } from "./translations/sq";
-import { sr_Latn } from "./translations/sr_Latn";
 import { sv } from "./translations/sv";
-import { th } from "./translations/th";
-import { tr } from "./translations/tr";
-import { uk } from "./translations/uk";
 import { vi } from "./translations/vi";
 import { zh } from "./translations/zh";
 import { zh_Hant } from "./translations/zh_Hant";
-import { getLanguage } from "./utils";
+import { getLanguages } from "./utils";
 
-// https://github.com/nimbusec-oss/inferno-i18next/blob/master/tests/T.test.js#L66
-const resources = {
-  en,
-  el,
-  eu,
-  eo,
-  es,
-  ka,
-  hi,
-  de,
-  zh,
-  fr,
-  sv,
-  ru,
-  nl,
-  it,
-  fi,
-  ca,
-  fa,
-  pl,
-  pt_BR,
-  ja,
-  gl,
-  tr,
-  hu,
-  uk,
-  sq,
-  km,
-  ga,
-  sr_Latn,
-  da,
-  oc,
-  hr,
-  th,
-  bg,
-  ar,
-  ko,
-  id,
-  nb_NO,
-  zh_Hant,
-  cy,
-  mnc,
-  sk,
-  vi,
-  pt,
-  bn,
-  ml,
-  cs,
-};
+export const languages = [
+  { resource: ar, code: "ar", name: "العربية" },
+  { resource: bg, code: "bg", name: "Български" },
+  { resource: ca, code: "ca", name: "Català" },
+  { resource: cs, code: "cs", name: "Česky" },
+  { resource: da, code: "da", name: "Dansk" },
+  { resource: de, code: "de", name: "Deutsch" },
+  { resource: el, code: "el", name: "Ελληνικά" },
+  { resource: en, code: "en", name: "English" },
+  { resource: eo, code: "eo", name: "Esperanto" },
+  { resource: es, code: "es", name: "Español" },
+  { resource: eu, code: "eu", name: "Euskara" },
+  { resource: fa, code: "fa", name: "فارسی" },
+  { resource: fi, code: "fi", name: "Suomi" },
+  { resource: fr, code: "fr", name: "Français" },
+  { resource: ga, code: "ga", name: "Gaeilge" },
+  { resource: gl, code: "gl", name: "Galego" },
+  { resource: hr, code: "hr", name: "Hrvatski" },
+  { resource: id, code: "id", name: "Bahasa Indonesia" },
+  { resource: it, code: "it", name: "Italiano" },
+  { resource: ja, code: "ja", name: "日本語" },
+  { resource: ko, code: "ko", name: "한국어" },
+  { resource: nl, code: "nl", name: "Nederlands" },
+  { resource: oc, code: "oc", name: "Occitan" },
+  { resource: pl, code: "pl", name: "Polski" },
+  { resource: pt, code: "pt", name: "Português" },
+  { resource: pt_BR, code: "pt_BR", name: "Português (Brasil)" },
+  { resource: ru, code: "ru", name: "Русский" },
+  { resource: sv, code: "sv", name: "Svenska" },
+  { resource: vi, code: "vi", name: "Tiếng Việt" },
+  { resource: zh, code: "zh", name: "中文 (简体)" },
+  { resource: zh_Hant, code: "zh_Hant", name: "中文 (繁體)" },
+];
+
+const resources: Resource = {};
+languages.forEach(l => (resources[l.code] = l.resource));
 
 function format(value: any, format: any): any {
   return format === "uppercase" ? value.toUpperCase() : value;
@@ -103,15 +75,13 @@ function format(value: any, format: any): any {
 
 i18next.init({
   debug: false,
+  compatibilityJSON: "v3",
   // load: 'languageOnly',
-
   // initImmediate: false,
-  lng: getLanguage(),
+  lng: getLanguages()[0],
   fallbackLng: "en",
   resources,
   interpolation: { format },
 });
 
 export const i18n = i18next as i18nTyped;
-
-export { resources };

@@ -1,6 +1,6 @@
 import { isBrowser } from "./utils";
 
-const testHost = "localhost:8536";
+const testHost = "0.0.0.0:8536";
 
 let internalHost =
   (!isBrowser() && process.env.LEMMY_INTERNAL_HOST) || testHost; // used for local dev
@@ -29,13 +29,14 @@ if (isBrowser()) {
   // server-side
   externalHost = process.env.LEMMY_EXTERNAL_HOST || testHost;
   host = internalHost;
-  wsHost = process.env.LEMMY_WS_HOST || host;
+  wsHost = process.env.LEMMY_WS_HOST || externalHost;
   secure = process.env.LEMMY_HTTPS == "true" ? "s" : "";
 }
 
 export const httpBaseInternal = `http://${host}`; // Don't use secure here
 export const httpBase = `http${secure}://${host}`;
-export const wsUri = `ws${secure}://${wsHost}/api/v3/ws`;
+export const wsUriBase = `ws${secure}://${wsHost}`;
+export const wsUri = `${wsUriBase}/api/v3/ws`;
 export const pictrsUri = `${httpBase}/pictrs/image`;
 export const isHttps = secure.endsWith("s");
 

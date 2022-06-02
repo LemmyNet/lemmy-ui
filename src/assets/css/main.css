@@ -112,6 +112,7 @@
 }
 
 .icon {
+  display: inline-grid;
   display: inline-flex;
   width: 1em;
   height: 1em;
@@ -133,6 +134,7 @@
 }
 
 .spinner-large {
+  display: grid;
   display: block;
   margin: 1em auto;
   width: 2em;
@@ -367,4 +369,16 @@ br.big {
 
 .honeypot {
   display:none !important;
+}
+
+.slight-radius {
+  border-radius: 4px;
+}
+
+.preview-lines {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }

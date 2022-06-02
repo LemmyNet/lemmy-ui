@@ -29,11 +29,11 @@ import {
   wsSubscribe,
   wsUserOp,
 } from "../../utils";
-import { CommentReport } from "../comment/comment_report";
+import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
-import { PostReport } from "../post/post_report";
+import { PostReport } from "../post/post-report";
 
 enum UnreadOrAll {
   Unread,

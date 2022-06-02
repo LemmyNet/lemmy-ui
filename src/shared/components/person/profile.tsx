@@ -2,7 +2,9 @@ import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdminResponse,
+  BanPerson,
   BanPersonResponse,
+  BlockPerson,
   BlockPersonResponse,
   CommentResponse,
   GetPersonDetails,
@@ -19,15 +21,20 @@ import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
+  canMod,
+  capitalizeFirstLetter,
   createCommentLikeRes,
   createPostLikeFindRes,
   editCommentRes,
   editPostFindRes,
   fetchLimit,
+  futureDaysToUnixTime,
   getUsernameFromProps,
+  isBanned,
+  isMod,
   mdToHtml,
   numToSI,
-  previewLines,
+  relTags,
   restoreScrollPosition,
   routeSortTypeToEnum,
   saveCommentRes,
@@ -58,7 +65,12 @@ interface ProfileState {
   sort: SortType;
   page: number;
   loading: boolean;
+  personBlocked: boolean;
   siteRes: GetSiteResponse;
+  showBanDialog: boolean;
+  banReason: string;
+  banExpireDays: number;
+  removeData: boolean;
 }
 
 interface ProfileProps {
@@ -85,7 +97,12 @@ export class Profile extends Component<any, ProfileState> {
     view: Profile.getViewFromProps(this.props.match.view),
     sort: Profile.getSortTypeFromProps(this.props.match.sort),
     page: Profile.getPageFromProps(this.props.match.page),
+    personBlocked: false,
     siteRes: this.isoData.site_res,
+    showBanDialog: false,
+    banReason: null,
+    banExpireDays: null,
+    removeData: false,
   };
 
   constructor(props: any, context: any) {
@@ -106,7 +123,7 @@ export class Profile extends Component<any, ProfileState> {
       this.fetchUserData();
     }
 
-    setupTippy();
+    this.setPersonBlock();
   }
 
   fetchUserData() {
@@ -124,8 +141,14 @@ export class Profile extends Component<any, ProfileState> {
   get isCurrentUser() {
     return (
       UserService.Instance.myUserInfo?.local_user_view.person.id ==
-      this.state.personRes.person_view.person.id
+      this.state.personRes?.person_view.person.id
     );
+  }
+
+  setPersonBlock() {
+    this.state.personBlocked = UserService.Instance.myUserInfo?.person_blocks
+      .map(a => a.target.id)
+      .includes(this.state.personRes?.person_view.person.id);
   }
 
   static getViewFromProps(view: string): PersonDetailsView {
@@ -144,16 +167,7 @@ export class Profile extends Component<any, ProfileState> {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
-    // It can be /u/me, or /username/1
-    let idOrName = pathSplit[2];
-    let person_id: number;
-    let username: string;
-    if (isNaN(Number(idOrName))) {
-      username = idOrName;
-    } else {
-      person_id = Number(idOrName);
-    }
-
+    let username = pathSplit[2];
     let view = this.getViewFromProps(pathSplit[4]);
     let sort = this.getSortTypeFromProps(pathSplit[6]);
     let page = this.getPageFromProps(Number(pathSplit[8]));
@@ -163,19 +177,15 @@ export class Profile extends Component<any, ProfileState> {
       saved_only: view === PersonDetailsView.Saved,
       page,
       limit: fetchLimit,
+      username: username,
     };
     setOptionalAuth(form, req.auth);
-    this.setIdOrName(form, person_id, username);
     promises.push(req.client.getPersonDetails(form));
     return promises;
   }
 
-  static setIdOrName(obj: any, id: number, name_: string) {
-    if (id) {
-      obj.person_id = id;
-    } else {
-      obj.username = name_;
-    }
+  componentDidMount() {
+    setupTippy();
   }
 
   componentWillUnmount() {
@@ -210,7 +220,7 @@ export class Profile extends Component<any, ProfileState> {
 
   get bioTag(): string {
     return this.state.personRes.person_view.person.bio
-      ? previewLines(this.state.personRes.person_view.person.bio)
+      ? this.state.personRes.person_view.person.bio
       : undefined;
   }
 
@@ -322,6 +332,8 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   selects() {
+    let profileRss = `/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`;
+
     return (
       <div className="mb-2">
         <span class="mr-3">{this.viewRadios()}</span>
@@ -331,15 +343,30 @@ export class Profile extends Component<any, ProfileState> {
           hideHot
           hideMostComments
         />
-        <a
-          href={`/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`}
-          rel="noopener"
-          title="RSS"
-        >
+        <a href={profileRss} rel={relTags} title="RSS">
           <Icon icon="rss" classes="text-muted small mx-2" />
         </a>
+        <link rel="alternate" type="application/atom+xml" href={profileRss} />
       </div>
     );
+  }
+  handleBlockPerson(personId: number) {
+    if (personId != 0) {
+      let blockUserForm: BlockPerson = {
+        person_id: personId,
+        block: true,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+    }
+  }
+  handleUnblockPerson(recipientId: number) {
+    let blockUserForm: BlockPerson = {
+      person_id: recipientId,
+      block: false,
+      auth: authField(),
+    };
+    WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
   }
 
   userInfo() {
@@ -365,33 +392,87 @@ export class Profile extends Component<any, ProfileState> {
                       hideAvatar
                     />
                   </li>
-                  {pv.person.banned && (
+                  {isBanned(pv.person) && (
                     <li className="list-inline-item badge badge-danger">
                       {i18n.t("banned")}
                     </li>
                   )}
+                  {pv.person.admin && (
+                    <li className="list-inline-item badge badge-light">
+                      {i18n.t("admin")}
+                    </li>
+                  )}
+                  {pv.person.bot_account && (
+                    <li className="list-inline-item badge badge-light">
+                      {i18n.t("bot_account").toLowerCase()}
+                    </li>
+                  )}
                 </ul>
               </div>
+              {this.banDialog()}
               <div className="flex-grow-1 unselectable pointer mx-2"></div>
-              {!this.isCurrentUser && (
+              {!this.isCurrentUser && UserService.Instance.myUserInfo && (
                 <>
                   <a
                     className={`d-flex align-self-start btn btn-secondary mr-2 ${
                       !pv.person.matrix_user_id && "invisible"
                     }`}
-                    rel="noopener"
+                    rel={relTags}
                     href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
                   >
                     {i18n.t("send_secure_message")}
                   </a>
                   <Link
-                    className={"d-flex align-self-start btn btn-secondary"}
+                    className={"d-flex align-self-start btn btn-secondary mr-2"}
                     to={`/create_private_message/recipient/${pv.person.id}`}
                   >
                     {i18n.t("send_message")}
                   </Link>
+                  {this.state.personBlocked ? (
+                    <button
+                      className={
+                        "d-flex align-self-start btn btn-secondary mr-2"
+                      }
+                      onClick={linkEvent(
+                        pv.person.id,
+                        this.handleUnblockPerson
+                      )}
+                    >
+                      {i18n.t("unblock_user")}
+                    </button>
+                  ) : (
+                    <button
+                      className={
+                        "d-flex align-self-start btn btn-secondary mr-2"
+                      }
+                      onClick={linkEvent(pv.person.id, this.handleBlockPerson)}
+                    >
+                      {i18n.t("block_user")}
+                    </button>
+                  )}
                 </>
               )}
+
+              {this.canAdmin &&
+                !this.personIsAdmin &&
+                !this.state.showBanDialog &&
+                (!isBanned(pv.person) ? (
+                  <button
+                    className={"d-flex align-self-start btn btn-secondary mr-2"}
+                    onClick={linkEvent(this, this.handleModBanShow)}
+                    aria-label={i18n.t("ban")}
+                  >
+                    {capitalizeFirstLetter(i18n.t("ban"))}
+                  </button>
+                ) : (
+                  <button
+                    className={"d-flex align-self-start btn btn-secondary mr-2"}
+                    onClick={linkEvent(this, this.handleModBanSubmit)}
+                    aria-label={i18n.t("unban")}
+                  >
+                    {capitalizeFirstLetter(i18n.t("unban"))}
+                  </button>
+                ))}
             </div>
             {pv.person.bio && (
               <div className="d-flex align-items-center mb-2">
@@ -431,6 +512,82 @@ export class Profile extends Component<any, ProfileState> {
           </div>
         </div>
       </div>
+    );
+  }
+
+  banDialog() {
+    let pv = this.state.personRes?.person_view;
+    return (
+      <>
+        {this.state.showBanDialog && (
+          <form onSubmit={linkEvent(this, this.handleModBanSubmit)}>
+            <div class="form-group row col-12">
+              <label class="col-form-label" htmlFor="profile-ban-reason">
+                {i18n.t("reason")}
+              </label>
+              <input
+                type="text"
+                id="profile-ban-reason"
+                class="form-control mr-2"
+                placeholder={i18n.t("reason")}
+                value={this.state.banReason}
+                onInput={linkEvent(this, this.handleModBanReasonChange)}
+              />
+              <label class="col-form-label" htmlFor={`mod-ban-expires`}>
+                {i18n.t("expires")}
+              </label>
+              <input
+                type="number"
+                id={`mod-ban-expires`}
+                class="form-control mr-2"
+                placeholder={i18n.t("number_of_days")}
+                value={this.state.banExpireDays}
+                onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
+              />
+              <div class="form-group">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    id="mod-ban-remove-data"
+                    type="checkbox"
+                    checked={this.state.removeData}
+                    onChange={linkEvent(this, this.handleModRemoveDataChange)}
+                  />
+                  <label
+                    class="form-check-label"
+                    htmlFor="mod-ban-remove-data"
+                    title={i18n.t("remove_content_more")}
+                  >
+                    {i18n.t("remove_content")}
+                  </label>
+                </div>
+              </div>
+            </div>
+            {/* TODO hold off on expires until later */}
+            {/* <div class="form-group row"> */}
+            {/*   <label class="col-form-label">Expires</label> */}
+            {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
+            {/* </div> */}
+            <div class="form-group row">
+              <button
+                type="cancel"
+                class="btn btn-secondary mr-2"
+                aria-label={i18n.t("cancel")}
+                onClick={linkEvent(this, this.handleModBanSubmitCancel)}
+              >
+                {i18n.t("cancel")}
+              </button>
+              <button
+                type="submit"
+                class="btn btn-secondary"
+                aria-label={i18n.t("ban")}
+              >
+                {i18n.t("ban")} {pv.person.name}
+              </button>
+            </div>
+          </form>
+        )}
+      </>
     );
   }
 
@@ -492,6 +649,27 @@ export class Profile extends Component<any, ProfileState> {
     this.fetchUserData();
   }
 
+  get canAdmin(): boolean {
+    return (
+      this.state.siteRes?.admins &&
+      canMod(
+        UserService.Instance.myUserInfo,
+        this.state.siteRes.admins.map(a => a.person.id),
+        this.state.personRes?.person_view.person.id
+      )
+    );
+  }
+
+  get personIsAdmin(): boolean {
+    return (
+      this.state.siteRes?.admins &&
+      isMod(
+        this.state.siteRes.admins.map(a => a.person.id),
+        this.state.personRes?.person_view.person.id
+      )
+    );
+  }
+
   handlePageChange(page: number) {
     this.updateUrl({ page });
   }
@@ -505,6 +683,55 @@ export class Profile extends Component<any, ProfileState> {
       view: PersonDetailsView[Number(event.target.value)],
       page: 1,
     });
+  }
+
+  handleModBanShow(i: Profile) {
+    i.state.showBanDialog = true;
+    i.setState(i.state);
+  }
+
+  handleModBanReasonChange(i: Profile, event: any) {
+    i.state.banReason = event.target.value;
+    i.setState(i.state);
+  }
+
+  handleModBanExpireDaysChange(i: Profile, event: any) {
+    i.state.banExpireDays = event.target.value;
+    i.setState(i.state);
+  }
+
+  handleModRemoveDataChange(i: Profile, event: any) {
+    i.state.removeData = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleModBanSubmitCancel(i: Profile, event?: any) {
+    event.preventDefault();
+    i.state.showBanDialog = false;
+    i.setState(i.state);
+  }
+
+  handleModBanSubmit(i: Profile, event?: any) {
+    if (event) event.preventDefault();
+
+    let pv = i.state.personRes.person_view;
+    // If its an unban, restore all their data
+    let ban = !pv.person.banned;
+    if (ban == false) {
+      i.state.removeData = false;
+    }
+    let form: BanPerson = {
+      person_id: pv.person.id,
+      ban,
+      remove_data: i.state.removeData,
+      reason: i.state.banReason,
+      expires: futureDaysToUnixTime(i.state.banExpireDays),
+      auth: authField(),
+    };
+    WebSocketService.Instance.send(wsClient.banPerson(form));
+
+    i.state.showBanDialog = false;
+    i.setState(i.state);
   }
 
   parseMessage(msg: any) {
@@ -526,6 +753,7 @@ export class Profile extends Component<any, ProfileState> {
       this.state.personRes = data;
       console.log(data);
       this.state.loading = false;
+      this.setPersonBlock();
       this.setState(this.state);
       restoreScrollPosition(this.context);
     } else if (op == UserOperation.AddAdmin) {
@@ -549,7 +777,7 @@ export class Profile extends Component<any, ProfileState> {
       if (
         UserService.Instance.myUserInfo &&
         data.comment_view.creator.id ==
-          UserService.Instance.myUserInfo.local_user_view.person.id
+          UserService.Instance.myUserInfo?.local_user_view.person.id
       ) {
         toast(i18n.t("reply_sent"));
       }
@@ -580,10 +808,17 @@ export class Profile extends Component<any, ProfileState> {
       this.state.personRes.posts
         .filter(c => c.creator.id == data.person_view.person.id)
         .forEach(c => (c.creator.banned = data.banned));
+      let pv = this.state.personRes.person_view;
+
+      if (pv.person.id == data.person_view.person.id) {
+        pv.person.banned = data.banned;
+      }
       this.setState(this.state);
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       updatePersonBlock(data);
+      this.setPersonBlock();
+      this.setState(this.state);
     }
   }
 }

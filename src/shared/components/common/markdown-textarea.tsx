@@ -10,6 +10,7 @@ import {
   mdToHtml,
   pictrsDeleteToast,
   randomStr,
+  relTags,
   setupTippy,
   setupTribute,
   toast,
@@ -17,7 +18,7 @@ import {
 import { Icon, Spinner } from "./icon";
 
 interface MarkdownTextAreaProps {
-  initialContent: string;
+  initialContent?: string;
   finished?: boolean;
   buttonTitle?: string;
   replyType?: boolean;
@@ -297,7 +298,7 @@ export class MarkdownTextArea extends Component<
               href={markdownHelpUrl}
               class="btn btn-sm text-muted font-weight-bold"
               title={i18n.t("formatting_help")}
-              rel="noopener"
+              rel={relTags}
             >
               <Icon icon="help-circle" classes="icon-inline" />
             </a>
@@ -365,6 +366,7 @@ export class MarkdownTextArea extends Component<
       .catch(error => {
         i.state.imageLoading = false;
         i.setState(i.state);
+        console.error(error);
         toast(error, "danger");
       });
   }
@@ -458,6 +460,21 @@ export class MarkdownTextArea extends Component<
     }
     this.contentChange();
     this.setState(this.state);
+
+    textarea.focus();
+
+    if (start !== end) {
+      textarea.setSelectionRange(
+        start + beforeChars.length,
+        end + afterChars.length
+      );
+    } else {
+      textarea.setSelectionRange(
+        start + beforeChars.length,
+        end + emptyChars.length + afterChars.length
+      );
+    }
+
     setTimeout(() => {
       autosize.update(textarea);
     }, 10);

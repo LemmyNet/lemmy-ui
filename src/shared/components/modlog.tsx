@@ -30,9 +30,11 @@ import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
 import { UserService, WebSocketService } from "../services";
 import {
+  authField,
   fetchLimit,
   isBrowser,
   setIsoData,
+  setOptionalAuth,
   toast,
   wsClient,
   wsJsonToRes,
@@ -495,7 +497,7 @@ export class Modlog extends Component<any, ModlogState> {
               {this.isAdminOrMod ? (
                 <PersonListing person={i.moderator} />
               ) : (
-                <div>{i18n.t("mod")}</div>
+                <div>{this.modOrAdminText(i.view.moderator)}</div>
               )}
             </td>
             <td>{this.renderModlogType(i)}</td>
@@ -518,6 +520,16 @@ export class Modlog extends Component<any, ModlogState> {
         .map(m => m.moderator.id)
         .includes(UserService.Instance.myUserInfo.local_user_view.person.id);
     return isAdmin || isMod;
+  }
+
+  modOrAdminText(person: PersonSafe): Text {
+    if (
+      this.isoData.site_res.admins.map(a => a.person.id).includes(person.id)
+    ) {
+      return i18n.t("admin");
+    } else {
+      return i18n.t("mod");
+    }
   }
 
   get documentTitle(): string {
@@ -580,6 +592,7 @@ export class Modlog extends Component<any, ModlogState> {
       community_id: this.state.communityId,
       page: this.state.page,
       limit: fetchLimit,
+      auth: authField(false),
     };
     WebSocketService.Instance.send(wsClient.getModlog(modlogForm));
 
@@ -605,6 +618,7 @@ export class Modlog extends Component<any, ModlogState> {
     if (communityId) {
       modlogForm.community_id = Number(communityId);
     }
+    setOptionalAuth(modlogForm, req.auth);
 
     promises.push(req.client.getModlog(modlogForm));
 
@@ -612,6 +626,7 @@ export class Modlog extends Component<any, ModlogState> {
       let communityForm: GetCommunity = {
         id: Number(communityId),
       };
+      setOptionalAuth(communityForm, req.auth);
       promises.push(req.client.getCommunity(communityForm));
     }
     return promises;

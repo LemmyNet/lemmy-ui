@@ -26,7 +26,10 @@ export class App extends Component<AppProps, any> {
       <>
         <Provider i18next={i18n}>
           <div>
-            <Theme myUserInfo={siteRes.my_user} />
+            <Theme
+              myUserInfo={siteRes.my_user}
+              defaultTheme={siteRes?.site_view?.site?.default_theme}
+            />
             {siteRes &&
               siteRes.site_view &&
               this.props.siteRes.site_view.site.icon && (

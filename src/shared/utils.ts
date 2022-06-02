@@ -13,12 +13,13 @@ import {
   ListingType,
   MyUserInfo,
   PersonBlockView,
+  PersonSafe,
   PersonViewSafe,
   PostReportView,
   PostView,
   PrivateMessageView,
+  RegistrationApplicationView,
   Search,
-  SearchResponse,
   SearchType,
   SortType,
   UserOperation,
@@ -27,55 +28,17 @@ import {
 } from "lemmy-js-client";
 import markdown_it from "markdown-it";
 import markdown_it_container from "markdown-it-container";
+import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import moment from "moment";
-import "moment/locale/bg";
-import "moment/locale/bn";
-import "moment/locale/ca";
-import "moment/locale/cs";
-import "moment/locale/cy";
-import "moment/locale/da";
-import "moment/locale/de";
-import "moment/locale/el";
-import "moment/locale/eo";
-import "moment/locale/es";
-import "moment/locale/eu";
-import "moment/locale/fa";
-import "moment/locale/fi";
-import "moment/locale/fr";
-import "moment/locale/ga";
-import "moment/locale/gl";
-import "moment/locale/hi";
-import "moment/locale/hr";
-import "moment/locale/hu";
-import "moment/locale/id";
-import "moment/locale/it";
-import "moment/locale/ja";
-import "moment/locale/ka";
-import "moment/locale/km";
-import "moment/locale/ko";
-import "moment/locale/ml";
-import "moment/locale/nb";
-import "moment/locale/nl";
-import "moment/locale/pl";
-import "moment/locale/pt-br";
-import "moment/locale/ru";
-import "moment/locale/sk";
-import "moment/locale/sq";
-import "moment/locale/sr";
-import "moment/locale/sv";
-import "moment/locale/tr";
-import "moment/locale/uk";
-import "moment/locale/vi";
-import "moment/locale/zh-cn";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { httpBase } from "./env";
-import { i18n } from "./i18next";
+import { i18n, languages } from "./i18next";
 import {
   CommentNode as CommentNodeI,
   CommentSortType,
@@ -100,79 +63,18 @@ export const joinLemmyUrl = "https://join-lemmy.org";
 export const donateLemmyUrl = `${joinLemmyUrl}/donate`;
 export const docsUrl = `${joinLemmyUrl}/docs/en/index.html`;
 export const helpGuideUrl = `${joinLemmyUrl}/docs/en/about/guide.html`; // TODO find a way to redirect to the non-en folder
-export const markdownHelpUrl = `${helpGuideUrl}#markdown-guide`;
+export const markdownHelpUrl = `${helpGuideUrl}#using-markdown`;
 export const sortingHelpUrl = `${helpGuideUrl}#sorting`;
-export const archiveUrl = "https://archive.is";
+export const archiveTodayUrl = "https://archive.today";
+export const ghostArchiveUrl = "https://ghostarchive.org";
+export const webArchiveUrl = "https://web.archive.org";
 export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit = 20;
 export const mentionDropdownFetchLimit = 10;
 
-export const languages = [
-  { code: "ca" },
-  { code: "en" },
-  { code: "el" },
-  { code: "eu" },
-  { code: "eo" },
-  { code: "es" },
-  { code: "da" },
-  { code: "de" },
-  { code: "ga" },
-  { code: "gl" },
-  { code: "hr" },
-  { code: "hu" },
-  { code: "id" },
-  { code: "ka" },
-  { code: "ko" },
-  { code: "km" },
-  { code: "hi" },
-  { code: "fa" },
-  { code: "ja" },
-  { code: "oc" },
-  { code: "nb_NO" },
-  { code: "pl" },
-  { code: "pt_BR" },
-  { code: "zh" },
-  { code: "fi" },
-  { code: "fr" },
-  { code: "sv" },
-  { code: "sq" },
-  { code: "sr_Latn" },
-  { code: "th" },
-  { code: "tr" },
-  { code: "uk" },
-  { code: "ru" },
-  { code: "nl" },
-  { code: "it" },
-  { code: "bg" },
-  { code: "zh_Hant" },
-  { code: "cy" },
-  { code: "mnc" },
-  { code: "sk" },
-  { code: "vi" },
-  { code: "pt" },
-  { code: "ar" },
-  { code: "bn" },
-  { code: "ml" },
-  { code: "cs" },
-];
-
-export const themes = [
-  "litera",
-  "materia",
-  "minty",
-  "solar",
-  "united",
-  "cyborg",
-  "darkly",
-  "journal",
-  "sketchy",
-  "vaporwave",
-  "vaporwave-dark",
-  "i386",
-  "litely",
-];
+export const relTags = "noopener nofollow";
 
 const DEFAULT_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -217,6 +119,7 @@ export const md = new markdown_it({
 })
   .use(markdown_it_sub)
   .use(markdown_it_sup)
+  .use(markdown_it_footnote)
   .use(markdown_it_html5_embed, {
     html5embed: {
       useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
@@ -280,6 +183,14 @@ export function getUnixTime(text: string): number {
   return text ? new Date(text).getTime() / 1000 : undefined;
 }
 
+export function futureDaysToUnixTime(days: number): number {
+  return days
+    ? Math.trunc(
+        new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
+      )
+    : undefined;
+}
+
 export function canMod(
   myUserInfo: MyUserInfo,
   modIds: number[],
@@ -307,10 +218,8 @@ export function isMod(modIds: number[], creator_id: number): boolean {
   return modIds.includes(creator_id);
 }
 
-const imageRegex = new RegExp(
-  /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/
-);
-const videoRegex = new RegExp(`(http)?s?:?(\/\/[^"']*\.(?:mp4))`);
+const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
+const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);
@@ -412,8 +321,7 @@ export function debounce(func: any, wait = 1000, immediate = false) {
   };
 }
 
-// TODO
-export function getLanguage(override?: string): string {
+export function getLanguages(override?: string): string[] {
   let myUserInfo = UserService.Instance.myUserInfo;
   let lang =
     override ||
@@ -422,13 +330,13 @@ export function getLanguage(override?: string): string {
       : "browser");
 
   if (lang == "browser" && isBrowser()) {
-    return getBrowserLanguage();
+    return getBrowserLanguages();
   } else {
-    return lang;
+    return [lang];
   }
 }
 
-export function getBrowserLanguage(): string {
+function getBrowserLanguages(): string[] {
   // Intersect lemmy's langs, with the browser langs
   let langs = languages ? languages.map(l => l.code) : ["en"];
 
@@ -436,104 +344,14 @@ export function getBrowserLanguage(): string {
   let allowedLangs = navigator.languages
     .concat("en")
     .filter(v => langs.includes(v));
-  return allowedLangs[0];
+  return allowedLangs;
 }
 
-export function getMomentLanguage(): string {
-  let lang = getLanguage();
-  if (lang.startsWith("zh")) {
-    lang = "zh-cn";
-  } else if (lang.startsWith("sv")) {
-    lang = "sv";
-  } else if (lang.startsWith("fr")) {
-    lang = "fr";
-  } else if (lang.startsWith("de")) {
-    lang = "de";
-  } else if (lang.startsWith("ru")) {
-    lang = "ru";
-  } else if (lang.startsWith("es")) {
-    lang = "es";
-  } else if (lang.startsWith("eo")) {
-    lang = "eo";
-  } else if (lang.startsWith("nl")) {
-    lang = "nl";
-  } else if (lang.startsWith("it")) {
-    lang = "it";
-  } else if (lang.startsWith("fi")) {
-    lang = "fi";
-  } else if (lang.startsWith("ca")) {
-    lang = "ca";
-  } else if (lang.startsWith("fa")) {
-    lang = "fa";
-  } else if (lang.startsWith("pl")) {
-    lang = "pl";
-  } else if (lang.startsWith("pt_BR")) {
-    lang = "pt-br";
-  } else if (lang.startsWith("ja")) {
-    lang = "ja";
-  } else if (lang.startsWith("ka")) {
-    lang = "ka";
-  } else if (lang.startsWith("hi")) {
-    lang = "hi";
-  } else if (lang.startsWith("el")) {
-    lang = "el";
-  } else if (lang.startsWith("eu")) {
-    lang = "eu";
-  } else if (lang.startsWith("gl")) {
-    lang = "gl";
-  } else if (lang.startsWith("tr")) {
-    lang = "tr";
-  } else if (lang.startsWith("hu")) {
-    lang = "hu";
-  } else if (lang.startsWith("uk")) {
-    lang = "uk";
-  } else if (lang.startsWith("sq")) {
-    lang = "sq";
-  } else if (lang.startsWith("km")) {
-    lang = "km";
-  } else if (lang.startsWith("ga")) {
-    lang = "ga";
-  } else if (lang.startsWith("sr")) {
-    lang = "sr";
-  } else if (lang.startsWith("ko")) {
-    lang = "ko";
-  } else if (lang.startsWith("da")) {
-    lang = "da";
-  } else if (lang.startsWith("oc")) {
-    lang = "oc";
-  } else if (lang.startsWith("hr")) {
-    lang = "hr";
-  } else if (lang.startsWith("th")) {
-    lang = "th";
-  } else if (lang.startsWith("bg")) {
-    lang = "bg";
-  } else if (lang.startsWith("id")) {
-    lang = "id";
-  } else if (lang.startsWith("nb")) {
-    lang = "nb";
-  } else if (lang.startsWith("cy")) {
-    lang = "cy";
-  } else if (lang.startsWith("sk")) {
-    lang = "sk";
-  } else if (lang.startsWith("vi")) {
-    lang = "vi";
-  } else if (lang.startsWith("pt")) {
-    lang = "pt";
-  } else if (lang.startsWith("ar")) {
-    lang = "ar";
-  } else if (lang.startsWith("bn")) {
-    lang = "bn";
-  } else if (lang.startsWith("ml")) {
-    lang = "ml";
-  } else if (lang.startsWith("cs")) {
-    lang = "cs";
-  } else {
-    lang = "en";
-  }
-  return lang;
+export async function fetchThemeList(): Promise<string[]> {
+  return fetch("/css/themelist").then(res => res.json());
 }
 
-export function setTheme(theme: string, forceReload = false) {
+export async function setTheme(theme: string, forceReload = false) {
   if (!isBrowser()) {
     return;
   }
@@ -545,9 +363,11 @@ export function setTheme(theme: string, forceReload = false) {
     theme = "darkly";
   }
 
+  let themeList = await fetchThemeList();
+
   // Unload all the other themes
-  for (var i = 0; i < themes.length; i++) {
-    let styleSheet = document.getElementById(themes[i]);
+  for (var i = 0; i < themeList.length; i++) {
+    let styleSheet = document.getElementById(themeList[i]);
     if (styleSheet) {
       styleSheet.setAttribute("disabled", "disabled");
     }
@@ -559,7 +379,8 @@ export function setTheme(theme: string, forceReload = false) {
   document.getElementById("default-dark")?.setAttribute("disabled", "disabled");
 
   // Load the theme dynamically
-  let cssLoc = `/static/assets/css/themes/${theme}.min.css`;
+  let cssLoc = `/css/themes/${theme}.css`;
+
   loadCss(theme, cssLoc);
   document.getElementById(theme).removeAttribute("disabled");
 }
@@ -763,9 +584,9 @@ export function setupTribute() {
           let it: PersonTribute = item.original;
           return `[${it.key}](${it.view.person.actor_id})`;
         },
-        values: (text: string, cb: (persons: PersonTribute[]) => any) => {
-          personSearch(text, (persons: PersonTribute[]) => cb(persons));
-        },
+        values: debounce(async (text: string, cb: any) => {
+          cb(await personSearch(text));
+        }),
         allowSpaces: false,
         autocompleteMode: true,
         // TODO
@@ -780,11 +601,9 @@ export function setupTribute() {
           let it: CommunityTribute = item.original;
           return `[${it.key}](${it.view.community.actor_id})`;
         },
-        values: (text: string, cb: any) => {
-          communitySearch(text, (communities: CommunityTribute[]) =>
-            cb(communities)
-          );
-        },
+        values: debounce(async (text: string, cb: any) => {
+          cb(await communitySearch(text));
+        }),
         allowSpaces: false,
         autocompleteMode: true,
         // TODO
@@ -816,42 +635,16 @@ interface PersonTribute {
   view: PersonViewSafe;
 }
 
-function personSearch(text: string, cb: (persons: PersonTribute[]) => any) {
-  if (text) {
-    let form: Search = {
-      q: text,
-      type_: SearchType.Users,
-      sort: SortType.TopAll,
-      listing_type: ListingType.All,
-      page: 1,
-      limit: mentionDropdownFetchLimit,
-      auth: authField(false),
+async function personSearch(text: string): Promise<PersonTribute[]> {
+  let users = (await fetchUsers(text)).users;
+  let persons: PersonTribute[] = users.map(pv => {
+    let tribute: PersonTribute = {
+      key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
+      view: pv,
     };
-
-    WebSocketService.Instance.send(wsClient.search(form));
-
-    let personSub = WebSocketService.Instance.subject.subscribe(
-      msg => {
-        let res = wsJsonToRes(msg);
-        if (res.op == UserOperation.Search) {
-          let data = res.data as SearchResponse;
-          let persons: PersonTribute[] = data.users.map(pv => {
-            let tribute: PersonTribute = {
-              key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
-              view: pv,
-            };
-            return tribute;
-          });
-          cb(persons);
-          personSub.unsubscribe();
-        }
-      },
-      err => console.error(err),
-      () => console.log("complete")
-    );
-  } else {
-    cb([]);
-  }
+    return tribute;
+  });
+  return persons;
 }
 
 interface CommunityTribute {
@@ -859,48 +652,22 @@ interface CommunityTribute {
   view: CommunityView;
 }
 
-function communitySearch(
-  text: string,
-  cb: (communities: CommunityTribute[]) => any
-) {
-  if (text) {
-    let form: Search = {
-      q: text,
-      type_: SearchType.Communities,
-      sort: SortType.TopAll,
-      listing_type: ListingType.All,
-      page: 1,
-      limit: mentionDropdownFetchLimit,
-      auth: authField(false),
+async function communitySearch(text: string): Promise<CommunityTribute[]> {
+  let comms = (await fetchCommunities(text)).communities;
+  let communities: CommunityTribute[] = comms.map(cv => {
+    let tribute: CommunityTribute = {
+      key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
+      view: cv,
     };
-
-    WebSocketService.Instance.send(wsClient.search(form));
-
-    let communitySub = WebSocketService.Instance.subject.subscribe(
-      msg => {
-        let res = wsJsonToRes(msg);
-        if (res.op == UserOperation.Search) {
-          let data = res.data as SearchResponse;
-          let communities: CommunityTribute[] = data.communities.map(cv => {
-            let tribute: CommunityTribute = {
-              key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
-              view: cv,
-            };
-            return tribute;
-          });
-          cb(communities);
-          communitySub.unsubscribe();
-        }
-      },
-      err => console.error(err),
-      () => console.log("complete")
-    );
-  } else {
-    cb([]);
-  }
+    return tribute;
+  });
+  return communities;
 }
 
-export function getListingTypeFromProps(props: any): ListingType {
+export function getListingTypeFromProps(
+  props: any,
+  defaultListingType: ListingType
+): ListingType {
   return props.match.params.listing_type
     ? routeListingTypeToEnum(props.match.params.listing_type)
     : UserService.Instance.myUserInfo
@@ -908,7 +675,7 @@ export function getListingTypeFromProps(props: any): ListingType {
         UserService.Instance.myUserInfo.local_user_view.local_user
           .default_listing_type
       ]
-    : ListingType.Local;
+    : defaultListingType;
 }
 
 export function getListingTypeFromPropsNoDefault(props: any): ListingType {
@@ -1073,7 +840,7 @@ export function updatePostReportRes(
   data: PostReportView,
   reports: PostReportView[]
 ) {
-  let found = reports.find(p => p.post.id == data.post.id);
+  let found = reports.find(p => p.post_report.id == data.post_report.id);
   if (found) {
     found.post_report = data.post_report;
   }
@@ -1083,9 +850,23 @@ export function updateCommentReportRes(
   data: CommentReportView,
   reports: CommentReportView[]
 ) {
-  let found = reports.find(c => c.comment.id == data.comment.id);
+  let found = reports.find(c => c.comment_report.id == data.comment_report.id);
   if (found) {
     found.comment_report = data.comment_report;
+  }
+}
+
+export function updateRegistrationApplicationRes(
+  data: RegistrationApplicationView,
+  applications: RegistrationApplicationView[]
+) {
+  let found = applications.find(
+    ra => ra.registration_application.id == data.registration_application.id
+  );
+  if (found) {
+    found.registration_application = data.registration_application;
+    found.admin = data.admin;
+    found.creator_local_user = data.creator_local_user;
   }
 }
 
@@ -1254,21 +1035,6 @@ export const colorList: string[] = [
 
 function hsl(num: number) {
   return `hsla(${num}, 35%, 50%, 1)`;
-}
-
-export function previewLines(
-  text: string,
-  maxChars = 300,
-  maxLines = 1
-): string {
-  return (
-    text
-      .slice(0, maxChars)
-      .split("\n")
-      // Use lines * 2 because markdown requires 2 lines
-      .slice(0, maxLines * 2)
-      .join("\n") + "..."
-  );
 }
 
 export function hostname(url: string): string {
@@ -1462,19 +1228,18 @@ export const choicesConfig = {
 
 export function communitySelectName(cv: CommunityView): string {
   return cv.community.local
-    ? cv.community.name
-    : `${hostname(cv.community.actor_id)}/${cv.community.name}`;
+    ? cv.community.title
+    : `${hostname(cv.community.actor_id)}/${cv.community.title}`;
 }
 
 export function personSelectName(pvs: PersonViewSafe): string {
-  return pvs.person.local
-    ? pvs.person.name
-    : `${hostname(pvs.person.actor_id)}/${pvs.person.name}`;
+  let pName = pvs.person.display_name || pvs.person.name;
+  return pvs.person.local ? pName : `${hostname(pvs.person.actor_id)}/${pName}`;
 }
 
 export function initializeSite(site: GetSiteResponse) {
   UserService.Instance.myUserInfo = site.my_user;
-  i18n.changeLanguage(getLanguage());
+  i18n.changeLanguage(getLanguages()[0]);
 }
 
 const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
@@ -1486,4 +1251,23 @@ const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
 
 export function numToSI(value: number): string {
   return SHORTNUM_SI_FORMAT.format(value);
+}
+
+export function isBanned(ps: PersonSafe): boolean {
+  // Add Z to convert from UTC date
+  if (ps.ban_expires) {
+    if (ps.banned && new Date(ps.ban_expires + "Z") > new Date()) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return ps.banned;
+  }
+}
+
+export function pushNotNull(array: any[], new_item?: any) {
+  if (new_item) {
+    array.push(...new_item);
+  }
 }

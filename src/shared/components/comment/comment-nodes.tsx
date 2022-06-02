@@ -15,6 +15,7 @@ interface CommentNodesProps {
   markable?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
+  maxCommentsShown?: number;
   enableDownvotes: boolean;
 }
 
@@ -24,9 +25,13 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
   }
 
   render() {
+    let maxComments = this.props.maxCommentsShown
+      ? this.props.maxCommentsShown
+      : this.props.nodes.length;
+
     return (
       <div className="comments">
-        {this.props.nodes.map(node => (
+        {this.props.nodes.slice(0, maxComments).map(node => (
           <CommentNode
             key={node.comment_view.comment.id}
             node={node}

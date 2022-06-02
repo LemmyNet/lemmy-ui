@@ -20,7 +20,7 @@ import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
-  archiveUrl,
+  archiveTodayUrl,
   authField,
   capitalizeFirstLetter,
   choicesConfig,
@@ -29,13 +29,16 @@ import {
   debounce,
   fetchCommunities,
   getSiteMetadata,
+  ghostArchiveUrl,
   isBrowser,
   isImage,
   pictrsDeleteToast,
+  relTags,
   setupTippy,
   toast,
   validTitle,
   validURL,
+  webArchiveUrl,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -211,15 +214,35 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 />
               </form>
               {this.state.postForm.url && validURL(this.state.postForm.url) && (
-                <a
-                  href={`${archiveUrl}/?run=1&url=${encodeURIComponent(
-                    this.state.postForm.url
-                  )}`}
-                  class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                  rel="noopener"
-                >
-                  {i18n.t("archive_link")}
-                </a>
+                <div>
+                  <a
+                    href={`${webArchiveUrl}/save/${encodeURIComponent(
+                      this.state.postForm.url
+                    )}`}
+                    class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                    rel={relTags}
+                  >
+                    archive.org {i18n.t("archive_link")}
+                  </a>
+                  <a
+                    href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
+                      this.state.postForm.url
+                    )}`}
+                    class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                    rel={relTags}
+                  >
+                    ghostarchive.org {i18n.t("archive_link")}
+                  </a>
+                  <a
+                    href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
+                      this.state.postForm.url
+                    )}`}
+                    class="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                    rel={relTags}
+                  >
+                    archive.today {i18n.t("archive_link")}
+                  </a>
+                </div>
               )}
               {this.state.imageLoading && <Spinner />}
               {isImage(this.state.postForm.url) && (
@@ -543,6 +566,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       .catch(error => {
         i.state.imageLoading = false;
         i.setState(i.state);
+        console.error(error);
         toast(error, "danger");
       });
   }
@@ -564,15 +588,19 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         this.choices.passedElement.element.addEventListener(
           "search",
           debounce(async (e: any) => {
-            let communities = (await fetchCommunities(e.detail.value))
-              .communities;
-            this.choices.setChoices(
-              communities.map(cv => communityToChoice(cv)),
-              "value",
-              "label",
-              true
-            );
-          }, 400),
+            try {
+              let communities = (await fetchCommunities(e.detail.value))
+                .communities;
+              this.choices.setChoices(
+                communities.map(cv => communityToChoice(cv)),
+                "value",
+                "label",
+                true
+              );
+            } catch (err) {
+              console.log(err);
+            }
+          }),
           false
         );
       }
@@ -608,7 +636,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     let op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
+      // Errors handled by top level pages
+      // toast(i18n.t(msg.error), "danger");
       this.state.loading = false;
       this.setState(this.state);
       return;

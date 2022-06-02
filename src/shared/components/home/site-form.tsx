@@ -1,30 +1,33 @@
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { CreateSite, EditSite, Site } from "lemmy-js-client";
+import { CreateSite, EditSite, ListingType, Site } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
   authField,
   capitalizeFirstLetter,
-  randomStr,
+  fetchThemeList,
   wsClient,
 } from "../../utils";
 import { Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
+import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface SiteFormProps {
   site?: Site; // If a site is given, that means this is an edit
+  showLocal: boolean;
   onCancel?(): any;
+  onEdit?(): any;
 }
 
 interface SiteFormState {
   siteForm: EditSite;
   loading: boolean;
+  themeList: string[];
 }
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
-  private id = `site-form-${randomStr()}`;
   private emptyState: SiteFormState = {
     siteForm: {
       enable_downvotes: true,
@@ -33,9 +36,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       name: null,
       icon: null,
       banner: null,
-      auth: authField(),
+      require_email_verification: null,
+      require_application: null,
+      application_question: null,
+      private_instance: null,
+      default_theme: null,
+      default_post_listing_type: null,
+      legal_information: null,
+      auth: authField(false),
     },
     loading: false,
+    themeList: [],
   };
 
   constructor(props: any, context: any) {
@@ -43,6 +54,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.state = this.emptyState;
     this.handleSiteSidebarChange = this.handleSiteSidebarChange.bind(this);
+    this.handleSiteLegalInfoChange = this.handleSiteLegalInfoChange.bind(this);
+    this.handleSiteApplicationQuestionChange =
+      this.handleSiteApplicationQuestionChange.bind(this);
 
     this.handleIconUpload = this.handleIconUpload.bind(this);
     this.handleIconRemove = this.handleIconRemove.bind(this);
@@ -50,21 +64,36 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
+    this.handleDefaultPostListingTypeChange =
+      this.handleDefaultPostListingTypeChange.bind(this);
+
     if (this.props.site) {
+      let site = this.props.site;
       this.state.siteForm = {
-        name: this.props.site.name,
-        sidebar: this.props.site.sidebar,
-        description: this.props.site.description,
-        enable_downvotes: this.props.site.enable_downvotes,
-        open_registration: this.props.site.open_registration,
-        enable_nsfw: this.props.site.enable_nsfw,
-        community_creation_admin_only:
-          this.props.site.community_creation_admin_only,
-        icon: this.props.site.icon,
-        banner: this.props.site.banner,
-        auth: authField(),
+        name: site.name,
+        sidebar: site.sidebar,
+        description: site.description,
+        enable_downvotes: site.enable_downvotes,
+        open_registration: site.open_registration,
+        enable_nsfw: site.enable_nsfw,
+        community_creation_admin_only: site.community_creation_admin_only,
+        icon: site.icon,
+        banner: site.banner,
+        require_email_verification: site.require_email_verification,
+        require_application: site.require_application,
+        application_question: site.application_question,
+        private_instance: site.private_instance,
+        default_theme: site.default_theme,
+        default_post_listing_type: site.default_post_listing_type,
+        legal_information: site.legal_information,
+        auth: authField(false),
       };
     }
+  }
+
+  async componentDidMount() {
+    this.state.themeList = await fetchThemeList();
+    this.setState(this.state);
   }
 
   // Necessary to stop the loading
@@ -79,6 +108,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       !this.props.site &&
       (this.state.siteForm.name ||
         this.state.siteForm.sidebar ||
+        this.state.siteForm.application_question ||
         this.state.siteForm.description)
     ) {
       window.onbeforeunload = () => true;
@@ -100,6 +130,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !this.props.site &&
             (this.state.siteForm.name ||
               this.state.siteForm.sidebar ||
+              this.state.siteForm.application_question ||
               this.state.siteForm.description)
           }
           message={i18n.t("block_leaving")}
@@ -162,9 +193,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-12 col-form-label" htmlFor={this.id}>
-              {i18n.t("sidebar")}
-            </label>
+            <label class="col-12 col-form-label">{i18n.t("sidebar")}</label>
             <div class="col-12">
               <MarkdownTextArea
                 initialContent={this.state.siteForm.sidebar}
@@ -173,6 +202,32 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           </div>
+          <div class="form-group row">
+            <label class="col-12 col-form-label">
+              {i18n.t("legal_information")}
+            </label>
+            <div class="col-12">
+              <MarkdownTextArea
+                initialContent={this.state.siteForm.legal_information}
+                onContentChange={this.handleSiteLegalInfoChange}
+                hideNavigationWarnings
+              />
+            </div>
+          </div>
+          {this.state.siteForm.require_application && (
+            <div class="form-group row">
+              <label class="col-12 col-form-label">
+                {i18n.t("application_questionnaire")}
+              </label>
+              <div class="col-12">
+                <MarkdownTextArea
+                  initialContent={this.state.siteForm.application_question}
+                  onContentChange={this.handleSiteApplicationQuestionChange}
+                  hideNavigationWarnings
+                />
+              </div>
+            </div>
+          )}
           <div class="form-group row">
             <div class="col-12">
               <div class="form-check">
@@ -257,6 +312,102 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
           <div class="form-group row">
             <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-require-email-verification"
+                  type="checkbox"
+                  checked={this.state.siteForm.require_email_verification}
+                  onChange={linkEvent(
+                    this,
+                    this.handleSiteRequireEmailVerification
+                  )}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-require-email-verification"
+                >
+                  {i18n.t("require_email_verification")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-require-application"
+                  type="checkbox"
+                  checked={this.state.siteForm.require_application}
+                  onChange={linkEvent(this, this.handleSiteRequireApplication)}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-require-application"
+                >
+                  {i18n.t("require_registration_application")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
+              <label
+                class="form-check-label mr-2"
+                htmlFor="create-site-default-theme"
+              >
+                {i18n.t("theme")}
+              </label>
+              <select
+                id="create-site-default-theme"
+                value={this.state.siteForm.default_theme}
+                onChange={linkEvent(this, this.handleSiteDefaultTheme)}
+                class="custom-select w-auto"
+              >
+                <option value="browser">{i18n.t("browser_default")}</option>
+                {this.state.themeList.map(theme => (
+                  <option value={theme}>{theme}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {this.props.showLocal && (
+            <form className="form-group row">
+              <label class="col-sm-3">{i18n.t("listing_type")}</label>
+              <div class="col-sm-9">
+                <ListingTypeSelect
+                  type_={
+                    ListingType[this.state.siteForm.default_post_listing_type]
+                  }
+                  showLocal
+                  showSubscribed={false}
+                  onChange={this.handleDefaultPostListingTypeChange}
+                />
+              </div>
+            </form>
+          )}
+          <div class="form-group row">
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-private-instance"
+                  type="checkbox"
+                  value={this.state.siteForm.default_theme}
+                  onChange={linkEvent(this, this.handleSitePrivateInstance)}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-private-instance"
+                >
+                  {i18n.t("private_instance")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
               <button
                 type="submit"
                 class="btn btn-secondary mr-2"
@@ -291,6 +442,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.state.loading = true;
     if (i.props.site) {
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
+      i.props.onEdit();
     } else {
       let form: CreateSite = {
         name: i.state.siteForm.name || "My site",
@@ -308,6 +460,16 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteSidebarChange(val: string) {
     this.state.siteForm.sidebar = val;
+    this.setState(this.state);
+  }
+
+  handleSiteLegalInfoChange(val: string) {
+    this.state.siteForm.legal_information = val;
+    this.setState(this.state);
+  }
+
+  handleSiteApplicationQuestionChange(val: string) {
+    this.state.siteForm.application_question = val;
     this.setState(this.state);
   }
 
@@ -336,6 +498,26 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
+  handleSiteRequireApplication(i: SiteForm, event: any) {
+    i.state.siteForm.require_application = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSiteRequireEmailVerification(i: SiteForm, event: any) {
+    i.state.siteForm.require_email_verification = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSitePrivateInstance(i: SiteForm, event: any) {
+    i.state.siteForm.private_instance = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSiteDefaultTheme(i: SiteForm, event: any) {
+    i.state.siteForm.default_theme = event.target.value;
+    i.setState(i.state);
+  }
+
   handleCancel(i: SiteForm) {
     i.props.onCancel();
   }
@@ -357,6 +539,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleBannerRemove() {
     this.state.siteForm.banner = "";
+    this.setState(this.state);
+  }
+
+  handleDefaultPostListingTypeChange(val: ListingType) {
+    this.state.siteForm.default_post_listing_type =
+      ListingType[ListingType[val]];
     this.setState(this.state);
   }
 }

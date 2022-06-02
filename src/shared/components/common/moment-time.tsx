@@ -1,7 +1,7 @@
 import { Component } from "inferno";
 import moment from "moment";
 import { i18n } from "../../i18next";
-import { capitalizeFirstLetter, getMomentLanguage } from "../../utils";
+import { capitalizeFirstLetter, getLanguages } from "../../utils";
 import { Icon } from "./icon";
 
 interface MomentTimeProps {
@@ -18,18 +18,32 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    let lang = getMomentLanguage();
+    let lang = getLanguages();
 
     moment.locale(lang);
+  }
+
+  createdAndModifiedTimes() {
+    let created = this.props.data.published || this.props.data.when_;
+    return `
+      <div>
+        <div>
+          ${capitalizeFirstLetter(i18n.t("created"))}: ${this.format(created)}
+        </div>
+        <div>
+          ${capitalizeFirstLetter(i18n.t("modified"))} ${this.format(
+      this.props.data.updated
+    )}
+        </div>
+        </div>`;
   }
 
   render() {
     if (!this.props.ignoreUpdated && this.props.data.updated) {
       return (
         <span
-          data-tippy-content={`${capitalizeFirstLetter(
-            i18n.t("modified")
-          )} ${this.format(this.props.data.updated)}`}
+          data-tippy-content={this.createdAndModifiedTimes()}
+          data-tippy-allowHtml={true}
           className="font-italics pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline mr-1" />
@@ -37,13 +51,13 @@ export class MomentTime extends Component<MomentTimeProps, any> {
         </span>
       );
     } else {
-      let str = this.props.data.published || this.props.data.when_;
+      let created = this.props.data.published || this.props.data.when_;
       return (
         <span
           className="pointer unselectable"
-          data-tippy-content={this.format(str)}
+          data-tippy-content={this.format(created)}
         >
-          {moment.utc(str).fromNow(!this.props.showAgo)}
+          {moment.utc(created).fromNow(!this.props.showAgo)}
         </span>
       );
     }

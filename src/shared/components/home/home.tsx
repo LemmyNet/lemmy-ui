@@ -40,9 +40,8 @@ import {
   getListingTypeFromProps,
   getPageFromProps,
   getSortTypeFromProps,
-  mdToHtml,
   notifyPost,
-  numToSI,
+  relTags,
   restoreScrollPosition,
   saveCommentRes,
   saveScrollPosition,
@@ -58,7 +57,6 @@ import {
   wsUserOp,
 } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
-import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -66,17 +64,16 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
-import { PersonListing } from "../person/person-listing";
 import { PostListings } from "../post/post-listings";
-import { SiteForm } from "./site-form";
+import { SiteSidebar } from "./site-sidebar";
 
 interface HomeState {
   trendingCommunities: CommunityView[];
   siteRes: GetSiteResponse;
-  showEditSite: boolean;
   showSubscribedMobile: boolean;
   showTrendingMobile: boolean;
   showSidebarMobile: boolean;
+  subscribedCollapsed: boolean;
   loading: boolean;
   posts: PostView[];
   comments: CommentView[];
@@ -106,14 +103,19 @@ export class Home extends Component<any, HomeState> {
   private emptyState: HomeState = {
     trendingCommunities: [],
     siteRes: this.isoData.site_res,
-    showEditSite: false,
     showSubscribedMobile: false,
     showTrendingMobile: false,
     showSidebarMobile: false,
+    subscribedCollapsed: false,
     loading: true,
     posts: [],
     comments: [],
-    listingType: getListingTypeFromProps(this.props),
+    listingType: getListingTypeFromProps(
+      this.props,
+      ListingType[
+        this.isoData.site_res.site_view?.site.default_post_listing_type
+      ]
+    ),
     dataType: getDataTypeFromProps(this.props),
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
@@ -123,7 +125,6 @@ export class Home extends Component<any, HomeState> {
     super(props, context);
 
     this.state = this.emptyState;
-    this.handleEditCancel = this.handleEditCancel.bind(this);
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
@@ -145,8 +146,6 @@ export class Home extends Component<any, HomeState> {
       this.fetchTrendingCommunities();
       this.fetchData();
     }
-
-    setupTippy();
   }
 
   fetchTrendingCommunities() {
@@ -168,6 +167,7 @@ export class Home extends Component<any, HomeState> {
     }
 
     WebSocketService.Instance.send(wsClient.communityJoin({ community_id: 0 }));
+    setupTippy();
   }
 
   componentWillUnmount() {
@@ -178,7 +178,7 @@ export class Home extends Component<any, HomeState> {
 
   static getDerivedStateFromProps(props: any): HomeProps {
     return {
-      listingType: getListingTypeFromProps(props),
+      listingType: getListingTypeFromProps(props, ListingType.Local),
       dataType: getDataTypeFromProps(props),
       sort: getSortTypeFromProps(props),
       page: getPageFromProps(props),
@@ -199,7 +199,7 @@ export class Home extends Component<any, HomeState> {
           UserService.Instance.myUserInfo.local_user_view.local_user
             .default_listing_type
         ]
-      : ListingType.Local;
+      : null;
     let sort: SortType = pathSplit[7]
       ? SortType[pathSplit[7]]
       : UserService.Instance.myUserInfo
@@ -218,9 +218,12 @@ export class Home extends Component<any, HomeState> {
         page,
         limit: fetchLimit,
         sort,
-        type_,
         saved_only: false,
       };
+      if (type_) {
+        getPostsForm.type_ = type_;
+      }
+
       setOptionalAuth(getPostsForm, req.auth);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
@@ -228,7 +231,7 @@ export class Home extends Component<any, HomeState> {
         page,
         limit: fetchLimit,
         sort,
-        type_,
+        type_: type_ || ListingType.Local,
         saved_only: false,
       };
       setOptionalAuth(getCommentsForm, req.auth);
@@ -240,6 +243,7 @@ export class Home extends Component<any, HomeState> {
       sort: SortType.Hot,
       limit: 6,
     };
+    setOptionalAuth(trendingCommunitiesForm, req.auth);
     promises.push(req.client.listCommunities(trendingCommunitiesForm));
 
     return promises;
@@ -288,6 +292,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   mobileView() {
+    let siteRes = this.state.siteRes;
     return (
       <div class="row">
         <div class="col-12">
@@ -332,19 +337,23 @@ export class Home extends Component<any, HomeState> {
               classes="icon-inline"
             />
           </button>
-          {this.state.showSubscribedMobile && (
-            <div class="col-12 card border-secondary mb-3">
-              <div class="card-body">{this.subscribedCommunities()}</div>
-            </div>
+          {this.state.showSidebarMobile && (
+            <SiteSidebar
+              site={siteRes.site_view.site}
+              admins={siteRes.admins}
+              counts={siteRes.site_view.counts}
+              online={siteRes.online}
+              showLocal={showLocal(this.isoData)}
+            />
           )}
           {this.state.showTrendingMobile && (
             <div class="col-12 card border-secondary mb-3">
               <div class="card-body">{this.trendingCommunities()}</div>
             </div>
           )}
-          {this.state.showSidebarMobile && (
+          {this.state.showSubscribedMobile && (
             <div class="col-12 card border-secondary mb-3">
-              <div class="card-body">{this.sidebar()}</div>
+              <div class="card-body">{this.subscribedCommunities()}</div>
             </div>
           )}
         </div>
@@ -353,6 +362,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   mySidebar() {
+    let siteRes = this.state.siteRes;
     return (
       <div>
         {!this.state.loading && (
@@ -365,16 +375,20 @@ export class Home extends Component<any, HomeState> {
               </div>
             </div>
 
+            <SiteSidebar
+              site={siteRes.site_view.site}
+              admins={siteRes.admins}
+              counts={siteRes.site_view.counts}
+              online={siteRes.online}
+              showLocal={showLocal(this.isoData)}
+            />
+
             {UserService.Instance.myUserInfo &&
               UserService.Instance.myUserInfo.follows.length > 0 && (
                 <div class="card border-secondary mb-3">
                   <div class="card-body">{this.subscribedCommunities()}</div>
                 </div>
               )}
-
-            <div class="card border-secondary mb-3">
-              <div class="card-body">{this.sidebar()}</div>
-            </div>
           </div>
         )}
       </div>
@@ -423,39 +437,33 @@ export class Home extends Component<any, HomeState> {
     return (
       <div>
         <h5>
-          <T i18nKey="subscribed_to_communities">
+          <T class="d-inline" i18nKey="subscribed_to_communities">
             #
             <Link className="text-body" to="/communities">
               #
             </Link>
           </T>
+          <button
+            class="btn btn-sm text-muted"
+            onClick={linkEvent(this, this.handleCollapseSubscribe)}
+            aria-label={i18n.t("collapse")}
+            data-tippy-content={i18n.t("collapse")}
+          >
+            {this.state.subscribedCollapsed ? (
+              <Icon icon="plus-square" classes="icon-inline" />
+            ) : (
+              <Icon icon="minus-square" classes="icon-inline" />
+            )}
+          </button>
         </h5>
-        <ul class="list-inline mb-0">
-          {UserService.Instance.myUserInfo.follows.map(cfv => (
-            <li class="list-inline-item d-inline-block">
-              <CommunityLink community={cfv.community} />
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-
-  sidebar() {
-    let site = this.state.siteRes.site_view.site;
-    return (
-      <div>
-        {!this.state.showEditSite ? (
-          <div>
-            <div class="mb-2">
-              {this.siteName()}
-              {this.adminButtons()}
-            </div>
-            <BannerIconHeader banner={site.banner} />
-            {this.siteInfo()}
-          </div>
-        ) : (
-          <SiteForm site={site} onCancel={this.handleEditCancel} />
+        {!this.state.subscribedCollapsed && (
+          <ul class="list-inline mb-0">
+            {UserService.Instance.myUserInfo.follows.map(cfv => (
+              <li class="list-inline-item d-inline-block">
+                <CommunityLink community={cfv.community} />
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     );
@@ -468,161 +476,6 @@ export class Home extends Component<any, HomeState> {
     const page = paramUpdates.page || this.state.page;
     this.props.history.push(
       `/home/data_type/${dataTypeStr}/listing_type/${listingTypeStr}/sort/${sortStr}/page/${page}`
-    );
-  }
-
-  siteInfo() {
-    let site = this.state.siteRes.site_view.site;
-    return (
-      <div>
-        {site.description && <h6>{site.description}</h6>}
-        {site.sidebar && this.siteSidebar()}
-        {this.badges()}
-        {this.admins()}
-      </div>
-    );
-  }
-
-  siteName() {
-    let site = this.state.siteRes.site_view.site;
-    return site.name && <h5 class="mb-0">{site.name}</h5>;
-  }
-
-  admins() {
-    return (
-      <ul class="mt-1 list-inline small mb-0">
-        <li class="list-inline-item">{i18n.t("admins")}:</li>
-        {this.state.siteRes.admins.map(av => (
-          <li class="list-inline-item">
-            <PersonListing person={av.person} />
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  badges() {
-    let counts = this.state.siteRes.site_view.counts;
-    return (
-      <ul class="my-2 list-inline">
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_online", {
-            count: this.state.siteRes.online,
-            formattedCount: numToSI(this.state.siteRes.online),
-          })}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_day", {
-            count: counts.users_active_day,
-            formattedCount: numToSI(counts.users_active_day),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: counts.users_active_day,
-            formattedCount: numToSI(counts.users_active_day),
-          })}{" "}
-          / {i18n.t("day")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_week", {
-            count: counts.users_active_week,
-            formattedCount: counts.users_active_week,
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: counts.users_active_week,
-            formattedCount: numToSI(counts.users_active_week),
-          })}{" "}
-          / {i18n.t("week")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_month", {
-            count: counts.users_active_month,
-            formattedCount: counts.users_active_month,
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: counts.users_active_month,
-            formattedCount: numToSI(counts.users_active_month),
-          })}{" "}
-          / {i18n.t("month")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-            count: counts.users_active_half_year,
-            formattedCount: counts.users_active_half_year,
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: counts.users_active_half_year,
-            formattedCount: numToSI(counts.users_active_half_year),
-          })}{" "}
-          / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_users", {
-            count: counts.users,
-            formattedCount: numToSI(counts.users),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_communities", {
-            count: counts.communities,
-            formattedCount: numToSI(counts.communities),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_posts", {
-            count: counts.posts,
-            formattedCount: numToSI(counts.posts),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_comments", {
-            count: counts.comments,
-            formattedCount: numToSI(counts.comments),
-          })}
-        </li>
-        <li className="list-inline-item">
-          <Link className="badge badge-secondary" to="/modlog">
-            {i18n.t("modlog")}
-          </Link>
-        </li>
-      </ul>
-    );
-  }
-
-  adminButtons() {
-    return (
-      this.canAdmin && (
-        <ul class="list-inline mb-1 text-muted font-weight-bold">
-          <li className="list-inline-item-action">
-            <button
-              class="btn btn-link d-inline-block text-muted"
-              onClick={linkEvent(this, this.handleEditClick)}
-              aria-label={i18n.t("edit")}
-              data-tippy-content={i18n.t("edit")}
-            >
-              <Icon icon="edit" classes="icon-inline" />
-            </button>
-          </li>
-        </ul>
-      )
-    );
-  }
-
-  siteSidebar() {
-    return (
-      <div
-        className="md-div"
-        dangerouslySetInnerHTML={mdToHtml(
-          this.state.siteRes.site_view.site.sidebar
-        )}
-      />
     );
   }
 
@@ -669,6 +522,12 @@ export class Home extends Component<any, HomeState> {
   }
 
   selects() {
+    let allRss = `/feeds/all.xml?sort=${this.state.sort}`;
+    let localRss = `/feeds/local.xml?sort=${this.state.sort}`;
+    let frontRss = UserService.Instance.myUserInfo
+      ? `/feeds/front/${UserService.Instance.auth}.xml?sort=${this.state.sort}`
+      : "";
+
     return (
       <div className="mb-3">
         <span class="mr-3">
@@ -681,6 +540,7 @@ export class Home extends Component<any, HomeState> {
           <ListingTypeSelect
             type_={this.state.listingType}
             showLocal={showLocal(this.isoData)}
+            showSubscribed
             onChange={this.handleListingTypeChange}
           />
         </span>
@@ -688,54 +548,36 @@ export class Home extends Component<any, HomeState> {
           <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
         </span>
         {this.state.listingType == ListingType.All && (
-          <a
-            href={`/feeds/all.xml?sort=${this.state.sort}`}
-            rel="noopener"
-            title="RSS"
-          >
-            <Icon icon="rss" classes="text-muted small" />
-          </a>
+          <>
+            <a href={allRss} rel={relTags} title="RSS">
+              <Icon icon="rss" classes="text-muted small" />
+            </a>
+            <link rel="alternate" type="application/atom+xml" href={allRss} />
+          </>
         )}
         {this.state.listingType == ListingType.Local && (
-          <a
-            href={`/feeds/local.xml?sort=${this.state.sort}`}
-            rel="noopener"
-            title="RSS"
-          >
-            <Icon icon="rss" classes="text-muted small" />
-          </a>
+          <>
+            <a href={localRss} rel={relTags} title="RSS">
+              <Icon icon="rss" classes="text-muted small" />
+            </a>
+            <link rel="alternate" type="application/atom+xml" href={localRss} />
+          </>
         )}
         {UserService.Instance.myUserInfo &&
           this.state.listingType == ListingType.Subscribed && (
-            <a
-              href={`/feeds/front/${UserService.Instance.auth}.xml?sort=${this.state.sort}`}
-              title="RSS"
-              rel="noopener"
-            >
-              <Icon icon="rss" classes="text-muted small" />
-            </a>
+            <>
+              <a href={frontRss} title="RSS" rel={relTags}>
+                <Icon icon="rss" classes="text-muted small" />
+              </a>
+              <link
+                rel="alternate"
+                type="application/atom+xml"
+                href={frontRss}
+              />
+            </>
           )}
       </div>
     );
-  }
-
-  get canAdmin(): boolean {
-    return (
-      UserService.Instance.myUserInfo &&
-      this.state.siteRes.admins
-        .map(a => a.person.id)
-        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
-    );
-  }
-
-  handleEditClick(i: Home) {
-    i.state.showEditSite = true;
-    i.setState(i.state);
-  }
-
-  handleEditCancel() {
-    this.state.showEditSite = false;
-    this.setState(this.state);
   }
 
   handleShowSubscribedMobile(i: Home) {
@@ -750,6 +592,11 @@ export class Home extends Component<any, HomeState> {
 
   handleShowSidebarMobile(i: Home) {
     i.state.showSidebarMobile = !i.state.showSidebarMobile;
+    i.setState(i.state);
+  }
+
+  handleCollapseSubscribe(i: Home) {
+    i.state.subscribedCollapsed = !i.state.subscribedCollapsed;
     i.setState(i.state);
   }
 
@@ -779,10 +626,13 @@ export class Home extends Component<any, HomeState> {
         page: this.state.page,
         limit: fetchLimit,
         sort: this.state.sort,
-        type_: this.state.listingType,
         saved_only: false,
         auth: authField(false),
       };
+      if (this.state.listingType) {
+        getPostsForm.type_ = this.state.listingType;
+      }
+
       WebSocketService.Instance.send(wsClient.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetComments = {
@@ -815,7 +665,6 @@ export class Home extends Component<any, HomeState> {
     } else if (op == UserOperation.EditSite) {
       let data = wsJsonToRes<SiteResponse>(msg).data;
       this.state.siteRes.site_view = data.site_view;
-      this.state.showEditSite = false;
       this.setState(this.state);
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetPosts) {
@@ -896,19 +745,6 @@ export class Home extends Component<any, HomeState> {
       this.setState(this.state);
     } else if (op == UserOperation.BanPerson) {
       let data = wsJsonToRes<BanPersonResponse>(msg).data;
-      let found = this.state.siteRes.banned.find(
-        p => (p.person.id = data.person_view.person.id)
-      );
-
-      // Remove the banned if its found in the list, and the action is an unban
-      if (found && !data.banned) {
-        this.state.siteRes.banned = this.state.siteRes.banned.filter(
-          i => i.person.id !== data.person_view.person.id
-        );
-      } else {
-        this.state.siteRes.banned.push(data.person_view);
-      }
-
       this.state.posts
         .filter(p => p.creator.id == data.person_view.person.id)
         .forEach(p => (p.creator.banned = data.banned));

@@ -6,7 +6,8 @@ import { randomStr } from "../../utils";
 
 interface ListingTypeSelectProps {
   type_: ListingType;
-  showLocal?: boolean;
+  showLocal: boolean;
+  showSubscribed: boolean;
   onChange?(val: ListingType): any;
 }
 
@@ -33,15 +34,17 @@ export class ListingTypeSelect extends Component<
     return {
       type_: props.type_,
       showLocal: props.showLocal,
+      showSubscribed: props.showSubscribed,
     };
   }
 
   render() {
     return (
       <div class="btn-group btn-group-toggle flex-wrap mb-2">
-        <label
-          title={i18n.t("subscribed_description")}
-          className={`btn btn-outline-secondary 
+        {this.props.showSubscribed && (
+          <label
+            title={i18n.t("subscribed_description")}
+            className={`btn btn-outline-secondary 
             ${this.state.type_ == ListingType.Subscribed && "active"}
             ${
               UserService.Instance.myUserInfo == undefined
@@ -49,17 +52,18 @@ export class ListingTypeSelect extends Component<
                 : "pointer"
             }
           `}
-        >
-          <input
-            id={`${this.id}-subscribed`}
-            type="radio"
-            value={ListingType.Subscribed}
-            checked={this.state.type_ == ListingType.Subscribed}
-            onChange={linkEvent(this, this.handleTypeChange)}
-            disabled={UserService.Instance.myUserInfo == undefined}
-          />
-          {i18n.t("subscribed")}
-        </label>
+          >
+            <input
+              id={`${this.id}-subscribed`}
+              type="radio"
+              value={ListingType.Subscribed}
+              checked={this.state.type_ == ListingType.Subscribed}
+              onChange={linkEvent(this, this.handleTypeChange)}
+              disabled={UserService.Instance.myUserInfo == undefined}
+            />
+            {i18n.t("subscribed")}
+          </label>
+        )}
         {this.props.showLocal && (
           <label
             title={i18n.t("local_description")}

@@ -38,12 +38,14 @@ import {
   getPageFromProps,
   getSortTypeFromProps,
   notifyPost,
+  relTags,
   restoreScrollPosition,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
   setOptionalAuth,
   setupTippy,
+  showLocal,
   toast,
   updatePersonBlock,
   wsClient,
@@ -59,6 +61,7 @@ import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { Sidebar } from "../community/sidebar";
+import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
 
@@ -133,7 +136,6 @@ export class Community extends Component<any, State> {
       this.fetchCommunity();
       this.fetchData();
     }
-    setupTippy();
   }
 
   fetchCommunity() {
@@ -142,6 +144,10 @@ export class Community extends Component<any, State> {
       auth: authField(false),
     };
     WebSocketService.Instance.send(wsClient.getCommunity(form));
+  }
+
+  componentDidMount() {
+    setupTippy();
   }
 
   componentWillUnmount() {
@@ -162,17 +168,8 @@ export class Community extends Component<any, State> {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
-    // It can be /c/main, or /c/1
-    let idOrName = pathSplit[2];
-    let id: number;
-    let name_: string;
-    if (isNaN(Number(idOrName))) {
-      name_ = idOrName;
-    } else {
-      id = Number(idOrName);
-    }
-
-    let communityForm: GetCommunity = id ? { id } : { name: name_ };
+    let communityName = pathSplit[2];
+    let communityForm: GetCommunity = { name: communityName };
     setOptionalAuth(communityForm, req.auth);
     promises.push(req.client.getCommunity(communityForm));
 
@@ -200,7 +197,7 @@ export class Community extends Component<any, State> {
         saved_only: false,
       };
       setOptionalAuth(getPostsForm, req.auth);
-      this.setName(getPostsForm, name_);
+      this.setName(getPostsForm, communityName);
       promises.push(req.client.getPosts(getPostsForm));
     } else {
       let getCommentsForm: GetComments = {
@@ -210,6 +207,7 @@ export class Community extends Component<any, State> {
         type_: ListingType.Community,
         saved_only: false,
       };
+      this.setName(getCommentsForm, communityName);
       setOptionalAuth(getCommentsForm, req.auth);
       promises.push(req.client.getComments(getCommentsForm));
     }
@@ -272,13 +270,23 @@ export class Community extends Component<any, State> {
                     />
                   </button>
                   {this.state.showSidebarMobile && (
-                    <Sidebar
-                      community_view={cv}
-                      moderators={this.state.communityRes.moderators}
-                      admins={this.state.siteRes.admins}
-                      online={this.state.communityRes.online}
-                      enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
-                    />
+                    <>
+                      <Sidebar
+                        community_view={cv}
+                        moderators={this.state.communityRes.moderators}
+                        admins={this.state.siteRes.admins}
+                        online={this.state.communityRes.online}
+                        enableNsfw={
+                          this.state.siteRes.site_view.site.enable_nsfw
+                        }
+                      />
+                      {!cv.community.local && this.state.communityRes.site && (
+                        <SiteSidebar
+                          site={this.state.communityRes.site}
+                          showLocal={showLocal(this.isoData)}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
                 {this.selects()}
@@ -296,6 +304,12 @@ export class Community extends Component<any, State> {
                   online={this.state.communityRes.online}
                   enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
                 />
+                {!cv.community.local && this.state.communityRes.site && (
+                  <SiteSidebar
+                    site={this.state.communityRes.site}
+                    showLocal={showLocal(this.isoData)}
+                  />
+                )}
               </div>
             </div>
           </>
@@ -351,6 +365,10 @@ export class Community extends Component<any, State> {
   }
 
   selects() {
+    let communityRss = communityRSSUrl(
+      this.state.communityRes.community_view.community.actor_id,
+      this.state.sort
+    );
     return (
       <div class="mb-3">
         <span class="mr-3">
@@ -362,16 +380,10 @@ export class Community extends Component<any, State> {
         <span class="mr-2">
           <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
         </span>
-        <a
-          href={communityRSSUrl(
-            this.state.communityRes.community_view.community.actor_id,
-            this.state.sort
-          )}
-          title="RSS"
-          rel="noopener"
-        >
+        <a href={communityRss} title="RSS" rel={relTags}>
           <Icon icon="rss" classes="text-muted small" />
         </a>
+        <link rel="alternate" type="application/atom+xml" href={communityRss} />
       </div>
     );
   }
