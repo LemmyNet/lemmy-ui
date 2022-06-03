@@ -49,7 +49,10 @@ const base = {
       filename: "styles/styles.css",
     }),
     new CopyPlugin({
-      patterns: [{ from: "./src/assets", to: "./assets" }],
+      patterns: [
+        { from: "./src/assets", to: "./assets" },
+        { from: "./node_modules/highlight.js/styles", to: "./assets/css/code-themes" },
+      ],
     }),
     new webpack.BannerPlugin({
       banner,

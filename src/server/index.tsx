@@ -26,6 +26,7 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
   : ["0.0.0.0", "1234"];
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
+const codeThemesFolder = './dist/assets/css/code-themes'
 
 if (process.env.NODE_ENV !== "development") {
   server.use(function (_req, res, next) {
@@ -58,24 +59,19 @@ server.get("/robots.txt", async (_req, res) => {
   res.send(robotstxt);
 });
 
-server.get("/css/themes/:set?/:name", async (req, res) => {
+server.get("/css/themes/:name", async (req, res) => {
   res.contentType("text/css");
   const theme = req.params.name;
   if (!theme.endsWith(".css")) {
     res.send("Theme must be a css file");
   }
 
-  if (req.params.set === 'hljs') {
-    const hljsTheme = path.resolve(`./node_modules/highlight.js/styles/${theme}`);
-    res.sendFile(hljsTheme);
+  const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
+  if (fs.existsSync(customTheme)) {
+    res.sendFile(customTheme);
   } else {
-    const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
-    if (fs.existsSync(customTheme)) {
-      res.sendFile(customTheme);
-    } else {
-      const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
-      res.sendFile(internalTheme);
-    }
+    const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
+    res.sendFile(internalTheme);
   }
 });
 
@@ -111,6 +107,36 @@ function buildThemeList(): string[] {
 server.get("/css/themelist", async (_req, res) => {
   res.type("json");
   res.send(JSON.stringify(buildThemeList()));
+});
+
+// highlight.js themes
+server.get("/css/code-themes/:name", async (req, res) => {
+  res.contentType("text/css");
+  const theme = req.params.name;
+  if (!theme.endsWith(".css")) {
+    res.send("HLJS theme must be a css file");
+  }
+
+  const customTheme = path.resolve(`${codeThemesFolder}/${theme}`);
+  if (fs.existsSync(customTheme)) {
+    res.sendFile(customTheme);
+  } else {
+    const internalTheme = path.resolve(`${codeThemesFolder}/default.css`);
+    res.sendFile(internalTheme);
+  }
+});
+
+server.get("/css/code-themes", async (req, res) => {
+  res.type("json");
+  const themes = [];
+  if (fs.existsSync(codeThemesFolder)) {
+    let dirThemes = fs.readdirSync(codeThemesFolder);
+    let cssThemes = dirThemes
+      .filter(d => d.endsWith(".css"))
+      .map(d => d.replace(".css", ""));
+    themes.push(...cssThemes);
+  }
+  res.send(JSON.stringify(themes));
 });
 
 // server.use(cookieParser());
