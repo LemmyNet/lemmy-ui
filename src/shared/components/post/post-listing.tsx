@@ -14,6 +14,8 @@ import {
   LockPost,
   PersonViewSafe,
   PostView,
+  PurgePerson,
+  PurgePost,
   RemovePost,
   SavePost,
   StickyPost,
@@ -40,7 +42,7 @@ import {
   showScores,
   wsClient,
 } from "../../utils";
-import { Icon } from "../common/icon";
+import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
 import { CommunityLink } from "../community/community-link";
@@ -51,9 +53,10 @@ import { PostForm } from "./post-form";
 interface PostListingState {
   showEdit: boolean;
   showRemoveDialog: boolean;
-  showPurgePersonDialog: boolean;
+  showPurgeDialog: boolean;
   purgeReason: string;
   purgeType: PurgeType;
+  purgeLoading: boolean;
   removeReason: string;
   showBanDialog: boolean;
   banReason: string;
@@ -91,9 +94,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   private emptyState: PostListingState = {
     showEdit: false,
     showRemoveDialog: false,
-    showPurgePersonDialog: false,
+    showPurgeDialog: false,
     purgeReason: null,
     purgeType: PurgeType.Person,
+    purgeLoading: false,
     removeReason: null,
     showBanDialog: false,
     banReason: null,
@@ -948,6 +952,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     : i18n.t("appoint_as_admin")}
                 </button>
               )}
+              <button
+                class="btn btn-link btn-animate text-muted py-0"
+                onClick={linkEvent(this, this.handlePurgePersonShow)}
+                aria-label={i18n.t("purge_user")}
+              >
+                {i18n.t("purge_user")}
+              </button>
+              <button
+                class="btn btn-link btn-animate text-muted py-0"
+                onClick={linkEvent(this, this.handlePurgePostShow)}
+                aria-label={i18n.t("purge_post")}
+              >
+                {i18n.t("purge_post")}
+              </button>
             </>
           )}
         </>
@@ -957,6 +975,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   removeAndBanDialogs() {
     let post = this.props.post_view;
+    let purgeTypeText: string;
+    if (this.state.purgeType == PurgeType.Post) {
+      purgeTypeText = i18n.t("purge_post");
+    } else if (this.state.purgeType == PurgeType.Person) {
+      purgeTypeText = `${i18n.t("purge")} ${post.creator.name}`;
+    }
     return (
       <>
         {this.state.showRemoveDialog && (
@@ -1068,6 +1092,37 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             >
               {i18n.t("create_report")}
             </button>
+          </form>
+        )}
+        {this.state.showPurgeDialog && (
+          <form
+            class="form-inline"
+            onSubmit={linkEvent(this, this.handlePurgeSubmit)}
+          >
+            <PurgeWarning />
+            <label class="sr-only" htmlFor="purge-reason">
+              {i18n.t("reason")}
+            </label>
+            <input
+              type="text"
+              id="purge-reason"
+              class="form-control mr-2"
+              placeholder={i18n.t("reason")}
+              required
+              value={this.state.purgeReason}
+              onInput={linkEvent(this, this.handlePurgeReasonChange)}
+            />
+            {this.state.purgeLoading ? (
+              <Spinner />
+            ) : (
+              <button
+                type="submit"
+                class="btn btn-secondary"
+                aria-label={purgeTypeText}
+              >
+                {purgeTypeText}
+              </button>
+            )}
           </form>
         )}
       </>
@@ -1473,15 +1528,45 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState(i.state);
   }
 
-  handleAdminPurgePersonShow(i: PostListing) {
-    i.state.showPurgePersonDialog = true;
+  handlePurgePersonShow(i: PostListing) {
+    i.state.showPurgeDialog = true;
     i.state.purgeType = PurgeType.Person;
+    i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgePostShow(i: PostListing) {
+    i.state.showPurgeDialog = true;
+    i.state.purgeType = PurgeType.Post;
     i.state.showRemoveDialog = false;
     i.setState(i.state);
   }
 
   handlePurgeReasonChange(i: PostListing, event: any) {
     i.state.purgeReason = event.target.value;
+    i.setState(i.state);
+  }
+
+  handlePurgeSubmit(i: PostListing, event: any) {
+    event.preventDefault();
+
+    if (i.state.purgeType == PurgeType.Person) {
+      let form: PurgePerson = {
+        person_id: i.props.post_view.creator.id,
+        reason: i.state.purgeReason,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(wsClient.purgePerson(form));
+    } else if (i.state.purgeType == PurgeType.Post) {
+      let form: PurgePost = {
+        post_id: i.props.post_view.post.id,
+        reason: i.state.purgeReason,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(wsClient.purgePost(form));
+    }
+
+    i.state.purgeLoading = true;
     i.setState(i.state);
   }
 

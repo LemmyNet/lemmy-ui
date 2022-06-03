@@ -16,13 +16,19 @@ import {
   MarkPersonMentionAsRead,
   PersonMentionView,
   PersonViewSafe,
+  PurgeComment,
+  PurgePerson,
   RemoveComment,
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
 import moment from "moment";
 import { i18n } from "../../i18next";
-import { BanType, CommentNode as CommentNodeI } from "../../interfaces";
+import {
+  BanType,
+  CommentNode as CommentNodeI,
+  PurgeType,
+} from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   authField,
@@ -37,7 +43,7 @@ import {
   showScores,
   wsClient,
 } from "../../utils";
-import { Icon, Spinner } from "../common/icon";
+import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
@@ -54,6 +60,10 @@ interface CommentNodeState {
   banReason: string;
   banExpireDays: number;
   banType: BanType;
+  showPurgeDialog: boolean;
+  purgeReason: string;
+  purgeType: PurgeType;
+  purgeLoading: boolean;
   showConfirmTransferSite: boolean;
   showConfirmTransferCommunity: boolean;
   showConfirmAppointAsMod: boolean;
@@ -99,6 +109,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     banReason: null,
     banExpireDays: null,
     banType: BanType.Community,
+    showPurgeDialog: false,
+    purgeLoading: false,
+    purgeReason: null,
+    purgeType: PurgeType.Person,
     collapsed: false,
     viewSource: false,
     showAdvanced: false,
@@ -143,6 +157,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   render() {
     let node = this.props.node;
     let cv = this.props.node.comment_view;
+
+    let purgeTypeText: string;
+    if (this.state.purgeType == PurgeType.Comment) {
+      purgeTypeText = i18n.t("purge_comment");
+    } else if (this.state.purgeType == PurgeType.Person) {
+      purgeTypeText = `${i18n.t("purge")} ${cv.creator.name}`;
+    }
+
     return (
       <div
         className={`comment ${
@@ -638,6 +660,27 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     {i18n.t("unban_from_site")}
                                   </button>
                                 ))}
+
+                              <button
+                                class="btn btn-link btn-animate text-muted"
+                                onClick={linkEvent(
+                                  this,
+                                  this.handlePurgePersonShow
+                                )}
+                                aria-label={i18n.t("purge_user")}
+                              >
+                                {i18n.t("purge_user")}
+                              </button>
+                              <button
+                                class="btn btn-link btn-animate text-muted"
+                                onClick={linkEvent(
+                                  this,
+                                  this.handlePurgeCommentShow
+                                )}
+                                aria-label={i18n.t("purge_comment")}
+                              >
+                                {i18n.t("purge_comment")}
+                              </button>
                               {!isBanned(cv.creator) &&
                                 cv.creator.local &&
                                 (!this.state.showConfirmAppointAsAdmin ? (
@@ -814,6 +857,37 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               >
                 {i18n.t("ban")} {cv.creator.name}
               </button>
+            </div>
+          </form>
+        )}
+
+        {this.state.showPurgeDialog && (
+          <form onSubmit={linkEvent(this, this.handlePurgeSubmit)}>
+            <PurgeWarning />
+            <label class="sr-only" htmlFor="purge-reason">
+              {i18n.t("reason")}
+            </label>
+            <input
+              type="text"
+              id="purge-reason"
+              class="form-control my-3"
+              placeholder={i18n.t("reason")}
+              required
+              value={this.state.purgeReason}
+              onInput={linkEvent(this, this.handlePurgeReasonChange)}
+            />
+            <div class="form-group row col-12">
+              {this.state.purgeLoading ? (
+                <Spinner />
+              ) : (
+                <button
+                  type="submit"
+                  class="btn btn-secondary"
+                  aria-label={purgeTypeText}
+                >
+                  {purgeTypeText}
+                </button>
+              )}
             </div>
           </form>
         )}
@@ -1230,6 +1304,48 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
 
     i.state.showBanDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgePersonShow(i: CommentNode) {
+    i.state.showPurgeDialog = true;
+    i.state.purgeType = PurgeType.Person;
+    i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgeCommentShow(i: CommentNode) {
+    i.state.showPurgeDialog = true;
+    i.state.purgeType = PurgeType.Comment;
+    i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgeReasonChange(i: CommentNode, event: any) {
+    i.state.purgeReason = event.target.value;
+    i.setState(i.state);
+  }
+
+  handlePurgeSubmit(i: CommentNode, event: any) {
+    event.preventDefault();
+
+    if (i.state.purgeType == PurgeType.Person) {
+      let form: PurgePerson = {
+        person_id: i.props.node.comment_view.creator.id,
+        reason: i.state.purgeReason,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(wsClient.purgePerson(form));
+    } else if (i.state.purgeType == PurgeType.Comment) {
+      let form: PurgeComment = {
+        comment_id: i.props.node.comment_view.comment.id,
+        reason: i.state.purgeReason,
+        auth: authField(),
+      };
+      WebSocketService.Instance.send(wsClient.purgeComment(form));
+    }
+
+    i.state.purgeLoading = true;
     i.setState(i.state);
   }
 

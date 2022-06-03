@@ -497,7 +497,7 @@ export class Modlog extends Component<any, ModlogState> {
               {this.isAdminOrMod ? (
                 <PersonListing person={i.moderator} />
               ) : (
-                <div>{this.modOrAdminText(i.view.moderator)}</div>
+                <div>{this.modOrAdminText(i.moderator)}</div>
               )}
             </td>
             <td>{this.renderModlogType(i)}</td>

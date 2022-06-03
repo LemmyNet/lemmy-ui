@@ -20,6 +20,7 @@ import {
   PostReportResponse,
   PostResponse,
   PostView,
+  PurgeItemResponse,
   SiteResponse,
   SortType,
   UserOperation,
@@ -802,6 +803,17 @@ export class Home extends Component<any, HomeState> {
       let data = wsJsonToRes<CommentReportResponse>(msg).data;
       if (data) {
         toast(i18n.t("report_created"));
+      }
+    } else if (
+      op == UserOperation.PurgePerson ||
+      op == UserOperation.PurgePost ||
+      op == UserOperation.PurgeComment ||
+      op == UserOperation.PurgeCommunity
+    ) {
+      let data = wsJsonToRes<PurgeItemResponse>(msg).data;
+      if (data) {
+        toast(i18n.t("purge_success"));
+        this.context.router.history.push(`/`);
       }
     }
   }

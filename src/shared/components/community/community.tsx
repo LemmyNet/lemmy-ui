@@ -18,6 +18,7 @@ import {
   PostReportResponse,
   PostResponse,
   PostView,
+  PurgeItemResponse,
   SortType,
   UserOperation,
 } from "lemmy-js-client";
@@ -572,6 +573,12 @@ export class Community extends Component<any, State> {
       let data = wsJsonToRes<CommentReportResponse>(msg).data;
       if (data) {
         toast(i18n.t("report_created"));
+      }
+    } else if (op == UserOperation.PurgeCommunity) {
+      let data = wsJsonToRes<PurgeItemResponse>(msg).data;
+      if (data) {
+        toast(i18n.t("purge_success"));
+        this.context.router.history.push(`/`);
       }
     }
   }
