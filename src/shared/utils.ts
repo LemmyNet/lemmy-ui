@@ -113,7 +113,7 @@ export function wsUserOp(msg: any): UserOperation {
 }
 
 export const md = new markdown_it({
-  html: true,
+  html: false,
   linkify: true,
   typographer: true,
 })
@@ -664,7 +664,10 @@ async function communitySearch(text: string): Promise<CommunityTribute[]> {
   return communities;
 }
 
-export function getListingTypeFromProps(props: any): ListingType {
+export function getListingTypeFromProps(
+  props: any,
+  defaultListingType: ListingType
+): ListingType {
   return props.match.params.listing_type
     ? routeListingTypeToEnum(props.match.params.listing_type)
     : UserService.Instance.myUserInfo
@@ -672,7 +675,7 @@ export function getListingTypeFromProps(props: any): ListingType {
         UserService.Instance.myUserInfo.local_user_view.local_user
           .default_listing_type
       ]
-    : ListingType.Local;
+    : defaultListingType;
 }
 
 export function getListingTypeFromPropsNoDefault(props: any): ListingType {
@@ -1032,21 +1035,6 @@ export const colorList: string[] = [
 
 function hsl(num: number) {
   return `hsla(${num}, 35%, 50%, 1)`;
-}
-
-export function previewLines(
-  text: string,
-  maxChars = 300,
-  maxLines = 1
-): string {
-  return (
-    text
-      .slice(0, maxChars)
-      .split("\n")
-      // Use lines * 2 because markdown requires 2 lines
-      .slice(0, maxLines * 2)
-      .join("\n") + "..."
-  );
 }
 
 export function hostname(url: string): string {

@@ -11,6 +11,7 @@ import { SiteForm } from "./site-form";
 
 interface SiteSidebarProps {
   site: Site;
+  showLocal: boolean;
   counts?: SiteAggregates;
   admins?: PersonViewSafe[];
   online?: number;
@@ -55,6 +56,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           ) : (
             <SiteForm
               site={site}
+              showLocal={this.props.showLocal}
               onEdit={this.handleEditSite}
               onCancel={this.handleEditCancel}
             />

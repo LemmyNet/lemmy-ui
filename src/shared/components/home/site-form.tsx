@@ -1,7 +1,7 @@
 import { None, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { CreateSite, EditSite, Site } from "lemmy-js-client";
+import { CreateSite, EditSite, ListingType, Site } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
@@ -12,10 +12,12 @@ import {
 } from "../../utils";
 import { Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
+import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface SiteFormProps {
   site?: Site; // If a site is given, that means this is an edit
+  showLocal: boolean;
   onCancel?(): any;
   onEdit?(): any;
 }
@@ -41,6 +43,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       private_instance: null,
       default_theme: null,
       sidebar: None,
+      default_post_listing_type: null,
+      legal_information: null,
       auth: authField(false),
     },
     loading: false,
@@ -52,6 +56,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.state = this.emptyState;
     this.handleSiteSidebarChange = this.handleSiteSidebarChange.bind(this);
+    this.handleSiteLegalInfoChange = this.handleSiteLegalInfoChange.bind(this);
     this.handleSiteApplicationQuestionChange =
       this.handleSiteApplicationQuestionChange.bind(this);
 
@@ -60,6 +65,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
+
+    this.handleDefaultPostListingTypeChange =
+      this.handleDefaultPostListingTypeChange.bind(this);
 
     if (this.props.site) {
       let site = this.props.site;
@@ -79,6 +87,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         application_question: site.application_question,
         private_instance: site.private_instance,
         default_theme: site.default_theme,
+        default_post_listing_type: site.default_post_listing_type,
+        legal_information: site.legal_information,
         auth: authField(false),
       };
     }
@@ -191,6 +201,18 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               <MarkdownTextArea
                 initialContent={this.state.siteForm.sidebar.unwrapOr("")}
                 onContentChange={this.handleSiteSidebarChange}
+                hideNavigationWarnings
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-12 col-form-label">
+              {i18n.t("legal_information")}
+            </label>
+            <div class="col-12">
+              <MarkdownTextArea
+                initialContent={this.state.siteForm.legal_information}
+                onContentChange={this.handleSiteLegalInfoChange}
                 hideNavigationWarnings
               />
             </div>
@@ -353,6 +375,21 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </select>
             </div>
           </div>
+          {this.props.showLocal && (
+            <form className="form-group row">
+              <label class="col-sm-3">{i18n.t("listing_type")}</label>
+              <div class="col-sm-9">
+                <ListingTypeSelect
+                  type_={
+                    ListingType[this.state.siteForm.default_post_listing_type]
+                  }
+                  showLocal
+                  showSubscribed={false}
+                  onChange={this.handleDefaultPostListingTypeChange}
+                />
+              </div>
+            </form>
+          )}
           <div class="form-group row">
             <div class="col-12">
               <div class="form-check">
@@ -429,6 +466,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.setState(this.state);
   }
 
+  handleSiteLegalInfoChange(val: string) {
+    this.state.siteForm.legal_information = val;
+    this.setState(this.state);
+  }
+
   handleSiteApplicationQuestionChange(val: string) {
     this.state.siteForm.application_question = val;
     this.setState(this.state);
@@ -500,6 +542,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleBannerRemove() {
     this.state.siteForm.banner = "";
+    this.setState(this.state);
+  }
+
+  handleDefaultPostListingTypeChange(val: ListingType) {
+    this.state.siteForm.default_post_listing_type =
+      ListingType[ListingType[val]];
     this.setState(this.state);
   }
 }

@@ -76,8 +76,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
 
   parseMessage(msg: any) {
     if (msg.error) {
-      // Toast errors are already handled by community-form
-      return;
+      toast(i18n.t(msg.error), "danger");
     }
   }
 }

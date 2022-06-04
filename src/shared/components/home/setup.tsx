@@ -64,7 +64,7 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm />
+              <SiteForm showLocal />
             )}
           </div>
         </div>
