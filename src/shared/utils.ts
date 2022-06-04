@@ -1292,7 +1292,7 @@ export function showLocal(isoData: IsoData): boolean {
     .unwrapOr(false);
 }
 
-interface ChoicesValue {
+export interface ChoicesValue {
   value: string;
   label: string;
 }
@@ -1358,6 +1358,39 @@ export const choicesConfig = {
     list: "choices__list",
     listItems: "choices__list--multiple",
     listSingle: "choices__list--single",
+    listDropdown: "choices__list--dropdown",
+    item: "choices__item bg-secondary",
+    itemSelectable: "choices__item--selectable",
+    itemDisabled: "choices__item--disabled",
+    itemChoice: "choices__item--choice",
+    placeholder: "choices__placeholder",
+    group: "choices__group",
+    groupHeading: "choices__heading",
+    button: "choices__button",
+    activeState: "is-active",
+    focusState: "is-focused",
+    openState: "is-open",
+    disabledState: "is-disabled",
+    highlightedState: "text-info",
+    selectedState: "text-info",
+    flippedState: "is-flipped",
+    loadingState: "is-loading",
+    noResults: "has-no-results",
+    noChoices: "has-no-choices",
+  },
+};
+
+export const choicesModLogConfig = {
+  shouldSort: false,
+  searchResultLimit: fetchLimit,
+  classNames: {
+    containerOuter: "choices mb-2 custom-select col-4 px-0",
+    containerInner: "choices__inner bg-secondary border-0 py-0 modlog-choices-font-size",
+    input: "form-control",
+    inputCloned: "choices__input--cloned w-100",
+    list: "choices__list",
+    listItems: "choices__list--multiple",
+    listSingle: "choices__list--single py-0",
     listDropdown: "choices__list--dropdown",
     item: "choices__item bg-secondary",
     itemSelectable: "choices__item--selectable",
