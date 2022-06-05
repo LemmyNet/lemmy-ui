@@ -52,13 +52,13 @@ export class CommunityForm extends Component<
       banner: null,
       posting_restricted_to_mods: false,
       auth: authField(false),
+      is_default_community: false,
     },
     loading: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
     this.state = this.emptyState;
 
     this.handleCommunityDescriptionChange =
@@ -81,6 +81,7 @@ export class CommunityForm extends Component<
         banner: cv.community.banner,
         posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
         auth: authField(),
+        is_default_community: cv.community.is_default_community,
       };
     }
 
@@ -247,6 +248,27 @@ export class CommunityForm extends Component<
               </div>
             </div>
           </div>
+          {this.isAdmin && (
+            <div class="form-group row">
+              <legend class="col-form-label col-6 pt-0">
+                {i18n.t("is_default_community")}
+              </legend>
+              <div class="col-6">
+                <div class="form-check">
+                  <input
+                    class="form-check-input position-static"
+                    id="community-is-default"
+                    type="checkbox"
+                    checked={this.state.communityForm.is_default_community}
+                    onChange={linkEvent(
+                      this,
+                      this.handleCommunityIsDefaultCommunity
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
           <div class="form-group row">
             <div class="col-12">
               <button
@@ -276,6 +298,10 @@ export class CommunityForm extends Component<
         </form>
       </>
     );
+  }
+
+  isAdmin() {
+    return UserService.Instance.myUserInfo.local_user_view.person.admin;
   }
 
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
@@ -317,6 +343,11 @@ export class CommunityForm extends Component<
 
   handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
     i.state.communityForm.posting_restricted_to_mods = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleCommunityIsDefaultCommunity(i: CommunityForm, event: any) {
+    i.state.communityForm.is_default_community = event.target.checked;
     i.setState(i.state);
   }
 
