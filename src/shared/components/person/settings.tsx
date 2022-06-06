@@ -565,6 +565,7 @@ export class Settings extends Component<any, SettingsState> {
                   ]
                 }
                 showLocal={showLocal(this.isoData)}
+                showSubscribed
                 onChange={this.handleListingTypeChange}
               />
             </div>

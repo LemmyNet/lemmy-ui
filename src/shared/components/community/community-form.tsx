@@ -14,7 +14,6 @@ import {
   authField,
   capitalizeFirstLetter,
   randomStr,
-  toast,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -51,6 +50,7 @@ export class CommunityForm extends Component<
       nsfw: false,
       icon: null,
       banner: null,
+      posting_restricted_to_mods: false,
       auth: authField(false),
     },
     loading: false,
@@ -79,6 +79,7 @@ export class CommunityForm extends Component<
         nsfw: cv.community.nsfw,
         icon: cv.community.icon,
         banner: cv.community.banner,
+        posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
         auth: authField(),
       };
     }
@@ -228,6 +229,25 @@ export class CommunityForm extends Component<
             </div>
           )}
           <div class="form-group row">
+            <legend class="col-form-label col-6 pt-0">
+              {i18n.t("only_mods_can_post_in_community")}
+            </legend>
+            <div class="col-6">
+              <div class="form-check">
+                <input
+                  class="form-check-input position-static"
+                  id="community-only-mods-can-post"
+                  type="checkbox"
+                  checked={this.state.communityForm.posting_restricted_to_mods}
+                  onChange={linkEvent(
+                    this,
+                    this.handleCommunityPostingRestrictedToMods
+                  )}
+                />
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
             <div class="col-12">
               <button
                 type="submit"
@@ -295,6 +315,11 @@ export class CommunityForm extends Component<
     i.setState(i.state);
   }
 
+  handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
+    i.state.communityForm.posting_restricted_to_mods = event.target.checked;
+    i.setState(i.state);
+  }
+
   handleCancel(i: CommunityForm) {
     i.props.onCancel();
   }
@@ -323,7 +348,8 @@ export class CommunityForm extends Component<
     let op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
+      // Errors handled by top level pages
+      // toast(i18n.t(msg.error), "danger");
       this.state.loading = false;
       this.setState(this.state);
       return;

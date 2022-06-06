@@ -403,6 +403,7 @@ export class Search extends Component<any, SearchState> {
           <ListingTypeSelect
             type_={this.state.listingType}
             showLocal={showLocal(this.isoData)}
+            showSubscribed
             onChange={this.handleListingTypeChange}
           />
         </span>
