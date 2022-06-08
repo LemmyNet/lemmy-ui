@@ -281,81 +281,10 @@ export class Home extends Component<any, HomeState> {
         {this.state.siteRes.site_view?.site && (
           <div class="row">
             <main role="main" class="col-12">
-              <div class="d-block d-md-none">{this.mobileView()}</div>
               {this.posts()}
             </main>
           </div>
         )}
-      </div>
-    );
-  }
-
-  mobileView() {
-    let siteRes = this.state.siteRes;
-    return (
-      <div class="row">
-        <div class="col-12">
-          {UserService.Instance.myUserInfo &&
-            UserService.Instance.myUserInfo.follows.length > 0 && (
-              <button
-                class="btn btn-secondary d-inline-block mb-2 mr-3"
-                onClick={linkEvent(this, this.handleShowSubscribedMobile)}
-              >
-                {i18n.t("subscribed")}{" "}
-                <Icon
-                  icon={
-                    this.state.showSubscribedMobile
-                      ? `minus-square`
-                      : `plus-square`
-                  }
-                  classes="icon-inline"
-                />
-              </button>
-            )}
-          <button
-            class="btn btn-secondary d-inline-block mb-2 mr-3"
-            onClick={linkEvent(this, this.handleShowTrendingMobile)}
-          >
-            {i18n.t("trending")}{" "}
-            <Icon
-              icon={
-                this.state.showTrendingMobile ? `minus-square` : `plus-square`
-              }
-              classes="icon-inline"
-            />
-          </button>
-          <button
-            class="btn btn-secondary d-inline-block mb-2 mr-3"
-            onClick={linkEvent(this, this.handleShowSidebarMobile)}
-          >
-            {i18n.t("sidebar")}{" "}
-            <Icon
-              icon={
-                this.state.showSidebarMobile ? `minus-square` : `plus-square`
-              }
-              classes="icon-inline"
-            />
-          </button>
-          {this.state.showSidebarMobile && (
-            <SiteSidebar
-              site={siteRes.site_view.site}
-              admins={siteRes.admins}
-              counts={siteRes.site_view.counts}
-              online={siteRes.online}
-              showLocal={showLocal(this.isoData)}
-            />
-          )}
-          {this.state.showTrendingMobile && (
-            <div class="col-12 card border-secondary mb-3">
-              <div class="card-body">{this.trendingCommunities()}</div>
-            </div>
-          )}
-          {this.state.showSubscribedMobile && (
-            <div class="col-12 card border-secondary mb-3">
-              <div class="card-body">{this.subscribedCommunities()}</div>
-            </div>
-          )}
-        </div>
       </div>
     );
   }
