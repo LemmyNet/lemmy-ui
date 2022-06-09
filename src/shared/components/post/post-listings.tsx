@@ -1,3 +1,4 @@
+import { None, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -13,39 +14,30 @@ interface PostListingsProps {
   enableNsfw: boolean;
 }
 
-interface PostListingsState {
-  posts: PostView[];
-}
-
-export class PostListings extends Component<
-  PostListingsProps,
-  PostListingsState
-> {
+export class PostListings extends Component<PostListingsProps, any> {
   duplicatesMap = new Map<number, PostView[]>();
-
-  private emptyState: PostListingsState = {
-    posts: [],
-  };
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
-    if (this.props.removeDuplicates) {
-      this.state.posts = this.removeDuplicates();
-    } else {
-      this.state.posts = this.props.posts;
-    }
+  }
+
+  get posts() {
+    return this.props.removeDuplicates
+      ? this.removeDuplicates()
+      : this.props.posts;
   }
 
   render() {
     return (
       <div>
-        {this.state.posts.length > 0 ? (
-          this.state.posts.map(post_view => (
+        {this.posts.length > 0 ? (
+          this.posts.map(post_view => (
             <>
               <PostListing
                 post_view={post_view}
-                duplicates={this.duplicatesMap.get(post_view.post.id)}
+                duplicates={Some(this.duplicatesMap.get(post_view.post.id))}
+                moderators={None}
+                admins={None}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}

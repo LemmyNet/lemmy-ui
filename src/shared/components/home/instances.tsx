@@ -1,7 +1,8 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { relTags, setIsoData } from "../../utils";
+import { relTags, setIsoData, toOption } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 
 interface InstancesState {
@@ -24,50 +25,57 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   render() {
-    let federated_instances = this.state.siteRes?.federated_instances;
-    return (
-      federated_instances && (
+    return toOption(this.state.siteRes.federated_instances).match({
+      some: federated_instances => (
         <div class="container">
           <HtmlTags
             title={this.documentTitle}
             path={this.context.router.route.match.url}
+            description={None}
+            image={None}
           />
           <div class="row">
             <div class="col-md-6">
               <h5>{i18n.t("linked_instances")}</h5>
-              {this.itemList(federated_instances.linked)}
+              {this.itemList(Some(federated_instances.linked))}
             </div>
             {federated_instances.allowed?.length > 0 && (
               <div class="col-md-6">
                 <h5>{i18n.t("allowed_instances")}</h5>
-                {this.itemList(federated_instances.allowed)}
+                {this.itemList(toOption(federated_instances.allowed))}
               </div>
             )}
             {federated_instances.blocked?.length > 0 && (
               <div class="col-md-6">
                 <h5>{i18n.t("blocked_instances")}</h5>
-                {this.itemList(federated_instances.blocked)}
+                {this.itemList(toOption(federated_instances.blocked))}
               </div>
             )}
           </div>
         </div>
-      )
-    );
+      ),
+      none: <></>,
+    });
   }
 
-  itemList(items: string[]) {
-    return items.length > 0 ? (
-      <ul>
-        {items.map(i => (
-          <li>
-            <a href={`https://${i}`} rel={relTags}>
-              {i}
-            </a>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <div>{i18n.t("none_found")}</div>
-    );
+  itemList(items: Option<string[]>) {
+    let noneFound = <div>{i18n.t("none_found")}</div>;
+    return items.match({
+      some: items =>
+        items.length > 0 ? (
+          <ul>
+            {items.map(i => (
+              <li>
+                <a href={`https://${i}`} rel={relTags}>
+                  {i}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          noneFound
+        ),
+      none: noneFound,
+    });
   }
 }

@@ -46,11 +46,7 @@ export class ListingTypeSelect extends Component<
             title={i18n.t("subscribed_description")}
             className={`btn btn-outline-secondary 
             ${this.state.type_ == ListingType.Subscribed && "active"}
-            ${
-              UserService.Instance.myUserInfo == undefined
-                ? "disabled"
-                : "pointer"
-            }
+            ${UserService.Instance.myUserInfo.isNone() ? "disabled" : "pointer"}
           `}
           >
             <input
@@ -59,7 +55,7 @@ export class ListingTypeSelect extends Component<
               value={ListingType.Subscribed}
               checked={this.state.type_ == ListingType.Subscribed}
               onChange={linkEvent(this, this.handleTypeChange)}
-              disabled={UserService.Instance.myUserInfo == undefined}
+              disabled={UserService.Instance.myUserInfo.isNone()}
             />
             {i18n.t("subscribed")}
           </label>

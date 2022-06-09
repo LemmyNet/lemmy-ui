@@ -1,3 +1,4 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -6,7 +7,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
-import { authField, mdToHtml, wsClient } from "../../utils";
+import { auth, mdToHtml, toOption, toUndefined, wsClient } from "../../utils";
 import { PersonListing } from "../person/person-listing";
 import { MarkdownTextArea } from "./markdown-textarea";
 import { MomentTime } from "./moment-time";
@@ -16,7 +17,7 @@ interface RegistrationApplicationProps {
 }
 
 interface RegistrationApplicationState {
-  denyReason?: string;
+  denyReason: Option<string>;
   denyExpanded: boolean;
 }
 
@@ -25,7 +26,9 @@ export class RegistrationApplication extends Component<
   RegistrationApplicationState
 > {
   private emptyState: RegistrationApplicationState = {
-    denyReason: this.props.application.registration_application.deny_reason,
+    denyReason: toOption(
+      this.props.application.registration_application.deny_reason
+    ),
     denyExpanded: false,
   };
 
@@ -47,7 +50,8 @@ export class RegistrationApplication extends Component<
           {i18n.t("applicant")}: <PersonListing person={a.creator} />
         </div>
         <div>
-          {i18n.t("created")}: <MomentTime showAgo data={ra} />
+          {i18n.t("created")}:{" "}
+          <MomentTime showAgo published={ra.published} updated={None} />
         </div>
         <div>{i18n.t("answer")}:</div>
         <div className="md-div" dangerouslySetInnerHTML={mdToHtml(ra.answer)} />
@@ -86,6 +90,9 @@ export class RegistrationApplication extends Component<
               <MarkdownTextArea
                 initialContent={this.state.denyReason}
                 onContentChange={this.handleDenyReasonChange}
+                placeholder={None}
+                buttonTitle={None}
+                maxLength={None}
                 hideNavigationWarnings
               />
             </div>
@@ -119,7 +126,7 @@ export class RegistrationApplication extends Component<
       id: i.props.application.registration_application.id,
       deny_reason: "",
       approve: true,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(
       wsClient.approveRegistrationApplication(form)
@@ -132,8 +139,8 @@ export class RegistrationApplication extends Component<
       let form: ApproveRegistrationApplication = {
         id: i.props.application.registration_application.id,
         approve: false,
-        deny_reason: i.state.denyReason,
-        auth: authField(),
+        deny_reason: toUndefined(i.state.denyReason),
+        auth: auth(),
       };
       WebSocketService.Instance.send(
         wsClient.approveRegistrationApplication(form)
@@ -144,7 +151,7 @@ export class RegistrationApplication extends Component<
   }
 
   handleDenyReasonChange(val: string) {
-    this.state.denyReason = val;
+    this.state.denyReason = Some(val);
     this.setState(this.state);
   }
 }

@@ -1,3 +1,4 @@
+import { None, Option, Right, Some } from "@sniptt/monads";
 import autosize from "autosize";
 import { Component, createRef, linkEvent, RefObject } from "inferno";
 import {
@@ -34,13 +35,15 @@ import {
 } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   buildCommentsTree,
   commentsToFlatNodes,
   createCommentLikeRes,
   createPostLikeRes,
   debounce,
   editCommentRes,
+  enableDownvotes,
+  enableNsfw,
   getCommentIdFromProps,
   getIdFromProps,
   insertCommentIntoTree,
@@ -53,6 +56,7 @@ import {
   setOptionalAuth,
   setupTippy,
   toast,
+  toOption,
   updatePersonBlock,
   wsClient,
   wsJsonToRes,
@@ -69,7 +73,7 @@ import { PostListing } from "./post-listing";
 const commentsShownInterval = 15;
 
 interface PostState {
-  postRes: GetPostResponse;
+  postRes: Option<GetPostResponse>;
   postId: number;
   commentTree: CommentNodeI[];
   commentId?: number;
@@ -77,7 +81,7 @@ interface PostState {
   commentViewType: CommentViewType;
   scrolled?: boolean;
   loading: boolean;
-  crossPosts: PostView[];
+  crossPosts: Option<PostView[]>;
   siteRes: GetSiteResponse;
   commentSectionRef?: RefObject<HTMLDivElement>;
   showSidebarMobile: boolean;
@@ -89,7 +93,7 @@ export class Post extends Component<any, PostState> {
   private isoData = setIsoData(this.context);
   private commentScrollDebounced: () => void;
   private emptyState: PostState = {
-    postRes: null,
+    postRes: None,
     postId: getIdFromProps(this.props),
     commentTree: [],
     commentId: getCommentIdFromProps(this.props),
@@ -97,7 +101,7 @@ export class Post extends Component<any, PostState> {
     commentViewType: CommentViewType.Tree,
     scrolled: false,
     loading: true,
-    crossPosts: [],
+    crossPosts: None,
     siteRes: this.isoData.site_res,
     commentSectionRef: null,
     showSidebarMobile: false,
@@ -115,14 +119,24 @@ export class Post extends Component<any, PostState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.postRes = this.isoData.routeData[0];
+      this.state.postRes = Some(this.isoData.routeData[0]);
       this.state.commentTree = buildCommentsTree(
-        this.state.postRes.comments,
+        this.state.postRes.unwrap().comments,
         this.state.commentSort
       );
       this.state.loading = false;
 
       if (isBrowser()) {
+        WebSocketService.Instance.send(
+          wsClient.communityJoin({
+            community_id:
+              this.state.postRes.unwrap().community_view.community.id,
+          })
+        );
+        WebSocketService.Instance.send(
+          wsClient.postJoin({ post_id: this.state.postId })
+        );
+
         this.fetchCrossPosts();
         if (this.state.commentId) {
           this.scrollCommentIntoView();
@@ -140,24 +154,29 @@ export class Post extends Component<any, PostState> {
   fetchPost() {
     let form: GetPost = {
       id: this.state.postId,
-      auth: authField(false),
+      auth: auth(false),
     };
     WebSocketService.Instance.send(wsClient.getPost(form));
   }
 
   fetchCrossPosts() {
-    if (this.state.postRes.post_view.post.url) {
-      let form: Search = {
-        q: this.state.postRes.post_view.post.url,
-        type_: SearchType.Url,
-        sort: SortType.TopAll,
-        listing_type: ListingType.All,
-        page: 1,
-        limit: 6,
-        auth: authField(false),
-      };
-      WebSocketService.Instance.send(wsClient.search(form));
-    }
+    this.state.postRes
+      .andThen(r => toOption(r.post_view.post.url))
+      .match({
+        some: url => {
+          let form: Search = {
+            q: url,
+            type_: SearchType.Url,
+            sort: SortType.TopAll,
+            listing_type: ListingType.All,
+            page: 1,
+            limit: 6,
+            auth: auth(false),
+          };
+          WebSocketService.Instance.send(wsClient.search(form));
+        },
+        none: void 0,
+      });
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -185,9 +204,6 @@ export class Post extends Component<any, PostState> {
   }
 
   componentDidMount() {
-    WebSocketService.Instance.send(
-      wsClient.postJoin({ post_id: this.state.postId })
-    );
     autosize(document.querySelectorAll("textarea"));
 
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
@@ -231,34 +247,38 @@ export class Post extends Component<any, PostState> {
 
   // TODO this needs some re-work
   markScrolledAsRead(commentId: number) {
-    let found = this.state.postRes.comments.find(
-      c => c.comment.id == commentId
-    );
-    let parent = this.state.postRes.comments.find(
-      c => found.comment.parent_id == c.comment.id
-    );
-    let parent_person_id = parent
-      ? parent.creator.id
-      : this.state.postRes.post_view.creator.id;
+    this.state.postRes.match({
+      some: res => {
+        let found = res.comments.find(c => c.comment.id == commentId);
+        let parent = res.comments.find(
+          c => found.comment.parent_id == c.comment.id
+        );
+        let parent_person_id = parent
+          ? parent.creator.id
+          : res.post_view.creator.id;
 
-    if (
-      UserService.Instance.myUserInfo &&
-      UserService.Instance.myUserInfo.local_user_view.person.id ==
-        parent_person_id
-    ) {
-      let form: MarkCommentAsRead = {
-        comment_id: found.comment.id,
-        read: true,
-        auth: authField(),
-      };
-      WebSocketService.Instance.send(wsClient.markCommentAsRead(form));
-      UserService.Instance.unreadInboxCountSub.next(
-        UserService.Instance.unreadInboxCountSub.value - 1
-      );
-    }
+        UserService.Instance.myUserInfo.match({
+          some: mui => {
+            if (mui.local_user_view.person.id == parent_person_id) {
+              let form: MarkCommentAsRead = {
+                comment_id: found.comment.id,
+                read: true,
+                auth: auth(),
+              };
+              WebSocketService.Instance.send(wsClient.markCommentAsRead(form));
+              UserService.Instance.unreadInboxCountSub.next(
+                UserService.Instance.unreadInboxCountSub.value - 1
+              );
+            }
+          },
+          none: void 0,
+        });
+      },
+      none: void 0,
+    });
   }
 
-  isBottom(el: Element) {
+  isBottom(el: Element): boolean {
     return el?.getBoundingClientRect().bottom <= window.innerHeight;
   }
 
@@ -274,23 +294,35 @@ export class Post extends Component<any, PostState> {
   };
 
   get documentTitle(): string {
-    return `${this.state.postRes.post_view.post.name} - ${this.state.siteRes.site_view.site.name}`;
+    return this.state.postRes.match({
+      some: res =>
+        toOption(this.state.siteRes.site_view).match({
+          some: siteView =>
+            `${res.post_view.post.name} - ${siteView.site.name}`,
+          none: "",
+        }),
+      none: "",
+    });
   }
 
-  get imageTag(): string {
-    let post = this.state.postRes.post_view.post;
-    return (
-      post.thumbnail_url ||
-      (post.url ? (isImage(post.url) ? post.url : undefined) : undefined)
-    );
+  get imageTag(): Option<string> {
+    return this.state.postRes.match({
+      some: res =>
+        toOption(res.post_view.post.thumbnail_url).or(
+          toOption(res.post_view.post.url).match({
+            some: url => (isImage(url) ? Some(url) : None),
+            none: None,
+          })
+        ),
+      none: None,
+    });
   }
 
-  get descriptionTag(): string {
-    return this.state.postRes.post_view.post.body;
+  get descriptionTag(): Option<string> {
+    return this.state.postRes.andThen(r => toOption(r.post_view.post.body));
   }
 
   render() {
-    let pv = this.state.postRes?.post_view;
     return (
       <div class="container">
         {this.state.loading ? (
@@ -298,56 +330,59 @@ export class Post extends Component<any, PostState> {
             <Spinner large />
           </h5>
         ) : (
-          <div class="row">
-            <div class="col-12 col-md-8 mb-3">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-                image={this.imageTag}
-                description={this.descriptionTag}
-              />
-              <PostListing
-                post_view={pv}
-                duplicates={this.state.crossPosts}
-                showBody
-                showCommunity
-                moderators={this.state.postRes.moderators}
-                admins={this.state.siteRes.admins}
-                enableDownvotes={
-                  this.state.siteRes.site_view.site.enable_downvotes
-                }
-                enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
-              />
-              <div ref={this.state.commentSectionRef} className="mb-2" />
-              <CommentForm
-                postId={this.state.postId}
-                disabled={pv.post.locked}
-              />
-              <div class="d-block d-md-none">
-                <button
-                  class="btn btn-secondary d-inline-block mb-2 mr-3"
-                  onClick={linkEvent(this, this.handleShowSidebarMobile)}
-                >
-                  {i18n.t("sidebar")}{" "}
-                  <Icon
-                    icon={
-                      this.state.showSidebarMobile
-                        ? `minus-square`
-                        : `plus-square`
-                    }
-                    classes="icon-inline"
+          this.state.postRes.match({
+            some: res => (
+              <div class="row">
+                <div class="col-12 col-md-8 mb-3">
+                  <HtmlTags
+                    title={this.documentTitle}
+                    path={this.context.router.route.match.url}
+                    image={this.imageTag}
+                    description={this.descriptionTag}
                   />
-                </button>
-                {this.state.showSidebarMobile && this.sidebar()}
+                  <PostListing
+                    post_view={res.post_view}
+                    duplicates={this.state.crossPosts}
+                    showBody
+                    showCommunity
+                    moderators={Some(res.moderators)}
+                    admins={Some(this.state.siteRes.admins)}
+                    enableDownvotes={enableDownvotes(this.state.siteRes)}
+                    enableNsfw={enableNsfw(this.state.siteRes)}
+                  />
+                  <div ref={this.state.commentSectionRef} className="mb-2" />
+                  <CommentForm
+                    node={Right(this.state.postId)}
+                    disabled={res.post_view.post.locked}
+                  />
+                  <div class="d-block d-md-none">
+                    <button
+                      class="btn btn-secondary d-inline-block mb-2 mr-3"
+                      onClick={linkEvent(this, this.handleShowSidebarMobile)}
+                    >
+                      {i18n.t("sidebar")}{" "}
+                      <Icon
+                        icon={
+                          this.state.showSidebarMobile
+                            ? `minus-square`
+                            : `plus-square`
+                        }
+                        classes="icon-inline"
+                      />
+                    </button>
+                    {this.state.showSidebarMobile && this.sidebar()}
+                  </div>
+                  {res.comments.length > 0 && this.sortRadios()}
+                  {this.state.commentViewType == CommentViewType.Tree &&
+                    this.commentsTree()}
+                  {this.state.commentViewType == CommentViewType.Chat &&
+                    this.commentsFlat()}
+                </div>
+                <div class="d-none d-md-block col-md-4">{this.sidebar()}</div>
               </div>
-              {this.state.postRes.comments.length > 0 && this.sortRadios()}
-              {this.state.commentViewType == CommentViewType.Tree &&
-                this.commentsTree()}
-              {this.state.commentViewType == CommentViewType.Chat &&
-                this.commentsFlat()}
-            </div>
-            <div class="d-none d-md-block col-md-4">{this.sidebar()}</div>
-          </div>
+            ),
+            none: <></>,
+          })
         )}
       </div>
     );
@@ -431,43 +466,48 @@ export class Post extends Component<any, PostState> {
 
   commentsFlat() {
     // These are already sorted by new
-    return (
-      <div>
-        <CommentNodes
-          nodes={commentsToFlatNodes(this.state.postRes.comments)}
-          maxCommentsShown={this.state.maxCommentsShown}
-          noIndent
-          locked={this.state.postRes.post_view.post.locked}
-          moderators={this.state.postRes.moderators}
-          admins={this.state.siteRes.admins}
-          postCreatorId={this.state.postRes.post_view.creator.id}
-          showContext
-          enableDownvotes={this.state.siteRes.site_view.site.enable_downvotes}
-        />
-      </div>
-    );
+    return this.state.postRes.match({
+      some: res => (
+        <div>
+          <CommentNodes
+            nodes={commentsToFlatNodes(res.comments)}
+            maxCommentsShown={Some(this.state.maxCommentsShown)}
+            noIndent
+            locked={res.post_view.post.locked}
+            moderators={Some(res.moderators)}
+            admins={Some(this.state.siteRes.admins)}
+            enableDownvotes={enableDownvotes(this.state.siteRes)}
+            showContext
+          />
+        </div>
+      ),
+      none: <></>,
+    });
   }
 
   sidebar() {
-    return (
-      <div class="mb-3">
-        <Sidebar
-          community_view={this.state.postRes.community_view}
-          moderators={this.state.postRes.moderators}
-          admins={this.state.siteRes.admins}
-          online={this.state.postRes.online}
-          enableNsfw={this.state.siteRes.site_view.site.enable_nsfw}
-          showIcon
-        />
-      </div>
-    );
+    return this.state.postRes.match({
+      some: res => (
+        <div class="mb-3">
+          <Sidebar
+            community_view={res.community_view}
+            moderators={res.moderators}
+            admins={this.state.siteRes.admins}
+            online={res.online}
+            enableNsfw={enableNsfw(this.state.siteRes)}
+            showIcon
+          />
+        </div>
+      ),
+      none: <></>,
+    });
   }
 
   handleCommentSortChange(i: Post, event: any) {
     i.state.commentSort = Number(event.target.value);
     i.state.commentViewType = CommentViewType.Tree;
     i.state.commentTree = buildCommentsTree(
-      i.state.postRes.comments,
+      i.state.postRes.map(r => r.comments).unwrapOr([]),
       i.state.commentSort
     );
     i.setState(i.state);
@@ -477,7 +517,7 @@ export class Post extends Component<any, PostState> {
     i.state.commentViewType = Number(event.target.value);
     i.state.commentSort = CommentSortType.New;
     i.state.commentTree = buildCommentsTree(
-      i.state.postRes.comments,
+      i.state.postRes.map(r => r.comments).unwrapOr([]),
       i.state.commentSort
     );
     i.setState(i.state);
@@ -489,19 +529,21 @@ export class Post extends Component<any, PostState> {
   }
 
   commentsTree() {
-    return (
-      <div>
-        <CommentNodes
-          nodes={this.state.commentTree}
-          maxCommentsShown={this.state.maxCommentsShown}
-          locked={this.state.postRes.post_view.post.locked}
-          moderators={this.state.postRes.moderators}
-          admins={this.state.siteRes.admins}
-          postCreatorId={this.state.postRes.post_view.creator.id}
-          enableDownvotes={this.state.siteRes.site_view.site.enable_downvotes}
-        />
-      </div>
-    );
+    return this.state.postRes.match({
+      some: res => (
+        <div>
+          <CommentNodes
+            nodes={this.state.commentTree}
+            maxCommentsShown={Some(this.state.maxCommentsShown)}
+            locked={res.post_view.post.locked}
+            moderators={Some(res.moderators)}
+            admins={Some(this.state.siteRes.admins)}
+            enableDownvotes={enableDownvotes(this.state.siteRes)}
+          />
+        </div>
+      ),
+      none: <></>,
+    });
   }
 
   parseMessage(msg: any) {
@@ -516,17 +558,28 @@ export class Post extends Component<any, PostState> {
       WebSocketService.Instance.send(
         wsClient.getPost({
           id: postId,
-          auth: authField(false),
+          auth: auth(false),
         })
       );
     } else if (op == UserOperation.GetPost) {
       let data = wsJsonToRes<GetPostResponse>(msg).data;
-      this.state.postRes = data;
+      this.state.postRes = Some(data);
+
       this.state.commentTree = buildCommentsTree(
-        this.state.postRes.comments,
+        this.state.postRes.map(r => r.comments).unwrapOr([]),
         this.state.commentSort
       );
       this.state.loading = false;
+
+      // join the rooms
+      WebSocketService.Instance.send(
+        wsClient.postJoin({ post_id: this.state.postId })
+      );
+      WebSocketService.Instance.send(
+        wsClient.communityJoin({
+          community_id: data.community_view.community.id,
+        })
+      );
 
       // Get cross-posts
       this.fetchCrossPosts();
@@ -545,15 +598,22 @@ export class Post extends Component<any, PostState> {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
       // Don't get comments from the post room, if the creator is blocked
-      let creatorBlocked = UserService.Instance.myUserInfo?.person_blocks
+      let creatorBlocked = UserService.Instance.myUserInfo
+        .map(m => m.person_blocks)
+        .unwrapOr([])
         .map(pb => pb.target.id)
         .includes(data.comment_view.creator.id);
 
       // Necessary since it might be a user reply, which has the recipients, to avoid double
       if (data.recipient_ids.length == 0 && !creatorBlocked) {
-        this.state.postRes.comments.unshift(data.comment_view);
-        insertCommentIntoTree(this.state.commentTree, data.comment_view);
-        this.state.postRes.post_view.counts.comments++;
+        this.state.postRes.match({
+          some: res => {
+            res.comments.unshift(data.comment_view);
+            insertCommentIntoTree(this.state.commentTree, data.comment_view);
+            res.post_view.counts.comments++;
+          },
+          none: void 0,
+        });
         this.setState(this.state);
         setupTippy();
       }
@@ -563,20 +623,32 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.RemoveComment
     ) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
-      editCommentRes(data.comment_view, this.state.postRes.comments);
+      editCommentRes(
+        data.comment_view,
+        this.state.postRes.map(r => r.comments).unwrapOr([])
+      );
       this.setState(this.state);
     } else if (op == UserOperation.SaveComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
-      saveCommentRes(data.comment_view, this.state.postRes.comments);
+      saveCommentRes(
+        data.comment_view,
+        this.state.postRes.map(r => r.comments).unwrapOr([])
+      );
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.CreateCommentLike) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
-      createCommentLikeRes(data.comment_view, this.state.postRes.comments);
+      createCommentLikeRes(
+        data.comment_view,
+        this.state.postRes.map(r => r.comments).unwrapOr([])
+      );
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
       let data = wsJsonToRes<PostResponse>(msg).data;
-      createPostLikeRes(data.post_view, this.state.postRes.post_view);
+      this.state.postRes.match({
+        some: res => createPostLikeRes(data.post_view, res.post_view),
+        none: void 0,
+      });
       this.setState(this.state);
     } else if (
       op == UserOperation.EditPost ||
@@ -587,7 +659,10 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.SavePost
     ) {
       let data = wsJsonToRes<PostResponse>(msg).data;
-      this.state.postRes.post_view = data.post_view;
+      this.state.postRes.match({
+        some: res => (res.post_view = data.post_view),
+        none: void 0,
+      });
       this.setState(this.state);
       setupTippy();
     } else if (
@@ -597,46 +672,61 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.FollowCommunity
     ) {
       let data = wsJsonToRes<CommunityResponse>(msg).data;
-      this.state.postRes.community_view = data.community_view;
-      this.state.postRes.post_view.community = data.community_view.community;
-      this.setState(this.state);
-      this.setState(this.state);
+      this.state.postRes.match({
+        some: res => {
+          res.community_view = data.community_view;
+          res.post_view.community = data.community_view.community;
+          this.setState(this.state);
+        },
+        none: void 0,
+      });
     } else if (op == UserOperation.BanFromCommunity) {
       let data = wsJsonToRes<BanFromCommunityResponse>(msg).data;
-      this.state.postRes.comments
-        .filter(c => c.creator.id == data.person_view.person.id)
-        .forEach(c => (c.creator_banned_from_community = data.banned));
-      if (
-        this.state.postRes.post_view.creator.id == data.person_view.person.id
-      ) {
-        this.state.postRes.post_view.creator_banned_from_community =
-          data.banned;
-      }
-      this.setState(this.state);
+      this.state.postRes.match({
+        some: res => {
+          res.comments
+            .filter(c => c.creator.id == data.person_view.person.id)
+            .forEach(c => (c.creator_banned_from_community = data.banned));
+          if (res.post_view.creator.id == data.person_view.person.id) {
+            res.post_view.creator_banned_from_community = data.banned;
+          }
+          this.setState(this.state);
+        },
+        none: void 0,
+      });
     } else if (op == UserOperation.AddModToCommunity) {
       let data = wsJsonToRes<AddModToCommunityResponse>(msg).data;
-      this.state.postRes.moderators = data.moderators;
-      this.setState(this.state);
+      this.state.postRes.match({
+        some: res => {
+          res.moderators = data.moderators;
+          this.setState(this.state);
+        },
+        none: void 0,
+      });
     } else if (op == UserOperation.BanPerson) {
       let data = wsJsonToRes<BanPersonResponse>(msg).data;
-      this.state.postRes.comments
-        .filter(c => c.creator.id == data.person_view.person.id)
-        .forEach(c => (c.creator.banned = data.banned));
-      if (
-        this.state.postRes.post_view.creator.id == data.person_view.person.id
-      ) {
-        this.state.postRes.post_view.creator.banned = data.banned;
-      }
-      this.setState(this.state);
+      this.state.postRes.match({
+        some: res => {
+          res.comments
+            .filter(c => c.creator.id == data.person_view.person.id)
+            .forEach(c => (c.creator.banned = data.banned));
+          if (res.post_view.creator.id == data.person_view.person.id) {
+            res.post_view.creator.banned = data.banned;
+          }
+          this.setState(this.state);
+        },
+        none: void 0,
+      });
     } else if (op == UserOperation.AddAdmin) {
       let data = wsJsonToRes<AddAdminResponse>(msg).data;
       this.state.siteRes.admins = data.admins;
       this.setState(this.state);
     } else if (op == UserOperation.Search) {
       let data = wsJsonToRes<SearchResponse>(msg).data;
-      this.state.crossPosts = data.posts.filter(
+      let xPosts = data.posts.filter(
         p => p.post.id != Number(this.props.match.params.id)
       );
+      this.state.crossPosts = xPosts.length > 0 ? Some(xPosts) : None;
       this.setState(this.state);
     } else if (op == UserOperation.LeaveAdmin) {
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
@@ -644,10 +734,15 @@ export class Post extends Component<any, PostState> {
       this.setState(this.state);
     } else if (op == UserOperation.TransferCommunity) {
       let data = wsJsonToRes<GetCommunityResponse>(msg).data;
-      this.state.postRes.community_view = data.community_view;
-      this.state.postRes.post_view.community = data.community_view.community;
-      this.state.postRes.moderators = data.moderators;
-      this.setState(this.state);
+      this.state.postRes.match({
+        some: res => {
+          res.community_view = data.community_view;
+          res.post_view.community = data.community_view.community;
+          res.moderators = data.moderators;
+          this.setState(this.state);
+        },
+        none: void 0,
+      });
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
       updatePersonBlock(data);

@@ -1,4 +1,5 @@
 // import Cookies from 'js-cookie';
+import { Err, None, Ok, Option, Result, Some } from "@sniptt/monads";
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
@@ -11,11 +12,16 @@ interface Claims {
   iat: number;
 }
 
+interface JwtInfo {
+  claims: Claims;
+  jwt: string;
+}
+
 export class UserService {
   private static _instance: UserService;
-  public myUserInfo: MyUserInfo;
-  public claims: Claims;
-  public jwtSub: Subject<string> = new Subject<string>();
+  public myUserInfo: Option<MyUserInfo> = None;
+  public jwtInfo: Option<JwtInfo> = None;
+  public jwtSub: Subject<Option<JwtInfo>> = new Subject<Option<JwtInfo>>();
   public unreadInboxCountSub: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
   public unreadReportCountSub: BehaviorSubject<number> =
@@ -24,12 +30,7 @@ export class UserService {
     new BehaviorSubject<number>(0);
 
   private constructor() {
-    if (this.auth) {
-      this.setClaims(this.auth);
-    } else {
-      // setTheme();
-      console.log("No JWT cookie found.");
-    }
+    this.setJwtInfo();
   }
 
   public login(res: LoginResponse) {
@@ -37,26 +38,37 @@ export class UserService {
     expires.setDate(expires.getDate() + 365);
     IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps });
     console.log("jwt cookie set");
-    this.setClaims(res.jwt);
+    this.setJwtInfo();
   }
 
   public logout() {
-    this.claims = undefined;
-    this.myUserInfo = undefined;
-    // setTheme();
-    this.jwtSub.next("");
+    this.jwtInfo = None;
+    this.myUserInfo = None;
+    this.jwtSub.next(this.jwtInfo);
     IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
     document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.host;
+    location.reload(); // TODO may not be necessary anymore
     console.log("Logged out.");
   }
 
-  public get auth(): string {
-    return IsomorphicCookie.load("jwt");
+  public get auth(): Result<string, string> {
+    // Can't use match to convert to result for some reason
+    let jwt = this.jwtInfo.map(j => j.jwt);
+    if (jwt.isSome()) {
+      return Ok(jwt.unwrap());
+    } else {
+      return Err("No JWT cookie found");
+    }
   }
 
-  private setClaims(jwt: string) {
-    this.claims = jwt_decode(jwt);
-    this.jwtSub.next(jwt);
+  private setJwtInfo() {
+    let jwt = IsomorphicCookie.load("jwt");
+
+    if (jwt) {
+      let jwtInfo: JwtInfo = { jwt, claims: jwt_decode(jwt) };
+      this.jwtInfo = Some(jwtInfo);
+      this.jwtSub.next(this.jwtInfo);
+    }
   }
 
   public static get Instance() {

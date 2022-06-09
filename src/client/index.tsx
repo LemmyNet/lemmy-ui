@@ -8,7 +8,7 @@ initializeSite(site);
 
 const wrapper = (
   <BrowserRouter>
-    <App siteRes={window.isoData.site_res} />
+    <App />
   </BrowserRouter>
 );
 

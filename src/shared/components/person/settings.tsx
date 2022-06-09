@@ -1,3 +1,4 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   BlockCommunity,
@@ -21,7 +22,7 @@ import { Subscription } from "rxjs";
 import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   capitalizeFirstLetter,
   choicesConfig,
   communitySelectName,
@@ -41,6 +42,7 @@ import {
   setupTippy,
   showLocal,
   toast,
+  toOption,
   updateCommunityBlock,
   updatePersonBlock,
   wsClient,
@@ -65,20 +67,19 @@ if (isBrowser()) {
 interface SettingsState {
   saveUserSettingsForm: SaveUserSettings;
   changePasswordForm: ChangePassword;
-  saveUserSettingsLoading: boolean;
-  changePasswordLoading: boolean;
-  deleteAccountLoading: boolean;
-  deleteAccountShowConfirm: boolean;
   deleteAccountForm: DeleteAccount;
   personBlocks: PersonBlockView[];
-  blockPersonId: number;
-  blockPerson?: PersonViewSafe;
+  blockPerson: Option<PersonViewSafe>;
   communityBlocks: CommunityBlockView[];
   blockCommunityId: number;
   blockCommunity?: CommunityView;
   currentTab: string;
-  siteRes: GetSiteResponse;
   themeList: string[];
+  saveUserSettingsLoading: boolean;
+  changePasswordLoading: boolean;
+  deleteAccountLoading: boolean;
+  deleteAccountShowConfirm: boolean;
+  siteRes: GetSiteResponse;
 }
 
 export class Settings extends Component<any, SettingsState> {
@@ -88,13 +89,13 @@ export class Settings extends Component<any, SettingsState> {
   private subscription: Subscription;
   private emptyState: SettingsState = {
     saveUserSettingsForm: {
-      auth: authField(false),
+      auth: auth(),
     },
     changePasswordForm: {
       new_password: null,
       new_password_verify: null,
       old_password: null,
-      auth: authField(false),
+      auth: auth(),
     },
     saveUserSettingsLoading: null,
     changePasswordLoading: false,
@@ -102,10 +103,10 @@ export class Settings extends Component<any, SettingsState> {
     deleteAccountShowConfirm: false,
     deleteAccountForm: {
       password: null,
-      auth: authField(false),
+      auth: auth(),
     },
     personBlocks: [],
-    blockPersonId: 0,
+    blockPerson: None,
     communityBlocks: [],
     blockCommunityId: 0,
     currentTab: "settings",
@@ -154,8 +155,8 @@ export class Settings extends Component<any, SettingsState> {
           <HtmlTags
             title={this.documentTitle}
             path={this.context.router.route.match.url}
-            description={this.documentTitle}
-            image={this.state.saveUserSettingsForm.avatar}
+            description={Some(this.documentTitle)}
+            image={toOption(this.state.saveUserSettingsForm.avatar)}
           />
           <ul class="nav nav-tabs mb-2">
             <li class="nav-item">
@@ -342,14 +343,17 @@ export class Settings extends Component<any, SettingsState> {
           <select
             class="form-control"
             id="block-person-filter"
-            value={this.state.blockPersonId}
+            value={this.state.blockPerson.map(p => p.person.id).unwrapOr(0)}
           >
             <option value="0">—</option>
-            {this.state.blockPerson && (
-              <option value={this.state.blockPerson.person.id}>
-                {personSelectName(this.state.blockPerson)}
-              </option>
-            )}
+            {this.state.blockPerson.match({
+              some: personView => (
+                <option value={personView.person.id}>
+                  {personSelectName(personView)}
+                </option>
+              ),
+              none: <></>,
+            })}
           </select>
         </div>
       </div>
@@ -444,9 +448,11 @@ export class Settings extends Component<any, SettingsState> {
             </label>
             <div class="col-sm-9">
               <MarkdownTextArea
-                initialContent={this.state.saveUserSettingsForm.bio}
+                initialContent={toOption(this.state.saveUserSettingsForm.bio)}
                 onContentChange={this.handleBioChange}
-                maxLength={300}
+                maxLength={Some(300)}
+                placeholder={None}
+                buttonTitle={None}
                 hideNavigationWarnings
               />
             </div>
@@ -490,7 +496,7 @@ export class Settings extends Component<any, SettingsState> {
             <div class="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_avatar")}
-                imageSrc={this.state.saveUserSettingsForm.avatar}
+                imageSrc={toOption(this.state.saveUserSettingsForm.avatar)}
                 onUpload={this.handleAvatarUpload}
                 onRemove={this.handleAvatarRemove}
                 rounded
@@ -502,7 +508,7 @@ export class Settings extends Component<any, SettingsState> {
             <div class="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_banner")}
-                imageSrc={this.state.saveUserSettingsForm.banner}
+                imageSrc={toOption(this.state.saveUserSettingsForm.banner)}
                 onUpload={this.handleBannerUpload}
                 onRemove={this.handleBannerRemove}
               />
@@ -847,7 +853,7 @@ export class Settings extends Component<any, SettingsState> {
       let blockUserForm: BlockPerson = {
         person_id: personId,
         block: true,
-        auth: authField(),
+        auth: auth(),
       };
       WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
     }
@@ -857,7 +863,7 @@ export class Settings extends Component<any, SettingsState> {
     let blockUserForm: BlockPerson = {
       person_id: i.recipientId,
       block: false,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
   }
@@ -867,7 +873,7 @@ export class Settings extends Component<any, SettingsState> {
       let blockCommunityForm: BlockCommunity = {
         community_id,
         block: true,
-        auth: authField(),
+        auth: auth(),
       };
       WebSocketService.Instance.send(
         wsClient.blockCommunity(blockCommunityForm)
@@ -879,7 +885,7 @@ export class Settings extends Component<any, SettingsState> {
     let blockCommunityForm: BlockCommunity = {
       community_id: i.communityId,
       block: false,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.blockCommunity(blockCommunityForm));
   }
@@ -891,8 +897,11 @@ export class Settings extends Component<any, SettingsState> {
 
   handleShowAvatarsChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_avatars = event.target.checked;
-    UserService.Instance.myUserInfo.local_user_view.local_user.show_avatars =
-      event.target.checked; // Just for instant updates
+    UserService.Instance.myUserInfo.match({
+      some: mui =>
+        (mui.local_user_view.local_user.show_avatars = event.target.checked),
+      none: void 0,
+    });
     i.setState(i.state);
   }
 
@@ -918,8 +927,11 @@ export class Settings extends Component<any, SettingsState> {
 
   handleShowScoresChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_scores = event.target.checked;
-    UserService.Instance.myUserInfo.local_user_view.local_user.show_scores =
-      event.target.checked; // Just for instant updates
+    UserService.Instance.myUserInfo.match({
+      some: mui =>
+        (mui.local_user_view.local_user.show_scores = event.target.checked),
+      none: void 0,
+    });
     i.setState(i.state);
   }
 
@@ -990,12 +1002,6 @@ export class Settings extends Component<any, SettingsState> {
 
   handleMatrixUserIdChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.matrix_user_id = event.target.value;
-    if (
-      i.state.saveUserSettingsForm.matrix_user_id == "" &&
-      !UserService.Instance.myUserInfo.local_user_view.person.matrix_user_id
-    ) {
-      i.state.saveUserSettingsForm.matrix_user_id = undefined;
-    }
     i.setState(i.state);
   }
 
@@ -1074,36 +1080,43 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   setUserInfo() {
-    let luv = UserService.Instance.myUserInfo.local_user_view;
-    this.state.saveUserSettingsForm.show_nsfw = luv.local_user.show_nsfw;
-    this.state.saveUserSettingsForm.theme = luv.local_user.theme
-      ? luv.local_user.theme
-      : "browser";
-    this.state.saveUserSettingsForm.default_sort_type =
-      luv.local_user.default_sort_type;
-    this.state.saveUserSettingsForm.default_listing_type =
-      luv.local_user.default_listing_type;
-    this.state.saveUserSettingsForm.lang = luv.local_user.lang;
-    this.state.saveUserSettingsForm.avatar = luv.person.avatar;
-    this.state.saveUserSettingsForm.banner = luv.person.banner;
-    this.state.saveUserSettingsForm.display_name = luv.person.display_name;
-    this.state.saveUserSettingsForm.show_avatars = luv.local_user.show_avatars;
-    this.state.saveUserSettingsForm.bot_account = luv.person.bot_account;
-    this.state.saveUserSettingsForm.show_bot_accounts =
-      luv.local_user.show_bot_accounts;
-    this.state.saveUserSettingsForm.show_scores = luv.local_user.show_scores;
-    this.state.saveUserSettingsForm.show_read_posts =
-      luv.local_user.show_read_posts;
-    this.state.saveUserSettingsForm.show_new_post_notifs =
-      luv.local_user.show_new_post_notifs;
-    this.state.saveUserSettingsForm.email = luv.local_user.email;
-    this.state.saveUserSettingsForm.bio = luv.person.bio;
-    this.state.saveUserSettingsForm.send_notifications_to_email =
-      luv.local_user.send_notifications_to_email;
-    this.state.saveUserSettingsForm.matrix_user_id = luv.person.matrix_user_id;
-    this.state.personBlocks = UserService.Instance.myUserInfo.person_blocks;
-    this.state.communityBlocks =
-      UserService.Instance.myUserInfo.community_blocks;
+    UserService.Instance.myUserInfo.match({
+      some: mui => {
+        let luv = mui.local_user_view;
+        this.state.saveUserSettingsForm.show_nsfw = luv.local_user.show_nsfw;
+        this.state.saveUserSettingsForm.theme = luv.local_user.theme
+          ? luv.local_user.theme
+          : "browser";
+        this.state.saveUserSettingsForm.default_sort_type =
+          luv.local_user.default_sort_type;
+        this.state.saveUserSettingsForm.default_listing_type =
+          luv.local_user.default_listing_type;
+        this.state.saveUserSettingsForm.lang = luv.local_user.lang;
+        this.state.saveUserSettingsForm.avatar = luv.person.avatar;
+        this.state.saveUserSettingsForm.banner = luv.person.banner;
+        this.state.saveUserSettingsForm.display_name = luv.person.display_name;
+        this.state.saveUserSettingsForm.show_avatars =
+          luv.local_user.show_avatars;
+        this.state.saveUserSettingsForm.bot_account = luv.person.bot_account;
+        this.state.saveUserSettingsForm.show_bot_accounts =
+          luv.local_user.show_bot_accounts;
+        this.state.saveUserSettingsForm.show_scores =
+          luv.local_user.show_scores;
+        this.state.saveUserSettingsForm.show_read_posts =
+          luv.local_user.show_read_posts;
+        this.state.saveUserSettingsForm.show_new_post_notifs =
+          luv.local_user.show_new_post_notifs;
+        this.state.saveUserSettingsForm.email = luv.local_user.email;
+        this.state.saveUserSettingsForm.bio = luv.person.bio;
+        this.state.saveUserSettingsForm.send_notifications_to_email =
+          luv.local_user.send_notifications_to_email;
+        this.state.saveUserSettingsForm.matrix_user_id =
+          luv.person.matrix_user_id;
+        this.state.personBlocks = mui.person_blocks;
+        this.state.communityBlocks = mui.community_blocks;
+      },
+      none: void 0,
+    });
   }
 
   parseMessage(msg: any) {
@@ -1122,7 +1135,7 @@ export class Settings extends Component<any, SettingsState> {
       UserService.Instance.login(data);
       this.state.saveUserSettingsLoading = false;
       this.setState(this.state);
-
+      toast(i18n.t("saved"));
       window.scrollTo(0, 0);
     } else if (op == UserOperation.ChangePassword) {
       let data = wsJsonToRes<LoginResponse>(msg).data;
@@ -1138,13 +1151,18 @@ export class Settings extends Component<any, SettingsState> {
       });
       UserService.Instance.logout();
       window.location.href = "/";
-      location.reload();
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg).data;
-      this.setState({ personBlocks: updatePersonBlock(data) });
+      updatePersonBlock(data).match({
+        some: blocks => this.setState({ personBlocks: blocks }),
+        none: void 0,
+      });
     } else if (op == UserOperation.BlockCommunity) {
       let data = wsJsonToRes<BlockCommunityResponse>(msg).data;
-      this.setState({ communityBlocks: updateCommunityBlock(data) });
+      updateCommunityBlock(data).match({
+        some: blocks => this.setState({ communityBlocks: blocks }),
+        none: void 0,
+      });
     }
   }
 }

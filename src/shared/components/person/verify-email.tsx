@@ -1,6 +1,7 @@
+import { None } from "@sniptt/monads/build";
 import { Component } from "inferno";
 import {
-  SiteView,
+  GetSiteResponse,
   UserOperation,
   VerifyEmail as VerifyEmailForm,
   VerifyEmailResponse,
@@ -12,6 +13,7 @@ import {
   isBrowser,
   setIsoData,
   toast,
+  toOption,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -21,7 +23,7 @@ import { HtmlTags } from "../common/html-tags";
 
 interface State {
   verifyEmailForm: VerifyEmailForm;
-  site_view: SiteView;
+  siteRes: GetSiteResponse;
 }
 
 export class VerifyEmail extends Component<any, State> {
@@ -32,7 +34,7 @@ export class VerifyEmail extends Component<any, State> {
     verifyEmailForm: {
       token: this.props.match.params.token,
     },
-    site_view: this.isoData.site_res.site_view,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -57,7 +59,10 @@ export class VerifyEmail extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("verify_email")} - ${this.state.site_view.site.name}`;
+    return toOption(this.state.siteRes.site_view).match({
+      some: siteView => `${i18n.t("verify_email")} - ${siteView.site.name}`,
+      none: "",
+    });
   }
 
   render() {
@@ -66,6 +71,8 @@ export class VerifyEmail extends Component<any, State> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          description={None}
+          image={None}
         />
         <div class="row">
           <div class="col-12 col-lg-6 offset-lg-3 mb-4">

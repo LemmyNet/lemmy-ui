@@ -1,9 +1,10 @@
+import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
-import { authField, wsClient } from "../../utils";
+import { auth, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
@@ -45,6 +46,9 @@ export class PostReport extends Component<PostReportProps, any> {
       <div>
         <PostListing
           post_view={pv}
+          duplicates={None}
+          moderators={None}
+          admins={None}
           showCommunity={true}
           enableDownvotes={true}
           enableNsfw={true}
@@ -92,7 +96,7 @@ export class PostReport extends Component<PostReportProps, any> {
     let form: ResolvePostReport = {
       report_id: i.props.report.post_report.id,
       resolved: !i.props.report.post_report.resolved,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.resolvePostReport(form));
   }

@@ -1,3 +1,4 @@
+import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { LoginResponse, Register, UserOperation } from "lemmy-js-client";
@@ -64,7 +65,7 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm showLocal />
+              <SiteForm site={None} showLocal />
             )}
           </div>
         </div>

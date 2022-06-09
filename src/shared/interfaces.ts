@@ -1,3 +1,4 @@
+import { Either, Option } from "@sniptt/monads";
 import {
   CommentView,
   GetSiteResponse,
@@ -23,9 +24,9 @@ declare global {
 }
 
 export interface InitialFetchRequest {
-  auth: string;
-  path: string;
+  auth: Option<string>;
   client: LemmyHttp;
+  path: string;
 }
 
 export interface CommentNode {
@@ -35,11 +36,10 @@ export interface CommentNode {
 }
 
 export interface PostFormParams {
-  name: string;
-  url?: string;
-  body?: string;
-  community_name?: string;
-  community_id?: number;
+  name: Option<string>;
+  url: Option<string>;
+  body: Option<string>;
+  nameOrId: Option<Either<string, number>>;
 }
 
 export enum CommentSortType {

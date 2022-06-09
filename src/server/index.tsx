@@ -1,3 +1,4 @@
+import { Option } from "@sniptt/monads";
 import express from "express";
 import fs from "fs";
 import { IncomingHttpHeaders } from "http";
@@ -11,14 +12,14 @@ import process from "process";
 import serialize from "serialize-javascript";
 import { App } from "../shared/components/app/app";
 import { SYMBOLS } from "../shared/components/common/symbols";
-import { httpBaseInternal } from "../shared/env";
+import { httpBaseInternal, wsUriBase } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import { initializeSite, setOptionalAuth } from "../shared/utils";
+import { initializeSite, setOptionalAuth, toOption } from "../shared/utils";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -115,7 +116,7 @@ server.get("/*", async (req, res) => {
   try {
     const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
     const context = {} as any;
-    let auth: string = IsomorphicCookie.load("jwt", req);
+    let auth: Option<string> = toOption(IsomorphicCookie.load("jwt", req));
 
     let getSiteForm: GetSite = {};
     setOptionalAuth(getSiteForm, auth);

@@ -1,13 +1,14 @@
-import { None, Some } from "@sniptt/monads";
+import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import { CreateSite, EditSite, ListingType, Site } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   capitalizeFirstLetter,
   fetchThemeList,
+  toOption,
   wsClient,
 } from "../../utils";
 import { Spinner } from "../common/icon";
@@ -16,16 +17,16 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface SiteFormProps {
-  site?: Site; // If a site is given, that means this is an edit
-  showLocal: boolean;
-  onCancel?(): any;
-  onEdit?(): any;
+  site: Option<Site>; // If a site is given, that means this is an edit
+  showLocal?: boolean;
+  onCancel?(): void;
+  onEdit?(): void;
 }
 
 interface SiteFormState {
   siteForm: EditSite;
   loading: boolean;
-  themeList: string[];
+  themeList: Option<string[]>;
 }
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
@@ -42,13 +43,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       application_question: null,
       private_instance: null,
       default_theme: null,
-      sidebar: None,
+      sidebar: null,
       default_post_listing_type: null,
       legal_information: null,
-      auth: authField(false),
+      auth: null,
     },
     loading: false,
-    themeList: [],
+    themeList: None,
   };
 
   constructor(props: any, context: any) {
@@ -69,33 +70,34 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleDefaultPostListingTypeChange =
       this.handleDefaultPostListingTypeChange.bind(this);
 
-    if (this.props.site) {
-      let site = this.props.site;
-      console.log(this.props.site);
-      this.state.siteForm = {
-        name: site.name,
-        sidebar: site.sidebar,
-        description: site.description,
-        enable_downvotes: site.enable_downvotes,
-        open_registration: site.open_registration,
-        enable_nsfw: site.enable_nsfw,
-        community_creation_admin_only: site.community_creation_admin_only,
-        icon: site.icon,
-        banner: site.banner,
-        require_email_verification: site.require_email_verification,
-        require_application: site.require_application,
-        application_question: site.application_question,
-        private_instance: site.private_instance,
-        default_theme: site.default_theme,
-        default_post_listing_type: site.default_post_listing_type,
-        legal_information: site.legal_information,
-        auth: authField(false),
-      };
-    }
+    this.props.site.match({
+      some: site => {
+        this.state.siteForm = {
+          name: site.name,
+          sidebar: site.sidebar,
+          description: site.description,
+          enable_downvotes: site.enable_downvotes,
+          open_registration: site.open_registration,
+          enable_nsfw: site.enable_nsfw,
+          community_creation_admin_only: site.community_creation_admin_only,
+          icon: site.icon,
+          banner: site.banner,
+          require_email_verification: site.require_email_verification,
+          require_application: site.require_application,
+          application_question: site.application_question,
+          private_instance: site.private_instance,
+          default_theme: site.default_theme,
+          default_post_listing_type: site.default_post_listing_type,
+          legal_information: site.legal_information,
+          auth: auth(false),
+        };
+      },
+      none: void 0,
+    });
   }
 
   async componentDidMount() {
-    this.state.themeList = await fetchThemeList();
+    this.state.themeList = Some(await fetchThemeList());
     this.setState(this.state);
   }
 
@@ -108,7 +110,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   componentDidUpdate() {
     if (
       !this.state.loading &&
-      !this.props.site &&
+      this.props.site.isNone() &&
       (this.state.siteForm.name ||
         this.state.siteForm.sidebar ||
         this.state.siteForm.application_question ||
@@ -130,7 +132,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <Prompt
           when={
             !this.state.loading &&
-            !this.props.site &&
+            this.props.site.isNone() &&
             (this.state.siteForm.name ||
               this.state.siteForm.sidebar ||
               this.state.siteForm.application_question ||
@@ -140,7 +142,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         />
         <form onSubmit={linkEvent(this, this.handleCreateSiteSubmit)}>
           <h5>{`${
-            this.props.site
+            this.props.site.isSome()
               ? capitalizeFirstLetter(i18n.t("save"))
               : capitalizeFirstLetter(i18n.t("name"))
           } ${i18n.t("your_site")}`}</h5>
@@ -165,7 +167,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <label>{i18n.t("icon")}</label>
             <ImageUploadForm
               uploadTitle={i18n.t("upload_icon")}
-              imageSrc={this.state.siteForm.icon}
+              imageSrc={toOption(this.state.siteForm.icon)}
               onUpload={this.handleIconUpload}
               onRemove={this.handleIconRemove}
               rounded
@@ -175,7 +177,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <label>{i18n.t("banner")}</label>
             <ImageUploadForm
               uploadTitle={i18n.t("upload_banner")}
-              imageSrc={this.state.siteForm.banner}
+              imageSrc={toOption(this.state.siteForm.banner)}
               onUpload={this.handleBannerUpload}
               onRemove={this.handleBannerRemove}
             />
@@ -199,7 +201,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <label class="col-12 col-form-label">{i18n.t("sidebar")}</label>
             <div class="col-12">
               <MarkdownTextArea
-                initialContent={this.state.siteForm.sidebar.unwrapOr("")}
+                initialContent={toOption(this.state.siteForm.sidebar)}
+                placeholder={None}
+                buttonTitle={None}
+                maxLength={None}
                 onContentChange={this.handleSiteSidebarChange}
                 hideNavigationWarnings
               />
@@ -211,20 +216,30 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </label>
             <div class="col-12">
               <MarkdownTextArea
-                initialContent={this.state.siteForm.legal_information}
+                initialContent={toOption(this.state.siteForm.legal_information)}
+                placeholder={None}
+                buttonTitle={None}
+                maxLength={None}
                 onContentChange={this.handleSiteLegalInfoChange}
                 hideNavigationWarnings
               />
             </div>
           </div>
-          {this.state.siteForm.require_application && (
+          {toOption(this.state.siteForm.require_application).unwrapOr(
+            false
+          ) && (
             <div class="form-group row">
               <label class="col-12 col-form-label">
                 {i18n.t("application_questionnaire")}
               </label>
               <div class="col-12">
                 <MarkdownTextArea
-                  initialContent={this.state.siteForm.application_question}
+                  initialContent={toOption(
+                    this.state.siteForm.application_question
+                  )}
+                  placeholder={None}
+                  buttonTitle={None}
+                  maxLength={None}
                   onContentChange={this.handleSiteApplicationQuestionChange}
                   hideNavigationWarnings
                 />
@@ -369,7 +384,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 class="custom-select w-auto"
               >
                 <option value="browser">{i18n.t("browser_default")}</option>
-                {this.state.themeList.map(theme => (
+                {this.state.themeList.unwrapOr([]).map(theme => (
                   <option value={theme}>{theme}</option>
                 ))}
               </select>
@@ -418,13 +433,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               >
                 {this.state.loading ? (
                   <Spinner />
-                ) : this.props.site ? (
+                ) : this.props.site.isSome() ? (
                   capitalizeFirstLetter(i18n.t("save"))
                 ) : (
                   capitalizeFirstLetter(i18n.t("create"))
                 )}
               </button>
-              {this.props.site && (
+              {this.props.site.isSome() && (
                 <button
                   type="button"
                   class="btn btn-secondary"
@@ -443,12 +458,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleCreateSiteSubmit(i: SiteForm, event: any) {
     event.preventDefault();
     i.state.loading = true;
-    if (i.props.site) {
+    if (i.props.site.isSome()) {
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
       i.props.onEdit();
     } else {
       let form: CreateSite = {
-        name: i.state.siteForm.name || "My site",
+        name: toOption(i.state.siteForm.name).unwrapOr("My site"),
         ...i.state.siteForm,
       };
       WebSocketService.Instance.send(wsClient.createSite(form));
@@ -462,7 +477,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteSidebarChange(val: string) {
-    this.state.siteForm.sidebar = Some(val);
+    this.state.siteForm.sidebar = val;
     this.setState(this.state);
   }
 

@@ -1,3 +1,4 @@
+import { None, Some } from "@sniptt/monads/build";
 import { Component, linkEvent } from "inferno";
 import {
   DeletePrivateMessage,
@@ -7,7 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
-import { authField, mdToHtml, toast, wsClient } from "../../utils";
+import { auth, mdToHtml, toast, toOption, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
@@ -46,16 +47,17 @@ export class PrivateMessage extends Component<
   }
 
   get mine(): boolean {
-    return (
-      UserService.Instance.myUserInfo &&
-      UserService.Instance.myUserInfo.local_user_view.person.id ==
-        this.props.private_message_view.creator.id
-    );
+    return UserService.Instance.myUserInfo
+      .map(
+        m =>
+          m.local_user_view.person.id ==
+          this.props.private_message_view.creator.id
+      )
+      .unwrapOr(false);
   }
 
   render() {
     let message_view = this.props.private_message_view;
-    // TODO check this again
     let otherPerson: PersonSafe = this.mine
       ? message_view.recipient
       : message_view.creator;
@@ -73,7 +75,10 @@ export class PrivateMessage extends Component<
             </li>
             <li className="list-inline-item">
               <span>
-                <MomentTime data={message_view.private_message} />
+                <MomentTime
+                  published={message_view.private_message.published}
+                  updated={toOption(message_view.private_message.updated)}
+                />
               </span>
             </li>
             <li className="list-inline-item">
@@ -93,7 +98,7 @@ export class PrivateMessage extends Component<
           {this.state.showEdit && (
             <PrivateMessageForm
               recipient={otherPerson}
-              privateMessage={message_view}
+              privateMessageView={Some(message_view)}
               onEdit={this.handlePrivateMessageEdit}
               onCreate={this.handlePrivateMessageCreate}
               onCancel={this.handleReplyCancel}
@@ -207,6 +212,7 @@ export class PrivateMessage extends Component<
         {this.state.showReply && (
           <PrivateMessageForm
             recipient={otherPerson}
+            privateMessageView={None}
             onCreate={this.handlePrivateMessageCreate}
           />
         )}
@@ -235,7 +241,7 @@ export class PrivateMessage extends Component<
     let form: DeletePrivateMessage = {
       private_message_id: i.props.private_message_view.private_message.id,
       deleted: !i.props.private_message_view.private_message.deleted,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.deletePrivateMessage(form));
   }
@@ -250,7 +256,7 @@ export class PrivateMessage extends Component<
     let form: MarkPrivateMessageAsRead = {
       private_message_id: i.props.private_message_view.private_message.id,
       read: !i.props.private_message_view.private_message.read,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.markPrivateMessageAsRead(form));
   }
@@ -271,14 +277,15 @@ export class PrivateMessage extends Component<
   }
 
   handlePrivateMessageCreate(message: PrivateMessageView) {
-    if (
-      UserService.Instance.myUserInfo &&
-      message.creator.id ==
-        UserService.Instance.myUserInfo.local_user_view.person.id
-    ) {
-      this.state.showReply = false;
-      this.setState(this.state);
-      toast(i18n.t("message_sent"));
-    }
+    UserService.Instance.myUserInfo.match({
+      some: mui => {
+        if (message.creator.id == mui.local_user_view.person.id) {
+          this.state.showReply = false;
+          this.setState(this.state);
+          toast(i18n.t("message_sent"));
+        }
+      },
+      none: void 0,
+    });
   }
 }

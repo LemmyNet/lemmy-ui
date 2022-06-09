@@ -1,7 +1,7 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { CommunitySafe } from "lemmy-js-client";
-import { hostname, relTags, showAvatars } from "../../utils";
+import { hostname, relTags, showAvatars, toOption } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 
 interface CommunityLinkProps {
@@ -56,12 +56,14 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
   }
 
   avatarAndName(displayName: string) {
-    let community = this.props.community;
     return (
       <>
-        {!this.props.hideAvatar && community.icon && showAvatars() && (
-          <PictrsImage src={community.icon} icon />
-        )}
+        {!this.props.hideAvatar &&
+          showAvatars() &&
+          toOption(this.props.community.icon).match({
+            some: icon => <PictrsImage src={icon} icon />,
+            none: <></>,
+          })}
         <span class="overflow-wrap-anywhere">{displayName}</span>
       </>
     );

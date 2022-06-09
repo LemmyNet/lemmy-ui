@@ -1,3 +1,4 @@
+import { None, Option, Some } from "@sniptt/monads";
 import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
@@ -5,6 +6,7 @@ import {
   CommentReportView,
   CommentView,
   CommunityBlockView,
+  CommunityModeratorView,
   CommunityView,
   GetSiteMetadata,
   GetSiteResponse,
@@ -192,30 +194,135 @@ export function futureDaysToUnixTime(days: number): number {
 }
 
 export function canMod(
-  myUserInfo: MyUserInfo,
-  modIds: number[],
+  mods: Option<CommunityModeratorView[]>,
+  admins: Option<PersonViewSafe[]>,
   creator_id: number,
+  myUserInfo = UserService.Instance.myUserInfo,
   onSelf = false
 ): boolean {
   // You can do moderator actions only on the mods added after you.
-  if (myUserInfo) {
-    let yourIndex = modIds.findIndex(
-      id => id == myUserInfo.local_user_view.person.id
-    );
-    if (yourIndex == -1) {
-      return false;
-    } else {
-      // onSelf +1 on mod actions not for yourself, IE ban, remove, etc
-      modIds = modIds.slice(0, yourIndex + (onSelf ? 0 : 1));
-      return !modIds.includes(creator_id);
-    }
-  } else {
-    return false;
-  }
+  let adminsThenMods = admins
+    .unwrapOr([])
+    .map(a => a.person.id)
+    .concat(mods.unwrapOr([]).map(m => m.moderator.id));
+
+  return myUserInfo.match({
+    some: me => {
+      let myIndex = adminsThenMods.findIndex(
+        id => id == me.local_user_view.person.id
+      );
+      if (myIndex == -1) {
+        return false;
+      } else {
+        // onSelf +1 on mod actions not for yourself, IE ban, remove, etc
+        adminsThenMods = adminsThenMods.slice(0, myIndex + (onSelf ? 0 : 1));
+        return !adminsThenMods.includes(creator_id);
+      }
+    },
+    none: false,
+  });
 }
 
-export function isMod(modIds: number[], creator_id: number): boolean {
-  return modIds.includes(creator_id);
+export function canAdmin(
+  admins: Option<PersonViewSafe[]>,
+  creator_id: number,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return canMod(None, admins, creator_id, myUserInfo);
+}
+
+export function isMod(
+  mods: Option<CommunityModeratorView[]>,
+  creator_id: number
+): boolean {
+  return mods.match({
+    some: mods => mods.map(m => m.moderator.id).includes(creator_id),
+    none: false,
+  });
+}
+
+export function amMod(
+  mods: Option<CommunityModeratorView[]>,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo.match({
+    some: mui => isMod(mods, mui.local_user_view.person.id),
+    none: false,
+  });
+}
+
+export function isAdmin(
+  admins: Option<PersonViewSafe[]>,
+  creator_id: number
+): boolean {
+  return admins.match({
+    some: admins => admins.map(a => a.person.id).includes(creator_id),
+    none: false,
+  });
+}
+
+export function amAdmin(
+  admins: Option<PersonViewSafe[]>,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo.match({
+    some: mui => isAdmin(admins, mui.local_user_view.person.id),
+    none: false,
+  });
+}
+
+export function amCommunityCreator(
+  mods: Option<CommunityModeratorView[]>,
+  creator_id: number,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return mods.match({
+    some: mods =>
+      myUserInfo
+        .map(mui => mui.local_user_view.person.id)
+        .match({
+          some: myId =>
+            myId == mods[0].moderator.id &&
+            // Don't allow mod actions on yourself
+            myId != creator_id,
+          none: false,
+        }),
+    none: false,
+  });
+}
+
+export function amSiteCreator(
+  admins: Option<PersonViewSafe[]>,
+  creator_id: number,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return admins.match({
+    some: admins =>
+      myUserInfo
+        .map(mui => mui.local_user_view.person.id)
+        .match({
+          some: myId =>
+            myId == admins[0].person.id &&
+            // Don't allow mod actions on yourself
+            myId != creator_id,
+          none: false,
+        }),
+    none: false,
+  });
+}
+
+export function amTopMod(
+  mods: Option<CommunityModeratorView[]>,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return mods.match({
+    some: mods =>
+      myUserInfo.match({
+        some: mui => mods[0].moderator.id == mui.local_user_view.person.id,
+        none: false,
+      }),
+    none: false,
+  });
 }
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
@@ -321,13 +428,14 @@ export function debounce(func: any, wait = 1000, immediate = false) {
   };
 }
 
-export function getLanguages(override?: string): string[] {
-  let myUserInfo = UserService.Instance.myUserInfo;
-  let lang =
-    override ||
-    (myUserInfo?.local_user_view.local_user.lang
-      ? myUserInfo.local_user_view.local_user.lang
-      : "browser");
+export function getLanguages(
+  override?: string,
+  myUserInfo = UserService.Instance.myUserInfo
+): string[] {
+  let myLang = myUserInfo
+    .map(m => m.local_user_view.local_user.lang)
+    .unwrapOr("browser");
+  let lang = override || myLang;
 
   if (lang == "browser" && isBrowser()) {
     return getBrowserLanguages();
@@ -406,24 +514,26 @@ export function objectFlip(obj: any) {
   return ret;
 }
 
-export function showAvatars(): boolean {
-  return (
-    UserService.Instance.myUserInfo?.local_user_view.local_user.show_avatars ||
-    !UserService.Instance.myUserInfo
-  );
+export function showAvatars(
+  myUserInfo: Option<MyUserInfo> = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo
+    .map(m => m.local_user_view.local_user.show_avatars)
+    .unwrapOr(true);
 }
 
-export function showScores(): boolean {
-  return (
-    UserService.Instance.myUserInfo?.local_user_view.local_user.show_scores ||
-    !UserService.Instance.myUserInfo
-  );
+export function showScores(
+  myUserInfo: Option<MyUserInfo> = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo
+    .map(m => m.local_user_view.local_user.show_scores)
+    .unwrapOr(true);
 }
 
 export function isCakeDay(published: string): boolean {
   // moment(undefined) or moment.utc(undefined) returns the current date/time
   // moment(null) or moment.utc(null) returns null
-  const createDate = moment.utc(published || null).local();
+  const createDate = moment.utc(published).local();
   const currentDate = moment(new Date());
 
   return (
@@ -666,16 +776,18 @@ async function communitySearch(text: string): Promise<CommunityTribute[]> {
 
 export function getListingTypeFromProps(
   props: any,
-  defaultListingType: ListingType
+  defaultListingType: ListingType,
+  myUserInfo = UserService.Instance.myUserInfo
 ): ListingType {
   return props.match.params.listing_type
     ? routeListingTypeToEnum(props.match.params.listing_type)
-    : UserService.Instance.myUserInfo
-    ? Object.values(ListingType)[
-        UserService.Instance.myUserInfo.local_user_view.local_user
-          .default_listing_type
-      ]
-    : defaultListingType;
+    : myUserInfo.match({
+        some: me =>
+          Object.values(ListingType)[
+            me.local_user_view.local_user.default_listing_type
+          ],
+        none: defaultListingType,
+      });
 }
 
 export function getListingTypeFromPropsNoDefault(props: any): ListingType {
@@ -691,15 +803,19 @@ export function getDataTypeFromProps(props: any): DataType {
     : DataType.Post;
 }
 
-export function getSortTypeFromProps(props: any): SortType {
+export function getSortTypeFromProps(
+  props: any,
+  myUserInfo = UserService.Instance.myUserInfo
+): SortType {
   return props.match.params.sort
     ? routeSortTypeToEnum(props.match.params.sort)
-    : UserService.Instance.myUserInfo
-    ? Object.values(SortType)[
-        UserService.Instance.myUserInfo.local_user_view.local_user
-          .default_sort_type
-      ]
-    : SortType.Active;
+    : myUserInfo.match({
+        some: mui =>
+          Object.values(SortType)[
+            mui.local_user_view.local_user.default_sort_type
+          ],
+        none: SortType.Active,
+      });
 }
 
 export function getPageFromProps(props: any): number {
@@ -744,42 +860,53 @@ export function saveCommentRes(data: CommentView, comments: CommentView[]) {
   }
 }
 
+// TODO Should only use the return now, no state?
 export function updatePersonBlock(
-  data: BlockPersonResponse
-): PersonBlockView[] {
-  if (data.blocked) {
-    UserService.Instance.myUserInfo.person_blocks.push({
-      person: UserService.Instance.myUserInfo.local_user_view.person,
-      target: data.person_view.person,
-    });
-    toast(`${i18n.t("blocked")} ${data.person_view.person.name}`);
-  } else {
-    UserService.Instance.myUserInfo.person_blocks =
-      UserService.Instance.myUserInfo.person_blocks.filter(
-        i => i.target.id != data.person_view.person.id
-      );
-    toast(`${i18n.t("unblocked")} ${data.person_view.person.name}`);
-  }
-  return UserService.Instance.myUserInfo.person_blocks;
+  data: BlockPersonResponse,
+  myUserInfo = UserService.Instance.myUserInfo
+): Option<PersonBlockView[]> {
+  return myUserInfo.match({
+    some: (mui: MyUserInfo) => {
+      if (data.blocked) {
+        mui.person_blocks.push({
+          person: mui.local_user_view.person,
+          target: data.person_view.person,
+        });
+        toast(`${i18n.t("blocked")} ${data.person_view.person.name}`);
+      } else {
+        mui.person_blocks = mui.person_blocks.filter(
+          i => i.target.id != data.person_view.person.id
+        );
+        toast(`${i18n.t("unblocked")} ${data.person_view.person.name}`);
+      }
+      return Some(mui.person_blocks);
+    },
+    none: None,
+  });
 }
 
 export function updateCommunityBlock(
-  data: BlockCommunityResponse
-): CommunityBlockView[] {
-  if (data.blocked) {
-    UserService.Instance.myUserInfo.community_blocks.push({
-      person: UserService.Instance.myUserInfo.local_user_view.person,
-      community: data.community_view.community,
-    });
-    toast(`${i18n.t("blocked")} ${data.community_view.community.name}`);
-  } else {
-    UserService.Instance.myUserInfo.community_blocks =
-      UserService.Instance.myUserInfo.community_blocks.filter(
-        i => i.community.id != data.community_view.community.id
-      );
-    toast(`${i18n.t("unblocked")} ${data.community_view.community.name}`);
-  }
-  return UserService.Instance.myUserInfo.community_blocks;
+  data: BlockCommunityResponse,
+  myUserInfo = UserService.Instance.myUserInfo
+): Option<CommunityBlockView[]> {
+  return myUserInfo.match({
+    some: (mui: MyUserInfo) => {
+      if (data.blocked) {
+        mui.community_blocks.push({
+          person: mui.local_user_view.person,
+          community: data.community_view.community,
+        });
+        toast(`${i18n.t("blocked")} ${data.community_view.community.name}`);
+      } else {
+        mui.community_blocks = mui.community_blocks.filter(
+          i => i.community.id != data.community_view.community.id
+        );
+        toast(`${i18n.t("unblocked")} ${data.community_view.community.name}`);
+      }
+      return Some(mui.community_blocks);
+    },
+    none: None,
+  });
 }
 
 export function createCommentLikeRes(
@@ -1044,7 +1171,7 @@ export function hostname(url: string): string {
 
 export function validTitle(title?: string): boolean {
   // Initial title is null, minimum length is taken care of by textarea's minLength={3}
-  if (title === null || title.length < 3) return true;
+  if (!title || title.length < 3) return true;
 
   const regex = new RegExp(/.*\S.*/, "g");
 
@@ -1089,24 +1216,6 @@ export function wsSubscribe(parseMessage: any): Subscription {
   }
 }
 
-export function setOptionalAuth(obj: any, auth = UserService.Instance.auth) {
-  if (auth) {
-    obj.auth = auth;
-  }
-}
-
-export function authField(
-  throwErr = true,
-  auth = UserService.Instance.auth
-): string {
-  if (auth == null && throwErr) {
-    toast(i18n.t("not_logged_in"), "danger");
-    throw "Not logged in";
-  } else {
-    return auth;
-  }
-}
-
 moment.updateLocale("en", {
   relativeTime: {
     future: "in %s",
@@ -1141,7 +1250,9 @@ export function restoreScrollPosition(context: any) {
 }
 
 export function showLocal(isoData: IsoData): boolean {
-  return isoData.site_res.federated_instances?.linked.length > 0;
+  return toOption(isoData.site_res.federated_instances)
+    .map(f => f.linked.length > 0)
+    .unwrapOr(false);
 }
 
 interface ChoicesValue {
@@ -1173,7 +1284,7 @@ export async function fetchCommunities(q: string) {
     listing_type: ListingType.All,
     page: 1,
     limit: fetchLimit,
-    auth: authField(false),
+    auth: auth(false),
   };
   let client = new LemmyHttp(httpBase);
   return client.search(form);
@@ -1187,7 +1298,7 @@ export async function fetchUsers(q: string) {
     listing_type: ListingType.All,
     page: 1,
     limit: fetchLimit,
-    auth: authField(false),
+    auth: auth(false),
   };
   let client = new LemmyHttp(httpBase);
   return client.search(form);
@@ -1233,12 +1344,12 @@ export function communitySelectName(cv: CommunityView): string {
 }
 
 export function personSelectName(pvs: PersonViewSafe): string {
-  let pName = pvs.person.display_name || pvs.person.name;
+  let pName = toOption(pvs.person.display_name).unwrapOr(pvs.person.name);
   return pvs.person.local ? pName : `${hostname(pvs.person.actor_id)}/${pName}`;
 }
 
 export function initializeSite(site: GetSiteResponse) {
-  UserService.Instance.myUserInfo = site.my_user;
+  UserService.Instance.myUserInfo = toOption(site.my_user);
   i18n.changeLanguage(getLanguages()[0]);
 }
 
@@ -1254,9 +1365,11 @@ export function numToSI(value: number): string {
 }
 
 export function isBanned(ps: PersonSafe): boolean {
+  let expires = toOption(ps.ban_expires);
   // Add Z to convert from UTC date
-  if (ps.ban_expires) {
-    if (ps.banned && new Date(ps.ban_expires + "Z") > new Date()) {
+  // TODO this check probably isn't necessary anymore
+  if (expires.isSome()) {
+    if (ps.banned && new Date(expires.unwrap() + "Z") > new Date()) {
       return true;
     } else {
       return false;
@@ -1270,4 +1383,57 @@ export function pushNotNull(array: any[], new_item?: any) {
   if (new_item) {
     array.push(...new_item);
   }
+}
+
+/**
+ * Converts an undefined or null value to an Option
+ *
+ * Note: You cannot use a prototype, because it won't be able to handle null values
+ */
+export function toOption<T>(val: T): Option<T> {
+  return Some(val || undefined);
+}
+
+/**
+ * Converts an option to an undefined. Necessary for API requests.
+ */
+export function toUndefined<T>(opt: Option<T>) {
+  return opt.isSome() ? opt.unwrap() : undefined;
+}
+
+export function auth(
+  throwErr = true,
+  auth = UserService.Instance.auth
+): string | undefined {
+  return auth.match({
+    ok: jwt => jwt,
+    err: e => {
+      if (throwErr && isBrowser()) {
+        console.log(e);
+        toast(i18n.t("not_logged_in"), "danger");
+      }
+      return undefined;
+    },
+  });
+}
+
+export function setOptionalAuth(obj: any, auth: Option<string>) {
+  auth.match({
+    some: auth => {
+      obj.auth = auth;
+    },
+    none: void 0,
+  });
+}
+
+export function enableDownvotes(siteRes: GetSiteResponse): boolean {
+  return toOption(siteRes.site_view)
+    .map(s => s.site.enable_downvotes)
+    .unwrapOr(true);
+}
+
+export function enableNsfw(siteRes: GetSiteResponse): boolean {
+  return toOption(siteRes.site_view)
+    .map(s => s.site.enable_nsfw)
+    .unwrapOr(false);
 }

@@ -1,3 +1,4 @@
+import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -8,7 +9,7 @@ import {
 import { i18n } from "../../i18next";
 import { CommentNode as CommentNodeI } from "../../interfaces";
 import { WebSocketService } from "../../services";
-import { authField, wsClient } from "../../utils";
+import { auth, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
@@ -53,8 +54,8 @@ export class CommentReport extends Component<CommentReportProps, any> {
       <div>
         <CommentNode
           node={node}
-          moderators={[]}
-          admins={[]}
+          moderators={None}
+          admins={None}
           enableDownvotes={true}
           viewOnly={true}
           showCommunity={true}
@@ -101,7 +102,7 @@ export class CommentReport extends Component<CommentReportProps, any> {
     let form: ResolveCommentReport = {
       report_id: i.props.report.comment_report.id,
       resolved: !i.props.report.comment_report.resolved,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.resolveCommentReport(form));
   }

@@ -1,3 +1,4 @@
+import { Some } from "@sniptt/monads";
 import { Component, createRef, linkEvent, RefObject } from "inferno";
 import { NavLink } from "inferno-router";
 import {
@@ -16,7 +17,8 @@ import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  amAdmin,
+  auth,
   donateLemmyUrl,
   getLanguages,
   isBrowser,
@@ -26,6 +28,7 @@ import {
   setTheme,
   showAvatars,
   toast,
+  toOption,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -35,11 +38,10 @@ import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 
 interface NavbarProps {
-  site_res: GetSiteResponse;
+  siteRes: GetSiteResponse;
 }
 
 interface NavbarState {
-  isLoggedIn: boolean;
   expanded: boolean;
   unreadInboxCount: number;
   unreadReportCount: number;
@@ -58,7 +60,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   private unreadApplicationCountSub: Subscription;
   private searchTextField: RefObject<HTMLInputElement>;
   emptyState: NavbarState = {
-    isLoggedIn: !!this.props.site_res.my_user,
     unreadInboxCount: 0,
     unreadReportCount: 0,
     unreadApplicationCount: 0,
@@ -81,18 +82,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     // Subscribe to jwt changes
     if (isBrowser()) {
       this.searchTextField = createRef();
-      console.log(`isLoggedIn = ${this.state.isLoggedIn}`);
 
       // On the first load, check the unreads
-      if (this.state.isLoggedIn == false) {
-        // setTheme(data.my_user.theme, true);
-        // i18n.changeLanguage(getLanguage());
-        // i18n.changeLanguage('de');
-      } else {
+      if (UserService.Instance.myUserInfo.isSome()) {
         this.requestNotificationPermission();
         WebSocketService.Instance.send(
           wsClient.userJoin({
-            auth: authField(),
+            auth: auth(),
           })
         );
         this.fetchUnreads();
@@ -100,13 +96,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
       this.userSub = UserService.Instance.jwtSub.subscribe(res => {
         // A login
-        if (res !== undefined) {
+        if (res.isSome()) {
           this.requestNotificationPermission();
           WebSocketService.Instance.send(
-            wsClient.getSite({ auth: authField() })
+            wsClient.getSite({ auth: res.unwrap().jwt })
           );
-        } else {
-          this.setState({ isLoggedIn: false });
         }
       });
 
@@ -157,32 +151,28 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
-    let myUserInfo =
-      UserService.Instance.myUserInfo || this.props.site_res.my_user;
-    let person = myUserInfo?.local_user_view.person;
     return (
-      <nav class="navbar navbar-expand-lg navbar-light shadow-sm p-0 px-3">
+      <nav class="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3">
         <div class="container">
-          {this.props.site_res.site_view && (
-            <NavLink
-              to="/"
-              onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
-              title={
-                this.props.site_res.site_view.site.description ||
-                this.props.site_res.site_view.site.name
-              }
-              className="d-flex align-items-center navbar-brand mr-md-3"
-            >
-              {this.props.site_res.site_view.site.icon && showAvatars() && (
-                <PictrsImage
-                  src={this.props.site_res.site_view.site.icon}
-                  icon
-                />
-              )}
-              {this.props.site_res.site_view.site.name}
-            </NavLink>
-          )}
-          {this.state.isLoggedIn && (
+          {toOption(this.props.siteRes.site_view).match({
+            some: siteView => (
+              <NavLink
+                to="/"
+                onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
+                title={siteView.site.description || siteView.site.name}
+                className="d-flex align-items-center navbar-brand mr-md-3"
+              >
+                {toOption(siteView.site.icon).match({
+                  some: icon =>
+                    showAvatars() && <PictrsImage src={icon} icon />,
+                  none: <></>,
+                })}
+                {siteView.site.name}
+              </NavLink>
+            ),
+            none: <></>,
+          })}
+          {UserService.Instance.myUserInfo.isSome() && (
             <>
               <ul class="navbar-nav ml-auto">
                 <li className="nav-item">
@@ -204,7 +194,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </NavLink>
                 </li>
               </ul>
-              {UserService.Instance.myUserInfo?.moderates.length > 0 && (
+              {this.moderatesSomething && (
                 <ul class="navbar-nav ml-1">
                   <li className="nav-item">
                     <NavLink
@@ -226,8 +216,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 </ul>
               )}
-              {UserService.Instance.myUserInfo?.local_user_view.person
-                .admin && (
+              {this.amAdmin && (
                 <ul class="navbar-nav ml-1">
                   <li className="nav-item">
                     <NavLink
@@ -312,7 +301,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </li>
             </ul>
             <ul class="navbar-nav my-2">
-              {this.canAdmin && (
+              {this.amAdmin && (
                 <li className="nav-item">
                   <NavLink
                     to="/admin"
@@ -358,7 +347,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 </button>
               </form>
             )}
-            {this.state.isLoggedIn ? (
+            {UserService.Instance.myUserInfo.isSome() ? (
               <>
                 <ul class="navbar-nav my-2">
                   <li className="nav-item">
@@ -380,7 +369,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     </NavLink>
                   </li>
                 </ul>
-                {UserService.Instance.myUserInfo?.moderates.length > 0 && (
+                {this.moderatesSomething && (
                   <ul class="navbar-nav my-2">
                     <li className="nav-item">
                       <NavLink
@@ -402,8 +391,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     </li>
                   </ul>
                 )}
-                {UserService.Instance.myUserInfo?.local_user_view.person
-                  .admin && (
+                {this.amAdmin && (
                   <ul class="navbar-nav my-2">
                     <li className="nav-item">
                       <NavLink
@@ -427,69 +415,79 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     </li>
                   </ul>
                 )}
-                <ul class="navbar-nav">
-                  <li class="nav-item dropdown">
-                    <button
-                      class="nav-link btn btn-link dropdown-toggle"
-                      onClick={linkEvent(this, this.handleToggleDropdown)}
-                      id="navbarDropdown"
-                      role="button"
-                      aria-expanded="false"
-                    >
-                      <span>
-                        {person.avatar && showAvatars() && (
-                          <PictrsImage src={person.avatar} icon />
-                        )}
-                        {person.display_name
-                          ? person.display_name
-                          : person.name}
-                      </span>
-                    </button>
-                    {this.state.showDropdown && (
-                      <div
-                        class="dropdown-content"
-                        onMouseLeave={linkEvent(
-                          this,
-                          this.handleToggleDropdown
-                        )}
-                      >
-                        <li className="nav-item">
-                          <NavLink
-                            to={`/u/${UserService.Instance.myUserInfo.local_user_view.person.name}`}
-                            className="nav-link"
-                            title={i18n.t("profile")}
-                          >
-                            <Icon icon="user" classes="mr-1" />
-                            {i18n.t("profile")}
-                          </NavLink>
-                        </li>
-                        <li className="nav-item">
-                          <NavLink
-                            to="/settings"
-                            className="nav-link"
-                            title={i18n.t("settings")}
-                          >
-                            <Icon icon="settings" classes="mr-1" />
-                            {i18n.t("settings")}
-                          </NavLink>
-                        </li>
-                        <li>
-                          <hr class="dropdown-divider" />
-                        </li>
-                        <li className="nav-item">
+                {UserService.Instance.myUserInfo
+                  .map(m => m.local_user_view.person)
+                  .match({
+                    some: person => (
+                      <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
                           <button
-                            className="nav-link btn btn-link"
-                            onClick={linkEvent(this, this.handleLogoutClick)}
-                            title="test"
+                            class="nav-link btn btn-link dropdown-toggle"
+                            onClick={linkEvent(this, this.handleToggleDropdown)}
+                            id="navbarDropdown"
+                            role="button"
+                            aria-expanded="false"
                           >
-                            <Icon icon="log-out" classes="mr-1" />
-                            {i18n.t("logout")}
+                            <span>
+                              {person.avatar && showAvatars() && (
+                                <PictrsImage src={person.avatar} icon />
+                              )}
+                              {person.display_name
+                                ? person.display_name
+                                : person.name}
+                            </span>
                           </button>
+                          {this.state.showDropdown && (
+                            <div
+                              class="dropdown-content"
+                              onMouseLeave={linkEvent(
+                                this,
+                                this.handleToggleDropdown
+                              )}
+                            >
+                              <li className="nav-item">
+                                <NavLink
+                                  to={`/u/${person.name}`}
+                                  className="nav-link"
+                                  title={i18n.t("profile")}
+                                >
+                                  <Icon icon="user" classes="mr-1" />
+                                  {i18n.t("profile")}
+                                </NavLink>
+                              </li>
+                              <li className="nav-item">
+                                <NavLink
+                                  to="/settings"
+                                  className="nav-link"
+                                  title={i18n.t("settings")}
+                                >
+                                  <Icon icon="settings" classes="mr-1" />
+                                  {i18n.t("settings")}
+                                </NavLink>
+                              </li>
+                              <li>
+                                <hr class="dropdown-divider" />
+                              </li>
+                              <li className="nav-item">
+                                <button
+                                  className="nav-link btn btn-link"
+                                  onClick={linkEvent(
+                                    this,
+                                    this.handleLogoutClick
+                                  )}
+                                  title="test"
+                                >
+                                  <Icon icon="log-out" classes="mr-1" />
+                                  {i18n.t("logout")}
+                                </button>
+                              </li>
+                            </div>
+                          )}
                         </li>
-                      </div>
-                    )}
-                  </li>
-                </ul>
+                      </ul>
+                    ),
+                    none: <></>,
+                  })}
               </>
             ) : (
               <ul class="navbar-nav my-2">
@@ -519,6 +517,24 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         </div>
       </nav>
     );
+  }
+
+  get moderatesSomething(): boolean {
+    return (
+      UserService.Instance.myUserInfo.map(m => m.moderates).unwrapOr([])
+        .length > 0
+    );
+  }
+
+  get amAdmin(): boolean {
+    return amAdmin(Some(this.props.siteRes.admins));
+  }
+
+  get canCreateCommunity(): boolean {
+    let adminOnly = toOption(this.props.siteRes.site_view)
+      .map(s => s.site.community_creation_admin_only)
+      .unwrapOr(false);
+    return !adminOnly || this.amAdmin;
   }
 
   handleToggleExpandNavbar(i: Navbar) {
@@ -561,8 +577,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   handleLogoutClick(i: Navbar) {
     i.setState({ showDropdown: false, expanded: false });
     UserService.Instance.logout();
-    window.location.href = "/";
-    location.reload();
   }
 
   handleToggleDropdown(i: Navbar) {
@@ -576,17 +590,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (msg.error) {
       if (msg.error == "not_logged_in") {
         UserService.Instance.logout();
-        location.reload();
       }
       return;
     } else if (msg.reconnect) {
       console.log(i18n.t("websocket_reconnected"));
-      WebSocketService.Instance.send(
-        wsClient.userJoin({
-          auth: authField(),
-        })
-      );
-      this.fetchUnreads();
+      if (UserService.Instance.myUserInfo.isSome()) {
+        WebSocketService.Instance.send(
+          wsClient.userJoin({
+            auth: auth(),
+          })
+        );
+        this.fetchUnreads();
+      }
     } else if (op == UserOperation.GetUnreadCount) {
       let data = wsJsonToRes<GetUnreadCountResponse>(msg).data;
       this.state.unreadInboxCount =
@@ -608,42 +623,49 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       // This is only called on a successful login
       let data = wsJsonToRes<GetSiteResponse>(msg).data;
       console.log(data.my_user);
-      UserService.Instance.myUserInfo = data.my_user;
-      setTheme(
-        UserService.Instance.myUserInfo.local_user_view.local_user.theme
-      );
-      i18n.changeLanguage(getLanguages()[0]);
-      this.state.isLoggedIn = true;
-      this.setState(this.state);
+      UserService.Instance.myUserInfo = toOption(data.my_user);
+      UserService.Instance.myUserInfo.match({
+        some: mui => {
+          setTheme(mui.local_user_view.local_user.theme);
+          i18n.changeLanguage(getLanguages()[0]);
+          this.setState(this.state);
+        },
+        none: void 0,
+      });
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg).data;
 
-      if (this.state.isLoggedIn) {
-        if (
-          data.recipient_ids.includes(
-            UserService.Instance.myUserInfo.local_user_view.local_user.id
-          )
-        ) {
-          this.state.unreadInboxCount++;
-          this.setState(this.state);
-          this.sendUnreadCount();
-          notifyComment(data.comment_view, this.context.router);
-        }
-      }
+      UserService.Instance.myUserInfo.match({
+        some: mui => {
+          if (data.recipient_ids.includes(mui.local_user_view.local_user.id)) {
+            this.state.unreadInboxCount++;
+            this.setState(this.state);
+            this.sendUnreadCount();
+            notifyComment(data.comment_view, this.context.router);
+          }
+        },
+        none: void 0,
+      });
     } else if (op == UserOperation.CreatePrivateMessage) {
       let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
 
-      if (this.state.isLoggedIn) {
-        if (
-          data.private_message_view.recipient.id ==
-          UserService.Instance.myUserInfo.local_user_view.person.id
-        ) {
-          this.state.unreadInboxCount++;
-          this.setState(this.state);
-          this.sendUnreadCount();
-          notifyPrivateMessage(data.private_message_view, this.context.router);
-        }
-      }
+      UserService.Instance.myUserInfo.match({
+        some: mui => {
+          if (
+            data.private_message_view.recipient.id ==
+            mui.local_user_view.person.id
+          ) {
+            this.state.unreadInboxCount++;
+            this.setState(this.state);
+            this.sendUnreadCount();
+            notifyPrivateMessage(
+              data.private_message_view,
+              this.context.router
+            );
+          }
+        },
+        none: void 0,
+      });
     }
   }
 
@@ -651,22 +673,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     console.log("Fetching inbox unreads...");
 
     let unreadForm: GetUnreadCount = {
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
 
     console.log("Fetching reports...");
 
     let reportCountForm: GetReportCount = {
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
 
-    if (UserService.Instance.myUserInfo?.local_user_view.person.admin) {
+    if (this.amAdmin) {
       console.log("Fetching applications...");
 
       let applicationCountForm: GetUnreadRegistrationApplicationCount = {
-        auth: authField(),
+        auth: auth(),
       };
       WebSocketService.Instance.send(
         wsClient.getUnreadRegistrationApplicationCount(applicationCountForm)
@@ -694,23 +716,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     );
   }
 
-  get canAdmin(): boolean {
-    return (
-      UserService.Instance.myUserInfo &&
-      this.props.site_res.admins
-        .map(a => a.person.id)
-        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
-    );
-  }
-
-  get canCreateCommunity(): boolean {
-    let adminOnly =
-      this.props.site_res.site_view?.site.community_creation_admin_only;
-    return !adminOnly || this.canAdmin;
-  }
-
   requestNotificationPermission() {
-    if (UserService.Instance.myUserInfo) {
+    if (UserService.Instance.myUserInfo.isSome()) {
       document.addEventListener("DOMContentLoaded", function () {
         if (!Notification) {
           toast(i18n.t("notifications_error"), "danger");

@@ -1,7 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { Post } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { relTags } from "../../utils";
+import { relTags, toOption } from "../../utils";
 import { Icon } from "../common/icon";
 
 interface MetadataCardProps {
@@ -29,56 +29,71 @@ export class MetadataCard extends Component<
     let post = this.props.post;
     return (
       <>
-        {post.embed_title && !this.state.expanded && (
-          <div class="card border-secondary mt-3 mb-2">
-            <div class="row">
-              <div class="col-12">
-                <div class="card-body">
-                  {post.name !== post.embed_title && [
-                    <h5 class="card-title d-inline">
-                      <a class="text-body" href={post.url} rel={relTags}>
-                        {post.embed_title}
-                      </a>
-                    </h5>,
-                    <span class="d-inline-block ml-2 mb-2 small text-muted">
-                      <a
-                        class="text-muted font-italic"
-                        href={post.url}
-                        rel={relTags}
-                      >
-                        {new URL(post.url).hostname}
-                        <Icon icon="external-link" classes="ml-1" />
-                      </a>
-                    </span>,
-                  ]}
-                  {post.embed_description && (
-                    <div
-                      className="card-text small text-muted md-div"
-                      dangerouslySetInnerHTML={{
-                        __html: post.embed_description,
-                      }}
-                    />
-                  )}
-                  {post.embed_html && (
-                    <button
-                      class="mt-2 btn btn-secondary text-monospace"
-                      onClick={linkEvent(this, this.handleIframeExpand)}
-                      data-tippy-content={i18n.t("expand_here")}
-                    >
-                      {this.state.expanded ? "-" : "+"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        {this.state.expanded && (
-          <div
-            class="mt-3 mb-2"
-            dangerouslySetInnerHTML={{ __html: post.embed_html }}
-          />
-        )}
+        {!this.state.expanded &&
+          toOption(post.embed_title).match({
+            some: embedTitle =>
+              toOption(post.url).match({
+                some: url => (
+                  <div class="card border-secondary mt-3 mb-2">
+                    <div class="row">
+                      <div class="col-12">
+                        <div class="card-body">
+                          {post.name !== embedTitle && [
+                            <h5 class="card-title d-inline">
+                              <a class="text-body" href={url} rel={relTags}>
+                                {embedTitle}
+                              </a>
+                            </h5>,
+                            <span class="d-inline-block ml-2 mb-2 small text-muted">
+                              <a
+                                class="text-muted font-italic"
+                                href={url}
+                                rel={relTags}
+                              >
+                                {new URL(url).hostname}
+                                <Icon icon="external-link" classes="ml-1" />
+                              </a>
+                            </span>,
+                          ]}
+                          {toOption(post.embed_description).match({
+                            some: desc => (
+                              <div
+                                className="card-text small text-muted md-div"
+                                dangerouslySetInnerHTML={{
+                                  __html: desc,
+                                }}
+                              />
+                            ),
+                            none: <></>,
+                          })}
+                          {toOption(post.embed_html).isSome() && (
+                            <button
+                              class="mt-2 btn btn-secondary text-monospace"
+                              onClick={linkEvent(this, this.handleIframeExpand)}
+                              data-tippy-content={i18n.t("expand_here")}
+                            >
+                              {this.state.expanded ? "-" : "+"}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ),
+                none: <></>,
+              }),
+            none: <></>,
+          })}
+        {this.state.expanded &&
+          toOption(post.embed_html).match({
+            some: html => (
+              <div
+                class="mt-3 mb-2"
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            ),
+            none: <></>,
+          })}
       </>
     );
   }

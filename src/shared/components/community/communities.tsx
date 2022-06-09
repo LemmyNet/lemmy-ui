@@ -1,12 +1,12 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
-  CommunityView,
   FollowCommunity,
+  GetSiteResponse,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
-  SiteView,
   SortType,
   UserOperation,
 } from "lemmy-js-client";
@@ -15,7 +15,7 @@ import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   getListingTypeFromPropsNoDefault,
   getPageFromProps,
   isBrowser,
@@ -24,6 +24,7 @@ import {
   setOptionalAuth,
   showLocal,
   toast,
+  toOption,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -38,10 +39,10 @@ import { CommunityLink } from "./community-link";
 const communityLimit = 100;
 
 interface CommunitiesState {
-  communities: CommunityView[];
+  listCommunitiesResponse: Option<ListCommunitiesResponse>;
   page: number;
   loading: boolean;
-  site_view: SiteView;
+  siteRes: GetSiteResponse;
   searchText: string;
   listingType: ListingType;
 }
@@ -55,11 +56,11 @@ export class Communities extends Component<any, CommunitiesState> {
   private subscription: Subscription;
   private isoData = setIsoData(this.context);
   private emptyState: CommunitiesState = {
-    communities: [],
+    listCommunitiesResponse: None,
     loading: true,
     page: getPageFromProps(this.props),
     listingType: getListingTypeFromPropsNoDefault(this.props),
-    site_view: this.isoData.site_res.site_view,
+    siteRes: this.isoData.site_res,
     searchText: "",
   };
 
@@ -74,7 +75,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.communities = this.isoData.routeData[0].communities;
+      this.state.listCommunitiesResponse = Some(this.isoData.routeData[0]);
       this.state.loading = false;
     } else {
       this.refetch();
@@ -105,7 +106,10 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("communities")} - ${this.state.site_view.site.name}`;
+    return toOption(this.state.siteRes.site_view).match({
+      some: siteView => `${i18n.t("communities")} - ${siteView.site.name}`,
+      none: "",
+    });
   }
 
   render() {
@@ -114,6 +118,8 @@ export class Communities extends Component<any, CommunitiesState> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          description={None}
+          image={None}
         />
         {this.state.loading ? (
           <h5>
@@ -157,48 +163,51 @@ export class Communities extends Component<any, CommunitiesState> {
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.communities.map(cv => (
-                    <tr>
-                      <td>
-                        <CommunityLink community={cv.community} />
-                      </td>
-                      <td class="text-right">
-                        {numToSI(cv.counts.subscribers)}
-                      </td>
-                      <td class="text-right">
-                        {numToSI(cv.counts.users_active_month)}
-                      </td>
-                      <td class="text-right d-none d-lg-table-cell">
-                        {numToSI(cv.counts.posts)}
-                      </td>
-                      <td class="text-right d-none d-lg-table-cell">
-                        {numToSI(cv.counts.comments)}
-                      </td>
-                      <td class="text-right">
-                        {cv.subscribed ? (
-                          <button
-                            class="btn btn-link d-inline-block"
-                            onClick={linkEvent(
-                              cv.community.id,
-                              this.handleUnsubscribe
-                            )}
-                          >
-                            {i18n.t("unsubscribe")}
-                          </button>
-                        ) : (
-                          <button
-                            class="btn btn-link d-inline-block"
-                            onClick={linkEvent(
-                              cv.community.id,
-                              this.handleSubscribe
-                            )}
-                          >
-                            {i18n.t("subscribe")}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {this.state.listCommunitiesResponse
+                    .map(l => l.communities)
+                    .unwrapOr([])
+                    .map(cv => (
+                      <tr>
+                        <td>
+                          <CommunityLink community={cv.community} />
+                        </td>
+                        <td class="text-right">
+                          {numToSI(cv.counts.subscribers)}
+                        </td>
+                        <td class="text-right">
+                          {numToSI(cv.counts.users_active_month)}
+                        </td>
+                        <td class="text-right d-none d-lg-table-cell">
+                          {numToSI(cv.counts.posts)}
+                        </td>
+                        <td class="text-right d-none d-lg-table-cell">
+                          {numToSI(cv.counts.comments)}
+                        </td>
+                        <td class="text-right">
+                          {cv.subscribed ? (
+                            <button
+                              class="btn btn-link d-inline-block"
+                              onClick={linkEvent(
+                                cv.community.id,
+                                this.handleUnsubscribe
+                              )}
+                            >
+                              {i18n.t("unsubscribe")}
+                            </button>
+                          ) : (
+                            <button
+                              class="btn btn-link d-inline-block"
+                              onClick={linkEvent(
+                                cv.community.id,
+                                this.handleSubscribe
+                              )}
+                            >
+                              {i18n.t("subscribe")}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -261,7 +270,7 @@ export class Communities extends Component<any, CommunitiesState> {
     let form: FollowCommunity = {
       community_id: communityId,
       follow: false,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
@@ -270,7 +279,7 @@ export class Communities extends Component<any, CommunitiesState> {
     let form: FollowCommunity = {
       community_id: communityId,
       follow: true,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
@@ -292,7 +301,7 @@ export class Communities extends Component<any, CommunitiesState> {
       sort: SortType.TopMonth,
       limit: communityLimit,
       page: this.state.page,
-      auth: authField(false),
+      auth: auth(false),
     };
 
     WebSocketService.Instance.send(
@@ -325,17 +334,22 @@ export class Communities extends Component<any, CommunitiesState> {
       return;
     } else if (op == UserOperation.ListCommunities) {
       let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
-      this.state.communities = data.communities;
+      this.state.listCommunitiesResponse = Some(data);
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setState(this.state);
     } else if (op == UserOperation.FollowCommunity) {
       let data = wsJsonToRes<CommunityResponse>(msg).data;
-      let found = this.state.communities.find(
-        c => c.community.id == data.community_view.community.id
-      );
-      found.subscribed = data.community_view.subscribed;
-      found.counts.subscribers = data.community_view.counts.subscribers;
+      this.state.listCommunitiesResponse.match({
+        some: res => {
+          let found = res.communities.find(
+            c => c.community.id == data.community_view.community.id
+          );
+          found.subscribed = data.community_view.subscribed;
+          found.counts.subscribers = data.community_view.counts.subscribers;
+        },
+        none: void 0,
+      });
       this.setState(this.state);
     }
   }

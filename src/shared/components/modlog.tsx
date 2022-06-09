@@ -1,3 +1,4 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import {
@@ -6,6 +7,7 @@ import {
   GetCommunityResponse,
   GetModlog,
   GetModlogResponse,
+  GetSiteResponse,
   ModAddCommunityView,
   ModAddView,
   ModBanFromCommunityView,
@@ -17,21 +19,24 @@ import {
   ModStickyPostView,
   ModTransferCommunityView,
   PersonSafe,
-  SiteView,
   UserOperation,
 } from "lemmy-js-client";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
-import { UserService, WebSocketService } from "../services";
+import { WebSocketService } from "../services";
 import {
-  authField,
+  amAdmin,
+  amMod,
+  auth,
   fetchLimit,
   isBrowser,
   setIsoData,
   setOptionalAuth,
   toast,
+  toOption,
+  toUndefined,
   wsClient,
   wsJsonToRes,
   wsSubscribe,
@@ -75,12 +80,11 @@ type ModlogType = {
 };
 
 interface ModlogState {
-  res: GetModlogResponse;
-  communityId?: number;
-  communityName?: string;
-  communityMods?: CommunityModeratorView[];
+  res: Option<GetModlogResponse>;
+  communityId: Option<number>;
+  communityMods: Option<CommunityModeratorView[]>;
   page: number;
-  site_view: SiteView;
+  siteRes: GetSiteResponse;
   loading: boolean;
 }
 
@@ -88,21 +92,12 @@ export class Modlog extends Component<any, ModlogState> {
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: ModlogState = {
-    res: {
-      removed_posts: [],
-      locked_posts: [],
-      stickied_posts: [],
-      removed_comments: [],
-      removed_communities: [],
-      banned_from_community: [],
-      banned: [],
-      added_to_community: [],
-      transferred_to_community: [],
-      added: [],
-    },
+    res: None,
+    communityId: None,
+    communityMods: None,
     page: 1,
     loading: true,
-    site_view: this.isoData.site_res.site_view,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -112,21 +107,20 @@ export class Modlog extends Component<any, ModlogState> {
     this.handlePageChange = this.handlePageChange.bind(this);
 
     this.state.communityId = this.props.match.params.community_id
-      ? Number(this.props.match.params.community_id)
-      : undefined;
+      ? Some(Number(this.props.match.params.community_id))
+      : None;
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      let data = this.isoData.routeData[0];
-      this.state.res = data;
+      this.state.res = Some(this.isoData.routeData[0]);
       this.state.loading = false;
 
       // Getting the moderators
       if (this.isoData.routeData[1]) {
-        this.state.communityMods = this.isoData.routeData[1].moderators;
+        this.state.communityMods = Some(this.isoData.routeData[1].moderators);
       }
     } else {
       this.refetch();
@@ -225,12 +219,6 @@ export class Modlog extends Component<any, ModlogState> {
     combined.push(...transferred_to_community);
     combined.push(...added);
     combined.push(...banned);
-
-    if (this.state.communityId && combined.length > 0) {
-      this.state.communityName = (
-        combined[0].view as ModRemovePostView
-      ).community.name;
-    }
 
     // Sort them by time
     combined.sort((a, b) => b.when_.localeCompare(a.when_));
@@ -387,17 +375,17 @@ export class Modlog extends Component<any, ModlogState> {
   }
 
   combined() {
-    let combined = this.buildCombined(this.state.res);
+    let combined = this.state.res.map(this.buildCombined).unwrapOr([]);
 
     return (
       <tbody>
         {combined.map(i => (
           <tr>
             <td>
-              <MomentTime data={i} />
+              <MomentTime published={i.when_} updated={None} />
             </td>
             <td>
-              {this.isAdminOrMod ? (
+              {this.amAdminOrMod ? (
                 <PersonListing person={i.view.moderator} />
               ) : (
                 <div>{this.modOrAdminText(i.view.moderator)}</div>
@@ -410,19 +398,11 @@ export class Modlog extends Component<any, ModlogState> {
     );
   }
 
-  get isAdminOrMod(): boolean {
-    let isAdmin =
-      UserService.Instance.myUserInfo &&
-      this.isoData.site_res.admins
-        .map(a => a.person.id)
-        .includes(UserService.Instance.myUserInfo.local_user_view.person.id);
-    let isMod =
-      UserService.Instance.myUserInfo &&
-      this.state.communityMods &&
-      this.state.communityMods
-        .map(m => m.moderator.id)
-        .includes(UserService.Instance.myUserInfo.local_user_view.person.id);
-    return isAdmin || isMod;
+  get amAdminOrMod(): boolean {
+    return (
+      amAdmin(Some(this.state.siteRes.admins)) ||
+      amMod(this.state.communityMods)
+    );
   }
 
   modOrAdminText(person: PersonSafe): Text {
@@ -436,7 +416,10 @@ export class Modlog extends Component<any, ModlogState> {
   }
 
   get documentTitle(): string {
-    return `Modlog - ${this.state.site_view.site.name}`;
+    return toOption(this.state.siteRes.site_view).match({
+      some: siteView => `Modlog - ${siteView.site.name}`,
+      none: "",
+    });
   }
 
   render() {
@@ -445,6 +428,8 @@ export class Modlog extends Component<any, ModlogState> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          description={None}
+          image={None}
         />
         {this.state.loading ? (
           <h5>
@@ -452,17 +437,6 @@ export class Modlog extends Component<any, ModlogState> {
           </h5>
         ) : (
           <div>
-            <h5>
-              {this.state.communityName && (
-                <Link
-                  className="text-body"
-                  to={`/c/${this.state.communityName}`}
-                >
-                  /c/{this.state.communityName}{" "}
-                </Link>
-              )}
-              <span>{i18n.t("modlog")}</span>
-            </h5>
             <div class="table-responsive">
               <table id="modlog_table" class="table table-sm table-hover">
                 <thead class="pointer">
@@ -492,20 +466,22 @@ export class Modlog extends Component<any, ModlogState> {
 
   refetch() {
     let modlogForm: GetModlog = {
-      community_id: this.state.communityId,
+      community_id: toUndefined(this.state.communityId),
       page: this.state.page,
       limit: fetchLimit,
-      auth: authField(false),
+      auth: auth(false),
     };
     WebSocketService.Instance.send(wsClient.getModlog(modlogForm));
 
-    if (this.state.communityId) {
-      let communityForm: GetCommunity = {
-        id: this.state.communityId,
-        name: this.state.communityName,
-      };
-      WebSocketService.Instance.send(wsClient.getCommunity(communityForm));
-    }
+    this.state.communityId.match({
+      some: id => {
+        let communityForm: GetCommunity = {
+          id,
+        };
+        WebSocketService.Instance.send(wsClient.getCommunity(communityForm));
+      },
+      none: void 0,
+    });
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -545,11 +521,11 @@ export class Modlog extends Component<any, ModlogState> {
       let data = wsJsonToRes<GetModlogResponse>(msg).data;
       this.state.loading = false;
       window.scrollTo(0, 0);
-      this.state.res = data;
+      this.state.res = Some(data);
       this.setState(this.state);
     } else if (op == UserOperation.GetCommunity) {
       let data = wsJsonToRes<GetCommunityResponse>(msg).data;
-      this.state.communityMods = data.moderators;
+      this.state.communityMods = Some(data.moderators);
     }
   }
 }

@@ -1,14 +1,15 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   CommentReportResponse,
   CommentReportView,
+  GetSiteResponse,
   ListCommentReports,
   ListCommentReportsResponse,
   ListPostReports,
   ListPostReportsResponse,
   PostReportResponse,
   PostReportView,
-  SiteView,
   UserOperation,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
@@ -16,12 +17,13 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   fetchLimit,
   isBrowser,
   setIsoData,
   setupTippy,
   toast,
+  toOption,
   updateCommentReportRes,
   updatePostReportRes,
   wsClient,
@@ -59,13 +61,13 @@ type ItemType = {
 };
 
 interface ReportsState {
+  listCommentReportsResponse: Option<ListCommentReportsResponse>;
+  listPostReportsResponse: Option<ListPostReportsResponse>;
   unreadOrAll: UnreadOrAll;
   messageType: MessageType;
-  commentReports: CommentReportView[];
-  postReports: PostReportView[];
   combined: ItemType[];
+  siteRes: GetSiteResponse;
   page: number;
-  site_view: SiteView;
   loading: boolean;
 }
 
@@ -73,13 +75,13 @@ export class Reports extends Component<any, ReportsState> {
   private isoData = setIsoData(this.context);
   private subscription: Subscription;
   private emptyState: ReportsState = {
+    listCommentReportsResponse: None,
+    listPostReportsResponse: None,
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
-    commentReports: [],
-    postReports: [],
     combined: [],
     page: 1,
-    site_view: this.isoData.site_res.site_view,
+    siteRes: this.isoData.site_res,
     loading: true,
   };
 
@@ -89,7 +91,7 @@ export class Reports extends Component<any, ReportsState> {
     this.state = this.emptyState;
     this.handlePageChange = this.handlePageChange.bind(this);
 
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
+    if (UserService.Instance.myUserInfo.isNone() && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
@@ -99,9 +101,8 @@ export class Reports extends Component<any, ReportsState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.commentReports =
-        this.isoData.routeData[0].comment_reports || [];
-      this.state.postReports = this.isoData.routeData[1].post_reports || [];
+      this.state.listCommentReportsResponse = Some(this.isoData.routeData[0]);
+      this.state.listPostReportsResponse = Some(this.isoData.routeData[1]);
       this.state.combined = this.buildCombined();
       this.state.loading = false;
     } else {
@@ -116,9 +117,17 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   get documentTitle(): string {
-    return `@${
-      UserService.Instance.myUserInfo.local_user_view.person.name
-    } ${i18n.t("reports")} - ${this.state.site_view.site.name}`;
+    return toOption(this.state.siteRes.site_view).match({
+      some: siteView =>
+        UserService.Instance.myUserInfo.match({
+          some: mui =>
+            `@${mui.local_user_view.person.name} ${i18n.t("reports")} - ${
+              siteView.site.name
+            }`,
+          none: "",
+        }),
+      none: "",
+    });
   }
 
   render() {
@@ -134,6 +143,8 @@ export class Reports extends Component<any, ReportsState> {
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
+                description={None}
+                image={None}
               />
               <h5 class="mb-2">{i18n.t("reports")}</h5>
               {this.selects()}
@@ -260,12 +271,14 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   buildCombined(): ItemType[] {
-    let comments: ItemType[] = this.state.commentReports.map(r =>
-      this.replyToReplyType(r)
-    );
-    let posts: ItemType[] = this.state.postReports.map(r =>
-      this.mentionToReplyType(r)
-    );
+    let comments: ItemType[] = this.state.listCommentReportsResponse
+      .map(r => r.comment_reports)
+      .unwrapOr([])
+      .map(r => this.replyToReplyType(r));
+    let posts: ItemType[] = this.state.listPostReportsResponse
+      .map(r => r.post_reports)
+      .unwrapOr([])
+      .map(r => this.mentionToReplyType(r));
 
     return [...comments, ...posts].sort((a, b) =>
       b.published.localeCompare(a.published)
@@ -299,29 +312,35 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   commentReports() {
-    return (
-      <div>
-        {this.state.commentReports.map(cr => (
-          <>
-            <hr />
-            <CommentReport key={cr.comment_report.id} report={cr} />
-          </>
-        ))}
-      </div>
-    );
+    return this.state.listCommentReportsResponse.match({
+      some: res => (
+        <div>
+          {res.comment_reports.map(cr => (
+            <>
+              <hr />
+              <CommentReport key={cr.comment_report.id} report={cr} />
+            </>
+          ))}
+        </div>
+      ),
+      none: <></>,
+    });
   }
 
   postReports() {
-    return (
-      <div>
-        {this.state.postReports.map(pr => (
-          <>
-            <hr />
-            <PostReport key={pr.post_report.id} report={pr} />
-          </>
-        ))}
-      </div>
-    );
+    return this.state.listPostReportsResponse.match({
+      some: res => (
+        <div>
+          {res.post_reports.map(pr => (
+            <>
+              <hr />
+              <PostReport key={pr.post_report.id} report={pr} />
+            </>
+          ))}
+        </div>
+      ),
+      none: <></>,
+    });
   }
 
   handlePageChange(page: number) {
@@ -351,7 +370,7 @@ export class Reports extends Component<any, ReportsState> {
       unresolved_only: true,
       page: 1,
       limit: fetchLimit,
-      auth: req.auth,
+      auth: req.auth.unwrap(),
     };
     promises.push(req.client.listCommentReports(commentReportsForm));
 
@@ -360,7 +379,7 @@ export class Reports extends Component<any, ReportsState> {
       unresolved_only: true,
       page: 1,
       limit: fetchLimit,
-      auth: req.auth,
+      auth: req.auth.unwrap(),
     };
     promises.push(req.client.listPostReports(postReportsForm));
 
@@ -374,7 +393,7 @@ export class Reports extends Component<any, ReportsState> {
       unresolved_only,
       page: this.state.page,
       limit: fetchLimit,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(
       wsClient.listCommentReports(commentReportsForm)
@@ -385,7 +404,7 @@ export class Reports extends Component<any, ReportsState> {
       unresolved_only,
       page: this.state.page,
       limit: fetchLimit,
-      auth: authField(),
+      auth: auth(),
     };
     WebSocketService.Instance.send(wsClient.listPostReports(postReportsForm));
   }
@@ -400,7 +419,7 @@ export class Reports extends Component<any, ReportsState> {
       this.refetch();
     } else if (op == UserOperation.ListCommentReports) {
       let data = wsJsonToRes<ListCommentReportsResponse>(msg).data;
-      this.state.commentReports = data.comment_reports;
+      this.state.listCommentReportsResponse = Some(data);
       this.state.combined = this.buildCombined();
       this.state.loading = false;
       // this.sendUnreadCount();
@@ -409,7 +428,7 @@ export class Reports extends Component<any, ReportsState> {
       setupTippy();
     } else if (op == UserOperation.ListPostReports) {
       let data = wsJsonToRes<ListPostReportsResponse>(msg).data;
-      this.state.postReports = data.post_reports;
+      this.state.listPostReportsResponse = Some(data);
       this.state.combined = this.buildCombined();
       this.state.loading = false;
       // this.sendUnreadCount();
@@ -418,7 +437,10 @@ export class Reports extends Component<any, ReportsState> {
       setupTippy();
     } else if (op == UserOperation.ResolvePostReport) {
       let data = wsJsonToRes<PostReportResponse>(msg).data;
-      updatePostReportRes(data.post_report_view, this.state.postReports);
+      updatePostReportRes(
+        data.post_report_view,
+        this.state.listPostReportsResponse.map(r => r.post_reports).unwrapOr([])
+      );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.post_report_view.post_report.resolved) {
         urcs.next(urcs.getValue() - 1);
@@ -430,7 +452,9 @@ export class Reports extends Component<any, ReportsState> {
       let data = wsJsonToRes<CommentReportResponse>(msg).data;
       updateCommentReportRes(
         data.comment_report_view,
-        this.state.commentReports
+        this.state.listCommentReportsResponse
+          .map(r => r.comment_reports)
+          .unwrapOr([])
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.comment_report_view.comment_report.resolved) {

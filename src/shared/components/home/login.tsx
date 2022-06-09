@@ -1,20 +1,21 @@
+import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   GetSiteResponse,
   Login as LoginForm,
   LoginResponse,
   PasswordReset,
-  SiteView,
   UserOperation,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   isBrowser,
   setIsoData,
   toast,
+  toOption,
   validEmail,
   wsClient,
   wsJsonToRes,
@@ -27,7 +28,7 @@ import { Spinner } from "../common/icon";
 interface State {
   loginForm: LoginForm;
   loginLoading: boolean;
-  site_view: SiteView;
+  siteRes: GetSiteResponse;
 }
 
 export class Login extends Component<any, State> {
@@ -40,7 +41,7 @@ export class Login extends Component<any, State> {
       password: undefined,
     },
     loginLoading: false,
-    site_view: this.isoData.site_res.site_view,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -58,7 +59,7 @@ export class Login extends Component<any, State> {
 
   componentDidMount() {
     // Navigate to home if already logged in
-    if (UserService.Instance.myUserInfo) {
+    if (UserService.Instance.myUserInfo.isSome()) {
       this.context.router.history.push("/");
     }
   }
@@ -70,7 +71,10 @@ export class Login extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("login")} - ${this.state.site_view.site.name}`;
+    return toOption(this.state.siteRes.site_view).match({
+      some: siteView => `${i18n.t("login")} - ${siteView.site.name}`,
+      none: "",
+    });
   }
 
   get isLemmyMl(): boolean {
@@ -83,6 +87,8 @@ export class Login extends Component<any, State> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          description={None}
+          image={None}
         />
         <div class="row">
           <div class="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
@@ -195,7 +201,7 @@ export class Login extends Component<any, State> {
         UserService.Instance.login(data);
         WebSocketService.Instance.send(
           wsClient.userJoin({
-            auth: authField(),
+            auth: auth(),
           })
         );
         toast(i18n.t("logged_in"));
@@ -204,7 +210,7 @@ export class Login extends Component<any, State> {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
         let data = wsJsonToRes<GetSiteResponse>(msg).data;
-        this.state.site_view = data.site_view;
+        this.state.siteRes = data;
         this.setState(this.state);
       }
     }
