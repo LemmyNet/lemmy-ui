@@ -13,7 +13,7 @@
     --gray: #6c757d;
     --gray-dark: #343a40;
     --primary: #f1641e;
-    --secondary: #00c853;
+    --secondary: #6c757d;
     --success: #6610f2;
     --info: #007bff;
     --warning: #ffc107;
@@ -78,6 +78,11 @@ h6 {
     margin-top: 0;
     margin-bottom: 0.5rem;
 }
+
+.post-title h3{
+    display: inline-block;
+}
+
 p {
     margin-top: 0;
     margin-bottom: 1rem;
@@ -116,6 +121,7 @@ dd {
 }
 blockquote {
     margin: 0 0 1rem;
+    boder-left: 2px solid var(--secondary);
 }
 b,
 strong {
@@ -371,7 +377,7 @@ hr {
     margin-top: 1rem;
     margin-bottom: 1rem;
     border: 0;
-    border-top: 1px solid black;
+    border-top: 2px solid black;
 }
 .small,
 small {
@@ -383,6 +389,20 @@ mark {
     padding: 0.2em;
     background-color: #fffcef;
 }
+
+.preview-lines {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  background-color: rgba(220,220,220,0.5);
+}
+
+.source-host {
+    font-size: 1.25rem;
+}
+
 .list-unstyled {
     padding-left: 0;
     list-style: none;
@@ -3734,7 +3754,6 @@ input[type="submit"].btn-block {
     padding-top: 0.3125rem;
     padding-bottom: 0.3125rem;
     margin-right: 1rem;
-    font-size: 1.25rem;
     line-height: inherit;
     white-space: nowrap;
 }
@@ -8736,7 +8755,7 @@ a.text-dark:hover {
     }
     blockquote,
     pre {
-        border: 1px solid #adb5bd;
+        border: 1px solid var(--gray);
         page-break-inside: avoid;
     }
     thead {

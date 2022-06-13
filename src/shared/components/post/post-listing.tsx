@@ -295,6 +295,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
+  sourceHost() {
+    let post_view = this.props.post_view;
+    return (
+      <span class="text-muted source-host ml-1">
+        {post_view.post.url && !(hostname(post_view.post.url) == externalHost) && (
+          <>
+            (
+            <a
+              className="text-muted font-italic"
+              href={post_view.post.url}
+              title={post_view.post.url}
+              rel={relTags}
+            >
+              {hostname(post_view.post.url)}
+            </a>
+            )
+          </>
+        )}
+      </span>
+    );
+  }
+
   createdLine() {
     let post_view = this.props.post_view;
     return (
@@ -329,25 +351,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </span>
           )}
         </li>
-        <li className="list-inline-item">•</li>
-        {post_view.post.url && !(hostname(post_view.post.url) == externalHost) && (
-          <>
-            <li className="list-inline-item">
-              <a
-                className="text-muted font-italic"
-                href={post_view.post.url}
-                title={post_view.post.url}
-                rel={relTags}
-              >
-                {hostname(post_view.post.url)}
-              </a>
-            </li>
-            <li className="list-inline-item">•</li>
-          </>
-        )}
         <li className="list-inline-item">
           <span>
-            <MomentTime data={post_view.post} />
+            <MomentTime data={post_view.post} /> ago
           </span>
         </li>
         {post_view.post.body && (
@@ -412,7 +418,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     return (
       <div className="post-title overflow-hidden">
-        <h3>
+        <h3 class="post-title">
           {this.showBody && post.url ? (
             <a
               className={!post.stickied ? "text-body" : "text-primary"}
@@ -480,6 +486,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </small>
           )}
         </h3>
+        {this.sourceHost()}
       </div>
     );
   }
@@ -539,27 +546,27 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post_view = this.props.post_view;
     return (
       <>
-        {this.saveButton}
-        {this.crossPostButton}
-        {mobile && this.showMoreButton}
-        {(!mobile || this.state.showAdvanced) && (
-          <>
-            {!this.myPost && (
-              <>
-                {this.reportButton}
-                {this.blockButton}
-              </>
-            )}
-            {this.myPost && (this.showBody || this.state.showAdvanced) && (
-              <>
-                {this.editButton}
-                {this.deleteButton}
-              </>
-            )}
-          </>
-        )}
         {this.state.showAdvanced && (
           <>
+            {this.saveButton}
+            {this.crossPostButton}
+            {mobile && this.showMoreButton}
+            {this.state.showAdvanced && (
+              <>
+                {!this.myPost && (
+                  <>
+                    {this.reportButton}
+                    {this.blockButton}
+                  </>
+                )}
+                {this.myPost && (this.showBody || this.state.showAdvanced) && (
+                  <>
+                    {this.editButton}
+                    {this.deleteButton}
+                  </>
+                )}
+              </>
+            )}
             {this.showBody && post_view.post.body && this.viewSourceButton}
             {this.canModOnSelf && (
               <>
@@ -572,7 +579,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             )}
           </>
         )}
-        {!mobile && this.showMoreButton}
+        {this.showMoreButton}
       </>
     );
   }
@@ -1106,17 +1113,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div class="d-block d-sm-none">
           <div class="row">
             <div class="col-12">
-              {this.createdLine()}
-
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
 
-              {/* Show a preview of the post body */}
-              {this.showMobilePreview()}
-
+              {this.createdLine()}
               {this.commentsLine(true)}
               {this.userActionsLine()}
-              {this.duplicatesLine()}
               {this.removeAndBanDialogs()}
             </div>
           </div>
@@ -1129,7 +1131,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {/*            <div class="col-sm-2 pr-0">
               <div class="">{this.thumbnail()}</div>
             </div>*/}
-            <div class="col-12 col-sm-9">
+            <div class="col-12">
               <div class="row">
                 <div className="col-12">
                   {this.postTitleLine()}
