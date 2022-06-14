@@ -50,7 +50,7 @@ export class PostListings extends Component<
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
               />
-              <hr class="my-3" />
+              <hr class="mb-3 mt-0" />
             </>
           ))
         ) : (

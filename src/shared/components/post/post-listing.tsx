@@ -422,7 +422,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postTitleLine() {
     let post = this.props.post_view.post;
     return (
-      <div className="post-title overflow-hidden mb-1">
+      <div className="post-title mb-1">
         <h3 class="post-title">
           {this.showBody && post.url ? (
             <a
