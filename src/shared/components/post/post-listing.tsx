@@ -323,7 +323,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <ul class="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
           <span>
-            <span class="mx-1">Posted by</span>
+            <span class="mr-1">Posted by</span>
           </span>
           <PersonListing person={post_view.creator} />
           {this.creatorIsMod && (
@@ -356,9 +356,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <MomentTime data={post_view.post} /> ago
           </span>
         </li>
+        <li className="list-inline-item">•</li>
+        <li className="list-inline-item">{this.commentsButton}</li>
+        <li className="list-inline-item">{this.mobileVotes}</li>
         {post_view.post.body && (
           <>
-            <li className="list-inline-item">•</li>
             <li className="list-inline-item">
               <button
                 className="text-muted btn btn-sm btn-link p-0"
@@ -371,6 +373,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </li>
           </>
         )}
+        {UserService.Instance.myUserInfo &&
+          !this.props.viewOnly &&
+          this.postActions()}
       </ul>
     );
   }
@@ -417,7 +422,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postTitleLine() {
     let post = this.props.post_view.post;
     return (
-      <div className="post-title overflow-hidden">
+      <div className="post-title overflow-hidden mb-1">
         <h3 class="post-title">
           {this.showBody && post.url ? (
             <a
@@ -1115,9 +1120,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <div class="col-12">
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
-
               {this.createdLine()}
-              {this.commentsLine(true)}
               {this.userActionsLine()}
               {this.removeAndBanDialogs()}
             </div>
@@ -1136,7 +1139,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <div className="col-12">
                   {this.postTitleLine()}
                   {this.createdLine()}
-                  {this.commentsLine()}
                   {this.duplicatesLine()}
                   {this.userActionsLine()}
                   {this.removeAndBanDialogs()}
