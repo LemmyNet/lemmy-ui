@@ -11,6 +11,8 @@ import {
   PostReportResponse,
   PostReportView,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -23,13 +25,10 @@ import {
   setIsoData,
   setupTippy,
   toast,
-  toOption,
   updateCommentReportRes,
   updatePostReportRes,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
@@ -72,7 +71,11 @@ interface ReportsState {
 }
 
 export class Reports extends Component<any, ReportsState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(
+    this.context,
+    ListCommentReportsResponse,
+    ListPostReportsResponse
+  );
   private subscription: Subscription;
   private emptyState: ReportsState = {
     listCommentReportsResponse: None,
@@ -101,8 +104,12 @@ export class Reports extends Component<any, ReportsState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.listCommentReportsResponse = Some(this.isoData.routeData[0]);
-      this.state.listPostReportsResponse = Some(this.isoData.routeData[1]);
+      this.state.listCommentReportsResponse = Some(
+        this.isoData.routeData[0] as ListCommentReportsResponse
+      );
+      this.state.listPostReportsResponse = Some(
+        this.isoData.routeData[1] as ListPostReportsResponse
+      );
       this.state.combined = this.buildCombined();
       this.state.loading = false;
     } else {
@@ -117,7 +124,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView =>
         UserService.Instance.myUserInfo.match({
           some: mui =>
@@ -365,47 +372,61 @@ export class Reports extends Component<any, ReportsState> {
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
-    let commentReportsForm: ListCommentReports = {
+    let unresolved_only = Some(true);
+    let page = Some(1);
+    let limit = Some(fetchLimit);
+    let community_id = None;
+    let auth = req.auth.unwrap();
+
+    let commentReportsForm = new ListCommentReports({
       // TODO community_id
-      unresolved_only: true,
-      page: 1,
-      limit: fetchLimit,
-      auth: req.auth.unwrap(),
-    };
+      unresolved_only,
+      community_id,
+      page,
+      limit,
+      auth,
+    });
     promises.push(req.client.listCommentReports(commentReportsForm));
 
-    let postReportsForm: ListPostReports = {
+    let postReportsForm = new ListPostReports({
       // TODO community_id
-      unresolved_only: true,
-      page: 1,
-      limit: fetchLimit,
-      auth: req.auth.unwrap(),
-    };
+      unresolved_only,
+      community_id,
+      page,
+      limit,
+      auth,
+    });
     promises.push(req.client.listPostReports(postReportsForm));
 
     return promises;
   }
 
   refetch() {
-    let unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let commentReportsForm: ListCommentReports = {
-      // TODO community_id
+    let unresolved_only = Some(this.state.unreadOrAll == UnreadOrAll.Unread);
+    let community_id = None;
+    let page = Some(this.state.page);
+    let limit = Some(fetchLimit);
+
+    let commentReportsForm = new ListCommentReports({
       unresolved_only,
-      page: this.state.page,
-      limit: fetchLimit,
-      auth: auth(),
-    };
+      // TODO community_id
+      community_id,
+      page,
+      limit,
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(
       wsClient.listCommentReports(commentReportsForm)
     );
 
-    let postReportsForm: ListPostReports = {
-      // TODO community_id
+    let postReportsForm = new ListPostReports({
       unresolved_only,
-      page: this.state.page,
-      limit: fetchLimit,
-      auth: auth(),
-    };
+      // TODO community_id
+      community_id,
+      page,
+      limit,
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.listPostReports(postReportsForm));
   }
 
@@ -418,7 +439,10 @@ export class Reports extends Component<any, ReportsState> {
     } else if (msg.reconnect) {
       this.refetch();
     } else if (op == UserOperation.ListCommentReports) {
-      let data = wsJsonToRes<ListCommentReportsResponse>(msg).data;
+      let data = wsJsonToRes<ListCommentReportsResponse>(
+        msg,
+        ListCommentReportsResponse
+      );
       this.state.listCommentReportsResponse = Some(data);
       this.state.combined = this.buildCombined();
       this.state.loading = false;
@@ -427,7 +451,10 @@ export class Reports extends Component<any, ReportsState> {
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.ListPostReports) {
-      let data = wsJsonToRes<ListPostReportsResponse>(msg).data;
+      let data = wsJsonToRes<ListPostReportsResponse>(
+        msg,
+        ListPostReportsResponse
+      );
       this.state.listPostReportsResponse = Some(data);
       this.state.combined = this.buildCombined();
       this.state.loading = false;
@@ -436,7 +463,7 @@ export class Reports extends Component<any, ReportsState> {
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.ResolvePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg).data;
+      let data = wsJsonToRes<PostReportResponse>(msg, PostReportResponse);
       updatePostReportRes(
         data.post_report_view,
         this.state.listPostReportsResponse.map(r => r.post_reports).unwrapOr([])
@@ -449,7 +476,7 @@ export class Reports extends Component<any, ReportsState> {
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolveCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg).data;
+      let data = wsJsonToRes<CommentReportResponse>(msg, CommentReportResponse);
       updateCommentReportRes(
         data.comment_report_view,
         this.state.listCommentReportsResponse

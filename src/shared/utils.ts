@@ -1,4 +1,5 @@
-import { None, Option, Some } from "@sniptt/monads";
+import { None, Option, Result, Some } from "@sniptt/monads";
+import { ClassConstructor, deserialize, serialize } from "class-transformer";
 import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
@@ -24,9 +25,6 @@ import {
   Search,
   SearchType,
   SortType,
-  UserOperation,
-  WebSocketJsonResponse,
-  WebSocketResponse,
 } from "lemmy-js-client";
 import markdown_it from "markdown-it";
 import markdown_it_container from "markdown-it-container";
@@ -74,6 +72,7 @@ export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit = 20;
+export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 
 export const relTags = "noopener nofollow";
@@ -98,20 +97,6 @@ export function randomStr(
       return getRandomCharFromAlphabet(alphabet);
     })
     .join("");
-}
-
-export function wsJsonToRes<ResponseType>(
-  msg: WebSocketJsonResponse<ResponseType>
-): WebSocketResponse<ResponseType> {
-  return {
-    op: wsUserOp(msg),
-    data: msg.data,
-  };
-}
-
-export function wsUserOp(msg: any): UserOperation {
-  let opStr: string = msg.op;
-  return UserOperation[opStr];
 }
 
 export const md = new markdown_it({
@@ -582,7 +567,7 @@ export function pictrsDeleteToast(
 
 interface NotifyInfo {
   name: string;
-  icon?: string;
+  icon: Option<string>;
   link: string;
   body: string;
 }
@@ -594,7 +579,7 @@ export function messageToastify(info: NotifyInfo, router: any) {
 
     let toast = Toastify({
       text: `${htmlBody}<br />${info.name}`,
-      avatar: info.icon ? info.icon : null,
+      avatar: info.icon,
       backgroundColor: backgroundColor,
       className: "text-dark",
       close: true,
@@ -1037,7 +1022,8 @@ function commentSort(tree: CommentNodeI[], sort: CommentSortType) {
       (a, b) =>
         +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
         +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
-        hotRankComment(b.comment_view) - hotRankComment(a.comment_view)
+        hotRankComment(b.comment_view as CommentView) -
+          hotRankComment(a.comment_view as CommentView)
     );
   }
 
@@ -1080,6 +1066,7 @@ export function buildCommentsTree(
     let node: CommentNodeI = {
       comment_view: comment_view,
       children: [],
+      depth: 0,
     };
     map.set(comment_view.comment.id, { ...node });
   }
@@ -1087,15 +1074,18 @@ export function buildCommentsTree(
   for (let comment_view of comments) {
     let child = map.get(comment_view.comment.id);
     let parent_id = comment_view.comment.parent_id;
-    if (parent_id) {
-      let parent = map.get(parent_id);
-      // Necessary because blocked comment might not exist
-      if (parent) {
-        parent.children.push(child);
-      }
-    } else {
-      tree.push(child);
-    }
+    parent_id.match({
+      some: parentId => {
+        let parent = map.get(parentId);
+        // Necessary because blocked comment might not exist
+        if (parent) {
+          parent.children.push(child);
+        }
+      },
+      none: () => {
+        tree.push(child);
+      },
+    });
 
     setDepth(child);
   }
@@ -1120,35 +1110,41 @@ export function insertCommentIntoTree(tree: CommentNodeI[], cv: CommentView) {
     depth: 0,
   };
 
-  if (cv.comment.parent_id) {
-    let parentComment = searchCommentTree(tree, cv.comment.parent_id);
-    if (parentComment) {
-      node.depth = parentComment.depth + 1;
-      parentComment.children.unshift(node);
-    }
-  } else {
-    tree.unshift(node);
-  }
+  cv.comment.parent_id.match({
+    some: parentId => {
+      let parentComment = searchCommentTree(tree, parentId);
+      parentComment.match({
+        some: pComment => {
+          node.depth = pComment.depth + 1;
+          pComment.children.unshift(node);
+        },
+        none: void 0,
+      });
+    },
+    none: () => {
+      tree.unshift(node);
+    },
+  });
 }
 
 export function searchCommentTree(
   tree: CommentNodeI[],
   id: number
-): CommentNodeI {
+): Option<CommentNodeI> {
   for (let node of tree) {
     if (node.comment_view.comment.id === id) {
-      return node;
+      return Some(node);
     }
 
     for (const child of node.children) {
-      const res = searchCommentTree([child], id);
+      let res = searchCommentTree([child], id);
 
-      if (res) {
+      if (res.isSome()) {
         return res;
       }
     }
   }
-  return null;
+  return None;
 }
 
 export const colorList: string[] = [
@@ -1195,11 +1191,51 @@ export function isBrowser() {
   return typeof window !== "undefined";
 }
 
-export function setIsoData(context: any): IsoData {
-  let isoData: IsoData = isBrowser()
-    ? window.isoData
-    : context.router.staticContext;
-  return isoData;
+export function setIsoData<Type1, Type2, Type3, Type4, Type5>(
+  context: any,
+  cls1?: ClassConstructor<Type1>,
+  cls2?: ClassConstructor<Type2>,
+  cls3?: ClassConstructor<Type3>,
+  cls4?: ClassConstructor<Type4>,
+  cls5?: ClassConstructor<Type5>
+): IsoData {
+  // If its the browser, you need to deserialize the data from the window
+  if (isBrowser()) {
+    let json = window.isoData;
+    let routeData = json.routeData;
+    let routeDataOut: any[] = [];
+
+    // Can't do array looping because of specific type constructor required
+    if (routeData[0]) {
+      routeDataOut[0] = convertWindowJson(cls1, routeData[0]);
+    }
+    if (routeData[1]) {
+      routeDataOut[1] = convertWindowJson(cls2, routeData[1]);
+    }
+    if (routeData[2]) {
+      routeDataOut[2] = convertWindowJson(cls3, routeData[2]);
+    }
+    if (routeData[3]) {
+      routeDataOut[3] = convertWindowJson(cls4, routeData[3]);
+    }
+    if (routeData[4]) {
+      routeDataOut[4] = convertWindowJson(cls5, routeData[4]);
+    }
+
+    let isoData: IsoData = {
+      path: json.path,
+      site_res: convertWindowJson(GetSiteResponse, json.site_res),
+      routeData: routeDataOut,
+    };
+    return isoData;
+  } else return context.router.staticContext;
+}
+
+/**
+ * Necessary since window ISOData can't store function types like Option
+ */
+export function convertWindowJson<T>(cls: ClassConstructor<T>, data: any): T {
+  return deserialize(cls, serialize(data));
 }
 
 export function wsSubscribe(parseMessage: any): Subscription {
@@ -1250,7 +1286,7 @@ export function restoreScrollPosition(context: any) {
 }
 
 export function showLocal(isoData: IsoData): boolean {
-  return toOption(isoData.site_res.federated_instances)
+  return isoData.site_res.federated_instances
     .map(f => f.linked.length > 0)
     .unwrapOr(false);
 }
@@ -1279,12 +1315,15 @@ export function personToChoice(pvs: PersonViewSafe): ChoicesValue {
 export async function fetchCommunities(q: string) {
   let form: Search = {
     q,
-    type_: SearchType.Communities,
-    sort: SortType.TopAll,
-    listing_type: ListingType.All,
-    page: 1,
-    limit: fetchLimit,
-    auth: auth(false),
+    type_: Some(SearchType.Communities),
+    sort: Some(SortType.TopAll),
+    listing_type: Some(ListingType.All),
+    page: Some(1),
+    limit: Some(fetchLimit),
+    community_id: None,
+    community_name: None,
+    creator_id: None,
+    auth: auth(false).ok(),
   };
   let client = new LemmyHttp(httpBase);
   return client.search(form);
@@ -1293,12 +1332,15 @@ export async function fetchCommunities(q: string) {
 export async function fetchUsers(q: string) {
   let form: Search = {
     q,
-    type_: SearchType.Users,
-    sort: SortType.TopAll,
-    listing_type: ListingType.All,
-    page: 1,
-    limit: fetchLimit,
-    auth: auth(false),
+    type_: Some(SearchType.Users),
+    sort: Some(SortType.TopAll),
+    listing_type: Some(ListingType.All),
+    page: Some(1),
+    limit: Some(fetchLimit),
+    community_id: None,
+    community_name: None,
+    creator_id: None,
+    auth: auth(false).ok(),
   };
   let client = new LemmyHttp(httpBase);
   return client.search(form);
@@ -1344,12 +1386,12 @@ export function communitySelectName(cv: CommunityView): string {
 }
 
 export function personSelectName(pvs: PersonViewSafe): string {
-  let pName = toOption(pvs.person.display_name).unwrapOr(pvs.person.name);
+  let pName = pvs.person.display_name.unwrapOr(pvs.person.name);
   return pvs.person.local ? pName : `${hostname(pvs.person.actor_id)}/${pName}`;
 }
 
 export function initializeSite(site: GetSiteResponse) {
-  UserService.Instance.myUserInfo = toOption(site.my_user);
+  UserService.Instance.myUserInfo = site.my_user;
   i18n.changeLanguage(getLanguages()[0]);
 }
 
@@ -1365,7 +1407,7 @@ export function numToSI(value: number): string {
 }
 
 export function isBanned(ps: PersonSafe): boolean {
-  let expires = toOption(ps.ban_expires);
+  let expires = ps.ban_expires;
   // Add Z to convert from UTC date
   // TODO this check probably isn't necessary anymore
   if (expires.isSome()) {
@@ -1385,55 +1427,14 @@ export function pushNotNull(array: any[], new_item?: any) {
   }
 }
 
-/**
- * Converts an undefined or null value to an Option
- *
- * Note: You cannot use a prototype, because it won't be able to handle null values
- */
-export function toOption<T>(val: T): Option<T> {
-  return Some(val || undefined);
-}
-
-/**
- * Converts an option to an undefined. Necessary for API requests.
- */
-export function toUndefined<T>(opt: Option<T>) {
-  return opt.isSome() ? opt.unwrap() : undefined;
-}
-
-export function auth(
-  throwErr = true,
-  auth = UserService.Instance.auth
-): string | undefined {
-  return auth.match({
-    ok: jwt => jwt,
-    err: e => {
-      if (throwErr && isBrowser()) {
-        console.log(e);
-        toast(i18n.t("not_logged_in"), "danger");
-      }
-      return undefined;
-    },
-  });
-}
-
-export function setOptionalAuth(obj: any, auth: Option<string>) {
-  auth.match({
-    some: auth => {
-      obj.auth = auth;
-    },
-    none: void 0,
-  });
+export function auth(throwErr = true): Result<string, string> {
+  return UserService.Instance.auth(throwErr);
 }
 
 export function enableDownvotes(siteRes: GetSiteResponse): boolean {
-  return toOption(siteRes.site_view)
-    .map(s => s.site.enable_downvotes)
-    .unwrapOr(true);
+  return siteRes.site_view.map(s => s.site.enable_downvotes).unwrapOr(true);
 }
 
 export function enableNsfw(siteRes: GetSiteResponse): boolean {
-  return toOption(siteRes.site_view)
-    .map(s => s.site.enable_nsfw)
-    .unwrapOr(false);
+  return siteRes.site_view.map(s => s.site.enable_nsfw).unwrapOr(false);
 }

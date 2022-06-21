@@ -9,6 +9,8 @@ import {
   PrivateMessageResponse,
   PrivateMessageView,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -21,9 +23,7 @@ import {
   setupTippy,
   toast,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -50,11 +50,11 @@ export class PrivateMessageForm extends Component<
 > {
   private subscription: Subscription;
   private emptyState: PrivateMessageFormState = {
-    privateMessageForm: {
+    privateMessageForm: new CreatePrivateMessage({
       content: null,
       recipient_id: this.props.recipient.id,
-      auth: auth(),
-    },
+      auth: auth().unwrap(),
+    }),
     loading: false,
     previewMode: false,
     showDisclaimer: false,
@@ -195,11 +195,11 @@ export class PrivateMessageForm extends Component<
     event.preventDefault();
     i.props.privateMessageView.match({
       some: pm => {
-        let form: EditPrivateMessage = {
+        let form = new EditPrivateMessage({
           private_message_id: pm.private_message.id,
           content: i.state.privateMessageForm.content,
-          auth: auth(),
-        };
+          auth: auth().unwrap(),
+        });
         WebSocketService.Instance.send(wsClient.editPrivateMessage(form));
       },
       none: WebSocketService.Instance.send(
@@ -243,11 +243,17 @@ export class PrivateMessageForm extends Component<
       op == UserOperation.DeletePrivateMessage ||
       op == UserOperation.MarkPrivateMessageAsRead
     ) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      let data = wsJsonToRes<PrivateMessageResponse>(
+        msg,
+        PrivateMessageResponse
+      );
       this.state.loading = false;
       this.props.onEdit(data.private_message_view);
     } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      let data = wsJsonToRes<PrivateMessageResponse>(
+        msg,
+        PrivateMessageResponse
+      );
       this.state.loading = false;
       this.props.onCreate(data.private_message_view);
       this.setState(this.state);

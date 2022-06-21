@@ -13,7 +13,10 @@ import {
   GetSiteResponse,
   PostResponse,
   SortType,
+  toUndefined,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import moment from "moment";
 import { Subscription } from "rxjs";
@@ -43,16 +46,11 @@ import {
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
-  setOptionalAuth,
   setupTippy,
   toast,
-  toOption,
-  toUndefined,
   updatePersonBlock,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
@@ -93,7 +91,7 @@ interface UrlParams {
 }
 
 export class Profile extends Component<any, ProfileState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this.context, GetPersonDetailsResponse);
   private subscription: Subscription;
   private emptyState: ProfileState = {
     personRes: None,
@@ -122,7 +120,9 @@ export class Profile extends Component<any, ProfileState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.personRes = Some(this.isoData.routeData[0]);
+      this.state.personRes = Some(
+        this.isoData.routeData[0] as GetPersonDetailsResponse
+      );
       this.state.loading = false;
     } else {
       this.fetchUserData();
@@ -132,14 +132,16 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   fetchUserData() {
-    let form: GetPersonDetails = {
-      username: this.state.userName,
-      sort: this.state.sort,
-      saved_only: this.state.view === PersonDetailsView.Saved,
-      page: this.state.page,
-      limit: fetchLimit,
-      auth: auth(false),
-    };
+    let form = new GetPersonDetails({
+      username: Some(this.state.userName),
+      person_id: None,
+      community_id: None,
+      sort: Some(this.state.sort),
+      saved_only: Some(this.state.view === PersonDetailsView.Saved),
+      page: Some(this.state.page),
+      limit: Some(fetchLimit),
+      auth: auth(false).ok(),
+    });
     WebSocketService.Instance.send(wsClient.getPersonDetails(form));
   }
 
@@ -184,23 +186,23 @@ export class Profile extends Component<any, ProfileState> {
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split("/");
-    let promises: Promise<any>[] = [];
 
     let username = pathSplit[2];
     let view = this.getViewFromProps(pathSplit[4]);
-    let sort = this.getSortTypeFromProps(pathSplit[6]);
-    let page = this.getPageFromProps(Number(pathSplit[8]));
+    let sort = Some(this.getSortTypeFromProps(pathSplit[6]));
+    let page = Some(this.getPageFromProps(Number(pathSplit[8])));
 
-    let form: GetPersonDetails = {
+    let form = new GetPersonDetails({
+      username: Some(username),
+      person_id: None,
+      community_id: None,
       sort,
-      saved_only: view === PersonDetailsView.Saved,
+      saved_only: Some(view === PersonDetailsView.Saved),
       page,
-      limit: fetchLimit,
-      username: username,
-    };
-    setOptionalAuth(form, req.auth);
-    promises.push(req.client.getPersonDetails(form));
-    return promises;
+      limit: Some(fetchLimit),
+      auth: req.auth,
+    });
+    return [req.client.getPersonDetails(form)];
   }
 
   componentDidMount() {
@@ -234,7 +236,7 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView =>
         this.state.personRes.match({
           some: res =>
@@ -261,8 +263,8 @@ export class Profile extends Component<any, ProfileState> {
                     <HtmlTags
                       title={this.documentTitle}
                       path={this.context.router.route.match.url}
-                      description={toOption(res.person_view.person.bio)}
-                      image={toOption(res.person_view.person.avatar)}
+                      description={res.person_view.person.bio}
+                      image={res.person_view.person.avatar}
                     />
                     {this.userInfo()}
                     <hr />
@@ -376,20 +378,20 @@ export class Profile extends Component<any, ProfileState> {
   }
   handleBlockPerson(personId: number) {
     if (personId != 0) {
-      let blockUserForm: BlockPerson = {
+      let blockUserForm = new BlockPerson({
         person_id: personId,
         block: true,
-        auth: auth(),
-      };
+        auth: auth().unwrap(),
+      });
       WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
     }
   }
   handleUnblockPerson(recipientId: number) {
-    let blockUserForm: BlockPerson = {
+    let blockUserForm = new BlockPerson({
       person_id: recipientId,
       block: false,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
   }
 
@@ -400,8 +402,8 @@ export class Profile extends Component<any, ProfileState> {
         some: pv => (
           <div>
             <BannerIconHeader
-              banner={toOption(pv.person.banner)}
-              icon={toOption(pv.person.avatar)}
+              banner={pv.person.banner}
+              icon={pv.person.avatar}
             />
             <div class="mb-3">
               <div class="">
@@ -516,14 +518,17 @@ export class Profile extends Component<any, ProfileState> {
                       </button>
                     ))}
                 </div>
-                {pv.person.bio && (
-                  <div className="d-flex align-items-center mb-2">
-                    <div
-                      className="md-div"
-                      dangerouslySetInnerHTML={mdToHtml(pv.person.bio)}
-                    />
-                  </div>
-                )}
+                {pv.person.bio.match({
+                  some: bio => (
+                    <div className="d-flex align-items-center mb-2">
+                      <div
+                        className="md-div"
+                        dangerouslySetInnerHTML={mdToHtml(bio)}
+                      />
+                    </div>
+                  ),
+                  none: <></>,
+                })}
                 <div>
                   <ul class="list-inline mb-2">
                     <li className="list-inline-item badge badge-light">
@@ -767,16 +772,14 @@ export class Profile extends Component<any, ProfileState> {
           if (ban == false) {
             i.state.removeData = false;
           }
-          let form: BanPerson = {
+          let form = new BanPerson({
             person_id: person.id,
             ban,
-            remove_data: i.state.removeData,
-            reason: toUndefined(i.state.banReason),
-            expires: toUndefined(
-              i.state.banExpireDays.map(futureDaysToUnixTime)
-            ),
-            auth: auth(),
-          };
+            remove_data: Some(i.state.removeData),
+            reason: i.state.banReason,
+            expires: i.state.banExpireDays.map(futureDaysToUnixTime),
+            auth: auth().unwrap(),
+          });
           WebSocketService.Instance.send(wsClient.banPerson(form));
 
           i.state.showBanDialog = false;
@@ -801,18 +804,21 @@ export class Profile extends Component<any, ProfileState> {
       // Since the PersonDetails contains posts/comments as well as some general user info we listen here as well
       // and set the parent state if it is not set or differs
       // TODO this might need to get abstracted
-      let data = wsJsonToRes<GetPersonDetailsResponse>(msg).data;
+      let data = wsJsonToRes<GetPersonDetailsResponse>(
+        msg,
+        GetPersonDetailsResponse
+      );
       this.state.personRes = Some(data);
       this.state.loading = false;
       this.setPersonBlock();
       this.setState(this.state);
       restoreScrollPosition(this.context);
     } else if (op == UserOperation.AddAdmin) {
-      let data = wsJsonToRes<AddAdminResponse>(msg).data;
+      let data = wsJsonToRes<AddAdminResponse>(msg, AddAdminResponse);
       this.state.siteRes.admins = data.admins;
       this.setState(this.state);
     } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       createCommentLikeRes(
         data.comment_view,
         this.state.personRes.map(r => r.comments).unwrapOr([])
@@ -823,14 +829,14 @@ export class Profile extends Component<any, ProfileState> {
       op == UserOperation.DeleteComment ||
       op == UserOperation.RemoveComment
     ) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       editCommentRes(
         data.comment_view,
         this.state.personRes.map(r => r.comments).unwrapOr([])
       );
       this.setState(this.state);
     } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       UserService.Instance.myUserInfo.match({
         some: mui => {
           if (data.comment_view.creator.id == mui.local_user_view.person.id) {
@@ -840,7 +846,7 @@ export class Profile extends Component<any, ProfileState> {
         none: void 0,
       });
     } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       saveCommentRes(
         data.comment_view,
         this.state.personRes.map(r => r.comments).unwrapOr([])
@@ -854,21 +860,21 @@ export class Profile extends Component<any, ProfileState> {
       op == UserOperation.StickyPost ||
       op == UserOperation.SavePost
     ) {
-      let data = wsJsonToRes<PostResponse>(msg).data;
+      let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       editPostFindRes(
         data.post_view,
         this.state.personRes.map(r => r.posts).unwrapOr([])
       );
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
-      let data = wsJsonToRes<PostResponse>(msg).data;
+      let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       createPostLikeFindRes(
         data.post_view,
         this.state.personRes.map(r => r.posts).unwrapOr([])
       );
       this.setState(this.state);
     } else if (op == UserOperation.BanPerson) {
-      let data = wsJsonToRes<BanPersonResponse>(msg).data;
+      let data = wsJsonToRes<BanPersonResponse>(msg, BanPersonResponse);
       this.state.personRes.match({
         some: res => {
           res.comments
@@ -887,7 +893,7 @@ export class Profile extends Component<any, ProfileState> {
         none: void 0,
       });
     } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg).data;
+      let data = wsJsonToRes<BlockPersonResponse>(msg, BlockPersonResponse);
       updatePersonBlock(data);
       this.setPersonBlock();
       this.setState(this.state);

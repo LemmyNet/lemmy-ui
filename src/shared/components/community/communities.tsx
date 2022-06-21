@@ -9,6 +9,8 @@ import {
   ListingType,
   SortType,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { InitialFetchRequest } from "shared/interfaces";
@@ -21,14 +23,10 @@ import {
   isBrowser,
   numToSI,
   setIsoData,
-  setOptionalAuth,
   showLocal,
   toast,
-  toOption,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -54,7 +52,7 @@ interface CommunitiesProps {
 
 export class Communities extends Component<any, CommunitiesState> {
   private subscription: Subscription;
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this.context, ListCommunitiesResponse);
   private emptyState: CommunitiesState = {
     listCommunitiesResponse: None,
     loading: true,
@@ -75,7 +73,8 @@ export class Communities extends Component<any, CommunitiesState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.listCommunitiesResponse = Some(this.isoData.routeData[0]);
+      let listRes = Some(this.isoData.routeData[0] as ListCommunitiesResponse);
+      this.state.listCommunitiesResponse = listRes;
       this.state.loading = false;
     } else {
       this.refetch();
@@ -106,7 +105,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `${i18n.t("communities")} - ${siteView.site.name}`,
       none: "",
     });
@@ -267,20 +266,20 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   handleUnsubscribe(communityId: number) {
-    let form: FollowCommunity = {
+    let form = new FollowCommunity({
       community_id: communityId,
       follow: false,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
 
   handleSubscribe(communityId: number) {
-    let form: FollowCommunity = {
+    let form = new FollowCommunity({
       community_id: communityId,
       follow: true,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.followCommunity(form));
   }
 
@@ -296,13 +295,13 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   refetch() {
-    let listCommunitiesForm: ListCommunities = {
-      type_: this.state.listingType,
-      sort: SortType.TopMonth,
-      limit: communityLimit,
-      page: this.state.page,
-      auth: auth(false),
-    };
+    let listCommunitiesForm = new ListCommunities({
+      type_: Some(this.state.listingType),
+      sort: Some(SortType.TopMonth),
+      limit: Some(communityLimit),
+      page: Some(this.state.page),
+      auth: auth(false).ok(),
+    });
 
     WebSocketService.Instance.send(
       wsClient.listCommunities(listCommunitiesForm)
@@ -311,17 +310,17 @@ export class Communities extends Component<any, CommunitiesState> {
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split("/");
-    let type_: ListingType = pathSplit[3]
-      ? ListingType[pathSplit[3]]
-      : ListingType.Local;
-    let page = pathSplit[5] ? Number(pathSplit[5]) : 1;
-    let listCommunitiesForm: ListCommunities = {
+    let type_: Option<ListingType> = Some(
+      pathSplit[3] ? ListingType[pathSplit[3]] : ListingType.Local
+    );
+    let page = Some(pathSplit[5] ? Number(pathSplit[5]) : 1);
+    let listCommunitiesForm = new ListCommunities({
       type_,
-      sort: SortType.TopMonth,
-      limit: communityLimit,
+      sort: Some(SortType.TopMonth),
+      limit: Some(communityLimit),
       page,
-    };
-    setOptionalAuth(listCommunitiesForm, req.auth);
+      auth: req.auth,
+    });
 
     return [req.client.listCommunities(listCommunitiesForm)];
   }
@@ -333,13 +332,16 @@ export class Communities extends Component<any, CommunitiesState> {
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.ListCommunities) {
-      let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
+      let data = wsJsonToRes<ListCommunitiesResponse>(
+        msg,
+        ListCommunitiesResponse
+      );
       this.state.listCommunitiesResponse = Some(data);
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setState(this.state);
     } else if (op == UserOperation.FollowCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.listCommunitiesResponse.match({
         some: res => {
           let found = res.communities.find(

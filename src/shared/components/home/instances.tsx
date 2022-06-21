@@ -1,8 +1,8 @@
-import { None, Option, Some } from "@sniptt/monads";
+import { None } from "@sniptt/monads";
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { relTags, setIsoData, toOption } from "../../utils";
+import { relTags, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 
 interface InstancesState {
@@ -21,11 +21,14 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("instances")} - ${this.state.siteRes.site_view.site.name}`;
+    return this.state.siteRes.site_view.match({
+      some: siteView => `${i18n.t("instances")} - ${siteView.site.name}`,
+      none: "",
+    });
   }
 
   render() {
-    return toOption(this.state.siteRes.federated_instances).match({
+    return this.state.siteRes.federated_instances.match({
       some: federated_instances => (
         <div class="container">
           <HtmlTags
@@ -37,20 +40,28 @@ export class Instances extends Component<any, InstancesState> {
           <div class="row">
             <div class="col-md-6">
               <h5>{i18n.t("linked_instances")}</h5>
-              {this.itemList(Some(federated_instances.linked))}
+              {this.itemList(federated_instances.linked)}
             </div>
-            {federated_instances.allowed?.length > 0 && (
-              <div class="col-md-6">
-                <h5>{i18n.t("allowed_instances")}</h5>
-                {this.itemList(toOption(federated_instances.allowed))}
-              </div>
-            )}
-            {federated_instances.blocked?.length > 0 && (
-              <div class="col-md-6">
-                <h5>{i18n.t("blocked_instances")}</h5>
-                {this.itemList(toOption(federated_instances.blocked))}
-              </div>
-            )}
+            {federated_instances.allowed.match({
+              some: allowed =>
+                allowed.length > 0 && (
+                  <div class="col-md-6">
+                    <h5>{i18n.t("allowed_instances")}</h5>
+                    {this.itemList(allowed)}
+                  </div>
+                ),
+              none: <></>,
+            })}
+            {federated_instances.blocked.match({
+              some: blocked =>
+                blocked.length > 0 && (
+                  <div class="col-md-6">
+                    <h5>{i18n.t("blocked_instances")}</h5>
+                    {this.itemList(blocked)}
+                  </div>
+                ),
+              none: <></>,
+            })}
           </div>
         </div>
       ),
@@ -58,24 +69,20 @@ export class Instances extends Component<any, InstancesState> {
     });
   }
 
-  itemList(items: Option<string[]>) {
+  itemList(items: string[]) {
     let noneFound = <div>{i18n.t("none_found")}</div>;
-    return items.match({
-      some: items =>
-        items.length > 0 ? (
-          <ul>
-            {items.map(i => (
-              <li>
-                <a href={`https://${i}`} rel={relTags}>
-                  {i}
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          noneFound
-        ),
-      none: noneFound,
-    });
+    return items.length > 0 ? (
+      <ul>
+        {items.map(i => (
+          <li>
+            <a href={`https://${i}`} rel={relTags}>
+              {i}
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      noneFound
+    );
   }
 }

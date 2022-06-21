@@ -6,7 +6,10 @@ import {
   CommunityView,
   CreateCommunity,
   EditCommunity,
+  toUndefined,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -15,11 +18,8 @@ import {
   auth,
   capitalizeFirstLetter,
   randomStr,
-  toOption,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -46,15 +46,16 @@ export class CommunityForm extends Component<
   private subscription: Subscription;
 
   private emptyState: CommunityFormState = {
-    communityForm: {
-      name: null,
-      title: null,
-      nsfw: false,
-      icon: null,
-      banner: null,
-      posting_restricted_to_mods: false,
-      auth: auth(false),
-    },
+    communityForm: new CreateCommunity({
+      name: undefined,
+      title: undefined,
+      description: None,
+      nsfw: None,
+      icon: None,
+      banner: None,
+      posting_restricted_to_mods: None,
+      auth: undefined,
+    }),
     loading: false,
   };
 
@@ -74,16 +75,18 @@ export class CommunityForm extends Component<
 
     this.props.community_view.match({
       some: cv => {
-        this.state.communityForm = {
+        this.state.communityForm = new CreateCommunity({
           name: cv.community.name,
           title: cv.community.title,
           description: cv.community.description,
-          nsfw: cv.community.nsfw,
+          nsfw: Some(cv.community.nsfw),
           icon: cv.community.icon,
           banner: cv.community.banner,
-          posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
-          auth: auth(),
-        };
+          posting_restricted_to_mods: Some(
+            cv.community.posting_restricted_to_mods
+          ),
+          auth: auth().unwrap(),
+        });
       },
       none: void 0,
     });
@@ -97,7 +100,7 @@ export class CommunityForm extends Component<
       !this.state.loading &&
       (this.state.communityForm.name ||
         this.state.communityForm.title ||
-        this.state.communityForm.description)
+        this.state.communityForm.description.isSome())
     ) {
       window.onbeforeunload = () => true;
     } else {
@@ -118,7 +121,7 @@ export class CommunityForm extends Component<
             !this.state.loading &&
             (this.state.communityForm.name ||
               this.state.communityForm.title ||
-              this.state.communityForm.description)
+              this.state.communityForm.description.isSome())
           }
           message={i18n.t("block_leaving")}
         />
@@ -183,7 +186,7 @@ export class CommunityForm extends Component<
             <div class="col-12 col-sm-10">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_icon")}
-                imageSrc={toOption(this.state.communityForm.icon)}
+                imageSrc={this.state.communityForm.icon}
                 onUpload={this.handleIconUpload}
                 onRemove={this.handleIconRemove}
                 rounded
@@ -195,7 +198,7 @@ export class CommunityForm extends Component<
             <div class="col-12 col-sm-10">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_banner")}
-                imageSrc={toOption(this.state.communityForm.banner)}
+                imageSrc={this.state.communityForm.banner}
                 onUpload={this.handleBannerUpload}
                 onRemove={this.handleBannerRemove}
               />
@@ -207,7 +210,7 @@ export class CommunityForm extends Component<
             </label>
             <div class="col-12 col-sm-10">
               <MarkdownTextArea
-                initialContent={toOption(this.state.communityForm.description)}
+                initialContent={this.state.communityForm.description}
                 placeholder={Some("description")}
                 buttonTitle={None}
                 maxLength={None}
@@ -227,7 +230,7 @@ export class CommunityForm extends Component<
                     class="form-check-input position-static"
                     id="community-nsfw"
                     type="checkbox"
-                    checked={this.state.communityForm.nsfw}
+                    checked={toUndefined(this.state.communityForm.nsfw)}
                     onChange={linkEvent(this, this.handleCommunityNsfwChange)}
                   />
                 </div>
@@ -244,7 +247,9 @@ export class CommunityForm extends Component<
                   class="form-check-input position-static"
                   id="community-only-mods-can-post"
                   type="checkbox"
-                  checked={this.state.communityForm.posting_restricted_to_mods}
+                  checked={toUndefined(
+                    this.state.communityForm.posting_restricted_to_mods
+                  )}
                   onChange={linkEvent(
                     this,
                     this.handleCommunityPostingRestrictedToMods
@@ -287,14 +292,21 @@ export class CommunityForm extends Component<
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
     i.state.loading = true;
-    i.state.communityForm.auth = auth();
+    let cForm = i.state.communityForm;
 
     i.props.community_view.match({
       some: cv => {
-        let form: EditCommunity = {
-          ...i.state.communityForm,
+        let form = new EditCommunity({
           community_id: cv.community.id,
-        };
+          title: Some(cForm.title),
+          description: cForm.description,
+          icon: cForm.icon,
+          banner: cForm.banner,
+          nsfw: cForm.nsfw,
+          posting_restricted_to_mods: cForm.posting_restricted_to_mods,
+          auth: auth().unwrap(),
+        });
+
         WebSocketService.Instance.send(wsClient.editCommunity(form));
       },
       none: () => {
@@ -317,7 +329,7 @@ export class CommunityForm extends Component<
   }
 
   handleCommunityDescriptionChange(val: string) {
-    this.state.communityForm.description = val;
+    this.state.communityForm.description = Some(val);
     this.setState(this.state);
   }
 
@@ -336,22 +348,22 @@ export class CommunityForm extends Component<
   }
 
   handleIconUpload(url: string) {
-    this.state.communityForm.icon = url;
+    this.state.communityForm.icon = Some(url);
     this.setState(this.state);
   }
 
   handleIconRemove() {
-    this.state.communityForm.icon = "";
+    this.state.communityForm.icon = Some("");
     this.setState(this.state);
   }
 
   handleBannerUpload(url: string) {
-    this.state.communityForm.banner = url;
+    this.state.communityForm.banner = Some(url);
     this.setState(this.state);
   }
 
   handleBannerRemove() {
-    this.state.communityForm.banner = "";
+    this.state.communityForm.banner = Some("");
     this.setState(this.state);
   }
 
@@ -365,7 +377,7 @@ export class CommunityForm extends Component<
       this.setState(this.state);
       return;
     } else if (op == UserOperation.CreateCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.loading = false;
       this.props.onCreate(data.community_view);
 
@@ -387,7 +399,7 @@ export class CommunityForm extends Component<
         none: void 0,
       });
     } else if (op == UserOperation.EditCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.loading = false;
       this.props.onEdit(data.community_view);
       let community = data.community_view.community;

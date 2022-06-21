@@ -9,7 +9,10 @@ import {
   ListingType,
   PostView,
   SortType,
+  toOption,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { InitialFetchRequest, PostFormParams } from "shared/interfaces";
@@ -22,13 +25,9 @@ import {
   fetchLimit,
   isBrowser,
   setIsoData,
-  setOptionalAuth,
   toast,
-  toOption,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -41,7 +40,7 @@ interface CreatePostState {
 }
 
 export class CreatePost extends Component<any, CreatePostState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this.context, ListCommunitiesResponse);
   private subscription: Subscription;
   private emptyState: CreatePostState = {
     siteRes: this.isoData.site_res,
@@ -64,7 +63,9 @@ export class CreatePost extends Component<any, CreatePostState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.listCommunitiesResponse = Some(this.isoData.routeData[0]);
+      this.state.listCommunitiesResponse = Some(
+        this.isoData.routeData[0] as ListCommunitiesResponse
+      );
       this.state.loading = false;
     } else {
       this.refetch();
@@ -76,27 +77,30 @@ export class CreatePost extends Component<any, CreatePostState> {
       some: opt =>
         opt.match({
           left: name => {
-            let form: GetCommunity = {
-              name,
-              auth: auth(false),
-            };
+            let form = new GetCommunity({
+              name: Some(name),
+              id: None,
+              auth: auth(false).ok(),
+            });
             WebSocketService.Instance.send(wsClient.getCommunity(form));
           },
           right: id => {
-            let form: GetCommunity = {
-              id,
-              auth: auth(false),
-            };
+            let form = new GetCommunity({
+              id: Some(id),
+              name: None,
+              auth: auth(false).ok(),
+            });
             WebSocketService.Instance.send(wsClient.getCommunity(form));
           },
         }),
       none: () => {
-        let listCommunitiesForm: ListCommunities = {
-          type_: ListingType.All,
-          sort: SortType.TopAll,
-          limit: fetchLimit,
-          auth: auth(false),
-        };
+        let listCommunitiesForm = new ListCommunities({
+          type_: Some(ListingType.All),
+          sort: Some(SortType.TopAll),
+          limit: Some(fetchLimit),
+          page: None,
+          auth: auth(false).ok(),
+        });
         WebSocketService.Instance.send(
           wsClient.listCommunities(listCommunitiesForm)
         );
@@ -111,7 +115,7 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `${i18n.t("create_post")} - ${siteView.site.name}`,
       none: "",
     });
@@ -183,11 +187,11 @@ export class CreatePost extends Component<any, CreatePostState> {
 
   get prevCommunityName(): Option<string> {
     if (this.props.match.params.name) {
-      return Some(this.props.match.params.name);
+      return toOption(this.props.match.params.name);
     } else if (this.props.location.state) {
       let lastLocation = this.props.location.state.prevPath;
       if (lastLocation.includes("/c/")) {
-        return Some(lastLocation.split("/c/")[1]);
+        return toOption(lastLocation.split("/c/")[1]);
       }
     }
     return None;
@@ -195,7 +199,7 @@ export class CreatePost extends Component<any, CreatePostState> {
 
   get prevCommunityId(): Option<number> {
     if (this.props.match.params.id) {
-      return Some(this.props.match.params.id);
+      return toOption(this.props.match.params.id);
     }
     return None;
   }
@@ -205,12 +209,13 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let listCommunitiesForm: ListCommunities = {
-      type_: ListingType.All,
-      sort: SortType.TopAll,
-      limit: fetchLimit,
-    };
-    setOptionalAuth(listCommunitiesForm, req.auth);
+    let listCommunitiesForm = new ListCommunities({
+      type_: Some(ListingType.All),
+      sort: Some(SortType.TopAll),
+      limit: Some(fetchLimit),
+      page: None,
+      auth: req.auth,
+    });
     return [req.client.listCommunities(listCommunitiesForm)];
   }
 
@@ -221,12 +226,15 @@ export class CreatePost extends Component<any, CreatePostState> {
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.ListCommunities) {
-      let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
+      let data = wsJsonToRes<ListCommunitiesResponse>(
+        msg,
+        ListCommunitiesResponse
+      );
       this.state.listCommunitiesResponse = Some(data);
       this.state.loading = false;
       this.setState(this.state);
     } else if (op == UserOperation.GetCommunity) {
-      let data = wsJsonToRes<GetCommunityResponse>(msg).data;
+      let data = wsJsonToRes<GetCommunityResponse>(msg, GetCommunityResponse);
       this.state.listCommunitiesResponse = Some({
         communities: [data.community_view],
       });

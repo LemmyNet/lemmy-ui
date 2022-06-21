@@ -48,7 +48,7 @@ export class PostListings extends Component<PostListingsProps, any> {
         ) : (
           <>
             <div>{i18n.t("no_posts")}</div>
-            {this.props.showCommunity !== undefined && (
+            {this.props.showCommunity && (
               <T i18nKey="subscribe_to_communities">
                 #<Link to="/communities">#</Link>
               </T>
@@ -68,19 +68,20 @@ export class PostListings extends Component<PostListingsProps, any> {
 
     // Loop over the posts, find ones with same urls
     for (let pv of posts) {
-      if (
-        pv.post.url &&
-        !pv.post.deleted &&
+      !pv.post.deleted &&
         !pv.post.removed &&
         !pv.community.deleted &&
-        !pv.community.removed
-      ) {
-        if (!urlMap.get(pv.post.url)) {
-          urlMap.set(pv.post.url, [pv]);
-        } else {
-          urlMap.get(pv.post.url).push(pv);
-        }
-      }
+        !pv.community.removed &&
+        pv.post.url.match({
+          some: url => {
+            if (!urlMap.get(url)) {
+              urlMap.set(url, [pv]);
+            } else {
+              urlMap.get(url).push(pv);
+            }
+          },
+          none: void 0,
+        });
     }
 
     // Sort by oldest
@@ -95,19 +96,22 @@ export class PostListings extends Component<PostListingsProps, any> {
 
     for (let i = 0; i < posts.length; i++) {
       let pv = posts[i];
-      if (pv.post.url) {
-        let found = urlMap.get(pv.post.url);
-        if (found) {
-          // If its the oldest, add
-          if (pv.post.id == found[0].post.id) {
-            this.duplicatesMap.set(pv.post.id, found.slice(1));
+      pv.post.url.match({
+        some: url => {
+          let found = urlMap.get(url);
+          if (found) {
+            // If its the oldest, add
+            if (pv.post.id == found[0].post.id) {
+              this.duplicatesMap.set(pv.post.id, found.slice(1));
+            }
+            // Otherwise, delete it
+            else {
+              posts.splice(i--, 1);
+            }
           }
-          // Otherwise, delete it
-          else {
-            posts.splice(i--, 1);
-          }
-        }
-      }
+        },
+        none: void 0,
+      });
     }
 
     return posts;

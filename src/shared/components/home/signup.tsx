@@ -4,12 +4,16 @@ import { I18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
+  CaptchaResponse,
   GetCaptchaResponse,
   GetSiteResponse,
   LoginResponse,
   Register,
   SiteView,
+  toUndefined,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -21,12 +25,9 @@ import {
   mdToHtml,
   setIsoData,
   toast,
-  toOption,
   validEmail,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -73,16 +74,17 @@ export class Signup extends Component<any, State> {
   private audio: HTMLAudioElement;
 
   emptyState: State = {
-    registerForm: {
+    registerForm: new Register({
       username: undefined,
       password: undefined,
       password_verify: undefined,
       show_nsfw: false,
-      captcha_uuid: undefined,
-      captcha_answer: undefined,
-      honeypot: undefined,
-      answer: undefined,
-    },
+      captcha_uuid: None,
+      captcha_answer: None,
+      honeypot: None,
+      answer: None,
+      email: None,
+    }),
     registerLoading: false,
     captcha: None,
     captchaPlaying: false,
@@ -110,7 +112,7 @@ export class Signup extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `${this.titleName(siteView)} - ${siteView.site.name}`,
       none: "",
     });
@@ -141,7 +143,7 @@ export class Signup extends Component<any, State> {
   }
 
   registerForm() {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => (
         <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
           <h5>{this.titleName(siteView)}</h5>
@@ -190,14 +192,16 @@ export class Signup extends Component<any, State> {
                     ? i18n.t("required")
                     : i18n.t("optional")
                 }
-                value={this.state.registerForm.email}
+                value={toUndefined(this.state.registerForm.email)}
                 autoComplete="email"
                 onInput={linkEvent(this, this.handleRegisterEmailChange)}
                 required={siteView.site.require_email_verification}
                 minLength={3}
               />
               {!siteView.site.require_email_verification &&
-                !validEmail(this.state.registerForm.email) && (
+                !this.state.registerForm.email
+                  .map(validEmail)
+                  .unwrapOr(true) && (
                   <div class="mt-2 mb-0 alert alert-warning" role="alert">
                     <Icon icon="alert-triangle" classes="icon-inline mr-2" />
                     {i18n.t("no_password_reset")}
@@ -262,12 +266,15 @@ export class Signup extends Component<any, State> {
                     <Icon icon="alert-triangle" classes="icon-inline mr-2" />
                     {i18n.t("fill_out_application")}
                   </div>
-                  <div
-                    className="md-div"
-                    dangerouslySetInnerHTML={mdToHtml(
-                      siteView.site.application_question || ""
-                    )}
-                  />
+                  {siteView.site.application_question.match({
+                    some: question => (
+                      <div
+                        className="md-div"
+                        dangerouslySetInnerHTML={mdToHtml(question)}
+                      />
+                    ),
+                    none: <></>,
+                  })}
                 </div>
               </div>
 
@@ -311,7 +318,7 @@ export class Signup extends Component<any, State> {
                   type="text"
                   class="form-control"
                   id="register-captcha"
-                  value={this.state.registerForm.captcha_answer}
+                  value={toUndefined(this.state.registerForm.captcha_answer)}
                   onInput={linkEvent(
                     this,
                     this.handleRegisterCaptchaAnswerChange
@@ -349,7 +356,7 @@ export class Signup extends Component<any, State> {
             type="text"
             class="form-control honeypot"
             id="register-honey"
-            value={this.state.registerForm.honeypot}
+            value={toUndefined(this.state.registerForm.honeypot)}
             onInput={linkEvent(this, this.handleHoneyPotChange)}
           />
           <div class="form-group row">
@@ -373,28 +380,31 @@ export class Signup extends Component<any, State> {
     return this.state.captcha.match({
       some: captcha => (
         <div class="col-sm-4">
-          {captcha.ok && (
-            <>
-              <img
-                class="rounded-top img-fluid"
-                src={this.captchaPngSrc(captcha)}
-                style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
-                alt={i18n.t("captcha")}
-              />
-              {captcha.ok.wav && (
-                <button
-                  class="rounded-bottom btn btn-sm btn-secondary btn-block"
-                  style="border-top-right-radius: 0; border-top-left-radius: 0;"
-                  title={i18n.t("play_captcha_audio")}
-                  onClick={linkEvent(this, this.handleCaptchaPlay)}
-                  type="button"
-                  disabled={this.state.captchaPlaying}
-                >
-                  <Icon icon="play" classes="icon-play" />
-                </button>
-              )}
-            </>
-          )}
+          {captcha.ok.match({
+            some: res => (
+              <>
+                <img
+                  class="rounded-top img-fluid"
+                  src={this.captchaPngSrc(res)}
+                  style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
+                  alt={i18n.t("captcha")}
+                />
+                {res.wav.isSome() && (
+                  <button
+                    class="rounded-bottom btn btn-sm btn-secondary btn-block"
+                    style="border-top-right-radius: 0; border-top-left-radius: 0;"
+                    title={i18n.t("play_captcha_audio")}
+                    onClick={linkEvent(this, this.handleCaptchaPlay)}
+                    type="button"
+                    disabled={this.state.captchaPlaying}
+                  >
+                    <Icon icon="play" classes="icon-play" />
+                  </button>
+                )}
+              </>
+            ),
+            none: <></>,
+          })}
         </div>
       ),
       none: <></>,
@@ -433,9 +443,9 @@ export class Signup extends Component<any, State> {
   }
 
   handleRegisterEmailChange(i: Signup, event: any) {
-    i.state.registerForm.email = event.target.value;
-    if (i.state.registerForm.email == "") {
-      i.state.registerForm.email = undefined;
+    i.state.registerForm.email = Some(event.target.value);
+    if (i.state.registerForm.email.unwrap() == "") {
+      i.state.registerForm.email = None;
     }
     i.setState(i.state);
   }
@@ -456,17 +466,17 @@ export class Signup extends Component<any, State> {
   }
 
   handleRegisterCaptchaAnswerChange(i: Signup, event: any) {
-    i.state.registerForm.captcha_answer = event.target.value;
+    i.state.registerForm.captcha_answer = Some(event.target.value);
     i.setState(i.state);
   }
 
   handleAnswerChange(val: string) {
-    this.state.registerForm.answer = val;
+    this.state.registerForm.answer = Some(val);
     this.setState(this.state);
   }
 
   handleHoneyPotChange(i: Signup, event: any) {
-    i.state.registerForm.honeypot = event.target.value;
+    i.state.registerForm.honeypot = Some(event.target.value);
     i.setState(i.state);
   }
 
@@ -481,29 +491,33 @@ export class Signup extends Component<any, State> {
     // This was a bad bug, it should only build the new audio on a new file.
     // Replays would stop prematurely if this was rebuilt every time.
     i.state.captcha.match({
-      some: captcha => {
-        if (i.audio == null) {
-          let base64 = `data:audio/wav;base64,${captcha.ok.wav}`;
-          i.audio = new Audio(base64);
-        }
+      some: captcha =>
+        captcha.ok.match({
+          some: res => {
+            if (i.audio == null) {
+              let base64 = `data:audio/wav;base64,${res.wav}`;
+              i.audio = new Audio(base64);
+            }
 
-        i.audio.play();
+            i.audio.play();
 
-        i.state.captchaPlaying = true;
-        i.setState(i.state);
+            i.state.captchaPlaying = true;
+            i.setState(i.state);
 
-        i.audio.addEventListener("ended", () => {
-          i.audio.currentTime = 0;
-          i.state.captchaPlaying = false;
-          i.setState(i.state);
-        });
-      },
+            i.audio.addEventListener("ended", () => {
+              i.audio.currentTime = 0;
+              i.state.captchaPlaying = false;
+              i.setState(i.state);
+            });
+          },
+          none: void 0,
+        }),
       none: void 0,
     });
   }
 
-  captchaPngSrc(captcha: GetCaptchaResponse) {
-    return `data:image/png;base64,${captcha.ok.png}`;
+  captchaPngSrc(captcha: CaptchaResponse) {
+    return `data:image/png;base64,${captcha.png}`;
   }
 
   parseMessage(msg: any) {
@@ -519,7 +533,7 @@ export class Signup extends Component<any, State> {
       return;
     } else {
       if (op == UserOperation.Register) {
-        let data = wsJsonToRes<LoginResponse>(msg).data;
+        let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
         this.state = this.emptyState;
         this.setState(this.state);
         // Only log them in if a jwt was set
@@ -527,7 +541,7 @@ export class Signup extends Component<any, State> {
           UserService.Instance.login(data);
           WebSocketService.Instance.send(
             wsClient.userJoin({
-              auth: auth(),
+              auth: auth().unwrap(),
             })
           );
           this.props.history.push("/communities");
@@ -541,16 +555,19 @@ export class Signup extends Component<any, State> {
           this.props.history.push("/");
         }
       } else if (op == UserOperation.GetCaptcha) {
-        let data = wsJsonToRes<GetCaptchaResponse>(msg).data;
-        if (data.ok) {
-          this.state.captcha = Some(data);
-          this.state.registerForm.captcha_uuid = data.ok.uuid;
-          this.setState(this.state);
-        }
+        let data = wsJsonToRes<GetCaptchaResponse>(msg, GetCaptchaResponse);
+        data.ok.match({
+          some: res => {
+            this.state.captcha = Some(data);
+            this.state.registerForm.captcha_uuid = Some(res.uuid);
+            this.setState(this.state);
+          },
+          none: void 0,
+        });
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
-        let data = wsJsonToRes<GetSiteResponse>(msg).data;
+        let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
         this.state.siteRes = data;
         this.setState(this.state);
       }

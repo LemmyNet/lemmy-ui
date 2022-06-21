@@ -10,7 +10,10 @@ import {
   PersonViewSafe,
   SaveSiteConfig,
   SiteResponse,
+  toUndefined,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -24,12 +27,8 @@ import {
   setIsoData,
   showLocal,
   toast,
-  toOption,
-  toUndefined,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -48,7 +47,11 @@ interface AdminSettingsState {
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
   private siteConfigTextAreaId = `site-config-${randomStr()}`;
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(
+    this.context,
+    GetSiteConfigResponse,
+    BannedPersonsResponse
+  );
   private subscription: Subscription;
   private emptyState: AdminSettingsState = {
     siteRes: this.isoData.site_res,
@@ -70,22 +73,26 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.siteConfigRes = Some(this.isoData.routeData[0]);
+      this.state.siteConfigRes = Some(
+        this.isoData.routeData[0] as GetSiteConfigResponse
+      );
       this.state.siteConfigHjson = this.state.siteConfigRes.map(
         s => s.config_hjson
       );
-      this.state.banned = this.isoData.routeData[1].banned;
+      this.state.banned = (
+        this.isoData.routeData[1] as BannedPersonsResponse
+      ).banned;
       this.state.siteConfigLoading = false;
       this.state.loading = false;
     } else {
       WebSocketService.Instance.send(
         wsClient.getSiteConfig({
-          auth: auth(),
+          auth: auth().unwrap(),
         })
       );
       WebSocketService.Instance.send(
         wsClient.getBannedPersons({
-          auth: auth(),
+          auth: auth().unwrap(),
         })
       );
     }
@@ -94,10 +101,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
-    let siteConfigForm: GetSiteConfig = { auth: req.auth.unwrap() };
+    let siteConfigForm = new GetSiteConfig({ auth: req.auth.unwrap() });
     promises.push(req.client.getSiteConfig(siteConfigForm));
 
-    let bannedPersonsForm: GetBannedPersons = { auth: req.auth.unwrap() };
+    let bannedPersonsForm = new GetBannedPersons({ auth: req.auth.unwrap() });
     promises.push(req.client.getBannedPersons(bannedPersonsForm));
 
     return promises;
@@ -117,7 +124,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `${i18n.t("admin_settings")} - ${siteView.site.name}`,
       none: "",
     });
@@ -139,7 +146,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 description={None}
                 image={None}
               />
-              {toOption(this.state.siteRes.site_view).match({
+              {this.state.siteRes.site_view.match({
                 some: siteView => (
                   <SiteForm
                     site={Some(siteView.site)}
@@ -245,10 +252,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   handleSiteConfigSubmit(i: AdminSettings, event: any) {
     event.preventDefault();
     i.state.siteConfigLoading = true;
-    let form: SaveSiteConfig = {
+    let form = new SaveSiteConfig({
       config_hjson: toUndefined(i.state.siteConfigHjson),
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.saveSiteConfig(form));
     i.setState(i.state);
   }
@@ -260,7 +267,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
   handleLeaveAdminTeam(i: AdminSettings) {
     i.state.leaveAdminTeamLoading = true;
-    WebSocketService.Instance.send(wsClient.leaveAdmin({ auth: auth() }));
+    WebSocketService.Instance.send(
+      wsClient.leaveAdmin({ auth: auth().unwrap() })
+    );
     i.setState(i.state);
   }
 
@@ -274,16 +283,16 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.setState(this.state);
       return;
     } else if (op == UserOperation.EditSite) {
-      let data = wsJsonToRes<SiteResponse>(msg).data;
-      this.state.siteRes.site_view = data.site_view;
+      let data = wsJsonToRes<SiteResponse>(msg, SiteResponse);
+      this.state.siteRes.site_view = Some(data.site_view);
       this.setState(this.state);
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetBannedPersons) {
-      let data = wsJsonToRes<BannedPersonsResponse>(msg).data;
+      let data = wsJsonToRes<BannedPersonsResponse>(msg, BannedPersonsResponse);
       this.state.banned = data.banned;
       this.setState(this.state);
     } else if (op == UserOperation.GetSiteConfig) {
-      let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
+      let data = wsJsonToRes<GetSiteConfigResponse>(msg, GetSiteConfigResponse);
       this.state.siteConfigRes = Some(data);
       this.state.loading = false;
       this.state.siteConfigHjson = this.state.siteConfigRes.map(
@@ -293,7 +302,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       var textarea: any = document.getElementById(this.siteConfigTextAreaId);
       autosize(textarea);
     } else if (op == UserOperation.LeaveAdmin) {
-      let data = wsJsonToRes<GetSiteResponse>(msg).data;
+      let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
       this.state.siteRes.site_view = data.site_view;
       this.setState(this.state);
       this.state.leaveAdminTeamLoading = false;
@@ -301,7 +310,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.setState(this.state);
       this.context.router.history.push("/");
     } else if (op == UserOperation.SaveSiteConfig) {
-      let data = wsJsonToRes<GetSiteConfigResponse>(msg).data;
+      let data = wsJsonToRes<GetSiteConfigResponse>(msg, GetSiteConfigResponse);
       this.state.siteConfigRes = Some(data);
       this.state.siteConfigHjson = this.state.siteConfigRes.map(
         s => s.config_hjson

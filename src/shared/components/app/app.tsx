@@ -4,7 +4,7 @@ import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
 import { i18n } from "../../i18next";
 import { routes } from "../../routes";
-import { favIconPngUrl, favIconUrl, setIsoData, toOption } from "../../utils";
+import { favIconPngUrl, favIconUrl, setIsoData } from "../../utils";
 import { Footer } from "./footer";
 import { Navbar } from "./navbar";
 import { NoMatch } from "./no-match";
@@ -18,14 +18,15 @@ export class App extends Component<any, any> {
   }
   render() {
     let siteRes = this.isoData.site_res;
-    let siteView = toOption(siteRes.site_view);
+    let siteView = siteRes.site_view;
+
     return (
       <>
         <Provider i18next={i18n}>
           <div>
             <Theme defaultTheme={siteView.map(s => s.site.default_theme)} />
             {siteView
-              .andThen(s => toOption(s.site.icon))
+              .andThen(s => s.site.icon)
               .match({
                 some: icon => (
                   <Helmet>

@@ -1,4 +1,3 @@
-import { WebSocketJsonResponse } from "lemmy-js-client";
 import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
 import {
@@ -31,7 +30,7 @@ export class WebSocketService {
           console.log(`Connected to ${wsUri}`);
 
           if (!firstConnect) {
-            let res: WebSocketJsonResponse<any> = {
+            let res = {
               reconnect: true,
             };
             obs.next(res);

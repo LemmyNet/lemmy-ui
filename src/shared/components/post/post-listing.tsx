@@ -18,6 +18,7 @@ import {
   RemovePost,
   SavePost,
   StickyPost,
+  toUndefined,
   TransferCommunity,
 } from "lemmy-js-client";
 import { externalHost } from "../../env";
@@ -42,8 +43,6 @@ import {
   relTags,
   setupTippy,
   showScores,
-  toOption,
-  toUndefined,
   wsClient,
 } from "../../utils";
 import { Icon } from "../common/icon";
@@ -109,7 +108,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showBody: false,
     showReportDialog: false,
     reportReason: None,
-    my_vote: toOption(this.props.post_view.my_vote),
+    my_vote: this.props.post_view.my_vote,
     score: this.props.post_view.counts.score,
     upvotes: this.props.post_view.counts.upvotes,
     downvotes: this.props.post_view.counts.downvotes,
@@ -126,7 +125,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
-    this.state.my_vote = toOption(nextProps.post_view.my_vote);
+    this.state.my_vote = nextProps.post_view.my_vote;
     this.state.upvotes = nextProps.post_view.counts.upvotes;
     this.state.downvotes = nextProps.post_view.counts.downvotes;
     this.state.score = nextProps.post_view.counts.score;
@@ -144,9 +143,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.listing()}
             {this.state.imageExpanded && this.img}
-            {toOption(post.url).isSome() &&
+            {post.url.isSome() &&
               this.showBody &&
-              post.embed_title && <MetadataCard post={post} />}
+              post.embed_title.isSome() && <MetadataCard post={post} />}
             {this.showBody && this.body()}
           </>
         ) : (
@@ -167,7 +166,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   body() {
-    return toOption(this.props.post_view.post.body).match({
+    return this.props.post_view.post.body.match({
       some: body => (
         <div class="col-12 card my-2 p-2">
           {this.state.viewSource ? (
@@ -218,8 +217,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get imageSrc(): Option<string> {
     let post = this.props.post_view.post;
-    let url = toOption(post.url);
-    let thumbnail = toOption(post.thumbnail_url);
+    let url = post.url;
+    let thumbnail = post.thumbnail_url;
 
     if (url.isSome() && isImage(url.unwrap())) {
       if (url.unwrap().includes("pictrs")) {
@@ -238,8 +237,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   thumbnail() {
     let post = this.props.post_view.post;
-    let url = toOption(post.url);
-    let thumbnail = toOption(post.thumbnail_url);
+    let url = post.url;
+    let thumbnail = post.thumbnail_url;
 
     if (url.isSome() && isImage(url.unwrap())) {
       return (
@@ -343,7 +342,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
         </li>
         <li className="list-inline-item">•</li>
-        {toOption(post_view.post.url).match({
+        {post_view.post.url.match({
           some: url =>
             !(hostname(url) == externalHost) && (
               <>
@@ -366,11 +365,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <span>
             <MomentTime
               published={post_view.post.published}
-              updated={toOption(post_view.post.updated)}
+              updated={post_view.post.updated}
             />
           </span>
         </li>
-        {toOption(post_view.post.body).match({
+        {post_view.post.body.match({
           some: body => (
             <>
               <li className="list-inline-item">•</li>
@@ -438,28 +437,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <div className="post-title overflow-hidden">
         <h5>
-          {this.showBody && toOption(post.url).isSome() ? (
-            <a
-              className={!post.stickied ? "text-body" : "text-primary"}
-              href={post.url}
-              title={post.url}
-              rel={relTags}
-            >
-              {post.name}
-            </a>
-          ) : (
-            <Link
-              className={!post.stickied ? "text-body" : "text-primary"}
-              to={`/post/${post.id}`}
-              title={i18n.t("comments")}
-            >
-              {post.name}
-            </Link>
-          )}
-          {toOption(post.url)
-            .map(isImage)
-            .or(toOption(post.thumbnail_url))
-            .isSome() && (
+          {post.url.match({
+            some: url => (
+              <a
+                className={!post.stickied ? "text-body" : "text-primary"}
+                href={url}
+                title={url}
+                rel={relTags}
+              >
+                {post.name}
+              </a>
+            ),
+            none: (
+              <Link
+                className={!post.stickied ? "text-body" : "text-primary"}
+                to={`/post/${post.id}`}
+                title={i18n.t("comments")}
+              >
+                {post.name}
+              </Link>
+            ),
+          })}
+          {post.url.map(isImage).or(post.thumbnail_url).unwrapOr(false) && (
             <button
               class="btn btn-link text-monospace text-muted small d-inline-block ml-2"
               data-tippy-content={i18n.t("expand_here")}
@@ -588,16 +587,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showAdvanced && (
           <>
-            {this.showBody && post_view.post.body && this.viewSourceButton}
+            {this.showBody &&
+              post_view.post.body.isSome() &&
+              this.viewSourceButton}
             {this.canModOnSelf_ && (
               <>
                 {this.lockButton}
                 {this.stickyButton}
               </>
             )}
-            {(this.canMod_ || this.canAdmin_ || true) && (
-              <>{this.modRemoveButton}</>
-            )}
+            {(this.canMod_ || this.canAdmin_) && <>{this.modRemoveButton}</>}
           </>
         )}
         {!mobile && this.showMoreButton}
@@ -1105,7 +1104,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   mobileThumbnail() {
     let post = this.props.post_view.post;
-    return post.thumbnail_url || isImage(post.url) ? (
+    return post.thumbnail_url.isSome() ||
+      post.url.map(isImage).unwrapOr(false) ? (
       <div class="row">
         <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
           {this.postTitleLine()}
@@ -1123,10 +1123,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   showMobilePreview() {
     let post = this.props.post_view.post;
     return (
-      post.body &&
-      !this.showBody && (
-        <div className="md-div mb-1 preview-lines">{post.body}</div>
-      )
+      !this.showBody &&
+      post.body.match({
+        some: body => <div className="md-div mb-1 preview-lines">{body}</div>,
+        none: <></>,
+      })
     );
   }
 
@@ -1209,11 +1210,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     i.state.my_vote = Some(newVote);
 
-    let form: CreatePostLike = {
+    let form = new CreatePostLike({
       post_id: i.props.post_view.post.id,
       score: newVote,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
 
     WebSocketService.Instance.send(wsClient.likePost(form));
     i.setState(i.state);
@@ -1243,11 +1244,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     i.state.my_vote = Some(newVote);
 
-    let form: CreatePostLike = {
+    let form = new CreatePostLike({
       post_id: i.props.post_view.post.id,
       score: newVote,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
 
     WebSocketService.Instance.send(wsClient.likePost(form));
     i.setState(i.state);
@@ -1282,11 +1283,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleReportSubmit(i: PostListing, event: any) {
     event.preventDefault();
-    let form: CreatePostReport = {
+    let form = new CreatePostReport({
       post_id: i.props.post_view.post.id,
       reason: toUndefined(i.state.reportReason),
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.createPostReport(form));
 
     i.state.showReportDialog = false;
@@ -1294,31 +1295,31 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleBlockUserClick(i: PostListing) {
-    let blockUserForm: BlockPerson = {
+    let blockUserForm = new BlockPerson({
       person_id: i.props.post_view.creator.id,
       block: true,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
   }
 
   handleDeleteClick(i: PostListing) {
-    let deleteForm: DeletePost = {
+    let deleteForm = new DeletePost({
       post_id: i.props.post_view.post.id,
       deleted: !i.props.post_view.post.deleted,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.deletePost(deleteForm));
   }
 
   handleSavePostClick(i: PostListing) {
     let saved =
       i.props.post_view.saved == undefined ? true : !i.props.post_view.saved;
-    let form: SavePost = {
+    let form = new SavePost({
       post_id: i.props.post_view.post.id,
       save: saved,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
 
     WebSocketService.Instance.send(wsClient.savePost(form));
   }
@@ -1327,10 +1328,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     let params = `?title=${encodeURIComponent(post.name)}`;
 
-    if (post.url) {
-      params += `&url=${encodeURIComponent(post.url)}`;
+    if (post.url.isSome()) {
+      params += `&url=${encodeURIComponent(post.url.unwrap())}`;
     }
-    if (post.body) {
+    if (post.body.isSome()) {
       params += `&body=${encodeURIComponent(this.crossPostBody())}`;
     }
     return params;
@@ -1338,9 +1339,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   crossPostBody(): string {
     let post = this.props.post_view.post;
-    let body = `${i18n.t("cross_posted_from")} ${
-      post.ap_id
-    }\n\n${post.body.replace(/^/gm, "> ")}`;
+    let body = `${i18n.t("cross_posted_from")} ${post.ap_id}\n\n${post.body
+      .unwrap()
+      .replace(/^/gm, "> ")}`;
     return body;
   }
 
@@ -1366,12 +1367,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleModRemoveSubmit(i: PostListing, event: any) {
     event.preventDefault();
-    let form: RemovePost = {
+    let form = new RemovePost({
       post_id: i.props.post_view.post.id,
       removed: !i.props.post_view.post.removed,
-      reason: toUndefined(i.state.removeReason),
-      auth: auth(),
-    };
+      reason: i.state.removeReason,
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.removePost(form));
 
     i.state.showRemoveDialog = false;
@@ -1379,20 +1380,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModLock(i: PostListing) {
-    let form: LockPost = {
+    let form = new LockPost({
       post_id: i.props.post_view.post.id,
       locked: !i.props.post_view.post.locked,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.lockPost(form));
   }
 
   handleModSticky(i: PostListing) {
-    let form: StickyPost = {
+    let form = new StickyPost({
       post_id: i.props.post_view.post.id,
       stickied: !i.props.post_view.post.stickied,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.stickyPost(form));
   }
 
@@ -1441,15 +1442,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       if (ban == false) {
         i.state.removeData = false;
       }
-      let form: BanFromCommunity = {
+      let form = new BanFromCommunity({
         person_id: i.props.post_view.creator.id,
         community_id: i.props.post_view.community.id,
         ban,
-        remove_data: i.state.removeData,
-        reason: toUndefined(i.state.banReason),
-        expires: toUndefined(i.state.banExpireDays.map(futureDaysToUnixTime)),
-        auth: auth(),
-      };
+        remove_data: Some(i.state.removeData),
+        reason: i.state.banReason,
+        expires: i.state.banExpireDays.map(futureDaysToUnixTime),
+        auth: auth().unwrap(),
+      });
       WebSocketService.Instance.send(wsClient.banFromCommunity(form));
     } else {
       // If its an unban, restore all their data
@@ -1457,14 +1458,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       if (ban == false) {
         i.state.removeData = false;
       }
-      let form: BanPerson = {
+      let form = new BanPerson({
         person_id: i.props.post_view.creator.id,
         ban,
-        remove_data: i.state.removeData,
-        reason: toUndefined(i.state.banReason),
-        expires: toUndefined(i.state.banExpireDays.map(futureDaysToUnixTime)),
-        auth: auth(),
-      };
+        remove_data: Some(i.state.removeData),
+        reason: i.state.banReason,
+        expires: i.state.banExpireDays.map(futureDaysToUnixTime),
+        auth: auth().unwrap(),
+      });
       WebSocketService.Instance.send(wsClient.banPerson(form));
     }
 
@@ -1473,22 +1474,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleAddModToCommunity(i: PostListing) {
-    let form: AddModToCommunity = {
+    let form = new AddModToCommunity({
       person_id: i.props.post_view.creator.id,
       community_id: i.props.post_view.community.id,
       added: !i.creatorIsMod_,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.addModToCommunity(form));
     i.setState(i.state);
   }
 
   handleAddAdmin(i: PostListing) {
-    let form: AddAdmin = {
+    let form = new AddAdmin({
       person_id: i.props.post_view.creator.id,
       added: !i.creatorIsAdmin_,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.addAdmin(form));
     i.setState(i.state);
   }
@@ -1504,11 +1505,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleTransferCommunity(i: PostListing) {
-    let form: TransferCommunity = {
+    let form = new TransferCommunity({
       community_id: i.props.post_view.community.id,
       person_id: i.props.post_view.creator.id,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.transferCommunity(form));
     i.state.showConfirmTransferCommunity = false;
     i.setState(i.state);

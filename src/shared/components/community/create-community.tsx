@@ -9,7 +9,6 @@ import {
   isBrowser,
   setIsoData,
   toast,
-  toOption,
   wsSubscribe,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
@@ -49,7 +48,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `${i18n.t("create_community")} - ${siteView.site.name}`,
       none: "",
     });

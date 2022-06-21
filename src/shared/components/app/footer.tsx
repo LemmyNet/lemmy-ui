@@ -2,7 +2,7 @@ import { Component } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { docsUrl, joinLemmyUrl, repoUrl, toOption } from "../../utils";
+import { docsUrl, joinLemmyUrl, repoUrl } from "../../utils";
 import { VERSION } from "../../version";
 
 interface FooterProps {
@@ -32,8 +32,8 @@ export class Footer extends Component<FooterProps, any> {
                 {i18n.t("modlog")}
               </NavLink>
             </li>
-            {toOption(this.props.site.site_view)
-              .andThen(s => toOption(s.site.legal_information))
+            {this.props.site.site_view
+              .andThen(s => s.site.legal_information)
               .isSome() && (
               <li className="nav-item">
                 <NavLink className="nav-link" to="/legal">

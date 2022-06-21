@@ -3,7 +3,7 @@ import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { PersonViewSafe, Site, SiteAggregates } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { amAdmin, mdToHtml, numToSI, toOption } from "../../utils";
+import { amAdmin, mdToHtml, numToSI } from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -48,10 +48,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
               </div>
               {!this.state.collapsed && (
                 <>
-                  <BannerIconHeader
-                    banner={toOption(site.banner)}
-                    icon={None}
-                  />
+                  <BannerIconHeader banner={site.banner} icon={None} />
                   {this.siteInfo()}
                 </>
               )}
@@ -94,11 +91,11 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     let site = this.props.site;
     return (
       <div>
-        {toOption(site.description).match({
+        {site.description.match({
           some: description => <h6>{description}</h6>,
           none: <></>,
         })}
-        {toOption(site.sidebar).match({
+        {site.sidebar.match({
           some: sidebar => this.siteSidebar(sidebar),
           none: <></>,
         })}

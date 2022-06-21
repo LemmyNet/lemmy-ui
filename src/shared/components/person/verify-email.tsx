@@ -5,6 +5,8 @@ import {
   UserOperation,
   VerifyEmail as VerifyEmailForm,
   VerifyEmailResponse,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -13,11 +15,8 @@ import {
   isBrowser,
   setIsoData,
   toast,
-  toOption,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 
@@ -31,9 +30,9 @@ export class VerifyEmail extends Component<any, State> {
   private subscription: Subscription;
 
   emptyState: State = {
-    verifyEmailForm: {
+    verifyEmailForm: new VerifyEmailForm({
       token: this.props.match.params.token,
-    },
+    }),
     siteRes: this.isoData.site_res,
   };
 
@@ -59,7 +58,7 @@ export class VerifyEmail extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `${i18n.t("verify_email")} - ${siteView.site.name}`,
       none: "",
     });
@@ -92,7 +91,7 @@ export class VerifyEmail extends Component<any, State> {
       this.props.history.push("/");
       return;
     } else if (op == UserOperation.VerifyEmail) {
-      let data = wsJsonToRes<VerifyEmailResponse>(msg).data;
+      let data = wsJsonToRes<VerifyEmailResponse>(msg, VerifyEmailResponse);
       if (data) {
         toast(i18n.t("email_verified"));
         this.state = this.emptyState;

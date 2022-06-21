@@ -24,6 +24,8 @@ import {
   SearchType,
   SortType,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -53,15 +55,12 @@ import {
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
-  setOptionalAuth,
   setupTippy,
   toast,
-  toOption,
+  trendingFetchLimit,
   updatePersonBlock,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -90,7 +89,7 @@ interface PostState {
 
 export class Post extends Component<any, PostState> {
   private subscription: Subscription;
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this.context, GetPostResponse);
   private commentScrollDebounced: () => void;
   private emptyState: PostState = {
     postRes: None,
@@ -119,7 +118,7 @@ export class Post extends Component<any, PostState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.postRes = Some(this.isoData.routeData[0]);
+      this.state.postRes = Some(this.isoData.routeData[0] as GetPostResponse);
       this.state.commentTree = buildCommentsTree(
         this.state.postRes.unwrap().comments,
         this.state.commentSort
@@ -152,27 +151,30 @@ export class Post extends Component<any, PostState> {
   }
 
   fetchPost() {
-    let form: GetPost = {
+    let form = new GetPost({
       id: this.state.postId,
-      auth: auth(false),
-    };
+      auth: auth(false).ok(),
+    });
     WebSocketService.Instance.send(wsClient.getPost(form));
   }
 
   fetchCrossPosts() {
     this.state.postRes
-      .andThen(r => toOption(r.post_view.post.url))
+      .andThen(r => r.post_view.post.url)
       .match({
         some: url => {
-          let form: Search = {
+          let form = new Search({
             q: url,
-            type_: SearchType.Url,
-            sort: SortType.TopAll,
-            listing_type: ListingType.All,
-            page: 1,
-            limit: 6,
-            auth: auth(false),
-          };
+            type_: Some(SearchType.Url),
+            sort: Some(SortType.TopAll),
+            listing_type: Some(ListingType.All),
+            page: Some(1),
+            limit: Some(trendingFetchLimit),
+            community_id: None,
+            community_name: None,
+            creator_id: None,
+            auth: auth(false).ok(),
+          });
           WebSocketService.Instance.send(wsClient.search(form));
         },
         none: void 0,
@@ -181,18 +183,15 @@ export class Post extends Component<any, PostState> {
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split("/");
-    let promises: Promise<any>[] = [];
 
     let id = Number(pathSplit[2]);
 
-    let postForm: GetPost = {
+    let postForm = new GetPost({
       id,
-    };
-    setOptionalAuth(postForm, req.auth);
+      auth: req.auth,
+    });
 
-    promises.push(req.client.getPost(postForm));
-
-    return promises;
+    return [req.client.getPost(postForm)];
   }
 
   componentWillUnmount() {
@@ -251,7 +250,7 @@ export class Post extends Component<any, PostState> {
       some: res => {
         let found = res.comments.find(c => c.comment.id == commentId);
         let parent = res.comments.find(
-          c => found.comment.parent_id == c.comment.id
+          c => found.comment.parent_id.unwrapOr(0) == c.comment.id
         );
         let parent_person_id = parent
           ? parent.creator.id
@@ -260,11 +259,11 @@ export class Post extends Component<any, PostState> {
         UserService.Instance.myUserInfo.match({
           some: mui => {
             if (mui.local_user_view.person.id == parent_person_id) {
-              let form: MarkCommentAsRead = {
+              let form = new MarkCommentAsRead({
                 comment_id: found.comment.id,
                 read: true,
-                auth: auth(),
-              };
+                auth: auth().unwrap(),
+              });
               WebSocketService.Instance.send(wsClient.markCommentAsRead(form));
               UserService.Instance.unreadInboxCountSub.next(
                 UserService.Instance.unreadInboxCountSub.value - 1
@@ -296,7 +295,7 @@ export class Post extends Component<any, PostState> {
   get documentTitle(): string {
     return this.state.postRes.match({
       some: res =>
-        toOption(this.state.siteRes.site_view).match({
+        this.state.siteRes.site_view.match({
           some: siteView =>
             `${res.post_view.post.name} - ${siteView.site.name}`,
           none: "",
@@ -308,8 +307,8 @@ export class Post extends Component<any, PostState> {
   get imageTag(): Option<string> {
     return this.state.postRes.match({
       some: res =>
-        toOption(res.post_view.post.thumbnail_url).or(
-          toOption(res.post_view.post.url).match({
+        res.post_view.post.thumbnail_url.or(
+          res.post_view.post.url.match({
             some: url => (isImage(url) ? Some(url) : None),
             none: None,
           })
@@ -319,7 +318,7 @@ export class Post extends Component<any, PostState> {
   }
 
   get descriptionTag(): Option<string> {
-    return this.state.postRes.andThen(r => toOption(r.post_view.post.body));
+    return this.state.postRes.andThen(r => r.post_view.post.body);
   }
 
   render() {
@@ -558,11 +557,11 @@ export class Post extends Component<any, PostState> {
       WebSocketService.Instance.send(
         wsClient.getPost({
           id: postId,
-          auth: auth(false),
+          auth: auth(false).ok(),
         })
       );
     } else if (op == UserOperation.GetPost) {
-      let data = wsJsonToRes<GetPostResponse>(msg).data;
+      let data = wsJsonToRes<GetPostResponse>(msg, GetPostResponse);
       this.state.postRes = Some(data);
 
       this.state.commentTree = buildCommentsTree(
@@ -595,7 +594,7 @@ export class Post extends Component<any, PostState> {
         this.scrollCommentIntoView();
       }
     } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
 
       // Don't get comments from the post room, if the creator is blocked
       let creatorBlocked = UserService.Instance.myUserInfo
@@ -622,14 +621,14 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.DeleteComment ||
       op == UserOperation.RemoveComment
     ) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       editCommentRes(
         data.comment_view,
         this.state.postRes.map(r => r.comments).unwrapOr([])
       );
       this.setState(this.state);
     } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       saveCommentRes(
         data.comment_view,
         this.state.postRes.map(r => r.comments).unwrapOr([])
@@ -637,14 +636,14 @@ export class Post extends Component<any, PostState> {
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       createCommentLikeRes(
         data.comment_view,
         this.state.postRes.map(r => r.comments).unwrapOr([])
       );
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
-      let data = wsJsonToRes<PostResponse>(msg).data;
+      let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       this.state.postRes.match({
         some: res => createPostLikeRes(data.post_view, res.post_view),
         none: void 0,
@@ -658,7 +657,7 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.StickyPost ||
       op == UserOperation.SavePost
     ) {
-      let data = wsJsonToRes<PostResponse>(msg).data;
+      let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       this.state.postRes.match({
         some: res => (res.post_view = data.post_view),
         none: void 0,
@@ -671,7 +670,7 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.RemoveCommunity ||
       op == UserOperation.FollowCommunity
     ) {
-      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.postRes.match({
         some: res => {
           res.community_view = data.community_view;
@@ -681,7 +680,10 @@ export class Post extends Component<any, PostState> {
         none: void 0,
       });
     } else if (op == UserOperation.BanFromCommunity) {
-      let data = wsJsonToRes<BanFromCommunityResponse>(msg).data;
+      let data = wsJsonToRes<BanFromCommunityResponse>(
+        msg,
+        BanFromCommunityResponse
+      );
       this.state.postRes.match({
         some: res => {
           res.comments
@@ -695,7 +697,10 @@ export class Post extends Component<any, PostState> {
         none: void 0,
       });
     } else if (op == UserOperation.AddModToCommunity) {
-      let data = wsJsonToRes<AddModToCommunityResponse>(msg).data;
+      let data = wsJsonToRes<AddModToCommunityResponse>(
+        msg,
+        AddModToCommunityResponse
+      );
       this.state.postRes.match({
         some: res => {
           res.moderators = data.moderators;
@@ -704,7 +709,7 @@ export class Post extends Component<any, PostState> {
         none: void 0,
       });
     } else if (op == UserOperation.BanPerson) {
-      let data = wsJsonToRes<BanPersonResponse>(msg).data;
+      let data = wsJsonToRes<BanPersonResponse>(msg, BanPersonResponse);
       this.state.postRes.match({
         some: res => {
           res.comments
@@ -718,22 +723,22 @@ export class Post extends Component<any, PostState> {
         none: void 0,
       });
     } else if (op == UserOperation.AddAdmin) {
-      let data = wsJsonToRes<AddAdminResponse>(msg).data;
+      let data = wsJsonToRes<AddAdminResponse>(msg, AddAdminResponse);
       this.state.siteRes.admins = data.admins;
       this.setState(this.state);
     } else if (op == UserOperation.Search) {
-      let data = wsJsonToRes<SearchResponse>(msg).data;
+      let data = wsJsonToRes<SearchResponse>(msg, SearchResponse);
       let xPosts = data.posts.filter(
         p => p.post.id != Number(this.props.match.params.id)
       );
       this.state.crossPosts = xPosts.length > 0 ? Some(xPosts) : None;
       this.setState(this.state);
     } else if (op == UserOperation.LeaveAdmin) {
-      let data = wsJsonToRes<GetSiteResponse>(msg).data;
+      let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
       this.state.siteRes = data;
       this.setState(this.state);
     } else if (op == UserOperation.TransferCommunity) {
-      let data = wsJsonToRes<GetCommunityResponse>(msg).data;
+      let data = wsJsonToRes<GetCommunityResponse>(msg, GetCommunityResponse);
       this.state.postRes.match({
         some: res => {
           res.community_view = data.community_view;
@@ -744,15 +749,15 @@ export class Post extends Component<any, PostState> {
         none: void 0,
       });
     } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg).data;
+      let data = wsJsonToRes<BlockPersonResponse>(msg, BlockPersonResponse);
       updatePersonBlock(data);
     } else if (op == UserOperation.CreatePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg).data;
+      let data = wsJsonToRes<PostReportResponse>(msg, PostReportResponse);
       if (data) {
         toast(i18n.t("report_created"));
       }
     } else if (op == UserOperation.CreateCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg).data;
+      let data = wsJsonToRes<CommentReportResponse>(msg, CommentReportResponse);
       if (data) {
         toast(i18n.t("report_created"));
       }

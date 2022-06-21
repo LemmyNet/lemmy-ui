@@ -6,6 +6,8 @@ import {
   LoginResponse,
   PasswordReset,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -15,12 +17,9 @@ import {
   isBrowser,
   setIsoData,
   toast,
-  toOption,
   validEmail,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -36,10 +35,10 @@ export class Login extends Component<any, State> {
   private subscription: Subscription;
 
   emptyState: State = {
-    loginForm: {
+    loginForm: new LoginForm({
       username_or_email: undefined,
       password: undefined,
-    },
+    }),
     loginLoading: false,
     siteRes: this.isoData.site_res,
   };
@@ -71,7 +70,7 @@ export class Login extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `${i18n.t("login")} - ${siteView.site.name}`,
       none: "",
     });
@@ -179,9 +178,9 @@ export class Login extends Component<any, State> {
 
   handlePasswordReset(i: Login, event: any) {
     event.preventDefault();
-    let resetForm: PasswordReset = {
+    let resetForm = new PasswordReset({
       email: i.state.loginForm.username_or_email,
-    };
+    });
     WebSocketService.Instance.send(wsClient.passwordReset(resetForm));
   }
 
@@ -195,13 +194,13 @@ export class Login extends Component<any, State> {
       return;
     } else {
       if (op == UserOperation.Login) {
-        let data = wsJsonToRes<LoginResponse>(msg).data;
+        let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
         this.state = this.emptyState;
         this.setState(this.state);
         UserService.Instance.login(data);
         WebSocketService.Instance.send(
           wsClient.userJoin({
-            auth: auth(),
+            auth: auth().unwrap(),
           })
         );
         toast(i18n.t("logged_in"));
@@ -209,7 +208,7 @@ export class Login extends Component<any, State> {
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
-        let data = wsJsonToRes<GetSiteResponse>(msg).data;
+        let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
         this.state.siteRes = data;
         this.setState(this.state);
       }

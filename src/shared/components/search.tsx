@@ -5,6 +5,7 @@ import {
   CommentView,
   CommunityView,
   GetCommunity,
+  GetCommunityResponse,
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
@@ -21,6 +22,8 @@ import {
   SearchType,
   SortType,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { InitialFetchRequest } from "shared/interfaces";
@@ -52,14 +55,10 @@ import {
   routeSortTypeToEnum,
   saveScrollPosition,
   setIsoData,
-  setOptionalAuth,
   showLocal,
   toast,
-  toOption,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../utils";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
@@ -120,7 +119,14 @@ interface Combined {
 }
 
 export class Search extends Component<any, SearchState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(
+    this.context,
+    GetCommunityResponse,
+    ListCommunitiesResponse,
+    GetPersonDetailsResponse,
+    SearchResponse,
+    ResolveObjectResponse
+  );
   private communityChoices: any;
   private creatorChoices: any;
   private subscription: Subscription;
@@ -186,17 +192,29 @@ export class Search extends Component<any, SearchState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      let singleOrMultipleCommunities = this.isoData.routeData[0];
-      if (singleOrMultipleCommunities.communities) {
-        this.state.communities = this.isoData.routeData[0].communities;
-      } else {
-        this.state.communities = [this.isoData.routeData[0].community_view];
-      }
+      let communityRes = Some(
+        this.isoData.routeData[0] as GetCommunityResponse
+      );
+      let communitiesRes = Some(
+        this.isoData.routeData[1] as ListCommunitiesResponse
+      );
 
-      this.state.creatorDetails = Some(this.isoData.routeData[1]);
+      // This can be single or multiple communities given
+      this.state.communities = communitiesRes
+        .map(c => c.communities)
+        .unwrapOr([communityRes.map(c => c.community_view).unwrap()]);
+
+      this.state.creatorDetails = Some(
+        this.isoData.routeData[2] as GetPersonDetailsResponse
+      );
+
       if (this.state.q != "") {
-        this.state.searchResponse = Some(this.isoData.routeData[2]);
-        this.state.resolveObjectResponse = Some(this.isoData.routeData[3]);
+        this.state.searchResponse = Some(
+          this.isoData.routeData[3] as SearchResponse
+        );
+        this.state.resolveObjectResponse = Some(
+          this.isoData.routeData[4] as ResolveObjectResponse
+        );
         this.state.loading = false;
       } else {
         this.search();
@@ -234,12 +252,13 @@ export class Search extends Component<any, SearchState> {
   }
 
   fetchCommunities() {
-    let listCommunitiesForm: ListCommunities = {
-      type_: ListingType.All,
-      sort: SortType.TopAll,
-      limit: fetchLimit,
-      auth: auth(false),
-    };
+    let listCommunitiesForm = new ListCommunities({
+      type_: Some(ListingType.All),
+      sort: Some(SortType.TopAll),
+      limit: Some(fetchLimit),
+      page: None,
+      auth: auth(false).ok(),
+    });
     WebSocketService.Instance.send(
       wsClient.listCommunities(listCommunitiesForm)
     );
@@ -250,57 +269,76 @@ export class Search extends Component<any, SearchState> {
     let promises: Promise<any>[] = [];
 
     let communityId = this.getCommunityIdFromProps(pathSplit[11]);
-    if (communityId !== 0) {
-      let getCommunityForm: GetCommunity = {
-        id: communityId,
-      };
-      setOptionalAuth(getCommunityForm, req.auth);
-      promises.push(req.client.getCommunity(getCommunityForm));
-    } else {
-      let listCommunitiesForm: ListCommunities = {
-        type_: ListingType.All,
-        sort: SortType.TopAll,
-        limit: fetchLimit,
-      };
-      setOptionalAuth(listCommunitiesForm, req.auth);
-      promises.push(req.client.listCommunities(listCommunitiesForm));
-    }
+    let community_id: Option<number> =
+      communityId == 0 ? None : Some(communityId);
+    community_id.match({
+      some: id => {
+        let getCommunityForm = new GetCommunity({
+          id: Some(id),
+          name: None,
+          auth: req.auth,
+        });
+        promises.push(req.client.getCommunity(getCommunityForm));
+        promises.push(Promise.resolve());
+      },
+      none: () => {
+        let listCommunitiesForm = new ListCommunities({
+          type_: Some(ListingType.All),
+          sort: Some(SortType.TopAll),
+          limit: Some(fetchLimit),
+          page: None,
+          auth: req.auth,
+        });
+        promises.push(Promise.resolve());
+        promises.push(req.client.listCommunities(listCommunitiesForm));
+      },
+    });
 
     let creatorId = this.getCreatorIdFromProps(pathSplit[13]);
-    if (creatorId !== 0) {
-      let getCreatorForm: GetPersonDetails = {
-        person_id: creatorId,
-      };
-      setOptionalAuth(getCreatorForm, req.auth);
-      promises.push(req.client.getPersonDetails(getCreatorForm));
-    } else {
-      promises.push(Promise.resolve());
-    }
+    let creator_id: Option<number> = creatorId == 0 ? None : Some(creatorId);
+    creator_id.match({
+      some: id => {
+        let getCreatorForm = new GetPersonDetails({
+          person_id: Some(id),
+          username: None,
+          sort: None,
+          page: None,
+          limit: None,
+          community_id: None,
+          saved_only: None,
+          auth: req.auth,
+        });
+        promises.push(req.client.getPersonDetails(getCreatorForm));
+      },
+      none: () => {
+        promises.push(Promise.resolve());
+      },
+    });
 
-    let form: SearchForm = {
+    let form = new SearchForm({
       q: this.getSearchQueryFromProps(pathSplit[3]),
-      type_: this.getSearchTypeFromProps(pathSplit[5]),
-      sort: this.getSortTypeFromProps(pathSplit[7]),
-      listing_type: this.getListingTypeFromProps(pathSplit[9]),
-      page: this.getPageFromProps(pathSplit[15]),
-      limit: fetchLimit,
-    };
-    if (communityId !== 0) {
-      form.community_id = communityId;
-    }
-    if (creatorId !== 0) {
-      form.creator_id = creatorId;
-    }
-    setOptionalAuth(form, req.auth);
+      community_id,
+      community_name: None,
+      creator_id,
+      type_: Some(this.getSearchTypeFromProps(pathSplit[5])),
+      sort: Some(this.getSortTypeFromProps(pathSplit[7])),
+      listing_type: Some(this.getListingTypeFromProps(pathSplit[9])),
+      page: Some(this.getPageFromProps(pathSplit[15])),
+      limit: Some(fetchLimit),
+      auth: req.auth,
+    });
 
-    let resolveObjectForm: ResolveObject = {
+    let resolveObjectForm = new ResolveObject({
       q: this.getSearchQueryFromProps(pathSplit[3]),
-    };
-    setOptionalAuth(resolveObjectForm, req.auth);
+      auth: req.auth,
+    });
 
     if (form.q != "") {
       promises.push(req.client.search(form));
       promises.push(req.client.resolveObject(resolveObjectForm));
+    } else {
+      promises.push(Promise.resolve());
+      promises.push(Promise.resolve());
     }
 
     return promises;
@@ -327,7 +365,7 @@ export class Search extends Component<any, SearchState> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView =>
         this.state.q
           ? `${i18n.t("search")} - ${this.state.q} - ${siteView.site.name}`
@@ -467,20 +505,22 @@ export class Search extends Component<any, SearchState> {
     this.state.resolveObjectResponse.match({
       some: res => {
         let resolveComment = res.comment;
-        if (resolveComment) {
-          combined.push(this.commentViewToCombined(resolveComment));
+        if (resolveComment.isSome()) {
+          combined.push(this.commentViewToCombined(resolveComment.unwrap()));
         }
         let resolvePost = res.post;
-        if (resolvePost) {
-          combined.push(this.postViewToCombined(resolvePost));
+        if (resolvePost.isSome()) {
+          combined.push(this.postViewToCombined(resolvePost.unwrap()));
         }
         let resolveCommunity = res.community;
-        if (resolveCommunity) {
-          combined.push(this.communityViewToCombined(resolveCommunity));
+        if (resolveCommunity.isSome()) {
+          combined.push(
+            this.communityViewToCombined(resolveCommunity.unwrap())
+          );
         }
         let resolveUser = res.person;
-        if (resolveUser) {
-          combined.push(this.personViewSafeToCombined(resolveUser));
+        if (resolveUser.isSome()) {
+          combined.push(this.personViewSafeToCombined(resolveUser.unwrap()));
         }
       },
       none: void 0,
@@ -774,26 +814,30 @@ export class Search extends Component<any, SearchState> {
   }
 
   search() {
-    let form: SearchForm = {
-      q: this.state.q,
-      type_: this.state.type_,
-      sort: this.state.sort,
-      listing_type: this.state.listingType,
-      page: this.state.page,
-      limit: fetchLimit,
-      auth: auth(false),
-    };
-    if (this.state.communityId !== 0) {
-      form.community_id = this.state.communityId;
-    }
-    if (this.state.creatorId !== 0) {
-      form.creator_id = this.state.creatorId;
-    }
+    let community_id: Option<number> =
+      this.state.communityId == 0 ? None : Some(this.state.communityId);
+    let creator_id: Option<number> =
+      this.state.creatorId == 0 ? None : Some(this.state.creatorId);
 
-    let resolveObjectForm: ResolveObject = {
+    console.log(community_id.unwrapOr(-22));
+
+    let form = new SearchForm({
       q: this.state.q,
-      auth: auth(false),
-    };
+      community_id,
+      community_name: None,
+      creator_id,
+      type_: Some(this.state.type_),
+      sort: Some(this.state.sort),
+      listing_type: Some(this.state.listingType),
+      page: Some(this.state.page),
+      limit: Some(fetchLimit),
+      auth: auth(false).ok(),
+    });
+
+    let resolveObjectForm = new ResolveObject({
+      q: this.state.q,
+      auth: auth(false).ok(),
+    });
 
     if (this.state.q != "") {
       this.state.searchResponse = None;
@@ -940,39 +984,47 @@ export class Search extends Component<any, SearchState> {
     let op = wsUserOp(msg);
     if (msg.error) {
       if (msg.error == "couldnt_find_object") {
-        this.state.resolveObjectResponse = None;
+        this.state.resolveObjectResponse = Some({
+          comment: None,
+          post: None,
+          community: None,
+          person: None,
+        });
         this.checkFinishedLoading();
       } else {
         toast(i18n.t(msg.error), "danger");
         return;
       }
     } else if (op == UserOperation.Search) {
-      let data = wsJsonToRes<SearchResponse>(msg).data;
+      let data = wsJsonToRes<SearchResponse>(msg, SearchResponse);
       this.state.searchResponse = Some(data);
       window.scrollTo(0, 0);
       this.checkFinishedLoading();
       restoreScrollPosition(this.context);
     } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       createCommentLikeRes(
         data.comment_view,
         this.state.searchResponse.map(r => r.comments).unwrapOr([])
       );
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
-      let data = wsJsonToRes<PostResponse>(msg).data;
+      let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       createPostLikeFindRes(
         data.post_view,
         this.state.searchResponse.map(r => r.posts).unwrapOr([])
       );
       this.setState(this.state);
     } else if (op == UserOperation.ListCommunities) {
-      let data = wsJsonToRes<ListCommunitiesResponse>(msg).data;
+      let data = wsJsonToRes<ListCommunitiesResponse>(
+        msg,
+        ListCommunitiesResponse
+      );
       this.state.communities = data.communities;
       this.setState(this.state);
       this.setupCommunityFilter();
     } else if (op == UserOperation.ResolveObject) {
-      let data = wsJsonToRes<ResolveObjectResponse>(msg).data;
+      let data = wsJsonToRes<ResolveObjectResponse>(msg, ResolveObjectResponse);
       this.state.resolveObjectResponse = Some(data);
       this.checkFinishedLoading();
     }

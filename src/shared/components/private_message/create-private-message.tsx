@@ -6,6 +6,8 @@ import {
   GetSiteResponse,
   SortType,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -16,12 +18,9 @@ import {
   getRecipientIdFromProps,
   isBrowser,
   setIsoData,
-  setOptionalAuth,
   toast,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -38,7 +37,7 @@ export class CreatePrivateMessage extends Component<
   any,
   CreatePrivateMessageState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this.context, GetPersonDetailsResponse);
   private subscription: Subscription;
   private emptyState: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
@@ -62,7 +61,9 @@ export class CreatePrivateMessage extends Component<
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.recipientDetailsRes = Some(this.isoData.routeData[0]);
+      this.state.recipientDetailsRes = Some(
+        this.isoData.routeData[0] as GetPersonDetailsResponse
+      );
       this.state.loading = false;
     } else {
       this.fetchPersonDetails();
@@ -70,23 +71,31 @@ export class CreatePrivateMessage extends Component<
   }
 
   fetchPersonDetails() {
-    let form: GetPersonDetails = {
-      person_id: this.state.recipient_id,
-      sort: SortType.New,
-      saved_only: false,
-      auth: auth(false),
-    };
+    let form = new GetPersonDetails({
+      person_id: Some(this.state.recipient_id),
+      sort: Some(SortType.New),
+      saved_only: Some(false),
+      username: None,
+      page: None,
+      limit: None,
+      community_id: None,
+      auth: auth(false).ok(),
+    });
     WebSocketService.Instance.send(wsClient.getPersonDetails(form));
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let person_id = Number(req.path.split("/").pop());
-    let form: GetPersonDetails = {
+    let person_id = Some(Number(req.path.split("/").pop()));
+    let form = new GetPersonDetails({
       person_id,
-      sort: SortType.New,
-      saved_only: false,
-    };
-    setOptionalAuth(form, req.auth);
+      sort: Some(SortType.New),
+      saved_only: Some(false),
+      username: None,
+      page: None,
+      limit: None,
+      community_id: None,
+      auth: req.auth,
+    });
     return [req.client.getPersonDetails(form)];
   }
 
@@ -154,7 +163,10 @@ export class CreatePrivateMessage extends Component<
       this.setState(this.state);
       return;
     } else if (op == UserOperation.GetPersonDetails) {
-      let data = wsJsonToRes<GetPersonDetailsResponse>(msg).data;
+      let data = wsJsonToRes<GetPersonDetailsResponse>(
+        msg,
+        GetPersonDetailsResponse
+      );
       this.state.recipientDetailsRes = Some(data);
       this.state.loading = false;
       this.setState(this.state);

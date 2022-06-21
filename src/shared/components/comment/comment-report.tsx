@@ -43,6 +43,7 @@ export class CommentReport extends Component<CommentReportProps, any> {
       subscribed: false,
       saved: false,
       creator_blocked: false,
+      recipient: None,
       my_vote: r.my_vote,
     };
 
@@ -66,21 +67,24 @@ export class CommentReport extends Component<CommentReportProps, any> {
         <div>
           {i18n.t("reason")}: {r.comment_report.reason}
         </div>
-        {r.resolver && (
-          <div>
-            {r.comment_report.resolved ? (
-              <T i18nKey="resolved_by">
-                #
-                <PersonListing person={r.resolver} />
-              </T>
-            ) : (
-              <T i18nKey="unresolved_by">
-                #
-                <PersonListing person={r.resolver} />
-              </T>
-            )}
-          </div>
-        )}
+        {r.resolver.match({
+          some: resolver => (
+            <div>
+              {r.comment_report.resolved ? (
+                <T i18nKey="resolved_by">
+                  #
+                  <PersonListing person={resolver} />
+                </T>
+              ) : (
+                <T i18nKey="unresolved_by">
+                  #
+                  <PersonListing person={resolver} />
+                </T>
+              )}
+            </div>
+          ),
+          none: <></>,
+        })}
         <button
           className="btn btn-link btn-animate text-muted py-0"
           onClick={linkEvent(this, this.handleResolveReport)}
@@ -99,11 +103,11 @@ export class CommentReport extends Component<CommentReportProps, any> {
   }
 
   handleResolveReport(i: CommentReport) {
-    let form: ResolveCommentReport = {
+    let form = new ResolveCommentReport({
       report_id: i.props.report.comment_report.id,
       resolved: !i.props.report.comment_report.resolved,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.resolveCommentReport(form));
   }
 }

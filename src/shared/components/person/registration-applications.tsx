@@ -6,6 +6,8 @@ import {
   ListRegistrationApplicationsResponse,
   RegistrationApplicationResponse,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -18,12 +20,9 @@ import {
   setIsoData,
   setupTippy,
   toast,
-  toOption,
   updateRegistrationApplicationRes,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -47,7 +46,10 @@ export class RegistrationApplications extends Component<
   any,
   RegistrationApplicationsState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(
+    this.context,
+    ListRegistrationApplicationsResponse
+  );
   private subscription: Subscription;
   private emptyState: RegistrationApplicationsState = {
     listRegistrationApplicationsResponse: None,
@@ -74,7 +76,7 @@ export class RegistrationApplications extends Component<
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state.listRegistrationApplicationsResponse = Some(
-        this.isoData.routeData[0]
+        this.isoData.routeData[0] as ListRegistrationApplicationsResponse
       );
       this.state.loading = false;
     } else {
@@ -93,7 +95,7 @@ export class RegistrationApplications extends Component<
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView =>
         UserService.Instance.myUserInfo.match({
           some: mui =>
@@ -211,12 +213,12 @@ export class RegistrationApplications extends Component<
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
-    let form: ListRegistrationApplications = {
-      unread_only: true,
-      page: 1,
-      limit: fetchLimit,
+    let form = new ListRegistrationApplications({
+      unread_only: Some(true),
+      page: Some(1),
+      limit: Some(fetchLimit),
       auth: req.auth.unwrap(),
-    };
+    });
     promises.push(req.client.listRegistrationApplications(form));
 
     return promises;
@@ -224,12 +226,12 @@ export class RegistrationApplications extends Component<
 
   refetch() {
     let unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let form: ListRegistrationApplications = {
-      unread_only: unread_only,
-      page: this.state.page,
-      limit: fetchLimit,
-      auth: auth(),
-    };
+    let form = new ListRegistrationApplications({
+      unread_only: Some(unread_only),
+      page: Some(this.state.page),
+      limit: Some(fetchLimit),
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.listRegistrationApplications(form));
   }
 
@@ -242,13 +244,19 @@ export class RegistrationApplications extends Component<
     } else if (msg.reconnect) {
       this.refetch();
     } else if (op == UserOperation.ListRegistrationApplications) {
-      let data = wsJsonToRes<ListRegistrationApplicationsResponse>(msg).data;
+      let data = wsJsonToRes<ListRegistrationApplicationsResponse>(
+        msg,
+        ListRegistrationApplicationsResponse
+      );
       this.state.listRegistrationApplicationsResponse = Some(data);
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.setState(this.state);
     } else if (op == UserOperation.ApproveRegistrationApplication) {
-      let data = wsJsonToRes<RegistrationApplicationResponse>(msg).data;
+      let data = wsJsonToRes<RegistrationApplicationResponse>(
+        msg,
+        RegistrationApplicationResponse
+      );
       updateRegistrationApplicationRes(
         data.registration_application,
         this.state.listRegistrationApplicationsResponse

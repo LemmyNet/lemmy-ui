@@ -2,6 +2,7 @@ import { None, Option, Some } from "@sniptt/monads";
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
+import { toUndefined } from "lemmy-js-client";
 import { pictrsUri } from "../../env";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
@@ -15,7 +16,6 @@ import {
   setupTippy,
   setupTribute,
   toast,
-  toUndefined,
 } from "../../utils";
 import { Icon, Spinner } from "./icon";
 

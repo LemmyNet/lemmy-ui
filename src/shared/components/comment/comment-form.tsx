@@ -1,4 +1,4 @@
-import { Either, None, Some } from "@sniptt/monads";
+import { Either, None, Option, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -7,6 +7,8 @@ import {
   CreateComment,
   EditComment,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -16,9 +18,7 @@ import {
   auth,
   capitalizeFirstLetter,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -37,7 +37,7 @@ interface CommentFormProps {
 interface CommentFormState {
   buttonTitle: string;
   finished: boolean;
-  formId: string;
+  formId: Option<string>;
 }
 
 export class CommentForm extends Component<CommentFormProps, CommentFormState> {
@@ -49,7 +49,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
       ? capitalizeFirstLetter(i18n.t("save"))
       : capitalizeFirstLetter(i18n.t("reply")),
     finished: false,
-    formId: "empty_form",
+    formId: None,
   };
 
   constructor(props: any, context: any) {
@@ -106,36 +106,37 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
 
   handleCommentSubmit(msg: { val: string; formId: string }) {
     let content = msg.val;
-    this.state.formId = msg.formId;
+    this.state.formId = Some(msg.formId);
 
     this.props.node.match({
       left: node => {
         if (this.props.edit) {
-          let form: EditComment = {
+          let form = new EditComment({
             content,
             form_id: this.state.formId,
             comment_id: node.comment_view.comment.id,
-            auth: auth(),
-          };
+            auth: auth().unwrap(),
+          });
           WebSocketService.Instance.send(wsClient.editComment(form));
         } else {
-          let form: CreateComment = {
+          let form = new CreateComment({
             content,
             form_id: this.state.formId,
             post_id: node.comment_view.post.id,
-            parent_id: node.comment_view.comment.id,
-            auth: auth(),
-          };
+            parent_id: Some(node.comment_view.comment.id),
+            auth: auth().unwrap(),
+          });
           WebSocketService.Instance.send(wsClient.createComment(form));
         }
       },
       right: postId => {
-        let form: CreateComment = {
+        let form = new CreateComment({
           content,
           form_id: this.state.formId,
           post_id: postId,
-          auth: auth(),
-        };
+          parent_id: None,
+          auth: auth().unwrap(),
+        });
         WebSocketService.Instance.send(wsClient.createComment(form));
       },
     });
@@ -156,10 +157,10 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         op == UserOperation.CreateComment ||
         op == UserOperation.EditComment
       ) {
-        let data = wsJsonToRes<CommentResponse>(msg).data;
+        let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
 
         // This only finishes this form, if the randomly generated form_id matches the one received
-        if (this.state.formId == data.form_id) {
+        if (this.state.formId.unwrapOr("") == data.form_id.unwrapOr("")) {
           this.setState({ finished: true });
 
           // Necessary because it broke tribute for some reason

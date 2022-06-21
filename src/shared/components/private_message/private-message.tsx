@@ -8,7 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
-import { auth, mdToHtml, toast, toOption, wsClient } from "../../utils";
+import { auth, mdToHtml, toast, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
@@ -77,7 +77,7 @@ export class PrivateMessage extends Component<
               <span>
                 <MomentTime
                   published={message_view.private_message.published}
-                  updated={toOption(message_view.private_message.updated)}
+                  updated={message_view.private_message.updated}
                 />
               </span>
             </li>
@@ -238,11 +238,11 @@ export class PrivateMessage extends Component<
   }
 
   handleDeleteClick(i: PrivateMessage) {
-    let form: DeletePrivateMessage = {
+    let form = new DeletePrivateMessage({
       private_message_id: i.props.private_message_view.private_message.id,
       deleted: !i.props.private_message_view.private_message.deleted,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.deletePrivateMessage(form));
   }
 
@@ -253,11 +253,11 @@ export class PrivateMessage extends Component<
   }
 
   handleMarkRead(i: PrivateMessage) {
-    let form: MarkPrivateMessageAsRead = {
+    let form = new MarkPrivateMessageAsRead({
       private_message_id: i.props.private_message_view.private_message.id,
       read: !i.props.private_message_view.private_message.read,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.markPrivateMessageAsRead(form));
   }
 

@@ -6,6 +6,9 @@ import {
   PersonMentionView,
 } from "lemmy-js-client";
 
+/**
+ * This contains serialized data, it needs to be deserialized before use.
+ */
 export interface IsoData {
   path: string;
   routeData: any[];

@@ -20,6 +20,8 @@ import {
   ModTransferCommunityView,
   PersonSafe,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import moment from "moment";
 import { Subscription } from "rxjs";
@@ -33,14 +35,9 @@ import {
   fetchLimit,
   isBrowser,
   setIsoData,
-  setOptionalAuth,
   toast,
-  toOption,
-  toUndefined,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../utils";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
@@ -89,7 +86,11 @@ interface ModlogState {
 }
 
 export class Modlog extends Component<any, ModlogState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(
+    this.context,
+    GetModlogResponse,
+    GetCommunityResponse
+  );
   private subscription: Subscription;
   private emptyState: ModlogState = {
     res: None,
@@ -115,13 +116,15 @@ export class Modlog extends Component<any, ModlogState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.res = Some(this.isoData.routeData[0]);
-      this.state.loading = false;
+      this.state.res = Some(this.isoData.routeData[0] as GetModlogResponse);
 
       // Getting the moderators
-      if (this.isoData.routeData[1]) {
-        this.state.communityMods = Some(this.isoData.routeData[1].moderators);
-      }
+      let communityRes = Some(
+        this.isoData.routeData[1] as GetCommunityResponse
+      );
+      this.state.communityMods = communityRes.map(c => c.moderators);
+
+      this.state.loading = false;
     } else {
       this.refetch();
     }
@@ -282,11 +285,11 @@ export class Modlog extends Component<any, ModlogState> {
           <span>
             Community <CommunityLink community={mrco.community} />
           </span>,
-          mrco.mod_remove_community.reason &&
-            ` reason: ${mrco.mod_remove_community.reason}`,
-          mrco.mod_remove_community.expires &&
+          mrco.mod_remove_community.reason.isSome() &&
+            ` reason: ${mrco.mod_remove_community.reason.unwrap()}`,
+          mrco.mod_remove_community.expires.isSome() &&
             ` expires: ${moment
-              .utc(mrco.mod_remove_community.expires)
+              .utc(mrco.mod_remove_community.expires.unwrap())
               .fromNow()}`,
         ];
       }
@@ -304,13 +307,13 @@ export class Modlog extends Component<any, ModlogState> {
             <CommunityLink community={mbfc.community} />
           </span>,
           <div>
-            {mbfc.mod_ban_from_community.reason &&
-              ` reason: ${mbfc.mod_ban_from_community.reason}`}
+            {mbfc.mod_ban_from_community.reason.isSome() &&
+              ` reason: ${mbfc.mod_ban_from_community.reason.unwrap()}`}
           </div>,
           <div>
-            {mbfc.mod_ban_from_community.expires &&
+            {mbfc.mod_ban_from_community.expires.isSome() &&
               ` expires: ${moment
-                .utc(mbfc.mod_ban_from_community.expires)
+                .utc(mbfc.mod_ban_from_community.expires.unwrap())
                 .fromNow()}`}
           </div>,
         ];
@@ -352,17 +355,24 @@ export class Modlog extends Component<any, ModlogState> {
           <span>
             <PersonListing person={mb.banned_person} />
           </span>,
-          <div>{mb.mod_ban.reason && ` reason: ${mb.mod_ban.reason}`}</div>,
           <div>
-            {mb.mod_ban.expires &&
-              ` expires: ${moment.utc(mb.mod_ban.expires).fromNow()}`}
+            {mb.mod_ban.reason.isSome() &&
+              ` reason: ${mb.mod_ban.reason.unwrap()}`}
+          </div>,
+          <div>
+            {mb.mod_ban.expires.isSome() &&
+              ` expires: ${moment.utc(mb.mod_ban.expires.unwrap()).fromNow()}`}
           </div>,
         ];
       }
       case ModlogEnum.ModAdd: {
         let ma = i.view as ModAddView;
         return [
-          <span>{ma.mod_add.removed ? "Removed " : "Appointed "} </span>,
+          <span>
+            {ma.mod_add.removed.isSome() && ma.mod_add.removed.unwrap()
+              ? "Removed "
+              : "Appointed "}{" "}
+          </span>,
           <span>
             <PersonListing person={ma.modded_person} />
           </span>,
@@ -416,7 +426,7 @@ export class Modlog extends Component<any, ModlogState> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `Modlog - ${siteView.site.name}`,
       none: "",
     });
@@ -465,19 +475,22 @@ export class Modlog extends Component<any, ModlogState> {
   }
 
   refetch() {
-    let modlogForm: GetModlog = {
-      community_id: toUndefined(this.state.communityId),
-      page: this.state.page,
-      limit: fetchLimit,
-      auth: auth(false),
-    };
+    let modlogForm = new GetModlog({
+      community_id: this.state.communityId,
+      mod_person_id: None,
+      page: Some(this.state.page),
+      limit: Some(fetchLimit),
+      auth: auth(false).ok(),
+    });
     WebSocketService.Instance.send(wsClient.getModlog(modlogForm));
 
     this.state.communityId.match({
       some: id => {
-        let communityForm: GetCommunity = {
-          id,
-        };
+        let communityForm = new GetCommunity({
+          id: Some(id),
+          name: None,
+          auth: auth(false).ok(),
+        });
         WebSocketService.Instance.send(wsClient.getCommunity(communityForm));
       },
       none: void 0,
@@ -486,27 +499,28 @@ export class Modlog extends Component<any, ModlogState> {
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split("/");
-    let communityId = pathSplit[3];
+    let communityId = Some(pathSplit[3]).map(Number);
     let promises: Promise<any>[] = [];
 
-    let modlogForm: GetModlog = {
-      page: 1,
-      limit: fetchLimit,
-    };
-
-    if (communityId) {
-      modlogForm.community_id = Number(communityId);
-    }
-    setOptionalAuth(modlogForm, req.auth);
+    let modlogForm = new GetModlog({
+      page: Some(1),
+      limit: Some(fetchLimit),
+      community_id: communityId,
+      mod_person_id: None,
+      auth: req.auth,
+    });
 
     promises.push(req.client.getModlog(modlogForm));
 
-    if (communityId) {
-      let communityForm: GetCommunity = {
-        id: Number(communityId),
-      };
-      setOptionalAuth(communityForm, req.auth);
+    if (communityId.isSome()) {
+      let communityForm = new GetCommunity({
+        id: communityId,
+        name: None,
+        auth: req.auth,
+      });
       promises.push(req.client.getCommunity(communityForm));
+    } else {
+      promises.push(Promise.resolve());
     }
     return promises;
   }
@@ -518,13 +532,13 @@ export class Modlog extends Component<any, ModlogState> {
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.GetModlog) {
-      let data = wsJsonToRes<GetModlogResponse>(msg).data;
+      let data = wsJsonToRes<GetModlogResponse>(msg, GetModlogResponse);
       this.state.loading = false;
       window.scrollTo(0, 0);
       this.state.res = Some(data);
       this.setState(this.state);
     } else if (op == UserOperation.GetCommunity) {
-      let data = wsJsonToRes<GetCommunityResponse>(msg).data;
+      let data = wsJsonToRes<GetCommunityResponse>(msg, GetCommunityResponse);
       this.state.communityMods = Some(data.moderators);
     }
   }

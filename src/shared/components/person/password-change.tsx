@@ -5,6 +5,8 @@ import {
   LoginResponse,
   PasswordChange as PasswordChangeForm,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -14,11 +16,8 @@ import {
   isBrowser,
   setIsoData,
   toast,
-  toOption,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -34,11 +33,11 @@ export class PasswordChange extends Component<any, State> {
   private subscription: Subscription;
 
   emptyState: State = {
-    passwordChangeForm: {
+    passwordChangeForm: new PasswordChangeForm({
       token: this.props.match.params.token,
       password: undefined,
       password_verify: undefined,
-    },
+    }),
     loading: false,
     siteRes: this.isoData.site_res,
   };
@@ -59,7 +58,7 @@ export class PasswordChange extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return toOption(this.state.siteRes.site_view).match({
+    return this.state.siteRes.site_view.match({
       some: siteView => `${i18n.t("password_change")} - ${siteView.site.name}`,
       none: "",
     });
@@ -163,7 +162,7 @@ export class PasswordChange extends Component<any, State> {
       this.setState(this.state);
       return;
     } else if (op == UserOperation.PasswordChange) {
-      let data = wsJsonToRes<LoginResponse>(msg).data;
+      let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
       this.state = this.emptyState;
       this.setState(this.state);
       UserService.Instance.login(data);

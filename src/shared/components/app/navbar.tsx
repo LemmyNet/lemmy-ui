@@ -1,4 +1,4 @@
-import { Some } from "@sniptt/monads";
+import { None, Some } from "@sniptt/monads";
 import { Component, createRef, linkEvent, RefObject } from "inferno";
 import { NavLink } from "inferno-router";
 import {
@@ -12,6 +12,8 @@ import {
   GetUnreadRegistrationApplicationCountResponse,
   PrivateMessageResponse,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -28,11 +30,8 @@ import {
   setTheme,
   showAvatars,
   toast,
-  toOption,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
@@ -88,7 +87,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         this.requestNotificationPermission();
         WebSocketService.Instance.send(
           wsClient.userJoin({
-            auth: auth(),
+            auth: auth().unwrap(),
           })
         );
         this.fetchUnreads();
@@ -99,7 +98,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         if (res.isSome()) {
           this.requestNotificationPermission();
           WebSocketService.Instance.send(
-            wsClient.getSite({ auth: res.unwrap().jwt })
+            wsClient.getSite({ auth: res.map(r => r.jwt) })
           );
         }
       });
@@ -154,15 +153,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     return (
       <nav class="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3">
         <div class="container">
-          {toOption(this.props.siteRes.site_view).match({
+          {this.props.siteRes.site_view.match({
             some: siteView => (
               <NavLink
                 to="/"
                 onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
-                title={siteView.site.description || siteView.site.name}
+                title={siteView.site.description.unwrapOr(siteView.site.name)}
                 className="d-flex align-items-center navbar-brand mr-md-3"
               >
-                {toOption(siteView.site.icon).match({
+                {siteView.site.icon.match({
                   some: icon =>
                     showAvatars() && <PictrsImage src={icon} icon />,
                   none: <></>,
@@ -429,12 +428,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             aria-expanded="false"
                           >
                             <span>
-                              {person.avatar && showAvatars() && (
-                                <PictrsImage src={person.avatar} icon />
-                              )}
-                              {person.display_name
-                                ? person.display_name
-                                : person.name}
+                              {showAvatars() &&
+                                person.avatar.match({
+                                  some: avatar => (
+                                    <PictrsImage src={avatar} icon />
+                                  ),
+                                  none: <></>,
+                                })}
+                              {person.display_name.unwrapOr(person.name)}
                             </span>
                           </button>
                           {this.state.showDropdown && (
@@ -531,7 +532,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get canCreateCommunity(): boolean {
-    let adminOnly = toOption(this.props.siteRes.site_view)
+    let adminOnly = this.props.siteRes.site_view
       .map(s => s.site.community_creation_admin_only)
       .unwrapOr(false);
     return !adminOnly || this.amAdmin;
@@ -597,33 +598,40 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       if (UserService.Instance.myUserInfo.isSome()) {
         WebSocketService.Instance.send(
           wsClient.userJoin({
-            auth: auth(),
+            auth: auth().unwrap(),
           })
         );
         this.fetchUnreads();
       }
     } else if (op == UserOperation.GetUnreadCount) {
-      let data = wsJsonToRes<GetUnreadCountResponse>(msg).data;
+      let data = wsJsonToRes<GetUnreadCountResponse>(
+        msg,
+        GetUnreadCountResponse
+      );
       this.state.unreadInboxCount =
         data.replies + data.mentions + data.private_messages;
       this.setState(this.state);
       this.sendUnreadCount();
     } else if (op == UserOperation.GetReportCount) {
-      let data = wsJsonToRes<GetReportCountResponse>(msg).data;
+      let data = wsJsonToRes<GetReportCountResponse>(
+        msg,
+        GetReportCountResponse
+      );
       this.state.unreadReportCount = data.post_reports + data.comment_reports;
       this.setState(this.state);
       this.sendReportUnread();
     } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
-      let data =
-        wsJsonToRes<GetUnreadRegistrationApplicationCountResponse>(msg).data;
+      let data = wsJsonToRes<GetUnreadRegistrationApplicationCountResponse>(
+        msg,
+        GetUnreadRegistrationApplicationCountResponse
+      );
       this.state.unreadApplicationCount = data.registration_applications;
       this.setState(this.state);
       this.sendApplicationUnread();
     } else if (op == UserOperation.GetSite) {
       // This is only called on a successful login
-      let data = wsJsonToRes<GetSiteResponse>(msg).data;
-      console.log(data.my_user);
-      UserService.Instance.myUserInfo = toOption(data.my_user);
+      let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
+      UserService.Instance.myUserInfo = data.my_user;
       UserService.Instance.myUserInfo.match({
         some: mui => {
           setTheme(mui.local_user_view.local_user.theme);
@@ -633,7 +641,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         none: void 0,
       });
     } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg).data;
+      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
 
       UserService.Instance.myUserInfo.match({
         some: mui => {
@@ -647,7 +655,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         none: void 0,
       });
     } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      let data = wsJsonToRes<PrivateMessageResponse>(
+        msg,
+        PrivateMessageResponse
+      );
 
       UserService.Instance.myUserInfo.match({
         some: mui => {
@@ -672,24 +683,25 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   fetchUnreads() {
     console.log("Fetching inbox unreads...");
 
-    let unreadForm: GetUnreadCount = {
-      auth: auth(),
-    };
+    let unreadForm = new GetUnreadCount({
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
 
     console.log("Fetching reports...");
 
-    let reportCountForm: GetReportCount = {
-      auth: auth(),
-    };
+    let reportCountForm = new GetReportCount({
+      community_id: None,
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
 
     if (this.amAdmin) {
       console.log("Fetching applications...");
 
-      let applicationCountForm: GetUnreadRegistrationApplicationCount = {
-        auth: auth(),
-      };
+      let applicationCountForm = new GetUnreadRegistrationApplicationCount({
+        auth: auth().unwrap(),
+      });
       WebSocketService.Instance.send(
         wsClient.getUnreadRegistrationApplicationCount(applicationCountForm)
       );

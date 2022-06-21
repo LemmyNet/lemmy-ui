@@ -1,7 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { Post } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { relTags, toOption } from "../../utils";
+import { relTags } from "../../utils";
 import { Icon } from "../common/icon";
 
 interface MetadataCardProps {
@@ -30,9 +30,9 @@ export class MetadataCard extends Component<
     return (
       <>
         {!this.state.expanded &&
-          toOption(post.embed_title).match({
+          post.embed_title.match({
             some: embedTitle =>
-              toOption(post.url).match({
+              post.url.match({
                 some: url => (
                   <div class="card border-secondary mt-3 mb-2">
                     <div class="row">
@@ -55,7 +55,7 @@ export class MetadataCard extends Component<
                               </a>
                             </span>,
                           ]}
-                          {toOption(post.embed_description).match({
+                          {post.embed_description.match({
                             some: desc => (
                               <div
                                 className="card-text small text-muted md-div"
@@ -66,7 +66,7 @@ export class MetadataCard extends Component<
                             ),
                             none: <></>,
                           })}
-                          {toOption(post.embed_html).isSome() && (
+                          {post.embed_html.isSome() && (
                             <button
                               class="mt-2 btn btn-secondary text-monospace"
                               onClick={linkEvent(this, this.handleIframeExpand)}
@@ -85,7 +85,7 @@ export class MetadataCard extends Component<
             none: <></>,
           })}
         {this.state.expanded &&
-          toOption(post.embed_html).match({
+          post.embed_html.match({
             some: html => (
               <div
                 class="mt-3 mb-2"

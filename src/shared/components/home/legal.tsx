@@ -2,7 +2,7 @@ import { None } from "@sniptt/monads";
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { mdToHtml, setIsoData, toOption } from "../../utils";
+import { mdToHtml, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 
 interface LegalState {
@@ -33,9 +33,9 @@ export class Legal extends Component<any, LegalState> {
           description={None}
           image={None}
         />
-        {toOption(this.state.siteRes.site_view).match({
+        {this.state.siteRes.site_view.match({
           some: siteView =>
-            toOption(siteView.site.legal_information).match({
+            siteView.site.legal_information.match({
               some: legal => (
                 <div
                   className="md-div"

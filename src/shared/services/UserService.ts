@@ -5,6 +5,8 @@ import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { BehaviorSubject, Subject } from "rxjs";
 import { isHttps } from "../env";
+import { i18n } from "../i18next";
+import { isBrowser, toast } from "../utils";
 
 interface Claims {
   sub: number;
@@ -51,13 +53,18 @@ export class UserService {
     console.log("Logged out.");
   }
 
-  public get auth(): Result<string, string> {
+  public auth(throwErr = true): Result<string, string> {
     // Can't use match to convert to result for some reason
     let jwt = this.jwtInfo.map(j => j.jwt);
     if (jwt.isSome()) {
       return Ok(jwt.unwrap());
     } else {
-      return Err("No JWT cookie found");
+      let msg = "No JWT cookie found";
+      if (throwErr && isBrowser()) {
+        console.log(msg);
+        toast(i18n.t("not_logged_in"), "danger");
+      }
+      return Err(msg);
     }
   }
 

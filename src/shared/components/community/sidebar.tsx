@@ -9,6 +9,7 @@ import {
   FollowCommunity,
   PersonViewSafe,
   RemoveCommunity,
+  toUndefined,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
@@ -20,8 +21,6 @@ import {
   getUnixTime,
   mdToHtml,
   numToSI,
-  toOption,
-  toUndefined,
   wsClient,
 } from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";
@@ -109,10 +108,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       <div>
         <h5 className="mb-0">
           {this.props.showIcon && (
-            <BannerIconHeader
-              icon={toOption(community.icon)}
-              banner={toOption(community.banner)}
-            />
+            <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span class="mr-2">{community.title}</span>
           {subscribed && (
@@ -292,7 +288,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   description() {
-    let description = toOption(this.props.community_view.community.description);
+    let description = this.props.community_view.community.description;
     return description.match({
       some: desc => (
         <div className="md-div" dangerouslySetInnerHTML={mdToHtml(desc)} />
@@ -452,11 +448,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleDeleteClick(i: Sidebar, event: any) {
     event.preventDefault();
-    let deleteForm: DeleteCommunity = {
+    let deleteForm = new DeleteCommunity({
       community_id: i.props.community_view.community.id,
       deleted: !i.props.community_view.community.deleted,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.deleteCommunity(deleteForm));
   }
 
@@ -468,12 +464,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   handleLeaveModTeamClick(i: Sidebar) {
     UserService.Instance.myUserInfo.match({
       some: mui => {
-        let form: AddModToCommunity = {
+        let form = new AddModToCommunity({
           person_id: mui.local_user_view.person.id,
           community_id: i.props.community_view.community.id,
           added: false,
-          auth: auth(),
-        };
+          auth: auth().unwrap(),
+        });
         WebSocketService.Instance.send(wsClient.addModToCommunity(form));
         i.state.showConfirmLeaveModTeam = false;
         i.setState(i.state);
@@ -490,11 +486,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   handleUnsubscribe(i: Sidebar, event: any) {
     event.preventDefault();
     let community_id = i.props.community_view.community.id;
-    let form: FollowCommunity = {
+    let form = new FollowCommunity({
       community_id,
       follow: false,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.followCommunity(form));
 
     // Update myUserInfo
@@ -508,11 +504,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   handleSubscribe(i: Sidebar, event: any) {
     event.preventDefault();
     let community_id = i.props.community_view.community.id;
-    let form: FollowCommunity = {
+    let form = new FollowCommunity({
       community_id,
       follow: true,
-      auth: auth(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.followCommunity(form));
 
     // Update myUserInfo
@@ -552,13 +548,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleModRemoveSubmit(i: Sidebar, event: any) {
     event.preventDefault();
-    let removeForm: RemoveCommunity = {
+    let removeForm = new RemoveCommunity({
       community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
-      reason: toUndefined(i.state.removeReason),
-      expires: toUndefined(i.state.removeExpires.map(getUnixTime)),
-      auth: auth(),
-    };
+      reason: i.state.removeReason,
+      expires: i.state.removeExpires.map(getUnixTime),
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.removeCommunity(removeForm));
 
     i.state.showRemoveDialog = false;

@@ -1,13 +1,7 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { PersonSafe } from "lemmy-js-client";
-import {
-  hostname,
-  isCakeDay,
-  relTags,
-  showAvatars,
-  toOption,
-} from "../../utils";
+import { hostname, isCakeDay, relTags, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
 
@@ -43,13 +37,9 @@ export class PersonListing extends Component<PersonListingProps, any> {
 
     let displayName = this.props.useApubName
       ? apubName
-      : toOption(person.display_name).unwrapOr(apubName);
+      : person.display_name.unwrapOr(apubName);
 
-    if (
-      this.props.showApubName &&
-      !local &&
-      toOption(person.display_name).isSome()
-    ) {
+    if (this.props.showApubName && !local && person.display_name.isSome()) {
       displayName = `${displayName} (${apubName})`;
     }
 
@@ -82,7 +72,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
   avatarAndName(displayName: string) {
     return (
       <>
-        {toOption(this.props.person.avatar).match({
+        {this.props.person.avatar.match({
           some: avatar =>
             !this.props.hideAvatar &&
             showAvatars() && <PictrsImage src={avatar} icon />,
