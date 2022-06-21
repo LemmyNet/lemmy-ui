@@ -1,16 +1,18 @@
+import { Option } from "@sniptt/monads";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { MyUserInfo } from "lemmy-js-client";
+import { UserService } from "../../services";
 
 interface Props {
-  myUserInfo: MyUserInfo | undefined;
-  defaultTheme?: string;
+  defaultTheme: Option<string>;
 }
 
 export class Theme extends Component<Props> {
   render() {
-    let user = this.props.myUserInfo;
-    let hasTheme = user && user.local_user_view.local_user.theme !== "browser";
+    let user = UserService.Instance.myUserInfo;
+    let hasTheme = user
+      .map(m => m.local_user_view.local_user.theme !== "browser")
+      .unwrapOr(false);
 
     if (hasTheme) {
       return (
@@ -18,20 +20,22 @@ export class Theme extends Component<Props> {
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/themes/${user.local_user_view.local_user.theme}.css`}
+            href={`/css/themes/${
+              user.unwrap().local_user_view.local_user.theme
+            }.css`}
           />
         </Helmet>
       );
     } else if (
-      this.props.defaultTheme != null &&
-      this.props.defaultTheme != "browser"
+      this.props.defaultTheme.isSome() &&
+      this.props.defaultTheme.unwrap() != "browser"
     ) {
       return (
         <Helmet>
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/themes/${this.props.defaultTheme}.css`}
+            href={`/css/themes/${this.props.defaultTheme.unwrap()}.css`}
           />
         </Helmet>
       );

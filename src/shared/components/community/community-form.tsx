@@ -1,3 +1,4 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
@@ -5,30 +6,31 @@ import {
   CommunityView,
   CreateCommunity,
   EditCommunity,
+  toUndefined,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   capitalizeFirstLetter,
   randomStr,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface CommunityFormProps {
-  community_view?: CommunityView; // If a community is given, that means this is an edit
+  community_view: Option<CommunityView>; // If a community is given, that means this is an edit
   onCancel?(): any;
   onCreate?(community: CommunityView): any;
   onEdit?(community: CommunityView): any;
-  enableNsfw: boolean;
+  enableNsfw?: boolean;
 }
 
 interface CommunityFormState {
@@ -44,15 +46,16 @@ export class CommunityForm extends Component<
   private subscription: Subscription;
 
   private emptyState: CommunityFormState = {
-    communityForm: {
-      name: null,
-      title: null,
-      nsfw: false,
-      icon: null,
-      banner: null,
-      posting_restricted_to_mods: false,
-      auth: authField(false),
-    },
+    communityForm: new CreateCommunity({
+      name: undefined,
+      title: undefined,
+      description: None,
+      nsfw: None,
+      icon: None,
+      banner: None,
+      posting_restricted_to_mods: None,
+      auth: undefined,
+    }),
     loading: false,
   };
 
@@ -70,31 +73,34 @@ export class CommunityForm extends Component<
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
-    let cv = this.props.community_view;
-    if (cv) {
-      this.state.communityForm = {
-        name: cv.community.name,
-        title: cv.community.title,
-        description: cv.community.description,
-        nsfw: cv.community.nsfw,
-        icon: cv.community.icon,
-        banner: cv.community.banner,
-        posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
-        auth: authField(),
-      };
-    }
+    this.props.community_view.match({
+      some: cv => {
+        this.state.communityForm = new CreateCommunity({
+          name: cv.community.name,
+          title: cv.community.title,
+          description: cv.community.description,
+          nsfw: Some(cv.community.nsfw),
+          icon: cv.community.icon,
+          banner: cv.community.banner,
+          posting_restricted_to_mods: Some(
+            cv.community.posting_restricted_to_mods
+          ),
+          auth: auth().unwrap(),
+        });
+      },
+      none: void 0,
+    });
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
   }
 
-  // TODO this should be checked out
   componentDidUpdate() {
     if (
       !this.state.loading &&
       (this.state.communityForm.name ||
         this.state.communityForm.title ||
-        this.state.communityForm.description)
+        this.state.communityForm.description.isSome())
     ) {
       window.onbeforeunload = () => true;
     } else {
@@ -115,12 +121,12 @@ export class CommunityForm extends Component<
             !this.state.loading &&
             (this.state.communityForm.name ||
               this.state.communityForm.title ||
-              this.state.communityForm.description)
+              this.state.communityForm.description.isSome())
           }
           message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
-          {!this.props.community_view && (
+          {this.props.community_view.isNone() && (
             <div class="form-group row">
               <label
                 class="col-12 col-sm-2 col-form-label"
@@ -205,6 +211,9 @@ export class CommunityForm extends Component<
             <div class="col-12 col-sm-10">
               <MarkdownTextArea
                 initialContent={this.state.communityForm.description}
+                placeholder={Some("description")}
+                buttonTitle={None}
+                maxLength={None}
                 onContentChange={this.handleCommunityDescriptionChange}
               />
             </div>
@@ -221,7 +230,7 @@ export class CommunityForm extends Component<
                     class="form-check-input position-static"
                     id="community-nsfw"
                     type="checkbox"
-                    checked={this.state.communityForm.nsfw}
+                    checked={toUndefined(this.state.communityForm.nsfw)}
                     onChange={linkEvent(this, this.handleCommunityNsfwChange)}
                   />
                 </div>
@@ -238,7 +247,9 @@ export class CommunityForm extends Component<
                   class="form-check-input position-static"
                   id="community-only-mods-can-post"
                   type="checkbox"
-                  checked={this.state.communityForm.posting_restricted_to_mods}
+                  checked={toUndefined(
+                    this.state.communityForm.posting_restricted_to_mods
+                  )}
                   onChange={linkEvent(
                     this,
                     this.handleCommunityPostingRestrictedToMods
@@ -256,13 +267,13 @@ export class CommunityForm extends Component<
               >
                 {this.state.loading ? (
                   <Spinner />
-                ) : this.props.community_view ? (
+                ) : this.props.community_view.isSome() ? (
                   capitalizeFirstLetter(i18n.t("save"))
                 ) : (
                   capitalizeFirstLetter(i18n.t("create"))
                 )}
               </button>
-              {this.props.community_view && (
+              {this.props.community_view.isSome() && (
                 <button
                   type="button"
                   class="btn btn-secondary"
@@ -281,17 +292,29 @@ export class CommunityForm extends Component<
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
     i.state.loading = true;
-    if (i.props.community_view) {
-      let form: EditCommunity = {
-        ...i.state.communityForm,
-        community_id: i.props.community_view.community.id,
-      };
-      WebSocketService.Instance.send(wsClient.editCommunity(form));
-    } else {
-      WebSocketService.Instance.send(
-        wsClient.createCommunity(i.state.communityForm)
-      );
-    }
+    let cForm = i.state.communityForm;
+
+    i.props.community_view.match({
+      some: cv => {
+        let form = new EditCommunity({
+          community_id: cv.community.id,
+          title: Some(cForm.title),
+          description: cForm.description,
+          icon: cForm.icon,
+          banner: cForm.banner,
+          nsfw: cForm.nsfw,
+          posting_restricted_to_mods: cForm.posting_restricted_to_mods,
+          auth: auth().unwrap(),
+        });
+
+        WebSocketService.Instance.send(wsClient.editCommunity(form));
+      },
+      none: () => {
+        WebSocketService.Instance.send(
+          wsClient.createCommunity(i.state.communityForm)
+        );
+      },
+    });
     i.setState(i.state);
   }
 
@@ -306,7 +329,7 @@ export class CommunityForm extends Component<
   }
 
   handleCommunityDescriptionChange(val: string) {
-    this.state.communityForm.description = val;
+    this.state.communityForm.description = Some(val);
     this.setState(this.state);
   }
 
@@ -325,22 +348,22 @@ export class CommunityForm extends Component<
   }
 
   handleIconUpload(url: string) {
-    this.state.communityForm.icon = url;
+    this.state.communityForm.icon = Some(url);
     this.setState(this.state);
   }
 
   handleIconRemove() {
-    this.state.communityForm.icon = "";
+    this.state.communityForm.icon = Some("");
     this.setState(this.state);
   }
 
   handleBannerUpload(url: string) {
-    this.state.communityForm.banner = url;
+    this.state.communityForm.banner = Some(url);
     this.setState(this.state);
   }
 
   handleBannerRemove() {
-    this.state.communityForm.banner = "";
+    this.state.communityForm.banner = Some("");
     this.setState(this.state);
   }
 
@@ -354,42 +377,51 @@ export class CommunityForm extends Component<
       this.setState(this.state);
       return;
     } else if (op == UserOperation.CreateCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.loading = false;
       this.props.onCreate(data.community_view);
 
       // Update myUserInfo
       let community = data.community_view.community;
-      let person = UserService.Instance.myUserInfo.local_user_view.person;
-      UserService.Instance.myUserInfo.follows.push({
-        community,
-        follower: person,
-      });
-      UserService.Instance.myUserInfo.moderates.push({
-        community,
-        moderator: person,
+
+      UserService.Instance.myUserInfo.match({
+        some: mui => {
+          let person = mui.local_user_view.person;
+          mui.follows.push({
+            community,
+            follower: person,
+          });
+          mui.moderates.push({
+            community,
+            moderator: person,
+          });
+        },
+        none: void 0,
       });
     } else if (op == UserOperation.EditCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg).data;
+      let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.loading = false;
       this.props.onEdit(data.community_view);
       let community = data.community_view.community;
 
-      let followFound = UserService.Instance.myUserInfo.follows.findIndex(
-        f => f.community.id == community.id
-      );
-      if (followFound) {
-        UserService.Instance.myUserInfo.follows[followFound].community =
-          community;
-      }
+      UserService.Instance.myUserInfo.match({
+        some: mui => {
+          let followFound = mui.follows.findIndex(
+            f => f.community.id == community.id
+          );
+          if (followFound) {
+            mui.follows[followFound].community = community;
+          }
 
-      let moderatesFound = UserService.Instance.myUserInfo.moderates.findIndex(
-        f => f.community.id == community.id
-      );
-      if (moderatesFound) {
-        UserService.Instance.myUserInfo.moderates[moderatesFound].community =
-          community;
-      }
+          let moderatesFound = mui.moderates.findIndex(
+            f => f.community.id == community.id
+          );
+          if (moderatesFound) {
+            mui.moderates[moderatesFound].community = community;
+          }
+        },
+        none: void 0,
+      });
     }
   }
 }

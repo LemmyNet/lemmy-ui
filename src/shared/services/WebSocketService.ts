@@ -1,4 +1,3 @@
-import { PersonViewSafe, WebSocketJsonResponse } from "lemmy-js-client";
 import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
 import {
@@ -14,9 +13,6 @@ export class WebSocketService {
   private static _instance: WebSocketService;
   private ws: WS;
   public subject: Observable<any>;
-
-  public admins: PersonViewSafe[];
-  public banned: PersonViewSafe[];
 
   private constructor() {
     let firstConnect = true;
@@ -34,7 +30,7 @@ export class WebSocketService {
           console.log(`Connected to ${wsUri}`);
 
           if (!firstConnect) {
-            let res: WebSocketJsonResponse<any> = {
+            let res = {
               reconnect: true,
             };
             obs.next(res);

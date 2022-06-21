@@ -1,3 +1,5 @@
+import { None, Option } from "@sniptt/monads";
+import { serialize as serializeO } from "class-transformer";
 import express from "express";
 import fs from "fs";
 import { IncomingHttpHeaders } from "http";
@@ -5,7 +7,7 @@ import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { GetSite, GetSiteResponse, LemmyHttp, toOption } from "lemmy-js-client";
 import path from "path";
 import process from "process";
 import serialize from "serialize-javascript";
@@ -18,7 +20,7 @@ import {
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import { initializeSite, setOptionalAuth } from "../shared/utils";
+import { initializeSite } from "../shared/utils";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -115,10 +117,9 @@ server.get("/*", async (req, res) => {
   try {
     const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
     const context = {} as any;
-    let auth: string = IsomorphicCookie.load("jwt", req);
+    let auth: Option<string> = toOption(IsomorphicCookie.load("jwt", req));
 
-    let getSiteForm: GetSite = {};
-    setOptionalAuth(getSiteForm, auth);
+    let getSiteForm = new GetSite({ auth });
 
     let promises: Promise<any>[] = [];
 
@@ -138,8 +139,8 @@ server.get("/*", async (req, res) => {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
       );
-      delete getSiteForm.auth;
-      delete initialFetchReq.auth;
+      getSiteForm.auth = None;
+      initialFetchReq.auth = None;
       try_site = await initialFetchReq.client.getSite(getSiteForm);
     }
     let site: GetSiteResponse = try_site;
@@ -170,7 +171,7 @@ server.get("/*", async (req, res) => {
 
     const wrapper = (
       <StaticRouter location={req.url} context={isoData}>
-        <App siteRes={isoData.site_res} />
+        <App />
       </StaticRouter>
     );
     if (context.url) {
@@ -194,7 +195,7 @@ server.get("/*", async (req, res) => {
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
-           <script>window.isoData = ${serialize(isoData)}</script>
+           <script>window.isoData = ${serializeO(isoData)}</script>
            <script>window.lemmyConfig = ${serialize(config)}</script>
 
            <!-- A remote debugging utility for mobile -->

@@ -1,34 +1,34 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import {
   GetPersonDetails,
   GetPersonDetailsResponse,
-  PersonViewSafe,
-  SiteView,
+  GetSiteResponse,
   SortType,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   getRecipientIdFromProps,
   isBrowser,
   setIsoData,
   toast,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
 
 interface CreatePrivateMessageState {
-  site_view: SiteView;
-  recipient: PersonViewSafe;
+  siteRes: GetSiteResponse;
+  recipientDetailsRes: Option<GetPersonDetailsResponse>;
   recipient_id: number;
   loading: boolean;
 }
@@ -37,11 +37,11 @@ export class CreatePrivateMessage extends Component<
   any,
   CreatePrivateMessageState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this.context, GetPersonDetailsResponse);
   private subscription: Subscription;
   private emptyState: CreatePrivateMessageState = {
-    site_view: this.isoData.site_res.site_view,
-    recipient: undefined,
+    siteRes: this.isoData.site_res,
+    recipientDetailsRes: None,
     recipient_id: getRecipientIdFromProps(this.props),
     loading: true,
   };
@@ -54,14 +54,16 @@ export class CreatePrivateMessage extends Component<
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    if (!UserService.Instance.myUserInfo) {
+    if (UserService.Instance.myUserInfo.isNone() && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.recipient = this.isoData.routeData[0].user;
+      this.state.recipientDetailsRes = Some(
+        this.isoData.routeData[0] as GetPersonDetailsResponse
+      );
       this.state.loading = false;
     } else {
       this.fetchPersonDetails();
@@ -69,30 +71,40 @@ export class CreatePrivateMessage extends Component<
   }
 
   fetchPersonDetails() {
-    let form: GetPersonDetails = {
-      person_id: this.state.recipient_id,
-      sort: SortType.New,
-      saved_only: false,
-      auth: authField(false),
-    };
+    let form = new GetPersonDetails({
+      person_id: Some(this.state.recipient_id),
+      sort: Some(SortType.New),
+      saved_only: Some(false),
+      username: None,
+      page: None,
+      limit: None,
+      community_id: None,
+      auth: auth(false).ok(),
+    });
     WebSocketService.Instance.send(wsClient.getPersonDetails(form));
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let person_id = Number(req.path.split("/").pop());
-    let form: GetPersonDetails = {
+    let person_id = Some(Number(req.path.split("/").pop()));
+    let form = new GetPersonDetails({
       person_id,
-      sort: SortType.New,
-      saved_only: false,
+      sort: Some(SortType.New),
+      saved_only: Some(false),
+      username: None,
+      page: None,
+      limit: None,
+      community_id: None,
       auth: req.auth,
-    };
+    });
     return [req.client.getPersonDetails(form)];
   }
 
   get documentTitle(): string {
-    return `${i18n.t("create_private_message")} - ${
-      this.state.site_view.site.name
-    }`;
+    return this.state.recipientDetailsRes.match({
+      some: res =>
+        `${i18n.t("create_private_message")} - ${res.person_view.person.name}`,
+      none: "",
+    });
   }
 
   componentWillUnmount() {
@@ -107,21 +119,29 @@ export class CreatePrivateMessage extends Component<
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          description={None}
+          image={None}
         />
         {this.state.loading ? (
           <h5>
             <Spinner large />
           </h5>
         ) : (
-          <div class="row">
-            <div class="col-12 col-lg-6 offset-lg-3 mb-4">
-              <h5>{i18n.t("create_private_message")}</h5>
-              <PrivateMessageForm
-                onCreate={this.handlePrivateMessageCreate}
-                recipient={this.state.recipient.person}
-              />
-            </div>
-          </div>
+          this.state.recipientDetailsRes.match({
+            some: res => (
+              <div class="row">
+                <div class="col-12 col-lg-6 offset-lg-3 mb-4">
+                  <h5>{i18n.t("create_private_message")}</h5>
+                  <PrivateMessageForm
+                    privateMessageView={None}
+                    onCreate={this.handlePrivateMessageCreate}
+                    recipient={res.person_view.person}
+                  />
+                </div>
+              </div>
+            ),
+            none: <></>,
+          })
         )}
       </div>
     );
@@ -143,8 +163,11 @@ export class CreatePrivateMessage extends Component<
       this.setState(this.state);
       return;
     } else if (op == UserOperation.GetPersonDetails) {
-      let data = wsJsonToRes<GetPersonDetailsResponse>(msg).data;
-      this.state.recipient = data.person_view;
+      let data = wsJsonToRes<GetPersonDetailsResponse>(
+        msg,
+        GetPersonDetailsResponse
+      );
+      this.state.recipientDetailsRes = Some(data);
       this.state.loading = false;
       this.setState(this.state);
     }

@@ -21,7 +21,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
 
   render() {
     let person = this.props.person;
-    let local = person.local == null ? true : person.local;
+    let local = person.local;
     let apubName: string, link: string;
 
     if (local) {
@@ -37,11 +37,9 @@ export class PersonListing extends Component<PersonListingProps, any> {
 
     let displayName = this.props.useApubName
       ? apubName
-      : person.display_name
-      ? person.display_name
-      : apubName;
+      : person.display_name.unwrapOr(apubName);
 
-    if (this.props.showApubName && !local && person.display_name) {
+    if (this.props.showApubName && !local && person.display_name.isSome()) {
       displayName = `${displayName} (${apubName})`;
     }
 
@@ -72,12 +70,14 @@ export class PersonListing extends Component<PersonListingProps, any> {
   }
 
   avatarAndName(displayName: string) {
-    let person = this.props.person;
     return (
       <>
-        {!this.props.hideAvatar && person.avatar && showAvatars() && (
-          <PictrsImage src={person.avatar} icon />
-        )}
+        {this.props.person.avatar.match({
+          some: avatar =>
+            !this.props.hideAvatar &&
+            showAvatars() && <PictrsImage src={avatar} icon />,
+          none: <></>,
+        })}
         <span>{displayName}</span>
       </>
     );
