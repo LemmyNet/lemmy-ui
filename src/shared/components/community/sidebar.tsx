@@ -1,3 +1,4 @@
+import { Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
@@ -9,11 +10,15 @@ import {
   PersonViewSafe,
   RemoveCommunity,
   SubscribedType,
+  toUndefined,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  amAdmin,
+  amMod,
+  amTopMod,
+  auth,
   getUnixTime,
   mdToHtml,
   numToSI,
@@ -30,15 +35,15 @@ interface SidebarProps {
   moderators: CommunityModeratorView[];
   admins: PersonViewSafe[];
   online: number;
-  enableNsfw: boolean;
+  enableNsfw?: boolean;
   showIcon?: boolean;
 }
 
 interface SidebarState {
+  removeReason: Option<string>;
+  removeExpires: Option<string>;
   showEdit: boolean;
   showRemoveDialog: boolean;
-  removeReason: string;
-  removeExpires: string;
   showConfirmLeaveModTeam: boolean;
 }
 
@@ -65,7 +70,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           this.sidebar()
         ) : (
           <CommunityForm
-            community_view={this.props.community_view}
+            community_view={Some(this.props.community_view)}
             onEdit={this.handleEditCommunity}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
@@ -291,14 +296,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   description() {
     let description = this.props.community_view.community.description;
-    return (
-      description && (
-        <div
-          className="md-div"
-          dangerouslySetInnerHTML={mdToHtml(description)}
-        />
-      )
-    );
+    return description.match({
+      some: desc => (
+        <div className="md-div" dangerouslySetInnerHTML={mdToHtml(desc)} />
+      ),
+      none: <></>,
+    });
   }
 
   adminButtons() {
@@ -306,7 +309,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <>
         <ul class="list-inline mb-1 text-muted font-weight-bold">
-          {this.canMod && (
+          {amMod(Some(this.props.moderators)) && (
             <>
               <li className="list-inline-item-action">
                 <button
@@ -318,7 +321,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   <Icon icon="edit" classes="icon-inline" />
                 </button>
               </li>
-              {!this.amTopMod &&
+              {!amTopMod(Some(this.props.moderators)) &&
                 (!this.state.showConfirmLeaveModTeam ? (
                   <li className="list-inline-item-action">
                     <button
@@ -357,7 +360,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     </li>
                   </>
                 ))}
-              {this.amTopMod && (
+              {amTopMod(Some(this.props.moderators)) && (
                 <li className="list-inline-item-action">
                   <button
                     class="btn btn-link text-muted d-inline-block"
@@ -384,7 +387,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               )}
             </>
           )}
-          {this.canAdmin && (
+          {amAdmin(Some(this.props.admins)) && (
             <li className="list-inline-item">
               {!this.props.community_view.community.removed ? (
                 <button
@@ -415,7 +418,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 id="remove-reason"
                 class="form-control mr-2"
                 placeholder={i18n.t("optional")}
-                value={this.state.removeReason}
+                value={toUndefined(this.state.removeReason)}
                 onInput={linkEvent(this, this.handleModRemoveReasonChange)}
               />
             </div>
@@ -452,11 +455,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleDeleteClick(i: Sidebar, event: any) {
     event.preventDefault();
-    let deleteForm: DeleteCommunity = {
+    let deleteForm = new DeleteCommunity({
       community_id: i.props.community_view.community.id,
       deleted: !i.props.community_view.community.deleted,
-      auth: authField(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.deleteCommunity(deleteForm));
   }
 
@@ -466,15 +469,20 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleLeaveModTeamClick(i: Sidebar) {
-    let form: AddModToCommunity = {
-      person_id: UserService.Instance.myUserInfo.local_user_view.person.id,
-      community_id: i.props.community_view.community.id,
-      added: false,
-      auth: authField(),
-    };
-    WebSocketService.Instance.send(wsClient.addModToCommunity(form));
-    i.state.showConfirmLeaveModTeam = false;
-    i.setState(i.state);
+    UserService.Instance.myUserInfo.match({
+      some: mui => {
+        let form = new AddModToCommunity({
+          person_id: mui.local_user_view.person.id,
+          community_id: i.props.community_view.community.id,
+          added: false,
+          auth: auth().unwrap(),
+        });
+        WebSocketService.Instance.send(wsClient.addModToCommunity(form));
+        i.state.showConfirmLeaveModTeam = false;
+        i.setState(i.state);
+      },
+      none: void 0,
+    });
   }
 
   handleCancelLeaveModTeamClick(i: Sidebar) {
@@ -485,68 +493,47 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   handleUnsubscribe(i: Sidebar, event: any) {
     event.preventDefault();
     let community_id = i.props.community_view.community.id;
-    let form: FollowCommunity = {
+    let form = new FollowCommunity({
       community_id,
       follow: false,
-      auth: authField(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.followCommunity(form));
 
     // Update myUserInfo
-    UserService.Instance.myUserInfo.follows =
-      UserService.Instance.myUserInfo.follows.filter(
-        i => i.community.id != community_id
-      );
+    UserService.Instance.myUserInfo.match({
+      some: mui =>
+        (mui.follows = mui.follows.filter(i => i.community.id != community_id)),
+      none: void 0,
+    });
   }
 
   handleSubscribe(i: Sidebar, event: any) {
     event.preventDefault();
     let community_id = i.props.community_view.community.id;
-    let form: FollowCommunity = {
+    let form = new FollowCommunity({
       community_id,
       follow: true,
-      auth: authField(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.followCommunity(form));
 
     // Update myUserInfo
-    UserService.Instance.myUserInfo.follows.push({
-      community: i.props.community_view.community,
-      follower: UserService.Instance.myUserInfo.local_user_view.person,
-      pending: false,
+    UserService.Instance.myUserInfo.match({
+      some: mui =>
+        mui.follows.push({
+          community: i.props.community_view.community,
+          follower: mui.local_user_view.person,
+        }),
+      none: void 0,
     });
-  }
-
-  private get amTopMod(): boolean {
-    return (
-      this.props.moderators[0].moderator.id ==
-      UserService.Instance.myUserInfo.local_user_view.person.id
-    );
-  }
-
-  get canMod(): boolean {
-    return (
-      UserService.Instance.myUserInfo &&
-      this.props.moderators
-        .map(m => m.moderator.id)
-        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
-    );
-  }
-
-  get canAdmin(): boolean {
-    return (
-      UserService.Instance.myUserInfo &&
-      this.props.admins
-        .map(a => a.person.id)
-        .includes(UserService.Instance.myUserInfo.local_user_view.person.id)
-    );
   }
 
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
-      this.canMod ||
-      this.canAdmin
+      amMod(Some(this.props.moderators)) ||
+      amAdmin(Some(this.props.admins))
     );
   }
 
@@ -568,13 +555,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleModRemoveSubmit(i: Sidebar, event: any) {
     event.preventDefault();
-    let removeForm: RemoveCommunity = {
+    let removeForm = new RemoveCommunity({
       community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
       reason: i.state.removeReason,
-      expires: getUnixTime(i.state.removeExpires),
-      auth: authField(),
-    };
+      expires: i.state.removeExpires.map(getUnixTime),
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.removeCommunity(removeForm));
 
     i.state.showRemoveDialog = false;

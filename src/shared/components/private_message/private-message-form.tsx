@@ -1,3 +1,4 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Prompt } from "inferno-router";
@@ -8,21 +9,21 @@ import {
   PrivateMessageResponse,
   PrivateMessageView,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   capitalizeFirstLetter,
   isBrowser,
   relTags,
   setupTippy,
   toast,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -30,7 +31,7 @@ import { PersonListing } from "../person/person-listing";
 
 interface PrivateMessageFormProps {
   recipient: PersonSafe;
-  privateMessage?: PrivateMessageView; // If a pm is given, that means this is an edit
+  privateMessageView: Option<PrivateMessageView>; // If a pm is given, that means this is an edit
   onCancel?(): any;
   onCreate?(message: PrivateMessageView): any;
   onEdit?(message: PrivateMessageView): any;
@@ -49,11 +50,11 @@ export class PrivateMessageForm extends Component<
 > {
   private subscription: Subscription;
   private emptyState: PrivateMessageFormState = {
-    privateMessageForm: {
+    privateMessageForm: new CreatePrivateMessage({
       content: null,
       recipient_id: this.props.recipient.id,
-      auth: authField(),
-    },
+      auth: auth().unwrap(),
+    }),
     loading: false,
     previewMode: false,
     showDisclaimer: false,
@@ -70,10 +71,11 @@ export class PrivateMessageForm extends Component<
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Its an edit
-    if (this.props.privateMessage) {
-      this.state.privateMessageForm.content =
-        this.props.privateMessage.private_message.content;
-    }
+    this.props.privateMessageView.match({
+      some: pm =>
+        (this.state.privateMessageForm.content = pm.private_message.content),
+      none: void 0,
+    });
   }
 
   componentDidMount() {
@@ -103,7 +105,7 @@ export class PrivateMessageForm extends Component<
           message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
-          {!this.props.privateMessage && (
+          {this.props.privateMessageView.isNone() && (
             <div class="form-group row">
               <label class="col-sm-2 col-form-label">
                 {capitalizeFirstLetter(i18n.t("to"))}
@@ -128,7 +130,10 @@ export class PrivateMessageForm extends Component<
             </label>
             <div class="col-sm-10">
               <MarkdownTextArea
-                initialContent={this.state.privateMessageForm.content}
+                initialContent={Some(this.state.privateMessageForm.content)}
+                placeholder={None}
+                buttonTitle={None}
+                maxLength={None}
                 onContentChange={this.handleContentChange}
               />
             </div>
@@ -161,13 +166,13 @@ export class PrivateMessageForm extends Component<
               >
                 {this.state.loading ? (
                   <Spinner />
-                ) : this.props.privateMessage ? (
+                ) : this.props.privateMessageView.isSome() ? (
                   capitalizeFirstLetter(i18n.t("save"))
                 ) : (
                   capitalizeFirstLetter(i18n.t("send_message"))
                 )}
               </button>
-              {this.props.privateMessage && (
+              {this.props.privateMessageView.isSome() && (
                 <button
                   type="button"
                   class="btn btn-secondary"
@@ -188,18 +193,19 @@ export class PrivateMessageForm extends Component<
 
   handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
     event.preventDefault();
-    if (i.props.privateMessage) {
-      let form: EditPrivateMessage = {
-        private_message_id: i.props.privateMessage.private_message.id,
-        content: i.state.privateMessageForm.content,
-        auth: authField(),
-      };
-      WebSocketService.Instance.send(wsClient.editPrivateMessage(form));
-    } else {
-      WebSocketService.Instance.send(
+    i.props.privateMessageView.match({
+      some: pm => {
+        let form = new EditPrivateMessage({
+          private_message_id: pm.private_message.id,
+          content: i.state.privateMessageForm.content,
+          auth: auth().unwrap(),
+        });
+        WebSocketService.Instance.send(wsClient.editPrivateMessage(form));
+      },
+      none: WebSocketService.Instance.send(
         wsClient.createPrivateMessage(i.state.privateMessageForm)
-      );
-    }
+      ),
+    });
     i.state.loading = true;
     i.setState(i.state);
   }
@@ -237,11 +243,17 @@ export class PrivateMessageForm extends Component<
       op == UserOperation.DeletePrivateMessage ||
       op == UserOperation.MarkPrivateMessageAsRead
     ) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      let data = wsJsonToRes<PrivateMessageResponse>(
+        msg,
+        PrivateMessageResponse
+      );
       this.state.loading = false;
       this.props.onEdit(data.private_message_view);
     } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg).data;
+      let data = wsJsonToRes<PrivateMessageResponse>(
+        msg,
+        PrivateMessageResponse
+      );
       this.state.loading = false;
       this.props.onCreate(data.private_message_view);
       this.setState(this.state);

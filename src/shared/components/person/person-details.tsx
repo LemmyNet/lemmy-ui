@@ -1,3 +1,4 @@
+import { None, Some } from "@sniptt/monads/build";
 import { Component } from "inferno";
 import {
   CommentView,
@@ -89,7 +90,9 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           <CommentNodes
             key={i.id}
             nodes={[{ comment_view: c }]}
-            admins={this.props.admins}
+            admins={Some(this.props.admins)}
+            moderators={None}
+            maxCommentsShown={None}
             noBorder
             noIndent
             showCommunity
@@ -104,7 +107,9 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           <PostListing
             key={i.id}
             post_view={p}
-            admins={this.props.admins}
+            admins={Some(this.props.admins)}
+            duplicates={None}
+            moderators={None}
             showCommunity
             enableDownvotes={this.props.enableDownvotes}
             enableNsfw={this.props.enableNsfw}
@@ -154,7 +159,9 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       <div>
         <CommentNodes
           nodes={commentsToFlatNodes(this.props.personRes.comments)}
-          admins={this.props.admins}
+          admins={Some(this.props.admins)}
+          moderators={None}
+          maxCommentsShown={None}
           noIndent
           showCommunity
           showContext
@@ -171,8 +178,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           <>
             <PostListing
               post_view={post}
-              admins={this.props.admins}
+              admins={Some(this.props.admins)}
               showCommunity
+              duplicates={None}
+              moderators={None}
               enableDownvotes={this.props.enableDownvotes}
               enableNsfw={this.props.enableNsfw}
             />

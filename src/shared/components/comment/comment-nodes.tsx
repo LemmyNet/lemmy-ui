@@ -1,3 +1,4 @@
+import { Option } from "@sniptt/monads";
 import { Component } from "inferno";
 import { CommunityModeratorView, PersonViewSafe } from "lemmy-js-client";
 import { CommentNode as CommentNodeI } from "../../interfaces";
@@ -5,9 +6,9 @@ import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
-  moderators?: CommunityModeratorView[];
-  admins?: PersonViewSafe[];
-  postCreatorId?: number;
+  moderators: Option<CommunityModeratorView[]>;
+  admins: Option<PersonViewSafe[]>;
+  maxCommentsShown: Option<number>;
   noBorder?: boolean;
   noIndent?: boolean;
   viewOnly?: boolean;
@@ -15,8 +16,7 @@ interface CommentNodesProps {
   markable?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
-  maxCommentsShown?: number;
-  enableDownvotes: boolean;
+  enableDownvotes?: boolean;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -25,9 +25,9 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
   }
 
   render() {
-    let maxComments = this.props.maxCommentsShown
-      ? this.props.maxCommentsShown
-      : this.props.nodes.length;
+    let maxComments = this.props.maxCommentsShown.unwrapOr(
+      this.props.nodes.length
+    );
 
     return (
       <div className="comments">
@@ -41,7 +41,6 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             locked={this.props.locked}
             moderators={this.props.moderators}
             admins={this.props.admins}
-            postCreatorId={this.props.postCreatorId}
             markable={this.props.markable}
             showContext={this.props.showContext}
             showCommunity={this.props.showCommunity}

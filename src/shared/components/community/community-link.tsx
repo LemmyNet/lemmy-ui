@@ -56,12 +56,14 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
   }
 
   avatarAndName(displayName: string) {
-    let community = this.props.community;
     return (
       <>
-        {!this.props.hideAvatar && community.icon && showAvatars() && (
-          <PictrsImage src={community.icon} icon />
-        )}
+        {!this.props.hideAvatar &&
+          showAvatars() &&
+          this.props.community.icon.match({
+            some: icon => <PictrsImage src={icon} icon />,
+            none: <></>,
+          })}
         <span class="overflow-wrap-anywhere">{displayName}</span>
       </>
     );

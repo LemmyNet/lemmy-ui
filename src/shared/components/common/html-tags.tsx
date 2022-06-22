@@ -1,3 +1,4 @@
+import { Option } from "@sniptt/monads";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { httpExternalPath } from "../../env";
@@ -6,8 +7,8 @@ import { md } from "../../utils";
 interface HtmlTagsProps {
   title: string;
   path: string;
-  description?: string;
-  image?: string;
+  description: Option<string>;
+  image: Option<string>;
 }
 
 /// Taken from https://metatags.io/
@@ -31,14 +32,17 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
         <meta property="twitter:card" content="summary_large_image" />
 
         {/* Optional desc and images */}
-        {this.props.description &&
+        {this.props.description.isSome() &&
           ["description", "og:description", "twitter:description"].map(n => (
-            <meta name={n} content={md.renderInline(this.props.description)} />
+            <meta
+              name={n}
+              content={md.renderInline(this.props.description.unwrap())}
+            />
           ))}
 
-        {this.props.image &&
+        {this.props.image.isSome() &&
           ["og:image", "twitter:image"].map(p => (
-            <meta property={p} content={this.props.image} />
+            <meta property={p} content={this.props.image.unwrap()} />
           ))}
       </Helmet>
     );
