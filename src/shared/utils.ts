@@ -113,7 +113,7 @@ export function wsUserOp(msg: any): UserOperation {
 }
 
 export const md = new markdown_it({
-  html: true,
+  html: false,
   linkify: true,
   typographer: true,
 })

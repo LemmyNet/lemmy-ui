@@ -31,6 +31,21 @@ steps:
     commands:
       - yarn build:dev
 
+  - name: nightly build
+    image: plugins/docker
+    settings:
+      dockerfile: Dockerfile
+      repo: dessalines/lemmy-ui
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      tags:
+        - dev
+    when:
+      event:
+        - cron
+
   - name: publish release docker image
     image: plugins/docker
     settings:

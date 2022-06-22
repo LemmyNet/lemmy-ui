@@ -113,7 +113,7 @@ export class Home extends Component<any, HomeState> {
     listingType: getListingTypeFromProps(
       this.props,
       ListingType[
-        this.isoData.site_res.site_view.site.default_post_listing_type
+        this.isoData.site_res.site_view?.site.default_post_listing_type
       ]
     ),
     dataType: getDataTypeFromProps(this.props),
