@@ -194,7 +194,6 @@ export class Home extends Component<any, HomeState> {
   componentWillUnmount() {
     saveScrollPosition(this.context);
     this.subscription.unsubscribe();
-    window.isoData.path = undefined;
   }
 
   static getDerivedStateFromProps(props: any): HomeProps {
