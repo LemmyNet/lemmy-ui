@@ -198,7 +198,6 @@ export class Post extends Component<any, PostState> {
     this.subscription.unsubscribe();
     document.removeEventListener("scroll", this.commentScrollDebounced);
 
-    window.isoData.path = undefined;
     saveScrollPosition(this.context);
   }
 

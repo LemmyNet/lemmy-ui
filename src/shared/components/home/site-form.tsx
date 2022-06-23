@@ -98,7 +98,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           default_theme: Some(site.default_theme),
           default_post_listing_type: Some(site.default_post_listing_type),
           legal_information: site.legal_information,
-          auth: auth(false).unwrap(),
+          auth: undefined,
         });
       },
       none: void 0,
