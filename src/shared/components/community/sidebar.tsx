@@ -9,6 +9,7 @@ import {
   FollowCommunity,
   PersonViewSafe,
   RemoveCommunity,
+  SubscribedType,
   toUndefined,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
@@ -111,7 +112,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span class="mr-2">{community.title}</span>
-          {subscribed && (
+          {subscribed == SubscribedType.Subscribed && (
             <a
               class="btn btn-secondary btn-sm mr-2"
               href="#"
@@ -120,6 +121,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               <Icon icon="check" classes="icon-inline text-success mr-1" />
               {i18n.t("joined")}
             </a>
+          )}
+          {subscribed == SubscribedType.Pending && (
+            <div class="badge badge-warning mr-2">
+              {i18n.t("subscribe_pending")}
+            </div>
           )}
           {community.removed && (
             <small className="mr-2 text-muted font-italic">
@@ -257,7 +263,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   createPost() {
     let cv = this.props.community_view;
     return (
-      cv.subscribed && (
+      cv.subscribed == SubscribedType.Subscribed && (
         <Link
           className={`btn btn-secondary btn-block mb-2 ${
             cv.community.deleted || cv.community.removed ? "no-click" : ""
@@ -274,7 +280,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     let community_view = this.props.community_view;
     return (
       <div class="mb-2">
-        {!community_view.subscribed && (
+        {community_view.subscribed == SubscribedType.NotSubscribed && (
           <a
             class="btn btn-secondary btn-block"
             href="#"

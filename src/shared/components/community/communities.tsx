@@ -8,6 +8,7 @@ import {
   ListCommunitiesResponse,
   ListingType,
   SortType,
+  SubscribedType,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -183,7 +184,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           {numToSI(cv.counts.comments)}
                         </td>
                         <td class="text-right">
-                          {cv.subscribed ? (
+                          {cv.subscribed == SubscribedType.Subscribed && (
                             <button
                               class="btn btn-link d-inline-block"
                               onClick={linkEvent(
@@ -193,7 +194,8 @@ export class Communities extends Component<any, CommunitiesState> {
                             >
                               {i18n.t("unsubscribe")}
                             </button>
-                          ) : (
+                          )}
+                          {cv.subscribed == SubscribedType.NotSubscribed && (
                             <button
                               class="btn btn-link d-inline-block"
                               onClick={linkEvent(
@@ -203,6 +205,11 @@ export class Communities extends Component<any, CommunitiesState> {
                             >
                               {i18n.t("subscribe")}
                             </button>
+                          )}
+                          {cv.subscribed == SubscribedType.Pending && (
+                            <div class="text-warning d-inline-block">
+                              {i18n.t("subscribe_pending")}
+                            </div>
                           )}
                         </td>
                       </tr>
