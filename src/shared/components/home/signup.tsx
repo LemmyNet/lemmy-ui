@@ -1,20 +1,25 @@
+import { None, Option, Some } from "@sniptt/monads";
 import { Options, passwordStrength } from "check-password-strength";
 import { I18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
+  CaptchaResponse,
   GetCaptchaResponse,
   GetSiteResponse,
   LoginResponse,
   Register,
   SiteView,
+  toUndefined,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   isBrowser,
   joinLemmyUrl,
   mdToHtml,
@@ -22,9 +27,7 @@ import {
   toast,
   validEmail,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -60,9 +63,9 @@ const passwordStrengthOptions: Options<string> = [
 interface State {
   registerForm: Register;
   registerLoading: boolean;
-  captcha: GetCaptchaResponse;
+  captcha: Option<GetCaptchaResponse>;
   captchaPlaying: boolean;
-  site_view: SiteView;
+  siteRes: GetSiteResponse;
 }
 
 export class Signup extends Component<any, State> {
@@ -71,20 +74,21 @@ export class Signup extends Component<any, State> {
   private audio: HTMLAudioElement;
 
   emptyState: State = {
-    registerForm: {
+    registerForm: new Register({
       username: undefined,
       password: undefined,
       password_verify: undefined,
       show_nsfw: false,
-      captcha_uuid: undefined,
-      captcha_answer: undefined,
-      honeypot: undefined,
-      answer: undefined,
-    },
+      captcha_uuid: None,
+      captcha_answer: None,
+      honeypot: None,
+      answer: None,
+      email: None,
+    }),
     registerLoading: false,
-    captcha: undefined,
+    captcha: None,
     captchaPlaying: false,
-    site_view: this.isoData.site_res.site_view,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -108,13 +112,14 @@ export class Signup extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${this.titleName} - ${this.state.site_view.site.name}`;
+    return this.state.siteRes.site_view.match({
+      some: siteView => `${this.titleName(siteView)} - ${siteView.site.name}`,
+      none: "",
+    });
   }
 
-  get titleName(): string {
-    return `${i18n.t(
-      this.state.site_view.site.private_instance ? "apply_to_join" : "sign_up"
-    )}`;
+  titleName(siteView: SiteView): string {
+    return i18n.t(siteView.site.private_instance ? "apply_to_join" : "sign_up");
   }
 
   get isLemmyMl(): boolean {
@@ -127,6 +132,8 @@ export class Signup extends Component<any, State> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          description={None}
+          image={None}
         />
         <div class="row">
           <div class="col-12 col-lg-6 offset-lg-3">{this.registerForm()}</div>
@@ -136,244 +143,272 @@ export class Signup extends Component<any, State> {
   }
 
   registerForm() {
-    return (
-      <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
-        <h5>{this.titleName}</h5>
+    return this.state.siteRes.site_view.match({
+      some: siteView => (
+        <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
+          <h5>{this.titleName(siteView)}</h5>
 
-        {this.isLemmyMl && (
-          <div class="form-group row">
-            <div class="mt-2 mb-0 alert alert-warning" role="alert">
-              <T i18nKey="lemmy_ml_registration_message">
-                #<a href={joinLemmyUrl}>#</a>
-              </T>
-            </div>
-          </div>
-        )}
-
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="register-username">
-            {i18n.t("username")}
-          </label>
-
-          <div class="col-sm-10">
-            <input
-              type="text"
-              id="register-username"
-              class="form-control"
-              value={this.state.registerForm.username}
-              onInput={linkEvent(this, this.handleRegisterUsernameChange)}
-              required
-              minLength={3}
-              pattern="[a-zA-Z0-9_]+"
-              title={i18n.t("community_reqs")}
-            />
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="register-email">
-            {i18n.t("email")}
-          </label>
-          <div class="col-sm-10">
-            <input
-              type="email"
-              id="register-email"
-              class="form-control"
-              placeholder={
-                this.state.site_view.site.require_email_verification
-                  ? i18n.t("required")
-                  : i18n.t("optional")
-              }
-              value={this.state.registerForm.email}
-              autoComplete="email"
-              onInput={linkEvent(this, this.handleRegisterEmailChange)}
-              required={this.state.site_view.site.require_email_verification}
-              minLength={3}
-            />
-            {!this.state.site_view.site.require_email_verification &&
-              !validEmail(this.state.registerForm.email) && (
-                <div class="mt-2 mb-0 alert alert-warning" role="alert">
-                  <Icon icon="alert-triangle" classes="icon-inline mr-2" />
-                  {i18n.t("no_password_reset")}
-                </div>
-              )}
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="register-password">
-            {i18n.t("password")}
-          </label>
-          <div class="col-sm-10">
-            <input
-              type="password"
-              id="register-password"
-              value={this.state.registerForm.password}
-              autoComplete="new-password"
-              onInput={linkEvent(this, this.handleRegisterPasswordChange)}
-              minLength={10}
-              maxLength={60}
-              class="form-control"
-              required
-            />
-            {this.state.registerForm.password && (
-              <div class={this.passwordColorClass}>
-                {i18n.t(this.passwordStrength as I18nKeys)}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label
-            class="col-sm-2 col-form-label"
-            htmlFor="register-verify-password"
-          >
-            {i18n.t("verify_password")}
-          </label>
-          <div class="col-sm-10">
-            <input
-              type="password"
-              id="register-verify-password"
-              value={this.state.registerForm.password_verify}
-              autoComplete="new-password"
-              onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
-              maxLength={60}
-              class="form-control"
-              required
-            />
-          </div>
-        </div>
-
-        {this.state.site_view.site.require_application && (
-          <>
+          {this.isLemmyMl && (
             <div class="form-group row">
-              <div class="offset-sm-2 col-sm-10">
-                <div class="mt-2 alert alert-warning" role="alert">
-                  <Icon icon="alert-triangle" classes="icon-inline mr-2" />
-                  {i18n.t("fill_out_application")}
-                </div>
-                <div
-                  className="md-div"
-                  dangerouslySetInnerHTML={mdToHtml(
-                    this.state.site_view.site.application_question || ""
-                  )}
-                />
+              <div class="mt-2 mb-0 alert alert-warning" role="alert">
+                <T i18nKey="lemmy_ml_registration_message">
+                  #<a href={joinLemmyUrl}>#</a>
+                </T>
               </div>
             </div>
+          )}
 
-            <div class="form-group row">
-              <label
-                class="col-sm-2 col-form-label"
-                htmlFor="application_answer"
-              >
-                {i18n.t("answer")}
-              </label>
-              <div class="col-sm-10">
-                <MarkdownTextArea
-                  onContentChange={this.handleAnswerChange}
-                  hideNavigationWarnings
-                />
-              </div>
-            </div>
-          </>
-        )}
-
-        {this.state.captcha && (
           <div class="form-group row">
-            <label class="col-sm-2" htmlFor="register-captcha">
-              <span class="mr-2">{i18n.t("enter_code")}</span>
-              <button
-                type="button"
-                class="btn btn-secondary"
-                onClick={linkEvent(this, this.handleRegenCaptcha)}
-                aria-label={i18n.t("captcha")}
-              >
-                <Icon icon="refresh-cw" classes="icon-refresh-cw" />
-              </button>
+            <label class="col-sm-2 col-form-label" htmlFor="register-username">
+              {i18n.t("username")}
             </label>
-            {this.showCaptcha()}
-            <div class="col-sm-6">
+
+            <div class="col-sm-10">
               <input
                 type="text"
+                id="register-username"
                 class="form-control"
-                id="register-captcha"
-                value={this.state.registerForm.captcha_answer}
+                value={this.state.registerForm.username}
+                onInput={linkEvent(this, this.handleRegisterUsernameChange)}
+                required
+                minLength={3}
+                pattern="[a-zA-Z0-9_]+"
+                title={i18n.t("community_reqs")}
+              />
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label" htmlFor="register-email">
+              {i18n.t("email")}
+            </label>
+            <div class="col-sm-10">
+              <input
+                type="email"
+                id="register-email"
+                class="form-control"
+                placeholder={
+                  siteView.site.require_email_verification
+                    ? i18n.t("required")
+                    : i18n.t("optional")
+                }
+                value={toUndefined(this.state.registerForm.email)}
+                autoComplete="email"
+                onInput={linkEvent(this, this.handleRegisterEmailChange)}
+                required={siteView.site.require_email_verification}
+                minLength={3}
+              />
+              {!siteView.site.require_email_verification &&
+                !this.state.registerForm.email
+                  .map(validEmail)
+                  .unwrapOr(true) && (
+                  <div class="mt-2 mb-0 alert alert-warning" role="alert">
+                    <Icon icon="alert-triangle" classes="icon-inline mr-2" />
+                    {i18n.t("no_password_reset")}
+                  </div>
+                )}
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label" htmlFor="register-password">
+              {i18n.t("password")}
+            </label>
+            <div class="col-sm-10">
+              <input
+                type="password"
+                id="register-password"
+                value={this.state.registerForm.password}
+                autoComplete="new-password"
+                onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+                minLength={10}
+                maxLength={60}
+                class="form-control"
+                required
+              />
+              {this.state.registerForm.password && (
+                <div class={this.passwordColorClass}>
+                  {i18n.t(this.passwordStrength as I18nKeys)}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label
+              class="col-sm-2 col-form-label"
+              htmlFor="register-verify-password"
+            >
+              {i18n.t("verify_password")}
+            </label>
+            <div class="col-sm-10">
+              <input
+                type="password"
+                id="register-verify-password"
+                value={this.state.registerForm.password_verify}
+                autoComplete="new-password"
                 onInput={linkEvent(
                   this,
-                  this.handleRegisterCaptchaAnswerChange
+                  this.handleRegisterPasswordVerifyChange
                 )}
+                maxLength={60}
+                class="form-control"
                 required
               />
             </div>
           </div>
-        )}
-        {this.state.site_view.site.enable_nsfw && (
-          <div class="form-group row">
-            <div class="col-sm-10">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  id="register-show-nsfw"
-                  type="checkbox"
-                  checked={this.state.registerForm.show_nsfw}
-                  onChange={linkEvent(this, this.handleRegisterShowNsfwChange)}
-                />
-                <label class="form-check-label" htmlFor="register-show-nsfw">
-                  {i18n.t("show_nsfw")}
+
+          {siteView.site.require_application && (
+            <>
+              <div class="form-group row">
+                <div class="offset-sm-2 col-sm-10">
+                  <div class="mt-2 alert alert-warning" role="alert">
+                    <Icon icon="alert-triangle" classes="icon-inline mr-2" />
+                    {i18n.t("fill_out_application")}
+                  </div>
+                  {siteView.site.application_question.match({
+                    some: question => (
+                      <div
+                        className="md-div"
+                        dangerouslySetInnerHTML={mdToHtml(question)}
+                      />
+                    ),
+                    none: <></>,
+                  })}
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label
+                  class="col-sm-2 col-form-label"
+                  htmlFor="application_answer"
+                >
+                  {i18n.t("answer")}
                 </label>
+                <div class="col-sm-10">
+                  <MarkdownTextArea
+                    initialContent={None}
+                    placeholder={None}
+                    buttonTitle={None}
+                    maxLength={None}
+                    onContentChange={this.handleAnswerChange}
+                    hideNavigationWarnings
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {this.state.captcha.isSome() && (
+            <div class="form-group row">
+              <label class="col-sm-2" htmlFor="register-captcha">
+                <span class="mr-2">{i18n.t("enter_code")}</span>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onClick={linkEvent(this, this.handleRegenCaptcha)}
+                  aria-label={i18n.t("captcha")}
+                >
+                  <Icon icon="refresh-cw" classes="icon-refresh-cw" />
+                </button>
+              </label>
+              {this.showCaptcha()}
+              <div class="col-sm-6">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="register-captcha"
+                  value={toUndefined(this.state.registerForm.captcha_answer)}
+                  onInput={linkEvent(
+                    this,
+                    this.handleRegisterCaptchaAnswerChange
+                  )}
+                  required
+                />
               </div>
             </div>
+          )}
+          {siteView.site.enable_nsfw && (
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    id="register-show-nsfw"
+                    type="checkbox"
+                    checked={this.state.registerForm.show_nsfw}
+                    onChange={linkEvent(
+                      this,
+                      this.handleRegisterShowNsfwChange
+                    )}
+                  />
+                  <label class="form-check-label" htmlFor="register-show-nsfw">
+                    {i18n.t("show_nsfw")}
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+          <input
+            tabIndex={-1}
+            autoComplete="false"
+            name="a_password"
+            type="text"
+            class="form-control honeypot"
+            id="register-honey"
+            value={toUndefined(this.state.registerForm.honeypot)}
+            onInput={linkEvent(this, this.handleHoneyPotChange)}
+          />
+          <div class="form-group row">
+            <div class="col-sm-10">
+              <button type="submit" class="btn btn-secondary">
+                {this.state.registerLoading ? (
+                  <Spinner />
+                ) : (
+                  this.titleName(siteView)
+                )}
+              </button>
+            </div>
           </div>
-        )}
-        <input
-          tabIndex={-1}
-          autoComplete="false"
-          name="a_password"
-          type="text"
-          class="form-control honeypot"
-          id="register-honey"
-          value={this.state.registerForm.honeypot}
-          onInput={linkEvent(this, this.handleHoneyPotChange)}
-        />
-        <div class="form-group row">
-          <div class="col-sm-10">
-            <button type="submit" class="btn btn-secondary">
-              {this.state.registerLoading ? <Spinner /> : this.titleName}
-            </button>
-          </div>
-        </div>
-      </form>
-    );
+        </form>
+      ),
+      none: <></>,
+    });
   }
 
   showCaptcha() {
-    return (
-      <div class="col-sm-4">
-        {this.state.captcha.ok && (
-          <>
-            <img
-              class="rounded-top img-fluid"
-              src={this.captchaPngSrc()}
-              style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
-              alt={i18n.t("captcha")}
-            />
-            {this.state.captcha.ok.wav && (
-              <button
-                class="rounded-bottom btn btn-sm btn-secondary btn-block"
-                style="border-top-right-radius: 0; border-top-left-radius: 0;"
-                title={i18n.t("play_captcha_audio")}
-                onClick={linkEvent(this, this.handleCaptchaPlay)}
-                type="button"
-                disabled={this.state.captchaPlaying}
-              >
-                <Icon icon="play" classes="icon-play" />
-              </button>
-            )}
-          </>
-        )}
-      </div>
-    );
+    return this.state.captcha.match({
+      some: captcha => (
+        <div class="col-sm-4">
+          {captcha.ok.match({
+            some: res => (
+              <>
+                <img
+                  class="rounded-top img-fluid"
+                  src={this.captchaPngSrc(res)}
+                  style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
+                  alt={i18n.t("captcha")}
+                />
+                {res.wav.isSome() && (
+                  <button
+                    class="rounded-bottom btn btn-sm btn-secondary btn-block"
+                    style="border-top-right-radius: 0; border-top-left-radius: 0;"
+                    title={i18n.t("play_captcha_audio")}
+                    onClick={linkEvent(this, this.handleCaptchaPlay)}
+                    type="button"
+                    disabled={this.state.captchaPlaying}
+                  >
+                    <Icon icon="play" classes="icon-play" />
+                  </button>
+                )}
+              </>
+            ),
+            none: <></>,
+          })}
+        </div>
+      ),
+      none: <></>,
+    });
   }
 
   get passwordStrength() {
@@ -408,9 +443,9 @@ export class Signup extends Component<any, State> {
   }
 
   handleRegisterEmailChange(i: Signup, event: any) {
-    i.state.registerForm.email = event.target.value;
-    if (i.state.registerForm.email == "") {
-      i.state.registerForm.email = undefined;
+    i.state.registerForm.email = Some(event.target.value);
+    if (i.state.registerForm.email.unwrap() == "") {
+      i.state.registerForm.email = None;
     }
     i.setState(i.state);
   }
@@ -431,17 +466,17 @@ export class Signup extends Component<any, State> {
   }
 
   handleRegisterCaptchaAnswerChange(i: Signup, event: any) {
-    i.state.registerForm.captcha_answer = event.target.value;
+    i.state.registerForm.captcha_answer = Some(event.target.value);
     i.setState(i.state);
   }
 
   handleAnswerChange(val: string) {
-    this.state.registerForm.answer = val;
+    this.state.registerForm.answer = Some(val);
     this.setState(this.state);
   }
 
   handleHoneyPotChange(i: Signup, event: any) {
-    i.state.registerForm.honeypot = event.target.value;
+    i.state.registerForm.honeypot = Some(event.target.value);
     i.setState(i.state);
   }
 
@@ -455,25 +490,34 @@ export class Signup extends Component<any, State> {
   handleCaptchaPlay(i: Signup) {
     // This was a bad bug, it should only build the new audio on a new file.
     // Replays would stop prematurely if this was rebuilt every time.
-    if (i.audio == null) {
-      let base64 = `data:audio/wav;base64,${i.state.captcha.ok.wav}`;
-      i.audio = new Audio(base64);
-    }
+    i.state.captcha.match({
+      some: captcha =>
+        captcha.ok.match({
+          some: res => {
+            if (i.audio == null) {
+              let base64 = `data:audio/wav;base64,${res.wav}`;
+              i.audio = new Audio(base64);
+            }
 
-    i.audio.play();
+            i.audio.play();
 
-    i.state.captchaPlaying = true;
-    i.setState(i.state);
+            i.state.captchaPlaying = true;
+            i.setState(i.state);
 
-    i.audio.addEventListener("ended", () => {
-      i.audio.currentTime = 0;
-      i.state.captchaPlaying = false;
-      i.setState(i.state);
+            i.audio.addEventListener("ended", () => {
+              i.audio.currentTime = 0;
+              i.state.captchaPlaying = false;
+              i.setState(i.state);
+            });
+          },
+          none: void 0,
+        }),
+      none: void 0,
     });
   }
 
-  captchaPngSrc() {
-    return `data:image/png;base64,${this.state.captcha.ok.png}`;
+  captchaPngSrc(captcha: CaptchaResponse) {
+    return `data:image/png;base64,${captcha.png}`;
   }
 
   parseMessage(msg: any) {
@@ -489,7 +533,7 @@ export class Signup extends Component<any, State> {
       return;
     } else {
       if (op == UserOperation.Register) {
-        let data = wsJsonToRes<LoginResponse>(msg).data;
+        let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
         this.state = this.emptyState;
         this.setState(this.state);
         // Only log them in if a jwt was set
@@ -497,7 +541,7 @@ export class Signup extends Component<any, State> {
           UserService.Instance.login(data);
           WebSocketService.Instance.send(
             wsClient.userJoin({
-              auth: authField(),
+              auth: auth().unwrap(),
             })
           );
           this.props.history.push("/communities");
@@ -511,17 +555,20 @@ export class Signup extends Component<any, State> {
           this.props.history.push("/");
         }
       } else if (op == UserOperation.GetCaptcha) {
-        let data = wsJsonToRes<GetCaptchaResponse>(msg).data;
-        if (data.ok) {
-          this.state.captcha = data;
-          this.state.registerForm.captcha_uuid = data.ok.uuid;
-          this.setState(this.state);
-        }
+        let data = wsJsonToRes<GetCaptchaResponse>(msg, GetCaptchaResponse);
+        data.ok.match({
+          some: res => {
+            this.state.captcha = Some(data);
+            this.state.registerForm.captcha_uuid = Some(res.uuid);
+            this.setState(this.state);
+          },
+          none: void 0,
+        });
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
-        let data = wsJsonToRes<GetSiteResponse>(msg).data;
-        this.state.site_view = data.site_view;
+        let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
+        this.state.siteRes = data;
         this.setState(this.state);
       }
     }

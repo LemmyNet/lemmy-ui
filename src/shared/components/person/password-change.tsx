@@ -1,9 +1,12 @@
+import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
+  GetSiteResponse,
   LoginResponse,
   PasswordChange as PasswordChangeForm,
-  SiteView,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -14,9 +17,7 @@ import {
   setIsoData,
   toast,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -24,7 +25,7 @@ import { Spinner } from "../common/icon";
 interface State {
   passwordChangeForm: PasswordChangeForm;
   loading: boolean;
-  site_view: SiteView;
+  siteRes: GetSiteResponse;
 }
 
 export class PasswordChange extends Component<any, State> {
@@ -32,13 +33,13 @@ export class PasswordChange extends Component<any, State> {
   private subscription: Subscription;
 
   emptyState: State = {
-    passwordChangeForm: {
+    passwordChangeForm: new PasswordChangeForm({
       token: this.props.match.params.token,
       password: undefined,
       password_verify: undefined,
-    },
+    }),
     loading: false,
-    site_view: this.isoData.site_res.site_view,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -57,7 +58,10 @@ export class PasswordChange extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("password_change")} - ${this.state.site_view.site.name}`;
+    return this.state.siteRes.site_view.match({
+      some: siteView => `${i18n.t("password_change")} - ${siteView.site.name}`,
+      none: "",
+    });
   }
 
   render() {
@@ -66,6 +70,8 @@ export class PasswordChange extends Component<any, State> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          description={None}
+          image={None}
         />
         <div class="row">
           <div class="col-12 col-lg-6 offset-lg-3 mb-4">
@@ -156,7 +162,7 @@ export class PasswordChange extends Component<any, State> {
       this.setState(this.state);
       return;
     } else if (op == UserOperation.PasswordChange) {
-      let data = wsJsonToRes<LoginResponse>(msg).data;
+      let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
       this.state = this.emptyState;
       this.setState(this.state);
       UserService.Instance.login(data);

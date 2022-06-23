@@ -1,25 +1,25 @@
+import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   GetSiteResponse,
   Login as LoginForm,
   LoginResponse,
   PasswordReset,
-  SiteView,
   UserOperation,
+  wsJsonToRes,
+  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  authField,
+  auth,
   isBrowser,
   setIsoData,
   toast,
   validEmail,
   wsClient,
-  wsJsonToRes,
   wsSubscribe,
-  wsUserOp,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -27,7 +27,7 @@ import { Spinner } from "../common/icon";
 interface State {
   loginForm: LoginForm;
   loginLoading: boolean;
-  site_view: SiteView;
+  siteRes: GetSiteResponse;
 }
 
 export class Login extends Component<any, State> {
@@ -35,12 +35,12 @@ export class Login extends Component<any, State> {
   private subscription: Subscription;
 
   emptyState: State = {
-    loginForm: {
+    loginForm: new LoginForm({
       username_or_email: undefined,
       password: undefined,
-    },
+    }),
     loginLoading: false,
-    site_view: this.isoData.site_res.site_view,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -58,7 +58,7 @@ export class Login extends Component<any, State> {
 
   componentDidMount() {
     // Navigate to home if already logged in
-    if (UserService.Instance.myUserInfo) {
+    if (UserService.Instance.myUserInfo.isSome()) {
       this.context.router.history.push("/");
     }
   }
@@ -70,7 +70,10 @@ export class Login extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("login")} - ${this.state.site_view.site.name}`;
+    return this.state.siteRes.site_view.match({
+      some: siteView => `${i18n.t("login")} - ${siteView.site.name}`,
+      none: "",
+    });
   }
 
   get isLemmyMl(): boolean {
@@ -83,6 +86,8 @@ export class Login extends Component<any, State> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          description={None}
+          image={None}
         />
         <div class="row">
           <div class="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
@@ -173,9 +178,9 @@ export class Login extends Component<any, State> {
 
   handlePasswordReset(i: Login, event: any) {
     event.preventDefault();
-    let resetForm: PasswordReset = {
+    let resetForm = new PasswordReset({
       email: i.state.loginForm.username_or_email,
-    };
+    });
     WebSocketService.Instance.send(wsClient.passwordReset(resetForm));
   }
 
@@ -189,13 +194,13 @@ export class Login extends Component<any, State> {
       return;
     } else {
       if (op == UserOperation.Login) {
-        let data = wsJsonToRes<LoginResponse>(msg).data;
+        let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
         this.state = this.emptyState;
         this.setState(this.state);
         UserService.Instance.login(data);
         WebSocketService.Instance.send(
           wsClient.userJoin({
-            auth: authField(),
+            auth: auth().unwrap(),
           })
         );
         toast(i18n.t("logged_in"));
@@ -203,8 +208,8 @@ export class Login extends Component<any, State> {
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
-        let data = wsJsonToRes<GetSiteResponse>(msg).data;
-        this.state.site_view = data.site_view;
+        let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
+        this.state.siteRes = data;
         this.setState(this.state);
       }
     }

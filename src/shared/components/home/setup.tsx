@@ -1,11 +1,19 @@
+import { None, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { LoginResponse, Register, UserOperation } from "lemmy-js-client";
+import {
+  LoginResponse,
+  Register,
+  toUndefined,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
-import { toast, wsClient, wsJsonToRes, wsUserOp } from "../../utils";
+import { toast, wsClient } from "../../utils";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
 
@@ -19,15 +27,18 @@ export class Setup extends Component<any, State> {
   private subscription: Subscription;
 
   private emptyState: State = {
-    userForm: {
+    userForm: new Register({
       username: undefined,
       password: undefined,
       password_verify: undefined,
       show_nsfw: true,
       // The first admin signup doesn't need a captcha
-      captcha_uuid: "",
-      captcha_answer: "",
-    },
+      captcha_uuid: None,
+      captcha_answer: None,
+      email: None,
+      honeypot: None,
+      answer: None,
+    }),
     doneRegisteringUser: false,
     userLoading: false,
   };
@@ -64,7 +75,7 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm showLocal />
+              <SiteForm site={None} showLocal />
             )}
           </div>
         </div>
@@ -104,7 +115,7 @@ export class Setup extends Component<any, State> {
               id="email"
               class="form-control"
               placeholder={i18n.t("optional")}
-              value={this.state.userForm.email}
+              value={toUndefined(this.state.userForm.email)}
               onInput={linkEvent(this, this.handleRegisterEmailChange)}
               minLength={3}
             />
@@ -171,7 +182,7 @@ export class Setup extends Component<any, State> {
   }
 
   handleRegisterEmailChange(i: Setup, event: any) {
-    i.state.userForm.email = event.target.value;
+    i.state.userForm.email = Some(event.target.value);
     i.setState(i.state);
   }
 
@@ -193,7 +204,7 @@ export class Setup extends Component<any, State> {
       this.setState(this.state);
       return;
     } else if (op == UserOperation.Register) {
-      let data = wsJsonToRes<LoginResponse>(msg).data;
+      let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
       this.state.userLoading = false;
       this.state.doneRegisteringUser = true;
       UserService.Instance.login(data);

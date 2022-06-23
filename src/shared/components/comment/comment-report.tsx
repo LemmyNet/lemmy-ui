@@ -1,14 +1,16 @@
+import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
   CommentView,
   ResolveCommentReport,
+  SubscribedType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { CommentNode as CommentNodeI } from "../../interfaces";
 import { WebSocketService } from "../../services";
-import { authField, wsClient } from "../../utils";
+import { auth, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
@@ -39,9 +41,10 @@ export class CommentReport extends Component<CommentReportProps, any> {
       community: r.community,
       creator_banned_from_community: r.creator_banned_from_community,
       counts: r.counts,
-      subscribed: false,
+      subscribed: SubscribedType.NotSubscribed,
       saved: false,
       creator_blocked: false,
+      recipient: None,
       my_vote: r.my_vote,
     };
 
@@ -53,8 +56,8 @@ export class CommentReport extends Component<CommentReportProps, any> {
       <div>
         <CommentNode
           node={node}
-          moderators={[]}
-          admins={[]}
+          moderators={None}
+          admins={None}
           enableDownvotes={true}
           viewOnly={true}
           showCommunity={true}
@@ -65,21 +68,24 @@ export class CommentReport extends Component<CommentReportProps, any> {
         <div>
           {i18n.t("reason")}: {r.comment_report.reason}
         </div>
-        {r.resolver && (
-          <div>
-            {r.comment_report.resolved ? (
-              <T i18nKey="resolved_by">
-                #
-                <PersonListing person={r.resolver} />
-              </T>
-            ) : (
-              <T i18nKey="unresolved_by">
-                #
-                <PersonListing person={r.resolver} />
-              </T>
-            )}
-          </div>
-        )}
+        {r.resolver.match({
+          some: resolver => (
+            <div>
+              {r.comment_report.resolved ? (
+                <T i18nKey="resolved_by">
+                  #
+                  <PersonListing person={resolver} />
+                </T>
+              ) : (
+                <T i18nKey="unresolved_by">
+                  #
+                  <PersonListing person={resolver} />
+                </T>
+              )}
+            </div>
+          ),
+          none: <></>,
+        })}
         <button
           className="btn btn-link btn-animate text-muted py-0"
           onClick={linkEvent(this, this.handleResolveReport)}
@@ -98,11 +104,11 @@ export class CommentReport extends Component<CommentReportProps, any> {
   }
 
   handleResolveReport(i: CommentReport) {
-    let form: ResolveCommentReport = {
+    let form = new ResolveCommentReport({
       report_id: i.props.report.comment_report.id,
       resolved: !i.props.report.comment_report.resolved,
-      auth: authField(),
-    };
+      auth: auth().unwrap(),
+    });
     WebSocketService.Instance.send(wsClient.resolveCommentReport(form));
   }
 }

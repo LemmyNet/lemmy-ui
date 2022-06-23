@@ -1,14 +1,15 @@
 import { hydrate } from "inferno-hydrate";
 import { BrowserRouter } from "inferno-router";
+import { GetSiteResponse } from "lemmy-js-client";
 import { App } from "../shared/components/app/app";
-import { initializeSite } from "../shared/utils";
+import { convertWindowJson, initializeSite } from "../shared/utils";
 
-const site = window.isoData.site_res;
+const site = convertWindowJson(GetSiteResponse, window.isoData.site_res);
 initializeSite(site);
 
 const wrapper = (
   <BrowserRouter>
-    <App siteRes={window.isoData.site_res} />
+    <App />
   </BrowserRouter>
 );
 

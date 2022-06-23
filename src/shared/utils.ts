@@ -1,3 +1,5 @@
+import { None, Option, Result, Some } from "@sniptt/monads";
+import { ClassConstructor, deserialize, serialize } from "class-transformer";
 import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
@@ -5,6 +7,7 @@ import {
   CommentReportView,
   CommentView,
   CommunityBlockView,
+  CommunityModeratorView,
   CommunityView,
   GetSiteMetadata,
   GetSiteResponse,
@@ -22,9 +25,6 @@ import {
   Search,
   SearchType,
   SortType,
-  UserOperation,
-  WebSocketJsonResponse,
-  WebSocketResponse,
 } from "lemmy-js-client";
 import markdown_it from "markdown-it";
 import markdown_it_container from "markdown-it-container";
@@ -72,6 +72,7 @@ export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit = 20;
+export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 
 export const relTags = "noopener nofollow";
@@ -96,20 +97,6 @@ export function randomStr(
       return getRandomCharFromAlphabet(alphabet);
     })
     .join("");
-}
-
-export function wsJsonToRes<ResponseType>(
-  msg: WebSocketJsonResponse<ResponseType>
-): WebSocketResponse<ResponseType> {
-  return {
-    op: wsUserOp(msg),
-    data: msg.data,
-  };
-}
-
-export function wsUserOp(msg: any): UserOperation {
-  let opStr: string = msg.op;
-  return UserOperation[opStr];
 }
 
 export const md = new markdown_it({
@@ -192,30 +179,135 @@ export function futureDaysToUnixTime(days: number): number {
 }
 
 export function canMod(
-  myUserInfo: MyUserInfo,
-  modIds: number[],
+  mods: Option<CommunityModeratorView[]>,
+  admins: Option<PersonViewSafe[]>,
   creator_id: number,
+  myUserInfo = UserService.Instance.myUserInfo,
   onSelf = false
 ): boolean {
   // You can do moderator actions only on the mods added after you.
-  if (myUserInfo) {
-    let yourIndex = modIds.findIndex(
-      id => id == myUserInfo.local_user_view.person.id
-    );
-    if (yourIndex == -1) {
-      return false;
-    } else {
-      // onSelf +1 on mod actions not for yourself, IE ban, remove, etc
-      modIds = modIds.slice(0, yourIndex + (onSelf ? 0 : 1));
-      return !modIds.includes(creator_id);
-    }
-  } else {
-    return false;
-  }
+  let adminsThenMods = admins
+    .unwrapOr([])
+    .map(a => a.person.id)
+    .concat(mods.unwrapOr([]).map(m => m.moderator.id));
+
+  return myUserInfo.match({
+    some: me => {
+      let myIndex = adminsThenMods.findIndex(
+        id => id == me.local_user_view.person.id
+      );
+      if (myIndex == -1) {
+        return false;
+      } else {
+        // onSelf +1 on mod actions not for yourself, IE ban, remove, etc
+        adminsThenMods = adminsThenMods.slice(0, myIndex + (onSelf ? 0 : 1));
+        return !adminsThenMods.includes(creator_id);
+      }
+    },
+    none: false,
+  });
 }
 
-export function isMod(modIds: number[], creator_id: number): boolean {
-  return modIds.includes(creator_id);
+export function canAdmin(
+  admins: Option<PersonViewSafe[]>,
+  creator_id: number,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return canMod(None, admins, creator_id, myUserInfo);
+}
+
+export function isMod(
+  mods: Option<CommunityModeratorView[]>,
+  creator_id: number
+): boolean {
+  return mods.match({
+    some: mods => mods.map(m => m.moderator.id).includes(creator_id),
+    none: false,
+  });
+}
+
+export function amMod(
+  mods: Option<CommunityModeratorView[]>,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo.match({
+    some: mui => isMod(mods, mui.local_user_view.person.id),
+    none: false,
+  });
+}
+
+export function isAdmin(
+  admins: Option<PersonViewSafe[]>,
+  creator_id: number
+): boolean {
+  return admins.match({
+    some: admins => admins.map(a => a.person.id).includes(creator_id),
+    none: false,
+  });
+}
+
+export function amAdmin(
+  admins: Option<PersonViewSafe[]>,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo.match({
+    some: mui => isAdmin(admins, mui.local_user_view.person.id),
+    none: false,
+  });
+}
+
+export function amCommunityCreator(
+  mods: Option<CommunityModeratorView[]>,
+  creator_id: number,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return mods.match({
+    some: mods =>
+      myUserInfo
+        .map(mui => mui.local_user_view.person.id)
+        .match({
+          some: myId =>
+            myId == mods[0].moderator.id &&
+            // Don't allow mod actions on yourself
+            myId != creator_id,
+          none: false,
+        }),
+    none: false,
+  });
+}
+
+export function amSiteCreator(
+  admins: Option<PersonViewSafe[]>,
+  creator_id: number,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return admins.match({
+    some: admins =>
+      myUserInfo
+        .map(mui => mui.local_user_view.person.id)
+        .match({
+          some: myId =>
+            myId == admins[0].person.id &&
+            // Don't allow mod actions on yourself
+            myId != creator_id,
+          none: false,
+        }),
+    none: false,
+  });
+}
+
+export function amTopMod(
+  mods: Option<CommunityModeratorView[]>,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return mods.match({
+    some: mods =>
+      myUserInfo.match({
+        some: mui => mods[0].moderator.id == mui.local_user_view.person.id,
+        none: false,
+      }),
+    none: false,
+  });
 }
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
@@ -321,13 +413,14 @@ export function debounce(func: any, wait = 1000, immediate = false) {
   };
 }
 
-export function getLanguages(override?: string): string[] {
-  let myUserInfo = UserService.Instance.myUserInfo;
-  let lang =
-    override ||
-    (myUserInfo?.local_user_view.local_user.lang
-      ? myUserInfo.local_user_view.local_user.lang
-      : "browser");
+export function getLanguages(
+  override?: string,
+  myUserInfo = UserService.Instance.myUserInfo
+): string[] {
+  let myLang = myUserInfo
+    .map(m => m.local_user_view.local_user.lang)
+    .unwrapOr("browser");
+  let lang = override || myLang;
 
   if (lang == "browser" && isBrowser()) {
     return getBrowserLanguages();
@@ -406,24 +499,26 @@ export function objectFlip(obj: any) {
   return ret;
 }
 
-export function showAvatars(): boolean {
-  return (
-    UserService.Instance.myUserInfo?.local_user_view.local_user.show_avatars ||
-    !UserService.Instance.myUserInfo
-  );
+export function showAvatars(
+  myUserInfo: Option<MyUserInfo> = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo
+    .map(m => m.local_user_view.local_user.show_avatars)
+    .unwrapOr(true);
 }
 
-export function showScores(): boolean {
-  return (
-    UserService.Instance.myUserInfo?.local_user_view.local_user.show_scores ||
-    !UserService.Instance.myUserInfo
-  );
+export function showScores(
+  myUserInfo: Option<MyUserInfo> = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo
+    .map(m => m.local_user_view.local_user.show_scores)
+    .unwrapOr(true);
 }
 
 export function isCakeDay(published: string): boolean {
   // moment(undefined) or moment.utc(undefined) returns the current date/time
   // moment(null) or moment.utc(null) returns null
-  const createDate = moment.utc(published || null).local();
+  const createDate = moment.utc(published).local();
   const currentDate = moment(new Date());
 
   return (
@@ -472,7 +567,7 @@ export function pictrsDeleteToast(
 
 interface NotifyInfo {
   name: string;
-  icon?: string;
+  icon: Option<string>;
   link: string;
   body: string;
 }
@@ -484,7 +579,7 @@ export function messageToastify(info: NotifyInfo, router: any) {
 
     let toast = Toastify({
       text: `${htmlBody}<br />${info.name}`,
-      avatar: info.icon ? info.icon : null,
+      avatar: info.icon,
       backgroundColor: backgroundColor,
       className: "text-dark",
       close: true,
@@ -666,16 +761,18 @@ async function communitySearch(text: string): Promise<CommunityTribute[]> {
 
 export function getListingTypeFromProps(
   props: any,
-  defaultListingType: ListingType
+  defaultListingType: ListingType,
+  myUserInfo = UserService.Instance.myUserInfo
 ): ListingType {
   return props.match.params.listing_type
     ? routeListingTypeToEnum(props.match.params.listing_type)
-    : UserService.Instance.myUserInfo
-    ? Object.values(ListingType)[
-        UserService.Instance.myUserInfo.local_user_view.local_user
-          .default_listing_type
-      ]
-    : defaultListingType;
+    : myUserInfo.match({
+        some: me =>
+          Object.values(ListingType)[
+            me.local_user_view.local_user.default_listing_type
+          ],
+        none: defaultListingType,
+      });
 }
 
 export function getListingTypeFromPropsNoDefault(props: any): ListingType {
@@ -691,15 +788,19 @@ export function getDataTypeFromProps(props: any): DataType {
     : DataType.Post;
 }
 
-export function getSortTypeFromProps(props: any): SortType {
+export function getSortTypeFromProps(
+  props: any,
+  myUserInfo = UserService.Instance.myUserInfo
+): SortType {
   return props.match.params.sort
     ? routeSortTypeToEnum(props.match.params.sort)
-    : UserService.Instance.myUserInfo
-    ? Object.values(SortType)[
-        UserService.Instance.myUserInfo.local_user_view.local_user
-          .default_sort_type
-      ]
-    : SortType.Active;
+    : myUserInfo.match({
+        some: mui =>
+          Object.values(SortType)[
+            mui.local_user_view.local_user.default_sort_type
+          ],
+        none: SortType.Active,
+      });
 }
 
 export function getPageFromProps(props: any): number {
@@ -744,42 +845,53 @@ export function saveCommentRes(data: CommentView, comments: CommentView[]) {
   }
 }
 
+// TODO Should only use the return now, no state?
 export function updatePersonBlock(
-  data: BlockPersonResponse
-): PersonBlockView[] {
-  if (data.blocked) {
-    UserService.Instance.myUserInfo.person_blocks.push({
-      person: UserService.Instance.myUserInfo.local_user_view.person,
-      target: data.person_view.person,
-    });
-    toast(`${i18n.t("blocked")} ${data.person_view.person.name}`);
-  } else {
-    UserService.Instance.myUserInfo.person_blocks =
-      UserService.Instance.myUserInfo.person_blocks.filter(
-        i => i.target.id != data.person_view.person.id
-      );
-    toast(`${i18n.t("unblocked")} ${data.person_view.person.name}`);
-  }
-  return UserService.Instance.myUserInfo.person_blocks;
+  data: BlockPersonResponse,
+  myUserInfo = UserService.Instance.myUserInfo
+): Option<PersonBlockView[]> {
+  return myUserInfo.match({
+    some: (mui: MyUserInfo) => {
+      if (data.blocked) {
+        mui.person_blocks.push({
+          person: mui.local_user_view.person,
+          target: data.person_view.person,
+        });
+        toast(`${i18n.t("blocked")} ${data.person_view.person.name}`);
+      } else {
+        mui.person_blocks = mui.person_blocks.filter(
+          i => i.target.id != data.person_view.person.id
+        );
+        toast(`${i18n.t("unblocked")} ${data.person_view.person.name}`);
+      }
+      return Some(mui.person_blocks);
+    },
+    none: None,
+  });
 }
 
 export function updateCommunityBlock(
-  data: BlockCommunityResponse
-): CommunityBlockView[] {
-  if (data.blocked) {
-    UserService.Instance.myUserInfo.community_blocks.push({
-      person: UserService.Instance.myUserInfo.local_user_view.person,
-      community: data.community_view.community,
-    });
-    toast(`${i18n.t("blocked")} ${data.community_view.community.name}`);
-  } else {
-    UserService.Instance.myUserInfo.community_blocks =
-      UserService.Instance.myUserInfo.community_blocks.filter(
-        i => i.community.id != data.community_view.community.id
-      );
-    toast(`${i18n.t("unblocked")} ${data.community_view.community.name}`);
-  }
-  return UserService.Instance.myUserInfo.community_blocks;
+  data: BlockCommunityResponse,
+  myUserInfo = UserService.Instance.myUserInfo
+): Option<CommunityBlockView[]> {
+  return myUserInfo.match({
+    some: (mui: MyUserInfo) => {
+      if (data.blocked) {
+        mui.community_blocks.push({
+          person: mui.local_user_view.person,
+          community: data.community_view.community,
+        });
+        toast(`${i18n.t("blocked")} ${data.community_view.community.name}`);
+      } else {
+        mui.community_blocks = mui.community_blocks.filter(
+          i => i.community.id != data.community_view.community.id
+        );
+        toast(`${i18n.t("unblocked")} ${data.community_view.community.name}`);
+      }
+      return Some(mui.community_blocks);
+    },
+    none: None,
+  });
 }
 
 export function createCommentLikeRes(
@@ -910,7 +1022,8 @@ function commentSort(tree: CommentNodeI[], sort: CommentSortType) {
       (a, b) =>
         +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
         +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
-        hotRankComment(b.comment_view) - hotRankComment(a.comment_view)
+        hotRankComment(b.comment_view as CommentView) -
+          hotRankComment(a.comment_view as CommentView)
     );
   }
 
@@ -953,6 +1066,7 @@ export function buildCommentsTree(
     let node: CommentNodeI = {
       comment_view: comment_view,
       children: [],
+      depth: 0,
     };
     map.set(comment_view.comment.id, { ...node });
   }
@@ -960,15 +1074,18 @@ export function buildCommentsTree(
   for (let comment_view of comments) {
     let child = map.get(comment_view.comment.id);
     let parent_id = comment_view.comment.parent_id;
-    if (parent_id) {
-      let parent = map.get(parent_id);
-      // Necessary because blocked comment might not exist
-      if (parent) {
-        parent.children.push(child);
-      }
-    } else {
-      tree.push(child);
-    }
+    parent_id.match({
+      some: parentId => {
+        let parent = map.get(parentId);
+        // Necessary because blocked comment might not exist
+        if (parent) {
+          parent.children.push(child);
+        }
+      },
+      none: () => {
+        tree.push(child);
+      },
+    });
 
     setDepth(child);
   }
@@ -993,35 +1110,41 @@ export function insertCommentIntoTree(tree: CommentNodeI[], cv: CommentView) {
     depth: 0,
   };
 
-  if (cv.comment.parent_id) {
-    let parentComment = searchCommentTree(tree, cv.comment.parent_id);
-    if (parentComment) {
-      node.depth = parentComment.depth + 1;
-      parentComment.children.unshift(node);
-    }
-  } else {
-    tree.unshift(node);
-  }
+  cv.comment.parent_id.match({
+    some: parentId => {
+      let parentComment = searchCommentTree(tree, parentId);
+      parentComment.match({
+        some: pComment => {
+          node.depth = pComment.depth + 1;
+          pComment.children.unshift(node);
+        },
+        none: void 0,
+      });
+    },
+    none: () => {
+      tree.unshift(node);
+    },
+  });
 }
 
 export function searchCommentTree(
   tree: CommentNodeI[],
   id: number
-): CommentNodeI {
+): Option<CommentNodeI> {
   for (let node of tree) {
     if (node.comment_view.comment.id === id) {
-      return node;
+      return Some(node);
     }
 
     for (const child of node.children) {
-      const res = searchCommentTree([child], id);
+      let res = searchCommentTree([child], id);
 
-      if (res) {
+      if (res.isSome()) {
         return res;
       }
     }
   }
-  return null;
+  return None;
 }
 
 export const colorList: string[] = [
@@ -1044,7 +1167,7 @@ export function hostname(url: string): string {
 
 export function validTitle(title?: string): boolean {
   // Initial title is null, minimum length is taken care of by textarea's minLength={3}
-  if (title === null || title.length < 3) return true;
+  if (!title || title.length < 3) return true;
 
   const regex = new RegExp(/.*\S.*/, "g");
 
@@ -1068,11 +1191,51 @@ export function isBrowser() {
   return typeof window !== "undefined";
 }
 
-export function setIsoData(context: any): IsoData {
-  let isoData: IsoData = isBrowser()
-    ? window.isoData
-    : context.router.staticContext;
-  return isoData;
+export function setIsoData<Type1, Type2, Type3, Type4, Type5>(
+  context: any,
+  cls1?: ClassConstructor<Type1>,
+  cls2?: ClassConstructor<Type2>,
+  cls3?: ClassConstructor<Type3>,
+  cls4?: ClassConstructor<Type4>,
+  cls5?: ClassConstructor<Type5>
+): IsoData {
+  // If its the browser, you need to deserialize the data from the window
+  if (isBrowser()) {
+    let json = window.isoData;
+    let routeData = json.routeData;
+    let routeDataOut: any[] = [];
+
+    // Can't do array looping because of specific type constructor required
+    if (routeData[0]) {
+      routeDataOut[0] = convertWindowJson(cls1, routeData[0]);
+    }
+    if (routeData[1]) {
+      routeDataOut[1] = convertWindowJson(cls2, routeData[1]);
+    }
+    if (routeData[2]) {
+      routeDataOut[2] = convertWindowJson(cls3, routeData[2]);
+    }
+    if (routeData[3]) {
+      routeDataOut[3] = convertWindowJson(cls4, routeData[3]);
+    }
+    if (routeData[4]) {
+      routeDataOut[4] = convertWindowJson(cls5, routeData[4]);
+    }
+
+    let isoData: IsoData = {
+      path: json.path,
+      site_res: convertWindowJson(GetSiteResponse, json.site_res),
+      routeData: routeDataOut,
+    };
+    return isoData;
+  } else return context.router.staticContext;
+}
+
+/**
+ * Necessary since window ISOData can't store function types like Option
+ */
+export function convertWindowJson<T>(cls: ClassConstructor<T>, data: any): T {
+  return deserialize(cls, serialize(data));
 }
 
 export function wsSubscribe(parseMessage: any): Subscription {
@@ -1086,24 +1249,6 @@ export function wsSubscribe(parseMessage: any): Subscription {
       );
   } else {
     return null;
-  }
-}
-
-export function setOptionalAuth(obj: any, auth = UserService.Instance.auth) {
-  if (auth) {
-    obj.auth = auth;
-  }
-}
-
-export function authField(
-  throwErr = true,
-  auth = UserService.Instance.auth
-): string {
-  if (auth == null && throwErr) {
-    toast(i18n.t("not_logged_in"), "danger");
-    throw "Not logged in";
-  } else {
-    return auth;
   }
 }
 
@@ -1141,7 +1286,9 @@ export function restoreScrollPosition(context: any) {
 }
 
 export function showLocal(isoData: IsoData): boolean {
-  return isoData.site_res.federated_instances?.linked.length > 0;
+  return isoData.site_res.federated_instances
+    .map(f => f.linked.length > 0)
+    .unwrapOr(false);
 }
 
 interface ChoicesValue {
@@ -1168,12 +1315,15 @@ export function personToChoice(pvs: PersonViewSafe): ChoicesValue {
 export async function fetchCommunities(q: string) {
   let form: Search = {
     q,
-    type_: SearchType.Communities,
-    sort: SortType.TopAll,
-    listing_type: ListingType.All,
-    page: 1,
-    limit: fetchLimit,
-    auth: authField(false),
+    type_: Some(SearchType.Communities),
+    sort: Some(SortType.TopAll),
+    listing_type: Some(ListingType.All),
+    page: Some(1),
+    limit: Some(fetchLimit),
+    community_id: None,
+    community_name: None,
+    creator_id: None,
+    auth: auth(false).ok(),
   };
   let client = new LemmyHttp(httpBase);
   return client.search(form);
@@ -1182,12 +1332,15 @@ export async function fetchCommunities(q: string) {
 export async function fetchUsers(q: string) {
   let form: Search = {
     q,
-    type_: SearchType.Users,
-    sort: SortType.TopAll,
-    listing_type: ListingType.All,
-    page: 1,
-    limit: fetchLimit,
-    auth: authField(false),
+    type_: Some(SearchType.Users),
+    sort: Some(SortType.TopAll),
+    listing_type: Some(ListingType.All),
+    page: Some(1),
+    limit: Some(fetchLimit),
+    community_id: None,
+    community_name: None,
+    creator_id: None,
+    auth: auth(false).ok(),
   };
   let client = new LemmyHttp(httpBase);
   return client.search(form);
@@ -1233,7 +1386,7 @@ export function communitySelectName(cv: CommunityView): string {
 }
 
 export function personSelectName(pvs: PersonViewSafe): string {
-  let pName = pvs.person.display_name || pvs.person.name;
+  let pName = pvs.person.display_name.unwrapOr(pvs.person.name);
   return pvs.person.local ? pName : `${hostname(pvs.person.actor_id)}/${pName}`;
 }
 
@@ -1254,9 +1407,11 @@ export function numToSI(value: number): string {
 }
 
 export function isBanned(ps: PersonSafe): boolean {
+  let expires = ps.ban_expires;
   // Add Z to convert from UTC date
-  if (ps.ban_expires) {
-    if (ps.banned && new Date(ps.ban_expires + "Z") > new Date()) {
+  // TODO this check probably isn't necessary anymore
+  if (expires.isSome()) {
+    if (ps.banned && new Date(expires.unwrap() + "Z") > new Date()) {
       return true;
     } else {
       return false;
@@ -1270,4 +1425,16 @@ export function pushNotNull(array: any[], new_item?: any) {
   if (new_item) {
     array.push(...new_item);
   }
+}
+
+export function auth(throwErr = true): Result<string, string> {
+  return UserService.Instance.auth(throwErr);
+}
+
+export function enableDownvotes(siteRes: GetSiteResponse): boolean {
+  return siteRes.site_view.map(s => s.site.enable_downvotes).unwrapOr(true);
+}
+
+export function enableNsfw(siteRes: GetSiteResponse): boolean {
+  return siteRes.site_view.map(s => s.site.enable_nsfw).unwrapOr(false);
 }
