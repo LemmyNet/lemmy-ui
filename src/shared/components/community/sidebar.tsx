@@ -124,7 +124,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           )}
           {subscribed == SubscribedType.Pending && (
             <div class="badge badge-warning mr-2">
-              pending
               {i18n.t("subscribe_pending")}
             </div>
           )}
