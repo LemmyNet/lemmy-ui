@@ -19,6 +19,7 @@ import {
   PostReportResponse,
   PostResponse,
   PostView,
+  PurgeItemResponse,
   SortType,
   toOption,
   UserOperation,
@@ -655,6 +656,12 @@ export class Community extends Component<any, State> {
       let data = wsJsonToRes<CommentReportResponse>(msg, CommentReportResponse);
       if (data) {
         toast(i18n.t("report_created"));
+      }
+    } else if (op == UserOperation.PurgeCommunity) {
+      let data = wsJsonToRes<PurgeItemResponse>(msg, PurgeItemResponse);
+      if (data.success) {
+        toast(i18n.t("purge_success"));
+        this.context.router.history.push(`/`);
       }
     }
   }

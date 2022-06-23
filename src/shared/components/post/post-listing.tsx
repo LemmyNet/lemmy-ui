@@ -15,6 +15,8 @@ import {
   LockPost,
   PersonViewSafe,
   PostView,
+  PurgePerson,
+  PurgePost,
   RemovePost,
   SavePost,
   StickyPost,
@@ -23,7 +25,7 @@ import {
 } from "lemmy-js-client";
 import { externalHost } from "../../env";
 import { i18n } from "../../i18next";
-import { BanType } from "../../interfaces";
+import { BanType, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   amCommunityCreator,
@@ -45,7 +47,7 @@ import {
   showScores,
   wsClient,
 } from "../../utils";
-import { Icon } from "../common/icon";
+import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
 import { CommunityLink } from "../community/community-link";
@@ -56,6 +58,10 @@ import { PostForm } from "./post-form";
 interface PostListingState {
   showEdit: boolean;
   showRemoveDialog: boolean;
+  showPurgeDialog: boolean;
+  purgeReason: Option<string>;
+  purgeType: PurgeType;
+  purgeLoading: boolean;
   removeReason: Option<string>;
   showBanDialog: boolean;
   banReason: Option<string>;
@@ -93,6 +99,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   private emptyState: PostListingState = {
     showEdit: false,
     showRemoveDialog: false,
+    showPurgeDialog: false,
+    purgeReason: None,
+    purgeType: PurgeType.Person,
+    purgeLoading: false,
     removeReason: None,
     showBanDialog: false,
     banReason: None,
@@ -943,24 +953,41 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {/* Admins can ban from all, and appoint other admins */}
           {this.canAdmin_ && (
             <>
-              {!this.creatorIsAdmin_ &&
-                (!isBanned(post_view.creator) ? (
+              {!this.creatorIsAdmin_ && (
+                <>
+                  {!isBanned(post_view.creator) ? (
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0"
+                      onClick={linkEvent(this, this.handleModBanShow)}
+                      aria-label={i18n.t("ban_from_site")}
+                    >
+                      {i18n.t("ban_from_site")}
+                    </button>
+                  ) : (
+                    <button
+                      class="btn btn-link btn-animate text-muted py-0"
+                      onClick={linkEvent(this, this.handleModBanSubmit)}
+                      aria-label={i18n.t("unban_from_site")}
+                    >
+                      {i18n.t("unban_from_site")}
+                    </button>
+                  )}
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handleModBanShow)}
-                    aria-label={i18n.t("ban_from_site")}
+                    onClick={linkEvent(this, this.handlePurgePersonShow)}
+                    aria-label={i18n.t("purge_user")}
                   >
-                    {i18n.t("ban_from_site")}
+                    {i18n.t("purge_user")}
                   </button>
-                ) : (
                   <button
                     class="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handleModBanSubmit)}
-                    aria-label={i18n.t("unban_from_site")}
+                    onClick={linkEvent(this, this.handlePurgePostShow)}
+                    aria-label={i18n.t("purge_post")}
                   >
-                    {i18n.t("unban_from_site")}
+                    {i18n.t("purge_post")}
                   </button>
-                ))}
+                </>
+              )}
               {!isBanned(post_view.creator) && post_view.creator.local && (
                 <button
                   class="btn btn-link btn-animate text-muted py-0"
@@ -985,6 +1012,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   removeAndBanDialogs() {
     let post = this.props.post_view;
+    let purgeTypeText: string;
+    if (this.state.purgeType == PurgeType.Post) {
+      purgeTypeText = i18n.t("purge_post");
+    } else if (this.state.purgeType == PurgeType.Person) {
+      purgeTypeText = `${i18n.t("purge")} ${post.creator.name}`;
+    }
     return (
       <>
         {this.state.showRemoveDialog && (
@@ -1096,6 +1129,36 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             >
               {i18n.t("create_report")}
             </button>
+          </form>
+        )}
+        {this.state.showPurgeDialog && (
+          <form
+            class="form-inline"
+            onSubmit={linkEvent(this, this.handlePurgeSubmit)}
+          >
+            <PurgeWarning />
+            <label class="sr-only" htmlFor="purge-reason">
+              {i18n.t("reason")}
+            </label>
+            <input
+              type="text"
+              id="purge-reason"
+              class="form-control mr-2"
+              placeholder={i18n.t("reason")}
+              value={toUndefined(this.state.purgeReason)}
+              onInput={linkEvent(this, this.handlePurgeReasonChange)}
+            />
+            {this.state.purgeLoading ? (
+              <Spinner />
+            ) : (
+              <button
+                type="submit"
+                class="btn btn-secondary"
+                aria-label={purgeTypeText}
+              >
+                {purgeTypeText}
+              </button>
+            )}
           </form>
         )}
       </>
@@ -1408,6 +1471,48 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.state.showBanDialog = true;
     i.state.banType = BanType.Site;
     i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgePersonShow(i: PostListing) {
+    i.state.showPurgeDialog = true;
+    i.state.purgeType = PurgeType.Person;
+    i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgePostShow(i: PostListing) {
+    i.state.showPurgeDialog = true;
+    i.state.purgeType = PurgeType.Post;
+    i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgeReasonChange(i: PostListing, event: any) {
+    i.state.purgeReason = Some(event.target.value);
+    i.setState(i.state);
+  }
+
+  handlePurgeSubmit(i: PostListing, event: any) {
+    event.preventDefault();
+
+    if (i.state.purgeType == PurgeType.Person) {
+      let form = new PurgePerson({
+        person_id: i.props.post_view.creator.id,
+        reason: i.state.purgeReason,
+        auth: auth().unwrap(),
+      });
+      WebSocketService.Instance.send(wsClient.purgePerson(form));
+    } else if (i.state.purgeType == PurgeType.Post) {
+      let form = new PurgePost({
+        post_id: i.props.post_view.post.id,
+        reason: i.state.purgeReason,
+        auth: auth().unwrap(),
+      });
+      WebSocketService.Instance.send(wsClient.purgePost(form));
+    }
+
+    i.state.purgeLoading = true;
     i.setState(i.state);
   }
 

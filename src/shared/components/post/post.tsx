@@ -19,6 +19,7 @@ import {
   PostReportResponse,
   PostResponse,
   PostView,
+  PurgeItemResponse,
   Search,
   SearchResponse,
   SearchType,
@@ -759,6 +760,17 @@ export class Post extends Component<any, PostState> {
       let data = wsJsonToRes<CommentReportResponse>(msg, CommentReportResponse);
       if (data) {
         toast(i18n.t("report_created"));
+      }
+    } else if (
+      op == UserOperation.PurgePerson ||
+      op == UserOperation.PurgePost ||
+      op == UserOperation.PurgeComment ||
+      op == UserOperation.PurgeCommunity
+    ) {
+      let data = wsJsonToRes<PurgeItemResponse>(msg, PurgeItemResponse);
+      if (data.success) {
+        toast(i18n.t("purge_success"));
+        this.context.router.history.push(`/`);
       }
     }
   }

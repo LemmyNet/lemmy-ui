@@ -12,6 +12,7 @@ import {
   GetPersonDetailsResponse,
   GetSiteResponse,
   PostResponse,
+  PurgeItemResponse,
   SortType,
   toUndefined,
   UserOperation,
@@ -897,6 +898,17 @@ export class Profile extends Component<any, ProfileState> {
       updatePersonBlock(data);
       this.setPersonBlock();
       this.setState(this.state);
+    } else if (
+      op == UserOperation.PurgePerson ||
+      op == UserOperation.PurgePost ||
+      op == UserOperation.PurgeComment ||
+      op == UserOperation.PurgeCommunity
+    ) {
+      let data = wsJsonToRes<PurgeItemResponse>(msg, PurgeItemResponse);
+      if (data.success) {
+        toast(i18n.t("purge_success"));
+        this.context.router.history.push(`/`);
+      }
     }
   }
 }

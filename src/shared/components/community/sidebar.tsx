@@ -1,4 +1,4 @@
-import { Option, Some } from "@sniptt/monads";
+import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
@@ -8,6 +8,7 @@ import {
   DeleteCommunity,
   FollowCommunity,
   PersonViewSafe,
+  PurgeCommunity,
   RemoveCommunity,
   SubscribedType,
   toUndefined,
@@ -25,7 +26,7 @@ import {
   wsClient,
 } from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";
-import { Icon } from "../common/icon";
+import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
@@ -44,6 +45,9 @@ interface SidebarState {
   removeExpires: Option<string>;
   showEdit: boolean;
   showRemoveDialog: boolean;
+  showPurgeDialog: boolean;
+  purgeReason: Option<string>;
+  purgeLoading: boolean;
   showConfirmLeaveModTeam: boolean;
 }
 
@@ -51,8 +55,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   private emptyState: SidebarState = {
     showEdit: false,
     showRemoveDialog: false,
-    removeReason: null,
-    removeExpires: null,
+    removeReason: None,
+    removeExpires: None,
+    showPurgeDialog: false,
+    purgeReason: None,
+    purgeLoading: false,
     showConfirmLeaveModTeam: false,
   };
 
@@ -403,12 +410,19 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   {i18n.t("restore")}
                 </button>
               )}
+              <button
+                class="btn btn-link text-muted d-inline-block"
+                onClick={linkEvent(this, this.handlePurgeCommunityShow)}
+                aria-label={i18n.t("purge_community")}
+              >
+                {i18n.t("purge_community")}
+              </button>
             </li>
           )}
         </ul>
         {this.state.showRemoveDialog && (
           <form onSubmit={linkEvent(this, this.handleModRemoveSubmit)}>
-            <div class="form-group row">
+            <div class="form-group">
               <label class="col-form-label" htmlFor="remove-reason">
                 {i18n.t("reason")}
               </label>
@@ -426,10 +440,43 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {/*   <label class="col-form-label">Expires</label> */}
             {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
             {/* </div> */}
-            <div class="form-group row">
+            <div class="form-group">
               <button type="submit" class="btn btn-secondary">
                 {i18n.t("remove_community")}
               </button>
+            </div>
+          </form>
+        )}
+        {this.state.showPurgeDialog && (
+          <form onSubmit={linkEvent(this, this.handlePurgeSubmit)}>
+            <div class="form-group">
+              <PurgeWarning />
+            </div>
+            <div class="form-group">
+              <label class="sr-only" htmlFor="purge-reason">
+                {i18n.t("reason")}
+              </label>
+              <input
+                type="text"
+                id="purge-reason"
+                class="form-control mr-2"
+                placeholder={i18n.t("reason")}
+                value={toUndefined(this.state.purgeReason)}
+                onInput={linkEvent(this, this.handlePurgeReasonChange)}
+              />
+            </div>
+            <div class="form-group">
+              {this.state.purgeLoading ? (
+                <Spinner />
+              ) : (
+                <button
+                  type="submit"
+                  class="btn btn-secondary"
+                  aria-label={i18n.t("purge_community")}
+                >
+                  {i18n.t("purge_community")}
+                </button>
+              )}
             </div>
           </form>
         )}
@@ -542,13 +589,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleModRemoveReasonChange(i: Sidebar, event: any) {
-    i.state.removeReason = event.target.value;
+    i.state.removeReason = Some(event.target.value);
     i.setState(i.state);
   }
 
   handleModRemoveExpiresChange(i: Sidebar, event: any) {
-    console.log(event.target.value);
-    i.state.removeExpires = event.target.value;
+    i.state.removeExpires = Some(event.target.value);
     i.setState(i.state);
   }
 
@@ -564,6 +610,31 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     WebSocketService.Instance.send(wsClient.removeCommunity(removeForm));
 
     i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgeCommunityShow(i: Sidebar) {
+    i.state.showPurgeDialog = true;
+    i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handlePurgeReasonChange(i: Sidebar, event: any) {
+    i.state.purgeReason = Some(event.target.value);
+    i.setState(i.state);
+  }
+
+  handlePurgeSubmit(i: Sidebar, event: any) {
+    event.preventDefault();
+
+    let form = new PurgeCommunity({
+      community_id: i.props.community_view.community.id,
+      reason: i.state.purgeReason,
+      auth: auth().unwrap(),
+    });
+    WebSocketService.Instance.send(wsClient.purgeCommunity(form));
+
+    i.state.purgeLoading = true;
     i.setState(i.state);
   }
 }
