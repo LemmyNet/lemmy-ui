@@ -39,7 +39,7 @@ export class Setup extends Component<any, State> {
       honeypot: None,
       answer: None,
     }),
-    doneRegisteringUser: false,
+    doneRegisteringUser: UserService.Instance.myUserInfo.isSome(),
     userLoading: false,
   };
 
@@ -206,7 +206,6 @@ export class Setup extends Component<any, State> {
     } else if (op == UserOperation.Register) {
       let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
       this.state.userLoading = false;
-      this.state.doneRegisteringUser = true;
       UserService.Instance.login(data);
       this.setState(this.state);
     } else if (op == UserOperation.CreateSite) {

@@ -13,7 +13,6 @@ import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  auth,
   isBrowser,
   setIsoData,
   toast,
@@ -198,13 +197,6 @@ export class Login extends Component<any, State> {
         this.state = this.emptyState;
         this.setState(this.state);
         UserService.Instance.login(data);
-        WebSocketService.Instance.send(
-          wsClient.userJoin({
-            auth: auth().unwrap(),
-          })
-        );
-        toast(i18n.t("logged_in"));
-        this.props.history.push("/");
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
