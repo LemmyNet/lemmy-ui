@@ -22,12 +22,10 @@ import {
   amAdmin,
   auth,
   donateLemmyUrl,
-  getLanguages,
   isBrowser,
   notifyComment,
   notifyPrivateMessage,
   numToSI,
-  setTheme,
   showAvatars,
   toast,
   wsClient,
@@ -90,18 +88,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             auth: auth().unwrap(),
           })
         );
-        this.fetchUnreads();
+
+        if (this.props.siteRes.site_view.isSome()) {
+          this.fetchUnreads();
+        }
       }
 
-      this.userSub = UserService.Instance.jwtSub.subscribe(res => {
-        // A login
-        if (res.isSome()) {
-          this.requestNotificationPermission();
-          WebSocketService.Instance.send(
-            wsClient.getSite({ auth: res.map(r => r.jwt) })
-          );
-        }
-      });
+      this.requestNotificationPermission();
 
       // Subscribe to unread count changes
       this.unreadInboxCountSub =
@@ -628,18 +621,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.state.unreadApplicationCount = data.registration_applications;
       this.setState(this.state);
       this.sendApplicationUnread();
-    } else if (op == UserOperation.GetSite) {
-      // This is only called on a successful login
-      let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
-      UserService.Instance.myUserInfo = data.my_user;
-      UserService.Instance.myUserInfo.match({
-        some: mui => {
-          setTheme(mui.local_user_view.local_user.theme);
-          i18n.changeLanguage(getLanguages()[0]);
-          this.setState(this.state);
-        },
-        none: void 0,
-      });
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
 

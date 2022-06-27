@@ -123,7 +123,10 @@ export class Home extends Component<any, HomeState> {
     listingType: getListingTypeFromProps(
       this.props,
       ListingType[
-        this.isoData.site_res.site_view.unwrap().site.default_post_listing_type
+        this.isoData.site_res.site_view.match({
+          some: type_ => type_.site.default_post_listing_type,
+          none: ListingType.Local,
+        })
       ]
     ),
     dataType: getDataTypeFromProps(this.props),
@@ -186,7 +189,7 @@ export class Home extends Component<any, HomeState> {
 
   componentDidMount() {
     // This means it hasn't been set up yet
-    if (!this.state.siteRes.site_view) {
+    if (this.state.siteRes.site_view.isNone()) {
       this.context.router.history.push("/setup");
     }
     setupTippy();

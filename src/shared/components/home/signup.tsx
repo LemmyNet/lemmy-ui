@@ -19,7 +19,6 @@ import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  auth,
   isBrowser,
   joinLemmyUrl,
   mdToHtml,
@@ -537,13 +536,8 @@ export class Signup extends Component<any, State> {
         this.state = this.emptyState;
         this.setState(this.state);
         // Only log them in if a jwt was set
-        if (data.jwt) {
+        if (data.jwt.isSome()) {
           UserService.Instance.login(data);
-          WebSocketService.Instance.send(
-            wsClient.userJoin({
-              auth: auth().unwrap(),
-            })
-          );
           this.props.history.push("/communities");
         } else {
           if (data.verify_email_sent) {

@@ -3,7 +3,7 @@ import { Err, None, Ok, Option, Result, Some } from "@sniptt/monads";
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";
 import { isBrowser, toast } from "../utils";
@@ -23,7 +23,6 @@ export class UserService {
   private static _instance: UserService;
   public myUserInfo: Option<MyUserInfo> = None;
   public jwtInfo: Option<JwtInfo> = None;
-  public jwtSub: Subject<Option<JwtInfo>> = new Subject<Option<JwtInfo>>();
   public unreadInboxCountSub: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
   public unreadReportCountSub: BehaviorSubject<number> =
@@ -38,19 +37,23 @@ export class UserService {
   public login(res: LoginResponse) {
     let expires = new Date();
     expires.setDate(expires.getDate() + 365);
-    IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps });
-    console.log("jwt cookie set");
-    this.setJwtInfo();
+    res.jwt.match({
+      some: jwt => {
+        toast(i18n.t("logged_in"));
+        IsomorphicCookie.save("jwt", jwt, { expires, secure: isHttps });
+        this.setJwtInfo();
+        location.reload();
+      },
+      none: void 0,
+    });
   }
 
   public logout() {
     this.jwtInfo = None;
     this.myUserInfo = None;
-    this.jwtSub.next(this.jwtInfo);
     IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
     document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.host;
-    location.reload(); // TODO may not be necessary anymore
-    console.log("Logged out.");
+    location.reload();
   }
 
   public auth(throwErr = true): Result<string, string> {
@@ -74,7 +77,6 @@ export class UserService {
     if (jwt) {
       let jwtInfo: JwtInfo = { jwt, claims: jwt_decode(jwt) };
       this.jwtInfo = Some(jwtInfo);
-      this.jwtSub.next(this.jwtInfo);
     }
   }
 

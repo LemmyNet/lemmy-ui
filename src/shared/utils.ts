@@ -1221,10 +1221,11 @@ export function setIsoData<Type1, Type2, Type3, Type4, Type5>(
     if (routeData[4]) {
       routeDataOut[4] = convertWindowJson(cls5, routeData[4]);
     }
+    let site_res = convertWindowJson(GetSiteResponse, json.site_res);
 
     let isoData: IsoData = {
       path: json.path,
-      site_res: convertWindowJson(GetSiteResponse, json.site_res),
+      site_res,
       routeData: routeDataOut,
     };
     return isoData;

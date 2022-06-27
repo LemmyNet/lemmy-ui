@@ -85,7 +85,7 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: Some(
             cv.community.posting_restricted_to_mods
           ),
-          auth: auth().unwrap(),
+          auth: undefined,
         });
       },
       none: void 0,
@@ -293,6 +293,7 @@ export class CommunityForm extends Component<
     event.preventDefault();
     i.state.loading = true;
     let cForm = i.state.communityForm;
+    cForm.auth = auth().unwrap();
 
     i.props.community_view.match({
       some: cv => {
@@ -304,7 +305,7 @@ export class CommunityForm extends Component<
           banner: cForm.banner,
           nsfw: cForm.nsfw,
           posting_restricted_to_mods: cForm.posting_restricted_to_mods,
-          auth: auth().unwrap(),
+          auth: cForm.auth,
         });
 
         WebSocketService.Instance.send(wsClient.editCommunity(form));
