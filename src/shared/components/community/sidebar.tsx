@@ -130,9 +130,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             </a>
           )}
           {subscribed == SubscribedType.Pending && (
-            <div class="badge badge-warning mr-2">
+            <a
+              class="btn btn-warning mr-2"
+              href="#"
+              onClick={linkEvent(this, this.handleUnsubscribe)}
+            >
               {i18n.t("subscribe_pending")}
-            </div>
+            </a>
           )}
           {community.removed && (
             <small className="mr-2 text-muted font-italic">
