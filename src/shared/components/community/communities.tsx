@@ -35,7 +35,7 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { Paginator } from "../common/paginator";
 import { CommunityLink } from "./community-link";
 
-const communityLimit = 100;
+const communityLimit = 50;
 
 interface CommunitiesState {
   listCommunitiesResponse: Option<ListCommunitiesResponse>;
