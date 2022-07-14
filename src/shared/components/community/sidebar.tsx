@@ -113,7 +113,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   communityTitle() {
     let community = this.props.community_view.community;
     let subscribed = this.props.community_view.subscribed;
-    let blocked = this.props.community_view.blocked;
     return (
       <div>
         <h5 className="mb-0">
