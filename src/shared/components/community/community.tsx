@@ -3,6 +3,7 @@ import { Component, linkEvent } from "inferno";
 import {
   AddModToCommunityResponse,
   BanFromCommunityResponse,
+  BlockCommunityResponse,
   BlockPersonResponse,
   CommentReportResponse,
   CommentResponse,
@@ -53,6 +54,7 @@ import {
   setupTippy,
   showLocal,
   toast,
+  updateCommunityBlock,
   updatePersonBlock,
   wsClient,
   wsSubscribe,
@@ -663,6 +665,17 @@ export class Community extends Component<any, State> {
         toast(i18n.t("purge_success"));
         this.context.router.history.push(`/`);
       }
+    } else if (op == UserOperation.BlockCommunity) {
+      let data = wsJsonToRes<BlockCommunityResponse>(
+        msg,
+        BlockCommunityResponse
+      );
+      this.state.communityRes.match({
+        some: res => (res.community_view.blocked = data.blocked),
+        none: void 0,
+      });
+      updateCommunityBlock(data);
+      this.setState(this.state);
     }
   }
 }
