@@ -200,9 +200,15 @@ export class Search extends Component<any, SearchState> {
       );
 
       // This can be single or multiple communities given
-      this.state.communities = communitiesRes
-        .map(c => c.communities)
-        .unwrapOr([communityRes.map(c => c.community_view).unwrap()]);
+      communitiesRes.match({
+        some: res => (this.state.communities = res.communities),
+        none: void 0,
+      });
+
+      communityRes.match({
+        some: res => (this.state.communities = [res.community_view]),
+        none: void 0,
+      });
 
       this.state.creatorDetails = Some(
         this.isoData.routeData[2] as GetPersonDetailsResponse
@@ -818,8 +824,6 @@ export class Search extends Component<any, SearchState> {
       this.state.communityId == 0 ? None : Some(this.state.communityId);
     let creator_id: Option<number> =
       this.state.creatorId == 0 ? None : Some(this.state.creatorId);
-
-    console.log(community_id.unwrapOr(-22));
 
     let form = new SearchForm({
       q: this.state.q,
