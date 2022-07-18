@@ -143,6 +143,9 @@ server.get("/*", async (req, res) => {
       try_site = await initialFetchReq.client.getSite(getSiteForm);
     }
     let site: GetSiteResponse = try_site;
+    if (req.path !== "/setup" && !site.site_view) {
+      return res.redirect("/setup");
+    }
     initializeSite(site);
 
     if (activeRoute.fetchInitialData) {
