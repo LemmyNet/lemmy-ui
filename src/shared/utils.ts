@@ -365,9 +365,9 @@ export function routeSearchTypeToEnum(type: string): SearchType {
 }
 
 export async function getSiteMetadata(url: string) {
-  let form: GetSiteMetadata = {
+  let form = new GetSiteMetadata({
     url,
-  };
+  });
   let client = new LemmyHttp(httpBase);
   return client.getSiteMetadata(form);
 }
@@ -1314,7 +1314,7 @@ export function personToChoice(pvs: PersonViewSafe): ChoicesValue {
 }
 
 export async function fetchCommunities(q: string) {
-  let form: Search = {
+  let form = new Search({
     q,
     type_: Some(SearchType.Communities),
     sort: Some(SortType.TopAll),
@@ -1325,13 +1325,13 @@ export async function fetchCommunities(q: string) {
     community_name: None,
     creator_id: None,
     auth: auth(false).ok(),
-  };
+  });
   let client = new LemmyHttp(httpBase);
   return client.search(form);
 }
 
 export async function fetchUsers(q: string) {
-  let form: Search = {
+  let form = new Search({
     q,
     type_: Some(SearchType.Users),
     sort: Some(SortType.TopAll),
@@ -1342,7 +1342,7 @@ export async function fetchUsers(q: string) {
     community_name: None,
     creator_id: None,
     auth: auth(false).ok(),
-  };
+  });
   let client = new LemmyHttp(httpBase);
   return client.search(form);
 }
