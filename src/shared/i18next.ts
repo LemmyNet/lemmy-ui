@@ -63,7 +63,7 @@ export const languages = [
   { resource: sv, code: "sv", name: "Svenska" },
   { resource: vi, code: "vi", name: "Tiếng Việt" },
   { resource: zh, code: "zh", name: "中文 (简体)" },
-  { resource: zh_Hant, code: "zh_Hant", name: "中文 (繁體)" },
+  { resource: zh_Hant, code: "zh-TW", name: "中文 (繁體)" },
 ];
 
 const resources: Resource = {};
