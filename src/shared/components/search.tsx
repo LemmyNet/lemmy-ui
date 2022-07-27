@@ -26,8 +26,8 @@ import {
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../i18next";
+import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { WebSocketService } from "../services";
 import {
   auth,
@@ -594,7 +594,14 @@ export class Search extends Component<any, SearchState> {
               {i.type_ == "comments" && (
                 <CommentNodes
                   key={(i.data as CommentView).comment.id}
-                  nodes={[{ comment_view: i.data as CommentView }]}
+                  nodes={[
+                    {
+                      comment_view: i.data as CommentView,
+                      children: [],
+                      depth: 0,
+                    },
+                  ]}
+                  viewType={CommentViewType.Flat}
                   moderators={None}
                   admins={None}
                   maxCommentsShown={None}
@@ -631,6 +638,7 @@ export class Search extends Component<any, SearchState> {
     return (
       <CommentNodes
         nodes={commentsToFlatNodes(comments)}
+        viewType={CommentViewType.Flat}
         locked
         noIndent
         moderators={None}

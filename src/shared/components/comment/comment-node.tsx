@@ -8,12 +8,16 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
+  CommentNode as CommentNodeI,
+  CommentReplyView,
   CommentView,
   CommunityModeratorView,
   CreateCommentLike,
   CreateCommentReport,
   DeleteComment,
-  MarkCommentAsRead,
+  GetComments,
+  ListingType,
+  MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
   PersonMentionView,
   PersonViewSafe,
@@ -26,11 +30,7 @@ import {
 } from "lemmy-js-client";
 import moment from "moment";
 import { i18n } from "../../i18next";
-import {
-  BanType,
-  CommentNode as CommentNodeI,
-  PurgeType,
-} from "../../interfaces";
+import { BanType, CommentViewType, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   amCommunityCreator,
@@ -38,6 +38,7 @@ import {
   canAdmin,
   canMod,
   colorList,
+  commentTreeMaxDepth,
   futureDaysToUnixTime,
   isAdmin,
   isBanned,
@@ -82,7 +83,6 @@ interface CommentNodeState {
   score: number;
   upvotes: number;
   downvotes: number;
-  borderColor: string;
   readLoading: boolean;
   saveLoading: boolean;
 }
@@ -99,6 +99,7 @@ interface CommentNodeProps {
   showContext?: boolean;
   showCommunity?: boolean;
   enableDownvotes: boolean;
+  viewType: CommentViewType;
 }
 
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
@@ -129,9 +130,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     score: this.props.node.comment_view.counts.score,
     upvotes: this.props.node.comment_view.counts.upvotes,
     downvotes: this.props.node.comment_view.counts.downvotes,
-    borderColor: this.props.node.depth
-      ? colorList[this.props.node.depth % colorList.length]
-      : colorList[0],
     readLoading: false,
     saveLoading: false,
   };
@@ -181,10 +179,23 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       cv.creator.id
     );
 
+    let borderColor = this.props.node.depth
+      ? colorList[(this.props.node.depth - 1) % colorList.length]
+      : colorList[0];
+    let moreRepliesBorderColor = this.props.node.depth
+      ? colorList[this.props.node.depth % colorList.length]
+      : colorList[0];
+
+    let showMoreChildren =
+      this.props.viewType == CommentViewType.Tree &&
+      !this.state.collapsed &&
+      node.children.length == 0 &&
+      node.comment_view.counts.child_count > 0;
+
     return (
       <div
         className={`comment ${
-          cv.comment.parent_id.isSome() && !this.props.noIndent ? "ml-1" : ""
+          this.props.node.depth && !this.props.noIndent ? "ml-1" : ""
         }`}
       >
         <div
@@ -194,14 +205,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           } ${this.isCommentNew ? "mark" : ""}`}
           style={
             !this.props.noIndent &&
-            cv.comment.parent_id.isSome() &&
-            `border-left: 2px ${this.state.borderColor} solid !important`
+            this.props.node.depth &&
+            `border-left: 2px ${borderColor} solid !important`
           }
         >
           <div
-            class={`${
-              !this.props.noIndent && cv.comment.parent_id.isSome() && "ml-2"
-            }`}
+            class={`${!this.props.noIndent && this.props.node.depth && "ml-2"}`}
           >
             <div class="d-flex flex-wrap align-items-center text-muted small">
               <span class="mr-2">
@@ -262,7 +271,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 <>
                   <a
                     className={`unselectable pointer ${this.scoreColor}`}
-                    onClick={linkEvent(node, this.handleCommentUpvote)}
+                    onClick={this.handleCommentUpvote}
                     data-tippy-content={this.pointsTippy}
                   >
                     <span
@@ -314,12 +323,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       class="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(this, this.handleMarkRead)}
                       data-tippy-content={
-                        this.commentOrMentionRead
+                        this.commentReplyOrMentionRead
                           ? i18n.t("mark_as_unread")
                           : i18n.t("mark_as_read")
                       }
                       aria-label={
-                        this.commentOrMentionRead
+                        this.commentReplyOrMentionRead
                           ? i18n.t("mark_as_unread")
                           : i18n.t("mark_as_read")
                       }
@@ -330,7 +339,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <Icon
                           icon="check"
                           classes={`icon-inline ${
-                            this.commentOrMentionRead && "text-success"
+                            this.commentReplyOrMentionRead && "text-success"
                           }`}
                         />
                       )}
@@ -345,7 +354,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               ? "text-info"
                               : "text-muted"
                           }`}
-                          onClick={linkEvent(node, this.handleCommentUpvote)}
+                          onClick={this.handleCommentUpvote}
                           data-tippy-content={i18n.t("upvote")}
                           aria-label={i18n.t("upvote")}
                         >
@@ -364,10 +373,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 ? "text-danger"
                                 : "text-muted"
                             }`}
-                            onClick={linkEvent(
-                              node,
-                              this.handleCommentDownvote
-                            )}
+                            onClick={this.handleCommentDownvote}
                             data-tippy-content={i18n.t("downvote")}
                             aria-label={i18n.t("downvote")}
                           >
@@ -772,6 +778,21 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             )}
           </div>
         </div>
+        {showMoreChildren && (
+          <div
+            className={`details ml-1 comment-node py-2 ${
+              !this.props.noBorder ? "border-top border-light" : ""
+            }`}
+            style={`border-left: 2px ${moreRepliesBorderColor} solid !important`}
+          >
+            <button
+              class="btn btn-link text-muted"
+              onClick={linkEvent(this, this.handleFetchChildren)}
+            >
+              {node.comment_view.counts.child_count} more replies ➔
+            </button>
+          </div>
+        )}
         {/* end of details */}
         {this.state.showRemoveDialog && (
           <form
@@ -931,7 +952,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             focus
           />
         )}
-        {!this.state.collapsed && node.children && (
+        {!this.state.collapsed && node.children.length > 0 && (
           <CommentNodes
             nodes={node.children}
             locked={this.props.locked}
@@ -939,6 +960,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             admins={this.props.admins}
             maxCommentsShown={None}
             enableDownvotes={this.props.enableDownvotes}
+            viewType={this.props.viewType}
           />
         )}
         {/* A collapsed clearfix */}
@@ -947,11 +969,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     );
   }
 
-  get commentOrMentionRead() {
+  get commentReplyOrMentionRead(): boolean {
     let cv = this.props.node.comment_view;
-    return this.isPersonMentionType(cv)
-      ? cv.person_mention.read
-      : cv.comment.read;
+
+    if (this.isPersonMentionType(cv)) {
+      return cv.person_mention.read;
+    } else if (this.isCommentReplyType(cv)) {
+      return cv.comment_reply.read;
+    } else {
+      return false;
+    }
   }
 
   linkBtn(small = false) {
@@ -968,7 +995,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       <>
         <Link
           className={classnames}
-          to={`/post/${cv.post.id}/comment/${cv.comment.id}`}
+          to={`/comment/${cv.comment.id}`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />
@@ -1061,7 +1088,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState(this.state);
   }
 
-  handleCommentUpvote(i: CommentNodeI, event: any) {
+  handleCommentUpvote(event: any) {
     event.preventDefault();
     let myVote = this.state.my_vote.unwrapOr(0);
     let newVote = myVote == 1 ? 0 : 1;
@@ -1081,17 +1108,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.state.my_vote = Some(newVote);
 
     let form = new CreateCommentLike({
-      comment_id: i.comment_view.comment.id,
+      comment_id: this.props.node.comment_view.comment.id,
       score: newVote,
       auth: auth().unwrap(),
     });
-
     WebSocketService.Instance.send(wsClient.likeComment(form));
     this.setState(this.state);
     setupTippy();
   }
 
-  handleCommentDownvote(i: CommentNodeI, event: any) {
+  handleCommentDownvote(event: any) {
     event.preventDefault();
     let myVote = this.state.my_vote.unwrapOr(0);
     let newVote = myVote == -1 ? 0 : -1;
@@ -1111,7 +1137,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.state.my_vote = Some(newVote);
 
     let form = new CreateCommentLike({
-      comment_id: i.comment_view.comment.id,
+      comment_id: this.props.node.comment_view.comment.id,
       score: newVote,
       auth: auth().unwrap(),
     });
@@ -1175,9 +1201,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   isPersonMentionType(
-    item: CommentView | PersonMentionView
+    item: CommentView | PersonMentionView | CommentReplyView
   ): item is PersonMentionView {
     return (item as PersonMentionView).person_mention?.id !== undefined;
+  }
+
+  isCommentReplyType(
+    item: CommentView | PersonMentionView | CommentReplyView
+  ): item is CommentReplyView {
+    return (item as CommentReplyView).comment_reply?.id !== undefined;
   }
 
   handleMarkRead(i: CommentNode) {
@@ -1188,13 +1220,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         auth: auth().unwrap(),
       });
       WebSocketService.Instance.send(wsClient.markPersonMentionAsRead(form));
-    } else {
-      let form = new MarkCommentAsRead({
-        comment_id: i.props.node.comment_view.comment.id,
-        read: !i.props.node.comment_view.comment.read,
+    } else if (i.isCommentReplyType(i.props.node.comment_view)) {
+      let form = new MarkCommentReplyAsRead({
+        comment_reply_id: i.props.node.comment_view.comment_reply.id,
+        read: !i.props.node.comment_view.comment_reply.read,
         auth: auth().unwrap(),
       });
-      WebSocketService.Instance.send(wsClient.markCommentAsRead(form));
+      WebSocketService.Instance.send(wsClient.markCommentReplyAsRead(form));
     }
 
     i.state.readLoading = true;
@@ -1417,6 +1449,24 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.state.showAdvanced = !i.state.showAdvanced;
     i.setState(i.state);
     setupTippy();
+  }
+
+  handleFetchChildren(i: CommentNode) {
+    let form = new GetComments({
+      post_id: Some(i.props.node.comment_view.post.id),
+      parent_id: Some(i.props.node.comment_view.comment.id),
+      max_depth: Some(commentTreeMaxDepth),
+      page: None,
+      sort: None,
+      limit: Some(999),
+      type_: Some(ListingType.All),
+      community_name: None,
+      community_id: None,
+      saved_only: Some(false),
+      auth: auth(false).ok(),
+    });
+
+    WebSocketService.Instance.send(wsClient.getComments(form));
   }
 
   get scoreColor() {

@@ -1,10 +1,5 @@
 import { Either, Option } from "@sniptt/monads";
-import {
-  CommentView,
-  GetSiteResponse,
-  LemmyHttp,
-  PersonMentionView,
-} from "lemmy-js-client";
+import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 
 /**
  * This contains serialized data, it needs to be deserialized before use.
@@ -32,12 +27,6 @@ export interface InitialFetchRequest {
   path: string;
 }
 
-export interface CommentNode {
-  comment_view: CommentView | PersonMentionView;
-  children?: CommentNode[];
-  depth?: number;
-}
-
 export interface PostFormParams {
   name: Option<string>;
   url: Option<string>;
@@ -45,16 +34,9 @@ export interface PostFormParams {
   nameOrId: Option<Either<string, number>>;
 }
 
-export enum CommentSortType {
-  Hot,
-  Top,
-  New,
-  Old,
-}
-
 export enum CommentViewType {
   Tree,
-  Chat,
+  Flat,
 }
 
 export enum DataType {

@@ -28,7 +28,11 @@ import {
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { DataType, InitialFetchRequest } from "../../interfaces";
+import {
+  CommentViewType,
+  DataType,
+  InitialFetchRequest,
+} from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   auth,
@@ -45,6 +49,7 @@ import {
   getPageFromProps,
   getSortTypeFromProps,
   notifyPost,
+  postToCommentSortType,
   relTags,
   restoreScrollPosition,
   saveCommentRes,
@@ -231,9 +236,12 @@ export class Community extends Component<any, State> {
         community_id: None,
         page,
         limit: Some(fetchLimit),
-        sort,
+        max_depth: None,
+        sort: sort.map(postToCommentSortType),
         type_: Some(ListingType.Community),
         saved_only: Some(false),
+        post_id: None,
+        parent_id: None,
         auth: req.auth,
       });
       promises.push(Promise.resolve());
@@ -387,6 +395,7 @@ export class Community extends Component<any, State> {
     ) : (
       <CommentNodes
         nodes={commentsToFlatNodes(this.state.comments)}
+        viewType={CommentViewType.Flat}
         noIndent
         showContext
         enableDownvotes={enableDownvotes(this.state.siteRes)}
@@ -497,11 +506,14 @@ export class Community extends Component<any, State> {
       let form = new GetComments({
         page: Some(this.state.page),
         limit: Some(fetchLimit),
-        sort: Some(this.state.sort),
+        max_depth: None,
+        sort: Some(postToCommentSortType(this.state.sort)),
         type_: Some(ListingType.Community),
         community_name: Some(this.state.communityName),
         community_id: None,
         saved_only: Some(false),
+        post_id: None,
+        parent_id: None,
         auth: auth(false).ok(),
       });
       WebSocketService.Instance.send(wsClient.getComments(form));
