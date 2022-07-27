@@ -789,7 +789,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               class="btn btn-link text-muted"
               onClick={linkEvent(this, this.handleFetchChildren)}
             >
-              {node.comment_view.counts.child_count} more replies ➔
+              {i18n.t("x_more_replies", {
+                count: node.comment_view.counts.child_count,
+                formattedCount: numToSI(node.comment_view.counts.child_count),
+              })}{" "}
+              ➔
             </button>
           </div>
         )}
