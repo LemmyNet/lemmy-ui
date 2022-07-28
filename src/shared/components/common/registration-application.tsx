@@ -104,7 +104,7 @@ export class RegistrationApplication extends Component<
             </div>
           </div>
         )}
-        {(!ra.admin_id || (ra.admin_id && !accepted)) && (
+        {(ra.admin_id.isNone() || (ra.admin_id.isSome() && !accepted)) && (
           <button
             className="btn btn-secondary mr-2 my-2"
             onClick={linkEvent(this, this.handleApprove)}
@@ -113,7 +113,7 @@ export class RegistrationApplication extends Component<
             {i18n.t("approve")}
           </button>
         )}
-        {(!ra.admin_id || (ra.admin_id && accepted)) && (
+        {(ra.admin_id.isNone() || (ra.admin_id.isSome() && accepted)) && (
           <button
             className="btn btn-secondary mr-2"
             onClick={linkEvent(this, this.handleDeny)}
