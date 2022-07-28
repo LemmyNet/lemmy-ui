@@ -314,6 +314,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                         {i18n.t("related_posts")}
                       </div>
                       <PostListings
+                        showCommunity
                         posts={sPosts}
                         enableDownvotes={this.props.enableDownvotes}
                         enableNsfw={this.props.enableNsfw}
