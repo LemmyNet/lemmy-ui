@@ -197,9 +197,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     role="button"
                     onClick={linkEvent(this, this.copySuggestedTitle)}
                   >
-                    {i18n.t("copy_suggested_title", {
-                      title,
-                    })}
+                    {i18n.t("copy_suggested_title", { title: "" })} {title}
                   </div>
                 ),
                 none: <></>,
