@@ -3,6 +3,7 @@ import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddModToCommunity,
+  BlockCommunity,
   CommunityModeratorView,
   CommunityView,
   DeleteCommunity,
@@ -120,23 +121,21 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           )}
           <span class="mr-2">{community.title}</span>
           {subscribed == SubscribedType.Subscribed && (
-            <a
+            <button
               class="btn btn-secondary btn-sm mr-2"
-              href="#"
               onClick={linkEvent(this, this.handleUnsubscribe)}
             >
               <Icon icon="check" classes="icon-inline text-success mr-1" />
               {i18n.t("joined")}
-            </a>
+            </button>
           )}
           {subscribed == SubscribedType.Pending && (
-            <a
+            <button
               class="btn btn-warning mr-2"
-              href="#"
               onClick={linkEvent(this, this.handleUnsubscribe)}
             >
               {i18n.t("subscribe_pending")}
-            </a>
+            </button>
           )}
           {community.removed && (
             <small className="mr-2 text-muted font-italic">
@@ -289,16 +288,33 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   subscribe() {
     let community_view = this.props.community_view;
+    let blocked = this.props.community_view.blocked;
     return (
       <div class="mb-2">
         {community_view.subscribed == SubscribedType.NotSubscribed && (
-          <a
-            class="btn btn-secondary btn-block"
-            href="#"
-            onClick={linkEvent(this, this.handleSubscribe)}
-          >
-            {i18n.t("subscribe")}
-          </a>
+          <>
+            <button
+              class="btn btn-secondary btn-block"
+              onClick={linkEvent(this, this.handleSubscribe)}
+            >
+              {i18n.t("subscribe")}
+            </button>
+            {blocked ? (
+              <button
+                class="btn btn-danger btn-block"
+                onClick={linkEvent(this, this.handleUnblock)}
+              >
+                {i18n.t("unblock_community")}
+              </button>
+            ) : (
+              <button
+                class="btn btn-danger btn-block"
+                onClick={linkEvent(this, this.handleBlock)}
+              >
+                {i18n.t("block_community")}
+              </button>
+            )}
+          </>
         )}
       </div>
     );
@@ -640,5 +656,25 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
     i.state.purgeLoading = true;
     i.setState(i.state);
+  }
+
+  handleBlock(i: Sidebar, event: any) {
+    event.preventDefault();
+    let blockCommunityForm = new BlockCommunity({
+      community_id: i.props.community_view.community.id,
+      block: true,
+      auth: auth().unwrap(),
+    });
+    WebSocketService.Instance.send(wsClient.blockCommunity(blockCommunityForm));
+  }
+
+  handleUnblock(i: Sidebar, event: any) {
+    event.preventDefault();
+    let blockCommunityForm = new BlockCommunity({
+      community_id: i.props.community_view.community.id,
+      block: false,
+      auth: auth().unwrap(),
+    });
+    WebSocketService.Instance.send(wsClient.blockCommunity(blockCommunityForm));
   }
 }

@@ -197,9 +197,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     role="button"
                     onClick={linkEvent(this, this.copySuggestedTitle)}
                   >
-                    {i18n.t("copy_suggested_title", {
-                      title,
-                    })}
+                    {i18n.t("copy_suggested_title", { title: "" })} {title}
                   </div>
                 ),
                 none: <></>,
@@ -314,6 +312,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                         {i18n.t("related_posts")}
                       </div>
                       <PostListings
+                        showCommunity
                         posts={sPosts}
                         enableDownvotes={this.props.enableDownvotes}
                         enableNsfw={this.props.enableNsfw}

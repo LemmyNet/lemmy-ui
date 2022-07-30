@@ -695,7 +695,8 @@ export class Post extends Component<any, PostState> {
                 commentsRes.comments.unshift(data.comment_view);
                 insertCommentIntoTree(
                   this.state.commentTree,
-                  data.comment_view
+                  data.comment_view,
+                  this.state.commentId.isSome()
                 );
                 postRes.post_view.counts.comments++;
               },

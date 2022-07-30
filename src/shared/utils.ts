@@ -1072,7 +1072,11 @@ export function getDepthFromComment(comment: CommentI): number {
   return comment.path.split(".").length - 2;
 }
 
-export function insertCommentIntoTree(tree: CommentNodeI[], cv: CommentView) {
+export function insertCommentIntoTree(
+  tree: CommentNodeI[],
+  cv: CommentView,
+  parentComment: boolean
+) {
   // Building a fake node to be used for later
   let node: CommentNodeI = {
     comment_view: cv,
@@ -1092,7 +1096,9 @@ export function insertCommentIntoTree(tree: CommentNodeI[], cv: CommentView) {
       });
     },
     none: () => {
-      tree.unshift(node);
+      if (!parentComment) {
+        tree.unshift(node);
+      }
     },
   });
 }
