@@ -51,6 +51,7 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
             <option value={SortType.Active}>{i18n.t("active")}</option>,
           ]}
           <option value={SortType.New}>{i18n.t("new")}</option>
+          <option value={SortType.Old}>{i18n.t("old")}</option>
           {!this.props.hideMostComments && [
             <option value={SortType.MostComments}>
               {i18n.t("most_comments")}

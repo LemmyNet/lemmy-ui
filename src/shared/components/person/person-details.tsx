@@ -7,7 +7,7 @@ import {
   PostView,
   SortType,
 } from "lemmy-js-client";
-import { PersonDetailsView } from "../../interfaces";
+import { CommentViewType, PersonDetailsView } from "../../interfaces";
 import { commentsToFlatNodes, setupTippy } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
@@ -89,7 +89,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
         return (
           <CommentNodes
             key={i.id}
-            nodes={[{ comment_view: c }]}
+            nodes={[{ comment_view: c, children: [], depth: 0 }]}
+            viewType={CommentViewType.Flat}
             admins={Some(this.props.admins)}
             moderators={None}
             maxCommentsShown={None}
@@ -159,6 +160,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       <div>
         <CommentNodes
           nodes={commentsToFlatNodes(this.props.personRes.comments)}
+          viewType={CommentViewType.Flat}
           admins={Some(this.props.admins)}
           moderators={None}
           maxCommentsShown={None}

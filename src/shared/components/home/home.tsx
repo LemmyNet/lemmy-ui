@@ -30,7 +30,11 @@ import {
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { DataType, InitialFetchRequest } from "../../interfaces";
+import {
+  CommentViewType,
+  DataType,
+  InitialFetchRequest,
+} from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   auth,
@@ -48,6 +52,7 @@ import {
   getSortTypeFromProps,
   isBrowser,
   notifyPost,
+  postToCommentSortType,
   relTags,
   restoreScrollPosition,
   saveCommentRes,
@@ -263,9 +268,12 @@ export class Home extends Component<any, HomeState> {
         community_name: None,
         page,
         limit: Some(fetchLimit),
-        sort,
+        max_depth: None,
+        sort: sort.map(postToCommentSortType),
         type_,
         saved_only: Some(false),
+        post_id: None,
+        parent_id: None,
         auth: req.auth,
       });
       promises.push(Promise.resolve());
@@ -565,6 +573,7 @@ export class Home extends Component<any, HomeState> {
     ) : (
       <CommentNodes
         nodes={commentsToFlatNodes(this.state.comments)}
+        viewType={CommentViewType.Flat}
         moderators={None}
         admins={None}
         maxCommentsShown={None}
@@ -694,8 +703,11 @@ export class Home extends Component<any, HomeState> {
         community_name: None,
         page: Some(this.state.page),
         limit: Some(fetchLimit),
-        sort: Some(this.state.sort),
+        max_depth: None,
+        sort: Some(postToCommentSortType(this.state.sort)),
         saved_only: Some(false),
+        post_id: None,
+        parent_id: None,
         auth: auth(false).ok(),
         type_: Some(this.state.listingType),
       });

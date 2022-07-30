@@ -2,13 +2,14 @@ import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
+  CommentNode as CommentNodeI,
   CommentReportView,
   CommentView,
   ResolveCommentReport,
   SubscribedType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { CommentNode as CommentNodeI } from "../../interfaces";
+import { CommentViewType } from "../../interfaces";
 import { WebSocketService } from "../../services";
 import { auth, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
@@ -44,18 +45,20 @@ export class CommentReport extends Component<CommentReportProps, any> {
       subscribed: SubscribedType.NotSubscribed,
       saved: false,
       creator_blocked: false,
-      recipient: None,
       my_vote: r.my_vote,
     };
 
     let node: CommentNodeI = {
       comment_view,
+      children: [],
+      depth: 0,
     };
 
     return (
       <div>
         <CommentNode
           node={node}
+          viewType={CommentViewType.Flat}
           moderators={None}
           admins={None}
           enableDownvotes={true}

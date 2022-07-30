@@ -2,8 +2,11 @@ import { None, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   BlockPersonResponse,
+  CommentReplyResponse,
+  CommentReplyView,
   CommentReportResponse,
   CommentResponse,
+  CommentSortType,
   CommentView,
   GetPersonMentions,
   GetPersonMentionsResponse,
@@ -17,14 +20,13 @@ import {
   PrivateMessageResponse,
   PrivateMessagesResponse,
   PrivateMessageView,
-  SortType,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { InitialFetchRequest } from "../../interfaces";
+import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   auth,
@@ -44,10 +46,10 @@ import {
   wsSubscribe,
 } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
+import { CommentSortSelect } from "../common/comment-sort-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
-import { SortSelect } from "../common/sort-select";
 import { PrivateMessage } from "../private_message/private-message";
 
 enum UnreadOrAll {
@@ -70,18 +72,18 @@ enum ReplyEnum {
 type ReplyType = {
   id: number;
   type_: ReplyEnum;
-  view: CommentView | PrivateMessageView | PersonMentionView;
+  view: CommentView | PrivateMessageView | PersonMentionView | CommentReplyView;
   published: string;
 };
 
 interface InboxState {
   unreadOrAll: UnreadOrAll;
   messageType: MessageType;
-  replies: CommentView[];
+  replies: CommentReplyView[];
   mentions: PersonMentionView[];
   messages: PrivateMessageView[];
   combined: ReplyType[];
-  sort: SortType;
+  sort: CommentSortType;
   page: number;
   siteRes: GetSiteResponse;
   loading: boolean;
@@ -102,7 +104,7 @@ export class Inbox extends Component<any, InboxState> {
     mentions: [],
     messages: [],
     combined: [],
-    sort: SortType.New,
+    sort: CommentSortType.New,
     page: 1,
     siteRes: this.isoData.site_res,
     loading: true,
@@ -323,19 +325,17 @@ export class Inbox extends Component<any, InboxState> {
       <div className="mb-2">
         <span class="mr-3">{this.unreadOrAllRadios()}</span>
         <span class="mr-3">{this.messageTypeRadios()}</span>
-        <SortSelect
+        <CommentSortSelect
           sort={this.state.sort}
           onChange={this.handleSortChange}
-          hideHot
-          hideMostComments
         />
       </div>
     );
   }
 
-  replyToReplyType(r: CommentView): ReplyType {
+  replyToReplyType(r: CommentReplyView): ReplyType {
     return {
-      id: r.comment.id,
+      id: r.comment_reply.id,
       type_: ReplyEnum.Reply,
       view: r,
       published: r.comment.published,
@@ -382,7 +382,10 @@ export class Inbox extends Component<any, InboxState> {
         return (
           <CommentNodes
             key={i.id}
-            nodes={[{ comment_view: i.view as CommentView }]}
+            nodes={[
+              { comment_view: i.view as CommentView, children: [], depth: 0 },
+            ]}
+            viewType={CommentViewType.Flat}
             moderators={None}
             admins={None}
             maxCommentsShown={None}
@@ -397,7 +400,14 @@ export class Inbox extends Component<any, InboxState> {
         return (
           <CommentNodes
             key={i.id}
-            nodes={[{ comment_view: i.view as PersonMentionView }]}
+            nodes={[
+              {
+                comment_view: i.view as PersonMentionView,
+                children: [],
+                depth: 0,
+              },
+            ]}
+            viewType={CommentViewType.Flat}
             moderators={None}
             admins={None}
             maxCommentsShown={None}
@@ -429,6 +439,7 @@ export class Inbox extends Component<any, InboxState> {
       <div>
         <CommentNodes
           nodes={commentsToFlatNodes(this.state.replies)}
+          viewType={CommentViewType.Flat}
           moderators={None}
           admins={None}
           maxCommentsShown={None}
@@ -448,7 +459,8 @@ export class Inbox extends Component<any, InboxState> {
         {this.state.mentions.map(umv => (
           <CommentNodes
             key={umv.person_mention.id}
-            nodes={[{ comment_view: umv }]}
+            nodes={[{ comment_view: umv, children: [], depth: 0 }]}
+            viewType={CommentViewType.Flat}
             moderators={None}
             admins={None}
             maxCommentsShown={None}
@@ -498,9 +510,11 @@ export class Inbox extends Component<any, InboxState> {
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
+    let sort = Some(CommentSortType.New);
+
     // It can be /u/me, or /username/1
     let repliesForm = new GetReplies({
-      sort: Some(SortType.New),
+      sort,
       unread_only: Some(true),
       page: Some(1),
       limit: Some(fetchLimit),
@@ -509,7 +523,7 @@ export class Inbox extends Component<any, InboxState> {
     promises.push(req.client.getReplies(repliesForm));
 
     let personMentionsForm = new GetPersonMentions({
-      sort: Some(SortType.New),
+      sort,
       unread_only: Some(true),
       page: Some(1),
       limit: Some(fetchLimit),
@@ -565,7 +579,7 @@ export class Inbox extends Component<any, InboxState> {
     );
   }
 
-  handleSortChange(val: SortType) {
+  handleSortChange(val: CommentSortType) {
     this.state.sort = val;
     this.state.page = 1;
     this.setState(this.state);
@@ -581,6 +595,7 @@ export class Inbox extends Component<any, InboxState> {
     i.state.replies = [];
     i.state.mentions = [];
     i.state.messages = [];
+    i.state.combined = i.buildCombined();
     UserService.Instance.unreadInboxCountSub.next(0);
     window.scrollTo(0, 0);
     i.setState(i.state);
@@ -716,34 +731,51 @@ export class Inbox extends Component<any, InboxState> {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       editCommentRes(data.comment_view, this.state.replies);
       this.setState(this.state);
-    } else if (op == UserOperation.MarkCommentAsRead) {
-      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
+    } else if (op == UserOperation.MarkCommentReplyAsRead) {
+      let data = wsJsonToRes<CommentReplyResponse>(msg, CommentReplyResponse);
+      console.log(data);
 
-      // If youre in the unread view, just remove it from the list
-      if (
-        this.state.unreadOrAll == UnreadOrAll.Unread &&
-        data.comment_view.comment.read
-      ) {
-        this.state.replies = this.state.replies.filter(
-          r => r.comment.id !== data.comment_view.comment.id
-        );
-        this.state.combined = this.state.combined.filter(
-          r => r.id !== data.comment_view.comment.id
-        );
-      } else {
-        let found = this.state.replies.find(
-          c => c.comment.id == data.comment_view.comment.id
-        );
+      let found = this.state.replies.find(
+        c => c.comment_reply.id == data.comment_reply_view.comment_reply.id
+      );
+
+      if (found) {
         let combinedView = this.state.combined.find(
-          i => i.id == data.comment_view.comment.id
-        ).view as CommentView;
-        found.comment.read = combinedView.comment.read =
-          data.comment_view.comment.read;
-      }
+          i => i.id == data.comment_reply_view.comment_reply.id
+        ).view as CommentReplyView;
+        found.comment.content = combinedView.comment.content =
+          data.comment_reply_view.comment.content;
+        found.comment.updated = combinedView.comment.updated =
+          data.comment_reply_view.comment.updated;
+        found.comment.removed = combinedView.comment.removed =
+          data.comment_reply_view.comment.removed;
+        found.comment.deleted = combinedView.comment.deleted =
+          data.comment_reply_view.comment.deleted;
+        found.counts.upvotes = combinedView.counts.upvotes =
+          data.comment_reply_view.counts.upvotes;
+        found.counts.downvotes = combinedView.counts.downvotes =
+          data.comment_reply_view.counts.downvotes;
+        found.counts.score = combinedView.counts.score =
+          data.comment_reply_view.counts.score;
 
-      this.sendUnreadCount(data.comment_view.comment.read);
+        // If youre in the unread view, just remove it from the list
+        if (
+          this.state.unreadOrAll == UnreadOrAll.Unread &&
+          data.comment_reply_view.comment_reply.read
+        ) {
+          this.state.replies = this.state.replies.filter(
+            r => r.comment_reply.id !== data.comment_reply_view.comment_reply.id
+          );
+          this.state.combined = this.state.combined.filter(
+            r => r.id !== data.comment_reply_view.comment_reply.id
+          );
+        } else {
+          found.comment_reply.read = combinedView.comment_reply.read =
+            data.comment_reply_view.comment_reply.read;
+        }
+      }
+      this.sendUnreadCount(data.comment_reply_view.comment_reply.read);
       this.setState(this.state);
-      setupTippy();
     } else if (op == UserOperation.MarkPersonMentionAsRead) {
       let data = wsJsonToRes<PersonMentionResponse>(msg, PersonMentionResponse);
 
@@ -791,71 +823,6 @@ export class Inbox extends Component<any, InboxState> {
       }
       this.sendUnreadCount(data.person_mention_view.person_mention.read);
       this.setState(this.state);
-    } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
-
-      UserService.Instance.myUserInfo.match({
-        some: mui => {
-          if (data.recipient_ids.includes(mui.local_user_view.local_user.id)) {
-            this.state.replies.unshift(data.comment_view);
-            this.state.combined.unshift(
-              this.replyToReplyType(data.comment_view)
-            );
-            this.setState(this.state);
-          } else if (
-            data.comment_view.creator.id == mui.local_user_view.person.id
-          ) {
-            // If youre in the unread view, just remove it from the list
-            if (this.state.unreadOrAll == UnreadOrAll.Unread) {
-              this.state.replies = this.state.replies.filter(
-                r =>
-                  r.comment.id !==
-                  data.comment_view.comment.parent_id.unwrapOr(0)
-              );
-              this.state.mentions = this.state.mentions.filter(
-                m =>
-                  m.comment.id !==
-                  data.comment_view.comment.parent_id.unwrapOr(0)
-              );
-              this.state.combined = this.state.combined.filter(r => {
-                if (this.isMention(r.view))
-                  return (
-                    r.view.comment.id !==
-                    data.comment_view.comment.parent_id.unwrapOr(0)
-                  );
-                else
-                  return (
-                    r.id !== data.comment_view.comment.parent_id.unwrapOr(0)
-                  );
-              });
-            } else {
-              let mention_found = this.state.mentions.find(
-                i =>
-                  i.comment.id ==
-                  data.comment_view.comment.parent_id.unwrapOr(0)
-              );
-              if (mention_found) {
-                mention_found.person_mention.read = true;
-              }
-              let reply_found = this.state.replies.find(
-                i =>
-                  i.comment.id ==
-                  data.comment_view.comment.parent_id.unwrapOr(0)
-              );
-              if (reply_found) {
-                reply_found.comment.read = true;
-              }
-              this.state.combined = this.buildCombined();
-            }
-            this.sendUnreadCount(true);
-            this.setState(this.state);
-            setupTippy();
-            // TODO this seems wrong, you should be using form_id
-            toast(i18n.t("reply_sent"));
-          }
-        },
-        none: void 0,
-      });
     } else if (op == UserOperation.CreatePrivateMessage) {
       let data = wsJsonToRes<PrivateMessageResponse>(
         msg,
@@ -903,5 +870,9 @@ export class Inbox extends Component<any, InboxState> {
 
   isMention(view: any): view is PersonMentionView {
     return (view as PersonMentionView).person_mention !== undefined;
+  }
+
+  isReply(view: any): view is CommentReplyView {
+    return (view as CommentReplyView).comment_reply !== undefined;
   }
 }

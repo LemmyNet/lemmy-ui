@@ -4,7 +4,10 @@ import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
+  Comment as CommentI,
+  CommentNode as CommentNodeI,
   CommentReportView,
+  CommentSortType,
   CommentView,
   CommunityBlockView,
   CommunityModeratorView,
@@ -39,12 +42,7 @@ import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { httpBase } from "./env";
 import { i18n, languages } from "./i18next";
-import {
-  CommentNode as CommentNodeI,
-  CommentSortType,
-  DataType,
-  IsoData,
-} from "./interfaces";
+import { DataType, IsoData } from "./interfaces";
 import { UserService, WebSocketService } from "./services";
 
 var Tribute: any;
@@ -74,6 +72,7 @@ export const postRefetchSeconds: number = 60 * 1000;
 export const fetchLimit = 20;
 export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
+export const commentTreeMaxDepth = 8;
 
 export const relTags = "noopener nofollow";
 
@@ -611,7 +610,7 @@ export function notifyComment(comment_view: CommentView, router: any) {
   let info: NotifyInfo = {
     name: comment_view.creator.name,
     icon: comment_view.creator.avatar,
-    link: `/post/${comment_view.post.id}/comment/${comment_view.comment.id}`,
+    link: `/comment/${comment_view.comment.id}`,
     body: comment_view.comment.content,
   };
   notify(info, router);
@@ -813,12 +812,14 @@ export function getRecipientIdFromProps(props: any): number {
     : 1;
 }
 
-export function getIdFromProps(props: any): number {
-  return Number(props.match.params.id);
+export function getIdFromProps(props: any): Option<number> {
+  let id: string = props.match.params.post_id;
+  return id ? Some(Number(id)) : None;
 }
 
-export function getCommentIdFromProps(props: any): number {
-  return Number(props.match.params.comment_id);
+export function getCommentIdFromProps(props: any): Option<number> {
+  let id: string = props.match.params.comment_id;
+  return id ? Some(Number(id)) : None;
 }
 
 export function getUsernameFromProps(props: any): string {
@@ -985,61 +986,12 @@ export function updateRegistrationApplicationRes(
 export function commentsToFlatNodes(comments: CommentView[]): CommentNodeI[] {
   let nodes: CommentNodeI[] = [];
   for (let comment of comments) {
-    nodes.push({ comment_view: comment });
+    nodes.push({ comment_view: comment, children: [], depth: 0 });
   }
   return nodes;
 }
 
-function commentSort(tree: CommentNodeI[], sort: CommentSortType) {
-  // First, put removed and deleted comments at the bottom, then do your other sorts
-  if (sort == CommentSortType.Top) {
-    tree.sort(
-      (a, b) =>
-        +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
-        +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
-        b.comment_view.counts.score - a.comment_view.counts.score
-    );
-  } else if (sort == CommentSortType.New) {
-    tree.sort(
-      (a, b) =>
-        +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
-        +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
-        b.comment_view.comment.published.localeCompare(
-          a.comment_view.comment.published
-        )
-    );
-  } else if (sort == CommentSortType.Old) {
-    tree.sort(
-      (a, b) =>
-        +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
-        +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
-        a.comment_view.comment.published.localeCompare(
-          b.comment_view.comment.published
-        )
-    );
-  } else if (sort == CommentSortType.Hot) {
-    tree.sort(
-      (a, b) =>
-        +a.comment_view.comment.removed - +b.comment_view.comment.removed ||
-        +a.comment_view.comment.deleted - +b.comment_view.comment.deleted ||
-        hotRankComment(b.comment_view as CommentView) -
-          hotRankComment(a.comment_view as CommentView)
-    );
-  }
-
-  // Go through the children recursively
-  for (let node of tree) {
-    if (node.children) {
-      commentSort(node.children, sort);
-    }
-  }
-}
-
-export function commentSortSortType(tree: CommentNodeI[], sort: SortType) {
-  commentSort(tree, convertCommentSortType(sort));
-}
-
-function convertCommentSortType(sort: SortType): CommentSortType {
+export function convertCommentSortType(sort: SortType): CommentSortType {
   if (
     sort == SortType.TopAll ||
     sort == SortType.TopDay ||
@@ -1059,21 +1011,32 @@ function convertCommentSortType(sort: SortType): CommentSortType {
 
 export function buildCommentsTree(
   comments: CommentView[],
-  commentSortType: CommentSortType
+  parentComment: boolean
 ): CommentNodeI[] {
   let map = new Map<number, CommentNodeI>();
+  let depthOffset = !parentComment
+    ? 0
+    : getDepthFromComment(comments[0].comment);
+
   for (let comment_view of comments) {
     let node: CommentNodeI = {
       comment_view: comment_view,
       children: [],
-      depth: 0,
+      depth: getDepthFromComment(comment_view.comment) - depthOffset,
     };
     map.set(comment_view.comment.id, { ...node });
   }
+
   let tree: CommentNodeI[] = [];
+
+  // if its a parent comment fetch, then push the first comment to the top node.
+  if (parentComment) {
+    tree.push(map.get(comments[0].comment.id));
+  }
+
   for (let comment_view of comments) {
     let child = map.get(comment_view.comment.id);
-    let parent_id = comment_view.comment.parent_id;
+    let parent_id = getCommentParentId(comment_view.comment);
     parent_id.match({
       some: parentId => {
         let parent = map.get(parentId);
@@ -1083,26 +1046,37 @@ export function buildCommentsTree(
         }
       },
       none: () => {
-        tree.push(child);
+        if (!parentComment) {
+          tree.push(child);
+        }
       },
     });
-
-    setDepth(child);
   }
-
-  commentSort(tree, commentSortType);
 
   return tree;
 }
 
-function setDepth(node: CommentNodeI, i = 0) {
-  for (let child of node.children) {
-    child.depth = i;
-    setDepth(child, i + 1);
+export function getCommentParentId(comment: CommentI): Option<number> {
+  let split = comment.path.split(".");
+  // remove the 0
+  split.shift();
+
+  if (split.length > 1) {
+    return Some(Number(split[split.length - 2]));
+  } else {
+    return None;
   }
 }
 
-export function insertCommentIntoTree(tree: CommentNodeI[], cv: CommentView) {
+export function getDepthFromComment(comment: CommentI): number {
+  return comment.path.split(".").length - 2;
+}
+
+export function insertCommentIntoTree(
+  tree: CommentNodeI[],
+  cv: CommentView,
+  parentComment: boolean
+) {
   // Building a fake node to be used for later
   let node: CommentNodeI = {
     comment_view: cv,
@@ -1110,7 +1084,7 @@ export function insertCommentIntoTree(tree: CommentNodeI[], cv: CommentView) {
     depth: 0,
   };
 
-  cv.comment.parent_id.match({
+  getCommentParentId(cv.comment).match({
     some: parentId => {
       let parentComment = searchCommentTree(tree, parentId);
       parentComment.match({
@@ -1122,7 +1096,9 @@ export function insertCommentIntoTree(tree: CommentNodeI[], cv: CommentView) {
       });
     },
     none: () => {
-      tree.unshift(node);
+      if (!parentComment) {
+        tree.unshift(node);
+      }
     },
   });
 }
@@ -1149,6 +1125,7 @@ export function searchCommentTree(
 
 export const colorList: string[] = [
   hsl(0),
+  hsl(50),
   hsl(100),
   hsl(150),
   hsl(200),
@@ -1438,4 +1415,16 @@ export function enableDownvotes(siteRes: GetSiteResponse): boolean {
 
 export function enableNsfw(siteRes: GetSiteResponse): boolean {
   return siteRes.site_view.map(s => s.site.enable_nsfw).unwrapOr(false);
+}
+
+export function postToCommentSortType(sort: SortType): CommentSortType {
+  if ([SortType.Active, SortType.Hot].includes(sort)) {
+    return CommentSortType.Hot;
+  } else if ([SortType.New, SortType.NewComments].includes(sort)) {
+    return CommentSortType.New;
+  } else if (sort == SortType.Old) {
+    return CommentSortType.Old;
+  } else {
+    return CommentSortType.Top;
+  }
 }

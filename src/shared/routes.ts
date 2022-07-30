@@ -72,12 +72,12 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: req => Communities.fetchInitialData(req),
   },
   {
-    path: `/post/:id/comment/:comment_id`,
+    path: `/post/:post_id`,
     component: Post,
     fetchInitialData: req => Post.fetchInitialData(req),
   },
   {
-    path: `/post/:id`,
+    path: `/comment/:comment_id`,
     component: Post,
     fetchInitialData: req => Post.fetchInitialData(req),
   },

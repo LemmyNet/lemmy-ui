@@ -1,7 +1,11 @@
 import { Option } from "@sniptt/monads";
 import { Component } from "inferno";
-import { CommunityModeratorView, PersonViewSafe } from "lemmy-js-client";
-import { CommentNode as CommentNodeI } from "../../interfaces";
+import {
+  CommentNode as CommentNodeI,
+  CommunityModeratorView,
+  PersonViewSafe,
+} from "lemmy-js-client";
+import { CommentViewType } from "../../interfaces";
 import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
@@ -17,6 +21,7 @@ interface CommentNodesProps {
   showContext?: boolean;
   showCommunity?: boolean;
   enableDownvotes?: boolean;
+  viewType: CommentViewType;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -45,6 +50,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             showContext={this.props.showContext}
             showCommunity={this.props.showCommunity}
             enableDownvotes={this.props.enableDownvotes}
+            viewType={this.props.viewType}
           />
         ))}
       </div>

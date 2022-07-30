@@ -408,7 +408,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           className={`btn-animate btn btn-link p-0 ${
             this.state.my_vote.unwrapOr(0) == 1 ? "text-info" : "text-muted"
           }`}
-          onClick={linkEvent(this, this.handlePostLike)}
+          onClick={this.handlePostLike}
           data-tippy-content={i18n.t("upvote")}
           aria-label={i18n.t("upvote")}
         >
@@ -431,7 +431,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 ? "text-danger"
                 : "text-muted"
             }`}
-            onClick={linkEvent(this, this.handlePostDisLike)}
+            onClick={this.handlePostDisLike}
             data-tippy-content={i18n.t("downvote")}
             aria-label={i18n.t("downvote")}
           >
@@ -647,7 +647,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               this.state.my_vote.unwrapOr(0) == 1 ? "text-info" : "text-muted"
             }`}
             {...tippy}
-            onClick={linkEvent(this, this.handlePostLike)}
+            onClick={this.handlePostLike}
             aria-label={i18n.t("upvote")}
           >
             <Icon icon="arrow-up1" classes="icon-inline small" />
@@ -662,7 +662,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   ? "text-danger"
                   : "text-muted"
               }`}
-              onClick={linkEvent(this, this.handlePostDisLike)}
+              onClick={this.handlePostDisLike}
               {...tippy}
               aria-label={i18n.t("downvote")}
             >
@@ -1250,7 +1250,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  handlePostLike(i: PostListing, event: any) {
+  handlePostLike(event: any) {
     event.preventDefault();
     if (UserService.Instance.myUserInfo.isNone()) {
       this.context.router.history.push(`/login`);
@@ -1260,31 +1260,31 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let newVote = myVote == 1 ? 0 : 1;
 
     if (myVote == 1) {
-      i.state.score--;
-      i.state.upvotes--;
+      this.state.score--;
+      this.state.upvotes--;
     } else if (myVote == -1) {
-      i.state.downvotes--;
-      i.state.upvotes++;
-      i.state.score += 2;
+      this.state.downvotes--;
+      this.state.upvotes++;
+      this.state.score += 2;
     } else {
-      i.state.upvotes++;
-      i.state.score++;
+      this.state.upvotes++;
+      this.state.score++;
     }
 
-    i.state.my_vote = Some(newVote);
+    this.state.my_vote = Some(newVote);
 
     let form = new CreatePostLike({
-      post_id: i.props.post_view.post.id,
+      post_id: this.props.post_view.post.id,
       score: newVote,
       auth: auth().unwrap(),
     });
 
     WebSocketService.Instance.send(wsClient.likePost(form));
-    i.setState(i.state);
+    this.setState(this.state);
     setupTippy();
   }
 
-  handlePostDisLike(i: PostListing, event: any) {
+  handlePostDisLike(event: any) {
     event.preventDefault();
     if (UserService.Instance.myUserInfo.isNone()) {
       this.context.router.history.push(`/login`);
@@ -1294,27 +1294,27 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let newVote = myVote == -1 ? 0 : -1;
 
     if (myVote == 1) {
-      i.state.score -= 2;
-      i.state.upvotes--;
-      i.state.downvotes++;
+      this.state.score -= 2;
+      this.state.upvotes--;
+      this.state.downvotes++;
     } else if (myVote == -1) {
-      i.state.downvotes--;
-      i.state.score++;
+      this.state.downvotes--;
+      this.state.score++;
     } else {
-      i.state.downvotes++;
-      i.state.score--;
+      this.state.downvotes++;
+      this.state.score--;
     }
 
-    i.state.my_vote = Some(newVote);
+    this.state.my_vote = Some(newVote);
 
     let form = new CreatePostLike({
-      post_id: i.props.post_view.post.id,
+      post_id: this.props.post_view.post.id,
       score: newVote,
       auth: auth().unwrap(),
     });
 
     WebSocketService.Instance.send(wsClient.likePost(form));
-    i.setState(i.state);
+    this.setState(this.state);
     setupTippy();
   }
 

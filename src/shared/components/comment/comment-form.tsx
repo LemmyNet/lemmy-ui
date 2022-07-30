@@ -3,6 +3,7 @@ import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
+  CommentNode as CommentNodeI,
   CommentResponse,
   CreateComment,
   EditComment,
@@ -12,7 +13,6 @@ import {
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { CommentNode as CommentNodeI } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   auth,
