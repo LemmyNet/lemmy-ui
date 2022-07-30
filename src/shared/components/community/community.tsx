@@ -3,6 +3,7 @@ import { Component, linkEvent } from "inferno";
 import {
   AddModToCommunityResponse,
   BanFromCommunityResponse,
+  BlockCommunityResponse,
   BlockPersonResponse,
   CommentReportResponse,
   CommentResponse,
@@ -53,6 +54,7 @@ import {
   setupTippy,
   showLocal,
   toast,
+  updateCommunityBlock,
   updatePersonBlock,
   wsClient,
   wsSubscribe,
@@ -219,7 +221,7 @@ export class Community extends Component<any, State> {
         page,
         limit: Some(fetchLimit),
         sort,
-        type_: Some(ListingType.Community),
+        type_: Some(ListingType.All),
         saved_only: Some(false),
         auth: req.auth,
       });
@@ -232,7 +234,7 @@ export class Community extends Component<any, State> {
         page,
         limit: Some(fetchLimit),
         sort,
-        type_: Some(ListingType.Community),
+        type_: Some(ListingType.All),
         saved_only: Some(false),
         auth: req.auth,
       });
@@ -486,7 +488,7 @@ export class Community extends Component<any, State> {
         page: Some(this.state.page),
         limit: Some(fetchLimit),
         sort: Some(this.state.sort),
-        type_: Some(ListingType.Community),
+        type_: Some(ListingType.All),
         community_name: Some(this.state.communityName),
         community_id: None,
         saved_only: Some(false),
@@ -498,7 +500,7 @@ export class Community extends Component<any, State> {
         page: Some(this.state.page),
         limit: Some(fetchLimit),
         sort: Some(this.state.sort),
-        type_: Some(ListingType.Community),
+        type_: Some(ListingType.All),
         community_name: Some(this.state.communityName),
         community_id: None,
         saved_only: Some(false),
@@ -663,6 +665,17 @@ export class Community extends Component<any, State> {
         toast(i18n.t("purge_success"));
         this.context.router.history.push(`/`);
       }
+    } else if (op == UserOperation.BlockCommunity) {
+      let data = wsJsonToRes<BlockCommunityResponse>(
+        msg,
+        BlockCommunityResponse
+      );
+      this.state.communityRes.match({
+        some: res => (res.community_view.blocked = data.blocked),
+        none: void 0,
+      });
+      updateCommunityBlock(data);
+      this.setState(this.state);
     }
   }
 }
