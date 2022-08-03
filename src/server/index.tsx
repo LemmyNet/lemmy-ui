@@ -13,7 +13,7 @@ import process from "process";
 import serialize from "serialize-javascript";
 import { App } from "../shared/components/app/app";
 import { SYMBOLS } from "../shared/components/common/symbols";
-import { httpBaseInternal, wsUriBase } from "../shared/env";
+import { httpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
@@ -29,11 +29,11 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
-if (!process.env["LEMMY_UI_DEBUG"]) {
+if (!process.env["LEMMY_UI_DISABLE_CSP"]) {
   server.use(function (_req, res, next) {
     res.setHeader(
       "Content-Security-Policy",
-      `default-src 'none'; connect-src 'self' ${wsUriBase}; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'`
+      `default-src 'none'; connect-src *; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'`
     );
     next();
   });
