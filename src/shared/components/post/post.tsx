@@ -130,17 +130,18 @@ export class Post extends Component<any, PostState> {
       this.state.commentsRes = Some(
         this.isoData.routeData[1] as GetCommentsResponse
       );
+      this.state.loading = false;
 
       this.state.commentsRes.match({
-        some: res => {
-          this.state.commentTree = buildCommentsTree(
-            res.comments,
-            this.state.commentId.isSome()
-          );
-        },
+        some: res =>
+          this.setState({
+            commentTree: buildCommentsTree(
+              res.comments,
+              this.state.commentId.isSome()
+            ),
+          }),
         none: void 0,
       });
-      this.state.loading = false;
 
       if (isBrowser()) {
         WebSocketService.Instance.send(
@@ -304,8 +305,9 @@ export class Post extends Component<any, PostState> {
   trackCommentsBoxScrolling = () => {
     const wrappedElement = document.getElementsByClassName("comments")[0];
     if (wrappedElement && this.isBottom(wrappedElement)) {
-      this.state.maxCommentsShown += commentsShownInterval;
-      this.setState(this.state);
+      this.setState({
+        maxCommentsShown: this.state.maxCommentsShown + commentsShownInterval,
+      });
     }
   };
 
@@ -340,7 +342,7 @@ export class Post extends Component<any, PostState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         {this.state.loading ? (
           <h5>
             <Spinner large />
@@ -348,8 +350,8 @@ export class Post extends Component<any, PostState> {
         ) : (
           this.state.postRes.match({
             some: res => (
-              <div class="row">
-                <div class="col-12 col-md-8 mb-3">
+              <div className="row">
+                <div className="col-12 col-md-8 mb-3">
                   <HtmlTags
                     title={this.documentTitle}
                     path={this.context.router.route.match.url}
@@ -371,9 +373,9 @@ export class Post extends Component<any, PostState> {
                     node={Right(res.post_view.post.id)}
                     disabled={res.post_view.post.locked}
                   />
-                  <div class="d-block d-md-none">
+                  <div className="d-block d-md-none">
                     <button
-                      class="btn btn-secondary d-inline-block mb-2 mr-3"
+                      className="btn btn-secondary d-inline-block mb-2 mr-3"
                       onClick={linkEvent(this, this.handleShowSidebarMobile)}
                     >
                       {i18n.t("sidebar")}{" "}
@@ -394,7 +396,9 @@ export class Post extends Component<any, PostState> {
                   {this.state.commentViewType == CommentViewType.Flat &&
                     this.commentsFlat()}
                 </div>
-                <div class="d-none d-md-block col-md-4">{this.sidebar()}</div>
+                <div className="d-none d-md-block col-md-4">
+                  {this.sidebar()}
+                </div>
               </div>
             ),
             none: <></>,
@@ -407,7 +411,7 @@ export class Post extends Component<any, PostState> {
   sortRadios() {
     return (
       <>
-        <div class="btn-group btn-group-toggle flex-wrap mr-3 mb-2">
+        <div className="btn-group btn-group-toggle flex-wrap mr-3 mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
               CommentSortType[this.state.commentSort] === CommentSortType.Hot &&
@@ -465,7 +469,7 @@ export class Post extends Component<any, PostState> {
             />
           </label>
         </div>
-        <div class="btn-group btn-group-toggle flex-wrap mb-2">
+        <div className="btn-group btn-group-toggle flex-wrap mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
               this.state.commentViewType === CommentViewType.Flat && "active"
@@ -513,7 +517,7 @@ export class Post extends Component<any, PostState> {
   sidebar() {
     return this.state.postRes.match({
       some: res => (
-        <div class="mb-3">
+        <div className="mb-3">
           <Sidebar
             community_view={res.community_view}
             moderators={res.moderators}
@@ -529,25 +533,19 @@ export class Post extends Component<any, PostState> {
   }
 
   handleCommentSortChange(i: Post, event: any) {
-    i.state.commentSort = CommentSortType[event.target.value];
-    i.state.commentViewType = CommentViewType.Tree;
-    i.setState(i.state);
+    i.setState({
+      commentSort: CommentSortType[event.target.value],
+    });
     i.fetchPost();
   }
 
   handleCommentViewTypeChange(i: Post, event: any) {
-    i.state.commentViewType = Number(event.target.value);
-    i.state.commentSort = CommentSortType.New;
-    i.state.commentTree = buildCommentsTree(
-      i.state.commentsRes.map(r => r.comments).unwrapOr([]),
-      i.state.commentId.isSome()
-    );
-    i.setState(i.state);
+    // TODO test this
+    i.setState({ commentViewType: Number(event.target.value) });
   }
 
   handleShowSidebarMobile(i: Post) {
-    i.state.showSidebarMobile = !i.state.showSidebarMobile;
-    i.setState(i.state);
+    i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
   }
 
   handleViewPost(i: Post) {
@@ -578,14 +576,14 @@ export class Post extends Component<any, PostState> {
           {this.state.commentId.isSome() && (
             <>
               <button
-                class="pl-0 d-block btn btn-link text-muted"
+                className="pl-0 d-block btn btn-link text-muted"
                 onClick={linkEvent(this, this.handleViewPost)}
               >
                 {i18n.t("view_all_comments")} ➔
               </button>
               {showContextButton && (
                 <button
-                  class="pl-0 d-block btn btn-link text-muted"
+                  className="pl-0 d-block btn btn-link text-muted"
                   onClick={linkEvent(this, this.handleViewContext)}
                 >
                   {i18n.t("show_context")} ➔
@@ -633,7 +631,7 @@ export class Post extends Component<any, PostState> {
       });
     } else if (op == UserOperation.GetPost) {
       let data = wsJsonToRes<GetPostResponse>(msg, GetPostResponse);
-      this.state.postRes = Some(data);
+      this.setState({ postRes: Some(data) });
 
       // join the rooms
       WebSocketService.Instance.send(
@@ -648,7 +646,6 @@ export class Post extends Component<any, PostState> {
       // Get cross-posts
       // TODO move this into initial fetch and refetch
       this.fetchCrossPosts();
-      this.setState(this.state);
       setupTippy();
       if (this.state.commentId.isNone()) restoreScrollPosition(this.context);
 
@@ -664,18 +661,17 @@ export class Post extends Component<any, PostState> {
           let newComments = data.comments;
           newComments.shift();
           res.comments.push(...newComments);
+          this.setState({ commentsRes: Some(res) });
         },
-        none: () => {
-          this.state.commentsRes = Some(data);
-        },
+        none: () => this.setState({ commentsRes: Some(data) }),
       });
-      // this.state.commentsRes = Some(data);
-      this.state.commentTree = buildCommentsTree(
-        this.state.commentsRes.map(r => r.comments).unwrapOr([]),
-        this.state.commentId.isSome()
-      );
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({
+        commentTree: buildCommentsTree(
+          this.state.commentsRes.map(r => r.comments).unwrapOr([]),
+          this.state.commentId.isSome()
+        ),
+        loading: false,
+      });
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
 
@@ -699,12 +695,16 @@ export class Post extends Component<any, PostState> {
                   this.state.commentId.isSome()
                 );
                 postRes.post_view.counts.comments++;
+                this.setState({
+                  commentsRes: this.state.commentsRes,
+                  commentTree: this.state.commentTree,
+                  postRes: this.state.postRes,
+                });
               },
               none: void 0,
             }),
           none: void 0,
         });
-        this.setState(this.state);
         setupTippy();
       }
     } else if (
@@ -823,19 +823,18 @@ export class Post extends Component<any, PostState> {
       });
     } else if (op == UserOperation.AddAdmin) {
       let data = wsJsonToRes<AddAdminResponse>(msg, AddAdminResponse);
-      this.state.siteRes.admins = data.admins;
-      this.setState(this.state);
+      this.setState({
+        siteRes: { ...this.state.siteRes, admins: data.admins },
+      });
     } else if (op == UserOperation.Search) {
       let data = wsJsonToRes<SearchResponse>(msg, SearchResponse);
       let xPosts = data.posts.filter(
         p => p.post.id != Number(this.props.match.params.id)
       );
-      this.state.crossPosts = xPosts.length > 0 ? Some(xPosts) : None;
-      this.setState(this.state);
+      this.setState({ crossPosts: xPosts.length > 0 ? Some(xPosts) : None });
     } else if (op == UserOperation.LeaveAdmin) {
       let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
-      this.state.siteRes = data;
-      this.setState(this.state);
+      this.setState({ siteRes: data });
     } else if (op == UserOperation.TransferCommunity) {
       let data = wsJsonToRes<GetCommunityResponse>(msg, GetCommunityResponse);
       this.state.postRes.match({
@@ -843,7 +842,7 @@ export class Post extends Component<any, PostState> {
           res.community_view = data.community_view;
           res.post_view.community = data.community_view.community;
           res.moderators = data.moderators;
-          this.setState(this.state);
+          this.setState({ postRes: this.state.postRes });
         },
         none: void 0,
       });

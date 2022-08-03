@@ -63,9 +63,9 @@ export class PrivateMessage extends Component<
       : message_view.creator;
 
     return (
-      <div class="border-top border-light">
+      <div className="border-top border-light">
         <div>
-          <ul class="list-inline mb-0 text-muted small">
+          <ul className="list-inline mb-0 text-muted small">
             {/* TODO refactor this */}
             <li className="list-inline-item">
               {this.mine ? i18n.t("to") : i18n.t("from")}
@@ -114,12 +114,12 @@ export class PrivateMessage extends Component<
                   dangerouslySetInnerHTML={mdToHtml(this.messageUnlessRemoved)}
                 />
               )}
-              <ul class="list-inline mb-0 text-muted font-weight-bold">
+              <ul className="list-inline mb-0 text-muted font-weight-bold">
                 {!this.mine && (
                   <>
                     <li className="list-inline-item">
                       <button
-                        class="btn btn-link btn-animate text-muted"
+                        className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleMarkRead)}
                         data-tippy-content={
                           message_view.private_message.read
@@ -142,7 +142,7 @@ export class PrivateMessage extends Component<
                     </li>
                     <li className="list-inline-item">
                       <button
-                        class="btn btn-link btn-animate text-muted"
+                        className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
                         data-tippy-content={i18n.t("reply")}
                         aria-label={i18n.t("reply")}
@@ -156,7 +156,7 @@ export class PrivateMessage extends Component<
                   <>
                     <li className="list-inline-item">
                       <button
-                        class="btn btn-link btn-animate text-muted"
+                        className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleEditClick)}
                         data-tippy-content={i18n.t("edit")}
                         aria-label={i18n.t("edit")}
@@ -166,7 +166,7 @@ export class PrivateMessage extends Component<
                     </li>
                     <li className="list-inline-item">
                       <button
-                        class="btn btn-link btn-animate text-muted"
+                        className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleDeleteClick)}
                         data-tippy-content={
                           !message_view.private_message.deleted
@@ -192,7 +192,7 @@ export class PrivateMessage extends Component<
                 )}
                 <li className="list-inline-item">
                   <button
-                    class="btn btn-link btn-animate text-muted"
+                    className="btn btn-link btn-animate text-muted"
                     onClick={linkEvent(this, this.handleViewSource)}
                     data-tippy-content={i18n.t("view_source")}
                     aria-label={i18n.t("view_source")}
@@ -217,7 +217,7 @@ export class PrivateMessage extends Component<
           />
         )}
         {/* A collapsed clearfix */}
-        {this.state.collapsed && <div class="row col-12"></div>}
+        {this.state.collapsed && <div className="row col-12"></div>}
       </div>
     );
   }
@@ -228,13 +228,11 @@ export class PrivateMessage extends Component<
   }
 
   handleReplyClick(i: PrivateMessage) {
-    i.state.showReply = true;
-    i.setState(i.state);
+    i.setState({ showReply: true });
   }
 
   handleEditClick(i: PrivateMessage) {
-    i.state.showEdit = true;
-    i.setState(i.state);
+    i.setState({ showEdit: true });
   }
 
   handleDeleteClick(i: PrivateMessage) {
@@ -247,9 +245,10 @@ export class PrivateMessage extends Component<
   }
 
   handleReplyCancel() {
-    this.state.showReply = false;
-    this.state.showEdit = false;
-    this.setState(this.state);
+    this.setState({
+      showReply: false,
+      showEdit: false,
+    });
   }
 
   handleMarkRead(i: PrivateMessage) {
@@ -262,26 +261,22 @@ export class PrivateMessage extends Component<
   }
 
   handleMessageCollapse(i: PrivateMessage) {
-    i.state.collapsed = !i.state.collapsed;
-    i.setState(i.state);
+    i.setState({ collapsed: !i.state.collapsed });
   }
 
   handleViewSource(i: PrivateMessage) {
-    i.state.viewSource = !i.state.viewSource;
-    i.setState(i.state);
+    i.setState({ viewSource: !i.state.viewSource });
   }
 
   handlePrivateMessageEdit() {
-    this.state.showEdit = false;
-    this.setState(this.state);
+    this.setState({ showEdit: false });
   }
 
   handlePrivateMessageCreate(message: PrivateMessageView) {
     UserService.Instance.myUserInfo.match({
       some: mui => {
         if (message.creator.id == mui.local_user_view.person.id) {
-          this.state.showReply = false;
-          this.setState(this.state);
+          this.setState({ showReply: false });
           toast(i18n.t("message_sent"));
         }
       },

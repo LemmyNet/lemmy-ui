@@ -19,10 +19,10 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
     return (
       <Helmet title={this.props.title}>
         {["title", "og:title", "twitter:title"].map(t => (
-          <meta property={t} content={this.props.title} />
+          <meta key={t} property={t} content={this.props.title} />
         ))}
         {["og:url", "twitter:url"].map(u => (
-          <meta property={u} content={url} />
+          <meta key={u} property={u} content={url} />
         ))}
 
         {/* Open Graph / Facebook */}
@@ -35,6 +35,7 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
         {this.props.description.isSome() &&
           ["description", "og:description", "twitter:description"].map(n => (
             <meta
+              key={n}
               name={n}
               content={md.renderInline(this.props.description.unwrap())}
             />
@@ -42,7 +43,7 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
 
         {this.props.image.isSome() &&
           ["og:image", "twitter:image"].map(p => (
-            <meta property={p} content={this.props.image.unwrap()} />
+            <meta key={p} property={p} content={this.props.image.unwrap()} />
           ))}
       </Helmet>
     );

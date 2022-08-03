@@ -42,7 +42,7 @@ export class App extends Component<any, any> {
                 none: <></>,
               })}
             <Navbar siteRes={siteRes} />
-            <div class="mt-4 p-0 fl-1">
+            <div className="mt-4 p-0 fl-1">
               <Switch>
                 {routes.map(({ path, exact, component: C, ...rest }) => (
                   <Route

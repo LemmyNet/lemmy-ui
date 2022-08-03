@@ -75,7 +75,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
       right: () => None,
     });
     return (
-      <div class="mb-3">
+      <div className="mb-3">
         {UserService.Instance.myUserInfo.isSome() ? (
           <MarkdownTextArea
             initialContent={initialContent}
@@ -90,7 +90,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             placeholder={Some(i18n.t("comment_here"))}
           />
         ) : (
-          <div class="alert alert-warning" role="alert">
+          <div className="alert alert-warning" role="alert">
             <Icon icon="alert-triangle" classes="icon-inline mr-2" />
             <T i18nKey="must_login" class="d-inline">
               #
@@ -106,7 +106,8 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
 
   handleCommentSubmit(msg: { val: string; formId: string }) {
     let content = msg.val;
-    this.state.formId = Some(msg.formId);
+    let formId = Some(msg.formId);
+    this.setState({ formId });
 
     this.props.node.match({
       left: node => {
@@ -140,7 +141,6 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         WebSocketService.Instance.send(wsClient.createComment(form));
       },
     });
-    this.setState(this.state);
   }
 
   handleReplyCancel() {

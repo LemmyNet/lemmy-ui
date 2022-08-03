@@ -63,10 +63,12 @@ export class CreatePost extends Component<any, CreatePostState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.listCommunitiesResponse = Some(
-        this.isoData.routeData[0] as ListCommunitiesResponse
-      );
-      this.state.loading = false;
+      this.setState({
+        listCommunitiesResponse: Some(
+          this.isoData.routeData[0] as ListCommunitiesResponse
+        ),
+        loading: false,
+      });
     } else {
       this.refetch();
     }
@@ -123,7 +125,7 @@ export class CreatePost extends Component<any, CreatePostState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -137,8 +139,8 @@ export class CreatePost extends Component<any, CreatePostState> {
         ) : (
           this.state.listCommunitiesResponse.match({
             some: res => (
-              <div class="row">
-                <div class="col-12 col-lg-6 offset-lg-3 mb-4">
+              <div className="row">
+                <div className="col-12 col-lg-6 offset-lg-3 mb-4">
                   <h5>{i18n.t("create_post")}</h5>
                   <PostForm
                     post_view={None}
@@ -230,16 +232,18 @@ export class CreatePost extends Component<any, CreatePostState> {
         msg,
         ListCommunitiesResponse
       );
-      this.state.listCommunitiesResponse = Some(data);
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({
+        listCommunitiesResponse: Some(data),
+        loading: false,
+      });
     } else if (op == UserOperation.GetCommunity) {
       let data = wsJsonToRes<GetCommunityResponse>(msg, GetCommunityResponse);
-      this.state.listCommunitiesResponse = Some({
-        communities: [data.community_view],
+      this.setState({
+        listCommunitiesResponse: Some({
+          communities: [data.community_view],
+        }),
+        loading: false,
       });
-      this.state.loading = false;
-      this.setState(this.state);
     }
   }
 }

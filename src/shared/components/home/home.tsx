@@ -158,21 +158,23 @@ export class Home extends Component<any, HomeState> {
       let trendingRes = this.isoData.routeData[2] as ListCommunitiesResponse;
 
       postsRes.match({
-        some: pvs => (this.state.posts = pvs.posts),
+        some: pvs => this.setState({ posts: pvs.posts }),
         none: void 0,
       });
       commentsRes.match({
-        some: cvs => (this.state.comments = cvs.comments),
+        some: cvs => this.setState({ comments: cvs.comments }),
         none: void 0,
       });
-      this.state.trendingCommunities = trendingRes.communities;
 
       if (isBrowser()) {
         WebSocketService.Instance.send(
           wsClient.communityJoin({ community_id: 0 })
         );
       }
-      this.state.loading = false;
+      this.setState({
+        trendingCommunities: trendingRes.communities,
+        loading: false,
+      });
     } else {
       this.fetchTrendingCommunities();
       this.fetchData();
@@ -317,7 +319,7 @@ export class Home extends Component<any, HomeState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -325,12 +327,14 @@ export class Home extends Component<any, HomeState> {
           image={None}
         />
         {this.state.siteRes.site_view.isSome() && (
-          <div class="row">
-            <main role="main" class="col-12 col-md-8">
-              <div class="d-block d-md-none">{this.mobileView()}</div>
+          <div className="row">
+            <main role="main" className="col-12 col-md-8">
+              <div className="d-block d-md-none">{this.mobileView()}</div>
               {this.posts()}
             </main>
-            <aside class="d-none d-md-block col-md-4">{this.mySidebar()}</aside>
+            <aside className="d-none d-md-block col-md-4">
+              {this.mySidebar()}
+            </aside>
           </div>
         )}
       </div>
@@ -347,11 +351,11 @@ export class Home extends Component<any, HomeState> {
   mobileView() {
     let siteRes = this.state.siteRes;
     return (
-      <div class="row">
-        <div class="col-12">
+      <div className="row">
+        <div className="col-12">
           {this.hasFollows && (
             <button
-              class="btn btn-secondary d-inline-block mb-2 mr-3"
+              className="btn btn-secondary d-inline-block mb-2 mr-3"
               onClick={linkEvent(this, this.handleShowSubscribedMobile)}
             >
               {i18n.t("subscribed")}{" "}
@@ -366,7 +370,7 @@ export class Home extends Component<any, HomeState> {
             </button>
           )}
           <button
-            class="btn btn-secondary d-inline-block mb-2 mr-3"
+            className="btn btn-secondary d-inline-block mb-2 mr-3"
             onClick={linkEvent(this, this.handleShowTrendingMobile)}
           >
             {i18n.t("trending")}{" "}
@@ -378,7 +382,7 @@ export class Home extends Component<any, HomeState> {
             />
           </button>
           <button
-            class="btn btn-secondary d-inline-block mb-2 mr-3"
+            className="btn btn-secondary d-inline-block mb-2 mr-3"
             onClick={linkEvent(this, this.handleShowSidebarMobile)}
           >
             {i18n.t("sidebar")}{" "}
@@ -403,13 +407,13 @@ export class Home extends Component<any, HomeState> {
               none: <></>,
             })}
           {this.state.showTrendingMobile && (
-            <div class="col-12 card border-secondary mb-3">
-              <div class="card-body">{this.trendingCommunities()}</div>
+            <div className="col-12 card border-secondary mb-3">
+              <div className="card-body">{this.trendingCommunities()}</div>
             </div>
           )}
           {this.state.showSubscribedMobile && (
-            <div class="col-12 card border-secondary mb-3">
-              <div class="card-body">{this.subscribedCommunities()}</div>
+            <div className="col-12 card border-secondary mb-3">
+              <div className="card-body">{this.subscribedCommunities()}</div>
             </div>
           )}
         </div>
@@ -423,8 +427,8 @@ export class Home extends Component<any, HomeState> {
       <div>
         {!this.state.loading && (
           <div>
-            <div class="card border-secondary mb-3">
-              <div class="card-body">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">
                 {this.trendingCommunities()}
                 {this.createCommunityButton()}
                 {this.exploreCommunitiesButton()}
@@ -443,8 +447,8 @@ export class Home extends Component<any, HomeState> {
               none: <></>,
             })}
             {this.hasFollows && (
-              <div class="card border-secondary mb-3">
-                <div class="card-body">{this.subscribedCommunities()}</div>
+              <div className="card border-secondary mb-3">
+                <div className="card-body">{this.subscribedCommunities()}</div>
               </div>
             )}
           </div>
@@ -480,9 +484,12 @@ export class Home extends Component<any, HomeState> {
             </Link>
           </T>
         </h5>
-        <ul class="list-inline mb-0">
+        <ul className="list-inline mb-0">
           {this.state.trendingCommunities.map(cv => (
-            <li class="list-inline-item d-inline-block">
+            <li
+              key={cv.community.id}
+              className="list-inline-item d-inline-block"
+            >
               <CommunityLink community={cv.community} />
             </li>
           ))}
@@ -502,7 +509,7 @@ export class Home extends Component<any, HomeState> {
             </Link>
           </T>
           <button
-            class="btn btn-sm text-muted"
+            className="btn btn-sm text-muted"
             onClick={linkEvent(this, this.handleCollapseSubscribe)}
             aria-label={i18n.t("collapse")}
             data-tippy-content={i18n.t("collapse")}
@@ -515,12 +522,15 @@ export class Home extends Component<any, HomeState> {
           </button>
         </h5>
         {!this.state.subscribedCollapsed && (
-          <ul class="list-inline mb-0">
+          <ul className="list-inline mb-0">
             {UserService.Instance.myUserInfo
               .map(m => m.follows)
               .unwrapOr([])
               .map(cfv => (
-                <li class="list-inline-item d-inline-block">
+                <li
+                  key={cfv.community.id}
+                  className="list-inline-item d-inline-block"
+                >
                   <CommunityLink community={cfv.community} />
                 </li>
               ))}
@@ -542,7 +552,7 @@ export class Home extends Component<any, HomeState> {
 
   posts() {
     return (
-      <div class="main-content-wrapper">
+      <div className="main-content-wrapper">
         {this.state.loading ? (
           <h5>
             <Spinner large />
@@ -594,13 +604,13 @@ export class Home extends Component<any, HomeState> {
 
     return (
       <div className="mb-3">
-        <span class="mr-3">
+        <span className="mr-3">
           <DataTypeSelect
             type_={this.state.dataType}
             onChange={this.handleDataTypeChange}
           />
         </span>
-        <span class="mr-3">
+        <span className="mr-3">
           <ListingTypeSelect
             type_={this.state.listingType}
             showLocal={showLocal(this.isoData)}
@@ -608,7 +618,7 @@ export class Home extends Component<any, HomeState> {
             onChange={this.handleListingTypeChange}
           />
         </span>
-        <span class="mr-2">
+        <span className="mr-2">
           <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
         </span>
         {this.state.listingType == ListingType.All && (
@@ -644,23 +654,19 @@ export class Home extends Component<any, HomeState> {
   }
 
   handleShowSubscribedMobile(i: Home) {
-    i.state.showSubscribedMobile = !i.state.showSubscribedMobile;
-    i.setState(i.state);
+    i.setState({ showSubscribedMobile: !i.state.showSubscribedMobile });
   }
 
   handleShowTrendingMobile(i: Home) {
-    i.state.showTrendingMobile = !i.state.showTrendingMobile;
-    i.setState(i.state);
+    i.setState({ showTrendingMobile: !i.state.showTrendingMobile });
   }
 
   handleShowSidebarMobile(i: Home) {
-    i.state.showSidebarMobile = !i.state.showSidebarMobile;
-    i.setState(i.state);
+    i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
   }
 
   handleCollapseSubscribe(i: Home) {
-    i.state.subscribedCollapsed = !i.state.subscribedCollapsed;
-    i.setState(i.state);
+    i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
   handlePageChange(page: number) {
@@ -731,18 +737,16 @@ export class Home extends Component<any, HomeState> {
         msg,
         ListCommunitiesResponse
       );
-      this.state.trendingCommunities = data.communities;
-      this.setState(this.state);
+      this.setState({ trendingCommunities: data.communities });
     } else if (op == UserOperation.EditSite) {
       let data = wsJsonToRes<SiteResponse>(msg, SiteResponse);
-      this.state.siteRes.site_view = Some(data.site_view);
-      this.setState(this.state);
+      this.setState({
+        siteRes: { ...this.state.siteRes, site_view: Some(data.site_view) },
+      });
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetPosts) {
       let data = wsJsonToRes<GetPostsResponse>(msg, GetPostsResponse);
-      this.state.posts = data.posts;
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({ posts: data.posts, loading: false });
       WebSocketService.Instance.send(
         wsClient.communityJoin({ community_id: 0 })
       );
@@ -775,6 +779,7 @@ export class Home extends Component<any, HomeState> {
               .includes(data.post_view.community.id)
           ) {
             this.state.posts.unshift(data.post_view);
+            this.setState({ posts: this.state.posts });
             if (showPostNotifs) {
               notifyPost(data.post_view, this.context.router);
             }
@@ -783,17 +788,18 @@ export class Home extends Component<any, HomeState> {
           // If you're on the local view, only push it if its local
           if (data.post_view.post.local) {
             this.state.posts.unshift(data.post_view);
+            this.setState({ posts: this.state.posts });
             if (showPostNotifs) {
               notifyPost(data.post_view, this.context.router);
             }
           }
         } else {
           this.state.posts.unshift(data.post_view);
+          this.setState({ posts: this.state.posts });
           if (showPostNotifs) {
             notifyPost(data.post_view, this.context.router);
           }
         }
-        this.setState(this.state);
       }
     } else if (
       op == UserOperation.EditPost ||
@@ -805,15 +811,16 @@ export class Home extends Component<any, HomeState> {
     ) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       editPostFindRes(data.post_view, this.state.posts);
-      this.setState(this.state);
+      this.setState({ posts: this.state.posts });
     } else if (op == UserOperation.CreatePostLike) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       createPostLikeFindRes(data.post_view, this.state.posts);
-      this.setState(this.state);
+      this.setState({ posts: this.state.posts });
     } else if (op == UserOperation.AddAdmin) {
       let data = wsJsonToRes<AddAdminResponse>(msg, AddAdminResponse);
-      this.state.siteRes.admins = data.admins;
-      this.setState(this.state);
+      this.setState({
+        siteRes: { ...this.state.siteRes, admins: data.admins },
+      });
     } else if (op == UserOperation.BanPerson) {
       let data = wsJsonToRes<BanPersonResponse>(msg, BanPersonResponse);
       this.state.posts
@@ -823,9 +830,7 @@ export class Home extends Component<any, HomeState> {
       this.setState(this.state);
     } else if (op == UserOperation.GetComments) {
       let data = wsJsonToRes<GetCommentsResponse>(msg, GetCommentsResponse);
-      this.state.comments = data.comments;
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({ comments: data.comments, loading: false });
     } else if (
       op == UserOperation.EditComment ||
       op == UserOperation.DeleteComment ||
@@ -833,7 +838,7 @@ export class Home extends Component<any, HomeState> {
     ) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       editCommentRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
+      this.setState({ comments: this.state.comments });
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
 
@@ -849,20 +854,21 @@ export class Home extends Component<any, HomeState> {
               .includes(data.comment_view.community.id)
           ) {
             this.state.comments.unshift(data.comment_view);
+            this.setState({ comments: this.state.comments });
           }
         } else {
           this.state.comments.unshift(data.comment_view);
+          this.setState({ comments: this.state.comments });
         }
-        this.setState(this.state);
       }
     } else if (op == UserOperation.SaveComment) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       saveCommentRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
+      this.setState({ comments: this.state.comments });
     } else if (op == UserOperation.CreateCommentLike) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       createCommentLikeRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
+      this.setState({ comments: this.state.comments });
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg, BlockPersonResponse);
       updatePersonBlock(data);

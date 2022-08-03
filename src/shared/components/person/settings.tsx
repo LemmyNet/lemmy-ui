@@ -155,8 +155,7 @@ export class Settings extends Component<any, SettingsState> {
 
   async componentDidMount() {
     setupTippy();
-    this.state.themeList = await fetchThemeList();
-    this.setState(this.state);
+    this.setState({ themeList: await fetchThemeList() });
   }
 
   componentWillUnmount() {
@@ -169,7 +168,7 @@ export class Settings extends Component<any, SettingsState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <>
           <HtmlTags
             title={this.documentTitle}
@@ -177,10 +176,10 @@ export class Settings extends Component<any, SettingsState> {
             description={Some(this.documentTitle)}
             image={this.state.saveUserSettingsForm.avatar}
           />
-          <ul class="nav nav-tabs mb-2">
-            <li class="nav-item">
+          <ul className="nav nav-tabs mb-2">
+            <li className="nav-item">
               <button
-                class={`nav-link btn ${
+                className={`nav-link btn ${
                   this.state.currentTab == "settings" && "active"
                 }`}
                 onClick={linkEvent(
@@ -191,9 +190,9 @@ export class Settings extends Component<any, SettingsState> {
                 {i18n.t("settings")}
               </button>
             </li>
-            <li class="nav-item">
+            <li className="nav-item">
               <button
-                class={`nav-link btn ${
+                className={`nav-link btn ${
                   this.state.currentTab == "blocks" && "active"
                 }`}
                 onClick={linkEvent(
@@ -214,15 +213,15 @@ export class Settings extends Component<any, SettingsState> {
 
   userSettings() {
     return (
-      <div class="row">
-        <div class="col-12 col-md-6">
-          <div class="card border-secondary mb-3">
-            <div class="card-body">{this.saveUserSettingsHtmlForm()}</div>
+      <div className="row">
+        <div className="col-12 col-md-6">
+          <div className="card border-secondary mb-3">
+            <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
           </div>
         </div>
-        <div class="col-12 col-md-6">
-          <div class="card border-secondary mb-3">
-            <div class="card-body">{this.changePasswordHtmlForm()}</div>
+        <div className="col-12 col-md-6">
+          <div className="card border-secondary mb-3">
+            <div className="card-body">{this.changePasswordHtmlForm()}</div>
           </div>
         </div>
       </div>
@@ -231,15 +230,15 @@ export class Settings extends Component<any, SettingsState> {
 
   blockCards() {
     return (
-      <div class="row">
-        <div class="col-12 col-md-6">
-          <div class="card border-secondary mb-3">
-            <div class="card-body">{this.blockUserCard()}</div>
+      <div className="row">
+        <div className="col-12 col-md-6">
+          <div className="card border-secondary mb-3">
+            <div className="card-body">{this.blockUserCard()}</div>
           </div>
         </div>
-        <div class="col-12 col-md-6">
-          <div class="card border-secondary mb-3">
-            <div class="card-body">{this.blockCommunityCard()}</div>
+        <div className="col-12 col-md-6">
+          <div className="card border-secondary mb-3">
+            <div className="card-body">{this.blockCommunityCard()}</div>
           </div>
         </div>
       </div>
@@ -251,15 +250,15 @@ export class Settings extends Component<any, SettingsState> {
       <>
         <h5>{i18n.t("change_password")}</h5>
         <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
-          <div class="form-group row">
-            <label class="col-sm-5 col-form-label" htmlFor="user-password">
+          <div className="form-group row">
+            <label className="col-sm-5 col-form-label" htmlFor="user-password">
               {i18n.t("new_password")}
             </label>
-            <div class="col-sm-7">
+            <div className="col-sm-7">
               <input
                 type="password"
                 id="user-password"
-                class="form-control"
+                className="form-control"
                 value={this.state.changePasswordForm.new_password}
                 autoComplete="new-password"
                 maxLength={60}
@@ -267,18 +266,18 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group row">
+          <div className="form-group row">
             <label
-              class="col-sm-5 col-form-label"
+              className="col-sm-5 col-form-label"
               htmlFor="user-verify-password"
             >
               {i18n.t("verify_password")}
             </label>
-            <div class="col-sm-7">
+            <div className="col-sm-7">
               <input
                 type="password"
                 id="user-verify-password"
-                class="form-control"
+                className="form-control"
                 value={this.state.changePasswordForm.new_password_verify}
                 autoComplete="new-password"
                 maxLength={60}
@@ -286,15 +285,18 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-5 col-form-label" htmlFor="user-old-password">
+          <div className="form-group row">
+            <label
+              className="col-sm-5 col-form-label"
+              htmlFor="user-old-password"
+            >
               {i18n.t("old_password")}
             </label>
-            <div class="col-sm-7">
+            <div className="col-sm-7">
               <input
                 type="password"
                 id="user-old-password"
-                class="form-control"
+                className="form-control"
                 value={this.state.changePasswordForm.old_password}
                 autoComplete="new-password"
                 maxLength={60}
@@ -302,8 +304,8 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group">
-            <button type="submit" class="btn btn-block btn-secondary mr-4">
+          <div className="form-group">
+            <button type="submit" className="btn btn-block btn-secondary mr-4">
               {this.state.changePasswordLoading ? (
                 <Spinner />
               ) : (
@@ -329,9 +331,9 @@ export class Settings extends Component<any, SettingsState> {
     return (
       <>
         <h5>{i18n.t("blocked_users")}</h5>
-        <ul class="list-unstyled mb-0">
+        <ul className="list-unstyled mb-0">
           {this.state.personBlocks.map(pb => (
-            <li>
+            <li key={pb.person.id}>
               <span>
                 <PersonListing person={pb.target} />
                 <button
@@ -354,13 +356,16 @@ export class Settings extends Component<any, SettingsState> {
 
   blockUserForm() {
     return (
-      <div class="form-group row">
-        <label class="col-md-4 col-form-label" htmlFor="block-person-filter">
+      <div className="form-group row">
+        <label
+          className="col-md-4 col-form-label"
+          htmlFor="block-person-filter"
+        >
           {i18n.t("block_user")}
         </label>
-        <div class="col-md-8">
+        <div className="col-md-8">
           <select
-            class="form-control"
+            className="form-control"
             id="block-person-filter"
             value={this.state.blockPerson.map(p => p.person.id).unwrapOr(0)}
           >
@@ -392,9 +397,9 @@ export class Settings extends Component<any, SettingsState> {
     return (
       <>
         <h5>{i18n.t("blocked_communities")}</h5>
-        <ul class="list-unstyled mb-0">
+        <ul className="list-unstyled mb-0">
           {this.state.communityBlocks.map(cb => (
-            <li>
+            <li key={cb.community.id}>
               <span>
                 <CommunityLink community={cb.community} />
                 <button
@@ -417,13 +422,16 @@ export class Settings extends Component<any, SettingsState> {
 
   blockCommunityForm() {
     return (
-      <div class="form-group row">
-        <label class="col-md-4 col-form-label" htmlFor="block-community-filter">
+      <div className="form-group row">
+        <label
+          className="col-md-4 col-form-label"
+          htmlFor="block-community-filter"
+        >
           {i18n.t("block_community")}
         </label>
-        <div class="col-md-8">
+        <div className="col-md-8">
           <select
-            class="form-control"
+            className="form-control"
             id="block-community-filter"
             value={this.state.blockCommunityId}
           >
@@ -444,15 +452,15 @@ export class Settings extends Component<any, SettingsState> {
       <>
         <h5>{i18n.t("settings")}</h5>
         <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
-          <div class="form-group row">
-            <label class="col-sm-5 col-form-label" htmlFor="display-name">
+          <div className="form-group row">
+            <label className="col-sm-5 col-form-label" htmlFor="display-name">
               {i18n.t("display_name")}
             </label>
-            <div class="col-sm-7">
+            <div className="col-sm-7">
               <input
                 id="display-name"
                 type="text"
-                class="form-control"
+                className="form-control"
                 placeholder={i18n.t("optional")}
                 value={toUndefined(
                   this.state.saveUserSettingsForm.display_name
@@ -463,11 +471,11 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label" htmlFor="user-bio">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label" htmlFor="user-bio">
               {i18n.t("bio")}
             </label>
-            <div class="col-sm-9">
+            <div className="col-sm-9">
               <MarkdownTextArea
                 initialContent={this.state.saveUserSettingsForm.bio}
                 onContentChange={this.handleBioChange}
@@ -478,15 +486,15 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label" htmlFor="user-email">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label" htmlFor="user-email">
               {i18n.t("email")}
             </label>
-            <div class="col-sm-9">
+            <div className="col-sm-9">
               <input
                 type="email"
                 id="user-email"
-                class="form-control"
+                className="form-control"
                 placeholder={i18n.t("optional")}
                 value={toUndefined(this.state.saveUserSettingsForm.email)}
                 onInput={linkEvent(this, this.handleEmailChange)}
@@ -494,17 +502,17 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-5 col-form-label" htmlFor="matrix-user-id">
+          <div className="form-group row">
+            <label className="col-sm-5 col-form-label" htmlFor="matrix-user-id">
               <a href={elementUrl} rel={relTags}>
                 {i18n.t("matrix_user_id")}
               </a>
             </label>
-            <div class="col-sm-7">
+            <div className="col-sm-7">
               <input
                 id="matrix-user-id"
                 type="text"
-                class="form-control"
+                className="form-control"
                 placeholder="@user:example.com"
                 value={toUndefined(
                   this.state.saveUserSettingsForm.matrix_user_id
@@ -514,9 +522,9 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-3">{i18n.t("avatar")}</label>
-            <div class="col-sm-9">
+          <div className="form-group row">
+            <label className="col-sm-3">{i18n.t("avatar")}</label>
+            <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_avatar")}
                 imageSrc={this.state.saveUserSettingsForm.avatar}
@@ -526,9 +534,9 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-3">{i18n.t("banner")}</label>
-            <div class="col-sm-9">
+          <div className="form-group row">
+            <label className="col-sm-3">{i18n.t("banner")}</label>
+            <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_banner")}
                 imageSrc={this.state.saveUserSettingsForm.banner}
@@ -537,16 +545,16 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-3" htmlFor="user-language">
+          <div className="form-group row">
+            <label className="col-sm-3" htmlFor="user-language">
               {i18n.t("language")}
             </label>
-            <div class="col-sm-9">
+            <div className="col-sm-9">
               <select
                 id="user-language"
                 value={toUndefined(this.state.saveUserSettingsForm.lang)}
                 onChange={linkEvent(this, this.handleLangChange)}
-                class="custom-select w-auto"
+                className="custom-select w-auto"
               >
                 <option disabled aria-hidden="true">
                   {i18n.t("language")}
@@ -558,35 +566,39 @@ export class Settings extends Component<any, SettingsState> {
                 {languages
                   .sort((a, b) => a.code.localeCompare(b.code))
                   .map(lang => (
-                    <option value={lang.code}>{lang.name}</option>
+                    <option key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </option>
                   ))}
               </select>
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-3" htmlFor="user-theme">
+          <div className="form-group row">
+            <label className="col-sm-3" htmlFor="user-theme">
               {i18n.t("theme")}
             </label>
-            <div class="col-sm-9">
+            <div className="col-sm-9">
               <select
                 id="user-theme"
                 value={toUndefined(this.state.saveUserSettingsForm.theme)}
                 onChange={linkEvent(this, this.handleThemeChange)}
-                class="custom-select w-auto"
+                className="custom-select w-auto"
               >
                 <option disabled aria-hidden="true">
                   {i18n.t("theme")}
                 </option>
                 <option value="browser">{i18n.t("browser_default")}</option>
                 {this.state.themeList.map(theme => (
-                  <option value={theme}>{theme}</option>
+                  <option key={theme} value={theme}>
+                    {theme}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
           <form className="form-group row">
-            <label class="col-sm-3">{i18n.t("type")}</label>
-            <div class="col-sm-9">
+            <label className="col-sm-3">{i18n.t("type")}</label>
+            <div className="col-sm-9">
               <ListingTypeSelect
                 type_={
                   Object.values(ListingType)[
@@ -602,8 +614,8 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </form>
           <form className="form-group row">
-            <label class="col-sm-3">{i18n.t("sort_type")}</label>
-            <div class="col-sm-9">
+            <label className="col-sm-3">{i18n.t("sort_type")}</label>
+            <div className="col-sm-9">
               <SortSelect
                 sort={
                   Object.values(SortType)[
@@ -617,10 +629,10 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </form>
           {enableNsfw(this.state.siteRes) && (
-            <div class="form-group">
-              <div class="form-check">
+            <div className="form-group">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="user-show-nsfw"
                   type="checkbox"
                   checked={toUndefined(
@@ -628,16 +640,16 @@ export class Settings extends Component<any, SettingsState> {
                   )}
                   onChange={linkEvent(this, this.handleShowNsfwChange)}
                 />
-                <label class="form-check-label" htmlFor="user-show-nsfw">
+                <label className="form-check-label" htmlFor="user-show-nsfw">
                   {i18n.t("show_nsfw")}
                 </label>
               </div>
             </div>
           )}
-          <div class="form-group">
-            <div class="form-check">
+          <div className="form-group">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 id="user-show-scores"
                 type="checkbox"
                 checked={toUndefined(
@@ -645,15 +657,15 @@ export class Settings extends Component<any, SettingsState> {
                 )}
                 onChange={linkEvent(this, this.handleShowScoresChange)}
               />
-              <label class="form-check-label" htmlFor="user-show-scores">
+              <label className="form-check-label" htmlFor="user-show-scores">
                 {i18n.t("show_scores")}
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <div class="form-check">
+          <div className="form-group">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 id="user-show-avatars"
                 type="checkbox"
                 checked={toUndefined(
@@ -661,15 +673,15 @@ export class Settings extends Component<any, SettingsState> {
                 )}
                 onChange={linkEvent(this, this.handleShowAvatarsChange)}
               />
-              <label class="form-check-label" htmlFor="user-show-avatars">
+              <label className="form-check-label" htmlFor="user-show-avatars">
                 {i18n.t("show_avatars")}
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <div class="form-check">
+          <div className="form-group">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 id="user-bot-account"
                 type="checkbox"
                 checked={toUndefined(
@@ -677,15 +689,15 @@ export class Settings extends Component<any, SettingsState> {
                 )}
                 onChange={linkEvent(this, this.handleBotAccount)}
               />
-              <label class="form-check-label" htmlFor="user-bot-account">
+              <label className="form-check-label" htmlFor="user-bot-account">
                 {i18n.t("bot_account")}
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <div class="form-check">
+          <div className="form-group">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 id="user-show-bot-accounts"
                 type="checkbox"
                 checked={toUndefined(
@@ -693,15 +705,18 @@ export class Settings extends Component<any, SettingsState> {
                 )}
                 onChange={linkEvent(this, this.handleShowBotAccounts)}
               />
-              <label class="form-check-label" htmlFor="user-show-bot-accounts">
+              <label
+                className="form-check-label"
+                htmlFor="user-show-bot-accounts"
+              >
                 {i18n.t("show_bot_accounts")}
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <div class="form-check">
+          <div className="form-group">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 id="user-show-read-posts"
                 type="checkbox"
                 checked={toUndefined(
@@ -709,15 +724,18 @@ export class Settings extends Component<any, SettingsState> {
                 )}
                 onChange={linkEvent(this, this.handleReadPosts)}
               />
-              <label class="form-check-label" htmlFor="user-show-read-posts">
+              <label
+                className="form-check-label"
+                htmlFor="user-show-read-posts"
+              >
                 {i18n.t("show_read_posts")}
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <div class="form-check">
+          <div className="form-group">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 id="user-show-new-post-notifs"
                 type="checkbox"
                 checked={toUndefined(
@@ -726,17 +744,17 @@ export class Settings extends Component<any, SettingsState> {
                 onChange={linkEvent(this, this.handleShowNewPostNotifs)}
               />
               <label
-                class="form-check-label"
+                className="form-check-label"
                 htmlFor="user-show-new-post-notifs"
               >
                 {i18n.t("show_new_post_notifs")}
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <div class="form-check">
+          <div className="form-group">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 id="user-send-notifications-to-email"
                 type="checkbox"
                 disabled={!this.state.saveUserSettingsForm.email}
@@ -749,15 +767,15 @@ export class Settings extends Component<any, SettingsState> {
                 )}
               />
               <label
-                class="form-check-label"
+                className="form-check-label"
                 htmlFor="user-send-notifications-to-email"
               >
                 {i18n.t("send_notifications_to_email")}
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <button type="submit" class="btn btn-block btn-secondary mr-4">
+          <div className="form-group">
+            <button type="submit" className="btn btn-block btn-secondary mr-4">
               {this.state.saveUserSettingsLoading ? (
                 <Spinner />
               ) : (
@@ -766,9 +784,9 @@ export class Settings extends Component<any, SettingsState> {
             </button>
           </div>
           <hr />
-          <div class="form-group">
+          <div className="form-group">
             <button
-              class="btn btn-block btn-danger"
+              className="btn btn-block btn-danger"
               onClick={linkEvent(
                 this,
                 this.handleDeleteAccountShowConfirmToggle
@@ -778,7 +796,7 @@ export class Settings extends Component<any, SettingsState> {
             </button>
             {this.state.deleteAccountShowConfirm && (
               <>
-                <div class="my-2 alert alert-danger" role="alert">
+                <div className="my-2 alert alert-danger" role="alert">
                   {i18n.t("delete_account_confirm")}
                 </div>
                 <input
@@ -790,10 +808,10 @@ export class Settings extends Component<any, SettingsState> {
                     this,
                     this.handleDeleteAccountPasswordChange
                   )}
-                  class="form-control my-2"
+                  className="form-control my-2"
                 />
                 <button
-                  class="btn btn-danger mr-4"
+                  className="btn btn-danger mr-4"
                   disabled={!this.state.deleteAccountForm.password}
                   onClick={linkEvent(this, this.handleDeleteAccount)}
                 >
@@ -804,7 +822,7 @@ export class Settings extends Component<any, SettingsState> {
                   )}
                 </button>
                 <button
-                  class="btn btn-secondary"
+                  className="btn btn-secondary"
                   onClick={linkEvent(
                     this,
                     this.handleDeleteAccountShowConfirmToggle
@@ -1000,88 +1018,155 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleSortTypeChange(val: SortType) {
-    this.state.saveUserSettingsForm.default_sort_type = Some(
-      Object.keys(SortType).indexOf(val)
-    );
-    this.setState(this.state);
+    this.setState({
+      saveUserSettingsForm: {
+        ...this.state.saveUserSettingsForm,
+        default_sort_type: Some(Object.keys(SortType).indexOf(val)),
+      },
+    });
   }
 
   handleListingTypeChange(val: ListingType) {
-    this.state.saveUserSettingsForm.default_listing_type = Some(
-      Object.keys(ListingType).indexOf(val)
-    );
-    this.setState(this.state);
+    this.setState({
+      saveUserSettingsForm: {
+        ...this.state.saveUserSettingsForm,
+        default_listing_type: Some(Object.keys(ListingType).indexOf(val)),
+      },
+    });
   }
 
   handleEmailChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.email = Some(event.target.value);
-    i.setState(i.state);
+    i.setState({
+      saveUserSettingsForm: {
+        ...i.state.saveUserSettingsForm,
+        email: Some(event.target.value),
+      },
+    });
   }
 
   handleBioChange(val: string) {
-    this.state.saveUserSettingsForm.bio = Some(val);
-    this.setState(this.state);
+    this.setState({
+      saveUserSettingsForm: {
+        ...this.state.saveUserSettingsForm,
+        bio: Some(val),
+      },
+    });
   }
 
   handleAvatarUpload(url: string) {
-    this.state.saveUserSettingsForm.avatar = Some(url);
-    this.setState(this.state);
+    this.setState({
+      saveUserSettingsForm: {
+        ...this.state.saveUserSettingsForm,
+        avatar: Some(url),
+      },
+    });
   }
 
   handleAvatarRemove() {
-    this.state.saveUserSettingsForm.avatar = Some("");
-    this.setState(this.state);
+    this.setState({
+      saveUserSettingsForm: {
+        ...this.state.saveUserSettingsForm,
+        avatar: Some(""),
+      },
+    });
   }
 
   handleBannerUpload(url: string) {
-    this.state.saveUserSettingsForm.banner = Some(url);
-    this.setState(this.state);
+    this.setState({
+      saveUserSettingsForm: {
+        ...this.state.saveUserSettingsForm,
+        banner: Some(url),
+      },
+    });
   }
 
   handleBannerRemove() {
-    this.state.saveUserSettingsForm.banner = Some("");
-    this.setState(this.state);
+    this.setState({
+      saveUserSettingsForm: {
+        ...this.state.saveUserSettingsForm,
+        banner: Some(""),
+      },
+    });
   }
 
   handleDisplayNameChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.display_name = Some(event.target.value);
-    i.setState(i.state);
+    i.setState({
+      saveUserSettingsForm: {
+        ...i.state.saveUserSettingsForm,
+        display_name: Some(event.target.value),
+      },
+    });
   }
 
   handleMatrixUserIdChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.matrix_user_id = Some(event.target.value);
-    i.setState(i.state);
+    i.setState({
+      saveUserSettingsForm: {
+        ...i.state.saveUserSettingsForm,
+        matrix_user_id: Some(event.target.value),
+      },
+    });
   }
 
   handleNewPasswordChange(i: Settings, event: any) {
-    i.state.changePasswordForm.new_password = event.target.value;
+    i.setState({
+      changePasswordForm: {
+        ...i.state.changePasswordForm,
+        new_password: event.target.value,
+      },
+    });
     if (i.state.changePasswordForm.new_password == "") {
-      i.state.changePasswordForm.new_password = undefined;
+      i.setState({
+        changePasswordForm: {
+          ...i.state.changePasswordForm,
+          new_password: undefined,
+        },
+      });
     }
-    i.setState(i.state);
   }
 
   handleNewPasswordVerifyChange(i: Settings, event: any) {
-    i.state.changePasswordForm.new_password_verify = event.target.value;
+    i.setState({
+      changePasswordForm: {
+        ...i.state.changePasswordForm,
+        new_password_verify: event.target.value,
+      },
+    });
     if (i.state.changePasswordForm.new_password_verify == "") {
-      i.state.changePasswordForm.new_password_verify = undefined;
+      i.setState({
+        changePasswordForm: {
+          ...i.state.changePasswordForm,
+          new_password_verify: undefined,
+        },
+      });
     }
-    i.setState(i.state);
   }
 
   handleOldPasswordChange(i: Settings, event: any) {
-    i.state.changePasswordForm.old_password = event.target.value;
+    i.setState({
+      changePasswordForm: {
+        ...i.state.changePasswordForm,
+        old_password: event.target.value,
+      },
+    });
     if (i.state.changePasswordForm.old_password == "") {
-      i.state.changePasswordForm.old_password = undefined;
+      i.setState({
+        changePasswordForm: {
+          ...i.state.changePasswordForm,
+          old_password: undefined,
+        },
+      });
     }
-    i.setState(i.state);
   }
 
   handleSaveSettingsSubmit(i: Settings, event: any) {
     event.preventDefault();
-    i.state.saveUserSettingsLoading = true;
-    i.state.saveUserSettingsForm.auth = auth().unwrap();
-    i.setState(i.state);
+    i.setState({
+      saveUserSettingsLoading: true,
+      saveUserSettingsForm: {
+        ...i.state.saveUserSettingsForm,
+        auth: auth().unwrap(),
+      },
+    });
 
     WebSocketService.Instance.send(
       wsClient.saveUserSettings(i.state.saveUserSettingsForm)
@@ -1090,9 +1175,13 @@ export class Settings extends Component<any, SettingsState> {
 
   handleChangePasswordSubmit(i: Settings, event: any) {
     event.preventDefault();
-    i.state.changePasswordLoading = true;
-    i.state.changePasswordForm.auth = auth().unwrap();
-    i.setState(i.state);
+    i.setState({
+      changePasswordLoading: true,
+      changePasswordForm: {
+        ...i.state.changePasswordForm,
+        auth: auth().unwrap(),
+      },
+    });
 
     WebSocketService.Instance.send(
       wsClient.changePassword(i.state.changePasswordForm)
@@ -1101,20 +1190,27 @@ export class Settings extends Component<any, SettingsState> {
 
   handleDeleteAccountShowConfirmToggle(i: Settings, event: any) {
     event.preventDefault();
-    i.state.deleteAccountShowConfirm = !i.state.deleteAccountShowConfirm;
-    i.setState(i.state);
+    i.setState({ deleteAccountShowConfirm: !i.state.deleteAccountShowConfirm });
   }
 
   handleDeleteAccountPasswordChange(i: Settings, event: any) {
-    i.state.deleteAccountForm.password = event.target.value;
-    i.setState(i.state);
+    i.setState({
+      deleteAccountForm: {
+        ...i.state.deleteAccountForm,
+        password: event.target.value,
+      },
+    });
   }
 
   handleDeleteAccount(i: Settings, event: any) {
     event.preventDefault();
-    i.state.deleteAccountLoading = true;
-    i.state.deleteAccountForm.auth = auth().unwrap();
-    i.setState(i.state);
+    i.setState({
+      deleteAccountLoading: true,
+      deleteAccountForm: {
+        ...i.state.deleteAccountForm,
+        auth: auth().unwrap(),
+      },
+    });
 
     WebSocketService.Instance.send(
       wsClient.deleteAccount(i.state.deleteAccountForm)
@@ -1134,49 +1230,35 @@ export class Settings extends Component<any, SettingsState> {
     UserService.Instance.myUserInfo.match({
       some: mui => {
         let luv = mui.local_user_view;
-        this.state.saveUserSettingsForm.show_nsfw = Some(
-          luv.local_user.show_nsfw
-        );
-        this.state.saveUserSettingsForm.theme = Some(
-          luv.local_user.theme ? luv.local_user.theme : "browser"
-        );
-        this.state.saveUserSettingsForm.default_sort_type = Some(
-          luv.local_user.default_sort_type
-        );
-        this.state.saveUserSettingsForm.default_listing_type = Some(
-          luv.local_user.default_listing_type
-        );
-        this.state.saveUserSettingsForm.lang = Some(luv.local_user.lang);
-        this.state.saveUserSettingsForm.avatar = luv.person.avatar;
-        this.state.saveUserSettingsForm.banner = luv.person.banner;
-        this.state.saveUserSettingsForm.display_name = luv.person.display_name;
-        this.state.saveUserSettingsForm.show_avatars = Some(
-          luv.local_user.show_avatars
-        );
-        this.state.saveUserSettingsForm.bot_account = Some(
-          luv.person.bot_account
-        );
-        this.state.saveUserSettingsForm.show_bot_accounts = Some(
-          luv.local_user.show_bot_accounts
-        );
-        this.state.saveUserSettingsForm.show_scores = Some(
-          luv.local_user.show_scores
-        );
-        this.state.saveUserSettingsForm.show_read_posts = Some(
-          luv.local_user.show_read_posts
-        );
-        this.state.saveUserSettingsForm.show_new_post_notifs = Some(
-          luv.local_user.show_new_post_notifs
-        );
-        this.state.saveUserSettingsForm.email = luv.local_user.email;
-        this.state.saveUserSettingsForm.bio = luv.person.bio;
-        this.state.saveUserSettingsForm.send_notifications_to_email = Some(
-          luv.local_user.send_notifications_to_email
-        );
-        this.state.saveUserSettingsForm.matrix_user_id =
-          luv.person.matrix_user_id;
-        this.state.personBlocks = mui.person_blocks;
-        this.state.communityBlocks = mui.community_blocks;
+        this.setState({
+          saveUserSettingsForm: {
+            ...this.state.saveUserSettingsForm,
+            show_nsfw: Some(luv.local_user.show_nsfw),
+            theme: Some(
+              luv.local_user.theme ? luv.local_user.theme : "browser"
+            ),
+            default_sort_type: Some(luv.local_user.default_sort_type),
+            default_listing_type: Some(luv.local_user.default_listing_type),
+            lang: Some(luv.local_user.lang),
+            avatar: luv.person.avatar,
+            banner: luv.person.banner,
+            display_name: luv.person.display_name,
+            show_avatars: Some(luv.local_user.show_avatars),
+            bot_account: Some(luv.person.bot_account),
+            show_bot_accounts: Some(luv.local_user.show_bot_accounts),
+            show_scores: Some(luv.local_user.show_scores),
+            show_read_posts: Some(luv.local_user.show_read_posts),
+            show_new_post_notifs: Some(luv.local_user.show_new_post_notifs),
+            email: luv.local_user.email,
+            bio: luv.person.bio,
+            send_notifications_to_email: Some(
+              luv.local_user.send_notifications_to_email
+            ),
+            matrix_user_id: luv.person.matrix_user_id,
+          },
+          personBlocks: mui.person_blocks,
+          communityBlocks: mui.community_blocks,
+        });
       },
       none: void 0,
     });
@@ -1196,15 +1278,13 @@ export class Settings extends Component<any, SettingsState> {
     } else if (op == UserOperation.SaveUserSettings) {
       let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
       UserService.Instance.login(data);
-      this.state.saveUserSettingsLoading = false;
-      this.setState(this.state);
+      this.setState({ saveUserSettingsLoading: false });
       toast(i18n.t("saved"));
       window.scrollTo(0, 0);
     } else if (op == UserOperation.ChangePassword) {
       let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
       UserService.Instance.login(data);
-      this.state.changePasswordLoading = false;
-      this.setState(this.state);
+      this.setState({ changePasswordLoading: false });
       window.scrollTo(0, 0);
       toast(i18n.t("password_changed"));
     } else if (op == UserOperation.DeleteAccount) {

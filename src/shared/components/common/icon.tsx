@@ -17,13 +17,13 @@ export class Icon extends Component<IconProps, any> {
   render() {
     return (
       <svg
-        class={classNames("icon", this.props.classes, {
+        className={classNames("icon", this.props.classes, {
           "icon-inline": this.props.inline,
           small: this.props.small,
         })}
       >
         <use xlinkHref={`#icon-${this.props.icon}`}></use>
-        <div class="sr-only">
+        <div className="sr-only">
           <title>{this.props.icon}</title>
         </div>
       </svg>
@@ -57,7 +57,7 @@ export class PurgeWarning extends Component<any, any> {
 
   render() {
     return (
-      <div class="mt-2 alert alert-danger" role="alert">
+      <div className="mt-2 alert alert-danger" role="alert">
         <Icon icon="alert-triangle" classes="icon-inline mr-2" />
         {i18n.t("purge_warning")}
       </div>

@@ -61,10 +61,12 @@ export class CreatePrivateMessage extends Component<
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.recipientDetailsRes = Some(
-        this.isoData.routeData[0] as GetPersonDetailsResponse
-      );
-      this.state.loading = false;
+      this.setState({
+        recipientDetailsRes: Some(
+          this.isoData.routeData[0] as GetPersonDetailsResponse
+        ),
+        loading: false,
+      });
     } else {
       this.fetchPersonDetails();
     }
@@ -115,7 +117,7 @@ export class CreatePrivateMessage extends Component<
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -129,8 +131,8 @@ export class CreatePrivateMessage extends Component<
         ) : (
           this.state.recipientDetailsRes.match({
             some: res => (
-              <div class="row">
-                <div class="col-12 col-lg-6 offset-lg-3 mb-4">
+              <div className="row">
+                <div className="col-12 col-lg-6 offset-lg-3 mb-4">
                   <h5>{i18n.t("create_private_message")}</h5>
                   <PrivateMessageForm
                     privateMessageView={None}
@@ -159,17 +161,17 @@ export class CreatePrivateMessage extends Component<
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({ loading: false });
       return;
     } else if (op == UserOperation.GetPersonDetails) {
       let data = wsJsonToRes<GetPersonDetailsResponse>(
         msg,
         GetPersonDetailsResponse
       );
-      this.state.recipientDetailsRes = Some(data);
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({
+        recipientDetailsRes: Some(data),
+        loading: false,
+      });
     }
   }
 }

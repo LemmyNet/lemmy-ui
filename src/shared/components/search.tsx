@@ -201,27 +201,29 @@ export class Search extends Component<any, SearchState> {
 
       // This can be single or multiple communities given
       communitiesRes.match({
-        some: res => (this.state.communities = res.communities),
+        some: res => this.setState({ communities: res.communities }),
         none: void 0,
       });
 
       communityRes.match({
-        some: res => (this.state.communities = [res.community_view]),
+        some: res => this.setState({ communities: [res.community_view] }),
         none: void 0,
       });
 
-      this.state.creatorDetails = Some(
-        this.isoData.routeData[2] as GetPersonDetailsResponse
-      );
+      this.setState({
+        creatorDetails: Some(
+          this.isoData.routeData[2] as GetPersonDetailsResponse
+        ),
+      });
 
       if (this.state.q != "") {
-        this.state.searchResponse = Some(
-          this.isoData.routeData[3] as SearchResponse
-        );
-        this.state.resolveObjectResponse = Some(
-          this.isoData.routeData[4] as ResolveObjectResponse
-        );
-        this.state.loading = false;
+        this.setState({
+          searchResponse: Some(this.isoData.routeData[3] as SearchResponse),
+          resolveObjectResponse: Some(
+            this.isoData.routeData[4] as ResolveObjectResponse
+          ),
+          loading: false,
+        });
       } else {
         this.search();
       }
@@ -382,7 +384,7 @@ export class Search extends Component<any, SearchState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -407,12 +409,12 @@ export class Search extends Component<any, SearchState> {
   searchForm() {
     return (
       <form
-        class="form-inline"
+        className="form-inline"
         onSubmit={linkEvent(this, this.handleSearchSubmit)}
       >
         <input
           type="text"
-          class="form-control mr-2 mb-2"
+          className="form-control mr-2 mb-2"
           value={this.state.searchText}
           placeholder={`${i18n.t("search")}...`}
           aria-label={i18n.t("search")}
@@ -420,7 +422,7 @@ export class Search extends Component<any, SearchState> {
           required
           minLength={3}
         />
-        <button type="submit" class="btn btn-secondary mr-2 mb-2">
+        <button type="submit" className="btn btn-secondary mr-2 mb-2">
           {this.state.loading ? <Spinner /> : <span>{i18n.t("search")}</span>}
         </button>
       </form>
@@ -433,7 +435,7 @@ export class Search extends Component<any, SearchState> {
         <select
           value={this.state.type_}
           onChange={linkEvent(this, this.handleTypeChange)}
-          class="custom-select w-auto mb-2"
+          className="custom-select w-auto mb-2"
           aria-label={i18n.t("type")}
         >
           <option disabled aria-hidden="true">
@@ -448,7 +450,7 @@ export class Search extends Component<any, SearchState> {
           <option value={SearchType.Users}>{i18n.t("users")}</option>
           <option value={SearchType.Url}>{i18n.t("url")}</option>
         </select>
-        <span class="ml-2">
+        <span className="ml-2">
           <ListingTypeSelect
             type_={this.state.listingType}
             showLocal={showLocal(this.isoData)}
@@ -456,7 +458,7 @@ export class Search extends Component<any, SearchState> {
             onChange={this.handleListingTypeChange}
           />
         </span>
-        <span class="ml-2">
+        <span className="ml-2">
           <SortSelect
             sort={this.state.sort}
             onChange={this.handleSortChange}
@@ -464,7 +466,7 @@ export class Search extends Component<any, SearchState> {
             hideMostComments
           />
         </span>
-        <div class="form-row">
+        <div className="form-row">
           {this.state.communities.length > 0 && this.communityFilter()}
           {this.creatorFilter()}
         </div>
@@ -577,8 +579,8 @@ export class Search extends Component<any, SearchState> {
     return (
       <div>
         {combined.map(i => (
-          <div class="row">
-            <div class="col-12">
+          <div key={i.published} className="row">
+            <div className="col-12">
               {i.type_ == "posts" && (
                 <PostListing
                   key={(i.data as PostView).post.id}
@@ -663,11 +665,11 @@ export class Search extends Component<any, SearchState> {
 
     return (
       <>
-        {posts.map(post => (
-          <div class="row">
-            <div class="col-12">
+        {posts.map(pv => (
+          <div key={pv.post.id} className="row">
+            <div className="col-12">
               <PostListing
-                post_view={post}
+                post_view={pv}
                 showCommunity
                 duplicates={None}
                 moderators={None}
@@ -696,9 +698,9 @@ export class Search extends Component<any, SearchState> {
 
     return (
       <>
-        {communities.map(community => (
-          <div class="row">
-            <div class="col-12">{this.communityListing(community)}</div>
+        {communities.map(cv => (
+          <div key={cv.community.id} className="row">
+            <div className="col-12">{this.communityListing(cv)}</div>
           </div>
         ))}
       </>
@@ -719,9 +721,9 @@ export class Search extends Component<any, SearchState> {
 
     return (
       <>
-        {users.map(user => (
-          <div class="row">
-            <div class="col-12">{this.userListing(user)}</div>
+        {users.map(pv => (
+          <div key={pv.person.id} className="row">
+            <div className="col-12">{this.userListing(pv)}</div>
           </div>
         ))}
       </>
@@ -745,32 +747,36 @@ export class Search extends Component<any, SearchState> {
   }
 
   userListing(person_view: PersonViewSafe) {
-    return [
-      <span>
-        <PersonListing person={person_view.person} showApubName />
-      </span>,
-      <span>{` - ${i18n.t("number_of_comments", {
-        count: person_view.counts.comment_count,
-        formattedCount: numToSI(person_view.counts.comment_count),
-      })}`}</span>,
-    ];
+    return (
+      <>
+        <span>
+          <PersonListing person={person_view.person} showApubName />
+        </span>
+        <span>{` - ${i18n.t("number_of_comments", {
+          count: person_view.counts.comment_count,
+          formattedCount: numToSI(person_view.counts.comment_count),
+        })}`}</span>
+      </>
+    );
   }
 
   communityFilter() {
     return (
-      <div class="form-group col-sm-6">
-        <label class="col-form-label" htmlFor="community-filter">
+      <div className="form-group col-sm-6">
+        <label className="col-form-label" htmlFor="community-filter">
           {i18n.t("community")}
         </label>
         <div>
           <select
-            class="form-control"
+            className="form-control"
             id="community-filter"
             value={this.state.communityId}
           >
             <option value="0">{i18n.t("all")}</option>
             {this.state.communities.map(cv => (
-              <option value={cv.community.id}>{communitySelectName(cv)}</option>
+              <option key={cv.community.id} value={cv.community.id}>
+                {communitySelectName(cv)}
+              </option>
             ))}
           </select>
         </div>
@@ -780,13 +786,13 @@ export class Search extends Component<any, SearchState> {
 
   creatorFilter() {
     return (
-      <div class="form-group col-sm-6">
-        <label class="col-form-label" htmlFor="creator-filter">
+      <div className="form-group col-sm-6">
+        <label className="col-form-label" htmlFor="creator-filter">
           {capitalizeFirstLetter(i18n.t("creator"))}
         </label>
         <div>
           <select
-            class="form-control"
+            className="form-control"
             id="creator-filter"
             value={this.state.creatorId}
           >
@@ -852,10 +858,11 @@ export class Search extends Component<any, SearchState> {
     });
 
     if (this.state.q != "") {
-      this.state.searchResponse = None;
-      this.state.resolveObjectResponse = None;
-      this.state.loading = true;
-      this.setState(this.state);
+      this.setState({
+        searchResponse: None,
+        resolveObjectResponse: None,
+        loading: true,
+      });
       WebSocketService.Instance.send(wsClient.search(form));
       WebSocketService.Instance.send(wsClient.resolveObject(resolveObjectForm));
     }
@@ -996,11 +1003,13 @@ export class Search extends Component<any, SearchState> {
     let op = wsUserOp(msg);
     if (msg.error) {
       if (msg.error == "couldnt_find_object") {
-        this.state.resolveObjectResponse = Some({
-          comment: None,
-          post: None,
-          community: None,
-          person: None,
+        this.setState({
+          resolveObjectResponse: Some({
+            comment: None,
+            post: None,
+            community: None,
+            person: None,
+          }),
         });
         this.checkFinishedLoading();
       } else {
@@ -1009,7 +1018,7 @@ export class Search extends Component<any, SearchState> {
       }
     } else if (op == UserOperation.Search) {
       let data = wsJsonToRes<SearchResponse>(msg, SearchResponse);
-      this.state.searchResponse = Some(data);
+      this.setState({ searchResponse: Some(data) });
       window.scrollTo(0, 0);
       this.checkFinishedLoading();
       restoreScrollPosition(this.context);
@@ -1019,25 +1028,24 @@ export class Search extends Component<any, SearchState> {
         data.comment_view,
         this.state.searchResponse.map(r => r.comments).unwrapOr([])
       );
-      this.setState(this.state);
+      this.setState({ searchResponse: this.state.searchResponse });
     } else if (op == UserOperation.CreatePostLike) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       createPostLikeFindRes(
         data.post_view,
         this.state.searchResponse.map(r => r.posts).unwrapOr([])
       );
-      this.setState(this.state);
+      this.setState({ searchResponse: this.state.searchResponse });
     } else if (op == UserOperation.ListCommunities) {
       let data = wsJsonToRes<ListCommunitiesResponse>(
         msg,
         ListCommunitiesResponse
       );
-      this.state.communities = data.communities;
-      this.setState(this.state);
+      this.setState({ communities: data.communities });
       this.setupCommunityFilter();
     } else if (op == UserOperation.ResolveObject) {
       let data = wsJsonToRes<ResolveObjectResponse>(msg, ResolveObjectResponse);
-      this.state.resolveObjectResponse = Some(data);
+      this.setState({ resolveObjectResponse: Some(data) });
       this.checkFinishedLoading();
     }
   }
@@ -1047,8 +1055,7 @@ export class Search extends Component<any, SearchState> {
       this.state.searchResponse.isSome() &&
       this.state.resolveObjectResponse.isSome()
     ) {
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({ loading: false });
     }
   }
 }

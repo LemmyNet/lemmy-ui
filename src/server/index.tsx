@@ -115,7 +115,8 @@ server.get("/css/themelist", async (_req, res) => {
 // server.use(cookieParser());
 server.get("/*", async (req, res) => {
   try {
-    const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
+    const activeRoute =
+      routes.find(route => matchPath(req.path, route)) || ({} as any);
     const context = {} as any;
     let auth: Option<string> = toOption(IsomorphicCookie.load("jwt", req));
 

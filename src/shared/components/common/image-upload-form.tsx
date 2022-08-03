@@ -34,14 +34,14 @@ export class ImageUploadForm extends Component<
 
   render() {
     return (
-      <form class="d-inline">
+      <form className="d-inline">
         <label
           htmlFor={this.id}
-          class="pointer text-muted small font-weight-bold"
+          className="pointer text-muted small font-weight-bold"
         >
           {this.props.imageSrc.match({
             some: imageSrc => (
-              <span class="d-inline-block position-relative">
+              <span className="d-inline-block position-relative">
                 <img
                   src={imageSrc}
                   height={this.props.rounded ? 60 : ""}
@@ -59,7 +59,9 @@ export class ImageUploadForm extends Component<
               </span>
             ),
             none: (
-              <span class="btn btn-secondary">{this.props.uploadTitle}</span>
+              <span className="btn btn-secondary">
+                {this.props.uploadTitle}
+              </span>
             ),
           })}
         </label>
@@ -68,7 +70,7 @@ export class ImageUploadForm extends Component<
           type="file"
           accept="image/*,video/*"
           name={this.id}
-          class="d-none"
+          className="d-none"
           disabled={UserService.Instance.myUserInfo.isNone()}
           onChange={linkEvent(this, this.handleImageUpload)}
         />
@@ -82,8 +84,7 @@ export class ImageUploadForm extends Component<
     const formData = new FormData();
     formData.append("images[]", file);
 
-    i.state.loading = true;
-    i.setState(i.state);
+    i.setState({ loading: true });
 
     fetch(pictrsUri, {
       method: "POST",
@@ -96,18 +97,15 @@ export class ImageUploadForm extends Component<
         if (res.msg == "ok") {
           let hash = res.files[0].file;
           let url = `${pictrsUri}/${hash}`;
-          i.state.loading = false;
-          i.setState(i.state);
+          i.setState({ loading: false });
           i.props.onUpload(url);
         } else {
-          i.state.loading = false;
-          i.setState(i.state);
+          i.setState({ loading: false });
           toast(JSON.stringify(res), "danger");
         }
       })
       .catch(error => {
-        i.state.loading = false;
-        i.setState(i.state);
+        i.setState({ loading: false });
         console.error(error);
         toast(error, "danger");
       });
@@ -115,8 +113,7 @@ export class ImageUploadForm extends Component<
 
   handleRemoveImage(i: ImageUploadForm, event: any) {
     event.preventDefault();
-    i.state.loading = true;
-    i.setState(i.state);
+    i.setState({ loading: true });
     i.props.onRemove();
   }
 }

@@ -104,14 +104,16 @@ export class Reports extends Component<any, ReportsState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.listCommentReportsResponse = Some(
-        this.isoData.routeData[0] as ListCommentReportsResponse
-      );
-      this.state.listPostReportsResponse = Some(
-        this.isoData.routeData[1] as ListPostReportsResponse
-      );
-      this.state.combined = this.buildCombined();
-      this.state.loading = false;
+      this.setState({
+        listCommentReportsResponse: Some(
+          this.isoData.routeData[0] as ListCommentReportsResponse
+        ),
+        listPostReportsResponse: Some(
+          this.isoData.routeData[1] as ListPostReportsResponse
+        ),
+        combined: this.buildCombined(),
+        loading: false,
+      });
     } else {
       this.refetch();
     }
@@ -139,21 +141,21 @@ export class Reports extends Component<any, ReportsState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         {this.state.loading ? (
           <h5>
             <Spinner large />
           </h5>
         ) : (
-          <div class="row">
-            <div class="col-12">
+          <div className="row">
+            <div className="col-12">
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
                 description={None}
                 image={None}
               />
-              <h5 class="mb-2">{i18n.t("reports")}</h5>
+              <h5 className="mb-2">{i18n.t("reports")}</h5>
               {this.selects()}
               {this.state.messageType == MessageType.All && this.all()}
               {this.state.messageType == MessageType.CommentReport &&
@@ -173,7 +175,7 @@ export class Reports extends Component<any, ReportsState> {
 
   unreadOrAllRadios() {
     return (
-      <div class="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
             ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
@@ -206,7 +208,7 @@ export class Reports extends Component<any, ReportsState> {
 
   messageTypeRadios() {
     return (
-      <div class="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.All && "active"}
@@ -253,8 +255,8 @@ export class Reports extends Component<any, ReportsState> {
   selects() {
     return (
       <div className="mb-2">
-        <span class="mr-3">{this.unreadOrAllRadios()}</span>
-        <span class="mr-3">{this.messageTypeRadios()}</span>
+        <span className="mr-3">{this.unreadOrAllRadios()}</span>
+        <span className="mr-3">{this.messageTypeRadios()}</span>
       </div>
     );
   }
@@ -356,16 +358,12 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   handleUnreadOrAllChange(i: Reports, event: any) {
-    i.state.unreadOrAll = Number(event.target.value);
-    i.state.page = 1;
-    i.setState(i.state);
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
     i.refetch();
   }
 
   handleMessageTypeChange(i: Reports, event: any) {
-    i.state.messageType = Number(event.target.value);
-    i.state.page = 1;
-    i.setState(i.state);
+    i.setState({ messageType: Number(event.target.value), page: 1 });
     i.refetch();
   }
 
@@ -443,24 +441,26 @@ export class Reports extends Component<any, ReportsState> {
         msg,
         ListCommentReportsResponse
       );
-      this.state.listCommentReportsResponse = Some(data);
-      this.state.combined = this.buildCombined();
-      this.state.loading = false;
+      this.setState({
+        listCommentReportsResponse: Some(data),
+        combined: this.buildCombined(),
+        loading: false,
+      });
       // this.sendUnreadCount();
       window.scrollTo(0, 0);
-      this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.ListPostReports) {
       let data = wsJsonToRes<ListPostReportsResponse>(
         msg,
         ListPostReportsResponse
       );
-      this.state.listPostReportsResponse = Some(data);
-      this.state.combined = this.buildCombined();
-      this.state.loading = false;
+      this.setState({
+        listPostReportsResponse: Some(data),
+        combined: this.buildCombined(),
+        loading: false,
+      });
       // this.sendUnreadCount();
       window.scrollTo(0, 0);
-      this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.ResolvePostReport) {
       let data = wsJsonToRes<PostReportResponse>(msg, PostReportResponse);
@@ -474,7 +474,9 @@ export class Reports extends Component<any, ReportsState> {
       } else {
         urcs.next(urcs.getValue() + 1);
       }
-      this.setState(this.state);
+      this.setState({
+        listPostReportsResponse: this.state.listPostReportsResponse,
+      });
     } else if (op == UserOperation.ResolveCommentReport) {
       let data = wsJsonToRes<CommentReportResponse>(msg, CommentReportResponse);
       updateCommentReportRes(
@@ -489,7 +491,9 @@ export class Reports extends Component<any, ReportsState> {
       } else {
         urcs.next(urcs.getValue() + 1);
       }
-      this.setState(this.state);
+      this.setState({
+        listCommentReportsResponse: this.state.listCommentReportsResponse,
+      });
     }
   }
 }

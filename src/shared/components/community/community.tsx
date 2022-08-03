@@ -139,24 +139,26 @@ export class Community extends Component<any, State> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.communityRes = Some(
-        this.isoData.routeData[0] as GetCommunityResponse
-      );
+      this.setState({
+        communityRes: Some(this.isoData.routeData[0] as GetCommunityResponse),
+      });
       let postsRes = Some(this.isoData.routeData[1] as GetPostsResponse);
       let commentsRes = Some(this.isoData.routeData[2] as GetCommentsResponse);
 
       postsRes.match({
-        some: pvs => (this.state.posts = pvs.posts),
+        some: pvs => this.setState({ posts: pvs.posts }),
         none: void 0,
       });
       commentsRes.match({
-        some: cvs => (this.state.comments = cvs.comments),
+        some: cvs => this.setState({ comments: cvs.comments }),
         none: void 0,
       });
 
-      this.state.communityLoading = false;
-      this.state.postsLoading = false;
-      this.state.commentsLoading = false;
+      this.setState({
+        communityLoading: false,
+        postsLoading: false,
+        commentsLoading: false,
+      });
     } else {
       this.fetchCommunity();
       this.fetchData();
@@ -278,7 +280,7 @@ export class Community extends Component<any, State> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         {this.state.communityLoading ? (
           <h5>
             <Spinner large />
@@ -294,12 +296,12 @@ export class Community extends Component<any, State> {
                   image={res.community_view.community.icon}
                 />
 
-                <div class="row">
-                  <div class="col-12 col-md-8">
+                <div className="row">
+                  <div className="col-12 col-md-8">
                     {this.communityInfo()}
-                    <div class="d-block d-md-none">
+                    <div className="d-block d-md-none">
                       <button
-                        class="btn btn-secondary d-inline-block mb-2 mr-3"
+                        className="btn btn-secondary d-inline-block mb-2 mr-3"
                         onClick={linkEvent(this, this.handleShowSidebarMobile)}
                       >
                         {i18n.t("sidebar")}{" "}
@@ -344,7 +346,7 @@ export class Community extends Component<any, State> {
                       onChange={this.handlePageChange}
                     />
                   </div>
-                  <div class="d-none d-md-block col-md-4">
+                  <div className="d-none d-md-block col-md-4">
                     <Sidebar
                       community_view={res.community_view}
                       moderators={res.moderators}
@@ -413,9 +415,9 @@ export class Community extends Component<any, State> {
       .map(r => r.community_view.community)
       .match({
         some: community => (
-          <div class="mb-2">
+          <div className="mb-2">
             <BannerIconHeader banner={community.banner} icon={community.icon} />
-            <h5 class="mb-0 overflow-wrap-anywhere">{community.title}</h5>
+            <h5 className="mb-0 overflow-wrap-anywhere">{community.title}</h5>
             <CommunityLink
               community={community}
               realLink
@@ -434,14 +436,14 @@ export class Community extends Component<any, State> {
       communityRSSUrl(r.community_view.community.actor_id, this.state.sort)
     );
     return (
-      <div class="mb-3">
-        <span class="mr-3">
+      <div className="mb-3">
+        <span className="mr-3">
           <DataTypeSelect
             type_={this.state.dataType}
             onChange={this.handleDataTypeChange}
           />
         </span>
-        <span class="mr-2">
+        <span className="mr-2">
           <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
         </span>
         {communityRss.match({
@@ -475,8 +477,7 @@ export class Community extends Component<any, State> {
   }
 
   handleShowSidebarMobile(i: Community) {
-    i.state.showSidebarMobile = !i.state.showSidebarMobile;
-    i.setState(i.state);
+    i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
   }
 
   updateUrl(paramUpdates: UrlParams) {
@@ -543,9 +544,10 @@ export class Community extends Component<any, State> {
       this.fetchData();
     } else if (op == UserOperation.GetCommunity) {
       let data = wsJsonToRes<GetCommunityResponse>(msg, GetCommunityResponse);
-      this.state.communityRes = Some(data);
-      this.state.communityLoading = false;
-      this.setState(this.state);
+      this.setState({
+        communityRes: Some(data),
+        communityLoading: false,
+      });
       // TODO why is there no auth in this form?
       WebSocketService.Instance.send(
         wsClient.communityJoin({
@@ -559,10 +561,13 @@ export class Community extends Component<any, State> {
     ) {
       let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.communityRes.match({
-        some: res => (res.community_view = data.community_view),
+        some: res => {
+          res.community_view = data.community_view;
+          let communityRes = Some(res);
+          this.setState({ communityRes });
+        },
         none: void 0,
       });
-      this.setState(this.state);
     } else if (op == UserOperation.FollowCommunity) {
       let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.communityRes.match({
@@ -570,15 +575,14 @@ export class Community extends Component<any, State> {
           res.community_view.subscribed = data.community_view.subscribed;
           res.community_view.counts.subscribers =
             data.community_view.counts.subscribers;
+          let communityRes = Some(res);
+          this.setState({ communityRes });
         },
         none: void 0,
       });
-      this.setState(this.state);
     } else if (op == UserOperation.GetPosts) {
       let data = wsJsonToRes<GetPostsResponse>(msg, GetPostsResponse);
-      this.state.posts = data.posts;
-      this.state.postsLoading = false;
-      this.setState(this.state);
+      this.setState({ posts: data.posts, postsLoading: false });
       restoreScrollPosition(this.context);
       setupTippy();
     } else if (
@@ -591,10 +595,11 @@ export class Community extends Component<any, State> {
     ) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       editPostFindRes(data.post_view, this.state.posts);
-      this.setState(this.state);
+      this.setState({ posts: this.state.posts });
     } else if (op == UserOperation.CreatePost) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       this.state.posts.unshift(data.post_view);
+      this.setState({ posts: this.state.posts });
       if (
         UserService.Instance.myUserInfo
           .map(m => m.local_user_view.local_user.show_new_post_notifs)
@@ -602,21 +607,23 @@ export class Community extends Component<any, State> {
       ) {
         notifyPost(data.post_view, this.context.router);
       }
-      this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       createPostLikeFindRes(data.post_view, this.state.posts);
-      this.setState(this.state);
+      this.setState({ posts: this.state.posts });
     } else if (op == UserOperation.AddModToCommunity) {
       let data = wsJsonToRes<AddModToCommunityResponse>(
         msg,
         AddModToCommunityResponse
       );
       this.state.communityRes.match({
-        some: res => (res.moderators = data.moderators),
+        some: res => {
+          res.moderators = data.moderators;
+          let communityRes = Some(res);
+          this.setState({ communityRes });
+        },
         none: void 0,
       });
-      this.setState(this.state);
     } else if (op == UserOperation.BanFromCommunity) {
       let data = wsJsonToRes<BanFromCommunityResponse>(
         msg,
@@ -628,12 +635,10 @@ export class Community extends Component<any, State> {
         .filter(p => p.creator.id == data.person_view.person.id)
         .forEach(p => (p.creator_banned_from_community = data.banned));
 
-      this.setState(this.state);
+      this.setState({ posts: this.state.posts });
     } else if (op == UserOperation.GetComments) {
       let data = wsJsonToRes<GetCommentsResponse>(msg, GetCommentsResponse);
-      this.state.comments = data.comments;
-      this.state.commentsLoading = false;
-      this.setState(this.state);
+      this.setState({ comments: data.comments, commentsLoading: false });
     } else if (
       op == UserOperation.EditComment ||
       op == UserOperation.DeleteComment ||
@@ -641,23 +646,23 @@ export class Community extends Component<any, State> {
     ) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       editCommentRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
+      this.setState({ comments: this.state.comments });
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
 
       // Necessary since it might be a user reply
       if (data.form_id) {
         this.state.comments.unshift(data.comment_view);
-        this.setState(this.state);
+        this.setState({ comments: this.state.comments });
       }
     } else if (op == UserOperation.SaveComment) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       saveCommentRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
+      this.setState({ comments: this.state.comments });
     } else if (op == UserOperation.CreateCommentLike) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       createCommentLikeRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
+      this.setState({ comments: this.state.comments });
     } else if (op == UserOperation.BlockPerson) {
       let data = wsJsonToRes<BlockPersonResponse>(msg, BlockPersonResponse);
       updatePersonBlock(data);
@@ -683,11 +688,14 @@ export class Community extends Component<any, State> {
         BlockCommunityResponse
       );
       this.state.communityRes.match({
-        some: res => (res.community_view.blocked = data.blocked),
+        some: res => {
+          res.community_view.blocked = data.blocked;
+          let communityRes = Some(res);
+          this.setState({ communityRes });
+        },
         none: void 0,
       });
       updateCommunityBlock(data);
-      this.setState(this.state);
     }
   }
 }

@@ -150,7 +150,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
     return (
       <div>
-        {combined.map(i => [this.renderItemType(i), <hr class="my-3" />])}
+        {combined.map(i => [
+          this.renderItemType(i),
+          <hr key={i.id} className="my-3" />,
+        ])}
       </div>
     );
   }
@@ -187,7 +190,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               enableDownvotes={this.props.enableDownvotes}
               enableNsfw={this.props.enableNsfw}
             />
-            <hr class="my-3" />
+            <hr className="my-3" />
           </>
         ))}
       </div>

@@ -81,15 +81,15 @@ export class Login extends Component<any, State> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
           description={None}
           image={None}
         />
-        <div class="row">
-          <div class="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
+        <div className="row">
+          <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
       </div>
     );
@@ -100,17 +100,17 @@ export class Login extends Component<any, State> {
       <div>
         <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
           <h5>{i18n.t("login")}</h5>
-          <div class="form-group row">
+          <div className="form-group row">
             <label
-              class="col-sm-2 col-form-label"
+              className="col-sm-2 col-form-label"
               htmlFor="login-email-or-username"
             >
               {i18n.t("email_or_username")}
             </label>
-            <div class="col-sm-10">
+            <div className="col-sm-10">
               <input
                 type="text"
-                class="form-control"
+                className="form-control"
                 id="login-email-or-username"
                 value={this.state.loginForm.username_or_email}
                 onInput={linkEvent(this, this.handleLoginUsernameChange)}
@@ -120,17 +120,17 @@ export class Login extends Component<any, State> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label" htmlFor="login-password">
+          <div className="form-group row">
+            <label className="col-sm-2 col-form-label" htmlFor="login-password">
               {i18n.t("password")}
             </label>
-            <div class="col-sm-10">
+            <div className="col-sm-10">
               <input
                 type="password"
                 id="login-password"
                 value={this.state.loginForm.password}
                 onInput={linkEvent(this, this.handleLoginPasswordChange)}
-                class="form-control"
+                className="form-control"
                 autoComplete="current-password"
                 required
                 maxLength={60}
@@ -146,9 +146,9 @@ export class Login extends Component<any, State> {
               </button>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-sm-10">
-              <button type="submit" class="btn btn-secondary">
+          <div className="form-group row">
+            <div className="col-sm-10">
+              <button type="submit" className="btn btn-secondary">
                 {this.state.loginLoading ? <Spinner /> : i18n.t("login")}
               </button>
             </div>
@@ -160,19 +160,24 @@ export class Login extends Component<any, State> {
 
   handleLoginSubmit(i: Login, event: any) {
     event.preventDefault();
-    i.state.loginLoading = true;
-    i.setState(i.state);
+    i.setState({ loginLoading: true });
     WebSocketService.Instance.send(wsClient.login(i.state.loginForm));
   }
 
   handleLoginUsernameChange(i: Login, event: any) {
     i.state.loginForm.username_or_email = event.target.value;
-    i.setState(i.state);
+    i.setState({
+      loginForm: {
+        ...this.state.loginForm,
+        username_or_email: event.target.value,
+      },
+    });
   }
 
   handleLoginPasswordChange(i: Login, event: any) {
-    i.state.loginForm.password = event.target.value;
-    i.setState(i.state);
+    i.setState({
+      loginForm: { ...this.state.loginForm, password: event.target.value },
+    });
   }
 
   handlePasswordReset(i: Login, event: any) {
@@ -188,21 +193,18 @@ export class Login extends Component<any, State> {
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      this.state = this.emptyState;
-      this.setState(this.state);
+      this.setState(this.emptyState);
       return;
     } else {
       if (op == UserOperation.Login) {
         let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
-        this.state = this.emptyState;
-        this.setState(this.state);
+        this.setState(this.emptyState);
         UserService.Instance.login(data);
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
         let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
-        this.state.siteRes = data;
-        this.setState(this.state);
+        this.setState({ siteRes: data });
       }
     }
   }

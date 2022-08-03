@@ -75,8 +75,10 @@ export class Communities extends Component<any, CommunitiesState> {
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       let listRes = Some(this.isoData.routeData[0] as ListCommunitiesResponse);
-      this.state.listCommunitiesResponse = listRes;
-      this.state.loading = false;
+      this.setState({
+        listCommunitiesResponse: listRes,
+        loading: false,
+      });
     } else {
       this.refetch();
     }
@@ -114,7 +116,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -127,10 +129,10 @@ export class Communities extends Component<any, CommunitiesState> {
           </h5>
         ) : (
           <div>
-            <div class="row">
-              <div class="col-md-6">
+            <div className="row">
+              <div className="col-md-6">
                 <h4>{i18n.t("list_of_communities")}</h4>
-                <span class="mb-2">
+                <span className="mb-2">
                   <ListingTypeSelect
                     type_={this.state.listingType}
                     showLocal={showLocal(this.isoData)}
@@ -139,24 +141,27 @@ export class Communities extends Component<any, CommunitiesState> {
                   />
                 </span>
               </div>
-              <div class="col-md-6">
-                <div class="float-md-right">{this.searchForm()}</div>
+              <div className="col-md-6">
+                <div className="float-md-right">{this.searchForm()}</div>
               </div>
             </div>
 
-            <div class="table-responsive">
-              <table id="community_table" class="table table-sm table-hover">
-                <thead class="pointer">
+            <div className="table-responsive">
+              <table
+                id="community_table"
+                className="table table-sm table-hover"
+              >
+                <thead className="pointer">
                   <tr>
                     <th>{i18n.t("name")}</th>
-                    <th class="text-right">{i18n.t("subscribers")}</th>
-                    <th class="text-right">
+                    <th className="text-right">{i18n.t("subscribers")}</th>
+                    <th className="text-right">
                       {i18n.t("users")} / {i18n.t("month")}
                     </th>
-                    <th class="text-right d-none d-lg-table-cell">
+                    <th className="text-right d-none d-lg-table-cell">
                       {i18n.t("posts")}
                     </th>
-                    <th class="text-right d-none d-lg-table-cell">
+                    <th className="text-right d-none d-lg-table-cell">
                       {i18n.t("comments")}
                     </th>
                     <th></th>
@@ -167,26 +172,26 @@ export class Communities extends Component<any, CommunitiesState> {
                     .map(l => l.communities)
                     .unwrapOr([])
                     .map(cv => (
-                      <tr>
+                      <tr key={cv.community.id}>
                         <td>
                           <CommunityLink community={cv.community} />
                         </td>
-                        <td class="text-right">
+                        <td className="text-right">
                           {numToSI(cv.counts.subscribers)}
                         </td>
-                        <td class="text-right">
+                        <td className="text-right">
                           {numToSI(cv.counts.users_active_month)}
                         </td>
-                        <td class="text-right d-none d-lg-table-cell">
+                        <td className="text-right d-none d-lg-table-cell">
                           {numToSI(cv.counts.posts)}
                         </td>
-                        <td class="text-right d-none d-lg-table-cell">
+                        <td className="text-right d-none d-lg-table-cell">
                           {numToSI(cv.counts.comments)}
                         </td>
-                        <td class="text-right">
+                        <td className="text-right">
                           {cv.subscribed == SubscribedType.Subscribed && (
                             <button
-                              class="btn btn-link d-inline-block"
+                              className="btn btn-link d-inline-block"
                               onClick={linkEvent(
                                 cv.community.id,
                                 this.handleUnsubscribe
@@ -197,7 +202,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           )}
                           {cv.subscribed == SubscribedType.NotSubscribed && (
                             <button
-                              class="btn btn-link d-inline-block"
+                              className="btn btn-link d-inline-block"
                               onClick={linkEvent(
                                 cv.community.id,
                                 this.handleSubscribe
@@ -207,7 +212,7 @@ export class Communities extends Component<any, CommunitiesState> {
                             </button>
                           )}
                           {cv.subscribed == SubscribedType.Pending && (
-                            <div class="text-warning d-inline-block">
+                            <div className="text-warning d-inline-block">
                               {i18n.t("subscribe_pending")}
                             </div>
                           )}
@@ -230,23 +235,23 @@ export class Communities extends Component<any, CommunitiesState> {
   searchForm() {
     return (
       <form
-        class="form-inline"
+        className="form-inline"
         onSubmit={linkEvent(this, this.handleSearchSubmit)}
       >
         <input
           type="text"
           id="communities-search"
-          class="form-control mr-2 mb-2"
+          className="form-control mr-2 mb-2"
           value={this.state.searchText}
           placeholder={`${i18n.t("search")}...`}
           onInput={linkEvent(this, this.handleSearchChange)}
           required
           minLength={3}
         />
-        <label class="sr-only" htmlFor="communities-search">
+        <label className="sr-only" htmlFor="communities-search">
           {i18n.t("search")}
         </label>
-        <button type="submit" class="btn btn-secondary mr-2 mb-2">
+        <button type="submit" className="btn btn-secondary mr-2 mb-2">
           <span>{i18n.t("search")}</span>
         </button>
       </form>
@@ -343,10 +348,11 @@ export class Communities extends Component<any, CommunitiesState> {
         msg,
         ListCommunitiesResponse
       );
-      this.state.listCommunitiesResponse = Some(data);
-      this.state.loading = false;
+      this.setState({
+        listCommunitiesResponse: Some(data),
+        loading: false,
+      });
       window.scrollTo(0, 0);
-      this.setState(this.state);
     } else if (op == UserOperation.FollowCommunity) {
       let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.listCommunitiesResponse.match({

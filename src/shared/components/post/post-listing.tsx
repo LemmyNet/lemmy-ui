@@ -135,20 +135,21 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
-    this.state.my_vote = nextProps.post_view.my_vote;
-    this.state.upvotes = nextProps.post_view.counts.upvotes;
-    this.state.downvotes = nextProps.post_view.counts.downvotes;
-    this.state.score = nextProps.post_view.counts.score;
+    this.setState({
+      my_vote: nextProps.post_view.my_vote,
+      upvotes: nextProps.post_view.counts.upvotes,
+      downvotes: nextProps.post_view.counts.downvotes,
+      score: nextProps.post_view.counts.score,
+    });
     if (this.props.post_view.post.id !== nextProps.post_view.post.id) {
-      this.state.imageExpanded = false;
+      this.setState({ imageExpanded: false });
     }
-    this.setState(this.state);
   }
 
   render() {
     let post = this.props.post_view.post;
     return (
-      <div class="post-listing">
+      <div className="post-listing">
         {!this.state.showEdit ? (
           <>
             {this.listing()}
@@ -159,7 +160,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {this.showBody && this.body()}
           </>
         ) : (
-          <div class="col-12">
+          <div className="col-12">
             <PostForm
               post_view={Some(this.props.post_view)}
               communities={None}
@@ -178,7 +179,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   body() {
     return this.props.post_view.post.body.match({
       some: body => (
-        <div class="col-12 card my-2 p-2">
+        <div className="col-12 card my-2 p-2">
           {this.state.viewSource ? (
             <pre>{body}</pre>
           ) : (
@@ -194,14 +195,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return this.imageSrc.match({
       some: src => (
         <>
-          <div class="offset-sm-3 my-2 d-none d-sm-block">
-            <a href={src} class="d-inline-block">
+          <div className="offset-sm-3 my-2 d-none d-sm-block">
+            <a href={src} className="d-inline-block">
               <PictrsImage src={src} />
             </a>
           </div>
           <div className="my-2 d-block d-sm-none">
             <a
-              class="d-inline-block"
+              className="d-inline-block"
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
               <PictrsImage src={src} />
@@ -254,7 +255,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return (
         <a
           href={this.imageSrc.unwrap()}
-          class="text-body d-inline-block position-relative mb-2"
+          className="text-body d-inline-block position-relative mb-2"
           data-tippy-content={i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={i18n.t("expand_here")}
@@ -266,7 +267,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     } else if (url.isSome() && thumbnail.isSome()) {
       return (
         <a
-          class="text-body d-inline-block position-relative mb-2"
+          className="text-body d-inline-block position-relative mb-2"
           href={url.unwrap()}
           rel={relTags}
           title={url.unwrap()}
@@ -278,13 +279,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     } else if (url.isSome()) {
       if (isVideo(url.unwrap())) {
         return (
-          <div class="embed-responsive embed-responsive-16by9">
+          <div className="embed-responsive embed-responsive-16by9">
             <video
-              playsinline
+              playsInline
               muted
               loop
               controls
-              class="embed-responsive-item"
+              className="embed-responsive-item"
             >
               <source src={url.unwrap()} type="video/mp4" />
             </video>
@@ -298,7 +299,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             title={url.unwrap()}
             rel={relTags}
           >
-            <div class="thumbnail rounded bg-light d-flex justify-content-center">
+            <div className="thumbnail rounded bg-light d-flex justify-content-center">
               <Icon icon="external-link" classes="d-flex align-items-center" />
             </div>
           </a>
@@ -311,7 +312,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           to={`/post/${post.id}`}
           title={i18n.t("comments")}
         >
-          <div class="thumbnail rounded bg-light d-flex justify-content-center">
+          <div className="thumbnail rounded bg-light d-flex justify-content-center">
             <Icon icon="message-square" classes="d-flex align-items-center" />
           </div>
         </Link>
@@ -322,7 +323,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   createdLine() {
     let post_view = this.props.post_view;
     return (
-      <ul class="list-inline mb-1 text-muted small">
+      <ul className="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
 
@@ -346,7 +347,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
           {this.props.showCommunity && (
             <span>
-              <span class="mx-1"> {i18n.t("to")} </span>
+              <span className="mx-1"> {i18n.t("to")} </span>
               <CommunityLink community={post_view.community} />
             </span>
           )}
@@ -416,13 +417,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </button>
         {showScores() ? (
           <div
-            class={`unselectable pointer font-weight-bold text-muted px-1`}
+            className={`unselectable pointer font-weight-bold text-muted px-1`}
             data-tippy-content={this.pointsTippy}
           >
             {numToSI(this.state.score)}
           </div>
         ) : (
-          <div class="p-1"></div>
+          <div className="p-1"></div>
         )}
         {this.props.enableDownvotes && (
           <button
@@ -470,7 +471,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           })}
           {post.url.map(isImage).or(post.thumbnail_url).unwrapOr(false) && (
             <button
-              class="btn btn-link text-monospace text-muted small d-inline-block ml-2"
+              className="btn btn-link text-monospace text-muted small d-inline-block ml-2"
               data-tippy-content={i18n.t("expand_here")}
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
@@ -525,13 +526,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return this.props.duplicates.match({
       some: dupes =>
         dupes.length > 0 && (
-          <ul class="list-inline mb-1 small text-muted">
+          <ul className="list-inline mb-1 small text-muted">
             <>
               <li className="list-inline-item mr-2">
                 {i18n.t("cross_posted_to")}
               </li>
               {dupes.map(pv => (
-                <li className="list-inline-item mr-2">
+                <li key={pv.post.id} className="list-inline-item mr-2">
                   <Link to={`/post/${pv.post.id}`}>
                     {pv.community.local
                       ? pv.community.name
@@ -551,7 +552,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   commentsLine(mobile = false) {
     let post = this.props.post_view.post;
     return (
-      <div class="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
+      <div className="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
         {!post.local && (
           <a
@@ -617,7 +618,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get commentsButton() {
     let post_view = this.props.post_view;
     return (
-      <button class="btn btn-link text-muted py-0 pl-0">
+      <button className="btn btn-link text-muted py-0 pl-0">
         <Link
           className="text-muted"
           title={i18n.t("number_of_comments", {
@@ -652,7 +653,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           >
             <Icon icon="arrow-up1" classes="icon-inline small" />
             {showScores() && (
-              <span class="ml-2">{numToSI(this.state.upvotes)}</span>
+              <span className="ml-2">{numToSI(this.state.upvotes)}</span>
             )}
           </button>
           {this.props.enableDownvotes && (
@@ -669,7 +670,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="arrow-down1" classes="icon-inline small" />
               {showScores() && (
                 <span
-                  class={classNames("ml-2", {
+                  className={classNames("ml-2", {
                     invisible: this.state.downvotes === 0,
                   })}
                 >
@@ -688,7 +689,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let label = saved ? i18n.t("unsave") : i18n.t("save");
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleSavePostClick)}
         data-tippy-content={label}
         aria-label={label}
@@ -717,7 +718,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get reportButton() {
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleShowReportDialog)}
         data-tippy-content={i18n.t("show_report_dialog")}
         aria-label={i18n.t("show_report_dialog")}
@@ -730,7 +731,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get blockButton() {
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleBlockUserClick)}
         data-tippy-content={i18n.t("block_user")}
         aria-label={i18n.t("block_user")}
@@ -743,7 +744,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get editButton() {
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleEditClick)}
         data-tippy-content={i18n.t("edit")}
         aria-label={i18n.t("edit")}
@@ -758,7 +759,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let label = !deleted ? i18n.t("delete") : i18n.t("restore");
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleDeleteClick)}
         data-tippy-content={label}
         aria-label={label}
@@ -775,7 +776,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get showMoreButton() {
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleShowAdvanced)}
         data-tippy-content={i18n.t("more")}
         aria-label={i18n.t("more")}
@@ -788,7 +789,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get viewSourceButton() {
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleViewSource)}
         data-tippy-content={i18n.t("view_source")}
         aria-label={i18n.t("view_source")}
@@ -807,7 +808,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let label = locked ? i18n.t("unlock") : i18n.t("lock");
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleModLock)}
         data-tippy-content={label}
         aria-label={label}
@@ -826,7 +827,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let label = stickied ? i18n.t("unsticky") : i18n.t("sticky");
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleModSticky)}
         data-tippy-content={label}
         aria-label={label}
@@ -844,7 +845,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let removed = this.props.post_view.post.removed;
     return (
       <button
-        class="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(
           this,
           !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit
@@ -870,7 +871,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {!this.creatorIsMod_ &&
                 (!post_view.creator_banned_from_community ? (
                   <button
-                    class="btn btn-link btn-animate text-muted py-0"
+                    className="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(
                       this,
                       this.handleModBanFromCommunityShow
@@ -881,7 +882,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   </button>
                 ) : (
                   <button
-                    class="btn btn-link btn-animate text-muted py-0"
+                    className="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(
                       this,
                       this.handleModBanFromCommunitySubmit
@@ -893,7 +894,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 ))}
               {!post_view.creator_banned_from_community && (
                 <button
-                  class="btn btn-link btn-animate text-muted py-0"
+                  className="btn btn-link btn-animate text-muted py-0"
                   onClick={linkEvent(this, this.handleAddModToCommunity)}
                   aria-label={
                     this.creatorIsMod_
@@ -914,7 +915,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             this.creatorIsMod_ &&
             (!this.state.showConfirmTransferCommunity ? (
               <button
-                class="btn btn-link btn-animate text-muted py-0"
+                className="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(
                   this,
                   this.handleShowConfirmTransferCommunity
@@ -926,20 +927,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <>
                 <button
-                  class="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
+                  className="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
                   aria-label={i18n.t("are_you_sure")}
                 >
                   {i18n.t("are_you_sure")}
                 </button>
                 <button
-                  class="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                  className="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
                   aria-label={i18n.t("yes")}
                   onClick={linkEvent(this, this.handleTransferCommunity)}
                 >
                   {i18n.t("yes")}
                 </button>
                 <button
-                  class="btn btn-link btn-animate text-muted py-0 d-inline-block"
+                  className="btn btn-link btn-animate text-muted py-0 d-inline-block"
                   onClick={linkEvent(
                     this,
                     this.handleCancelShowConfirmTransferCommunity
@@ -957,7 +958,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <>
                   {!isBanned(post_view.creator) ? (
                     <button
-                      class="btn btn-link btn-animate text-muted py-0"
+                      className="btn btn-link btn-animate text-muted py-0"
                       onClick={linkEvent(this, this.handleModBanShow)}
                       aria-label={i18n.t("ban_from_site")}
                     >
@@ -965,7 +966,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     </button>
                   ) : (
                     <button
-                      class="btn btn-link btn-animate text-muted py-0"
+                      className="btn btn-link btn-animate text-muted py-0"
                       onClick={linkEvent(this, this.handleModBanSubmit)}
                       aria-label={i18n.t("unban_from_site")}
                     >
@@ -973,14 +974,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     </button>
                   )}
                   <button
-                    class="btn btn-link btn-animate text-muted py-0"
+                    className="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handlePurgePersonShow)}
                     aria-label={i18n.t("purge_user")}
                   >
                     {i18n.t("purge_user")}
                   </button>
                   <button
-                    class="btn btn-link btn-animate text-muted py-0"
+                    className="btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handlePurgePostShow)}
                     aria-label={i18n.t("purge_post")}
                   >
@@ -990,7 +991,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               )}
               {!isBanned(post_view.creator) && post_view.creator.local && (
                 <button
-                  class="btn btn-link btn-animate text-muted py-0"
+                  className="btn btn-link btn-animate text-muted py-0"
                   onClick={linkEvent(this, this.handleAddAdmin)}
                   aria-label={
                     this.creatorIsAdmin_
@@ -1022,23 +1023,23 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         {this.state.showRemoveDialog && (
           <form
-            class="form-inline"
+            className="form-inline"
             onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
           >
-            <label class="sr-only" htmlFor="post-listing-remove-reason">
+            <label className="sr-only" htmlFor="post-listing-remove-reason">
               {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="post-listing-remove-reason"
-              class="form-control mr-2"
+              className="form-control mr-2"
               placeholder={i18n.t("reason")}
               value={toUndefined(this.state.removeReason)}
               onInput={linkEvent(this, this.handleModRemoveReasonChange)}
             />
             <button
               type="submit"
-              class="btn btn-secondary"
+              className="btn btn-secondary"
               aria-label={i18n.t("remove_post")}
             >
               {i18n.t("remove_post")}
@@ -1047,40 +1048,43 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div class="form-group row col-12">
-              <label class="col-form-label" htmlFor="post-listing-ban-reason">
+            <div className="form-group row col-12">
+              <label
+                className="col-form-label"
+                htmlFor="post-listing-ban-reason"
+              >
                 {i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id="post-listing-ban-reason"
-                class="form-control mr-2"
+                className="form-control mr-2"
                 placeholder={i18n.t("reason")}
                 value={toUndefined(this.state.banReason)}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
               />
-              <label class="col-form-label" htmlFor={`mod-ban-expires`}>
+              <label className="col-form-label" htmlFor={`mod-ban-expires`}>
                 {i18n.t("expires")}
               </label>
               <input
                 type="number"
                 id={`mod-ban-expires`}
-                class="form-control mr-2"
+                className="form-control mr-2"
                 placeholder={i18n.t("number_of_days")}
                 value={toUndefined(this.state.banExpireDays)}
                 onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
               />
-              <div class="form-group">
-                <div class="form-check">
+              <div className="form-group">
+                <div className="form-check">
                   <input
-                    class="form-check-input"
+                    className="form-check-input"
                     id="mod-ban-remove-data"
                     type="checkbox"
                     checked={this.state.removeData}
                     onChange={linkEvent(this, this.handleModRemoveDataChange)}
                   />
                   <label
-                    class="form-check-label"
+                    className="form-check-label"
                     htmlFor="mod-ban-remove-data"
                     title={i18n.t("remove_content_more")}
                   >
@@ -1094,10 +1098,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {/*   <label class="col-form-label">Expires</label> */}
             {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
             {/* </div> */}
-            <div class="form-group row">
+            <div className="form-group row">
               <button
                 type="submit"
-                class="btn btn-secondary"
+                className="btn btn-secondary"
                 aria-label={i18n.t("ban")}
               >
                 {i18n.t("ban")} {post.creator.name}
@@ -1107,16 +1111,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showReportDialog && (
           <form
-            class="form-inline"
+            className="form-inline"
             onSubmit={linkEvent(this, this.handleReportSubmit)}
           >
-            <label class="sr-only" htmlFor="post-report-reason">
+            <label className="sr-only" htmlFor="post-report-reason">
               {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="post-report-reason"
-              class="form-control mr-2"
+              className="form-control mr-2"
               placeholder={i18n.t("reason")}
               required
               value={toUndefined(this.state.reportReason)}
@@ -1124,7 +1128,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             />
             <button
               type="submit"
-              class="btn btn-secondary"
+              className="btn btn-secondary"
               aria-label={i18n.t("create_report")}
             >
               {i18n.t("create_report")}
@@ -1133,17 +1137,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showPurgeDialog && (
           <form
-            class="form-inline"
+            className="form-inline"
             onSubmit={linkEvent(this, this.handlePurgeSubmit)}
           >
             <PurgeWarning />
-            <label class="sr-only" htmlFor="purge-reason">
+            <label className="sr-only" htmlFor="purge-reason">
               {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="purge-reason"
-              class="form-control mr-2"
+              className="form-control mr-2"
               placeholder={i18n.t("reason")}
               value={toUndefined(this.state.purgeReason)}
               onInput={linkEvent(this, this.handlePurgeReasonChange)}
@@ -1153,7 +1157,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <button
                 type="submit"
-                class="btn btn-secondary"
+                className="btn btn-secondary"
                 aria-label={purgeTypeText}
               >
                 {purgeTypeText}
@@ -1169,11 +1173,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     return post.thumbnail_url.isSome() ||
       post.url.map(isImage).unwrapOr(false) ? (
-      <div class="row">
+      <div className="row">
         <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
           {this.postTitleLine()}
         </div>
-        <div class="col-4">
+        <div className="col-4">
           {/* Post body prev or thumbnail */}
           {!this.state.imageExpanded && this.thumbnail()}
         </div>
@@ -1198,9 +1202,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         {/* The mobile view*/}
-        <div class="d-block d-sm-none">
-          <div class="row">
-            <div class="col-12">
+        <div className="d-block d-sm-none">
+          <div className="row">
+            <div className="col-12">
               {this.createdLine()}
 
               {/* If it has a thumbnail, do a right aligned thumbnail */}
@@ -1218,14 +1222,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </div>
 
         {/* The larger view*/}
-        <div class="d-none d-sm-block">
-          <div class="row">
+        <div className="d-none d-sm-block">
+          <div className="row">
             {!this.props.viewOnly && this.voteBar()}
-            <div class="col-sm-2 pr-0">
-              <div class="">{this.thumbnail()}</div>
+            <div className="col-sm-2 pr-0">
+              <div className="">{this.thumbnail()}</div>
             </div>
-            <div class="col-12 col-sm-9">
-              <div class="row">
+            <div className="col-12 col-sm-9">
+              <div className="row">
                 <div className="col-12">
                   {this.postTitleLine()}
                   {this.createdLine()}
@@ -1259,19 +1263,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let myVote = this.state.my_vote.unwrapOr(0);
     let newVote = myVote == 1 ? 0 : 1;
 
-    if (myVote == 1) {
-      this.state.score--;
-      this.state.upvotes--;
-    } else if (myVote == -1) {
-      this.state.downvotes--;
-      this.state.upvotes++;
-      this.state.score += 2;
-    } else {
-      this.state.upvotes++;
-      this.state.score++;
-    }
+    this.setState({ my_vote: Some(newVote) });
 
-    this.state.my_vote = Some(newVote);
+    if (myVote == 1) {
+      this.setState({
+        score: this.state.score - 1,
+        upvotes: this.state.upvotes - 1,
+      });
+    } else if (myVote == -1) {
+      this.setState({
+        downvotes: this.state.downvotes - 1,
+        upvotes: this.state.upvotes + 1,
+        score: this.state.score + 2,
+      });
+    } else {
+      this.setState({
+        score: this.state.score + 1,
+        upvotes: this.state.upvotes + 1,
+      });
+    }
 
     let form = new CreatePostLike({
       post_id: this.props.post_view.post.id,
@@ -1280,7 +1290,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
 
     WebSocketService.Instance.send(wsClient.likePost(form));
-    this.setState(this.state);
     setupTippy();
   }
 
@@ -1293,19 +1302,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let myVote = this.state.my_vote.unwrapOr(0);
     let newVote = myVote == -1 ? 0 : -1;
 
-    if (myVote == 1) {
-      this.state.score -= 2;
-      this.state.upvotes--;
-      this.state.downvotes++;
-    } else if (myVote == -1) {
-      this.state.downvotes--;
-      this.state.score++;
-    } else {
-      this.state.downvotes++;
-      this.state.score--;
-    }
+    this.setState({ my_vote: Some(newVote) });
 
-    this.state.my_vote = Some(newVote);
+    if (myVote == 1) {
+      this.setState({
+        score: this.state.score - 2,
+        upvotes: this.state.upvotes - 1,
+        downvotes: this.state.downvotes + 1,
+      });
+    } else if (myVote == -1) {
+      this.setState({
+        downvotes: this.state.downvotes - 1,
+        score: this.state.score + 1,
+      });
+    } else {
+      this.setState({
+        downvotes: this.state.downvotes + 1,
+        score: this.state.score - 1,
+      });
+    }
 
     let form = new CreatePostLike({
       post_id: this.props.post_view.post.id,
@@ -1319,29 +1334,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleEditClick(i: PostListing) {
-    i.state.showEdit = true;
-    i.setState(i.state);
+    i.setState({ showEdit: true });
   }
 
   handleEditCancel() {
-    this.state.showEdit = false;
-    this.setState(this.state);
+    this.setState({ showEdit: false });
   }
 
   // The actual editing is done in the recieve for post
   handleEditPost() {
-    this.state.showEdit = false;
-    this.setState(this.state);
+    this.setState({ showEdit: false });
   }
 
   handleShowReportDialog(i: PostListing) {
-    i.state.showReportDialog = !i.state.showReportDialog;
-    i.setState(this.state);
+    i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
   handleReportReasonChange(i: PostListing, event: any) {
-    i.state.reportReason = Some(event.target.value);
-    i.setState(i.state);
+    i.setState({ reportReason: Some(event.target.value) });
   }
 
   handleReportSubmit(i: PostListing, event: any) {
@@ -1353,8 +1363,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
     WebSocketService.Instance.send(wsClient.createPostReport(form));
 
-    i.state.showReportDialog = false;
-    i.setState(i.state);
+    i.setState({ showReportDialog: false });
   }
 
   handleBlockUserClick(i: PostListing) {
@@ -1413,19 +1422,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModRemoveShow(i: PostListing) {
-    i.state.showRemoveDialog = !i.state.showRemoveDialog;
-    i.state.showBanDialog = false;
-    i.setState(i.state);
+    i.setState({
+      showRemoveDialog: !i.state.showRemoveDialog,
+      showBanDialog: false,
+    });
   }
 
   handleModRemoveReasonChange(i: PostListing, event: any) {
-    i.state.removeReason = Some(event.target.value);
-    i.setState(i.state);
+    i.setState({ removeReason: Some(event.target.value) });
   }
 
   handleModRemoveDataChange(i: PostListing, event: any) {
-    i.state.removeData = event.target.checked;
-    i.setState(i.state);
+    i.setState({ removeData: event.target.checked });
   }
 
   handleModRemoveSubmit(i: PostListing, event: any) {
@@ -1438,8 +1446,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
     WebSocketService.Instance.send(wsClient.removePost(form));
 
-    i.state.showRemoveDialog = false;
-    i.setState(i.state);
+    i.setState({ showRemoveDialog: false });
   }
 
   handleModLock(i: PostListing) {
@@ -1461,36 +1468,39 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModBanFromCommunityShow(i: PostListing) {
-    i.state.showBanDialog = true;
-    i.state.banType = BanType.Community;
-    i.state.showRemoveDialog = false;
-    i.setState(i.state);
+    i.setState({
+      showBanDialog: true,
+      banType: BanType.Community,
+      showRemoveDialog: false,
+    });
   }
 
   handleModBanShow(i: PostListing) {
-    i.state.showBanDialog = true;
-    i.state.banType = BanType.Site;
-    i.state.showRemoveDialog = false;
-    i.setState(i.state);
+    i.setState({
+      showBanDialog: true,
+      banType: BanType.Site,
+      showRemoveDialog: false,
+    });
   }
 
   handlePurgePersonShow(i: PostListing) {
-    i.state.showPurgeDialog = true;
-    i.state.purgeType = PurgeType.Person;
-    i.state.showRemoveDialog = false;
-    i.setState(i.state);
+    i.setState({
+      showPurgeDialog: true,
+      purgeType: PurgeType.Person,
+      showRemoveDialog: false,
+    });
   }
 
   handlePurgePostShow(i: PostListing) {
-    i.state.showPurgeDialog = true;
-    i.state.purgeType = PurgeType.Post;
-    i.state.showRemoveDialog = false;
-    i.setState(i.state);
+    i.setState({
+      showPurgeDialog: true,
+      purgeType: PurgeType.Post,
+      showRemoveDialog: false,
+    });
   }
 
   handlePurgeReasonChange(i: PostListing, event: any) {
-    i.state.purgeReason = Some(event.target.value);
-    i.setState(i.state);
+    i.setState({ purgeReason: Some(event.target.value) });
   }
 
   handlePurgeSubmit(i: PostListing, event: any) {
@@ -1512,29 +1522,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       WebSocketService.Instance.send(wsClient.purgePost(form));
     }
 
-    i.state.purgeLoading = true;
-    i.setState(i.state);
+    i.setState({ purgeLoading: true });
   }
 
   handleModBanReasonChange(i: PostListing, event: any) {
-    i.state.banReason = Some(event.target.value);
-    i.setState(i.state);
+    i.setState({ banReason: Some(event.target.value) });
   }
 
   handleModBanExpireDaysChange(i: PostListing, event: any) {
-    i.state.banExpireDays = Some(event.target.value);
-    i.setState(i.state);
+    i.setState({ banExpireDays: Some(event.target.value) });
   }
 
   handleModBanFromCommunitySubmit(i: PostListing) {
-    i.state.banType = BanType.Community;
-    i.setState(i.state);
+    i.setState({ banType: BanType.Community });
     i.handleModBanBothSubmit(i);
   }
 
   handleModBanSubmit(i: PostListing) {
-    i.state.banType = BanType.Site;
-    i.setState(i.state);
+    i.setState({ banType: BanType.Site });
     i.handleModBanBothSubmit(i);
   }
 
@@ -1545,7 +1550,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       // If its an unban, restore all their data
       let ban = !i.props.post_view.creator_banned_from_community;
       if (ban == false) {
-        i.state.removeData = false;
+        i.setState({ removeData: false });
       }
       let form = new BanFromCommunity({
         person_id: i.props.post_view.creator.id,
@@ -1561,7 +1566,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       // If its an unban, restore all their data
       let ban = !i.props.post_view.creator.banned;
       if (ban == false) {
-        i.state.removeData = false;
+        i.setState({ removeData: false });
       }
       let form = new BanPerson({
         person_id: i.props.post_view.creator.id,
@@ -1574,8 +1579,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       WebSocketService.Instance.send(wsClient.banPerson(form));
     }
 
-    i.state.showBanDialog = false;
-    i.setState(i.state);
+    i.setState({ showBanDialog: false });
   }
 
   handleAddModToCommunity(i: PostListing) {
@@ -1586,7 +1590,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       auth: auth().unwrap(),
     });
     WebSocketService.Instance.send(wsClient.addModToCommunity(form));
-    i.setState(i.state);
   }
 
   handleAddAdmin(i: PostListing) {
@@ -1596,17 +1599,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       auth: auth().unwrap(),
     });
     WebSocketService.Instance.send(wsClient.addAdmin(form));
-    i.setState(i.state);
   }
 
   handleShowConfirmTransferCommunity(i: PostListing) {
-    i.state.showConfirmTransferCommunity = true;
-    i.setState(i.state);
+    i.setState({ showConfirmTransferCommunity: true });
   }
 
   handleCancelShowConfirmTransferCommunity(i: PostListing) {
-    i.state.showConfirmTransferCommunity = false;
-    i.setState(i.state);
+    i.setState({ showConfirmTransferCommunity: false });
   }
 
   handleTransferCommunity(i: PostListing) {
@@ -1616,48 +1616,42 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       auth: auth().unwrap(),
     });
     WebSocketService.Instance.send(wsClient.transferCommunity(form));
-    i.state.showConfirmTransferCommunity = false;
-    i.setState(i.state);
+    i.setState({ showConfirmTransferCommunity: false });
   }
 
   handleShowConfirmTransferSite(i: PostListing) {
-    i.state.showConfirmTransferSite = true;
-    i.setState(i.state);
+    i.setState({ showConfirmTransferSite: true });
   }
 
   handleCancelShowConfirmTransferSite(i: PostListing) {
-    i.state.showConfirmTransferSite = false;
-    i.setState(i.state);
+    i.setState({ showConfirmTransferSite: false });
   }
 
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
-    i.state.imageExpanded = !i.state.imageExpanded;
-    i.setState(i.state);
+    i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
   }
 
   handleViewSource(i: PostListing) {
-    i.state.viewSource = !i.state.viewSource;
-    i.setState(i.state);
+    i.setState({ viewSource: !i.state.viewSource });
   }
 
   handleShowAdvanced(i: PostListing) {
-    i.state.showAdvanced = !i.state.showAdvanced;
-    i.setState(i.state);
+    i.setState({ showAdvanced: !i.state.showAdvanced });
     setupTippy();
   }
 
   handleShowMoreMobile(i: PostListing) {
-    i.state.showMoreMobile = !i.state.showMoreMobile;
-    i.state.showAdvanced = !i.state.showAdvanced;
-    i.setState(i.state);
+    i.setState({
+      showMoreMobile: !i.state.showMoreMobile,
+      showAdvanced: !i.state.showAdvanced,
+    });
     setupTippy();
   }
 
   handleShowBody(i: PostListing) {
-    i.state.showBody = !i.state.showBody;
-    i.setState(i.state);
+    i.setState({ showBody: !i.state.showBody });
     setupTippy();
   }
 

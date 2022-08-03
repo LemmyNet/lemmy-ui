@@ -73,7 +73,12 @@ export class PrivateMessageForm extends Component<
     // Its an edit
     this.props.privateMessageView.match({
       some: pm =>
-        (this.state.privateMessageForm.content = pm.private_message.content),
+        this.setState({
+          privateMessageForm: {
+            ...this.state.privateMessageForm,
+            content: pm.private_message.content,
+          },
+        }),
       none: void 0,
     });
   }
@@ -106,21 +111,21 @@ export class PrivateMessageForm extends Component<
         />
         <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
           {this.props.privateMessageView.isNone() && (
-            <div class="form-group row">
-              <label class="col-sm-2 col-form-label">
+            <div className="form-group row">
+              <label className="col-sm-2 col-form-label">
                 {capitalizeFirstLetter(i18n.t("to"))}
               </label>
 
-              <div class="col-sm-10 form-control-plaintext">
+              <div className="col-sm-10 form-control-plaintext">
                 <PersonListing person={this.props.recipient} />
               </div>
             </div>
           )}
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label">
+          <div className="form-group row">
+            <label className="col-sm-2 col-form-label">
               {i18n.t("message")}
               <button
-                class="btn btn-link text-warning d-inline-block"
+                className="btn btn-link text-warning d-inline-block"
                 onClick={linkEvent(this, this.handleShowDisclaimer)}
                 data-tippy-content={i18n.t("private_message_disclaimer")}
                 aria-label={i18n.t("private_message_disclaimer")}
@@ -128,7 +133,7 @@ export class PrivateMessageForm extends Component<
                 <Icon icon="alert-triangle" classes="icon-inline" />
               </button>
             </label>
-            <div class="col-sm-10">
+            <div className="col-sm-10">
               <MarkdownTextArea
                 initialContent={Some(this.state.privateMessageForm.content)}
                 placeholder={None}
@@ -140,13 +145,13 @@ export class PrivateMessageForm extends Component<
           </div>
 
           {this.state.showDisclaimer && (
-            <div class="form-group row">
-              <div class="offset-sm-2 col-sm-10">
-                <div class="alert alert-danger" role="alert">
+            <div className="form-group row">
+              <div className="offset-sm-2 col-sm-10">
+                <div className="alert alert-danger" role="alert">
                   <T i18nKey="private_message_disclaimer">
                     #
                     <a
-                      class="alert-link"
+                      className="alert-link"
                       rel={relTags}
                       href="https://element.io/get-started"
                     >
@@ -157,11 +162,11 @@ export class PrivateMessageForm extends Component<
               </div>
             </div>
           )}
-          <div class="form-group row">
-            <div class="offset-sm-2 col-sm-10">
+          <div className="form-group row">
+            <div className="offset-sm-2 col-sm-10">
               <button
                 type="submit"
-                class="btn btn-secondary mr-2"
+                className="btn btn-secondary mr-2"
                 disabled={this.state.loading}
               >
                 {this.state.loading ? (
@@ -175,14 +180,14 @@ export class PrivateMessageForm extends Component<
               {this.props.privateMessageView.isSome() && (
                 <button
                   type="button"
-                  class="btn btn-secondary"
+                  className="btn btn-secondary"
                   onClick={linkEvent(this, this.handleCancel)}
                 >
                   {i18n.t("cancel")}
                 </button>
               )}
-              <ul class="d-inline-block float-right list-inline mb-1 text-muted font-weight-bold">
-                <li class="list-inline-item"></li>
+              <ul className="d-inline-block float-right list-inline mb-1 text-muted font-weight-bold">
+                <li className="list-inline-item"></li>
               </ul>
             </div>
           </div>
@@ -206,13 +211,13 @@ export class PrivateMessageForm extends Component<
         wsClient.createPrivateMessage(i.state.privateMessageForm)
       ),
     });
-    i.state.loading = true;
-    i.setState(i.state);
+    i.setState({ loading: true });
   }
 
   handleContentChange(val: string) {
-    this.state.privateMessageForm.content = val;
-    this.setState(this.state);
+    this.setState({
+      privateMessageForm: { ...this.state.privateMessageForm, content: val },
+    });
   }
 
   handleCancel(i: PrivateMessageForm) {
@@ -221,13 +226,11 @@ export class PrivateMessageForm extends Component<
 
   handlePreviewToggle(i: PrivateMessageForm, event: any) {
     event.preventDefault();
-    i.state.previewMode = !i.state.previewMode;
-    i.setState(i.state);
+    i.setState({ previewMode: !i.state.previewMode });
   }
 
   handleShowDisclaimer(i: PrivateMessageForm) {
-    i.state.showDisclaimer = !i.state.showDisclaimer;
-    i.setState(i.state);
+    i.setState({ showDisclaimer: !i.state.showDisclaimer });
   }
 
   parseMessage(msg: any) {
@@ -235,8 +238,7 @@ export class PrivateMessageForm extends Component<
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({ loading: false });
       return;
     } else if (
       op == UserOperation.EditPrivateMessage ||
@@ -247,16 +249,15 @@ export class PrivateMessageForm extends Component<
         msg,
         PrivateMessageResponse
       );
-      this.state.loading = false;
+      this.setState({ loading: false });
       this.props.onEdit(data.private_message_view);
     } else if (op == UserOperation.CreatePrivateMessage) {
       let data = wsJsonToRes<PrivateMessageResponse>(
         msg,
         PrivateMessageResponse
       );
-      this.state.loading = false;
+      this.setState({ loading: false });
       this.props.onCreate(data.private_message_view);
-      this.setState(this.state);
     }
   }
 }
