@@ -115,8 +115,9 @@ server.get("/css/themelist", async (_req, res) => {
 // server.use(cookieParser());
 server.get("/*", async (req, res) => {
   try {
-    const activeRoute =
-      routes.find(route => matchPath(req.path, route)) || ({} as any);
+    const activeRoute = toOption(
+      routes.find(route => matchPath(req.path, route))
+    );
     const context = {} as any;
     let auth: Option<string> = toOption(IsomorphicCookie.load("jwt", req));
 
@@ -147,9 +148,10 @@ server.get("/*", async (req, res) => {
     let site: GetSiteResponse = try_site;
     initializeSite(site);
 
-    if (activeRoute.fetchInitialData) {
-      promises.push(...activeRoute.fetchInitialData(initialFetchReq));
-    }
+    activeRoute.match({
+      some: route => promises.push(...route.fetchInitialData(initialFetchReq)),
+      none: void 0,
+    });
 
     let routeData = await Promise.all(promises);
 
