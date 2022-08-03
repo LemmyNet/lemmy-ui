@@ -189,7 +189,7 @@ server.get("/*", async (req, res) => {
     const symbols = renderToString(SYMBOLS);
     const helmet = Helmet.renderStatic();
 
-    const config: ILemmyConfig = { wsHost: process.env.LEMMY_WS_HOST };
+    const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
 
     res.send(`
            <!DOCTYPE html>
