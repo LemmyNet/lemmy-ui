@@ -27,6 +27,7 @@ import {
   SearchResponse,
   SearchType,
   SortType,
+  toOption,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -569,8 +570,10 @@ export class Post extends Component<any, PostState> {
   }
 
   commentsTree() {
-    let showContextButton =
-      getDepthFromComment(this.state.commentTree[0].comment_view.comment) > 0;
+    let showContextButton = toOption(this.state.commentTree[0]).match({
+      some: comment => getDepthFromComment(comment.comment_view.comment) > 0,
+      none: false,
+    });
 
     return this.state.postRes.match({
       some: res => (
