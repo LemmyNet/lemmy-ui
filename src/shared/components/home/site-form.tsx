@@ -53,6 +53,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       legal_information: None,
       description: None,
       community_creation_admin_only: None,
+      application_email_admins: None,
       auth: undefined,
     }),
     loading: false,
@@ -98,6 +99,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           default_theme: Some(site.default_theme),
           default_post_listing_type: Some(site.default_post_listing_type),
           legal_information: site.legal_information,
+          application_email_admins: Some(site.application_email_admins),
           auth: undefined,
         });
       },
@@ -380,6 +382,30 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
           <div class="form-group row">
             <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-application-email-admins"
+                  type="checkbox"
+                  checked={toUndefined(
+                    this.state.siteForm.application_email_admins
+                  )}
+                  onChange={linkEvent(
+                    this,
+                    this.handleSiteApplicationEmailAdmins
+                  )}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-email-admins"
+                >
+                  {i18n.t("application_email_admins")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
               <label
                 class="form-check-label mr-2"
                 htmlFor="create-site-default-theme"
@@ -494,6 +520,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         private_instance: sForm.private_instance,
         default_theme: sForm.default_theme,
         default_post_listing_type: sForm.default_post_listing_type,
+        application_email_admins: sForm.application_email_admins,
         auth: auth().unwrap(),
       });
       WebSocketService.Instance.send(wsClient.createSite(form));
@@ -553,6 +580,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteRequireEmailVerification(i: SiteForm, event: any) {
     i.state.siteForm.require_email_verification = Some(event.target.checked);
+    i.setState(i.state);
+  }
+
+  handleSiteApplicationEmailAdmins(i: SiteForm, event: any) {
+    i.state.siteForm.application_email_admins = Some(event.target.checked);
     i.setState(i.state);
   }
 
