@@ -721,6 +721,7 @@ export class Post extends Component<any, PostState> {
         this.state.commentsRes.map(r => r.comments).unwrapOr([])
       );
       this.setState(this.state);
+      setupTippy();
     } else if (op == UserOperation.SaveComment) {
       let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
       saveCommentRes(
