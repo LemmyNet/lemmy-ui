@@ -581,14 +581,19 @@ export class Modlog extends Component<any, ModlogState> {
         ) : (
           <div>
             <h5>
-              {this.state.communityName.isSome() && (
-                <Link
-                  className="text-body"
-                  to={`/c/${this.state.communityName}`}
-                >
-                  /c/{this.state.communityName}{" "}
-                </Link>
-              )}
+            {
+              this.state.communityName.match({
+                some: name => (
+                  <Link
+                    className="text-body"
+                    to={`/c/${name}`}
+                  >
+                    /c/{name}{" "}
+                  </Link>
+                ),
+                none: <></>,
+              })
+            }
               <span>{i18n.t("modlog")}</span>
             </h5>
             <form className="form-inline mr-2">
