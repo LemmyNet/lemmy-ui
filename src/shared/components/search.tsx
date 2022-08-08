@@ -418,7 +418,7 @@ export class Search extends Component<any, SearchState> {
           aria-label={i18n.t("search")}
           onInput={linkEvent(this, this.handleQChange)}
           required
-          minLength={3}
+          minLength={1}
         />
         <button type="submit" class="btn btn-secondary mr-2 mb-2">
           {this.state.loading ? <Spinner /> : <span>{i18n.t("search")}</span>}
