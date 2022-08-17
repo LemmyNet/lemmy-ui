@@ -1,5 +1,5 @@
 import { None, Option, Some } from "@sniptt/monads";
-import { Component } from "inferno";
+import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AdminPurgeCommentView,
@@ -17,12 +17,14 @@ import {
   ModBanFromCommunityView,
   ModBanView,
   ModLockPostView,
+  ModlogActionType,
   ModRemoveCommentView,
   ModRemoveCommunityView,
   ModRemovePostView,
   ModStickyPostView,
   ModTransferCommunityView,
   PersonSafe,
+  toUndefined,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -36,7 +38,10 @@ import {
   amAdmin,
   amMod,
   auth,
+  choicesModLogConfig,
+  debounce,
   fetchLimit,
+  fetchUsers,
   isBrowser,
   setIsoData,
   toast,
@@ -49,28 +54,10 @@ import { MomentTime } from "./common/moment-time";
 import { Paginator } from "./common/paginator";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
-
-enum ModlogEnum {
-  ModRemovePost,
-  ModLockPost,
-  ModStickyPost,
-  ModRemoveComment,
-  ModRemoveCommunity,
-  ModBanFromCommunity,
-  ModAddCommunity,
-  ModTransferCommunity,
-  ModAdd,
-  ModBan,
-  AdminPurgePerson,
-  AdminPurgeCommunity,
-  AdminPurgePost,
-  AdminPurgeComment,
-}
-
 type ModlogType = {
   id: number;
-  type_: ModlogEnum;
-  moderator: PersonSafe;
+  type_: ModlogActionType;
+  moderator: Option<PersonSafe>;
   view:
     | ModRemovePostView
     | ModLockPostView
@@ -88,14 +75,22 @@ type ModlogType = {
     | AdminPurgeCommentView;
   when_: string;
 };
+var Choices: any;
+if (isBrowser()) {
+  Choices = require("choices.js");
+}
 
 interface ModlogState {
   res: Option<GetModlogResponse>;
   communityId: Option<number>;
   communityMods: Option<CommunityModeratorView[]>;
+  communityName: Option<string>;
   page: number;
   siteRes: GetSiteResponse;
   loading: boolean;
+  filter_action: ModlogActionType;
+  filter_user: Option<number>;
+  filter_mod: Option<number>;
 }
 
 export class Modlog extends Component<any, ModlogState> {
@@ -105,18 +100,22 @@ export class Modlog extends Component<any, ModlogState> {
     GetCommunityResponse
   );
   private subscription: Subscription;
+  private userChoices: any;
+  private modChoices: any;
   private emptyState: ModlogState = {
     res: None,
     communityId: None,
     communityMods: None,
+    communityName: None,
     page: 1,
     loading: true,
     siteRes: this.isoData.site_res,
+    filter_action: ModlogActionType.All,
+    filter_user: None,
+    filter_mod: None,
   };
-
   constructor(props: any, context: any) {
     super(props, context);
-
     this.state = this.emptyState;
     this.handlePageChange = this.handlePageChange.bind(this);
 
@@ -145,6 +144,11 @@ export class Modlog extends Component<any, ModlogState> {
     }
   }
 
+  componentDidMount() {
+    this.setupUserFilter();
+    this.setupModFilter();
+  }
+
   componentWillUnmount() {
     if (isBrowser()) {
       this.subscription.unsubscribe();
@@ -154,7 +158,7 @@ export class Modlog extends Component<any, ModlogState> {
   buildCombined(res: GetModlogResponse): ModlogType[] {
     let removed_posts: ModlogType[] = res.removed_posts.map(r => ({
       id: r.mod_remove_post.id,
-      type_: ModlogEnum.ModRemovePost,
+      type_: ModlogActionType.ModRemovePost,
       view: r,
       moderator: r.moderator,
       when_: r.mod_remove_post.when_,
@@ -162,7 +166,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let locked_posts: ModlogType[] = res.locked_posts.map(r => ({
       id: r.mod_lock_post.id,
-      type_: ModlogEnum.ModLockPost,
+      type_: ModlogActionType.ModLockPost,
       view: r,
       moderator: r.moderator,
       when_: r.mod_lock_post.when_,
@@ -170,7 +174,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let stickied_posts: ModlogType[] = res.stickied_posts.map(r => ({
       id: r.mod_sticky_post.id,
-      type_: ModlogEnum.ModStickyPost,
+      type_: ModlogActionType.ModStickyPost,
       view: r,
       moderator: r.moderator,
       when_: r.mod_sticky_post.when_,
@@ -178,7 +182,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let removed_comments: ModlogType[] = res.removed_comments.map(r => ({
       id: r.mod_remove_comment.id,
-      type_: ModlogEnum.ModRemoveComment,
+      type_: ModlogActionType.ModRemoveComment,
       view: r,
       moderator: r.moderator,
       when_: r.mod_remove_comment.when_,
@@ -186,7 +190,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let removed_communities: ModlogType[] = res.removed_communities.map(r => ({
       id: r.mod_remove_community.id,
-      type_: ModlogEnum.ModRemoveCommunity,
+      type_: ModlogActionType.ModRemoveCommunity,
       view: r,
       moderator: r.moderator,
       when_: r.mod_remove_community.when_,
@@ -195,7 +199,7 @@ export class Modlog extends Component<any, ModlogState> {
     let banned_from_community: ModlogType[] = res.banned_from_community.map(
       r => ({
         id: r.mod_ban_from_community.id,
-        type_: ModlogEnum.ModBanFromCommunity,
+        type_: ModlogActionType.ModBanFromCommunity,
         view: r,
         moderator: r.moderator,
         when_: r.mod_ban_from_community.when_,
@@ -204,7 +208,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let added_to_community: ModlogType[] = res.added_to_community.map(r => ({
       id: r.mod_add_community.id,
-      type_: ModlogEnum.ModAddCommunity,
+      type_: ModlogActionType.ModAddCommunity,
       view: r,
       moderator: r.moderator,
       when_: r.mod_add_community.when_,
@@ -213,7 +217,7 @@ export class Modlog extends Component<any, ModlogState> {
     let transferred_to_community: ModlogType[] =
       res.transferred_to_community.map(r => ({
         id: r.mod_transfer_community.id,
-        type_: ModlogEnum.ModTransferCommunity,
+        type_: ModlogActionType.ModTransferCommunity,
         view: r,
         moderator: r.moderator,
         when_: r.mod_transfer_community.when_,
@@ -221,7 +225,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let added: ModlogType[] = res.added.map(r => ({
       id: r.mod_add.id,
-      type_: ModlogEnum.ModAdd,
+      type_: ModlogActionType.ModAdd,
       view: r,
       moderator: r.moderator,
       when_: r.mod_add.when_,
@@ -229,7 +233,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let banned: ModlogType[] = res.banned.map(r => ({
       id: r.mod_ban.id,
-      type_: ModlogEnum.ModBan,
+      type_: ModlogActionType.ModBan,
       view: r,
       moderator: r.moderator,
       when_: r.mod_ban.when_,
@@ -237,7 +241,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let purged_persons: ModlogType[] = res.admin_purged_persons.map(r => ({
       id: r.admin_purge_person.id,
-      type_: ModlogEnum.AdminPurgePerson,
+      type_: ModlogActionType.AdminPurgePerson,
       view: r,
       moderator: r.admin,
       when_: r.admin_purge_person.when_,
@@ -246,7 +250,7 @@ export class Modlog extends Component<any, ModlogState> {
     let purged_communities: ModlogType[] = res.admin_purged_communities.map(
       r => ({
         id: r.admin_purge_community.id,
-        type_: ModlogEnum.AdminPurgeCommunity,
+        type_: ModlogActionType.AdminPurgeCommunity,
         view: r,
         moderator: r.admin,
         when_: r.admin_purge_community.when_,
@@ -255,7 +259,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let purged_posts: ModlogType[] = res.admin_purged_posts.map(r => ({
       id: r.admin_purge_post.id,
-      type_: ModlogEnum.AdminPurgePost,
+      type_: ModlogActionType.AdminPurgePost,
       view: r,
       moderator: r.admin,
       when_: r.admin_purge_post.when_,
@@ -263,7 +267,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     let purged_comments: ModlogType[] = res.admin_purged_comments.map(r => ({
       id: r.admin_purge_comment.id,
-      type_: ModlogEnum.AdminPurgeComment,
+      type_: ModlogActionType.AdminPurgeComment,
       view: r,
       moderator: r.admin,
       when_: r.admin_purge_comment.when_,
@@ -294,7 +298,7 @@ export class Modlog extends Component<any, ModlogState> {
 
   renderModlogType(i: ModlogType) {
     switch (i.type_) {
-      case ModlogEnum.ModRemovePost: {
+      case ModlogActionType.ModRemovePost: {
         let mrpv = i.view as ModRemovePostView;
         return [
           mrpv.mod_remove_post.removed.unwrapOr(false)
@@ -309,7 +313,7 @@ export class Modlog extends Component<any, ModlogState> {
           }),
         ];
       }
-      case ModlogEnum.ModLockPost: {
+      case ModlogActionType.ModLockPost: {
         let mlpv = i.view as ModLockPostView;
         return [
           mlpv.mod_lock_post.locked.unwrapOr(false) ? "Locked " : "Unlocked ",
@@ -318,7 +322,7 @@ export class Modlog extends Component<any, ModlogState> {
           </span>,
         ];
       }
-      case ModlogEnum.ModStickyPost: {
+      case ModlogActionType.ModStickyPost: {
         let mspv = i.view as ModStickyPostView;
         return [
           mspv.mod_sticky_post.stickied.unwrapOr(false)
@@ -329,7 +333,7 @@ export class Modlog extends Component<any, ModlogState> {
           </span>,
         ];
       }
-      case ModlogEnum.ModRemoveComment: {
+      case ModlogActionType.ModRemoveComment: {
         let mrc = i.view as ModRemoveCommentView;
         return [
           mrc.mod_remove_comment.removed.unwrapOr(false)
@@ -351,7 +355,7 @@ export class Modlog extends Component<any, ModlogState> {
           }),
         ];
       }
-      case ModlogEnum.ModRemoveCommunity: {
+      case ModlogActionType.ModRemoveCommunity: {
         let mrco = i.view as ModRemoveCommunityView;
         return [
           mrco.mod_remove_community.removed.unwrapOr(false)
@@ -372,7 +376,7 @@ export class Modlog extends Component<any, ModlogState> {
           }),
         ];
       }
-      case ModlogEnum.ModBanFromCommunity: {
+      case ModlogActionType.ModBanFromCommunity: {
         let mbfc = i.view as ModBanFromCommunityView;
         return [
           <span>
@@ -399,7 +403,7 @@ export class Modlog extends Component<any, ModlogState> {
           }),
         ];
       }
-      case ModlogEnum.ModAddCommunity: {
+      case ModlogActionType.ModAddCommunity: {
         let mac = i.view as ModAddCommunityView;
         return [
           <span>
@@ -416,7 +420,7 @@ export class Modlog extends Component<any, ModlogState> {
           </span>,
         ];
       }
-      case ModlogEnum.ModTransferCommunity: {
+      case ModlogActionType.ModTransferCommunity: {
         let mtc = i.view as ModTransferCommunityView;
         return [
           <span>
@@ -433,7 +437,7 @@ export class Modlog extends Component<any, ModlogState> {
           </span>,
         ];
       }
-      case ModlogEnum.ModBan: {
+      case ModlogActionType.ModBan: {
         let mb = i.view as ModBanView;
         return [
           <span>
@@ -454,7 +458,7 @@ export class Modlog extends Component<any, ModlogState> {
           }),
         ];
       }
-      case ModlogEnum.ModAdd: {
+      case ModlogActionType.ModAdd: {
         let ma = i.view as ModAddView;
         return [
           <span>
@@ -466,7 +470,7 @@ export class Modlog extends Component<any, ModlogState> {
           <span> as an admin </span>,
         ];
       }
-      case ModlogEnum.AdminPurgePerson: {
+      case ModlogActionType.AdminPurgePerson: {
         let ap = i.view as AdminPurgePersonView;
         return [
           <span>Purged a Person</span>,
@@ -476,7 +480,7 @@ export class Modlog extends Component<any, ModlogState> {
           }),
         ];
       }
-      case ModlogEnum.AdminPurgeCommunity: {
+      case ModlogActionType.AdminPurgeCommunity: {
         let ap = i.view as AdminPurgeCommunityView;
         return [
           <span>Purged a Community</span>,
@@ -486,7 +490,7 @@ export class Modlog extends Component<any, ModlogState> {
           }),
         ];
       }
-      case ModlogEnum.AdminPurgePost: {
+      case ModlogActionType.AdminPurgePost: {
         let ap = i.view as AdminPurgePostView;
         return [
           <span>Purged a Post from from </span>,
@@ -497,7 +501,7 @@ export class Modlog extends Component<any, ModlogState> {
           }),
         ];
       }
-      case ModlogEnum.AdminPurgeComment: {
+      case ModlogActionType.AdminPurgeComment: {
         let ap = i.view as AdminPurgeCommentView;
         return [
           <span>
@@ -527,7 +531,7 @@ export class Modlog extends Component<any, ModlogState> {
             </td>
             <td>
               {this.amAdminOrMod ? (
-                <PersonListing person={i.moderator} />
+                <PersonListing person={i.moderator.unwrap()} />
               ) : (
                 <div>{this.modOrAdminText(i.moderator)}</div>
               )}
@@ -546,14 +550,14 @@ export class Modlog extends Component<any, ModlogState> {
     );
   }
 
-  modOrAdminText(person: PersonSafe): string {
-    if (
-      this.isoData.site_res.admins.map(a => a.person.id).includes(person.id)
-    ) {
-      return i18n.t("admin");
-    } else {
-      return i18n.t("mod");
-    }
+  modOrAdminText(person: Option<PersonSafe>): string {
+    return person.match({
+      some: res =>
+        this.isoData.site_res.admins.map(a => a.person.id).includes(res.id)
+          ? i18n.t("admin")
+          : i18n.t("mod"),
+      none: i18n.t("mod"),
+    });
   }
 
   get documentTitle(): string {
@@ -565,7 +569,7 @@ export class Modlog extends Component<any, ModlogState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -578,9 +582,81 @@ export class Modlog extends Component<any, ModlogState> {
           </h5>
         ) : (
           <div>
-            <div class="table-responsive">
-              <table id="modlog_table" class="table table-sm table-hover">
-                <thead class="pointer">
+            <h5>
+              {this.state.communityName.match({
+                some: name => (
+                  <Link className="text-body" to={`/c/${name}`}>
+                    /c/{name}{" "}
+                  </Link>
+                ),
+                none: <></>,
+              })}
+              <span>{i18n.t("modlog")}</span>
+            </h5>
+            <form className="form-inline mr-2">
+              <select
+                value={this.state.filter_action}
+                onChange={linkEvent(this, this.handleFilterActionChange)}
+                className="custom-select col-4 mb-2"
+                aria-label="action"
+              >
+                <option disabled aria-hidden="true">
+                  {i18n.t("filter_by_action")}
+                </option>
+                <option value={ModlogActionType.All}>{i18n.t("all")}</option>
+                <option value={ModlogActionType.ModRemovePost}>
+                  Removing Posts
+                </option>
+                <option value={ModlogActionType.ModLockPost}>
+                  Locking Posts
+                </option>
+                <option value={ModlogActionType.ModStickyPost}>
+                  Stickying Posts
+                </option>
+                <option value={ModlogActionType.ModRemoveComment}>
+                  Removing Comments
+                </option>
+                <option value={ModlogActionType.ModRemoveCommunity}>
+                  Removing Communities
+                </option>
+                <option value={ModlogActionType.ModBanFromCommunity}>
+                  Banning From Communities
+                </option>
+                <option value={ModlogActionType.ModAddCommunity}>
+                  Adding Mod to Community
+                </option>
+                <option value={ModlogActionType.ModTransferCommunity}>
+                  Transfering Communities
+                </option>
+                <option value={ModlogActionType.ModAdd}>
+                  Adding Mod to Site
+                </option>
+                <option value={ModlogActionType.ModBan}>
+                  Banning From Site
+                </option>
+              </select>
+              {this.state.siteRes.site_view.match({
+                some: site_view =>
+                  !site_view.site.hide_modlog_mod_names.unwrapOr(false) && (
+                    <select
+                      id="filter-mod"
+                      value={toUndefined(this.state.filter_mod)}
+                    >
+                      <option>{i18n.t("filter_by_mod")}</option>
+                    </select>
+                  ),
+                none: <></>,
+              })}
+              <select
+                id="filter-user"
+                value={toUndefined(this.state.filter_user)}
+              >
+                <option>{i18n.t("filter_by_user")}</option>
+              </select>
+            </form>
+            <div className="table-responsive">
+              <table id="modlog_table" className="table table-sm table-hover">
+                <thead className="pointer">
                   <tr>
                     <th> {i18n.t("time")}</th>
                     <th>{i18n.t("mod")}</th>
@@ -600,6 +676,11 @@ export class Modlog extends Component<any, ModlogState> {
     );
   }
 
+  handleFilterActionChange(i: Modlog, event: any) {
+    i.setState({ filter_action: event.target.value });
+    i.refetch();
+  }
+
   handlePageChange(val: number) {
     this.setState({ page: val });
     this.refetch();
@@ -608,10 +689,12 @@ export class Modlog extends Component<any, ModlogState> {
   refetch() {
     let modlogForm = new GetModlog({
       community_id: this.state.communityId,
-      mod_person_id: None,
       page: Some(this.state.page),
       limit: Some(fetchLimit),
       auth: auth(false).ok(),
+      type_: this.state.filter_action,
+      other_person_id: this.state.filter_user,
+      mod_person_id: this.state.filter_mod,
     });
     WebSocketService.Instance.send(wsClient.getModlog(modlogForm));
 
@@ -628,6 +711,86 @@ export class Modlog extends Component<any, ModlogState> {
     });
   }
 
+  setupUserFilter() {
+    if (isBrowser()) {
+      let selectId: any = document.getElementById("filter-user");
+      if (selectId) {
+        this.userChoices = new Choices(selectId, choicesModLogConfig);
+        this.userChoices.passedElement.element.addEventListener(
+          "choice",
+          (e: any) => {
+            this.state.filter_user = Some(Number(e.detail.choice.value));
+            this.setState(this.state);
+            this.refetch();
+          },
+          false
+        );
+        this.userChoices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            try {
+              let users = (await fetchUsers(e.detail.value)).users;
+              this.userChoices.setChoices(
+                users.map(u => {
+                  return {
+                    value: u.person.id.toString(),
+                    label: u.person.name,
+                  };
+                }),
+                "value",
+                "label",
+                true
+              );
+            } catch (err) {
+              console.log(err);
+            }
+          }),
+          false
+        );
+      }
+    }
+  }
+
+  setupModFilter() {
+    if (isBrowser()) {
+      let selectId: any = document.getElementById("filter-mod");
+      if (selectId) {
+        this.modChoices = new Choices(selectId, choicesModLogConfig);
+        this.modChoices.passedElement.element.addEventListener(
+          "choice",
+          (e: any) => {
+            this.state.filter_mod = Some(Number(e.detail.choice.value));
+            this.setState(this.state);
+            this.refetch();
+          },
+          false
+        );
+        this.modChoices.passedElement.element.addEventListener(
+          "search",
+          debounce(async (e: any) => {
+            try {
+              let mods = (await fetchUsers(e.detail.value)).users;
+              this.modChoices.setChoices(
+                mods.map(u => {
+                  return {
+                    value: u.person.id.toString(),
+                    label: u.person.name,
+                  };
+                }),
+                "value",
+                "label",
+                true
+              );
+            } catch (err) {
+              console.log(err);
+            }
+          }),
+          false
+        );
+      }
+    }
+  }
+
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let pathSplit = req.path.split("/");
     let communityId = Some(pathSplit[3]).map(Number);
@@ -639,6 +802,8 @@ export class Modlog extends Component<any, ModlogState> {
       community_id: communityId,
       mod_person_id: None,
       auth: req.auth,
+      type_: ModlogActionType.All,
+      other_person_id: None,
     });
 
     promises.push(req.client.getModlog(modlogForm));
@@ -671,6 +836,7 @@ export class Modlog extends Component<any, ModlogState> {
     } else if (op == UserOperation.GetCommunity) {
       let data = wsJsonToRes<GetCommunityResponse>(msg, GetCommunityResponse);
       this.state.communityMods = Some(data.moderators);
+      this.state.communityName = Some(data.community_view.community.name);
     }
   }
 }

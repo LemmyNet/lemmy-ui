@@ -54,6 +54,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       description: None,
       community_creation_admin_only: None,
       auth: undefined,
+      hide_modlog_mod_names: Some(true),
     }),
     loading: false,
     themeList: None,
@@ -98,6 +99,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           default_theme: Some(site.default_theme),
           default_post_listing_type: Some(site.default_post_listing_type),
           legal_information: site.legal_information,
+          hide_modlog_mod_names: site.hide_modlog_mod_names,
           auth: undefined,
         });
       },
@@ -439,6 +441,27 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
           <div class="form-group row">
             <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  id="create-site-hide-modlog-mod-names"
+                  type="checkbox"
+                  checked={toUndefined(
+                    this.state.siteForm.hide_modlog_mod_names
+                  )}
+                  onChange={linkEvent(this, this.handleSiteHideModlogModNames)}
+                />
+                <label
+                  class="form-check-label"
+                  htmlFor="create-site-hide-modlog-mod-names"
+                >
+                  {i18n.t("hide_modlog_mod_names")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12">
               <button
                 type="submit"
                 class="btn btn-secondary mr-2"
@@ -495,6 +518,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         default_theme: sForm.default_theme,
         default_post_listing_type: sForm.default_post_listing_type,
         auth: auth().unwrap(),
+        hide_modlog_mod_names: sForm.hide_modlog_mod_names,
       });
       WebSocketService.Instance.send(wsClient.createSite(form));
     }
@@ -558,6 +582,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSitePrivateInstance(i: SiteForm, event: any) {
     i.state.siteForm.private_instance = Some(event.target.checked);
+    i.setState(i.state);
+  }
+
+  handleSiteHideModlogModNames(i: SiteForm, event: any) {
+    i.state.siteForm.hide_modlog_mod_names = Some(event.target.checked);
     i.setState(i.state);
   }
 
