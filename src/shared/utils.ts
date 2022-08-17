@@ -210,9 +210,10 @@ export function canMod(
 export function canAdmin(
   admins: Option<PersonViewSafe[]>,
   creator_id: number,
-  myUserInfo = UserService.Instance.myUserInfo
+  myUserInfo = UserService.Instance.myUserInfo,
+  onSelf = false
 ): boolean {
-  return canMod(None, admins, creator_id, myUserInfo);
+  return canMod(None, admins, creator_id, myUserInfo, onSelf);
 }
 
 export function isMod(
@@ -830,6 +831,7 @@ export function editCommentRes(data: CommentView, comments: CommentView[]) {
   let found = comments.find(c => c.comment.id == data.comment.id);
   if (found) {
     found.comment.content = data.comment.content;
+    found.comment.distinguished = data.comment.distinguished;
     found.comment.updated = data.comment.updated;
     found.comment.removed = data.comment.removed;
     found.comment.deleted = data.comment.deleted;

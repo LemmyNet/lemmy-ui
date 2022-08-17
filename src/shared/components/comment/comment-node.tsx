@@ -15,6 +15,7 @@ import {
   CreateCommentLike,
   CreateCommentReport,
   DeleteComment,
+  EditComment,
   GetComments,
   ListingType,
   MarkCommentReplyAsRead,
@@ -171,7 +172,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.props.admins,
       cv.creator.id
     );
+    let canModOnSelf = canMod(
+      this.props.moderators,
+      this.props.admins,
+      cv.creator.id,
+      UserService.Instance.myUserInfo,
+      true
+    );
     let canAdmin_ = canAdmin(this.props.admins, cv.creator.id);
+    let canAdminOnSelf = canAdmin(
+      this.props.admins,
+      cv.creator.id,
+      UserService.Instance.myUserInfo,
+      true
+    );
     let isMod_ = isMod(this.props.moderators, cv.creator.id);
     let isAdmin_ = isAdmin(this.props.admins, cv.creator.id);
     let amCommunityCreator_ = amCommunityCreator(
@@ -200,9 +214,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       >
         <div
           id={`comment-${cv.comment.id}`}
-          className={`details comment-node py-2 ${
-            !this.props.noBorder ? "border-top border-light" : ""
-          } ${this.isCommentNew ? "mark" : ""}`}
+          className={classNames(`details comment-node py-2`, {
+            "border-top border-light": !this.props.noBorder,
+            mark:
+              this.isCommentNew ||
+              this.props.node.comment_view.comment.distinguished,
+          })}
           style={
             !this.props.noIndent &&
             this.props.node.depth &&
@@ -216,7 +233,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <span class="mr-2">
                 <PersonListing person={cv.creator} />
               </span>
-
+              {cv.comment.distinguished && (
+                <Icon icon="shield" inline classes={`text-danger mr-2`} />
+              )}
               {isMod_ && (
                 <div className="badge badge-light d-none d-sm-inline mr-2">
                   {i18n.t("mod")}
@@ -516,6 +535,34 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     }`}
                                   />
                                 </button>
+
+                                {(canModOnSelf || canAdminOnSelf) && (
+                                  <button
+                                    class="btn btn-link btn-animate text-muted"
+                                    onClick={linkEvent(
+                                      this,
+                                      this.handleDistinguishClick
+                                    )}
+                                    data-tippy-content={
+                                      !cv.comment.distinguished
+                                        ? i18n.t("distinguish")
+                                        : i18n.t("undistinguish")
+                                    }
+                                    aria-label={
+                                      !cv.comment.distinguished
+                                        ? i18n.t("distinguish")
+                                        : i18n.t("undistinguish")
+                                    }
+                                  >
+                                    <Icon
+                                      icon="shield"
+                                      classes={`icon-inline ${
+                                        cv.comment.distinguished &&
+                                        "text-danger"
+                                      }`}
+                                    />
+                                  </button>
+                                )}
                               </>
                             )}
                             {/* Admins and mods can remove comments */}
@@ -1201,6 +1248,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     WebSocketService.Instance.send(wsClient.removeComment(form));
 
     i.state.showRemoveDialog = false;
+    i.setState(i.state);
+  }
+
+  handleDistinguishClick(i: CommentNode) {
+    let comment = i.props.node.comment_view.comment;
+    let form = new EditComment({
+      comment_id: comment.id,
+      form_id: None, // TODO not sure about this
+      content: None,
+      distinguished: Some(!comment.distinguished),
+      auth: auth().unwrap(),
+    });
+    WebSocketService.Instance.send(wsClient.editComment(form));
     i.setState(i.state);
   }
 

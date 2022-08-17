@@ -112,7 +112,8 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
       left: node => {
         if (this.props.edit) {
           let form = new EditComment({
-            content,
+            content: Some(content),
+            distinguished: None,
             form_id: this.state.formId,
             comment_id: node.comment_view.comment.id,
             auth: auth().unwrap(),
