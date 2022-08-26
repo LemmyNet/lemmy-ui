@@ -419,7 +419,7 @@ export function getLanguages(
 ): string[] {
   let myLang = myUserInfo
     .map(m => m.local_user_view.local_user.lang)
-    .unwrapOr("browser");
+    .unwrapOr("uk");
   let lang = override || myLang;
 
   if (lang == "browser" && isBrowser()) {
