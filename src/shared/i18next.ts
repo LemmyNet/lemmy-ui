@@ -1,10 +1,12 @@
 import i18next, { i18nTyped, Resource } from "i18next";
+import { en } from "./translations/en";
 import { ru } from "./translations/ru";
 import { uk } from "./translations/uk";
 import { getLanguages } from "./utils";
 
 export const languages = [
   { resource: uk, code: "uk", name: "Українська" },
+  { resource: en, code: "en", name: "English" },
   { resource: ru, code: "ru", name: "Русский" },
 ];
 
