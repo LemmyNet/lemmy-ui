@@ -72,11 +72,13 @@ export class CreatePost extends Component<any, CreatePostState> {
     if (this.params.community_id) {
       let form: GetCommunity = {
         id: this.params.community_id,
+        auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getCommunity(form));
     } else if (this.params.community_name) {
       let form: GetCommunity = {
         name: this.params.community_name,
+        auth: authField(false),
       };
       WebSocketService.Instance.send(wsClient.getCommunity(form));
     } else {
