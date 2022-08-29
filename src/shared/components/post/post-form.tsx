@@ -56,6 +56,14 @@ if (isBrowser()) {
   Choices = require("choices.js");
 }
 
+var Editor: any = () => {
+  return null;
+};
+if (isBrowser()) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  Editor = require("./editor").default;
+}
+
 const MAX_POST_TITLE_LENGTH = 200;
 
 interface PostFormProps {
@@ -281,6 +289,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 none: <></>,
               })}
             </div>
+          </div>
+          <div>
+            <Editor />
           </div>
           <div class="form-group row">
             <label class="col-sm-2 col-form-label" htmlFor="post-title">
