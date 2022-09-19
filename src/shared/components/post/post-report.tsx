@@ -58,6 +58,7 @@ export class PostReport extends Component<PostReportProps, any> {
           enableDownvotes={true}
           enableNsfw={true}
           viewOnly={true}
+          allLanguages={[]}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />

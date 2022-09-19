@@ -6,6 +6,7 @@ import {
   CommunityView,
   CreatePost,
   EditPost,
+  Language,
   ListingType,
   PostResponse,
   PostView,
@@ -36,6 +37,7 @@ import {
   ghostArchiveUrl,
   isBrowser,
   isImage,
+  myFirstDiscussionLanguageId,
   pictrsDeleteToast,
   relTags,
   setupTippy,
@@ -48,6 +50,7 @@ import {
   wsSubscribe,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
+import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { PostListings } from "./post-listings";
 
@@ -60,6 +63,7 @@ const MAX_POST_TITLE_LENGTH = 200;
 
 interface PostFormProps {
   post_view: Option<PostView>; // If a post is given, that means this is an edit
+  allLanguages: Language[];
   communities: Option<CommunityView[]>;
   params: Option<PostFormParams>;
   onCancel?(): any;
@@ -90,6 +94,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       url: None,
       body: None,
       honeypot: None,
+      language_id: None,
       auth: undefined,
     }),
     loading: false,
@@ -105,6 +110,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.fetchSimilarPosts = debounce(this.fetchSimilarPosts.bind(this));
     this.fetchPageTitle = debounce(this.fetchPageTitle.bind(this));
     this.handlePostBodyChange = this.handlePostBodyChange.bind(this);
+    this.handleLanguageChange = this.handleLanguageChange.bind(this);
 
     this.state = this.emptyState;
 
@@ -118,6 +124,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           url: pv.post.url,
           nsfw: Some(pv.post.nsfw),
           honeypot: None,
+          language_id: Some(pv.post.language_id),
           auth: auth().unwrap(),
         })),
       none: void 0,
@@ -165,6 +172,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   render() {
+    let selectedLangs = this.state.postForm.language_id
+      .or(myFirstDiscussionLanguageId(UserService.Instance.myUserInfo))
+      .map(Array.of);
+
     return (
       <div>
         <Prompt
@@ -275,6 +286,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                         posts={xPosts}
                         enableDownvotes={this.props.enableDownvotes}
                         enableNsfw={this.props.enableNsfw}
+                        allLanguages={this.props.allLanguages}
                       />
                     </>
                   ),
@@ -316,6 +328,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                         posts={sPosts}
                         enableDownvotes={this.props.enableDownvotes}
                         enableNsfw={this.props.enableNsfw}
+                        allLanguages={this.props.allLanguages}
                       />
                     </>
                   ),
@@ -329,10 +342,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             <div class="col-sm-10">
               <MarkdownTextArea
                 initialContent={this.state.postForm.body}
+                initialLanguageId={None}
                 onContentChange={this.handlePostBodyChange}
                 placeholder={None}
                 buttonTitle={None}
                 maxLength={None}
+                allLanguages={this.props.allLanguages}
               />
             </div>
           </div>
@@ -376,6 +391,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </div>
             </div>
           )}
+          <LanguageSelect
+            allLanguages={this.props.allLanguages}
+            selectedLanguageIds={selectedLangs}
+            multiple={false}
+            onChange={this.handleLanguageChange}
+          />
           <input
             tabIndex={-1}
             autoComplete="false"
@@ -439,6 +460,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           body: pForm.body,
           nsfw: pForm.nsfw,
           post_id: pv.post.id,
+          language_id: Some(pv.post.language_id),
           auth: auth().unwrap(),
         });
         WebSocketService.Instance.send(wsClient.editPost(form));
@@ -548,6 +570,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   handlePostNsfwChange(i: PostForm, event: any) {
     i.state.postForm.nsfw = Some(event.target.checked);
     i.setState(i.state);
+  }
+
+  handleLanguageChange(val: number[]) {
+    this.state.postForm.language_id = Some(val[0]);
+    this.setState(this.state);
   }
 
   handleHoneyPotChange(i: PostForm, event: any) {

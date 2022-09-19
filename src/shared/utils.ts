@@ -1,4 +1,4 @@
-import { None, Option, Result, Some } from "@sniptt/monads";
+import { Err, None, Ok, Option, Result, Some } from "@sniptt/monads";
 import { ClassConstructor, deserialize, serialize } from "class-transformer";
 import emojiShortName from "emoji-short-name";
 import {
@@ -418,7 +418,7 @@ export function getLanguages(
   myUserInfo = UserService.Instance.myUserInfo
 ): string[] {
   let myLang = myUserInfo
-    .map(m => m.local_user_view.local_user.lang)
+    .map(m => m.local_user_view.local_user.interface_language)
     .unwrapOr("browser");
   let lang = override || myLang;
 
@@ -1463,4 +1463,23 @@ export function postToCommentSortType(sort: SortType): CommentSortType {
   } else {
     return CommentSortType.Top;
   }
+}
+
+export function arrayGet<T>(arr: Array<T>, index: number): Result<T, string> {
+  let out = arr.at(index);
+  if (out == undefined) {
+    return Err("Index undefined");
+  } else {
+    return Ok(out);
+  }
+}
+
+export function myFirstDiscussionLanguageId(
+  myUserInfo = UserService.Instance.myUserInfo
+): Option<number> {
+  return myUserInfo.andThen(mui =>
+    arrayGet(mui.discussion_languages, 0)
+      .ok()
+      .map(i => i.id)
+  );
 }

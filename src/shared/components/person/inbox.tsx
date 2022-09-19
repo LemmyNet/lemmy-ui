@@ -394,6 +394,7 @@ export class Inbox extends Component<any, InboxState> {
             showCommunity
             showContext
             enableDownvotes={enableDownvotes(this.state.siteRes)}
+            allLanguages={this.state.siteRes.all_languages}
           />
         );
       case ReplyEnum.Mention:
@@ -416,6 +417,7 @@ export class Inbox extends Component<any, InboxState> {
             showCommunity
             showContext
             enableDownvotes={enableDownvotes(this.state.siteRes)}
+            allLanguages={this.state.siteRes.all_languages}
           />
         );
       case ReplyEnum.Message:
@@ -448,6 +450,7 @@ export class Inbox extends Component<any, InboxState> {
           showCommunity
           showContext
           enableDownvotes={enableDownvotes(this.state.siteRes)}
+          allLanguages={this.state.siteRes.all_languages}
         />
       </div>
     );
@@ -469,6 +472,7 @@ export class Inbox extends Component<any, InboxState> {
             showCommunity
             showContext
             enableDownvotes={enableDownvotes(this.state.siteRes)}
+            allLanguages={this.state.siteRes.all_languages}
           />
         ))}
       </div>

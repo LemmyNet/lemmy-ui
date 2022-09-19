@@ -66,7 +66,7 @@ export class MetadataCard extends Component<
                             ),
                             none: <></>,
                           })}
-                          {post.embed_html.isSome() && (
+                          {post.embed_video_url.isSome() && (
                             <button
                               class="mt-2 btn btn-secondary text-monospace"
                               onClick={linkEvent(this, this.handleIframeExpand)}
@@ -85,7 +85,7 @@ export class MetadataCard extends Component<
             none: <></>,
           })}
         {this.state.expanded &&
-          post.embed_html.match({
+          post.embed_video_url.match({
             some: html => (
               <div
                 class="mt-3 mb-2"

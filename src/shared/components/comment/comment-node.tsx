@@ -17,6 +17,7 @@ import {
   DeleteComment,
   EditComment,
   GetComments,
+  Language,
   ListingType,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
@@ -101,6 +102,7 @@ interface CommentNodeProps {
   showCommunity?: boolean;
   enableDownvotes: boolean;
   viewType: CommentViewType;
+  allLanguages: Language[];
 }
 
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
@@ -321,6 +323,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 onReplyCancel={this.handleReplyCancel}
                 disabled={this.props.locked}
                 focus
+                allLanguages={this.props.allLanguages}
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
@@ -1001,6 +1004,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onReplyCancel={this.handleReplyCancel}
             disabled={this.props.locked}
             focus
+            allLanguages={this.props.allLanguages}
           />
         )}
         {!this.state.collapsed && node.children.length > 0 && (
@@ -1012,6 +1016,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             maxCommentsShown={None}
             enableDownvotes={this.props.enableDownvotes}
             viewType={this.props.viewType}
+            allLanguages={this.props.allLanguages}
           />
         )}
         {/* A collapsed clearfix */}
@@ -1258,6 +1263,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       form_id: None, // TODO not sure about this
       content: None,
       distinguished: Some(!comment.distinguished),
+      language_id: Some(comment.language_id),
       auth: auth().unwrap(),
     });
     WebSocketService.Instance.send(wsClient.editComment(form));

@@ -287,11 +287,13 @@ export class Signup extends Component<any, State> {
                 <div class="col-sm-10">
                   <MarkdownTextArea
                     initialContent={None}
+                    initialLanguageId={None}
                     placeholder={None}
                     buttonTitle={None}
                     maxLength={None}
                     onContentChange={this.handleAnswerChange}
                     hideNavigationWarnings
+                    allLanguages={[]}
                   />
                 </div>
               </div>

@@ -281,6 +281,7 @@ export class Profile extends Component<any, ProfileState> {
                     enableNsfw={enableNsfw(this.state.siteRes)}
                     view={this.state.view}
                     onPageChange={this.handlePageChange}
+                    allLanguages={this.state.siteRes.all_languages}
                   />
                 </div>
 

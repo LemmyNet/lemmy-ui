@@ -388,6 +388,7 @@ export class Community extends Component<any, State> {
           removeDuplicates
           enableDownvotes={enableDownvotes(this.state.siteRes)}
           enableNsfw={enableNsfw(this.state.siteRes)}
+          allLanguages={this.state.siteRes.all_languages}
         />
       )
     ) : this.state.commentsLoading ? (
@@ -404,6 +405,7 @@ export class Community extends Component<any, State> {
         moderators={this.state.communityRes.map(r => r.moderators)}
         admins={Some(this.state.siteRes.admins)}
         maxCommentsShown={None}
+        allLanguages={this.state.siteRes.all_languages}
       />
     );
   }
