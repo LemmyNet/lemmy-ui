@@ -630,21 +630,18 @@ export function notifyPrivateMessage(pmv: PrivateMessageView, router: any) {
 function notify(info: NotifyInfo, router: any) {
   messageToastify(info, router);
 
-  // TODO absolute nightmare bug, but notifs are currently broken.
-  // Notification.new will try to do a browser fetch ???
+  if (Notification.permission !== "granted") Notification.requestPermission();
+  else {
+    var notification = new Notification(info.name, {
+      ...{ body: info.body },
+      ...(info.icon.isSome() && { icon: info.icon.unwrap() }),
+    });
 
-  // if (Notification.permission !== "granted") Notification.requestPermission();
-  // else {
-  //   var notification = new Notification(info.name, {
-  //     icon: info.icon,
-  //     body: info.body,
-  //   });
-
-  //   notification.onclick = (ev: Event): any => {
-  //     ev.preventDefault();
-  //     router.history.push(info.link);
-  //   };
-  // }
+    notification.onclick = (ev: Event): any => {
+      ev.preventDefault();
+      router.history.push(info.link);
+    };
+  }
 }
 
 export function setupTribute() {
