@@ -427,7 +427,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   class="form-check-input"
                   id="create-site-private-instance"
                   type="checkbox"
-                  value={toUndefined(this.state.siteForm.default_theme)}
+                  checked={toUndefined(this.state.siteForm.private_instance)}
                   onChange={linkEvent(this, this.handleSitePrivateInstance)}
                 />
                 <label
