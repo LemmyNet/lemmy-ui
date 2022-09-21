@@ -1483,3 +1483,10 @@ export function myFirstDiscussionLanguageId(
       .map(i => i.id)
   );
 }
+
+export function canCreateCommunity(siteRes: GetSiteResponse): boolean {
+  let adminOnly = siteRes.site_view
+    .map(s => s.site.community_creation_admin_only)
+    .unwrapOr(false);
+  return !adminOnly || amAdmin(Some(siteRes.admins));
+}

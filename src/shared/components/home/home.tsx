@@ -38,6 +38,7 @@ import {
 import { UserService, WebSocketService } from "../../services";
 import {
   auth,
+  canCreateCommunity,
   commentsToFlatNodes,
   createCommentLikeRes,
   createPostLikeFindRes,
@@ -426,7 +427,8 @@ export class Home extends Component<any, HomeState> {
             <div class="card border-secondary mb-3">
               <div class="card-body">
                 {this.trendingCommunities()}
-                {this.createCommunityButton()}
+                {canCreateCommunity(this.state.siteRes) &&
+                  this.createCommunityButton()}
                 {this.exploreCommunitiesButton()}
               </div>
             </div>
