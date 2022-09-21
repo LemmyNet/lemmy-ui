@@ -97,6 +97,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {this.adminButtons()}
             {this.subscribe()}
             {this.canPost && this.createPost()}
+            {this.blockCommunity()}
           </div>
         </div>
         <div class="card border-secondary mb-3">
@@ -273,49 +274,55 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   createPost() {
     let cv = this.props.community_view;
     return (
-      cv.subscribed == SubscribedType.Subscribed && (
-        <Link
-          className={`btn btn-secondary btn-block mb-2 ${
-            cv.community.deleted || cv.community.removed ? "no-click" : ""
-          }`}
-          to={`/create_post?community_id=${cv.community.id}`}
-        >
-          {i18n.t("create_a_post")}
-        </Link>
-      )
+      <Link
+        className={`btn btn-secondary btn-block mb-2 ${
+          cv.community.deleted || cv.community.removed ? "no-click" : ""
+        }`}
+        to={`/create_post?community_id=${cv.community.id}`}
+      >
+        {i18n.t("create_a_post")}
+      </Link>
     );
   }
 
   subscribe() {
     let community_view = this.props.community_view;
-    let blocked = this.props.community_view.blocked;
     return (
       <div class="mb-2">
         {community_view.subscribed == SubscribedType.NotSubscribed && (
-          <>
-            <button
-              class="btn btn-secondary btn-block"
-              onClick={linkEvent(this, this.handleSubscribe)}
-            >
-              {i18n.t("subscribe")}
-            </button>
-            {blocked ? (
-              <button
-                class="btn btn-danger btn-block"
-                onClick={linkEvent(this, this.handleUnblock)}
-              >
-                {i18n.t("unblock_community")}
-              </button>
-            ) : (
-              <button
-                class="btn btn-danger btn-block"
-                onClick={linkEvent(this, this.handleBlock)}
-              >
-                {i18n.t("block_community")}
-              </button>
-            )}
-          </>
+          <button
+            class="btn btn-secondary btn-block"
+            onClick={linkEvent(this, this.handleSubscribe)}
+          >
+            {i18n.t("subscribe")}
+          </button>
         )}
+      </div>
+    );
+  }
+
+  blockCommunity() {
+    let community_view = this.props.community_view;
+    let blocked = this.props.community_view.blocked;
+
+    return (
+      <div class="mb-2">
+        {community_view.subscribed == SubscribedType.NotSubscribed &&
+          (blocked ? (
+            <button
+              class="btn btn-danger btn-block"
+              onClick={linkEvent(this, this.handleUnblock)}
+            >
+              {i18n.t("unblock_community")}
+            </button>
+          ) : (
+            <button
+              class="btn btn-danger btn-block"
+              onClick={linkEvent(this, this.handleBlock)}
+            >
+              {i18n.t("block_community")}
+            </button>
+          ))}
       </div>
     );
   }
