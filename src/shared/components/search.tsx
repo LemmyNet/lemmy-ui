@@ -589,6 +589,7 @@ export class Search extends Component<any, SearchState> {
                   showCommunity
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   enableNsfw={enableNsfw(this.state.siteRes)}
+                  viewOnly
                 />
               )}
               {i.type_ == "comments" && (
@@ -602,6 +603,7 @@ export class Search extends Component<any, SearchState> {
                     },
                   ]}
                   viewType={CommentViewType.Flat}
+                  viewOnly
                   moderators={None}
                   admins={None}
                   maxCommentsShown={None}
@@ -639,6 +641,7 @@ export class Search extends Component<any, SearchState> {
       <CommentNodes
         nodes={commentsToFlatNodes(comments)}
         viewType={CommentViewType.Flat}
+        viewOnly
         locked
         noIndent
         moderators={None}
@@ -674,6 +677,7 @@ export class Search extends Component<any, SearchState> {
                 admins={None}
                 enableDownvotes={enableDownvotes(this.state.siteRes)}
                 enableNsfw={enableNsfw(this.state.siteRes)}
+                viewOnly
               />
             </div>
           </div>
