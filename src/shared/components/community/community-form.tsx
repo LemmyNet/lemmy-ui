@@ -73,9 +73,14 @@ export class CommunityForm extends Component<
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
-    this.props.community_view.match({
-      some: cv => {
-        this.state.communityForm = new CreateCommunity({
+    this.parseMessage = this.parseMessage.bind(this);
+    this.subscription = wsSubscribe(this.parseMessage);
+
+    if (this.props.community_view.isSome()) {
+      let cv = this.props.community_view.unwrap();
+      this.state = {
+        ...this.state,
+        communityForm: new CreateCommunity({
           name: cv.community.name,
           title: cv.community.title,
           description: cv.community.description,
@@ -86,13 +91,9 @@ export class CommunityForm extends Component<
             cv.community.posting_restricted_to_mods
           ),
           auth: undefined,
-        });
-      },
-      none: void 0,
-    });
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
+        }),
+      };
+    }
   }
 
   componentDidUpdate() {
@@ -127,24 +128,24 @@ export class CommunityForm extends Component<
         />
         <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
           {this.props.community_view.isNone() && (
-            <div class="form-group row">
+            <div className="form-group row">
               <label
-                class="col-12 col-sm-2 col-form-label"
+                className="col-12 col-sm-2 col-form-label"
                 htmlFor="community-name"
               >
                 {i18n.t("name")}
                 <span
-                  class="position-absolute pointer unselectable ml-2 text-muted"
+                  className="position-absolute pointer unselectable ml-2 text-muted"
                   data-tippy-content={i18n.t("name_explain")}
                 >
                   <Icon icon="help-circle" classes="icon-inline" />
                 </span>
               </label>
-              <div class="col-12 col-sm-10">
+              <div className="col-12 col-sm-10">
                 <input
                   type="text"
                   id="community-name"
-                  class="form-control"
+                  className="form-control"
                   value={this.state.communityForm.name}
                   onInput={linkEvent(this, this.handleCommunityNameChange)}
                   required
@@ -155,35 +156,35 @@ export class CommunityForm extends Component<
               </div>
             </div>
           )}
-          <div class="form-group row">
+          <div className="form-group row">
             <label
-              class="col-12 col-sm-2 col-form-label"
+              className="col-12 col-sm-2 col-form-label"
               htmlFor="community-title"
             >
               {i18n.t("display_name")}
               <span
-                class="position-absolute pointer unselectable ml-2 text-muted"
+                className="position-absolute pointer unselectable ml-2 text-muted"
                 data-tippy-content={i18n.t("display_name_explain")}
               >
                 <Icon icon="help-circle" classes="icon-inline" />
               </span>
             </label>
-            <div class="col-12 col-sm-10">
+            <div className="col-12 col-sm-10">
               <input
                 type="text"
                 id="community-title"
                 value={this.state.communityForm.title}
                 onInput={linkEvent(this, this.handleCommunityTitleChange)}
-                class="form-control"
+                className="form-control"
                 required
                 minLength={3}
                 maxLength={100}
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-12 col-sm-2">{i18n.t("icon")}</label>
-            <div class="col-12 col-sm-10">
+          <div className="form-group row">
+            <label className="col-12 col-sm-2">{i18n.t("icon")}</label>
+            <div className="col-12 col-sm-10">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_icon")}
                 imageSrc={this.state.communityForm.icon}
@@ -193,9 +194,9 @@ export class CommunityForm extends Component<
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-12 col-sm-2">{i18n.t("banner")}</label>
-            <div class="col-12 col-sm-10">
+          <div className="form-group row">
+            <label className="col-12 col-sm-2">{i18n.t("banner")}</label>
+            <div className="col-12 col-sm-10">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_banner")}
                 imageSrc={this.state.communityForm.banner}
@@ -204,11 +205,11 @@ export class CommunityForm extends Component<
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
+          <div className="form-group row">
+            <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
               {i18n.t("sidebar")}
             </label>
-            <div class="col-12 col-sm-10">
+            <div className="col-12 col-sm-10">
               <MarkdownTextArea
                 initialContent={this.state.communityForm.description}
                 placeholder={Some("description")}
@@ -220,14 +221,14 @@ export class CommunityForm extends Component<
           </div>
 
           {this.props.enableNsfw && (
-            <div class="form-group row">
-              <legend class="col-form-label col-sm-2 pt-0">
+            <div className="form-group row">
+              <legend className="col-form-label col-sm-2 pt-0">
                 {i18n.t("nsfw")}
               </legend>
-              <div class="col-10">
-                <div class="form-check">
+              <div className="col-10">
+                <div className="form-check">
                   <input
-                    class="form-check-input position-static"
+                    className="form-check-input position-static"
                     id="community-nsfw"
                     type="checkbox"
                     checked={toUndefined(this.state.communityForm.nsfw)}
@@ -237,14 +238,14 @@ export class CommunityForm extends Component<
               </div>
             </div>
           )}
-          <div class="form-group row">
-            <legend class="col-form-label col-6 pt-0">
+          <div className="form-group row">
+            <legend className="col-form-label col-6 pt-0">
               {i18n.t("only_mods_can_post_in_community")}
             </legend>
-            <div class="col-6">
-              <div class="form-check">
+            <div className="col-6">
+              <div className="form-check">
                 <input
-                  class="form-check-input position-static"
+                  className="form-check-input position-static"
                   id="community-only-mods-can-post"
                   type="checkbox"
                   checked={toUndefined(
@@ -258,11 +259,11 @@ export class CommunityForm extends Component<
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
+          <div className="form-group row">
+            <div className="col-12">
               <button
                 type="submit"
-                class="btn btn-secondary mr-2"
+                className="btn btn-secondary mr-2"
                 disabled={this.state.loading}
               >
                 {this.state.loading ? (
@@ -276,7 +277,7 @@ export class CommunityForm extends Component<
               {this.props.community_view.isSome() && (
                 <button
                   type="button"
-                  class="btn btn-secondary"
+                  className="btn btn-secondary"
                   onClick={linkEvent(this, this.handleCancel)}
                 >
                   {i18n.t("cancel")}
@@ -291,7 +292,7 @@ export class CommunityForm extends Component<
 
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
-    i.state.loading = true;
+    i.setState({ loading: true });
     let cForm = i.state.communityForm;
     cForm.auth = auth().unwrap();
 
@@ -330,17 +331,18 @@ export class CommunityForm extends Component<
   }
 
   handleCommunityDescriptionChange(val: string) {
-    this.state.communityForm.description = Some(val);
-    this.setState(this.state);
+    this.setState(s => ((s.communityForm.description = Some(val)), s));
   }
 
   handleCommunityNsfwChange(i: CommunityForm, event: any) {
-    i.state.communityForm.nsfw = event.target.checked;
+    i.state.communityForm.nsfw = Some(event.target.checked);
     i.setState(i.state);
   }
 
   handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
-    i.state.communityForm.posting_restricted_to_mods = event.target.checked;
+    i.state.communityForm.posting_restricted_to_mods = Some(
+      event.target.checked
+    );
     i.setState(i.state);
   }
 
@@ -349,23 +351,19 @@ export class CommunityForm extends Component<
   }
 
   handleIconUpload(url: string) {
-    this.state.communityForm.icon = Some(url);
-    this.setState(this.state);
+    this.setState(s => ((s.communityForm.icon = Some(url)), s));
   }
 
   handleIconRemove() {
-    this.state.communityForm.icon = Some("");
-    this.setState(this.state);
+    this.setState(s => ((s.communityForm.icon = Some("")), s));
   }
 
   handleBannerUpload(url: string) {
-    this.state.communityForm.banner = Some(url);
-    this.setState(this.state);
+    this.setState(s => ((s.communityForm.banner = Some(url)), s));
   }
 
   handleBannerRemove() {
-    this.state.communityForm.banner = Some("");
-    this.setState(this.state);
+    this.setState(s => ((s.communityForm.banner = Some("")), s));
   }
 
   parseMessage(msg: any) {
@@ -374,12 +372,10 @@ export class CommunityForm extends Component<
     if (msg.error) {
       // Errors handled by top level pages
       // toast(i18n.t(msg.error), "danger");
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({ loading: false });
       return;
     } else if (op == UserOperation.CreateCommunity) {
       let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
-      this.state.loading = false;
       this.props.onCreate(data.community_view);
 
       // Update myUserInfo
@@ -401,7 +397,7 @@ export class CommunityForm extends Component<
       });
     } else if (op == UserOperation.EditCommunity) {
       let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
-      this.state.loading = false;
+      this.setState({ loading: false });
       this.props.onEdit(data.community_view);
       let community = data.community_view.community;
 

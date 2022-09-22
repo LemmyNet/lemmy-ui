@@ -1360,7 +1360,7 @@ export const choicesModLogConfig = {
   shouldSort: false,
   searchResultLimit: fetchLimit,
   classNames: {
-    containerOuter: "choices mb-2 custom-select col-4 px-0",
+    containerOuter: "choices mb-2 custom-select px-0",
     containerInner:
       "choices__inner bg-secondary border-0 py-0 modlog-choices-font-size",
     input: "form-control",
