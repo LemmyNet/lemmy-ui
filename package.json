@@ -29,7 +29,7 @@
     "inferno-create-element": "^8.0.3",
     "inferno-helmet": "^5.2.1",
     "inferno-hydrate": "^8.0.3",
-    "inferno-i18next-dess": "^0.0.1",
+    "inferno-i18next-dess": "0.0.2",
     "inferno-router": "^8.0.3",
     "inferno-server": "^8.0.3",
     "isomorphic-cookie": "^1.2.4",
