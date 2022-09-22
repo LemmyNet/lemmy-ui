@@ -26,7 +26,7 @@ export class Legal extends Component<any, LegalState> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

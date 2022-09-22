@@ -12,16 +12,16 @@ export class Paginator extends Component<PaginatorProps, any> {
   }
   render() {
     return (
-      <div class="my-2">
+      <div className="my-2">
         <button
-          class="btn btn-secondary mr-2"
+          className="btn btn-secondary mr-2"
           disabled={this.props.page == 1}
           onClick={linkEvent(this, this.handlePrev)}
         >
           {i18n.t("prev")}
         </button>
         <button
-          class="btn btn-secondary"
+          className="btn btn-secondary"
           onClick={linkEvent(this, this.handleNext)}
         >
           {i18n.t("next")}

@@ -42,7 +42,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
               />
-              <hr class="my-3" />
+              <hr className="my-3" />
             </>
           ))
         ) : (

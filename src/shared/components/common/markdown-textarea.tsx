@@ -70,8 +70,7 @@ export class MarkdownTextArea extends Component<
       autosize(textarea);
       this.tribute.attach(textarea);
       textarea.addEventListener("tribute-replaced", () => {
-        this.state.content = Some(textarea.value);
-        this.setState(this.state);
+        this.setState({ content: Some(textarea.value) });
         autosize.update(textarea);
       });
 
@@ -96,10 +95,7 @@ export class MarkdownTextArea extends Component<
 
   componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
     if (nextProps.finished) {
-      this.state.previewMode = false;
-      this.state.loading = false;
-      this.state.content = None;
-      this.setState(this.state);
+      this.setState({ previewMode: false, loading: false, content: None });
       if (this.props.replyType) {
         this.props.onReplyCancel();
       }
@@ -108,7 +104,6 @@ export class MarkdownTextArea extends Component<
       let form: any = document.getElementById(this.formId);
       form.reset();
       setTimeout(() => autosize.update(textarea), 10);
-      this.setState(this.state);
     }
   }
 
@@ -125,7 +120,7 @@ export class MarkdownTextArea extends Component<
           }
           message={i18n.t("block_leaving")}
         />
-        <div class="form-group row">
+        <div className="form-group row">
           <div className={`col-sm-12`}>
             <textarea
               id={this.id}
@@ -150,17 +145,17 @@ export class MarkdownTextArea extends Component<
                 none: <></>,
               })}
           </div>
-          <label class="sr-only" htmlFor={this.id}>
+          <label className="sr-only" htmlFor={this.id}>
             {i18n.t("body")}
           </label>
         </div>
-        <div class="row">
-          <div class="col-sm-12 d-flex flex-wrap">
+        <div className="row">
+          <div className="col-sm-12 d-flex flex-wrap">
             {this.props.buttonTitle.match({
               some: buttonTitle => (
                 <button
                   type="submit"
-                  class="btn btn-sm btn-secondary mr-2"
+                  className="btn btn-sm btn-secondary mr-2"
                   disabled={this.props.disabled || this.state.loading}
                 >
                   {this.state.loading ? (
@@ -175,7 +170,7 @@ export class MarkdownTextArea extends Component<
             {this.props.replyType && (
               <button
                 type="button"
-                class="btn btn-sm btn-secondary mr-2"
+                className="btn btn-sm btn-secondary mr-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
                 {i18n.t("cancel")}
@@ -192,9 +187,9 @@ export class MarkdownTextArea extends Component<
               </button>
             )}
             {/* A flex expander */}
-            <div class="flex-grow-1"></div>
+            <div className="flex-grow-1"></div>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("bold")}
               aria-label={i18n.t("bold")}
               onClick={linkEvent(this, this.handleInsertBold)}
@@ -202,7 +197,7 @@ export class MarkdownTextArea extends Component<
               <Icon icon="bold" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("italic")}
               aria-label={i18n.t("italic")}
               onClick={linkEvent(this, this.handleInsertItalic)}
@@ -210,14 +205,14 @@ export class MarkdownTextArea extends Component<
               <Icon icon="italic" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("link")}
               aria-label={i18n.t("link")}
               onClick={linkEvent(this, this.handleInsertLink)}
             >
               <Icon icon="link" classes="icon-inline" />
             </button>
-            <form class="btn btn-sm text-muted font-weight-bold">
+            <form className="btn btn-sm text-muted font-weight-bold">
               <label
                 htmlFor={`file-upload-${this.id}`}
                 className={`mb-0 ${
@@ -236,13 +231,13 @@ export class MarkdownTextArea extends Component<
                 type="file"
                 accept="image/*,video/*"
                 name="file"
-                class="d-none"
+                className="d-none"
                 disabled={UserService.Instance.myUserInfo.isNone()}
                 onChange={linkEvent(this, this.handleImageUpload)}
               />
             </form>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("header")}
               aria-label={i18n.t("header")}
               onClick={linkEvent(this, this.handleInsertHeader)}
@@ -250,7 +245,7 @@ export class MarkdownTextArea extends Component<
               <Icon icon="header" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("strikethrough")}
               aria-label={i18n.t("strikethrough")}
               onClick={linkEvent(this, this.handleInsertStrikethrough)}
@@ -258,7 +253,7 @@ export class MarkdownTextArea extends Component<
               <Icon icon="strikethrough" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("quote")}
               aria-label={i18n.t("quote")}
               onClick={linkEvent(this, this.handleInsertQuote)}
@@ -266,7 +261,7 @@ export class MarkdownTextArea extends Component<
               <Icon icon="format_quote" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("list")}
               aria-label={i18n.t("list")}
               onClick={linkEvent(this, this.handleInsertList)}
@@ -274,7 +269,7 @@ export class MarkdownTextArea extends Component<
               <Icon icon="list" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("code")}
               aria-label={i18n.t("code")}
               onClick={linkEvent(this, this.handleInsertCode)}
@@ -282,7 +277,7 @@ export class MarkdownTextArea extends Component<
               <Icon icon="code" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("subscript")}
               aria-label={i18n.t("subscript")}
               onClick={linkEvent(this, this.handleInsertSubscript)}
@@ -290,7 +285,7 @@ export class MarkdownTextArea extends Component<
               <Icon icon="subscript" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("superscript")}
               aria-label={i18n.t("superscript")}
               onClick={linkEvent(this, this.handleInsertSuperscript)}
@@ -298,7 +293,7 @@ export class MarkdownTextArea extends Component<
               <Icon icon="superscript" classes="icon-inline" />
             </button>
             <button
-              class="btn btn-sm text-muted"
+              className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("spoiler")}
               aria-label={i18n.t("spoiler")}
               onClick={linkEvent(this, this.handleInsertSpoiler)}
@@ -307,7 +302,7 @@ export class MarkdownTextArea extends Component<
             </button>
             <a
               href={markdownHelpUrl}
-              class="btn btn-sm text-muted font-weight-bold"
+              className="btn btn-sm text-muted font-weight-bold"
               title={i18n.t("formatting_help")}
               rel={relTags}
             >
@@ -338,8 +333,7 @@ export class MarkdownTextArea extends Component<
     const formData = new FormData();
     formData.append("images[]", file);
 
-    i.state.imageLoading = true;
-    i.setState(i.state);
+    i.setState({ imageLoading: true });
 
     fetch(pictrsUri, {
       method: "POST",
@@ -355,15 +349,16 @@ export class MarkdownTextArea extends Component<
           let deleteToken = res.files[0].delete_token;
           let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
           let imageMarkdown = `![](${url})`;
-          i.state.content = Some(
-            i.state.content.match({
-              some: content => `${content}\n${imageMarkdown}`,
-              none: imageMarkdown,
-            })
-          );
-          i.state.imageLoading = false;
+          i.setState({
+            content: Some(
+              i.state.content.match({
+                some: content => `${content}\n${imageMarkdown}`,
+                none: imageMarkdown,
+              })
+            ),
+            imageLoading: false,
+          });
           i.contentChange();
-          i.setState(i.state);
           let textarea: any = document.getElementById(i.id);
           autosize.update(textarea);
           pictrsDeleteToast(
@@ -372,14 +367,12 @@ export class MarkdownTextArea extends Component<
             deleteUrl
           );
         } else {
-          i.state.imageLoading = false;
-          i.setState(i.state);
+          i.setState({ imageLoading: false });
           toast(JSON.stringify(res), "danger");
         }
       })
       .catch(error => {
-        i.state.imageLoading = false;
-        i.setState(i.state);
+        i.setState({ imageLoading: false });
         console.error(error);
         toast(error, "danger");
       });
@@ -392,21 +385,18 @@ export class MarkdownTextArea extends Component<
   }
 
   handleContentChange(i: MarkdownTextArea, event: any) {
-    i.state.content = Some(event.target.value);
+    i.setState({ content: Some(event.target.value) });
     i.contentChange();
-    i.setState(i.state);
   }
 
   handlePreviewToggle(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.state.previewMode = !i.state.previewMode;
-    i.setState(i.state);
+    i.setState({ previewMode: !i.state.previewMode });
   }
 
   handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.state.loading = true;
-    i.setState(i.state);
+    i.setState({ loading: true });
     let msg = { val: toUndefined(i.state.content), formId: i.formId };
     i.props.onSubmit(msg);
   }
@@ -423,27 +413,28 @@ export class MarkdownTextArea extends Component<
     let end: number = textarea.selectionEnd;
 
     if (i.state.content.isNone()) {
-      i.state.content = Some("");
+      i.setState({ content: Some("") });
     }
 
     let content = i.state.content.unwrap();
 
     if (start !== end) {
       let selectedText = content.substring(start, end);
-      i.state.content = Some(
-        `${content.substring(0, start)}[${selectedText}]()${content.substring(
-          end
-        )}`
-      );
+      i.setState({
+        content: Some(
+          `${content.substring(0, start)}[${selectedText}]()${content.substring(
+            end
+          )}`
+        ),
+      });
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd = end + 3), 10);
     } else {
-      i.state.content = Some(`${content} []()`);
+      i.setState({ content: Some(`${content} []()`) });
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd -= 1), 10);
     }
     i.contentChange();
-    i.setState(i.state);
   }
 
   simpleSurround(chars: string) {
@@ -460,7 +451,7 @@ export class MarkdownTextArea extends Component<
     emptyChars = "___"
   ) {
     if (this.state.content.isNone()) {
-      this.state.content = Some("");
+      this.setState({ content: Some("") });
     }
     let textarea: any = document.getElementById(this.id);
     let start: number = textarea.selectionStart;
@@ -470,19 +461,20 @@ export class MarkdownTextArea extends Component<
 
     if (start !== end) {
       let selectedText = content.substring(start, end);
-      this.state.content = Some(
-        `${content.substring(
-          0,
-          start
-        )}${beforeChars}${selectedText}${afterChars}${content.substring(end)}`
-      );
+      this.setState({
+        content: Some(
+          `${content.substring(
+            0,
+            start
+          )}${beforeChars}${selectedText}${afterChars}${content.substring(end)}`
+        ),
+      });
     } else {
-      this.state.content = Some(
-        `${content}${beforeChars}${emptyChars}${afterChars}`
-      );
+      this.setState({
+        content: Some(`${content}${beforeChars}${emptyChars}${afterChars}`),
+      });
     }
     this.contentChange();
-    this.setState(this.state);
 
     textarea.focus();
 
@@ -554,9 +546,11 @@ export class MarkdownTextArea extends Component<
 
   simpleInsert(chars: string) {
     if (this.state.content.isNone()) {
-      this.state.content = Some(`${chars} `);
+      this.setState({ content: Some(`${chars} `) });
     } else {
-      this.state.content = Some(`${this.state.content.unwrap()}\n${chars} `);
+      this.setState({
+        content: Some(`${this.state.content.unwrap()}\n${chars} `),
+      });
     }
 
     let textarea: any = document.getElementById(this.id);
@@ -565,7 +559,6 @@ export class MarkdownTextArea extends Component<
       autosize.update(textarea);
     }, 10);
     this.contentChange();
-    this.setState(this.state);
   }
 
   handleInsertSpoiler(i: MarkdownTextArea, event: any) {
@@ -585,13 +578,14 @@ export class MarkdownTextArea extends Component<
           .map(t => `> ${t}`)
           .join("\n") + "\n\n";
       if (this.state.content.isNone()) {
-        this.state.content = Some("");
+        this.setState({ content: Some("") });
       } else {
-        this.state.content = Some(`${this.state.content.unwrap()}\n`);
+        this.setState({ content: Some(`${this.state.content.unwrap()}\n`) });
       }
-      this.state.content = Some(`${this.state.content.unwrap()}${quotedText}`);
+      this.setState({
+        content: Some(`${this.state.content.unwrap()}${quotedText}`),
+      });
       this.contentChange();
-      this.setState(this.state);
       // Not sure why this needs a delay
       setTimeout(() => autosize.update(textarea), 10);
     }

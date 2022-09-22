@@ -34,27 +34,33 @@ export class MetadataCard extends Component<
             some: embedTitle =>
               post.url.match({
                 some: url => (
-                  <div class="card border-secondary mt-3 mb-2">
-                    <div class="row">
-                      <div class="col-12">
-                        <div class="card-body">
-                          {post.name !== embedTitle && [
-                            <h5 class="card-title d-inline">
-                              <a class="text-body" href={url} rel={relTags}>
-                                {embedTitle}
-                              </a>
-                            </h5>,
-                            <span class="d-inline-block ml-2 mb-2 small text-muted">
-                              <a
-                                class="text-muted font-italic"
-                                href={url}
-                                rel={relTags}
-                              >
-                                {new URL(url).hostname}
-                                <Icon icon="external-link" classes="ml-1" />
-                              </a>
-                            </span>,
-                          ]}
+                  <div className="card border-secondary mt-3 mb-2">
+                    <div className="row">
+                      <div className="col-12">
+                        <div className="card-body">
+                          {post.name !== embedTitle && (
+                            <>
+                              <h5 className="card-title d-inline">
+                                <a
+                                  className="text-body"
+                                  href={url}
+                                  rel={relTags}
+                                >
+                                  {embedTitle}
+                                </a>
+                              </h5>
+                              <span className="d-inline-block ml-2 mb-2 small text-muted">
+                                <a
+                                  className="text-muted font-italic"
+                                  href={url}
+                                  rel={relTags}
+                                >
+                                  {new URL(url).hostname}
+                                  <Icon icon="external-link" classes="ml-1" />
+                                </a>
+                              </span>
+                            </>
+                          )}
                           {post.embed_description.match({
                             some: desc => (
                               <div
@@ -68,7 +74,7 @@ export class MetadataCard extends Component<
                           })}
                           {post.embed_html.isSome() && (
                             <button
-                              class="mt-2 btn btn-secondary text-monospace"
+                              className="mt-2 btn btn-secondary text-monospace"
                               onClick={linkEvent(this, this.handleIframeExpand)}
                               data-tippy-content={i18n.t("expand_here")}
                             >
@@ -88,7 +94,7 @@ export class MetadataCard extends Component<
           post.embed_html.match({
             some: html => (
               <div
-                class="mt-3 mb-2"
+                className="mt-3 mb-2"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             ),
@@ -99,7 +105,6 @@ export class MetadataCard extends Component<
   }
 
   handleIframeExpand(i: MetadataCard) {
-    i.state.expanded = !i.state.expanded;
-    i.setState(i.state);
+    i.setState({ expanded: !i.state.expanded });
   }
 }
