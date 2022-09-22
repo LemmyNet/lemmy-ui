@@ -38,7 +38,7 @@ import {
   amAdmin,
   amMod,
   auth,
-  choicesModLogConfig,
+  choicesConfig,
   debounce,
   fetchLimit,
   fetchUsers,
@@ -797,7 +797,7 @@ export class Modlog extends Component<any, ModlogState> {
     if (isBrowser()) {
       let selectId: any = document.getElementById("filter-user");
       if (selectId) {
-        this.userChoices = new Choices(selectId, choicesModLogConfig);
+        this.userChoices = new Choices(selectId, choicesConfig);
         this.userChoices.passedElement.element.addEventListener(
           "choice",
           (e: any) => {
@@ -836,7 +836,7 @@ export class Modlog extends Component<any, ModlogState> {
     if (isBrowser()) {
       let selectId: any = document.getElementById("filter-mod");
       if (selectId) {
-        this.modChoices = new Choices(selectId, choicesModLogConfig);
+        this.modChoices = new Choices(selectId, choicesConfig);
         this.modChoices.passedElement.element.addEventListener(
           "choice",
           (e: any) => {
