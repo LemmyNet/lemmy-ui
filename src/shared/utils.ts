@@ -69,7 +69,7 @@ export const webArchiveUrl = "https://web.archive.org";
 export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
-export const fetchLimit = 20;
+export const fetchLimit = 40;
 export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
@@ -630,21 +630,18 @@ export function notifyPrivateMessage(pmv: PrivateMessageView, router: any) {
 function notify(info: NotifyInfo, router: any) {
   messageToastify(info, router);
 
-  // TODO absolute nightmare bug, but notifs are currently broken.
-  // Notification.new will try to do a browser fetch ???
+  if (Notification.permission !== "granted") Notification.requestPermission();
+  else {
+    var notification = new Notification(info.name, {
+      ...{ body: info.body },
+      ...(info.icon.isSome() && { icon: info.icon.unwrap() }),
+    });
 
-  // if (Notification.permission !== "granted") Notification.requestPermission();
-  // else {
-  //   var notification = new Notification(info.name, {
-  //     icon: info.icon,
-  //     body: info.body,
-  //   });
-
-  //   notification.onclick = (ev: Event): any => {
-  //     ev.preventDefault();
-  //     router.history.push(info.link);
-  //   };
-  // }
+    notification.onclick = (ev: Event): any => {
+      ev.preventDefault();
+      router.history.push(info.link);
+    };
+  }
 }
 
 export function setupTribute() {
@@ -1363,7 +1360,7 @@ export const choicesModLogConfig = {
   shouldSort: false,
   searchResultLimit: fetchLimit,
   classNames: {
-    containerOuter: "choices mb-2 custom-select col-4 px-0",
+    containerOuter: "choices mb-2 custom-select px-0",
     containerInner:
       "choices__inner bg-secondary border-0 py-0 modlog-choices-font-size",
     input: "form-control",

@@ -45,7 +45,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     let selectedLangs = this.props.selectedLanguageIds;
 
     return (
-      <div class="form-group row">
+      <div className="form-group row">
         <label
           className={classNames("col-form-label", {
             "col-sm-3": this.props.multiple,
@@ -62,15 +62,15 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
           })}
         >
           <select
-            class="form-control"
+            className="form-control custom-select"
             id={this.id}
             onChange={linkEvent(this, this.handleLanguageChange)}
-            className="custom-select"
             aria-label="action"
             multiple={this.props.multiple}
           >
             {this.props.allLanguages.map(l => (
               <option
+                key={l.id}
                 value={l.id}
                 selected={selectedLangs.unwrapOr([]).includes(l.id)}
               >
@@ -79,9 +79,9 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             ))}
           </select>
           {this.props.multiple && (
-            <div class="input-group-append">
+            <div className="input-group-append">
               <button
-                class="input-group-text"
+                className="input-group-text"
                 onClick={linkEvent(this, this.handleDeselectAll)}
               >
                 <Icon icon="x" />

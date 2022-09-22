@@ -64,7 +64,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
             some: icon => <PictrsImage src={icon} icon />,
             none: <></>,
           })}
-        <span class="overflow-wrap-anywhere">{displayName}</span>
+        <span className="overflow-wrap-anywhere">{displayName}</span>
       </>
     );
   }

@@ -66,15 +66,15 @@ export class PasswordChange extends Component<any, State> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
           description={None}
           image={None}
         />
-        <div class="row">
-          <div class="col-12 col-lg-6 offset-lg-3 mb-4">
+        <div className="row">
+          <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h5>{i18n.t("password_change")}</h5>
             {this.passwordChangeForm()}
           </div>
@@ -86,41 +86,41 @@ export class PasswordChange extends Component<any, State> {
   passwordChangeForm() {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="new-password">
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label" htmlFor="new-password">
             {i18n.t("new_password")}
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               id="new-password"
               type="password"
               value={this.state.passwordChangeForm.password}
               onInput={linkEvent(this, this.handlePasswordChange)}
-              class="form-control"
+              className="form-control"
               required
               maxLength={60}
             />
           </div>
         </div>
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="verify-password">
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label" htmlFor="verify-password">
             {i18n.t("verify_password")}
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               id="verify-password"
               type="password"
               value={this.state.passwordChangeForm.password_verify}
               onInput={linkEvent(this, this.handleVerifyPasswordChange)}
-              class="form-control"
+              className="form-control"
               required
               maxLength={60}
             />
           </div>
         </div>
-        <div class="form-group row">
-          <div class="col-sm-10">
-            <button type="submit" class="btn btn-secondary">
+        <div className="form-group row">
+          <div className="col-sm-10">
+            <button type="submit" className="btn btn-secondary">
               {this.state.loading ? (
                 <Spinner />
               ) : (
@@ -145,8 +145,7 @@ export class PasswordChange extends Component<any, State> {
 
   handlePasswordChangeSubmit(i: PasswordChange, event: any) {
     event.preventDefault();
-    i.state.loading = true;
-    i.setState(i.state);
+    i.setState({ loading: true });
 
     WebSocketService.Instance.send(
       wsClient.passwordChange(i.state.passwordChangeForm)
@@ -158,13 +157,11 @@ export class PasswordChange extends Component<any, State> {
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      this.state.loading = false;
-      this.setState(this.state);
+      this.setState({ loading: false });
       return;
     } else if (op == UserOperation.PasswordChange) {
       let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
-      this.state = this.emptyState;
-      this.setState(this.state);
+      this.setState(this.emptyState);
       UserService.Instance.login(data);
       this.props.history.push("/");
     }

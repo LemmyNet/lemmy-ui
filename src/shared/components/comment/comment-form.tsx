@@ -84,7 +84,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
       .or(myFirstDiscussionLanguageId(UserService.Instance.myUserInfo));
 
     return (
-      <div class="mb-3">
+      <div className="mb-3">
         {UserService.Instance.myUserInfo.isSome() ? (
           <MarkdownTextArea
             initialContent={initialContent}
@@ -102,7 +102,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             allLanguages={this.props.allLanguages}
           />
         ) : (
-          <div class="alert alert-warning" role="alert">
+          <div className="alert alert-warning" role="alert">
             <Icon icon="alert-triangle" classes="icon-inline mr-2" />
             <T i18nKey="must_login" class="d-inline">
               #
@@ -123,7 +123,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
   }) {
     let content = msg.val;
     let language_id = msg.languageId;
-    this.state.formId = Some(msg.formId);
+    this.setState({ formId: Some(msg.formId) });
 
     this.props.node.match({
       left: node => {

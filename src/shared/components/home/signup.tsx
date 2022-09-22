@@ -127,15 +127,17 @@ export class Signup extends Component<any, State> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
           description={None}
           image={None}
         />
-        <div class="row">
-          <div class="col-12 col-lg-6 offset-lg-3">{this.registerForm()}</div>
+        <div className="row">
+          <div className="col-12 col-lg-6 offset-lg-3">
+            {this.registerForm()}
+          </div>
         </div>
       </div>
     );
@@ -148,8 +150,8 @@ export class Signup extends Component<any, State> {
           <h5>{this.titleName(siteView)}</h5>
 
           {this.isLemmyMl && (
-            <div class="form-group row">
-              <div class="mt-2 mb-0 alert alert-warning" role="alert">
+            <div className="form-group row">
+              <div className="mt-2 mb-0 alert alert-warning" role="alert">
                 <T i18nKey="lemmy_ml_registration_message">
                   #<a href={joinLemmyUrl}>#</a>
                 </T>
@@ -157,16 +159,19 @@ export class Signup extends Component<any, State> {
             </div>
           )}
 
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label" htmlFor="register-username">
+          <div className="form-group row">
+            <label
+              className="col-sm-2 col-form-label"
+              htmlFor="register-username"
+            >
               {i18n.t("username")}
             </label>
 
-            <div class="col-sm-10">
+            <div className="col-sm-10">
               <input
                 type="text"
                 id="register-username"
-                class="form-control"
+                className="form-control"
                 value={this.state.registerForm.username}
                 onInput={linkEvent(this, this.handleRegisterUsernameChange)}
                 required
@@ -177,15 +182,15 @@ export class Signup extends Component<any, State> {
             </div>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label" htmlFor="register-email">
+          <div className="form-group row">
+            <label className="col-sm-2 col-form-label" htmlFor="register-email">
               {i18n.t("email")}
             </label>
-            <div class="col-sm-10">
+            <div className="col-sm-10">
               <input
                 type="email"
                 id="register-email"
-                class="form-control"
+                className="form-control"
                 placeholder={
                   siteView.site.require_email_verification
                     ? i18n.t("required")
@@ -201,7 +206,7 @@ export class Signup extends Component<any, State> {
                 !this.state.registerForm.email
                   .map(validEmail)
                   .unwrapOr(true) && (
-                  <div class="mt-2 mb-0 alert alert-warning" role="alert">
+                  <div className="mt-2 mb-0 alert alert-warning" role="alert">
                     <Icon icon="alert-triangle" classes="icon-inline mr-2" />
                     {i18n.t("no_password_reset")}
                   </div>
@@ -209,11 +214,14 @@ export class Signup extends Component<any, State> {
             </div>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label" htmlFor="register-password">
+          <div className="form-group row">
+            <label
+              className="col-sm-2 col-form-label"
+              htmlFor="register-password"
+            >
               {i18n.t("password")}
             </label>
-            <div class="col-sm-10">
+            <div className="col-sm-10">
               <input
                 type="password"
                 id="register-password"
@@ -222,25 +230,25 @@ export class Signup extends Component<any, State> {
                 onInput={linkEvent(this, this.handleRegisterPasswordChange)}
                 minLength={10}
                 maxLength={60}
-                class="form-control"
+                className="form-control"
                 required
               />
               {this.state.registerForm.password && (
-                <div class={this.passwordColorClass}>
+                <div className={this.passwordColorClass}>
                   {i18n.t(this.passwordStrength as I18nKeys)}
                 </div>
               )}
             </div>
           </div>
 
-          <div class="form-group row">
+          <div className="form-group row">
             <label
-              class="col-sm-2 col-form-label"
+              className="col-sm-2 col-form-label"
               htmlFor="register-verify-password"
             >
               {i18n.t("verify_password")}
             </label>
-            <div class="col-sm-10">
+            <div className="col-sm-10">
               <input
                 type="password"
                 id="register-verify-password"
@@ -251,7 +259,7 @@ export class Signup extends Component<any, State> {
                   this.handleRegisterPasswordVerifyChange
                 )}
                 maxLength={60}
-                class="form-control"
+                className="form-control"
                 required
               />
             </div>
@@ -259,9 +267,9 @@ export class Signup extends Component<any, State> {
 
           {siteView.site.require_application && (
             <>
-              <div class="form-group row">
-                <div class="offset-sm-2 col-sm-10">
-                  <div class="mt-2 alert alert-warning" role="alert">
+              <div className="form-group row">
+                <div className="offset-sm-2 col-sm-10">
+                  <div className="mt-2 alert alert-warning" role="alert">
                     <Icon icon="alert-triangle" classes="icon-inline mr-2" />
                     {i18n.t("fill_out_application")}
                   </div>
@@ -277,14 +285,14 @@ export class Signup extends Component<any, State> {
                 </div>
               </div>
 
-              <div class="form-group row">
+              <div className="form-group row">
                 <label
-                  class="col-sm-2 col-form-label"
+                  className="col-sm-2 col-form-label"
                   htmlFor="application_answer"
                 >
                   {i18n.t("answer")}
                 </label>
-                <div class="col-sm-10">
+                <div className="col-sm-10">
                   <MarkdownTextArea
                     initialContent={None}
                     initialLanguageId={None}
@@ -301,12 +309,12 @@ export class Signup extends Component<any, State> {
           )}
 
           {this.state.captcha.isSome() && (
-            <div class="form-group row">
-              <label class="col-sm-2" htmlFor="register-captcha">
-                <span class="mr-2">{i18n.t("enter_code")}</span>
+            <div className="form-group row">
+              <label className="col-sm-2" htmlFor="register-captcha">
+                <span className="mr-2">{i18n.t("enter_code")}</span>
                 <button
                   type="button"
-                  class="btn btn-secondary"
+                  className="btn btn-secondary"
                   onClick={linkEvent(this, this.handleRegenCaptcha)}
                   aria-label={i18n.t("captcha")}
                 >
@@ -314,10 +322,10 @@ export class Signup extends Component<any, State> {
                 </button>
               </label>
               {this.showCaptcha()}
-              <div class="col-sm-6">
+              <div className="col-sm-6">
                 <input
                   type="text"
-                  class="form-control"
+                  className="form-control"
                   id="register-captcha"
                   value={toUndefined(this.state.registerForm.captcha_answer)}
                   onInput={linkEvent(
@@ -330,11 +338,11 @@ export class Signup extends Component<any, State> {
             </div>
           )}
           {siteView.site.enable_nsfw && (
-            <div class="form-group row">
-              <div class="col-sm-10">
-                <div class="form-check">
+            <div className="form-group row">
+              <div className="col-sm-10">
+                <div className="form-check">
                   <input
-                    class="form-check-input"
+                    className="form-check-input"
                     id="register-show-nsfw"
                     type="checkbox"
                     checked={this.state.registerForm.show_nsfw}
@@ -343,7 +351,10 @@ export class Signup extends Component<any, State> {
                       this.handleRegisterShowNsfwChange
                     )}
                   />
-                  <label class="form-check-label" htmlFor="register-show-nsfw">
+                  <label
+                    className="form-check-label"
+                    htmlFor="register-show-nsfw"
+                  >
                     {i18n.t("show_nsfw")}
                   </label>
                 </div>
@@ -355,14 +366,14 @@ export class Signup extends Component<any, State> {
             autoComplete="false"
             name="a_password"
             type="text"
-            class="form-control honeypot"
+            className="form-control honeypot"
             id="register-honey"
             value={toUndefined(this.state.registerForm.honeypot)}
             onInput={linkEvent(this, this.handleHoneyPotChange)}
           />
-          <div class="form-group row">
-            <div class="col-sm-10">
-              <button type="submit" class="btn btn-secondary">
+          <div className="form-group row">
+            <div className="col-sm-10">
+              <button type="submit" className="btn btn-secondary">
                 {this.state.registerLoading ? (
                   <Spinner />
                 ) : (
@@ -380,19 +391,19 @@ export class Signup extends Component<any, State> {
   showCaptcha() {
     return this.state.captcha.match({
       some: captcha => (
-        <div class="col-sm-4">
+        <div className="col-sm-4">
           {captcha.ok.match({
             some: res => (
               <>
                 <img
-                  class="rounded-top img-fluid"
+                  className="rounded-top img-fluid"
                   src={this.captchaPngSrc(res)}
                   style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
                   alt={i18n.t("captcha")}
                 />
                 {res.wav.isSome() && (
                   <button
-                    class="rounded-bottom btn btn-sm btn-secondary btn-block"
+                    className="rounded-bottom btn btn-sm btn-secondary btn-block"
                     style="border-top-right-radius: 0; border-top-left-radius: 0;"
                     title={i18n.t("play_captcha_audio")}
                     onClick={linkEvent(this, this.handleCaptchaPlay)}
@@ -433,8 +444,7 @@ export class Signup extends Component<any, State> {
 
   handleRegisterSubmit(i: Signup, event: any) {
     event.preventDefault();
-    i.state.registerLoading = true;
-    i.setState(i.state);
+    i.setState({ registerLoading: true });
     WebSocketService.Instance.send(wsClient.register(i.state.registerForm));
   }
 
@@ -472,8 +482,7 @@ export class Signup extends Component<any, State> {
   }
 
   handleAnswerChange(val: string) {
-    this.state.registerForm.answer = Some(val);
-    this.setState(this.state);
+    this.setState(s => ((s.registerForm.answer = Some(val)), s));
   }
 
   handleHoneyPotChange(i: Signup, event: any) {
@@ -483,8 +492,7 @@ export class Signup extends Component<any, State> {
 
   handleRegenCaptcha(i: Signup) {
     i.audio = null;
-    i.state.captchaPlaying = false;
-    i.setState(i.state);
+    i.setState({ captchaPlaying: false });
     WebSocketService.Instance.send(wsClient.getCaptcha());
   }
 
@@ -502,13 +510,11 @@ export class Signup extends Component<any, State> {
 
             i.audio.play();
 
-            i.state.captchaPlaying = true;
-            i.setState(i.state);
+            i.setState({ captchaPlaying: true });
 
             i.audio.addEventListener("ended", () => {
               i.audio.currentTime = 0;
-              i.state.captchaPlaying = false;
-              i.setState(i.state);
+              i.setState({ captchaPlaying: false });
             });
           },
           none: void 0,
@@ -526,17 +532,15 @@ export class Signup extends Component<any, State> {
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      this.state = this.emptyState;
-      this.state.registerForm.captcha_answer = undefined;
+      this.setState(this.emptyState);
+      this.setState(s => ((s.registerForm.captcha_answer = undefined), s));
       // Refetch another captcha
       // WebSocketService.Instance.send(wsClient.getCaptcha());
-      this.setState(this.state);
       return;
     } else {
       if (op == UserOperation.Register) {
         let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
-        this.state = this.emptyState;
-        this.setState(this.state);
+        this.setState(this.emptyState);
         // Only log them in if a jwt was set
         if (data.jwt.isSome()) {
           UserService.Instance.login(data);
@@ -554,9 +558,10 @@ export class Signup extends Component<any, State> {
         let data = wsJsonToRes<GetCaptchaResponse>(msg, GetCaptchaResponse);
         data.ok.match({
           some: res => {
-            this.state.captcha = Some(data);
-            this.state.registerForm.captcha_uuid = Some(res.uuid);
-            this.setState(this.state);
+            this.setState({ captcha: Some(data) });
+            this.setState(
+              s => ((s.registerForm.captcha_uuid = Some(res.uuid)), s)
+            );
           },
           none: void 0,
         });
@@ -564,8 +569,7 @@ export class Signup extends Component<any, State> {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
         let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
-        this.state.siteRes = data;
-        this.setState(this.state);
+        this.setState({ siteRes: data });
       }
     }
   }
