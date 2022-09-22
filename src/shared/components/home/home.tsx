@@ -52,7 +52,9 @@ import {
   getPageFromProps,
   getSortTypeFromProps,
   isBrowser,
+  isPostBlocked,
   notifyPost,
+  nsfwCheck,
   postToCommentSortType,
   relTags,
   restoreScrollPosition,
@@ -756,21 +758,17 @@ export class Home extends Component<any, HomeState> {
       setupTippy();
     } else if (op == UserOperation.CreatePost) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
-      // NSFW check
-      let nsfw = data.post_view.post.nsfw || data.post_view.community.nsfw;
-      let nsfwCheck =
-        !nsfw ||
-        (nsfw &&
-          UserService.Instance.myUserInfo
-            .map(m => m.local_user_view.local_user.show_nsfw)
-            .unwrapOr(false));
 
       let showPostNotifs = UserService.Instance.myUserInfo
         .map(m => m.local_user_view.local_user.show_new_post_notifs)
         .unwrapOr(false);
 
-      // Only push these if you're on the first page, and you pass the nsfw check
-      if (this.state.page == 1 && nsfwCheck) {
+      // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
+      if (
+        this.state.page == 1 &&
+        nsfwCheck(data.post_view) &&
+        !isPostBlocked(data.post_view)
+      ) {
         // If you're on subscribed, only push it if you're subscribed.
         if (this.state.listingType == ListingType.Subscribed) {
           if (
