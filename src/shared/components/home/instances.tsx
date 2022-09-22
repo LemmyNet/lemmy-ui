@@ -30,22 +30,22 @@ export class Instances extends Component<any, InstancesState> {
   render() {
     return this.state.siteRes.federated_instances.match({
       some: federated_instances => (
-        <div class="container">
+        <div className="container">
           <HtmlTags
             title={this.documentTitle}
             path={this.context.router.route.match.url}
             description={None}
             image={None}
           />
-          <div class="row">
-            <div class="col-md-6">
+          <div className="row">
+            <div className="col-md-6">
               <h5>{i18n.t("linked_instances")}</h5>
               {this.itemList(federated_instances.linked)}
             </div>
             {federated_instances.allowed.match({
               some: allowed =>
                 allowed.length > 0 && (
-                  <div class="col-md-6">
+                  <div className="col-md-6">
                     <h5>{i18n.t("allowed_instances")}</h5>
                     {this.itemList(allowed)}
                   </div>
@@ -55,7 +55,7 @@ export class Instances extends Component<any, InstancesState> {
             {federated_instances.blocked.match({
               some: blocked =>
                 blocked.length > 0 && (
-                  <div class="col-md-6">
+                  <div className="col-md-6">
                     <h5>{i18n.t("blocked_instances")}</h5>
                     {this.itemList(blocked)}
                   </div>
@@ -74,7 +74,7 @@ export class Instances extends Component<any, InstancesState> {
     return items.length > 0 ? (
       <ul>
         {items.map(i => (
-          <li>
+          <li key={i}>
             <a href={`https://${i}`} rel={relTags}>
               {i}
             </a>

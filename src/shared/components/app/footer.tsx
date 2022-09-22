@@ -16,16 +16,16 @@ export class Footer extends Component<FooterProps, any> {
 
   render() {
     return (
-      <nav class="container navbar navbar-expand-md navbar-light navbar-bg p-3">
+      <nav className="container navbar navbar-expand-md navbar-light navbar-bg p-3">
         <div className="navbar-collapse">
-          <ul class="navbar-nav ml-auto">
+          <ul className="navbar-nav ml-auto">
             {this.props.site.version !== VERSION && (
-              <li class="nav-item">
-                <span class="nav-link">UI: {VERSION}</span>
+              <li className="nav-item">
+                <span className="nav-link">UI: {VERSION}</span>
               </li>
             )}
-            <li class="nav-item">
-              <span class="nav-link">BE: {this.props.site.version}</span>
+            <li className="nav-item">
+              <span className="nav-link">BE: {this.props.site.version}</span>
             </li>
             <li className="nav-item">
               <NavLink className="nav-link" to="/modlog">
@@ -42,23 +42,23 @@ export class Footer extends Component<FooterProps, any> {
               </li>
             )}
             {this.props.site.federated_instances && (
-              <li class="nav-item">
+              <li className="nav-item">
                 <NavLink className="nav-link" to="/instances">
                   {i18n.t("instances")}
                 </NavLink>
               </li>
             )}
-            <li class="nav-item">
+            <li className="nav-item">
               <a className="nav-link" href={docsUrl}>
                 {i18n.t("docs")}
               </a>
             </li>
-            <li class="nav-item">
+            <li className="nav-item">
               <a className="nav-link" href={repoUrl}>
                 {i18n.t("code")}
               </a>
             </li>
-            <li class="nav-item">
+            <li className="nav-item">
               <a className="nav-link" href={joinLemmyUrl}>
                 {i18n.t("join_lemmy")}
               </a>

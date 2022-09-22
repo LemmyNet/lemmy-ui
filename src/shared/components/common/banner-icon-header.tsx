@@ -14,7 +14,7 @@ export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
 
   render() {
     return (
-      <div class="position-relative mb-2">
+      <div className="position-relative mb-2">
         {this.props.banner.match({
           some: banner => <PictrsImage src={banner} banner alt="" />,
           none: <></>,

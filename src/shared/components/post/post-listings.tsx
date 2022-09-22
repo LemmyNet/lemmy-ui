@@ -44,7 +44,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 enableNsfw={this.props.enableNsfw}
                 allLanguages={this.props.allLanguages}
               />
-              <hr class="my-3" />
+              <hr className="my-3" />
             </>
           ))
         ) : (

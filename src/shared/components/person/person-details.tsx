@@ -154,7 +154,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
     return (
       <div>
-        {combined.map(i => [this.renderItemType(i), <hr class="my-3" />])}
+        {combined.map(i => [
+          this.renderItemType(i),
+          <hr key={i.type_} className="my-3" />,
+        ])}
       </div>
     );
   }
@@ -193,7 +196,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               enableNsfw={this.props.enableNsfw}
               allLanguages={this.props.allLanguages}
             />
-            <hr class="my-3" />
+            <hr className="my-3" />
           </>
         ))}
       </div>
