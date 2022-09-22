@@ -168,6 +168,7 @@ export class Settings extends Component<any, SettingsState> {
           default_sort_type: Some(luv.local_user.default_sort_type),
           default_listing_type: Some(luv.local_user.default_listing_type),
           interface_language: Some(luv.local_user.interface_language),
+          discussion_languages: Some(mui.discussion_languages.map(l => l.id)),
           avatar: luv.person.avatar,
           banner: luv.person.banner,
           display_name: luv.person.display_name,
