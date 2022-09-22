@@ -212,10 +212,12 @@ export class CommunityForm extends Component<
             <div className="col-12 col-sm-10">
               <MarkdownTextArea
                 initialContent={this.state.communityForm.description}
+                initialLanguageId={None}
                 placeholder={Some("description")}
                 buttonTitle={None}
                 maxLength={None}
                 onContentChange={this.handleCommunityDescriptionChange}
+                allLanguages={[]}
               />
             </div>
           </div>

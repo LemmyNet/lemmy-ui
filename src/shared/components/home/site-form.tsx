@@ -212,11 +212,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <div className="col-12">
               <MarkdownTextArea
                 initialContent={this.state.siteForm.sidebar}
+                initialLanguageId={None}
                 placeholder={None}
                 buttonTitle={None}
                 maxLength={None}
                 onContentChange={this.handleSiteSidebarChange}
                 hideNavigationWarnings
+                allLanguages={[]}
               />
             </div>
           </div>
@@ -227,11 +229,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <div className="col-12">
               <MarkdownTextArea
                 initialContent={this.state.siteForm.legal_information}
+                initialLanguageId={None}
                 placeholder={None}
                 buttonTitle={None}
                 maxLength={None}
                 onContentChange={this.handleSiteLegalInfoChange}
                 hideNavigationWarnings
+                allLanguages={[]}
               />
             </div>
           </div>
@@ -243,11 +247,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               <div className="col-12">
                 <MarkdownTextArea
                   initialContent={this.state.siteForm.application_question}
+                  initialLanguageId={None}
                   placeholder={None}
                   buttonTitle={None}
                   maxLength={None}
                   onContentChange={this.handleSiteApplicationQuestionChange}
                   hideNavigationWarnings
+                  allLanguages={[]}
                 />
               </div>
             </div>

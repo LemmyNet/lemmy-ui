@@ -151,6 +151,7 @@ export class CreatePost extends Component<any, CreatePostState> {
                     params={Some(this.params)}
                     enableDownvotes={enableDownvotes(this.state.siteRes)}
                     enableNsfw={enableNsfw(this.state.siteRes)}
+                    allLanguages={this.state.siteRes.all_languages}
                   />
                 </div>
               </div>

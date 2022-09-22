@@ -3,6 +3,7 @@ import { Component } from "inferno";
 import {
   CommentView,
   GetPersonDetailsResponse,
+  Language,
   PersonViewSafe,
   PostView,
   SortType,
@@ -16,6 +17,7 @@ import { PostListing } from "../post/post-listing";
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
   admins: PersonViewSafe[];
+  allLanguages: Language[];
   page: number;
   limit: number;
   sort: SortType;
@@ -99,6 +101,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             showCommunity
             showContext
             enableDownvotes={this.props.enableDownvotes}
+            allLanguages={this.props.allLanguages}
           />
         );
       }
@@ -114,6 +117,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             showCommunity
             enableDownvotes={this.props.enableDownvotes}
             enableNsfw={this.props.enableNsfw}
+            allLanguages={this.props.allLanguages}
           />
         );
       }
@@ -171,6 +175,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           showCommunity
           showContext
           enableDownvotes={this.props.enableDownvotes}
+          allLanguages={this.props.allLanguages}
         />
       </div>
     );
@@ -189,6 +194,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               moderators={None}
               enableDownvotes={this.props.enableDownvotes}
               enableNsfw={this.props.enableNsfw}
+              allLanguages={this.props.allLanguages}
             />
             <hr className="my-3" />
           </>

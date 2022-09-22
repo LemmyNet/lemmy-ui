@@ -2,7 +2,7 @@ import { None, Option, Some } from "@sniptt/monads";
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { toUndefined } from "lemmy-js-client";
+import { Language, toUndefined } from "lemmy-js-client";
 import { pictrsUri } from "../../env";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
@@ -18,9 +18,11 @@ import {
   toast,
 } from "../../utils";
 import { Icon, Spinner } from "./icon";
+import { LanguageSelect } from "./language-select";
 
 interface MarkdownTextAreaProps {
   initialContent: Option<string>;
+  initialLanguageId: Option<number>;
   placeholder: Option<string>;
   buttonTitle: Option<string>;
   maxLength: Option<number>;
@@ -28,14 +30,21 @@ interface MarkdownTextAreaProps {
   focus?: boolean;
   disabled?: boolean;
   finished?: boolean;
+  showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): any;
   onReplyCancel?(): any;
-  onSubmit?(msg: { val: string; formId: string }): any;
+  onSubmit?(msg: {
+    val: Option<string>;
+    formId: string;
+    languageId: Option<number>;
+  }): any;
+  allLanguages: Language[];
 }
 
 interface MarkdownTextAreaState {
   content: Option<string>;
+  languageId: Option<number>;
   previewMode: boolean;
   loading: boolean;
   imageLoading: boolean;
@@ -50,6 +59,7 @@ export class MarkdownTextArea extends Component<
   private tribute: any;
   private emptyState: MarkdownTextAreaState = {
     content: this.props.initialContent,
+    languageId: this.props.initialLanguageId,
     previewMode: false,
     loading: false,
     imageLoading: false,
@@ -57,6 +67,8 @@ export class MarkdownTextArea extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
+
+    this.handleLanguageChange = this.handleLanguageChange.bind(this);
 
     if (isBrowser()) {
       this.tribute = setupTribute();
@@ -149,6 +161,18 @@ export class MarkdownTextArea extends Component<
             {i18n.t("body")}
           </label>
         </div>
+        {this.props.showLanguage && (
+          <div className="row justify-content-end">
+            <div className="col-sm-8">
+              <LanguageSelect
+                allLanguages={this.props.allLanguages}
+                selectedLanguageIds={this.state.languageId.map(Array.of)}
+                multiple={false}
+                onChange={this.handleLanguageChange}
+              />
+            </div>
+          </div>
+        )}
         <div className="row">
           <div className="col-sm-12 d-flex flex-wrap">
             {this.props.buttonTitle.match({
@@ -394,10 +418,18 @@ export class MarkdownTextArea extends Component<
     i.setState({ previewMode: !i.state.previewMode });
   }
 
+  handleLanguageChange(val: number[]) {
+    this.setState({ languageId: Some(val[0]) });
+  }
+
   handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
     i.setState({ loading: true });
-    let msg = { val: toUndefined(i.state.content), formId: i.formId };
+    let msg = {
+      val: i.state.content,
+      formId: i.formId,
+      languageId: i.state.languageId,
+    };
     i.props.onSubmit(msg);
   }
 

@@ -54,6 +54,7 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
+import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SortSelect } from "../common/sort-select";
@@ -99,7 +100,8 @@ export class Settings extends Component<any, SettingsState> {
       default_sort_type: None,
       default_listing_type: None,
       theme: None,
-      lang: None,
+      interface_language: None,
+      discussion_languages: None,
       avatar: None,
       banner: None,
       display_name: None,
@@ -140,6 +142,8 @@ export class Settings extends Component<any, SettingsState> {
     this.handleSortTypeChange = this.handleSortTypeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
+    this.handleDiscussionLanguageChange =
+      this.handleDiscussionLanguageChange.bind(this);
 
     this.handleAvatarUpload = this.handleAvatarUpload.bind(this);
     this.handleAvatarRemove = this.handleAvatarRemove.bind(this);
@@ -163,7 +167,7 @@ export class Settings extends Component<any, SettingsState> {
           theme: Some(luv.local_user.theme ? luv.local_user.theme : "browser"),
           default_sort_type: Some(luv.local_user.default_sort_type),
           default_listing_type: Some(luv.local_user.default_listing_type),
-          lang: Some(luv.local_user.lang),
+          interface_language: Some(luv.local_user.interface_language),
           avatar: luv.person.avatar,
           banner: luv.person.banner,
           display_name: luv.person.display_name,
@@ -479,6 +483,8 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   saveUserSettingsHtmlForm() {
+    let selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
+
     return (
       <>
         <h5>{i18n.t("settings")}</h5>
@@ -509,11 +515,13 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <MarkdownTextArea
                 initialContent={this.state.saveUserSettingsForm.bio}
+                initialLanguageId={None}
                 onContentChange={this.handleBioChange}
                 maxLength={Some(300)}
                 placeholder={None}
                 buttonTitle={None}
                 hideNavigationWarnings
+                allLanguages={this.state.siteRes.all_languages}
               />
             </div>
           </div>
@@ -578,17 +586,19 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           <div className="form-group row">
             <label className="col-sm-3" htmlFor="user-language">
-              {i18n.t("language")}
+              {i18n.t("interface_language")}
             </label>
             <div className="col-sm-9">
               <select
                 id="user-language"
-                value={toUndefined(this.state.saveUserSettingsForm.lang)}
-                onChange={linkEvent(this, this.handleLangChange)}
+                value={toUndefined(
+                  this.state.saveUserSettingsForm.interface_language
+                )}
+                onChange={linkEvent(this, this.handleInterfaceLangChange)}
                 className="custom-select w-auto"
               >
                 <option disabled aria-hidden="true">
-                  {i18n.t("language")}
+                  {i18n.t("interface_language")}
                 </option>
                 <option value="browser">{i18n.t("browser_default")}</option>
                 <option disabled aria-hidden="true">
@@ -604,6 +614,12 @@ export class Settings extends Component<any, SettingsState> {
               </select>
             </div>
           </div>
+          <LanguageSelect
+            allLanguages={this.state.siteRes.all_languages}
+            selectedLanguageIds={selectedLangs}
+            multiple={true}
+            onChange={this.handleDiscussionLanguageChange}
+          />
           <div className="form-group row">
             <label className="col-sm-3" htmlFor="user-theme">
               {i18n.t("theme")}
@@ -1040,12 +1056,18 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(i.state);
   }
 
-  handleLangChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.lang = Some(event.target.value);
+  handleInterfaceLangChange(i: Settings, event: any) {
+    i.state.saveUserSettingsForm.interface_language = Some(event.target.value);
     i18n.changeLanguage(
-      getLanguages(i.state.saveUserSettingsForm.lang.unwrap())[0]
+      getLanguages(i.state.saveUserSettingsForm.interface_language.unwrap())[0]
     );
     i.setState(i.state);
+  }
+
+  handleDiscussionLanguageChange(val: number[]) {
+    this.setState(
+      s => ((s.saveUserSettingsForm.discussion_languages = Some(val)), s)
+    );
   }
 
   handleSortTypeChange(val: SortType) {

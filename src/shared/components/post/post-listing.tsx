@@ -12,6 +12,7 @@ import {
   CreatePostLike,
   CreatePostReport,
   DeletePost,
+  Language,
   LockPost,
   PersonViewSafe,
   PostView,
@@ -88,6 +89,7 @@ interface PostListingProps {
   duplicates: Option<PostView[]>;
   moderators: Option<CommunityModeratorView[]>;
   admins: Option<PersonViewSafe[]>;
+  allLanguages: Language[];
   showCommunity?: boolean;
   showBody?: boolean;
   enableDownvotes?: boolean;
@@ -169,6 +171,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               onCancel={this.handleEditCancel}
               enableNsfw={this.props.enableNsfw}
               enableDownvotes={this.props.enableDownvotes}
+              allLanguages={this.props.allLanguages}
             />
           </div>
         )}

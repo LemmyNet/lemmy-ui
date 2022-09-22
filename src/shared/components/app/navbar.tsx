@@ -21,6 +21,7 @@ import { UserService, WebSocketService } from "../../services";
 import {
   amAdmin,
   auth,
+  canCreateCommunity,
   donateLemmyUrl,
   isBrowser,
   notifyComment,
@@ -274,7 +275,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {i18n.t("create_post")}
                 </NavLink>
               </li>
-              {this.canCreateCommunity && (
+              {canCreateCommunity(this.props.siteRes) && (
                 <li className="nav-item">
                   <NavLink
                     to="/create_community"
@@ -526,13 +527,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   get amAdmin(): boolean {
     return amAdmin(Some(this.props.siteRes.admins));
-  }
-
-  get canCreateCommunity(): boolean {
-    let adminOnly = this.props.siteRes.site_view
-      .map(s => s.site.community_creation_admin_only)
-      .unwrapOr(false);
-    return !adminOnly || this.amAdmin;
   }
 
   handleToggleExpandNavbar(i: Navbar) {

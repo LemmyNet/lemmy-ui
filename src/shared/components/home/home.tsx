@@ -38,6 +38,7 @@ import {
 import { UserService, WebSocketService } from "../../services";
 import {
   auth,
+  canCreateCommunity,
   commentsToFlatNodes,
   createCommentLikeRes,
   createPostLikeFindRes,
@@ -430,7 +431,8 @@ export class Home extends Component<any, HomeState> {
             <div className="card border-secondary mb-3">
               <div className="card-body">
                 {this.trendingCommunities()}
-                {this.createCommunityButton()}
+                {canCreateCommunity(this.state.siteRes) &&
+                  this.createCommunityButton()}
                 {this.exploreCommunitiesButton()}
               </div>
             </div>
@@ -579,6 +581,7 @@ export class Home extends Component<any, HomeState> {
         removeDuplicates
         enableDownvotes={enableDownvotes(this.state.siteRes)}
         enableNsfw={enableNsfw(this.state.siteRes)}
+        allLanguages={this.state.siteRes.all_languages}
       />
     ) : (
       <CommentNodes
@@ -591,6 +594,7 @@ export class Home extends Component<any, HomeState> {
         showCommunity
         showContext
         enableDownvotes={enableDownvotes(this.state.siteRes)}
+        allLanguages={this.state.siteRes.all_languages}
       />
     );
   }

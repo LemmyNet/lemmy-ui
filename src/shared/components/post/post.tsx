@@ -370,11 +370,13 @@ export class Post extends Component<any, PostState> {
                     admins={Some(this.state.siteRes.admins)}
                     enableDownvotes={enableDownvotes(this.state.siteRes)}
                     enableNsfw={enableNsfw(this.state.siteRes)}
+                    allLanguages={this.state.siteRes.all_languages}
                   />
                   <div ref={this.state.commentSectionRef} className="mb-2" />
                   <CommentForm
                     node={Right(res.post_view.post.id)}
                     disabled={res.post_view.post.locked}
+                    allLanguages={this.state.siteRes.all_languages}
                   />
                   <div className="d-block d-md-none">
                     <button
@@ -508,6 +510,7 @@ export class Post extends Component<any, PostState> {
                 admins={Some(this.state.siteRes.admins)}
                 enableDownvotes={enableDownvotes(this.state.siteRes)}
                 showContext
+                allLanguages={this.state.siteRes.all_languages}
               />
             </div>
           ),
@@ -611,6 +614,7 @@ export class Post extends Component<any, PostState> {
             moderators={Some(res.moderators)}
             admins={Some(this.state.siteRes.admins)}
             enableDownvotes={enableDownvotes(this.state.siteRes)}
+            allLanguages={this.state.siteRes.all_languages}
           />
         </div>
       ),

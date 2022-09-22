@@ -130,10 +130,12 @@ export class PrivateMessageForm extends Component<
             <div className="col-sm-10">
               <MarkdownTextArea
                 initialContent={Some(this.state.privateMessageForm.content)}
+                initialLanguageId={None}
                 placeholder={None}
                 buttonTitle={None}
                 maxLength={None}
                 onContentChange={this.handleContentChange}
+                allLanguages={[]}
               />
             </div>
           </div>

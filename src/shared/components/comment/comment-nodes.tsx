@@ -3,6 +3,7 @@ import { Component } from "inferno";
 import {
   CommentNode as CommentNodeI,
   CommunityModeratorView,
+  Language,
   PersonViewSafe,
 } from "lemmy-js-client";
 import { CommentViewType } from "../../interfaces";
@@ -22,6 +23,7 @@ interface CommentNodesProps {
   showCommunity?: boolean;
   enableDownvotes?: boolean;
   viewType: CommentViewType;
+  allLanguages: Language[];
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -51,6 +53,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             showCommunity={this.props.showCommunity}
             enableDownvotes={this.props.enableDownvotes}
             viewType={this.props.viewType}
+            allLanguages={this.props.allLanguages}
           />
         ))}
       </div>

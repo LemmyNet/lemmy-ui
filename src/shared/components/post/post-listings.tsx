@@ -2,12 +2,13 @@ import { None, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { PostView } from "lemmy-js-client";
+import { Language, PostView } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { PostListing } from "./post-listing";
 
 interface PostListingsProps {
   posts: PostView[];
+  allLanguages: Language[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
   enableDownvotes: boolean;
@@ -41,6 +42,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
+                allLanguages={this.props.allLanguages}
               />
               <hr className="my-3" />
             </>
