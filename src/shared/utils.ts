@@ -1487,3 +1487,33 @@ export function canCreateCommunity(siteRes: GetSiteResponse): boolean {
     .unwrapOr(false);
   return !adminOnly || amAdmin(Some(siteRes.admins));
 }
+
+export function isPostBlocked(
+  pv: PostView,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo
+    .map(
+      mui =>
+        mui.community_blocks
+          .map(c => c.community.id)
+          .includes(pv.community.id) ||
+        mui.person_blocks.map(p => p.target.id).includes(pv.creator.id)
+    )
+    .unwrapOr(false);
+}
+
+/// Checks to make sure you can view NSFW posts. Returns true if you can.
+export function nsfwCheck(
+  pv: PostView,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  let nsfw = pv.post.nsfw || pv.community.nsfw;
+  return (
+    !nsfw ||
+    (nsfw &&
+      myUserInfo
+        .map(m => m.local_user_view.local_user.show_nsfw)
+        .unwrapOr(false))
+  );
+}

@@ -49,7 +49,9 @@ import {
   getDataTypeFromProps,
   getPageFromProps,
   getSortTypeFromProps,
+  isPostBlocked,
   notifyPost,
+  nsfwCheck,
   postToCommentSortType,
   relTags,
   restoreScrollPosition,
@@ -594,15 +596,24 @@ export class Community extends Component<any, State> {
       this.setState(this.state);
     } else if (op == UserOperation.CreatePost) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
-      this.state.posts.unshift(data.post_view);
+
+      let showPostNotifs = UserService.Instance.myUserInfo
+        .map(m => m.local_user_view.local_user.show_new_post_notifs)
+        .unwrapOr(false);
+
+      // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
+      //
       if (
-        UserService.Instance.myUserInfo
-          .map(m => m.local_user_view.local_user.show_new_post_notifs)
-          .unwrapOr(false)
+        this.state.page == 1 &&
+        nsfwCheck(data.post_view) &&
+        !isPostBlocked(data.post_view)
       ) {
-        notifyPost(data.post_view, this.context.router);
+        this.state.posts.unshift(data.post_view);
+        if (showPostNotifs) {
+          notifyPost(data.post_view, this.context.router);
+        }
+        this.setState(this.state);
       }
-      this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
       createPostLikeFindRes(data.post_view, this.state.posts);
