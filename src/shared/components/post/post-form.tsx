@@ -80,6 +80,7 @@ interface PostFormState {
   crossPosts: Option<PostView[]>;
   loading: boolean;
   imageLoading: boolean;
+  communitySearchLoading: boolean;
   previewMode: boolean;
 }
 
@@ -99,6 +100,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }),
     loading: false,
     imageLoading: false,
+    communitySearchLoading: false,
     previewMode: false,
     suggestedTitle: None,
     suggestedPosts: None,
@@ -366,7 +368,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className="col-sm-2 col-form-label"
                 htmlFor="post-community"
               >
-                {i18n.t("community")}
+                {this.state.communitySearchLoading ? (
+                  <Spinner />
+                ) : (
+                  i18n.t("community")
+                )}
               </label>
               <div className="col-sm-10">
                 <select
@@ -668,6 +674,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           },
           false
         );
+        this.choices.passedElement.element.addEventListener("search", () => {
+          this.setState({ communitySearchLoading: true });
+        });
         this.choices.passedElement.element.addEventListener(
           "search",
           debounce(async (e: any) => {
@@ -680,6 +689,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 "label",
                 true
               );
+              this.setState({ communitySearchLoading: false });
             } catch (err) {
               console.log(err);
             }
