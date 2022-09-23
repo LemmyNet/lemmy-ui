@@ -129,8 +129,6 @@ export class Profile extends Component<any, ProfileState> {
     } else {
       this.fetchUserData();
     }
-
-    this.setPersonBlock();
   }
 
   fetchUserData() {
@@ -209,6 +207,7 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   componentDidMount() {
+    this.setPersonBlock();
     setupTippy();
   }
 
@@ -413,9 +412,12 @@ export class Profile extends Component<any, ProfileState> {
               <div className="">
                 <div className="mb-0 d-flex flex-wrap">
                   <div>
-                    {pv.person.display_name && (
-                      <h5 className="mb-0">{pv.person.display_name}</h5>
-                    )}
+                    {pv.person.display_name.match({
+                      some: displayName => (
+                        <h5 className="mb-0">{displayName}</h5>
+                      ),
+                      none: <></>,
+                    })}
                     <ul className="list-inline mb-2">
                       <li className="list-inline-item">
                         <PersonListing
@@ -662,25 +664,28 @@ export class Profile extends Component<any, ProfileState> {
       });
   }
 
-  // TODO test this, make sure its good
   moderates() {
     return this.state.personRes
       .map(r => r.moderates)
       .match({
         some: moderates => {
           if (moderates.length > 0) {
-            <div className="card border-secondary mb-3">
-              <div className="card-body">
-                <h5>{i18n.t("moderates")}</h5>
-                <ul className="list-unstyled mb-0">
-                  {moderates.map(cmv => (
-                    <li key={cmv.community.id}>
-                      <CommunityLink community={cmv.community} />
-                    </li>
-                  ))}
-                </ul>
+            return (
+              <div className="card border-secondary mb-3">
+                <div className="card-body">
+                  <h5>{i18n.t("moderates")}</h5>
+                  <ul className="list-unstyled mb-0">
+                    {moderates.map(cmv => (
+                      <li key={cmv.community.id}>
+                        <CommunityLink community={cmv.community} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div>;
+            );
+          } else {
+            return <></>;
           }
         },
         none: void 0,
@@ -693,18 +698,22 @@ export class Profile extends Component<any, ProfileState> {
       .match({
         some: follows => {
           if (follows.length > 0) {
-            <div className="card border-secondary mb-3">
-              <div className="card-body">
-                <h5>{i18n.t("subscribed")}</h5>
-                <ul className="list-unstyled mb-0">
-                  {follows.map(cfv => (
-                    <li key={cfv.community.id}>
-                      <CommunityLink community={cfv.community} />
-                    </li>
-                  ))}
-                </ul>
+            return (
+              <div className="card border-secondary mb-3">
+                <div className="card-body">
+                  <h5>{i18n.t("subscribed")}</h5>
+                  <ul className="list-unstyled mb-0">
+                    {follows.map(cfv => (
+                      <li key={cfv.community.id}>
+                        <CommunityLink community={cfv.community} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div>;
+            );
+          } else {
+            return <></>;
           }
         },
         none: void 0,
