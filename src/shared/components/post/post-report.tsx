@@ -45,6 +45,7 @@ export class PostReport extends Component<PostReportProps, any> {
       read: false,
       creator_blocked: false,
       my_vote: r.my_vote,
+      unread_comments: 0,
     };
 
     return (

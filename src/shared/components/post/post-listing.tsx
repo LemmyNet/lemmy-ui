@@ -631,13 +631,32 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           to={`/post/${post_view.post.id}?scrollToComments=true`}
         >
           <Icon icon="message-square" classes="mr-1" inline />
-          {i18n.t("number_of_comments", {
-            count: post_view.counts.comments,
-            formattedCount: numToSI(post_view.counts.comments),
+          <span className="mr-2">
+            {i18n.t("number_of_comments", {
+              count: post_view.counts.comments,
+              formattedCount: numToSI(post_view.counts.comments),
+            })}
+          </span>
+          {this.unreadCount.match({
+            some: unreadCount => (
+              <span className="small text-warning">
+                ({unreadCount} {i18n.t("new")})
+              </span>
+            ),
+            none: <></>,
           })}
         </Link>
       </button>
     );
+  }
+
+  get unreadCount(): Option<number> {
+    let pv = this.props.post_view;
+    if (pv.unread_comments == pv.counts.comments || pv.unread_comments == 0) {
+      return None;
+    } else {
+      return Some(pv.unread_comments);
+    }
   }
 
   get mobileVotes() {
