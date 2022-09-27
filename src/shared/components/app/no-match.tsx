@@ -13,7 +13,7 @@ export class NoMatch extends Component<any, any> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <h1>404</h1>
         {this.errCode && (
           <h3>

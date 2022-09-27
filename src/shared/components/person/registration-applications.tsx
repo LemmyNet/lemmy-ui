@@ -75,10 +75,13 @@ export class RegistrationApplications extends Component<
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      this.state.listRegistrationApplicationsResponse = Some(
-        this.isoData.routeData[0] as ListRegistrationApplicationsResponse
-      );
-      this.state.loading = false;
+      this.state = {
+        ...this.state,
+        listRegistrationApplicationsResponse: Some(
+          this.isoData.routeData[0] as ListRegistrationApplicationsResponse
+        ),
+        loading: false,
+      };
     } else {
       this.refetch();
     }
@@ -110,21 +113,21 @@ export class RegistrationApplications extends Component<
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         {this.state.loading ? (
           <h5>
             <Spinner large />
           </h5>
         ) : (
-          <div class="row">
-            <div class="col-12">
+          <div className="row">
+            <div className="col-12">
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
                 description={None}
                 image={None}
               />
-              <h5 class="mb-2">{i18n.t("registration_applications")}</h5>
+              <h5 className="mb-2">{i18n.t("registration_applications")}</h5>
               {this.selects()}
               {this.applicationList()}
               <Paginator
@@ -140,7 +143,7 @@ export class RegistrationApplications extends Component<
 
   unreadOrAllRadios() {
     return (
-      <div class="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
             ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
@@ -174,7 +177,7 @@ export class RegistrationApplications extends Component<
   selects() {
     return (
       <div className="mb-2">
-        <span class="mr-3">{this.unreadOrAllRadios()}</span>
+        <span className="mr-3">{this.unreadOrAllRadios()}</span>
       </div>
     );
   }
@@ -199,9 +202,7 @@ export class RegistrationApplications extends Component<
   }
 
   handleUnreadOrAllChange(i: RegistrationApplications, event: any) {
-    i.state.unreadOrAll = Number(event.target.value);
-    i.state.page = 1;
-    i.setState(i.state);
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
     i.refetch();
   }
 
@@ -248,10 +249,11 @@ export class RegistrationApplications extends Component<
         msg,
         ListRegistrationApplicationsResponse
       );
-      this.state.listRegistrationApplicationsResponse = Some(data);
-      this.state.loading = false;
+      this.setState({
+        listRegistrationApplicationsResponse: Some(data),
+        loading: false,
+      });
       window.scrollTo(0, 0);
-      this.setState(this.state);
     } else if (op == UserOperation.ApproveRegistrationApplication) {
       let data = wsJsonToRes<RegistrationApplicationResponse>(
         msg,

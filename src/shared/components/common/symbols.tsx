@@ -17,7 +17,7 @@ export const SYMBOLS = (
         viewBox="0 0 196.52 196.52"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g color="#000" font-weight="400" font-family="sans-serif">
+        <g color="#000" fontWeight="400" fontFamily="sans-serif">
           <path
             d="M47.924 72.797a18.228 18.228 0 0 1-7.796 7.76l42.799 42.965 10.318-5.23zm56.453 56.67l-10.319 5.23 21.686 21.77a18.228 18.228 0 0 1 7.798-7.76z"
             overflow="visible"
@@ -69,7 +69,7 @@ export const SYMBOLS = (
             fill="#dbb210"
           />
         </g>
-        <g transform="rotate(3.118 600.365 106.46)" fill-opacity=".996">
+        <g transform="rotate(3.118 600.365 106.46)" fillOpacity=".996">
           <circle cx="106.266" cy="51.536" r="16.571" fill="#ffca00" />
           <circle cx="171.428" cy="110.193" r="16.571" fill="#64ff00" />
           <circle cx="135.764" cy="190.277" r="16.571" fill="#00a3ff" />
