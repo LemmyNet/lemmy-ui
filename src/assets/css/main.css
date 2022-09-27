@@ -375,6 +375,10 @@ br.big {
   border-radius: 4px;
 }
 
+.modlog-choices-font-size {
+  font-size: .9375rem !important;
+}
+
 .preview-lines {
   overflow: hidden;
   text-overflow: ellipsis;

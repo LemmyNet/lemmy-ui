@@ -67,10 +67,10 @@ export class Setup extends Component<any, State> {
 
   render() {
     return (
-      <div class="container">
+      <div className="container">
         <Helmet title={this.documentTitle} />
-        <div class="row">
-          <div class="col-12 offset-lg-3 col-lg-6">
+        <div className="row">
+          <div className="col-12 offset-lg-3 col-lg-6">
             <h3>{i18n.t("lemmy_instance_setup")}</h3>
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
@@ -87,14 +87,14 @@ export class Setup extends Component<any, State> {
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
         <h5>{i18n.t("setup_admin")}</h5>
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="username">
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label" htmlFor="username">
             {i18n.t("username")}
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               type="text"
-              class="form-control"
+              className="form-control"
               id="username"
               value={this.state.userForm.username}
               onInput={linkEvent(this, this.handleRegisterUsernameChange)}
@@ -104,16 +104,16 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="email">
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label" htmlFor="email">
             {i18n.t("email")}
           </label>
 
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               type="email"
               id="email"
-              class="form-control"
+              className="form-control"
               placeholder={i18n.t("optional")}
               value={toUndefined(this.state.userForm.email)}
               onInput={linkEvent(this, this.handleRegisterEmailChange)}
@@ -121,17 +121,17 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="password">
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label" htmlFor="password">
             {i18n.t("password")}
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               type="password"
               id="password"
               value={this.state.userForm.password}
               onInput={linkEvent(this, this.handleRegisterPasswordChange)}
-              class="form-control"
+              className="form-control"
               required
               autoComplete="new-password"
               minLength={10}
@@ -139,17 +139,17 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label" htmlFor="verify-password">
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label" htmlFor="verify-password">
             {i18n.t("verify_password")}
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               type="password"
               id="verify-password"
               value={this.state.userForm.password_verify}
               onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
-              class="form-control"
+              className="form-control"
               required
               autoComplete="new-password"
               minLength={10}
@@ -157,9 +157,9 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div class="form-group row">
-          <div class="col-sm-10">
-            <button type="submit" class="btn btn-secondary">
+        <div className="form-group row">
+          <div className="col-sm-10">
+            <button type="submit" className="btn btn-secondary">
               {this.state.userLoading ? <Spinner /> : i18n.t("sign_up")}
             </button>
           </div>
@@ -170,8 +170,7 @@ export class Setup extends Component<any, State> {
 
   handleRegisterSubmit(i: Setup, event: any) {
     event.preventDefault();
-    i.state.userLoading = true;
-    i.setState(i.state);
+    i.setState({ userLoading: true });
     event.preventDefault();
     WebSocketService.Instance.send(wsClient.register(i.state.userForm));
   }
@@ -200,14 +199,12 @@ export class Setup extends Component<any, State> {
     let op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      this.state.userLoading = false;
-      this.setState(this.state);
+      this.setState({ userLoading: false });
       return;
     } else if (op == UserOperation.Register) {
       let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
-      this.state.userLoading = false;
+      this.setState({ userLoading: false });
       UserService.Instance.login(data);
-      this.setState(this.state);
     } else if (op == UserOperation.CreateSite) {
       window.location.href = "/";
     }

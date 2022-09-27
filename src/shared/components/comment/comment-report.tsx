@@ -64,6 +64,7 @@ export class CommentReport extends Component<CommentReportProps, any> {
           enableDownvotes={true}
           viewOnly={true}
           showCommunity={true}
+          allLanguages={[]}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />

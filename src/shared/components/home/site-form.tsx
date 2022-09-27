@@ -55,6 +55,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       community_creation_admin_only: None,
       application_email_admins: None,
       auth: undefined,
+      hide_modlog_mod_names: Some(true),
     }),
     loading: false,
     themeList: None,
@@ -78,9 +79,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleDefaultPostListingTypeChange =
       this.handleDefaultPostListingTypeChange.bind(this);
 
-    this.props.site.match({
-      some: site => {
-        this.state.siteForm = new EditSite({
+    if (this.props.site.isSome()) {
+      let site = this.props.site.unwrap();
+      this.state = {
+        ...this.state,
+        siteForm: new EditSite({
           name: Some(site.name),
           sidebar: site.sidebar,
           description: site.description,
@@ -100,22 +103,20 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           default_post_listing_type: Some(site.default_post_listing_type),
           legal_information: site.legal_information,
           application_email_admins: Some(site.application_email_admins),
+          hide_modlog_mod_names: site.hide_modlog_mod_names,
           auth: undefined,
-        });
-      },
-      none: void 0,
-    });
+        }),
+      };
+    }
   }
 
   async componentDidMount() {
-    this.state.themeList = Some(await fetchThemeList());
-    this.setState(this.state);
+    this.setState({ themeList: Some(await fetchThemeList()) });
   }
 
   // Necessary to stop the loading
   componentWillReceiveProps() {
-    this.state.loading = false;
-    this.setState(this.state);
+    this.setState({ loading: false });
   }
 
   componentDidUpdate() {
@@ -157,15 +158,15 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               ? capitalizeFirstLetter(i18n.t("save"))
               : capitalizeFirstLetter(i18n.t("name"))
           } ${i18n.t("your_site")}`}</h5>
-          <div class="form-group row">
-            <label class="col-12 col-form-label" htmlFor="create-site-name">
+          <div className="form-group row">
+            <label className="col-12 col-form-label" htmlFor="create-site-name">
               {i18n.t("name")}
             </label>
-            <div class="col-12">
+            <div className="col-12">
               <input
                 type="text"
                 id="create-site-name"
-                class="form-control"
+                className="form-control"
                 value={toUndefined(this.state.siteForm.name)}
                 onInput={linkEvent(this, this.handleSiteNameChange)}
                 required
@@ -174,7 +175,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           </div>
-          <div class="form-group">
+          <div className="form-group">
             <label>{i18n.t("icon")}</label>
             <ImageUploadForm
               uploadTitle={i18n.t("upload_icon")}
@@ -184,7 +185,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               rounded
             />
           </div>
-          <div class="form-group">
+          <div className="form-group">
             <label>{i18n.t("banner")}</label>
             <ImageUploadForm
               uploadTitle={i18n.t("upload_banner")}
@@ -193,14 +194,14 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onRemove={this.handleBannerRemove}
             />
           </div>
-          <div class="form-group row">
-            <label class="col-12 col-form-label" htmlFor="site-desc">
+          <div className="form-group row">
+            <label className="col-12 col-form-label" htmlFor="site-desc">
               {i18n.t("description")}
             </label>
-            <div class="col-12">
+            <div className="col-12">
               <input
                 type="text"
-                class="form-control"
+                className="form-control"
                 id="site-desc"
                 value={toUndefined(this.state.siteForm.description)}
                 onInput={linkEvent(this, this.handleSiteDescChange)}
@@ -208,56 +209,62 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-12 col-form-label">{i18n.t("sidebar")}</label>
-            <div class="col-12">
+          <div className="form-group row">
+            <label className="col-12 col-form-label">{i18n.t("sidebar")}</label>
+            <div className="col-12">
               <MarkdownTextArea
                 initialContent={this.state.siteForm.sidebar}
+                initialLanguageId={None}
                 placeholder={None}
                 buttonTitle={None}
                 maxLength={None}
                 onContentChange={this.handleSiteSidebarChange}
                 hideNavigationWarnings
+                allLanguages={[]}
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-12 col-form-label">
+          <div className="form-group row">
+            <label className="col-12 col-form-label">
               {i18n.t("legal_information")}
             </label>
-            <div class="col-12">
+            <div className="col-12">
               <MarkdownTextArea
                 initialContent={this.state.siteForm.legal_information}
+                initialLanguageId={None}
                 placeholder={None}
                 buttonTitle={None}
                 maxLength={None}
                 onContentChange={this.handleSiteLegalInfoChange}
                 hideNavigationWarnings
+                allLanguages={[]}
               />
             </div>
           </div>
           {this.state.siteForm.require_application.unwrapOr(false) && (
-            <div class="form-group row">
-              <label class="col-12 col-form-label">
+            <div className="form-group row">
+              <label className="col-12 col-form-label">
                 {i18n.t("application_questionnaire")}
               </label>
-              <div class="col-12">
+              <div className="col-12">
                 <MarkdownTextArea
                   initialContent={this.state.siteForm.application_question}
+                  initialLanguageId={None}
                   placeholder={None}
                   buttonTitle={None}
                   maxLength={None}
                   onContentChange={this.handleSiteApplicationQuestionChange}
                   hideNavigationWarnings
+                  allLanguages={[]}
                 />
               </div>
             </div>
           )}
-          <div class="form-group row">
-            <div class="col-12">
-              <div class="form-check">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="create-site-downvotes"
                   type="checkbox"
                   checked={toUndefined(this.state.siteForm.enable_downvotes)}
@@ -266,24 +273,27 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                     this.handleSiteEnableDownvotesChange
                   )}
                 />
-                <label class="form-check-label" htmlFor="create-site-downvotes">
+                <label
+                  className="form-check-label"
+                  htmlFor="create-site-downvotes"
+                >
                   {i18n.t("enable_downvotes")}
                 </label>
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
-              <div class="form-check">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="create-site-enable-nsfw"
                   type="checkbox"
                   checked={toUndefined(this.state.siteForm.enable_nsfw)}
                   onChange={linkEvent(this, this.handleSiteEnableNsfwChange)}
                 />
                 <label
-                  class="form-check-label"
+                  className="form-check-label"
                   htmlFor="create-site-enable-nsfw"
                 >
                   {i18n.t("enable_nsfw")}
@@ -291,11 +301,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
-              <div class="form-check">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="create-site-open-registration"
                   type="checkbox"
                   checked={toUndefined(this.state.siteForm.open_registration)}
@@ -305,7 +315,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   )}
                 />
                 <label
-                  class="form-check-label"
+                  className="form-check-label"
                   htmlFor="create-site-open-registration"
                 >
                   {i18n.t("open_registration")}
@@ -313,11 +323,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
-              <div class="form-check">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="create-site-community-creation-admin-only"
                   type="checkbox"
                   checked={toUndefined(
@@ -329,7 +339,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   )}
                 />
                 <label
-                  class="form-check-label"
+                  className="form-check-label"
                   htmlFor="create-site-community-creation-admin-only"
                 >
                   {i18n.t("community_creation_admin_only")}
@@ -337,11 +347,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
-              <div class="form-check">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="create-site-require-email-verification"
                   type="checkbox"
                   checked={toUndefined(
@@ -353,7 +363,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   )}
                 />
                 <label
-                  class="form-check-label"
+                  className="form-check-label"
                   htmlFor="create-site-require-email-verification"
                 >
                   {i18n.t("require_email_verification")}
@@ -361,18 +371,18 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
-              <div class="form-check">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="create-site-require-application"
                   type="checkbox"
                   checked={toUndefined(this.state.siteForm.require_application)}
                   onChange={linkEvent(this, this.handleSiteRequireApplication)}
                 />
                 <label
-                  class="form-check-label"
+                  className="form-check-label"
                   htmlFor="create-site-require-application"
                 >
                   {i18n.t("require_registration_application")}
@@ -380,11 +390,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
-              <div class="form-check">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="create-site-application-email-admins"
                   type="checkbox"
                   checked={toUndefined(
@@ -396,7 +406,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   )}
                 />
                 <label
-                  class="form-check-label"
+                  className="form-check-label"
                   htmlFor="create-site-email-admins"
                 >
                   {i18n.t("application_email_admins")}
@@ -404,10 +414,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
+          <div className="form-group row">
+            <div className="col-12">
               <label
-                class="form-check-label mr-2"
+                className="form-check-label mr-2"
                 htmlFor="create-site-default-theme"
               >
                 {i18n.t("theme")}
@@ -416,19 +426,21 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 id="create-site-default-theme"
                 value={toUndefined(this.state.siteForm.default_theme)}
                 onChange={linkEvent(this, this.handleSiteDefaultTheme)}
-                class="custom-select w-auto"
+                className="custom-select w-auto"
               >
                 <option value="browser">{i18n.t("browser_default")}</option>
                 {this.state.themeList.unwrapOr([]).map(theme => (
-                  <option value={theme}>{theme}</option>
+                  <option key={theme} value={theme}>
+                    {theme}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
           {this.props.showLocal && (
             <form className="form-group row">
-              <label class="col-sm-3">{i18n.t("listing_type")}</label>
-              <div class="col-sm-9">
+              <label className="col-sm-3">{i18n.t("listing_type")}</label>
+              <div className="col-sm-9">
                 <ListingTypeSelect
                   type_={
                     ListingType[
@@ -444,18 +456,18 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </div>
             </form>
           )}
-          <div class="form-group row">
-            <div class="col-12">
-              <div class="form-check">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
                 <input
-                  class="form-check-input"
+                  className="form-check-input"
                   id="create-site-private-instance"
                   type="checkbox"
-                  value={toUndefined(this.state.siteForm.default_theme)}
+                  checked={toUndefined(this.state.siteForm.private_instance)}
                   onChange={linkEvent(this, this.handleSitePrivateInstance)}
                 />
                 <label
-                  class="form-check-label"
+                  className="form-check-label"
                   htmlFor="create-site-private-instance"
                 >
                   {i18n.t("private_instance")}
@@ -463,11 +475,32 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <div class="col-12">
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  id="create-site-hide-modlog-mod-names"
+                  type="checkbox"
+                  checked={toUndefined(
+                    this.state.siteForm.hide_modlog_mod_names
+                  )}
+                  onChange={linkEvent(this, this.handleSiteHideModlogModNames)}
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor="create-site-hide-modlog-mod-names"
+                >
+                  {i18n.t("hide_modlog_mod_names")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <div className="col-12">
               <button
                 type="submit"
-                class="btn btn-secondary mr-2"
+                className="btn btn-secondary mr-2"
                 disabled={this.state.loading}
               >
                 {this.state.loading ? (
@@ -481,7 +514,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               {this.props.site.isSome() && (
                 <button
                   type="button"
-                  class="btn btn-secondary"
+                  className="btn btn-secondary"
                   onClick={linkEvent(this, this.handleCancel)}
                 >
                   {i18n.t("cancel")}
@@ -496,8 +529,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleCreateSiteSubmit(i: SiteForm, event: any) {
     event.preventDefault();
-    i.state.loading = true;
-    i.state.siteForm.auth = auth().unwrap();
+    i.setState({ loading: true });
+    i.setState(s => ((s.siteForm.auth = auth().unwrap()), s));
 
     if (i.props.site.isSome()) {
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
@@ -522,6 +555,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         default_post_listing_type: sForm.default_post_listing_type,
         application_email_admins: sForm.application_email_admins,
         auth: auth().unwrap(),
+        hide_modlog_mod_names: sForm.hide_modlog_mod_names,
       });
       WebSocketService.Instance.send(wsClient.createSite(form));
     }
@@ -534,18 +568,15 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteSidebarChange(val: string) {
-    this.state.siteForm.sidebar = Some(val);
-    this.setState(this.state);
+    this.setState(s => ((s.siteForm.sidebar = Some(val)), s));
   }
 
   handleSiteLegalInfoChange(val: string) {
-    this.state.siteForm.legal_information = Some(val);
-    this.setState(this.state);
+    this.setState(s => ((s.siteForm.legal_information = Some(val)), s));
   }
 
   handleSiteApplicationQuestionChange(val: string) {
-    this.state.siteForm.application_question = Some(val);
-    this.setState(this.state);
+    this.setState(s => ((s.siteForm.application_question = Some(val)), s));
   }
 
   handleSiteDescChange(i: SiteForm, event: any) {
@@ -593,6 +624,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
+  handleSiteHideModlogModNames(i: SiteForm, event: any) {
+    i.state.siteForm.hide_modlog_mod_names = Some(event.target.checked);
+    i.setState(i.state);
+  }
+
   handleSiteDefaultTheme(i: SiteForm, event: any) {
     i.state.siteForm.default_theme = Some(event.target.value);
     i.setState(i.state);
@@ -603,29 +639,29 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleIconUpload(url: string) {
-    this.state.siteForm.icon = Some(url);
-    this.setState(this.state);
+    this.setState(s => ((s.siteForm.icon = Some(url)), s));
   }
 
   handleIconRemove() {
-    this.state.siteForm.icon = Some("");
-    this.setState(this.state);
+    this.setState(s => ((s.siteForm.icon = Some("")), s));
   }
 
   handleBannerUpload(url: string) {
-    this.state.siteForm.banner = Some(url);
-    this.setState(this.state);
+    this.setState(s => ((s.siteForm.banner = Some(url)), s));
   }
 
   handleBannerRemove() {
-    this.state.siteForm.banner = Some("");
-    this.setState(this.state);
+    this.setState(s => ((s.siteForm.banner = Some("")), s));
   }
 
   handleDefaultPostListingTypeChange(val: ListingType) {
-    this.state.siteForm.default_post_listing_type = Some(
-      ListingType[ListingType[val]]
+    this.setState(
+      s => (
+        (s.siteForm.default_post_listing_type = Some(
+          ListingType[ListingType[val]]
+        )),
+        s
+      )
     );
-    this.setState(this.state);
   }
 }

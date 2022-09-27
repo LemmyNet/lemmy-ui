@@ -1,4 +1,4 @@
-import { None, Option, Result, Some } from "@sniptt/monads";
+import { Err, None, Ok, Option, Result, Some } from "@sniptt/monads";
 import { ClassConstructor, deserialize, serialize } from "class-transformer";
 import emojiShortName from "emoji-short-name";
 import {
@@ -69,7 +69,7 @@ export const webArchiveUrl = "https://web.archive.org";
 export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
-export const fetchLimit = 20;
+export const fetchLimit = 40;
 export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
@@ -210,9 +210,10 @@ export function canMod(
 export function canAdmin(
   admins: Option<PersonViewSafe[]>,
   creator_id: number,
-  myUserInfo = UserService.Instance.myUserInfo
+  myUserInfo = UserService.Instance.myUserInfo,
+  onSelf = false
 ): boolean {
-  return canMod(None, admins, creator_id, myUserInfo);
+  return canMod(None, admins, creator_id, myUserInfo, onSelf);
 }
 
 export function isMod(
@@ -417,7 +418,7 @@ export function getLanguages(
   myUserInfo = UserService.Instance.myUserInfo
 ): string[] {
   let myLang = myUserInfo
-    .map(m => m.local_user_view.local_user.lang)
+    .map(m => m.local_user_view.local_user.interface_language)
     .unwrapOr("browser");
   let lang = override || myLang;
 
@@ -629,21 +630,18 @@ export function notifyPrivateMessage(pmv: PrivateMessageView, router: any) {
 function notify(info: NotifyInfo, router: any) {
   messageToastify(info, router);
 
-  // TODO absolute nightmare bug, but notifs are currently broken.
-  // Notification.new will try to do a browser fetch ???
+  if (Notification.permission !== "granted") Notification.requestPermission();
+  else {
+    var notification = new Notification(info.name, {
+      ...{ body: info.body },
+      ...(info.icon.isSome() && { icon: info.icon.unwrap() }),
+    });
 
-  // if (Notification.permission !== "granted") Notification.requestPermission();
-  // else {
-  //   var notification = new Notification(info.name, {
-  //     icon: info.icon,
-  //     body: info.body,
-  //   });
-
-  //   notification.onclick = (ev: Event): any => {
-  //     ev.preventDefault();
-  //     router.history.push(info.link);
-  //   };
-  // }
+    notification.onclick = (ev: Event): any => {
+      ev.preventDefault();
+      router.history.push(info.link);
+    };
+  }
 }
 
 export function setupTribute() {
@@ -830,6 +828,7 @@ export function editCommentRes(data: CommentView, comments: CommentView[]) {
   let found = comments.find(c => c.comment.id == data.comment.id);
   if (found) {
     found.comment.content = data.comment.content;
+    found.comment.distinguished = data.comment.distinguished;
     found.comment.updated = data.comment.updated;
     found.comment.removed = data.comment.removed;
     found.comment.deleted = data.comment.deleted;
@@ -1269,7 +1268,7 @@ export function showLocal(isoData: IsoData): boolean {
     .unwrapOr(false);
 }
 
-interface ChoicesValue {
+export interface ChoicesValue {
   value: string;
   label: string;
 }
@@ -1328,13 +1327,14 @@ export const choicesConfig = {
   shouldSort: false,
   searchResultLimit: fetchLimit,
   classNames: {
-    containerOuter: "choices",
-    containerInner: "choices__inner bg-secondary border-0",
+    containerOuter: "choices custom-select px-0",
+    containerInner:
+      "choices__inner bg-secondary border-0 py-0 modlog-choices-font-size",
     input: "form-control",
     inputCloned: "choices__input--cloned",
     list: "choices__list",
     listItems: "choices__list--multiple",
-    listSingle: "choices__list--single",
+    listSingle: "choices__list--single py-0",
     listDropdown: "choices__list--dropdown",
     item: "choices__item bg-secondary",
     itemSelectable: "choices__item--selectable",
@@ -1427,4 +1427,60 @@ export function postToCommentSortType(sort: SortType): CommentSortType {
   } else {
     return CommentSortType.Top;
   }
+}
+
+export function arrayGet<T>(arr: Array<T>, index: number): Result<T, string> {
+  let out = arr.at(index);
+  if (out == undefined) {
+    return Err("Index undefined");
+  } else {
+    return Ok(out);
+  }
+}
+
+export function myFirstDiscussionLanguageId(
+  myUserInfo = UserService.Instance.myUserInfo
+): Option<number> {
+  return myUserInfo.andThen(mui =>
+    arrayGet(mui.discussion_languages, 0)
+      .ok()
+      .map(i => i.id)
+  );
+}
+
+export function canCreateCommunity(siteRes: GetSiteResponse): boolean {
+  let adminOnly = siteRes.site_view
+    .map(s => s.site.community_creation_admin_only)
+    .unwrapOr(false);
+  return !adminOnly || amAdmin(Some(siteRes.admins));
+}
+
+export function isPostBlocked(
+  pv: PostView,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  return myUserInfo
+    .map(
+      mui =>
+        mui.community_blocks
+          .map(c => c.community.id)
+          .includes(pv.community.id) ||
+        mui.person_blocks.map(p => p.target.id).includes(pv.creator.id)
+    )
+    .unwrapOr(false);
+}
+
+/// Checks to make sure you can view NSFW posts. Returns true if you can.
+export function nsfwCheck(
+  pv: PostView,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
+  let nsfw = pv.post.nsfw || pv.community.nsfw;
+  return (
+    !nsfw ||
+    (nsfw &&
+      myUserInfo
+        .map(m => m.local_user_view.local_user.show_nsfw)
+        .unwrapOr(false))
+  );
 }

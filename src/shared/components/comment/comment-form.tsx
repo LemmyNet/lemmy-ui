@@ -7,6 +7,7 @@ import {
   CommentResponse,
   CreateComment,
   EditComment,
+  Language,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -17,6 +18,7 @@ import { UserService, WebSocketService } from "../../services";
 import {
   auth,
   capitalizeFirstLetter,
+  myFirstDiscussionLanguageId,
   wsClient,
   wsSubscribe,
 } from "../../utils";
@@ -32,6 +34,7 @@ interface CommentFormProps {
   disabled?: boolean;
   focus?: boolean;
   onReplyCancel?(): any;
+  allLanguages: Language[];
 }
 
 interface CommentFormState {
@@ -74,11 +77,19 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         this.props.edit ? Some(node.comment_view.comment.content) : None,
       right: () => None,
     });
+
+    let selectedLang = this.props.node
+      .left()
+      .map(n => n.comment_view.comment.language_id)
+      .or(myFirstDiscussionLanguageId(UserService.Instance.myUserInfo));
+
     return (
-      <div class="mb-3">
+      <div className="mb-3">
         {UserService.Instance.myUserInfo.isSome() ? (
           <MarkdownTextArea
             initialContent={initialContent}
+            initialLanguageId={selectedLang}
+            showLanguage
             buttonTitle={Some(this.state.buttonTitle)}
             maxLength={None}
             finished={this.state.finished}
@@ -88,9 +99,10 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             onSubmit={this.handleCommentSubmit}
             onReplyCancel={this.handleReplyCancel}
             placeholder={Some(i18n.t("comment_here"))}
+            allLanguages={this.props.allLanguages}
           />
         ) : (
-          <div class="alert alert-warning" role="alert">
+          <div className="alert alert-warning" role="alert">
             <Icon icon="alert-triangle" classes="icon-inline mr-2" />
             <T i18nKey="must_login" class="d-inline">
               #
@@ -104,26 +116,34 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
     );
   }
 
-  handleCommentSubmit(msg: { val: string; formId: string }) {
+  handleCommentSubmit(msg: {
+    val: Option<string>;
+    formId: string;
+    languageId: Option<number>;
+  }) {
     let content = msg.val;
-    this.state.formId = Some(msg.formId);
+    let language_id = msg.languageId;
+    this.setState({ formId: Some(msg.formId) });
 
     this.props.node.match({
       left: node => {
         if (this.props.edit) {
           let form = new EditComment({
             content,
+            distinguished: None,
             form_id: this.state.formId,
             comment_id: node.comment_view.comment.id,
+            language_id,
             auth: auth().unwrap(),
           });
           WebSocketService.Instance.send(wsClient.editComment(form));
         } else {
           let form = new CreateComment({
-            content,
+            content: content.unwrap(),
             form_id: this.state.formId,
             post_id: node.comment_view.post.id,
             parent_id: Some(node.comment_view.comment.id),
+            language_id,
             auth: auth().unwrap(),
           });
           WebSocketService.Instance.send(wsClient.createComment(form));
@@ -131,10 +151,11 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
       },
       right: postId => {
         let form = new CreateComment({
-          content,
+          content: content.unwrap(),
           form_id: this.state.formId,
           post_id: postId,
           parent_id: None,
+          language_id,
           auth: auth().unwrap(),
         });
         WebSocketService.Instance.send(wsClient.createComment(form));
