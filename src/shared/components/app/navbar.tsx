@@ -1,4 +1,4 @@
-import { None, Some } from "@sniptt/monads";
+import { None } from "@sniptt/monads";
 import { Component, createRef, linkEvent, RefObject } from "inferno";
 import { NavLink } from "inferno-router";
 import {
@@ -209,7 +209,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 </ul>
               )}
-              {this.amAdmin && (
+              {amAdmin() && (
                 <ul className="navbar-nav ml-1">
                   <li className="nav-item">
                     <NavLink
@@ -298,7 +298,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </li>
             </ul>
             <ul className="navbar-nav my-2">
-              {this.amAdmin && (
+              {amAdmin() && (
                 <li className="nav-item">
                   <NavLink
                     to="/admin"
@@ -388,7 +388,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     </li>
                   </ul>
                 )}
-                {this.amAdmin && (
+                {amAdmin() && (
                   <ul className="navbar-nav my-2">
                     <li className="nav-item">
                       <NavLink
@@ -525,10 +525,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     );
   }
 
-  get amAdmin(): boolean {
-    return amAdmin(Some(this.props.siteRes.admins));
-  }
-
   handleToggleExpandNavbar(i: Navbar) {
     i.setState({ expanded: !i.state.expanded });
   }
@@ -605,7 +601,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         GetReportCountResponse
       );
       this.setState({
-        unreadReportCount: data.post_reports + data.comment_reports,
+        unreadReportCount:
+          data.post_reports +
+          data.comment_reports +
+          data.private_message_reports.unwrapOr(0),
       });
       this.sendReportUnread();
     } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
@@ -673,7 +672,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     });
     WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
 
-    if (this.amAdmin) {
+    if (amAdmin()) {
       console.log("Fetching applications...");
 
       let applicationCountForm = new GetUnreadRegistrationApplicationCount({

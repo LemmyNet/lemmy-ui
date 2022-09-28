@@ -17,6 +17,7 @@ import {
   PersonMentionResponse,
   PersonMentionView,
   PostReportResponse,
+  PrivateMessageReportResponse,
   PrivateMessageResponse,
   PrivateMessagesResponse,
   PrivateMessageView,
@@ -877,6 +878,14 @@ export class Inbox extends Component<any, InboxState> {
       }
     } else if (op == UserOperation.CreateCommentReport) {
       let data = wsJsonToRes<CommentReportResponse>(msg, CommentReportResponse);
+      if (data) {
+        toast(i18n.t("report_created"));
+      }
+    } else if (op == UserOperation.CreatePrivateMessageReport) {
+      let data = wsJsonToRes<PrivateMessageReportResponse>(
+        msg,
+        PrivateMessageReportResponse
+      );
       if (data) {
         toast(i18n.t("report_created"));
       }

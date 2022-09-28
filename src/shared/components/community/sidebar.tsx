@@ -420,7 +420,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               )}
             </>
           )}
-          {amAdmin(Some(this.props.admins)) && (
+          {amAdmin() && (
             <li className="list-inline-item">
               {!this.props.community_view.community.removed ? (
                 <button
@@ -600,7 +600,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
       amMod(Some(this.props.moderators)) ||
-      amAdmin(Some(this.props.admins))
+      amAdmin()
     );
   }
 
