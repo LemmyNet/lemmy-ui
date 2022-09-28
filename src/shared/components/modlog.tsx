@@ -618,10 +618,7 @@ export class Modlog extends Component<any, ModlogState> {
   }
 
   get amAdminOrMod(): boolean {
-    return (
-      amAdmin(Some(this.state.siteRes.admins)) ||
-      amMod(this.state.communityMods)
-    );
+    return amAdmin() || amMod(this.state.communityMods);
   }
 
   modOrAdminText(person: Option<PersonSafe>): string {

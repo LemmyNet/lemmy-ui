@@ -1,10 +1,12 @@
-import { None, Some } from "@sniptt/monads/build";
+import { None, Option, Some } from "@sniptt/monads/build";
 import { Component, linkEvent } from "inferno";
 import {
+  CreatePrivateMessageReport,
   DeletePrivateMessage,
   MarkPrivateMessageAsRead,
   PersonSafe,
   PrivateMessageView,
+  toUndefined,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
@@ -19,6 +21,8 @@ interface PrivateMessageState {
   showEdit: boolean;
   collapsed: boolean;
   viewSource: boolean;
+  showReportDialog: boolean;
+  reportReason: Option<string>;
 }
 
 interface PrivateMessageProps {
@@ -34,6 +38,8 @@ export class PrivateMessage extends Component<
     showEdit: false,
     collapsed: false,
     viewSource: false,
+    showReportDialog: false,
+    reportReason: None,
   };
 
   constructor(props: any, context: any) {
@@ -140,6 +146,7 @@ export class PrivateMessage extends Component<
                         />
                       </button>
                     </li>
+                    <li className="list-inline-item">{this.reportButton}</li>
                     <li className="list-inline-item">
                       <button
                         className="btn btn-link btn-animate text-muted"
@@ -209,6 +216,32 @@ export class PrivateMessage extends Component<
             </div>
           )}
         </div>
+        {this.state.showReportDialog && (
+          <form
+            className="form-inline"
+            onSubmit={linkEvent(this, this.handleReportSubmit)}
+          >
+            <label className="sr-only" htmlFor="pm-report-reason">
+              {i18n.t("reason")}
+            </label>
+            <input
+              type="text"
+              id="pm-report-reason"
+              className="form-control mr-2"
+              placeholder={i18n.t("reason")}
+              required
+              value={toUndefined(this.state.reportReason)}
+              onInput={linkEvent(this, this.handleReportReasonChange)}
+            />
+            <button
+              type="submit"
+              className="btn btn-secondary"
+              aria-label={i18n.t("create_report")}
+            >
+              {i18n.t("create_report")}
+            </button>
+          </form>
+        )}
         {this.state.showReply && (
           <PrivateMessageForm
             recipient={otherPerson}
@@ -219,6 +252,19 @@ export class PrivateMessage extends Component<
         {/* A collapsed clearfix */}
         {this.state.collapsed && <div className="row col-12"></div>}
       </div>
+    );
+  }
+
+  get reportButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleShowReportDialog)}
+        data-tippy-content={i18n.t("show_report_dialog")}
+        aria-label={i18n.t("show_report_dialog")}
+      >
+        <Icon icon="flag" inline />
+      </button>
     );
   }
 
@@ -264,6 +310,26 @@ export class PrivateMessage extends Component<
 
   handleViewSource(i: PrivateMessage) {
     i.setState({ viewSource: !i.state.viewSource });
+  }
+
+  handleShowReportDialog(i: PrivateMessage) {
+    i.setState({ showReportDialog: !i.state.showReportDialog });
+  }
+
+  handleReportReasonChange(i: PrivateMessage, event: any) {
+    i.setState({ reportReason: Some(event.target.value) });
+  }
+
+  handleReportSubmit(i: PrivateMessage, event: any) {
+    event.preventDefault();
+    let form = new CreatePrivateMessageReport({
+      private_message_id: i.props.private_message_view.private_message.id,
+      reason: toUndefined(i.state.reportReason),
+      auth: auth().unwrap(),
+    });
+    WebSocketService.Instance.send(wsClient.createPrivateMessageReport(form));
+
+    i.setState({ showReportDialog: false });
   }
 
   handlePrivateMessageEdit() {

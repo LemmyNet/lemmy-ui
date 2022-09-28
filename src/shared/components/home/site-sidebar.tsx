@@ -113,7 +113,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   adminButtons() {
     return (
-      amAdmin(this.props.admins) && (
+      amAdmin() && (
         <ul className="list-inline mb-1 text-muted font-weight-bold">
           <li className="list-inline-item-action">
             <button

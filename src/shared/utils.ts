@@ -23,6 +23,7 @@ import {
   PersonViewSafe,
   PostReportView,
   PostView,
+  PrivateMessageReportView,
   PrivateMessageView,
   RegistrationApplicationView,
   Search,
@@ -246,14 +247,10 @@ export function isAdmin(
   });
 }
 
-export function amAdmin(
-  admins: Option<PersonViewSafe[]>,
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  return myUserInfo.match({
-    some: mui => isAdmin(admins, mui.local_user_view.person.id),
-    none: false,
-  });
+export function amAdmin(myUserInfo = UserService.Instance.myUserInfo): boolean {
+  return myUserInfo
+    .map(mui => mui.local_user_view.person.admin)
+    .unwrapOr(false);
 }
 
 export function amCommunityCreator(
@@ -948,6 +945,7 @@ export function editPostRes(data: PostView, post: PostView) {
   }
 }
 
+// TODO possible to make these generic?
 export function updatePostReportRes(
   data: PostReportView,
   reports: PostReportView[]
@@ -965,6 +963,18 @@ export function updateCommentReportRes(
   let found = reports.find(c => c.comment_report.id == data.comment_report.id);
   if (found) {
     found.comment_report = data.comment_report;
+  }
+}
+
+export function updatePrivateMessageReportRes(
+  data: PrivateMessageReportView,
+  reports: PrivateMessageReportView[]
+) {
+  let found = reports.find(
+    c => c.private_message_report.id == data.private_message_report.id
+  );
+  if (found) {
+    found.private_message_report = data.private_message_report;
   }
 }
 
@@ -1448,11 +1458,14 @@ export function myFirstDiscussionLanguageId(
   );
 }
 
-export function canCreateCommunity(siteRes: GetSiteResponse): boolean {
+export function canCreateCommunity(
+  siteRes: GetSiteResponse,
+  myUserInfo = UserService.Instance.myUserInfo
+): boolean {
   let adminOnly = siteRes.site_view
     .map(s => s.site.community_creation_admin_only)
     .unwrapOr(false);
-  return !adminOnly || amAdmin(Some(siteRes.admins));
+  return !adminOnly || amAdmin(myUserInfo);
 }
 
 export function isPostBlocked(
