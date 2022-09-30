@@ -38,11 +38,11 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   render() {
     let site = this.props.site;
     return (
-      <div class="card border-secondary mb-3">
-        <div class="card-body">
+      <div className="card border-secondary mb-3">
+        <div className="card-body">
           {!this.state.showEdit ? (
             <div>
-              <div class="mb-2">
+              <div className="mb-2">
                 {this.siteName()}
                 {this.props.admins.isSome() && this.adminButtons()}
               </div>
@@ -69,10 +69,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   siteName() {
     let site = this.props.site;
     return (
-      <h5 class="mb-0 d-inline">
+      <h5 className="mb-0 d-inline">
         {site.name}
         <button
-          class="btn btn-sm text-muted"
+          className="btn btn-sm text-muted"
           onClick={linkEvent(this, this.handleCollapseSidebar)}
           aria-label={i18n.t("collapse")}
           data-tippy-content={i18n.t("collapse")}
@@ -113,11 +113,11 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   adminButtons() {
     return (
-      amAdmin(this.props.admins) && (
-        <ul class="list-inline mb-1 text-muted font-weight-bold">
+      amAdmin() && (
+        <ul className="list-inline mb-1 text-muted font-weight-bold">
           <li className="list-inline-item-action">
             <button
-              class="btn btn-link d-inline-block text-muted"
+              className="btn btn-link d-inline-block text-muted"
               onClick={linkEvent(this, this.handleEditClick)}
               aria-label={i18n.t("edit")}
               data-tippy-content={i18n.t("edit")}
@@ -138,10 +138,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   admins(admins: PersonViewSafe[]) {
     return (
-      <ul class="mt-1 list-inline small mb-0">
-        <li class="list-inline-item">{i18n.t("admins")}:</li>
+      <ul className="mt-1 list-inline small mb-0">
+        <li className="list-inline-item">{i18n.t("admins")}:</li>
         {admins.map(av => (
-          <li class="list-inline-item">
+          <li key={av.person.id} className="list-inline-item">
             <PersonListing person={av.person} />
           </li>
         ))}
@@ -153,7 +153,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     let counts = siteAggregates;
     let online = this.props.online.unwrapOr(1);
     return (
-      <ul class="my-2 list-inline">
+      <ul className="my-2 list-inline">
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_online", {
             count: online,
@@ -246,22 +246,18 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   handleCollapseSidebar(i: SiteSidebar) {
-    i.state.collapsed = !i.state.collapsed;
-    i.setState(i.state);
+    i.setState({ collapsed: !i.state.collapsed });
   }
 
   handleEditClick(i: SiteSidebar) {
-    i.state.showEdit = true;
-    i.setState(i.state);
+    i.setState({ showEdit: true });
   }
 
   handleEditSite() {
-    this.state.showEdit = false;
-    this.setState(this.state);
+    this.setState({ showEdit: false });
   }
 
   handleEditCancel() {
-    this.state.showEdit = false;
-    this.setState(this.state);
+    this.setState({ showEdit: false });
   }
 }

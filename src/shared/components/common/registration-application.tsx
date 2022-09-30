@@ -88,18 +88,20 @@ export class RegistrationApplication extends Component<
         })}
 
         {this.state.denyExpanded && (
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label">
+          <div className="form-group row">
+            <label className="col-sm-2 col-form-label">
               {i18n.t("deny_reason")}
             </label>
-            <div class="col-sm-10">
+            <div className="col-sm-10">
               <MarkdownTextArea
                 initialContent={this.state.denyReason}
+                initialLanguageId={None}
                 onContentChange={this.handleDenyReasonChange}
                 placeholder={None}
                 buttonTitle={None}
                 maxLength={None}
                 hideNavigationWarnings
+                allLanguages={[]}
               />
             </div>
           </div>
@@ -157,7 +159,6 @@ export class RegistrationApplication extends Component<
   }
 
   handleDenyReasonChange(val: string) {
-    this.state.denyReason = Some(val);
-    this.setState(this.state);
+    this.setState({ denyReason: Some(val) });
   }
 }

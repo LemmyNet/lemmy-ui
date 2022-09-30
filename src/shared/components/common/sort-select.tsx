@@ -40,23 +40,27 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
           name={this.id}
           value={this.state.sort}
           onChange={linkEvent(this, this.handleSortChange)}
-          class="custom-select w-auto mr-2 mb-2"
+          className="custom-select w-auto mr-2 mb-2"
           aria-label={i18n.t("sort_type")}
         >
           <option disabled aria-hidden="true">
             {i18n.t("sort_type")}
           </option>
           {!this.props.hideHot && [
-            <option value={SortType.Hot}>{i18n.t("hot")}</option>,
-            <option value={SortType.Active}>{i18n.t("active")}</option>,
+            <option key={SortType.Hot} value={SortType.Hot}>
+              {i18n.t("hot")}
+            </option>,
+            <option key={SortType.Active} value={SortType.Active}>
+              {i18n.t("active")}
+            </option>,
           ]}
           <option value={SortType.New}>{i18n.t("new")}</option>
           <option value={SortType.Old}>{i18n.t("old")}</option>
           {!this.props.hideMostComments && [
-            <option value={SortType.MostComments}>
+            <option key={SortType.MostComments} value={SortType.MostComments}>
               {i18n.t("most_comments")}
             </option>,
-            <option value={SortType.NewComments}>
+            <option key={SortType.NewComments} value={SortType.NewComments}>
               {i18n.t("new_comments")}
             </option>,
           ]}
