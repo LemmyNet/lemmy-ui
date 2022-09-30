@@ -369,6 +369,7 @@ export class MarkdownTextArea extends Component<
           pictrsDeleteToast(
             i18n.t("click_to_delete_picture"),
             i18n.t("picture_deleted"),
+            i18n.t("fail_picture_deleted").concat('\n(', file.name,')'),
             deleteUrl
           );
         } else {
