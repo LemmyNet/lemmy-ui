@@ -1,4 +1,5 @@
 import { None, Option, Some } from "@sniptt/monads";
+import {PromisePool} from '@supercharge/promise-pool';
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
@@ -256,6 +257,7 @@ export class MarkdownTextArea extends Component<
                 accept="image/*,video/*"
                 name="file"
                 className="d-none"
+                multiple
                 disabled={UserService.Instance.myUserInfo.isNone()}
                 onChange={linkEvent(this, this.handleImageUpload)}
               />
@@ -346,61 +348,74 @@ export class MarkdownTextArea extends Component<
   }
 
   handleImageUpload(i: MarkdownTextArea, event: any) {
-    let file: any;
-    if (event.target) {
-      event.preventDefault();
-      file = event.target.files[0];
-    } else {
-      file = event;
+    i.setState({ imageLoading: true });
+    // TODO: not sure if this is needed
+    if (!event.target) {
+      console.log("event");
+      i.uploadImage(i, event)
+      i.setState({ imageLoading: false });
+      return
+    } 
+    if (event.target.files.length > 20) {
+        toast("Maximum number of images to upload: 20. Please select fewer images."), "danger");
+        i.setState({ imageLoading: false });
+        return
     }
-
+    const processFiles = async () => {
+      const {} = await PromisePool
+        .withConcurrency(4)
+        .for(Array.from(event.target.files))
+        .process(async (file) => {
+          await i.uploadImage(i, file);
+        })
+    }
+    processFiles().then(() => {
+      i.setState({ imageLoading: false });
+    })
+  }
+  
+  async uploadImage(i: MarkdownTextArea, file: any) {
     const formData = new FormData();
     formData.append("images[]", file);
 
-    i.setState({ imageLoading: true });
-
-    fetch(pictrsUri, {
-      method: "POST",
-      body: formData,
-    })
-      .then(res => res.json())
-      .then(res => {
-        console.log("pictrs upload:");
-        console.log(res);
-        if (res.msg == "ok") {
-          let hash = res.files[0].file;
-          let url = `${pictrsUri}/${hash}`;
-          let deleteToken = res.files[0].delete_token;
-          let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
-          let imageMarkdown = `![](${url})`;
-          i.setState({
-            content: Some(
-              i.state.content.match({
-                some: content => `${content}\n${imageMarkdown}`,
-                none: imageMarkdown,
-              })
-            ),
-            imageLoading: false,
-          });
-          i.contentChange();
-          let textarea: any = document.getElementById(i.id);
-          autosize.update(textarea);
-          pictrsDeleteToast(
-            i18n.t("click_to_delete_picture").concat('\n(', file.name,')'),
-            i18n.t("picture_deleted").concat('\n(', file.name,')'),
-            i18n.t("fail_picture_deleted").concat('\n(', file.name,')'),
-            deleteUrl
-          );
-        } else {
-          i.setState({ imageLoading: false });
-          toast(JSON.stringify(res), "danger");
-        }
-      })
-      .catch(error => {
-        i.setState({ imageLoading: false });
-        console.error(error);
-        toast(error, "danger");
+    try {
+      const res = await fetch(pictrsUri, {
+        method: "POST",
+        body: formData,
       });
+      const res_parsed = await res.json();
+      console.log("pictrs upload:");
+      console.log(res_parsed);
+      if (res_parsed.msg == "ok") {
+        let hash = res_parsed.files[0].file;
+        let url = `${pictrsUri}/${hash}`;
+        let deleteToken = res_parsed.files[0].delete_token;
+        let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
+        let imageMarkdown = `![](${url})`;
+        i.setState({
+          content: Some(
+            i.state.content.match({
+              some: content_1 => `${content_1}\n${imageMarkdown}`,
+              none: imageMarkdown,
+            })
+          )
+        });
+        i.contentChange();
+        let textarea: any = document.getElementById(i.id);
+        autosize.update(textarea);
+        pictrsDeleteToast(
+          i18n.t("click_to_delete_picture").concat(' (', file.name, ')'),
+          i18n.t("picture_deleted").concat(' (', file.name, ')'),
+          "failed_to_delete_picture".concat(' (', file.name, ')'),
+          deleteUrl
+        );
+      } else {
+        toast(JSON.stringify(res_parsed), "danger");
+      }
+    } catch (error) {
+      console.error(error);
+      toast(error, "danger");
+    }
   }
 
   contentChange() {
