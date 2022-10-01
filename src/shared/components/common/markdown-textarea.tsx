@@ -386,9 +386,9 @@ export class MarkdownTextArea extends Component<
           let textarea: any = document.getElementById(i.id);
           autosize.update(textarea);
           pictrsDeleteToast(
-            i18n.t("click_to_delete_picture").concat('\n(', file.name,')'),
-            i18n.t("picture_deleted").concat('\n(', file.name,')'),
-            i18n.t("fail_picture_deleted").concat('\n(', file.name,')'),
+            i18n.t("click_to_delete_picture").concat(' (', file.name,')'),
+            i18n.t("picture_deleted").concat(' (', file.name,')'),
+            i18n.t("fail_picture_deleted").concat(' (', file.name,')'),
             deleteUrl
           );
         } else {
