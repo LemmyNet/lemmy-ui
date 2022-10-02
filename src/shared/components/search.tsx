@@ -390,7 +390,7 @@ export class Search extends Component<any, SearchState> {
 
   render() {
     return (
-      <div className="container">
+      <div className="container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

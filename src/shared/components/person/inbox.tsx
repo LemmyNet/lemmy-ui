@@ -171,7 +171,7 @@ export class Inbox extends Component<any, InboxState> {
       .ok()
       .map(a => `/feeds/inbox/${a}.xml`);
     return (
-      <div className="container">
+      <div className="container-lg">
         {this.state.loading ? (
           <h5>
             <Spinner large />

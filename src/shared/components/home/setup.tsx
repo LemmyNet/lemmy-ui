@@ -67,7 +67,7 @@ export class Setup extends Component<any, State> {
 
   render() {
     return (
-      <div className="container">
+      <div className="container-lg">
         <Helmet title={this.documentTitle} />
         <div className="row">
           <div className="col-12 offset-lg-3 col-lg-6">
