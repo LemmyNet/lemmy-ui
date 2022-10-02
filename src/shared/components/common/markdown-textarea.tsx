@@ -357,7 +357,7 @@ export class MarkdownTextArea extends Component<
       return
     } 
     if (event.target.files.length > 20) {
-        toast("Maximum number of images to upload: 20. Please select fewer images."), "danger");
+        toast(i18n.t("too_many_images_upload"), "danger");
         i.setState({ imageLoading: false });
         return
     }
