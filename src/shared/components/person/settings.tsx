@@ -204,7 +204,7 @@ export class Settings extends Component<any, SettingsState> {
 
   render() {
     return (
-      <div className="container">
+      <div className="container-lg">
         <>
           <HtmlTags
             title={this.documentTitle}

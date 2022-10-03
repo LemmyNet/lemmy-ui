@@ -251,7 +251,7 @@ export class Profile extends Component<any, ProfileState> {
 
   render() {
     return (
-      <div className="container">
+      <div className="container-lg">
         {this.state.loading ? (
           <h5>
             <Spinner large />

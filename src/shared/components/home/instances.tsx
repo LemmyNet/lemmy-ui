@@ -30,7 +30,7 @@ export class Instances extends Component<any, InstancesState> {
   render() {
     return this.state.siteRes.federated_instances.match({
       some: federated_instances => (
-        <div className="container">
+        <div className="container-lg">
           <HtmlTags
             title={this.documentTitle}
             path={this.context.router.route.match.url}
