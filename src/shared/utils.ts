@@ -781,7 +781,6 @@ export function getListingTypeFromPropsNoDefault(props: any): ListingType {
     : ListingType.Local;
 }
 
-// TODO might need to add a user setting for this too
 export function getDataTypeFromProps(props: any): DataType {
   return props.match.params.data_type
     ? routeDataTypeToEnum(props.match.params.data_type)

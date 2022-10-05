@@ -210,9 +210,12 @@ export class Home extends Component<any, HomeState> {
     this.subscription.unsubscribe();
   }
 
-  static getDerivedStateFromProps(props: any): HomeProps {
+  static getDerivedStateFromProps(
+    props: HomeProps,
+    state: HomeState
+  ): HomeProps {
     return {
-      listingType: getListingTypeFromProps(props, ListingType.Local),
+      listingType: getListingTypeFromProps(props, state.listingType),
       dataType: getDataTypeFromProps(props),
       sort: getSortTypeFromProps(props),
       page: getPageFromProps(props),
