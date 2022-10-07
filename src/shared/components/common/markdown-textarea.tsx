@@ -18,7 +18,8 @@ import {
   setupTribute,
   toast,
   maxUploadImages,
-  concurrentImageUpload
+  concurrentImageUpload,
+  numToSI
 } from "../../utils";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
@@ -358,7 +359,9 @@ export class MarkdownTextArea extends Component<
       return
     } 
     if (event.target.files.length > maxUploadImages) {
-        toast(i18n.t("too_many_images_upload"), "danger");
+        toast(i18n.t("too_many_images_upload",{
+          maxFormatted: numToSI(maxUploadImages),
+        }), "danger");
         i.setState({ imageLoading: false });
         return
     }
