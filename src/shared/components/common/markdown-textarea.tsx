@@ -17,6 +17,8 @@ import {
   setupTippy,
   setupTribute,
   toast,
+  maxUploadImages,
+  concurrentImageUpload
 } from "../../utils";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
@@ -351,19 +353,18 @@ export class MarkdownTextArea extends Component<
     i.setState({ imageLoading: true });
     // TODO: not sure if this is needed
     if (!event.target) {
-      console.log("event");
       i.uploadImage(i, event)
       i.setState({ imageLoading: false });
       return
     } 
-    if (event.target.files.length > 20) {
+    if (event.target.files.length > maxUploadImages) {
         toast(i18n.t("too_many_images_upload"), "danger");
         i.setState({ imageLoading: false });
         return
     }
-    const processFiles = async () => {
-      const {} = await PromisePool
-        .withConcurrency(4)
+    async function processFiles() {
+      await PromisePool
+        .withConcurrency(concurrentImageUpload)
         .for(Array.from(event.target.files))
         .process(async (file) => {
           await i.uploadImage(i, file);
@@ -383,13 +384,13 @@ export class MarkdownTextArea extends Component<
         method: "POST",
         body: formData,
       });
-      const res_parsed = await res.json();
+      const resParsed = await res.json();
       console.log("pictrs upload:");
-      console.log(res_parsed);
-      if (res_parsed.msg == "ok") {
-        let hash = res_parsed.files[0].file;
+      console.log(resParsed);
+      if (resParsed.msg == "ok") {
+        let hash = resParsed.files[0].file;
         let url = `${pictrsUri}/${hash}`;
-        let deleteToken = res_parsed.files[0].delete_token;
+        let deleteToken = resParsed.files[0].delete_token;
         let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
         let imageMarkdown = `![](${url})`;
         i.setState({
@@ -404,13 +405,13 @@ export class MarkdownTextArea extends Component<
         let textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
         pictrsDeleteToast(
-          i18n.t("click_to_delete_picture").concat(' (', file.name, ')'),
-          i18n.t("picture_deleted").concat(' (', file.name, ')'),
-          "failed_to_delete_picture".concat(' (', file.name, ')'),
+          `${i18n.t("click_to_delete_picture")}: ${file.name}`,
+          `${i18n.t("picture_deleted")}: ${file.name}`,
+          `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
           deleteUrl
         );
       } else {
-        toast(JSON.stringify(res_parsed), "danger");
+        toast(JSON.stringify(resParsed), "danger");
       }
     } catch (error) {
       console.error(error);
