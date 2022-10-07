@@ -283,7 +283,7 @@ export class Community extends Component<any, State> {
 
   render() {
     return (
-      <div className="container">
+      <div className="container-lg">
         {this.state.communityLoading ? (
           <h5>
             <Spinner large />

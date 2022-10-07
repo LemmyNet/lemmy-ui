@@ -146,7 +146,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   navbar() {
     return (
       <nav className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3">
-        <div className="container">
+        <div className="container-lg">
           {this.props.siteRes.site_view.match({
             some: siteView => (
               <NavLink

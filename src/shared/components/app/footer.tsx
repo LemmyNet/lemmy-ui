@@ -16,7 +16,7 @@ export class Footer extends Component<FooterProps, any> {
 
   render() {
     return (
-      <nav className="container navbar navbar-expand-md navbar-light navbar-bg p-3">
+      <nav className="container-lg navbar navbar-expand-md navbar-light navbar-bg p-3">
         <div className="navbar-collapse">
           <ul className="navbar-nav ml-auto">
             {this.props.site.version !== VERSION && (

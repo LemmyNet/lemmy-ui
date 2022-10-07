@@ -76,9 +76,8 @@ export class MetadataCard extends Component<
                             <button
                               className="mt-2 btn btn-secondary text-monospace"
                               onClick={linkEvent(this, this.handleIframeExpand)}
-                              data-tippy-content={i18n.t("expand_here")}
                             >
-                              {this.state.expanded ? "-" : "+"}
+                              {i18n.t("expand_here")}
                             </button>
                           )}
                         </div>
@@ -92,12 +91,7 @@ export class MetadataCard extends Component<
           })}
         {this.state.expanded &&
           post.embed_video_url.match({
-            some: html => (
-              <div
-                className="mt-3 mb-2"
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            ),
+            some: video_url => <iframe src={video_url}></iframe>,
             none: <></>,
           })}
       </>
