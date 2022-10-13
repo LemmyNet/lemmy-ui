@@ -360,8 +360,8 @@ export class MarkdownTextArea extends Component<
     } 
     if (event.target.files.length > maxUploadImages) {
         toast(i18n.t("too_many_images_upload", {
-          max: maxUploadImages,
-          maxFormatted: numToSI(maxUploadImages),
+          count: maxUploadImages,
+          formattedCount: numToSI(maxUploadImages),
         }), "danger");
         i.setState({ imageLoading: false });
         return
