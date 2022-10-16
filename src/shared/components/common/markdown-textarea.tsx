@@ -352,7 +352,7 @@ export class MarkdownTextArea extends Component<
 
   handleImageUpload(i: MarkdownTextArea, event: any) {
     i.setState({ imageLoading: true });
-    // TODO: not sure if this is needed
+    // TODO: unclear if this is needed
     if (!event.target) {
       i.uploadImage(i, event)
       i.setState({ imageLoading: false });
