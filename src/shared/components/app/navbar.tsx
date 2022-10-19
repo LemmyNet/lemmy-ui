@@ -314,35 +314,39 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             {!this.context.router.history.location.pathname.match(
               /^\/search/
             ) && (
-              <form
-                className="form-inline mr-2"
-                onSubmit={linkEvent(this, this.handleSearchSubmit)}
-              >
-                <input
-                  id="search-input"
-                  className={`form-control mr-0 search-input ${
-                    this.state.toggleSearch ? "show-input" : "hide-input"
-                  }`}
-                  onInput={linkEvent(this, this.handleSearchParam)}
-                  value={this.state.searchParam}
-                  ref={this.searchTextField}
-                  type="text"
-                  placeholder={i18n.t("search")}
-                  onBlur={linkEvent(this, this.handleSearchBlur)}
-                ></input>
-                <label className="sr-only" htmlFor="search-input">
-                  {i18n.t("search")}
-                </label>
-                <button
-                  name="search-btn"
-                  onClick={linkEvent(this, this.handleSearchBtn)}
-                  className="px-1 btn btn-link"
-                  style="color: var(--gray)"
-                  aria-label={i18n.t("search")}
-                >
-                  <Icon icon="search" />
-                </button>
-              </form>
+              <ul className="navbar-nav">
+                <li className="nav-item">
+                  <form
+                    className="form-inline mr-2"
+                    onSubmit={linkEvent(this, this.handleSearchSubmit)}
+                  >
+                    <input
+                      id="search-input"
+                      className={`form-control mr-0 search-input ${
+                        this.state.toggleSearch ? "show-input" : "hide-input"
+                      }`}
+                      onInput={linkEvent(this, this.handleSearchParam)}
+                      value={this.state.searchParam}
+                      ref={this.searchTextField}
+                      disabled={!this.state.toggleSearch}
+                      type="text"
+                      placeholder={i18n.t("search")}
+                      onBlur={linkEvent(this, this.handleSearchBlur)}
+                    ></input>
+                    <label className="sr-only" htmlFor="search-input">
+                      {i18n.t("search")}
+                    </label>
+                    <button
+                      name="search-btn"
+                      onClick={linkEvent(this, this.handleSearchBtn)}
+                      className="px-1 btn btn-link nav-link"
+                      aria-label={i18n.t("search")}
+                    >
+                      <Icon icon="search" />
+                    </button>
+                  </form>
+                </li>
+              </ul>
             )}
             {UserService.Instance.myUserInfo.isSome() ? (
               <>

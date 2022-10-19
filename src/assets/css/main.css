@@ -306,7 +306,7 @@ pre {
 }
 
 .show-input {
-  width: 13em !important;
+  width: 13vw !important;
 }
 .hide-input {
   background: transparent !important;
