@@ -317,7 +317,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <ul className="navbar-nav">
                 <li className="nav-item">
                   <form
-                    className="form-inline mr-2"
+                    className="form-inline mr-1"
                     onSubmit={linkEvent(this, this.handleSearchSubmit)}
                   >
                     <input
