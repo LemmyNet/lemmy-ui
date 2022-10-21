@@ -553,16 +553,14 @@ export function pictrsDeleteToast(
       duration: 10000,
       onClick: () => {
         if (toast) {
-          fetch(deleteUrl, {})
-          .then( res => {
-            console.log(res)
+          fetch(deleteUrl).then(res => {
             toast.hideToast();
-            if (res.ok === true){
+            if (res.ok === true) {
               alert(deletePictureText);
-            } else{
+            } else {
               alert(failedDeletePictureText);
             }
-          })
+          });
         }
       },
       close: true,
