@@ -1,4 +1,5 @@
 import { Option } from "@sniptt/monads";
+import { htmlToText } from "html-to-text";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { httpExternalPath } from "../../env";
@@ -37,7 +38,9 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
             <meta
               key={n}
               name={n}
-              content={md.renderInline(this.props.description.unwrap())}
+              content={htmlToText(
+                md.renderInline(this.props.description.unwrap())
+              )}
             />
           ))}
 
