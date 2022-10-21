@@ -540,6 +540,7 @@ export function toast(text: string, background = "success") {
 export function pictrsDeleteToast(
   clickToDeleteText: string,
   deletePictureText: string,
+  failedDeletePictureText: string,
   deleteUrl: string
 ) {
   if (isBrowser()) {
@@ -552,9 +553,14 @@ export function pictrsDeleteToast(
       duration: 10000,
       onClick: () => {
         if (toast) {
-          window.location.replace(deleteUrl);
-          alert(deletePictureText);
-          toast.hideToast();
+          fetch(deleteUrl).then(res => {
+            toast.hideToast();
+            if (res.ok === true) {
+              alert(deletePictureText);
+            } else {
+              alert(failedDeletePictureText);
+            }
+          });
         }
       },
       close: true,

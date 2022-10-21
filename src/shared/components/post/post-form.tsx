@@ -641,8 +641,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           i.state.postForm.url = Some(url);
           i.setState({ imageLoading: false });
           pictrsDeleteToast(
-            i18n.t("click_to_delete_picture"),
-            i18n.t("picture_deleted"),
+            `${i18n.t("click_to_delete_picture")}: ${file.name}`,
+            `${i18n.t("picture_deleted")}: ${file.name}`,
+            `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
             deleteUrl
           );
         } else {
