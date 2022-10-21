@@ -1,11 +1,12 @@
 FROM node:alpine as builder
-RUN apk update && apk add yarn python3 build-base gcc wget git --no-cache
+RUN apk update && apk add curl yarn python3 build-base gcc wget git --no-cache
+RUN curl -sf https://gobinaries.com/tj/node-prune | sh
 
 WORKDIR /usr/src/app
 
 # Cache deps
 COPY package.json yarn.lock ./
-RUN yarn install --pure-lockfile
+RUN yarn install --production --ignore-scripts --prefer-offline --pure-lockfile
 
 # Build
 COPY generate_translations.js \
@@ -21,8 +22,17 @@ COPY .git .git
 # Set UI version 
 RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version.ts"
 
-RUN yarn
+RUN yarn install --production --ignore-scripts --prefer-offline
 RUN yarn build:prod
+
+# Prune the image
+RUN node-prune /usr/src/app/node_modules
+
+RUN rm -rf ./node_modules/import-sort-parser-typescript
+RUN rm -rf ./node_modules/typescript
+RUN rm -rf ./node_modules/npm
+
+RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 
 FROM node:alpine as runner
 COPY --from=builder /usr/src/app/dist /app/dist
