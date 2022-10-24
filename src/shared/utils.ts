@@ -555,16 +555,14 @@ export function pictrsDeleteToast(
       duration: 10000,
       onClick: () => {
         if (toast) {
-          fetch(deleteUrl, {})
-          .then( res => {
-            console.log(res)
+          fetch(deleteUrl).then(res => {
             toast.hideToast();
-            if (res.ok === true){
+            if (res.ok === true) {
               alert(deletePictureText);
-            } else{
+            } else {
               alert(failedDeletePictureText);
             }
-          })
+          });
         }
       },
       close: true,
@@ -785,7 +783,6 @@ export function getListingTypeFromPropsNoDefault(props: any): ListingType {
     : ListingType.Local;
 }
 
-// TODO might need to add a user setting for this too
 export function getDataTypeFromProps(props: any): DataType {
   return props.match.params.data_type
     ? routeDataTypeToEnum(props.match.params.data_type)
