@@ -52,7 +52,7 @@ export class UserService {
     this.jwtInfo = None;
     this.myUserInfo = None;
     IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
-    document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.host;
+    document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
     location.reload();
   }
 
