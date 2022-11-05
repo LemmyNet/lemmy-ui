@@ -2,6 +2,7 @@ import { None, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
 import {
+  GetSiteResponse,
   LoginResponse,
   Register,
   toUndefined,
@@ -13,7 +14,7 @@ import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
-import { toast, wsClient } from "../../utils";
+import { setIsoData, toast, wsClient } from "../../utils";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
 
@@ -21,10 +22,12 @@ interface State {
   userForm: Register;
   doneRegisteringUser: boolean;
   userLoading: boolean;
+  siteRes: GetSiteResponse;
 }
 
 export class Setup extends Component<any, State> {
   private subscription: Subscription;
+  private isoData = setIsoData(this.context);
 
   private emptyState: State = {
     userForm: new Register({
@@ -41,6 +44,7 @@ export class Setup extends Component<any, State> {
     }),
     doneRegisteringUser: UserService.Instance.myUserInfo.isSome(),
     userLoading: false,
+    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -75,7 +79,7 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm site={None} showLocal />
+              <SiteForm siteRes={this.state.siteRes} showLocal />
             )}
           </div>
         </div>

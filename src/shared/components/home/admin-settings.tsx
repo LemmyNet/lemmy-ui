@@ -1,4 +1,4 @@
-import { None, Some } from "@sniptt/monads";
+import { None } from "@sniptt/monads";
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import {
@@ -96,10 +96,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView => `${i18n.t("admin_settings")} - ${siteView.site.name}`,
-      none: "",
-    });
+    return `${i18n.t("admin_settings")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   render() {
@@ -118,15 +117,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 description={None}
                 image={None}
               />
-              {this.state.siteRes.site_view.match({
-                some: siteView => (
-                  <SiteForm
-                    site={Some(siteView.site)}
-                    showLocal={showLocal(this.isoData)}
-                  />
-                ),
-                none: <></>,
-              })}
+              <SiteForm
+                siteRes={this.state.siteRes}
+                showLocal={showLocal(this.isoData)}
+              />
             </div>
             <div className="col-12 col-md-6">
               {this.admins()}
@@ -201,7 +195,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       return;
     } else if (op == UserOperation.EditSite) {
       let data = wsJsonToRes<SiteResponse>(msg, SiteResponse);
-      this.setState(s => ((s.siteRes.site_view = Some(data.site_view)), s));
+      this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetBannedPersons) {
       let data = wsJsonToRes<BannedPersonsResponse>(msg, BannedPersonsResponse);

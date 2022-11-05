@@ -1214,6 +1214,7 @@ export class Settings extends Component<any, SettingsState> {
     } else if (op == UserOperation.SaveUserSettings) {
       let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
       UserService.Instance.login(data);
+      location.reload();
       this.setState({ saveUserSettingsLoading: false });
       toast(i18n.t("saved"));
       window.scrollTo(0, 0);

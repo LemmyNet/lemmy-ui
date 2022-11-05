@@ -238,13 +238,9 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView =>
-        this.state.personRes.match({
-          some: res =>
-            `@${res.person_view.person.name} - ${siteView.site.name}`,
-          none: "",
-        }),
+    return this.state.personRes.match({
+      some: res =>
+        `@${res.person_view.person.name} - ${this.state.siteRes.site_view.site.name}`,
       none: "",
     });
   }

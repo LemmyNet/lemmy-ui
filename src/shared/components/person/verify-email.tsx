@@ -58,10 +58,9 @@ export class VerifyEmail extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView => `${i18n.t("verify_email")} - ${siteView.site.name}`,
-      none: "",
-    });
+    return `${i18n.t("verify_email")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   render() {

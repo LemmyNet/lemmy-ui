@@ -90,9 +90,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           })
         );
 
-        if (this.props.siteRes.site_view.isSome()) {
-          this.fetchUnreads();
-        }
+        this.fetchUnreads();
       }
 
       this.requestNotificationPermission();
@@ -144,27 +142,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
+    let siteView = this.props.siteRes.site_view;
     return (
       <nav className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3">
         <div className="container-lg">
-          {this.props.siteRes.site_view.match({
-            some: siteView => (
-              <NavLink
-                to="/"
-                onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
-                title={siteView.site.description.unwrapOr(siteView.site.name)}
-                className="d-flex align-items-center navbar-brand mr-md-3"
-              >
-                {siteView.site.icon.match({
-                  some: icon =>
-                    showAvatars() && <PictrsImage src={icon} icon />,
-                  none: <></>,
-                })}
-                {siteView.site.name}
-              </NavLink>
-            ),
-            none: <></>,
-          })}
+          <NavLink
+            to="/"
+            onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
+            title={siteView.site.description.unwrapOr(siteView.site.name)}
+            className="d-flex align-items-center navbar-brand mr-md-3"
+          >
+            {siteView.site.icon.match({
+              some: icon => showAvatars() && <PictrsImage src={icon} icon />,
+              none: <></>,
+            })}
+            {siteView.site.name}
+          </NavLink>
           {UserService.Instance.myUserInfo.isSome() && (
             <>
               <ul className="navbar-nav ml-auto">

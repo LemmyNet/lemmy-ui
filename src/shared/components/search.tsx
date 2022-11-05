@@ -379,13 +379,10 @@ export class Search extends Component<any, SearchState> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView =>
-        this.state.q
-          ? `${i18n.t("search")} - ${this.state.q} - ${siteView.site.name}`
-          : `${i18n.t("search")} - ${siteView.site.name}`,
-      none: "",
-    });
+    let siteName = this.state.siteRes.site_view.site.name;
+    return this.state.q
+      ? `${i18n.t("search")} - ${this.state.q} - ${siteName}`
+      : `${i18n.t("search")} - ${siteName}`;
   }
 
   render() {
