@@ -19,6 +19,7 @@
 		"noUnusedParameters": true,
 		"noImplicitReturns": true,
     "experimentalDecorators": true,
+    "strictNullChecks": false,
     "noFallthroughCasesInSwitch": true
 	},
 	"include": [

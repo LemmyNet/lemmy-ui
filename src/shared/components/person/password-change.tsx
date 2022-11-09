@@ -58,10 +58,9 @@ export class PasswordChange extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView => `${i18n.t("password_change")} - ${siteView.site.name}`,
-      none: "",
-    });
+    return `${i18n.t("password_change")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   render() {
@@ -164,6 +163,7 @@ export class PasswordChange extends Component<any, State> {
       this.setState(this.emptyState);
       UserService.Instance.login(data);
       this.props.history.push("/");
+      location.reload();
     }
   }
 }

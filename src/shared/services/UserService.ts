@@ -42,7 +42,6 @@ export class UserService {
         toast(i18n.t("logged_in"));
         IsomorphicCookie.save("jwt", jwt, { expires, secure: isHttps });
         this.setJwtInfo();
-        location.reload();
       },
       none: void 0,
     });

@@ -317,11 +317,7 @@ export class Post extends Component<any, PostState> {
   get documentTitle(): string {
     return this.state.postRes.match({
       some: res =>
-        this.state.siteRes.site_view.match({
-          some: siteView =>
-            `${res.post_view.post.name} - ${siteView.site.name}`,
-          none: "",
-        }),
+        `${res.post_view.post.name} - ${this.state.siteRes.site_view.site.name}`,
       none: "",
     });
   }

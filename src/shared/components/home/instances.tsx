@@ -21,10 +21,7 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView => `${i18n.t("instances")} - ${siteView.site.name}`,
-      none: "",
-    });
+    return `${i18n.t("instances")} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   render() {

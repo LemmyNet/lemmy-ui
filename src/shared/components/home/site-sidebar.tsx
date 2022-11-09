@@ -1,13 +1,12 @@
-import { None, Option, Some } from "@sniptt/monads";
+import { None, Option } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { PersonViewSafe, Site, SiteAggregates } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { amAdmin, mdToHtml, numToSI } from "../../utils";
+import { mdToHtml, numToSI } from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
-import { SiteForm } from "./site-form";
 
 interface SiteSidebarProps {
   site: Site;
@@ -19,58 +18,40 @@ interface SiteSidebarProps {
 
 interface SiteSidebarState {
   collapsed: boolean;
-  showEdit: boolean;
 }
 
 export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   private emptyState: SiteSidebarState = {
     collapsed: false,
-    showEdit: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
-    this.handleEditCancel = this.handleEditCancel.bind(this);
-    this.handleEditSite = this.handleEditSite.bind(this);
   }
 
   render() {
-    let site = this.props.site;
     return (
       <div className="card border-secondary mb-3">
         <div className="card-body">
-          {!this.state.showEdit ? (
-            <div>
-              <div className="mb-2">
-                {this.siteName()}
-                {this.props.admins.isSome() && this.adminButtons()}
-              </div>
-              {!this.state.collapsed && (
-                <>
-                  <BannerIconHeader banner={site.banner} icon={None} />
-                  {this.siteInfo()}
-                </>
-              )}
-            </div>
-          ) : (
-            <SiteForm
-              site={Some(site)}
-              showLocal={this.props.showLocal}
-              onEdit={this.handleEditSite}
-              onCancel={this.handleEditCancel}
-            />
-          )}
+          <div>
+            <div className="mb-2">{this.siteName()}</div>
+            {!this.state.collapsed && (
+              <>
+                <BannerIconHeader banner={this.props.site.banner} icon={None} />
+                {this.siteInfo()}
+              </>
+            )}
+          </div>
         </div>
       </div>
     );
   }
 
   siteName() {
-    let site = this.props.site;
     return (
       <h5 className="mb-0 d-inline">
-        {site.name}
+        {this.props.site.name}
         <button
           className="btn btn-sm text-muted"
           onClick={linkEvent(this, this.handleCollapseSidebar)}
@@ -108,25 +89,6 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           none: <></>,
         })}
       </div>
-    );
-  }
-
-  adminButtons() {
-    return (
-      amAdmin() && (
-        <ul className="list-inline mb-1 text-muted font-weight-bold">
-          <li className="list-inline-item-action">
-            <button
-              className="btn btn-link d-inline-block text-muted"
-              onClick={linkEvent(this, this.handleEditClick)}
-              aria-label={i18n.t("edit")}
-              data-tippy-content={i18n.t("edit")}
-            >
-              <Icon icon="edit" classes="icon-inline" />
-            </button>
-          </li>
-        </ul>
-      )
     );
   }
 
@@ -247,17 +209,5 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   handleCollapseSidebar(i: SiteSidebar) {
     i.setState({ collapsed: !i.state.collapsed });
-  }
-
-  handleEditClick(i: SiteSidebar) {
-    i.setState({ showEdit: true });
-  }
-
-  handleEditSite() {
-    this.setState({ showEdit: false });
-  }
-
-  handleEditCancel() {
-    this.setState({ showEdit: false });
   }
 }

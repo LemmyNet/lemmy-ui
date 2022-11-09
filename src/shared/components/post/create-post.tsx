@@ -119,10 +119,9 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView => `${i18n.t("create_post")} - ${siteView.site.name}`,
-      none: "",
-    });
+    return `${i18n.t("create_post")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   render() {

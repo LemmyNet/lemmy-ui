@@ -69,10 +69,7 @@ export class Login extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView => `${i18n.t("login")} - ${siteView.site.name}`,
-      none: "",
-    });
+    return `${i18n.t("login")} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   get isLemmyMl(): boolean {
@@ -194,6 +191,8 @@ export class Login extends Component<any, State> {
         let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
         this.setState(this.emptyState);
         UserService.Instance.login(data);
+        this.props.history.push("/");
+        location.reload();
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {

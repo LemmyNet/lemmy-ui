@@ -24,23 +24,21 @@ export class App extends Component<any, any> {
       <>
         <Provider i18next={i18n}>
           <div>
-            <Theme defaultTheme={siteView.map(s => s.site.default_theme)} />
-            {siteView
-              .andThen(s => s.site.icon)
-              .match({
-                some: icon => (
-                  <Helmet>
-                    <link
-                      id="favicon"
-                      rel="shortcut icon"
-                      type="image/x-icon"
-                      href={icon || favIconUrl}
-                    />
-                    <link rel="apple-touch-icon" href={icon || favIconPngUrl} />
-                  </Helmet>
-                ),
-                none: <></>,
-              })}
+            <Theme defaultTheme={siteView.local_site.default_theme} />
+            {siteView.site.icon.match({
+              some: icon => (
+                <Helmet>
+                  <link
+                    id="favicon"
+                    rel="shortcut icon"
+                    type="image/x-icon"
+                    href={icon || favIconUrl}
+                  />
+                  <link rel="apple-touch-icon" href={icon || favIconPngUrl} />
+                </Helmet>
+              ),
+              none: <></>,
+            })}
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
               <Switch>

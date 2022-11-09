@@ -1425,11 +1425,11 @@ export function auth(throwErr = true): Result<string, string> {
 }
 
 export function enableDownvotes(siteRes: GetSiteResponse): boolean {
-  return siteRes.site_view.map(s => s.site.enable_downvotes).unwrapOr(true);
+  return siteRes.site_view.local_site.enable_downvotes;
 }
 
 export function enableNsfw(siteRes: GetSiteResponse): boolean {
-  return siteRes.site_view.map(s => s.site.enable_nsfw).unwrapOr(false);
+  return siteRes.site_view.local_site.enable_nsfw;
 }
 
 export function postToCommentSortType(sort: SortType): CommentSortType {
@@ -1467,9 +1467,7 @@ export function canCreateCommunity(
   siteRes: GetSiteResponse,
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {
-  let adminOnly = siteRes.site_view
-    .map(s => s.site.community_creation_admin_only)
-    .unwrapOr(false);
+  let adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
   return !adminOnly || amAdmin(myUserInfo);
 }
 

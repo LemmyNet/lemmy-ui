@@ -33,17 +33,10 @@ export class Legal extends Component<any, LegalState> {
           description={None}
           image={None}
         />
-        {this.state.siteRes.site_view.match({
-          some: siteView =>
-            siteView.site.legal_information.match({
-              some: legal => (
-                <div
-                  className="md-div"
-                  dangerouslySetInnerHTML={mdToHtml(legal)}
-                />
-              ),
-              none: <></>,
-            }),
+        {this.state.siteRes.site_view.local_site.legal_information.match({
+          some: legal => (
+            <div className="md-div" dangerouslySetInnerHTML={mdToHtml(legal)} />
+          ),
           none: <></>,
         })}
       </div>

@@ -153,15 +153,11 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   get documentTitle(): string {
-    return this.state.siteRes.site_view.match({
-      some: siteView =>
-        UserService.Instance.myUserInfo.match({
-          some: mui =>
-            `@${mui.local_user_view.person.name} ${i18n.t("inbox")} - ${
-              siteView.site.name
-            }`,
-          none: "",
-        }),
+    return UserService.Instance.myUserInfo.match({
+      some: mui =>
+        `@${mui.local_user_view.person.name} ${i18n.t("inbox")} - ${
+          this.state.siteRes.site_view.site.name
+        }`,
       none: "",
     });
   }

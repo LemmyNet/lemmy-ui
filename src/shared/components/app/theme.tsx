@@ -1,10 +1,9 @@
-import { Option } from "@sniptt/monads";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { UserService } from "../../services";
 
 interface Props {
-  defaultTheme: Option<string>;
+  defaultTheme: string;
 }
 
 export class Theme extends Component<Props> {
@@ -26,16 +25,13 @@ export class Theme extends Component<Props> {
           />
         </Helmet>
       );
-    } else if (
-      this.props.defaultTheme.isSome() &&
-      this.props.defaultTheme.unwrap() != "browser"
-    ) {
+    } else if (this.props.defaultTheme != "browser") {
       return (
         <Helmet>
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/themes/${this.props.defaultTheme.unwrap()}.css`}
+            href={`/css/themes/${this.props.defaultTheme}.css`}
           />
         </Helmet>
       );
