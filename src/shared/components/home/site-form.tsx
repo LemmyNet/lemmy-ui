@@ -1,5 +1,5 @@
 import { None, Option, Some } from "@sniptt/monads";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
   CreateSite,
@@ -16,7 +16,7 @@ import {
   fetchThemeList,
   wsClient,
 } from "../../utils";
-import { Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
@@ -78,6 +78,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       captcha_difficulty: None,
       allowed_instances: None,
       blocked_instances: None,
+      taglines: None,
       auth: undefined,
     }),
     loading: false,
@@ -158,6 +159,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         ),
         blocked_instances: this.props.siteRes.federated_instances.andThen(
           f => f.blocked
+        ),
+        taglines: Some(
+          this.props.siteRes.site_view.taglines.map(x => x.content)
         ),
         auth: undefined,
       }),
@@ -1033,6 +1037,57 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
           <div className="form-group row">
+            <h5 className="col-12">{i18n.t("taglines")}</h5>
+            <div className="table-responsive col-12">
+              <table id="taglines_table" className="table table-sm table-hover">
+                <thead className="pointer"></thead>
+                <tbody>
+                  {this.state.siteForm.taglines
+                    .unwrapOr([])
+                    .map((cv, index) => (
+                      <tr key={index}>
+                        <td>
+                          <MarkdownTextArea
+                            initialContent={Some(cv)}
+                            initialLanguageId={None}
+                            placeholder={None}
+                            buttonTitle={None}
+                            maxLength={None}
+                            onContentChange={s =>
+                              this.handleTaglineChange(this, index, s)
+                            }
+                            hideNavigationWarnings
+                            allLanguages={[]}
+                          />
+                        </td>
+                        <td className="text-right">
+                          <button
+                            className="btn btn-link btn-animate text-muted"
+                            onClick={e =>
+                              this.handleDeleteTaglineClick(this, index, e)
+                            }
+                            data-tippy-content={i18n.t("delete")}
+                            aria-label={i18n.t("delete")}
+                          >
+                            <Icon
+                              icon="trash"
+                              classes={`icon-inline text-danger`}
+                            />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <button
+                className="btn btn-sm btn-secondary mr-2"
+                onClick={e => this.handleAddTaglineClick(this, e)}
+              >
+                {i18n.t("add_tagline")}
+              </button>
+            </div>
+          </div>
+          <div className="form-group row">
             <div className="col-12">
               <button
                 type="submit"
@@ -1058,7 +1113,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event.preventDefault();
     i.setState({ loading: true });
     i.setState(s => ((s.siteForm.auth = auth().unwrap()), s));
-
     if (i.props.siteRes.site_view.local_site.site_setup) {
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
     } else {
@@ -1139,6 +1193,36 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteLegalInfoChange(val: string) {
     this.setState(s => ((s.siteForm.legal_information = Some(val)), s));
+  }
+
+  handleTaglineChange(i: SiteForm, index: number, val: string) {
+    let taglines = i.state.siteForm.taglines.unwrap();
+    taglines[index] = val;
+    i.state.siteForm.taglines = Some(taglines);
+    i.setState(i.state);
+  }
+
+  handleDeleteTaglineClick(
+    i: SiteForm,
+    index: number,
+    event: InfernoMouseEvent<HTMLButtonElement>
+  ) {
+    event.preventDefault();
+    let taglines = i.state.siteForm.taglines.unwrap();
+    taglines.splice(index, 1);
+    i.state.siteForm.taglines = Some(taglines);
+    i.setState(i.state);
+  }
+
+  handleAddTaglineClick(
+    i: SiteForm,
+    event: InfernoMouseEvent<HTMLButtonElement>
+  ) {
+    event.preventDefault();
+    let taglines = i.state.siteForm.taglines.unwrap();
+    taglines.push("");
+    i.state.siteForm.taglines = Some(taglines);
+    i.setState(i.state);
   }
 
   handleSiteApplicationQuestionChange(val: string) {

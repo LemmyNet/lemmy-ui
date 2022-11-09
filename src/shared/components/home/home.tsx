@@ -53,6 +53,7 @@ import {
   getSortTypeFromProps,
   isBrowser,
   isPostBlocked,
+  mdToHtml,
   notifyPost,
   nsfwCheck,
   postToCommentSortType,
@@ -94,6 +95,7 @@ interface HomeState {
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
   loading: boolean;
+  tagline: string;
 }
 
 interface HomeProps {
@@ -137,6 +139,7 @@ export class Home extends Component<any, HomeState> {
     dataType: getDataTypeFromProps(this.props),
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
+    tagline: ""
   };
 
   constructor(props: any, context: any) {
@@ -170,10 +173,12 @@ export class Home extends Component<any, HomeState> {
           wsClient.communityJoin({ community_id: 0 })
         );
       }
+      const taglines = this.state.siteRes.site_view.taglines;
       this.state = {
         ...this.state,
         trendingCommunities: trendingRes.communities,
         loading: false,
+        tagline: taglines.length == 0 ? "" : taglines[Math.floor(Math.random() * taglines.length)].content,
       };
     } else {
       this.fetchTrendingCommunities();
@@ -329,6 +334,7 @@ export class Home extends Component<any, HomeState> {
         {this.state.siteRes.site_view.local_site.site_setup && (
           <div className="row">
             <main role="main" className="col-12 col-md-8">
+              <div id="tagline" dangerouslySetInnerHTML={mdToHtml(this.state.tagline)}></div>
               <div className="d-block d-md-none">{this.mobileView()}</div>
               {this.posts()}
             </main>

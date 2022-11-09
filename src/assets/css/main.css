@@ -386,3 +386,8 @@ br.big {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+#tagline{
+
+  padding: 0px 0px 15px 0px;
+}
