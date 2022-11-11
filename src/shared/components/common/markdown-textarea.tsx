@@ -8,6 +8,7 @@ import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
   isBrowser,
+  markdownFieldCharacterLimit,
   markdownHelpUrl,
   mdToHtml,
   pictrsDeleteToast,
@@ -143,7 +144,9 @@ export class MarkdownTextArea extends Component<
               required
               disabled={this.props.disabled}
               rows={2}
-              maxLength={this.props.maxLength.unwrapOr(10000)}
+              maxLength={this.props.maxLength.unwrapOr(
+                markdownFieldCharacterLimit
+              )}
               placeholder={toUndefined(this.props.placeholder)}
             />
             {this.state.previewMode &&
