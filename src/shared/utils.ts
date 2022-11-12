@@ -74,6 +74,7 @@ export const fetchLimit = 40;
 export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
+export const markdownFieldCharacterLimit = 50000;
 
 export const relTags = "noopener nofollow";
 
