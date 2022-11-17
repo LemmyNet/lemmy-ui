@@ -517,6 +517,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   get moderatesSomething(): boolean {
     return (
+      amAdmin() ||
       UserService.Instance.myUserInfo.map(m => m.moderates).unwrapOr([])
         .length > 0
     );
