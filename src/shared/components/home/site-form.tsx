@@ -1045,7 +1045,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   {this.state.siteForm.taglines
                     .unwrapOr([])
                     .map((cv, index) => (
-                      <tr key={index}>
+                      <tr key={cv}>
                         <td>
                           <MarkdownTextArea
                             initialContent={Some(cv)}
