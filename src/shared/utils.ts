@@ -167,6 +167,10 @@ export function mdToHtml(text: string) {
   return { __html: md.render(text) };
 }
 
+export function mdToHtmlInline(text: string) {
+  return { __html: md.renderInline(text) };
+}
+
 export function getUnixTime(text: string): number {
   return text ? new Date(text).getTime() / 1000 : undefined;
 }
