@@ -12,7 +12,6 @@ import path from "path";
 import process from "process";
 import serialize from "serialize-javascript";
 import { App } from "../shared/components/app/app";
-import { SYMBOLS } from "../shared/components/common/symbols";
 import { httpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
@@ -186,7 +185,6 @@ server.get("/*", async (req, res) => {
     );
     const erudaStr = process.env["LEMMY_UI_DEBUG"] ? renderToString(eruda) : "";
     const root = renderToString(wrapper);
-    const symbols = renderToString(SYMBOLS);
     const helmet = Helmet.renderStatic();
 
     const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
@@ -221,9 +219,6 @@ server.get("/*", async (req, res) => {
            <!-- Current theme and more -->
            ${helmet.link.toString()}
            
-           <!-- Icons -->
-           ${symbols}
-
            </head>
 
            <body ${helmet.bodyAttributes.toString()}>
