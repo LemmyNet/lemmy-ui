@@ -50,6 +50,7 @@ import {
   getDataTypeFromProps,
   getListingTypeFromProps,
   getPageFromProps,
+  getRandomFromList,
   getSortTypeFromProps,
   isBrowser,
   isPostBlocked,
@@ -95,7 +96,7 @@ interface HomeState {
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
   loading: boolean;
-  tagline: string;
+  tagline: Option<string>;
 }
 
 interface HomeProps {
@@ -139,7 +140,7 @@ export class Home extends Component<any, HomeState> {
     dataType: getDataTypeFromProps(this.props),
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
-    tagline: ""
+    tagline: None
   };
 
   constructor(props: any, context: any) {
@@ -178,7 +179,7 @@ export class Home extends Component<any, HomeState> {
         ...this.state,
         trendingCommunities: trendingRes.communities,
         loading: false,
-        tagline: taglines.length == 0 ? "" : taglines[Math.floor(Math.random() * taglines.length)].content,
+        tagline: taglines.map(tls => getRandomFromList(tls).content)
       };
     } else {
       this.fetchTrendingCommunities();
@@ -334,7 +335,7 @@ export class Home extends Component<any, HomeState> {
         {this.state.siteRes.site_view.local_site.site_setup && (
           <div className="row">
             <main role="main" className="col-12 col-md-8">
-              <div id="tagline" dangerouslySetInnerHTML={mdToHtml(this.state.tagline)}></div>
+              {this.state.tagline.isSome() && <div id="tagline" dangerouslySetInnerHTML={mdToHtml(this.state.tagline.unwrapOr(""))}></div>}
               <div className="d-block d-md-none">{this.mobileView()}</div>
               {this.posts()}
             </main>

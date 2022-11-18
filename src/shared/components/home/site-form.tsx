@@ -160,9 +160,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         blocked_instances: this.props.siteRes.federated_instances.andThen(
           f => f.blocked
         ),
-        taglines: Some(
-          this.props.siteRes.site_view.taglines.map(x => x.content)
-        ),
+        taglines: this.props.siteRes.site_view.taglines.map(x => x.map(y => y.content)),
         auth: undefined,
       }),
     };
@@ -1045,7 +1043,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   {this.state.siteForm.taglines
                     .unwrapOr([])
                     .map((cv, index) => (
-                      <tr key={cv}>
+                      <tr key={index}>
                         <td>
                           <MarkdownTextArea
                             initialContent={Some(cv)}
@@ -1196,9 +1194,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleTaglineChange(i: SiteForm, index: number, val: string) {
-    let taglines = i.state.siteForm.taglines.unwrap();
-    taglines[index] = val;
-    i.state.siteForm.taglines = Some(taglines);
+    i.state.siteForm.taglines.match({
+      some: tls => { tls[index] = val; },
+      none: void 0
+    });
     i.setState(i.state);
   }
 
@@ -1208,10 +1207,14 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
-    let taglines = i.state.siteForm.taglines.unwrap();
-    taglines.splice(index, 1);
-    i.state.siteForm.taglines = Some(taglines);
-    i.setState(i.state);
+    if (i.state.siteForm.taglines.isSome()){
+      let taglines = i.state.siteForm.taglines.unwrap();
+      taglines.splice(index, 1);
+      i.state.siteForm.taglines = None; // force rerender of table rows
+      i.setState(i.state);
+      i.state.siteForm.taglines = Some(taglines);
+      i.setState(i.state);
+    }
   }
 
   handleAddTaglineClick(
@@ -1219,9 +1222,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
-    let taglines = i.state.siteForm.taglines.unwrap();
-    taglines.push("");
-    i.state.siteForm.taglines = Some(taglines);
+    i.state.siteForm.taglines.match({
+      some: tls => { tls.push("") },
+      none: void 0
+    });
     i.setState(i.state);
   }
 
