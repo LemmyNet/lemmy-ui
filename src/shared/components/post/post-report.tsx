@@ -60,6 +60,7 @@ export class PostReport extends Component<PostReportProps, any> {
           enableNsfw={true}
           viewOnly={true}
           allLanguages={[]}
+          hideImage
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />
