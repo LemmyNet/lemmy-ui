@@ -42,6 +42,7 @@ import {
   isVideo,
   md,
   mdToHtml,
+  mdToHtmlInline,
   numToSI,
   relTags,
   setupTippy,
@@ -459,7 +460,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 title={url}
                 rel={relTags}
               >
-                {post.name}
+                <div dangerouslySetInnerHTML={mdToHtmlInline(post.name)} />
               </a>
             ),
             none: (
@@ -468,7 +469,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 to={`/post/${post.id}`}
                 title={i18n.t("comments")}
               >
-                {post.name}
+                <div dangerouslySetInnerHTML={mdToHtmlInline(post.name)} />
               </Link>
             ),
           })}
