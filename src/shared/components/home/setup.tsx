@@ -209,6 +209,9 @@ export class Setup extends Component<any, State> {
       let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
       this.setState({ userLoading: false });
       UserService.Instance.login(data);
+      if (UserService.Instance.jwtInfo.isSome()) {
+        this.setState({ doneRegisteringUser: true });
+      }
     } else if (op == UserOperation.CreateSite) {
       window.location.href = "/";
     }
