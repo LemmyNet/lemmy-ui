@@ -1055,7 +1055,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                               this.handleTaglineChange(this, index, s)
                             }
                             hideNavigationWarnings
-                            allLanguages={[]}
+                            allLanguages={this.props.siteRes.all_languages}
                           />
                         </td>
                         <td className="text-right">
