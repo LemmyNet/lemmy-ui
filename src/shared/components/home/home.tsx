@@ -335,7 +335,10 @@ export class Home extends Component<any, HomeState> {
         {this.state.siteRes.site_view.local_site.site_setup && (
           <div className="row">
             <main role="main" className="col-12 col-md-8">
-              {this.state.tagline.isSome() && <div id="tagline" dangerouslySetInnerHTML={mdToHtml(this.state.tagline.unwrapOr(""))}></div>}
+              {this.state.tagline.match({
+                some: tagline => <div id="tagline" dangerouslySetInnerHTML={mdToHtml(tagline)}></div>,
+                none: <></>,
+              })}
               <div className="d-block d-md-none">{this.mobileView()}</div>
               {this.posts()}
             </main>
