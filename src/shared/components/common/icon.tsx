@@ -22,7 +22,9 @@ export class Icon extends Component<IconProps, any> {
           small: this.props.small,
         })}
       >
-        <use xlinkHref={`#icon-${this.props.icon}`}></use>
+        <use
+          xlinkHref={`/static/assets/symbols.svg#icon-${this.props.icon}`}
+        ></use>
         <div className="sr-only">
           <title>{this.props.icon}</title>
         </div>
