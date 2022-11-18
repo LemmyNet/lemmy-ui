@@ -429,6 +429,11 @@ export class Profile extends Component<any, ProfileState> {
                           {i18n.t("banned")}
                         </li>
                       )}
+                      {pv.person.deleted && (
+                        <li className="list-inline-item badge badge-danger">
+                          {i18n.t("deleted")}
+                        </li>
+                      )}
                       {pv.person.admin && (
                         <li className="list-inline-item badge badge-light">
                           {i18n.t("admin")}
