@@ -93,6 +93,7 @@ interface PostListingProps {
   allLanguages: Language[];
   showCommunity?: boolean;
   showBody?: boolean;
+  hideImage?: boolean;
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
   viewOnly?: boolean;
@@ -156,7 +157,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {!this.state.showEdit ? (
           <>
             {this.listing()}
-            {this.state.imageExpanded && this.img}
+            {this.state.imageExpanded && !this.props.hideImage && this.img}
             {post.url.isSome() &&
               this.showBody &&
               post.embed_title.isSome() && <MetadataCard post={post} />}
@@ -255,7 +256,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let url = post.url;
     let thumbnail = post.thumbnail_url;
 
-    if (url.isSome() && isImage(url.unwrap())) {
+    if (!this.props.hideImage && url.isSome() && isImage(url.unwrap())) {
       return (
         <a
           href={this.imageSrc.unwrap()}
@@ -268,7 +269,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <Icon icon="image" classes="mini-overlay" />
         </a>
       );
-    } else if (url.isSome() && thumbnail.isSome()) {
+    } else if (!this.props.hideImage && url.isSome() && thumbnail.isSome()) {
       return (
         <a
           className="text-body d-inline-block position-relative mb-2"
@@ -281,7 +282,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </a>
       );
     } else if (url.isSome()) {
-      if (isVideo(url.unwrap())) {
+      if (!this.props.hideImage && isVideo(url.unwrap())) {
         return (
           <div className="embed-responsive embed-responsive-16by9">
             <video
