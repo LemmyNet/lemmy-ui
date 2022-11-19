@@ -160,7 +160,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         blocked_instances: this.props.siteRes.federated_instances.andThen(
           f => f.blocked
         ),
-        taglines: this.props.siteRes.site_view.taglines.map(x => x.map(y => y.content)),
+        taglines: this.props.siteRes.taglines.map(x => x.map(y => y.content)),
         auth: undefined,
       }),
     };
@@ -1222,10 +1222,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
-    i.state.siteForm.taglines.match({
-      some: tls => { tls.push("") },
-      none: void 0
-    });
+    if (i.state.siteForm.taglines.isNone()){
+      i.state.siteForm.taglines = Some([]);
+    }
+    i.state.siteForm.taglines.unwrap().push("");
     i.setState(i.state);
   }
 

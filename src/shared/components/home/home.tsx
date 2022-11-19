@@ -174,7 +174,7 @@ export class Home extends Component<any, HomeState> {
           wsClient.communityJoin({ community_id: 0 })
         );
       }
-      const taglines = this.state.siteRes.site_view.taglines;
+      const taglines = this.state.siteRes.taglines;
       this.state = {
         ...this.state,
         trendingCommunities: trendingRes.communities,
