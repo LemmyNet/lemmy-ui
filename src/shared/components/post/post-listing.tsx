@@ -448,31 +448,39 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  get postLink() {
+    let post = this.props.post_view.post;
+    return (
+      <Link
+        className={!post.stickied ? "text-body" : "text-primary"}
+        to={`/post/${post.id}`}
+        title={i18n.t("comments")}
+      >
+        <div dangerouslySetInnerHTML={mdToHtmlInline(post.name)} />
+      </Link>
+    );
+  }
+
   postTitleLine() {
     let post = this.props.post_view.post;
     return (
       <div className="post-title overflow-hidden">
         <h5>
           {post.url.match({
-            some: url => (
-              <a
-                className={!post.stickied ? "text-body" : "text-primary"}
-                href={url}
-                title={url}
-                rel={relTags}
-              >
-                <div dangerouslySetInnerHTML={mdToHtmlInline(post.name)} />
-              </a>
-            ),
-            none: (
-              <Link
-                className={!post.stickied ? "text-body" : "text-primary"}
-                to={`/post/${post.id}`}
-                title={i18n.t("comments")}
-              >
-                <div dangerouslySetInnerHTML={mdToHtmlInline(post.name)} />
-              </Link>
-            ),
+            some: url =>
+              this.props.showBody ? (
+                <a
+                  className={!post.stickied ? "text-body" : "text-primary"}
+                  href={url}
+                  title={url}
+                  rel={relTags}
+                >
+                  <div dangerouslySetInnerHTML={mdToHtmlInline(post.name)} />
+                </a>
+              ) : (
+                this.postLink
+              ),
+            none: this.postLink,
           })}
           {post.url.map(isImage).or(post.thumbnail_url).unwrapOr(false) && (
             <button
