@@ -46,6 +46,7 @@ import {
   isBanned,
   isMod,
   mdToHtml,
+  mdToHtmlNoImages,
   numToSI,
   setupTippy,
   showScores,
@@ -103,6 +104,7 @@ interface CommentNodeProps {
   enableDownvotes: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
+  hideImages?: boolean;
 }
 
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
@@ -336,9 +338,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 ) : (
                   <div
                     className="md-div"
-                    dangerouslySetInnerHTML={mdToHtml(
-                      this.commentUnlessRemoved
-                    )}
+                    dangerouslySetInnerHTML={
+                      this.props.hideImages
+                        ? mdToHtmlNoImages(this.commentUnlessRemoved)
+                        : mdToHtml(this.commentUnlessRemoved)
+                    }
                   />
                 )}
                 <div className="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold">
@@ -1023,6 +1027,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             enableDownvotes={this.props.enableDownvotes}
             viewType={this.props.viewType}
             allLanguages={this.props.allLanguages}
+            hideImages={this.props.hideImages}
           />
         )}
         {/* A collapsed clearfix */}
