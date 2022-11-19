@@ -40,7 +40,7 @@ import {
   isImage,
   isMod,
   isVideo,
-  md,
+  mdNoImages,
   mdToHtml,
   mdToHtmlInline,
   numToSI,
@@ -392,7 +392,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <li className="list-inline-item">
                 <button
                   className="text-muted btn btn-sm btn-link p-0"
-                  data-tippy-content={md.render(body)}
+                  data-tippy-content={mdNoImages.render(body)}
                   data-tippy-allowHtml={true}
                   onClick={linkEvent(this, this.handleShowBody)}
                 >

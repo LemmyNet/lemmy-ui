@@ -29,8 +29,9 @@ import {
   Search,
   SearchType,
   SortType,
+  toUndefined,
 } from "lemmy-js-client";
-import markdown_it from "markdown-it";
+import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
 import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
@@ -100,41 +101,54 @@ export function randomStr(
     .join("");
 }
 
-export const md = new markdown_it({
+const html5EmbedConfig = {
+  html5embed: {
+    useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
+    attributes: {
+      audio: 'controls preload="metadata"',
+      video: 'width="100%" max-height="100%" controls loop preload="metadata"',
+    },
+  },
+};
+
+const spoilerConfig = {
+  validate: (params: string) => {
+    return params.trim().match(/^spoiler\s+(.*)$/);
+  },
+
+  render: (tokens: any, idx: any) => {
+    var m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
+
+    if (tokens[idx].nesting === 1) {
+      // opening tag
+      return `<details><summary> ${md.utils.escapeHtml(m[1])} </summary>\n`;
+    } else {
+      // closing tag
+      return "</details>\n";
+    }
+  },
+};
+
+const markdownItConfig: MarkdownIt.Options = {
   html: false,
   linkify: true,
   typographer: true,
-})
+};
+
+export const md = new MarkdownIt(markdownItConfig)
   .use(markdown_it_sub)
   .use(markdown_it_sup)
   .use(markdown_it_footnote)
-  .use(markdown_it_html5_embed, {
-    html5embed: {
-      useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
-      attributes: {
-        audio: 'controls preload="metadata"',
-        video:
-          'width="100%" max-height="100%" controls loop preload="metadata"',
-      },
-    },
-  })
-  .use(markdown_it_container, "spoiler", {
-    validate: function (params: any) {
-      return params.trim().match(/^spoiler\s+(.*)$/);
-    },
+  .use(markdown_it_html5_embed, html5EmbedConfig)
+  .use(markdown_it_container, "spoiler", spoilerConfig);
 
-    render: function (tokens: any, idx: any) {
-      var m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
-
-      if (tokens[idx].nesting === 1) {
-        // opening tag
-        return `<details><summary> ${md.utils.escapeHtml(m[1])} </summary>\n`;
-      } else {
-        // closing tag
-        return "</details>\n";
-      }
-    },
-  });
+export const mdNoImages = new MarkdownIt(markdownItConfig)
+  .use(markdown_it_sub)
+  .use(markdown_it_sup)
+  .use(markdown_it_footnote)
+  .use(markdown_it_html5_embed, html5EmbedConfig)
+  .use(markdown_it_container, "spoiler", spoilerConfig)
+  .disable("image");
 
 export function hotRankComment(comment_view: CommentView): number {
   return hotRank(comment_view.counts.score, comment_view.comment.published);
@@ -165,6 +179,10 @@ export function hotRank(score: number, timeStr: string): number {
 
 export function mdToHtml(text: string) {
   return { __html: md.render(text) };
+}
+
+export function mdToHtmlNoImages(text: string) {
+  return { __html: mdNoImages.render(text) };
 }
 
 export function mdToHtmlInline(text: string) {
@@ -569,7 +587,8 @@ export function pictrsDeleteToast(
         }
       },
       close: true,
-    }).showToast();
+    });
+    toast.showToast();
   }
 }
 
@@ -587,7 +606,7 @@ export function messageToastify(info: NotifyInfo, router: any) {
 
     let toast = Toastify({
       text: `${htmlBody}<br />${info.name}`,
-      avatar: info.icon,
+      avatar: toUndefined(info.icon),
       backgroundColor: backgroundColor,
       className: "text-dark",
       close: true,
@@ -601,7 +620,8 @@ export function messageToastify(info: NotifyInfo, router: any) {
           router.history.push(info.link);
         }
       },
-    }).showToast();
+    });
+    toast.showToast();
   }
 }
 
