@@ -1034,7 +1034,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          {siteSetup && <div className="form-group row">
             <h5 className="col-12">{i18n.t("taglines")}</h5>
             <div className="table-responsive col-12">
               <table id="taglines_table" className="table table-sm table-hover">
@@ -1084,7 +1084,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 {i18n.t("add_tagline")}
               </button>
             </div>
-          </div>
+          </div>}
           <div className="form-group row">
             <div className="col-12">
               <button
