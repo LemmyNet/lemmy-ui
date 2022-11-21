@@ -72,8 +72,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       federation_enabled: None,
       federation_debug: None,
       federation_worker_count: None,
-      federation_strict_allowlist: None,
-      federation_http_fetch_retry_limit: None,
       captcha_enabled: None,
       captcha_difficulty: None,
       allowed_instances: None,
@@ -148,10 +146,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         federation_enabled: Some(ls.federation_enabled),
         federation_debug: Some(ls.federation_debug),
         federation_worker_count: Some(ls.federation_worker_count),
-        federation_strict_allowlist: Some(ls.federation_strict_allowlist),
-        federation_http_fetch_retry_limit: Some(
-          ls.federation_http_fetch_retry_limit
-        ),
         captcha_enabled: Some(ls.captcha_enabled),
         captcha_difficulty: Some(ls.captcha_difficulty),
         allowed_instances: this.props.siteRes.federated_instances.andThen(
@@ -679,53 +673,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 </div>
               </div>
               <div className="form-group row">
-                <div className="col-12">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id="create-site-federation-strict-allowlist"
-                      type="checkbox"
-                      checked={toUndefined(
-                        this.state.siteForm.federation_strict_allowlist
-                      )}
-                      onChange={linkEvent(
-                        this,
-                        this.handleSiteFederationStrictAllowList
-                      )}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="create-site-federation-strict-allowlist"
-                    >
-                      {i18n.t("federation_strict_allowlist")}
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row">
-                <label
-                  className="col-12 col-form-label"
-                  htmlFor="create-site-federation-http-fetch-retry-limit"
-                >
-                  {i18n.t("federation_http_fetch_retry_limit")}
-                </label>
-                <div className="col-12">
-                  <input
-                    type="number"
-                    id="create-site-federation-http-fetch-retry-limit"
-                    className="form-control"
-                    min={0}
-                    value={toUndefined(
-                      this.state.siteForm.federation_http_fetch_retry_limit
-                    )}
-                    onInput={linkEvent(
-                      this,
-                      this.handleSiteFederationHttpFetchRetryLimit
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="form-group row">
                 <label
                   className="col-12 col-form-label"
                   htmlFor="create-site-federation-worker-count"
@@ -1034,57 +981,62 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           </div>
-          {siteSetup && <div className="form-group row">
-            <h5 className="col-12">{i18n.t("taglines")}</h5>
-            <div className="table-responsive col-12">
-              <table id="taglines_table" className="table table-sm table-hover">
-                <thead className="pointer"></thead>
-                <tbody>
-                  {this.state.siteForm.taglines
-                    .unwrapOr([])
-                    .map((cv, index) => (
-                      <tr key={index}>
-                        <td>
-                          <MarkdownTextArea
-                            initialContent={Some(cv)}
-                            initialLanguageId={None}
-                            placeholder={None}
-                            buttonTitle={None}
-                            maxLength={None}
-                            onContentChange={s =>
-                              this.handleTaglineChange(this, index, s)
-                            }
-                            hideNavigationWarnings
-                            allLanguages={this.props.siteRes.all_languages}
-                          />
-                        </td>
-                        <td className="text-right">
-                          <button
-                            className="btn btn-link btn-animate text-muted"
-                            onClick={e =>
-                              this.handleDeleteTaglineClick(this, index, e)
-                            }
-                            data-tippy-content={i18n.t("delete")}
-                            aria-label={i18n.t("delete")}
-                          >
-                            <Icon
-                              icon="trash"
-                              classes={`icon-inline text-danger`}
+          {siteSetup && (
+            <div className="form-group row">
+              <h5 className="col-12">{i18n.t("taglines")}</h5>
+              <div className="table-responsive col-12">
+                <table
+                  id="taglines_table"
+                  className="table table-sm table-hover"
+                >
+                  <thead className="pointer"></thead>
+                  <tbody>
+                    {this.state.siteForm.taglines
+                      .unwrapOr([])
+                      .map((cv, index) => (
+                        <tr key={index}>
+                          <td>
+                            <MarkdownTextArea
+                              initialContent={Some(cv)}
+                              initialLanguageId={None}
+                              placeholder={None}
+                              buttonTitle={None}
+                              maxLength={None}
+                              onContentChange={s =>
+                                this.handleTaglineChange(this, index, s)
+                              }
+                              hideNavigationWarnings
+                              allLanguages={this.props.siteRes.all_languages}
                             />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-              <button
-                className="btn btn-sm btn-secondary mr-2"
-                onClick={e => this.handleAddTaglineClick(this, e)}
-              >
-                {i18n.t("add_tagline")}
-              </button>
+                          </td>
+                          <td className="text-right">
+                            <button
+                              className="btn btn-link btn-animate text-muted"
+                              onClick={e =>
+                                this.handleDeleteTaglineClick(this, index, e)
+                              }
+                              data-tippy-content={i18n.t("delete")}
+                              aria-label={i18n.t("delete")}
+                            >
+                              <Icon
+                                icon="trash"
+                                classes={`icon-inline text-danger`}
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+                <button
+                  className="btn btn-sm btn-secondary mr-2"
+                  onClick={e => this.handleAddTaglineClick(this, e)}
+                >
+                  {i18n.t("add_tagline")}
+                </button>
+              </div>
             </div>
-          </div>}
+          )}
           <div className="form-group row">
             <div className="col-12">
               <button
@@ -1152,9 +1104,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         federation_enabled: sForm.federation_enabled,
         federation_debug: sForm.federation_debug,
         federation_worker_count: sForm.federation_worker_count,
-        federation_strict_allowlist: sForm.federation_strict_allowlist,
-        federation_http_fetch_retry_limit:
-          sForm.federation_http_fetch_retry_limit,
         captcha_enabled: sForm.captcha_enabled,
         captcha_difficulty: sForm.captcha_difficulty,
         allowed_instances: sForm.allowed_instances,
@@ -1195,8 +1144,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleTaglineChange(i: SiteForm, index: number, val: string) {
     i.state.siteForm.taglines.match({
-      some: tls => { tls[index] = val; },
-      none: void 0
+      some: tls => {
+        tls[index] = val;
+      },
+      none: void 0,
     });
     i.setState(i.state);
   }
@@ -1207,7 +1158,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
-    if (i.state.siteForm.taglines.isSome()){
+    if (i.state.siteForm.taglines.isSome()) {
       let taglines = i.state.siteForm.taglines.unwrap();
       taglines.splice(index, 1);
       i.state.siteForm.taglines = None; // force rerender of table rows
@@ -1222,7 +1173,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
-    if (i.state.siteForm.taglines.isNone()){
+    if (i.state.siteForm.taglines.isNone()) {
       i.state.siteForm.taglines = Some([]);
     }
     i.state.siteForm.taglines.unwrap().push("");
@@ -1438,26 +1389,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
-  handleSiteFederationStrictAllowList(i: SiteForm, event: any) {
-    i.state.siteForm.federation_strict_allowlist = Some(event.target.checked);
-    i.setState(i.state);
-  }
-
   handleSiteFederationWorkerCount(i: SiteForm, event: any) {
     i.setState(
       s => (
         (s.siteForm.federation_worker_count = Some(Number(event.target.value))),
-        s
-      )
-    );
-  }
-
-  handleSiteFederationHttpFetchRetryLimit(i: SiteForm, event: any) {
-    i.setState(
-      s => (
-        (s.siteForm.federation_http_fetch_retry_limit = Some(
-          Number(event.target.value)
-        )),
         s
       )
     );
