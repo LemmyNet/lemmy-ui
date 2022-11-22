@@ -41,6 +41,7 @@ interface MarkdownTextAreaProps {
     languageId: Option<number>;
   }): any;
   allLanguages: Language[];
+  siteLanguages: number[];
 }
 
 interface MarkdownTextAreaState {
@@ -170,6 +171,7 @@ export class MarkdownTextArea extends Component<
               <LanguageSelect
                 allLanguages={this.props.allLanguages}
                 selectedLanguageIds={this.state.languageId.map(Array.of)}
+                siteLanguages={this.props.siteLanguages}
                 multiple={false}
                 onChange={this.handleLanguageChange}
               />

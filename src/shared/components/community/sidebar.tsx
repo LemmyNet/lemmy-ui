@@ -8,6 +8,7 @@ import {
   CommunityView,
   DeleteCommunity,
   FollowCommunity,
+  Language,
   PersonViewSafe,
   PurgeCommunity,
   RemoveCommunity,
@@ -36,9 +37,13 @@ interface SidebarProps {
   community_view: CommunityView;
   moderators: CommunityModeratorView[];
   admins: PersonViewSafe[];
+  allLanguages: Language[];
+  siteLanguages: number[];
+  communityLanguages: Option<number[]>;
   online: number;
   enableNsfw?: boolean;
   showIcon?: boolean;
+  editable?: boolean;
 }
 
 interface SidebarState {
@@ -79,6 +84,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         ) : (
           <CommunityForm
             community_view={Some(this.props.community_view)}
+            allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
+            communityLanguages={this.props.communityLanguages}
             onEdit={this.handleEditCommunity}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
@@ -94,7 +102,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <div className="card border-secondary mb-3">
           <div className="card-body">
             {this.communityTitle()}
-            {this.adminButtons()}
+            {this.props.editable && this.adminButtons()}
             {this.subscribe()}
             {this.canPost && this.createPost()}
             {this.blockCommunity()}

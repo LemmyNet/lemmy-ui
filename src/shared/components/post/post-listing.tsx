@@ -91,6 +91,7 @@ interface PostListingProps {
   moderators: Option<CommunityModeratorView[]>;
   admins: Option<PersonViewSafe[]>;
   allLanguages: Language[];
+  siteLanguages: number[];
   showCommunity?: boolean;
   showBody?: boolean;
   hideImage?: boolean;
@@ -174,6 +175,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               enableNsfw={this.props.enableNsfw}
               enableDownvotes={this.props.enableDownvotes}
               allLanguages={this.props.allLanguages}
+              siteLanguages={this.props.siteLanguages}
             />
           </div>
         )}

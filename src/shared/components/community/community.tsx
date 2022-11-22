@@ -278,6 +278,16 @@ export class Community extends Component<any, State> {
   }
 
   render() {
+    // For some reason, this returns an empty vec if it matches the site langs
+    let communityLangs = this.state.communityRes.map(r => {
+      let langs = r.discussion_languages;
+      if (langs.length == 0) {
+        return this.state.siteRes.all_languages.map(l => l.id);
+      } else {
+        return langs;
+      }
+    });
+
     return (
       <div className="container-lg">
         {this.state.communityLoading ? (
@@ -321,6 +331,12 @@ export class Community extends Component<any, State> {
                             admins={this.state.siteRes.admins}
                             online={res.online}
                             enableNsfw={enableNsfw(this.state.siteRes)}
+                            editable
+                            allLanguages={this.state.siteRes.all_languages}
+                            siteLanguages={
+                              this.state.siteRes.discussion_languages
+                            }
+                            communityLanguages={communityLangs}
                           />
                           {!res.community_view.community.local &&
                             res.site.match({
@@ -352,6 +368,10 @@ export class Community extends Component<any, State> {
                       admins={this.state.siteRes.admins}
                       online={res.online}
                       enableNsfw={enableNsfw(this.state.siteRes)}
+                      editable
+                      allLanguages={this.state.siteRes.all_languages}
+                      siteLanguages={this.state.siteRes.discussion_languages}
+                      communityLanguages={communityLangs}
                     />
                     {!res.community_view.community.local &&
                       res.site.match({
@@ -390,6 +410,7 @@ export class Community extends Component<any, State> {
           enableDownvotes={enableDownvotes(this.state.siteRes)}
           enableNsfw={enableNsfw(this.state.siteRes)}
           allLanguages={this.state.siteRes.all_languages}
+          siteLanguages={this.state.siteRes.discussion_languages}
         />
       )
     ) : this.state.commentsLoading ? (
@@ -407,6 +428,7 @@ export class Community extends Component<any, State> {
         admins={Some(this.state.siteRes.admins)}
         maxCommentsShown={None}
         allLanguages={this.state.siteRes.all_languages}
+        siteLanguages={this.state.siteRes.discussion_languages}
       />
     );
   }
@@ -557,6 +579,7 @@ export class Community extends Component<any, State> {
       op == UserOperation.DeleteCommunity ||
       op == UserOperation.RemoveCommunity
     ) {
+      // TODO this also needs to update the discussion_languages live
       let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.communityRes.match({
         some: res => (res.community_view = data.community_view),

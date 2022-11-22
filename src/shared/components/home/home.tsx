@@ -140,7 +140,7 @@ export class Home extends Component<any, HomeState> {
     dataType: getDataTypeFromProps(this.props),
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
-    tagline: None
+    tagline: None,
   };
 
   constructor(props: any, context: any) {
@@ -179,7 +179,7 @@ export class Home extends Component<any, HomeState> {
         ...this.state,
         trendingCommunities: trendingRes.communities,
         loading: false,
-        tagline: taglines.map(tls => getRandomFromList(tls).content)
+        tagline: taglines.map(tls => getRandomFromList(tls).content),
       };
     } else {
       this.fetchTrendingCommunities();
@@ -336,7 +336,12 @@ export class Home extends Component<any, HomeState> {
           <div className="row">
             <main role="main" className="col-12 col-md-8">
               {this.state.tagline.match({
-                some: tagline => <div id="tagline" dangerouslySetInnerHTML={mdToHtml(tagline)}></div>,
+                some: tagline => (
+                  <div
+                    id="tagline"
+                    dangerouslySetInnerHTML={mdToHtml(tagline)}
+                  ></div>
+                ),
                 none: <></>,
               })}
               <div className="d-block d-md-none">{this.mobileView()}</div>
@@ -584,6 +589,7 @@ export class Home extends Component<any, HomeState> {
         enableDownvotes={enableDownvotes(this.state.siteRes)}
         enableNsfw={enableNsfw(this.state.siteRes)}
         allLanguages={this.state.siteRes.all_languages}
+        siteLanguages={this.state.siteRes.discussion_languages}
       />
     ) : (
       <CommentNodes
@@ -597,6 +603,7 @@ export class Home extends Component<any, HomeState> {
         showContext
         enableDownvotes={enableDownvotes(this.state.siteRes)}
         allLanguages={this.state.siteRes.all_languages}
+        siteLanguages={this.state.siteRes.discussion_languages}
       />
     );
   }

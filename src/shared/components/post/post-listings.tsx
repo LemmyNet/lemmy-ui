@@ -9,6 +9,7 @@ import { PostListing } from "./post-listing";
 interface PostListingsProps {
   posts: PostView[];
   allLanguages: Language[];
+  siteLanguages: number[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
   enableDownvotes: boolean;
@@ -43,6 +44,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
                 allLanguages={this.props.allLanguages}
+                siteLanguages={this.props.siteLanguages}
               />
               <hr className="my-3" />
             </>

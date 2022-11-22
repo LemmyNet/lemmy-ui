@@ -279,6 +279,7 @@ export class Profile extends Component<any, ProfileState> {
                     view={this.state.view}
                     onPageChange={this.handlePageChange}
                     allLanguages={this.state.siteRes.all_languages}
+                    siteLanguages={this.state.siteRes.discussion_languages}
                   />
                 </div>
 

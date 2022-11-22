@@ -168,7 +168,7 @@ export class Settings extends Component<any, SettingsState> {
           default_sort_type: Some(luv.local_user.default_sort_type),
           default_listing_type: Some(luv.local_user.default_listing_type),
           interface_language: Some(luv.local_user.interface_language),
-          discussion_languages: Some(mui.discussion_languages.map(l => l.id)),
+          discussion_languages: Some(mui.discussion_languages),
           avatar: luv.person.avatar,
           banner: luv.person.banner,
           display_name: luv.person.display_name,
@@ -523,6 +523,7 @@ export class Settings extends Component<any, SettingsState> {
                 buttonTitle={None}
                 hideNavigationWarnings
                 allLanguages={this.state.siteRes.all_languages}
+                siteLanguages={this.state.siteRes.discussion_languages}
               />
             </div>
           </div>
@@ -617,8 +618,10 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           <LanguageSelect
             allLanguages={this.state.siteRes.all_languages}
+            siteLanguages={this.state.siteRes.discussion_languages}
             selectedLanguageIds={selectedLangs}
             multiple={true}
+            showSite
             onChange={this.handleDiscussionLanguageChange}
           />
           <div className="form-group row">

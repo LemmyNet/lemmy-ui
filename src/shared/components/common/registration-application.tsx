@@ -102,6 +102,7 @@ export class RegistrationApplication extends Component<
                 maxLength={None}
                 hideNavigationWarnings
                 allLanguages={[]}
+                siteLanguages={[]}
               />
             </div>
           </div>

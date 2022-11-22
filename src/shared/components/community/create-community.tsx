@@ -1,4 +1,4 @@
-import { None } from "@sniptt/monads";
+import { None, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import { CommunityView, GetSiteResponse } from "lemmy-js-client";
 import { Subscription } from "rxjs";
@@ -74,6 +74,11 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
                 community_view={None}
                 onCreate={this.handleCommunityCreate}
                 enableNsfw={enableNsfw(this.state.siteRes)}
+                allLanguages={this.state.siteRes.all_languages}
+                siteLanguages={this.state.siteRes.discussion_languages}
+                communityLanguages={Some(
+                  this.state.siteRes.discussion_languages
+                )}
               />
             </div>
           </div>

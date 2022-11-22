@@ -3,14 +3,18 @@ import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { randomStr } from "../../utils";
+import { UserService } from "../../services/UserService";
+import { randomStr, selectableLanguages } from "../../utils";
 import { Icon } from "./icon";
 
 interface LanguageSelectProps {
   allLanguages: Language[];
+  siteLanguages: number[];
   selectedLanguageIds: Option<number[]>;
   multiple: boolean;
   onChange(val: number[]): any;
+  showAll?: boolean;
+  showSite?: boolean;
 }
 
 export class LanguageSelect extends Component<LanguageSelectProps, any> {
@@ -43,6 +47,13 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
   render() {
     let selectedLangs = this.props.selectedLanguageIds;
+    let filteredLangs = selectableLanguages(
+      this.props.allLanguages,
+      this.props.siteLanguages,
+      this.props.showAll,
+      this.props.showSite,
+      UserService.Instance.myUserInfo
+    );
 
     return (
       <div className="form-group row">
@@ -68,7 +79,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             aria-label="action"
             multiple={this.props.multiple}
           >
-            {this.props.allLanguages.map(l => (
+            {filteredLangs.map(l => (
               <option
                 key={l.id}
                 value={l.id}
