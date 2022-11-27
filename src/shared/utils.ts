@@ -1,4 +1,5 @@
 import emojiShortName from "emoji-short-name";
+import { Picker } from 'emoji-mart'
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
@@ -9,6 +10,7 @@ import {
   CommentView,
   CommunityModeratorView,
   CommunityView,
+  CustomEmojiView,
   GetSiteMetadata,
   GetSiteResponse,
   Language,
@@ -32,6 +34,7 @@ import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
+import markdownitEmoji from 'markdown-it-emoji/bare';
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
@@ -41,6 +44,8 @@ import { httpBase } from "./env";
 import { i18n, languages } from "./i18next";
 import { DataType, IsoData } from "./interfaces";
 import { UserService, WebSocketService } from "./services";
+import Renderer from "markdown-it/lib/renderer";
+import Token from "markdown-it/lib/token";
 
 var Tribute: any;
 if (isBrowser()) {
@@ -73,6 +78,9 @@ export const commentTreeMaxDepth = 8;
 export const markdownFieldCharacterLimit = 50000;
 
 export const relTags = "noopener nofollow";
+
+let customEmojis: EmojiMartCategory[] = [];
+export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<string, CustomEmojiView>();
 
 const DEFAULT_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -124,26 +132,9 @@ const spoilerConfig = {
   },
 };
 
-const markdownItConfig: MarkdownIt.Options = {
-  html: false,
-  linkify: true,
-  typographer: true,
-};
+export let md: MarkdownIt = new MarkdownIt();
 
-export const md = new MarkdownIt(markdownItConfig)
-  .use(markdown_it_sub)
-  .use(markdown_it_sup)
-  .use(markdown_it_footnote)
-  .use(markdown_it_html5_embed, html5EmbedConfig)
-  .use(markdown_it_container, "spoiler", spoilerConfig);
-
-export const mdNoImages = new MarkdownIt(markdownItConfig)
-  .use(markdown_it_sub)
-  .use(markdown_it_sup)
-  .use(markdown_it_footnote)
-  .use(markdown_it_html5_embed, html5EmbedConfig)
-  .use(markdown_it_container, "spoiler", spoilerConfig)
-  .disable("image");
+export let mdNoImages: MarkdownIt = new MarkdownIt();
 
 export function hotRankComment(comment_view: CommentView): number {
   return hotRank(comment_view.counts.score, comment_view.comment.published);
@@ -191,8 +182,8 @@ export function getUnixTime(text?: string): number | undefined {
 export function futureDaysToUnixTime(days?: number): number | undefined {
   return days
     ? Math.trunc(
-        new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
-      )
+      new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
+    )
     : undefined;
 }
 
@@ -630,11 +621,20 @@ export function setupTribute() {
           return `${item.original.val} ${shortName}`;
         },
         selectTemplate: (item: any) => {
-          return `${item.original.val}`;
+          let customEmoji = customEmojisLookup[item.original.key]?.custom_emoji;
+          if (customEmoji == undefined)
+            return `${item.original.val}`;
+          else
+            return `![${customEmoji.alt_text}](${customEmoji.image_url} "${customEmoji.shortcode}")`;
         },
         values: Object.entries(emojiShortName).map(e => {
           return { key: e[1], val: e[0] };
-        }),
+        }).concat(
+          Object.entries(customEmojisLookup).map((k) => ({
+            key: k[0],
+            val: `<img class="icon icon-emoji" src="${k[1].custom_emoji.image_url}" title="${k[1].custom_emoji.shortcode}" alt="${k[1].custom_emoji.alt_text}" />`
+          }))
+        ),
         allowSpaces: false,
         autocompleteMode: true,
         // TODO
@@ -676,6 +676,118 @@ export function setupTribute() {
       },
     ],
   });
+}
+
+
+
+function setupEmojiDataModel(custom_emoji_views: CustomEmojiView[]) {
+  let groupedEmojis = groupBy(custom_emoji_views, x => x.custom_emoji.category);
+  for (const [category, emojis] of Object.entries(groupedEmojis)) {
+    customEmojis.push({
+      id: category,
+      name: category,
+      emojis: emojis.map(emoji =>
+      ({
+        id: emoji.custom_emoji.shortcode,
+        name: emoji.custom_emoji.shortcode,
+        keywords: emoji.keywords.map(x => x.keyword),
+        skins: [{ src: emoji.custom_emoji.image_url }]
+      }))
+    })
+  }
+  customEmojisLookup = new Map(custom_emoji_views.map(view => [view.custom_emoji.shortcode, view]));
+}
+
+export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
+  const emoji: EmojiMartCustomEmoji = {
+    id: custom_emoji_view.custom_emoji.shortcode,
+    name: custom_emoji_view.custom_emoji.shortcode,
+    keywords: custom_emoji_view.keywords.map(x => x.keyword),
+    skins: [{ src: custom_emoji_view.custom_emoji.image_url }]
+  };
+  let categoryIndex = customEmojis.findIndex(x => x.id == custom_emoji_view.custom_emoji.category);
+  if (categoryIndex == -1) {
+    customEmojis.push({
+      id: custom_emoji_view.custom_emoji.category,
+      name: custom_emoji_view.custom_emoji.category,
+      emojis: [emoji]
+    })
+  }
+  else {
+    let emojiIndex = customEmojis[categoryIndex].emojis.findIndex(x => x.id == custom_emoji_view.custom_emoji.shortcode);
+    if (emojiIndex == -1) {
+      customEmojis[categoryIndex].emojis.push(emoji)
+    }
+    else {
+      customEmojis[categoryIndex].emojis[emojiIndex] = emoji;
+    }
+  }
+  customEmojisLookup[custom_emoji_view.custom_emoji.shortcode] = custom_emoji_view;
+}
+
+export function removeFromEmojiDataModel(id: number) {
+  let view: CustomEmojiView | undefined;
+  for (let item of customEmojisLookup.values()) {
+    if (item.custom_emoji.id === id) {
+      view = item;
+      break;
+    }
+  }
+  if (!view)
+    return;
+  const categoryIndex = customEmojis.findIndex(x => x.id == view?.custom_emoji.category);
+  const emojiIndex = customEmojis[categoryIndex].emojis.findIndex(x => x.id == view?.custom_emoji.shortcode)
+  customEmojis[categoryIndex].emojis = customEmojis[categoryIndex].emojis.splice(emojiIndex, 1);
+
+  customEmojisLookup.delete(view?.custom_emoji.shortcode);
+}
+
+function setupMarkdown() {
+  const markdownItConfig: MarkdownIt.Options = {
+    html: false,
+    linkify: true,
+    typographer: true,
+  };
+
+  const emojiDefs = Object.fromEntries(Object.entries(customEmojisLookup).map((k) => [k[0], k[0]]));
+  md = new MarkdownIt(markdownItConfig)
+    .use(markdown_it_sub)
+    .use(markdown_it_sup)
+    .use(markdown_it_footnote)
+    .use(markdown_it_html5_embed, html5EmbedConfig)
+    .use(markdown_it_container, "spoiler", spoilerConfig)
+    .use(markdownitEmoji, {
+      defs: emojiDefs
+    });
+
+  mdNoImages = new MarkdownIt(markdownItConfig)
+    .use(markdown_it_sub)
+    .use(markdown_it_sup)
+    .use(markdown_it_footnote)
+    .use(markdown_it_html5_embed, html5EmbedConfig)
+    .use(markdown_it_container, "spoiler", spoilerConfig)
+    .use(markdownitEmoji, {
+      defs: emojiDefs
+    })
+    .disable("image");
+  var defaultRenderer = md.renderer.rules.image;
+  md.renderer.rules.image = function (tokens: Token[], idx: number, options: MarkdownIt.Options, env: any, self: Renderer) {
+    //Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
+    const item = tokens[idx] as any;
+    const title = item.attrs.length >= 3 ? item.attrs[2][1] : "";
+    const src: string = item.attrs[0][1];
+    const isCustomEmoji = customEmojisLookup.get(title) != undefined;
+    if (!isCustomEmoji) {
+      return defaultRenderer?.(tokens, idx, options, env, self) ?? "";
+    }
+    const alt_text = item.content;
+    return `<img class="icon icon-emoji" src="${src}" title="${title}" alt="${alt_text}"/>`;
+  }
+}
+
+export function getEmojiMart(onEmojiSelect: (e: any) => void, customPickerOptions: any = {}) {
+  const pickerOptions = { ...customPickerOptions, onEmojiSelect: onEmojiSelect, custom: customEmojis }
+  return new Picker(pickerOptions);
 }
 
 var tippyInstance: any;
@@ -737,8 +849,8 @@ export function getListingTypeFromProps(
   return props.match.params.listing_type
     ? routeListingTypeToEnum(props.match.params.listing_type)
     : myLt
-    ? Object.values(ListingType)[myLt]
-    : defaultListingType;
+      ? Object.values(ListingType)[myLt]
+      : defaultListingType;
 }
 
 export function getListingTypeFromPropsNoDefault(props: any): ListingType {
@@ -761,8 +873,8 @@ export function getSortTypeFromProps(
   return props.match.params.sort
     ? routeSortTypeToEnum(props.match.params.sort)
     : mySortType
-    ? Object.values(SortType)[mySortType]
-    : SortType.Active;
+      ? Object.values(SortType)[mySortType]
+      : SortType.Active;
 }
 
 export function getPageFromProps(props: any): number {
@@ -1300,6 +1412,8 @@ export function personSelectName(pvs: PersonViewSafe): string {
 export function initializeSite(site: GetSiteResponse) {
   UserService.Instance.myUserInfo = site.my_user;
   i18n.changeLanguage(getLanguages()[0]);
+  setupEmojiDataModel(site.custom_emojis);
+  setupMarkdown();
 }
 
 const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
@@ -1405,8 +1519,8 @@ export function nsfwCheck(
   return !nsfw || (nsfw && myShowNsfw);
 }
 
-export function getRandomFromList<T>(list?: T[]): T | undefined {
-  return list?.at(Math.floor(Math.random() * list.length));
+export function getRandomFromList<T>(list: T[]): T | undefined {
+  return list.length == 0 ? undefined : list.at(Math.floor(Math.random() * list.length));
 }
 
 /**
@@ -1440,3 +1554,25 @@ export function selectableLanguages(
     }
   }
 }
+interface EmojiMartCategory {
+  id: string,
+  name: string,
+  emojis: EmojiMartCustomEmoji[]
+}
+
+interface EmojiMartCustomEmoji {
+  id: string,
+  name: string,
+  keywords: string[],
+  skins: EmojiMartSkin[]
+}
+
+interface EmojiMartSkin {
+  src: string
+}
+
+const groupBy = <T>(array: T[], predicate: (value: T, index: number, array: T[]) => string) =>
+  array.reduce((acc, value, index, array) => {
+    (acc[predicate(value, index, array)] ||= []).push(value);
+    return acc;
+  }, {} as { [key: string]: T[] });
