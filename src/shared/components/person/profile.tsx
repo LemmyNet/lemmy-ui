@@ -864,7 +864,7 @@ export class Profile extends Component<any, ProfileState> {
       op == UserOperation.DeletePost ||
       op == UserOperation.RemovePost ||
       op == UserOperation.LockPost ||
-      op == UserOperation.StickyPost ||
+      op == UserOperation.FeaturePost ||
       op == UserOperation.SavePost
     ) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);
