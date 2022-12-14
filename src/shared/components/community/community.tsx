@@ -579,10 +579,12 @@ export class Community extends Component<any, State> {
       op == UserOperation.DeleteCommunity ||
       op == UserOperation.RemoveCommunity
     ) {
-      // TODO this also needs to update the discussion_languages live
       let data = wsJsonToRes<CommunityResponse>(msg, CommunityResponse);
       this.state.communityRes.match({
-        some: res => (res.community_view = data.community_view),
+        some: res => {
+          res.community_view = data.community_view;
+          res.discussion_languages = data.discussion_languages;
+        },
         none: void 0,
       });
       this.setState(this.state);

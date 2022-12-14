@@ -165,19 +165,6 @@ export class MarkdownTextArea extends Component<
             {i18n.t("body")}
           </label>
         </div>
-        {this.props.showLanguage && (
-          <div className="row justify-content-end">
-            <div className="col-sm-8">
-              <LanguageSelect
-                allLanguages={this.props.allLanguages}
-                selectedLanguageIds={this.state.languageId.map(Array.of)}
-                siteLanguages={this.props.siteLanguages}
-                multiple={false}
-                onChange={this.handleLanguageChange}
-              />
-            </div>
-          </div>
-        )}
         <div className="row">
           <div className="col-sm-12 d-flex flex-wrap">
             {this.props.buttonTitle.match({
@@ -217,6 +204,17 @@ export class MarkdownTextArea extends Component<
             )}
             {/* A flex expander */}
             <div className="flex-grow-1"></div>
+
+            {this.props.showLanguage && (
+              <LanguageSelect
+                iconVersion
+                allLanguages={this.props.allLanguages}
+                selectedLanguageIds={this.state.languageId.map(Array.of)}
+                siteLanguages={this.props.siteLanguages}
+                multiple={false}
+                onChange={this.handleLanguageChange}
+              />
+            )}
             <button
               className="btn btn-sm text-muted"
               data-tippy-content={i18n.t("bold")}

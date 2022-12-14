@@ -386,3 +386,11 @@ br.big {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+.lang-select-action {
+  width: 100px;
+}
+
+.lang-select-action:focus {
+  width: auto;
+}
