@@ -969,7 +969,8 @@ export function editPostRes(data: PostView, post: PostView) {
     post.post.nsfw = data.post.nsfw;
     post.post.deleted = data.post.deleted;
     post.post.removed = data.post.removed;
-    post.post.stickied = data.post.stickied;
+    post.post.featured_community = data.post.featured_community;
+    post.post.featured_local = data.post.featured_local;
     post.post.body = data.post.body;
     post.post.locked = data.post.locked;
     post.saved = data.saved;

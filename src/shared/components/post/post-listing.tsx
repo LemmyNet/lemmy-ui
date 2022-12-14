@@ -12,15 +12,16 @@ import {
   CreatePostLike,
   CreatePostReport,
   DeletePost,
+  FeaturePost,
   Language,
   LockPost,
   PersonViewSafe,
+  PostFeatureType,
   PostView,
   PurgePerson,
   PurgePost,
   RemovePost,
   SavePost,
-  StickyPost,
   toUndefined,
   TransferCommunity,
 } from "lemmy-js-client";
@@ -29,6 +30,7 @@ import { i18n } from "../../i18next";
 import { BanType, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  amAdmin,
   amCommunityCreator,
   auth,
   canAdmin,
@@ -454,7 +456,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     return (
       <Link
-        className={!post.stickied ? "text-body" : "text-primary"}
+        className={
+          !post.featured_community && !post.featured_local
+            ? "text-body"
+            : "text-primary"
+        }
         to={`/post/${post.id}`}
         title={i18n.t("comments")}
       >
@@ -472,7 +478,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             some: url =>
               this.props.showBody ? (
                 <a
-                  className={!post.stickied ? "text-body" : "text-primary"}
+                  className={
+                    !post.featured_community && !post.featured_local
+                      ? "text-body"
+                      : "text-primary"
+                  }
                   href={url}
                   title={url}
                   rel={relTags}
@@ -519,12 +529,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="lock" classes="icon-inline text-danger" />
             </small>
           )}
-          {post.stickied && (
+          {post.featured_community && (
             <small
               className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("stickied")}
+              data-tippy-content={i18n.t("featured")}
             >
               <Icon icon="pin" classes="icon-inline text-primary" />
+            </small>
+          )}
+          {post.featured_local && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("featured")}
+            >
+              <Icon icon="pin" classes="icon-inline text-secondary" />
             </small>
           )}
           {post.nsfw && (
@@ -619,7 +637,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {this.canModOnSelf_ && (
               <>
                 {this.lockButton}
-                {this.stickyButton}
+                {this.featureButton}
               </>
             )}
             {(this.canMod_ || this.canAdmin_) && <>{this.modRemoveButton}</>}
@@ -856,22 +874,48 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get stickyButton() {
-    let stickied = this.props.post_view.post.stickied;
-    let label = stickied ? i18n.t("unsticky") : i18n.t("sticky");
+  get featureButton() {
+    const featured_community = this.props.post_view.post.featured_community;
+    const label_community = featured_community
+      ? i18n.t("unfeature_from_community")
+      : i18n.t("feature_in_community");
+
+    const is_admin = amAdmin();
+    const featured_local = this.props.post_view.post.featured_local;
+    const label_local = featured_local
+      ? i18n.t("unfeature_from_local")
+      : i18n.t("feature_in_local");
     return (
-      <button
-        className="btn btn-link btn-animate text-muted py-0"
-        onClick={linkEvent(this, this.handleModSticky)}
-        data-tippy-content={label}
-        aria-label={label}
-      >
-        <Icon
-          icon="pin"
-          classes={classNames({ "text-success": stickied })}
-          inline
-        />
-      </button>
+      <span>
+        <button
+          className="btn btn-link btn-animate text-muted py-0 pl-0"
+          onClick={() => this.handleModFeaturePost(this, true)}
+          data-tippy-content={label_community}
+          aria-label={label_community}
+        >
+          <Icon
+            icon="pin"
+            classes={classNames({ "text-success": featured_community })}
+            inline
+          />{" "}
+          Community
+        </button>
+        {is_admin && (
+          <button
+            className="btn btn-link btn-animate text-muted py-0"
+            onClick={() => this.handleModFeaturePost(this, false)}
+            data-tippy-content={label_local}
+            aria-label={label_local}
+          >
+            <Icon
+              icon="pin"
+              classes={classNames({ "text-success": featured_local })}
+              inline
+            />{" "}
+            Local
+          </button>
+        )}
+      </span>
     );
   }
 
@@ -1493,13 +1537,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     WebSocketService.Instance.send(wsClient.lockPost(form));
   }
 
-  handleModSticky(i: PostListing) {
-    let form = new StickyPost({
+  handleModFeaturePost(i: PostListing, is_community: boolean) {
+    let form = new FeaturePost({
       post_id: i.props.post_view.post.id,
-      stickied: !i.props.post_view.post.stickied,
+      featured: is_community
+        ? !i.props.post_view.post.featured_community
+        : !i.props.post_view.post.featured_local,
+      feature_type: is_community
+        ? PostFeatureType.Community
+        : PostFeatureType.Local,
       auth: auth().unwrap(),
     });
-    WebSocketService.Instance.send(wsClient.stickyPost(form));
+    WebSocketService.Instance.send(wsClient.featurePost(form));
   }
 
   handleModBanFromCommunityShow(i: PostListing) {

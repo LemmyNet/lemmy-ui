@@ -762,7 +762,7 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.DeletePost ||
       op == UserOperation.RemovePost ||
       op == UserOperation.LockPost ||
-      op == UserOperation.StickyPost ||
+      op == UserOperation.FeaturePost ||
       op == UserOperation.SavePost
     ) {
       let data = wsJsonToRes<PostResponse>(msg, PostResponse);

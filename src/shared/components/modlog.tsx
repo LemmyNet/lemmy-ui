@@ -16,12 +16,12 @@ import {
   ModAddView,
   ModBanFromCommunityView,
   ModBanView,
+  ModFeaturePostView,
   ModLockPostView,
   ModlogActionType,
   ModRemoveCommentView,
   ModRemoveCommunityView,
   ModRemovePostView,
-  ModStickyPostView,
   ModTransferCommunityView,
   PersonSafe,
   toUndefined,
@@ -61,7 +61,7 @@ type ModlogType = {
   view:
     | ModRemovePostView
     | ModLockPostView
-    | ModStickyPostView
+    | ModFeaturePostView
     | ModRemoveCommentView
     | ModRemoveCommunityView
     | ModBanFromCommunityView
@@ -182,12 +182,12 @@ export class Modlog extends Component<any, ModlogState> {
       when_: r.mod_lock_post.when_,
     }));
 
-    let stickied_posts: ModlogType[] = res.stickied_posts.map(r => ({
-      id: r.mod_sticky_post.id,
-      type_: ModlogActionType.ModStickyPost,
+    let featured_posts: ModlogType[] = res.featured_posts.map(r => ({
+      id: r.mod_feature_post.id,
+      type_: ModlogActionType.ModFeaturePost,
       view: r,
       moderator: r.moderator,
-      when_: r.mod_sticky_post.when_,
+      when_: r.mod_feature_post.when_,
     }));
 
     let removed_comments: ModlogType[] = res.removed_comments.map(r => ({
@@ -287,7 +287,7 @@ export class Modlog extends Component<any, ModlogState> {
 
     combined.push(...removed_posts);
     combined.push(...locked_posts);
-    combined.push(...stickied_posts);
+    combined.push(...featured_posts);
     combined.push(...removed_comments);
     combined.push(...removed_communities);
     combined.push(...banned_from_community);
@@ -344,17 +344,20 @@ export class Modlog extends Component<any, ModlogState> {
           </>
         );
       }
-      case ModlogActionType.ModStickyPost: {
-        let mspv = i.view as ModStickyPostView;
+      case ModlogActionType.ModFeaturePost: {
+        let mspv = i.view as ModFeaturePostView;
         return (
           <>
             <span>
-              {mspv.mod_sticky_post.stickied.unwrapOr(false)
-                ? "Stickied "
-                : "Unstickied "}
+              {mspv.mod_feature_post.featured ? "Featured " : "Unfeatured "}
             </span>
             <span>
               Post <Link to={`/post/${mspv.post.id}`}>{mspv.post.name}</Link>
+            </span>
+            <span>
+              {mspv.mod_feature_post.is_featured_community
+                ? " In Community"
+                : " In Local"}
             </span>
           </>
         );
@@ -679,8 +682,8 @@ export class Modlog extends Component<any, ModlogState> {
                   <option value={ModlogActionType.ModLockPost}>
                     Locking Posts
                   </option>
-                  <option value={ModlogActionType.ModStickyPost}>
-                    Stickying Posts
+                  <option value={ModlogActionType.ModFeaturePost}>
+                    Featuring Posts
                   </option>
                   <option value={ModlogActionType.ModRemoveComment}>
                     Removing Comments
