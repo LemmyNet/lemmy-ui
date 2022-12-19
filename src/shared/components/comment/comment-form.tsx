@@ -35,6 +35,7 @@ interface CommentFormProps {
   focus?: boolean;
   onReplyCancel?(): any;
   allLanguages: Language[];
+  siteLanguages: number[];
 }
 
 interface CommentFormState {
@@ -81,7 +82,13 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
     let selectedLang = this.props.node
       .left()
       .map(n => n.comment_view.comment.language_id)
-      .or(myFirstDiscussionLanguageId(UserService.Instance.myUserInfo));
+      .or(
+        myFirstDiscussionLanguageId(
+          this.props.allLanguages,
+          this.props.siteLanguages,
+          UserService.Instance.myUserInfo
+        )
+      );
 
     return (
       <div className="mb-3">
@@ -100,6 +107,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             onReplyCancel={this.handleReplyCancel}
             placeholder={Some(i18n.t("comment_here"))}
             allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
           />
         ) : (
           <div className="alert alert-warning" role="alert">

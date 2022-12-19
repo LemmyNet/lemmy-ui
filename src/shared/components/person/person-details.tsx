@@ -18,6 +18,7 @@ interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
   admins: PersonViewSafe[];
   allLanguages: Language[];
+  siteLanguages: number[];
   page: number;
   limit: number;
   sort: SortType;
@@ -102,6 +103,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             showContext
             enableDownvotes={this.props.enableDownvotes}
             allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
           />
         );
       }
@@ -118,6 +120,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             enableDownvotes={this.props.enableDownvotes}
             enableNsfw={this.props.enableNsfw}
             allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
           />
         );
       }
@@ -176,6 +179,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           showContext
           enableDownvotes={this.props.enableDownvotes}
           allLanguages={this.props.allLanguages}
+          siteLanguages={this.props.siteLanguages}
         />
       </div>
     );
@@ -195,6 +199,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               enableDownvotes={this.props.enableDownvotes}
               enableNsfw={this.props.enableNsfw}
               allLanguages={this.props.allLanguages}
+              siteLanguages={this.props.siteLanguages}
             />
             <hr className="my-3" />
           </>

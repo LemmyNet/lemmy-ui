@@ -297,6 +297,7 @@ export class Signup extends Component<any, State> {
                   onContentChange={this.handleAnswerChange}
                   hideNavigationWarnings
                   allLanguages={[]}
+                  siteLanguages={[]}
                 />
               </div>
             </div>

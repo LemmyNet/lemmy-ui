@@ -595,6 +595,7 @@ export class Search extends Component<any, SearchState> {
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   enableNsfw={enableNsfw(this.state.siteRes)}
                   allLanguages={this.state.siteRes.all_languages}
+                  siteLanguages={this.state.siteRes.discussion_languages}
                   viewOnly
                 />
               )}
@@ -617,6 +618,7 @@ export class Search extends Component<any, SearchState> {
                   noIndent
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   allLanguages={this.state.siteRes.all_languages}
+                  siteLanguages={this.state.siteRes.discussion_languages}
                 />
               )}
               {i.type_ == "communities" && (
@@ -656,6 +658,7 @@ export class Search extends Component<any, SearchState> {
         maxCommentsShown={None}
         enableDownvotes={enableDownvotes(this.state.siteRes)}
         allLanguages={this.state.siteRes.all_languages}
+        siteLanguages={this.state.siteRes.discussion_languages}
       />
     );
   }
@@ -686,6 +689,7 @@ export class Search extends Component<any, SearchState> {
                 enableDownvotes={enableDownvotes(this.state.siteRes)}
                 enableNsfw={enableNsfw(this.state.siteRes)}
                 allLanguages={this.state.siteRes.all_languages}
+                siteLanguages={this.state.siteRes.discussion_languages}
                 viewOnly
               />
             </div>

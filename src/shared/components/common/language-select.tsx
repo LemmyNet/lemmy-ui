@@ -3,14 +3,19 @@ import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { randomStr } from "../../utils";
+import { UserService } from "../../services/UserService";
+import { randomStr, selectableLanguages } from "../../utils";
 import { Icon } from "./icon";
 
 interface LanguageSelectProps {
   allLanguages: Language[];
+  siteLanguages: number[];
   selectedLanguageIds: Option<number[]>;
   multiple: boolean;
   onChange(val: number[]): any;
+  showAll?: boolean;
+  showSite?: boolean;
+  iconVersion?: boolean;
 }
 
 export class LanguageSelect extends Component<LanguageSelectProps, any> {
@@ -42,9 +47,9 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
   }
 
   render() {
-    let selectedLangs = this.props.selectedLanguageIds;
-
-    return (
+    return this.props.iconVersion ? (
+      this.selectBtn
+    ) : (
       <div className="form-group row">
         <label
           className={classNames("col-form-label", {
@@ -61,23 +66,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             "col-sm-10": !this.props.multiple,
           })}
         >
-          <select
-            className="form-control custom-select"
-            id={this.id}
-            onChange={linkEvent(this, this.handleLanguageChange)}
-            aria-label="action"
-            multiple={this.props.multiple}
-          >
-            {this.props.allLanguages.map(l => (
-              <option
-                key={l.id}
-                value={l.id}
-                selected={selectedLangs.unwrapOr([]).includes(l.id)}
-              >
-                {l.name}
-              </option>
-            ))}
-          </select>
+          {this.selectBtn}
           {this.props.multiple && (
             <div className="input-group-append">
               <button
@@ -90,6 +79,40 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
           )}
         </div>
       </div>
+    );
+  }
+
+  get selectBtn() {
+    let selectedLangs = this.props.selectedLanguageIds;
+    let filteredLangs = selectableLanguages(
+      this.props.allLanguages,
+      this.props.siteLanguages,
+      this.props.showAll,
+      this.props.showSite,
+      UserService.Instance.myUserInfo
+    );
+
+    return (
+      <select
+        className={classNames("lang-select-action", {
+          "form-control custom-select": !this.props.iconVersion,
+          "btn btn-sm text-muted": this.props.iconVersion,
+        })}
+        id={this.id}
+        onChange={linkEvent(this, this.handleLanguageChange)}
+        aria-label="action"
+        multiple={this.props.multiple}
+      >
+        {filteredLangs.map(l => (
+          <option
+            key={l.id}
+            value={l.id}
+            selected={selectedLangs.unwrapOr([]).includes(l.id)}
+          >
+            {l.name}
+          </option>
+        ))}
+      </select>
     );
   }
 

@@ -104,6 +104,7 @@ interface CommentNodeProps {
   enableDownvotes: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
+  siteLanguages: number[];
   hideImages?: boolean;
 }
 
@@ -329,6 +330,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 disabled={this.props.locked}
                 focus
                 allLanguages={this.props.allLanguages}
+                siteLanguages={this.props.siteLanguages}
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
@@ -1015,6 +1017,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             disabled={this.props.locked}
             focus
             allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
           />
         )}
         {!this.state.collapsed && node.children.length > 0 && (
@@ -1027,6 +1030,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             enableDownvotes={this.props.enableDownvotes}
             viewType={this.props.viewType}
             allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
           />
         )}

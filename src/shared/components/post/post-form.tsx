@@ -64,6 +64,7 @@ const MAX_POST_TITLE_LENGTH = 200;
 interface PostFormProps {
   post_view: Option<PostView>; // If a post is given, that means this is an edit
   allLanguages: Language[];
+  siteLanguages: number[];
   communities: Option<CommunityView[]>;
   params: Option<PostFormParams>;
   onCancel?(): any;
@@ -182,7 +183,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   render() {
     let selectedLangs = this.state.postForm.language_id
-      .or(myFirstDiscussionLanguageId(UserService.Instance.myUserInfo))
+      .or(
+        myFirstDiscussionLanguageId(
+          this.props.allLanguages,
+          this.props.siteLanguages,
+          UserService.Instance.myUserInfo
+        )
+      )
       .map(Array.of);
 
     return (
@@ -298,6 +305,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                         enableDownvotes={this.props.enableDownvotes}
                         enableNsfw={this.props.enableNsfw}
                         allLanguages={this.props.allLanguages}
+                        siteLanguages={this.props.siteLanguages}
                       />
                     </>
                   ),
@@ -340,6 +348,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                         enableDownvotes={this.props.enableDownvotes}
                         enableNsfw={this.props.enableNsfw}
                         allLanguages={this.props.allLanguages}
+                        siteLanguages={this.props.siteLanguages}
                       />
                     </>
                   ),
@@ -359,6 +368,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 buttonTitle={None}
                 maxLength={None}
                 allLanguages={this.props.allLanguages}
+                siteLanguages={this.props.siteLanguages}
               />
             </div>
           </div>
@@ -411,6 +421,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           )}
           <LanguageSelect
             allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
             selectedLanguageIds={selectedLangs}
             multiple={false}
             onChange={this.handleLanguageChange}

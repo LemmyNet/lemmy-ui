@@ -6,6 +6,7 @@ import {
   CommunityView,
   CreateCommunity,
   EditCommunity,
+  Language,
   toUndefined,
   UserOperation,
   wsJsonToRes,
@@ -23,10 +24,14 @@ import {
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
+import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface CommunityFormProps {
   community_view: Option<CommunityView>; // If a community is given, that means this is an edit
+  allLanguages: Language[];
+  siteLanguages: number[];
+  communityLanguages: Option<number[]>;
   onCancel?(): any;
   onCreate?(community: CommunityView): any;
   onEdit?(community: CommunityView): any;
@@ -50,6 +55,7 @@ export class CommunityForm extends Component<
       name: undefined,
       title: undefined,
       description: None,
+      discussion_languages: this.props.communityLanguages,
       nsfw: None,
       icon: None,
       banner: None,
@@ -73,6 +79,9 @@ export class CommunityForm extends Component<
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
+    this.handleDiscussionLanguageChange =
+      this.handleDiscussionLanguageChange.bind(this);
+
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
@@ -90,6 +99,7 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: Some(
             cv.community.posting_restricted_to_mods
           ),
+          discussion_languages: this.props.communityLanguages,
           auth: undefined,
         }),
       };
@@ -218,6 +228,7 @@ export class CommunityForm extends Component<
                 maxLength={None}
                 onContentChange={this.handleCommunityDescriptionChange}
                 allLanguages={[]}
+                siteLanguages={[]}
               />
             </div>
           </div>
@@ -261,6 +272,14 @@ export class CommunityForm extends Component<
               </div>
             </div>
           </div>
+          <LanguageSelect
+            allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
+            showSite
+            selectedLanguageIds={this.state.communityForm.discussion_languages}
+            multiple={true}
+            onChange={this.handleDiscussionLanguageChange}
+          />
           <div className="form-group row">
             <div className="col-12">
               <button
@@ -308,6 +327,7 @@ export class CommunityForm extends Component<
           banner: cForm.banner,
           nsfw: cForm.nsfw,
           posting_restricted_to_mods: cForm.posting_restricted_to_mods,
+          discussion_languages: cForm.discussion_languages,
           auth: cForm.auth,
         });
 
@@ -366,6 +386,10 @@ export class CommunityForm extends Component<
 
   handleBannerRemove() {
     this.setState(s => ((s.communityForm.banner = Some("")), s));
+  }
+
+  handleDiscussionLanguageChange(val: number[]) {
+    this.setState(s => ((s.communityForm.discussion_languages = Some(val)), s));
   }
 
   parseMessage(msg: any) {

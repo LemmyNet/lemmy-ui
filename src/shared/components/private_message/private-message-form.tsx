@@ -136,6 +136,7 @@ export class PrivateMessageForm extends Component<
                 maxLength={None}
                 onContentChange={this.handleContentChange}
                 allLanguages={[]}
+                siteLanguages={[]}
               />
             </div>
           </div>

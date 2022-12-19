@@ -24,6 +24,7 @@ interface CommentNodesProps {
   enableDownvotes?: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
+  siteLanguages: number[];
   hideImages?: boolean;
 }
 
@@ -55,6 +56,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             enableDownvotes={this.props.enableDownvotes}
             viewType={this.props.viewType}
             allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
           />
         ))}

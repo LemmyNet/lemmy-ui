@@ -14,6 +14,7 @@ import {
   CommunityView,
   GetSiteMetadata,
   GetSiteResponse,
+  Language,
   LemmyHttp,
   LemmyWebsocket,
   ListingType,
@@ -1480,13 +1481,16 @@ export function arrayGet<T>(arr: Array<T>, index: number): Result<T, string> {
 }
 
 export function myFirstDiscussionLanguageId(
+  allLanguages: Language[],
+  siteLanguages: number[],
   myUserInfo = UserService.Instance.myUserInfo
 ): Option<number> {
-  return myUserInfo.andThen(mui =>
-    arrayGet(mui.discussion_languages, 0)
-      .ok()
-      .map(i => i.id)
-  );
+  return arrayGet(
+    selectableLanguages(allLanguages, siteLanguages, false, false, myUserInfo),
+    0
+  )
+    .map(l => l.id)
+    .ok();
 }
 
 export function canCreateCommunity(
@@ -1529,4 +1533,38 @@ export function nsfwCheck(
 
 export function getRandomFromList<T>(list: T[]): T {
   return list[Math.floor(Math.random() * list.length)];
+}
+
+/**
+ * This shows what language you can select
+ *
+ * Use showAll for the site form
+ * Use showSite for the profile and community forms
+ * Use false for both those to filter on your profile and site ones
+ */
+export function selectableLanguages(
+  allLanguages: Language[],
+  siteLanguages: number[],
+  showAll: boolean,
+  showSite: boolean,
+  myUserInfo = UserService.Instance.myUserInfo
+): Language[] {
+  let allLangIds = allLanguages.map(l => l.id);
+  let myLangs = myUserInfo
+    .map(mui => mui.discussion_languages)
+    .unwrapOr(allLangIds);
+  myLangs = myLangs.length == 0 ? allLangIds : myLangs;
+  let siteLangs = siteLanguages.length == 0 ? allLangIds : siteLanguages;
+
+  if (showAll) {
+    return allLanguages;
+  } else {
+    if (showSite) {
+      return allLanguages.filter(x => siteLangs.includes(x.id));
+    } else {
+      return allLanguages
+        .filter(x => siteLangs.includes(x.id))
+        .filter(x => myLangs.includes(x.id));
+    }
+  }
 }

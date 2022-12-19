@@ -589,6 +589,7 @@ export class Home extends Component<any, HomeState> {
         enableDownvotes={enableDownvotes(this.state.siteRes)}
         enableNsfw={enableNsfw(this.state.siteRes)}
         allLanguages={this.state.siteRes.all_languages}
+        siteLanguages={this.state.siteRes.discussion_languages}
       />
     ) : (
       <CommentNodes
@@ -602,6 +603,7 @@ export class Home extends Component<any, HomeState> {
         showContext
         enableDownvotes={enableDownvotes(this.state.siteRes)}
         allLanguages={this.state.siteRes.all_languages}
+        siteLanguages={this.state.siteRes.discussion_languages}
       />
     );
   }

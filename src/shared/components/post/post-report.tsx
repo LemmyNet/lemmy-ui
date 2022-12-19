@@ -60,6 +60,7 @@ export class PostReport extends Component<PostReportProps, any> {
           enableNsfw={true}
           viewOnly={true}
           allLanguages={[]}
+          siteLanguages={[]}
           hideImage
         />
         <div>

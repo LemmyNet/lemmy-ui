@@ -65,6 +65,7 @@ export class CommentReport extends Component<CommentReportProps, any> {
           viewOnly={true}
           showCommunity={true}
           allLanguages={[]}
+          siteLanguages={[]}
           hideImages
         />
         <div>
