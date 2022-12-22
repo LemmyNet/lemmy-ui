@@ -23,7 +23,7 @@ export class App extends Component<any, any> {
     return (
       <>
         <Provider i18next={i18n}>
-          <div>
+          <div id="app">
             <Theme defaultTheme={siteView.local_site.default_theme} />
             {siteView.site.icon.match({
               some: icon => (
