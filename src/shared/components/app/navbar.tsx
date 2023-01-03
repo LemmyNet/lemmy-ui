@@ -1,4 +1,3 @@
-import { None } from "@sniptt/monads";
 import { Component, createRef, linkEvent, RefObject } from "inferno";
 import { NavLink } from "inferno-router";
 import {
@@ -20,10 +19,10 @@ import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
   amAdmin,
-  auth,
   canCreateCommunity,
   donateLemmyUrl,
   isBrowser,
+  myAuth,
   notifyComment,
   notifyPrivateMessage,
   numToSI,
@@ -57,7 +56,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   private unreadReportCountSub: Subscription;
   private unreadApplicationCountSub: Subscription;
   private searchTextField: RefObject<HTMLInputElement>;
-  emptyState: NavbarState = {
+  state: NavbarState = {
     unreadInboxCount: 0,
     unreadReportCount: 0,
     unreadApplicationCount: 0,
@@ -70,7 +69,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -82,11 +80,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.searchTextField = createRef();
 
       // On the first load, check the unreads
-      if (UserService.Instance.myUserInfo.isSome()) {
+      let auth = myAuth();
+      if (auth && UserService.Instance.myUserInfo) {
         this.requestNotificationPermission();
         WebSocketService.Instance.send(
           wsClient.userJoin({
-            auth: auth().unwrap(),
+            auth,
           })
         );
 
@@ -143,22 +142,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   // TODO class active corresponding to current page
   navbar() {
     let siteView = this.props.siteRes.site_view;
+    let person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
       <nav className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3">
         <div className="container-lg">
           <NavLink
             to="/"
             onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
-            title={siteView.site.description.unwrapOr(siteView.site.name)}
+            title={siteView.site.description ?? siteView.site.name}
             className="d-flex align-items-center navbar-brand mr-md-3"
           >
-            {siteView.site.icon.match({
-              some: icon => showAvatars() && <PictrsImage src={icon} icon />,
-              none: <></>,
-            })}
+            {siteView.site.icon && showAvatars() && (
+              <PictrsImage src={siteView.site.icon} icon />
+            )}
             {siteView.site.name}
           </NavLink>
-          {UserService.Instance.myUserInfo.isSome() && (
+          {UserService.Instance.myUserInfo && (
             <>
               <ul className="navbar-nav ml-auto">
                 <li className="nav-item">
@@ -341,7 +340,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 </li>
               </ul>
             )}
-            {UserService.Instance.myUserInfo.isSome() ? (
+            {UserService.Instance.myUserInfo ? (
               <>
                 <ul className="navbar-nav my-2">
                   <li className="nav-item">
@@ -409,81 +408,69 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     </li>
                   </ul>
                 )}
-                {UserService.Instance.myUserInfo
-                  .map(m => m.local_user_view.person)
-                  .match({
-                    some: person => (
-                      <ul className="navbar-nav">
-                        <li className="nav-item dropdown">
-                          <button
-                            className="nav-link btn btn-link dropdown-toggle"
-                            onClick={linkEvent(this, this.handleToggleDropdown)}
-                            id="navbarDropdown"
-                            role="button"
-                            aria-expanded="false"
-                          >
-                            <span>
-                              {showAvatars() &&
-                                person.avatar.match({
-                                  some: avatar => (
-                                    <PictrsImage src={avatar} icon />
-                                  ),
-                                  none: <></>,
-                                })}
-                              {person.display_name.unwrapOr(person.name)}
-                            </span>
-                          </button>
-                          {this.state.showDropdown && (
-                            <div
-                              className="dropdown-content"
-                              onMouseLeave={linkEvent(
-                                this,
-                                this.handleToggleDropdown
-                              )}
-                            >
-                              <li className="nav-item">
-                                <NavLink
-                                  to={`/u/${person.name}`}
-                                  className="nav-link"
-                                  title={i18n.t("profile")}
-                                >
-                                  <Icon icon="user" classes="mr-1" />
-                                  {i18n.t("profile")}
-                                </NavLink>
-                              </li>
-                              <li className="nav-item">
-                                <NavLink
-                                  to="/settings"
-                                  className="nav-link"
-                                  title={i18n.t("settings")}
-                                >
-                                  <Icon icon="settings" classes="mr-1" />
-                                  {i18n.t("settings")}
-                                </NavLink>
-                              </li>
-                              <li>
-                                <hr className="dropdown-divider" />
-                              </li>
-                              <li className="nav-item">
-                                <button
-                                  className="nav-link btn btn-link"
-                                  onClick={linkEvent(
-                                    this,
-                                    this.handleLogoutClick
-                                  )}
-                                  title="test"
-                                >
-                                  <Icon icon="log-out" classes="mr-1" />
-                                  {i18n.t("logout")}
-                                </button>
-                              </li>
-                            </div>
+                {person && (
+                  <ul className="navbar-nav">
+                    <li className="nav-item dropdown">
+                      <button
+                        className="nav-link btn btn-link dropdown-toggle"
+                        onClick={linkEvent(this, this.handleToggleDropdown)}
+                        id="navbarDropdown"
+                        role="button"
+                        aria-expanded="false"
+                      >
+                        <span>
+                          {showAvatars() && person.avatar && (
+                            <PictrsImage src={person.avatar} icon />
                           )}
-                        </li>
-                      </ul>
-                    ),
-                    none: <></>,
-                  })}
+                          {person.display_name ?? person.name}
+                        </span>
+                      </button>
+                      {this.state.showDropdown && (
+                        <div
+                          className="dropdown-content"
+                          onMouseLeave={linkEvent(
+                            this,
+                            this.handleToggleDropdown
+                          )}
+                        >
+                          <li className="nav-item">
+                            <NavLink
+                              to={`/u/${person.name}`}
+                              className="nav-link"
+                              title={i18n.t("profile")}
+                            >
+                              <Icon icon="user" classes="mr-1" />
+                              {i18n.t("profile")}
+                            </NavLink>
+                          </li>
+                          <li className="nav-item">
+                            <NavLink
+                              to="/settings"
+                              className="nav-link"
+                              title={i18n.t("settings")}
+                            >
+                              <Icon icon="settings" classes="mr-1" />
+                              {i18n.t("settings")}
+                            </NavLink>
+                          </li>
+                          <li>
+                            <hr className="dropdown-divider" />
+                          </li>
+                          <li className="nav-item">
+                            <button
+                              className="nav-link btn btn-link"
+                              onClick={linkEvent(this, this.handleLogoutClick)}
+                              title="test"
+                            >
+                              <Icon icon="log-out" classes="mr-1" />
+                              {i18n.t("logout")}
+                            </button>
+                          </li>
+                        </div>
+                      )}
+                    </li>
+                  </ul>
+                )}
               </>
             ) : (
               <ul className="navbar-nav my-2">
@@ -516,11 +503,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get moderatesSomething(): boolean {
-    return (
-      amAdmin() ||
-      UserService.Instance.myUserInfo.map(m => m.moderates).unwrapOr([])
-        .length > 0
-    );
+    let mods = UserService.Instance.myUserInfo?.moderates;
+    let moderatesS = (mods && mods.length > 0) || false;
+    return amAdmin() || moderatesS;
   }
 
   handleToggleExpandNavbar(i: Navbar) {
@@ -544,9 +529,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     event.preventDefault();
     i.setState({ toggleSearch: true });
 
-    i.searchTextField.current.focus();
-    const offsetWidth = i.searchTextField.current.offsetWidth;
-    if (i.state.searchParam && offsetWidth > 100) {
+    i.searchTextField.current?.focus();
+    const offsetWidth = i.searchTextField.current?.offsetWidth;
+    if (i.state.searchParam && offsetWidth && offsetWidth > 100) {
       i.updateUrl();
     }
   }
@@ -576,109 +561,91 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       return;
     } else if (msg.reconnect) {
       console.log(i18n.t("websocket_reconnected"));
-      if (UserService.Instance.myUserInfo.isSome()) {
+      let auth = myAuth();
+      if (UserService.Instance.myUserInfo && auth) {
         WebSocketService.Instance.send(
           wsClient.userJoin({
-            auth: auth().unwrap(),
+            auth,
           })
         );
         this.fetchUnreads();
       }
     } else if (op == UserOperation.GetUnreadCount) {
-      let data = wsJsonToRes<GetUnreadCountResponse>(
-        msg,
-        GetUnreadCountResponse
-      );
+      let data = wsJsonToRes<GetUnreadCountResponse>(msg);
       this.setState({
         unreadInboxCount: data.replies + data.mentions + data.private_messages,
       });
       this.sendUnreadCount();
     } else if (op == UserOperation.GetReportCount) {
-      let data = wsJsonToRes<GetReportCountResponse>(
-        msg,
-        GetReportCountResponse
-      );
+      let data = wsJsonToRes<GetReportCountResponse>(msg);
       this.setState({
         unreadReportCount:
           data.post_reports +
           data.comment_reports +
-          data.private_message_reports.unwrapOr(0),
+          (data.private_message_reports ?? 0),
       });
       this.sendReportUnread();
     } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
-      let data = wsJsonToRes<GetUnreadRegistrationApplicationCountResponse>(
-        msg,
-        GetUnreadRegistrationApplicationCountResponse
-      );
+      let data =
+        wsJsonToRes<GetUnreadRegistrationApplicationCountResponse>(msg);
       this.setState({ unreadApplicationCount: data.registration_applications });
       this.sendApplicationUnread();
     } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
-
-      UserService.Instance.myUserInfo.match({
-        some: mui => {
-          if (data.recipient_ids.includes(mui.local_user_view.local_user.id)) {
-            this.setState({
-              unreadInboxCount: this.state.unreadInboxCount + 1,
-            });
-            this.sendUnreadCount();
-            notifyComment(data.comment_view, this.context.router);
-          }
-        },
-        none: void 0,
-      });
+      let data = wsJsonToRes<CommentResponse>(msg);
+      let mui = UserService.Instance.myUserInfo;
+      if (
+        mui &&
+        data.recipient_ids.includes(mui.local_user_view.local_user.id)
+      ) {
+        this.setState({
+          unreadInboxCount: this.state.unreadInboxCount + 1,
+        });
+        this.sendUnreadCount();
+        notifyComment(data.comment_view, this.context.router);
+      }
     } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(
-        msg,
-        PrivateMessageResponse
-      );
+      let data = wsJsonToRes<PrivateMessageResponse>(msg);
 
-      UserService.Instance.myUserInfo.match({
-        some: mui => {
-          if (
-            data.private_message_view.recipient.id ==
-            mui.local_user_view.person.id
-          ) {
-            this.setState({
-              unreadInboxCount: this.state.unreadInboxCount + 1,
-            });
-            this.sendUnreadCount();
-            notifyPrivateMessage(
-              data.private_message_view,
-              this.context.router
-            );
-          }
-        },
-        none: void 0,
-      });
+      if (
+        data.private_message_view.recipient.id ==
+        UserService.Instance.myUserInfo?.local_user_view.person.id
+      ) {
+        this.setState({
+          unreadInboxCount: this.state.unreadInboxCount + 1,
+        });
+        this.sendUnreadCount();
+        notifyPrivateMessage(data.private_message_view, this.context.router);
+      }
     }
   }
 
   fetchUnreads() {
     console.log("Fetching inbox unreads...");
 
-    let unreadForm = new GetUnreadCount({
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
+    let auth = myAuth();
+    if (auth) {
+      let unreadForm: GetUnreadCount = {
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
 
-    console.log("Fetching reports...");
+      console.log("Fetching reports...");
 
-    let reportCountForm = new GetReportCount({
-      community_id: None,
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
+      let reportCountForm: GetReportCount = {
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
 
-    if (amAdmin()) {
-      console.log("Fetching applications...");
+      if (amAdmin()) {
+        console.log("Fetching applications...");
 
-      let applicationCountForm = new GetUnreadRegistrationApplicationCount({
-        auth: auth().unwrap(),
-      });
-      WebSocketService.Instance.send(
-        wsClient.getUnreadRegistrationApplicationCount(applicationCountForm)
-      );
+        let applicationCountForm: GetUnreadRegistrationApplicationCount = {
+          auth,
+        };
+        WebSocketService.Instance.send(
+          wsClient.getUnreadRegistrationApplicationCount(applicationCountForm)
+        );
+      }
     }
   }
 
@@ -703,7 +670,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   requestNotificationPermission() {
-    if (UserService.Instance.myUserInfo.isSome()) {
+    if (UserService.Instance.myUserInfo) {
       document.addEventListener("DOMContentLoaded", function () {
         if (!Notification) {
           toast(i18n.t("notifications_error"), "danger");

@@ -1,4 +1,3 @@
-import { None } from "@sniptt/monads";
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import {
@@ -16,9 +15,9 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { WebSocketService } from "../../services";
 import {
-  auth,
   capitalizeFirstLetter,
   isBrowser,
+  myAuth,
   randomStr,
   setIsoData,
   showLocal,
@@ -40,19 +39,17 @@ interface AdminSettingsState {
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
   private siteConfigTextAreaId = `site-config-${randomStr()}`;
-  private isoData = setIsoData(this.context, BannedPersonsResponse);
-  private subscription: Subscription;
-  private emptyState: AdminSettingsState = {
+  private isoData = setIsoData(this.context);
+  private subscription?: Subscription;
+  state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     banned: [],
     loading: true,
-    leaveAdminTeamLoading: null,
+    leaveAdminTeamLoading: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.state = this.emptyState;
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -65,19 +62,25 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         loading: false,
       };
     } else {
-      WebSocketService.Instance.send(
-        wsClient.getBannedPersons({
-          auth: auth().unwrap(),
-        })
-      );
+      let cAuth = myAuth();
+      if (cAuth) {
+        WebSocketService.Instance.send(
+          wsClient.getBannedPersons({
+            auth: cAuth,
+          })
+        );
+      }
     }
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
-    let bannedPersonsForm = new GetBannedPersons({ auth: req.auth.unwrap() });
-    promises.push(req.client.getBannedPersons(bannedPersonsForm));
+    let auth = req.auth;
+    if (auth) {
+      let bannedPersonsForm: GetBannedPersons = { auth };
+      promises.push(req.client.getBannedPersons(bannedPersonsForm));
+    }
 
     return promises;
   }
@@ -91,7 +94,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
   componentWillUnmount() {
     if (isBrowser()) {
-      this.subscription.unsubscribe();
+      this.subscription?.unsubscribe();
     }
   }
 
@@ -114,8 +117,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
-                description={None}
-                image={None}
               />
               <SiteForm
                 siteRes={this.state.siteRes}
@@ -179,10 +180,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   handleLeaveAdminTeam(i: AdminSettings) {
-    i.setState({ leaveAdminTeamLoading: true });
-    WebSocketService.Instance.send(
-      wsClient.leaveAdmin({ auth: auth().unwrap() })
-    );
+    let auth = myAuth();
+    if (auth) {
+      i.setState({ leaveAdminTeamLoading: true });
+      WebSocketService.Instance.send(wsClient.leaveAdmin({ auth }));
+    }
   }
 
   parseMessage(msg: any) {
@@ -194,14 +196,14 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.EditSite) {
-      let data = wsJsonToRes<SiteResponse>(msg, SiteResponse);
+      let data = wsJsonToRes<SiteResponse>(msg);
       this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetBannedPersons) {
-      let data = wsJsonToRes<BannedPersonsResponse>(msg, BannedPersonsResponse);
+      let data = wsJsonToRes<BannedPersonsResponse>(msg);
       this.setState({ banned: data.banned, loading: false });
     } else if (op == UserOperation.LeaveAdmin) {
-      let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
+      let data = wsJsonToRes<GetSiteResponse>(msg);
       this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       this.setState({ leaveAdminTeamLoading: false });
 

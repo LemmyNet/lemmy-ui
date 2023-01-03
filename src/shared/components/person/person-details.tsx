@@ -1,4 +1,3 @@
-import { None, Some } from "@sniptt/monads/build";
 import { Component } from "inferno";
 import {
   CommentView,
@@ -94,9 +93,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             key={i.id}
             nodes={[{ comment_view: c, children: [], depth: 0 }]}
             viewType={CommentViewType.Flat}
-            admins={Some(this.props.admins)}
-            moderators={None}
-            maxCommentsShown={None}
+            admins={this.props.admins}
             noBorder
             noIndent
             showCommunity
@@ -113,9 +110,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           <PostListing
             key={i.id}
             post_view={p}
-            admins={Some(this.props.admins)}
-            duplicates={None}
-            moderators={None}
+            admins={this.props.admins}
             showCommunity
             enableDownvotes={this.props.enableDownvotes}
             enableNsfw={this.props.enableNsfw}
@@ -171,9 +166,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
         <CommentNodes
           nodes={commentsToFlatNodes(this.props.personRes.comments)}
           viewType={CommentViewType.Flat}
-          admins={Some(this.props.admins)}
-          moderators={None}
-          maxCommentsShown={None}
+          admins={this.props.admins}
           noIndent
           showCommunity
           showContext
@@ -192,10 +185,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           <>
             <PostListing
               post_view={post}
-              admins={Some(this.props.admins)}
+              admins={this.props.admins}
               showCommunity
-              duplicates={None}
-              moderators={None}
               enableDownvotes={this.props.enableDownvotes}
               enableNsfw={this.props.enableNsfw}
               allLanguages={this.props.allLanguages}

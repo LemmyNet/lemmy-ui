@@ -1,4 +1,3 @@
-import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Prompt } from "inferno-router";
@@ -16,9 +15,9 @@ import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
-  auth,
   capitalizeFirstLetter,
   isBrowser,
+  myAuth,
   relTags,
   setupTippy,
   toast,
@@ -31,14 +30,14 @@ import { PersonListing } from "../person/person-listing";
 
 interface PrivateMessageFormProps {
   recipient: PersonSafe;
-  privateMessageView: Option<PrivateMessageView>; // If a pm is given, that means this is an edit
+  privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   onCancel?(): any;
   onCreate?(message: PrivateMessageView): any;
   onEdit?(message: PrivateMessageView): any;
 }
 
 interface PrivateMessageFormState {
-  privateMessageForm: CreatePrivateMessage;
+  content?: string;
   loading: boolean;
   previewMode: boolean;
   showDisclaimer: boolean;
@@ -48,13 +47,8 @@ export class PrivateMessageForm extends Component<
   PrivateMessageFormProps,
   PrivateMessageFormState
 > {
-  private subscription: Subscription;
-  private emptyState: PrivateMessageFormState = {
-    privateMessageForm: new CreatePrivateMessage({
-      content: null,
-      recipient_id: this.props.recipient.id,
-      auth: auth().unwrap(),
-    }),
+  private subscription?: Subscription;
+  state: PrivateMessageFormState = {
     loading: false,
     previewMode: false,
     showDisclaimer: false,
@@ -63,17 +57,15 @@ export class PrivateMessageForm extends Component<
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.state = this.emptyState;
-
     this.handleContentChange = this.handleContentChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Its an edit
-    if (this.props.privateMessageView.isSome()) {
-      this.state.privateMessageForm.content =
-        this.props.privateMessageView.unwrap().private_message.content;
+    if (this.props.privateMessageView) {
+      this.state.content =
+        this.props.privateMessageView.private_message.content;
     }
   }
 
@@ -82,16 +74,16 @@ export class PrivateMessageForm extends Component<
   }
 
   componentDidUpdate() {
-    if (!this.state.loading && this.state.privateMessageForm.content) {
+    if (!this.state.loading && this.state.content) {
       window.onbeforeunload = () => true;
     } else {
-      window.onbeforeunload = undefined;
+      window.onbeforeunload = null;
     }
   }
 
   componentWillUnmount() {
     if (isBrowser()) {
-      this.subscription.unsubscribe();
+      this.subscription?.unsubscribe();
       window.onbeforeunload = null;
     }
   }
@@ -100,11 +92,11 @@ export class PrivateMessageForm extends Component<
     return (
       <div>
         <Prompt
-          when={!this.state.loading && this.state.privateMessageForm.content}
+          when={!this.state.loading && this.state.content}
           message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
-          {this.props.privateMessageView.isNone() && (
+          {!this.props.privateMessageView && (
             <div className="form-group row">
               <label className="col-sm-2 col-form-label">
                 {capitalizeFirstLetter(i18n.t("to"))}
@@ -129,11 +121,7 @@ export class PrivateMessageForm extends Component<
             </label>
             <div className="col-sm-10">
               <MarkdownTextArea
-                initialContent={Some(this.state.privateMessageForm.content)}
-                initialLanguageId={None}
-                placeholder={None}
-                buttonTitle={None}
-                maxLength={None}
+                initialContent={this.state.content}
                 onContentChange={this.handleContentChange}
                 allLanguages={[]}
                 siteLanguages={[]}
@@ -168,13 +156,13 @@ export class PrivateMessageForm extends Component<
               >
                 {this.state.loading ? (
                   <Spinner />
-                ) : this.props.privateMessageView.isSome() ? (
+                ) : this.props.privateMessageView ? (
                   capitalizeFirstLetter(i18n.t("save"))
                 ) : (
                   capitalizeFirstLetter(i18n.t("send_message"))
                 )}
               </button>
-              {this.props.privateMessageView.isSome() && (
+              {this.props.privateMessageView && (
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -195,28 +183,35 @@ export class PrivateMessageForm extends Component<
 
   handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
     event.preventDefault();
-    i.props.privateMessageView.match({
-      some: pm => {
-        let form = new EditPrivateMessage({
+    let pm = i.props.privateMessageView;
+    let auth = myAuth();
+    let content = i.state.content;
+    if (auth && content) {
+      if (pm) {
+        let form: EditPrivateMessage = {
           private_message_id: pm.private_message.id,
-          content: i.state.privateMessageForm.content,
-          auth: auth().unwrap(),
-        });
+          content,
+          auth,
+        };
         WebSocketService.Instance.send(wsClient.editPrivateMessage(form));
-      },
-      none: WebSocketService.Instance.send(
-        wsClient.createPrivateMessage(i.state.privateMessageForm)
-      ),
-    });
-    i.setState({ loading: true });
+      } else {
+        let form: CreatePrivateMessage = {
+          content,
+          recipient_id: i.props.recipient.id,
+          auth,
+        };
+        WebSocketService.Instance.send(wsClient.createPrivateMessage(form));
+      }
+      i.setState({ loading: true });
+    }
   }
 
   handleContentChange(val: string) {
-    this.setState(s => ((s.privateMessageForm.content = val), s));
+    this.setState({ content: val });
   }
 
   handleCancel(i: PrivateMessageForm) {
-    i.props.onCancel();
+    i.props.onCancel?.();
   }
 
   handlePreviewToggle(i: PrivateMessageForm, event: any) {
@@ -240,18 +235,12 @@ export class PrivateMessageForm extends Component<
       op == UserOperation.DeletePrivateMessage ||
       op == UserOperation.MarkPrivateMessageAsRead
     ) {
-      let data = wsJsonToRes<PrivateMessageResponse>(
-        msg,
-        PrivateMessageResponse
-      );
+      let data = wsJsonToRes<PrivateMessageResponse>(msg);
       this.setState({ loading: false });
-      this.props.onEdit(data.private_message_view);
+      this.props.onEdit?.(data.private_message_view);
     } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(
-        msg,
-        PrivateMessageResponse
-      );
-      this.props.onCreate(data.private_message_view);
+      let data = wsJsonToRes<PrivateMessageResponse>(msg);
+      this.props.onCreate?.(data.private_message_view);
     }
   }
 }

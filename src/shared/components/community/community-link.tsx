@@ -5,7 +5,6 @@ import { hostname, relTags, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 
 interface CommunityLinkProps {
-  // TODO figure this out better
   community: CommunitySafe;
   realLink?: boolean;
   useApubName?: boolean;
@@ -56,14 +55,12 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
   }
 
   avatarAndName(displayName: string) {
+    let icon = this.props.community.icon;
     return (
       <>
-        {!this.props.hideAvatar &&
-          showAvatars() &&
-          this.props.community.icon.match({
-            some: icon => <PictrsImage src={icon} icon />,
-            none: <></>,
-          })}
+        {!this.props.hideAvatar && showAvatars() && icon && (
+          <PictrsImage src={icon} icon />
+        )}
         <span className="overflow-wrap-anywhere">{displayName}</span>
       </>
     );

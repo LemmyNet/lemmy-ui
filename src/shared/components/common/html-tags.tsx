@@ -1,4 +1,3 @@
-import { Option } from "@sniptt/monads";
 import { htmlToText } from "html-to-text";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
@@ -8,14 +7,16 @@ import { md } from "../../utils";
 interface HtmlTagsProps {
   title: string;
   path: string;
-  description: Option<string>;
-  image: Option<string>;
+  description?: string;
+  image?: string;
 }
 
 /// Taken from https://metatags.io/
 export class HtmlTags extends Component<HtmlTagsProps, any> {
   render() {
     let url = httpExternalPath(this.props.path);
+    let desc = this.props.description;
+    let image = this.props.image;
 
     return (
       <Helmet title={this.props.title}>
@@ -33,21 +34,19 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
         <meta property="twitter:card" content="summary_large_image" />
 
         {/* Optional desc and images */}
-        {this.props.description.isSome() &&
-          ["description", "og:description", "twitter:description"].map(n => (
-            <meta
-              key={n}
-              name={n}
-              content={htmlToText(
-                md.renderInline(this.props.description.unwrap())
-              )}
-            />
-          ))}
-
-        {this.props.image.isSome() &&
-          ["og:image", "twitter:image"].map(p => (
-            <meta key={p} property={p} content={this.props.image.unwrap()} />
-          ))}
+        {["description", "og:description", "twitter:description"].map(
+          n =>
+            desc && (
+              <meta
+                key={n}
+                name={n}
+                content={htmlToText(md.renderInline(desc))}
+              />
+            )
+        )}
+        {["og:image", "twitter:image"].map(
+          p => image && <meta key={p} property={p} content={image} />
+        )}
       </Helmet>
     );
   }

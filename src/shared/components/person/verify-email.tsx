@@ -1,4 +1,3 @@
-import { None } from "@sniptt/monads/build";
 import { Component } from "inferno";
 import {
   GetSiteResponse,
@@ -27,19 +26,17 @@ interface State {
 
 export class VerifyEmail extends Component<any, State> {
   private isoData = setIsoData(this.context);
-  private subscription: Subscription;
+  private subscription?: Subscription;
 
-  emptyState: State = {
-    verifyEmailForm: new VerifyEmailForm({
+  state: State = {
+    verifyEmailForm: {
       token: this.props.match.params.token,
-    }),
+    },
     siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.state = this.emptyState;
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -53,7 +50,7 @@ export class VerifyEmail extends Component<any, State> {
 
   componentWillUnmount() {
     if (isBrowser()) {
-      this.subscription.unsubscribe();
+      this.subscription?.unsubscribe();
     }
   }
 
@@ -69,8 +66,6 @@ export class VerifyEmail extends Component<any, State> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
-          description={None}
-          image={None}
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
@@ -90,10 +85,9 @@ export class VerifyEmail extends Component<any, State> {
       this.props.history.push("/");
       return;
     } else if (op == UserOperation.VerifyEmail) {
-      let data = wsJsonToRes<VerifyEmailResponse>(msg, VerifyEmailResponse);
+      let data = wsJsonToRes<VerifyEmailResponse>(msg);
       if (data) {
         toast(i18n.t("email_verified"));
-        this.setState(this.emptyState);
         this.props.history.push("/login");
       }
     }

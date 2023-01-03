@@ -6,7 +6,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
-import { auth, mdToHtml, wsClient } from "../../utils";
+import { mdToHtml, myAuth, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 
@@ -45,24 +45,21 @@ export class PrivateMessageReport extends Component<Props, any> {
         <div>
           {i18n.t("reason")}: {pmr.reason}
         </div>
-        {r.resolver.match({
-          some: resolver => (
-            <div>
-              {pmr.resolved ? (
-                <T i18nKey="resolved_by">
-                  #
-                  <PersonListing person={resolver} />
-                </T>
-              ) : (
-                <T i18nKey="unresolved_by">
-                  #
-                  <PersonListing person={resolver} />
-                </T>
-              )}
-            </div>
-          ),
-          none: <></>,
-        })}
+        {r.resolver && (
+          <div>
+            {pmr.resolved ? (
+              <T i18nKey="resolved_by">
+                #
+                <PersonListing person={r.resolver} />
+              </T>
+            ) : (
+              <T i18nKey="unresolved_by">
+                #
+                <PersonListing person={r.resolver} />
+              </T>
+            )}
+          </div>
+        )}
         <button
           className="btn btn-link btn-animate text-muted py-0"
           onClick={linkEvent(this, this.handleResolveReport)}
@@ -82,11 +79,16 @@ export class PrivateMessageReport extends Component<Props, any> {
 
   handleResolveReport(i: PrivateMessageReport) {
     let pmr = i.props.report.private_message_report;
-    let form = new ResolvePrivateMessageReport({
-      report_id: pmr.id,
-      resolved: !pmr.resolved,
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.resolvePrivateMessageReport(form));
+    let auth = myAuth();
+    if (auth) {
+      let form: ResolvePrivateMessageReport = {
+        report_id: pmr.id,
+        resolved: !pmr.resolved,
+        auth,
+      };
+      WebSocketService.Instance.send(
+        wsClient.resolvePrivateMessageReport(form)
+      );
+    }
   }
 }

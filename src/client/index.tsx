@@ -1,10 +1,9 @@
 import { hydrate } from "inferno-hydrate";
 import { BrowserRouter } from "inferno-router";
-import { GetSiteResponse } from "lemmy-js-client";
 import { App } from "../shared/components/app/app";
-import { convertWindowJson, initializeSite } from "../shared/utils";
+import { initializeSite } from "../shared/utils";
 
-const site = convertWindowJson(GetSiteResponse, window.isoData.site_res);
+const site = window.isoData.site_res;
 initializeSite(site);
 
 const wrapper = (
@@ -13,4 +12,7 @@ const wrapper = (
   </BrowserRouter>
 );
 
-hydrate(wrapper, document.getElementById("root"));
+let root = document.getElementById("root");
+if (root) {
+  hydrate(wrapper, root);
+}

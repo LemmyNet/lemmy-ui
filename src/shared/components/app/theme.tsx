@@ -9,19 +9,15 @@ interface Props {
 export class Theme extends Component<Props> {
   render() {
     let user = UserService.Instance.myUserInfo;
-    let hasTheme = user
-      .map(m => m.local_user_view.local_user.theme !== "browser")
-      .unwrapOr(false);
+    let hasTheme = user?.local_user_view.local_user.theme !== "browser";
 
-    if (hasTheme) {
+    if (user && hasTheme) {
       return (
         <Helmet>
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/themes/${
-              user.unwrap().local_user_view.local_user.theme
-            }.css`}
+            href={`/css/themes/${user.local_user_view.local_user.theme}.css`}
           />
         </Helmet>
       );

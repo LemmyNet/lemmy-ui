@@ -1,5 +1,3 @@
-import { None, Option } from "@sniptt/monads";
-import { serialize as serializeO } from "class-transformer";
 import express from "express";
 import fs from "fs";
 import { IncomingHttpHeaders } from "http";
@@ -7,7 +5,7 @@ import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, GetSiteResponse, LemmyHttp, toOption } from "lemmy-js-client";
+import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import path from "path";
 import process from "process";
 import serialize from "serialize-javascript";
@@ -114,11 +112,11 @@ server.get("/css/themelist", async (_req, res) => {
 // server.use(cookieParser());
 server.get("/*", async (req, res) => {
   try {
-    const activeRoute = routes.find(route => matchPath(req.path, route)) || {};
+    const activeRoute = routes.find(route => matchPath(req.path, route));
     const context = {} as any;
-    let auth: Option<string> = toOption(IsomorphicCookie.load("jwt", req));
+    let auth: string | undefined = IsomorphicCookie.load("jwt", req);
 
-    let getSiteForm = new GetSite({ auth });
+    let getSiteForm: GetSite = { auth };
 
     let promises: Promise<any>[] = [];
 
@@ -138,14 +136,14 @@ server.get("/*", async (req, res) => {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
       );
-      getSiteForm.auth = None;
-      initialFetchReq.auth = None;
+      getSiteForm.auth = undefined;
+      initialFetchReq.auth = undefined;
       try_site = await initialFetchReq.client.getSite(getSiteForm);
     }
     let site: GetSiteResponse = try_site;
     initializeSite(site);
 
-    if (activeRoute.fetchInitialData) {
+    if (activeRoute?.fetchInitialData) {
       promises.push(...activeRoute.fetchInitialData(initialFetchReq));
     }
 
@@ -193,7 +191,7 @@ server.get("/*", async (req, res) => {
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
-           <script>window.isoData = ${serializeO(isoData)}</script>
+           <script>window.isoData = ${JSON.stringify(isoData)}</script>
            <script>window.lemmyConfig = ${serialize(config)}</script>
 
            <!-- A remote debugging utility for mobile -->
@@ -246,14 +244,17 @@ server.listen(Number(port), hostname, () => {
 function setForwardedHeaders(headers: IncomingHttpHeaders): {
   [key: string]: string;
 } {
-  let out = {
-    host: headers.host,
-  };
-  if (headers["x-real-ip"]) {
-    out["x-real-ip"] = headers["x-real-ip"];
+  let out: { [key: string]: string } = {};
+  if (headers.host) {
+    out.host = headers.host;
   }
-  if (headers["x-forwarded-for"]) {
-    out["x-forwarded-for"] = headers["x-forwarded-for"];
+  let realIp = headers["x-real-ip"];
+  if (realIp) {
+    out["x-real-ip"] = realIp as string;
+  }
+  let forwardedFor = headers["x-forwarded-for"];
+  if (forwardedFor) {
+    out["x-forwarded-for"] = forwardedFor as string;
   }
 
   return out;

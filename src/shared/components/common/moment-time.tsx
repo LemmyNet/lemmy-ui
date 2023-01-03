@@ -1,4 +1,3 @@
-import { Option } from "@sniptt/monads";
 import { Component } from "inferno";
 import moment from "moment";
 import { i18n } from "../../i18next";
@@ -7,7 +6,7 @@ import { Icon } from "./icon";
 
 interface MomentTimeProps {
   published: string;
-  updated: Option<string>;
+  updated?: string;
   showAgo?: boolean;
   ignoreUpdated?: boolean;
 }
@@ -22,22 +21,27 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   }
 
   createdAndModifiedTimes() {
-    return `${capitalizeFirstLetter(i18n.t("created"))}: ${this.format(
+    let updated = this.props.updated;
+    let line = `${capitalizeFirstLetter(i18n.t("created"))}: ${this.format(
       this.props.published
-    )}\n\n\n${
-      this.props.updated.isSome() && capitalizeFirstLetter(i18n.t("modified"))
-    } ${this.format(this.props.updated.unwrap())}`;
+    )}`;
+    if (updated) {
+      line += `\n\n\n${capitalizeFirstLetter(i18n.t("modified"))} ${this.format(
+        updated
+      )}`;
+    }
+    return line;
   }
 
   render() {
-    if (!this.props.ignoreUpdated && this.props.updated.isSome()) {
+    if (!this.props.ignoreUpdated && this.props.updated) {
       return (
         <span
           data-tippy-content={this.createdAndModifiedTimes()}
           className="font-italics pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline mr-1" />
-          {moment.utc(this.props.updated.unwrap()).fromNow(!this.props.showAgo)}
+          {moment.utc(this.props.updated).fromNow(!this.props.showAgo)}
         </span>
       );
     } else {

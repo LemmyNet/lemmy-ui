@@ -18,13 +18,12 @@ export class CommentSortSelect extends Component<
   CommentSortSelectState
 > {
   private id = `sort-select-${randomStr()}`;
-  private emptyState: CommentSortSelectState = {
+  state: CommentSortSelectState = {
     sort: this.props.sort,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
   }
 
   static getDerivedStateFromProps(props: any): CommentSortSelectState {
@@ -65,6 +64,6 @@ export class CommentSortSelect extends Component<
   }
 
   handleSortChange(i: CommentSortSelect, event: any) {
-    i.props.onChange(event.target.value);
+    i.props.onChange?.(event.target.value);
   }
 }

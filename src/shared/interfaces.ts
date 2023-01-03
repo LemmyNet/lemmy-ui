@@ -1,4 +1,3 @@
-import { Either, Option } from "@sniptt/monads";
 import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 
 /**
@@ -22,16 +21,16 @@ declare global {
 }
 
 export interface InitialFetchRequest {
-  auth: Option<string>;
+  auth?: string;
   client: LemmyHttp;
   path: string;
 }
 
 export interface PostFormParams {
-  name: Option<string>;
-  url: Option<string>;
-  body: Option<string>;
-  nameOrId: Option<Either<string, number>>;
+  name?: string;
+  url?: string;
+  body?: string;
+  nameOrId?: string | number;
 }
 
 export enum CommentViewType {

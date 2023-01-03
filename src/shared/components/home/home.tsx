@@ -1,4 +1,3 @@
-import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -37,7 +36,6 @@ import {
 } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
-  auth,
   canCreateCommunity,
   commentsToFlatNodes,
   createCommentLikeRes,
@@ -55,6 +53,7 @@ import {
   isBrowser,
   isPostBlocked,
   mdToHtml,
+  myAuth,
   notifyPost,
   nsfwCheck,
   postToCommentSortType,
@@ -96,7 +95,7 @@ interface HomeState {
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
   loading: boolean;
-  tagline: Option<string>;
+  tagline?: string;
 }
 
 interface HomeProps {
@@ -114,14 +113,9 @@ interface UrlParams {
 }
 
 export class Home extends Component<any, HomeState> {
-  private isoData = setIsoData(
-    this.context,
-    GetPostsResponse,
-    GetCommentsResponse,
-    ListCommunitiesResponse
-  );
-  private subscription: Subscription;
-  private emptyState: HomeState = {
+  private isoData = setIsoData(this.context);
+  private subscription?: Subscription;
+  state: HomeState = {
     trendingCommunities: [],
     siteRes: this.isoData.site_res,
     showSubscribedMobile: false,
@@ -140,13 +134,11 @@ export class Home extends Component<any, HomeState> {
     dataType: getDataTypeFromProps(this.props),
     sort: getSortTypeFromProps(this.props),
     page: getPageFromProps(this.props),
-    tagline: None,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.state = this.emptyState;
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
@@ -157,16 +149,20 @@ export class Home extends Component<any, HomeState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
-      let postsRes = Some(this.isoData.routeData[0] as GetPostsResponse);
-      let commentsRes = Some(this.isoData.routeData[1] as GetCommentsResponse);
-      let trendingRes = this.isoData.routeData[2] as ListCommunitiesResponse;
+      let postsRes = this.isoData.routeData[0] as GetPostsResponse | undefined;
+      let commentsRes = this.isoData.routeData[1] as
+        | GetCommentsResponse
+        | undefined;
+      let trendingRes = this.isoData.routeData[2] as
+        | ListCommunitiesResponse
+        | undefined;
 
-      if (postsRes.isSome()) {
-        this.state = { ...this.state, posts: postsRes.unwrap().posts };
+      if (postsRes) {
+        this.state = { ...this.state, posts: postsRes.posts };
       }
 
-      if (commentsRes.isSome()) {
-        this.state = { ...this.state, comments: commentsRes.unwrap().comments };
+      if (commentsRes) {
+        this.state = { ...this.state, comments: commentsRes.comments };
       }
 
       if (isBrowser()) {
@@ -177,9 +173,9 @@ export class Home extends Component<any, HomeState> {
       const taglines = this.state.siteRes.taglines;
       this.state = {
         ...this.state,
-        trendingCommunities: trendingRes.communities,
+        trendingCommunities: trendingRes?.communities ?? [],
         loading: false,
-        tagline: taglines.map(tls => getRandomFromList(tls).content),
+        tagline: getRandomFromList(taglines)?.content,
       };
     } else {
       this.fetchTrendingCommunities();
@@ -188,13 +184,12 @@ export class Home extends Component<any, HomeState> {
   }
 
   fetchTrendingCommunities() {
-    let listCommunitiesForm = new ListCommunities({
-      type_: Some(ListingType.Local),
-      sort: Some(SortType.Hot),
-      limit: Some(trendingFetchLimit),
-      page: None,
-      auth: auth(false).ok(),
-    });
+    let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.Local,
+      sort: SortType.Hot,
+      limit: trendingFetchLimit,
+      auth: myAuth(false),
+    };
     WebSocketService.Instance.send(
       wsClient.listCommunities(listCommunitiesForm)
     );
@@ -210,7 +205,7 @@ export class Home extends Component<any, HomeState> {
 
   componentWillUnmount() {
     saveScrollPosition(this.context);
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
   }
 
   static getDerivedStateFromProps(
@@ -230,74 +225,60 @@ export class Home extends Component<any, HomeState> {
     let dataType: DataType = pathSplit[3]
       ? DataType[pathSplit[3]]
       : DataType.Post;
+    let mui = UserService.Instance.myUserInfo;
+    let auth = req.auth;
 
     // TODO figure out auth default_listingType, default_sort_type
-    let type_: Option<ListingType> = Some(
-      pathSplit[5]
-        ? ListingType[pathSplit[5]]
-        : UserService.Instance.myUserInfo.match({
-            some: mui =>
-              Object.values(ListingType)[
-                mui.local_user_view.local_user.default_listing_type
-              ],
-            none: ListingType.Local,
-          })
-    );
-    let sort: Option<SortType> = Some(
-      pathSplit[7]
-        ? SortType[pathSplit[7]]
-        : UserService.Instance.myUserInfo.match({
-            some: mui =>
-              Object.values(SortType)[
-                mui.local_user_view.local_user.default_sort_type
-              ],
-            none: SortType.Active,
-          })
-    );
+    let type_: ListingType = pathSplit[5]
+      ? ListingType[pathSplit[5]]
+      : mui
+      ? Object.values(ListingType)[
+          mui.local_user_view.local_user.default_listing_type
+        ]
+      : ListingType.Local;
+    let sort: SortType = pathSplit[7]
+      ? SortType[pathSplit[7]]
+      : mui
+      ? (Object.values(SortType)[
+          mui.local_user_view.local_user.default_sort_type
+        ] as SortType)
+      : SortType.Active;
 
-    let page = Some(pathSplit[9] ? Number(pathSplit[9]) : 1);
+    let page = pathSplit[9] ? Number(pathSplit[9]) : 1;
 
     let promises: Promise<any>[] = [];
 
     if (dataType == DataType.Post) {
-      let getPostsForm = new GetPosts({
-        community_id: None,
-        community_name: None,
+      let getPostsForm: GetPosts = {
         type_,
         page,
-        limit: Some(fetchLimit),
+        limit: fetchLimit,
         sort,
-        saved_only: Some(false),
-        auth: req.auth,
-      });
+        saved_only: false,
+        auth,
+      };
 
       promises.push(req.client.getPosts(getPostsForm));
       promises.push(Promise.resolve());
     } else {
-      let getCommentsForm = new GetComments({
-        community_id: None,
-        community_name: None,
+      let getCommentsForm: GetComments = {
         page,
-        limit: Some(fetchLimit),
-        max_depth: None,
-        sort: sort.map(postToCommentSortType),
+        limit: fetchLimit,
+        sort: postToCommentSortType(sort),
         type_,
-        saved_only: Some(false),
-        post_id: None,
-        parent_id: None,
-        auth: req.auth,
-      });
+        saved_only: false,
+        auth,
+      };
       promises.push(Promise.resolve());
       promises.push(req.client.getComments(getCommentsForm));
     }
 
-    let trendingCommunitiesForm = new ListCommunities({
-      type_: Some(ListingType.Local),
-      sort: Some(SortType.Hot),
-      limit: Some(trendingFetchLimit),
-      page: None,
-      auth: req.auth,
-    });
+    let trendingCommunitiesForm: ListCommunities = {
+      type_: ListingType.Local,
+      sort: SortType.Hot,
+      limit: trendingFetchLimit,
+      auth,
+    };
     promises.push(req.client.listCommunities(trendingCommunitiesForm));
 
     return promises;
@@ -317,33 +298,28 @@ export class Home extends Component<any, HomeState> {
 
   get documentTitle(): string {
     let siteView = this.state.siteRes.site_view;
-    return this.state.siteRes.site_view.site.description.match({
-      some: desc => `${siteView.site.name} - ${desc}`,
-      none: siteView.site.name,
-    });
+    let desc = this.state.siteRes.site_view.site.description;
+    return desc ? `${siteView.site.name} - ${desc}` : siteView.site.name;
   }
 
   render() {
+    let tagline = this.state.tagline;
+
     return (
       <div className="container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
-          description={None}
-          image={None}
         />
         {this.state.siteRes.site_view.local_site.site_setup && (
           <div className="row">
             <main role="main" className="col-12 col-md-8">
-              {this.state.tagline.match({
-                some: tagline => (
-                  <div
-                    id="tagline"
-                    dangerouslySetInnerHTML={mdToHtml(tagline)}
-                  ></div>
-                ),
-                none: <></>,
-              })}
+              {tagline && (
+                <div
+                  id="tagline"
+                  dangerouslySetInnerHTML={mdToHtml(tagline)}
+                ></div>
+              )}
               <div className="d-block d-md-none">{this.mobileView()}</div>
               {this.posts()}
             </main>
@@ -357,10 +333,8 @@ export class Home extends Component<any, HomeState> {
   }
 
   get hasFollows(): boolean {
-    return UserService.Instance.myUserInfo.match({
-      some: mui => mui.follows.length > 0,
-      none: false,
-    });
+    let mui = UserService.Instance.myUserInfo;
+    return !!mui && mui.follows.length > 0;
   }
 
   mobileView() {
@@ -412,9 +386,9 @@ export class Home extends Component<any, HomeState> {
           {this.state.showSidebarMobile && (
             <SiteSidebar
               site={siteView.site}
-              admins={Some(siteRes.admins)}
-              counts={Some(siteView.counts)}
-              online={Some(siteRes.online)}
+              admins={siteRes.admins}
+              counts={siteView.counts}
+              online={siteRes.online}
               showLocal={showLocal(this.isoData)}
             />
           )}
@@ -450,9 +424,9 @@ export class Home extends Component<any, HomeState> {
             </div>
             <SiteSidebar
               site={siteView.site}
-              admins={Some(siteRes.admins)}
-              counts={Some(siteView.counts)}
-              online={Some(siteRes.online)}
+              admins={siteRes.admins}
+              counts={siteView.counts}
+              online={siteRes.online}
               showLocal={showLocal(this.isoData)}
             />
             {this.hasFollows && (
@@ -532,17 +506,14 @@ export class Home extends Component<any, HomeState> {
         </h5>
         {!this.state.subscribedCollapsed && (
           <ul className="list-inline mb-0">
-            {UserService.Instance.myUserInfo
-              .map(m => m.follows)
-              .unwrapOr([])
-              .map(cfv => (
-                <li
-                  key={cfv.community.id}
-                  className="list-inline-item d-inline-block"
-                >
-                  <CommunityLink community={cfv.community} />
-                </li>
-              ))}
+            {UserService.Instance.myUserInfo?.follows.map(cfv => (
+              <li
+                key={cfv.community.id}
+                className="list-inline-item d-inline-block"
+              >
+                <CommunityLink community={cfv.community} />
+              </li>
+            ))}
           </ul>
         )}
       </div>
@@ -595,9 +566,6 @@ export class Home extends Component<any, HomeState> {
       <CommentNodes
         nodes={commentsToFlatNodes(this.state.comments)}
         viewType={CommentViewType.Flat}
-        moderators={None}
-        admins={None}
-        maxCommentsShown={None}
         noIndent
         showCommunity
         showContext
@@ -611,9 +579,10 @@ export class Home extends Component<any, HomeState> {
   selects() {
     let allRss = `/feeds/all.xml?sort=${this.state.sort}`;
     let localRss = `/feeds/local.xml?sort=${this.state.sort}`;
-    let frontRss = auth(false)
-      .ok()
-      .map(auth => `/feeds/front/${auth}.xml?sort=${this.state.sort}`);
+    let auth = myAuth(false);
+    let frontRss = auth
+      ? `/feeds/front/${auth}.xml?sort=${this.state.sort}`
+      : undefined;
 
     return (
       <div className="mb-3">
@@ -650,18 +619,14 @@ export class Home extends Component<any, HomeState> {
             <link rel="alternate" type="application/atom+xml" href={localRss} />
           </>
         )}
-        {this.state.listingType == ListingType.Subscribed &&
-          frontRss.match({
-            some: rss => (
-              <>
-                <a href={rss} title="RSS" rel={relTags}>
-                  <Icon icon="rss" classes="text-muted small" />
-                </a>
-                <link rel="alternate" type="application/atom+xml" href={rss} />
-              </>
-            ),
-            none: <></>,
-          })}
+        {this.state.listingType == ListingType.Subscribed && frontRss && (
+          <>
+            <a href={frontRss} title="RSS" rel={relTags}>
+              <Icon icon="rss" classes="text-muted small" />
+            </a>
+            <link rel="alternate" type="application/atom+xml" href={frontRss} />
+          </>
+        )}
       </div>
     );
   }
@@ -703,33 +668,27 @@ export class Home extends Component<any, HomeState> {
   }
 
   fetchData() {
+    let auth = myAuth(false);
     if (this.state.dataType == DataType.Post) {
-      let getPostsForm = new GetPosts({
-        community_id: None,
-        community_name: None,
-        page: Some(this.state.page),
-        limit: Some(fetchLimit),
-        sort: Some(this.state.sort),
-        saved_only: Some(false),
-        auth: auth(false).ok(),
-        type_: Some(this.state.listingType),
-      });
+      let getPostsForm: GetPosts = {
+        page: this.state.page,
+        limit: fetchLimit,
+        sort: this.state.sort,
+        saved_only: false,
+        type_: this.state.listingType,
+        auth,
+      };
 
       WebSocketService.Instance.send(wsClient.getPosts(getPostsForm));
     } else {
-      let getCommentsForm = new GetComments({
-        community_id: None,
-        community_name: None,
-        page: Some(this.state.page),
-        limit: Some(fetchLimit),
-        max_depth: None,
-        sort: Some(postToCommentSortType(this.state.sort)),
-        saved_only: Some(false),
-        post_id: None,
-        parent_id: None,
-        auth: auth(false).ok(),
-        type_: Some(this.state.listingType),
-      });
+      let getCommentsForm: GetComments = {
+        page: this.state.page,
+        limit: fetchLimit,
+        sort: postToCommentSortType(this.state.sort),
+        saved_only: false,
+        type_: this.state.listingType,
+        auth,
+      };
       WebSocketService.Instance.send(wsClient.getComments(getCommentsForm));
     }
   }
@@ -746,17 +705,14 @@ export class Home extends Component<any, HomeState> {
       );
       this.fetchData();
     } else if (op == UserOperation.ListCommunities) {
-      let data = wsJsonToRes<ListCommunitiesResponse>(
-        msg,
-        ListCommunitiesResponse
-      );
+      let data = wsJsonToRes<ListCommunitiesResponse>(msg);
       this.setState({ trendingCommunities: data.communities });
     } else if (op == UserOperation.EditSite) {
-      let data = wsJsonToRes<SiteResponse>(msg, SiteResponse);
+      let data = wsJsonToRes<SiteResponse>(msg);
       this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetPosts) {
-      let data = wsJsonToRes<GetPostsResponse>(msg, GetPostsResponse);
+      let data = wsJsonToRes<GetPostsResponse>(msg);
       this.setState({ posts: data.posts, loading: false });
       WebSocketService.Instance.send(
         wsClient.communityJoin({ community_id: 0 })
@@ -764,11 +720,10 @@ export class Home extends Component<any, HomeState> {
       restoreScrollPosition(this.context);
       setupTippy();
     } else if (op == UserOperation.CreatePost) {
-      let data = wsJsonToRes<PostResponse>(msg, PostResponse);
+      let data = wsJsonToRes<PostResponse>(msg);
+      let mui = UserService.Instance.myUserInfo;
 
-      let showPostNotifs = UserService.Instance.myUserInfo
-        .map(m => m.local_user_view.local_user.show_new_post_notifs)
-        .unwrapOr(false);
+      let showPostNotifs = mui?.local_user_view.local_user.show_new_post_notifs;
 
       // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
       if (
@@ -779,9 +734,7 @@ export class Home extends Component<any, HomeState> {
         // If you're on subscribed, only push it if you're subscribed.
         if (this.state.listingType == ListingType.Subscribed) {
           if (
-            UserService.Instance.myUserInfo
-              .map(m => m.follows)
-              .unwrapOr([])
+            mui?.follows
               .map(c => c.community.id)
               .includes(data.post_view.community.id)
           ) {
@@ -814,45 +767,43 @@ export class Home extends Component<any, HomeState> {
       op == UserOperation.FeaturePost ||
       op == UserOperation.SavePost
     ) {
-      let data = wsJsonToRes<PostResponse>(msg, PostResponse);
+      let data = wsJsonToRes<PostResponse>(msg);
       editPostFindRes(data.post_view, this.state.posts);
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
-      let data = wsJsonToRes<PostResponse>(msg, PostResponse);
+      let data = wsJsonToRes<PostResponse>(msg);
       createPostLikeFindRes(data.post_view, this.state.posts);
       this.setState(this.state);
     } else if (op == UserOperation.AddAdmin) {
-      let data = wsJsonToRes<AddAdminResponse>(msg, AddAdminResponse);
+      let data = wsJsonToRes<AddAdminResponse>(msg);
       this.setState(s => ((s.siteRes.admins = data.admins), s));
     } else if (op == UserOperation.BanPerson) {
-      let data = wsJsonToRes<BanPersonResponse>(msg, BanPersonResponse);
+      let data = wsJsonToRes<BanPersonResponse>(msg);
       this.state.posts
         .filter(p => p.creator.id == data.person_view.person.id)
         .forEach(p => (p.creator.banned = data.banned));
 
       this.setState(this.state);
     } else if (op == UserOperation.GetComments) {
-      let data = wsJsonToRes<GetCommentsResponse>(msg, GetCommentsResponse);
+      let data = wsJsonToRes<GetCommentsResponse>(msg);
       this.setState({ comments: data.comments, loading: false });
     } else if (
       op == UserOperation.EditComment ||
       op == UserOperation.DeleteComment ||
       op == UserOperation.RemoveComment
     ) {
-      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
+      let data = wsJsonToRes<CommentResponse>(msg);
       editCommentRes(data.comment_view, this.state.comments);
       this.setState(this.state);
     } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
+      let data = wsJsonToRes<CommentResponse>(msg);
 
       // Necessary since it might be a user reply
       if (data.form_id) {
         // If you're on subscribed, only push it if you're subscribed.
         if (this.state.listingType == ListingType.Subscribed) {
           if (
-            UserService.Instance.myUserInfo
-              .map(m => m.follows)
-              .unwrapOr([])
+            UserService.Instance.myUserInfo?.follows
               .map(c => c.community.id)
               .includes(data.comment_view.community.id)
           ) {
@@ -864,23 +815,23 @@ export class Home extends Component<any, HomeState> {
         this.setState(this.state);
       }
     } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
+      let data = wsJsonToRes<CommentResponse>(msg);
       saveCommentRes(data.comment_view, this.state.comments);
       this.setState(this.state);
     } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
+      let data = wsJsonToRes<CommentResponse>(msg);
       createCommentLikeRes(data.comment_view, this.state.comments);
       this.setState(this.state);
     } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg, BlockPersonResponse);
+      let data = wsJsonToRes<BlockPersonResponse>(msg);
       updatePersonBlock(data);
     } else if (op == UserOperation.CreatePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg, PostReportResponse);
+      let data = wsJsonToRes<PostReportResponse>(msg);
       if (data) {
         toast(i18n.t("report_created"));
       }
     } else if (op == UserOperation.CreateCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg, CommentReportResponse);
+      let data = wsJsonToRes<CommentReportResponse>(msg);
       if (data) {
         toast(i18n.t("report_created"));
       }
@@ -890,7 +841,7 @@ export class Home extends Component<any, HomeState> {
       op == UserOperation.PurgeComment ||
       op == UserOperation.PurgeCommunity
     ) {
-      let data = wsJsonToRes<PurgeItemResponse>(msg, PurgeItemResponse);
+      let data = wsJsonToRes<PurgeItemResponse>(msg);
       if (data.success) {
         toast(i18n.t("purge_success"));
         this.context.router.history.push(`/`);

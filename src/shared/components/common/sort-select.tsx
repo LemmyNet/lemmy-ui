@@ -17,13 +17,12 @@ interface SortSelectState {
 
 export class SortSelect extends Component<SortSelectProps, SortSelectState> {
   private id = `sort-select-${randomStr()}`;
-  private emptyState: SortSelectState = {
+  state: SortSelectState = {
     sort: this.props.sort,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
   }
 
   static getDerivedStateFromProps(props: any): SortSelectState {
@@ -86,6 +85,6 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
   }
 
   handleSortChange(i: SortSelect, event: any) {
-    i.props.onChange(event.target.value);
+    i.props.onChange?.(event.target.value);
   }
 }

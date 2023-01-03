@@ -21,13 +21,12 @@ export class ListingTypeSelect extends Component<
 > {
   private id = `listing-type-input-${randomStr()}`;
 
-  private emptyState: ListingTypeSelectState = {
+  state: ListingTypeSelectState = {
     type_: this.props.type_,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
   }
 
   static getDerivedStateFromProps(props: any): ListingTypeSelectProps {
@@ -46,7 +45,7 @@ export class ListingTypeSelect extends Component<
             title={i18n.t("subscribed_description")}
             className={`btn btn-outline-secondary 
             ${this.state.type_ == ListingType.Subscribed && "active"}
-            ${UserService.Instance.myUserInfo.isNone() ? "disabled" : "pointer"}
+            ${!UserService.Instance.myUserInfo ? "disabled" : "pointer"}
           `}
           >
             <input
@@ -55,7 +54,7 @@ export class ListingTypeSelect extends Component<
               value={ListingType.Subscribed}
               checked={this.state.type_ == ListingType.Subscribed}
               onChange={linkEvent(this, this.handleTypeChange)}
-              disabled={UserService.Instance.myUserInfo.isNone()}
+              disabled={!UserService.Instance.myUserInfo}
             />
             {i18n.t("subscribed")}
           </label>
@@ -100,6 +99,6 @@ export class ListingTypeSelect extends Component<
   }
 
   handleTypeChange(i: ListingTypeSelect, event: any) {
-    i.props.onChange(event.target.value);
+    i.props.onChange?.(event.target.value);
   }
 }

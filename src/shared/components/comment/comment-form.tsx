@@ -1,4 +1,3 @@
-import { Either, None, Option, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -16,8 +15,8 @@ import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  auth,
   capitalizeFirstLetter,
+  myAuth,
   myFirstDiscussionLanguageId,
   wsClient,
   wsSubscribe,
@@ -29,7 +28,7 @@ interface CommentFormProps {
   /**
    * Can either be the parent, or the editable comment. The right side is a postId.
    */
-  node: Either<CommentNodeI, number>;
+  node: CommentNodeI | number;
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
@@ -41,19 +40,19 @@ interface CommentFormProps {
 interface CommentFormState {
   buttonTitle: string;
   finished: boolean;
-  formId: Option<string>;
+  formId?: string;
 }
 
 export class CommentForm extends Component<CommentFormProps, CommentFormState> {
-  private subscription: Subscription;
-  private emptyState: CommentFormState = {
-    buttonTitle: this.props.node.isRight()
-      ? capitalizeFirstLetter(i18n.t("post"))
-      : this.props.edit
-      ? capitalizeFirstLetter(i18n.t("save"))
-      : capitalizeFirstLetter(i18n.t("reply")),
+  private subscription?: Subscription;
+  state: CommentFormState = {
+    buttonTitle:
+      typeof this.props.node === "number"
+        ? capitalizeFirstLetter(i18n.t("post"))
+        : this.props.edit
+        ? capitalizeFirstLetter(i18n.t("save"))
+        : capitalizeFirstLetter(i18n.t("reply")),
     finished: false,
-    formId: None,
   };
 
   constructor(props: any, context: any) {
@@ -62,50 +61,46 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
     this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
 
-    this.state = this.emptyState;
-
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
   }
 
   render() {
-    let initialContent = this.props.node.match({
-      left: node =>
-        this.props.edit ? Some(node.comment_view.comment.content) : None,
-      right: () => None,
-    });
+    let initialContent =
+      typeof this.props.node !== "number"
+        ? this.props.edit
+          ? this.props.node.comment_view.comment.content
+          : undefined
+        : undefined;
 
-    let selectedLang = this.props.node
-      .left()
-      .map(n => n.comment_view.comment.language_id)
-      .or(
-        myFirstDiscussionLanguageId(
-          this.props.allLanguages,
-          this.props.siteLanguages,
-          UserService.Instance.myUserInfo
-        )
-      );
+    let selectedLang =
+      typeof this.props.node !== "number"
+        ? this.props.node.comment_view.comment.language_id
+        : myFirstDiscussionLanguageId(
+            this.props.allLanguages,
+            this.props.siteLanguages,
+            UserService.Instance.myUserInfo
+          );
 
     return (
       <div className="mb-3">
-        {UserService.Instance.myUserInfo.isSome() ? (
+        {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}
             initialLanguageId={selectedLang}
             showLanguage
-            buttonTitle={Some(this.state.buttonTitle)}
-            maxLength={None}
+            buttonTitle={this.state.buttonTitle}
             finished={this.state.finished}
-            replyType={this.props.node.isLeft()}
+            replyType={typeof this.props.node !== "number"}
             focus={this.props.focus}
             disabled={this.props.disabled}
             onSubmit={this.handleCommentSubmit}
             onReplyCancel={this.handleReplyCancel}
-            placeholder={Some(i18n.t("comment_here"))}
+            placeholder={i18n.t("comment_here")}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
           />
@@ -125,55 +120,55 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
   }
 
   handleCommentSubmit(msg: {
-    val: Option<string>;
+    val: string;
     formId: string;
-    languageId: Option<number>;
+    languageId?: number;
   }) {
     let content = msg.val;
     let language_id = msg.languageId;
-    this.setState({ formId: Some(msg.formId) });
+    let node = this.props.node;
 
-    this.props.node.match({
-      left: node => {
+    this.setState({ formId: msg.formId });
+
+    let auth = myAuth();
+    if (auth) {
+      if (typeof node === "number") {
+        let postId = node;
+        let form: CreateComment = {
+          content,
+          form_id: this.state.formId,
+          post_id: postId,
+          language_id,
+          auth,
+        };
+        WebSocketService.Instance.send(wsClient.createComment(form));
+      } else {
         if (this.props.edit) {
-          let form = new EditComment({
+          let form: EditComment = {
             content,
-            distinguished: None,
             form_id: this.state.formId,
             comment_id: node.comment_view.comment.id,
             language_id,
-            auth: auth().unwrap(),
-          });
+            auth,
+          };
           WebSocketService.Instance.send(wsClient.editComment(form));
         } else {
-          let form = new CreateComment({
-            content: content.unwrap(),
+          let form: CreateComment = {
+            content,
             form_id: this.state.formId,
             post_id: node.comment_view.post.id,
-            parent_id: Some(node.comment_view.comment.id),
+            parent_id: node.comment_view.comment.id,
             language_id,
-            auth: auth().unwrap(),
-          });
+            auth,
+          };
           WebSocketService.Instance.send(wsClient.createComment(form));
         }
-      },
-      right: postId => {
-        let form = new CreateComment({
-          content: content.unwrap(),
-          form_id: this.state.formId,
-          post_id: postId,
-          parent_id: None,
-          language_id,
-          auth: auth().unwrap(),
-        });
-        WebSocketService.Instance.send(wsClient.createComment(form));
-      },
-    });
-    this.setState(this.state);
+      }
+    }
   }
 
   handleReplyCancel() {
-    this.props.onReplyCancel();
+    this.props.onReplyCancel?.();
   }
 
   parseMessage(msg: any) {
@@ -181,15 +176,15 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
     console.log(msg);
 
     // Only do the showing and hiding if logged in
-    if (UserService.Instance.myUserInfo.isSome()) {
+    if (UserService.Instance.myUserInfo) {
       if (
         op == UserOperation.CreateComment ||
         op == UserOperation.EditComment
       ) {
-        let data = wsJsonToRes<CommentResponse>(msg, CommentResponse);
+        let data = wsJsonToRes<CommentResponse>(msg);
 
         // This only finishes this form, if the randomly generated form_id matches the one received
-        if (this.state.formId.unwrapOr("") == data.form_id.unwrapOr("")) {
+        if (this.state.formId == data.form_id) {
           this.setState({ finished: true });
 
           // Necessary because it broke tribute for some reason

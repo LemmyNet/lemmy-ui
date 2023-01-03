@@ -1,11 +1,9 @@
-import { None, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
 import {
   GetSiteResponse,
   LoginResponse,
   Register,
-  toUndefined,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -19,7 +17,17 @@ import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
 
 interface State {
-  userForm: Register;
+  form: {
+    username?: string;
+    email?: string;
+    password?: string;
+    password_verify?: string;
+    show_nsfw: boolean;
+    captcha_uuid?: string;
+    captcha_answer?: string;
+    honeypot?: string;
+    answer?: string;
+  };
   doneRegisteringUser: boolean;
   userLoading: boolean;
   siteRes: GetSiteResponse;
@@ -29,28 +37,17 @@ export class Setup extends Component<any, State> {
   private subscription: Subscription;
   private isoData = setIsoData(this.context);
 
-  private emptyState: State = {
-    userForm: new Register({
-      username: undefined,
-      password: undefined,
-      password_verify: undefined,
+  state: State = {
+    form: {
       show_nsfw: true,
-      // The first admin signup doesn't need a captcha
-      captcha_uuid: None,
-      captcha_answer: None,
-      email: None,
-      honeypot: None,
-      answer: None,
-    }),
-    doneRegisteringUser: UserService.Instance.myUserInfo.isSome(),
+    },
+    doneRegisteringUser: !!UserService.Instance.myUserInfo,
     userLoading: false,
     siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.state = this.emptyState;
 
     this.subscription = WebSocketService.Instance.subject
       .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
@@ -100,7 +97,7 @@ export class Setup extends Component<any, State> {
               type="text"
               className="form-control"
               id="username"
-              value={this.state.userForm.username}
+              value={this.state.form.username}
               onInput={linkEvent(this, this.handleRegisterUsernameChange)}
               required
               minLength={3}
@@ -119,7 +116,7 @@ export class Setup extends Component<any, State> {
               id="email"
               className="form-control"
               placeholder={i18n.t("optional")}
-              value={toUndefined(this.state.userForm.email)}
+              value={this.state.form.email}
               onInput={linkEvent(this, this.handleRegisterEmailChange)}
               minLength={3}
             />
@@ -133,7 +130,7 @@ export class Setup extends Component<any, State> {
             <input
               type="password"
               id="password"
-              value={this.state.userForm.password}
+              value={this.state.form.password}
               onInput={linkEvent(this, this.handleRegisterPasswordChange)}
               className="form-control"
               required
@@ -151,7 +148,7 @@ export class Setup extends Component<any, State> {
             <input
               type="password"
               id="verify-password"
-              value={this.state.userForm.password_verify}
+              value={this.state.form.password_verify}
               onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
               className="form-control"
               required
@@ -176,26 +173,40 @@ export class Setup extends Component<any, State> {
     event.preventDefault();
     i.setState({ userLoading: true });
     event.preventDefault();
-    WebSocketService.Instance.send(wsClient.register(i.state.userForm));
+    let cForm = i.state.form;
+    if (cForm.username && cForm.password && cForm.password_verify) {
+      let form: Register = {
+        username: cForm.username,
+        password: cForm.password,
+        password_verify: cForm.password_verify,
+        email: cForm.email,
+        show_nsfw: cForm.show_nsfw,
+        captcha_uuid: cForm.captcha_uuid,
+        captcha_answer: cForm.captcha_answer,
+        honeypot: cForm.honeypot,
+        answer: cForm.answer,
+      };
+      WebSocketService.Instance.send(wsClient.register(form));
+    }
   }
 
   handleRegisterUsernameChange(i: Setup, event: any) {
-    i.state.userForm.username = event.target.value;
+    i.state.form.username = event.target.value;
     i.setState(i.state);
   }
 
   handleRegisterEmailChange(i: Setup, event: any) {
-    i.state.userForm.email = Some(event.target.value);
+    i.state.form.email = event.target.value;
     i.setState(i.state);
   }
 
   handleRegisterPasswordChange(i: Setup, event: any) {
-    i.state.userForm.password = event.target.value;
+    i.state.form.password = event.target.value;
     i.setState(i.state);
   }
 
   handleRegisterPasswordVerifyChange(i: Setup, event: any) {
-    i.state.userForm.password_verify = event.target.value;
+    i.state.form.password_verify = event.target.value;
     i.setState(i.state);
   }
 
@@ -206,10 +217,10 @@ export class Setup extends Component<any, State> {
       this.setState({ userLoading: false });
       return;
     } else if (op == UserOperation.Register) {
-      let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
+      let data = wsJsonToRes<LoginResponse>(msg);
       this.setState({ userLoading: false });
       UserService.Instance.login(data);
-      if (UserService.Instance.jwtInfo.isSome()) {
+      if (UserService.Instance.jwtInfo) {
         this.setState({ doneRegisteringUser: true });
       }
     } else if (op == UserOperation.CreateSite) {

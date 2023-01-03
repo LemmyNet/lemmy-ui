@@ -1,5 +1,4 @@
 // import Cookies from 'js-cookie';
-import { Err, None, Ok, Option, Result, Some } from "@sniptt/monads";
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
@@ -21,8 +20,8 @@ interface JwtInfo {
 
 export class UserService {
   private static _instance: UserService;
-  public myUserInfo: Option<MyUserInfo> = None;
-  public jwtInfo: Option<JwtInfo> = None;
+  public myUserInfo?: MyUserInfo;
+  public jwtInfo?: JwtInfo;
   public unreadInboxCountSub: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
   public unreadReportCountSub: BehaviorSubject<number> =
@@ -37,45 +36,40 @@ export class UserService {
   public login(res: LoginResponse) {
     let expires = new Date();
     expires.setDate(expires.getDate() + 365);
-    res.jwt.match({
-      some: jwt => {
-        toast(i18n.t("logged_in"));
-        IsomorphicCookie.save("jwt", jwt, { expires, secure: isHttps });
-        this.setJwtInfo();
-      },
-      none: void 0,
-    });
+    if (res.jwt) {
+      toast(i18n.t("logged_in"));
+      IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps });
+      this.setJwtInfo();
+    }
   }
 
   public logout() {
-    this.jwtInfo = None;
-    this.myUserInfo = None;
+    this.jwtInfo = undefined;
+    this.myUserInfo = undefined;
     IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
     document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
     location.reload();
   }
 
-  public auth(throwErr = true): Result<string, string> {
-    // Can't use match to convert to result for some reason
-    let jwt = this.jwtInfo.map(j => j.jwt);
-    if (jwt.isSome()) {
-      return Ok(jwt.unwrap());
+  public auth(throwErr = true): string | undefined {
+    let jwt = this.jwtInfo?.jwt;
+    if (jwt) {
+      return jwt;
     } else {
       let msg = "No JWT cookie found";
       if (throwErr && isBrowser()) {
-        console.log(msg);
+        console.error(msg);
         toast(i18n.t("not_logged_in"), "danger");
       }
-      return Err(msg);
+      throw msg;
     }
   }
 
   private setJwtInfo() {
-    let jwt = IsomorphicCookie.load("jwt");
+    let jwt: string | undefined = IsomorphicCookie.load("jwt");
 
     if (jwt) {
-      let jwtInfo: JwtInfo = { jwt, claims: jwt_decode(jwt) };
-      this.jwtInfo = Some(jwtInfo);
+      this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
     }
   }
 

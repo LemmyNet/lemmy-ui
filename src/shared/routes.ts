@@ -1,3 +1,4 @@
+import { Inferno } from "inferno";
 import { IRouteProps } from "inferno-router/dist/Route";
 import { Communities } from "./components/community/communities";
 import { Community } from "./components/community/community";
@@ -24,6 +25,8 @@ import { Search } from "./components/search";
 import { InitialFetchRequest } from "./interfaces";
 
 interface IRoutePropsWithFetch extends IRouteProps {
+  // TODO Make sure this one is good.
+  component: Inferno.ComponentClass;
   fetchInitialData?(req: InitialFetchRequest): Promise<any>[];
 }
 

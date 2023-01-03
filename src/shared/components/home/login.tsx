@@ -1,8 +1,7 @@
-import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   GetSiteResponse,
-  Login as LoginForm,
+  Login as LoginI,
   LoginResponse,
   PasswordReset,
   UserOperation,
@@ -24,28 +23,26 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
 interface State {
-  loginForm: LoginForm;
+  form: {
+    username_or_email?: string;
+    password?: string;
+  };
   loginLoading: boolean;
   siteRes: GetSiteResponse;
 }
 
 export class Login extends Component<any, State> {
   private isoData = setIsoData(this.context);
-  private subscription: Subscription;
+  private subscription?: Subscription;
 
-  emptyState: State = {
-    loginForm: new LoginForm({
-      username_or_email: undefined,
-      password: undefined,
-    }),
+  state: State = {
+    form: {},
     loginLoading: false,
     siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.state = this.emptyState;
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -57,14 +54,14 @@ export class Login extends Component<any, State> {
 
   componentDidMount() {
     // Navigate to home if already logged in
-    if (UserService.Instance.myUserInfo.isSome()) {
+    if (UserService.Instance.myUserInfo) {
       this.context.router.history.push("/");
     }
   }
 
   componentWillUnmount() {
     if (isBrowser()) {
-      this.subscription.unsubscribe();
+      this.subscription?.unsubscribe();
     }
   }
 
@@ -82,8 +79,6 @@ export class Login extends Component<any, State> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
-          description={None}
-          image={None}
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
@@ -109,7 +104,7 @@ export class Login extends Component<any, State> {
                 type="text"
                 className="form-control"
                 id="login-email-or-username"
-                value={this.state.loginForm.username_or_email}
+                value={this.state.form.username_or_email}
                 onInput={linkEvent(this, this.handleLoginUsernameChange)}
                 autoComplete="email"
                 required
@@ -125,7 +120,7 @@ export class Login extends Component<any, State> {
               <input
                 type="password"
                 id="login-password"
-                value={this.state.loginForm.password}
+                value={this.state.form.password}
                 onInput={linkEvent(this, this.handleLoginPasswordChange)}
                 className="form-control"
                 autoComplete="current-password"
@@ -136,7 +131,10 @@ export class Login extends Component<any, State> {
                 type="button"
                 onClick={linkEvent(this, this.handlePasswordReset)}
                 className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
-                disabled={!validEmail(this.state.loginForm.username_or_email)}
+                disabled={
+                  !!this.state.form.username_or_email &&
+                  !validEmail(this.state.form.username_or_email)
+                }
                 title={i18n.t("no_password_reset")}
               >
                 {i18n.t("forgot_password")}
@@ -158,25 +156,35 @@ export class Login extends Component<any, State> {
   handleLoginSubmit(i: Login, event: any) {
     event.preventDefault();
     i.setState({ loginLoading: true });
-    WebSocketService.Instance.send(wsClient.login(i.state.loginForm));
+    let lForm = i.state.form;
+    let username_or_email = lForm.username_or_email;
+    let password = lForm.password;
+    if (username_or_email && password) {
+      let form: LoginI = {
+        username_or_email,
+        password,
+      };
+      WebSocketService.Instance.send(wsClient.login(form));
+    }
   }
 
   handleLoginUsernameChange(i: Login, event: any) {
-    i.state.loginForm.username_or_email = event.target.value;
+    i.state.form.username_or_email = event.target.value;
     i.setState(i.state);
   }
 
   handleLoginPasswordChange(i: Login, event: any) {
-    i.state.loginForm.password = event.target.value;
+    i.state.form.password = event.target.value;
     i.setState(i.state);
   }
 
   handlePasswordReset(i: Login, event: any) {
     event.preventDefault();
-    let resetForm = new PasswordReset({
-      email: i.state.loginForm.username_or_email,
-    });
-    WebSocketService.Instance.send(wsClient.passwordReset(resetForm));
+    let email = i.state.form.username_or_email;
+    if (email) {
+      let resetForm: PasswordReset = { email };
+      WebSocketService.Instance.send(wsClient.passwordReset(resetForm));
+    }
   }
 
   parseMessage(msg: any) {
@@ -184,19 +192,18 @@ export class Login extends Component<any, State> {
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      this.setState(this.emptyState);
+      this.setState({ form: {} });
       return;
     } else {
       if (op == UserOperation.Login) {
-        let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
-        this.setState(this.emptyState);
+        let data = wsJsonToRes<LoginResponse>(msg);
         UserService.Instance.login(data);
         this.props.history.push("/");
         location.reload();
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
-        let data = wsJsonToRes<GetSiteResponse>(msg, GetSiteResponse);
+        let data = wsJsonToRes<GetSiteResponse>(msg);
         this.setState({ siteRes: data });
       }
     }

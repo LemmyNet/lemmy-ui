@@ -1,4 +1,3 @@
-import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   BlockCommunity,
@@ -16,7 +15,6 @@ import {
   PersonViewSafe,
   SaveUserSettings,
   SortType,
-  toUndefined,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -25,7 +23,6 @@ import { Subscription } from "rxjs";
 import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  auth,
   capitalizeFirstLetter,
   choicesConfig,
   communitySelectName,
@@ -38,6 +35,7 @@ import {
   fetchUsers,
   getLanguages,
   isBrowser,
+  myAuth,
   personSelectName,
   personToChoice,
   relTags,
@@ -67,11 +65,38 @@ if (isBrowser()) {
 }
 
 interface SettingsState {
-  saveUserSettingsForm: SaveUserSettings;
-  changePasswordForm: ChangePassword;
-  deleteAccountForm: DeleteAccount;
+  // TODO redo these forms
+  saveUserSettingsForm: {
+    show_nsfw?: boolean;
+    theme?: string;
+    default_sort_type?: number;
+    default_listing_type?: number;
+    interface_language?: string;
+    avatar?: string;
+    banner?: string;
+    display_name?: string;
+    email?: string;
+    bio?: string;
+    matrix_user_id?: string;
+    show_avatars?: boolean;
+    show_scores?: boolean;
+    send_notifications_to_email?: boolean;
+    bot_account?: boolean;
+    show_bot_accounts?: boolean;
+    show_read_posts?: boolean;
+    show_new_post_notifs?: boolean;
+    discussion_languages?: number[];
+  };
+  changePasswordForm: {
+    new_password?: string;
+    new_password_verify?: string;
+    old_password?: string;
+  };
+  deleteAccountForm: {
+    password?: string;
+  };
   personBlocks: PersonBlockView[];
-  blockPerson: Option<PersonViewSafe>;
+  blockPerson?: PersonViewSafe;
   communityBlocks: CommunityBlockView[];
   blockCommunityId: number;
   blockCommunity?: CommunityView;
@@ -88,46 +113,16 @@ export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData(this.context);
   private blockPersonChoices: any;
   private blockCommunityChoices: any;
-  private subscription: Subscription;
-  private emptyState: SettingsState = {
-    saveUserSettingsForm: new SaveUserSettings({
-      show_nsfw: None,
-      show_scores: None,
-      show_avatars: None,
-      show_read_posts: None,
-      show_bot_accounts: None,
-      show_new_post_notifs: None,
-      default_sort_type: None,
-      default_listing_type: None,
-      theme: None,
-      interface_language: None,
-      discussion_languages: None,
-      avatar: None,
-      banner: None,
-      display_name: None,
-      email: None,
-      bio: None,
-      matrix_user_id: None,
-      send_notifications_to_email: None,
-      bot_account: None,
-      auth: undefined,
-    }),
-    changePasswordForm: new ChangePassword({
-      new_password: undefined,
-      new_password_verify: undefined,
-      old_password: undefined,
-      auth: undefined,
-    }),
+  private subscription?: Subscription;
+  state: SettingsState = {
+    saveUserSettingsForm: {},
+    changePasswordForm: {},
     saveUserSettingsLoading: false,
     changePasswordLoading: false,
     deleteAccountLoading: false,
     deleteAccountShowConfirm: false,
-    deleteAccountForm: new DeleteAccount({
-      password: undefined,
-      auth: undefined,
-    }),
+    deleteAccountForm: {},
     personBlocks: [],
-    blockPerson: None,
     communityBlocks: [],
     blockCommunityId: 0,
     currentTab: "settings",
@@ -138,7 +133,6 @@ export class Settings extends Component<any, SettingsState> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.state = this.emptyState;
     this.handleSortTypeChange = this.handleSortTypeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
@@ -154,8 +148,8 @@ export class Settings extends Component<any, SettingsState> {
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    if (UserService.Instance.myUserInfo.isSome()) {
-      let mui = UserService.Instance.myUserInfo.unwrap();
+    let mui = UserService.Instance.myUserInfo;
+    if (mui) {
       let luv = mui.local_user_view;
       this.state = {
         ...this.state,
@@ -163,26 +157,25 @@ export class Settings extends Component<any, SettingsState> {
         communityBlocks: mui.community_blocks,
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
-          show_nsfw: Some(luv.local_user.show_nsfw),
-          theme: Some(luv.local_user.theme ? luv.local_user.theme : "browser"),
-          default_sort_type: Some(luv.local_user.default_sort_type),
-          default_listing_type: Some(luv.local_user.default_listing_type),
-          interface_language: Some(luv.local_user.interface_language),
-          discussion_languages: Some(mui.discussion_languages),
+          show_nsfw: luv.local_user.show_nsfw,
+          theme: luv.local_user.theme ? luv.local_user.theme : "browser",
+          default_sort_type: luv.local_user.default_sort_type,
+          default_listing_type: luv.local_user.default_listing_type,
+          interface_language: luv.local_user.interface_language,
+          discussion_languages: mui.discussion_languages,
           avatar: luv.person.avatar,
           banner: luv.person.banner,
           display_name: luv.person.display_name,
-          show_avatars: Some(luv.local_user.show_avatars),
-          bot_account: Some(luv.person.bot_account),
-          show_bot_accounts: Some(luv.local_user.show_bot_accounts),
-          show_scores: Some(luv.local_user.show_scores),
-          show_read_posts: Some(luv.local_user.show_read_posts),
-          show_new_post_notifs: Some(luv.local_user.show_new_post_notifs),
+          show_avatars: luv.local_user.show_avatars,
+          bot_account: luv.person.bot_account,
+          show_bot_accounts: luv.local_user.show_bot_accounts,
+          show_scores: luv.local_user.show_scores,
+          show_read_posts: luv.local_user.show_read_posts,
+          show_new_post_notifs: luv.local_user.show_new_post_notifs,
           email: luv.local_user.email,
           bio: luv.person.bio,
-          send_notifications_to_email: Some(
-            luv.local_user.send_notifications_to_email
-          ),
+          send_notifications_to_email:
+            luv.local_user.send_notifications_to_email,
           matrix_user_id: luv.person.matrix_user_id,
         },
       };
@@ -195,7 +188,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
   }
 
   get documentTitle(): string {
@@ -209,7 +202,7 @@ export class Settings extends Component<any, SettingsState> {
           <HtmlTags
             title={this.documentTitle}
             path={this.context.router.route.match.url}
-            description={Some(this.documentTitle)}
+            description={this.documentTitle}
             image={this.state.saveUserSettingsForm.avatar}
           />
           <ul className="nav nav-tabs mb-2">
@@ -391,6 +384,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   blockUserForm() {
+    let blockPerson = this.state.blockPerson;
     return (
       <div className="form-group row">
         <label
@@ -403,17 +397,14 @@ export class Settings extends Component<any, SettingsState> {
           <select
             className="form-control"
             id="block-person-filter"
-            value={this.state.blockPerson.map(p => p.person.id).unwrapOr(0)}
+            value={blockPerson?.person.id ?? 0}
           >
             <option value="0">—</option>
-            {this.state.blockPerson.match({
-              some: personView => (
-                <option value={personView.person.id}>
-                  {personSelectName(personView)}
-                </option>
-              ),
-              none: <></>,
-            })}
+            {blockPerson && (
+              <option value={blockPerson.person.id}>
+                {personSelectName(blockPerson)}
+              </option>
+            )}
           </select>
         </div>
       </div>
@@ -500,9 +491,7 @@ export class Settings extends Component<any, SettingsState> {
                 type="text"
                 className="form-control"
                 placeholder={i18n.t("optional")}
-                value={toUndefined(
-                  this.state.saveUserSettingsForm.display_name
-                )}
+                value={this.state.saveUserSettingsForm.display_name}
                 onInput={linkEvent(this, this.handleDisplayNameChange)}
                 pattern="^(?!@)(.+)$"
                 minLength={3}
@@ -516,11 +505,8 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <MarkdownTextArea
                 initialContent={this.state.saveUserSettingsForm.bio}
-                initialLanguageId={None}
                 onContentChange={this.handleBioChange}
-                maxLength={Some(300)}
-                placeholder={None}
-                buttonTitle={None}
+                maxLength={300}
                 hideNavigationWarnings
                 allLanguages={this.state.siteRes.all_languages}
                 siteLanguages={this.state.siteRes.discussion_languages}
@@ -537,7 +523,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-email"
                 className="form-control"
                 placeholder={i18n.t("optional")}
-                value={toUndefined(this.state.saveUserSettingsForm.email)}
+                value={this.state.saveUserSettingsForm.email}
                 onInput={linkEvent(this, this.handleEmailChange)}
                 minLength={3}
               />
@@ -555,9 +541,7 @@ export class Settings extends Component<any, SettingsState> {
                 type="text"
                 className="form-control"
                 placeholder="@user:example.com"
-                value={toUndefined(
-                  this.state.saveUserSettingsForm.matrix_user_id
-                )}
+                value={this.state.saveUserSettingsForm.matrix_user_id}
                 onInput={linkEvent(this, this.handleMatrixUserIdChange)}
                 pattern="^@[A-Za-z0-9._=-]+:[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
               />
@@ -593,9 +577,7 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <select
                 id="user-language"
-                value={toUndefined(
-                  this.state.saveUserSettingsForm.interface_language
-                )}
+                value={this.state.saveUserSettingsForm.interface_language}
                 onChange={linkEvent(this, this.handleInterfaceLangChange)}
                 className="custom-select w-auto"
               >
@@ -631,7 +613,7 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <select
                 id="user-theme"
-                value={toUndefined(this.state.saveUserSettingsForm.theme)}
+                value={this.state.saveUserSettingsForm.theme}
                 onChange={linkEvent(this, this.handleThemeChange)}
                 className="custom-select w-auto"
               >
@@ -653,9 +635,7 @@ export class Settings extends Component<any, SettingsState> {
               <ListingTypeSelect
                 type_={
                   Object.values(ListingType)[
-                    this.state.saveUserSettingsForm.default_listing_type.unwrapOr(
-                      1
-                    )
+                    this.state.saveUserSettingsForm.default_listing_type ?? 1
                   ]
                 }
                 showLocal={showLocal(this.isoData)}
@@ -670,9 +650,7 @@ export class Settings extends Component<any, SettingsState> {
               <SortSelect
                 sort={
                   Object.values(SortType)[
-                    this.state.saveUserSettingsForm.default_sort_type.unwrapOr(
-                      0
-                    )
+                    this.state.saveUserSettingsForm.default_sort_type ?? 0
                   ]
                 }
                 onChange={this.handleSortTypeChange}
@@ -686,9 +664,7 @@ export class Settings extends Component<any, SettingsState> {
                   className="form-check-input"
                   id="user-show-nsfw"
                   type="checkbox"
-                  checked={toUndefined(
-                    this.state.saveUserSettingsForm.show_nsfw
-                  )}
+                  checked={this.state.saveUserSettingsForm.show_nsfw}
                   onChange={linkEvent(this, this.handleShowNsfwChange)}
                 />
                 <label className="form-check-label" htmlFor="user-show-nsfw">
@@ -703,9 +679,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-input"
                 id="user-show-scores"
                 type="checkbox"
-                checked={toUndefined(
-                  this.state.saveUserSettingsForm.show_scores
-                )}
+                checked={this.state.saveUserSettingsForm.show_scores}
                 onChange={linkEvent(this, this.handleShowScoresChange)}
               />
               <label className="form-check-label" htmlFor="user-show-scores">
@@ -719,9 +693,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-input"
                 id="user-show-avatars"
                 type="checkbox"
-                checked={toUndefined(
-                  this.state.saveUserSettingsForm.show_avatars
-                )}
+                checked={this.state.saveUserSettingsForm.show_avatars}
                 onChange={linkEvent(this, this.handleShowAvatarsChange)}
               />
               <label className="form-check-label" htmlFor="user-show-avatars">
@@ -735,9 +707,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-input"
                 id="user-bot-account"
                 type="checkbox"
-                checked={toUndefined(
-                  this.state.saveUserSettingsForm.bot_account
-                )}
+                checked={this.state.saveUserSettingsForm.bot_account}
                 onChange={linkEvent(this, this.handleBotAccount)}
               />
               <label className="form-check-label" htmlFor="user-bot-account">
@@ -751,9 +721,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-input"
                 id="user-show-bot-accounts"
                 type="checkbox"
-                checked={toUndefined(
-                  this.state.saveUserSettingsForm.show_bot_accounts
-                )}
+                checked={this.state.saveUserSettingsForm.show_bot_accounts}
                 onChange={linkEvent(this, this.handleShowBotAccounts)}
               />
               <label
@@ -770,9 +738,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-input"
                 id="user-show-read-posts"
                 type="checkbox"
-                checked={toUndefined(
-                  this.state.saveUserSettingsForm.show_read_posts
-                )}
+                checked={this.state.saveUserSettingsForm.show_read_posts}
                 onChange={linkEvent(this, this.handleReadPosts)}
               />
               <label
@@ -789,9 +755,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-input"
                 id="user-show-new-post-notifs"
                 type="checkbox"
-                checked={toUndefined(
-                  this.state.saveUserSettingsForm.show_new_post_notifs
-                )}
+                checked={this.state.saveUserSettingsForm.show_new_post_notifs}
                 onChange={linkEvent(this, this.handleShowNewPostNotifs)}
               />
               <label
@@ -809,9 +773,9 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-send-notifications-to-email"
                 type="checkbox"
                 disabled={!this.state.saveUserSettingsForm.email}
-                checked={toUndefined(
+                checked={
                   this.state.saveUserSettingsForm.send_notifications_to_email
-                )}
+                }
                 onChange={linkEvent(
                   this,
                   this.handleSendNotificationsToEmailChange
@@ -959,32 +923,37 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleBlockPerson(personId: number) {
-    if (personId != 0) {
-      let blockUserForm = new BlockPerson({
+    let auth = myAuth();
+    if (auth && personId != 0) {
+      let blockUserForm: BlockPerson = {
         person_id: personId,
         block: true,
-        auth: auth().unwrap(),
-      });
+        auth,
+      };
       WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
     }
   }
 
   handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
-    let blockUserForm = new BlockPerson({
-      person_id: i.recipientId,
-      block: false,
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+    let auth = myAuth();
+    if (auth) {
+      let blockUserForm: BlockPerson = {
+        person_id: i.recipientId,
+        block: false,
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+    }
   }
 
   handleBlockCommunity(community_id: number) {
-    if (community_id != 0) {
-      let blockCommunityForm = new BlockCommunity({
+    let auth = myAuth();
+    if (auth && community_id != 0) {
+      let blockCommunityForm: BlockCommunity = {
         community_id,
         block: true,
-        auth: auth().unwrap(),
-      });
+        auth,
+      };
       WebSocketService.Instance.send(
         wsClient.blockCommunity(blockCommunityForm)
       );
@@ -992,94 +961,93 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
-    let blockCommunityForm = new BlockCommunity({
-      community_id: i.communityId,
-      block: false,
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.blockCommunity(blockCommunityForm));
+    let auth = myAuth();
+    if (auth) {
+      let blockCommunityForm: BlockCommunity = {
+        community_id: i.communityId,
+        block: false,
+        auth,
+      };
+      WebSocketService.Instance.send(
+        wsClient.blockCommunity(blockCommunityForm)
+      );
+    }
   }
 
   handleShowNsfwChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_nsfw = Some(event.target.checked);
+    i.state.saveUserSettingsForm.show_nsfw = event.target.checked;
     i.setState(i.state);
   }
 
   handleShowAvatarsChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_avatars = Some(event.target.checked);
-    UserService.Instance.myUserInfo.match({
-      some: mui =>
-        (mui.local_user_view.local_user.show_avatars = event.target.checked),
-      none: void 0,
-    });
+    i.state.saveUserSettingsForm.show_avatars = event.target.checked;
+    let mui = UserService.Instance.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user.show_avatars = event.target.checked;
+    }
     i.setState(i.state);
   }
 
   handleBotAccount(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.bot_account = Some(event.target.checked);
+    i.state.saveUserSettingsForm.bot_account = event.target.checked;
     i.setState(i.state);
   }
 
   handleShowBotAccounts(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_bot_accounts = Some(event.target.checked);
+    i.state.saveUserSettingsForm.show_bot_accounts = event.target.checked;
     i.setState(i.state);
   }
 
   handleReadPosts(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_read_posts = Some(event.target.checked);
+    i.state.saveUserSettingsForm.show_read_posts = event.target.checked;
     i.setState(i.state);
   }
 
   handleShowNewPostNotifs(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_new_post_notifs = Some(
-      event.target.checked
-    );
+    i.state.saveUserSettingsForm.show_new_post_notifs = event.target.checked;
     i.setState(i.state);
   }
 
   handleShowScoresChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_scores = Some(event.target.checked);
-    UserService.Instance.myUserInfo.match({
-      some: mui =>
-        (mui.local_user_view.local_user.show_scores = event.target.checked),
-      none: void 0,
-    });
+    i.state.saveUserSettingsForm.show_scores = event.target.checked;
+    let mui = UserService.Instance.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user.show_scores = event.target.checked;
+    }
     i.setState(i.state);
   }
 
   handleSendNotificationsToEmailChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.send_notifications_to_email = Some(
-      event.target.checked
-    );
+    i.state.saveUserSettingsForm.send_notifications_to_email =
+      event.target.checked;
     i.setState(i.state);
   }
 
   handleThemeChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.theme = Some(event.target.value);
+    i.state.saveUserSettingsForm.theme = event.target.value;
     setTheme(event.target.value, true);
     i.setState(i.state);
   }
 
   handleInterfaceLangChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.interface_language = Some(event.target.value);
+    i.state.saveUserSettingsForm.interface_language = event.target.value;
     i18n.changeLanguage(
-      getLanguages(i.state.saveUserSettingsForm.interface_language.unwrap())[0]
+      getLanguages(i.state.saveUserSettingsForm.interface_language).at(0)
     );
     i.setState(i.state);
   }
 
   handleDiscussionLanguageChange(val: number[]) {
     this.setState(
-      s => ((s.saveUserSettingsForm.discussion_languages = Some(val)), s)
+      s => ((s.saveUserSettingsForm.discussion_languages = val), s)
     );
   }
 
   handleSortTypeChange(val: SortType) {
     this.setState(
       s => (
-        (s.saveUserSettingsForm.default_sort_type = Some(
-          Object.keys(SortType).indexOf(val)
-        )),
+        (s.saveUserSettingsForm.default_sort_type =
+          Object.keys(SortType).indexOf(val)),
         s
       )
     );
@@ -1088,46 +1056,45 @@ export class Settings extends Component<any, SettingsState> {
   handleListingTypeChange(val: ListingType) {
     this.setState(
       s => (
-        (s.saveUserSettingsForm.default_listing_type = Some(
-          Object.keys(ListingType).indexOf(val)
-        )),
+        (s.saveUserSettingsForm.default_listing_type =
+          Object.keys(ListingType).indexOf(val)),
         s
       )
     );
   }
 
   handleEmailChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.email = Some(event.target.value);
+    i.state.saveUserSettingsForm.email = event.target.value;
     i.setState(i.state);
   }
 
   handleBioChange(val: string) {
-    this.setState(s => ((s.saveUserSettingsForm.bio = Some(val)), s));
+    this.setState(s => ((s.saveUserSettingsForm.bio = val), s));
   }
 
   handleAvatarUpload(url: string) {
-    this.setState(s => ((s.saveUserSettingsForm.avatar = Some(url)), s));
+    this.setState(s => ((s.saveUserSettingsForm.avatar = url), s));
   }
 
   handleAvatarRemove() {
-    this.setState(s => ((s.saveUserSettingsForm.avatar = Some("")), s));
+    this.setState(s => ((s.saveUserSettingsForm.avatar = ""), s));
   }
 
   handleBannerUpload(url: string) {
-    this.setState(s => ((s.saveUserSettingsForm.banner = Some(url)), s));
+    this.setState(s => ((s.saveUserSettingsForm.banner = url), s));
   }
 
   handleBannerRemove() {
-    this.setState(s => ((s.saveUserSettingsForm.banner = Some("")), s));
+    this.setState(s => ((s.saveUserSettingsForm.banner = ""), s));
   }
 
   handleDisplayNameChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.display_name = Some(event.target.value);
+    i.state.saveUserSettingsForm.display_name = event.target.value;
     i.setState(i.state);
   }
 
   handleMatrixUserIdChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.matrix_user_id = Some(event.target.value);
+    i.state.saveUserSettingsForm.matrix_user_id = event.target.value;
     i.setState(i.state);
   }
 
@@ -1158,20 +1125,31 @@ export class Settings extends Component<any, SettingsState> {
   handleSaveSettingsSubmit(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ saveUserSettingsLoading: true });
-    i.setState(s => ((s.saveUserSettingsForm.auth = auth().unwrap()), s));
-
-    let form = new SaveUserSettings({ ...i.state.saveUserSettingsForm });
-    WebSocketService.Instance.send(wsClient.saveUserSettings(form));
+    let auth = myAuth();
+    if (auth) {
+      let form: SaveUserSettings = { ...i.state.saveUserSettingsForm, auth };
+      WebSocketService.Instance.send(wsClient.saveUserSettings(form));
+    }
   }
 
   handleChangePasswordSubmit(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ changePasswordLoading: true });
-    i.setState(s => ((s.changePasswordForm.auth = auth().unwrap()), s));
+    let auth = myAuth();
+    let pForm = i.state.changePasswordForm;
+    let new_password = pForm.new_password;
+    let new_password_verify = pForm.new_password_verify;
+    let old_password = pForm.old_password;
+    if (auth && new_password && old_password && new_password_verify) {
+      let form: ChangePassword = {
+        new_password,
+        new_password_verify,
+        old_password,
+        auth,
+      };
 
-    let form = new ChangePassword({ ...i.state.changePasswordForm });
-
-    WebSocketService.Instance.send(wsClient.changePassword(form));
+      WebSocketService.Instance.send(wsClient.changePassword(form));
+    }
   }
 
   handleDeleteAccountShowConfirmToggle(i: Settings, event: any) {
@@ -1187,11 +1165,15 @@ export class Settings extends Component<any, SettingsState> {
   handleDeleteAccount(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ deleteAccountLoading: true });
-    i.setState(s => ((s.deleteAccountForm.auth = auth().unwrap()), s));
-
-    let form = new DeleteAccount({ ...i.state.deleteAccountForm });
-
-    WebSocketService.Instance.send(wsClient.deleteAccount(form));
+    let auth = myAuth();
+    let password = i.state.deleteAccountForm.password;
+    if (auth && password) {
+      let form: DeleteAccount = {
+        password,
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.deleteAccount(form));
+    }
   }
 
   handleSwitchTab(i: { ctx: Settings; tab: string }) {
@@ -1215,14 +1197,14 @@ export class Settings extends Component<any, SettingsState> {
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.SaveUserSettings) {
-      let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
+      let data = wsJsonToRes<LoginResponse>(msg);
       UserService.Instance.login(data);
       location.reload();
       this.setState({ saveUserSettingsLoading: false });
       toast(i18n.t("saved"));
       window.scrollTo(0, 0);
     } else if (op == UserOperation.ChangePassword) {
-      let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
+      let data = wsJsonToRes<LoginResponse>(msg);
       UserService.Instance.login(data);
       this.setState({ changePasswordLoading: false });
       window.scrollTo(0, 0);
@@ -1235,20 +1217,19 @@ export class Settings extends Component<any, SettingsState> {
       UserService.Instance.logout();
       window.location.href = "/";
     } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg, BlockPersonResponse);
-      updatePersonBlock(data).match({
-        some: blocks => this.setState({ personBlocks: blocks }),
-        none: void 0,
-      });
+      let data = wsJsonToRes<BlockPersonResponse>(msg);
+      updatePersonBlock(data);
+      let mui = UserService.Instance.myUserInfo;
+      if (mui) {
+        this.setState({ personBlocks: mui.person_blocks });
+      }
     } else if (op == UserOperation.BlockCommunity) {
-      let data = wsJsonToRes<BlockCommunityResponse>(
-        msg,
-        BlockCommunityResponse
-      );
-      updateCommunityBlock(data).match({
-        some: blocks => this.setState({ communityBlocks: blocks }),
-        none: void 0,
-      });
+      let data = wsJsonToRes<BlockCommunityResponse>(msg);
+      updateCommunityBlock(data);
+      let mui = UserService.Instance.myUserInfo;
+      if (mui) {
+        this.setState({ communityBlocks: mui.community_blocks });
+      }
     }
   }
 }
