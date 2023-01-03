@@ -776,12 +776,12 @@ export function getRecipientIdFromProps(props: any): number {
 }
 
 export function getIdFromProps(props: any): number | undefined {
-  let id: string = props.match.params.post_id;
+  let id = props.match.params.post_id;
   return id ? Number(id) : undefined;
 }
 
 export function getCommentIdFromProps(props: any): number | undefined {
-  let id: string = props.match.params.comment_id;
+  let id = props.match.params.comment_id;
   return id ? Number(id) : undefined;
 }
 

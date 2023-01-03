@@ -61,7 +61,7 @@ export class UserService {
         console.error(msg);
         toast(i18n.t("not_logged_in"), "danger");
       }
-      throw msg;
+      // throw msg;
     }
   }
 

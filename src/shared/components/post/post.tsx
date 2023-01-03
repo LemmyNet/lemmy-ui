@@ -161,7 +161,7 @@ export class Post extends Component<any, PostState> {
   }
 
   fetchPost() {
-    this.setState({ commentsRes: undefined });
+    this.setState({ commentsRes: undefined, postRes: undefined });
     let auth = myAuth(false);
     let postForm: GetPost = {
       id: this.state.postId,
@@ -202,8 +202,8 @@ export class Post extends Component<any, PostState> {
     let pathSplit = req.path.split("/");
     let promises: Promise<any>[] = [];
 
-    let pathType = pathSplit[1];
-    let id = Number(pathSplit[2]);
+    let pathType = pathSplit.at(1);
+    let id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
     let auth = req.auth;
 
     let postForm: GetPost = {
@@ -618,24 +618,23 @@ export class Post extends Component<any, PostState> {
       }
     } else if (op == UserOperation.GetComments) {
       let data = wsJsonToRes<GetCommentsResponse>(msg);
-      // You might need to append here, since this could be building more comments from a tree fetch
-      let res = this.state.commentsRes;
-      if (res) {
+      // This section sets the comments res
+      let comments = this.state.commentsRes?.comments;
+      if (comments) {
+        // You might need to append here, since this could be building more comments from a tree fetch
         // Remove the first comment, since it is the parent
         let newComments = data.comments;
         newComments.shift();
-        res.comments.push(...newComments);
+        comments.push(...newComments);
       } else {
         this.setState({ commentsRes: data });
       }
-      // this.state.commentsRes = Some(data);
-      if (res) {
-        this.setState({
-          commentTree: buildCommentsTree(res.comments, !!this.state.commentId),
-          loading: false,
-        });
-      }
-      this.setState(this.state);
+
+      let cComments = this.state.commentsRes?.comments ?? [];
+      this.setState({
+        commentTree: buildCommentsTree(cComments, !!this.state.commentId),
+        loading: false,
+      });
     } else if (op == UserOperation.CreateComment) {
       let data = wsJsonToRes<CommentResponse>(msg);
 
