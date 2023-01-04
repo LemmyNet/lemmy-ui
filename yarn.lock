@@ -1105,11 +1105,6 @@
     domhandler "^4.2.0"
     selderee "^0.6.0"
 
-"@sniptt/monads@^0.5.10":
-  version "0.5.10"
-  resolved "https://registry.yarnpkg.com/@sniptt/monads/-/monads-0.5.10.tgz#a80cd00738bbd682d36d36dd36bdc0bddc96eb76"
-  integrity sha512-+agDOv9DpDV+9e2zN/Vmdk+XaqGx5Sykl0fqhqgiJ90r18nsBkxe44DmZ2sA1HYK+MSsBeZBiAr6pq4w+5uhfw==
-
 "@types/autosize@^4.0.0":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@types/autosize/-/autosize-4.0.1.tgz#999a7c305b96766248044ebaac1a0299961f3b61"
@@ -2262,11 +2257,6 @@ cidr-regex@1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/cidr-regex/-/cidr-regex-1.0.6.tgz#74abfd619df370b9d54ab14475568e97dd64c0c1"
   integrity sha512-vIIQZtDT0y3GmcVqi4Uhd43s7HKn5DtH8/CcmHe/XG1Vb4JpUgOfTynZzYSo1zeB+j4GbA38Eu2P9UTbIzDw5g==
-
-class-transformer@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/class-transformer/-/class-transformer-0.5.1.tgz#24147d5dffd2a6cea930a3250a677addf96ab336"
-  integrity sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==
 
 classnames@^2.3.1:
   version "2.3.2"
@@ -4982,15 +4972,12 @@ lcid@^1.0.0:
   dependencies:
     invert-kv "^1.0.0"
 
-lemmy-js-client@0.17.0-rc.57:
-  version "0.17.0-rc.57"
-  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.17.0-rc.57.tgz#f7a243ed53542810e7446b0a28ad162f3e913254"
-  integrity sha512-7kZHi0B+jiKc50itTwngkS5Vxcuvux3LjgD28IXZ049cWQgZDqer6BCmudcbViP+dAoyWs9Fh2SyWkYFhv7bwQ==
+lemmy-js-client@0.17.0-rc.60:
+  version "0.17.0-rc.60"
+  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.17.0-rc.60.tgz#6cabac42d842eb1f152d230be018090050476614"
+  integrity sha512-Nl+DUBJde0KpKywNkX5wof9PDCmr6RuJlgukVfQRmW5rznYRKYnI1V+awf+9mUx1eNQ8jhnjVO+6XxOzMjloZA==
   dependencies:
-    "@sniptt/monads" "^0.5.10"
-    class-transformer "^0.5.1"
     node-fetch "2.6.6"
-    reflect-metadata "^0.1.13"
 
 levn@^0.4.1:
   version "0.4.1"
@@ -6968,11 +6955,6 @@ redux@^4.1.2:
   integrity sha512-oSBmcKKIuIR4ME29/AeNUnl5L+hvBq7OaJWzaptTQJAntaPvxIJqfnjbaEiCzzaIz+XmVILfqAM3Ob0aXLPfjA==
   dependencies:
     "@babel/runtime" "^7.9.2"
-
-reflect-metadata@^0.1.13:
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.1.13.tgz#67ae3ca57c972a2aa1642b10fe363fe32d49dc08"
-  integrity sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==
 
 regenerate-unicode-properties@^10.1.0:
   version "10.1.0"
