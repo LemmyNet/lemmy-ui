@@ -1,4 +1,3 @@
-import { None, Option, Some } from "@sniptt/monads/build";
 import { Component, linkEvent } from "inferno";
 import {
   CreatePrivateMessageReport,
@@ -6,11 +5,10 @@ import {
   MarkPrivateMessageAsRead,
   PersonSafe,
   PrivateMessageView,
-  toUndefined,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
-import { auth, mdToHtml, toast, wsClient } from "../../utils";
+import { mdToHtml, myAuth, toast, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
@@ -22,7 +20,7 @@ interface PrivateMessageState {
   collapsed: boolean;
   viewSource: boolean;
   showReportDialog: boolean;
-  reportReason: Option<string>;
+  reportReason?: string;
 }
 
 interface PrivateMessageProps {
@@ -33,19 +31,17 @@ export class PrivateMessage extends Component<
   PrivateMessageProps,
   PrivateMessageState
 > {
-  private emptyState: PrivateMessageState = {
+  state: PrivateMessageState = {
     showReply: false,
     showEdit: false,
     collapsed: false,
     viewSource: false,
     showReportDialog: false,
-    reportReason: None,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.state = this.emptyState;
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
     this.handlePrivateMessageCreate =
       this.handlePrivateMessageCreate.bind(this);
@@ -53,13 +49,10 @@ export class PrivateMessage extends Component<
   }
 
   get mine(): boolean {
-    return UserService.Instance.myUserInfo
-      .map(
-        m =>
-          m.local_user_view.person.id ==
-          this.props.private_message_view.creator.id
-      )
-      .unwrapOr(false);
+    return (
+      UserService.Instance.myUserInfo?.local_user_view.person.id ==
+      this.props.private_message_view.creator.id
+    );
   }
 
   render() {
@@ -104,7 +97,7 @@ export class PrivateMessage extends Component<
           {this.state.showEdit && (
             <PrivateMessageForm
               recipient={otherPerson}
-              privateMessageView={Some(message_view)}
+              privateMessageView={message_view}
               onEdit={this.handlePrivateMessageEdit}
               onCreate={this.handlePrivateMessageCreate}
               onCancel={this.handleReplyCancel}
@@ -230,7 +223,7 @@ export class PrivateMessage extends Component<
               className="form-control mr-2"
               placeholder={i18n.t("reason")}
               required
-              value={toUndefined(this.state.reportReason)}
+              value={this.state.reportReason}
               onInput={linkEvent(this, this.handleReportReasonChange)}
             />
             <button
@@ -245,7 +238,6 @@ export class PrivateMessage extends Component<
         {this.state.showReply && (
           <PrivateMessageForm
             recipient={otherPerson}
-            privateMessageView={None}
             onCreate={this.handlePrivateMessageCreate}
           />
         )}
@@ -283,12 +275,15 @@ export class PrivateMessage extends Component<
   }
 
   handleDeleteClick(i: PrivateMessage) {
-    let form = new DeletePrivateMessage({
-      private_message_id: i.props.private_message_view.private_message.id,
-      deleted: !i.props.private_message_view.private_message.deleted,
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.deletePrivateMessage(form));
+    let auth = myAuth();
+    if (auth) {
+      let form: DeletePrivateMessage = {
+        private_message_id: i.props.private_message_view.private_message.id,
+        deleted: !i.props.private_message_view.private_message.deleted,
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.deletePrivateMessage(form));
+    }
   }
 
   handleReplyCancel() {
@@ -296,12 +291,15 @@ export class PrivateMessage extends Component<
   }
 
   handleMarkRead(i: PrivateMessage) {
-    let form = new MarkPrivateMessageAsRead({
-      private_message_id: i.props.private_message_view.private_message.id,
-      read: !i.props.private_message_view.private_message.read,
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.markPrivateMessageAsRead(form));
+    let auth = myAuth();
+    if (auth) {
+      let form: MarkPrivateMessageAsRead = {
+        private_message_id: i.props.private_message_view.private_message.id,
+        read: !i.props.private_message_view.private_message.read,
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.markPrivateMessageAsRead(form));
+    }
   }
 
   handleMessageCollapse(i: PrivateMessage) {
@@ -317,19 +315,23 @@ export class PrivateMessage extends Component<
   }
 
   handleReportReasonChange(i: PrivateMessage, event: any) {
-    i.setState({ reportReason: Some(event.target.value) });
+    i.setState({ reportReason: event.target.value });
   }
 
   handleReportSubmit(i: PrivateMessage, event: any) {
     event.preventDefault();
-    let form = new CreatePrivateMessageReport({
-      private_message_id: i.props.private_message_view.private_message.id,
-      reason: toUndefined(i.state.reportReason),
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.createPrivateMessageReport(form));
+    let auth = myAuth();
+    let reason = i.state.reportReason;
+    if (auth && reason) {
+      let form: CreatePrivateMessageReport = {
+        private_message_id: i.props.private_message_view.private_message.id,
+        reason,
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.createPrivateMessageReport(form));
 
-    i.setState({ showReportDialog: false });
+      i.setState({ showReportDialog: false });
+    }
   }
 
   handlePrivateMessageEdit() {
@@ -337,14 +339,12 @@ export class PrivateMessage extends Component<
   }
 
   handlePrivateMessageCreate(message: PrivateMessageView) {
-    UserService.Instance.myUserInfo.match({
-      some: mui => {
-        if (message.creator.id == mui.local_user_view.person.id) {
-          this.setState({ showReply: false });
-          toast(i18n.t("message_sent"));
-        }
-      },
-      none: void 0,
-    });
+    if (
+      message.creator.id ==
+      UserService.Instance.myUserInfo?.local_user_view.person.id
+    ) {
+      this.setState({ showReply: false });
+      toast(i18n.t("message_sent"));
+    }
   }
 }

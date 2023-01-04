@@ -1,4 +1,3 @@
-import { None, Option, Some } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   CommentReportResponse,
@@ -24,9 +23,9 @@ import { InitialFetchRequest } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   amAdmin,
-  auth,
   fetchLimit,
   isBrowser,
+  myAuth,
   setIsoData,
   setupTippy,
   toast,
@@ -69,9 +68,9 @@ type ItemType = {
 };
 
 interface ReportsState {
-  listCommentReportsResponse: Option<ListCommentReportsResponse>;
-  listPostReportsResponse: Option<ListPostReportsResponse>;
-  listPrivateMessageReportsResponse: Option<ListPrivateMessageReportsResponse>;
+  listCommentReportsResponse?: ListCommentReportsResponse;
+  listPostReportsResponse?: ListPostReportsResponse;
+  listPrivateMessageReportsResponse?: ListPrivateMessageReportsResponse;
   unreadOrAll: UnreadOrAll;
   messageType: MessageType;
   combined: ItemType[];
@@ -81,17 +80,9 @@ interface ReportsState {
 }
 
 export class Reports extends Component<any, ReportsState> {
-  private isoData = setIsoData(
-    this.context,
-    ListCommentReportsResponse,
-    ListPostReportsResponse,
-    ListPrivateMessageReportsResponse
-  );
-  private subscription: Subscription;
-  private emptyState: ReportsState = {
-    listCommentReportsResponse: None,
-    listPostReportsResponse: None,
-    listPrivateMessageReportsResponse: None,
+  private isoData = setIsoData(this.context);
+  private subscription?: Subscription;
+  state: ReportsState = {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
     combined: [],
@@ -103,10 +94,9 @@ export class Reports extends Component<any, ReportsState> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.state = this.emptyState;
     this.handlePageChange = this.handlePageChange.bind(this);
 
-    if (UserService.Instance.myUserInfo.isNone() && isBrowser()) {
+    if (!UserService.Instance.myUserInfo && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
@@ -118,19 +108,16 @@ export class Reports extends Component<any, ReportsState> {
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state = {
         ...this.state,
-        listCommentReportsResponse: Some(
-          this.isoData.routeData[0] as ListCommentReportsResponse
-        ),
-        listPostReportsResponse: Some(
-          this.isoData.routeData[1] as ListPostReportsResponse
-        ),
+        listCommentReportsResponse: this.isoData
+          .routeData[0] as ListCommentReportsResponse,
+        listPostReportsResponse: this.isoData
+          .routeData[1] as ListPostReportsResponse,
       };
       if (amAdmin()) {
         this.state = {
           ...this.state,
-          listPrivateMessageReportsResponse: Some(
-            this.isoData.routeData[2] as ListPrivateMessageReportsResponse
-          ),
+          listPrivateMessageReportsResponse: this.isoData
+            .routeData[2] as ListPrivateMessageReportsResponse,
         };
       }
       this.state = {
@@ -145,18 +132,17 @@ export class Reports extends Component<any, ReportsState> {
 
   componentWillUnmount() {
     if (isBrowser()) {
-      this.subscription.unsubscribe();
+      this.subscription?.unsubscribe();
     }
   }
 
   get documentTitle(): string {
-    return UserService.Instance.myUserInfo.match({
-      some: mui =>
-        `@${mui.local_user_view.person.name} ${i18n.t("reports")} - ${
+    let mui = UserService.Instance.myUserInfo;
+    return mui
+      ? `@${mui.local_user_view.person.name} ${i18n.t("reports")} - ${
           this.state.siteRes.site_view.site.name
-        }`,
-      none: "",
-    });
+        }`
+      : "";
   }
 
   render() {
@@ -172,8 +158,6 @@ export class Reports extends Component<any, ReportsState> {
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
-                description={None}
-                image={None}
               />
               <h5 className="mb-2">{i18n.t("reports")}</h5>
               {this.selects()}
@@ -331,19 +315,22 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   buildCombined(): ItemType[] {
-    let comments: ItemType[] = this.state.listCommentReportsResponse
-      .map(r => r.comment_reports)
-      .unwrapOr([])
-      .map(r => this.commentReportToItemType(r));
-    let posts: ItemType[] = this.state.listPostReportsResponse
-      .map(r => r.post_reports)
-      .unwrapOr([])
-      .map(r => this.postReportToItemType(r));
-    let privateMessages: ItemType[] =
-      this.state.listPrivateMessageReportsResponse
-        .map(r => r.private_message_reports)
-        .unwrapOr([])
-        .map(r => this.privateMessageReportToItemType(r));
+    // let comments: ItemType[] = this.state.listCommentReportsResponse
+    //   .map(r => r.comment_reports)
+    //   .unwrapOr([])
+    //   .map(r => this.commentReportToItemType(r));
+    let comments =
+      this.state.listCommentReportsResponse?.comment_reports.map(
+        this.commentReportToItemType
+      ) ?? [];
+    let posts =
+      this.state.listPostReportsResponse?.post_reports.map(
+        this.postReportToItemType
+      ) ?? [];
+    let privateMessages =
+      this.state.listPrivateMessageReportsResponse?.private_message_reports.map(
+        this.privateMessageReportToItemType
+      ) ?? [];
 
     return [...comments, ...posts, ...privateMessages].sort((a, b) =>
       b.published.localeCompare(a.published)
@@ -384,42 +371,44 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   commentReports() {
-    return this.state.listCommentReportsResponse.match({
-      some: res => (
+    let reports = this.state.listCommentReportsResponse?.comment_reports;
+    return (
+      reports && (
         <div>
-          {res.comment_reports.map(cr => (
+          {reports.map(cr => (
             <>
               <hr />
               <CommentReport key={cr.comment_report.id} report={cr} />
             </>
           ))}
         </div>
-      ),
-      none: <></>,
-    });
+      )
+    );
   }
 
   postReports() {
-    return this.state.listPostReportsResponse.match({
-      some: res => (
+    let reports = this.state.listPostReportsResponse?.post_reports;
+    return (
+      reports && (
         <div>
-          {res.post_reports.map(pr => (
+          {reports.map(pr => (
             <>
               <hr />
               <PostReport key={pr.post_report.id} report={pr} />
             </>
           ))}
         </div>
-      ),
-      none: <></>,
-    });
+      )
+    );
   }
 
   privateMessageReports() {
-    return this.state.listPrivateMessageReportsResponse.match({
-      some: res => (
+    let reports =
+      this.state.listPrivateMessageReportsResponse?.private_message_reports;
+    return (
+      reports && (
         <div>
-          {res.private_message_reports.map(pmr => (
+          {reports.map(pmr => (
             <>
               <hr />
               <PrivateMessageReport
@@ -429,9 +418,8 @@ export class Reports extends Component<any, ReportsState> {
             </>
           ))}
         </div>
-      ),
-      none: <></>,
-    });
+      )
+    );
   }
 
   handlePageChange(page: number) {
@@ -452,85 +440,79 @@ export class Reports extends Component<any, ReportsState> {
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
-    let unresolved_only = Some(true);
-    let page = Some(1);
-    let limit = Some(fetchLimit);
-    let community_id = None;
-    let auth = req.auth.unwrap();
+    let unresolved_only = true;
+    let page = 1;
+    let limit = fetchLimit;
+    let auth = req.auth;
 
-    let commentReportsForm = new ListCommentReports({
-      // TODO community_id
-      unresolved_only,
-      community_id,
-      page,
-      limit,
-      auth,
-    });
-    promises.push(req.client.listCommentReports(commentReportsForm));
-
-    let postReportsForm = new ListPostReports({
-      // TODO community_id
-      unresolved_only,
-      community_id,
-      page,
-      limit,
-      auth,
-    });
-    promises.push(req.client.listPostReports(postReportsForm));
-
-    if (amAdmin()) {
-      let privateMessageReportsForm = new ListPrivateMessageReports({
+    if (auth) {
+      let commentReportsForm: ListCommentReports = {
         unresolved_only,
         page,
         limit,
         auth,
-      });
-      promises.push(
-        req.client.listPrivateMessageReports(privateMessageReportsForm)
-      );
+      };
+      promises.push(req.client.listCommentReports(commentReportsForm));
+
+      let postReportsForm: ListPostReports = {
+        unresolved_only,
+        page,
+        limit,
+        auth,
+      };
+      promises.push(req.client.listPostReports(postReportsForm));
+
+      if (amAdmin()) {
+        let privateMessageReportsForm: ListPrivateMessageReports = {
+          unresolved_only,
+          page,
+          limit,
+          auth,
+        };
+        promises.push(
+          req.client.listPrivateMessageReports(privateMessageReportsForm)
+        );
+      }
     }
 
     return promises;
   }
 
   refetch() {
-    let unresolved_only = Some(this.state.unreadOrAll == UnreadOrAll.Unread);
-    let community_id = None;
-    let page = Some(this.state.page);
-    let limit = Some(fetchLimit);
-
-    let commentReportsForm = new ListCommentReports({
-      unresolved_only,
-      // TODO community_id
-      community_id,
-      page,
-      limit,
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(
-      wsClient.listCommentReports(commentReportsForm)
-    );
-
-    let postReportsForm = new ListPostReports({
-      unresolved_only,
-      // TODO community_id
-      community_id,
-      page,
-      limit,
-      auth: auth().unwrap(),
-    });
-    WebSocketService.Instance.send(wsClient.listPostReports(postReportsForm));
-
-    if (amAdmin()) {
-      let privateMessageReportsForm = new ListPrivateMessageReports({
+    let unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    let page = this.state.page;
+    let limit = fetchLimit;
+    let auth = myAuth();
+    if (auth) {
+      let commentReportsForm: ListCommentReports = {
         unresolved_only,
         page,
         limit,
-        auth: auth().unwrap(),
-      });
+        auth,
+      };
       WebSocketService.Instance.send(
-        wsClient.listPrivateMessageReports(privateMessageReportsForm)
+        wsClient.listCommentReports(commentReportsForm)
       );
+
+      let postReportsForm: ListPostReports = {
+        unresolved_only,
+        page,
+        limit,
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.listPostReports(postReportsForm));
+
+      if (amAdmin()) {
+        let privateMessageReportsForm: ListPrivateMessageReports = {
+          unresolved_only,
+          page,
+          limit,
+          auth,
+        };
+        WebSocketService.Instance.send(
+          wsClient.listPrivateMessageReports(privateMessageReportsForm)
+        );
+      }
     }
   }
 
@@ -543,40 +525,31 @@ export class Reports extends Component<any, ReportsState> {
     } else if (msg.reconnect) {
       this.refetch();
     } else if (op == UserOperation.ListCommentReports) {
-      let data = wsJsonToRes<ListCommentReportsResponse>(
-        msg,
-        ListCommentReportsResponse
-      );
-      this.setState({ listCommentReportsResponse: Some(data) });
+      let data = wsJsonToRes<ListCommentReportsResponse>(msg);
+      this.setState({ listCommentReportsResponse: data });
       this.setState({ combined: this.buildCombined(), loading: false });
       // this.sendUnreadCount();
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.ListPostReports) {
-      let data = wsJsonToRes<ListPostReportsResponse>(
-        msg,
-        ListPostReportsResponse
-      );
-      this.setState({ listPostReportsResponse: Some(data) });
+      let data = wsJsonToRes<ListPostReportsResponse>(msg);
+      this.setState({ listPostReportsResponse: data });
       this.setState({ combined: this.buildCombined(), loading: false });
       // this.sendUnreadCount();
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.ListPrivateMessageReports) {
-      let data = wsJsonToRes<ListPrivateMessageReportsResponse>(
-        msg,
-        ListPrivateMessageReportsResponse
-      );
-      this.setState({ listPrivateMessageReportsResponse: Some(data) });
+      let data = wsJsonToRes<ListPrivateMessageReportsResponse>(msg);
+      this.setState({ listPrivateMessageReportsResponse: data });
       this.setState({ combined: this.buildCombined(), loading: false });
       // this.sendUnreadCount();
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.ResolvePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg, PostReportResponse);
+      let data = wsJsonToRes<PostReportResponse>(msg);
       updatePostReportRes(
         data.post_report_view,
-        this.state.listPostReportsResponse.map(r => r.post_reports).unwrapOr([])
+        this.state.listPostReportsResponse?.post_reports
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.post_report_view.post_report.resolved) {
@@ -586,12 +559,10 @@ export class Reports extends Component<any, ReportsState> {
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolveCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg, CommentReportResponse);
+      let data = wsJsonToRes<CommentReportResponse>(msg);
       updateCommentReportRes(
         data.comment_report_view,
-        this.state.listCommentReportsResponse
-          .map(r => r.comment_reports)
-          .unwrapOr([])
+        this.state.listCommentReportsResponse?.comment_reports
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.comment_report_view.comment_report.resolved) {
@@ -601,15 +572,10 @@ export class Reports extends Component<any, ReportsState> {
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolvePrivateMessageReport) {
-      let data = wsJsonToRes<PrivateMessageReportResponse>(
-        msg,
-        PrivateMessageReportResponse
-      );
+      let data = wsJsonToRes<PrivateMessageReportResponse>(msg);
       updatePrivateMessageReportRes(
         data.private_message_report_view,
-        this.state.listPrivateMessageReportsResponse
-          .map(r => r.private_message_reports)
-          .unwrapOr([])
+        this.state.listPrivateMessageReportsResponse?.private_message_reports
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.private_message_report_view.private_message_report.resolved) {

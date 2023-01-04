@@ -1,4 +1,3 @@
-import { Option } from "@sniptt/monads";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
@@ -10,7 +9,7 @@ import { Icon } from "./icon";
 interface LanguageSelectProps {
   allLanguages: Language[];
   siteLanguages: number[];
-  selectedLanguageIds: Option<number[]>;
+  selectedLanguageIds?: number[];
   multiple: boolean;
   onChange(val: number[]): any;
   showAll?: boolean;
@@ -31,19 +30,17 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
   // Necessary because there is no HTML way to set selected for multiple in value=
   setSelectedValues() {
-    this.props.selectedLanguageIds.map(toString).match({
-      some: ids => {
-        var select = (document.getElementById(this.id) as HTMLSelectElement)
-          .options;
-        for (let i = 0; i < select.length; i++) {
-          let o = select[i];
-          if (ids.includes(o.value)) {
-            o.selected = true;
-          }
+    let ids = this.props.selectedLanguageIds?.map(toString);
+    if (ids) {
+      let select = (document.getElementById(this.id) as HTMLSelectElement)
+        .options;
+      for (let i = 0; i < select.length; i++) {
+        let o = select[i];
+        if (ids.includes(o.value)) {
+          o.selected = true;
         }
-      },
-      none: void 0,
-    });
+      }
+    }
   }
 
   render() {
@@ -107,7 +104,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
           <option
             key={l.id}
             value={l.id}
-            selected={selectedLangs.unwrapOr([]).includes(l.id)}
+            selected={selectedLangs?.includes(l.id)}
           >
             {l.name}
           </option>

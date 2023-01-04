@@ -1,4 +1,3 @@
-import { Option } from "@sniptt/monads";
 import { Component } from "inferno";
 import {
   CommentNode as CommentNodeI,
@@ -11,9 +10,9 @@ import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
-  moderators: Option<CommunityModeratorView[]>;
-  admins: Option<PersonViewSafe[]>;
-  maxCommentsShown: Option<number>;
+  moderators?: CommunityModeratorView[];
+  admins?: PersonViewSafe[];
+  maxCommentsShown?: number;
   noBorder?: boolean;
   noIndent?: boolean;
   viewOnly?: boolean;
@@ -34,9 +33,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
   }
 
   render() {
-    let maxComments = this.props.maxCommentsShown.unwrapOr(
-      this.props.nodes.length
-    );
+    let maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
 
     return (
       <div className="comments">

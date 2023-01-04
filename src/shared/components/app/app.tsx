@@ -19,37 +19,37 @@ export class App extends Component<any, any> {
   render() {
     let siteRes = this.isoData.site_res;
     let siteView = siteRes.site_view;
+    let icon = siteView.site.icon;
 
     return (
       <>
         <Provider i18next={i18n}>
           <div id="app">
             <Theme defaultTheme={siteView.local_site.default_theme} />
-            {siteView.site.icon.match({
-              some: icon => (
-                <Helmet>
-                  <link
-                    id="favicon"
-                    rel="shortcut icon"
-                    type="image/x-icon"
-                    href={icon || favIconUrl}
-                  />
-                  <link rel="apple-touch-icon" href={icon || favIconPngUrl} />
-                </Helmet>
-              ),
-              none: <></>,
-            })}
+            {icon && (
+              <Helmet>
+                <link
+                  id="favicon"
+                  rel="shortcut icon"
+                  type="image/x-icon"
+                  href={icon || favIconUrl}
+                />
+                <link rel="apple-touch-icon" href={icon || favIconPngUrl} />
+              </Helmet>
+            )}
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
               <Switch>
-                {routes.map(({ path, exact, component: C, ...rest }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    exact={exact}
-                    render={props => <C {...props} {...rest} />}
-                  />
-                ))}
+                {routes.map(
+                  ({ path, exact, component: Component, ...rest }) => (
+                    <Route
+                      key={path}
+                      path={path}
+                      exact={exact}
+                      render={props => <Component {...props} {...rest} />}
+                    />
+                  )
+                )}
                 <Route render={props => <NoMatch {...props} />} />
               </Switch>
             </div>

@@ -1,4 +1,3 @@
-import { None } from "@sniptt/monads";
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
@@ -11,13 +10,12 @@ interface InstancesState {
 
 export class Instances extends Component<any, InstancesState> {
   private isoData = setIsoData(this.context);
-  private emptyState: InstancesState = {
+  state: InstancesState = {
     siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
   }
 
   get documentTitle(): string {
@@ -25,45 +23,37 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   render() {
-    return this.state.siteRes.federated_instances.match({
-      some: federated_instances => (
-        <div className="container-lg">
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-            description={None}
-            image={None}
-          />
-          <div className="row">
-            <div className="col-md-6">
-              <h5>{i18n.t("linked_instances")}</h5>
-              {this.itemList(federated_instances.linked)}
-            </div>
-            {federated_instances.allowed.match({
-              some: allowed =>
-                allowed.length > 0 && (
-                  <div className="col-md-6">
-                    <h5>{i18n.t("allowed_instances")}</h5>
-                    {this.itemList(allowed)}
-                  </div>
-                ),
-              none: <></>,
-            })}
-            {federated_instances.blocked.match({
-              some: blocked =>
-                blocked.length > 0 && (
-                  <div className="col-md-6">
-                    <h5>{i18n.t("blocked_instances")}</h5>
-                    {this.itemList(blocked)}
-                  </div>
-                ),
-              none: <></>,
-            })}
+    let federated_instances = this.state.siteRes.federated_instances;
+    return federated_instances ? (
+      <div className="container-lg">
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
+        <div className="row">
+          <div className="col-md-6">
+            <h5>{i18n.t("linked_instances")}</h5>
+            {this.itemList(federated_instances.linked)}
           </div>
+          {federated_instances.allowed &&
+            federated_instances.allowed.length > 0 && (
+              <div className="col-md-6">
+                <h5>{i18n.t("allowed_instances")}</h5>
+                {this.itemList(federated_instances.allowed)}
+              </div>
+            )}
+          {federated_instances.blocked &&
+            federated_instances.blocked.length > 0 && (
+              <div className="col-md-6">
+                <h5>{i18n.t("blocked_instances")}</h5>
+                {this.itemList(federated_instances.blocked)}
+              </div>
+            )}
         </div>
-      ),
-      none: <></>,
-    });
+      </div>
+    ) : (
+      <></>
+    );
   }
 
   itemList(items: string[]) {

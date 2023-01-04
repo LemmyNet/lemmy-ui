@@ -1,4 +1,3 @@
-import { None, Option } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { PersonViewSafe, Site, SiteAggregates } from "lemmy-js-client";
@@ -11,9 +10,9 @@ import { PersonListing } from "../person/person-listing";
 interface SiteSidebarProps {
   site: Site;
   showLocal: boolean;
-  counts: Option<SiteAggregates>;
-  admins: Option<PersonViewSafe[]>;
-  online: Option<number>;
+  counts?: SiteAggregates;
+  admins?: PersonViewSafe[];
+  online?: number;
 }
 
 interface SiteSidebarState {
@@ -21,13 +20,12 @@ interface SiteSidebarState {
 }
 
 export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
-  private emptyState: SiteSidebarState = {
+  state: SiteSidebarState = {
     collapsed: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
   }
 
   render() {
@@ -38,7 +36,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             <div className="mb-2">{this.siteName()}</div>
             {!this.state.collapsed && (
               <>
-                <BannerIconHeader banner={this.props.site.banner} icon={None} />
+                <BannerIconHeader banner={this.props.site.banner} />
                 {this.siteInfo()}
               </>
             )}
@@ -72,22 +70,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     let site = this.props.site;
     return (
       <div>
-        {site.description.match({
-          some: description => <h6>{description}</h6>,
-          none: <></>,
-        })}
-        {site.sidebar.match({
-          some: sidebar => this.siteSidebar(sidebar),
-          none: <></>,
-        })}
-        {this.props.counts.match({
-          some: counts => this.badges(counts),
-          none: <></>,
-        })}
-        {this.props.admins.match({
-          some: admins => this.admins(admins),
-          none: <></>,
-        })}
+        {site.description && <h6>{site.description}</h6>}
+        {site.sidebar && this.siteSidebar(site.sidebar)}
+        {this.props.counts && this.badges(this.props.counts)}
+        {this.props.admins && this.admins(this.props.admins)}
       </div>
     );
   }
@@ -113,7 +99,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   badges(siteAggregates: SiteAggregates) {
     let counts = siteAggregates;
-    let online = this.props.online.unwrapOr(1);
+    let online = this.props.online ?? 1;
     return (
       <ul className="my-2 list-inline">
         <li className="list-inline-item badge badge-secondary">

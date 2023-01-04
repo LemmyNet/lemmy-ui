@@ -1,9 +1,8 @@
-import { None } from "@sniptt/monads";
 import { Component, linkEvent } from "inferno";
 import {
   GetSiteResponse,
   LoginResponse,
-  PasswordChange as PasswordChangeForm,
+  PasswordChange as PWordChange,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -23,21 +22,23 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
 interface State {
-  passwordChangeForm: PasswordChangeForm;
+  form: {
+    token: string;
+    password?: string;
+    password_verify?: string;
+  };
   loading: boolean;
   siteRes: GetSiteResponse;
 }
 
 export class PasswordChange extends Component<any, State> {
   private isoData = setIsoData(this.context);
-  private subscription: Subscription;
+  private subscription?: Subscription;
 
-  emptyState: State = {
-    passwordChangeForm: new PasswordChangeForm({
+  state: State = {
+    form: {
       token: this.props.match.params.token,
-      password: undefined,
-      password_verify: undefined,
-    }),
+    },
     loading: false,
     siteRes: this.isoData.site_res,
   };
@@ -45,15 +46,13 @@ export class PasswordChange extends Component<any, State> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.state = this.emptyState;
-
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
   }
 
   componentWillUnmount() {
     if (isBrowser()) {
-      this.subscription.unsubscribe();
+      this.subscription?.unsubscribe();
     }
   }
 
@@ -69,8 +68,6 @@ export class PasswordChange extends Component<any, State> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
-          description={None}
-          image={None}
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
@@ -93,7 +90,7 @@ export class PasswordChange extends Component<any, State> {
             <input
               id="new-password"
               type="password"
-              value={this.state.passwordChangeForm.password}
+              value={this.state.form.password}
               onInput={linkEvent(this, this.handlePasswordChange)}
               className="form-control"
               required
@@ -109,7 +106,7 @@ export class PasswordChange extends Component<any, State> {
             <input
               id="verify-password"
               type="password"
-              value={this.state.passwordChangeForm.password_verify}
+              value={this.state.form.password_verify}
               onInput={linkEvent(this, this.handleVerifyPasswordChange)}
               className="form-control"
               required
@@ -133,12 +130,12 @@ export class PasswordChange extends Component<any, State> {
   }
 
   handlePasswordChange(i: PasswordChange, event: any) {
-    i.state.passwordChangeForm.password = event.target.value;
+    i.state.form.password = event.target.value;
     i.setState(i.state);
   }
 
   handleVerifyPasswordChange(i: PasswordChange, event: any) {
-    i.state.passwordChangeForm.password_verify = event.target.value;
+    i.state.form.password_verify = event.target.value;
     i.setState(i.state);
   }
 
@@ -146,9 +143,18 @@ export class PasswordChange extends Component<any, State> {
     event.preventDefault();
     i.setState({ loading: true });
 
-    WebSocketService.Instance.send(
-      wsClient.passwordChange(i.state.passwordChangeForm)
-    );
+    let password = i.state.form.password;
+    let password_verify = i.state.form.password_verify;
+
+    if (password && password_verify) {
+      let form: PWordChange = {
+        token: i.state.form.token,
+        password,
+        password_verify,
+      };
+
+      WebSocketService.Instance.send(wsClient.passwordChange(form));
+    }
   }
 
   parseMessage(msg: any) {
@@ -159,8 +165,7 @@ export class PasswordChange extends Component<any, State> {
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.PasswordChange) {
-      let data = wsJsonToRes<LoginResponse>(msg, LoginResponse);
-      this.setState(this.emptyState);
+      let data = wsJsonToRes<LoginResponse>(msg);
       UserService.Instance.login(data);
       this.props.history.push("/");
       location.reload();

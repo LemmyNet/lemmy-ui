@@ -1,4 +1,3 @@
-import { Either, Left, None, Option, Right, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import {
   GetCommunity,
@@ -9,7 +8,6 @@ import {
   ListingType,
   PostView,
   SortType,
-  toOption,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -19,11 +17,11 @@ import { InitialFetchRequest, PostFormParams } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  auth,
   enableDownvotes,
   enableNsfw,
   fetchLimit,
   isBrowser,
+  myAuth,
   setIsoData,
   toast,
   wsClient,
@@ -34,30 +32,28 @@ import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";
 
 interface CreatePostState {
-  listCommunitiesResponse: Option<ListCommunitiesResponse>;
+  listCommunitiesResponse?: ListCommunitiesResponse;
   siteRes: GetSiteResponse;
   loading: boolean;
 }
 
 export class CreatePost extends Component<any, CreatePostState> {
-  private isoData = setIsoData(this.context, ListCommunitiesResponse);
-  private subscription: Subscription;
-  private emptyState: CreatePostState = {
+  private isoData = setIsoData(this.context);
+  private subscription?: Subscription;
+  state: CreatePostState = {
     siteRes: this.isoData.site_res,
-    listCommunitiesResponse: None,
     loading: true,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
 
     this.handlePostCreate = this.handlePostCreate.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    if (UserService.Instance.myUserInfo.isNone() && isBrowser()) {
+    if (!UserService.Instance.myUserInfo && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
@@ -66,9 +62,8 @@ export class CreatePost extends Component<any, CreatePostState> {
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state = {
         ...this.state,
-        listCommunitiesResponse: Some(
-          this.isoData.routeData[0] as ListCommunitiesResponse
-        ),
+        listCommunitiesResponse: this.isoData
+          .routeData[0] as ListCommunitiesResponse,
         loading: false,
       };
     } else {
@@ -77,44 +72,38 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   refetch() {
-    this.params.nameOrId.match({
-      some: opt =>
-        opt.match({
-          left: name => {
-            let form = new GetCommunity({
-              name: Some(name),
-              id: None,
-              auth: auth(false).ok(),
-            });
-            WebSocketService.Instance.send(wsClient.getCommunity(form));
-          },
-          right: id => {
-            let form = new GetCommunity({
-              id: Some(id),
-              name: None,
-              auth: auth(false).ok(),
-            });
-            WebSocketService.Instance.send(wsClient.getCommunity(form));
-          },
-        }),
-      none: () => {
-        let listCommunitiesForm = new ListCommunities({
-          type_: Some(ListingType.All),
-          sort: Some(SortType.TopAll),
-          limit: Some(fetchLimit),
-          page: None,
-          auth: auth(false).ok(),
-        });
-        WebSocketService.Instance.send(
-          wsClient.listCommunities(listCommunitiesForm)
-        );
-      },
-    });
+    let nameOrId = this.params.nameOrId;
+    let auth = myAuth(false);
+    if (nameOrId) {
+      if (typeof nameOrId === "string") {
+        let form: GetCommunity = {
+          name: nameOrId,
+          auth,
+        };
+        WebSocketService.Instance.send(wsClient.getCommunity(form));
+      } else {
+        let form: GetCommunity = {
+          id: nameOrId,
+          auth,
+        };
+        WebSocketService.Instance.send(wsClient.getCommunity(form));
+      }
+    } else {
+      let listCommunitiesForm: ListCommunities = {
+        type_: ListingType.All,
+        sort: SortType.TopAll,
+        limit: fetchLimit,
+        auth,
+      };
+      WebSocketService.Instance.send(
+        wsClient.listCommunities(listCommunitiesForm)
+      );
+    }
   }
 
   componentWillUnmount() {
     if (isBrowser()) {
-      this.subscription.unsubscribe();
+      this.subscription?.unsubscribe();
     }
   }
 
@@ -125,39 +114,34 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   render() {
+    let res = this.state.listCommunitiesResponse;
     return (
       <div className="container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
-          description={None}
-          image={None}
         />
         {this.state.loading ? (
           <h5>
             <Spinner large />
           </h5>
         ) : (
-          this.state.listCommunitiesResponse.match({
-            some: res => (
-              <div className="row">
-                <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-                  <h5>{i18n.t("create_post")}</h5>
-                  <PostForm
-                    post_view={None}
-                    communities={Some(res.communities)}
-                    onCreate={this.handlePostCreate}
-                    params={Some(this.params)}
-                    enableDownvotes={enableDownvotes(this.state.siteRes)}
-                    enableNsfw={enableNsfw(this.state.siteRes)}
-                    allLanguages={this.state.siteRes.all_languages}
-                    siteLanguages={this.state.siteRes.discussion_languages}
-                  />
-                </div>
+          res && (
+            <div className="row">
+              <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+                <h5>{i18n.t("create_post")}</h5>
+                <PostForm
+                  communities={res.communities}
+                  onCreate={this.handlePostCreate}
+                  params={this.params}
+                  enableDownvotes={enableDownvotes(this.state.siteRes)}
+                  enableNsfw={enableNsfw(this.state.siteRes)}
+                  allLanguages={this.state.siteRes.all_languages}
+                  siteLanguages={this.state.siteRes.discussion_languages}
+                />
               </div>
-            ),
-            none: <></>,
-          })
+            </div>
+          )
         )}
       </div>
     );
@@ -165,48 +149,42 @@ export class CreatePost extends Component<any, CreatePostState> {
 
   get params(): PostFormParams {
     let urlParams = new URLSearchParams(this.props.location.search);
-    let name = toOption(urlParams.get("community_name")).or(
-      this.prevCommunityName
-    );
-    let id = toOption(urlParams.get("community_id"))
-      .map(Number)
-      .or(this.prevCommunityId);
-    let nameOrId: Option<Either<string, number>>;
-    if (name.isSome()) {
-      nameOrId = Some(Left(name.unwrap()));
-    } else if (id.isSome()) {
-      nameOrId = Some(Right(id.unwrap()));
-    } else {
-      nameOrId = None;
+    let name = urlParams.get("community_name") ?? this.prevCommunityName;
+    let communityIdParam = urlParams.get("community_id");
+    let id = communityIdParam ? Number(communityIdParam) : this.prevCommunityId;
+    let nameOrId: string | number | undefined;
+    if (name) {
+      nameOrId = name;
+    } else if (id) {
+      nameOrId = id;
     }
 
     let params: PostFormParams = {
-      name: toOption(urlParams.get("title")),
+      name: urlParams.get("title") ?? undefined,
       nameOrId,
-      body: toOption(urlParams.get("body")),
-      url: toOption(urlParams.get("url")),
+      body: urlParams.get("body") ?? undefined,
+      url: urlParams.get("url") ?? undefined,
     };
 
     return params;
   }
 
-  get prevCommunityName(): Option<string> {
+  get prevCommunityName(): string | undefined {
     if (this.props.match.params.name) {
-      return toOption(this.props.match.params.name);
+      return this.props.match.params.name;
     } else if (this.props.location.state) {
       let lastLocation = this.props.location.state.prevPath;
       if (lastLocation.includes("/c/")) {
-        return toOption(lastLocation.split("/c/")[1]);
+        return lastLocation.split("/c/").at(1);
       }
     }
-    return None;
+    return undefined;
   }
 
-  get prevCommunityId(): Option<number> {
-    if (this.props.match.params.id) {
-      return toOption(this.props.match.params.id);
-    }
-    return None;
+  get prevCommunityId(): number | undefined {
+    // TODO is this actually a number? Whats the real return type
+    let id = this.props.match.params.id;
+    return id ?? undefined;
   }
 
   handlePostCreate(post_view: PostView) {
@@ -214,13 +192,12 @@ export class CreatePost extends Component<any, CreatePostState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let listCommunitiesForm = new ListCommunities({
-      type_: Some(ListingType.All),
-      sort: Some(SortType.TopAll),
-      limit: Some(fetchLimit),
-      page: None,
+    let listCommunitiesForm: ListCommunities = {
+      type_: ListingType.All,
+      sort: SortType.TopAll,
+      limit: fetchLimit,
       auth: req.auth,
-    });
+    };
     return [req.client.listCommunities(listCommunitiesForm)];
   }
 
@@ -231,17 +208,14 @@ export class CreatePost extends Component<any, CreatePostState> {
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.ListCommunities) {
-      let data = wsJsonToRes<ListCommunitiesResponse>(
-        msg,
-        ListCommunitiesResponse
-      );
-      this.setState({ listCommunitiesResponse: Some(data), loading: false });
+      let data = wsJsonToRes<ListCommunitiesResponse>(msg);
+      this.setState({ listCommunitiesResponse: data, loading: false });
     } else if (op == UserOperation.GetCommunity) {
-      let data = wsJsonToRes<GetCommunityResponse>(msg, GetCommunityResponse);
+      let data = wsJsonToRes<GetCommunityResponse>(msg);
       this.setState({
-        listCommunitiesResponse: Some({
+        listCommunitiesResponse: {
           communities: [data.community_view],
-        }),
+        },
         loading: false,
       });
     }

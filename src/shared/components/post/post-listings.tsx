@@ -1,4 +1,3 @@
-import { None, Some } from "@sniptt/monads";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -12,8 +11,8 @@ interface PostListingsProps {
   siteLanguages: number[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
-  enableDownvotes: boolean;
-  enableNsfw: boolean;
+  enableDownvotes?: boolean;
+  enableNsfw?: boolean;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -37,9 +36,7 @@ export class PostListings extends Component<PostListingsProps, any> {
             <>
               <PostListing
                 post_view={post_view}
-                duplicates={Some(this.duplicatesMap.get(post_view.post.id))}
-                moderators={None}
-                admins={None}
+                duplicates={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
@@ -72,20 +69,20 @@ export class PostListings extends Component<PostListingsProps, any> {
 
     // Loop over the posts, find ones with same urls
     for (let pv of posts) {
-      !pv.post.deleted &&
+      let url = pv.post.url;
+      if (
+        !pv.post.deleted &&
         !pv.post.removed &&
         !pv.community.deleted &&
         !pv.community.removed &&
-        pv.post.url.match({
-          some: url => {
-            if (!urlMap.get(url)) {
-              urlMap.set(url, [pv]);
-            } else {
-              urlMap.get(url).push(pv);
-            }
-          },
-          none: void 0,
-        });
+        url
+      ) {
+        if (!urlMap.get(url)) {
+          urlMap.set(url, [pv]);
+        } else {
+          urlMap.get(url)?.push(pv);
+        }
+      }
     }
 
     // Sort by oldest
@@ -100,22 +97,20 @@ export class PostListings extends Component<PostListingsProps, any> {
 
     for (let i = 0; i < posts.length; i++) {
       let pv = posts[i];
-      pv.post.url.match({
-        some: url => {
-          let found = urlMap.get(url);
-          if (found) {
-            // If its the oldest, add
-            if (pv.post.id == found[0].post.id) {
-              this.duplicatesMap.set(pv.post.id, found.slice(1));
-            }
-            // Otherwise, delete it
-            else {
-              posts.splice(i--, 1);
-            }
+      let url = pv.post.url;
+      if (url) {
+        let found = urlMap.get(url);
+        if (found) {
+          // If its the oldest, add
+          if (pv.post.id == found[0].post.id) {
+            this.duplicatesMap.set(pv.post.id, found.slice(1));
           }
-        },
-        none: void 0,
-      });
+          // Otherwise, delete it
+          else {
+            posts.splice(i--, 1);
+          }
+        }
+      }
     }
 
     return posts;

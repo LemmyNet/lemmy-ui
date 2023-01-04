@@ -1,8 +1,7 @@
-import { None, Option, Some } from "@sniptt/monads";
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { Language, toUndefined } from "lemmy-js-client";
+import { Language } from "lemmy-js-client";
 import { pictrsUri } from "../../env";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
@@ -22,11 +21,11 @@ import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 
 interface MarkdownTextAreaProps {
-  initialContent: Option<string>;
-  initialLanguageId: Option<number>;
-  placeholder: Option<string>;
-  buttonTitle: Option<string>;
-  maxLength: Option<number>;
+  initialContent?: string;
+  initialLanguageId?: number;
+  placeholder?: string;
+  buttonTitle?: string;
+  maxLength?: number;
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
@@ -35,18 +34,14 @@ interface MarkdownTextAreaProps {
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): any;
   onReplyCancel?(): any;
-  onSubmit?(msg: {
-    val: Option<string>;
-    formId: string;
-    languageId: Option<number>;
-  }): any;
-  allLanguages: Language[];
-  siteLanguages: number[];
+  onSubmit?(msg: { val?: string; formId: string; languageId?: number }): any;
+  allLanguages: Language[]; // TODO should probably be nullable
+  siteLanguages: number[]; // TODO same
 }
 
 interface MarkdownTextAreaState {
-  content: Option<string>;
-  languageId: Option<number>;
+  content?: string;
+  languageId?: number;
   previewMode: boolean;
   loading: boolean;
   imageLoading: boolean;
@@ -59,7 +54,7 @@ export class MarkdownTextArea extends Component<
   private id = `comment-textarea-${randomStr()}`;
   private formId = `comment-form-${randomStr()}`;
   private tribute: any;
-  private emptyState: MarkdownTextAreaState = {
+  state: MarkdownTextAreaState = {
     content: this.props.initialContent,
     languageId: this.props.initialLanguageId,
     previewMode: false,
@@ -75,7 +70,6 @@ export class MarkdownTextArea extends Component<
     if (isBrowser()) {
       this.tribute = setupTribute();
     }
-    this.state = this.emptyState;
   }
 
   componentDidMount() {
@@ -84,7 +78,7 @@ export class MarkdownTextArea extends Component<
       autosize(textarea);
       this.tribute.attach(textarea);
       textarea.addEventListener("tribute-replaced", () => {
-        this.setState({ content: Some(textarea.value) });
+        this.setState({ content: textarea.value });
         autosize.update(textarea);
       });
 
@@ -100,18 +94,18 @@ export class MarkdownTextArea extends Component<
   }
 
   componentDidUpdate() {
-    if (!this.props.hideNavigationWarnings && this.state.content.isSome()) {
+    if (!this.props.hideNavigationWarnings && this.state.content) {
       window.onbeforeunload = () => true;
     } else {
-      window.onbeforeunload = undefined;
+      window.onbeforeunload = null;
     }
   }
 
   componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
     if (nextProps.finished) {
-      this.setState({ previewMode: false, loading: false, content: None });
+      this.setState({ previewMode: false, loading: false, content: undefined });
       if (this.props.replyType) {
-        this.props.onReplyCancel();
+        this.props.onReplyCancel?.();
       }
 
       let textarea: any = document.getElementById(this.id);
@@ -126,12 +120,12 @@ export class MarkdownTextArea extends Component<
   }
 
   render() {
+    let languageId = this.state.languageId;
+
     return (
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
         <Prompt
-          when={
-            !this.props.hideNavigationWarnings && this.state.content.isSome()
-          }
+          when={!this.props.hideNavigationWarnings && this.state.content}
           message={i18n.t("block_leaving")}
         />
         <div className="form-group row">
@@ -139,27 +133,21 @@ export class MarkdownTextArea extends Component<
             <textarea
               id={this.id}
               className={`form-control ${this.state.previewMode && "d-none"}`}
-              value={toUndefined(this.state.content)}
+              value={this.state.content}
               onInput={linkEvent(this, this.handleContentChange)}
               onPaste={linkEvent(this, this.handleImageUploadPaste)}
               required
               disabled={this.props.disabled}
               rows={2}
-              maxLength={this.props.maxLength.unwrapOr(
-                markdownFieldCharacterLimit
-              )}
-              placeholder={toUndefined(this.props.placeholder)}
+              maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
+              placeholder={this.props.placeholder}
             />
-            {this.state.previewMode &&
-              this.state.content.match({
-                some: content => (
-                  <div
-                    className="card border-secondary card-body md-div"
-                    dangerouslySetInnerHTML={mdToHtml(content)}
-                  />
-                ),
-                none: <></>,
-              })}
+            {this.state.previewMode && this.state.content && (
+              <div
+                className="card border-secondary card-body md-div"
+                dangerouslySetInnerHTML={mdToHtml(this.state.content)}
+              />
+            )}
           </div>
           <label className="sr-only" htmlFor={this.id}>
             {i18n.t("body")}
@@ -167,22 +155,19 @@ export class MarkdownTextArea extends Component<
         </div>
         <div className="row">
           <div className="col-sm-12 d-flex flex-wrap">
-            {this.props.buttonTitle.match({
-              some: buttonTitle => (
-                <button
-                  type="submit"
-                  className="btn btn-sm btn-secondary mr-2"
-                  disabled={this.props.disabled || this.state.loading}
-                >
-                  {this.state.loading ? (
-                    <Spinner />
-                  ) : (
-                    <span>{buttonTitle}</span>
-                  )}
-                </button>
-              ),
-              none: <></>,
-            })}
+            {this.props.buttonTitle && (
+              <button
+                type="submit"
+                className="btn btn-sm btn-secondary mr-2"
+                disabled={this.props.disabled || this.state.loading}
+              >
+                {this.state.loading ? (
+                  <Spinner />
+                ) : (
+                  <span>{this.props.buttonTitle}</span>
+                )}
+              </button>
+            )}
             {this.props.replyType && (
               <button
                 type="button"
@@ -192,7 +177,7 @@ export class MarkdownTextArea extends Component<
                 {i18n.t("cancel")}
               </button>
             )}
-            {this.state.content.isSome() && (
+            {this.state.content && (
               <button
                 className={`btn btn-sm btn-secondary mr-2 ${
                   this.state.previewMode && "active"
@@ -209,7 +194,9 @@ export class MarkdownTextArea extends Component<
               <LanguageSelect
                 iconVersion
                 allLanguages={this.props.allLanguages}
-                selectedLanguageIds={this.state.languageId.map(Array.of)}
+                selectedLanguageIds={
+                  languageId ? Array.of(languageId) : undefined
+                }
                 siteLanguages={this.props.siteLanguages}
                 multiple={false}
                 onChange={this.handleLanguageChange}
@@ -243,7 +230,7 @@ export class MarkdownTextArea extends Component<
               <label
                 htmlFor={`file-upload-${this.id}`}
                 className={`mb-0 ${
-                  UserService.Instance.myUserInfo.isSome() && "pointer"
+                  UserService.Instance.myUserInfo && "pointer"
                 }`}
                 data-tippy-content={i18n.t("upload_image")}
               >
@@ -259,7 +246,7 @@ export class MarkdownTextArea extends Component<
                 accept="image/*,video/*"
                 name="file"
                 className="d-none"
-                disabled={UserService.Instance.myUserInfo.isNone()}
+                disabled={!UserService.Instance.myUserInfo}
                 onChange={linkEvent(this, this.handleImageUpload)}
               />
             </form>
@@ -376,13 +363,9 @@ export class MarkdownTextArea extends Component<
           let deleteToken = res.files[0].delete_token;
           let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
           let imageMarkdown = `![](${url})`;
+          let content = i.state.content;
           i.setState({
-            content: Some(
-              i.state.content.match({
-                some: content => `${content}\n${imageMarkdown}`,
-                none: imageMarkdown,
-              })
-            ),
+            content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
             imageLoading: false,
           });
           i.contentChange();
@@ -407,13 +390,13 @@ export class MarkdownTextArea extends Component<
   }
 
   contentChange() {
-    if (this.props.onContentChange) {
-      this.props.onContentChange(toUndefined(this.state.content));
+    if (this.state.content) {
+      this.props.onContentChange?.(this.state.content);
     }
   }
 
   handleContentChange(i: MarkdownTextArea, event: any) {
-    i.setState({ content: Some(event.target.value) });
+    i.setState({ content: event.target.value });
     i.contentChange();
   }
 
@@ -423,7 +406,7 @@ export class MarkdownTextArea extends Component<
   }
 
   handleLanguageChange(val: number[]) {
-    this.setState({ languageId: Some(val[0]) });
+    this.setState({ languageId: val[0] });
   }
 
   handleSubmit(i: MarkdownTextArea, event: any) {
@@ -434,11 +417,11 @@ export class MarkdownTextArea extends Component<
       formId: i.formId,
       languageId: i.state.languageId,
     };
-    i.props.onSubmit(msg);
+    i.props.onSubmit?.(msg);
   }
 
   handleReplyCancel(i: MarkdownTextArea) {
-    i.props.onReplyCancel();
+    i.props.onReplyCancel?.();
   }
 
   handleInsertLink(i: MarkdownTextArea, event: any) {
@@ -448,25 +431,24 @@ export class MarkdownTextArea extends Component<
     let start: number = textarea.selectionStart;
     let end: number = textarea.selectionEnd;
 
-    if (i.state.content.isNone()) {
-      i.setState({ content: Some("") });
+    let content = i.state.content;
+
+    if (!i.state.content) {
+      i.setState({ content: "" });
     }
 
-    let content = i.state.content.unwrap();
-
     if (start !== end) {
-      let selectedText = content.substring(start, end);
+      let selectedText = content?.substring(start, end);
       i.setState({
-        content: Some(
-          `${content.substring(0, start)}[${selectedText}]()${content.substring(
-            end
-          )}`
-        ),
+        content: `${content?.substring(
+          0,
+          start
+        )}[${selectedText}]()${content?.substring(end)}`,
       });
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd = end + 3), 10);
     } else {
-      i.setState({ content: Some(`${content} []()`) });
+      i.setState({ content: `${content} []()` });
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd -= 1), 10);
     }
@@ -486,28 +468,25 @@ export class MarkdownTextArea extends Component<
     afterChars: string,
     emptyChars = "___"
   ) {
-    if (this.state.content.isNone()) {
-      this.setState({ content: Some("") });
+    let content = this.state.content;
+    if (!this.state.content) {
+      this.setState({ content: "" });
     }
     let textarea: any = document.getElementById(this.id);
     let start: number = textarea.selectionStart;
     let end: number = textarea.selectionEnd;
 
-    let content = this.state.content.unwrap();
-
     if (start !== end) {
-      let selectedText = content.substring(start, end);
+      let selectedText = content?.substring(start, end);
       this.setState({
-        content: Some(
-          `${content.substring(
-            0,
-            start
-          )}${beforeChars}${selectedText}${afterChars}${content.substring(end)}`
-        ),
+        content: `${content?.substring(
+          0,
+          start
+        )}${beforeChars}${selectedText}${afterChars}${content?.substring(end)}`,
       });
     } else {
       this.setState({
-        content: Some(`${content}${beforeChars}${emptyChars}${afterChars}`),
+        content: `${content}${beforeChars}${emptyChars}${afterChars}`,
       });
     }
     this.contentChange();
@@ -581,11 +560,12 @@ export class MarkdownTextArea extends Component<
   }
 
   simpleInsert(chars: string) {
-    if (this.state.content.isNone()) {
-      this.setState({ content: Some(`${chars} `) });
+    let content = this.state.content;
+    if (!content) {
+      this.setState({ content: `${chars} ` });
     } else {
       this.setState({
-        content: Some(`${this.state.content.unwrap()}\n${chars} `),
+        content: `${content}\n${chars} `,
       });
     }
 
@@ -606,20 +586,21 @@ export class MarkdownTextArea extends Component<
 
   quoteInsert() {
     let textarea: any = document.getElementById(this.id);
-    let selectedText = window.getSelection().toString();
+    let selectedText = window.getSelection()?.toString();
+    let content = this.state.content;
     if (selectedText) {
       let quotedText =
         selectedText
           .split("\n")
           .map(t => `> ${t}`)
           .join("\n") + "\n\n";
-      if (this.state.content.isNone()) {
-        this.setState({ content: Some("") });
+      if (!content) {
+        this.setState({ content: "" });
       } else {
-        this.setState({ content: Some(`${this.state.content.unwrap()}\n`) });
+        this.setState({ content: `${content}\n` });
       }
       this.setState({
-        content: Some(`${this.state.content.unwrap()}${quotedText}`),
+        content: `${content}${quotedText}`,
       });
       this.contentChange();
       // Not sure why this needs a delay
@@ -631,8 +612,6 @@ export class MarkdownTextArea extends Component<
     let textarea: any = document.getElementById(this.id);
     let start: number = textarea.selectionStart;
     let end: number = textarea.selectionEnd;
-    return start !== end
-      ? this.state.content.unwrap().substring(start, end)
-      : "";
+    return start !== end ? this.state.content?.substring(start, end) ?? "" : "";
   }
 }
