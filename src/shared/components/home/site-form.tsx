@@ -70,14 +70,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         sidebar: site.sidebar,
         description: site.description,
         enable_downvotes: ls.enable_downvotes,
-        open_registration: ls.registration_mode == RegistrationMode.Open,
+        registration_mode: ls.registration_mode,
         enable_nsfw: ls.enable_nsfw,
         community_creation_admin_only: ls.community_creation_admin_only,
         icon: site.icon,
         banner: site.banner,
         require_email_verification: ls.require_email_verification,
-        require_application:
-          ls.registration_mode == RegistrationMode.RequireApplication,
         application_question: ls.application_question,
         private_instance: ls.private_instance,
         default_theme: ls.default_theme,
@@ -239,22 +237,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           </div>
-          {this.state.siteForm.require_application && (
-            <div className="form-group row">
-              <label className="col-12 col-form-label">
-                {i18n.t("application_questionnaire")}
-              </label>
-              <div className="col-12">
-                <MarkdownTextArea
-                  initialContent={this.state.siteForm.application_question}
-                  onContentChange={this.handleSiteApplicationQuestionChange}
-                  hideNavigationWarnings
-                  allLanguages={[]}
-                  siteLanguages={[]}
-                />
-              </div>
-            </div>
-          )}
           <div className="form-group row">
             <div className="col-12">
               <div className="form-check">
@@ -298,26 +280,50 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
           <div className="form-group row">
             <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-open-registration"
-                  type="checkbox"
-                  checked={this.state.siteForm.open_registration}
-                  onChange={linkEvent(
-                    this,
-                    this.handleSiteOpenRegistrationChange
-                  )}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-open-registration"
-                >
+              <label
+                className="form-check-label mr-2"
+                htmlFor="create-site-registration-mode"
+              >
+                {i18n.t("registration_mode")}
+              </label>
+              <select
+                id="create-site-registration-mode"
+                value={this.state.siteForm.registration_mode}
+                onChange={linkEvent(
+                  this,
+                  this.handleSiteRegistrationModeChange
+                )}
+                className="custom-select w-auto"
+              >
+                <option value={RegistrationMode.RequireApplication}>
+                  {i18n.t("require_registration_application")}
+                </option>
+                <option value={RegistrationMode.Open}>
                   {i18n.t("open_registration")}
-                </label>
-              </div>
+                </option>
+                <option value={RegistrationMode.Closed}>
+                  {i18n.t("close_registration")}
+                </option>
+              </select>
             </div>
           </div>
+          {this.state.siteForm.registration_mode ==
+            RegistrationMode.RequireApplication && (
+            <div className="form-group row">
+              <label className="col-12 col-form-label">
+                {i18n.t("application_questionnaire")}
+              </label>
+              <div className="col-12">
+                <MarkdownTextArea
+                  initialContent={this.state.siteForm.application_question}
+                  onContentChange={this.handleSiteApplicationQuestionChange}
+                  hideNavigationWarnings
+                  allLanguages={[]}
+                  siteLanguages={[]}
+                />
+              </div>
+            </div>
+          )}
           <div className="form-group row">
             <div className="col-12">
               <div className="form-check">
@@ -358,25 +364,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   htmlFor="create-site-require-email-verification"
                 >
                   {i18n.t("require_email_verification")}
-                </label>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-require-application"
-                  type="checkbox"
-                  checked={this.state.siteForm.require_application}
-                  onChange={linkEvent(this, this.handleSiteRequireApplication)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-require-application"
-                >
-                  {i18n.t("require_registration_application")}
                 </label>
               </div>
             </div>
@@ -989,9 +976,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         community_creation_admin_only: sForm.community_creation_admin_only,
         enable_nsfw: sForm.enable_nsfw,
         enable_downvotes: sForm.enable_downvotes,
-        require_application: sForm.require_application,
         application_question: sForm.application_question,
-        open_registration: sForm.open_registration,
+        registration_mode: sForm.registration_mode,
         require_email_verification: sForm.require_email_verification,
         private_instance: sForm.private_instance,
         default_theme: sForm.default_theme,
@@ -1106,8 +1092,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
-  handleSiteOpenRegistrationChange(i: SiteForm, event: any) {
-    i.state.siteForm.open_registration = event.target.checked;
+  handleSiteRegistrationModeChange(i: SiteForm, event: any) {
+    i.state.siteForm.registration_mode = event.target.value;
     i.setState(i.state);
   }
 
@@ -1118,11 +1104,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteEnableDownvotesChange(i: SiteForm, event: any) {
     i.state.siteForm.enable_downvotes = event.target.checked;
-    i.setState(i.state);
-  }
-
-  handleSiteRequireApplication(i: SiteForm, event: any) {
-    i.state.siteForm.require_application = event.target.checked;
     i.setState(i.state);
   }
 
