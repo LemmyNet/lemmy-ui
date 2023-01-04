@@ -80,7 +80,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.searchTextField = createRef();
 
       // On the first load, check the unreads
-      let auth = myAuth();
+      let auth = myAuth(false);
       if (auth && UserService.Instance.myUserInfo) {
         this.requestNotificationPermission();
         WebSocketService.Instance.send(
@@ -561,7 +561,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       return;
     } else if (msg.reconnect) {
       console.log(i18n.t("websocket_reconnected"));
-      let auth = myAuth();
+      let auth = myAuth(false);
       if (UserService.Instance.myUserInfo && auth) {
         WebSocketService.Instance.send(
           wsClient.userJoin({
