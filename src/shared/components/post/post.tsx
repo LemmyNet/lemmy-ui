@@ -161,7 +161,6 @@ export class Post extends Component<any, PostState> {
   }
 
   fetchPost() {
-    this.setState({ commentsRes: undefined, postRes: undefined });
     let auth = myAuth(false);
     let postForm: GetPost = {
       id: this.state.postId,
@@ -498,6 +497,8 @@ export class Post extends Component<any, PostState> {
     i.setState({
       commentSort: CommentSortType[event.target.value],
       commentViewType: CommentViewType.Tree,
+      commentsRes: undefined,
+      postRes: undefined,
     });
     i.fetchPost();
   }
