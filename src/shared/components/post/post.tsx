@@ -754,7 +754,7 @@ export class Post extends Component<any, PostState> {
     } else if (op == UserOperation.Search) {
       let data = wsJsonToRes<SearchResponse>(msg);
       let xPosts = data.posts.filter(
-        p => p.post.id != Number(this.props.match.params.id)
+        p => p.post.ap_id != this.state.postRes?.post_view.post.ap_id
       );
       this.setState({ crossPosts: xPosts.length > 0 ? xPosts : undefined });
     } else if (op == UserOperation.LeaveAdmin) {
