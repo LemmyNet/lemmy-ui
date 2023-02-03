@@ -184,7 +184,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         let data = wsJsonToRes<CommentResponse>(msg);
 
         // This only finishes this form, if the randomly generated form_id matches the one received
-        if (this.state.formId == data.form_id) {
+        if (this.state.formId && this.state.formId == data.form_id) {
           this.setState({ finished: true });
 
           // Necessary because it broke tribute for some reason
