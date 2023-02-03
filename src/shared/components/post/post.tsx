@@ -695,9 +695,9 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.SavePost
     ) {
       let data = wsJsonToRes<PostResponse>(msg);
-      let pv = this.state.postRes?.post_view;
-      if (pv) {
-        pv = data.post_view;
+      let res = this.state.postRes;
+      if (res) {
+        res.post_view = data.post_view;
         this.setState(this.state);
         setupTippy();
       }
@@ -717,10 +717,10 @@ export class Post extends Component<any, PostState> {
     } else if (op == UserOperation.BanFromCommunity) {
       let data = wsJsonToRes<BanFromCommunityResponse>(msg);
 
-      let postRes = this.state.postRes;
-      if (postRes) {
-        if (postRes.post_view.creator.id == data.person_view.person.id) {
-          postRes.post_view.creator_banned_from_community = data.banned;
+      let res = this.state.postRes;
+      if (res) {
+        if (res.post_view.creator.id == data.person_view.person.id) {
+          res.post_view.creator_banned_from_community = data.banned;
         }
       }
 
@@ -730,9 +730,9 @@ export class Post extends Component<any, PostState> {
       this.setState(this.state);
     } else if (op == UserOperation.AddModToCommunity) {
       let data = wsJsonToRes<AddModToCommunityResponse>(msg);
-      let postRes = this.state.postRes;
-      if (postRes) {
-        postRes.moderators = data.moderators;
+      let res = this.state.postRes;
+      if (res) {
+        res.moderators = data.moderators;
         this.setState(this.state);
       }
     } else if (op == UserOperation.BanPerson) {
@@ -741,10 +741,10 @@ export class Post extends Component<any, PostState> {
         .filter(c => c.creator.id == data.person_view.person.id)
         .forEach(c => (c.creator.banned = data.banned));
 
-      let postRes = this.state.postRes;
-      if (postRes) {
-        if (postRes.post_view.creator.id == data.person_view.person.id) {
-          postRes.post_view.creator.banned = data.banned;
+      let res = this.state.postRes;
+      if (res) {
+        if (res.post_view.creator.id == data.person_view.person.id) {
+          res.post_view.creator.banned = data.banned;
         }
       }
       this.setState(this.state);
@@ -762,11 +762,11 @@ export class Post extends Component<any, PostState> {
       this.setState({ siteRes: data });
     } else if (op == UserOperation.TransferCommunity) {
       let data = wsJsonToRes<GetCommunityResponse>(msg);
-      let postRes = this.state.postRes;
-      if (postRes) {
-        postRes.community_view = data.community_view;
-        postRes.post_view.community = data.community_view.community;
-        postRes.moderators = data.moderators;
+      let res = this.state.postRes;
+      if (res) {
+        res.community_view = data.community_view;
+        res.post_view.community = data.community_view.community;
+        res.moderators = data.moderators;
         this.setState(this.state);
       }
     } else if (op == UserOperation.BlockPerson) {
