@@ -75,7 +75,7 @@ export class MetadataCard extends Component<
           </div>
         )}
         {this.state.expanded && post.embed_video_url && (
-          <iframe src={post.embed_video_url}></iframe>
+          <center><iframe allowFullscreen="allowfullscreen" src={post.embed_video_url} style="aspect-ratio:16/9;max-width:85vw" width="560px" frameborder="0"></iframe></center>
         )}
       </>
     );
