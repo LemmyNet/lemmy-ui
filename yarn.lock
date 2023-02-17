@@ -5324,10 +5324,10 @@ leac@^0.6.0:
   resolved "https://registry.yarnpkg.com/leac/-/leac-0.6.0.tgz#dcf136e382e666bd2475f44a1096061b70dc0912"
   integrity sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==
 
-lemmy-js-client@0.17.0-rc.62:
-  version "0.17.0-rc.62"
-  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.17.0-rc.62.tgz#631a87c7358595ade5cb34d7e4b0ca787b50a434"
-  integrity sha512-wOG5oqhmXUrjlo5pEkLMd1xXG261Wd3Z13zeeRr1VzpEbkXXBJcgMInzLP5ahgcvzKSo3uSIyqI93iH5UWPvUw==
+lemmy-js-client@0.17.2-rc.1:
+  version "0.17.2-rc.1"
+  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.17.2-rc.1.tgz#fe8d1508311bbf245acc98c2c3e47e2165a95b14"
+  integrity sha512-YrOXuCofgkqp28krmPTQZAfUWL5zEDA0sRJ0abKcgf/I8YYkYkUkPS9TOORN5Lv3bc8RAAz4+2/zLHqYL/Tnow==
   dependencies:
     node-fetch "2.6.6"
 
