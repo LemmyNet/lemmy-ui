@@ -390,9 +390,9 @@ export class MarkdownTextArea extends Component<
   }
 
   contentChange() {
-    if (this.state.content) {
-      this.props.onContentChange?.(this.state.content);
-    }
+    // Coerces the undefineds to empty strings, for replacing in the DB
+    let content = this.state.content ?? "";
+    this.props.onContentChange?.(content);
   }
 
   handleContentChange(i: MarkdownTextArea, event: any) {
