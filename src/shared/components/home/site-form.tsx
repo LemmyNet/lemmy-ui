@@ -82,6 +82,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         default_post_listing_type: ls.default_post_listing_type,
         legal_information: ls.legal_information,
         application_email_admins: ls.application_email_admins,
+        reports_email_admins: ls.reports_email_admins,
         hide_modlog_mod_names: ls.hide_modlog_mod_names,
         discussion_languages: this.props.siteRes.discussion_languages,
         slur_filter_regex: ls.slur_filter_regex,
@@ -386,6 +387,25 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   htmlFor="create-site-email-admins"
                 >
                   {i18n.t("application_email_admins")}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <div className="col-12">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  id="create-site-reports-email-admins"
+                  type="checkbox"
+                  checked={this.state.siteForm.reports_email_admins}
+                  onChange={linkEvent(this, this.handleSiteReportsEmailAdmins)}
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor="create-site-reports-email-admins"
+                >
+                  {i18n.t("reports_email_admins")}
                 </label>
               </div>
             </div>
@@ -1114,6 +1134,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteApplicationEmailAdmins(i: SiteForm, event: any) {
     i.state.siteForm.application_email_admins = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSiteReportsEmailAdmins(i: SiteForm, event: any) {
+    i.state.siteForm.reports_email_admins = event.target.checked;
     i.setState(i.state);
   }
 
