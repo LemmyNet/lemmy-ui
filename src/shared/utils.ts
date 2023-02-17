@@ -500,6 +500,7 @@ export function toast(text: string, background = "success") {
       backgroundColor: backgroundColor,
       gravity: "bottom",
       position: "left",
+      duration: 5000,
     }).showToast();
   }
 }

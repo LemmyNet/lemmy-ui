@@ -86,6 +86,7 @@ interface SettingsState {
     show_read_posts?: boolean;
     show_new_post_notifs?: boolean;
     discussion_languages?: number[];
+    generate_totp?: boolean;
   };
   changePasswordForm: {
     new_password?: string;
@@ -789,6 +790,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
+          {this.totpSection()}
           <div className="form-group">
             <button type="submit" className="btn btn-block btn-secondary mr-4">
               {this.state.saveUserSettingsLoading ? (
@@ -849,6 +851,58 @@ export class Settings extends Component<any, SettingsState> {
             )}
           </div>
         </form>
+      </>
+    );
+  }
+
+  totpSection() {
+    let totpUrl =
+      UserService.Instance.myUserInfo?.local_user_view.local_user.totp_url;
+
+    return (
+      <>
+        {!totpUrl && (
+          <div className="form-group">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-generate-totp"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.generate_totp}
+                onChange={linkEvent(this, this.handleGenerateTotp)}
+              />
+              <label className="form-check-label" htmlFor="user-generate-totp">
+                {i18n.t("set_up_two_factor")}
+              </label>
+            </div>
+          </div>
+        )}
+
+        {totpUrl && (
+          <>
+            <div>
+              <a className="btn btn-secondary mb-2" href={totpUrl}>
+                {i18n.t("two_factor_link")}
+              </a>
+            </div>
+            <div className="form-group">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  id="user-remove-totp"
+                  type="checkbox"
+                  checked={
+                    this.state.saveUserSettingsForm.generate_totp == false
+                  }
+                  onChange={linkEvent(this, this.handleRemoveTotp)}
+                />
+                <label className="form-check-label" htmlFor="user-remove-totp">
+                  {i18n.t("remove_two_factor")}
+                </label>
+              </div>
+            </div>
+          </>
+        )}
       </>
     );
   }
@@ -1014,6 +1068,23 @@ export class Settings extends Component<any, SettingsState> {
     if (mui) {
       mui.local_user_view.local_user.show_scores = event.target.checked;
     }
+    i.setState(i.state);
+  }
+
+  handleGenerateTotp(i: Settings, event: any) {
+    // Coerce false to undefined here, so it won't generate it.
+    let checked: boolean | undefined = event.target.checked || undefined;
+    if (checked) {
+      toast(i18n.t("two_factor_setup_instructions"));
+    }
+    i.state.saveUserSettingsForm.generate_totp = checked;
+    i.setState(i.state);
+  }
+
+  handleRemoveTotp(i: Settings, event: any) {
+    // Coerce true to undefined here, so it won't generate it.
+    let checked: boolean | undefined = !event.target.checked && undefined;
+    i.state.saveUserSettingsForm.generate_totp = checked;
     i.setState(i.state);
   }
 
