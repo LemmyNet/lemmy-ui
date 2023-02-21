@@ -28,8 +28,8 @@ import { i18n } from "../../i18next";
 import { BanType, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
-  amAdmin,
   amCommunityCreator,
+  amMod,
   canAdmin,
   canMod,
   futureDaysToUnixTime,
@@ -608,7 +608,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.state.showAdvanced && (
           <>
             {this.showBody && post_view.post.body && this.viewSourceButton}
-            {this.canModOnSelf_ && (
+            {/* Any mod can do these, not limited to hierarchy*/}
+            {(amMod(this.props.moderators) || this.canAdmin_) && (
               <>
                 {this.lockButton}
                 {this.featureButton}
@@ -842,41 +843,40 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get featureButton() {
-    const featured_community = this.props.post_view.post.featured_community;
-    const label_community = featured_community
+    const featuredCommunity = this.props.post_view.post.featured_community;
+    const labelCommunity = featuredCommunity
       ? i18n.t("unfeature_from_community")
       : i18n.t("feature_in_community");
 
-    const is_admin = amAdmin();
-    const featured_local = this.props.post_view.post.featured_local;
-    const label_local = featured_local
+    const featuredLocal = this.props.post_view.post.featured_local;
+    const labelLocal = featuredLocal
       ? i18n.t("unfeature_from_local")
       : i18n.t("feature_in_local");
     return (
       <span>
         <button
           className="btn btn-link btn-animate text-muted py-0 pl-0"
-          onClick={() => this.handleModFeaturePost(this, true)}
-          data-tippy-content={label_community}
-          aria-label={label_community}
+          onClick={linkEvent(this, this.handleModFeaturePostCommunity)}
+          data-tippy-content={labelCommunity}
+          aria-label={labelCommunity}
         >
           <Icon
             icon="pin"
-            classes={classNames({ "text-success": featured_community })}
+            classes={classNames({ "text-success": featuredCommunity })}
             inline
           />{" "}
           Community
         </button>
-        {is_admin && (
+        {this.canAdmin_ && (
           <button
             className="btn btn-link btn-animate text-muted py-0"
-            onClick={() => this.handleModFeaturePost(this, false)}
-            data-tippy-content={label_local}
-            aria-label={label_local}
+            onClick={linkEvent(this, this.handleModFeaturePostLocal)}
+            data-tippy-content={labelLocal}
+            aria-label={labelLocal}
           >
             <Icon
               icon="pin"
-              classes={classNames({ "text-success": featured_local })}
+              classes={classNames({ "text-success": featuredLocal })}
               inline
             />{" "}
             Local
@@ -1527,20 +1527,26 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
-  handleModFeaturePost(i: PostListing, is_community: boolean) {
+  handleModFeaturePostLocal(i: PostListing) {
     let auth = myAuth();
     if (auth) {
-      let featured: [PostFeatureType, boolean] = is_community
-        ? [
-            PostFeatureType.Community,
-            !i.props.post_view.post.featured_community,
-          ]
-        : [PostFeatureType.Local, !i.props.post_view.post.featured_local];
-
       let form: FeaturePost = {
         post_id: i.props.post_view.post.id,
-        feature_type: featured[0],
-        featured: featured[1],
+        feature_type: PostFeatureType.Local,
+        featured: !i.props.post_view.post.featured_local,
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.featurePost(form));
+    }
+  }
+
+  handleModFeaturePostCommunity(i: PostListing) {
+    let auth = myAuth();
+    if (auth) {
+      let form: FeaturePost = {
+        post_id: i.props.post_view.post.id,
+        feature_type: PostFeatureType.Community,
+        featured: !i.props.post_view.post.featured_community,
         auth,
       };
       WebSocketService.Instance.send(wsClient.featurePost(form));
