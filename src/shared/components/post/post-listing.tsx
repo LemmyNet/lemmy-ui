@@ -28,6 +28,7 @@ import { i18n } from "../../i18next";
 import { BanType, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  amAdmin,
   amCommunityCreator,
   amMod,
   canAdmin,
@@ -609,7 +610,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.showBody && post_view.post.body && this.viewSourceButton}
             {/* Any mod can do these, not limited to hierarchy*/}
-            {(amMod(this.props.moderators) || this.canAdmin_) && (
+            {(amMod(this.props.moderators) || amAdmin()) && (
               <>
                 {this.lockButton}
                 {this.featureButton}
@@ -867,7 +868,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           />{" "}
           Community
         </button>
-        {this.canAdmin_ && (
+        {amAdmin() && (
           <button
             className="btn btn-link btn-animate text-muted py-0"
             onClick={linkEvent(this, this.handleModFeaturePostLocal)}
