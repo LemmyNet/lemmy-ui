@@ -651,6 +651,7 @@ export class Post extends Component<any, PostState> {
         data.recipient_ids.length == 0 &&
         !creatorBlocked &&
         postRes &&
+        data.comment_view.post.id == postRes.post_view.post.id &&
         commentsRes
       ) {
         commentsRes.comments.unshift(data.comment_view);

@@ -434,15 +434,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     let post = this.props.post_view.post;
     return (
       <Link
-        className={
+        className={`d-inline-block ${
           !post.featured_community && !post.featured_local
             ? "text-body"
             : "text-primary"
-        }
+        }`}
         to={`/post/${post.id}`}
         title={i18n.t("comments")}
       >
-        <div dangerouslySetInnerHTML={mdToHtmlInline(post.name)} />
+        <div
+          className="d-inline-block"
+          dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+        />
       </Link>
     );
   }
@@ -457,16 +460,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {url ? (
             this.props.showBody ? (
               <a
-                className={
+                className={`d-inline-block ${
                   !post.featured_community && !post.featured_local
                     ? "text-body"
                     : "text-primary"
-                }
+                }`}
                 href={url}
                 title={url}
                 rel={relTags}
               >
-                <div dangerouslySetInnerHTML={mdToHtmlInline(post.name)} />
+                <div
+                  className="d-inline-block"
+                  dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+                />
               </a>
             ) : (
               this.postLink
@@ -477,7 +483,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {(url && isImage(url)) ||
             (post.thumbnail_url && (
               <button
-                className="btn btn-link text-monospace text-muted small d-inline-block ml-2"
+                className="btn btn-link text-monospace text-muted small d-inline-block"
                 data-tippy-content={i18n.t("expand_here")}
                 onClick={linkEvent(this, this.handleImageExpandClick)}
               >
