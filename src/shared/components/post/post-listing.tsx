@@ -928,9 +928,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       this,
                       this.handleModBanFromCommunityShow
                     )}
-                    aria-label={i18n.t("ban")}
+                    aria-label={i18n.t("ban_from_community")}
                   >
-                    {i18n.t("ban")}
+                    {i18n.t("ban_from_community")}
                   </button>
                 ) : (
                   <button
