@@ -163,27 +163,29 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         ? i18n.t("purge_comment")
         : `${i18n.t("purge")} ${cv.creator.name}`;
 
-    let canMod_ = canMod(
-      cv.creator.id,
-      this.props.moderators,
-      this.props.admins
-    );
-    let canModOnSelf = canMod(
-      cv.creator.id,
-      this.props.moderators,
-      this.props.admins,
-      UserService.Instance.myUserInfo,
-      true
-    );
-    let canAdmin_ = canAdmin(cv.creator.id, this.props.admins);
-    let canAdminOnSelf = canAdmin(
-      cv.creator.id,
-      this.props.admins,
-      UserService.Instance.myUserInfo,
-      true
-    );
+    let canMod_ =
+      canMod(cv.creator.id, this.props.moderators, this.props.admins) &&
+      cv.community.local;
+    let canModOnSelf =
+      canMod(
+        cv.creator.id,
+        this.props.moderators,
+        this.props.admins,
+        UserService.Instance.myUserInfo,
+        true
+      ) && cv.community.local;
+    let canAdmin_ =
+      canAdmin(cv.creator.id, this.props.admins) && cv.community.local;
+    let canAdminOnSelf =
+      canAdmin(
+        cv.creator.id,
+        this.props.admins,
+        UserService.Instance.myUserInfo,
+        true
+      ) && cv.community.local;
     let isMod_ = isMod(cv.creator.id, this.props.moderators);
-    let isAdmin_ = isAdmin(cv.creator.id, this.props.admins);
+    let isAdmin_ =
+      isAdmin(cv.creator.id, this.props.admins) && cv.community.local;
     let amCommunityCreator_ = amCommunityCreator(
       cv.creator.id,
       this.props.moderators

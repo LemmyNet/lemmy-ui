@@ -75,7 +75,7 @@ if (isBrowser()) {
 }
 
 interface SearchProps {
-  q: string;
+  q?: string;
   type_: SearchType;
   sort: SortType;
   listingType: ListingType;
@@ -85,7 +85,7 @@ interface SearchProps {
 }
 
 interface SearchState {
-  q: string;
+  q?: string;
   type_: SearchType;
   sort: SortType;
   listingType: ListingType;
@@ -97,7 +97,7 @@ interface SearchState {
   creatorDetails?: GetPersonDetailsResponse;
   loading: boolean;
   siteRes: GetSiteResponse;
-  searchText: string;
+  searchText?: string;
   resolveObjectResponse?: ResolveObjectResponse;
 }
 
@@ -135,13 +135,13 @@ export class Search extends Component<any, SearchState> {
       this.props.match.params.community_id
     ),
     creatorId: Search.getCreatorIdFromProps(this.props.match.params.creator_id),
-    loading: true,
+    loading: false,
     siteRes: this.isoData.site_res,
     communities: [],
   };
 
-  static getSearchQueryFromProps(q: string): string {
-    return decodeURIComponent(q) || "";
+  static getSearchQueryFromProps(q?: string): string | undefined {
+    return q ? decodeURIComponent(q) : undefined;
   }
 
   static getSearchTypeFromProps(type_: string): SearchType {
@@ -219,7 +219,10 @@ export class Search extends Component<any, SearchState> {
       }
     } else {
       this.fetchCommunities();
-      this.search();
+
+      if (this.state.q) {
+        this.search();
+      }
     }
   }
 
@@ -298,29 +301,33 @@ export class Search extends Component<any, SearchState> {
       promises.push(Promise.resolve());
     }
 
-    let form: SearchForm = {
-      q: this.getSearchQueryFromProps(pathSplit[3]),
-      community_id,
-      creator_id,
-      type_: this.getSearchTypeFromProps(pathSplit[5]),
-      sort: this.getSortTypeFromProps(pathSplit[7]),
-      listing_type: this.getListingTypeFromProps(pathSplit[9]),
-      page: this.getPageFromProps(pathSplit[15]),
-      limit: fetchLimit,
-      auth: req.auth,
-    };
+    let q = this.getSearchQueryFromProps(pathSplit[3]);
 
-    let resolveObjectForm: ResolveObject = {
-      q: this.getSearchQueryFromProps(pathSplit[3]),
-      auth: req.auth,
-    };
+    if (q) {
+      let form: SearchForm = {
+        q,
+        community_id,
+        creator_id,
+        type_: this.getSearchTypeFromProps(pathSplit[5]),
+        sort: this.getSortTypeFromProps(pathSplit[7]),
+        listing_type: this.getListingTypeFromProps(pathSplit[9]),
+        page: this.getPageFromProps(pathSplit[15]),
+        limit: fetchLimit,
+        auth: req.auth,
+      };
 
-    if (form.q != "") {
-      promises.push(req.client.search(form));
-      promises.push(req.client.resolveObject(resolveObjectForm));
-    } else {
-      promises.push(Promise.resolve());
-      promises.push(Promise.resolve());
+      let resolveObjectForm: ResolveObject = {
+        q,
+        auth: req.auth,
+      };
+
+      if (form.q != "") {
+        promises.push(req.client.search(form));
+        promises.push(req.client.resolveObject(resolveObjectForm));
+      } else {
+        promises.push(Promise.resolve());
+        promises.push(Promise.resolve());
+      }
     }
 
     return promises;
@@ -336,11 +343,13 @@ export class Search extends Component<any, SearchState> {
       lastState.creatorId !== this.state.creatorId ||
       lastState.page !== this.state.page
     ) {
-      this.setState({
-        loading: true,
-        searchText: this.state.q,
-      });
-      this.search();
+      if (this.state.q) {
+        this.setState({
+          loading: true,
+          searchText: this.state.q,
+        });
+        this.search();
+      }
     }
   }
 
@@ -779,24 +788,24 @@ export class Search extends Component<any, SearchState> {
       this.state.creatorId == 0 ? undefined : this.state.creatorId;
 
     let auth = myAuth(false);
-    let form: SearchForm = {
-      q: this.state.q,
-      community_id,
-      creator_id,
-      type_: this.state.type_,
-      sort: this.state.sort,
-      listing_type: this.state.listingType,
-      page: this.state.page,
-      limit: fetchLimit,
-      auth,
-    };
+    if (this.state.q && this.state.q != "") {
+      let form: SearchForm = {
+        q: this.state.q,
+        community_id,
+        creator_id,
+        type_: this.state.type_,
+        sort: this.state.sort,
+        listing_type: this.state.listingType,
+        page: this.state.page,
+        limit: fetchLimit,
+        auth,
+      };
 
-    let resolveObjectForm: ResolveObject = {
-      q: this.state.q,
-      auth,
-    };
+      let resolveObjectForm: ResolveObject = {
+        q: this.state.q,
+        auth,
+      };
 
-    if (this.state.q != "") {
       this.setState({
         searchResponse: undefined,
         resolveObjectResponse: undefined,
@@ -919,7 +928,7 @@ export class Search extends Component<any, SearchState> {
 
   updateUrl(paramUpdates: UrlParams) {
     const qStr = paramUpdates.q || this.state.q;
-    const qStrEncoded = encodeURIComponent(qStr);
+    const qStrEncoded = encodeURIComponent(qStr || "");
     const typeStr = paramUpdates.type_ || this.state.type_;
     const listingTypeStr = paramUpdates.listingType || this.state.listingType;
     const sortStr = paramUpdates.sort || this.state.sort;
