@@ -48,9 +48,11 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
       this.selectBtn
     ) : (
       <div>
-        <div className="alert alert-warning" role="alert">
-          {i18n.t("undetermined_language_warning")}
-        </div>
+        {this.props.multiple && (
+          <div className="alert alert-warning" role="alert">
+            {i18n.t("undetermined_language_warning")}
+          </div>
+        )}
         <div className="form-group row">
           <label
             className={classNames("col-form-label", {
