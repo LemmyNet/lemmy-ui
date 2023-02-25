@@ -630,7 +630,7 @@ export function setupTribute() {
         values: Object.entries(emojiShortName).map(e => {
           return { key: e[1], val: e[0] };
         }).concat(
-          Object.entries(customEmojisLookup).map((k) => ({
+          Array.from(customEmojisLookup.entries()).map((k) => ({
             key: k[0],
             val: `<img class="icon icon-emoji" src="${k[1].custom_emoji.image_url}" title="${k[1].custom_emoji.shortcode}" alt="${k[1].custom_emoji.alt_text}" />`
           }))
@@ -749,7 +749,7 @@ function setupMarkdown() {
     typographer: true,
   };
 
-  const emojiDefs = Object.fromEntries(Object.entries(customEmojisLookup).map((k) => [k[0], k[0]]));
+  const emojiDefs = Array.from(customEmojisLookup.entries()).reduce((main, [key, value]) => ({...main, [key]: value}), {})
   md = new MarkdownIt(markdownItConfig)
     .use(markdown_it_sub)
     .use(markdown_it_sup)
