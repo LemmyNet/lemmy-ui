@@ -621,7 +621,7 @@ export function setupTribute() {
           return `${item.original.val} ${shortName}`;
         },
         selectTemplate: (item: any) => {
-          let customEmoji = customEmojisLookup[item.original.key]?.custom_emoji;
+          let customEmoji = customEmojisLookup.get(item.original.key)?.custom_emoji;
           if (customEmoji == undefined)
             return `${item.original.val}`;
           else
@@ -722,7 +722,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
       customEmojis[categoryIndex].emojis[emojiIndex] = emoji;
     }
   }
-  customEmojisLookup[custom_emoji_view.custom_emoji.shortcode] = custom_emoji_view;
+  customEmojisLookup.set(custom_emoji_view.custom_emoji.shortcode,custom_emoji_view);
 }
 
 export function removeFromEmojiDataModel(id: number) {
