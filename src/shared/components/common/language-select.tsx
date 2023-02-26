@@ -47,33 +47,40 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     return this.props.iconVersion ? (
       this.selectBtn
     ) : (
-      <div className="form-group row">
-        <label
-          className={classNames("col-form-label", {
-            "col-sm-3": this.props.multiple,
-            "col-sm-2": !this.props.multiple,
-          })}
-          htmlFor={this.id}
-        >
-          {i18n.t(this.props.multiple ? "language_plural" : "language")}
-        </label>
-        <div
-          className={classNames("input-group", {
-            "col-sm-9": this.props.multiple,
-            "col-sm-10": !this.props.multiple,
-          })}
-        >
-          {this.selectBtn}
-          {this.props.multiple && (
-            <div className="input-group-append">
-              <button
-                className="input-group-text"
-                onClick={linkEvent(this, this.handleDeselectAll)}
-              >
-                <Icon icon="x" />
-              </button>
-            </div>
-          )}
+      <div>
+        {this.props.multiple && (
+          <div className="alert alert-warning" role="alert">
+            {i18n.t("undetermined_language_warning")}
+          </div>
+        )}
+        <div className="form-group row">
+          <label
+            className={classNames("col-form-label", {
+              "col-sm-3": this.props.multiple,
+              "col-sm-2": !this.props.multiple,
+            })}
+            htmlFor={this.id}
+          >
+            {i18n.t(this.props.multiple ? "language_plural" : "language")}
+          </label>
+          <div
+            className={classNames("input-group", {
+              "col-sm-9": this.props.multiple,
+              "col-sm-10": !this.props.multiple,
+            })}
+          >
+            {this.selectBtn}
+            {this.props.multiple && (
+              <div className="input-group-append">
+                <button
+                  className="input-group-text"
+                  onClick={linkEvent(this, this.handleDeselectAll)}
+                >
+                  <Icon icon="x" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
