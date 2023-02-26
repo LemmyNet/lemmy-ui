@@ -91,9 +91,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
                                 <th>{i18n.t("column_emoji")}</th>
                                 <th className="text-right">{i18n.t("column_shortcode")}</th>
                                 <th className="text-right">{i18n.t("column_category")}</th>
-                                <th className="text-right">{i18n.t("column_imageurl")}</th>
+                                <th className="text-right d-lg-table-cell d-none">{i18n.t("column_imageurl")}</th>
                                 <th className="text-right">{i18n.t("column_alttext")}</th>
-                                <th className="text-right d-none d-lg-table-cell">{i18n.t("column_keywords")}</th>
+                                <th className="text-right d-lg-table-cell">{i18n.t("column_keywords")}</th>
                                 <th style="width:121px"></th>
                             </tr>
                         </thead>
@@ -137,7 +137,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
                                                 onInput={linkEvent({form: this, index: index},this.handleEmojiCategoryChange)}
                                             />
                                         </td>
-                                        <td className="text-right">
+                                        <td className="text-right d-lg-table-cell d-none">
                                             <input
                                                 type="text"
                                                 placeholder="Url"
@@ -155,7 +155,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
                                                 onInput={linkEvent({form: this, index: index},this.handleEmojiAltTextChange)}
                                             />
                                         </td>
-                                        <td className="text-right d-none d-lg-table-cell">
+                                        <td className="text-right d-lg-table-cell">
                                             <input
                                                 type="text"
                                                 placeholder="Keywords"
