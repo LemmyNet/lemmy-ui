@@ -86,7 +86,7 @@ interface SettingsState {
     show_read_posts?: boolean;
     show_new_post_notifs?: boolean;
     discussion_languages?: number[];
-    generate_totp?: boolean;
+    generate_totp_2fa?: boolean;
   };
   changePasswordForm: {
     new_password?: string;
@@ -857,7 +857,7 @@ export class Settings extends Component<any, SettingsState> {
 
   totpSection() {
     let totpUrl =
-      UserService.Instance.myUserInfo?.local_user_view.local_user.totp_url;
+      UserService.Instance.myUserInfo?.local_user_view.local_user.totp_2fa_url;
 
     return (
       <>
@@ -868,7 +868,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-input"
                 id="user-generate-totp"
                 type="checkbox"
-                checked={this.state.saveUserSettingsForm.generate_totp}
+                checked={this.state.saveUserSettingsForm.generate_totp_2fa}
                 onChange={linkEvent(this, this.handleGenerateTotp)}
               />
               <label className="form-check-label" htmlFor="user-generate-totp">
@@ -892,7 +892,7 @@ export class Settings extends Component<any, SettingsState> {
                   id="user-remove-totp"
                   type="checkbox"
                   checked={
-                    this.state.saveUserSettingsForm.generate_totp == false
+                    this.state.saveUserSettingsForm.generate_totp_2fa == false
                   }
                   onChange={linkEvent(this, this.handleRemoveTotp)}
                 />
@@ -1077,14 +1077,14 @@ export class Settings extends Component<any, SettingsState> {
     if (checked) {
       toast(i18n.t("two_factor_setup_instructions"));
     }
-    i.state.saveUserSettingsForm.generate_totp = checked;
+    i.state.saveUserSettingsForm.generate_totp_2fa = checked;
     i.setState(i.state);
   }
 
   handleRemoveTotp(i: Settings, event: any) {
     // Coerce true to undefined here, so it won't generate it.
     let checked: boolean | undefined = !event.target.checked && undefined;
-    i.state.saveUserSettingsForm.generate_totp = checked;
+    i.state.saveUserSettingsForm.generate_totp_2fa = checked;
     i.setState(i.state);
   }
 

@@ -26,7 +26,7 @@ interface State {
   form: {
     username_or_email?: string;
     password?: string;
-    totp_token?: string;
+    totp_2fa_token?: string;
   };
   loginLoading: boolean;
   showTotp: boolean;
@@ -160,7 +160,7 @@ export class Login extends Component<any, State> {
                   id="login-totp-token"
                   pattern="[0-9]*"
                   autoComplete="one-time-code"
-                  value={this.state.form.totp_token}
+                  value={this.state.form.totp_2fa_token}
                   onInput={linkEvent(this, this.handleLoginTotpChange)}
                 />
               </div>
@@ -184,12 +184,12 @@ export class Login extends Component<any, State> {
     let lForm = i.state.form;
     let username_or_email = lForm.username_or_email;
     let password = lForm.password;
-    let totp_token = lForm.totp_token;
+    let totp_2fa_token = lForm.totp_2fa_token;
     if (username_or_email && password) {
       let form: LoginI = {
         username_or_email,
         password,
-        totp_token,
+        totp_2fa_token,
       };
       WebSocketService.Instance.send(wsClient.login(form));
     }
@@ -201,7 +201,7 @@ export class Login extends Component<any, State> {
   }
 
   handleLoginTotpChange(i: Login, event: any) {
-    i.state.form.totp_token = event.target.value;
+    i.state.form.totp_2fa_token = event.target.value;
     i.setState(i.state);
   }
 
