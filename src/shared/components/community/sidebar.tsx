@@ -119,7 +119,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <div>
         <h5 className="mb-0">
-          {this.props.showIcon && (
+          {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span className="mr-2">{community.title}</span>
