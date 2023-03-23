@@ -1,5 +1,3 @@
-+platform: linux/arm64
-
 pipeline:
   fetch_git_submodules:
     image: node:14-alpine
@@ -52,7 +50,7 @@ pipeline:
         from_secret: docker_password
     when:
       event: tag
-      platform: linux/amd64
+      platform: linux/arm64
 
   publish_release_docker_image_arm:
     image: plugins/docker
