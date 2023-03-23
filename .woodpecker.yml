@@ -12,7 +12,7 @@ pipeline:
     commands:
       - yarn
     when:
-      platform: linux/amd*
+      platform: linux/*
 
   yarn_lint:
     image: node:14-alpine
