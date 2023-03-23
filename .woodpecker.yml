@@ -98,7 +98,6 @@ pipeline:
       ignore_missing: true
     when:
       event: tag
-
-  when:
-    platform: linux/amd64
+when:
+  platform: linux/amd64
 
