@@ -11,6 +11,8 @@ pipeline:
     image: node:14-alpine
     commands:
       - yarn
+    when:
+      platform: linux/amd64
 
   yarn_lint:
     image: node:14-alpine
@@ -98,6 +100,3 @@ pipeline:
       ignore_missing: true
     when:
       event: tag
-when:
-  platform: linux/amd64
-
