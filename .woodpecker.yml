@@ -1,4 +1,3 @@
-+platform: linux/amd64
 pipeline:
   fetch_git_submodules:
     image: node:14-alpine
@@ -38,7 +37,7 @@ pipeline:
       event:
         - cron
 
-  publish_release_docker_image:
+  publish_release_docker_image_amd:
     image: plugins/docker
     settings:
       dockerfile: Dockerfile
@@ -51,53 +50,9 @@ pipeline:
         from_secret: docker_password
     when:
       event: tag
+      platform: linux/amd64
 
-  publish_release_docker_manifest:
-    image: plugins/manifest
-    settings: 
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      target: "dessalines/lemmy-ui:${CI_COMMIT_TAG}"
-      template: "dessalines/lemmy-ui:${CI_COMMIT_TAG}-OS-ARCH"
-      platforms:
-        - linux/amd64
-        - linux/arm64
-      ignore_missing: true
-    when:
-      event: tag
-
-  publish_latest_release_docker_manifest:
-    image: plugins/manifest
-    settings: 
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      target: "dessalines/lemmy-ui:latest"
-      template: "dessalines/lemmy-ui:${CI_COMMIT_TAG}-OS-ARCH"
-      platforms:
-        - linux/amd64
-        - linux/arm64
-      ignore_missing: true
-    when:
-      event: tag
-
-+platform linux/arm64
-pipeline:
-
-  fetch_git_submodules:
-    image: node:14-alpine
-    commands:
-      - apk add git
-      - git submodule init
-      - git submodule update --recursive --remote
-      - git fetch --tags
-    when:
-      event: tag
-
-  publish_release_docker_image:
+  publish_release_docker_image_arm:
     image: plugins/docker
     settings:
       dockerfile: Dockerfile
@@ -110,6 +65,7 @@ pipeline:
         from_secret: docker_password
     when:
       event: tag
+      platform: linux/amd64
 
   publish_release_docker_manifest:
     image: plugins/manifest
