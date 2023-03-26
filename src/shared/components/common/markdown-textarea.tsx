@@ -427,18 +427,18 @@ export class MarkdownTextArea extends Component<
   handleInsertLink(i: MarkdownTextArea, event: any) {
     event.preventDefault();
 
-    let textarea: any = document.getElementById(i.id);
-    let start: number = textarea.selectionStart;
-    let end: number = textarea.selectionEnd;
+    const textarea: any = document.getElementById(i.id);
+    const start: number = textarea.selectionStart;
+    const end: number = textarea.selectionEnd;
 
-    let content = i.state.content;
+    const content = i.state.content ?? "";
 
     if (!i.state.content) {
       i.setState({ content: "" });
     }
 
     if (start !== end) {
-      let selectedText = content?.substring(start, end);
+      const selectedText = content?.substring(start, end);
       i.setState({
         content: `${content?.substring(
           0,
@@ -468,16 +468,16 @@ export class MarkdownTextArea extends Component<
     afterChars: string,
     emptyChars = "___"
   ) {
-    let content = this.state.content;
+    const content = this.state.content ?? "";
     if (!this.state.content) {
       this.setState({ content: "" });
     }
-    let textarea: any = document.getElementById(this.id);
-    let start: number = textarea.selectionStart;
-    let end: number = textarea.selectionEnd;
+    const textarea: any = document.getElementById(this.id);
+    const start: number = textarea.selectionStart;
+    const end: number = textarea.selectionEnd;
 
     if (start !== end) {
-      let selectedText = content?.substring(start, end);
+      const selectedText = content?.substring(start, end);
       this.setState({
         content: `${content?.substring(
           0,
