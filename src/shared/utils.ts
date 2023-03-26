@@ -25,6 +25,7 @@ import {
   Search,
   SearchType,
   SortType,
+  UploadImageResponse,
 } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
@@ -1440,4 +1441,10 @@ export function selectableLanguages(
         .filter(x => myLangs.includes(x.id));
     }
   }
+}
+
+export function uploadImage(image: File): Promise<UploadImageResponse> {
+  const client = new LemmyHttp(httpBase);
+
+  return client.uploadImage({ image });
 }
