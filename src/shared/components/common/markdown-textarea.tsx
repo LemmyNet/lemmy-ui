@@ -2,7 +2,6 @@ import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
-import { pictrsUri } from "../../env";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
@@ -16,6 +15,7 @@ import {
   setupTippy,
   setupTribute,
   toast,
+  uploadImage,
 } from "../../utils";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
@@ -344,38 +344,27 @@ export class MarkdownTextArea extends Component<
       file = event;
     }
 
-    const formData = new FormData();
-    formData.append("images[]", file);
-
     i.setState({ imageLoading: true });
 
-    fetch(pictrsUri, {
-      method: "POST",
-      body: formData,
-    })
-      .then(res => res.json())
+    uploadImage(file)
       .then(res => {
         console.log("pictrs upload:");
         console.log(res);
-        if (res.msg == "ok") {
-          let hash = res.files[0].file;
-          let url = `${pictrsUri}/${hash}`;
-          let deleteToken = res.files[0].delete_token;
-          let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
-          let imageMarkdown = `![](${url})`;
-          let content = i.state.content;
+        if (res.msg === "ok") {
+          const imageMarkdown = `![](${res.url})`;
+          const content = i.state.content;
           i.setState({
             content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
             imageLoading: false,
           });
           i.contentChange();
-          let textarea: any = document.getElementById(i.id);
+          const textarea: any = document.getElementById(i.id);
           autosize.update(textarea);
           pictrsDeleteToast(
             `${i18n.t("click_to_delete_picture")}: ${file.name}`,
             `${i18n.t("picture_deleted")}: ${file.name}`,
             `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
-            deleteUrl
+            res.delete_url as string
           );
         } else {
           i.setState({ imageLoading: false });

@@ -236,14 +236,20 @@ export class Search extends Component<any, SearchState> {
     this.setupCreatorFilter();
   }
 
-  static getDerivedStateFromProps(props: any): SearchProps {
+  static getDerivedStateFromProps(
+    props: any,
+    prevState: SearchState
+  ): SearchProps {
     return {
       q: Search.getSearchQueryFromProps(props.match.params.q),
-      type_: Search.getSearchTypeFromProps(props.match.params.type),
-      sort: Search.getSortTypeFromProps(props.match.params.sort),
-      listingType: Search.getListingTypeFromProps(
-        props.match.params.listing_type
-      ),
+      type_:
+        prevState.type_ ??
+        Search.getSearchTypeFromProps(props.match.params.type),
+      sort:
+        prevState.sort ?? Search.getSortTypeFromProps(props.match.params.sort),
+      listingType:
+        prevState.listingType ??
+        Search.getListingTypeFromProps(props.match.params.listing_type),
       communityId: Search.getCommunityIdFromProps(
         props.match.params.community_id
       ),
@@ -878,21 +884,27 @@ export class Search extends Component<any, SearchState> {
   }
 
   handleSortChange(val: SortType) {
-    this.updateUrl({ sort: val, page: 1 });
+    const updateObj = { sort: val, page: 1 };
+    this.setState(updateObj);
+    this.updateUrl(updateObj);
   }
 
   handleTypeChange(i: Search, event: any) {
-    i.updateUrl({
+    const updateObj = {
       type_: SearchType[event.target.value],
       page: 1,
-    });
+    };
+    i.setState(updateObj);
+    i.updateUrl(updateObj);
   }
 
   handleListingTypeChange(val: ListingType) {
-    this.updateUrl({
+    const updateObj = {
       listingType: val,
       page: 1,
-    });
+    };
+    this.setState(updateObj);
+    this.updateUrl(updateObj);
   }
 
   handleCommunityFilterChange(communityId: number) {

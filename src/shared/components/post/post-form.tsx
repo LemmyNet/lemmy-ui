@@ -18,7 +18,6 @@ import {
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { pictrsUri } from "../../env";
 import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
@@ -41,6 +40,7 @@ import {
   setupTippy,
   toast,
   trendingFetchLimit,
+  uploadImage,
   validTitle,
   validURL,
   webArchiveUrl,
@@ -587,31 +587,20 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       file = event;
     }
 
-    const formData = new FormData();
-    formData.append("images[]", file);
-
     i.setState({ imageLoading: true });
 
-    fetch(pictrsUri, {
-      method: "POST",
-      body: formData,
-    })
-      .then(res => res.json())
+    uploadImage(file)
       .then(res => {
         console.log("pictrs upload:");
         console.log(res);
-        if (res.msg == "ok") {
-          let hash = res.files[0].file;
-          let url = `${pictrsUri}/${hash}`;
-          let deleteToken = res.files[0].delete_token;
-          let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
-          i.state.form.url = url;
+        if (res.msg === "ok") {
+          i.state.form.url = res.url;
           i.setState({ imageLoading: false });
           pictrsDeleteToast(
             `${i18n.t("click_to_delete_picture")}: ${file.name}`,
             `${i18n.t("picture_deleted")}: ${file.name}`,
             `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
-            deleteUrl
+            res.delete_url as string
           );
         } else {
           i.setState({ imageLoading: false });

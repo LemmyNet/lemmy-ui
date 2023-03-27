@@ -1,21 +1,30 @@
 {
   "name": "lemmy-ui",
-  "description": "An isomorphic UI for lemmy",
   "version": "0.17.1",
-  "author": "Dessalines <tyhou13@gmx.com>",
+  "description": "An isomorphic UI for lemmy",
+  "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
+  "author": "Dessalines <tyhou13@gmx.com>",
   "scripts": {
+    "prebuild:dev": "yarn clean && node generate_translations.js",
     "build:dev": "webpack --mode=development",
+    "prebuild:prod": "yarn clean && node generate_translations.js",
     "build:prod": "webpack --mode=production",
     "clean": "yarn run rimraf dist",
     "dev": "yarn start",
     "lint": "node generate_translations.js && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx src && prettier --check 'src/**/*.tsx'",
-    "prebuild:dev": "yarn clean && node generate_translations.js",
-    "prebuild:prod": "yarn clean && node generate_translations.js",
     "prepare": "husky install",
     "start": "yarn build:dev --watch"
   },
-  "repository": "https://github.com/LemmyNet/lemmy-ui",
+  "lint-staged": {
+    "*.{ts,tsx,js}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "package.json": [
+      "sortpack"
+    ]
+  },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.21.0",
     "@babel/plugin-transform-runtime": "^7.21.0",
@@ -45,7 +54,7 @@
     "inferno-server": "^8.0.6",
     "isomorphic-cookie": "^1.2.4",
     "jwt-decode": "^3.1.2",
-    "lemmy-js-client": "0.17.2-rc.3",
+    "lemmy-js-client": "0.17.2-rc.4",
     "markdown-it": "^13.0.1",
     "markdown-it-container": "^3.0.0",
     "markdown-it-footnote": "^3.0.3",
@@ -107,15 +116,6 @@
     "node": ">=8.9.0"
   },
   "engineStrict": true,
-  "lint-staged": {
-    "*.{ts,tsx,js}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "package.json": [
-      "sortpack"
-    ]
-  },
   "importSort": {
     ".js, .jsx, .ts, .tsx": {
       "style": "module",

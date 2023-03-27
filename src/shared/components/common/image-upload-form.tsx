@@ -1,8 +1,7 @@
 import { Component, linkEvent } from "inferno";
-import { pictrsUri } from "../../env";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import { randomStr, toast } from "../../utils";
+import { randomStr, toast, uploadImage } from "../../utils";
 import { Icon } from "./icon";
 
 interface ImageUploadFormProps {
@@ -74,25 +73,17 @@ export class ImageUploadForm extends Component<
 
   handleImageUpload(i: ImageUploadForm, event: any) {
     event.preventDefault();
-    let file = event.target.files[0];
-    const formData = new FormData();
-    formData.append("images[]", file);
+    const file = event.target.files[0];
 
     i.setState({ loading: true });
 
-    fetch(pictrsUri, {
-      method: "POST",
-      body: formData,
-    })
-      .then(res => res.json())
+    uploadImage(file)
       .then(res => {
         console.log("pictrs upload:");
         console.log(res);
-        if (res.msg == "ok") {
-          let hash = res.files[0].file;
-          let url = `${pictrsUri}/${hash}`;
+        if (res.msg === "ok") {
           i.setState({ loading: false });
-          i.props.onUpload(url);
+          i.props.onUpload(res.url as string);
         } else {
           i.setState({ loading: false });
           toast(JSON.stringify(res), "danger");
