@@ -5,6 +5,7 @@ import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
+  customEmojisLookup,
   isBrowser,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
@@ -17,6 +18,7 @@ import {
   toast,
   uploadImage,
 } from "../../utils";
+import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 
@@ -226,6 +228,9 @@ export class MarkdownTextArea extends Component<
             >
               <Icon icon="link" classes="icon-inline" />
             </button>
+            <EmojiPicker
+              onEmojiClick={e => this.handleEmoji(this, e)}
+            ></EmojiPicker>
             <form className="btn btn-sm text-muted font-weight-bold">
               <label
                 htmlFor={`file-upload-${this.id}`}
@@ -326,6 +331,22 @@ export class MarkdownTextArea extends Component<
         </div>
       </form>
     );
+  }
+
+  handleEmoji(i: MarkdownTextArea, e: any) {
+    let value = e.native;
+    if (value == null) {
+      let emoji = customEmojisLookup.get(e.id)?.custom_emoji;
+      if (emoji) {
+        value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;
+      }
+    }
+    i.setState({
+      content: `${i.state.content ?? ""} ${value} `,
+    });
+    i.contentChange();
+    let textarea: any = document.getElementById(i.id);
+    autosize.update(textarea);
   }
 
   handleImageUploadPaste(i: MarkdownTextArea, event: any) {

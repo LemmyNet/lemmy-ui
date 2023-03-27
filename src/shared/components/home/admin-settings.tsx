@@ -28,6 +28,7 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
+import { EmojiForm } from "./emojis-form";
 import { SiteForm } from "./site-form";
 
 interface AdminSettingsState {
@@ -35,6 +36,7 @@ interface AdminSettingsState {
   banned: PersonViewSafe[];
   loading: boolean;
   leaveAdminTeamLoading: boolean;
+  currentTab: string;
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
@@ -46,6 +48,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     banned: [],
     loading: true,
     leaveAdminTeamLoading: false,
+    currentTab: "site",
   };
 
   constructor(props: any, context: any) {
@@ -112,21 +115,58 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             <Spinner large />
           </h5>
         ) : (
-          <div className="row">
-            <div className="col-12 col-md-6">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-              />
-              <SiteForm
-                siteRes={this.state.siteRes}
-                showLocal={showLocal(this.isoData)}
-              />
-            </div>
-            <div className="col-12 col-md-6">
-              {this.admins()}
-              {this.bannedUsers()}
-            </div>
+          <div>
+            <HtmlTags
+              title={this.documentTitle}
+              path={this.context.router.route.match.url}
+            />
+            <ul className="nav nav-tabs mb-2">
+              <li className="nav-item">
+                <button
+                  className={`nav-link btn ${
+                    this.state.currentTab == "site" && "active"
+                  }`}
+                  onClick={linkEvent(
+                    { ctx: this, tab: "site" },
+                    this.handleSwitchTab
+                  )}
+                >
+                  {i18n.t("site")}
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  className={`nav-link btn ${
+                    this.state.currentTab == "emojis" && "active"
+                  }`}
+                  onClick={linkEvent(
+                    { ctx: this, tab: "emojis" },
+                    this.handleSwitchTab
+                  )}
+                >
+                  {i18n.t("emojis")}
+                </button>
+              </li>
+            </ul>
+            {this.state.currentTab == "site" && (
+              <div className="row">
+                <div className="col-12 col-md-6">
+                  <SiteForm
+                    siteRes={this.state.siteRes}
+                    showLocal={showLocal(this.isoData)}
+                  />
+                </div>
+                <div className="col-12 col-md-6">
+                  {this.admins()}
+                  {this.bannedUsers()}
+                </div>
+              </div>
+            )}
+            {this.state.currentTab == "emojis" && (
+              <div className="row">
+                <EmojiForm></EmojiForm>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -177,6 +217,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         </ul>
       </>
     );
+  }
+
+  handleSwitchTab(i: { ctx: AdminSettings; tab: string }) {
+    i.ctx.setState({ currentTab: i.tab });
   }
 
   handleLeaveAdminTeam(i: AdminSettings) {
