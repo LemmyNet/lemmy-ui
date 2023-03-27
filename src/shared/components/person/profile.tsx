@@ -384,7 +384,12 @@ export class Profile extends Component<any, ProfileState> {
     return (
       pv && (
         <div>
-          <BannerIconHeader banner={pv.person.banner} icon={pv.person.avatar} />
+          {!isBanned(pv.person) && (
+            <BannerIconHeader
+              banner={pv.person.banner}
+              icon={pv.person.avatar}
+            />
+          )}
           <div className="mb-3">
             <div className="">
               <div className="mb-0 d-flex flex-wrap">
