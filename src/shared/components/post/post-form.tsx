@@ -596,12 +596,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         if (res.msg === "ok") {
           i.state.form.url = res.url;
           i.setState({ imageLoading: false });
-          pictrsDeleteToast(
-            `${i18n.t("click_to_delete_picture")}: ${file.name}`,
-            `${i18n.t("picture_deleted")}: ${file.name}`,
-            `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
-            res.delete_url as string
-          );
+          pictrsDeleteToast(file.name, res.delete_url as string);
         } else {
           i.setState({ imageLoading: false });
           toast(JSON.stringify(res), "danger");

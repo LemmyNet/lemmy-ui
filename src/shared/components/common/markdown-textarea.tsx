@@ -386,6 +386,9 @@ export class MarkdownTextArea extends Component<
     }
   }
 
+  /**
+   * **NOTE**: Destroys files parameter
+   */
   async uploadImages(i: MarkdownTextArea, files: File[]) {
     let errorOccurred = false;
     while (files.length > 0 && !errorOccurred) {
@@ -414,12 +417,7 @@ export class MarkdownTextArea extends Component<
         i.contentChange();
         const textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
-        pictrsDeleteToast(
-          `${i18n.t("click_to_delete_picture")}: ${file.name}`,
-          `${i18n.t("picture_deleted")}: ${file.name}`,
-          `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
-          res.delete_url as string
-        );
+        pictrsDeleteToast(file.name, res.delete_url as string);
       } else {
         throw JSON.stringify(res);
       }

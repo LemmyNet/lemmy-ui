@@ -481,12 +481,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
         console.log("pictrs upload:");
         console.log(res);
         if (res.msg === "ok") {
-          pictrsDeleteToast(
-            `${i18n.t("click_to_delete_picture")}: ${file.name}`,
-            `${i18n.t("picture_deleted")}: ${file.name}`,
-            `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
-            res.delete_url as string
-          );
+          pictrsDeleteToast(file.name, res.delete_url as string);
         } else {
           toast(JSON.stringify(res), "danger");
           let hash = res.files?.at(0)?.file;
