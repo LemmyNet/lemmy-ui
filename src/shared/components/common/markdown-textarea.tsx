@@ -5,11 +5,14 @@ import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
+  concurrentImageUpload,
   customEmojisLookup,
   isBrowser,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
+  maxUploadImages,
   mdToHtml,
+  numToSI,
   pictrsDeleteToast,
   randomStr,
   relTags,
@@ -251,6 +254,7 @@ export class MarkdownTextArea extends Component<
                 accept="image/*,video/*"
                 name="file"
                 className="d-none"
+                multiple
                 disabled={!UserService.Instance.myUserInfo}
                 onChange={linkEvent(this, this.handleImageUpload)}
               />
@@ -350,53 +354,82 @@ export class MarkdownTextArea extends Component<
   }
 
   handleImageUploadPaste(i: MarkdownTextArea, event: any) {
-    let image = event.clipboardData.files[0];
+    const image = event.clipboardData.files[0];
     if (image) {
       i.handleImageUpload(i, image);
     }
   }
 
   handleImageUpload(i: MarkdownTextArea, event: any) {
-    let file: any;
+    const files: File[] = [];
     if (event.target) {
       event.preventDefault();
-      file = event.target.files[0];
+      files.push(...event.target.files);
     } else {
-      file = event;
+      files.push(event);
     }
 
-    i.setState({ imageLoading: true });
+    if (files.length > maxUploadImages) {
+      toast(
+        i18n.t("too_many_images_upload", {
+          count: maxUploadImages,
+          formattedCount: numToSI(maxUploadImages),
+        }),
+        "danger"
+      );
+    } else {
+      i.setState({ imageLoading: true });
 
-    uploadImage(file)
-      .then(res => {
-        console.log("pictrs upload:");
-        console.log(res);
-        if (res.msg === "ok") {
-          const imageMarkdown = `![](${res.url})`;
-          const content = i.state.content;
-          i.setState({
-            content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
-            imageLoading: false,
-          });
-          i.contentChange();
-          const textarea: any = document.getElementById(i.id);
-          autosize.update(textarea);
-          pictrsDeleteToast(
-            `${i18n.t("click_to_delete_picture")}: ${file.name}`,
-            `${i18n.t("picture_deleted")}: ${file.name}`,
-            `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
-            res.delete_url as string
-          );
-        } else {
-          i.setState({ imageLoading: false });
-          toast(JSON.stringify(res), "danger");
-        }
-      })
-      .catch(error => {
+      i.uploadImages(i, files).then(() => {
         i.setState({ imageLoading: false });
-        console.error(error);
-        toast(error, "danger");
       });
+    }
+  }
+
+  async uploadImages(i: MarkdownTextArea, files: File[]) {
+    let errorOccurred = false;
+    while (files.length > 0 && !errorOccurred) {
+      try {
+        await Promise.all(
+          files
+            .splice(0, concurrentImageUpload)
+            .map(file => i.uploadSingleImage(i, file))
+        );
+      } catch (e) {
+        errorOccurred = true;
+      }
+    }
+  }
+
+  async uploadSingleImage(i: MarkdownTextArea, file: File) {
+    try {
+      const res = await uploadImage(file);
+      console.log("pictrs upload:");
+      console.log(res);
+      if (res.msg === "ok") {
+        const imageMarkdown = `![](${res.url})`;
+        i.setState(({ content }) => ({
+          content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
+        }));
+        i.contentChange();
+        const textarea: any = document.getElementById(i.id);
+        autosize.update(textarea);
+        pictrsDeleteToast(
+          `${i18n.t("click_to_delete_picture")}: ${file.name}`,
+          `${i18n.t("picture_deleted")}: ${file.name}`,
+          `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
+          res.delete_url as string
+        );
+      } else {
+        throw JSON.stringify(res);
+      }
+    } catch (error) {
+      i.setState({ imageLoading: false });
+      console.error(error);
+      toast(error, "danger");
+
+      throw error;
+    }
   }
 
   contentChange() {
