@@ -82,6 +82,29 @@ export const concurrentImageUpload = 4;
 
 export const relTags = "noopener nofollow";
 
+export type ThemeColor =
+  | "primary"
+  | "secondary"
+  | "light"
+  | "dark"
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "blue"
+  | "indigo"
+  | "purple"
+  | "pink"
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "teal"
+  | "cyan"
+  | "white"
+  | "gray"
+  | "gray-dark";
+
 let customEmojis: EmojiMartCategory[] = [];
 export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
   string,
@@ -489,10 +512,7 @@ export function isCakeDay(published: string): boolean {
   );
 }
 
-export function toast(
-  text: string,
-  background: "success" | "danger" = "success"
-) {
+export function toast(text: string, background: ThemeColor = "success") {
   if (isBrowser()) {
     const backgroundColor = `var(--${background})`;
     Toastify({

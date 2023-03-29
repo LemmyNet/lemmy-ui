@@ -1,4 +1,5 @@
 import autosize from "autosize";
+import { I18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
@@ -24,6 +25,7 @@ import {
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
+import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
   initialContent?: string;
@@ -44,12 +46,17 @@ interface MarkdownTextAreaProps {
   siteLanguages: number[]; // TODO same
 }
 
+type ImageUploadStatus = {
+  total: number;
+  uploaded: number;
+};
+
 interface MarkdownTextAreaState {
   content?: string;
   languageId?: number;
   previewMode: boolean;
   loading: boolean;
-  imageLoading: boolean;
+  imageUploadStatus: ImageUploadStatus | null;
 }
 
 export class MarkdownTextArea extends Component<
@@ -59,12 +66,13 @@ export class MarkdownTextArea extends Component<
   private id = `comment-textarea-${randomStr()}`;
   private formId = `comment-form-${randomStr()}`;
   private tribute: any;
+
   state: MarkdownTextAreaState = {
     content: this.props.initialContent,
     languageId: this.props.initialLanguageId,
     previewMode: false,
     loading: false,
-    imageLoading: false,
+    imageUploadStatus: null,
   };
 
   constructor(props: any, context: any) {
@@ -113,8 +121,8 @@ export class MarkdownTextArea extends Component<
         this.props.onReplyCancel?.();
       }
 
-      let textarea: any = document.getElementById(this.id);
-      let form: any = document.getElementById(this.formId);
+      const textarea: any = document.getElementById(this.id);
+      const form: any = document.getElementById(this.formId);
       form.reset();
       setTimeout(() => autosize.update(textarea), 10);
     }
@@ -142,7 +150,7 @@ export class MarkdownTextArea extends Component<
               onInput={linkEvent(this, this.handleContentChange)}
               onPaste={linkEvent(this, this.handleImageUploadPaste)}
               required
-              disabled={this.props.disabled}
+              disabled={this.getIsDisabled()}
               rows={2}
               maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
               placeholder={this.props.placeholder}
@@ -153,6 +161,17 @@ export class MarkdownTextArea extends Component<
                 dangerouslySetInnerHTML={mdToHtml(this.state.content)}
               />
             )}
+            {this.state.imageUploadStatus &&
+              this.state.imageUploadStatus.total > 1 && (
+                <ProgressBar
+                  className="mt-2"
+                  striped
+                  animated
+                  value={this.state.imageUploadStatus.uploaded}
+                  max={this.state.imageUploadStatus.total}
+                  text={`${this.state.imageUploadStatus.uploaded}/${this.state.imageUploadStatus.total} files uploaded`}
+                />
+              )}
           </div>
           <label className="sr-only" htmlFor={this.id}>
             {i18n.t("body")}
@@ -164,7 +183,7 @@ export class MarkdownTextArea extends Component<
               <button
                 type="submit"
                 className="btn btn-sm btn-secondary mr-2"
-                disabled={this.props.disabled || this.state.loading}
+                disabled={this.getIsDisabled()}
               >
                 {this.state.loading ? (
                   <Spinner />
@@ -203,36 +222,16 @@ export class MarkdownTextArea extends Component<
                   languageId ? Array.of(languageId) : undefined
                 }
                 siteLanguages={this.props.siteLanguages}
-                multiple={false}
                 onChange={this.handleLanguageChange}
+                disabled={this.getIsDisabled()}
               />
             )}
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("bold")}
-              aria-label={i18n.t("bold")}
-              onClick={linkEvent(this, this.handleInsertBold)}
-            >
-              <Icon icon="bold" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("italic")}
-              aria-label={i18n.t("italic")}
-              onClick={linkEvent(this, this.handleInsertItalic)}
-            >
-              <Icon icon="italic" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("link")}
-              aria-label={i18n.t("link")}
-              onClick={linkEvent(this, this.handleInsertLink)}
-            >
-              <Icon icon="link" classes="icon-inline" />
-            </button>
+            {this.getFormatButton("bold", this.handleInsertBold)}
+            {this.getFormatButton("italic", this.handleInsertItalic)}
+            {this.getFormatButton("link", this.handleInsertLink)}
             <EmojiPicker
               onEmojiClick={e => this.handleEmoji(this, e)}
+              disabled={this.getIsDisabled()}
             ></EmojiPicker>
             <form className="btn btn-sm text-muted font-weight-bold">
               <label
@@ -242,7 +241,7 @@ export class MarkdownTextArea extends Component<
                 }`}
                 data-tippy-content={i18n.t("upload_image")}
               >
-                {this.state.imageLoading ? (
+                {this.state.imageUploadStatus ? (
                   <Spinner />
                 ) : (
                   <Icon icon="image" classes="icon-inline" />
@@ -255,74 +254,23 @@ export class MarkdownTextArea extends Component<
                 name="file"
                 className="d-none"
                 multiple
-                disabled={!UserService.Instance.myUserInfo}
+                disabled={
+                  !UserService.Instance.myUserInfo || this.getIsDisabled()
+                }
                 onChange={linkEvent(this, this.handleImageUpload)}
               />
             </form>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("header")}
-              aria-label={i18n.t("header")}
-              onClick={linkEvent(this, this.handleInsertHeader)}
-            >
-              <Icon icon="header" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("strikethrough")}
-              aria-label={i18n.t("strikethrough")}
-              onClick={linkEvent(this, this.handleInsertStrikethrough)}
-            >
-              <Icon icon="strikethrough" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("quote")}
-              aria-label={i18n.t("quote")}
-              onClick={linkEvent(this, this.handleInsertQuote)}
-            >
-              <Icon icon="format_quote" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("list")}
-              aria-label={i18n.t("list")}
-              onClick={linkEvent(this, this.handleInsertList)}
-            >
-              <Icon icon="list" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("code")}
-              aria-label={i18n.t("code")}
-              onClick={linkEvent(this, this.handleInsertCode)}
-            >
-              <Icon icon="code" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("subscript")}
-              aria-label={i18n.t("subscript")}
-              onClick={linkEvent(this, this.handleInsertSubscript)}
-            >
-              <Icon icon="subscript" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("superscript")}
-              aria-label={i18n.t("superscript")}
-              onClick={linkEvent(this, this.handleInsertSuperscript)}
-            >
-              <Icon icon="superscript" classes="icon-inline" />
-            </button>
-            <button
-              className="btn btn-sm text-muted"
-              data-tippy-content={i18n.t("spoiler")}
-              aria-label={i18n.t("spoiler")}
-              onClick={linkEvent(this, this.handleInsertSpoiler)}
-            >
-              <Icon icon="alert-triangle" classes="icon-inline" />
-            </button>
+            {this.getFormatButton("header", this.handleInsertHeader)}
+            {this.getFormatButton(
+              "strikethrough",
+              this.handleInsertStrikethrough
+            )}
+            {this.getFormatButton("quote", this.handleInsertQuote)}
+            {this.getFormatButton("list", this.handleInsertList)}
+            {this.getFormatButton("code", this.handleInsertCode)}
+            {this.getFormatButton("subscript", this.handleInsertSubscript)}
+            {this.getFormatButton("superscript", this.handleInsertSuperscript)}
+            {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
             <a
               href={markdownHelpUrl}
               className="btn btn-sm text-muted font-weight-bold"
@@ -334,6 +282,39 @@ export class MarkdownTextArea extends Component<
           </div>
         </div>
       </form>
+    );
+  }
+
+  getFormatButton(
+    type: I18nKeys,
+    handleClick: (i: MarkdownTextArea, event: any) => void
+  ) {
+    let iconType: string;
+
+    switch (type) {
+      case "spoiler": {
+        iconType = "alert-triangle";
+        break;
+      }
+      case "quote": {
+        iconType = "format_quote";
+        break;
+      }
+      default: {
+        iconType = type;
+      }
+    }
+
+    return (
+      <button
+        className="btn btn-sm text-muted"
+        data-tippy-content={i18n.t(type)}
+        aria-label={i18n.t(type)}
+        onClick={linkEvent(this, handleClick)}
+        disabled={this.getIsDisabled()}
+      >
+        <Icon icon={iconType} classes="icon-inline" />
+      </button>
     );
   }
 
@@ -378,25 +359,32 @@ export class MarkdownTextArea extends Component<
         "danger"
       );
     } else {
-      i.setState({ imageLoading: true });
+      i.setState({
+        imageUploadStatus: { total: files.length, uploaded: 0 },
+      });
 
       i.uploadImages(i, files).then(() => {
-        i.setState({ imageLoading: false });
+        i.setState({ imageUploadStatus: null });
       });
     }
   }
 
-  /**
-   * **NOTE**: Destroys files parameter
-   */
   async uploadImages(i: MarkdownTextArea, files: File[]) {
     let errorOccurred = false;
-    while (files.length > 0 && !errorOccurred) {
+    const filesCopy = [...files];
+    while (filesCopy.length > 0 && !errorOccurred) {
       try {
         await Promise.all(
-          files
-            .splice(0, concurrentImageUpload)
-            .map(file => i.uploadSingleImage(i, file))
+          filesCopy.splice(0, concurrentImageUpload).map(file =>
+            i.uploadSingleImage(i, file).then(() => {
+              this.setState(({ imageUploadStatus }) => ({
+                imageUploadStatus: {
+                  ...(imageUploadStatus as Required<ImageUploadStatus>),
+                  uploaded: (imageUploadStatus?.uploaded ?? 0) + 1,
+                },
+              }));
+            })
+          )
         );
       } catch (e) {
         errorOccurred = true;
@@ -422,7 +410,7 @@ export class MarkdownTextArea extends Component<
         throw JSON.stringify(res);
       }
     } catch (error) {
-      i.setState({ imageLoading: false });
+      i.setState({ imageUploadStatus: null });
       console.error(error);
       toast(error, "danger");
 
@@ -626,11 +614,11 @@ export class MarkdownTextArea extends Component<
   }
 
   quoteInsert() {
-    let textarea: any = document.getElementById(this.id);
-    let selectedText = window.getSelection()?.toString();
-    let content = this.state.content;
+    const textarea: any = document.getElementById(this.id);
+    const selectedText = window.getSelection()?.toString();
+    const { content } = this.state;
     if (selectedText) {
-      let quotedText =
+      const quotedText =
         selectedText
           .split("\n")
           .map(t => `> ${t}`)
@@ -650,9 +638,16 @@ export class MarkdownTextArea extends Component<
   }
 
   getSelectedText(): string {
-    let textarea: any = document.getElementById(this.id);
-    let start: number = textarea.selectionStart;
-    let end: number = textarea.selectionEnd;
+    const { selectionStart: start, selectionEnd: end } =
+      document.getElementById(this.id) as any;
     return start !== end ? this.state.content?.substring(start, end) ?? "" : "";
+  }
+
+  getIsDisabled() {
+    return (
+      this.state.loading ||
+      this.props.disabled ||
+      !!this.state.imageUploadStatus
+    );
   }
 }
