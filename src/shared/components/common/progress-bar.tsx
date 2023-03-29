@@ -34,7 +34,7 @@ const ProgressBar = ({
       aria-valuemin={min}
       aria-valuemax={max}
       aria-valuenow={value}
-      style={`width: ${(value / max) * 100}%;`}
+      style={`width: ${(Math.max(value - min, 0) / max) * 100}%;`}
     >
       {text}
     </div>
