@@ -375,16 +375,16 @@ export class MarkdownTextArea extends Component<
     while (filesCopy.length > 0 && !errorOccurred) {
       try {
         await Promise.all(
-          filesCopy.splice(0, concurrentImageUpload).map(file =>
-            i.uploadSingleImage(i, file).then(() => {
-              this.setState(({ imageUploadStatus }) => ({
-                imageUploadStatus: {
-                  ...(imageUploadStatus as Required<ImageUploadStatus>),
-                  uploaded: (imageUploadStatus?.uploaded ?? 0) + 1,
-                },
-              }));
-            })
-          )
+          filesCopy.splice(0, concurrentImageUpload).map(async file => {
+            await i.uploadSingleImage(i, file);
+
+            this.setState(({ imageUploadStatus }) => ({
+              imageUploadStatus: {
+                ...(imageUploadStatus as Required<ImageUploadStatus>),
+                uploaded: (imageUploadStatus?.uploaded ?? 0) + 1,
+              },
+            }));
+          })
         );
       } catch (e) {
         errorOccurred = true;
