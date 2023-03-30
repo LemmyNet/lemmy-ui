@@ -149,7 +149,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
       props.form.state.siteForm.taglines = undefined;
       props.form.setState(props.form.state);
       props.form.state.siteForm.taglines = taglines;
-      props.form.setState(props.form.state);
+      props.form.setState({ ...props.form.state, editingRow: null });
     }
   }
 
@@ -170,7 +170,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     let auth = myAuth() ?? "TODO";
     i.setState(s => ((s.siteForm.auth = auth), s));
     WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
-    i.setState(i.state);
+    i.setState({ ...i.state, editingRow: null });
   }
 
   handleAddTaglineClick(
