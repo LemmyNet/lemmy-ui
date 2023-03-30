@@ -15,14 +15,14 @@ interface TaglineFormState {
   siteRes: GetSiteResponse;
   siteForm: EditSite;
   loading: boolean;
-  editingRow: number | null;
+  editingRow?: number;
 }
 
 export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
     loading: false,
     siteRes: this.props.siteRes,
-    editingRow: null,
+    editingRow: undefined,
     siteForm: {
       taglines: this.props.siteRes.taglines?.map(x => x.content),
       auth: "TODO",
@@ -149,7 +149,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
       props.form.state.siteForm.taglines = undefined;
       props.form.setState(props.form.state);
       props.form.state.siteForm.taglines = taglines;
-      props.form.setState({ ...props.form.state, editingRow: null });
+      props.form.setState({ ...props.form.state, editingRow: undefined });
     }
   }
 
@@ -159,7 +159,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   ) {
     event.preventDefault();
     if (this.state.editingRow == props.index) {
-      props.form.setState({ editingRow: null });
+      props.form.setState({ editingRow: undefined });
     } else {
       props.form.setState({ editingRow: props.index });
     }
@@ -170,7 +170,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     let auth = myAuth() ?? "TODO";
     i.setState(s => ((s.siteForm.auth = auth), s));
     WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
-    i.setState({ ...i.state, editingRow: null });
+    i.setState({ ...i.state, editingRow: undefined });
   }
 
   handleAddTaglineClick(
