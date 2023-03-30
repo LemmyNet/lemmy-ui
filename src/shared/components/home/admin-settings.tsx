@@ -30,6 +30,7 @@ import { Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
 import { SiteForm } from "./site-form";
+import { TaglineForm } from "./tagline-form";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
@@ -137,6 +138,19 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
               <li className="nav-item">
                 <button
                   className={`nav-link btn ${
+                    this.state.currentTab == "taglines" && "active"
+                  }`}
+                  onClick={linkEvent(
+                    { ctx: this, tab: "taglines" },
+                    this.handleSwitchTab
+                  )}
+                >
+                  {i18n.t("taglines")}
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  className={`nav-link btn ${
                     this.state.currentTab == "emojis" && "active"
                   }`}
                   onClick={linkEvent(
@@ -160,6 +174,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                   {this.admins()}
                   {this.bannedUsers()}
                 </div>
+              </div>
+            )}
+            {this.state.currentTab == "taglines" && (
+              <div className="row">
+                <TaglineForm siteRes={this.state.siteRes}></TaglineForm>
               </div>
             )}
             {this.state.currentTab == "emojis" && (
