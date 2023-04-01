@@ -527,13 +527,14 @@ export function toast(text: string, background: ThemeColor = "success") {
 
 export function pictrsDeleteToast(filename: string, deleteUrl: string) {
   if (isBrowser()) {
-    const clickToDeleteText = `${i18n.t(
-      "click_to_delete_picture"
-    )}: ${filename}`;
-    const deletePictureText = `${i18n.t("picture_deleted")}: ${filename}`;
-    const failedDeletePictureText = `${i18n.t(
-      "failed_to_delete_picture"
-    )}: ${filename}`;
+    const clickToDeleteText = i18n.t("click_to_delete_picture", { filename });
+    const deletePictureText = i18n.t("picture_deleted", {
+      filename,
+    });
+    const failedDeletePictureText = i18n.t("failed_to_delete_picture", {
+      filename,
+    });
+
     const backgroundColor = `var(--light)`;
 
     const toast = Toastify({

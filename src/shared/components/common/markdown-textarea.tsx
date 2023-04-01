@@ -169,7 +169,10 @@ export class MarkdownTextArea extends Component<
                   animated
                   value={this.state.imageUploadStatus.uploaded}
                   max={this.state.imageUploadStatus.total}
-                  text={`${this.state.imageUploadStatus.uploaded}/${this.state.imageUploadStatus.total} files uploaded`}
+                  text={i18n.t("pictures_uploded_progess", {
+                    uploaded: this.state.imageUploadStatus.uploaded,
+                    total: this.state.imageUploadStatus.total,
+                  })}
                 />
               )}
           </div>
