@@ -30,10 +30,10 @@ fs.readdir(translationDir, (_err, files) => {
 const baseLanguage = "en";
 
 fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
-  let noOptionKeys = [];
-  let optionKeys = [];
-  let keysAndOptions = [];
+  const noOptionKeys = [];
+  const optionKeys = [];
   const optionRegex = /\{\{(.+?)\}\}/g;
+  const optionMap = new Map();
 
   for (const [key, val] of Object.entries(JSON.parse(fileStr))) {
     const options = [];
@@ -46,7 +46,7 @@ fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
     }
 
     if (options.length > 0) {
-      keysAndOptions.push([key, options]);
+      optionMap.set(key, options);
       optionKeys.push(key);
     } else {
       noOptionKeys.push(key);
@@ -66,7 +66,9 @@ ${optionKeys.map(key => `${indent}| "${key}"`).join("\n")};
 
   export type I18nKeys = NoOptionI18nKeys | OptionI18nKeys;
 
-  export type TTypedOptions<TKey extends OptionI18nKeys> =${keysAndOptions.reduce(
+  export type TTypedOptions<TKey extends OptionI18nKeys> =${Array.from(
+    optionMap.entries()
+  ).reduce(
     (acc, [key, options]) =>
       `${acc} TKey extends \"${key}\" ? ${
         options.reduce((acc, cur) => acc + `${cur}: string | number; `, "{ ") +
@@ -76,6 +78,7 @@ ${optionKeys.map(key => `${indent}| "${key}"`).join("\n")};
   )} (Record<string, unknown> | string);
 
   export interface TFunctionTyped {
+    // Translation requires options
     <
       TKey extends OptionI18nKeys | OptionI18nKeys[],
       TResult extends TFunctionResult = string,
@@ -85,6 +88,7 @@ ${optionKeys.map(key => `${indent}| "${key}"`).join("\n")};
       options: TOptions<TInterpolationMap> | string
     ): TResult;
 
+    // Translation does not require options
     <
       TResult extends TFunctionResult = string,
       TInterpolationMap extends Record<string, unknown> = StringMap
