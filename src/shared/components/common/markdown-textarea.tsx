@@ -46,17 +46,17 @@ interface MarkdownTextAreaProps {
   siteLanguages: number[]; // TODO same
 }
 
-type ImageUploadStatus = {
+interface ImageUploadStatus {
   total: number;
   uploaded: number;
-};
+}
 
 interface MarkdownTextAreaState {
   content?: string;
   languageId?: number;
   previewMode: boolean;
   loading: boolean;
-  imageUploadStatus: ImageUploadStatus | null;
+  imageUploadStatus?: ImageUploadStatus;
 }
 
 export class MarkdownTextArea extends Component<
@@ -72,7 +72,6 @@ export class MarkdownTextArea extends Component<
     languageId: this.props.initialLanguageId,
     previewMode: false,
     loading: false,
-    imageUploadStatus: null,
   };
 
   constructor(props: any, context: any) {
@@ -150,7 +149,7 @@ export class MarkdownTextArea extends Component<
               onInput={linkEvent(this, this.handleContentChange)}
               onPaste={linkEvent(this, this.handleImageUploadPaste)}
               required
-              disabled={this.getIsDisabled()}
+              disabled={this.isDisabled}
               rows={2}
               maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
               placeholder={this.props.placeholder}
@@ -186,7 +185,7 @@ export class MarkdownTextArea extends Component<
               <button
                 type="submit"
                 className="btn btn-sm btn-secondary mr-2"
-                disabled={this.getIsDisabled()}
+                disabled={this.isDisabled}
               >
                 {this.state.loading ? (
                   <Spinner />
@@ -226,7 +225,7 @@ export class MarkdownTextArea extends Component<
                 }
                 siteLanguages={this.props.siteLanguages}
                 onChange={this.handleLanguageChange}
-                disabled={this.getIsDisabled()}
+                disabled={this.isDisabled}
               />
             )}
             {this.getFormatButton("bold", this.handleInsertBold)}
@@ -234,7 +233,7 @@ export class MarkdownTextArea extends Component<
             {this.getFormatButton("link", this.handleInsertLink)}
             <EmojiPicker
               onEmojiClick={e => this.handleEmoji(this, e)}
-              disabled={this.getIsDisabled()}
+              disabled={this.isDisabled}
             ></EmojiPicker>
             <form className="btn btn-sm text-muted font-weight-bold">
               <label
@@ -257,9 +256,7 @@ export class MarkdownTextArea extends Component<
                 name="file"
                 className="d-none"
                 multiple
-                disabled={
-                  !UserService.Instance.myUserInfo || this.getIsDisabled()
-                }
+                disabled={!UserService.Instance.myUserInfo || this.isDisabled}
                 onChange={linkEvent(this, this.handleImageUpload)}
               />
             </form>
@@ -314,7 +311,7 @@ export class MarkdownTextArea extends Component<
         data-tippy-content={i18n.t(type)}
         aria-label={i18n.t(type)}
         onClick={linkEvent(this, handleClick)}
-        disabled={this.getIsDisabled()}
+        disabled={this.isDisabled}
       >
         <Icon icon={iconType} classes="icon-inline" />
       </button>
@@ -367,7 +364,7 @@ export class MarkdownTextArea extends Component<
       });
 
       i.uploadImages(i, files).then(() => {
-        i.setState({ imageUploadStatus: null });
+        i.setState({ imageUploadStatus: undefined });
       });
     }
   }
@@ -413,7 +410,7 @@ export class MarkdownTextArea extends Component<
         throw JSON.stringify(res);
       }
     } catch (error) {
-      i.setState({ imageUploadStatus: null });
+      i.setState({ imageUploadStatus: undefined });
       console.error(error);
       toast(error, "danger");
 
@@ -646,7 +643,7 @@ export class MarkdownTextArea extends Component<
     return start !== end ? this.state.content?.substring(start, end) ?? "" : "";
   }
 
-  getIsDisabled() {
+  get isDisabled() {
     return (
       this.state.loading ||
       this.props.disabled ||

@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { ThemeColor } from "shared/utils";
 
-type ProgressBarProps = {
+interface ProgressBarProps {
   className?: string;
   backgroundColor?: ThemeColor;
   barColor?: ThemeColor;
@@ -11,7 +11,7 @@ type ProgressBarProps = {
   max?: number;
   value: number;
   text?: string;
-};
+}
 
 const ProgressBar = ({
   value,
