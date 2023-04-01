@@ -161,7 +161,7 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   static getSortTypeFromProps(sort: string): SortType {
-    return sort ? routeSortTypeToEnum(sort) : SortType.New;
+    return sort ? routeSortTypeToEnum(sort, SortType.New) : SortType.New;
   }
 
   static getPageFromProps(page: number): number {

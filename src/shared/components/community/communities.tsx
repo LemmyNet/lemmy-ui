@@ -299,9 +299,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   handleSearchSubmit(i: Communities) {
     const searchParamEncoded = encodeURIComponent(i.state.searchText);
-    i.context.router.history.push(
-      `/search/q/${searchParamEncoded}/type/Communities/sort/TopAll/listing_type/All/community_id/0/creator_id/0/page/1`
-    );
+    i.context.router.history.push(`/search?q=${searchParamEncoded}`);
   }
 
   refetch() {

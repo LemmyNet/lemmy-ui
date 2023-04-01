@@ -1,4 +1,3 @@
-import { Component } from "inferno";
 import {
   CommentNode as CommentNodeI,
   CommunityModeratorView,
@@ -27,37 +26,45 @@ interface CommentNodesProps {
   hideImages?: boolean;
 }
 
-export class CommentNodes extends Component<CommentNodesProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
-  render() {
-    let maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
-
-    return (
-      <div className="comments">
-        {this.props.nodes.slice(0, maxComments).map(node => (
-          <CommentNode
-            key={node.comment_view.comment.id}
-            node={node}
-            noBorder={this.props.noBorder}
-            noIndent={this.props.noIndent}
-            viewOnly={this.props.viewOnly}
-            locked={this.props.locked}
-            moderators={this.props.moderators}
-            admins={this.props.admins}
-            markable={this.props.markable}
-            showContext={this.props.showContext}
-            showCommunity={this.props.showCommunity}
-            enableDownvotes={this.props.enableDownvotes}
-            viewType={this.props.viewType}
-            allLanguages={this.props.allLanguages}
-            siteLanguages={this.props.siteLanguages}
-            hideImages={this.props.hideImages}
-          />
-        ))}
-      </div>
-    );
-  }
-}
+export const CommentNodes = ({
+  allLanguages,
+  nodes,
+  siteLanguages,
+  viewType,
+  admins,
+  enableDownvotes,
+  hideImages,
+  locked,
+  markable,
+  maxCommentsShown = nodes.length,
+  moderators,
+  noBorder,
+  noIndent,
+  showCommunity,
+  showContext,
+  viewOnly,
+}: CommentNodesProps) =>
+  nodes.length > 0 && (
+    <div className="comments">
+      {nodes.slice(0, maxCommentsShown).map(node => (
+        <CommentNode
+          key={node.comment_view.comment.id}
+          node={node}
+          noBorder={noBorder}
+          noIndent={noIndent}
+          viewOnly={viewOnly}
+          locked={locked}
+          moderators={moderators}
+          admins={admins}
+          markable={markable}
+          showContext={showContext}
+          showCommunity={showCommunity}
+          enableDownvotes={enableDownvotes}
+          viewType={viewType}
+          allLanguages={allLanguages}
+          siteLanguages={siteLanguages}
+          hideImages={hideImages}
+        />
+      ))}
+    </div>
+  );

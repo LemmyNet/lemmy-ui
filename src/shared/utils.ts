@@ -307,9 +307,10 @@ export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function routeSortTypeToEnum(sort: string): SortType {
-  return SortType[sort];
-}
+export const routeSortTypeToEnum = (
+  sort: string,
+  defaultValue: SortType
+): SortType => SortType[sort] ?? defaultValue;
 
 export function listingTypeFromNum(type_: number): ListingType {
   return Object.values(ListingType)[type_];
@@ -319,17 +320,19 @@ export function sortTypeFromNum(type_: number): SortType {
   return Object.values(SortType)[type_];
 }
 
-export function routeListingTypeToEnum(type: string): ListingType {
-  return ListingType[type];
-}
+export const routeListingTypeToEnum = (
+  type: string,
+  defaultValue: ListingType
+): ListingType => ListingType[type] ?? defaultValue;
 
 export function routeDataTypeToEnum(type: string): DataType {
   return DataType[capitalizeFirstLetter(type)];
 }
 
-export function routeSearchTypeToEnum(type: string): SearchType {
-  return SearchType[type];
-}
+export const routeSearchTypeToEnum = (
+  type: string,
+  defaultValue: SearchType
+): SearchType => SearchType[type] ?? defaultValue;
 
 export async function getSiteMetadata(url: string) {
   let form: GetSiteMetadata = { url };
@@ -878,19 +881,19 @@ export function getListingTypeFromProps(
   defaultListingType: ListingType,
   myUserInfo = UserService.Instance.myUserInfo
 ): ListingType {
-  let myLt = myUserInfo?.local_user_view.local_user.default_listing_type;
-  return props.match.params.listing_type
-    ? routeListingTypeToEnum(props.match.params.listing_type)
-    : myLt
-    ? Object.values(ListingType)[myLt]
-    : defaultListingType;
+  const myLt = myUserInfo?.local_user_view.local_user.default_listing_type;
+
+  return routeListingTypeToEnum(
+    props.match.params.listing_type ?? "",
+    myLt ? Object.values(ListingType)[myLt] : defaultListingType
+  );
 }
 
-export function getListingTypeFromPropsNoDefault(props: any): ListingType {
-  return props.match.params.listing_type
-    ? routeListingTypeToEnum(props.match.params.listing_type)
-    : ListingType.Local;
-}
+export const getListingTypeFromPropsNoDefault = (props: any): ListingType =>
+  routeListingTypeToEnum(
+    props.match.params.listing_type ?? "",
+    ListingType.Local
+  );
 
 export function getDataTypeFromProps(props: any): DataType {
   return props.match.params.data_type
@@ -902,12 +905,11 @@ export function getSortTypeFromProps(
   props: any,
   myUserInfo = UserService.Instance.myUserInfo
 ): SortType {
-  let mySortType = myUserInfo?.local_user_view.local_user.default_sort_type;
-  return props.match.params.sort
-    ? routeSortTypeToEnum(props.match.params.sort)
-    : mySortType
-    ? Object.values(SortType)[mySortType]
-    : SortType.Active;
+  const mySortType = myUserInfo?.local_user_view.local_user.default_sort_type;
+  return routeSortTypeToEnum(
+    props.match.params.sort,
+    mySortType ? SortType[mySortType] : SortType.Active
+  );
 }
 
 export function getPageFromProps(props: any): number {
@@ -1437,9 +1439,11 @@ export function communitySelectName(cv: CommunityView): string {
     : `${hostname(cv.community.actor_id)}/${cv.community.title}`;
 }
 
-export function personSelectName(pvs: PersonViewSafe): string {
-  let pName = pvs.person.display_name ?? pvs.person.name;
-  return pvs.person.local ? pName : `${hostname(pvs.person.actor_id)}/${pName}`;
+export function personSelectName({
+  person: { display_name, name, local, actor_id },
+}: PersonViewSafe): string {
+  const pName = display_name ?? name;
+  return local ? pName : `${hostname(actor_id)}/${pName}`;
 }
 
 export function initializeSite(site: GetSiteResponse) {
@@ -1472,12 +1476,6 @@ export function isBanned(ps: PersonSafe): boolean {
     }
   } else {
     return ps.banned;
-  }
-}
-
-export function pushNotNull(array: any[], new_item?: any) {
-  if (new_item) {
-    array.push(...new_item);
   }
 }
 
@@ -1621,3 +1619,24 @@ const groupBy = <T>(
     (acc[predicate(value, index, array)] ||= []).push(value);
     return acc;
   }, {} as { [key: string]: T[] });
+
+export const getQueryParams = <T extends Record<string, string>>(): T =>
+  isBrowser()
+    ? Array.from(new URLSearchParams(window.location.search).entries()).reduce(
+        (acc, [key, val]) => ({
+          ...acc,
+          [key]: val,
+        }),
+        {} as T
+      )
+    : ({} as T);
+
+export const getQueryString = <T extends Record<string, string | undefined>>(
+  obj: T
+) =>
+  Object.entries(obj)
+    .filter(([, val]) => val !== undefined && val !== null)
+    .reduce(
+      (acc, [key, val], index) => `${acc}${index > 0 ? "&" : ""}${key}=${val}`,
+      "?"
+    );
