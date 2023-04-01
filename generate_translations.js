@@ -30,30 +30,66 @@ fs.readdir(translationDir, (_err, files) => {
 const baseLanguage = "en";
 
 fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
-  const keys = Object.keys(JSON.parse(fileStr));
+  let noOptionKeys = [];
+  let optionKeys = [];
+  let keysAndOptions = [];
+  const optionRegex = /\{\{(.+?)\}\}/g;
+
+  for (const [key, val] of Object.entries(JSON.parse(fileStr))) {
+    const options = [];
+    for (
+      let match = optionRegex.exec(val);
+      match;
+      match = optionRegex.exec(val)
+    ) {
+      options.push(match[1]);
+    }
+
+    if (options.length > 0) {
+      keysAndOptions.push([key, options]);
+      optionKeys.push(key);
+    } else {
+      noOptionKeys.push(key);
+    }
+  }
+
+  const indent = "    ";
 
   const data = `import { i18n } from "i18next";
 
 declare module "i18next" {
-  export type I18nKeys = 
-${keys.map(key => `    | "${key}"`).join("\n")};
-  
+  export type NoOptionI18nKeys = 
+${noOptionKeys.map(key => `${indent}| "${key}"`).join("\n")};
+
+  export type OptionI18nKeys = 
+${optionKeys.map(key => `${indent}| "${key}"`).join("\n")};
+
+  export type I18nKeys = NoOptionI18nKeys | OptionI18nKeys;
+
+  export type TTypedOptions<TKey extends OptionI18nKeys> =${keysAndOptions.reduce(
+    (acc, [key, options]) =>
+      `${acc} TKey extends \"${key}\" ? ${
+        options.reduce((acc, cur) => acc + `${cur}: string | number; `, "{ ") +
+        "}"
+      } :\n${indent}`,
+    ""
+  )} (Record<string, unknown> | string);
+
   export interface TFunctionTyped {
-    // basic usage
     <
+      TKey extends OptionI18nKeys | OptionI18nKeys[],
       TResult extends TFunctionResult = string,
-      TInterpolationMap extends Record<string, unknown> = StringMap
-    >(
-      key: I18nKeys | I18nKeys[],
-      options?: TOptions<TInterpolationMap> | string
+      TInterpolationMap extends TTypedOptions<TKey> = StringMap
+    > (
+      key: TKey,
+      options: TOptions<TInterpolationMap> | string
     ): TResult;
-    // overloaded usage
+
     <
       TResult extends TFunctionResult = string,
       TInterpolationMap extends Record<string, unknown> = StringMap
-    >(
-      key: I18nKeys | I18nKeys[],
-      defaultValue?: string,
+    > (
+      key: NoOptionI18nKeys | NoOptionI18nKeys[],
       options?: TOptions<TInterpolationMap> | string
     ): TResult;
   }
