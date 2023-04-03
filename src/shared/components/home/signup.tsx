@@ -1,5 +1,5 @@
 import { Options, passwordStrength } from "check-password-strength";
-import { I18nKeys } from "i18next";
+import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -231,7 +231,7 @@ export class Signup extends Component<any, State> {
             />
             {this.state.form.password && (
               <div className={this.passwordColorClass}>
-                {i18n.t(this.passwordStrength as I18nKeys)}
+                {i18n.t(this.passwordStrength as NoOptionI18nKeys)}
               </div>
             )}
           </div>
