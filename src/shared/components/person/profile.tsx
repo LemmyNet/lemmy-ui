@@ -446,7 +446,7 @@ export class Profile extends Component<any, ProfileState> {
                       className={
                         "d-flex align-self-start btn btn-secondary mr-2"
                       }
-                      to={`/create_private_message/recipient/${pv.person.id}`}
+                      to={`/create_private_message/${pv.person.id}`}
                     >
                       {i18n.t("send_message")}
                     </Link>
