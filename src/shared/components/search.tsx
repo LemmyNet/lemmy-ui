@@ -1,5 +1,5 @@
 import type Choice from "choices.js";
-import type { I18nKeys } from "i18next";
+import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
   CommentResponse,
@@ -52,6 +52,7 @@ import {
   numToSI,
   personSelectName,
   personToChoice,
+  QueryParams,
   restoreScrollPosition,
   routeListingTypeToEnum,
   routeSearchTypeToEnum,
@@ -89,7 +90,6 @@ interface SearchProps {
 }
 
 type FilterType = "creator" | "community";
-type QueryParams = { [key in keyof SearchProps]?: string };
 
 interface SearchState {
   searchResponse?: SearchResponse;
@@ -122,7 +122,7 @@ const searchTypes = [
 
 function getSearchQueryParams(): SearchProps {
   const { q, type, sort, listingType, communityId, creatorId, page } =
-    getQueryParams<QueryParams>();
+    getQueryParams<QueryParams<SearchProps>>();
 
   return {
     q: getSearchQueryFromQuery(q),
@@ -225,7 +225,7 @@ const personListing = ({ person, counts: { comment_count } }: PersonViewSafe) =>
 const getListing = (
   listing: JSX.Element,
   count: number,
-  translationKey: I18nKeys
+  translationKey: "number_of_comments" | "number_of_subscribers"
 ) => (
   <>
     <span>{listing}</span>
@@ -340,7 +340,7 @@ export class Search extends Component<any, SearchState> {
     client,
     auth,
     query: { communityId, creatorId, q, type, sort, listingType, page },
-  }: InitialFetchRequest<QueryParams>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<any>[] {
     const promises: Promise<any>[] = [];
 
     const community_id = getCommunityIdFromQuery(communityId);
@@ -487,7 +487,7 @@ export class Search extends Component<any, SearchState> {
           </option>
           {searchTypes.map(option => (
             <option value={option} key={option}>
-              {i18n.t(option.toString().toLowerCase() as I18nKeys)}
+              {i18n.t(option.toString().toLowerCase() as NoOptionI18nKeys)}
             </option>
           ))}
         </select>
@@ -919,7 +919,7 @@ export class Search extends Component<any, SearchState> {
       query = encodeURIComponent(query);
     }
 
-    const queryParams: QueryParams = {
+    const queryParams: QueryParams<SearchProps> = {
       q: query,
       type: type ?? urlType,
       listingType: listingType ?? urlListingType,

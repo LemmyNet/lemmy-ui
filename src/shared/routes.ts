@@ -1,4 +1,3 @@
-import { Inferno } from "inferno";
 import { IRouteProps } from "inferno-router/dist/Route";
 import { Communities } from "./components/community/communities";
 import { Community } from "./components/community/community";
@@ -26,7 +25,6 @@ import { InitialFetchRequest } from "./interfaces";
 
 interface IRoutePropsWithFetch extends IRouteProps {
   // TODO Make sure this one is good.
-  component: Inferno.ComponentClass;
   fetchInitialData?(req: InitialFetchRequest): Promise<any>[];
 }
 
@@ -35,12 +33,7 @@ export const routes: IRoutePropsWithFetch[] = [
     path: `/`,
     exact: true,
     component: Home,
-    fetchInitialData: req => Home.fetchInitialData(req),
-  },
-  {
-    path: `/home/data_type/:data_type/listing_type/:listing_type/sort/:sort/page/:page`,
-    component: Home,
-    fetchInitialData: req => Home.fetchInitialData(req),
+    fetchInitialData: Home.fetchInitialData,
   },
   {
     path: `/login`,
@@ -53,7 +46,7 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/create_post`,
     component: CreatePost,
-    fetchInitialData: req => CreatePost.fetchInitialData(req),
+    fetchInitialData: CreatePost.fetchInitialData,
   },
   {
     path: `/create_community`,
@@ -62,52 +55,52 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/create_private_message/recipient/:recipient_id`,
     component: CreatePrivateMessage,
-    fetchInitialData: req => CreatePrivateMessage.fetchInitialData(req),
+    fetchInitialData: CreatePrivateMessage.fetchInitialData,
   },
   {
     path: `/communities/listing_type/:listing_type/page/:page`,
     component: Communities,
-    fetchInitialData: req => Communities.fetchInitialData(req),
+    fetchInitialData: Communities.fetchInitialData,
   },
   {
     path: `/communities`,
     component: Communities,
-    fetchInitialData: req => Communities.fetchInitialData(req),
+    fetchInitialData: Communities.fetchInitialData,
   },
   {
     path: `/post/:post_id`,
     component: Post,
-    fetchInitialData: req => Post.fetchInitialData(req),
+    fetchInitialData: Post.fetchInitialData,
   },
   {
     path: `/comment/:comment_id`,
     component: Post,
-    fetchInitialData: req => Post.fetchInitialData(req),
+    fetchInitialData: Post.fetchInitialData,
   },
   {
     path: `/c/:name/data_type/:data_type/sort/:sort/page/:page`,
     component: Community,
-    fetchInitialData: req => Community.fetchInitialData(req),
+    fetchInitialData: Community.fetchInitialData,
   },
   {
     path: `/c/:name`,
     component: Community,
-    fetchInitialData: req => Community.fetchInitialData(req),
+    fetchInitialData: Community.fetchInitialData,
   },
   {
     path: `/u/:username/view/:view/sort/:sort/page/:page`,
     component: Profile,
-    fetchInitialData: req => Profile.fetchInitialData(req),
+    fetchInitialData: Profile.fetchInitialData,
   },
   {
     path: `/u/:username`,
     component: Profile,
-    fetchInitialData: req => Profile.fetchInitialData(req),
+    fetchInitialData: Profile.fetchInitialData,
   },
   {
     path: `/inbox`,
     component: Inbox,
-    fetchInitialData: req => Inbox.fetchInitialData(req),
+    fetchInitialData: Inbox.fetchInitialData,
   },
   {
     path: `/settings`,
@@ -116,33 +109,33 @@ export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/modlog/community/:community_id`,
     component: Modlog,
-    fetchInitialData: req => Modlog.fetchInitialData(req),
+    fetchInitialData: Modlog.fetchInitialData,
   },
   {
     path: `/modlog`,
     component: Modlog,
-    fetchInitialData: req => Modlog.fetchInitialData(req),
+    fetchInitialData: Modlog.fetchInitialData,
   },
   { path: `/setup`, component: Setup },
   {
     path: `/admin`,
     component: AdminSettings,
-    fetchInitialData: req => AdminSettings.fetchInitialData(req),
+    fetchInitialData: AdminSettings.fetchInitialData,
   },
   {
     path: `/reports`,
     component: Reports,
-    fetchInitialData: req => Reports.fetchInitialData(req),
+    fetchInitialData: Reports.fetchInitialData,
   },
   {
     path: `/registration_applications`,
     component: RegistrationApplications,
-    fetchInitialData: req => RegistrationApplications.fetchInitialData(req),
+    fetchInitialData: RegistrationApplications.fetchInitialData,
   },
   {
     path: `/search`,
     component: Search,
-    fetchInitialData: req => Search.fetchInitialData(req),
+    fetchInitialData: Search.fetchInitialData,
   },
   {
     path: `/password_change/:token`,

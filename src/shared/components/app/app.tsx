@@ -40,17 +40,15 @@ export class App extends Component<any, any> {
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
               <Switch>
-                {routes.map(
-                  ({ path, exact, component: Component, ...rest }) => (
-                    <Route
-                      key={path}
-                      path={path}
-                      exact={exact}
-                      render={props => <Component {...props} {...rest} />}
-                    />
-                  )
-                )}
-                <Route render={props => <NoMatch {...props} />} />
+                {routes.map(({ path, exact, component }) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    exact={exact}
+                    component={component}
+                  />
+                ))}
+                <Route component={NoMatch} />
               </Switch>
             </div>
             <Footer site={siteRes} />

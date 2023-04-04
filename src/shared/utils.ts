@@ -350,9 +350,10 @@ export const routeListingTypeToEnum = (
   defaultValue: ListingType
 ): ListingType => ListingType[type] ?? defaultValue;
 
-export function routeDataTypeToEnum(type: string): DataType {
-  return DataType[capitalizeFirstLetter(type)];
-}
+export const routeDataTypeToEnum = (
+  type: string,
+  defaultValue: DataType
+): DataType => DataType[type] ?? defaultValue;
 
 export const routeSearchTypeToEnum = (
   type: string,
@@ -364,6 +365,9 @@ export async function getSiteMetadata(url: string) {
   let client = new LemmyHttp(httpBase);
   return client.getSiteMetadata(form);
 }
+
+export const getDataTypeString = (dt: DataType) =>
+  dt === DataType.Post ? "Post" : "Comment";
 
 export function debounce(func: any, wait = 1000, immediate = false) {
   // 'private' variable for instance
@@ -925,11 +929,8 @@ export const getListingTypeFromPropsNoDefault = (props: any): ListingType =>
     ListingType.Local
   );
 
-export function getDataTypeFromProps(props: any): DataType {
-  return props.match.params.data_type
-    ? routeDataTypeToEnum(props.match.params.data_type)
-    : DataType.Post;
-}
+export const getDataTypeFromProps = (props: any): DataType =>
+  routeDataTypeToEnum(props.match.params.data_type ?? "", DataType.Post);
 
 export function getSortTypeFromProps(
   props: any,
@@ -1522,14 +1523,17 @@ export function enableNsfw(siteRes: GetSiteResponse): boolean {
 }
 
 export function postToCommentSortType(sort: SortType): CommentSortType {
-  if ([SortType.Active, SortType.Hot].includes(sort)) {
-    return CommentSortType.Hot;
-  } else if ([SortType.New, SortType.NewComments].includes(sort)) {
-    return CommentSortType.New;
-  } else if (sort == SortType.Old) {
-    return CommentSortType.Old;
-  } else {
-    return CommentSortType.Top;
+  switch (sort) {
+    case SortType.Active:
+    case SortType.Hot:
+      return CommentSortType.Hot;
+    case SortType.New:
+    case SortType.NewComments:
+      return CommentSortType.New;
+    case SortType.Old:
+      return CommentSortType.Old;
+    default:
+      return CommentSortType.Top;
   }
 }
 
@@ -1551,7 +1555,8 @@ export function canCreateCommunity(
   siteRes: GetSiteResponse,
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {
-  let adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
+  const adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
+  // TODO: Make this check if user is logged on as well
   return !adminOnly || amAdmin(myUserInfo);
 }
 
@@ -1649,6 +1654,10 @@ const groupBy = <T>(
     (acc[predicate(value, index, array)] ||= []).push(value);
     return acc;
   }, {} as { [key: string]: T[] });
+
+export type QueryParams<T extends Record<string, any>> = {
+  [key in keyof T]?: string;
+};
 
 export const getQueryParams = <T extends Record<string, string>>(): T =>
   isBrowser()
