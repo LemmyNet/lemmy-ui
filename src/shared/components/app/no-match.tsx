@@ -1,11 +1,11 @@
-import { I18nKeys } from "i18next";
+import { NoOptionI18nKeys } from "i18next";
 import { Component } from "inferno";
 import { i18n } from "../../i18next";
 
 export class NoMatch extends Component<any, any> {
   private errCode = new URLSearchParams(this.props.location.search).get(
     "err"
-  ) as I18nKeys;
+  ) as NoOptionI18nKeys;
 
   constructor(props: any, context: any) {
     super(props, context);

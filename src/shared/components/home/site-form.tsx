@@ -15,7 +15,7 @@ import {
   myAuth,
   wsClient,
 } from "../../utils";
-import { Icon, Spinner } from "../common/icon";
+import { Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
@@ -106,7 +106,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         captcha_difficulty: ls.captcha_difficulty,
         allowed_instances: this.props.siteRes.federated_instances?.allowed,
         blocked_instances: this.props.siteRes.federated_instances?.blocked,
-        taglines: this.props.siteRes.taglines?.map(x => x.content),
         auth: "TODO",
       },
     };
@@ -908,54 +907,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           </div>
-          <div className="form-group row">
-            <h5 className="col-12">{i18n.t("taglines")}</h5>
-            <div className="table-responsive col-12">
-              <table id="taglines_table" className="table table-sm table-hover">
-                <thead className="pointer"></thead>
-                <tbody>
-                  {this.state.siteForm.taglines?.map((cv, index) => (
-                    <tr key={index}>
-                      <td>
-                        <MarkdownTextArea
-                          initialContent={cv}
-                          onContentChange={s =>
-                            this.handleTaglineChange(this, index, s)
-                          }
-                          hideNavigationWarnings
-                          allLanguages={this.props.siteRes.all_languages}
-                          siteLanguages={
-                            this.props.siteRes.discussion_languages
-                          }
-                        />
-                      </td>
-                      <td className="text-right">
-                        <button
-                          className="btn btn-link btn-animate text-muted"
-                          onClick={e =>
-                            this.handleDeleteTaglineClick(this, index, e)
-                          }
-                          data-tippy-content={i18n.t("delete")}
-                          aria-label={i18n.t("delete")}
-                        >
-                          <Icon
-                            icon="trash"
-                            classes={`icon-inline text-danger`}
-                          />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button
-                className="btn btn-sm btn-secondary mr-2"
-                onClick={e => this.handleAddTaglineClick(this, e)}
-              >
-                {i18n.t("add_tagline")}
-              </button>
-            </div>
-          </div>
+
           <div className="form-group row">
             <div className="col-12">
               <button
@@ -1027,7 +979,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         allowed_instances: sForm.allowed_instances,
         blocked_instances: sForm.blocked_instances,
         discussion_languages: sForm.discussion_languages,
-        taglines: sForm.taglines,
         auth,
       };
       WebSocketService.Instance.send(wsClient.createSite(form));
