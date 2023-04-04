@@ -77,8 +77,33 @@ export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
 export const markdownFieldCharacterLimit = 50000;
+export const maxUploadImages = 20;
+export const concurrentImageUpload = 4;
 
 export const relTags = "noopener nofollow";
+
+export type ThemeColor =
+  | "primary"
+  | "secondary"
+  | "light"
+  | "dark"
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "blue"
+  | "indigo"
+  | "purple"
+  | "pink"
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "teal"
+  | "cyan"
+  | "white"
+  | "gray"
+  | "gray-dark";
 
 let customEmojis: EmojiMartCategory[] = [];
 export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
@@ -487,9 +512,9 @@ export function isCakeDay(published: string): boolean {
   );
 }
 
-export function toast(text: string, background = "success") {
+export function toast(text: string, background: ThemeColor = "success") {
   if (isBrowser()) {
-    let backgroundColor = `var(--${background})`;
+    const backgroundColor = `var(--${background})`;
     Toastify({
       text: text,
       backgroundColor: backgroundColor,
@@ -500,15 +525,19 @@ export function toast(text: string, background = "success") {
   }
 }
 
-export function pictrsDeleteToast(
-  clickToDeleteText: string,
-  deletePictureText: string,
-  failedDeletePictureText: string,
-  deleteUrl: string
-) {
+export function pictrsDeleteToast(filename: string, deleteUrl: string) {
   if (isBrowser()) {
-    let backgroundColor = `var(--light)`;
-    let toast = Toastify({
+    const clickToDeleteText = i18n.t("click_to_delete_picture", { filename });
+    const deletePictureText = i18n.t("picture_deleted", {
+      filename,
+    });
+    const failedDeletePictureText = i18n.t("failed_to_delete_picture", {
+      filename,
+    });
+
+    const backgroundColor = `var(--light)`;
+
+    const toast = Toastify({
       text: clickToDeleteText,
       backgroundColor: backgroundColor,
       gravity: "top",
@@ -528,6 +557,7 @@ export function pictrsDeleteToast(
       },
       close: true,
     });
+
     toast.showToast();
   }
 }

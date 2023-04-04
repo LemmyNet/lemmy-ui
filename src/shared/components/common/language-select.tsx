@@ -10,11 +10,12 @@ interface LanguageSelectProps {
   allLanguages: Language[];
   siteLanguages: number[];
   selectedLanguageIds?: number[];
-  multiple: boolean;
+  multiple?: boolean;
   onChange(val: number[]): any;
   showAll?: boolean;
   showSite?: boolean;
   iconVersion?: boolean;
+  disabled?: boolean;
 }
 
 export class LanguageSelect extends Component<LanguageSelectProps, any> {
@@ -55,19 +56,19 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
         )}
         <div className="form-group row">
           <label
-            className={classNames("col-form-label", {
-              "col-sm-3": this.props.multiple,
-              "col-sm-2": !this.props.multiple,
-            })}
+            className={classNames(
+              "col-form-label",
+              `col-sm-${this.props.multiple ? 3 : 2}`
+            )}
             htmlFor={this.id}
           >
             {i18n.t(this.props.multiple ? "language_plural" : "language")}
           </label>
           <div
-            className={classNames("input-group", {
-              "col-sm-9": this.props.multiple,
-              "col-sm-10": !this.props.multiple,
-            })}
+            className={classNames(
+              "input-group",
+              `col-sm-${this.props.multiple ? 9 : 10}`
+            )}
           >
             {this.selectBtn}
             {this.props.multiple && (
@@ -87,8 +88,8 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
   }
 
   get selectBtn() {
-    let selectedLangs = this.props.selectedLanguageIds;
-    let filteredLangs = selectableLanguages(
+    const selectedLangs = this.props.selectedLanguageIds;
+    const filteredLangs = selectableLanguages(
       this.props.allLanguages,
       this.props.siteLanguages,
       this.props.showAll,
@@ -98,14 +99,17 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
     return (
       <select
-        className={classNames("lang-select-action", {
-          "form-control custom-select": !this.props.iconVersion,
-          "btn btn-sm text-muted": this.props.iconVersion,
-        })}
+        className={classNames(
+          "lang-select-action",
+          this.props.iconVersion
+            ? "btn btn-sm text-muted"
+            : "form-control custom-select"
+        )}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
         aria-label="action"
         multiple={this.props.multiple}
+        disabled={this.props.disabled}
       >
         {filteredLangs.map(l => (
           <option

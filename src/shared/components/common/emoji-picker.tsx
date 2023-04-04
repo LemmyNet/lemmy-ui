@@ -5,6 +5,7 @@ import { Icon } from "./icon";
 
 interface EmojiPickerProps {
   onEmojiClick?(val: any): any;
+  disabled?: boolean;
 }
 
 interface EmojiPickerState {
@@ -15,8 +16,9 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
   private emptyState: EmojiPickerState = {
     showPicker: false,
   };
+
   state: EmojiPickerState;
-  constructor(props: any, context: any) {
+  constructor(props: EmojiPickerProps, context: any) {
     super(props, context);
     this.state = this.emptyState;
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
@@ -28,6 +30,7 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
           className="btn btn-sm text-muted"
           data-tippy-content={i18n.t("emoji")}
           aria-label={i18n.t("emoji")}
+          disabled={this.props.disabled}
           onClick={linkEvent(this, this.togglePicker)}
         >
           <Icon icon="smile" classes="icon-inline" />
