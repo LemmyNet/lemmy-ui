@@ -933,13 +933,14 @@ export const getDataTypeFromProps = (props: any): DataType =>
   routeDataTypeToEnum(props.match.params.data_type ?? "", DataType.Post);
 
 export function getSortTypeFromProps(
-  props: any,
-  myUserInfo = UserService.Instance.myUserInfo
+  type: string,
+  myUserInfo = UserService.Instance.myUserInfo,
+  defaultValue: SortType
 ): SortType {
   const mySortType = myUserInfo?.local_user_view.local_user.default_sort_type;
   return routeSortTypeToEnum(
-    props.match.params.sort,
-    mySortType ? SortType[mySortType] : SortType.Active
+    type,
+    mySortType ? Object.values(SortType)[mySortType] : defaultValue
   );
 }
 

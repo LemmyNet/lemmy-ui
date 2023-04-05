@@ -73,11 +73,6 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: Post.fetchInitialData,
   },
   {
-    path: `/c/:name/data_type/:data_type/sort/:sort/page/:page`,
-    component: Community,
-    fetchInitialData: Community.fetchInitialData,
-  },
-  {
     path: `/c/:name`,
     component: Community,
     fetchInitialData: Community.fetchInitialData,

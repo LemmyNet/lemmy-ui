@@ -1,10 +1,10 @@
 import { Component, linkEvent } from "inferno";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   AddModToCommunityResponse,
   BanFromCommunityResponse,
   BlockCommunityResponse,
   BlockPersonResponse,
-  CommentReportResponse,
   CommentResponse,
   CommentView,
   CommunityResponse,
@@ -14,7 +14,6 @@ import {
   GetCommunityResponse,
   GetPosts,
   GetPostsResponse,
-  GetSiteResponse,
   ListingType,
   PostReportResponse,
   PostResponse,
@@ -43,16 +42,19 @@ import {
   enableDownvotes,
   enableNsfw,
   fetchLimit,
-  getDataTypeFromProps,
-  getPageFromProps,
+  getDataTypeString,
+  getQueryParams,
+  getQueryString,
   getSortTypeFromProps,
   isPostBlocked,
   myAuth,
   notifyPost,
   nsfwCheck,
   postToCommentSortType,
+  QueryParams,
   relTags,
   restoreScrollPosition,
+  routeDataTypeToEnum,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
@@ -78,16 +80,10 @@ import { CommunityLink } from "./community-link";
 
 interface State {
   communityRes?: GetCommunityResponse;
-  siteRes: GetSiteResponse;
-  communityName: string;
   communityLoading: boolean;
-  postsLoading: boolean;
-  commentsLoading: boolean;
+  listingsLoading: boolean;
   posts: PostView[];
   comments: CommentView[];
-  dataType: DataType;
-  sort: SortType;
-  page: number;
   showSidebarMobile: boolean;
 }
 
@@ -97,30 +93,44 @@ interface CommunityProps {
   page: number;
 }
 
-interface UrlParams {
-  dataType?: string;
-  sort?: SortType;
-  page?: number;
+function getSearchQueryParams(): CommunityProps {
+  const { dataType, page, sort } =
+    getQueryParams<QueryParams<CommunityProps>>();
+
+  return {
+    dataType: getDataTypeFromQuery(dataType),
+    page: getPageFromQuery(page),
+    sort: getSortTypeFromQuery(sort ?? ""),
+  };
 }
 
-export class Community extends Component<any, State> {
+const getDataTypeFromQuery = (type?: string): DataType =>
+  routeDataTypeToEnum(type ?? "", DataType.Post);
+
+const getPageFromQuery = (page?: string): number => (page ? Number(page) : 1);
+
+const getSortTypeFromQuery = (type?: string): SortType =>
+  getSortTypeFromProps(
+    type ?? "",
+    UserService.Instance.myUserInfo,
+    SortType.Active
+  );
+
+export class Community extends Component<
+  RouteComponentProps<{ name: string }>,
+  State
+> {
   private isoData = setIsoData(this.context);
   private subscription?: Subscription;
   state: State = {
-    communityName: this.props.match.params.name,
     communityLoading: true,
-    postsLoading: true,
-    commentsLoading: true,
+    listingsLoading: true,
     posts: [],
     comments: [],
-    dataType: getDataTypeFromProps(this.props),
-    sort: getSortTypeFromProps(this.props),
-    page: getPageFromProps(this.props),
-    siteRes: this.isoData.site_res,
     showSidebarMobile: false,
   };
 
-  constructor(props: any, context: any) {
+  constructor(props: RouteComponentProps<{ name: string }>, context: any) {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
@@ -136,8 +146,10 @@ export class Community extends Component<any, State> {
         ...this.state,
         communityRes: this.isoData.routeData[0] as GetCommunityResponse,
       };
-      let postsRes = this.isoData.routeData[1] as GetPostsResponse | undefined;
-      let commentsRes = this.isoData.routeData[2] as
+      const postsRes = this.isoData.routeData[1] as
+        | GetPostsResponse
+        | undefined;
+      const commentsRes = this.isoData.routeData[2] as
         | GetCommentsResponse
         | undefined;
 
@@ -152,8 +164,7 @@ export class Community extends Component<any, State> {
       this.state = {
         ...this.state,
         communityLoading: false,
-        postsLoading: false,
-        commentsLoading: false,
+        listingsLoading: false,
       };
     } else {
       this.fetchCommunity();
@@ -162,8 +173,8 @@ export class Community extends Component<any, State> {
   }
 
   fetchCommunity() {
-    let form: GetCommunity = {
-      name: this.state.communityName,
+    const form: GetCommunity = {
+      name: this.props.match.params.name,
       auth: myAuth(false),
     };
     WebSocketService.Instance.send(wsClient.getCommunity(form));
@@ -178,95 +189,67 @@ export class Community extends Component<any, State> {
     this.subscription?.unsubscribe();
   }
 
-  static getDerivedStateFromProps(props: any): CommunityProps {
-    return {
-      dataType: getDataTypeFromProps(props),
-      sort: getSortTypeFromProps(props),
-      page: getPageFromProps(props),
-    };
-  }
+  static fetchInitialData({
+    client,
+    path,
+    query: { dataType: urlDataType, page: urlPage, sort: urlSort },
+    auth,
+  }: InitialFetchRequest<QueryParams<CommunityProps>>): Promise<any>[] {
+    const pathSplit = path.split("/");
+    const promises: Promise<any>[] = [];
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split("/");
-    let promises: Promise<any>[] = [];
-
-    let communityName = pathSplit[2];
-    let communityForm: GetCommunity = {
+    const communityName = pathSplit[2];
+    const communityForm: GetCommunity = {
       name: communityName,
-      auth: req.auth,
+      auth,
     };
-    promises.push(req.client.getCommunity(communityForm));
+    promises.push(client.getCommunity(communityForm));
 
-    let dataType: DataType = pathSplit[4]
-      ? DataType[pathSplit[4]]
-      : DataType.Post;
+    const dataType = getDataTypeFromQuery(urlDataType);
 
-    let mui = UserService.Instance.myUserInfo;
+    const sort = getSortTypeFromQuery(urlSort);
 
-    let sort: SortType = pathSplit[6]
-      ? SortType[pathSplit[6]]
-      : mui
-      ? Object.values(SortType)[
-          mui.local_user_view.local_user.default_sort_type
-        ]
-      : SortType.Active;
+    const page = getPageFromQuery(urlPage);
 
-    let page = pathSplit[8] ? Number(pathSplit[8]) : 1;
-
-    if (dataType == DataType.Post) {
-      let getPostsForm: GetPosts = {
+    if (dataType === DataType.Post) {
+      const getPostsForm: GetPosts = {
         community_name: communityName,
         page,
         limit: fetchLimit,
         sort,
         type_: ListingType.All,
         saved_only: false,
-        auth: req.auth,
+        auth,
       };
-      promises.push(req.client.getPosts(getPostsForm));
+      promises.push(client.getPosts(getPostsForm));
       promises.push(Promise.resolve());
     } else {
-      let getCommentsForm: GetComments = {
+      const getCommentsForm: GetComments = {
         community_name: communityName,
         page,
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
         type_: ListingType.All,
         saved_only: false,
-        auth: req.auth,
+        auth,
       };
       promises.push(Promise.resolve());
-      promises.push(req.client.getComments(getCommentsForm));
+      promises.push(client.getComments(getCommentsForm));
     }
 
     return promises;
   }
 
-  componentDidUpdate(_: any, lastState: State) {
-    if (
-      lastState.dataType !== this.state.dataType ||
-      lastState.sort !== this.state.sort ||
-      lastState.page !== this.state.page
-    ) {
-      this.setState({ postsLoading: true, commentsLoading: true });
-      this.fetchData();
-    }
-  }
-
   get documentTitle(): string {
-    let cRes = this.state.communityRes;
+    const cRes = this.state.communityRes;
     return cRes
-      ? `${cRes.community_view.community.title} - ${this.state.siteRes.site_view.site.name}`
+      ? `${cRes.community_view.community.title} - ${this.isoData.site_res.site_view.site.name}`
       : "";
   }
 
   render() {
-    // For some reason, this returns an empty vec if it matches the site langs
-    let res = this.state.communityRes;
-    let communityLangs =
-      res?.discussion_languages.length == 0
-        ? this.state.siteRes.all_languages.map(l => l.id)
-        : res?.discussion_languages;
+    const res = this.state.communityRes;
+    const { page } = getSearchQueryParams();
 
     return (
       <div className="container-lg">
@@ -286,7 +269,7 @@ export class Community extends Component<any, State> {
 
               <div className="row">
                 <div className="col-12 col-md-8">
-                  {this.communityInfo()}
+                  {this.communityInfo}
                   <div className="d-block d-md-none">
                     <button
                       className="btn btn-secondary d-inline-block mb-2 mr-3"
@@ -302,55 +285,14 @@ export class Community extends Component<any, State> {
                         classes="icon-inline"
                       />
                     </button>
-                    {this.state.showSidebarMobile && (
-                      <>
-                        <Sidebar
-                          community_view={res.community_view}
-                          moderators={res.moderators}
-                          admins={this.state.siteRes.admins}
-                          online={res.online}
-                          enableNsfw={enableNsfw(this.state.siteRes)}
-                          editable
-                          allLanguages={this.state.siteRes.all_languages}
-                          siteLanguages={
-                            this.state.siteRes.discussion_languages
-                          }
-                          communityLanguages={communityLangs}
-                        />
-                        {!res.community_view.community.local && res.site && (
-                          <SiteSidebar
-                            site={res.site}
-                            showLocal={showLocal(this.isoData)}
-                          />
-                        )}
-                      </>
-                    )}
+                    {this.state.showSidebarMobile && this.sidebar(res)}
                   </div>
-                  {this.selects()}
-                  {this.listings()}
-                  <Paginator
-                    page={this.state.page}
-                    onChange={this.handlePageChange}
-                  />
+                  {this.selects}
+                  {this.listings}
+                  <Paginator page={page} onChange={this.handlePageChange} />
                 </div>
                 <div className="d-none d-md-block col-md-4">
-                  <Sidebar
-                    community_view={res.community_view}
-                    moderators={res.moderators}
-                    admins={this.state.siteRes.admins}
-                    online={res.online}
-                    enableNsfw={enableNsfw(this.state.siteRes)}
-                    editable
-                    allLanguages={this.state.siteRes.all_languages}
-                    siteLanguages={this.state.siteRes.discussion_languages}
-                    communityLanguages={communityLangs}
-                  />
-                  {!res.community_view.community.local && res.site && (
-                    <SiteSidebar
-                      site={res.site}
-                      showLocal={showLocal(this.isoData)}
-                    />
-                  )}
+                  {this.sidebar(res)}
                 </div>
               </div>
             </>
@@ -360,43 +302,82 @@ export class Community extends Component<any, State> {
     );
   }
 
-  listings() {
-    return this.state.dataType == DataType.Post ? (
-      this.state.postsLoading ? (
-        <h5>
-          <Spinner large />
-        </h5>
-      ) : (
-        <PostListings
-          posts={this.state.posts}
-          removeDuplicates
-          enableDownvotes={enableDownvotes(this.state.siteRes)}
-          enableNsfw={enableNsfw(this.state.siteRes)}
-          allLanguages={this.state.siteRes.all_languages}
-          siteLanguages={this.state.siteRes.discussion_languages}
+  sidebar({
+    community_view,
+    moderators,
+    online,
+    discussion_languages,
+    site,
+  }: GetCommunityResponse) {
+    const { site_res } = this.isoData;
+    // For some reason, this returns an empty vec if it matches the site langs
+    const communityLangs =
+      discussion_languages.length === 0
+        ? site_res.all_languages.map(({ id }) => id)
+        : discussion_languages;
+
+    return (
+      <>
+        <Sidebar
+          community_view={community_view}
+          moderators={moderators}
+          admins={site_res.admins}
+          online={online}
+          enableNsfw={enableNsfw(site_res)}
+          editable
+          allLanguages={site_res.all_languages}
+          siteLanguages={site_res.discussion_languages}
+          communityLanguages={communityLangs}
         />
-      )
-    ) : this.state.commentsLoading ? (
-      <h5>
-        <Spinner large />
-      </h5>
-    ) : (
-      <CommentNodes
-        nodes={commentsToFlatNodes(this.state.comments)}
-        viewType={CommentViewType.Flat}
-        noIndent
-        showContext
-        enableDownvotes={enableDownvotes(this.state.siteRes)}
-        moderators={this.state.communityRes?.moderators}
-        admins={this.state.siteRes.admins}
-        allLanguages={this.state.siteRes.all_languages}
-        siteLanguages={this.state.siteRes.discussion_languages}
-      />
+        {!community_view.community.local && site && (
+          <SiteSidebar site={site} showLocal={showLocal(this.isoData)} />
+        )}
+      </>
     );
   }
 
-  communityInfo() {
-    let community = this.state.communityRes?.community_view.community;
+  get listings() {
+    const { dataType } = getSearchQueryParams();
+    const { site_res } = this.isoData;
+    const { listingsLoading, posts, comments, communityRes } = this.state;
+
+    if (listingsLoading) {
+      return (
+        <h5>
+          <Spinner large />
+        </h5>
+      );
+    } else if (dataType === DataType.Post) {
+      return (
+        <PostListings
+          posts={posts}
+          removeDuplicates
+          enableDownvotes={enableDownvotes(site_res)}
+          enableNsfw={enableNsfw(site_res)}
+          allLanguages={site_res.all_languages}
+          siteLanguages={site_res.discussion_languages}
+        />
+      );
+    } else {
+      return (
+        <CommentNodes
+          nodes={commentsToFlatNodes(comments)}
+          viewType={CommentViewType.Flat}
+          noIndent
+          showContext
+          enableDownvotes={enableDownvotes(site_res)}
+          moderators={communityRes?.moderators}
+          admins={site_res.admins}
+          allLanguages={site_res.all_languages}
+          siteLanguages={site_res.discussion_languages}
+        />
+      );
+    }
+  }
+
+  get communityInfo() {
+    const community = this.state.communityRes?.community_view.community;
+
     return (
       community && (
         <div className="mb-2">
@@ -414,25 +395,26 @@ export class Community extends Component<any, State> {
     );
   }
 
-  selects() {
+  get selects() {
     // let communityRss = this.state.communityRes.map(r =>
     //   communityRSSUrl(r.community_view.community.actor_id, this.state.sort)
     // );
-    let res = this.state.communityRes;
-    let communityRss = res
-      ? communityRSSUrl(res.community_view.community.actor_id, this.state.sort)
+    const { dataType, sort } = getSearchQueryParams();
+    const res = this.state.communityRes;
+    const communityRss = res
+      ? communityRSSUrl(res.community_view.community.actor_id, sort)
       : undefined;
 
     return (
       <div className="mb-3">
         <span className="mr-3">
           <DataTypeSelect
-            type_={this.state.dataType}
+            type_={dataType}
             onChange={this.handleDataTypeChange}
           />
         </span>
         <span className="mr-2">
-          <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
+          <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
         {communityRss && (
           <>
@@ -455,66 +437,90 @@ export class Community extends Component<any, State> {
     window.scrollTo(0, 0);
   }
 
-  handleSortChange(val: SortType) {
-    this.updateUrl({ sort: val, page: 1 });
+  handleSortChange(sort: SortType) {
+    this.updateUrl({ sort, page: 1 });
     window.scrollTo(0, 0);
   }
 
-  handleDataTypeChange(val: DataType) {
-    this.updateUrl({ dataType: DataType[val], page: 1 });
+  handleDataTypeChange(dataType: DataType) {
+    this.updateUrl({ dataType, page: 1 });
     window.scrollTo(0, 0);
   }
 
   handleShowSidebarMobile(i: Community) {
-    i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
+    i.setState(({ showSidebarMobile }) => ({
+      showSidebarMobile: !showSidebarMobile,
+    }));
   }
 
-  updateUrl(paramUpdates: UrlParams) {
-    const dataTypeStr = paramUpdates.dataType || DataType[this.state.dataType];
-    const sortStr = paramUpdates.sort || this.state.sort;
-    const page = paramUpdates.page || this.state.page;
+  updateUrl({ dataType, page, sort }: Partial<CommunityProps>) {
+    const {
+      dataType: urlDataType,
+      page: urlPage,
+      sort: urlSort,
+    } = getSearchQueryParams();
 
-    let typeView = `/c/${this.state.communityName}`;
+    const queryParams: QueryParams<CommunityProps> = {
+      dataType: getDataTypeString(dataType ?? urlDataType),
+      page: (page ?? urlPage).toString(),
+      sort: sort ?? urlSort,
+    };
 
     this.props.history.push(
-      `${typeView}/data_type/${dataTypeStr}/sort/${sortStr}/page/${page}`
+      `/c/${this.props.match.params.name}${getQueryString(queryParams)}`
     );
+
+    this.setState({
+      comments: [],
+      posts: [],
+      listingsLoading: true,
+    });
+
+    this.fetchData();
   }
 
   fetchData() {
-    if (this.state.dataType == DataType.Post) {
-      let form: GetPosts = {
-        page: this.state.page,
+    const { dataType, page, sort } = getSearchQueryParams();
+    const { name } = this.props.match.params;
+
+    let req: string;
+    if (dataType === DataType.Post) {
+      const form: GetPosts = {
+        page,
         limit: fetchLimit,
-        sort: this.state.sort,
+        sort,
         type_: ListingType.All,
-        community_name: this.state.communityName,
+        community_name: name,
         saved_only: false,
         auth: myAuth(false),
       };
-      WebSocketService.Instance.send(wsClient.getPosts(form));
+      req = wsClient.getPosts(form);
     } else {
-      let form: GetComments = {
-        page: this.state.page,
+      const form: GetComments = {
+        page,
         limit: fetchLimit,
-        sort: postToCommentSortType(this.state.sort),
+        sort: postToCommentSortType(sort),
         type_: ListingType.All,
-        community_name: this.state.communityName,
+        community_name: name,
         saved_only: false,
         auth: myAuth(false),
       };
-      WebSocketService.Instance.send(wsClient.getComments(form));
+
+      req = wsClient.getComments(form);
     }
+
+    WebSocketService.Instance.send(req);
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const { page } = getSearchQueryParams();
+    const op = wsUserOp(msg);
     console.log(msg);
-    let res = this.state.communityRes;
+    const res = this.state.communityRes;
+
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       this.context.router.history.push("/");
-      return;
     } else if (msg.reconnect) {
       if (res) {
         WebSocketService.Instance.send(
@@ -523,143 +529,225 @@ export class Community extends Component<any, State> {
           })
         );
       }
+
       this.fetchData();
-    } else if (op == UserOperation.GetCommunity) {
-      let data = wsJsonToRes<GetCommunityResponse>(msg);
-      this.setState({ communityRes: data, communityLoading: false });
-      // TODO why is there no auth in this form?
-      WebSocketService.Instance.send(
-        wsClient.communityJoin({
-          community_id: data.community_view.community.id,
-        })
-      );
-    } else if (
-      op == UserOperation.EditCommunity ||
-      op == UserOperation.DeleteCommunity ||
-      op == UserOperation.RemoveCommunity
-    ) {
-      let data = wsJsonToRes<CommunityResponse>(msg);
-      if (res) {
-        res.community_view = data.community_view;
-        res.discussion_languages = data.discussion_languages;
-      }
-      this.setState(this.state);
-    } else if (op == UserOperation.FollowCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg);
-      if (res) {
-        res.community_view.subscribed = data.community_view.subscribed;
-        res.community_view.counts.subscribers =
-          data.community_view.counts.subscribers;
-      }
-      this.setState(this.state);
-    } else if (op == UserOperation.GetPosts) {
-      let data = wsJsonToRes<GetPostsResponse>(msg);
-      this.setState({ posts: data.posts, postsLoading: false });
-      restoreScrollPosition(this.context);
-      setupTippy();
-    } else if (
-      op == UserOperation.EditPost ||
-      op == UserOperation.DeletePost ||
-      op == UserOperation.RemovePost ||
-      op == UserOperation.LockPost ||
-      op == UserOperation.FeaturePost ||
-      op == UserOperation.SavePost
-    ) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      editPostFindRes(data.post_view, this.state.posts);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreatePost) {
-      let data = wsJsonToRes<PostResponse>(msg);
+    } else {
+      switch (op) {
+        case UserOperation.GetCommunity: {
+          const data = wsJsonToRes<GetCommunityResponse>(msg);
 
-      let showPostNotifs =
-        UserService.Instance.myUserInfo?.local_user_view.local_user
-          .show_new_post_notifs;
+          this.setState({ communityRes: data, communityLoading: false });
+          // TODO why is there no auth in this form?
+          WebSocketService.Instance.send(
+            wsClient.communityJoin({
+              community_id: data.community_view.community.id,
+            })
+          );
 
-      // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
-      //
-      if (
-        this.state.page == 1 &&
-        nsfwCheck(data.post_view) &&
-        !isPostBlocked(data.post_view)
-      ) {
-        this.state.posts.unshift(data.post_view);
-        if (showPostNotifs) {
-          notifyPost(data.post_view, this.context.router);
+          break;
         }
-        this.setState(this.state);
-      }
-    } else if (op == UserOperation.CreatePostLike) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      createPostLikeFindRes(data.post_view, this.state.posts);
-      this.setState(this.state);
-    } else if (op == UserOperation.AddModToCommunity) {
-      let data = wsJsonToRes<AddModToCommunityResponse>(msg);
-      if (res) {
-        res.moderators = data.moderators;
-      }
-      this.setState(this.state);
-    } else if (op == UserOperation.BanFromCommunity) {
-      let data = wsJsonToRes<BanFromCommunityResponse>(msg);
 
-      // TODO this might be incorrect
-      this.state.posts
-        .filter(p => p.creator.id == data.person_view.person.id)
-        .forEach(p => (p.creator_banned_from_community = data.banned));
+        case UserOperation.EditCommunity:
+        case UserOperation.DeleteCommunity:
+        case UserOperation.RemoveCommunity: {
+          const { community_view, discussion_languages } =
+            wsJsonToRes<CommunityResponse>(msg);
 
-      this.setState(this.state);
-    } else if (op == UserOperation.GetComments) {
-      let data = wsJsonToRes<GetCommentsResponse>(msg);
-      this.setState({ comments: data.comments, commentsLoading: false });
-    } else if (
-      op == UserOperation.EditComment ||
-      op == UserOperation.DeleteComment ||
-      op == UserOperation.RemoveComment
-    ) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      editCommentRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
+          if (res) {
+            res.community_view = community_view;
+            res.discussion_languages = discussion_languages;
+            this.setState(this.state);
+          }
 
-      // Necessary since it might be a user reply
-      if (data.form_id) {
-        this.state.comments.unshift(data.comment_view);
-        this.setState(this.state);
+          break;
+        }
+
+        case UserOperation.FollowCommunity: {
+          const {
+            community_view: {
+              subscribed,
+              counts: { subscribers },
+            },
+          } = wsJsonToRes<CommunityResponse>(msg);
+
+          if (res) {
+            res.community_view.subscribed = subscribed;
+            res.community_view.counts.subscribers = subscribers;
+            this.setState(this.state);
+          }
+
+          break;
+        }
+
+        case UserOperation.GetPosts: {
+          const { posts } = wsJsonToRes<GetPostsResponse>(msg);
+
+          this.setState({ posts, listingsLoading: false });
+          restoreScrollPosition(this.context);
+          setupTippy();
+
+          break;
+        }
+
+        case UserOperation.EditPost:
+        case UserOperation.DeletePost:
+        case UserOperation.RemovePost:
+        case UserOperation.LockPost:
+        case UserOperation.FeaturePost:
+        case UserOperation.SavePost: {
+          const { post_view } = wsJsonToRes<PostResponse>(msg);
+
+          editPostFindRes(post_view, this.state.posts);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.CreatePost: {
+          const { post_view } = wsJsonToRes<PostResponse>(msg);
+
+          const showPostNotifs =
+            UserService.Instance.myUserInfo?.local_user_view.local_user
+              .show_new_post_notifs;
+
+          // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
+          if (page === 1 && nsfwCheck(post_view) && !isPostBlocked(post_view)) {
+            this.state.posts.unshift(post_view);
+            if (showPostNotifs) {
+              notifyPost(post_view, this.context.router);
+            }
+            this.setState(this.state);
+          }
+
+          break;
+        }
+
+        case UserOperation.CreatePostLike: {
+          const { post_view } = wsJsonToRes<PostResponse>(msg);
+
+          createPostLikeFindRes(post_view, this.state.posts);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.AddModToCommunity: {
+          const { moderators } = wsJsonToRes<AddModToCommunityResponse>(msg);
+
+          if (res) {
+            res.moderators = moderators;
+            this.setState(this.state);
+          }
+
+          break;
+        }
+
+        case UserOperation.BanFromCommunity: {
+          const {
+            person_view: {
+              person: { id: personId },
+            },
+            banned,
+          } = wsJsonToRes<BanFromCommunityResponse>(msg);
+
+          // TODO this might be incorrect
+          this.state.posts
+            .filter(p => p.creator.id === personId)
+            .forEach(p => (p.creator_banned_from_community = banned));
+
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.GetComments: {
+          const { comments } = wsJsonToRes<GetCommentsResponse>(msg);
+          this.setState({ comments, listingsLoading: false });
+
+          break;
+        }
+
+        case UserOperation.EditComment:
+        case UserOperation.DeleteComment:
+        case UserOperation.RemoveComment: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+          editCommentRes(comment_view, this.state.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.CreateComment: {
+          const { form_id, comment_view } = wsJsonToRes<CommentResponse>(msg);
+
+          // Necessary since it might be a user reply
+          if (form_id) {
+            this.setState(({ comments }) => ({
+              comments: [comment_view].concat(comments),
+            }));
+          }
+
+          break;
+        }
+
+        case UserOperation.SaveComment: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+
+          saveCommentRes(comment_view, this.state.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.CreateCommentLike: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+
+          createCommentLikeRes(comment_view, this.state.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.BlockPerson: {
+          const data = wsJsonToRes<BlockPersonResponse>(msg);
+          updatePersonBlock(data);
+
+          break;
+        }
+
+        case UserOperation.CreatePostReport:
+        case UserOperation.CreateCommentReport: {
+          const data = wsJsonToRes<PostReportResponse>(msg);
+
+          if (data) {
+            toast(i18n.t("report_created"));
+          }
+
+          break;
+        }
+
+        case UserOperation.PurgeCommunity: {
+          const { success } = wsJsonToRes<PurgeItemResponse>(msg);
+
+          if (success) {
+            toast(i18n.t("purge_success"));
+            this.context.router.history.push(`/`);
+          }
+
+          break;
+        }
+
+        case UserOperation.BlockCommunity: {
+          const data = wsJsonToRes<BlockCommunityResponse>(msg);
+          if (res) {
+            res.community_view.blocked = data.blocked;
+            this.setState(this.state);
+          }
+          updateCommunityBlock(data);
+
+          break;
+        }
       }
-    } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      saveCommentRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      createCommentLikeRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
-      updatePersonBlock(data);
-    } else if (op == UserOperation.CreatePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg);
-      if (data) {
-        toast(i18n.t("report_created"));
-      }
-    } else if (op == UserOperation.CreateCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg);
-      if (data) {
-        toast(i18n.t("report_created"));
-      }
-    } else if (op == UserOperation.PurgeCommunity) {
-      let data = wsJsonToRes<PurgeItemResponse>(msg);
-      if (data.success) {
-        toast(i18n.t("purge_success"));
-        this.context.router.history.push(`/`);
-      }
-    } else if (op == UserOperation.BlockCommunity) {
-      let data = wsJsonToRes<BlockCommunityResponse>(msg);
-      if (res) {
-        res.community_view.blocked = data.blocked;
-      }
-      updateCommunityBlock(data);
-      this.setState(this.state);
     }
   }
 }
