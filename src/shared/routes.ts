@@ -58,11 +58,6 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: CreatePrivateMessage.fetchInitialData,
   },
   {
-    path: `/communities/listing_type/:listing_type/page/:page`,
-    component: Communities,
-    fetchInitialData: Communities.fetchInitialData,
-  },
-  {
     path: `/communities`,
     component: Communities,
     fetchInitialData: Communities.fetchInitialData,
