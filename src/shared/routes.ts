@@ -78,11 +78,6 @@ export const routes: IRoutePropsWithFetch[] = [
     fetchInitialData: Community.fetchInitialData,
   },
   {
-    path: `/u/:username/view/:view/sort/:sort/page/:page`,
-    component: Profile,
-    fetchInitialData: Profile.fetchInitialData,
-  },
-  {
     path: `/u/:username`,
     component: Profile,
     fetchInitialData: Profile.fetchInitialData,

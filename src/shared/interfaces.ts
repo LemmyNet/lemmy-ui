@@ -51,10 +51,10 @@ export enum BanType {
 }
 
 export enum PersonDetailsView {
-  Overview,
-  Comments,
-  Posts,
-  Saved,
+  Overview = "Overview",
+  Comments = "Comments",
+  Posts = "Posts",
+  Saved = "Saved",
 }
 
 export enum PurgeType {
