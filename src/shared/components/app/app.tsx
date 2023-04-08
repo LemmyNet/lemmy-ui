@@ -40,11 +40,11 @@ export class App extends Component<any, any> {
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
               <Switch>
-                {routes.map(({ path, exact, component }) => (
+                {routes.map(({ path, component }) => (
                   <Route
                     key={path}
                     path={path}
-                    exact={exact}
+                    exact={true}
                     component={component}
                   />
                 ))}

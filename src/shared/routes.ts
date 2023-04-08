@@ -31,7 +31,6 @@ interface IRoutePropsWithFetch extends IRouteProps {
 export const routes: IRoutePropsWithFetch[] = [
   {
     path: `/`,
-    exact: true,
     component: Home,
     fetchInitialData: Home.fetchInitialData,
   },
