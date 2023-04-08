@@ -26,6 +26,7 @@ export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
   client: LemmyHttp;
   path: string;
   query: T;
+  site: GetSiteResponse;
 }
 
 export interface PostFormParams {

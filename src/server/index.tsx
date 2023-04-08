@@ -103,35 +103,37 @@ server.get("/*", async (req, res) => {
   try {
     const activeRoute = routes.find(route => matchPath(req.path, route));
     const context = {} as any;
-    const auth: string | undefined = IsomorphicCookie.load("jwt", req);
+    let auth: string | undefined = IsomorphicCookie.load("jwt", req);
 
     const getSiteForm: GetSite = { auth };
 
     const promises: Promise<any>[] = [];
 
     const headers = setForwardedHeaders(req.headers);
-
-    const initialFetchReq: InitialFetchRequest = {
-      client: new LemmyHttp(httpBaseInternal, headers),
-      auth,
-      path: req.path,
-      query: req.query,
-    };
+    const client = new LemmyHttp(httpBaseInternal, headers);
 
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
-    let try_site: any = await initialFetchReq.client.getSite(getSiteForm);
+    let try_site: any = await client.getSite(getSiteForm);
     if (try_site.error == "not_logged_in") {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
       );
       getSiteForm.auth = undefined;
-      initialFetchReq.auth = undefined;
-      try_site = await initialFetchReq.client.getSite(getSiteForm);
+      auth = undefined;
+      try_site = await client.getSite(getSiteForm);
     }
     const site: GetSiteResponse = try_site;
     initializeSite(site);
+
+    const initialFetchReq: InitialFetchRequest = {
+      client,
+      auth,
+      path: req.path,
+      query: req.query,
+      site,
+    };
 
     if (activeRoute?.fetchInitialData) {
       promises.push(...activeRoute.fetchInitialData(initialFetchReq));

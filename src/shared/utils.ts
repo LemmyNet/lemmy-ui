@@ -1,3 +1,4 @@
+import type { Options } from "choices.js";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
@@ -369,26 +370,30 @@ export async function getSiteMetadata(url: string) {
 export const getDataTypeString = (dt: DataType) =>
   dt === DataType.Post ? "Post" : "Comment";
 
-export function debounce(func: any, wait = 1000, immediate = false) {
+export function debounce<T extends any[], R>(
+  func: (...e: T) => R,
+  wait = 1000,
+  immediate = false
+) {
   // 'private' variable for instance
   // The returned function will be able to reference this due to closure.
   // Each call to the returned function will share this common timer.
-  let timeout: any;
+  let timeout: NodeJS.Timeout | null;
 
   // Calling debounce returns a new anonymous function
   return function () {
     // reference the context and args for the setTimeout function
-    var args = arguments;
+    const args = arguments;
 
     // Should the function be called now? If immediate is true
     //   and not already in a timeout then the answer is: Yes
-    var callNow = immediate && !timeout;
+    const callNow = immediate && !timeout;
 
-    // This is the basic debounce behaviour where you can call this
+    // This is the basic debounce behavior where you can call this
     //   function several times, but it will only execute once
     //   [before or after imposing a delay].
     //   Each time the returned function is called, the timer starts over.
-    clearTimeout(timeout);
+    clearTimeout(timeout ?? undefined);
 
     // Set the new timeout
     timeout = setTimeout(function () {
@@ -407,7 +412,7 @@ export function debounce(func: any, wait = 1000, immediate = false) {
 
     // Immediate mode and no wait timer? Execute the function..
     if (callNow) func.apply(this, args);
-  };
+  } as (...e: T) => R;
 }
 
 export function getLanguages(
@@ -1431,9 +1436,10 @@ export async function fetchUsers(q: string) {
   return client.search(form);
 }
 
-export const choicesConfig = {
+export const choicesConfig: Partial<Options> = {
   shouldSort: false,
   searchResultLimit: fetchLimit,
+  searchChoices: false,
   classNames: {
     containerOuter: "choices custom-select px-0",
     containerInner:
