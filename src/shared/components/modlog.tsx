@@ -1,4 +1,3 @@
-import type { Choice as Option } from "choices.js";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -39,13 +38,17 @@ import { WebSocketService } from "../services";
 import {
   amAdmin,
   amMod,
+  Choice,
   debounce,
   fetchLimit,
   fetchUsers,
+  getIdFromString,
   getQueryParams,
   getQueryString,
+  getUpdatedSearchId,
   isBrowser,
   myAuth,
+  personToChoice,
   QueryParams,
   setIsoData,
   toast,
@@ -105,8 +108,8 @@ interface ModlogState {
   loadingModlog: boolean;
   loadingModSearch: boolean;
   loadingUserSearch: boolean;
-  modSearchOptions: Option[];
-  userSearchOptions: Option[];
+  modSearchOptions: Choice[];
+  userSearchOptions: Choice[];
 }
 
 interface ModlogProps {
@@ -115,9 +118,6 @@ interface ModlogProps {
   modId?: number | null;
   actionType: ModlogActionType;
 }
-
-const getIdFromString = (id?: string): number | undefined =>
-  id && id !== "0" ? Number(id) : undefined;
 
 const getPageFromQuery = (page?: string): number => (page ? Number(page) : 1);
 
@@ -595,10 +595,10 @@ const Filter = ({
   loading,
 }: {
   filterType: FilterType;
-  onChange: (option: Option) => void;
+  onChange: (option: Choice) => void;
   value?: number | null;
   onSearch: (text: string) => void;
-  options: Option[];
+  options: Choice[];
   loading: boolean;
 }) => (
   <div className="col-sm-6 form-group">
@@ -611,7 +611,7 @@ const Filter = ({
       options={[
         {
           label: i18n.t("all"),
-          value: 0,
+          value: "0",
         },
       ].concat(options)}
       onChange={onChange}
@@ -627,13 +627,15 @@ async function createNewOptions({
   text,
 }: {
   id?: number | null;
-  oldOptions: Option[];
+  oldOptions: Choice[];
   text: string;
 }) {
-  const newOptions: Option[] = [];
+  const newOptions: Choice[] = [];
 
   if (id) {
-    const selectedUser = oldOptions.find(({ value }) => value === id);
+    const selectedUser = oldOptions.find(
+      ({ value }) => value === id.toString()
+    );
 
     if (selectedUser) {
       newOptions.push(selectedUser);
@@ -644,17 +646,12 @@ async function createNewOptions({
     newOptions.push(
       ...(await fetchUsers(text)).users
         .slice(0, fetchLimit)
-        .map<Option>(({ person: { id, name } }) => ({ label: name, value: id }))
+        .map<Choice>(personToChoice)
     );
   }
 
   return newOptions;
 }
-
-const getUpdatedSearchId = (id?: number | null, urlId?: number | null) =>
-  id === null
-    ? undefined
-    : ((id ?? urlId) === 0 ? undefined : id ?? urlId)?.toString();
 
 export class Modlog extends Component<
   RouteComponentProps<{ communityId?: string }>,
@@ -702,28 +699,18 @@ export class Modlog extends Component<
       const filteredModRes: GetPersonDetailsResponse | undefined =
         this.isoData.routeData[2];
       if (filteredModRes) {
-        const {
-          person_view: {
-            person: { name, id },
-          },
-        } = filteredModRes;
         this.state = {
           ...this.state,
-          modSearchOptions: [{ label: name, value: id }],
+          modSearchOptions: [personToChoice(filteredModRes.person_view)],
         };
       }
 
       const filteredUserRes: GetPersonDetailsResponse | undefined =
         this.isoData.routeData[3];
       if (filteredUserRes) {
-        const {
-          person_view: {
-            person: { name, id },
-          },
-        } = filteredUserRes;
         this.state = {
           ...this.state,
-          userSearchOptions: [{ label: name, value: id }],
+          userSearchOptions: [personToChoice(filteredUserRes.person_view)],
         };
       }
 
@@ -905,11 +892,11 @@ export class Modlog extends Component<
     this.updateUrl({ page });
   }
 
-  handleUserChange(option: Option) {
+  handleUserChange(option: Choice) {
     this.updateUrl({ userId: getIdFromString(option.value) ?? null, page: 1 });
   }
 
-  handleModChange(option: Option) {
+  handleModChange(option: Choice) {
     this.updateUrl({ modId: getIdFromString(option.value) ?? null, page: 1 });
   }
 

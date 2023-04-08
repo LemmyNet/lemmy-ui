@@ -24,14 +24,13 @@ import { UserService, WebSocketService } from "../../services";
 import {
   archiveTodayUrl,
   capitalizeFirstLetter,
-  choicesConfig,
-  communitySelectName,
+  Choice,
   communityToChoice,
   debounce,
   fetchCommunities,
+  getIdFromString,
   getSiteMetadata,
   ghostArchiveUrl,
-  isBrowser,
   isImage,
   myAuth,
   myFirstDiscussionLanguageId,
@@ -50,12 +49,8 @@ import {
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
-
-var Choices: any;
-if (isBrowser()) {
-  Choices = require("choices.js");
-}
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -88,18 +83,19 @@ interface PostFormState {
   loading: boolean;
   imageLoading: boolean;
   communitySearchLoading: boolean;
+  communitySearchOptions: Choice[];
   previewMode: boolean;
 }
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
   private subscription?: Subscription;
-  private choices: any;
   state: PostFormState = {
     form: {},
     loading: false,
     imageLoading: false,
     communitySearchLoading: false,
     previewMode: false,
+    communitySearchOptions: [],
   };
 
   constructor(props: any, context: any) {
@@ -144,8 +140,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   componentDidMount() {
     setupTippy();
-    this.setupCommunities();
-    let textarea: any = document.getElementById("post-title");
+    const textarea: any = document.getElementById("post-title");
+
     if (textarea) {
       autosize(textarea);
     }
@@ -342,26 +338,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className="col-sm-2 col-form-label"
                 htmlFor="post-community"
               >
-                {this.state.communitySearchLoading ? (
-                  <Spinner />
-                ) : (
-                  i18n.t("community")
-                )}
+                {i18n.t("community")}
               </label>
               <div className="col-sm-10">
-                <select
-                  className="form-control"
+                <SearchableSelect
                   id="post-community"
                   value={this.state.form.community_id}
-                  onInput={linkEvent(this, this.handlePostCommunityChange)}
-                >
-                  <option>{i18n.t("select_a_community")}</option>
-                  {this.props.communities?.map(cv => (
-                    <option key={cv.community.id} value={cv.community.id}>
-                      {communitySelectName(cv)}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    {
+                      label: i18n.t("select_a_community"),
+                      value: "",
+                      disabled: true,
+                    } as Choice,
+                  ].concat(this.state.communitySearchOptions)}
+                  loading={this.state.communitySearchLoading}
+                  onChange={this.handleCommunitySelect}
+                  onSearch={this.handleCommunitySearch}
+                />
               </div>
             </div>
           )}
@@ -609,68 +602,43 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       });
   }
 
-  setupCommunities() {
-    // Set up select searching
-    if (isBrowser()) {
-      let selectId: any = document.getElementById("post-community");
-      if (selectId) {
-        this.choices = new Choices(selectId, choicesConfig);
-        this.choices.passedElement.element.addEventListener(
-          "choice",
-          (e: any) => {
-            this.setState(
-              s => ((s.form.community_id = Number(e.detail.choice.value)), s)
-            );
-          },
-          false
-        );
-        this.choices.passedElement.element.addEventListener("search", () => {
-          this.setState({ communitySearchLoading: true });
-        });
-        this.choices.passedElement.element.addEventListener(
-          "search",
-          debounce(async (e: any) => {
-            try {
-              let communities = (await fetchCommunities(e.detail.value))
-                .communities;
-              this.choices.setChoices(
-                communities.map(cv => communityToChoice(cv)),
-                "value",
-                "label",
-                true
-              );
-              this.setState({ communitySearchLoading: false });
-            } catch (err) {
-              console.log(err);
-            }
-          }),
-          false
-        );
-      }
-    }
-
-    let pv = this.props.post_view;
-    this.setState(s => ((s.form.community_id = pv?.community.id), s));
-
-    let nameOrId = this.props.params?.nameOrId;
-    if (nameOrId) {
-      if (typeof nameOrId === "string") {
-        let name_ = nameOrId;
-        let foundCommunityId = this.props.communities?.find(
-          r => r.community.name == name_
-        )?.community.id;
-        this.setState(s => ((s.form.community_id = foundCommunityId), s));
-      } else {
-        let id = nameOrId;
-        this.setState(s => ((s.form.community_id = id), s));
-      }
-    }
-
-    if (isBrowser() && this.state.form.community_id) {
-      this.choices.setChoiceByValue(this.state.form.community_id.toString());
-    }
-    this.setState(this.state);
+  handleCommunitySelect({ value }: Choice) {
+    this.setState(({ form }) => ({
+      form: {
+        ...form,
+        community_id: Number(value),
+      },
+    }));
   }
+
+  handleCommunitySearch = debounce(async (text: string) => {
+    const {
+      communitySearchOptions,
+      form: { community_id },
+    } = this.state;
+    this.setState({ communitySearchLoading: true });
+
+    const newOptions: Choice[] = [];
+
+    const selectedOption = communitySearchOptions.find(
+      ({ value }) => getIdFromString(value) === community_id
+    );
+
+    if (selectedOption) {
+      newOptions.push(selectedOption);
+    }
+
+    if (text.length > 0) {
+      newOptions.push(
+        ...(await fetchCommunities(text)).communities.map(communityToChoice)
+      );
+    }
+
+    this.setState({
+      communitySearchLoading: false,
+      communitySearchOptions: newOptions,
+    });
+  });
 
   parseMessage(msg: any) {
     let mui = UserService.Instance.myUserInfo;

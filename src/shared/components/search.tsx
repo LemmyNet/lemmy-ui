@@ -1,4 +1,3 @@
-import type Choice from "choices.js";
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -32,10 +31,8 @@ import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { WebSocketService } from "../services";
 import {
   capitalizeFirstLetter,
-  choicesConfig,
-  ChoicesValue,
+  Choice,
   commentsToFlatNodes,
-  communitySelectName,
   communityToChoice,
   createCommentLikeRes,
   createPostLikeFindRes,
@@ -45,12 +42,12 @@ import {
   fetchCommunities,
   fetchLimit,
   fetchUsers,
+  getIdFromString,
   getQueryParams,
   getQueryString,
-  isBrowser,
+  getUpdatedSearchId,
   myAuth,
   numToSI,
-  personSelectName,
   personToChoice,
   QueryParams,
   restoreScrollPosition,
@@ -69,23 +66,19 @@ import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { ListingTypeSelect } from "./common/listing-type-select";
 import { Paginator } from "./common/paginator";
+import { SearchableSelect } from "./common/searchable-select";
 import { SortSelect } from "./common/sort-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
-
-let Choices: typeof Choice;
-if (isBrowser()) {
-  Choices = require("choices.js");
-}
 
 interface SearchProps {
   q?: string;
   type: SearchType;
   sort: SortType;
   listingType: ListingType;
-  communityId?: number;
-  creatorId?: number;
+  communityId?: number | null;
+  creatorId?: number | null;
   page: number;
 }
 
@@ -95,10 +88,14 @@ interface SearchState {
   searchResponse?: SearchResponse;
   communities: CommunityView[];
   creatorDetails?: GetPersonDetailsResponse;
-  loading: boolean;
+  searchLoading: boolean;
+  searchCommunitiesLoading: boolean;
+  searchCreatorLoading: boolean;
   siteRes: GetSiteResponse;
   searchText?: string;
   resolveObjectResponse?: ResolveObjectResponse;
+  communitySearchOptions: Choice[];
+  creatorSearchOptions: Choice[];
 }
 
 interface Combined {
@@ -179,31 +176,40 @@ const personViewSafeToCombined = (data: PersonViewSafe): Combined => ({
   published: data.person.published,
 });
 
-function getFilter(
-  filterType: FilterType,
-  selectedId: number | undefined,
-  options: { value: number; label: string }[]
-) {
-  const elementId = `${filterType}-filter`;
-
-  return (
-    <div className="form-group col-sm-6">
-      <label className="col-form-label" htmlFor={elementId}>
-        {capitalizeFirstLetter(i18n.t(filterType))}
-      </label>
-      <div>
-        <select className="form-control" id={elementId} value={selectedId}>
-          <option value={0}>{i18n.t("all")}</option>
-          {options.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
-  );
-}
+const Filter = ({
+  filterType,
+  options,
+  onChange,
+  onSearch,
+  value,
+  loading,
+}: {
+  filterType: FilterType;
+  options: Choice[];
+  onSearch: (text: string) => void;
+  onChange: (choice: Choice) => void;
+  value?: number | null;
+  loading: boolean;
+}) => (
+  <div className="form-group col-sm-6">
+    <label className="col-form-label" htmlFor={`${filterType}-filter`}>
+      {capitalizeFirstLetter(i18n.t(filterType))}
+    </label>
+    <SearchableSelect
+      id={`${filterType}-filter`}
+      options={[
+        {
+          label: i18n.t("all"),
+          value: "0",
+        },
+      ].concat(options)}
+      value={value ?? 0}
+      onSearch={onSearch}
+      onChange={onChange}
+      loading={loading}
+    />
+  </div>
+);
 
 const communityListing = ({
   community,
@@ -238,15 +244,15 @@ const getListing = (
 
 export class Search extends Component<any, SearchState> {
   private isoData = setIsoData(this.context);
-  private choices = {} as {
-    community: Choice;
-    creator: Choice;
-  };
   private subscription?: Subscription;
   state: SearchState = {
-    loading: false,
+    searchLoading: false,
     siteRes: this.isoData.site_res,
     communities: [],
+    searchCommunitiesLoading: false,
+    searchCreatorLoading: false,
+    creatorSearchOptions: [],
+    communitySearchOptions: [],
   };
 
   constructor(props: any, context: any) {
@@ -303,7 +309,7 @@ export class Search extends Component<any, SearchState> {
           searchResponse: this.isoData.routeData[3] as SearchResponse,
           resolveObjectResponse: this.isoData
             .routeData[4] as ResolveObjectResponse,
-          loading: false,
+          searchLoading: false,
         };
       } else {
         this.search();
@@ -329,11 +335,6 @@ export class Search extends Component<any, SearchState> {
   componentWillUnmount() {
     this.subscription?.unsubscribe();
     saveScrollPosition(this.context);
-  }
-
-  componentDidMount() {
-    this.setupCommunityFilter();
-    this.setupCreatorFilter();
   }
 
   static fetchInitialData({
@@ -465,14 +466,25 @@ export class Search extends Component<any, SearchState> {
           minLength={1}
         />
         <button type="submit" className="btn btn-secondary mr-2 mb-2">
-          {this.state.loading ? <Spinner /> : <span>{i18n.t("search")}</span>}
+          {this.state.searchLoading ? (
+            <Spinner />
+          ) : (
+            <span>{i18n.t("search")}</span>
+          )}
         </button>
       </form>
     );
   }
 
   get selects() {
-    const { type, listingType, sort } = getSearchQueryParams();
+    const { type, listingType, sort, communityId, creatorId } =
+      getSearchQueryParams();
+    const {
+      communitySearchOptions,
+      creatorSearchOptions,
+      searchCommunitiesLoading,
+      searchCreatorLoading,
+    } = this.state;
 
     return (
       <div className="mb-2">
@@ -508,8 +520,24 @@ export class Search extends Component<any, SearchState> {
           />
         </span>
         <div className="form-row">
-          {this.state.communities.length > 0 && this.communityFilter}
-          {this.creatorFilter}
+          {this.state.communities.length > 0 && (
+            <Filter
+              filterType="community"
+              onChange={this.handleCommunityFilterChange}
+              onSearch={this.handleCommunitySearch}
+              options={communitySearchOptions}
+              loading={searchCommunitiesLoading}
+              value={communityId}
+            />
+          )}
+          <Filter
+            filterType="creator"
+            onChange={this.handleCreatorFilterChange}
+            onSearch={this.handleCreatorSearch}
+            options={creatorSearchOptions}
+            loading={searchCreatorLoading}
+            value={creatorId}
+          />
         </div>
       </div>
     );
@@ -712,32 +740,6 @@ export class Search extends Component<any, SearchState> {
     );
   }
 
-  get communityFilter() {
-    const { communityId } = getSearchQueryParams();
-
-    return getFilter(
-      "community",
-      communityId,
-      this.state.communities.map(cv => ({
-        value: cv.community.id,
-        label: communitySelectName(cv),
-      }))
-    );
-  }
-
-  get creatorFilter() {
-    const creatorPv = this.state.creatorDetails?.person_view;
-    const { creatorId } = getSearchQueryParams();
-
-    return getFilter(
-      "creator",
-      creatorId,
-      creatorPv
-        ? [{ value: creatorPv.person.id, label: personSelectName(creatorPv) }]
-        : []
-    );
-  }
-
   get resultsCount(): number {
     const { searchResponse: r, resolveObjectResponse: resolveRes } = this.state;
 
@@ -760,10 +762,6 @@ export class Search extends Component<any, SearchState> {
     return resObjCount + searchCount;
   }
 
-  handlePageChange(page: number) {
-    this.updateUrl({ page });
-  }
-
   search() {
     const auth = myAuth(false);
     const { searchText: q } = this.state;
@@ -773,8 +771,8 @@ export class Search extends Component<any, SearchState> {
     if (q && q !== "") {
       const form: SearchForm = {
         q,
-        community_id: communityId,
-        creator_id: creatorId,
+        community_id: communityId ?? undefined,
+        creator_id: creatorId ?? undefined,
         type_: type,
         sort,
         listing_type: listingType,
@@ -791,7 +789,7 @@ export class Search extends Component<any, SearchState> {
       this.setState({
         searchResponse: undefined,
         resolveObjectResponse: undefined,
-        loading: true,
+        searchLoading: true,
       });
 
       WebSocketService.Instance.send(wsClient.search(form));
@@ -799,53 +797,61 @@ export class Search extends Component<any, SearchState> {
     }
   }
 
-  setupCommunityFilter() {
-    this.setupFilter("community", this.handleCommunityFilterChange, async val =>
-      (await fetchCommunities(val)).communities.map(communityToChoice)
-    );
-  }
+  handleCreatorSearch = debounce(async (text: string) => {
+    const { creatorId } = getSearchQueryParams();
+    const { creatorSearchOptions } = this.state;
+    this.setState({
+      searchCreatorLoading: true,
+    });
 
-  setupCreatorFilter() {
-    this.setupFilter("creator", this.handleCreatorFilterChange, async val =>
-      (await fetchUsers(val)).users.map(personToChoice)
-    );
-  }
+    const newOptions: Choice[] = [];
 
-  setupFilter(
-    filterType: FilterType,
-    handleFilterChange: (id: number) => void,
-    fetchChoices: (val: any) => Promise<ChoicesValue[]>
-  ) {
-    if (isBrowser()) {
-      const selectId: any = document.getElementById(`${filterType}-filter`);
-      if (selectId) {
-        this.choices[filterType] = new Choices(selectId, choicesConfig);
-        this.choices[filterType].passedElement.element.addEventListener(
-          "choice",
-          (e: any) => {
-            handleFilterChange(Number(e.detail.choice.value));
-          }
-        );
-        this.choices[filterType].passedElement.element.addEventListener(
-          "search",
-          debounce(async (e: any) => {
-            try {
-              const result = await fetchChoices(e.detail.value);
-              result.unshift({ value: "0", label: i18n.t("all") });
-              this.choices[filterType].setChoices(
-                result,
-                "value",
-                "label",
-                true
-              );
-            } catch (err) {
-              console.log(err);
-            }
-          })
-        );
-      }
+    const selectedChoice = creatorSearchOptions.find(
+      choice => getIdFromString(choice.value) === creatorId
+    );
+
+    if (selectedChoice) {
+      newOptions.push(selectedChoice);
     }
-  }
+
+    if (text.length > 0) {
+      newOptions.push(...(await fetchUsers(text)).users.map(personToChoice));
+    }
+
+    this.setState({
+      searchCreatorLoading: false,
+      creatorSearchOptions: newOptions,
+    });
+  });
+
+  handleCommunitySearch = debounce(async (text: string) => {
+    const { communityId } = getSearchQueryParams();
+    const { communitySearchOptions } = this.state;
+    this.setState({
+      searchCommunitiesLoading: true,
+    });
+
+    const newOptions: Choice[] = [];
+
+    const selectedChoice = communitySearchOptions.find(
+      choice => getIdFromString(choice.value) === communityId
+    );
+
+    if (selectedChoice) {
+      newOptions.push(selectedChoice);
+    }
+
+    if (text.length > 0) {
+      newOptions.push(
+        ...(await fetchCommunities(text)).communities.map(communityToChoice)
+      );
+    }
+
+    this.setState({
+      searchCommunitiesLoading: false,
+      communitySearchOptions: newOptions,
+    });
+  });
 
   handleSortChange(sort: SortType) {
     this.updateUrl({ sort, page: 1 });
@@ -860,6 +866,10 @@ export class Search extends Component<any, SearchState> {
     });
   }
 
+  handlePageChange(page: number) {
+    this.updateUrl({ page });
+  }
+
   handleListingTypeChange(listingType: ListingType) {
     this.updateUrl({
       listingType,
@@ -867,16 +877,16 @@ export class Search extends Component<any, SearchState> {
     });
   }
 
-  handleCommunityFilterChange(communityId: number) {
+  handleCommunityFilterChange({ value }: Choice) {
     this.updateUrl({
-      communityId,
+      communityId: getIdFromString(value) ?? null,
       page: 1,
     });
   }
 
-  handleCreatorFilterChange(creatorId: number) {
+  handleCreatorFilterChange({ value }: Choice) {
     this.updateUrl({
-      creatorId,
+      creatorId: getIdFromString(value) ?? null,
       page: 1,
     });
   }
@@ -923,8 +933,8 @@ export class Search extends Component<any, SearchState> {
       q: query,
       type: type ?? urlType,
       listingType: listingType ?? urlListingType,
-      communityId: (communityId ?? urlCommunityId)?.toString(),
-      creatorId: (creatorId ?? urlCreatorId)?.toString(),
+      communityId: getUpdatedSearchId(communityId, urlCommunityId),
+      creatorId: getUpdatedSearchId(creatorId, urlCreatorId),
       page: (page ?? urlPage).toString(),
       sort: sort ?? urlSort,
     };
@@ -978,7 +988,6 @@ export class Search extends Component<any, SearchState> {
         case UserOperation.ListCommunities: {
           const { communities } = wsJsonToRes<ListCommunitiesResponse>(msg);
           this.setState({ communities });
-          this.setupCommunityFilter();
 
           break;
         }
@@ -996,7 +1005,7 @@ export class Search extends Component<any, SearchState> {
 
   checkFinishedLoading() {
     if (this.state.searchResponse && this.state.resolveObjectResponse) {
-      this.setState({ loading: false });
+      this.setState({ searchLoading: false });
     }
   }
 }

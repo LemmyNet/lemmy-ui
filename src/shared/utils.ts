@@ -1,4 +1,3 @@
-import type { Options } from "choices.js";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
@@ -83,6 +82,8 @@ export const concurrentImageUpload = 4;
 
 export const relTags = "noopener nofollow";
 
+export const emDash = "\u2014";
+
 export type ThemeColor =
   | "primary"
   | "secondary"
@@ -118,6 +119,9 @@ const DEFAULT_ALPHABET =
 function getRandomCharFromAlphabet(alphabet: string): string {
   return alphabet.charAt(Math.floor(Math.random() * alphabet.length));
 }
+
+export const getIdFromString = (id?: string): number | undefined =>
+  id && id !== "0" && !Number.isNaN(Number(id)) ? Number(id) : undefined;
 
 export function randomStr(
   idDesiredLength = 20,
@@ -1387,26 +1391,26 @@ export function showLocal(isoData: IsoData): boolean {
   return linked ? linked.length > 0 : false;
 }
 
-export interface ChoicesValue {
+export interface Choice {
   value: string;
   label: string;
+  disabled?: boolean;
 }
 
-export function communityToChoice(cv: CommunityView): ChoicesValue {
-  let choice: ChoicesValue = {
-    value: cv.community.id.toString(),
-    label: communitySelectName(cv),
-  };
-  return choice;
-}
+export const getUpdatedSearchId = (id?: number | null, urlId?: number | null) =>
+  id === null
+    ? undefined
+    : ((id ?? urlId) === 0 ? undefined : id ?? urlId)?.toString();
 
-export function personToChoice(pvs: PersonViewSafe): ChoicesValue {
-  let choice: ChoicesValue = {
-    value: pvs.person.id.toString(),
-    label: personSelectName(pvs),
-  };
-  return choice;
-}
+export const communityToChoice = (cv: CommunityView): Choice => ({
+  value: cv.community.id.toString(),
+  label: communitySelectName(cv),
+});
+
+export const personToChoice = (pvs: PersonViewSafe): Choice => ({
+  value: pvs.person.id.toString(),
+  label: personSelectName(pvs),
+});
 
 export async function fetchCommunities(q: string) {
   let form: Search = {
@@ -1435,41 +1439,6 @@ export async function fetchUsers(q: string) {
   let client = new LemmyHttp(httpBase);
   return client.search(form);
 }
-
-export const choicesConfig: Partial<Options> = {
-  shouldSort: false,
-  searchResultLimit: fetchLimit,
-  searchChoices: false,
-  classNames: {
-    containerOuter: "choices custom-select px-0",
-    containerInner:
-      "choices__inner bg-secondary border-0 py-0 modlog-choices-font-size",
-    input: "form-control",
-    inputCloned: "choices__input--cloned",
-    list: "choices__list",
-    listItems: "choices__list--multiple",
-    listSingle: "choices__list--single py-0",
-    listDropdown: "choices__list--dropdown",
-    item: "choices__item bg-secondary",
-    itemSelectable: "choices__item--selectable",
-    itemDisabled: "choices__item--disabled",
-    itemChoice: "choices__item--choice",
-    placeholder: "choices__placeholder",
-    group: "choices__group",
-    groupHeading: "choices__heading",
-    button: "choices__button",
-    activeState: "is-active",
-    focusState: "is-focused",
-    openState: "is-open",
-    disabledState: "is-disabled",
-    highlightedState: "text-info",
-    selectedState: "text-info",
-    flippedState: "is-flipped",
-    loadingState: "is-loading",
-    noResults: "has-no-results",
-    noChoices: "has-no-choices",
-  },
-};
 
 export function communitySelectName(cv: CommunityView): string {
   return cv.community.local

@@ -38,7 +38,6 @@
     "babel-plugin-inferno": "^6.6.0",
     "bootstrap": "^5.2.3",
     "check-password-strength": "^2.0.7",
-    "choices.js": "^10.2.0",
     "classnames": "^2.3.1",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",

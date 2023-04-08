@@ -1,4 +1,3 @@
-import type { Choice as Option } from "choices.js";
 import classNames from "classnames";
 import {
   ChangeEvent,
@@ -8,12 +7,14 @@ import {
   RefObject,
 } from "inferno";
 import { i18n } from "../../i18next";
+import { Choice } from "../../utils";
+import { Icon, Spinner } from "./icon";
 
 interface SearchableSelectProps {
   id: string;
   value?: number | string;
-  options: Option[];
-  onChange?: (option: Option) => void;
+  options: Choice[];
+  onChange?: (option: Choice) => void;
   onSearch?: (text: string) => void;
   loading?: boolean;
 }
@@ -95,6 +96,9 @@ export class SearchableSelect extends Component<
           className="modlog-choices-font-size dropdown-menu w-100"
         >
           <div className="input-group p-2">
+            <span className="input-group-text">
+              {loading ? <Spinner /> : <Icon icon="search" />}
+            </span>
             <input
               type="text"
               className="form-control"
@@ -134,6 +138,14 @@ export class SearchableSelect extends Component<
   focusSearch() {
     if (this.toggleButtonRef.current?.ariaExpanded !== "true") {
       this.searchInputRef.current?.focus();
+
+      if (this.props.onSearch) {
+        this.props.onSearch("");
+      }
+
+      this.setState({
+        searchText: "",
+      });
     }
   }
 
@@ -175,7 +187,7 @@ export class SearchableSelect extends Component<
     }
   }
 
-  handleChange(option: Option) {
+  handleChange(option: Choice) {
     const { onChange, value } = this.props;
 
     if (option.value !== value) {
