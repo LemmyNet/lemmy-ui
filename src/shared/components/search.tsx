@@ -43,6 +43,7 @@ import {
   fetchLimit,
   fetchUsers,
   getIdFromString,
+  getPageFromString,
   getQueryParams,
   getQueryString,
   getUpdatedSearchId,
@@ -117,20 +118,16 @@ const searchTypes = [
   SearchType.Url,
 ];
 
-function getSearchQueryParams(): SearchProps {
-  const { q, type, sort, listingType, communityId, creatorId, page } =
-    getQueryParams<QueryParams<SearchProps>>();
-
-  return {
-    q: getSearchQueryFromQuery(q),
-    type: getSearchTypeFromQuery(type),
-    sort: getSortTypeFromQuery(sort),
-    listingType: getListingTypeFromQuery(listingType),
-    communityId: getCommunityIdFromQuery(communityId),
-    creatorId: getCreatorIdFromQuery(creatorId),
-    page: getPageFromQuery(page),
-  };
-}
+const getSearchQueryParams = () =>
+  getQueryParams<SearchProps>({
+    q: getSearchQueryFromQuery,
+    type: getSearchTypeFromQuery,
+    sort: getSortTypeFromQuery,
+    listingType: getListingTypeFromQuery,
+    communityId: getIdFromString,
+    creatorId: getIdFromString,
+    page: getPageFromString,
+  });
 
 const getSearchQueryFromQuery = (q?: string): string | undefined =>
   q ? decodeURIComponent(q) : undefined;
@@ -143,14 +140,6 @@ const getSortTypeFromQuery = (sort?: string): SortType =>
 
 const getListingTypeFromQuery = (listingType?: string): ListingType =>
   routeListingTypeToEnum(listingType ?? "", defaultListingType);
-
-const getCommunityIdFromQuery = (id?: string): number | undefined =>
-  id ? Number(id) : undefined;
-
-const getCreatorIdFromQuery = (id?: string): number | undefined =>
-  id ? Number(id) : undefined;
-
-const getPageFromQuery = (page?: string): number => (page ? Number(page) : 1);
 
 const postViewToCombined = (data: PostView): Combined => ({
   type_: "posts",
@@ -344,7 +333,7 @@ export class Search extends Component<any, SearchState> {
   }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<any>[] {
     const promises: Promise<any>[] = [];
 
-    const community_id = getCommunityIdFromQuery(communityId);
+    const community_id = getIdFromString(communityId);
     if (community_id) {
       const getCommunityForm: GetCommunity = {
         id: community_id,
@@ -363,7 +352,7 @@ export class Search extends Component<any, SearchState> {
       promises.push(client.listCommunities(listCommunitiesForm));
     }
 
-    const creator_id = getCreatorIdFromQuery(creatorId);
+    const creator_id = getIdFromString(creatorId);
     if (creator_id) {
       const getCreatorForm: GetPersonDetails = {
         person_id: creator_id,
@@ -384,7 +373,7 @@ export class Search extends Component<any, SearchState> {
         type_: getSearchTypeFromQuery(type),
         sort: getSortTypeFromQuery(sort),
         listing_type: getListingTypeFromQuery(listingType),
-        page: getPageFromQuery(page),
+        page: getIdFromString(page),
         limit: fetchLimit,
         auth,
       };

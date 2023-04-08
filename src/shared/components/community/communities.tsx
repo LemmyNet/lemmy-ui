@@ -17,6 +17,7 @@ import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
+  getPageFromString,
   getQueryParams,
   getQueryString,
   isBrowser,
@@ -50,16 +51,11 @@ interface CommunitiesProps {
   page: number;
 }
 
-function getSearchQueryParams(): CommunitiesProps {
-  const { listingType, page } = getQueryParams<QueryParams<CommunitiesProps>>();
-
-  return {
-    listingType: getListingTypeFromQuery(listingType),
-    page: getPageFromQuery(page),
-  };
-}
-
-const getPageFromQuery = (page?: string): number => (page ? Number(page) : 1);
+const getCommunitiesQueryParams = () =>
+  getQueryParams<CommunitiesProps>({
+    listingType: getListingTypeFromQuery,
+    page: getPageFromString,
+  });
 
 const getListingTypeFromQuery = (listingType?: string): ListingType =>
   routeListingTypeToEnum(listingType ?? "", ListingType.Local);
@@ -78,7 +74,7 @@ function toggleSubscribe(community_id: number, follow: boolean) {
 }
 
 function refetch() {
-  const { listingType, page } = getSearchQueryParams();
+  const { listingType, page } = getCommunitiesQueryParams();
 
   const listCommunitiesForm: ListCommunities = {
     type_: listingType,
@@ -134,7 +130,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   render() {
-    const { listingType, page } = getSearchQueryParams();
+    const { listingType, page } = getCommunitiesQueryParams();
 
     return (
       <div className="container-lg">
@@ -273,7 +269,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   updateUrl({ listingType, page }: Partial<CommunitiesProps>) {
     const { listingType: urlListingType, page: urlPage } =
-      getSearchQueryParams();
+      getCommunitiesQueryParams();
 
     const queryParams: QueryParams<CommunitiesProps> = {
       listingType: listingType ?? urlListingType,
@@ -322,7 +318,7 @@ export class Communities extends Component<any, CommunitiesState> {
       type_: getListingTypeFromQuery(listingType),
       sort: SortType.TopMonth,
       limit: communityLimit,
-      page: getPageFromQuery(page),
+      page: getPageFromString(page),
       auth: auth,
     };
 

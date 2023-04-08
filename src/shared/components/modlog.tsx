@@ -43,6 +43,7 @@ import {
   fetchLimit,
   fetchUsers,
   getIdFromString,
+  getPageFromString,
   getQueryParams,
   getQueryString,
   getUpdatedSearchId,
@@ -89,17 +90,13 @@ interface ModlogType {
   when_: string;
 }
 
-function getSearchQueryParams(): ModlogProps {
-  const { page, actionType, modId, userId } =
-    getQueryParams<QueryParams<ModlogProps>>();
-
-  return {
-    actionType: getActionFromString(actionType),
-    modId: getIdFromString(modId),
-    userId: getIdFromString(userId),
-    page: getPageFromQuery(page),
-  };
-}
+const getModlogQueryParams = () =>
+  getQueryParams<ModlogProps>({
+    actionType: getActionFromString,
+    modId: getIdFromString,
+    userId: getIdFromString,
+    page: getPageFromString,
+  });
 
 interface ModlogState {
   res?: GetModlogResponse;
@@ -118,8 +115,6 @@ interface ModlogProps {
   modId?: number | null;
   actionType: ModlogActionType;
 }
-
-const getPageFromQuery = (page?: string): number => (page ? Number(page) : 1);
 
 const getActionFromString = (action?: string) =>
   action
@@ -777,7 +772,7 @@ export class Modlog extends Component<
       userSearchOptions,
       modSearchOptions,
     } = this.state;
-    const { actionType, page, modId, userId } = getSearchQueryParams();
+    const { actionType, page, modId, userId } = getModlogQueryParams();
 
     return (
       <div className="container-lg">
@@ -901,7 +896,7 @@ export class Modlog extends Component<
   }
 
   handleSearchUsers = debounce(async (text: string) => {
-    const { userId } = getSearchQueryParams();
+    const { userId } = getModlogQueryParams();
     const { userSearchOptions } = this.state;
     this.setState({ loadingUserSearch: true });
 
@@ -918,7 +913,7 @@ export class Modlog extends Component<
   });
 
   handleSearchMods = debounce(async (text: string) => {
-    const { modId } = getSearchQueryParams();
+    const { modId } = getModlogQueryParams();
     const { modSearchOptions } = this.state;
     this.setState({ loadingModSearch: true });
 
@@ -940,7 +935,7 @@ export class Modlog extends Component<
       actionType: urlActionType,
       modId: urlModId,
       userId: urlUserId,
-    } = getSearchQueryParams();
+    } = getModlogQueryParams();
 
     const queryParams: QueryParams<ModlogProps> = {
       page: (page ?? urlPage).toString(),
@@ -967,7 +962,7 @@ export class Modlog extends Component<
 
   refetch() {
     const auth = myAuth(false);
-    const { actionType, page, modId, userId } = getSearchQueryParams();
+    const { actionType, page, modId, userId } = getModlogQueryParams();
     const { communityId: urlCommunityId } = this.props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
@@ -1012,7 +1007,7 @@ export class Modlog extends Component<
     const userId = getIdFromString(urlUserId);
 
     const modlogForm: GetModlog = {
-      page: getPageFromQuery(page),
+      page: getPageFromString(page),
       limit: fetchLimit,
       community_id: communityId,
       type_: getActionFromString(actionType),

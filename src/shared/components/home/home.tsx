@@ -47,6 +47,7 @@ import {
   enableNsfw,
   fetchLimit,
   getDataTypeString,
+  getPageFromString,
   getQueryParams,
   getQueryString,
   getRandomFromList,
@@ -134,19 +135,13 @@ function getSortTypeFromQuery(type?: string) {
   );
 }
 
-const getPageFromQuery = (page?: string) => (page ? Number(page) : 1);
-
-function getSearchQueryParams(): HomeProps {
-  const { sort, listingType, page, dataType } =
-    getQueryParams<QueryParams<HomeProps>>();
-
-  return {
-    sort: getSortTypeFromQuery(sort),
-    listingType: getListingTypeFromQuery(listingType),
-    page: getPageFromQuery(page),
-    dataType: getDataTypeFromQuery(dataType),
-  };
-}
+const getHomeQueryParams = () =>
+  getQueryParams<HomeProps>({
+    sort: getSortTypeFromQuery,
+    listingType: getListingTypeFromQuery,
+    page: getPageFromString,
+    dataType: getDataTypeFromQuery,
+  });
 
 function fetchTrendingCommunities() {
   const listCommunitiesForm: ListCommunities = {
@@ -160,7 +155,7 @@ function fetchTrendingCommunities() {
 
 function fetchData() {
   const auth = myAuth(false);
-  const { dataType, page, listingType, sort } = getSearchQueryParams();
+  const { dataType, page, listingType, sort } = getHomeQueryParams();
   let req: string;
 
   if (dataType === DataType.Post) {
@@ -221,7 +216,7 @@ const LinkButton = ({
 );
 
 function getRss(listingType: ListingType) {
-  const { sort } = getSearchQueryParams();
+  const { sort } = getHomeQueryParams();
   const auth = myAuth(false);
 
   let rss: string | undefined = undefined;
@@ -603,7 +598,7 @@ export class Home extends Component<any, HomeState> {
       listingType: urlListingType,
       page: urlPage,
       sort: urlSort,
-    } = getSearchQueryParams();
+    } = getHomeQueryParams();
 
     const queryParams: QueryParams<HomeProps> = {
       dataType: getDataTypeString(dataType ?? urlDataType),
@@ -627,7 +622,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   posts() {
-    const { page } = getSearchQueryParams();
+    const { page } = getHomeQueryParams();
 
     return (
       <div className="main-content-wrapper">
@@ -647,7 +642,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   get listings() {
-    const { dataType } = getSearchQueryParams();
+    const { dataType } = getHomeQueryParams();
     const { siteRes, posts, comments } = this.state;
 
     return dataType === DataType.Post ? (
@@ -675,7 +670,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   selects() {
-    const { listingType, dataType, sort } = getSearchQueryParams();
+    const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
       <div className="mb-3">
@@ -778,7 +773,7 @@ export class Home extends Component<any, HomeState> {
         }
 
         case UserOperation.CreatePost: {
-          const { page, listingType } = getSearchQueryParams();
+          const { page, listingType } = getHomeQueryParams();
           const { post_view } = wsJsonToRes<PostResponse>(msg);
 
           // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
@@ -886,7 +881,7 @@ export class Home extends Component<any, HomeState> {
 
           // Necessary since it might be a user reply
           if (form_id) {
-            const { listingType } = getSearchQueryParams();
+            const { listingType } = getHomeQueryParams();
 
             // If you're on subscribed, only push it if you're subscribed.
             const shouldAddComment =

@@ -38,6 +38,7 @@ import {
   enableNsfw,
   fetchLimit,
   futureDaysToUnixTime,
+  getPageFromString,
   getQueryParams,
   getQueryString,
   isAdmin,
@@ -84,20 +85,15 @@ interface ProfileProps {
   page: number;
 }
 
-function getSearchQueryParams(): ProfileProps {
-  const { view, page, sort } = getQueryParams<QueryParams<ProfileProps>>();
-
-  return {
-    view: getViewFromProps(view),
-    page: getPageFromQuery(page),
-    sort: getSortTypeFromQuery(sort ?? ""),
-  };
-}
+const getProfileQueryParams = () =>
+  getQueryParams<ProfileProps>({
+    view: getViewFromProps,
+    page: getPageFromString,
+    sort: getSortTypeFromQuery,
+  });
 
 const getSortTypeFromQuery = (sort?: string): SortType =>
   sort ? routeSortTypeToEnum(sort, SortType.New) : SortType.New;
-
-const getPageFromQuery = (page?: string): number => (page ? Number(page) : 1);
 
 const getViewFromProps = (view?: string): PersonDetailsView =>
   view
@@ -186,7 +182,7 @@ export class Profile extends Component<
   }
 
   fetchUserData() {
-    const { page, sort, view } = getSearchQueryParams();
+    const { page, sort, view } = getProfileQueryParams();
 
     const form: GetPersonDetails = {
       username: this.props.match.params.username,
@@ -235,7 +231,7 @@ export class Profile extends Component<
       username: username,
       sort: getSortTypeFromQuery(sort),
       saved_only: view === PersonDetailsView.Saved,
-      page: getPageFromQuery(page),
+      page: getPageFromString(page),
       limit: fetchLimit,
       auth,
     };
@@ -262,7 +258,7 @@ export class Profile extends Component<
 
   render() {
     const { personRes, loading, siteRes } = this.state;
-    const { page, sort, view } = getSearchQueryParams();
+    const { page, sort, view } = getProfileQueryParams();
 
     return (
       <div className="container-lg">
@@ -325,7 +321,7 @@ export class Profile extends Component<
   }
 
   getRadio(view: PersonDetailsView) {
-    const { view: urlView } = getSearchQueryParams();
+    const { view: urlView } = getProfileQueryParams();
     const active = view === urlView;
 
     return (
@@ -346,7 +342,7 @@ export class Profile extends Component<
   }
 
   get selects() {
-    const { sort } = getSearchQueryParams();
+    const { sort } = getProfileQueryParams();
     const { username } = this.props.match.params;
 
     const profileRss = `/feeds/u/${username}.xml?sort=${sort}`;
@@ -626,7 +622,7 @@ export class Profile extends Component<
       page: urlPage,
       sort: urlSort,
       view: urlView,
-    } = getSearchQueryParams();
+    } = getProfileQueryParams();
 
     const queryParams: QueryParams<ProfileProps> = {
       page: (page ?? urlPage).toString(),

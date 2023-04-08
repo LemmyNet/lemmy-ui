@@ -123,6 +123,9 @@ function getRandomCharFromAlphabet(alphabet: string): string {
 export const getIdFromString = (id?: string): number | undefined =>
   id && id !== "0" && !Number.isNaN(Number(id)) ? Number(id) : undefined;
 
+export const getPageFromString = (page?: string): number =>
+  page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+
 export function randomStr(
   idDesiredLength = 20,
   alphabet = DEFAULT_ALPHABET
@@ -919,44 +922,6 @@ async function communitySearch(text: string): Promise<CommunityTribute[]> {
   return communities;
 }
 
-export function getListingTypeFromProps(
-  props: any,
-  defaultListingType: ListingType,
-  myUserInfo = UserService.Instance.myUserInfo
-): ListingType {
-  const myLt = myUserInfo?.local_user_view.local_user.default_listing_type;
-
-  return routeListingTypeToEnum(
-    props.match.params.listing_type ?? "",
-    myLt ? Object.values(ListingType)[myLt] : defaultListingType
-  );
-}
-
-export const getListingTypeFromPropsNoDefault = (props: any): ListingType =>
-  routeListingTypeToEnum(
-    props.match.params.listing_type ?? "",
-    ListingType.Local
-  );
-
-export const getDataTypeFromProps = (props: any): DataType =>
-  routeDataTypeToEnum(props.match.params.data_type ?? "", DataType.Post);
-
-export function getSortTypeFromProps(
-  type: string,
-  myUserInfo = UserService.Instance.myUserInfo,
-  defaultValue: SortType
-): SortType {
-  const mySortType = myUserInfo?.local_user_view.local_user.default_sort_type;
-  return routeSortTypeToEnum(
-    type,
-    mySortType ? Object.values(SortType)[mySortType] : defaultValue
-  );
-}
-
-export function getPageFromProps(props: any): number {
-  return props.match.params.page ? Number(props.match.params.page) : 1;
-}
-
 export function getRecipientIdFromProps(props: any): number {
   return props.match.params.recipient_id
     ? Number(props.match.params.recipient_id)
@@ -971,10 +936,6 @@ export function getIdFromProps(props: any): number | undefined {
 export function getCommentIdFromProps(props: any): number | undefined {
   let id = props.match.params.comment_id;
   return id ? Number(id) : undefined;
-}
-
-export function getUsernameFromProps(props: any): string {
-  return props.match.params.username;
 }
 
 export function editCommentRes(data: CommentView, comments?: CommentView[]) {
@@ -1635,12 +1596,14 @@ export type QueryParams<T extends Record<string, any>> = {
   [key in keyof T]?: string;
 };
 
-export const getQueryParams = <T extends Record<string, string>>(): T =>
+export const getQueryParams = <T extends Record<string, any>>(processors: {
+  [K in keyof T]: (param: string) => T[K];
+}): T =>
   isBrowser()
     ? Array.from(new URLSearchParams(window.location.search).entries()).reduce(
         (acc, [key, val]) => ({
           ...acc,
-          [key]: val,
+          [key]: processors[key](val),
         }),
         {} as T
       )

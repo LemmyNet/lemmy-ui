@@ -43,9 +43,9 @@ import {
   enableNsfw,
   fetchLimit,
   getDataTypeString,
+  getPageFromString,
   getQueryParams,
   getQueryString,
-  getSortTypeFromProps,
   isPostBlocked,
   myAuth,
   notifyPost,
@@ -55,6 +55,7 @@ import {
   relTags,
   restoreScrollPosition,
   routeDataTypeToEnum,
+  routeSortTypeToEnum,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
@@ -93,28 +94,26 @@ interface CommunityProps {
   page: number;
 }
 
-function getSearchQueryParams(): CommunityProps {
-  const { dataType, page, sort } =
-    getQueryParams<QueryParams<CommunityProps>>();
-
-  return {
-    dataType: getDataTypeFromQuery(dataType),
-    page: getPageFromQuery(page),
-    sort: getSortTypeFromQuery(sort ?? ""),
-  };
-}
+const getCommunityQueryParams = () =>
+  getQueryParams<CommunityProps>({
+    dataType: getDataTypeFromQuery,
+    page: getPageFromString,
+    sort: getSortTypeFromQuery,
+  });
 
 const getDataTypeFromQuery = (type?: string): DataType =>
   routeDataTypeToEnum(type ?? "", DataType.Post);
 
-const getPageFromQuery = (page?: string): number => (page ? Number(page) : 1);
+function getSortTypeFromQuery(type?: string): SortType {
+  const mySortType =
+    UserService.Instance.myUserInfo?.local_user_view.local_user
+      .default_sort_type;
 
-const getSortTypeFromQuery = (type?: string): SortType =>
-  getSortTypeFromProps(
+  return routeSortTypeToEnum(
     type ?? "",
-    UserService.Instance.myUserInfo,
-    SortType.Active
+    mySortType ? Object.values(SortType)[mySortType] : SortType.Active
   );
+}
 
 export class Community extends Component<
   RouteComponentProps<{ name: string }>,
@@ -209,7 +208,7 @@ export class Community extends Component<
 
     const sort = getSortTypeFromQuery(urlSort);
 
-    const page = getPageFromQuery(urlPage);
+    const page = getPageFromString(urlPage);
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -249,7 +248,7 @@ export class Community extends Component<
 
   render() {
     const res = this.state.communityRes;
-    const { page } = getSearchQueryParams();
+    const { page } = getCommunityQueryParams();
 
     return (
       <div className="container-lg">
@@ -337,7 +336,7 @@ export class Community extends Component<
   }
 
   get listings() {
-    const { dataType } = getSearchQueryParams();
+    const { dataType } = getCommunityQueryParams();
     const { site_res } = this.isoData;
     const { listingsLoading, posts, comments, communityRes } = this.state;
 
@@ -399,7 +398,7 @@ export class Community extends Component<
     // let communityRss = this.state.communityRes.map(r =>
     //   communityRSSUrl(r.community_view.community.actor_id, this.state.sort)
     // );
-    const { dataType, sort } = getSearchQueryParams();
+    const { dataType, sort } = getCommunityQueryParams();
     const res = this.state.communityRes;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community.actor_id, sort)
@@ -458,7 +457,7 @@ export class Community extends Component<
       dataType: urlDataType,
       page: urlPage,
       sort: urlSort,
-    } = getSearchQueryParams();
+    } = getCommunityQueryParams();
 
     const queryParams: QueryParams<CommunityProps> = {
       dataType: getDataTypeString(dataType ?? urlDataType),
@@ -480,7 +479,7 @@ export class Community extends Component<
   }
 
   fetchData() {
-    const { dataType, page, sort } = getSearchQueryParams();
+    const { dataType, page, sort } = getCommunityQueryParams();
     const { name } = this.props.match.params;
 
     let req: string;
@@ -513,7 +512,7 @@ export class Community extends Component<
   }
 
   parseMessage(msg: any) {
-    const { page } = getSearchQueryParams();
+    const { page } = getCommunityQueryParams();
     const op = wsUserOp(msg);
     console.log(msg);
     const res = this.state.communityRes;
