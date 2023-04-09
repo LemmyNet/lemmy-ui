@@ -41,12 +41,7 @@ export class App extends Component<any, any> {
             <div className="mt-4 p-0 fl-1">
               <Switch>
                 {routes.map(({ path, component }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    exact={true}
-                    component={component}
-                  />
+                  <Route key={path} path={path} exact component={component} />
                 ))}
                 <Route component={NoMatch} />
               </Switch>
