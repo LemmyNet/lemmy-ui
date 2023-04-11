@@ -88,7 +88,9 @@ export class SearchableSelect extends Component<
           data-bs-toggle="dropdown"
           onClick={this.focusSearch}
         >
-          {loading ? `Loading${loadingEllipses}` : options[selectedIndex].label}
+          {loading
+            ? `${i18n.t("loading")}${loadingEllipses}`
+            : options[selectedIndex].label}
         </button>
         <div
           role="combobox"
