@@ -1596,18 +1596,23 @@ export type QueryParams<T extends Record<string, any>> = {
   [key in keyof T]?: string;
 };
 
-export const getQueryParams = <T extends Record<string, any>>(processors: {
+export function getQueryParams<T extends Record<string, any>>(processors: {
   [K in keyof T]: (param: string) => T[K];
-}): T =>
-  isBrowser()
-    ? Array.from(new URLSearchParams(window.location.search).entries()).reduce(
-        (acc, [key, val]) => ({
-          ...acc,
-          [key]: processors[key](val),
-        }),
-        {} as T
-      )
-    : ({} as T);
+}): T {
+  if (isBrowser()) {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    return Array.from(Object.entries(processors)).reduce(
+      (acc, [key, process]) => ({
+        ...acc,
+        [key]: process(searchParams.get(key)),
+      }),
+      {} as T
+    );
+  }
+
+  return {} as T;
+}
 
 export const getQueryString = <T extends Record<string, string | undefined>>(
   obj: T
