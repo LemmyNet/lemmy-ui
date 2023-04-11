@@ -33,6 +33,7 @@ export const routes: IRoutePropsWithFetch[] = [
     path: `/`,
     component: Home,
     fetchInitialData: Home.fetchInitialData,
+    exact: true,
   },
   {
     path: `/login`,

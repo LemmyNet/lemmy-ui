@@ -179,26 +179,28 @@ const Filter = ({
   onChange: (choice: Choice) => void;
   value?: number | null;
   loading: boolean;
-}) => (
-  <div className="form-group col-sm-6">
-    <label className="col-form-label" htmlFor={`${filterType}-filter`}>
-      {capitalizeFirstLetter(i18n.t(filterType))}
-    </label>
-    <SearchableSelect
-      id={`${filterType}-filter`}
-      options={[
-        {
-          label: i18n.t("all"),
-          value: "0",
-        },
-      ].concat(options)}
-      value={value ?? 0}
-      onSearch={onSearch}
-      onChange={onChange}
-      loading={loading}
-    />
-  </div>
-);
+}) => {
+  return (
+    <div className="form-group col-sm-6">
+      <label className="col-form-label" htmlFor={`${filterType}-filter`}>
+        {capitalizeFirstLetter(i18n.t(filterType))}
+      </label>
+      <SearchableSelect
+        id={`${filterType}-filter`}
+        options={[
+          {
+            label: i18n.t("all"),
+            value: "0",
+          },
+        ].concat(options)}
+        value={value ?? 0}
+        onSearch={onSearch}
+        onChange={onChange}
+        loading={loading}
+      />
+    </div>
+  );
+};
 
 const communityListing = ({
   community,
@@ -279,17 +281,24 @@ export class Search extends Component<any, SearchState> {
           communities: communitiesRes.communities,
         };
       }
-
       if (communityRes) {
         this.state = {
           ...this.state,
           communities: [communityRes.community_view],
+          communitySearchOptions: [
+            communityToChoice(communityRes.community_view),
+          ],
         };
       }
 
+      const creatorRes = this.isoData.routeData[2] as GetPersonDetailsResponse;
+
       this.state = {
         ...this.state,
-        creatorDetails: this.isoData.routeData[2] as GetPersonDetailsResponse,
+        creatorDetails: creatorRes,
+        creatorSearchOptions: creatorRes
+          ? [personToChoice(creatorRes.person_view)]
+          : [],
       };
 
       if (q !== "") {

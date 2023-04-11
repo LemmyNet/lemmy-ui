@@ -60,7 +60,7 @@ export class SearchableSelect extends Component<
 
     if (props.value) {
       let selectedIndex = props.options.findIndex(
-        ({ value }) => value === props.value
+        ({ value }) => value === props.value?.toString()
       );
 
       if (selectedIndex < 0) {
@@ -155,7 +155,7 @@ export class SearchableSelect extends Component<
   }: SearchableSelectProps): Partial<SearchableSelectState> {
     let selectedIndex =
       value || value === 0
-        ? options.findIndex(option => option.value === value)
+        ? options.findIndex(option => option.value === value.toString())
         : 0;
 
     if (selectedIndex < 0) {
@@ -190,7 +190,7 @@ export class SearchableSelect extends Component<
   handleChange(option: Choice) {
     const { onChange, value } = this.props;
 
-    if (option.value !== value) {
+    if (option.value !== value?.toString()) {
       if (onChange) {
         onChange(option);
       }
