@@ -94,12 +94,13 @@ interface CommunityProps {
   page: number;
 }
 
-const getCommunityQueryParams = () =>
-  getQueryParams<CommunityProps>({
+function getCommunityQueryParams() {
+  return getQueryParams<CommunityProps>({
     dataType: getDataTypeFromQuery,
     page: getPageFromString,
     sort: getSortTypeFromQuery,
   });
+}
 
 const getDataTypeFromQuery = (type?: string): DataType =>
   routeDataTypeToEnum(type ?? "", DataType.Post);

@@ -120,11 +120,13 @@ function getRandomCharFromAlphabet(alphabet: string): string {
   return alphabet.charAt(Math.floor(Math.random() * alphabet.length));
 }
 
-export const getIdFromString = (id?: string): number | undefined =>
-  id && id !== "0" && !Number.isNaN(Number(id)) ? Number(id) : undefined;
+export function getIdFromString(id?: string): number | undefined {
+  return id && id !== "0" && !Number.isNaN(Number(id)) ? Number(id) : undefined;
+}
 
-export const getPageFromString = (page?: string): number =>
-  page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+export function getPageFromString(page?: string): number {
+  return page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+}
 
 export function randomStr(
   idDesiredLength = 20,
@@ -340,10 +342,12 @@ export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export const routeSortTypeToEnum = (
+export function routeSortTypeToEnum(
   sort: string,
   defaultValue: SortType
-): SortType => SortType[sort] ?? defaultValue;
+): SortType {
+  return SortType[sort] ?? defaultValue;
+}
 
 export function listingTypeFromNum(type_: number): ListingType {
   return Object.values(ListingType)[type_];
@@ -353,20 +357,26 @@ export function sortTypeFromNum(type_: number): SortType {
   return Object.values(SortType)[type_];
 }
 
-export const routeListingTypeToEnum = (
+export function routeListingTypeToEnum(
   type: string,
   defaultValue: ListingType
-): ListingType => ListingType[type] ?? defaultValue;
+): ListingType {
+  return ListingType[type] ?? defaultValue;
+}
 
-export const routeDataTypeToEnum = (
+export function routeDataTypeToEnum(
   type: string,
   defaultValue: DataType
-): DataType => DataType[type] ?? defaultValue;
+): DataType {
+  return DataType[type] ?? defaultValue;
+}
 
-export const routeSearchTypeToEnum = (
+export function routeSearchTypeToEnum(
   type: string,
   defaultValue: SearchType
-): SearchType => SearchType[type] ?? defaultValue;
+): SearchType {
+  return SearchType[type] ?? defaultValue;
+}
 
 export async function getSiteMetadata(url: string) {
   let form: GetSiteMetadata = { url };
@@ -374,8 +384,9 @@ export async function getSiteMetadata(url: string) {
   return client.getSiteMetadata(form);
 }
 
-export const getDataTypeString = (dt: DataType) =>
-  dt === DataType.Post ? "Post" : "Comment";
+export function getDataTypeString(dt: DataType) {
+  return dt === DataType.Post ? "Post" : "Comment";
+}
 
 export function debounce<T extends any[], R>(
   func: (...e: T) => R,
@@ -1358,20 +1369,25 @@ export interface Choice {
   disabled?: boolean;
 }
 
-export const getUpdatedSearchId = (id?: number | null, urlId?: number | null) =>
-  id === null
+export function getUpdatedSearchId(id?: number | null, urlId?: number | null) {
+  return id === null
     ? undefined
     : ((id ?? urlId) === 0 ? undefined : id ?? urlId)?.toString();
+}
 
-export const communityToChoice = (cv: CommunityView): Choice => ({
-  value: cv.community.id.toString(),
-  label: communitySelectName(cv),
-});
+export function communityToChoice(cv: CommunityView): Choice {
+  return {
+    value: cv.community.id.toString(),
+    label: communitySelectName(cv),
+  };
+}
 
-export const personToChoice = (pvs: PersonViewSafe): Choice => ({
-  value: pvs.person.id.toString(),
-  label: personSelectName(pvs),
-});
+export function personToChoice(pvs: PersonViewSafe): Choice {
+  return {
+    value: pvs.person.id.toString(),
+    label: personSelectName(pvs),
+  };
+}
 
 export async function fetchCommunities(q: string) {
   let form: Search = {
@@ -1614,12 +1630,13 @@ export function getQueryParams<T extends Record<string, any>>(processors: {
   return {} as T;
 }
 
-export const getQueryString = <T extends Record<string, string | undefined>>(
+export function getQueryString<T extends Record<string, string | undefined>>(
   obj: T
-) =>
-  Object.entries(obj)
+) {
+  return Object.entries(obj)
     .filter(([, val]) => val !== undefined && val !== null)
     .reduce(
       (acc, [key, val], index) => `${acc}${index > 0 ? "&" : ""}${key}=${val}`,
       "?"
     );
+}

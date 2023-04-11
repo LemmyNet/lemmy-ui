@@ -51,14 +51,16 @@ interface CommunitiesProps {
   page: number;
 }
 
-const getCommunitiesQueryParams = () =>
-  getQueryParams<CommunitiesProps>({
+function getCommunitiesQueryParams() {
+  return getQueryParams<CommunitiesProps>({
     listingType: getListingTypeFromQuery,
     page: getPageFromString,
   });
+}
 
-const getListingTypeFromQuery = (listingType?: string): ListingType =>
-  routeListingTypeToEnum(listingType ?? "", ListingType.Local);
+function getListingTypeFromQuery(listingType?: string): ListingType {
+  return routeListingTypeToEnum(listingType ?? "", ListingType.Local);
+}
 
 function toggleSubscribe(community_id: number, follow: boolean) {
   const auth = myAuth();
