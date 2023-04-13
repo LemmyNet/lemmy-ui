@@ -95,9 +95,9 @@ export class SearchableSelect extends Component<
         <div
           role="combobox"
           aria-activedescendant={options[selectedIndex].label}
-          className="modlog-choices-font-size dropdown-menu w-100"
+          className="modlog-choices-font-size dropdown-menu w-100 p-2"
         >
-          <div className="input-group p-2">
+          <div className="input-group">
             <span className="input-group-text">
               {loading ? <Spinner /> : <Icon icon="search" />}
             </span>
@@ -128,6 +128,7 @@ export class SearchableSelect extends Component<
                 disabled={option.disabled}
                 aria-selected={selectedIndex === index}
                 onClick={() => this.handleChange(option)}
+                type="button"
               >
                 {option.label}
               </button>

@@ -104,6 +104,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.fetchPageTitle = debounce(this.fetchPageTitle.bind(this));
     this.handlePostBodyChange = this.handlePostBodyChange.bind(this);
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
+    this.handleCommunitySelect = this.handleCommunitySelect.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -427,6 +428,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   handlePostSubmit(i: PostForm, event: any) {
     event.preventDefault();
 
+    console.log("In handlePostSubmit");
+
     i.setState({ loading: true });
 
     // Coerce empty url string to undefined
@@ -620,9 +623,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     const newOptions: Choice[] = [];
 
-    const selectedOption = communitySearchOptions.find(
-      ({ value }) => getIdFromString(value) === community_id
-    );
+    const selectedOption = community_id
+      ? communitySearchOptions.find(
+          ({ value }) => getIdFromString(value) === community_id
+        )
+      : undefined;
 
     if (selectedOption) {
       newOptions.push(selectedOption);
