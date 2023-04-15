@@ -43,7 +43,6 @@ interface NavbarState {
   unreadInboxCount: number;
   unreadReportCount: number;
   unreadApplicationCount: number;
-  searchParam: string;
   showDropdown: boolean;
   onSiteBanner?(url: string): any;
 }
@@ -59,7 +58,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     unreadReportCount: 0,
     unreadApplicationCount: 0,
     expanded: false,
-    searchParam: "",
     showDropdown: false,
   };
   subscription: any;
@@ -113,20 +111,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     this.unreadInboxCountSub.unsubscribe();
     this.unreadReportCountSub.unsubscribe();
     this.unreadApplicationCountSub.unsubscribe();
-  }
-
-  updateUrl() {
-    const searchParam = this.state.searchParam;
-    this.setState({ searchParam: "" });
-    this.setState({ showDropdown: false, expanded: false });
-    if (searchParam === "") {
-      this.context.router.history.push(`/search/`);
-    } else {
-      const searchParamEncoded = encodeURIComponent(searchParam);
-      this.context.router.history.push(
-        `/search/q/${searchParamEncoded}/type/All/sort/TopAll/listing_type/All/community_id/0/creator_id/0/page/1`
-      );
-    }
   }
 
   render() {
@@ -486,10 +470,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   handleHideExpandNavbar(i: Navbar) {
     i.setState({ expanded: false, showDropdown: false });
-  }
-
-  handleSearchParam(i: Navbar, event: any) {
-    i.setState({ searchParam: event.target.value });
   }
 
   handleLogoutClick(i: Navbar) {

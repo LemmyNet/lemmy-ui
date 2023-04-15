@@ -1,4 +1,5 @@
-import { Component, linkEvent } from "inferno";
+import { NoOptionI18nKeys } from "i18next";
+import { Component, linkEvent, MouseEventHandler } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -45,11 +46,11 @@ import {
   enableDownvotes,
   enableNsfw,
   fetchLimit,
-  getDataTypeFromProps,
-  getListingTypeFromProps,
-  getPageFromProps,
+  getDataTypeString,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
   getRandomFromList,
-  getSortTypeFromProps,
   isBrowser,
   isPostBlocked,
   mdToHtml,
@@ -57,8 +58,12 @@ import {
   notifyPost,
   nsfwCheck,
   postToCommentSortType,
+  QueryParams,
   relTags,
   restoreScrollPosition,
+  routeDataTypeToEnum,
+  routeListingTypeToEnum,
+  routeSortTypeToEnum,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
@@ -86,10 +91,6 @@ interface HomeState {
   siteRes: GetSiteResponse;
   posts: PostView[];
   comments: CommentView[];
-  listingType: ListingType;
-  dataType: DataType;
-  sort: SortType;
-  page: number;
   showSubscribedMobile: boolean;
   showTrendingMobile: boolean;
   showSidebarMobile: boolean;
@@ -105,11 +106,146 @@ interface HomeProps {
   page: number;
 }
 
-interface UrlParams {
-  listingType?: ListingType;
-  dataType?: string;
-  sort?: SortType;
-  page?: number;
+const getDataTypeFromQuery = (type?: string) =>
+  routeDataTypeToEnum(type ?? "", DataType.Post);
+
+function getListingTypeFromQuery(type?: string) {
+  const mui = UserService.Instance.myUserInfo;
+
+  return routeListingTypeToEnum(
+    type ?? "",
+    mui
+      ? Object.values(ListingType)[
+          mui.local_user_view.local_user.default_listing_type
+        ]
+      : ListingType.Local
+  );
+}
+
+function getSortTypeFromQuery(type?: string) {
+  const mui = UserService.Instance.myUserInfo;
+
+  return routeSortTypeToEnum(
+    type ?? "",
+    mui
+      ? Object.values(SortType)[
+          mui.local_user_view.local_user.default_listing_type
+        ]
+      : SortType.Active
+  );
+}
+
+const getHomeQueryParams = () =>
+  getQueryParams<HomeProps>({
+    sort: getSortTypeFromQuery,
+    listingType: getListingTypeFromQuery,
+    page: getPageFromString,
+    dataType: getDataTypeFromQuery,
+  });
+
+function fetchTrendingCommunities() {
+  const listCommunitiesForm: ListCommunities = {
+    type_: ListingType.Local,
+    sort: SortType.Hot,
+    limit: trendingFetchLimit,
+    auth: myAuth(false),
+  };
+  WebSocketService.Instance.send(wsClient.listCommunities(listCommunitiesForm));
+}
+
+function fetchData() {
+  const auth = myAuth(false);
+  const { dataType, page, listingType, sort } = getHomeQueryParams();
+  let req: string;
+
+  if (dataType === DataType.Post) {
+    const getPostsForm: GetPosts = {
+      page,
+      limit: fetchLimit,
+      sort,
+      saved_only: false,
+      type_: listingType,
+      auth,
+    };
+
+    req = wsClient.getPosts(getPostsForm);
+  } else {
+    const getCommentsForm: GetComments = {
+      page,
+      limit: fetchLimit,
+      sort: postToCommentSortType(sort),
+      saved_only: false,
+      type_: listingType,
+      auth,
+    };
+
+    req = wsClient.getComments(getCommentsForm);
+  }
+
+  WebSocketService.Instance.send(req);
+}
+
+const MobileButton = ({
+  textKey,
+  show,
+  onClick,
+}: {
+  textKey: NoOptionI18nKeys;
+  show: boolean;
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}) => (
+  <button
+    className="btn btn-secondary d-inline-block mb-2 mr-3"
+    onClick={onClick}
+  >
+    {i18n.t(textKey)}{" "}
+    <Icon icon={show ? `minus-square` : `plus-square`} classes="icon-inline" />
+  </button>
+);
+
+const LinkButton = ({
+  path,
+  translationKey,
+}: {
+  path: string;
+  translationKey: NoOptionI18nKeys;
+}) => (
+  <Link className="btn btn-secondary btn-block" to={path}>
+    {i18n.t(translationKey)}
+  </Link>
+);
+
+function getRss(listingType: ListingType) {
+  const { sort } = getHomeQueryParams();
+  const auth = myAuth(false);
+
+  let rss: string | undefined = undefined;
+
+  switch (listingType) {
+    case ListingType.All: {
+      rss = `/feeds/all.xml?sort=${sort}`;
+      break;
+    }
+    case ListingType.Local: {
+      rss = `/feeds/local.xml?sort=${sort}`;
+      break;
+    }
+    case ListingType.Subscribed: {
+      rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
+      break;
+    }
+  }
+
+  return (
+    rss && (
+      <>
+        <a href={rss} rel={relTags} title="RSS">
+          <Icon icon="rss" classes="text-muted small" />
+        </a>
+        <link rel="alternate" type="application/atom+xml" href={rss} />
+      </>
+    )
+  );
 }
 
 export class Home extends Component<any, HomeState> {
@@ -125,15 +261,6 @@ export class Home extends Component<any, HomeState> {
     loading: true,
     posts: [],
     comments: [],
-    listingType: getListingTypeFromProps(
-      this.props,
-      ListingType[
-        this.isoData.site_res.site_view.local_site.default_post_listing_type
-      ]
-    ),
-    dataType: getDataTypeFromProps(this.props),
-    sort: getSortTypeFromProps(this.props),
-    page: getPageFromProps(this.props),
   };
 
   constructor(props: any, context: any) {
@@ -148,12 +275,14 @@ export class Home extends Component<any, HomeState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
-      let postsRes = this.isoData.routeData[0] as GetPostsResponse | undefined;
-      let commentsRes = this.isoData.routeData[1] as
+    if (this.isoData.path === this.context.router.route.match.url) {
+      const postsRes = this.isoData.routeData[0] as
+        | GetPostsResponse
+        | undefined;
+      const commentsRes = this.isoData.routeData[1] as
         | GetCommentsResponse
         | undefined;
-      let trendingRes = this.isoData.routeData[2] as
+      const trendingRes = this.isoData.routeData[2] as
         | ListCommunitiesResponse
         | undefined;
 
@@ -178,21 +307,9 @@ export class Home extends Component<any, HomeState> {
         tagline: getRandomFromList(taglines)?.content,
       };
     } else {
-      this.fetchTrendingCommunities();
-      this.fetchData();
+      fetchTrendingCommunities();
+      fetchData();
     }
-  }
-
-  fetchTrendingCommunities() {
-    let listCommunitiesForm: ListCommunities = {
-      type_: ListingType.Local,
-      sort: SortType.Hot,
-      limit: trendingFetchLimit,
-      auth: myAuth(false),
-    };
-    WebSocketService.Instance.send(
-      wsClient.listCommunities(listCommunitiesForm)
-    );
   }
 
   componentDidMount() {
@@ -208,48 +325,23 @@ export class Home extends Component<any, HomeState> {
     this.subscription?.unsubscribe();
   }
 
-  static getDerivedStateFromProps(
-    props: HomeProps,
-    state: HomeState
-  ): HomeProps {
-    return {
-      listingType: getListingTypeFromProps(props, state.listingType),
-      dataType: getDataTypeFromProps(props),
-      sort: getSortTypeFromProps(props),
-      page: getPageFromProps(props),
-    };
-  }
-
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split("/");
-    let dataType: DataType = pathSplit[3]
-      ? DataType[pathSplit[3]]
-      : DataType.Post;
-    let mui = UserService.Instance.myUserInfo;
-    let auth = req.auth;
+  static fetchInitialData({
+    client,
+    auth,
+    query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
+  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<any>[] {
+    const dataType = getDataTypeFromQuery(urlDataType);
 
     // TODO figure out auth default_listingType, default_sort_type
-    let type_: ListingType = pathSplit[5]
-      ? ListingType[pathSplit[5]]
-      : mui
-      ? Object.values(ListingType)[
-          mui.local_user_view.local_user.default_listing_type
-        ]
-      : ListingType.Local;
-    let sort: SortType = pathSplit[7]
-      ? SortType[pathSplit[7]]
-      : mui
-      ? (Object.values(SortType)[
-          mui.local_user_view.local_user.default_sort_type
-        ] as SortType)
-      : SortType.Active;
+    const type_ = getListingTypeFromQuery(listingType);
+    const sort = getSortTypeFromQuery(urlSort);
 
-    let page = pathSplit[9] ? Number(pathSplit[9]) : 1;
+    const page = urlPage ? Number(urlPage) : 1;
 
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
-    if (dataType == DataType.Post) {
-      let getPostsForm: GetPosts = {
+    if (dataType === DataType.Post) {
+      const getPostsForm: GetPosts = {
         type_,
         page,
         limit: fetchLimit,
@@ -258,10 +350,10 @@ export class Home extends Component<any, HomeState> {
         auth,
       };
 
-      promises.push(req.client.getPosts(getPostsForm));
+      promises.push(client.getPosts(getPostsForm));
       promises.push(Promise.resolve());
     } else {
-      let getCommentsForm: GetComments = {
+      const getCommentsForm: GetComments = {
         page,
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
@@ -270,40 +362,35 @@ export class Home extends Component<any, HomeState> {
         auth,
       };
       promises.push(Promise.resolve());
-      promises.push(req.client.getComments(getCommentsForm));
+      promises.push(client.getComments(getCommentsForm));
     }
 
-    let trendingCommunitiesForm: ListCommunities = {
+    const trendingCommunitiesForm: ListCommunities = {
       type_: ListingType.Local,
       sort: SortType.Hot,
       limit: trendingFetchLimit,
       auth,
     };
-    promises.push(req.client.listCommunities(trendingCommunitiesForm));
+    promises.push(client.listCommunities(trendingCommunitiesForm));
 
     return promises;
   }
 
-  componentDidUpdate(_: any, lastState: HomeState) {
-    if (
-      lastState.listingType !== this.state.listingType ||
-      lastState.dataType !== this.state.dataType ||
-      lastState.sort !== this.state.sort ||
-      lastState.page !== this.state.page
-    ) {
-      this.setState({ loading: true });
-      this.fetchData();
-    }
-  }
-
   get documentTitle(): string {
-    let siteView = this.state.siteRes.site_view;
-    let desc = this.state.siteRes.site_view.site.description;
-    return desc ? `${siteView.site.name} - ${desc}` : siteView.site.name;
+    const { name, description } = this.state.siteRes.site_view.site;
+
+    return description ? `${name} - ${description}` : name;
   }
 
   render() {
-    let tagline = this.state.tagline;
+    const {
+      tagline,
+      siteRes: {
+        site_view: {
+          local_site: { site_setup },
+        },
+      },
+    } = this.state;
 
     return (
       <div className="container-lg">
@@ -311,7 +398,7 @@ export class Home extends Component<any, HomeState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.state.siteRes.site_view.local_site.site_setup && (
+        {site_setup && (
           <div className="row">
             <main role="main" className="col-12 col-md-8">
               {tagline && (
@@ -320,11 +407,11 @@ export class Home extends Component<any, HomeState> {
                   dangerouslySetInnerHTML={mdToHtml(tagline)}
                 ></div>
               )}
-              <div className="d-block d-md-none">{this.mobileView()}</div>
+              <div className="d-block d-md-none">{this.mobileView}</div>
               {this.posts()}
             </main>
             <aside className="d-none d-md-block col-md-4">
-              {this.mySidebar()}
+              {this.mySidebar}
             </aside>
           </div>
         )}
@@ -333,73 +420,59 @@ export class Home extends Component<any, HomeState> {
   }
 
   get hasFollows(): boolean {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     return !!mui && mui.follows.length > 0;
   }
 
-  mobileView() {
-    let siteRes = this.state.siteRes;
-    let siteView = siteRes.site_view;
+  get mobileView() {
+    const {
+      siteRes: {
+        site_view: { counts, site },
+        admins,
+        online,
+      },
+      showSubscribedMobile,
+      showTrendingMobile,
+      showSidebarMobile,
+    } = this.state;
+
     return (
       <div className="row">
         <div className="col-12">
           {this.hasFollows && (
-            <button
-              className="btn btn-secondary d-inline-block mb-2 mr-3"
+            <MobileButton
+              textKey="subscribed"
+              show={showSubscribedMobile}
               onClick={linkEvent(this, this.handleShowSubscribedMobile)}
-            >
-              {i18n.t("subscribed")}{" "}
-              <Icon
-                icon={
-                  this.state.showSubscribedMobile
-                    ? `minus-square`
-                    : `plus-square`
-                }
-                classes="icon-inline"
-              />
-            </button>
+            />
           )}
-          <button
-            className="btn btn-secondary d-inline-block mb-2 mr-3"
+          <MobileButton
+            textKey="trending"
+            show={showTrendingMobile}
             onClick={linkEvent(this, this.handleShowTrendingMobile)}
-          >
-            {i18n.t("trending")}{" "}
-            <Icon
-              icon={
-                this.state.showTrendingMobile ? `minus-square` : `plus-square`
-              }
-              classes="icon-inline"
-            />
-          </button>
-          <button
-            className="btn btn-secondary d-inline-block mb-2 mr-3"
+          />
+          <MobileButton
+            textKey="sidebar"
+            show={showSidebarMobile}
             onClick={linkEvent(this, this.handleShowSidebarMobile)}
-          >
-            {i18n.t("sidebar")}{" "}
-            <Icon
-              icon={
-                this.state.showSidebarMobile ? `minus-square` : `plus-square`
-              }
-              classes="icon-inline"
-            />
-          </button>
-          {this.state.showSidebarMobile && (
+          />
+          {showSidebarMobile && (
             <SiteSidebar
-              site={siteView.site}
-              admins={siteRes.admins}
-              counts={siteView.counts}
-              online={siteRes.online}
+              site={site}
+              admins={admins}
+              counts={counts}
+              online={online}
               showLocal={showLocal(this.isoData)}
             />
           )}
-          {this.state.showTrendingMobile && (
+          {showTrendingMobile && (
             <div className="col-12 card border-secondary mb-3">
-              <div className="card-body">{this.trendingCommunities()}</div>
+              <div className="card-body">{this.trendingCommunities(true)}</div>
             </div>
           )}
-          {this.state.showSubscribedMobile && (
+          {showSubscribedMobile && (
             <div className="col-12 card border-secondary mb-3">
-              <div className="card-body">{this.subscribedCommunities()}</div>
+              <div className="card-body">{this.subscribedCommunities}</div>
             </div>
           )}
         </div>
@@ -407,31 +480,45 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  mySidebar() {
-    let siteRes = this.state.siteRes;
-    let siteView = siteRes.site_view;
+  get mySidebar() {
+    const {
+      siteRes: {
+        site_view: { counts, site },
+        admins,
+        online,
+      },
+      loading,
+    } = this.state;
+
     return (
       <div>
-        {!this.state.loading && (
+        {!loading && (
           <div>
             <div className="card border-secondary mb-3">
               <div className="card-body">
                 {this.trendingCommunities()}
-                {canCreateCommunity(this.state.siteRes) &&
-                  this.createCommunityButton()}
-                {this.exploreCommunitiesButton()}
+                {canCreateCommunity(this.state.siteRes) && (
+                  <LinkButton
+                    path="/create_community"
+                    translationKey="create_a_community"
+                  />
+                )}
+                <LinkButton
+                  path="/communities"
+                  translationKey="explore_communities"
+                />
               </div>
             </div>
             <SiteSidebar
-              site={siteView.site}
-              admins={siteRes.admins}
-              counts={siteView.counts}
-              online={siteRes.online}
+              site={site}
+              admins={admins}
+              counts={counts}
+              online={online}
               showLocal={showLocal(this.isoData)}
             />
             {this.hasFollows && (
               <div className="card border-secondary mb-3">
-                <div className="card-body">{this.subscribedCommunities()}</div>
+                <div className="card-body">{this.subscribedCommunities}</div>
               </div>
             )}
           </div>
@@ -440,25 +527,9 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  createCommunityButton() {
+  trendingCommunities(isMobile = false) {
     return (
-      <Link className="mt-2 btn btn-secondary btn-block" to="/create_community">
-        {i18n.t("create_a_community")}
-      </Link>
-    );
-  }
-
-  exploreCommunitiesButton() {
-    return (
-      <Link className="btn btn-secondary btn-block" to="/communities">
-        {i18n.t("explore_communities")}
-      </Link>
-    );
-  }
-
-  trendingCommunities() {
-    return (
-      <div>
+      <div className={!isMobile ? "mb-2" : ""}>
         <h5>
           <T i18nKey="trending_communities">
             #
@@ -481,7 +552,9 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  subscribedCommunities() {
+  get subscribedCommunities() {
+    const { subscribedCollapsed } = this.state;
+
     return (
       <div>
         <h5>
@@ -497,14 +570,13 @@ export class Home extends Component<any, HomeState> {
             aria-label={i18n.t("collapse")}
             data-tippy-content={i18n.t("collapse")}
           >
-            {this.state.subscribedCollapsed ? (
-              <Icon icon="plus-square" classes="icon-inline" />
-            ) : (
-              <Icon icon="minus-square" classes="icon-inline" />
-            )}
+            <Icon
+              icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
+              classes="icon-inline"
+            />
           </button>
         </h5>
-        {!this.state.subscribedCollapsed && (
+        {!subscribedCollapsed && (
           <ul className="list-inline mb-0">
             {UserService.Instance.myUserInfo?.follows.map(cfv => (
               <li
@@ -520,17 +592,38 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  updateUrl(paramUpdates: UrlParams) {
-    const listingTypeStr = paramUpdates.listingType || this.state.listingType;
-    const dataTypeStr = paramUpdates.dataType || DataType[this.state.dataType];
-    const sortStr = paramUpdates.sort || this.state.sort;
-    const page = paramUpdates.page || this.state.page;
-    this.props.history.push(
-      `/home/data_type/${dataTypeStr}/listing_type/${listingTypeStr}/sort/${sortStr}/page/${page}`
-    );
+  updateUrl({ dataType, listingType, page, sort }: Partial<HomeProps>) {
+    const {
+      dataType: urlDataType,
+      listingType: urlListingType,
+      page: urlPage,
+      sort: urlSort,
+    } = getHomeQueryParams();
+
+    const queryParams: QueryParams<HomeProps> = {
+      dataType: getDataTypeString(dataType ?? urlDataType),
+      listingType: listingType ?? urlListingType,
+      page: (page ?? urlPage).toString(),
+      sort: sort ?? urlSort,
+    };
+
+    this.props.history.push({
+      pathname: "/",
+      search: getQueryString(queryParams),
+    });
+
+    this.setState({
+      loading: true,
+      posts: [],
+      comments: [],
+    });
+
+    fetchData();
   }
 
   posts() {
+    const { page } = getHomeQueryParams();
+
     return (
       <div className="main-content-wrapper">
         {this.state.loading ? (
@@ -540,93 +633,65 @@ export class Home extends Component<any, HomeState> {
         ) : (
           <div>
             {this.selects()}
-            {this.listings()}
-            <Paginator
-              page={this.state.page}
-              onChange={this.handlePageChange}
-            />
+            {this.listings}
+            <Paginator page={page} onChange={this.handlePageChange} />
           </div>
         )}
       </div>
     );
   }
 
-  listings() {
-    return this.state.dataType == DataType.Post ? (
+  get listings() {
+    const { dataType } = getHomeQueryParams();
+    const { siteRes, posts, comments } = this.state;
+
+    return dataType === DataType.Post ? (
       <PostListings
-        posts={this.state.posts}
+        posts={posts}
         showCommunity
         removeDuplicates
-        enableDownvotes={enableDownvotes(this.state.siteRes)}
-        enableNsfw={enableNsfw(this.state.siteRes)}
-        allLanguages={this.state.siteRes.all_languages}
-        siteLanguages={this.state.siteRes.discussion_languages}
+        enableDownvotes={enableDownvotes(siteRes)}
+        enableNsfw={enableNsfw(siteRes)}
+        allLanguages={siteRes.all_languages}
+        siteLanguages={siteRes.discussion_languages}
       />
     ) : (
       <CommentNodes
-        nodes={commentsToFlatNodes(this.state.comments)}
+        nodes={commentsToFlatNodes(comments)}
         viewType={CommentViewType.Flat}
         noIndent
         showCommunity
         showContext
-        enableDownvotes={enableDownvotes(this.state.siteRes)}
-        allLanguages={this.state.siteRes.all_languages}
-        siteLanguages={this.state.siteRes.discussion_languages}
+        enableDownvotes={enableDownvotes(siteRes)}
+        allLanguages={siteRes.all_languages}
+        siteLanguages={siteRes.discussion_languages}
       />
     );
   }
 
   selects() {
-    let allRss = `/feeds/all.xml?sort=${this.state.sort}`;
-    let localRss = `/feeds/local.xml?sort=${this.state.sort}`;
-    let auth = myAuth(false);
-    let frontRss = auth
-      ? `/feeds/front/${auth}.xml?sort=${this.state.sort}`
-      : undefined;
+    const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
       <div className="mb-3">
         <span className="mr-3">
           <DataTypeSelect
-            type_={this.state.dataType}
+            type_={dataType}
             onChange={this.handleDataTypeChange}
           />
         </span>
         <span className="mr-3">
           <ListingTypeSelect
-            type_={this.state.listingType}
+            type_={listingType}
             showLocal={showLocal(this.isoData)}
             showSubscribed
             onChange={this.handleListingTypeChange}
           />
         </span>
         <span className="mr-2">
-          <SortSelect sort={this.state.sort} onChange={this.handleSortChange} />
+          <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
-        {this.state.listingType == ListingType.All && (
-          <>
-            <a href={allRss} rel={relTags} title="RSS">
-              <Icon icon="rss" classes="text-muted small" />
-            </a>
-            <link rel="alternate" type="application/atom+xml" href={allRss} />
-          </>
-        )}
-        {this.state.listingType == ListingType.Local && (
-          <>
-            <a href={localRss} rel={relTags} title="RSS">
-              <Icon icon="rss" classes="text-muted small" />
-            </a>
-            <link rel="alternate" type="application/atom+xml" href={localRss} />
-          </>
-        )}
-        {this.state.listingType == ListingType.Subscribed && frontRss && (
-          <>
-            <a href={frontRss} title="RSS" rel={relTags}>
-              <Icon icon="rss" classes="text-muted small" />
-            </a>
-            <link rel="alternate" type="application/atom+xml" href={frontRss} />
-          </>
-        )}
+        {getRss(listingType)}
       </div>
     );
   }
@@ -663,188 +728,232 @@ export class Home extends Component<any, HomeState> {
   }
 
   handleDataTypeChange(val: DataType) {
-    this.updateUrl({ dataType: DataType[val], page: 1 });
+    this.updateUrl({ dataType: val, page: 1 });
     window.scrollTo(0, 0);
   }
 
-  fetchData() {
-    let auth = myAuth(false);
-    if (this.state.dataType == DataType.Post) {
-      let getPostsForm: GetPosts = {
-        page: this.state.page,
-        limit: fetchLimit,
-        sort: this.state.sort,
-        saved_only: false,
-        type_: this.state.listingType,
-        auth,
-      };
-
-      WebSocketService.Instance.send(wsClient.getPosts(getPostsForm));
-    } else {
-      let getCommentsForm: GetComments = {
-        page: this.state.page,
-        limit: fetchLimit,
-        sort: postToCommentSortType(this.state.sort),
-        saved_only: false,
-        type_: this.state.listingType,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.getComments(getCommentsForm));
-    }
-  }
-
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
+
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      return;
     } else if (msg.reconnect) {
       WebSocketService.Instance.send(
         wsClient.communityJoin({ community_id: 0 })
       );
-      this.fetchData();
-    } else if (op == UserOperation.ListCommunities) {
-      let data = wsJsonToRes<ListCommunitiesResponse>(msg);
-      this.setState({ trendingCommunities: data.communities });
-    } else if (op == UserOperation.EditSite) {
-      let data = wsJsonToRes<SiteResponse>(msg);
-      this.setState(s => ((s.siteRes.site_view = data.site_view), s));
-      toast(i18n.t("site_saved"));
-    } else if (op == UserOperation.GetPosts) {
-      let data = wsJsonToRes<GetPostsResponse>(msg);
-      this.setState({ posts: data.posts, loading: false });
-      WebSocketService.Instance.send(
-        wsClient.communityJoin({ community_id: 0 })
-      );
-      restoreScrollPosition(this.context);
-      setupTippy();
-    } else if (op == UserOperation.CreatePost) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      let mui = UserService.Instance.myUserInfo;
+      fetchData();
+    } else {
+      switch (op) {
+        case UserOperation.ListCommunities: {
+          const { communities } = wsJsonToRes<ListCommunitiesResponse>(msg);
+          this.setState({ trendingCommunities: communities });
 
-      let showPostNotifs = mui?.local_user_view.local_user.show_new_post_notifs;
+          break;
+        }
 
-      // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
-      if (
-        this.state.page == 1 &&
-        nsfwCheck(data.post_view) &&
-        !isPostBlocked(data.post_view)
-      ) {
-        // If you're on subscribed, only push it if you're subscribed.
-        if (this.state.listingType == ListingType.Subscribed) {
-          if (
-            mui?.follows
-              .map(c => c.community.id)
-              .includes(data.post_view.community.id)
-          ) {
-            this.state.posts.unshift(data.post_view);
-            if (showPostNotifs) {
-              notifyPost(data.post_view, this.context.router);
+        case UserOperation.EditSite: {
+          const { site_view } = wsJsonToRes<SiteResponse>(msg);
+          this.setState(s => ((s.siteRes.site_view = site_view), s));
+          toast(i18n.t("site_saved"));
+
+          break;
+        }
+
+        case UserOperation.GetPosts: {
+          const { posts } = wsJsonToRes<GetPostsResponse>(msg);
+          this.setState({ posts, loading: false });
+          WebSocketService.Instance.send(
+            wsClient.communityJoin({ community_id: 0 })
+          );
+          restoreScrollPosition(this.context);
+          setupTippy();
+
+          break;
+        }
+
+        case UserOperation.CreatePost: {
+          const { page, listingType } = getHomeQueryParams();
+          const { post_view } = wsJsonToRes<PostResponse>(msg);
+
+          // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
+          if (page === 1 && nsfwCheck(post_view) && !isPostBlocked(post_view)) {
+            const mui = UserService.Instance.myUserInfo;
+            const showPostNotifs =
+              mui?.local_user_view.local_user.show_new_post_notifs;
+            let shouldAddPost: boolean;
+
+            switch (listingType) {
+              case ListingType.Subscribed: {
+                // If you're on subscribed, only push it if you're subscribed.
+                shouldAddPost = !!mui?.follows.some(
+                  ({ community: { id } }) => id === post_view.community.id
+                );
+                break;
+              }
+              case ListingType.Local: {
+                // If you're on the local view, only push it if its local
+                shouldAddPost = post_view.post.local;
+                break;
+              }
+              default: {
+                shouldAddPost = true;
+                break;
+              }
+            }
+
+            if (shouldAddPost) {
+              this.setState(({ posts }) => ({
+                posts: [post_view].concat(posts),
+              }));
+              if (showPostNotifs) {
+                notifyPost(post_view, this.context.router);
+              }
             }
           }
-        } else if (this.state.listingType == ListingType.Local) {
-          // If you're on the local view, only push it if its local
-          if (data.post_view.post.local) {
-            this.state.posts.unshift(data.post_view);
-            if (showPostNotifs) {
-              notifyPost(data.post_view, this.context.router);
+
+          break;
+        }
+
+        case UserOperation.EditPost:
+        case UserOperation.DeletePost:
+        case UserOperation.RemovePost:
+        case UserOperation.LockPost:
+        case UserOperation.FeaturePost:
+        case UserOperation.SavePost: {
+          const { post_view } = wsJsonToRes<PostResponse>(msg);
+          editPostFindRes(post_view, this.state.posts);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.CreatePostLike: {
+          const { post_view } = wsJsonToRes<PostResponse>(msg);
+          createPostLikeFindRes(post_view, this.state.posts);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.AddAdmin: {
+          const { admins } = wsJsonToRes<AddAdminResponse>(msg);
+          this.setState(s => ((s.siteRes.admins = admins), s));
+
+          break;
+        }
+
+        case UserOperation.BanPerson: {
+          const {
+            banned,
+            person_view: {
+              person: { id },
+            },
+          } = wsJsonToRes<BanPersonResponse>(msg);
+
+          this.state.posts
+            .filter(p => p.creator.id == id)
+            .forEach(p => (p.creator.banned = banned));
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.GetComments: {
+          const { comments } = wsJsonToRes<GetCommentsResponse>(msg);
+          this.setState({ comments, loading: false });
+
+          break;
+        }
+
+        case UserOperation.EditComment:
+        case UserOperation.DeleteComment:
+        case UserOperation.RemoveComment: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+          editCommentRes(comment_view, this.state.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.CreateComment: {
+          const { form_id, comment_view } = wsJsonToRes<CommentResponse>(msg);
+
+          // Necessary since it might be a user reply
+          if (form_id) {
+            const { listingType } = getHomeQueryParams();
+
+            // If you're on subscribed, only push it if you're subscribed.
+            const shouldAddComment =
+              listingType === ListingType.Subscribed
+                ? UserService.Instance.myUserInfo?.follows.some(
+                    ({ community: { id } }) => id === comment_view.community.id
+                  )
+                : true;
+
+            if (shouldAddComment) {
+              this.setState(({ comments }) => ({
+                comments: [comment_view].concat(comments),
+              }));
             }
           }
-        } else {
-          this.state.posts.unshift(data.post_view);
-          if (showPostNotifs) {
-            notifyPost(data.post_view, this.context.router);
-          }
-        }
-        this.setState(this.state);
-      }
-    } else if (
-      op == UserOperation.EditPost ||
-      op == UserOperation.DeletePost ||
-      op == UserOperation.RemovePost ||
-      op == UserOperation.LockPost ||
-      op == UserOperation.FeaturePost ||
-      op == UserOperation.SavePost
-    ) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      editPostFindRes(data.post_view, this.state.posts);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreatePostLike) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      createPostLikeFindRes(data.post_view, this.state.posts);
-      this.setState(this.state);
-    } else if (op == UserOperation.AddAdmin) {
-      let data = wsJsonToRes<AddAdminResponse>(msg);
-      this.setState(s => ((s.siteRes.admins = data.admins), s));
-    } else if (op == UserOperation.BanPerson) {
-      let data = wsJsonToRes<BanPersonResponse>(msg);
-      this.state.posts
-        .filter(p => p.creator.id == data.person_view.person.id)
-        .forEach(p => (p.creator.banned = data.banned));
 
-      this.setState(this.state);
-    } else if (op == UserOperation.GetComments) {
-      let data = wsJsonToRes<GetCommentsResponse>(msg);
-      this.setState({ comments: data.comments, loading: false });
-    } else if (
-      op == UserOperation.EditComment ||
-      op == UserOperation.DeleteComment ||
-      op == UserOperation.RemoveComment
-    ) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      editCommentRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-
-      // Necessary since it might be a user reply
-      if (data.form_id) {
-        // If you're on subscribed, only push it if you're subscribed.
-        if (this.state.listingType == ListingType.Subscribed) {
-          if (
-            UserService.Instance.myUserInfo?.follows
-              .map(c => c.community.id)
-              .includes(data.comment_view.community.id)
-          ) {
-            this.state.comments.unshift(data.comment_view);
-          }
-        } else {
-          this.state.comments.unshift(data.comment_view);
+          break;
         }
-        this.setState(this.state);
-      }
-    } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      saveCommentRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      createCommentLikeRes(data.comment_view, this.state.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
-      updatePersonBlock(data);
-    } else if (op == UserOperation.CreatePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg);
-      if (data) {
-        toast(i18n.t("report_created"));
-      }
-    } else if (op == UserOperation.CreateCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg);
-      if (data) {
-        toast(i18n.t("report_created"));
-      }
-    } else if (
-      op == UserOperation.PurgePerson ||
-      op == UserOperation.PurgePost ||
-      op == UserOperation.PurgeComment ||
-      op == UserOperation.PurgeCommunity
-    ) {
-      let data = wsJsonToRes<PurgeItemResponse>(msg);
-      if (data.success) {
-        toast(i18n.t("purge_success"));
-        this.context.router.history.push(`/`);
+
+        case UserOperation.SaveComment: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+          saveCommentRes(comment_view, this.state.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.CreateCommentLike: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+          createCommentLikeRes(comment_view, this.state.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.BlockPerson: {
+          const data = wsJsonToRes<BlockPersonResponse>(msg);
+          updatePersonBlock(data);
+
+          break;
+        }
+
+        case UserOperation.CreatePostReport: {
+          const data = wsJsonToRes<PostReportResponse>(msg);
+          if (data) {
+            toast(i18n.t("report_created"));
+          }
+
+          break;
+        }
+
+        case UserOperation.CreateCommentReport: {
+          const data = wsJsonToRes<CommentReportResponse>(msg);
+          if (data) {
+            toast(i18n.t("report_created"));
+          }
+
+          break;
+        }
+
+        case UserOperation.PurgePerson:
+        case UserOperation.PurgePost:
+        case UserOperation.PurgeComment:
+        case UserOperation.PurgeCommunity: {
+          const data = wsJsonToRes<PurgeItemResponse>(msg);
+          if (data.success) {
+            toast(i18n.t("purge_success"));
+            this.context.router.history.push(`/`);
+          }
+
+          break;
+        }
       }
     }
   }

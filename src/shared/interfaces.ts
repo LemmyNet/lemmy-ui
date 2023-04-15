@@ -1,4 +1,5 @@
 import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import type { ParsedQs } from "qs";
 
 /**
  * This contains serialized data, it needs to be deserialized before use.
@@ -20,17 +21,18 @@ declare global {
   }
 }
 
-export interface InitialFetchRequest {
+export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
   auth?: string;
   client: LemmyHttp;
   path: string;
+  query: T;
+  site: GetSiteResponse;
 }
 
 export interface PostFormParams {
   name?: string;
   url?: string;
   body?: string;
-  nameOrId?: string | number;
 }
 
 export enum CommentViewType {
@@ -49,10 +51,10 @@ export enum BanType {
 }
 
 export enum PersonDetailsView {
-  Overview,
-  Comments,
-  Posts,
-  Saved,
+  Overview = "Overview",
+  Comments = "Comments",
+  Posts = "Posts",
+  Saved = "Saved",
 }
 
 export enum PurgeType {

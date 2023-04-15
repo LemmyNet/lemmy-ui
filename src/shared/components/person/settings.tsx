@@ -1,3 +1,4 @@
+import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
   BlockCommunity,
@@ -6,13 +7,11 @@ import {
   BlockPersonResponse,
   ChangePassword,
   CommunityBlockView,
-  CommunityView,
   DeleteAccount,
   GetSiteResponse,
   ListingType,
   LoginResponse,
   PersonBlockView,
-  PersonViewSafe,
   SaveUserSettings,
   SortType,
   UserOperation,
@@ -24,19 +23,17 @@ import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
   capitalizeFirstLetter,
-  choicesConfig,
-  communitySelectName,
+  Choice,
   communityToChoice,
   debounce,
   elementUrl,
+  emDash,
   enableNsfw,
   fetchCommunities,
   fetchThemeList,
   fetchUsers,
   getLanguages,
-  isBrowser,
   myAuth,
-  personSelectName,
   personToChoice,
   relTags,
   setIsoData,
@@ -55,14 +52,10 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import { SearchableSelect } from "../common/searchable-select";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
-
-var Choices: any;
-if (isBrowser()) {
-  Choices = require("choices.js");
-}
 
 interface SettingsState {
   // TODO redo these forms
@@ -97,10 +90,7 @@ interface SettingsState {
     password?: string;
   };
   personBlocks: PersonBlockView[];
-  blockPerson?: PersonViewSafe;
   communityBlocks: CommunityBlockView[];
-  blockCommunityId: number;
-  blockCommunity?: CommunityView;
   currentTab: string;
   themeList: string[];
   saveUserSettingsLoading: boolean;
@@ -108,12 +98,50 @@ interface SettingsState {
   deleteAccountLoading: boolean;
   deleteAccountShowConfirm: boolean;
   siteRes: GetSiteResponse;
+  searchCommunityLoading: boolean;
+  searchCommunityOptions: Choice[];
+  searchPersonLoading: boolean;
+  searchPersonOptions: Choice[];
 }
+
+type FilterType = "user" | "community";
+
+const Filter = ({
+  filterType,
+  options,
+  onChange,
+  onSearch,
+  loading,
+}: {
+  filterType: FilterType;
+  options: Choice[];
+  onSearch: (text: string) => void;
+  onChange: (choice: Choice) => void;
+  loading: boolean;
+}) => (
+  <div className="form-group row">
+    <label
+      className="col-md-4 col-form-label"
+      htmlFor={`block-${filterType}-filter`}
+    >
+      {i18n.t(`block_${filterType}` as NoOptionI18nKeys)}
+    </label>
+    <div className="col-md-8">
+      <SearchableSelect
+        id={`block-${filterType}-filter`}
+        options={[
+          { label: emDash, value: "0", disabled: true } as Choice,
+        ].concat(options)}
+        loading={loading}
+        onChange={onChange}
+        onSearch={onSearch}
+      />
+    </div>
+  </div>
+);
 
 export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData(this.context);
-  private blockPersonChoices: any;
-  private blockCommunityChoices: any;
   private subscription?: Subscription;
   state: SettingsState = {
     saveUserSettingsForm: {},
@@ -125,10 +153,13 @@ export class Settings extends Component<any, SettingsState> {
     deleteAccountForm: {},
     personBlocks: [],
     communityBlocks: [],
-    blockCommunityId: 0,
     currentTab: "settings",
     siteRes: this.isoData.site_res,
     themeList: [],
+    searchCommunityLoading: false,
+    searchCommunityOptions: [],
+    searchPersonLoading: false,
+    searchPersonOptions: [],
   };
 
   constructor(props: any, context: any) {
@@ -149,35 +180,58 @@ export class Settings extends Component<any, SettingsState> {
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
-      let luv = mui.local_user_view;
+      const {
+        local_user: {
+          show_nsfw,
+          theme,
+          default_sort_type,
+          default_listing_type,
+          interface_language,
+          show_avatars,
+          show_bot_accounts,
+          show_scores,
+          show_read_posts,
+          show_new_post_notifs,
+          send_notifications_to_email,
+          email,
+        },
+        person: {
+          avatar,
+          banner,
+          display_name,
+          bot_account,
+          bio,
+          matrix_user_id,
+        },
+      } = mui.local_user_view;
+
       this.state = {
         ...this.state,
         personBlocks: mui.person_blocks,
         communityBlocks: mui.community_blocks,
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
-          show_nsfw: luv.local_user.show_nsfw,
-          theme: luv.local_user.theme ? luv.local_user.theme : "browser",
-          default_sort_type: luv.local_user.default_sort_type,
-          default_listing_type: luv.local_user.default_listing_type,
-          interface_language: luv.local_user.interface_language,
+          show_nsfw,
+          theme: theme ?? "browser",
+          default_sort_type,
+          default_listing_type,
+          interface_language,
           discussion_languages: mui.discussion_languages,
-          avatar: luv.person.avatar,
-          banner: luv.person.banner,
-          display_name: luv.person.display_name,
-          show_avatars: luv.local_user.show_avatars,
-          bot_account: luv.person.bot_account,
-          show_bot_accounts: luv.local_user.show_bot_accounts,
-          show_scores: luv.local_user.show_scores,
-          show_read_posts: luv.local_user.show_read_posts,
-          show_new_post_notifs: luv.local_user.show_new_post_notifs,
-          email: luv.local_user.email,
-          bio: luv.person.bio,
-          send_notifications_to_email:
-            luv.local_user.send_notifications_to_email,
-          matrix_user_id: luv.person.matrix_user_id,
+          avatar,
+          banner,
+          display_name,
+          show_avatars,
+          bot_account,
+          show_bot_accounts,
+          show_scores,
+          show_read_posts,
+          show_new_post_notifs,
+          email,
+          bio,
+          send_notifications_to_email,
+          matrix_user_id,
         },
       };
     }
@@ -349,9 +403,17 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   blockUserCard() {
+    const { searchPersonLoading, searchPersonOptions } = this.state;
+
     return (
       <div>
-        {this.blockUserForm()}
+        <Filter
+          filterType="user"
+          loading={searchPersonLoading}
+          onChange={this.handleBlockPerson}
+          onSearch={this.handlePersonSearch}
+          options={searchPersonOptions}
+        />
         {this.blockedUsersList()}
       </div>
     );
@@ -384,38 +446,18 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  blockUserForm() {
-    let blockPerson = this.state.blockPerson;
-    return (
-      <div className="form-group row">
-        <label
-          className="col-md-4 col-form-label"
-          htmlFor="block-person-filter"
-        >
-          {i18n.t("block_user")}
-        </label>
-        <div className="col-md-8">
-          <select
-            className="form-control"
-            id="block-person-filter"
-            value={blockPerson?.person.id ?? 0}
-          >
-            <option value="0">—</option>
-            {blockPerson && (
-              <option value={blockPerson.person.id}>
-                {personSelectName(blockPerson)}
-              </option>
-            )}
-          </select>
-        </div>
-      </div>
-    );
-  }
-
   blockCommunityCard() {
+    const { searchCommunityLoading, searchCommunityOptions } = this.state;
+
     return (
       <div>
-        {this.blockCommunityForm()}
+        <Filter
+          filterType="community"
+          loading={searchCommunityLoading}
+          onChange={this.handleBlockCommunity}
+          onSearch={this.handleCommunitySearch}
+          options={searchCommunityOptions}
+        />
         {this.blockedCommunitiesList()}
       </div>
     );
@@ -445,33 +487,6 @@ export class Settings extends Component<any, SettingsState> {
           ))}
         </ul>
       </>
-    );
-  }
-
-  blockCommunityForm() {
-    return (
-      <div className="form-group row">
-        <label
-          className="col-md-4 col-form-label"
-          htmlFor="block-community-filter"
-        >
-          {i18n.t("block_community")}
-        </label>
-        <div className="col-md-8">
-          <select
-            className="form-control"
-            id="block-community-filter"
-            value={this.state.blockCommunityId}
-          >
-            <option value="0">—</option>
-            {this.state.blockCommunity && (
-              <option value={this.state.blockCommunity.community.id}>
-                {communitySelectName(this.state.blockCommunity)}
-              </option>
-            )}
-          </select>
-        </div>
-      </div>
     );
   }
 
@@ -907,91 +922,57 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  setupBlockPersonChoices() {
-    if (isBrowser()) {
-      let selectId: any = document.getElementById("block-person-filter");
-      if (selectId) {
-        this.blockPersonChoices = new Choices(selectId, choicesConfig);
-        this.blockPersonChoices.passedElement.element.addEventListener(
-          "choice",
-          (e: any) => {
-            this.handleBlockPerson(Number(e.detail.choice.value));
-          },
-          false
-        );
-        this.blockPersonChoices.passedElement.element.addEventListener(
-          "search",
-          debounce(async (e: any) => {
-            try {
-              let persons = (await fetchUsers(e.detail.value)).users;
-              let choices = persons.map(pvs => personToChoice(pvs));
-              this.blockPersonChoices.setChoices(
-                choices,
-                "value",
-                "label",
-                true
-              );
-            } catch (err) {
-              console.error(err);
-            }
-          }),
-          false
-        );
-      }
-    }
-  }
+  handlePersonSearch = debounce(async (text: string) => {
+    this.setState({ searchPersonLoading: true });
 
-  setupBlockCommunityChoices() {
-    if (isBrowser()) {
-      let selectId: any = document.getElementById("block-community-filter");
-      if (selectId) {
-        this.blockCommunityChoices = new Choices(selectId, choicesConfig);
-        this.blockCommunityChoices.passedElement.element.addEventListener(
-          "choice",
-          (e: any) => {
-            this.handleBlockCommunity(Number(e.detail.choice.value));
-          },
-          false
-        );
-        this.blockCommunityChoices.passedElement.element.addEventListener(
-          "search",
-          debounce(async (e: any) => {
-            try {
-              let communities = (await fetchCommunities(e.detail.value))
-                .communities;
-              let choices = communities.map(cv => communityToChoice(cv));
-              this.blockCommunityChoices.setChoices(
-                choices,
-                "value",
-                "label",
-                true
-              );
-            } catch (err) {
-              console.log(err);
-            }
-          }),
-          false
-        );
-      }
-    }
-  }
+    const searchPersonOptions: Choice[] = [];
 
-  handleBlockPerson(personId: number) {
-    let auth = myAuth();
-    if (auth && personId != 0) {
-      let blockUserForm: BlockPerson = {
-        person_id: personId,
+    if (text.length > 0) {
+      searchPersonOptions.push(
+        ...(await fetchUsers(text)).users.map(personToChoice)
+      );
+    }
+
+    this.setState({
+      searchPersonLoading: false,
+      searchPersonOptions,
+    });
+  });
+
+  handleCommunitySearch = debounce(async (text: string) => {
+    this.setState({ searchCommunityLoading: true });
+
+    const searchCommunityOptions: Choice[] = [];
+
+    if (text.length > 0) {
+      searchCommunityOptions.push(
+        ...(await fetchCommunities(text)).communities.map(communityToChoice)
+      );
+    }
+
+    this.setState({
+      searchCommunityLoading: false,
+      searchCommunityOptions,
+    });
+  });
+
+  handleBlockPerson({ value }: Choice) {
+    const auth = myAuth();
+    if (auth && value !== "0") {
+      const blockUserForm: BlockPerson = {
+        person_id: Number(value),
         block: true,
         auth,
       };
+
       WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
     }
   }
 
   handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let blockUserForm: BlockPerson = {
+      const blockUserForm: BlockPerson = {
         person_id: i.recipientId,
         block: false,
         auth,
@@ -1000,11 +981,11 @@ export class Settings extends Component<any, SettingsState> {
     }
   }
 
-  handleBlockCommunity(community_id: number) {
-    let auth = myAuth();
-    if (auth && community_id != 0) {
-      let blockCommunityForm: BlockCommunity = {
-        community_id,
+  handleBlockCommunity({ value }: Choice) {
+    const auth = myAuth();
+    if (auth && value !== "0") {
+      const blockCommunityForm: BlockCommunity = {
+        community_id: Number(value),
         block: true,
         auth,
       };
@@ -1015,9 +996,9 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let blockCommunityForm: BlockCommunity = {
+      const blockCommunityForm: BlockCommunity = {
         community_id: i.communityId,
         block: false,
         auth,
@@ -1249,11 +1230,6 @@ export class Settings extends Component<any, SettingsState> {
 
   handleSwitchTab(i: { ctx: Settings; tab: string }) {
     i.ctx.setState({ currentTab: i.tab });
-
-    if (i.ctx.state.currentTab == "blocks") {
-      i.ctx.setupBlockPersonChoices();
-      i.ctx.setupBlockCommunityChoices();
-    }
   }
 
   parseMessage(msg: any) {

@@ -28,7 +28,7 @@ interface CommentNodesProps {
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
-  constructor(props: any, context: any) {
+  constructor(props: CommentNodesProps, context: any) {
     super(props, context);
   }
 

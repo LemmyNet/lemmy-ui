@@ -105,51 +105,54 @@ server.get("/*", async (req, res) => {
     const context = {} as any;
     let auth: string | undefined = IsomorphicCookie.load("jwt", req);
 
-    let getSiteForm: GetSite = { auth };
+    const getSiteForm: GetSite = { auth };
 
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
-    let headers = setForwardedHeaders(req.headers);
-
-    let initialFetchReq: InitialFetchRequest = {
-      client: new LemmyHttp(httpBaseInternal, headers),
-      auth,
-      path: req.path,
-    };
+    const headers = setForwardedHeaders(req.headers);
+    const client = new LemmyHttp(httpBaseInternal, headers);
 
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
-    let try_site: any = await initialFetchReq.client.getSite(getSiteForm);
+    let try_site: any = await client.getSite(getSiteForm);
     if (try_site.error == "not_logged_in") {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
       );
       getSiteForm.auth = undefined;
-      initialFetchReq.auth = undefined;
-      try_site = await initialFetchReq.client.getSite(getSiteForm);
+      auth = undefined;
+      try_site = await client.getSite(getSiteForm);
     }
-    let site: GetSiteResponse = try_site;
+    const site: GetSiteResponse = try_site;
     initializeSite(site);
+
+    const initialFetchReq: InitialFetchRequest = {
+      client,
+      auth,
+      path: req.path,
+      query: req.query,
+      site,
+    };
 
     if (activeRoute?.fetchInitialData) {
       promises.push(...activeRoute.fetchInitialData(initialFetchReq));
     }
 
-    let routeData = await Promise.all(promises);
+    const routeData = await Promise.all(promises);
 
     // Redirect to the 404 if there's an API error
     if (routeData[0] && routeData[0].error) {
-      let errCode = routeData[0].error;
-      console.error(errCode);
-      if (errCode == "instance_is_private") {
+      const error = routeData[0].error;
+      console.error(error);
+      if (error === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        return res.send(`404: ${removeAuthParam(errCode)}`);
+        return res.send(`404: ${removeAuthParam(error)}`);
       }
     }
 
-    let isoData: IsoData = {
+    const isoData: IsoData = {
       path: req.path,
       site_res: site,
       routeData,
@@ -170,6 +173,7 @@ server.get("/*", async (req, res) => {
         <script>eruda.init();</script>
       </>
     );
+
     const erudaStr = process.env["LEMMY_UI_DEBUG"] ? renderToString(eruda) : "";
     const root = renderToString(wrapper);
     const helmet = Helmet.renderStatic();

@@ -82,6 +82,8 @@ export const concurrentImageUpload = 4;
 
 export const relTags = "noopener nofollow";
 
+export const emDash = "\u2014";
+
 export type ThemeColor =
   | "primary"
   | "secondary"
@@ -116,6 +118,14 @@ const DEFAULT_ALPHABET =
 
 function getRandomCharFromAlphabet(alphabet: string): string {
   return alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+}
+
+export function getIdFromString(id?: string): number | undefined {
+  return id && id !== "0" && !Number.isNaN(Number(id)) ? Number(id) : undefined;
+}
+
+export function getPageFromString(page?: string): number {
+  return page && !Number.isNaN(Number(page)) ? Number(page) : 1;
 }
 
 export function randomStr(
@@ -332,8 +342,11 @@ export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function routeSortTypeToEnum(sort: string): SortType {
-  return SortType[sort];
+export function routeSortTypeToEnum(
+  sort: string,
+  defaultValue: SortType
+): SortType {
+  return SortType[sort] ?? defaultValue;
 }
 
 export function listingTypeFromNum(type_: number): ListingType {
@@ -344,16 +357,25 @@ export function sortTypeFromNum(type_: number): SortType {
   return Object.values(SortType)[type_];
 }
 
-export function routeListingTypeToEnum(type: string): ListingType {
-  return ListingType[type];
+export function routeListingTypeToEnum(
+  type: string,
+  defaultValue: ListingType
+): ListingType {
+  return ListingType[type] ?? defaultValue;
 }
 
-export function routeDataTypeToEnum(type: string): DataType {
-  return DataType[capitalizeFirstLetter(type)];
+export function routeDataTypeToEnum(
+  type: string,
+  defaultValue: DataType
+): DataType {
+  return DataType[type] ?? defaultValue;
 }
 
-export function routeSearchTypeToEnum(type: string): SearchType {
-  return SearchType[type];
+export function routeSearchTypeToEnum(
+  type: string,
+  defaultValue: SearchType
+): SearchType {
+  return SearchType[type] ?? defaultValue;
 }
 
 export async function getSiteMetadata(url: string) {
@@ -362,26 +384,34 @@ export async function getSiteMetadata(url: string) {
   return client.getSiteMetadata(form);
 }
 
-export function debounce(func: any, wait = 1000, immediate = false) {
+export function getDataTypeString(dt: DataType) {
+  return dt === DataType.Post ? "Post" : "Comment";
+}
+
+export function debounce<T extends any[], R>(
+  func: (...e: T) => R,
+  wait = 1000,
+  immediate = false
+) {
   // 'private' variable for instance
   // The returned function will be able to reference this due to closure.
   // Each call to the returned function will share this common timer.
-  let timeout: any;
+  let timeout: NodeJS.Timeout | null;
 
   // Calling debounce returns a new anonymous function
   return function () {
     // reference the context and args for the setTimeout function
-    var args = arguments;
+    const args = arguments;
 
     // Should the function be called now? If immediate is true
     //   and not already in a timeout then the answer is: Yes
-    var callNow = immediate && !timeout;
+    const callNow = immediate && !timeout;
 
-    // This is the basic debounce behaviour where you can call this
+    // This is the basic debounce behavior where you can call this
     //   function several times, but it will only execute once
     //   [before or after imposing a delay].
     //   Each time the returned function is called, the timer starts over.
-    clearTimeout(timeout);
+    clearTimeout(timeout ?? undefined);
 
     // Set the new timeout
     timeout = setTimeout(function () {
@@ -400,7 +430,7 @@ export function debounce(func: any, wait = 1000, immediate = false) {
 
     // Immediate mode and no wait timer? Execute the function..
     if (callNow) func.apply(this, args);
-  };
+  } as (...e: T) => R;
 }
 
 export function getLanguages(
@@ -903,47 +933,6 @@ async function communitySearch(text: string): Promise<CommunityTribute[]> {
   return communities;
 }
 
-export function getListingTypeFromProps(
-  props: any,
-  defaultListingType: ListingType,
-  myUserInfo = UserService.Instance.myUserInfo
-): ListingType {
-  let myLt = myUserInfo?.local_user_view.local_user.default_listing_type;
-  return props.match.params.listing_type
-    ? routeListingTypeToEnum(props.match.params.listing_type)
-    : myLt
-    ? Object.values(ListingType)[myLt]
-    : defaultListingType;
-}
-
-export function getListingTypeFromPropsNoDefault(props: any): ListingType {
-  return props.match.params.listing_type
-    ? routeListingTypeToEnum(props.match.params.listing_type)
-    : ListingType.Local;
-}
-
-export function getDataTypeFromProps(props: any): DataType {
-  return props.match.params.data_type
-    ? routeDataTypeToEnum(props.match.params.data_type)
-    : DataType.Post;
-}
-
-export function getSortTypeFromProps(
-  props: any,
-  myUserInfo = UserService.Instance.myUserInfo
-): SortType {
-  let mySortType = myUserInfo?.local_user_view.local_user.default_sort_type;
-  return props.match.params.sort
-    ? routeSortTypeToEnum(props.match.params.sort)
-    : mySortType
-    ? Object.values(SortType)[mySortType]
-    : SortType.Active;
-}
-
-export function getPageFromProps(props: any): number {
-  return props.match.params.page ? Number(props.match.params.page) : 1;
-}
-
 export function getRecipientIdFromProps(props: any): number {
   return props.match.params.recipient_id
     ? Number(props.match.params.recipient_id)
@@ -958,10 +947,6 @@ export function getIdFromProps(props: any): number | undefined {
 export function getCommentIdFromProps(props: any): number | undefined {
   let id = props.match.params.comment_id;
   return id ? Number(id) : undefined;
-}
-
-export function getUsernameFromProps(props: any): string {
-  return props.match.params.username;
 }
 
 export function editCommentRes(data: CommentView, comments?: CommentView[]) {
@@ -1378,25 +1363,30 @@ export function showLocal(isoData: IsoData): boolean {
   return linked ? linked.length > 0 : false;
 }
 
-export interface ChoicesValue {
+export interface Choice {
   value: string;
   label: string;
+  disabled?: boolean;
 }
 
-export function communityToChoice(cv: CommunityView): ChoicesValue {
-  let choice: ChoicesValue = {
+export function getUpdatedSearchId(id?: number | null, urlId?: number | null) {
+  return id === null
+    ? undefined
+    : ((id ?? urlId) === 0 ? undefined : id ?? urlId)?.toString();
+}
+
+export function communityToChoice(cv: CommunityView): Choice {
+  return {
     value: cv.community.id.toString(),
     label: communitySelectName(cv),
   };
-  return choice;
 }
 
-export function personToChoice(pvs: PersonViewSafe): ChoicesValue {
-  let choice: ChoicesValue = {
+export function personToChoice(pvs: PersonViewSafe): Choice {
+  return {
     value: pvs.person.id.toString(),
     label: personSelectName(pvs),
   };
-  return choice;
 }
 
 export async function fetchCommunities(q: string) {
@@ -1427,49 +1417,17 @@ export async function fetchUsers(q: string) {
   return client.search(form);
 }
 
-export const choicesConfig = {
-  shouldSort: false,
-  searchResultLimit: fetchLimit,
-  classNames: {
-    containerOuter: "choices custom-select px-0",
-    containerInner:
-      "choices__inner bg-secondary border-0 py-0 modlog-choices-font-size",
-    input: "form-control",
-    inputCloned: "choices__input--cloned",
-    list: "choices__list",
-    listItems: "choices__list--multiple",
-    listSingle: "choices__list--single py-0",
-    listDropdown: "choices__list--dropdown",
-    item: "choices__item bg-secondary",
-    itemSelectable: "choices__item--selectable",
-    itemDisabled: "choices__item--disabled",
-    itemChoice: "choices__item--choice",
-    placeholder: "choices__placeholder",
-    group: "choices__group",
-    groupHeading: "choices__heading",
-    button: "choices__button",
-    activeState: "is-active",
-    focusState: "is-focused",
-    openState: "is-open",
-    disabledState: "is-disabled",
-    highlightedState: "text-info",
-    selectedState: "text-info",
-    flippedState: "is-flipped",
-    loadingState: "is-loading",
-    noResults: "has-no-results",
-    noChoices: "has-no-choices",
-  },
-};
-
 export function communitySelectName(cv: CommunityView): string {
   return cv.community.local
     ? cv.community.title
     : `${hostname(cv.community.actor_id)}/${cv.community.title}`;
 }
 
-export function personSelectName(pvs: PersonViewSafe): string {
-  let pName = pvs.person.display_name ?? pvs.person.name;
-  return pvs.person.local ? pName : `${hostname(pvs.person.actor_id)}/${pName}`;
+export function personSelectName({
+  person: { display_name, name, local, actor_id },
+}: PersonViewSafe): string {
+  const pName = display_name ?? name;
+  return local ? pName : `${hostname(actor_id)}/${pName}`;
 }
 
 export function initializeSite(site: GetSiteResponse) {
@@ -1505,12 +1463,6 @@ export function isBanned(ps: PersonSafe): boolean {
   }
 }
 
-export function pushNotNull(array: any[], new_item?: any) {
-  if (new_item) {
-    array.push(...new_item);
-  }
-}
-
 export function myAuth(throwErr = true): string | undefined {
   return UserService.Instance.auth(throwErr);
 }
@@ -1524,14 +1476,17 @@ export function enableNsfw(siteRes: GetSiteResponse): boolean {
 }
 
 export function postToCommentSortType(sort: SortType): CommentSortType {
-  if ([SortType.Active, SortType.Hot].includes(sort)) {
-    return CommentSortType.Hot;
-  } else if ([SortType.New, SortType.NewComments].includes(sort)) {
-    return CommentSortType.New;
-  } else if (sort == SortType.Old) {
-    return CommentSortType.Old;
-  } else {
-    return CommentSortType.Top;
+  switch (sort) {
+    case SortType.Active:
+    case SortType.Hot:
+      return CommentSortType.Hot;
+    case SortType.New:
+    case SortType.NewComments:
+      return CommentSortType.New;
+    case SortType.Old:
+      return CommentSortType.Old;
+    default:
+      return CommentSortType.Top;
   }
 }
 
@@ -1553,7 +1508,8 @@ export function canCreateCommunity(
   siteRes: GetSiteResponse,
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {
-  let adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
+  const adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
+  // TODO: Make this check if user is logged on as well
   return !adminOnly || amAdmin(myUserInfo);
 }
 
@@ -1651,3 +1607,36 @@ const groupBy = <T>(
     (acc[predicate(value, index, array)] ||= []).push(value);
     return acc;
   }, {} as { [key: string]: T[] });
+
+export type QueryParams<T extends Record<string, any>> = {
+  [key in keyof T]?: string;
+};
+
+export function getQueryParams<T extends Record<string, any>>(processors: {
+  [K in keyof T]: (param: string) => T[K];
+}): T {
+  if (isBrowser()) {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    return Array.from(Object.entries(processors)).reduce(
+      (acc, [key, process]) => ({
+        ...acc,
+        [key]: process(searchParams.get(key)),
+      }),
+      {} as T
+    );
+  }
+
+  return {} as T;
+}
+
+export function getQueryString<T extends Record<string, string | undefined>>(
+  obj: T
+) {
+  return Object.entries(obj)
+    .filter(([, val]) => val !== undefined && val !== null)
+    .reduce(
+      (acc, [key, val], index) => `${acc}${index > 0 ? "&" : ""}${key}=${val}`,
+      "?"
+    );
+}

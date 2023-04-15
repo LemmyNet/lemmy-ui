@@ -280,7 +280,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         className={`btn btn-secondary btn-block mb-2 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
-        to={`/create_post?community_id=${cv.community.id}`}
+        to={`/create_post?communityId=${cv.community.id}`}
       >
         {i18n.t("create_a_post")}
       </Link>

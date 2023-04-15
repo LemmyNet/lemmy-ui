@@ -25,7 +25,7 @@ import {
 } from "lemmy-js-client";
 import { externalHost } from "../../env";
 import { i18n } from "../../i18next";
-import { BanType, PurgeType } from "../../interfaces";
+import { BanType, PostFormParams, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   amAdmin,
@@ -147,7 +147,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   render() {
-    let post = this.props.post_view.post;
+    const post = this.props.post_view.post;
+
     return (
       <div className="post-listing">
         {!this.state.showEdit ? (
@@ -734,7 +735,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <Link
         className="btn btn-link btn-animate text-muted py-0"
-        to={`/create_post${this.crossPostParams}`}
+        to={{
+          /* Empty string properties are required to satisfy type*/
+          pathname: "/create_post",
+          state: { ...this.crossPostParams },
+          hash: "",
+          key: "",
+          search: "",
+        }}
         title={i18n.t("cross_post")}
       >
         <Icon icon="copy" inline />
@@ -1461,18 +1469,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
-  get crossPostParams(): string {
-    let post = this.props.post_view.post;
-    let params = `?title=${encodeURIComponent(post.name)}`;
+  get crossPostParams(): PostFormParams {
+    const queryParams: PostFormParams = {};
+    const { name, url } = this.props.post_view.post;
 
-    if (post.url) {
-      params += `&url=${encodeURIComponent(post.url)}`;
+    queryParams.name = name;
+
+    if (url) {
+      queryParams.url = url;
     }
-    let crossPostBody = this.crossPostBody();
+
+    const crossPostBody = this.crossPostBody();
     if (crossPostBody) {
-      params += `&body=${encodeURIComponent(crossPostBody)}`;
+      queryParams.body = crossPostBody;
     }
-    return params;
+
+    return queryParams;
   }
 
   crossPostBody(): string | undefined {
