@@ -33,7 +33,6 @@ export interface PostFormParams {
   name?: string;
   url?: string;
   body?: string;
-  nameOrId?: string | number;
 }
 
 export enum CommentViewType {

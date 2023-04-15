@@ -2,7 +2,6 @@ import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
-  CommunityView,
   CreatePost,
   EditPost,
   Language,
@@ -58,13 +57,14 @@ interface PostFormProps {
   post_view?: PostView; // If a post is given, that means this is an edit
   allLanguages: Language[];
   siteLanguages: number[];
-  communities?: CommunityView[];
   params?: PostFormParams;
   onCancel?(): any;
   onCreate?(post: PostView): any;
   onEdit?(post: PostView): any;
   enableNsfw?: boolean;
   enableDownvotes?: boolean;
+  selectedCommunityChoice?: Choice;
+  onSelectCommunity?: (choice: Choice) => void;
 }
 
 interface PostFormState {
@@ -98,7 +98,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     communitySearchOptions: [],
   };
 
-  constructor(props: any, context: any) {
+  constructor(props: PostFormProps, context: any) {
     super(props, context);
     this.fetchSimilarPosts = debounce(this.fetchSimilarPosts.bind(this));
     this.fetchPageTitle = debounce(this.fetchPageTitle.bind(this));
@@ -110,7 +110,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Means its an edit
-    let pv = this.props.post_view;
+    const pv = this.props.post_view;
     if (pv) {
       this.state = {
         ...this.state,
@@ -125,15 +125,26 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       };
     }
 
-    let params = this.props.params;
+    const selectedCommunityChoice = this.props.selectedCommunityChoice;
+
+    if (selectedCommunityChoice) {
+      this.state = {
+        ...this.state,
+        form: {
+          ...this.state.form,
+          community_id: getIdFromString(selectedCommunityChoice.value),
+        },
+        communitySearchOptions: [selectedCommunityChoice],
+      };
+    }
+
+    const params = this.props.params;
     if (params) {
       this.state = {
         ...this.state,
         form: {
           ...this.state.form,
-          name: params.name,
-          url: params.url,
-          body: params.body,
+          ...params,
         },
       };
     }
@@ -163,6 +174,19 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.subscription?.unsubscribe();
     /* this.choices && this.choices.destroy(); */
     window.onbeforeunload = null;
+  }
+
+  static getDerivedStateFromProps(
+    { selectedCommunityChoice }: PostFormProps,
+    { form, ...restState }: PostFormState
+  ) {
+    return {
+      ...restState,
+      form: {
+        ...form,
+        community_id: getIdFromString(selectedCommunityChoice?.value),
+      },
+    };
   }
 
   render() {
@@ -428,8 +452,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   handlePostSubmit(i: PostForm, event: any) {
     event.preventDefault();
 
-    console.log("In handlePostSubmit");
-
     i.setState({ loading: true });
 
     // Coerce empty url string to undefined
@@ -605,45 +627,42 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       });
   }
 
-  handleCommunitySelect({ value }: Choice) {
-    this.setState(({ form }) => ({
-      form: {
-        ...form,
-        community_id: Number(value),
-      },
-    }));
-  }
-
   handleCommunitySearch = debounce(async (text: string) => {
-    const {
-      communitySearchOptions,
-      form: { community_id },
-    } = this.state;
+    const { selectedCommunityChoice } = this.props;
     this.setState({ communitySearchLoading: true });
 
     const newOptions: Choice[] = [];
 
-    const selectedOption = community_id
-      ? communitySearchOptions.find(
-          ({ value }) => getIdFromString(value) === community_id
-        )
-      : undefined;
-
-    if (selectedOption) {
-      newOptions.push(selectedOption);
+    if (selectedCommunityChoice) {
+      newOptions.push(selectedCommunityChoice);
     }
 
     if (text.length > 0) {
       newOptions.push(
         ...(await fetchCommunities(text)).communities.map(communityToChoice)
       );
+
+      this.setState({
+        communitySearchOptions: newOptions,
+      });
     }
 
     this.setState({
       communitySearchLoading: false,
-      communitySearchOptions: newOptions,
     });
   });
+
+  handleCommunitySelect(choice: Choice) {
+    if (this.props.onSelectCommunity) {
+      this.setState({
+        loading: true,
+      });
+
+      this.props.onSelectCommunity(choice);
+
+      this.setState({ loading: false });
+    }
+  }
 
   parseMessage(msg: any) {
     let mui = UserService.Instance.myUserInfo;
