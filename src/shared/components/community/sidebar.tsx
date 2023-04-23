@@ -20,6 +20,7 @@ import {
   amMod,
   amTopMod,
   getUnixTime,
+  hostname,
   mdToHtml,
   myAuth,
   numToSI,
@@ -91,15 +92,25 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   sidebar() {
+    const myUSerInfo = UserService.Instance.myUserInfo;
+    const { name, actor_id } = this.props.community_view.community;
     return (
       <div>
         <div className="card border-secondary mb-3">
           <div className="card-body">
             {this.communityTitle()}
             {this.props.editable && this.adminButtons()}
-            {this.subscribe()}
+            {myUSerInfo && this.subscribe()}
             {this.canPost && this.createPost()}
-            {this.blockCommunity()}
+            {myUSerInfo && this.blockCommunity()}
+            {!myUSerInfo && (
+              <div className="alert alert-info" role="alert">
+                You are not logged in. However you can subscribe from another
+                Fediverse account, for example Lemmy or Mastodon. To do this,
+                paste the following into the search field of your instance: !
+                {name}@{hostname(actor_id)}
+              </div>
+            )}
           </div>
         </div>
         <div className="card border-secondary mb-3">
@@ -123,7 +134,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span className="mr-2">{community.title}</span>
-          {subscribed == SubscribedType.Subscribed && (
+          {subscribed === SubscribedType.Subscribed && (
             <button
               className="btn btn-secondary btn-sm mr-2"
               onClick={linkEvent(this, this.handleUnsubscribe)}
@@ -132,7 +143,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               {i18n.t("joined")}
             </button>
           )}
-          {subscribed == SubscribedType.Pending && (
+          {subscribed === SubscribedType.Pending && (
             <button
               className="btn btn-warning mr-2"
               onClick={linkEvent(this, this.handleUnsubscribe)}

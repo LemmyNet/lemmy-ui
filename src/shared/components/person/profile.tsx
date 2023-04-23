@@ -530,6 +530,12 @@ export class Profile extends Component<
                     .format("MMM DD, YYYY")}
                 </span>
               </div>
+              {!UserService.Instance.myUserInfo && (
+                <div className="alert alert-info" role="alert">
+                  You are not logged in. If you use a Fediverse account that is
+                  able to follow users, you can follow this user.
+                </div>
+              )}
             </div>
           </div>
         </div>
