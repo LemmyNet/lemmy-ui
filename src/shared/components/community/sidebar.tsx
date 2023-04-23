@@ -101,7 +101,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {this.communityTitle()}
             {this.props.editable && this.adminButtons()}
             {myUSerInfo && this.subscribe()}
-            {this.canPost && this.createPost()}
+            {myUSerInfo && this.canPost && this.createPost()}
             {myUSerInfo && this.blockCommunity()}
             {!myUSerInfo && (
               <div className="alert alert-info" role="alert">

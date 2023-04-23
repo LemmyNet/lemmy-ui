@@ -407,6 +407,13 @@ export class Home extends Component<any, HomeState> {
                   dangerouslySetInnerHTML={mdToHtml(tagline)}
                 ></div>
               )}
+              {!UserService.Instance.myUserInfo && (
+                <div className="alert alert-info">
+                  To get the full experience, create an account or, if you have
+                  an account on another instance, try federating with some of
+                  the communities.
+                </div>
+              )}
               <div className="d-block d-md-none">{this.mobileView}</div>
               {this.posts()}
             </main>
@@ -497,12 +504,13 @@ export class Home extends Component<any, HomeState> {
             <div className="card border-secondary mb-3">
               <div className="card-body">
                 {this.trendingCommunities()}
-                {canCreateCommunity(this.state.siteRes) && (
-                  <LinkButton
-                    path="/create_community"
-                    translationKey="create_a_community"
-                  />
-                )}
+                {UserService.Instance.myUserInfo &&
+                  canCreateCommunity(this.state.siteRes) && (
+                    <LinkButton
+                      path="/create_community"
+                      translationKey="create_a_community"
+                    />
+                  )}
                 <LinkButton
                   path="/communities"
                   translationKey="explore_communities"

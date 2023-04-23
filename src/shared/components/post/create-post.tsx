@@ -70,8 +70,7 @@ export class CreatePost extends Component<
     this.subscription = wsSubscribe(this.parseMessage);
 
     if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
+      this.context.router.history.back();
     }
 
     // Only fetch the data if coming from another route
@@ -189,7 +188,7 @@ export class CreatePost extends Component<
       | PostFormParams
       | undefined;
 
-    this.props.history.push(
+    this.props.history.replace(
       `/create_post${getQueryString(queryParams)}`,
       locationState
     );

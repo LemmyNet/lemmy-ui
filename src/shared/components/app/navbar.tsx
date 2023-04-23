@@ -228,34 +228,38 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {i18n.t("communities")}
                 </NavLink>
               </li>
-              <li className="nav-item">
-                {/* TODO make sure this works: https://github.com/infernojs/inferno/issues/1608 */}
-                <NavLink
-                  to={{
-                    pathname: "/create_post",
-                    search: "",
-                    hash: "",
-                    key: "",
-                    state: { prevPath: this.currentLocation },
-                  }}
-                  className="nav-link"
-                  onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
-                  title={i18n.t("create_post")}
-                >
-                  {i18n.t("create_post")}
-                </NavLink>
-              </li>
-              {canCreateCommunity(this.props.siteRes) && (
-                <li className="nav-item">
-                  <NavLink
-                    to="/create_community"
-                    className="nav-link"
-                    onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
-                    title={i18n.t("create_community")}
-                  >
-                    {i18n.t("create_community")}
-                  </NavLink>
-                </li>
+              {person && (
+                <>
+                  <li className="nav-item">
+                    {/* TODO make sure this works: https://github.com/infernojs/inferno/issues/1608 */}
+                    <NavLink
+                      to={{
+                        pathname: "/create_post",
+                        search: "",
+                        hash: "",
+                        key: "",
+                        state: { prevPath: this.currentLocation },
+                      }}
+                      className="nav-link"
+                      onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
+                      title={i18n.t("create_post")}
+                    >
+                      {i18n.t("create_post")}
+                    </NavLink>
+                  </li>
+                  {canCreateCommunity(this.props.siteRes) && (
+                    <li className="nav-item">
+                      <NavLink
+                        to="/create_community"
+                        className="nav-link"
+                        onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
+                        title={i18n.t("create_community")}
+                      >
+                        {i18n.t("create_community")}
+                      </NavLink>
+                    </li>
+                  )}
+                </>
               )}
               <li className="nav-item">
                 <a
