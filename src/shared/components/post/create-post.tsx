@@ -1,4 +1,5 @@
 import { Component } from "inferno";
+import { Redirect } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   GetCommunity,
@@ -68,11 +69,6 @@ export class CreatePost extends Component<
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
-
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
 
     // Only fetch the data if coming from another route
     if (this.isoData.path === this.context.router.route.match.url) {
@@ -149,6 +145,7 @@ export class CreatePost extends Component<
 
     return (
       <div className="container-lg">
+        {!UserService.Instance.myUserInfo && <Redirect to="/login" />}
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -189,7 +186,7 @@ export class CreatePost extends Component<
       | PostFormParams
       | undefined;
 
-    this.props.history.push(
+    this.props.history.replace(
       `/create_post${getQueryString(queryParams)}`,
       locationState
     );
