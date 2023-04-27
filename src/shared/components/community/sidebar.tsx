@@ -105,10 +105,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {myUSerInfo && this.blockCommunity()}
             {!myUSerInfo && (
               <div className="alert alert-info" role="alert">
-                You are not logged in. However you can subscribe from another
-                Fediverse account, for example Lemmy or Mastodon. To do this,
-                paste the following into the search field of your instance: !
-                {name}@{hostname(actor_id)}
+                {i18n.t("community_not_logged_in_alert", {
+                  community: name,
+                  instance: hostname(actor_id),
+                })}
               </div>
             )}
           </div>

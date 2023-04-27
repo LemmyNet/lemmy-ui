@@ -532,8 +532,7 @@ export class Profile extends Component<
               </div>
               {!UserService.Instance.myUserInfo && (
                 <div className="alert alert-info" role="alert">
-                  You are not logged in. If you use a Fediverse account that is
-                  able to follow users, you can follow this user.
+                  {i18n.t("profile_not_logged_in_alert")}
                 </div>
               )}
             </div>
