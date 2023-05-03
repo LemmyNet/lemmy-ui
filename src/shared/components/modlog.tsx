@@ -1,5 +1,6 @@
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
+import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -791,8 +792,9 @@ export class Modlog extends Component<
               inline
               classes="mr-sm-2 mx-auto d-sm-inline d-block"
             />
-            <strong>CONTENT WARNING</strong>: Some deleted posts may contain
-            disturbing or adult material. Proceed with caution.
+            <T i18nKey="modlog_content_warning" class="d-inline">
+              #<strong>#</strong>#
+            </T>
           </div>
           <h5>
             {communityName && (
