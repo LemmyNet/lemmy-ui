@@ -251,7 +251,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li className="list-inline-item">
           <Link
             className="badge badge-primary"
-            to={`/modlog/community/${this.props.community_view.community.id}`}
+            to={`/modlog/${this.props.community_view.community.id}`}
           >
             {i18n.t("modlog")}
           </Link>

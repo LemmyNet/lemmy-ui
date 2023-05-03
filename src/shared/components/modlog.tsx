@@ -57,7 +57,7 @@ import {
   wsSubscribe,
 } from "../utils";
 import { HtmlTags } from "./common/html-tags";
-import { Spinner } from "./common/icon";
+import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
 import { Paginator } from "./common/paginator";
 import { SearchableSelect } from "./common/searchable-select";
@@ -782,6 +782,18 @@ export class Modlog extends Component<
         />
 
         <div>
+          <div
+            className="alert alert-warning text-sm-start text-xs-center"
+            role="alert"
+          >
+            <Icon
+              icon="alert-triangle"
+              inline
+              classes="mr-sm-2 mx-auto d-sm-inline d-block"
+            />
+            <strong>CONTENT WARNING</strong>: Some deleted posts may contain
+            disturbing or adult material. Proceed with caution.
+          </div>
           <h5>
             {communityName && (
               <Link className="text-body" to={`/c/${communityName}`}>
