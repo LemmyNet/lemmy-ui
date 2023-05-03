@@ -17,9 +17,12 @@
     "start": "yarn build:dev --watch"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,css,scss}": [
+    "*.{ts,tsx,js}": [
       "prettier --write",
       "eslint --fix"
+    ],
+    "*.{css, scss}": [
+      "prettier --write"
     ],
     "package.json": [
       "sortpack"
