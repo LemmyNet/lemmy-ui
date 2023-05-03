@@ -540,6 +540,11 @@ export class Profile extends Component<any, ProfileState> {
                     .format("MMM DD, YYYY")}
                 </span>
               </div>
+              {!UserService.Instance.myUserInfo && (
+                <div className="alert alert-info" role="alert">
+                  {i18n.t("profile_not_logged_in_alert")}
+                </div>
+              )}
             </div>
           </div>
         </div>
