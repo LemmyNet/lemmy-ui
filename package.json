@@ -12,12 +12,12 @@
     "build:prod": "webpack --mode=production",
     "clean": "yarn run rimraf dist",
     "dev": "yarn start",
-    "lint": "node generate_translations.js && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx src && prettier --check \"src/**/*.{ts,tsx}\"",
+    "lint": "node generate_translations.js && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx src && prettier --check \"src/**/*.{ts,tsx,js,css,scss}\"",
     "prepare": "husky install",
     "start": "yarn build:dev --watch"
   },
   "lint-staged": {
-    "*.{ts,tsx,js}": [
+    "*.{ts,tsx,js,css,scss}": [
       "prettier --write",
       "eslint --fix"
     ],
