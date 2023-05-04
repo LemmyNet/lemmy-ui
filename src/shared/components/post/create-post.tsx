@@ -163,16 +163,7 @@ export class CreatePost extends Component<any, CreatePostState> {
       url: urlParams.get("url") ?? undefined,
     };
 
-    const locationState = this.props.history.location.state as
-      | PostFormParams
-      | undefined;
-
-    this.props.history.replace(
-      `/create_post${getQueryString(queryParams)}`,
-      locationState
-    );
-
-    this.fetchCommunity();
+    return params;
   }
 
   get prevCommunityName(): string | undefined {

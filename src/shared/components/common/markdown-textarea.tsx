@@ -372,9 +372,9 @@ export class MarkdownTextArea extends Component<
           let textarea: any = document.getElementById(i.id);
           autosize.update(textarea);
           pictrsDeleteToast(
-            `${i18n.t("click_to_delete_picture")}: ${file.name}`,
-            `${i18n.t("picture_deleted")}: ${file.name}`,
-            `${i18n.t("failed_to_delete_picture")}: ${file.name}`,
+            i18n.t("click_to_delete_picture", file.name),
+            i18n.t("picture_deleted", file.name),
+            i18n.t("failed_to_delete_picture", file.name),
             deleteUrl
           );
         } else {

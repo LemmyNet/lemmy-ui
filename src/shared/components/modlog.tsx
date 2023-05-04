@@ -1,4 +1,5 @@
 import { Component, linkEvent } from "inferno";
+import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
   AdminPurgeCommentView,
@@ -47,7 +48,7 @@ import {
   wsSubscribe,
 } from "../utils";
 import { HtmlTags } from "./common/html-tags";
-import { Spinner } from "./common/icon";
+import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
 import { Paginator } from "./common/paginator";
 import { CommunityLink } from "./community/community-link";
@@ -604,6 +605,21 @@ export class Modlog extends Component<any, ModlogState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
+        <div>
+          <div
+            className="alert alert-warning text-sm-start text-xs-center"
+            role="alert"
+          >
+            <Icon
+              icon="alert-triangle"
+              inline
+              classes="mr-sm-2 mx-auto d-sm-inline d-block"
+            />
+            <T i18nKey="modlog_content_warning" class="d-inline">
+              #<strong>#</strong>#
+            </T>
+          </div>
+        </div>
         {this.state.loading ? (
           <h5>
             <Spinner large />

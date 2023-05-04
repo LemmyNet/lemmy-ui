@@ -129,8 +129,50 @@
   user-select: none;
 }
 
+.icon-emoji {
+  width: 4em;
+  height: auto;
+  max-height: inherit;
+}
+
+.icon-emoji-admin {
+  max-width: 24px;
+  max-height: 24px;
+  display: inline-block;
+}
+
 .icon-inline {
   margin-bottom: 2px;
+}
+
+.emoji-picker-container {
+  position: absolute;
+  top: 30px;
+  z-index: 1000;
+  transform: translateX(-50%);
+}
+
+@media only screen and (max-width: 992px) {
+  .emoji-picker-container {
+    width: 100vw;
+    transform: translateX(0%);
+    position: fixed;
+    left: 0;
+  }
+
+  .emoji-picker-container > section {
+    width: 100% !important;
+  }
+}
+
+.click-away-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 999;
 }
 
 .spinner-large {
@@ -207,6 +249,10 @@ hr {
 .text-wrap-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.text-xs-center {
+  text-align: center;
 }
 
 .overflow-wrap-anywhere {
@@ -383,4 +429,7 @@ br.big {
 
 .lang-select-action:focus {
   width: auto;
+}
+em-emoji-picker {
+  width: 100%;
 }
