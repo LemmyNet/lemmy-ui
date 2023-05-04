@@ -256,6 +256,10 @@ hr {
   text-overflow: ellipsis;
 }
 
+.text-xs-center {
+  text-align: center;
+}
+
 .overflow-wrap-anywhere {
   overflow-wrap: anywhere;
 }
