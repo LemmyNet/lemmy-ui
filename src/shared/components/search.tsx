@@ -423,7 +423,9 @@ export class Search extends Component<any, SearchState> {
         {this.selects}
         {this.searchForm}
         {this.displayResults(type)}
-        {this.resultsCount === 0 && <span>{i18n.t("no_results")}</span>}
+        {this.resultsCount === 0 && !this.state.searchLoading && (
+          <span>{i18n.t("no_results")}</span>
+        )}
         <Paginator page={page} onChange={this.handlePageChange} />
       </div>
     );
@@ -1002,7 +1004,7 @@ export class Search extends Component<any, SearchState> {
   }
 
   checkFinishedLoading() {
-    if (this.state.searchResponse && this.state.resolveObjectResponse) {
+    if (this.state.searchResponse || this.state.resolveObjectResponse) {
       this.setState({ searchLoading: false });
     }
   }
