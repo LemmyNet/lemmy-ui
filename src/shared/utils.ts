@@ -48,7 +48,7 @@ import { i18n, languages } from "./i18next";
 import { DataType, IsoData } from "./interfaces";
 import { UserService, WebSocketService } from "./services";
 
-var Tribute: any;
+let Tribute: any;
 if (isBrowser()) {
   Tribute = require("tributejs");
 }

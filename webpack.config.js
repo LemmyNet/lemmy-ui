@@ -4,6 +4,7 @@ const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
 const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
 const { merge } = require("lodash");
+const { ServiceWorkerPlugin } = require("service-worker-webpack");
 
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
@@ -90,6 +91,7 @@ const createClientConfig = (_env, mode) => {
     output: {
       filename: "js/client.js",
     },
+    plugins: [...base.plugins, new ServiceWorkerPlugin()],
   });
 
   if (mode === "development") {

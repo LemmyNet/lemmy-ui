@@ -1,16 +1,18 @@
 import express from "express";
-import fs from "fs";
+import { existsSync } from "fs";
+import { readdir, readFile } from "fs/promises";
 import { IncomingHttpHeaders } from "http";
 import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import Jimp from "jimp";
+import { GetSite, GetSiteResponse, LemmyHttp, Site } from "lemmy-js-client";
 import path from "path";
 import process from "process";
 import serialize from "serialize-javascript";
 import { App } from "../shared/components/app/app";
-import { httpBaseInternal } from "../shared/env";
+import { httpBase, httpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
@@ -67,13 +69,13 @@ server.get("/css/themes/:name", async (req, res) => {
   }
 
   const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
-  if (fs.existsSync(customTheme)) {
+  if (existsSync(customTheme)) {
     res.sendFile(customTheme);
   } else {
     const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
 
     // If the theme doesn't exist, just send litely
-    if (fs.existsSync(internalTheme)) {
+    if (existsSync(internalTheme)) {
       res.sendFile(internalTheme);
     } else {
       res.sendFile(path.resolve("./dist/assets/css/themes/litely.css"));
@@ -81,11 +83,11 @@ server.get("/css/themes/:name", async (req, res) => {
   }
 });
 
-function buildThemeList(): string[] {
-  let themes = ["darkly", "darkly-red", "litely", "litely-red"];
-  if (fs.existsSync(extraThemesFolder)) {
-    let dirThemes = fs.readdirSync(extraThemesFolder);
-    let cssThemes = dirThemes
+async function buildThemeList(): Promise<string[]> {
+  const themes = ["darkly", "darkly-red", "litely", "litely-red"];
+  if (existsSync(extraThemesFolder)) {
+    const dirThemes = await readdir(extraThemesFolder);
+    const cssThemes = dirThemes
       .filter(d => d.endsWith(".css"))
       .map(d => d.replace(".css", ""));
     themes.push(...cssThemes);
@@ -95,7 +97,7 @@ function buildThemeList(): string[] {
 
 server.get("/css/themelist", async (_req, res) => {
   res.type("json");
-  res.send(JSON.stringify(buildThemeList()));
+  res.send(JSON.stringify(await buildThemeList()));
 });
 
 // server.use(cookieParser());
@@ -202,7 +204,9 @@ server.get("/*", async (req, res) => {
            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
            <!-- Web app manifest -->
-           <link rel="manifest" href="/static/assets/manifest.webmanifest">
+           <link rel="manifest" href="data:application/manifest+json;base64,${await generateManifestBase64(
+             site.site_view.site
+           )}">
 
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
@@ -266,4 +270,48 @@ function removeParam(url: string, parameter: string): string {
   return url
     .replace(new RegExp("[?&]" + parameter + "=[^&#]*(#.*)?$"), "$1")
     .replace(new RegExp("([?&])" + parameter + "=[^&]*&"), "$1");
+}
+
+const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+const defaultLogoPathDirectory = path.join(
+  process.cwd(),
+  "dist",
+  "assets",
+  "icons"
+);
+
+export async function generateManifestBase64(site: Site) {
+  const url = (
+    process.env.NODE_ENV === "development" ? "http://localhost:1236/" : httpBase
+  ).replace(/\/$/g, "");
+  console.log(url);
+  const manifest = {
+    name: site.name,
+    description: site.description ?? "A link aggregator for the fediverse",
+    start_url: url,
+    display: "standalone",
+    background_color: "#222222",
+    icons: await Promise.all(
+      iconSizes.map(async size => {
+        let src = await readFile(
+          path.join(defaultLogoPathDirectory, `icon-${size}x${size}.png`)
+        ).then(buf => buf.toString("base64"));
+
+        // TODO: Make jimp behave
+        // if (site.icon) {
+        //   src = await Jimp.read(site.icon).then(img =>
+        //     img.resize(size, size).getBase64Async(Jimp.MIME_PNG)
+        //   );
+        // }
+
+        return {
+          sizes: `${size}x${size}`,
+          type: Jimp.MIME_PNG,
+          src: `data:image/png;base64,${src}`,
+        };
+      })
+    ),
+  };
+
+  return Buffer.from(JSON.stringify(manifest)).toString("base64");
 }
