@@ -6,13 +6,13 @@ import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
-import Jimp from "jimp";
 import { GetSite, GetSiteResponse, LemmyHttp, Site } from "lemmy-js-client";
 import path from "path";
 import process from "process";
 import serialize from "serialize-javascript";
+import sharp from "sharp";
 import { App } from "../shared/components/app/app";
-import { httpBase, httpBaseInternal } from "../shared/env";
+import { getHttpBase, getHttpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
@@ -112,7 +112,7 @@ server.get("/*", async (req, res) => {
     const promises: Promise<any>[] = [];
 
     const headers = setForwardedHeaders(req.headers);
-    const client = new LemmyHttp(httpBaseInternal, headers);
+    const client = new LemmyHttp(getHttpBaseInternal(), headers);
 
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
@@ -281,14 +281,23 @@ const defaultLogoPathDirectory = path.join(
 );
 
 export async function generateManifestBase64(site: Site) {
-  const url = (
-    process.env.NODE_ENV === "development" ? "http://localhost:1236/" : httpBase
+  const start_url = (
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:1236/"
+      : getHttpBase()
   ).replace(/\/$/g, "");
-  console.log(url);
+  const icon = site.icon
+    ? await fetch(
+        site.icon.replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
+      )
+        .then(res => res.blob())
+        .then(blob => blob.arrayBuffer())
+    : null;
+
   const manifest = {
     name: site.name,
     description: site.description ?? "A link aggregator for the fediverse",
-    start_url: url,
+    start_url,
     display: "standalone",
     background_color: "#222222",
     icons: await Promise.all(
@@ -297,16 +306,15 @@ export async function generateManifestBase64(site: Site) {
           path.join(defaultLogoPathDirectory, `icon-${size}x${size}.png`)
         ).then(buf => buf.toString("base64"));
 
-        // TODO: Make jimp behave
-        // if (site.icon) {
-        //   src = await Jimp.read(site.icon).then(img =>
-        //     img.resize(size, size).getBase64Async(Jimp.MIME_PNG)
-        //   );
-        // }
+        if (icon) {
+          src = (await sharp(icon).resize(size, size).toBuffer()).toString(
+            "base64"
+          );
+        }
 
         return {
           sizes: `${size}x${size}`,
-          type: Jimp.MIME_PNG,
+          type: "image/png",
           src: `data:image/png;base64,${src}`,
         };
       })

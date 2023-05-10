@@ -43,7 +43,7 @@ import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
-import { httpBase } from "./env";
+import { getHttpBase } from "./env";
 import { i18n, languages } from "./i18next";
 import { DataType, IsoData } from "./interfaces";
 import { UserService, WebSocketService } from "./services";
@@ -380,7 +380,7 @@ export function routeSearchTypeToEnum(
 
 export async function getSiteMetadata(url: string) {
   let form: GetSiteMetadata = { url };
-  let client = new LemmyHttp(httpBase);
+  let client = new LemmyHttp(getHttpBase());
   return client.getSiteMetadata(form);
 }
 
@@ -1399,7 +1399,7 @@ export async function fetchCommunities(q: string) {
     limit: fetchLimit,
     auth: myAuth(false),
   };
-  let client = new LemmyHttp(httpBase);
+  let client = new LemmyHttp(getHttpBase());
   return client.search(form);
 }
 
@@ -1413,7 +1413,7 @@ export async function fetchUsers(q: string) {
     limit: fetchLimit,
     auth: myAuth(false),
   };
-  let client = new LemmyHttp(httpBase);
+  let client = new LemmyHttp(getHttpBase());
   return client.search(form);
 }
 
@@ -1577,7 +1577,7 @@ export function selectableLanguages(
 }
 
 export function uploadImage(image: File): Promise<UploadImageResponse> {
-  const client = new LemmyHttp(httpBase);
+  const client = new LemmyHttp(getHttpBase());
 
   return client.uploadImage({ image });
 }

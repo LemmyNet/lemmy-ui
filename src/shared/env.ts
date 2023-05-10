@@ -2,49 +2,53 @@ import { isBrowser } from "./utils";
 
 const testHost = "0.0.0.0:8536";
 
-let internalHost =
-  (!isBrowser() && process.env.LEMMY_UI_LEMMY_INTERNAL_HOST) || testHost; // used for local dev
-export let externalHost: string;
-let host: string;
-let wsHost: string;
-let secure: string;
+const getInternalHost = () =>
+  !isBrowser()
+    ? process.env.LEMMY_UI_LEMMY_INTERNAL_HOST ?? testHost
+    : testHost; // used for local dev
 
-if (isBrowser()) {
-  // browser
-  const lemmyConfig =
-    typeof window.lemmyConfig !== "undefined" ? window.lemmyConfig : {};
+export const getExternalHost = () =>
+  isBrowser()
+    ? `${window.location.hostname}${
+        ["1234", "1235"].includes(window.location.port)
+          ? ":8536"
+          : window.location.port == ""
+          ? ""
+          : `:${window.location.port}`
+      }`
+    : process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST || testHost;
 
-  externalHost = `${window.location.hostname}${
-    ["1234", "1235"].includes(window.location.port)
-      ? ":8536"
-      : window.location.port == ""
-      ? ""
-      : `:${window.location.port}`
-  }`;
+const getSecure = () =>
+  (
+    isBrowser()
+      ? window.location.protocol.includes("https")
+      : process.env.LEMMY_UI_HTTPS === "true"
+  )
+    ? "s"
+    : "";
 
-  host = externalHost;
-  wsHost = lemmyConfig.wsHost || host;
-  secure = window.location.protocol == "https:" ? "s" : "";
-} else {
-  // server-side
-  externalHost = process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST || testHost;
-  host = internalHost;
-  wsHost = process.env.LEMMY_UI_LEMMY_WS_HOST || externalHost;
-  secure = process.env.LEMMY_UI_HTTPS == "true" ? "s" : "";
-}
+const getHost = () => (isBrowser() ? getExternalHost() : getInternalHost());
 
-export const httpBaseInternal = `http://${host}`; // Don't use secure here
-export const httpBase = `http${secure}://${host}`;
-export const wsUriBase = `ws${secure}://${wsHost}`;
-export const wsUri = `${wsUriBase}/api/v3/ws`;
-export const isHttps = secure.endsWith("s");
+const getWsHost = () =>
+  isBrowser()
+    ? window.lemmyConfig?.wsHost ?? getHost()
+    : process.env.LEMMY_UI_LEMMY_WS_HOST ?? getExternalHost();
 
-console.log(`httpbase: ${httpBase}`);
-console.log(`wsUri: ${wsUri}`);
-console.log(`isHttps: ${isHttps}`);
+const getBaseLocal = (s = "") => `http${s}://${getHost()}`;
+
+export const getHttpBaseInternal = () => getBaseLocal(); // Don't use secure here
+export const getHttpBase = () => getBaseLocal(getSecure());
+export const getWsUri = () => `ws${getSecure()}://${getWsHost()}/api/v3/ws`;
+export const isHttps = () => getSecure() === "s";
+
+console.log(`httpbase: ${getHttpBase()}`);
+console.log(`wsUri: ${getWsUri()}`);
+console.log(`isHttps: ${isHttps()}`);
 
 // This is for html tags, don't include port
-const httpExternalUri = `http${secure}://${externalHost.split(":")[0]}`;
 export function httpExternalPath(path: string) {
-  return `${httpExternalUri}${path}`;
+  return `http${getSecure()}://${getExternalHost().replace(
+    /:\d+/g,
+    ""
+  )}${path}`;
 }

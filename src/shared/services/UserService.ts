@@ -38,7 +38,7 @@ export class UserService {
     expires.setDate(expires.getDate() + 365);
     if (res.jwt) {
       toast(i18n.t("logged_in"));
-      IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps });
+      IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps() });
       this.setJwtInfo();
     }
   }
