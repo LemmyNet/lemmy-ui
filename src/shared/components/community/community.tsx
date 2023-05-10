@@ -1,29 +1,25 @@
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import {
-  AddModToCommunityResponse,
-  BanFromCommunityResponse,
-  BlockCommunityResponse,
-  BlockPersonResponse,
-  CommentResponse,
-  CommentView,
-  CommunityResponse,
-  GetComments,
-  GetCommentsResponse,
-  GetCommunity,
-  GetCommunityResponse,
-  GetPosts,
-  GetPostsResponse,
-  ListingType,
-  PostReportResponse,
-  PostResponse,
-  PostView,
-  PurgeItemResponse,
-  SortType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { AddModToCommunityResponse } from "lemmy-js-client/dist/types/AddModToCommunityResponse";
+import { BanFromCommunityResponse } from "lemmy-js-client/dist/types/BanFromCommunityResponse";
+import { BlockCommunityResponse } from "lemmy-js-client/dist/types/BlockCommunityResponse";
+import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
+import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
+import { CommentView } from "lemmy-js-client/dist/types/CommentView";
+import { CommunityResponse } from "lemmy-js-client/dist/types/CommunityResponse";
+import { GetComments } from "lemmy-js-client/dist/types/GetComments";
+import { GetCommentsResponse } from "lemmy-js-client/dist/types/GetCommentsResponse";
+import { GetCommunity } from "lemmy-js-client/dist/types/GetCommunity";
+import { GetCommunityResponse } from "lemmy-js-client/dist/types/GetCommunityResponse";
+import { GetPosts } from "lemmy-js-client/dist/types/GetPosts";
+import { GetPostsResponse } from "lemmy-js-client/dist/types/GetPostsResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { PostReportResponse } from "lemmy-js-client/dist/types/PostReportResponse";
+import { PostResponse } from "lemmy-js-client/dist/types/PostResponse";
+import { PostView } from "lemmy-js-client/dist/types/PostView";
+import { PurgeItemResponse } from "lemmy-js-client/dist/types/PurgeItemResponse";
+import { SortType } from "lemmy-js-client/dist/types/SortType";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import {
@@ -54,8 +50,6 @@ import {
   QueryParams,
   relTags,
   restoreScrollPosition,
-  routeDataTypeToEnum,
-  routeSortTypeToEnum,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
@@ -91,7 +85,7 @@ interface State {
 interface CommunityProps {
   dataType: DataType;
   sort: SortType;
-  page: number;
+  page: bigint;
 }
 
 function getCommunityQueryParams() {
@@ -102,18 +96,16 @@ function getCommunityQueryParams() {
   });
 }
 
-const getDataTypeFromQuery = (type?: string): DataType =>
-  routeDataTypeToEnum(type ?? "", DataType.Post);
+function getDataTypeFromQuery(type?: string): DataType {
+  return type ? DataType[type] : DataType.Post;
+}
 
 function getSortTypeFromQuery(type?: string): SortType {
   const mySortType =
     UserService.Instance.myUserInfo?.local_user_view.local_user
       .default_sort_type;
 
-  return routeSortTypeToEnum(
-    type ?? "",
-    mySortType ? Object.values(SortType)[mySortType] : SortType.Active
-  );
+  return type ? (type as SortType) : mySortType ?? "Active";
 }
 
 export class Community extends Component<
@@ -217,7 +209,7 @@ export class Community extends Component<
         page,
         limit: fetchLimit,
         sort,
-        type_: ListingType.All,
+        type_: "All",
         saved_only: false,
         auth,
       };
@@ -229,7 +221,7 @@ export class Community extends Component<
         page,
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
-        type_: ListingType.All,
+        type_: "All",
         saved_only: false,
         auth,
       };
@@ -432,18 +424,18 @@ export class Community extends Component<
     );
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.updateUrl({ page });
     window.scrollTo(0, 0);
   }
 
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1 });
+    this.updateUrl({ sort, page: 1n });
     window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(dataType: DataType) {
-    this.updateUrl({ dataType, page: 1 });
+    this.updateUrl({ dataType, page: 1n });
     window.scrollTo(0, 0);
   }
 
@@ -489,7 +481,7 @@ export class Community extends Component<
         page,
         limit: fetchLimit,
         sort,
-        type_: ListingType.All,
+        type_: "All",
         community_name: name,
         saved_only: false,
         auth: myAuth(false),
@@ -500,7 +492,7 @@ export class Community extends Component<
         page,
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
-        type_: ListingType.All,
+        type_: "All",
         community_name: name,
         saved_only: false,
         auth: myAuth(false),
@@ -611,7 +603,11 @@ export class Community extends Component<
               .show_new_post_notifs;
 
           // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
-          if (page === 1 && nsfwCheck(post_view) && !isPostBlocked(post_view)) {
+          if (
+            page === 1n &&
+            nsfwCheck(post_view) &&
+            !isPostBlocked(post_view)
+          ) {
             this.state.posts.unshift(post_view);
             if (showPostNotifs) {
               notifyPost(post_view, this.context.router);

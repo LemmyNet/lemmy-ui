@@ -3,25 +3,22 @@ import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import {
-  AddAdminResponse,
-  BanPerson,
-  BanPersonResponse,
-  BlockPerson,
-  BlockPersonResponse,
-  CommentResponse,
-  CommunityModeratorView,
-  CommunitySafe,
-  GetPersonDetails,
-  GetPersonDetailsResponse,
-  GetSiteResponse,
-  PostResponse,
-  PurgeItemResponse,
-  SortType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { AddAdminResponse } from "lemmy-js-client/dist/types/AddAdminResponse";
+import { BanPerson } from "lemmy-js-client/dist/types/BanPerson";
+import { BanPersonResponse } from "lemmy-js-client/dist/types/BanPersonResponse";
+import { BlockPerson } from "lemmy-js-client/dist/types/BlockPerson";
+import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
+import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
+import { Community } from "lemmy-js-client/dist/types/Community";
+import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
+import { GetPersonDetails } from "lemmy-js-client/dist/types/GetPersonDetails";
+import { GetPersonDetailsResponse } from "lemmy-js-client/dist/types/GetPersonDetailsResponse";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { PostResponse } from "lemmy-js-client/dist/types/PostResponse";
+import { PurgeItemResponse } from "lemmy-js-client/dist/types/PurgeItemResponse";
+import { SortType } from "lemmy-js-client/dist/types/SortType";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -49,7 +46,6 @@ import {
   QueryParams,
   relTags,
   restoreScrollPosition,
-  routeSortTypeToEnum,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
@@ -82,23 +78,26 @@ interface ProfileState {
 interface ProfileProps {
   view: PersonDetailsView;
   sort: SortType;
-  page: number;
+  page: bigint;
 }
 
-const getProfileQueryParams = () =>
-  getQueryParams<ProfileProps>({
+function getProfileQueryParams() {
+  return getQueryParams<ProfileProps>({
     view: getViewFromProps,
     page: getPageFromString,
     sort: getSortTypeFromQuery,
   });
+}
 
-const getSortTypeFromQuery = (sort?: string): SortType =>
-  sort ? routeSortTypeToEnum(sort, SortType.New) : SortType.New;
+function getSortTypeFromQuery(sort?: string): SortType {
+  return sort ? (sort as SortType) : "New";
+}
 
-const getViewFromProps = (view?: string): PersonDetailsView =>
-  view
+function getViewFromProps(view?: string): PersonDetailsView {
+  return view
     ? PersonDetailsView[view] ?? PersonDetailsView.Overview
     : PersonDetailsView.Overview;
+}
 
 function toggleBlockPerson(recipientId: number, block: boolean) {
   const auth = myAuth();
@@ -122,7 +121,7 @@ const handleBlockPerson = (personId: number) =>
 
 const getCommunitiesListing = (
   translationKey: NoOptionI18nKeys,
-  communityViews?: { community: CommunitySafe }[]
+  communityViews?: { community: Community }[]
 ) =>
   communityViews &&
   communityViews.length > 0 && (
@@ -500,13 +499,13 @@ export class Profile extends Component<
                 <ul className="list-inline mb-2">
                   <li className="list-inline-item badge badge-light">
                     {i18n.t("number_of_posts", {
-                      count: pv.counts.post_count,
+                      count: Number(pv.counts.post_count),
                       formattedCount: numToSI(pv.counts.post_count),
                     })}
                   </li>
                   <li className="list-inline-item badge badge-light">
                     {i18n.t("number_of_comments", {
-                      count: pv.counts.comment_count,
+                      count: Number(pv.counts.comment_count),
                       formattedCount: numToSI(pv.counts.comment_count),
                     })}
                   </li>
@@ -643,18 +642,18 @@ export class Profile extends Component<
     this.fetchUserData();
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.updateUrl({ page });
   }
 
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1 });
+    this.updateUrl({ sort, page: 1n });
   }
 
   handleViewChange(i: Profile, event: any) {
     i.updateUrl({
       view: PersonDetailsView[event.target.value],
-      page: 1,
+      page: 1n,
     });
   }
 

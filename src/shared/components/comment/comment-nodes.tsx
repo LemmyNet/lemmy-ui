@@ -1,17 +1,14 @@
 import { Component } from "inferno";
-import {
-  CommentNode as CommentNodeI,
-  CommunityModeratorView,
-  Language,
-  PersonViewSafe,
-} from "lemmy-js-client";
-import { CommentViewType } from "../../interfaces";
+import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
+import { Language } from "lemmy-js-client/dist/types/Language";
+import { PersonView } from "lemmy-js-client/dist/types/PersonView";
+import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
   moderators?: CommunityModeratorView[];
-  admins?: PersonViewSafe[];
+  admins?: PersonView[];
   maxCommentsShown?: number;
   noBorder?: boolean;
   noIndent?: boolean;

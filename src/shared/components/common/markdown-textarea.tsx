@@ -2,7 +2,7 @@ import autosize from "autosize";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { Language } from "lemmy-js-client";
+import { Language } from "lemmy-js-client/dist/types/Language";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
@@ -353,7 +353,7 @@ export class MarkdownTextArea extends Component<
     if (files.length > maxUploadImages) {
       toast(
         i18n.t("too_many_images_upload", {
-          count: maxUploadImages,
+          count: Number(maxUploadImages),
           formattedCount: numToSI(maxUploadImages),
         }),
         "danger"

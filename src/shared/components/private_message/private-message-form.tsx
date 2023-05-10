@@ -1,16 +1,13 @@
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Prompt } from "inferno-router";
-import {
-  CreatePrivateMessage,
-  EditPrivateMessage,
-  PersonSafe,
-  PrivateMessageResponse,
-  PrivateMessageView,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { CreatePrivateMessage } from "lemmy-js-client/dist/types/CreatePrivateMessage";
+import { EditPrivateMessage } from "lemmy-js-client/dist/types/EditPrivateMessage";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { Person } from "lemmy-js-client/dist/types/Person";
+import { PrivateMessageResponse } from "lemmy-js-client/dist/types/PrivateMessageResponse";
+import { PrivateMessageView } from "lemmy-js-client/dist/types/PrivateMessageView";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
@@ -29,7 +26,7 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 import { PersonListing } from "../person/person-listing";
 
 interface PrivateMessageFormProps {
-  recipient: PersonSafe;
+  recipient: Person;
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   onCancel?(): any;
   onCreate?(message: PrivateMessageView): any;

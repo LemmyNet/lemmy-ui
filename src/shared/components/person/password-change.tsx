@@ -1,12 +1,9 @@
 import { Component, linkEvent } from "inferno";
-import {
-  GetSiteResponse,
-  LoginResponse,
-  PasswordChange as PWordChange,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { LoginResponse } from "lemmy-js-client/dist/types/LoginResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { PasswordChangeAfterReset } from "lemmy-js-client/dist/types/PasswordChangeAfterReset";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
@@ -147,7 +144,7 @@ export class PasswordChange extends Component<any, State> {
     let password_verify = i.state.form.password_verify;
 
     if (password && password_verify) {
-      let form: PWordChange = {
+      let form: PasswordChangeAfterReset = {
         token: i.state.form.token,
         password,
         password_verify,
@@ -164,7 +161,7 @@ export class PasswordChange extends Component<any, State> {
       toast(i18n.t(msg.error), "danger");
       this.setState({ loading: false });
       return;
-    } else if (op == UserOperation.PasswordChange) {
+    } else if (op == UserOperation.PasswordChangeAfterReset) {
       let data = wsJsonToRes<LoginResponse>(msg);
       UserService.Instance.login(data);
       this.props.history.push("/");

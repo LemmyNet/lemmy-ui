@@ -1,5 +1,5 @@
 import { Component, linkEvent } from "inferno";
-import { SortType } from "lemmy-js-client";
+import { SortType } from "lemmy-js-client/dist/types/SortType";
 import { i18n } from "../../i18next";
 import { randomStr, relTags, sortingHelpUrl } from "../../utils";
 import { Icon } from "./icon";
@@ -46,31 +46,31 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
             {i18n.t("sort_type")}
           </option>
           {!this.props.hideHot && [
-            <option key={SortType.Hot} value={SortType.Hot}>
+            <option key={"Hot"} value={"Hot"}>
               {i18n.t("hot")}
             </option>,
-            <option key={SortType.Active} value={SortType.Active}>
+            <option key={"Active"} value={"Active"}>
               {i18n.t("active")}
             </option>,
           ]}
-          <option value={SortType.New}>{i18n.t("new")}</option>
-          <option value={SortType.Old}>{i18n.t("old")}</option>
+          <option value={"New"}>{i18n.t("new")}</option>
+          <option value={"Old"}>{i18n.t("old")}</option>
           {!this.props.hideMostComments && [
-            <option key={SortType.MostComments} value={SortType.MostComments}>
+            <option key={"MostComments"} value={"MostComments"}>
               {i18n.t("most_comments")}
             </option>,
-            <option key={SortType.NewComments} value={SortType.NewComments}>
+            <option key={"NewComments"} value={"NewComments"}>
               {i18n.t("new_comments")}
             </option>,
           ]}
           <option disabled aria-hidden="true">
             ─────
           </option>
-          <option value={SortType.TopDay}>{i18n.t("top_day")}</option>
-          <option value={SortType.TopWeek}>{i18n.t("top_week")}</option>
-          <option value={SortType.TopMonth}>{i18n.t("top_month")}</option>
-          <option value={SortType.TopYear}>{i18n.t("top_year")}</option>
-          <option value={SortType.TopAll}>{i18n.t("top_all")}</option>
+          <option value={"TopDay"}>{i18n.t("top_day")}</option>
+          <option value={"TopWeek"}>{i18n.t("top_week")}</option>
+          <option value={"TopMonth"}>{i18n.t("top_month")}</option>
+          <option value={"TopYear"}>{i18n.t("top_year")}</option>
+          <option value={"TopAll"}>{i18n.t("top_all")}</option>
         </select>
         <a
           className="text-muted"

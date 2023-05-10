@@ -1,9 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import {
-  PrivateMessageReportView,
-  ResolvePrivateMessageReport,
-} from "lemmy-js-client";
+import { PrivateMessageReportView } from "lemmy-js-client/dist/types/PrivateMessageReportView";
+import { ResolvePrivateMessageReport } from "lemmy-js-client/dist/types/ResolvePrivateMessageReport";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import { mdToHtml, myAuth, wsClient } from "../../utils";

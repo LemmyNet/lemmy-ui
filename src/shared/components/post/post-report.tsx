@@ -1,11 +1,8 @@
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import {
-  PostReportView,
-  PostView,
-  ResolvePostReport,
-  SubscribedType,
-} from "lemmy-js-client";
+import { PostReportView } from "lemmy-js-client/dist/types/PostReportView";
+import { PostView } from "lemmy-js-client/dist/types/PostView";
+import { ResolvePostReport } from "lemmy-js-client/dist/types/ResolvePostReport";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import { myAuth, wsClient } from "../../utils";
@@ -40,12 +37,12 @@ export class PostReport extends Component<PostReportProps, any> {
       community: r.community,
       creator_banned_from_community: r.creator_banned_from_community,
       counts: r.counts,
-      subscribed: SubscribedType.NotSubscribed,
+      subscribed: "NotSubscribed",
       saved: false,
       read: false,
       creator_blocked: false,
       my_vote: r.my_vote,
-      unread_comments: 0,
+      unread_comments: 0n,
     };
 
     return (

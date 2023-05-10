@@ -1,5 +1,5 @@
 import { Component, linkEvent } from "inferno";
-import { Post } from "lemmy-js-client";
+import { Post } from "lemmy-js-client/dist/types/Post";
 import * as sanitizeHtml from "sanitize-html";
 import { i18n } from "../../i18next";
 import { relTags } from "../../utils";

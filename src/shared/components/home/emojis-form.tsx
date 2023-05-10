@@ -1,17 +1,12 @@
 import { Component, linkEvent } from "inferno";
-import {
-  GetSiteResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
-import {
-  CreateCustomEmoji,
-  CustomEmojiResponse,
-  DeleteCustomEmoji,
-  DeleteCustomEmojiResponse,
-  EditCustomEmoji,
-} from "lemmy-js-client/dist/interfaces/api/custom_emoji";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { CreateCustomEmoji } from "lemmy-js-client/dist/types/CreateCustomEmoji";
+import { CustomEmojiResponse } from "lemmy-js-client/dist/types/CustomEmojiResponse";
+import { DeleteCustomEmoji } from "lemmy-js-client/dist/types/DeleteCustomEmoji";
+import { DeleteCustomEmojiResponse } from "lemmy-js-client/dist/types/DeleteCustomEmojiResponse";
+import { EditCustomEmoji } from "lemmy-js-client/dist/types/EditCustomEmoji";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
@@ -37,7 +32,7 @@ interface EmojiFormState {
   siteRes: GetSiteResponse;
   customEmojis: CustomEmojiViewForm[];
   loading: boolean;
-  page: number;
+  page: bigint;
 }
 
 interface CustomEmojiViewForm {
@@ -48,7 +43,7 @@ interface CustomEmojiViewForm {
   alt_text: string;
   keywords: string;
   changed: boolean;
-  page: number;
+  page: bigint;
 }
 
 export class EmojiForm extends Component<any, EmojiFormState> {
@@ -66,9 +61,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       alt_text: x.custom_emoji.alt_text,
       keywords: x.keywords.map(x => x.keyword).join(" "),
       changed: false,
-      page: 1 + Math.floor(index / this.itemsPerPage),
+      page: BigInt(1 + Math.floor(index / this.itemsPerPage)),
     })),
-    page: 1,
+    page: 1n,
   };
   state: EmojiFormState;
   private scrollRef: any = {};
@@ -127,8 +122,11 @@ export class EmojiForm extends Component<any, EmojiFormState> {
             <tbody>
               {this.state.customEmojis
                 .slice(
-                  (this.state.page - 1) * this.itemsPerPage,
-                  (this.state.page - 1) * this.itemsPerPage + this.itemsPerPage
+                  Number((this.state.page - 1n) * BigInt(this.itemsPerPage)),
+                  Number(
+                    (this.state.page - 1n) * BigInt(this.itemsPerPage) +
+                      BigInt(this.itemsPerPage)
+                  )
                 )
                 .map((cv, index) => (
                   <tr key={index} ref={e => (this.scrollRef[cv.shortcode] = e)}>
@@ -303,7 +301,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     else return i18n.t("custom_emoji_save_validation");
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.setState({ page: page });
   }
 
@@ -326,13 +324,14 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
+      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
+      BigInt(props.index);
     let item = {
-      ...props.form.state.customEmojis[pagedIndex],
+      ...props.form.state.customEmojis[Number(pagedIndex)],
       category: event.target.value,
       changed: true,
     };
-    custom_emojis[pagedIndex] = item;
+    custom_emojis[Number(pagedIndex)] = item;
     props.form.setState({ customEmojis: custom_emojis });
   }
 
@@ -342,13 +341,14 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
+      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
+      BigInt(props.index);
     let item = {
-      ...props.form.state.customEmojis[pagedIndex],
+      ...props.form.state.customEmojis[Number(pagedIndex)],
       shortcode: event.target.value,
       changed: true,
     };
-    custom_emojis[pagedIndex] = item;
+    custom_emojis[Number(pagedIndex)] = item;
     props.form.setState({ customEmojis: custom_emojis });
   }
 
@@ -358,13 +358,14 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
+      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
+      BigInt(props.index);
     let item = {
-      ...props.form.state.customEmojis[pagedIndex],
+      ...props.form.state.customEmojis[Number(pagedIndex)],
       image_url: props.overrideValue ?? event.target.value,
       changed: true,
     };
-    custom_emojis[pagedIndex] = item;
+    custom_emojis[Number(pagedIndex)] = item;
     props.form.setState({ customEmojis: custom_emojis });
   }
 
@@ -374,13 +375,14 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
+      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
+      BigInt(props.index);
     let item = {
-      ...props.form.state.customEmojis[pagedIndex],
+      ...props.form.state.customEmojis[Number(pagedIndex)],
       alt_text: event.target.value,
       changed: true,
     };
-    custom_emojis[pagedIndex] = item;
+    custom_emojis[Number(pagedIndex)] = item;
     props.form.setState({ customEmojis: custom_emojis });
   }
 
@@ -390,13 +392,14 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
+      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
+      BigInt(props.index);
     let item = {
-      ...props.form.state.customEmojis[pagedIndex],
+      ...props.form.state.customEmojis[Number(pagedIndex)],
       keywords: event.target.value,
       changed: true,
     };
-    custom_emojis[pagedIndex] = item;
+    custom_emojis[Number(pagedIndex)] = item;
     props.form.setState({ customEmojis: custom_emojis });
   }
 
@@ -406,7 +409,8 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     cv: CustomEmojiViewForm;
   }) {
     let pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
+      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
+      BigInt(props.index);
     if (props.cv.id != 0) {
       const deleteForm: DeleteCustomEmoji = {
         id: props.cv.id,
@@ -415,7 +419,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       WebSocketService.Instance.send(wsClient.deleteCustomEmoji(deleteForm));
     } else {
       let custom_emojis = [...props.form.state.customEmojis];
-      custom_emojis.splice(pagedIndex, 1);
+      custom_emojis.splice(Number(pagedIndex), 1);
       props.form.setState({ customEmojis: custom_emojis });
     }
   }
@@ -451,8 +455,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   handleAddEmojiClick(form: EmojiForm, event: any) {
     event.preventDefault();
     let custom_emojis = [...form.state.customEmojis];
-    const page =
-      1 + Math.floor(form.state.customEmojis.length / form.itemsPerPage);
+    const page = BigInt(
+      1 + Math.floor(form.state.customEmojis.length / form.itemsPerPage)
+    );
     let item: CustomEmojiViewForm = {
       id: 0,
       shortcode: "",

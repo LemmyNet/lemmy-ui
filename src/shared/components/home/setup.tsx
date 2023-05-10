@@ -1,13 +1,10 @@
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
-import {
-  GetSiteResponse,
-  LoginResponse,
-  Register,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { LoginResponse } from "lemmy-js-client/dist/types/LoginResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { Register } from "lemmy-js-client/dist/types/Register";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
 import { i18n } from "../../i18next";

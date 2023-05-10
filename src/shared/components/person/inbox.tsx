@@ -1,29 +1,26 @@
 import { Component, linkEvent } from "inferno";
-import {
-  BlockPersonResponse,
-  CommentReplyResponse,
-  CommentReplyView,
-  CommentReportResponse,
-  CommentResponse,
-  CommentSortType,
-  CommentView,
-  GetPersonMentions,
-  GetPersonMentionsResponse,
-  GetPrivateMessages,
-  GetReplies,
-  GetRepliesResponse,
-  GetSiteResponse,
-  PersonMentionResponse,
-  PersonMentionView,
-  PostReportResponse,
-  PrivateMessageReportResponse,
-  PrivateMessageResponse,
-  PrivateMessagesResponse,
-  PrivateMessageView,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
+import { CommentReplyResponse } from "lemmy-js-client/dist/types/CommentReplyResponse";
+import { CommentReplyView } from "lemmy-js-client/dist/types/CommentReplyView";
+import { CommentReportResponse } from "lemmy-js-client/dist/types/CommentReportResponse";
+import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
+import { CommentSortType } from "lemmy-js-client/dist/types/CommentSortType";
+import { CommentView } from "lemmy-js-client/dist/types/CommentView";
+import { GetPersonMentions } from "lemmy-js-client/dist/types/GetPersonMentions";
+import { GetPersonMentionsResponse } from "lemmy-js-client/dist/types/GetPersonMentionsResponse";
+import { GetPrivateMessages } from "lemmy-js-client/dist/types/GetPrivateMessages";
+import { GetReplies } from "lemmy-js-client/dist/types/GetReplies";
+import { GetRepliesResponse } from "lemmy-js-client/dist/types/GetRepliesResponse";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { PersonMentionResponse } from "lemmy-js-client/dist/types/PersonMentionResponse";
+import { PersonMentionView } from "lemmy-js-client/dist/types/PersonMentionView";
+import { PostReportResponse } from "lemmy-js-client/dist/types/PostReportResponse";
+import { PrivateMessageReportResponse } from "lemmy-js-client/dist/types/PrivateMessageReportResponse";
+import { PrivateMessageResponse } from "lemmy-js-client/dist/types/PrivateMessageResponse";
+import { PrivateMessagesResponse } from "lemmy-js-client/dist/types/PrivateMessagesResponse";
+import { PrivateMessageView } from "lemmy-js-client/dist/types/PrivateMessageView";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
@@ -84,7 +81,7 @@ interface InboxState {
   messages: PrivateMessageView[];
   combined: ReplyType[];
   sort: CommentSortType;
-  page: number;
+  page: bigint;
   siteRes: GetSiteResponse;
   loading: boolean;
 }
@@ -99,8 +96,8 @@ export class Inbox extends Component<any, InboxState> {
     mentions: [],
     messages: [],
     combined: [],
-    sort: CommentSortType.New,
-    page: 1,
+    sort: "New",
+    page: 1n,
     siteRes: this.isoData.site_res,
     loading: true,
   };
@@ -471,33 +468,33 @@ export class Inbox extends Component<any, InboxState> {
     );
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.setState({ page });
     this.refetch();
   }
 
   handleUnreadOrAllChange(i: Inbox, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
   handleMessageTypeChange(i: Inbox, event: any) {
-    i.setState({ messageType: Number(event.target.value), page: 1 });
+    i.setState({ messageType: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
-    let sort = CommentSortType.New;
+    let sort: CommentSortType = "New";
     let auth = req.auth;
 
     if (auth) {
       // It can be /u/me, or /username/1
       let repliesForm: GetReplies = {
-        sort,
+        sort: "New",
         unread_only: true,
-        page: 1,
+        page: 1n,
         limit: fetchLimit,
         auth,
       };
@@ -506,7 +503,7 @@ export class Inbox extends Component<any, InboxState> {
       let personMentionsForm: GetPersonMentions = {
         sort,
         unread_only: true,
-        page: 1,
+        page: 1n,
         limit: fetchLimit,
         auth,
       };
@@ -514,7 +511,7 @@ export class Inbox extends Component<any, InboxState> {
 
       let privateMessagesForm: GetPrivateMessages = {
         unread_only: true,
-        page: 1,
+        page: 1n,
         limit: fetchLimit,
         auth,
       };
@@ -565,7 +562,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   handleSortChange(val: CommentSortType) {
-    this.setState({ sort: val, page: 1 });
+    this.setState({ sort: val, page: 1n });
     this.refetch();
   }
 
@@ -579,7 +576,7 @@ export class Inbox extends Component<any, InboxState> {
       );
       i.setState({ replies: [], mentions: [], messages: [] });
       i.setState({ combined: i.buildCombined() });
-      UserService.Instance.unreadInboxCountSub.next(0);
+      UserService.Instance.unreadInboxCountSub.next(0n);
       window.scrollTo(0, 0);
       i.setState(i.state);
     }
@@ -588,9 +585,9 @@ export class Inbox extends Component<any, InboxState> {
   sendUnreadCount(read: boolean) {
     let urcs = UserService.Instance.unreadInboxCountSub;
     if (read) {
-      urcs.next(urcs.getValue() - 1);
+      urcs.next(urcs.getValue() - 1n);
     } else {
-      urcs.next(urcs.getValue() + 1);
+      urcs.next(urcs.getValue() + 1n);
     }
   }
 

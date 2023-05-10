@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { Language } from "lemmy-js-client";
+import { Language } from "lemmy-js-client/dist/types/Language";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services/UserService";
 import { randomStr, selectableLanguages } from "../../utils";

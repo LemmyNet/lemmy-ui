@@ -1,7 +1,8 @@
 // import Cookies from 'js-cookie';
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
-import { LoginResponse, MyUserInfo } from "lemmy-js-client";
+import { LoginResponse } from "lemmy-js-client/dist/types/LoginResponse";
+import { MyUserInfo } from "lemmy-js-client/dist/types/MyUserInfo";
 import { BehaviorSubject } from "rxjs";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";
@@ -22,12 +23,12 @@ export class UserService {
   private static _instance: UserService;
   public myUserInfo?: MyUserInfo;
   public jwtInfo?: JwtInfo;
-  public unreadInboxCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
-  public unreadReportCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
-  public unreadApplicationCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
+  public unreadInboxCountSub: BehaviorSubject<bigint> =
+    new BehaviorSubject<bigint>(0n);
+  public unreadReportCountSub: BehaviorSubject<bigint> =
+    new BehaviorSubject<bigint>(0n);
+  public unreadApplicationCountSub: BehaviorSubject<bigint> =
+    new BehaviorSubject<bigint>(0n);
 
   private constructor() {
     this.setJwtInfo();

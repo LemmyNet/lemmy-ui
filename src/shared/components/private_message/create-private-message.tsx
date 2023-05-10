@@ -1,13 +1,9 @@
 import { Component } from "inferno";
-import {
-  GetPersonDetails,
-  GetPersonDetailsResponse,
-  GetSiteResponse,
-  SortType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { GetPersonDetails } from "lemmy-js-client/dist/types/GetPersonDetails";
+import { GetPersonDetailsResponse } from "lemmy-js-client/dist/types/GetPersonDetailsResponse";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
@@ -73,7 +69,7 @@ export class CreatePrivateMessage extends Component<
   fetchPersonDetails() {
     let form: GetPersonDetails = {
       person_id: this.state.recipient_id,
-      sort: SortType.New,
+      sort: "New",
       saved_only: false,
       auth: myAuth(false),
     };
@@ -84,7 +80,7 @@ export class CreatePrivateMessage extends Component<
     let person_id = Number(req.path.split("/").pop());
     let form: GetPersonDetails = {
       person_id,
-      sort: SortType.New,
+      sort: "New",
       saved_only: false,
       auth: req.auth,
     };

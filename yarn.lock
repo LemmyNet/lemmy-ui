@@ -5398,10 +5398,10 @@ leac@^0.6.0:
   resolved "https://registry.yarnpkg.com/leac/-/leac-0.6.0.tgz#dcf136e382e666bd2475f44a1096061b70dc0912"
   integrity sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==
 
-lemmy-js-client@0.17.2-rc.5:
-  version "0.17.2-rc.5"
-  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.17.2-rc.5.tgz#8dbfa01fc293d63d72d8294d5584d4e71c9c08be"
-  integrity sha512-B2VibqJvevVDiYK7yfMPZrx0GdC4XgpN2bgouzMgXZsn+HENALIAm5K+sZhD40/NCd69MglWTlYtFYg9d4YxOA==
+lemmy-js-client@0.17.2-rc.13:
+  version "0.17.2-rc.13"
+  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.17.2-rc.13.tgz#f2a61050c1308e85cb39c0e1f561e392e84e3921"
+  integrity sha512-4IyR1pisCumJ9L8fEPISC+Su1kVTI4pL/gWLsuOXxZC/lK36mG2+NfaNPiUmIklpCF5TUN+1F7E9bEvtTGogww==
   dependencies:
     cross-fetch "^3.1.5"
     form-data "^4.0.0"
@@ -7043,9 +7043,9 @@ prettier-plugin-packagejson@^2.4.3:
     synckit "0.8.5"
 
 prettier@^2.8.4:
-  version "2.8.4"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.4.tgz#34dd2595629bfbb79d344ac4a91ff948694463c3"
-  integrity sha512-vIS4Rlc2FNh0BySk3Wkd6xmwxB0FpOndW5fisM5H8hsZSxU2VWVB5CWIkIjWvrHjIhxk2g3bfMKM87zNTrZddw==
+  version "2.8.8"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.8.tgz#e8c5d7e98a4305ffe3de2e1fc4aca1a71c28b1da"
+  integrity sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==
 
 process-nextick-args@~2.0.0:
   version "2.0.1"

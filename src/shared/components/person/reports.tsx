@@ -1,22 +1,19 @@
 import { Component, linkEvent } from "inferno";
-import {
-  CommentReportResponse,
-  CommentReportView,
-  GetSiteResponse,
-  ListCommentReports,
-  ListCommentReportsResponse,
-  ListPostReports,
-  ListPostReportsResponse,
-  ListPrivateMessageReports,
-  ListPrivateMessageReportsResponse,
-  PostReportResponse,
-  PostReportView,
-  PrivateMessageReportResponse,
-  PrivateMessageReportView,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { CommentReportResponse } from "lemmy-js-client/dist/types/CommentReportResponse";
+import { CommentReportView } from "lemmy-js-client/dist/types/CommentReportView";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { ListCommentReports } from "lemmy-js-client/dist/types/ListCommentReports";
+import { ListCommentReportsResponse } from "lemmy-js-client/dist/types/ListCommentReportsResponse";
+import { ListPostReports } from "lemmy-js-client/dist/types/ListPostReports";
+import { ListPostReportsResponse } from "lemmy-js-client/dist/types/ListPostReportsResponse";
+import { ListPrivateMessageReports } from "lemmy-js-client/dist/types/ListPrivateMessageReports";
+import { ListPrivateMessageReportsResponse } from "lemmy-js-client/dist/types/ListPrivateMessageReportsResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { PostReportResponse } from "lemmy-js-client/dist/types/PostReportResponse";
+import { PostReportView } from "lemmy-js-client/dist/types/PostReportView";
+import { PrivateMessageReportResponse } from "lemmy-js-client/dist/types/PrivateMessageReportResponse";
+import { PrivateMessageReportView } from "lemmy-js-client/dist/types/PrivateMessageReportView";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
@@ -75,7 +72,7 @@ interface ReportsState {
   messageType: MessageType;
   combined: ItemType[];
   siteRes: GetSiteResponse;
-  page: number;
+  page: bigint;
   loading: boolean;
 }
 
@@ -86,7 +83,7 @@ export class Reports extends Component<any, ReportsState> {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
     combined: [],
-    page: 1,
+    page: 1n,
     siteRes: this.isoData.site_res,
     loading: true,
   };
@@ -422,18 +419,18 @@ export class Reports extends Component<any, ReportsState> {
     );
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.setState({ page });
     this.refetch();
   }
 
   handleUnreadOrAllChange(i: Reports, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
   handleMessageTypeChange(i: Reports, event: any) {
-    i.setState({ messageType: Number(event.target.value), page: 1 });
+    i.setState({ messageType: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
@@ -441,7 +438,7 @@ export class Reports extends Component<any, ReportsState> {
     let promises: Promise<any>[] = [];
 
     let unresolved_only = true;
-    let page = 1;
+    let page = 1n;
     let limit = fetchLimit;
     let auth = req.auth;
 
@@ -553,9 +550,9 @@ export class Reports extends Component<any, ReportsState> {
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.post_report_view.post_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
+        urcs.next(urcs.getValue() - 1n);
       } else {
-        urcs.next(urcs.getValue() + 1);
+        urcs.next(urcs.getValue() + 1n);
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolveCommentReport) {
@@ -566,9 +563,9 @@ export class Reports extends Component<any, ReportsState> {
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.comment_report_view.comment_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
+        urcs.next(urcs.getValue() - 1n);
       } else {
-        urcs.next(urcs.getValue() + 1);
+        urcs.next(urcs.getValue() + 1n);
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolvePrivateMessageReport) {
@@ -579,9 +576,9 @@ export class Reports extends Component<any, ReportsState> {
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.private_message_report_view.private_message_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
+        urcs.next(urcs.getValue() - 1n);
       } else {
-        urcs.next(urcs.getValue() + 1);
+        urcs.next(urcs.getValue() + 1n);
       }
       this.setState(this.state);
     }

@@ -1,13 +1,10 @@
 import { Component, linkEvent } from "inferno";
-import {
-  GetSiteResponse,
-  ListRegistrationApplications,
-  ListRegistrationApplicationsResponse,
-  RegistrationApplicationResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { ListRegistrationApplications } from "lemmy-js-client/dist/types/ListRegistrationApplications";
+import { ListRegistrationApplicationsResponse } from "lemmy-js-client/dist/types/ListRegistrationApplicationsResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { RegistrationApplicationResponse } from "lemmy-js-client/dist/types/RegistrationApplicationResponse";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
@@ -37,7 +34,7 @@ interface RegistrationApplicationsState {
   listRegistrationApplicationsResponse?: ListRegistrationApplicationsResponse;
   siteRes: GetSiteResponse;
   unreadOrAll: UnreadOrAll;
-  page: number;
+  page: bigint;
   loading: boolean;
 }
 
@@ -50,7 +47,7 @@ export class RegistrationApplications extends Component<
   state: RegistrationApplicationsState = {
     siteRes: this.isoData.site_res,
     unreadOrAll: UnreadOrAll.Unread,
-    page: 1,
+    page: 1n,
     loading: true,
   };
 
@@ -188,11 +185,11 @@ export class RegistrationApplications extends Component<
   }
 
   handleUnreadOrAllChange(i: RegistrationApplications, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.setState({ page });
     this.refetch();
   }
@@ -204,7 +201,7 @@ export class RegistrationApplications extends Component<
     if (auth) {
       let form: ListRegistrationApplications = {
         unread_only: true,
-        page: 1,
+        page: 1n,
         limit: fetchLimit,
         auth,
       };
@@ -254,7 +251,7 @@ export class RegistrationApplications extends Component<
       );
       let uacs = UserService.Instance.unreadApplicationCountSub;
       // Minor bug, where if the application switches from deny to approve, the count will still go down
-      uacs.next(uacs.getValue() - 1);
+      uacs.next(uacs.getValue() - 1n);
       this.setState(this.state);
     }
   }

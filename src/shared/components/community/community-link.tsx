@@ -1,11 +1,11 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { CommunitySafe } from "lemmy-js-client";
+import { Community } from "lemmy-js-client/dist/types/Community";
 import { hostname, relTags, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 
 interface CommunityLinkProps {
-  community: CommunitySafe;
+  community: Community;
   realLink?: boolean;
   useApubName?: boolean;
   muted?: boolean;

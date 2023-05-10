@@ -1,12 +1,10 @@
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import {
-  CreateSite,
-  EditSite,
-  GetSiteResponse,
-  ListingType,
-  RegistrationMode,
-} from "lemmy-js-client";
+import { CreateSite } from "lemmy-js-client/dist/types/CreateSite";
+import { EditSite } from "lemmy-js-client/dist/types/EditSite";
+import { GetFederatedInstancesResponse } from "lemmy-js-client/dist/types/GetFederatedInstancesResponse";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { ListingType } from "lemmy-js-client/dist/types/ListingType";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
@@ -23,6 +21,7 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface SiteFormProps {
   siteRes: GetSiteResponse;
+  instancesRes?: GetFederatedInstancesResponse;
   showLocal?: boolean;
 }
 
@@ -104,8 +103,14 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         federation_worker_count: ls.federation_worker_count,
         captcha_enabled: ls.captcha_enabled,
         captcha_difficulty: ls.captcha_difficulty,
-        allowed_instances: this.props.siteRes.federated_instances?.allowed,
-        blocked_instances: this.props.siteRes.federated_instances?.blocked,
+        allowed_instances:
+          this.props.instancesRes?.federated_instances?.allowed.map(
+            i => i.domain
+          ),
+        blocked_instances:
+          this.props.instancesRes?.federated_instances?.blocked.map(
+            i => i.domain
+          ),
         auth: "TODO",
       },
     };
@@ -295,20 +300,15 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 )}
                 className="custom-select w-auto"
               >
-                <option value={RegistrationMode.RequireApplication}>
+                <option value={"RequireApplication"}>
                   {i18n.t("require_registration_application")}
                 </option>
-                <option value={RegistrationMode.Open}>
-                  {i18n.t("open_registration")}
-                </option>
-                <option value={RegistrationMode.Closed}>
-                  {i18n.t("close_registration")}
-                </option>
+                <option value={"Open"}>{i18n.t("open_registration")}</option>
+                <option value={"Closed"}>{i18n.t("close_registration")}</option>
               </select>
             </div>
           </div>
-          {this.state.siteForm.registration_mode ==
-            RegistrationMode.RequireApplication && (
+          {this.state.siteForm.registration_mode == "RequireApplication" && (
             <div className="form-group row">
               <label className="col-12 col-form-label">
                 {i18n.t("application_questionnaire")}
@@ -438,9 +438,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               <div className="col-sm-9">
                 <ListingTypeSelect
                   type_={
-                    ListingType[
-                      this.state.siteForm.default_post_listing_type ?? "Local"
-                    ]
+                    this.state.siteForm.default_post_listing_type ?? "Local"
                   }
                   showLocal
                   showSubscribed={false}
@@ -1256,12 +1254,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleDefaultPostListingTypeChange(val: ListingType) {
-    this.setState(
-      s => (
-        (s.siteForm.default_post_listing_type = ListingType[ListingType[val]]),
-        s
-      )
-    );
+    this.setState(s => ((s.siteForm.default_post_listing_type = val), s));
   }
 }
 

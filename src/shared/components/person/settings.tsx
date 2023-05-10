@@ -1,23 +1,20 @@
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
-import {
-  BlockCommunity,
-  BlockCommunityResponse,
-  BlockPerson,
-  BlockPersonResponse,
-  ChangePassword,
-  CommunityBlockView,
-  DeleteAccount,
-  GetSiteResponse,
-  ListingType,
-  LoginResponse,
-  PersonBlockView,
-  SaveUserSettings,
-  SortType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { BlockCommunity } from "lemmy-js-client/dist/types/BlockCommunity";
+import { BlockCommunityResponse } from "lemmy-js-client/dist/types/BlockCommunityResponse";
+import { BlockPerson } from "lemmy-js-client/dist/types/BlockPerson";
+import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
+import { ChangePassword } from "lemmy-js-client/dist/types/ChangePassword";
+import { CommunityBlockView } from "lemmy-js-client/dist/types/CommunityBlockView";
+import { DeleteAccount } from "lemmy-js-client/dist/types/DeleteAccount";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { ListingType } from "lemmy-js-client/dist/types/ListingType";
+import { LoginResponse } from "lemmy-js-client/dist/types/LoginResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { PersonBlockView } from "lemmy-js-client/dist/types/PersonBlockView";
+import { SaveUserSettings } from "lemmy-js-client/dist/types/SaveUserSettings";
+import { SortType } from "lemmy-js-client/dist/types/SortType";
 import { Subscription } from "rxjs";
 import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
@@ -62,8 +59,8 @@ interface SettingsState {
   saveUserSettingsForm: {
     show_nsfw?: boolean;
     theme?: string;
-    default_sort_type?: number;
-    default_listing_type?: number;
+    default_sort_type?: SortType;
+    default_listing_type?: ListingType;
     interface_language?: string;
     avatar?: string;
     banner?: string;
@@ -650,9 +647,8 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={
-                  Object.values(ListingType)[
-                    this.state.saveUserSettingsForm.default_listing_type ?? 1
-                  ]
+                  this.state.saveUserSettingsForm.default_listing_type ??
+                  "Local"
                 }
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
@@ -665,9 +661,7 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <SortSelect
                 sort={
-                  Object.values(SortType)[
-                    this.state.saveUserSettingsForm.default_sort_type ?? 0
-                  ]
+                  this.state.saveUserSettingsForm.default_sort_type ?? "Active"
                 }
                 onChange={this.handleSortTypeChange}
               />
@@ -1096,22 +1090,12 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleSortTypeChange(val: SortType) {
-    this.setState(
-      s => (
-        (s.saveUserSettingsForm.default_sort_type =
-          Object.keys(SortType).indexOf(val)),
-        s
-      )
-    );
+    this.setState(s => ((s.saveUserSettingsForm.default_sort_type = val), s));
   }
 
   handleListingTypeChange(val: ListingType) {
     this.setState(
-      s => (
-        (s.saveUserSettingsForm.default_listing_type =
-          Object.keys(ListingType).indexOf(val)),
-        s
-      )
+      s => ((s.saveUserSettingsForm.default_listing_type = val), s)
     );
   }
 

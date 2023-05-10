@@ -1,11 +1,9 @@
 import { Component, linkEvent } from "inferno";
-import {
-  CreatePrivateMessageReport,
-  DeletePrivateMessage,
-  MarkPrivateMessageAsRead,
-  PersonSafe,
-  PrivateMessageView,
-} from "lemmy-js-client";
+import { CreatePrivateMessageReport } from "lemmy-js-client/dist/types/CreatePrivateMessageReport";
+import { DeletePrivateMessage } from "lemmy-js-client/dist/types/DeletePrivateMessage";
+import { MarkPrivateMessageAsRead } from "lemmy-js-client/dist/types/MarkPrivateMessageAsRead";
+import { Person } from "lemmy-js-client/dist/types/Person";
+import { PrivateMessageView } from "lemmy-js-client/dist/types/PrivateMessageView";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import { mdToHtml, myAuth, toast, wsClient } from "../../utils";
@@ -57,7 +55,7 @@ export class PrivateMessage extends Component<
 
   render() {
     let message_view = this.props.private_message_view;
-    let otherPerson: PersonSafe = this.mine
+    let otherPerson: Person = this.mine
       ? message_view.recipient
       : message_view.creator;
 

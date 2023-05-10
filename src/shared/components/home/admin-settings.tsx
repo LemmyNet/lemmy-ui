@@ -1,15 +1,13 @@
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
-import {
-  BannedPersonsResponse,
-  GetBannedPersons,
-  GetSiteResponse,
-  PersonViewSafe,
-  SiteResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { BannedPersonsResponse } from "lemmy-js-client/dist/types/BannedPersonsResponse";
+import { GetBannedPersons } from "lemmy-js-client/dist/types/GetBannedPersons";
+import { GetFederatedInstancesResponse } from "lemmy-js-client/dist/types/GetFederatedInstancesResponse";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { PersonView } from "lemmy-js-client/dist/types/PersonView";
+import { SiteResponse } from "lemmy-js-client/dist/types/SiteResponse";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
@@ -34,7 +32,8 @@ import { TaglineForm } from "./tagline-form";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
-  banned: PersonViewSafe[];
+  instancesRes?: GetFederatedInstancesResponse;
+  banned: PersonView[];
   loading: boolean;
   leaveAdminTeamLoading: boolean;
   currentTab: string;
@@ -63,6 +62,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state = {
         ...this.state,
         banned: (this.isoData.routeData[0] as BannedPersonsResponse).banned,
+        instancesRes: this.isoData
+          .routeData[1] as GetFederatedInstancesResponse,
         loading: false,
       };
     } else {
@@ -72,6 +73,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
           wsClient.getBannedPersons({
             auth: cAuth,
           })
+        );
+        WebSocketService.Instance.send(
+          wsClient.getFederatedInstances({ auth: cAuth })
         );
       }
     }
@@ -84,6 +88,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     if (auth) {
       let bannedPersonsForm: GetBannedPersons = { auth };
       promises.push(req.client.getBannedPersons(bannedPersonsForm));
+      promises.push(req.client.getFederatedInstances({ auth }));
     }
 
     return promises;
@@ -167,6 +172,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 <div className="col-12 col-md-6">
                   <SiteForm
                     siteRes={this.state.siteRes}
+                    instancesRes={this.state.instancesRes}
                     showLocal={showLocal(this.isoData)}
                   />
                 </div>
@@ -269,9 +275,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       let data = wsJsonToRes<GetSiteResponse>(msg);
       this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       this.setState({ leaveAdminTeamLoading: false });
-
       toast(i18n.t("left_admin_team"));
       this.context.router.history.push("/");
+    } else if (op == UserOperation.GetFederatedInstances) {
+      let data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
+      this.setState({ instancesRes: data });
     }
   }
 }

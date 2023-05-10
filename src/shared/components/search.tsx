@@ -1,30 +1,27 @@
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
-import {
-  CommentResponse,
-  CommentView,
-  CommunityView,
-  GetCommunity,
-  GetCommunityResponse,
-  GetPersonDetails,
-  GetPersonDetailsResponse,
-  GetSiteResponse,
-  ListCommunities,
-  ListCommunitiesResponse,
-  ListingType,
-  PersonViewSafe,
-  PostResponse,
-  PostView,
-  ResolveObject,
-  ResolveObjectResponse,
-  Search as SearchForm,
-  SearchResponse,
-  SearchType,
-  SortType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
+import { CommentView } from "lemmy-js-client/dist/types/CommentView";
+import { CommunityView } from "lemmy-js-client/dist/types/CommunityView";
+import { GetCommunity } from "lemmy-js-client/dist/types/GetCommunity";
+import { GetCommunityResponse } from "lemmy-js-client/dist/types/GetCommunityResponse";
+import { GetPersonDetails } from "lemmy-js-client/dist/types/GetPersonDetails";
+import { GetPersonDetailsResponse } from "lemmy-js-client/dist/types/GetPersonDetailsResponse";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { ListCommunities } from "lemmy-js-client/dist/types/ListCommunities";
+import { ListCommunitiesResponse } from "lemmy-js-client/dist/types/ListCommunitiesResponse";
+import { ListingType } from "lemmy-js-client/dist/types/ListingType";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
+import { PersonView } from "lemmy-js-client/dist/types/PersonView";
+import { PostResponse } from "lemmy-js-client/dist/types/PostResponse";
+import { PostView } from "lemmy-js-client/dist/types/PostView";
+import { ResolveObject } from "lemmy-js-client/dist/types/ResolveObject";
+import { ResolveObjectResponse } from "lemmy-js-client/dist/types/ResolveObjectResponse";
+import { Search as SearchForm } from "lemmy-js-client/dist/types/Search";
+import { SearchResponse } from "lemmy-js-client/dist/types/SearchResponse";
+import { SearchType } from "lemmy-js-client/dist/types/SearchType";
+import { SortType } from "lemmy-js-client/dist/types/SortType";
 import { Subscription } from "rxjs";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
@@ -52,9 +49,6 @@ import {
   personToChoice,
   QueryParams,
   restoreScrollPosition,
-  routeListingTypeToEnum,
-  routeSearchTypeToEnum,
-  routeSortTypeToEnum,
   saveScrollPosition,
   setIsoData,
   showLocal,
@@ -80,7 +74,7 @@ interface SearchProps {
   listingType: ListingType;
   communityId?: number | null;
   creatorId?: number | null;
-  page: number;
+  page: bigint;
 }
 
 type FilterType = "creator" | "community";
@@ -101,22 +95,15 @@ interface SearchState {
 
 interface Combined {
   type_: string;
-  data: CommentView | PostView | CommunityView | PersonViewSafe;
+  data: CommentView | PostView | CommunityView | PersonView;
   published: string;
 }
 
-const defaultSearchType = SearchType.All;
-const defaultSortType = SortType.TopAll;
-const defaultListingType = ListingType.All;
+const defaultSearchType = "All";
+const defaultSortType = "TopAll";
+const defaultListingType = "All";
 
-const searchTypes = [
-  SearchType.All,
-  SearchType.Comments,
-  SearchType.Posts,
-  SearchType.Communities,
-  SearchType.Users,
-  SearchType.Url,
-];
+const searchTypes = ["All", "Comments", "Posts", "Communities", "Users", "Url"];
 
 const getSearchQueryParams = () =>
   getQueryParams<SearchProps>({
@@ -132,38 +119,49 @@ const getSearchQueryParams = () =>
 const getSearchQueryFromQuery = (q?: string): string | undefined =>
   q ? decodeURIComponent(q) : undefined;
 
-const getSearchTypeFromQuery = (type_?: string): SearchType =>
-  routeSearchTypeToEnum(type_ ?? "", defaultSearchType);
+function getSearchTypeFromQuery(type_?: string): SearchType {
+  return type_ ? (type_ as SearchType) : defaultSearchType;
+}
 
-const getSortTypeFromQuery = (sort?: string): SortType =>
-  routeSortTypeToEnum(sort ?? "", defaultSortType);
+function getSortTypeFromQuery(sort?: string): SortType {
+  return sort ? (sort as SortType) : defaultSortType;
+}
 
-const getListingTypeFromQuery = (listingType?: string): ListingType =>
-  routeListingTypeToEnum(listingType ?? "", defaultListingType);
+function getListingTypeFromQuery(listingType?: string): ListingType {
+  return listingType ? (listingType as ListingType) : defaultListingType;
+}
 
-const postViewToCombined = (data: PostView): Combined => ({
-  type_: "posts",
-  data,
-  published: data.post.published,
-});
+function postViewToCombined(data: PostView): Combined {
+  return {
+    type_: "posts",
+    data,
+    published: data.post.published,
+  };
+}
 
-const commentViewToCombined = (data: CommentView): Combined => ({
-  type_: "comments",
-  data,
-  published: data.comment.published,
-});
+function commentViewToCombined(data: CommentView): Combined {
+  return {
+    type_: "comments",
+    data,
+    published: data.comment.published,
+  };
+}
 
-const communityViewToCombined = (data: CommunityView): Combined => ({
-  type_: "communities",
-  data,
-  published: data.community.published,
-});
+function communityViewToCombined(data: CommunityView): Combined {
+  return {
+    type_: "communities",
+    data,
+    published: data.community.published,
+  };
+}
 
-const personViewSafeToCombined = (data: PersonViewSafe): Combined => ({
-  type_: "users",
-  data,
-  published: data.person.published,
-});
+function personViewSafeToCombined(data: PersonView): Combined {
+  return {
+    type_: "users",
+    data,
+    published: data.person.published,
+  };
+}
 
 const Filter = ({
   filterType,
@@ -212,26 +210,28 @@ const communityListing = ({
     "number_of_subscribers"
   );
 
-const personListing = ({ person, counts: { comment_count } }: PersonViewSafe) =>
+const personListing = ({ person, counts: { comment_count } }: PersonView) =>
   getListing(
     <PersonListing person={person} showApubName />,
     comment_count,
     "number_of_comments"
   );
 
-const getListing = (
+function getListing(
   listing: JSX.Element,
-  count: number,
+  count: bigint,
   translationKey: "number_of_comments" | "number_of_subscribers"
-) => (
-  <>
-    <span>{listing}</span>
-    <span>{` - ${i18n.t(translationKey, {
-      count,
-      formattedCount: numToSI(count),
-    })}`}</span>
-  </>
-);
+) {
+  return (
+    <>
+      <span>{listing}</span>
+      <span>{` - ${i18n.t(translationKey, {
+        count: Number(count),
+        formattedCount: numToSI(count),
+      })}`}</span>
+    </>
+  );
+}
 
 export class Search extends Component<any, SearchState> {
   private isoData = setIsoData(this.context);
@@ -382,19 +382,20 @@ export class Search extends Component<any, SearchState> {
         type_: getSearchTypeFromQuery(type),
         sort: getSortTypeFromQuery(sort),
         listing_type: getListingTypeFromQuery(listingType),
-        page: getIdFromString(page),
+        page: getPageFromString(page),
         limit: fetchLimit,
-        auth,
-      };
-
-      const resolveObjectForm: ResolveObject = {
-        q: query,
         auth,
       };
 
       if (query !== "") {
         promises.push(client.search(form));
-        promises.push(client.resolveObject(resolveObjectForm));
+        if (auth) {
+          const resolveObjectForm: ResolveObject = {
+            q: query,
+            auth,
+          };
+          promises.push(client.resolveObject(resolveObjectForm));
+        }
       } else {
         promises.push(Promise.resolve());
         promises.push(Promise.resolve());
@@ -433,16 +434,16 @@ export class Search extends Component<any, SearchState> {
 
   displayResults(type: SearchType) {
     switch (type) {
-      case SearchType.All:
+      case "All":
         return this.all;
-      case SearchType.Comments:
+      case "Comments":
         return this.comments;
-      case SearchType.Posts:
-      case SearchType.Url:
+      case "Posts":
+      case "Url":
         return this.posts;
-      case SearchType.Communities:
+      case "Communities":
         return this.communities;
-      case SearchType.Users:
+      case "Users":
         return this.users;
       default:
         return <></>;
@@ -582,17 +583,18 @@ export class Search extends Component<any, SearchState> {
     const { sort } = getSearchQueryParams();
 
     // Sort it
-    if (sort === SortType.New) {
+    if (sort === "New") {
       combined.sort((a, b) => b.published.localeCompare(a.published));
     } else {
-      combined.sort(
-        (a, b) =>
+      combined.sort((a, b) =>
+        Number(
           ((b.data as CommentView | PostView).counts.score |
             (b.data as CommunityView).counts.subscribers |
-            (b.data as PersonViewSafe).counts.comment_score) -
-          ((a.data as CommentView | PostView).counts.score |
-            (a.data as CommunityView).counts.subscribers |
-            (a.data as PersonViewSafe).counts.comment_score)
+            (b.data as PersonView).counts.comment_score) -
+            ((a.data as CommentView | PostView).counts.score |
+              (a.data as CommunityView).counts.subscribers |
+              (a.data as PersonView).counts.comment_score)
+        )
       );
     }
 
@@ -642,7 +644,7 @@ export class Search extends Component<any, SearchState> {
                 <div>{communityListing(i.data as CommunityView)}</div>
               )}
               {i.type_ === "users" && (
-                <div>{personListing(i.data as PersonViewSafe)}</div>
+                <div>{personListing(i.data as PersonView)}</div>
               )}
             </div>
           </div>
@@ -781,10 +783,15 @@ export class Search extends Component<any, SearchState> {
         auth,
       };
 
-      const resolveObjectForm: ResolveObject = {
-        q,
-        auth,
-      };
+      if (auth) {
+        const resolveObjectForm: ResolveObject = {
+          q,
+          auth,
+        };
+        WebSocketService.Instance.send(
+          wsClient.resolveObject(resolveObjectForm)
+        );
+      }
 
       this.setState({
         searchResponse: undefined,
@@ -793,7 +800,6 @@ export class Search extends Component<any, SearchState> {
       });
 
       WebSocketService.Instance.send(wsClient.search(form));
-      WebSocketService.Instance.send(wsClient.resolveObject(resolveObjectForm));
     }
   }
 
@@ -854,40 +860,40 @@ export class Search extends Component<any, SearchState> {
   });
 
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1 });
+    this.updateUrl({ sort, page: 1n });
   }
 
   handleTypeChange(i: Search, event: any) {
-    const type = SearchType[event.target.value];
+    const type = event.target.value as SearchType;
 
     i.updateUrl({
       type,
-      page: 1,
+      page: 1n,
     });
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.updateUrl({ page });
   }
 
   handleListingTypeChange(listingType: ListingType) {
     this.updateUrl({
       listingType,
-      page: 1,
+      page: 1n,
     });
   }
 
   handleCommunityFilterChange({ value }: Choice) {
     this.updateUrl({
       communityId: getIdFromString(value) ?? null,
-      page: 1,
+      page: 1n,
     });
   }
 
   handleCreatorFilterChange({ value }: Choice) {
     this.updateUrl({
       creatorId: getIdFromString(value) ?? null,
-      page: 1,
+      page: 1n,
     });
   }
 
@@ -896,7 +902,7 @@ export class Search extends Component<any, SearchState> {
 
     i.updateUrl({
       q: i.state.searchText,
-      page: 1,
+      page: 1n,
     });
   }
 

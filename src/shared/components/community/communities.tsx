@@ -1,17 +1,12 @@
 import { Component, linkEvent } from "inferno";
-import {
-  CommunityResponse,
-  FollowCommunity,
-  GetSiteResponse,
-  ListCommunities,
-  ListCommunitiesResponse,
-  ListingType,
-  SortType,
-  SubscribedType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { CommunityResponse } from "lemmy-js-client/dist/types/CommunityResponse";
+import { FollowCommunity } from "lemmy-js-client/dist/types/FollowCommunity";
+import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { ListCommunities } from "lemmy-js-client/dist/types/ListCommunities";
+import { ListCommunitiesResponse } from "lemmy-js-client/dist/types/ListCommunitiesResponse";
+import { ListingType } from "lemmy-js-client/dist/types/ListingType";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
 import { Subscription } from "rxjs";
 import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
@@ -24,7 +19,6 @@ import {
   myAuth,
   numToSI,
   QueryParams,
-  routeListingTypeToEnum,
   setIsoData,
   showLocal,
   toast,
@@ -37,7 +31,7 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { Paginator } from "../common/paginator";
 import { CommunityLink } from "./community-link";
 
-const communityLimit = 50;
+const communityLimit = 50n;
 
 interface CommunitiesState {
   listCommunitiesResponse?: ListCommunitiesResponse;
@@ -48,7 +42,7 @@ interface CommunitiesState {
 
 interface CommunitiesProps {
   listingType: ListingType;
-  page: number;
+  page: bigint;
 }
 
 function getCommunitiesQueryParams() {
@@ -59,7 +53,7 @@ function getCommunitiesQueryParams() {
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
-  return routeListingTypeToEnum(listingType ?? "", ListingType.Local);
+  return listingType ? (listingType as ListingType) : "Local";
 }
 
 function toggleSubscribe(community_id: number, follow: boolean) {
@@ -80,7 +74,7 @@ function refetch() {
 
   const listCommunitiesForm: ListCommunities = {
     type_: listingType,
-    sort: SortType.TopMonth,
+    sort: "TopMonth",
     limit: communityLimit,
     page,
     auth: myAuth(false),
@@ -203,7 +197,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         {numToSI(cv.counts.comments)}
                       </td>
                       <td className="text-right">
-                        {cv.subscribed == SubscribedType.Subscribed && (
+                        {cv.subscribed == "Subscribed" && (
                           <button
                             className="btn btn-link d-inline-block"
                             onClick={linkEvent(
@@ -214,7 +208,7 @@ export class Communities extends Component<any, CommunitiesState> {
                             {i18n.t("unsubscribe")}
                           </button>
                         )}
-                        {cv.subscribed === SubscribedType.NotSubscribed && (
+                        {cv.subscribed === "NotSubscribed" && (
                           <button
                             className="btn btn-link d-inline-block"
                             onClick={linkEvent(
@@ -225,7 +219,7 @@ export class Communities extends Component<any, CommunitiesState> {
                             {i18n.t("subscribe")}
                           </button>
                         )}
-                        {cv.subscribed === SubscribedType.Pending && (
+                        {cv.subscribed === "Pending" && (
                           <div className="text-warning d-inline-block">
                             {i18n.t("subscribe_pending")}
                           </div>
@@ -283,14 +277,14 @@ export class Communities extends Component<any, CommunitiesState> {
     refetch();
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.updateUrl({ page });
   }
 
   handleListingTypeChange(val: ListingType) {
     this.updateUrl({
       listingType: val,
-      page: 1,
+      page: 1n,
     });
   }
 
@@ -318,7 +312,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<any>[] {
     const listCommunitiesForm: ListCommunities = {
       type_: getListingTypeFromQuery(listingType),
-      sort: SortType.TopMonth,
+      sort: "TopMonth",
       limit: communityLimit,
       page: getPageFromString(page),
       auth: auth,

@@ -1,15 +1,12 @@
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import {
-  CommunityResponse,
-  CommunityView,
-  CreateCommunity,
-  EditCommunity,
-  Language,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
+import { CommunityResponse } from "lemmy-js-client/dist/types/CommunityResponse";
+import { CommunityView } from "lemmy-js-client/dist/types/CommunityView";
+import { CreateCommunity } from "lemmy-js-client/dist/types/CreateCommunity";
+import { EditCommunity } from "lemmy-js-client/dist/types/EditCommunity";
+import { Language } from "lemmy-js-client/dist/types/Language";
+import { UserOperation } from "lemmy-js-client/dist/types/others";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";

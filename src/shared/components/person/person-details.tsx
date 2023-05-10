@@ -1,12 +1,10 @@
 import { Component } from "inferno";
-import {
-  CommentView,
-  GetPersonDetailsResponse,
-  Language,
-  PersonViewSafe,
-  PostView,
-  SortType,
-} from "lemmy-js-client";
+import { CommentView } from "lemmy-js-client/dist/types/CommentView";
+import { GetPersonDetailsResponse } from "lemmy-js-client/dist/types/GetPersonDetailsResponse";
+import { Language } from "lemmy-js-client/dist/types/Language";
+import { PersonView } from "lemmy-js-client/dist/types/PersonView";
+import { PostView } from "lemmy-js-client/dist/types/PostView";
+import { SortType } from "lemmy-js-client/dist/types/SortType";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
 import { commentsToFlatNodes, setupTippy } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -15,16 +13,16 @@ import { PostListing } from "../post/post-listing";
 
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
-  admins: PersonViewSafe[];
+  admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
-  page: number;
-  limit: number;
+  page: bigint;
+  limit: bigint;
   sort: SortType;
   enableDownvotes: boolean;
   enableNsfw: boolean;
   view: PersonDetailsView;
-  onPageChange(page: number): number | any;
+  onPageChange(page: bigint): bigint | any;
 }
 
 enum ItemEnum {
@@ -36,7 +34,7 @@ type ItemType = {
   type_: ItemEnum;
   view: CommentView | PostView;
   published: string;
-  score: number;
+  score: bigint;
 };
 
 export class PersonDetails extends Component<PersonDetailsProps, any> {
@@ -144,10 +142,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     let combined = [...comments, ...posts];
 
     // Sort it
-    if (this.props.sort === SortType.New) {
+    if (this.props.sort === "New") {
       combined.sort((a, b) => b.published.localeCompare(a.published));
     } else {
-      combined.sort((a, b) => b.score - a.score);
+      combined.sort((a, b) => Number(b.score - a.score));
     }
 
     return (
@@ -199,7 +197,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     );
   }
 
-  handlePageChange(val: number) {
+  handlePageChange(val: bigint) {
     this.props.onPageChange(val);
   }
 }
