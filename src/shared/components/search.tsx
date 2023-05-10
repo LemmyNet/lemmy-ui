@@ -30,8 +30,9 @@ import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { WebSocketService } from "../services";
 import {
-  capitalizeFirstLetter,
   Choice,
+  QueryParams,
+  capitalizeFirstLetter,
   commentsToFlatNodes,
   communityToChoice,
   createCommentLikeRes,
@@ -50,7 +51,6 @@ import {
   myAuth,
   numToSI,
   personToChoice,
-  QueryParams,
   restoreScrollPosition,
   routeListingTypeToEnum,
   routeSearchTypeToEnum,
@@ -220,7 +220,7 @@ const personListing = ({ person, counts: { comment_count } }: PersonViewSafe) =>
   );
 
 const getListing = (
-  listing: JSX.Element,
+  listing: JSX.ElementClass,
   count: number,
   translationKey: "number_of_comments" | "number_of_subscribers"
 ) => (
