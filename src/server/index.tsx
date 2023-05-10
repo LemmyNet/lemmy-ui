@@ -56,6 +56,11 @@ Disallow: /password_change
 Disallow: /search/
 `;
 
+server.get("/service-worker.js", async (_req, res) => {
+  res.setHeader("Content-Type", "application/javascript");
+  res.sendFile(path.resolve("./dist/service-worker.js"));
+});
+
 server.get("/robots.txt", async (_req, res) => {
   res.setHeader("content-type", "text/plain; charset=utf-8");
   res.send(robotstxt);
@@ -281,7 +286,7 @@ const defaultLogoPathDirectory = path.join(
 );
 
 export async function generateManifestBase64(site: Site) {
-  const start_url = (
+  const url = (
     process.env.NODE_ENV === "development"
       ? "http://localhost:1236/"
       : getHttpBase()
@@ -297,8 +302,10 @@ export async function generateManifestBase64(site: Site) {
   const manifest = {
     name: site.name,
     description: site.description ?? "A link aggregator for the fediverse",
-    start_url,
+    start_url: url,
+    scope: url,
     display: "standalone",
+    id: "/",
     background_color: "#222222",
     icons: await Promise.all(
       iconSizes.map(async size => {
@@ -307,9 +314,11 @@ export async function generateManifestBase64(site: Site) {
         ).then(buf => buf.toString("base64"));
 
         if (icon) {
-          src = (await sharp(icon).resize(size, size).toBuffer()).toString(
-            "base64"
-          );
+          src = await sharp(icon)
+            .resize(size, size)
+            .png()
+            .toBuffer()
+            .then(buf => buf.toString("base64"));
         }
 
         return {
