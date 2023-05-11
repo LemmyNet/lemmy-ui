@@ -19,7 +19,7 @@ import {
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import { initializeSite } from "../shared/utils";
+import { favIconPngUrl, favIconUrl, initializeSite } from "../shared/utils";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -187,6 +187,23 @@ server.get("/*", async (req, res) => {
 
     const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
 
+    const appleTouchIcon = site.site_view.site.icon
+      ? `data:image/png;base64,${sharp(
+          await fetchIconPng(site.site_view.site.icon)
+        )
+          .resize(180, 180)
+          .extend({
+            bottom: 20,
+            top: 20,
+            left: 20,
+            right: 20,
+            background: "#222222",
+          })
+          .png()
+          .toBuffer()
+          .then(buf => buf.toString("base64"))}`
+      : favIconPngUrl;
+
     res.send(`
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
@@ -207,11 +224,19 @@ server.get("/*", async (req, res) => {
            <meta name="Description" content="Lemmy">
            <meta charset="utf-8">
            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+           <link
+              id="favicon"
+              rel="shortcut icon"
+              type="image/x-icon"
+              href=${site.site_view.site.icon ?? favIconUrl}
+            />
 
            <!-- Web app manifest -->
            <link rel="manifest" href="data:application/manifest+json;base64,${await generateManifestBase64(
              site.site_view.site
            )}">
+           <link rel="apple-touch-icon" href=${appleTouchIcon} />
+           <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
 
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
@@ -291,13 +316,7 @@ export async function generateManifestBase64(site: Site) {
       ? "http://localhost:1236/"
       : getHttpBase()
   ).replace(/\/$/g, "");
-  const icon = site.icon
-    ? await fetch(
-        site.icon.replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
-      )
-        .then(res => res.blob())
-        .then(blob => blob.arrayBuffer())
-    : null;
+  const icon = site.icon ? await fetchIconPng(site.icon) : null;
 
   const manifest = {
     name: site.name,
@@ -333,4 +352,12 @@ export async function generateManifestBase64(site: Site) {
   };
 
   return Buffer.from(JSON.stringify(manifest)).toString("base64");
+}
+
+async function fetchIconPng(iconUrl: string) {
+  return await fetch(
+    iconUrl.replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
+  )
+    .then(res => res.blob())
+    .then(blob => blob.arrayBuffer());
 }
