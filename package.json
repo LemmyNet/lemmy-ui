@@ -59,7 +59,6 @@
     "inferno-router": "^8.0.6",
     "inferno-server": "^8.0.6",
     "isomorphic-cookie": "^1.2.4",
-    "jimp": "^0.22.7",
     "jwt-decode": "^3.1.2",
     "lemmy-js-client": "0.17.2-rc.5",
     "markdown-it": "^13.0.1",
