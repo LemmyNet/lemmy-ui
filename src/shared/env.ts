@@ -2,13 +2,14 @@ import { isBrowser } from "./utils";
 
 const testHost = "0.0.0.0:8536";
 
-const getInternalHost = () =>
-  !isBrowser()
+function getInternalHost() {
+  return !isBrowser()
     ? process.env.LEMMY_UI_LEMMY_INTERNAL_HOST ?? testHost
     : testHost; // used for local dev
+}
 
-export const getExternalHost = () =>
-  isBrowser()
+export function getExternalHost() {
+  return isBrowser()
     ? `${window.location.hostname}${
         ["1234", "1235"].includes(window.location.port)
           ? ":8536"
@@ -17,29 +18,44 @@ export const getExternalHost = () =>
           : `:${window.location.port}`
       }`
     : process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST || testHost;
+}
 
-const getSecure = () =>
-  (
+function getSecure() {
+  return (
     isBrowser()
       ? window.location.protocol.includes("https")
       : process.env.LEMMY_UI_HTTPS === "true"
   )
     ? "s"
     : "";
+}
 
-const getHost = () => (isBrowser() ? getExternalHost() : getInternalHost());
+function getHost() {
+  return isBrowser() ? getExternalHost() : getInternalHost();
+}
 
-const getWsHost = () =>
-  isBrowser()
+function getWsHost() {
+  return isBrowser()
     ? window.lemmyConfig?.wsHost ?? getHost()
     : process.env.LEMMY_UI_LEMMY_WS_HOST ?? getExternalHost();
+}
 
-const getBaseLocal = (s = "") => `http${s}://${getHost()}`;
+function getBaseLocal(s = "") {
+  return `http${s}://${getHost()}`;
+}
 
-export const getHttpBaseInternal = () => getBaseLocal(); // Don't use secure here
-export const getHttpBase = () => getBaseLocal(getSecure());
-export const getWsUri = () => `ws${getSecure()}://${getWsHost()}/api/v3/ws`;
-export const isHttps = () => getSecure() === "s";
+export function getHttpBaseInternal() {
+  return getBaseLocal(); // Don't use secure here
+}
+export function getHttpBase() {
+  return getBaseLocal(getSecure());
+}
+export function getWsUri() {
+  return `ws${getSecure()}://${getWsHost()}/api/v3/ws`;
+}
+export function isHttps() {
+  return getSecure() === "s";
+}
 
 console.log(`httpbase: ${getHttpBase()}`);
 console.log(`wsUri: ${getWsUri()}`);
