@@ -7,21 +7,19 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
-  CommentNode as CommentNodeI,
   CommentReplyView,
   CommentView,
   CommunityModeratorView,
   CreateCommentLike,
   CreateCommentReport,
   DeleteComment,
-  EditComment,
+  DistinguishComment,
   GetComments,
   Language,
-  ListingType,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
   PersonMentionView,
-  PersonViewSafe,
+  PersonView,
   PurgeComment,
   PurgePerson,
   RemoveComment,
@@ -30,7 +28,12 @@ import {
 } from "lemmy-js-client";
 import moment from "moment";
 import { i18n } from "../../i18next";
-import { BanType, CommentViewType, PurgeType } from "../../interfaces";
+import {
+  BanType,
+  CommentNodeI,
+  CommentViewType,
+  PurgeType,
+} from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   amCommunityCreator,
@@ -81,9 +84,9 @@ interface CommentNodeState {
   showReportDialog: boolean;
   reportReason?: string;
   my_vote?: number;
-  score: number;
-  upvotes: number;
-  downvotes: number;
+  score: bigint;
+  upvotes: bigint;
+  downvotes: bigint;
   readLoading: boolean;
   saveLoading: boolean;
 }
@@ -91,7 +94,7 @@ interface CommentNodeState {
 interface CommentNodeProps {
   node: CommentNodeI;
   moderators?: CommunityModeratorView[];
-  admins?: PersonViewSafe[];
+  admins?: PersonView[];
   noBorder?: boolean;
   noIndent?: boolean;
   viewOnly?: boolean;
@@ -296,8 +299,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <span
                       className="mr-1 font-weight-bold"
                       aria-label={i18n.t("number_of_points", {
-                        count: this.state.score,
-                        formattedCount: this.state.score,
+                        count: Number(this.state.score),
+                        formattedCount: numToSI(this.state.score),
                       })}
                     >
                       {numToSI(this.state.score)}
@@ -835,7 +838,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             >
               {i18n.t("x_more_replies", {
                 count: node.comment_view.counts.child_count,
-                formattedCount: numToSI(node.comment_view.counts.child_count),
+                formattedCount: numToSI(
+                  BigInt(node.comment_view.counts.child_count)
+                ),
               })}{" "}
               ➔
             </button>
@@ -1152,19 +1157,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     if (myVote == 1) {
       this.setState({
-        score: this.state.score - 1,
-        upvotes: this.state.upvotes - 1,
+        score: this.state.score - 1n,
+        upvotes: this.state.upvotes - 1n,
       });
     } else if (myVote == -1) {
       this.setState({
-        downvotes: this.state.downvotes - 1,
-        upvotes: this.state.upvotes + 1,
-        score: this.state.score + 2,
+        downvotes: this.state.downvotes - 1n,
+        upvotes: this.state.upvotes + 1n,
+        score: this.state.score + 2n,
       });
     } else {
       this.setState({
-        score: this.state.score + 1,
-        upvotes: this.state.upvotes + 1,
+        score: this.state.score + 1n,
+        upvotes: this.state.upvotes + 1n,
       });
     }
 
@@ -1189,19 +1194,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     if (myVote == 1) {
       this.setState({
-        downvotes: this.state.downvotes + 1,
-        upvotes: this.state.upvotes - 1,
-        score: this.state.score - 2,
+        downvotes: this.state.downvotes + 1n,
+        upvotes: this.state.upvotes - 1n,
+        score: this.state.score - 2n,
       });
     } else if (myVote == -1) {
       this.setState({
-        downvotes: this.state.downvotes - 1,
-        score: this.state.score + 1,
+        downvotes: this.state.downvotes - 1n,
+        score: this.state.score + 1n,
       });
     } else {
       this.setState({
-        downvotes: this.state.downvotes + 1,
-        score: this.state.score - 1,
+        downvotes: this.state.downvotes + 1n,
+        score: this.state.score - 1n,
       });
     }
 
@@ -1278,7 +1283,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     let comment = i.props.node.comment_view.comment;
     let auth = myAuth();
     if (auth) {
-      let form: EditComment = {
+      let form: DistinguishComment = {
         comment_id: comment.id,
         distinguished: !comment.distinguished,
         auth,
@@ -1542,8 +1547,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       post_id: i.props.node.comment_view.post.id,
       parent_id: i.props.node.comment_view.comment.id,
       max_depth: commentTreeMaxDepth,
-      limit: 999, // TODO
-      type_: ListingType.All,
+      limit: 999n, // TODO
+      type_: "All",
       saved_only: false,
       auth: myAuth(false),
     };
@@ -1563,18 +1568,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get pointsTippy(): string {
     let points = i18n.t("number_of_points", {
-      count: this.state.score,
-      formattedCount: this.state.score,
+      count: Number(this.state.score),
+      formattedCount: numToSI(this.state.score),
     });
 
     let upvotes = i18n.t("number_of_upvotes", {
-      count: this.state.upvotes,
-      formattedCount: this.state.upvotes,
+      count: Number(this.state.upvotes),
+      formattedCount: numToSI(this.state.upvotes),
     });
 
     let downvotes = i18n.t("number_of_downvotes", {
-      count: this.state.downvotes,
-      formattedCount: this.state.downvotes,
+      count: Number(this.state.downvotes),
+      formattedCount: numToSI(this.state.downvotes),
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;

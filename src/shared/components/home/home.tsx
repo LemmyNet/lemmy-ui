@@ -61,9 +61,6 @@ import {
   QueryParams,
   relTags,
   restoreScrollPosition,
-  routeDataTypeToEnum,
-  routeListingTypeToEnum,
-  routeSortTypeToEnum,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
@@ -103,36 +100,27 @@ interface HomeProps {
   listingType: ListingType;
   dataType: DataType;
   sort: SortType;
-  page: number;
+  page: bigint;
 }
 
-const getDataTypeFromQuery = (type?: string) =>
-  routeDataTypeToEnum(type ?? "", DataType.Post);
-
-function getListingTypeFromQuery(type?: string) {
-  const mui = UserService.Instance.myUserInfo;
-
-  return routeListingTypeToEnum(
-    type ?? "",
-    mui
-      ? Object.values(ListingType)[
-          mui.local_user_view.local_user.default_listing_type
-        ]
-      : ListingType.Local
-  );
+function getDataTypeFromQuery(type?: string): DataType {
+  return type ? DataType[type] : DataType.Post;
 }
 
-function getSortTypeFromQuery(type?: string) {
-  const mui = UserService.Instance.myUserInfo;
+function getListingTypeFromQuery(type?: string): ListingType {
+  const myListingType =
+    UserService.Instance.myUserInfo?.local_user_view?.local_user
+      ?.default_listing_type;
 
-  return routeSortTypeToEnum(
-    type ?? "",
-    mui
-      ? Object.values(SortType)[
-          mui.local_user_view.local_user.default_listing_type
-        ]
-      : SortType.Active
-  );
+  return type ? (type as ListingType) : myListingType ?? "Local";
+}
+
+function getSortTypeFromQuery(type?: string): SortType {
+  const mySortType =
+    UserService.Instance.myUserInfo?.local_user_view?.local_user
+      ?.default_sort_type;
+
+  return type ? (type as SortType) : mySortType ?? "Active";
 }
 
 const getHomeQueryParams = () =>
@@ -145,8 +133,8 @@ const getHomeQueryParams = () =>
 
 function fetchTrendingCommunities() {
   const listCommunitiesForm: ListCommunities = {
-    type_: ListingType.Local,
-    sort: SortType.Hot,
+    type_: "Local",
+    sort: "Hot",
     limit: trendingFetchLimit,
     auth: myAuth(false),
   };
@@ -222,15 +210,15 @@ function getRss(listingType: ListingType) {
   let rss: string | undefined = undefined;
 
   switch (listingType) {
-    case ListingType.All: {
+    case "All": {
       rss = `/feeds/all.xml?sort=${sort}`;
       break;
     }
-    case ListingType.Local: {
+    case "Local": {
       rss = `/feeds/local.xml?sort=${sort}`;
       break;
     }
-    case ListingType.Subscribed: {
+    case "Subscribed": {
       rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
       break;
     }
@@ -336,7 +324,7 @@ export class Home extends Component<any, HomeState> {
     const type_ = getListingTypeFromQuery(listingType);
     const sort = getSortTypeFromQuery(urlSort);
 
-    const page = urlPage ? Number(urlPage) : 1;
+    const page = urlPage ? BigInt(urlPage) : 1n;
 
     const promises: Promise<any>[] = [];
 
@@ -366,8 +354,8 @@ export class Home extends Component<any, HomeState> {
     }
 
     const trendingCommunitiesForm: ListCommunities = {
-      type_: ListingType.Local,
-      sort: SortType.Hot,
+      type_: "Local",
+      sort: "Hot",
       limit: trendingFetchLimit,
       auth,
     };
@@ -712,23 +700,23 @@ export class Home extends Component<any, HomeState> {
     i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.updateUrl({ page });
     window.scrollTo(0, 0);
   }
 
   handleSortChange(val: SortType) {
-    this.updateUrl({ sort: val, page: 1 });
+    this.updateUrl({ sort: val, page: 1n });
     window.scrollTo(0, 0);
   }
 
   handleListingTypeChange(val: ListingType) {
-    this.updateUrl({ listingType: val, page: 1 });
+    this.updateUrl({ listingType: val, page: 1n });
     window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(val: DataType) {
-    this.updateUrl({ dataType: val, page: 1 });
+    this.updateUrl({ dataType: val, page: 1n });
     window.scrollTo(0, 0);
   }
 
@@ -777,21 +765,25 @@ export class Home extends Component<any, HomeState> {
           const { post_view } = wsJsonToRes<PostResponse>(msg);
 
           // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
-          if (page === 1 && nsfwCheck(post_view) && !isPostBlocked(post_view)) {
+          if (
+            page === 1n &&
+            nsfwCheck(post_view) &&
+            !isPostBlocked(post_view)
+          ) {
             const mui = UserService.Instance.myUserInfo;
             const showPostNotifs =
               mui?.local_user_view.local_user.show_new_post_notifs;
             let shouldAddPost: boolean;
 
             switch (listingType) {
-              case ListingType.Subscribed: {
+              case "Subscribed": {
                 // If you're on subscribed, only push it if you're subscribed.
                 shouldAddPost = !!mui?.follows.some(
                   ({ community: { id } }) => id === post_view.community.id
                 );
                 break;
               }
-              case ListingType.Local: {
+              case "Local": {
                 // If you're on the local view, only push it if its local
                 shouldAddPost = post_view.post.local;
                 break;
@@ -885,7 +877,7 @@ export class Home extends Component<any, HomeState> {
 
             // If you're on subscribed, only push it if you're subscribed.
             const shouldAddComment =
-              listingType === ListingType.Subscribed
+              listingType === "Subscribed"
                 ? UserService.Instance.myUserInfo?.follows.some(
                     ({ community: { id } }) => id === comment_view.community.id
                   )

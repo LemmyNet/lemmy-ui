@@ -10,8 +10,8 @@ import {
   BlockPerson,
   BlockPersonResponse,
   CommentResponse,
+  Community,
   CommunityModeratorView,
-  CommunitySafe,
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
@@ -28,6 +28,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  QueryParams,
   canMod,
   capitalizeFirstLetter,
   createCommentLikeRes,
@@ -46,10 +47,8 @@ import {
   mdToHtml,
   myAuth,
   numToSI,
-  QueryParams,
   relTags,
   restoreScrollPosition,
-  routeSortTypeToEnum,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
@@ -82,23 +81,26 @@ interface ProfileState {
 interface ProfileProps {
   view: PersonDetailsView;
   sort: SortType;
-  page: number;
+  page: bigint;
 }
 
-const getProfileQueryParams = () =>
-  getQueryParams<ProfileProps>({
+function getProfileQueryParams() {
+  return getQueryParams<ProfileProps>({
     view: getViewFromProps,
     page: getPageFromString,
     sort: getSortTypeFromQuery,
   });
+}
 
-const getSortTypeFromQuery = (sort?: string): SortType =>
-  sort ? routeSortTypeToEnum(sort, SortType.New) : SortType.New;
+function getSortTypeFromQuery(sort?: string): SortType {
+  return sort ? (sort as SortType) : "New";
+}
 
-const getViewFromProps = (view?: string): PersonDetailsView =>
-  view
+function getViewFromProps(view?: string): PersonDetailsView {
+  return view
     ? PersonDetailsView[view] ?? PersonDetailsView.Overview
     : PersonDetailsView.Overview;
+}
 
 function toggleBlockPerson(recipientId: number, block: boolean) {
   const auth = myAuth();
@@ -122,7 +124,7 @@ const handleBlockPerson = (personId: number) =>
 
 const getCommunitiesListing = (
   translationKey: NoOptionI18nKeys,
-  communityViews?: { community: CommunitySafe }[]
+  communityViews?: { community: Community }[]
 ) =>
   communityViews &&
   communityViews.length > 0 && (
@@ -500,13 +502,13 @@ export class Profile extends Component<
                 <ul className="list-inline mb-2">
                   <li className="list-inline-item badge badge-light">
                     {i18n.t("number_of_posts", {
-                      count: pv.counts.post_count,
+                      count: Number(pv.counts.post_count),
                       formattedCount: numToSI(pv.counts.post_count),
                     })}
                   </li>
                   <li className="list-inline-item badge badge-light">
                     {i18n.t("number_of_comments", {
-                      count: pv.counts.comment_count,
+                      count: Number(pv.counts.comment_count),
                       formattedCount: numToSI(pv.counts.comment_count),
                     })}
                   </li>
@@ -643,18 +645,18 @@ export class Profile extends Component<
     this.fetchUserData();
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.updateUrl({ page });
   }
 
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1 });
+    this.updateUrl({ sort, page: 1n });
   }
 
   handleViewChange(i: Profile, event: any) {
     i.updateUrl({
       view: PersonDetailsView[event.target.value],
-      page: 1,
+      page: 1n,
     });
   }
 

@@ -18,8 +18,8 @@ import {
   PostReportResponse,
   PrivateMessageReportResponse,
   PrivateMessageResponse,
-  PrivateMessagesResponse,
   PrivateMessageView,
+  PrivateMessagesResponse,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -84,7 +84,7 @@ interface InboxState {
   messages: PrivateMessageView[];
   combined: ReplyType[];
   sort: CommentSortType;
-  page: number;
+  page: bigint;
   siteRes: GetSiteResponse;
   loading: boolean;
 }
@@ -99,8 +99,8 @@ export class Inbox extends Component<any, InboxState> {
     mentions: [],
     messages: [],
     combined: [],
-    sort: CommentSortType.New,
-    page: 1,
+    sort: "New",
+    page: 1n,
     siteRes: this.isoData.site_res,
     loading: true,
   };
@@ -471,33 +471,33 @@ export class Inbox extends Component<any, InboxState> {
     );
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.setState({ page });
     this.refetch();
   }
 
   handleUnreadOrAllChange(i: Inbox, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
   handleMessageTypeChange(i: Inbox, event: any) {
-    i.setState({ messageType: Number(event.target.value), page: 1 });
+    i.setState({ messageType: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
     let promises: Promise<any>[] = [];
 
-    let sort = CommentSortType.New;
+    let sort: CommentSortType = "New";
     let auth = req.auth;
 
     if (auth) {
       // It can be /u/me, or /username/1
       let repliesForm: GetReplies = {
-        sort,
+        sort: "New",
         unread_only: true,
-        page: 1,
+        page: 1n,
         limit: fetchLimit,
         auth,
       };
@@ -506,7 +506,7 @@ export class Inbox extends Component<any, InboxState> {
       let personMentionsForm: GetPersonMentions = {
         sort,
         unread_only: true,
-        page: 1,
+        page: 1n,
         limit: fetchLimit,
         auth,
       };
@@ -514,7 +514,7 @@ export class Inbox extends Component<any, InboxState> {
 
       let privateMessagesForm: GetPrivateMessages = {
         unread_only: true,
-        page: 1,
+        page: 1n,
         limit: fetchLimit,
         auth,
       };
@@ -565,7 +565,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   handleSortChange(val: CommentSortType) {
-    this.setState({ sort: val, page: 1 });
+    this.setState({ sort: val, page: 1n });
     this.refetch();
   }
 
@@ -579,7 +579,7 @@ export class Inbox extends Component<any, InboxState> {
       );
       i.setState({ replies: [], mentions: [], messages: [] });
       i.setState({ combined: i.buildCombined() });
-      UserService.Instance.unreadInboxCountSub.next(0);
+      UserService.Instance.unreadInboxCountSub.next(0n);
       window.scrollTo(0, 0);
       i.setState(i.state);
     }
@@ -588,9 +588,9 @@ export class Inbox extends Component<any, InboxState> {
   sendUnreadCount(read: boolean) {
     let urcs = UserService.Instance.unreadInboxCountSub;
     if (read) {
-      urcs.next(urcs.getValue() - 1);
+      urcs.next(urcs.getValue() - 1n);
     } else {
-      urcs.next(urcs.getValue() + 1);
+      urcs.next(urcs.getValue() + 1n);
     }
   }
 

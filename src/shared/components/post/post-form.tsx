@@ -5,13 +5,10 @@ import {
   CreatePost,
   EditPost,
   Language,
-  ListingType,
   PostResponse,
   PostView,
   Search,
   SearchResponse,
-  SearchType,
-  SortType,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -21,9 +18,9 @@ import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  Choice,
   archiveTodayUrl,
   capitalizeFirstLetter,
-  Choice,
   communityToChoice,
   debounce,
   fetchCommunities,
@@ -516,10 +513,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (url && validURL(url)) {
       let form: Search = {
         q: url,
-        type_: SearchType.Url,
-        sort: SortType.TopAll,
-        listing_type: ListingType.All,
-        page: 1,
+        type_: "Url",
+        sort: "TopAll",
+        listing_type: "All",
+        page: 1n,
         limit: trendingFetchLimit,
         auth: myAuth(false),
       };
@@ -545,11 +542,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (q && q !== "") {
       let form: Search = {
         q,
-        type_: SearchType.Posts,
-        sort: SortType.TopAll,
-        listing_type: ListingType.All,
+        type_: "Posts",
+        sort: "TopAll",
+        listing_type: "All",
         community_id: this.state.form.community_id,
-        page: 1,
+        page: 1n,
         limit: trendingFetchLimit,
         auth: myAuth(false),
       };
@@ -687,9 +684,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     } else if (op == UserOperation.Search) {
       let data = wsJsonToRes<SearchResponse>(msg);
 
-      if (data.type_ == SearchType[SearchType.Posts]) {
+      if (data.type_ == "Posts") {
         this.setState({ suggestedPosts: data.posts });
-      } else if (data.type_ == SearchType[SearchType.Url]) {
+      } else if (data.type_ == "Url") {
         this.setState({ crossPosts: data.posts });
       }
     }

@@ -75,7 +75,7 @@ interface ReportsState {
   messageType: MessageType;
   combined: ItemType[];
   siteRes: GetSiteResponse;
-  page: number;
+  page: bigint;
   loading: boolean;
 }
 
@@ -86,7 +86,7 @@ export class Reports extends Component<any, ReportsState> {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
     combined: [],
-    page: 1,
+    page: 1n,
     siteRes: this.isoData.site_res,
     loading: true,
   };
@@ -422,18 +422,18 @@ export class Reports extends Component<any, ReportsState> {
     );
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.setState({ page });
     this.refetch();
   }
 
   handleUnreadOrAllChange(i: Reports, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
   handleMessageTypeChange(i: Reports, event: any) {
-    i.setState({ messageType: Number(event.target.value), page: 1 });
+    i.setState({ messageType: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
@@ -441,7 +441,7 @@ export class Reports extends Component<any, ReportsState> {
     let promises: Promise<any>[] = [];
 
     let unresolved_only = true;
-    let page = 1;
+    let page = 1n;
     let limit = fetchLimit;
     let auth = req.auth;
 
@@ -553,9 +553,9 @@ export class Reports extends Component<any, ReportsState> {
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.post_report_view.post_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
+        urcs.next(urcs.getValue() - 1n);
       } else {
-        urcs.next(urcs.getValue() + 1);
+        urcs.next(urcs.getValue() + 1n);
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolveCommentReport) {
@@ -566,9 +566,9 @@ export class Reports extends Component<any, ReportsState> {
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.comment_report_view.comment_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
+        urcs.next(urcs.getValue() - 1n);
       } else {
-        urcs.next(urcs.getValue() + 1);
+        urcs.next(urcs.getValue() + 1n);
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolvePrivateMessageReport) {
@@ -579,9 +579,9 @@ export class Reports extends Component<any, ReportsState> {
       );
       let urcs = UserService.Instance.unreadReportCountSub;
       if (data.private_message_report_view.private_message_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
+        urcs.next(urcs.getValue() - 1n);
       } else {
-        urcs.next(urcs.getValue() + 1);
+        urcs.next(urcs.getValue() + 1n);
       }
       this.setState(this.state);
     }

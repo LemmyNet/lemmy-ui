@@ -130,6 +130,10 @@ export const routes: IRoutePropsWithFetch[] = [
     path: `/verify_email/:token`,
     component: VerifyEmail,
   },
-  { path: `/instances`, component: Instances },
+  {
+    path: `/instances`,
+    component: Instances,
+    fetchInitialData: Instances.fetchInitialData,
+  },
   { path: `/legal`, component: Legal },
 ];

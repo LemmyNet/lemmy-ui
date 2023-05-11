@@ -21,12 +21,12 @@ import {
   ModBanView,
   ModFeaturePostView,
   ModLockPostView,
-  ModlogActionType,
   ModRemoveCommentView,
   ModRemoveCommunityView,
   ModRemovePostView,
   ModTransferCommunityView,
-  PersonSafe,
+  ModlogActionType,
+  Person,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -37,9 +37,10 @@ import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
 import { WebSocketService } from "../services";
 import {
+  Choice,
+  QueryParams,
   amAdmin,
   amMod,
-  Choice,
   debounce,
   fetchLimit,
   fetchUsers,
@@ -51,7 +52,6 @@ import {
   isBrowser,
   myAuth,
   personToChoice,
-  QueryParams,
   setIsoData,
   toast,
   wsClient,
@@ -86,7 +86,7 @@ type View =
 interface ModlogType {
   id: number;
   type_: ModlogActionType;
-  moderator?: PersonSafe;
+  moderator?: Person;
   view: View;
   when_: string;
 }
@@ -111,23 +111,22 @@ interface ModlogState {
 }
 
 interface ModlogProps {
-  page: number;
+  page: bigint;
   userId?: number | null;
   modId?: number | null;
   actionType: ModlogActionType;
 }
 
-const getActionFromString = (action?: string) =>
-  action
-    ? ModlogActionType[action] ?? ModlogActionType.All
-    : ModlogActionType.All;
+function getActionFromString(action?: string): ModlogActionType {
+  return action !== undefined ? (action as ModlogActionType) : "All";
+}
 
 const getModlogActionMapper =
   (
     actionType: ModlogActionType,
     getAction: (view: View) => { id: number; when_: string }
   ) =>
-  (view: View & { moderator?: PersonSafe; admin?: PersonSafe }): ModlogType => {
+  (view: View & { moderator?: Person; admin?: Person }): ModlogType => {
     const { id, when_ } = getAction(view);
 
     return {
@@ -158,14 +157,14 @@ function buildCombined({
   const combined = removed_posts
     .map(
       getModlogActionMapper(
-        ModlogActionType.ModRemovePost,
+        "ModRemovePost",
         ({ mod_remove_post }: ModRemovePostView) => mod_remove_post
       )
     )
     .concat(
       locked_posts.map(
         getModlogActionMapper(
-          ModlogActionType.ModLockPost,
+          "ModLockPost",
           ({ mod_lock_post }: ModLockPostView) => mod_lock_post
         )
       )
@@ -173,7 +172,7 @@ function buildCombined({
     .concat(
       featured_posts.map(
         getModlogActionMapper(
-          ModlogActionType.ModFeaturePost,
+          "ModFeaturePost",
           ({ mod_feature_post }: ModFeaturePostView) => mod_feature_post
         )
       )
@@ -181,7 +180,7 @@ function buildCombined({
     .concat(
       removed_comments.map(
         getModlogActionMapper(
-          ModlogActionType.ModRemoveComment,
+          "ModRemoveComment",
           ({ mod_remove_comment }: ModRemoveCommentView) => mod_remove_comment
         )
       )
@@ -189,7 +188,7 @@ function buildCombined({
     .concat(
       removed_communities.map(
         getModlogActionMapper(
-          ModlogActionType.ModRemoveCommunity,
+          "ModRemoveCommunity",
           ({ mod_remove_community }: ModRemoveCommunityView) =>
             mod_remove_community
         )
@@ -198,7 +197,7 @@ function buildCombined({
     .concat(
       banned_from_community.map(
         getModlogActionMapper(
-          ModlogActionType.ModBanFromCommunity,
+          "ModBanFromCommunity",
           ({ mod_ban_from_community }: ModBanFromCommunityView) =>
             mod_ban_from_community
         )
@@ -207,7 +206,7 @@ function buildCombined({
     .concat(
       added_to_community.map(
         getModlogActionMapper(
-          ModlogActionType.ModAddCommunity,
+          "ModAddCommunity",
           ({ mod_add_community }: ModAddCommunityView) => mod_add_community
         )
       )
@@ -215,7 +214,7 @@ function buildCombined({
     .concat(
       transferred_to_community.map(
         getModlogActionMapper(
-          ModlogActionType.ModTransferCommunity,
+          "ModTransferCommunity",
           ({ mod_transfer_community }: ModTransferCommunityView) =>
             mod_transfer_community
         )
@@ -223,24 +222,18 @@ function buildCombined({
     )
     .concat(
       added.map(
-        getModlogActionMapper(
-          ModlogActionType.ModAdd,
-          ({ mod_add }: ModAddView) => mod_add
-        )
+        getModlogActionMapper("ModAdd", ({ mod_add }: ModAddView) => mod_add)
       )
     )
     .concat(
       banned.map(
-        getModlogActionMapper(
-          ModlogActionType.ModBan,
-          ({ mod_ban }: ModBanView) => mod_ban
-        )
+        getModlogActionMapper("ModBan", ({ mod_ban }: ModBanView) => mod_ban)
       )
     )
     .concat(
       admin_purged_persons.map(
         getModlogActionMapper(
-          ModlogActionType.AdminPurgePerson,
+          "AdminPurgePerson",
           ({ admin_purge_person }: AdminPurgePersonView) => admin_purge_person
         )
       )
@@ -248,7 +241,7 @@ function buildCombined({
     .concat(
       admin_purged_communities.map(
         getModlogActionMapper(
-          ModlogActionType.AdminPurgeCommunity,
+          "AdminPurgeCommunity",
           ({ admin_purge_community }: AdminPurgeCommunityView) =>
             admin_purge_community
         )
@@ -257,7 +250,7 @@ function buildCombined({
     .concat(
       admin_purged_posts.map(
         getModlogActionMapper(
-          ModlogActionType.AdminPurgePost,
+          "AdminPurgePost",
           ({ admin_purge_post }: AdminPurgePostView) => admin_purge_post
         )
       )
@@ -265,7 +258,7 @@ function buildCombined({
     .concat(
       admin_purged_comments.map(
         getModlogActionMapper(
-          ModlogActionType.AdminPurgeComment,
+          "AdminPurgeComment",
           ({ admin_purge_comment }: AdminPurgeCommentView) =>
             admin_purge_comment
         )
@@ -280,7 +273,7 @@ function buildCombined({
 
 function renderModlogType({ type_, view }: ModlogType) {
   switch (type_) {
-    case ModlogActionType.ModRemovePost: {
+    case "ModRemovePost": {
       const mrpv = view as ModRemovePostView;
       const {
         mod_remove_post: { reason, removed },
@@ -302,7 +295,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.ModLockPost: {
+    case "ModLockPost": {
       const {
         mod_lock_post: { locked },
         post: { id, name },
@@ -318,7 +311,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.ModFeaturePost: {
+    case "ModFeaturePost": {
       const {
         mod_feature_post: { featured, is_featured_community },
         post: { id, name },
@@ -334,7 +327,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         </>
       );
     }
-    case ModlogActionType.ModRemoveComment: {
+    case "ModRemoveComment": {
       const mrc = view as ModRemoveCommentView;
       const {
         mod_remove_comment: { reason, removed },
@@ -361,7 +354,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.ModRemoveCommunity: {
+    case "ModRemoveCommunity": {
       const mrco = view as ModRemoveCommunityView;
       const {
         mod_remove_community: { reason, expires, removed },
@@ -388,7 +381,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.ModBanFromCommunity: {
+    case "ModBanFromCommunity": {
       const mbfc = view as ModBanFromCommunityView;
       const {
         mod_ban_from_community: { reason, expires, banned },
@@ -420,7 +413,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.ModAddCommunity: {
+    case "ModAddCommunity": {
       const {
         mod_add_community: { removed },
         modded_person,
@@ -441,16 +434,12 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.ModTransferCommunity: {
-      const {
-        mod_transfer_community: { removed },
-        community,
-        modded_person,
-      } = view as ModTransferCommunityView;
+    case "ModTransferCommunity": {
+      const { community, modded_person } = view as ModTransferCommunityView;
 
       return (
         <>
-          <span>{removed ? "Removed " : "Transferred "}</span>
+          <span>Transferred</span>
           <span>
             <CommunityLink community={community} />
           </span>
@@ -462,7 +451,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.ModBan: {
+    case "ModBan": {
       const {
         mod_ban: { reason, expires, banned },
         banned_person,
@@ -488,7 +477,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.ModAdd: {
+    case "ModAdd": {
       const {
         mod_add: { removed },
         modded_person,
@@ -504,7 +493,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         </>
       );
     }
-    case ModlogActionType.AdminPurgePerson: {
+    case "AdminPurgePerson": {
       const {
         admin_purge_person: { reason },
       } = view as AdminPurgePersonView;
@@ -521,7 +510,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.AdminPurgeCommunity: {
+    case "AdminPurgeCommunity": {
       const {
         admin_purge_community: { reason },
       } = view as AdminPurgeCommunityView;
@@ -538,7 +527,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.AdminPurgePost: {
+    case "AdminPurgePost": {
       const {
         admin_purge_post: { reason },
         community,
@@ -557,7 +546,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       );
     }
 
-    case ModlogActionType.AdminPurgeComment: {
+    case "AdminPurgeComment": {
       const {
         admin_purge_comment: { reason },
         post: { id, name },
@@ -641,7 +630,7 @@ async function createNewOptions({
   if (text.length > 0) {
     newOptions.push(
       ...(await fetchUsers(text)).users
-        .slice(0, fetchLimit)
+        .slice(0, Number(fetchLimit))
         .map<Choice>(personToChoice)
     );
   }
@@ -751,7 +740,7 @@ export class Modlog extends Component<
     return amAdmin() || amMod(this.state.communityMods);
   }
 
-  modOrAdminText(person?: PersonSafe): string {
+  modOrAdminText(person?: Person): string {
     return person &&
       this.isoData.site_res.admins.some(
         ({ person: { id } }) => id === person.id
@@ -814,35 +803,21 @@ export class Modlog extends Component<
               <option disabled aria-hidden="true">
                 {i18n.t("filter_by_action")}
               </option>
-              <option value={ModlogActionType.All}>{i18n.t("all")}</option>
-              <option value={ModlogActionType.ModRemovePost}>
-                Removing Posts
-              </option>
-              <option value={ModlogActionType.ModLockPost}>
-                Locking Posts
-              </option>
-              <option value={ModlogActionType.ModFeaturePost}>
-                Featuring Posts
-              </option>
-              <option value={ModlogActionType.ModRemoveComment}>
-                Removing Comments
-              </option>
-              <option value={ModlogActionType.ModRemoveCommunity}>
-                Removing Communities
-              </option>
-              <option value={ModlogActionType.ModBanFromCommunity}>
+              <option value={"All"}>{i18n.t("all")}</option>
+              <option value={"ModRemovePost"}>Removing Posts</option>
+              <option value={"ModLockPost"}>Locking Posts</option>
+              <option value={"ModFeaturePost"}>Featuring Posts</option>
+              <option value={"ModRemoveComment"}>Removing Comments</option>
+              <option value={"ModRemoveCommunity"}>Removing Communities</option>
+              <option value={"ModBanFromCommunity"}>
                 Banning From Communities
               </option>
-              <option value={ModlogActionType.ModAddCommunity}>
-                Adding Mod to Community
-              </option>
-              <option value={ModlogActionType.ModTransferCommunity}>
+              <option value={"ModAddCommunity"}>Adding Mod to Community</option>
+              <option value={"ModTransferCommunity"}>
                 Transferring Communities
               </option>
-              <option value={ModlogActionType.ModAdd}>
-                Adding Mod to Site
-              </option>
-              <option value={ModlogActionType.ModBan}>Banning From Site</option>
+              <option value={"ModAdd"}>Adding Mod to Site</option>
+              <option value={"ModBan"}>Banning From Site</option>
             </select>
           </div>
           <div className="form-row mb-2">
@@ -892,21 +867,21 @@ export class Modlog extends Component<
 
   handleFilterActionChange(i: Modlog, event: any) {
     i.updateUrl({
-      actionType: ModlogActionType[event.target.value],
-      page: 1,
+      actionType: event.target.value as ModlogActionType,
+      page: 1n,
     });
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.updateUrl({ page });
   }
 
   handleUserChange(option: Choice) {
-    this.updateUrl({ userId: getIdFromString(option.value) ?? null, page: 1 });
+    this.updateUrl({ userId: getIdFromString(option.value) ?? null, page: 1n });
   }
 
   handleModChange(option: Choice) {
-    this.updateUrl({ modId: getIdFromString(option.value) ?? null, page: 1 });
+    this.updateUrl({ modId: getIdFromString(option.value) ?? null, page: 1n });
   }
 
   handleSearchUsers = debounce(async (text: string) => {

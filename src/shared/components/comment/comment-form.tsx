@@ -2,7 +2,6 @@ import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
-  CommentNode as CommentNodeI,
   CommentResponse,
   CreateComment,
   EditComment,
@@ -12,6 +11,7 @@ import {
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
+import { CommentNodeI } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {

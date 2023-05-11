@@ -8,7 +8,6 @@ import {
   GetSiteResponse,
   LoginResponse,
   Register,
-  RegistrationMode,
   SiteView,
   UserOperation,
   wsJsonToRes,
@@ -99,7 +98,7 @@ export class Signup extends Component<any, State> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     if (isBrowser()) {
-      WebSocketService.Instance.send(wsClient.getCaptcha());
+      WebSocketService.Instance.send(wsClient.getCaptcha({}));
     }
   }
 
@@ -258,8 +257,7 @@ export class Signup extends Component<any, State> {
           </div>
         </div>
 
-        {siteView.local_site.registration_mode ==
-          RegistrationMode.RequireApplication && (
+        {siteView.local_site.registration_mode == "RequireApplication" && (
           <>
             <div className="form-group row">
               <div className="offset-sm-2 col-sm-10">
@@ -486,7 +484,7 @@ export class Signup extends Component<any, State> {
   handleRegenCaptcha(i: Signup) {
     i.audio = undefined;
     i.setState({ captchaPlaying: false });
-    WebSocketService.Instance.send(wsClient.getCaptcha());
+    WebSocketService.Instance.send(wsClient.getCaptcha({}));
   }
 
   handleCaptchaPlay(i: Signup) {

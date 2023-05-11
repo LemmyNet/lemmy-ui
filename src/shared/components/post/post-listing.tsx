@@ -14,8 +14,7 @@ import {
   FeaturePost,
   Language,
   LockPost,
-  PersonViewSafe,
-  PostFeatureType,
+  PersonView,
   PostView,
   PurgePerson,
   PurgePost,
@@ -81,16 +80,16 @@ interface PostListingState {
   showReportDialog: boolean;
   reportReason?: string;
   my_vote?: number;
-  score: number;
-  upvotes: number;
-  downvotes: number;
+  score: bigint;
+  upvotes: bigint;
+  downvotes: bigint;
 }
 
 interface PostListingProps {
   post_view: PostView;
   duplicates?: PostView[];
   moderators?: CommunityModeratorView[];
-  admins?: PersonViewSafe[];
+  admins?: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
   showCommunity?: boolean;
@@ -638,15 +637,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <Link
           className="text-muted"
           title={i18n.t("number_of_comments", {
-            count: post_view.counts.comments,
-            formattedCount: post_view.counts.comments,
+            count: Number(post_view.counts.comments),
+            formattedCount: Number(post_view.counts.comments),
           })}
           to={`/post/${post_view.post.id}?scrollToComments=true`}
         >
           <Icon icon="message-square" classes="mr-1" inline />
           <span className="mr-2">
             {i18n.t("number_of_comments", {
-              count: post_view.counts.comments,
+              count: Number(post_view.counts.comments),
               formattedCount: numToSI(post_view.counts.comments),
             })}
           </span>
@@ -660,9 +659,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get unreadCount(): number | undefined {
+  get unreadCount(): bigint | undefined {
     let pv = this.props.post_view;
-    return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0
+    return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0n
       ? undefined
       : pv.unread_comments;
   }
@@ -699,7 +698,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {showScores() && (
                 <span
                   className={classNames("ml-2", {
-                    invisible: this.state.downvotes === 0,
+                    invisible: this.state.downvotes === 0n,
                   })}
                 >
                   {numToSI(this.state.downvotes)}
@@ -1319,19 +1318,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (myVote == 1) {
       this.setState({
-        score: this.state.score - 1,
-        upvotes: this.state.upvotes - 1,
+        score: this.state.score - 1n,
+        upvotes: this.state.upvotes - 1n,
       });
     } else if (myVote == -1) {
       this.setState({
-        score: this.state.score + 2,
-        upvotes: this.state.upvotes + 1,
-        downvotes: this.state.downvotes - 1,
+        score: this.state.score + 2n,
+        upvotes: this.state.upvotes + 1n,
+        downvotes: this.state.downvotes - 1n,
       });
     } else {
       this.setState({
-        score: this.state.score + 1,
-        upvotes: this.state.upvotes + 1,
+        score: this.state.score + 1n,
+        upvotes: this.state.upvotes + 1n,
       });
     }
 
@@ -1362,19 +1361,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (myVote == 1) {
       this.setState({
-        score: this.state.score - 2,
-        upvotes: this.state.upvotes - 1,
-        downvotes: this.state.downvotes + 1,
+        score: this.state.score - 2n,
+        upvotes: this.state.upvotes - 1n,
+        downvotes: this.state.downvotes + 1n,
       });
     } else if (myVote == -1) {
       this.setState({
-        score: this.state.score + 1,
-        downvotes: this.state.downvotes - 1,
+        score: this.state.score + 1n,
+        downvotes: this.state.downvotes - 1n,
       });
     } else {
       this.setState({
-        score: this.state.score - 1,
-        downvotes: this.state.downvotes + 1,
+        score: this.state.score - 1n,
+        downvotes: this.state.downvotes + 1n,
       });
     }
 
@@ -1551,7 +1550,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (auth) {
       let form: FeaturePost = {
         post_id: i.props.post_view.post.id,
-        feature_type: PostFeatureType.Local,
+        feature_type: "Local",
         featured: !i.props.post_view.post.featured_local,
         auth,
       };
@@ -1564,7 +1563,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (auth) {
       let form: FeaturePost = {
         post_id: i.props.post_view.post.id,
-        feature_type: PostFeatureType.Community,
+        feature_type: "Community",
         featured: !i.props.post_view.post.featured_community,
         auth,
       };
@@ -1784,18 +1783,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get pointsTippy(): string {
     let points = i18n.t("number_of_points", {
-      count: this.state.score,
-      formattedCount: this.state.score,
+      count: Number(this.state.score),
+      formattedCount: Number(this.state.score),
     });
 
     let upvotes = i18n.t("number_of_upvotes", {
-      count: this.state.upvotes,
-      formattedCount: this.state.upvotes,
+      count: Number(this.state.upvotes),
+      formattedCount: Number(this.state.upvotes),
     });
 
     let downvotes = i18n.t("number_of_downvotes", {
-      count: this.state.downvotes,
-      formattedCount: this.state.downvotes,
+      count: Number(this.state.downvotes),
+      formattedCount: Number(this.state.downvotes),
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;

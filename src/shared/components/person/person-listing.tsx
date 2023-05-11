@@ -1,12 +1,12 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { PersonSafe } from "lemmy-js-client";
+import { Person } from "lemmy-js-client";
 import { hostname, isCakeDay, relTags, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
 
 interface PersonListingProps {
-  person: PersonSafe;
+  person: Person;
   realLink?: boolean;
   useApubName?: boolean;
   muted?: boolean;

@@ -44,15 +44,15 @@ export class ListingTypeSelect extends Component<
           <label
             title={i18n.t("subscribed_description")}
             className={`btn btn-outline-secondary 
-            ${this.state.type_ == ListingType.Subscribed && "active"}
+            ${this.state.type_ == "Subscribed" && "active"}
             ${!UserService.Instance.myUserInfo ? "disabled" : "pointer"}
           `}
           >
             <input
               id={`${this.id}-subscribed`}
               type="radio"
-              value={ListingType.Subscribed}
-              checked={this.state.type_ == ListingType.Subscribed}
+              value={"Subscribed"}
+              checked={this.state.type_ == "Subscribed"}
               onChange={linkEvent(this, this.handleTypeChange)}
               disabled={!UserService.Instance.myUserInfo}
             />
@@ -63,14 +63,14 @@ export class ListingTypeSelect extends Component<
           <label
             title={i18n.t("local_description")}
             className={`pointer btn btn-outline-secondary ${
-              this.state.type_ == ListingType.Local && "active"
+              this.state.type_ == "Local" && "active"
             }`}
           >
             <input
               id={`${this.id}-local`}
               type="radio"
-              value={ListingType.Local}
-              checked={this.state.type_ == ListingType.Local}
+              value={"Local"}
+              checked={this.state.type_ == "Local"}
               onChange={linkEvent(this, this.handleTypeChange)}
             />
             {i18n.t("local")}
@@ -79,17 +79,15 @@ export class ListingTypeSelect extends Component<
         <label
           title={i18n.t("all_description")}
           className={`pointer btn btn-outline-secondary ${
-            (this.state.type_ == ListingType.All && "active") ||
-            (!this.props.showLocal &&
-              this.state.type_ == ListingType.Local &&
-              "active")
+            (this.state.type_ == "All" && "active") ||
+            (!this.props.showLocal && this.state.type_ == "Local" && "active")
           }`}
         >
           <input
             id={`${this.id}-all`}
             type="radio"
-            value={ListingType.All}
-            checked={this.state.type_ == ListingType.All}
+            value={"All"}
+            checked={this.state.type_ == "All"}
             onChange={linkEvent(this, this.handleTypeChange)}
           />
           {i18n.t("all")}

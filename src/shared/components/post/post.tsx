@@ -6,7 +6,6 @@ import {
   BanFromCommunityResponse,
   BanPersonResponse,
   BlockPersonResponse,
-  CommentNode as CommentNodeI,
   CommentReportResponse,
   CommentResponse,
   CommentSortType,
@@ -17,22 +16,23 @@ import {
   GetPost,
   GetPostResponse,
   GetSiteResponse,
-  ListingType,
   PostReportResponse,
   PostResponse,
   PostView,
   PurgeItemResponse,
   Search,
   SearchResponse,
-  SearchType,
-  SortType,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { CommentViewType, InitialFetchRequest } from "../../interfaces";
+import {
+  CommentNodeI,
+  CommentViewType,
+  InitialFetchRequest,
+} from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   buildCommentsTree,
@@ -97,7 +97,7 @@ export class Post extends Component<any, PostState> {
     postId: getIdFromProps(this.props),
     commentId: getCommentIdFromProps(this.props),
     commentTree: [],
-    commentSort: CommentSortType[CommentSortType.Hot],
+    commentSort: "Hot",
     commentViewType: CommentViewType.Tree,
     scrolled: false,
     loading: true,
@@ -174,7 +174,7 @@ export class Post extends Component<any, PostState> {
       parent_id: this.state.commentId,
       max_depth: commentTreeMaxDepth,
       sort: this.state.commentSort,
-      type_: ListingType.All,
+      type_: "All",
       saved_only: false,
       auth,
     };
@@ -186,10 +186,10 @@ export class Post extends Component<any, PostState> {
     if (q) {
       let form: Search = {
         q,
-        type_: SearchType.Url,
-        sort: SortType.TopAll,
-        listing_type: ListingType.All,
-        page: 1,
+        type_: "Url",
+        sort: "TopAll",
+        listing_type: "All",
+        page: 1n,
         limit: trendingFetchLimit,
         auth: myAuth(false),
       };
@@ -211,8 +211,8 @@ export class Post extends Component<any, PostState> {
 
     let commentsForm: GetComments = {
       max_depth: commentTreeMaxDepth,
-      sort: CommentSortType.Hot,
-      type_: ListingType.All,
+      sort: "Hot",
+      type_: "All",
       saved_only: false,
       auth,
     };
@@ -373,57 +373,53 @@ export class Post extends Component<any, PostState> {
         <div className="btn-group btn-group-toggle flex-wrap mr-3 mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
-              CommentSortType[this.state.commentSort] === CommentSortType.Hot &&
-              "active"
+              this.state.commentSort === "Hot" && "active"
             }`}
           >
             {i18n.t("hot")}
             <input
               type="radio"
-              value={CommentSortType.Hot}
-              checked={this.state.commentSort === CommentSortType.Hot}
+              value={"Hot"}
+              checked={this.state.commentSort === "Hot"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
             />
           </label>
           <label
             className={`btn btn-outline-secondary pointer ${
-              CommentSortType[this.state.commentSort] === CommentSortType.Top &&
-              "active"
+              this.state.commentSort === "Top" && "active"
             }`}
           >
             {i18n.t("top")}
             <input
               type="radio"
-              value={CommentSortType.Top}
-              checked={this.state.commentSort === CommentSortType.Top}
+              value={"Top"}
+              checked={this.state.commentSort === "Top"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
             />
           </label>
           <label
             className={`btn btn-outline-secondary pointer ${
-              CommentSortType[this.state.commentSort] === CommentSortType.New &&
-              "active"
+              this.state.commentSort === "New" && "active"
             }`}
           >
             {i18n.t("new")}
             <input
               type="radio"
-              value={CommentSortType.New}
-              checked={this.state.commentSort === CommentSortType.New}
+              value={"New"}
+              checked={this.state.commentSort === "New"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
             />
           </label>
           <label
             className={`btn btn-outline-secondary pointer ${
-              CommentSortType[this.state.commentSort] === CommentSortType.Old &&
-              "active"
+              this.state.commentSort === "Old" && "active"
             }`}
           >
             {i18n.t("old")}
             <input
               type="radio"
-              value={CommentSortType.Old}
-              checked={this.state.commentSort === CommentSortType.Old}
+              value={"Old"}
+              checked={this.state.commentSort === "Old"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
             />
           </label>
@@ -495,7 +491,7 @@ export class Post extends Component<any, PostState> {
 
   handleCommentSortChange(i: Post, event: any) {
     i.setState({
-      commentSort: CommentSortType[event.target.value],
+      commentSort: event.target.value as CommentSortType,
       commentViewType: CommentViewType.Tree,
       commentsRes: undefined,
       postRes: undefined,
@@ -508,7 +504,7 @@ export class Post extends Component<any, PostState> {
     if (comments) {
       i.setState({
         commentViewType: Number(event.target.value),
-        commentSort: CommentSortType.New,
+        commentSort: "New",
         commentTree: buildCommentsTree(comments, !!i.state.commentId),
       });
     }

@@ -22,12 +22,12 @@ export class UserService {
   private static _instance: UserService;
   public myUserInfo?: MyUserInfo;
   public jwtInfo?: JwtInfo;
-  public unreadInboxCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
-  public unreadReportCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
-  public unreadApplicationCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
+  public unreadInboxCountSub: BehaviorSubject<bigint> =
+    new BehaviorSubject<bigint>(0n);
+  public unreadReportCountSub: BehaviorSubject<bigint> =
+    new BehaviorSubject<bigint>(0n);
+  public unreadApplicationCountSub: BehaviorSubject<bigint> =
+    new BehaviorSubject<bigint>(0n);
 
   private constructor() {
     this.setJwtInfo();

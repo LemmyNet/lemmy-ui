@@ -46,10 +46,10 @@ export class CommentSortSelect extends Component<
           <option disabled aria-hidden="true">
             {i18n.t("sort_type")}
           </option>
-          <option value={CommentSortType.Hot}>{i18n.t("hot")}</option>,
-          <option value={CommentSortType.Top}>{i18n.t("top")}</option>,
-          <option value={CommentSortType.New}>{i18n.t("new")}</option>
-          <option value={CommentSortType.Old}>{i18n.t("old")}</option>
+          <option value={"Hot"}>{i18n.t("hot")}</option>,
+          <option value={"Top"}>{i18n.t("top")}</option>,
+          <option value={"New"}>{i18n.t("new")}</option>
+          <option value={"Old"}>{i18n.t("old")}</option>
         </select>
         <a
           className="text-muted"

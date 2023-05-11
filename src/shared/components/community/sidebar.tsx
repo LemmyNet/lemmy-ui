@@ -8,10 +8,9 @@ import {
   DeleteCommunity,
   FollowCommunity,
   Language,
-  PersonViewSafe,
+  PersonView,
   PurgeCommunity,
   RemoveCommunity,
-  SubscribedType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
@@ -35,7 +34,7 @@ import { PersonListing } from "../person/person-listing";
 interface SidebarProps {
   community_view: CommunityView;
   moderators: CommunityModeratorView[];
-  admins: PersonViewSafe[];
+  admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
   communityLanguages?: number[];
@@ -134,7 +133,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span className="mr-2">{community.title}</span>
-          {subscribed === SubscribedType.Subscribed && (
+          {subscribed === "Subscribed" && (
             <button
               className="btn btn-secondary btn-sm mr-2"
               onClick={linkEvent(this, this.handleUnsubscribe)}
@@ -143,7 +142,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               {i18n.t("joined")}
             </button>
           )}
-          {subscribed === SubscribedType.Pending && (
+          {subscribed === "Pending" && (
             <button
               className="btn btn-warning mr-2"
               onClick={linkEvent(this, this.handleUnsubscribe)}
@@ -186,18 +185,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_online", {
             count: this.props.online,
-            formattedCount: numToSI(this.props.online),
+            formattedCount: numToSI(BigInt(this.props.online)),
           })}
         </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_day", {
-            count: counts.users_active_day,
-            formattedCount: counts.users_active_day,
+            count: Number(counts.users_active_day),
+            formattedCount: numToSI(counts.users_active_day),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_day,
+            count: Number(counts.users_active_day),
             formattedCount: numToSI(counts.users_active_day),
           })}{" "}
           / {i18n.t("day")}
@@ -205,12 +204,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_week", {
-            count: counts.users_active_week,
-            formattedCount: counts.users_active_week,
+            count: Number(counts.users_active_week),
+            formattedCount: numToSI(counts.users_active_week),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_week,
+            count: Number(counts.users_active_week),
             formattedCount: numToSI(counts.users_active_week),
           })}{" "}
           / {i18n.t("week")}
@@ -218,12 +217,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_month", {
-            count: counts.users_active_month,
-            formattedCount: counts.users_active_month,
+            count: Number(counts.users_active_month),
+            formattedCount: numToSI(counts.users_active_month),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_month,
+            count: Number(counts.users_active_month),
             formattedCount: numToSI(counts.users_active_month),
           })}{" "}
           / {i18n.t("month")}
@@ -231,31 +230,31 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-            count: counts.users_active_half_year,
-            formattedCount: counts.users_active_half_year,
+            count: Number(counts.users_active_half_year),
+            formattedCount: numToSI(counts.users_active_half_year),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_half_year,
+            count: Number(counts.users_active_half_year),
             formattedCount: numToSI(counts.users_active_half_year),
           })}{" "}
           / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_subscribers", {
-            count: counts.subscribers,
+            count: Number(counts.subscribers),
             formattedCount: numToSI(counts.subscribers),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_posts", {
-            count: counts.posts,
+            count: Number(counts.posts),
             formattedCount: numToSI(counts.posts),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_comments", {
-            count: counts.comments,
+            count: Number(counts.comments),
             formattedCount: numToSI(counts.comments),
           })}
         </li>
@@ -302,7 +301,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     let community_view = this.props.community_view;
     return (
       <div className="mb-2">
-        {community_view.subscribed == SubscribedType.NotSubscribed && (
+        {community_view.subscribed == "NotSubscribed" && (
           <button
             className="btn btn-secondary btn-block"
             onClick={linkEvent(this, this.handleSubscribe)}
@@ -320,7 +319,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
     return (
       <div className="mb-2">
-        {community_view.subscribed == SubscribedType.NotSubscribed &&
+        {community_view.subscribed == "NotSubscribed" &&
           (blocked ? (
             <button
               className="btn btn-danger btn-block"

@@ -3,7 +3,6 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
-  SortType,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -73,7 +72,7 @@ export class CreatePrivateMessage extends Component<
   fetchPersonDetails() {
     let form: GetPersonDetails = {
       person_id: this.state.recipient_id,
-      sort: SortType.New,
+      sort: "New",
       saved_only: false,
       auth: myAuth(false),
     };
@@ -84,7 +83,7 @@ export class CreatePrivateMessage extends Component<
     let person_id = Number(req.path.split("/").pop());
     let form: GetPersonDetails = {
       person_id,
-      sort: SortType.New,
+      sort: "New",
       saved_only: false,
       auth: req.auth,
     };

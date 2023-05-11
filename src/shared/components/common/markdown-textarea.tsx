@@ -353,7 +353,7 @@ export class MarkdownTextArea extends Component<
     if (files.length > maxUploadImages) {
       toast(
         i18n.t("too_many_images_upload", {
-          count: maxUploadImages,
+          count: Number(maxUploadImages),
           formattedCount: numToSI(maxUploadImages),
         }),
         "danger"

@@ -39,7 +39,7 @@ export class Footer extends Component<FooterProps, any> {
                 </NavLink>
               </li>
             )}
-            {this.props.site.federated_instances && (
+            {this.props.site.site_view.local_site.federation_enabled && (
               <li className="nav-item">
                 <NavLink className="nav-link" to="/instances">
                   {i18n.t("instances")}

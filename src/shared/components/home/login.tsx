@@ -51,7 +51,7 @@ export class Login extends Component<any, State> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     if (isBrowser()) {
-      WebSocketService.Instance.send(wsClient.getCaptcha());
+      WebSocketService.Instance.send(wsClient.getCaptcha({}));
     }
   }
 
