@@ -307,6 +307,7 @@ export async function generateManifestBase64(site: Site) {
     display: "standalone",
     id: "/",
     background_color: "#222222",
+    theme_color: "#222222",
     icons: await Promise.all(
       iconSizes.map(async size => {
         let src = await readFile(
@@ -325,6 +326,7 @@ export async function generateManifestBase64(site: Site) {
           sizes: `${size}x${size}`,
           type: "image/png",
           src: `data:image/png;base64,${src}`,
+          purpose: "any maskable",
         };
       })
     ),
