@@ -101,7 +101,6 @@ const createClientConfig = (_env, mode) => {
           },
           cacheId: "lemmy",
           include: [/(assets|styles)\/.+\..+|client\.js$/g],
-          navigationPreload: true,
           inlineWorkboxRuntime: true,
           runtimeCaching: [
             {
