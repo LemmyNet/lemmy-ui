@@ -29,7 +29,6 @@ import {
   ghostArchiveUrl,
   isImage,
   myAuth,
-  myFirstDiscussionLanguageId,
   pictrsDeleteToast,
   relTags,
   setupTippy,
@@ -187,13 +186,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   render() {
-    let firstLang =
-      this.state.form.language_id ??
-      myFirstDiscussionLanguageId(
-        this.props.allLanguages,
-        this.props.siteLanguages,
-        UserService.Instance.myUserInfo
-      );
+    let firstLang = this.state.form.language_id;
     let selectedLangs = firstLang ? Array.of(firstLang) : undefined;
 
     let url = this.state.form.url;
