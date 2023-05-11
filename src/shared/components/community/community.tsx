@@ -33,6 +33,7 @@ import {
 } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  QueryParams,
   commentsToFlatNodes,
   communityRSSUrl,
   createCommentLikeRes,
@@ -51,7 +52,6 @@ import {
   notifyPost,
   nsfwCheck,
   postToCommentSortType,
-  QueryParams,
   relTags,
   restoreScrollPosition,
   routeDataTypeToEnum,

@@ -22,8 +22,8 @@ import { Subscription } from "rxjs";
 import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
-  capitalizeFirstLetter,
   Choice,
+  capitalizeFirstLetter,
   communityToChoice,
   debounce,
   elementUrl,
