@@ -3,7 +3,6 @@ import {
   GetSiteResponse,
   UserOperation,
   VerifyEmail as VerifyEmailForm,
-  VerifyEmailResponse,
   wsJsonToRes,
   wsUserOp,
 } from "lemmy-js-client";
@@ -85,7 +84,7 @@ export class VerifyEmail extends Component<any, State> {
       this.props.history.push("/");
       return;
     } else if (op == UserOperation.VerifyEmail) {
-      let data = wsJsonToRes<VerifyEmailResponse>(msg);
+      let data = wsJsonToRes(msg);
       if (data) {
         toast(i18n.t("email_verified"));
         this.props.history.push("/login");

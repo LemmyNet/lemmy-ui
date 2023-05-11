@@ -4,7 +4,7 @@ import { Prompt } from "inferno-router";
 import {
   CreatePrivateMessage,
   EditPrivateMessage,
-  PersonSafe,
+  Person,
   PrivateMessageResponse,
   PrivateMessageView,
   UserOperation,
@@ -29,7 +29,7 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 import { PersonListing } from "../person/person-listing";
 
 interface PrivateMessageFormProps {
-  recipient: PersonSafe;
+  recipient: Person;
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   onCancel?(): any;
   onCreate?(message: PrivateMessageView): any;

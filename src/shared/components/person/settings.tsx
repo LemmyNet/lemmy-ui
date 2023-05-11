@@ -62,8 +62,8 @@ interface SettingsState {
   saveUserSettingsForm: {
     show_nsfw?: boolean;
     theme?: string;
-    default_sort_type?: number;
-    default_listing_type?: number;
+    default_sort_type?: SortType;
+    default_listing_type?: ListingType;
     interface_language?: string;
     avatar?: string;
     banner?: string;
@@ -650,9 +650,8 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={
-                  Object.values(ListingType)[
-                    this.state.saveUserSettingsForm.default_listing_type ?? 1
-                  ]
+                  this.state.saveUserSettingsForm.default_listing_type ??
+                  "Local"
                 }
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
@@ -665,9 +664,7 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <SortSelect
                 sort={
-                  Object.values(SortType)[
-                    this.state.saveUserSettingsForm.default_sort_type ?? 0
-                  ]
+                  this.state.saveUserSettingsForm.default_sort_type ?? "Active"
                 }
                 onChange={this.handleSortTypeChange}
               />
@@ -1096,22 +1093,12 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleSortTypeChange(val: SortType) {
-    this.setState(
-      s => (
-        (s.saveUserSettingsForm.default_sort_type =
-          Object.keys(SortType).indexOf(val)),
-        s
-      )
-    );
+    this.setState(s => ((s.saveUserSettingsForm.default_sort_type = val), s));
   }
 
   handleListingTypeChange(val: ListingType) {
     this.setState(
-      s => (
-        (s.saveUserSettingsForm.default_listing_type =
-          Object.keys(ListingType).indexOf(val)),
-        s
-      )
+      s => ((s.saveUserSettingsForm.default_listing_type = val), s)
     );
   }
 

@@ -1,4 +1,4 @@
-import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { CommentView, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import type { ParsedQs } from "qs";
 
 /**
@@ -62,4 +62,10 @@ export enum PurgeType {
   Community,
   Post,
   Comment,
+}
+
+export interface CommentNodeI {
+  comment_view: CommentView;
+  children: Array<CommentNodeI>;
+  depth: number;
 }

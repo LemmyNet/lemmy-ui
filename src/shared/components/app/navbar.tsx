@@ -40,9 +40,9 @@ interface NavbarProps {
 
 interface NavbarState {
   expanded: boolean;
-  unreadInboxCount: number;
-  unreadReportCount: number;
-  unreadApplicationCount: number;
+  unreadInboxCount: bigint;
+  unreadReportCount: bigint;
+  unreadApplicationCount: bigint;
   showDropdown: boolean;
   onSiteBanner?(url: string): any;
 }
@@ -54,9 +54,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   private unreadReportCountSub: Subscription;
   private unreadApplicationCountSub: Subscription;
   state: NavbarState = {
-    unreadInboxCount: 0,
-    unreadReportCount: 0,
-    unreadApplicationCount: 0,
+    unreadInboxCount: 0n,
+    unreadReportCount: 0n,
+    unreadApplicationCount: 0n,
     expanded: false,
     showDropdown: false,
   };
@@ -144,7 +144,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     className="p-1 navbar-toggler nav-link border-0"
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("unread_messages", {
-                      count: this.state.unreadInboxCount,
+                      count: Number(this.state.unreadInboxCount),
                       formattedCount: numToSI(this.state.unreadInboxCount),
                     })}
                   >
@@ -165,7 +165,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       className="p-1 navbar-toggler nav-link border-0"
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_reports", {
-                        count: this.state.unreadReportCount,
+                        count: Number(this.state.unreadReportCount),
                         formattedCount: numToSI(this.state.unreadReportCount),
                       })}
                     >
@@ -187,7 +187,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       className="p-1 navbar-toggler nav-link border-0"
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_registration_applications", {
-                        count: this.state.unreadApplicationCount,
+                        count: Number(this.state.unreadApplicationCount),
                         formattedCount: numToSI(
                           this.state.unreadApplicationCount
                         ),
@@ -305,7 +305,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       to="/inbox"
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_messages", {
-                        count: this.state.unreadInboxCount,
+                        count: Number(this.state.unreadInboxCount),
                         formattedCount: numToSI(this.state.unreadInboxCount),
                       })}
                     >
@@ -326,7 +326,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         to="/reports"
                         onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                         title={i18n.t("unread_reports", {
-                          count: this.state.unreadReportCount,
+                          count: Number(this.state.unreadReportCount),
                           formattedCount: numToSI(this.state.unreadReportCount),
                         })}
                       >
@@ -348,7 +348,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         className="nav-link"
                         onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                         title={i18n.t("unread_registration_applications", {
-                          count: this.state.unreadApplicationCount,
+                          count: Number(this.state.unreadApplicationCount),
                           formattedCount: numToSI(
                             this.state.unreadApplicationCount
                           ),
@@ -512,7 +512,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         unreadReportCount:
           data.post_reports +
           data.comment_reports +
-          (data.private_message_reports ?? 0),
+          (data.private_message_reports ?? 0n),
       });
       this.sendReportUnread();
     } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
@@ -528,7 +528,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         data.recipient_ids.includes(mui.local_user_view.local_user.id)
       ) {
         this.setState({
-          unreadInboxCount: this.state.unreadInboxCount + 1,
+          unreadInboxCount: this.state.unreadInboxCount + 1n,
         });
         this.sendUnreadCount();
         notifyComment(data.comment_view, this.context.router);
@@ -541,7 +541,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         UserService.Instance.myUserInfo?.local_user_view.person.id
       ) {
         this.setState({
-          unreadInboxCount: this.state.unreadInboxCount + 1,
+          unreadInboxCount: this.state.unreadInboxCount + 1n,
         });
         this.sendUnreadCount();
         notifyPrivateMessage(data.private_message_view, this.context.router);

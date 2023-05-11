@@ -1,14 +1,12 @@
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
-  CommentNode as CommentNodeI,
   CommentReportView,
   CommentView,
   ResolveCommentReport,
-  SubscribedType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { CommentViewType } from "../../interfaces";
+import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { WebSocketService } from "../../services";
 import { myAuth, wsClient } from "../../utils";
 import { Icon } from "../common/icon";
@@ -41,7 +39,7 @@ export class CommentReport extends Component<CommentReportProps, any> {
       community: r.community,
       creator_banned_from_community: r.creator_banned_from_community,
       counts: r.counts,
-      subscribed: SubscribedType.NotSubscribed,
+      subscribed: "NotSubscribed",
       saved: false,
       creator_blocked: false,
       my_vote: r.my_vote,

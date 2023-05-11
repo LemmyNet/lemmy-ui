@@ -3,7 +3,7 @@ import {
   CreatePrivateMessageReport,
   DeletePrivateMessage,
   MarkPrivateMessageAsRead,
-  PersonSafe,
+  Person,
   PrivateMessageView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
@@ -57,7 +57,7 @@ export class PrivateMessage extends Component<
 
   render() {
     let message_view = this.props.private_message_view;
-    let otherPerson: PersonSafe = this.mine
+    let otherPerson: Person = this.mine
       ? message_view.recipient
       : message_view.creator;
 

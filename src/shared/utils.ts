@@ -4,7 +4,6 @@ import {
   BlockCommunityResponse,
   BlockPersonResponse,
   Comment as CommentI,
-  CommentNode as CommentNodeI,
   CommentReportView,
   CommentSortType,
   CommentView,
@@ -16,16 +15,15 @@ import {
   Language,
   LemmyHttp,
   LemmyWebsocket,
-  ListingType,
-  PersonSafe,
-  PersonViewSafe,
+  MyUserInfo,
+  Person,
+  PersonView,
   PostReportView,
   PostView,
   PrivateMessageReportView,
   PrivateMessageView,
   RegistrationApplicationView,
   Search,
-  SearchType,
   SortType,
   UploadImageResponse,
 } from "lemmy-js-client";
@@ -45,7 +43,7 @@ import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { httpBase } from "./env";
 import { i18n, languages } from "./i18next";
-import { DataType, IsoData } from "./interfaces";
+import { CommentNodeI, DataType, IsoData } from "./interfaces";
 import { UserService, WebSocketService } from "./services";
 
 var Tribute: any;
@@ -72,12 +70,12 @@ export const webArchiveUrl = "https://web.archive.org";
 export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
-export const fetchLimit = 40;
-export const trendingFetchLimit = 6;
+export const fetchLimit = 40n;
+export const trendingFetchLimit = 6n;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
 export const markdownFieldCharacterLimit = 50000;
-export const maxUploadImages = 20;
+export const maxUploadImages = 20n;
 export const concurrentImageUpload = 4;
 
 export const relTags = "noopener nofollow";
@@ -124,8 +122,8 @@ export function getIdFromString(id?: string): number | undefined {
   return id && id !== "0" && !Number.isNaN(Number(id)) ? Number(id) : undefined;
 }
 
-export function getPageFromString(page?: string): number {
-  return page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+export function getPageFromString(page?: string): bigint {
+  return page && !Number.isNaN(Number(page)) ? BigInt(page) : BigInt(1);
 }
 
 export function randomStr(
@@ -187,14 +185,14 @@ export function hotRankPost(post_view: PostView): number {
   return hotRank(post_view.counts.score, post_view.post.published);
 }
 
-export function hotRank(score: number, timeStr: string): number {
+export function hotRank(score: bigint, timeStr: string): number {
   // Rank = ScaleFactor * sign(Score) * log(1 + abs(Score)) / (Time + 2)^Gravity
   let date: Date = new Date(timeStr + "Z"); // Add Z to convert from UTC date
   let now: Date = new Date();
   let hoursElapsed: number = (now.getTime() - date.getTime()) / 36e5;
 
   let rank =
-    (10000 * Math.log10(Math.max(1, 3 + score))) /
+    (10000 * Math.log10(Math.max(1, Number(3n + score)))) /
     Math.pow(hoursElapsed + 2, 1.8);
 
   // console.log(`Comment: ${comment.content}\nRank: ${rank}\nScore: ${comment.score}\nHours: ${hoursElapsed}`);
@@ -214,14 +212,16 @@ export function mdToHtmlInline(text: string) {
   return { __html: md.renderInline(text) };
 }
 
-export function getUnixTime(text?: string): number | undefined {
-  return text ? new Date(text).getTime() / 1000 : undefined;
+export function getUnixTime(text?: string): bigint | undefined {
+  return text ? BigInt(new Date(text).getTime() / 1000) : undefined;
 }
 
-export function futureDaysToUnixTime(days?: number): number | undefined {
+export function futureDaysToUnixTime(days?: number): bigint | undefined {
   return days
-    ? Math.trunc(
-        new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
+    ? BigInt(
+        Math.trunc(
+          new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
+        )
       )
     : undefined;
 }
@@ -229,7 +229,7 @@ export function futureDaysToUnixTime(days?: number): number | undefined {
 export function canMod(
   creator_id: number,
   mods?: CommunityModeratorView[],
-  admins?: PersonViewSafe[],
+  admins?: PersonView[],
   myUserInfo = UserService.Instance.myUserInfo,
   onSelf = false
 ): boolean {
@@ -257,7 +257,7 @@ export function canMod(
 
 export function canAdmin(
   creatorId: number,
-  admins?: PersonViewSafe[],
+  admins?: PersonView[],
   myUserInfo = UserService.Instance.myUserInfo,
   onSelf = false
 ): boolean {
@@ -278,7 +278,7 @@ export function amMod(
   return myUserInfo ? isMod(myUserInfo.local_user_view.person.id, mods) : false;
 }
 
-export function isAdmin(creatorId: number, admins?: PersonViewSafe[]): boolean {
+export function isAdmin(creatorId: number, admins?: PersonView[]): boolean {
   return admins?.map(a => a.person.id).includes(creatorId) ?? false;
 }
 
@@ -298,7 +298,7 @@ export function amCommunityCreator(
 
 export function amSiteCreator(
   creator_id: number,
-  admins?: PersonViewSafe[],
+  admins?: PersonView[],
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {
   let myId = myUserInfo?.local_user_view.person.id;
@@ -340,42 +340,6 @@ export function validEmail(email: string) {
 
 export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-export function routeSortTypeToEnum(
-  sort: string,
-  defaultValue: SortType
-): SortType {
-  return SortType[sort] ?? defaultValue;
-}
-
-export function listingTypeFromNum(type_: number): ListingType {
-  return Object.values(ListingType)[type_];
-}
-
-export function sortTypeFromNum(type_: number): SortType {
-  return Object.values(SortType)[type_];
-}
-
-export function routeListingTypeToEnum(
-  type: string,
-  defaultValue: ListingType
-): ListingType {
-  return ListingType[type] ?? defaultValue;
-}
-
-export function routeDataTypeToEnum(
-  type: string,
-  defaultValue: DataType
-): DataType {
-  return DataType[type] ?? defaultValue;
-}
-
-export function routeSearchTypeToEnum(
-  type: string,
-  defaultValue: SearchType
-): SearchType {
-  return SearchType[type] ?? defaultValue;
 }
 
 export async function getSiteMetadata(url: string) {
@@ -901,7 +865,7 @@ export function setupTippy() {
 
 interface PersonTribute {
   key: string;
-  view: PersonViewSafe;
+  view: PersonView;
 }
 
 async function personSearch(text: string): Promise<PersonTribute[]> {
@@ -972,7 +936,7 @@ export function saveCommentRes(data: CommentView, comments?: CommentView[]) {
 
 export function updatePersonBlock(
   data: BlockPersonResponse,
-  myUserInfo = UserService.Instance.myUserInfo
+  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
 ) {
   let mui = myUserInfo;
   if (mui) {
@@ -993,7 +957,7 @@ export function updatePersonBlock(
 
 export function updateCommunityBlock(
   data: BlockCommunityResponse,
-  myUserInfo = UserService.Instance.myUserInfo
+  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
 ) {
   let mui = myUserInfo;
   if (mui) {
@@ -1124,19 +1088,19 @@ export function commentsToFlatNodes(comments: CommentView[]): CommentNodeI[] {
 
 export function convertCommentSortType(sort: SortType): CommentSortType {
   if (
-    sort == SortType.TopAll ||
-    sort == SortType.TopDay ||
-    sort == SortType.TopWeek ||
-    sort == SortType.TopMonth ||
-    sort == SortType.TopYear
+    sort == "TopAll" ||
+    sort == "TopDay" ||
+    sort == "TopWeek" ||
+    sort == "TopMonth" ||
+    sort == "TopYear"
   ) {
-    return CommentSortType.Top;
-  } else if (sort == SortType.New) {
-    return CommentSortType.New;
-  } else if (sort == SortType.Hot || sort == SortType.Active) {
-    return CommentSortType.Hot;
+    return "Top";
+  } else if (sort == "New") {
+    return "New";
+  } else if (sort == "Hot" || sort == "Active") {
+    return "Hot";
   } else {
-    return CommentSortType.Hot;
+    return "Hot";
   }
 }
 
@@ -1359,8 +1323,7 @@ export function restoreScrollPosition(context: any) {
 }
 
 export function showLocal(isoData: IsoData): boolean {
-  let linked = isoData.site_res.federated_instances?.linked;
-  return linked ? linked.length > 0 : false;
+  return isoData.site_res.site_view.local_site.federation_enabled;
 }
 
 export interface Choice {
@@ -1382,7 +1345,7 @@ export function communityToChoice(cv: CommunityView): Choice {
   };
 }
 
-export function personToChoice(pvs: PersonViewSafe): Choice {
+export function personToChoice(pvs: PersonView): Choice {
   return {
     value: pvs.person.id.toString(),
     label: personSelectName(pvs),
@@ -1392,10 +1355,10 @@ export function personToChoice(pvs: PersonViewSafe): Choice {
 export async function fetchCommunities(q: string) {
   let form: Search = {
     q,
-    type_: SearchType.Communities,
-    sort: SortType.TopAll,
-    listing_type: ListingType.All,
-    page: 1,
+    type_: "Communities",
+    sort: "TopAll",
+    listing_type: "All",
+    page: 1n,
     limit: fetchLimit,
     auth: myAuth(false),
   };
@@ -1406,10 +1369,10 @@ export async function fetchCommunities(q: string) {
 export async function fetchUsers(q: string) {
   let form: Search = {
     q,
-    type_: SearchType.Users,
-    sort: SortType.TopAll,
-    listing_type: ListingType.All,
-    page: 1,
+    type_: "Users",
+    sort: "TopAll",
+    listing_type: "All",
+    page: 1n,
     limit: fetchLimit,
     auth: myAuth(false),
   };
@@ -1425,7 +1388,7 @@ export function communitySelectName(cv: CommunityView): string {
 
 export function personSelectName({
   person: { display_name, name, local, actor_id },
-}: PersonViewSafe): string {
+}: PersonView): string {
   const pName = display_name ?? name;
   return local ? pName : `${hostname(actor_id)}/${pName}`;
 }
@@ -1444,11 +1407,11 @@ const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
   compactDisplay: "short",
 });
 
-export function numToSI(value: number): string {
+export function numToSI(value: bigint): string {
   return SHORTNUM_SI_FORMAT.format(value);
 }
 
-export function isBanned(ps: PersonSafe): boolean {
+export function isBanned(ps: Person): boolean {
   let expires = ps.ban_expires;
   // Add Z to convert from UTC date
   // TODO this check probably isn't necessary anymore
@@ -1477,16 +1440,16 @@ export function enableNsfw(siteRes: GetSiteResponse): boolean {
 
 export function postToCommentSortType(sort: SortType): CommentSortType {
   switch (sort) {
-    case SortType.Active:
-    case SortType.Hot:
-      return CommentSortType.Hot;
-    case SortType.New:
-    case SortType.NewComments:
-      return CommentSortType.New;
-    case SortType.Old:
-      return CommentSortType.Old;
+    case "Active":
+    case "Hot":
+      return "Hot";
+    case "New":
+    case "NewComments":
+      return "New";
+    case "Old":
+      return "Old";
     default:
-      return CommentSortType.Top;
+      return "Top";
   }
 }
 
@@ -1515,7 +1478,7 @@ export function canCreateCommunity(
 
 export function isPostBlocked(
   pv: PostView,
-  myUserInfo = UserService.Instance.myUserInfo
+  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
 ): boolean {
   return (
     (myUserInfo?.community_blocks

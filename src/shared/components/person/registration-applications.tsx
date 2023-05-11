@@ -37,7 +37,7 @@ interface RegistrationApplicationsState {
   listRegistrationApplicationsResponse?: ListRegistrationApplicationsResponse;
   siteRes: GetSiteResponse;
   unreadOrAll: UnreadOrAll;
-  page: number;
+  page: bigint;
   loading: boolean;
 }
 
@@ -50,7 +50,7 @@ export class RegistrationApplications extends Component<
   state: RegistrationApplicationsState = {
     siteRes: this.isoData.site_res,
     unreadOrAll: UnreadOrAll.Unread,
-    page: 1,
+    page: 1n,
     loading: true,
   };
 
@@ -188,11 +188,11 @@ export class RegistrationApplications extends Component<
   }
 
   handleUnreadOrAllChange(i: RegistrationApplications, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1n });
     i.refetch();
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: bigint) {
     this.setState({ page });
     this.refetch();
   }
@@ -204,7 +204,7 @@ export class RegistrationApplications extends Component<
     if (auth) {
       let form: ListRegistrationApplications = {
         unread_only: true,
-        page: 1,
+        page: 1n,
         limit: fetchLimit,
         auth,
       };
@@ -254,7 +254,7 @@ export class RegistrationApplications extends Component<
       );
       let uacs = UserService.Instance.unreadApplicationCountSub;
       // Minor bug, where if the application switches from deny to approve, the count will still go down
-      uacs.next(uacs.getValue() - 1);
+      uacs.next(uacs.getValue() - 1n);
       this.setState(this.state);
     }
   }
