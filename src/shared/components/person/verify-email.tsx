@@ -1,8 +1,11 @@
 import { Component } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { VerifyEmail as VerifyEmailForm } from "lemmy-js-client/dist/types/VerifyEmail";
+import {
+  GetSiteResponse,
+  UserOperation,
+  VerifyEmail as VerifyEmailForm,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";

@@ -1,12 +1,15 @@
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
-import { CreateComment } from "lemmy-js-client/dist/types/CreateComment";
-import { EditComment } from "lemmy-js-client/dist/types/EditComment";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
+import {
+  CommentResponse,
+  CreateComment,
+  EditComment,
+  Language,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { CommentNodeI } from "shared/interfaces";
 import { i18n } from "../../i18next";

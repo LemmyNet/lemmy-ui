@@ -1,8 +1,7 @@
 // import Cookies from 'js-cookie';
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
-import { LoginResponse } from "lemmy-js-client/dist/types/LoginResponse";
-import { MyUserInfo } from "lemmy-js-client/dist/types/MyUserInfo";
+import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { BehaviorSubject } from "rxjs";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";

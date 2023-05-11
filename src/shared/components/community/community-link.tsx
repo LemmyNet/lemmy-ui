@@ -1,6 +1,6 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { Community } from "lemmy-js-client/dist/types/Community";
+import { Community } from "lemmy-js-client";
 import { hostname, relTags, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 

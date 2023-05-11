@@ -1,25 +1,28 @@
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { AddModToCommunityResponse } from "lemmy-js-client/dist/types/AddModToCommunityResponse";
-import { BanFromCommunityResponse } from "lemmy-js-client/dist/types/BanFromCommunityResponse";
-import { BlockCommunityResponse } from "lemmy-js-client/dist/types/BlockCommunityResponse";
-import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
-import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { CommunityResponse } from "lemmy-js-client/dist/types/CommunityResponse";
-import { GetComments } from "lemmy-js-client/dist/types/GetComments";
-import { GetCommentsResponse } from "lemmy-js-client/dist/types/GetCommentsResponse";
-import { GetCommunity } from "lemmy-js-client/dist/types/GetCommunity";
-import { GetCommunityResponse } from "lemmy-js-client/dist/types/GetCommunityResponse";
-import { GetPosts } from "lemmy-js-client/dist/types/GetPosts";
-import { GetPostsResponse } from "lemmy-js-client/dist/types/GetPostsResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PostReportResponse } from "lemmy-js-client/dist/types/PostReportResponse";
-import { PostResponse } from "lemmy-js-client/dist/types/PostResponse";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
-import { PurgeItemResponse } from "lemmy-js-client/dist/types/PurgeItemResponse";
-import { SortType } from "lemmy-js-client/dist/types/SortType";
+import {
+  AddModToCommunityResponse,
+  BanFromCommunityResponse,
+  BlockCommunityResponse,
+  BlockPersonResponse,
+  CommentResponse,
+  CommentView,
+  CommunityResponse,
+  GetComments,
+  GetCommentsResponse,
+  GetCommunity,
+  GetCommunityResponse,
+  GetPosts,
+  GetPostsResponse,
+  PostReportResponse,
+  PostResponse,
+  PostView,
+  PurgeItemResponse,
+  SortType,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import {

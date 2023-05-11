@@ -3,31 +3,34 @@ import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { AdminPurgeCommentView } from "lemmy-js-client/dist/types/AdminPurgeCommentView";
-import { AdminPurgeCommunityView } from "lemmy-js-client/dist/types/AdminPurgeCommunityView";
-import { AdminPurgePersonView } from "lemmy-js-client/dist/types/AdminPurgePersonView";
-import { AdminPurgePostView } from "lemmy-js-client/dist/types/AdminPurgePostView";
-import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
-import { GetCommunity } from "lemmy-js-client/dist/types/GetCommunity";
-import { GetCommunityResponse } from "lemmy-js-client/dist/types/GetCommunityResponse";
-import { GetModlog } from "lemmy-js-client/dist/types/GetModlog";
-import { GetModlogResponse } from "lemmy-js-client/dist/types/GetModlogResponse";
-import { GetPersonDetails } from "lemmy-js-client/dist/types/GetPersonDetails";
-import { GetPersonDetailsResponse } from "lemmy-js-client/dist/types/GetPersonDetailsResponse";
-import { ModAddCommunityView } from "lemmy-js-client/dist/types/ModAddCommunityView";
-import { ModAddView } from "lemmy-js-client/dist/types/ModAddView";
-import { ModBanFromCommunityView } from "lemmy-js-client/dist/types/ModBanFromCommunityView";
-import { ModBanView } from "lemmy-js-client/dist/types/ModBanView";
-import { ModFeaturePostView } from "lemmy-js-client/dist/types/ModFeaturePostView";
-import { ModLockPostView } from "lemmy-js-client/dist/types/ModLockPostView";
-import { ModlogActionType } from "lemmy-js-client/dist/types/ModlogActionType";
-import { ModRemoveCommentView } from "lemmy-js-client/dist/types/ModRemoveCommentView";
-import { ModRemoveCommunityView } from "lemmy-js-client/dist/types/ModRemoveCommunityView";
-import { ModRemovePostView } from "lemmy-js-client/dist/types/ModRemovePostView";
-import { ModTransferCommunityView } from "lemmy-js-client/dist/types/ModTransferCommunityView";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { Person } from "lemmy-js-client/dist/types/Person";
+import {
+  AdminPurgeCommentView,
+  AdminPurgeCommunityView,
+  AdminPurgePersonView,
+  AdminPurgePostView,
+  CommunityModeratorView,
+  GetCommunity,
+  GetCommunityResponse,
+  GetModlog,
+  GetModlogResponse,
+  GetPersonDetails,
+  GetPersonDetailsResponse,
+  ModAddCommunityView,
+  ModAddView,
+  ModBanFromCommunityView,
+  ModBanView,
+  ModFeaturePostView,
+  ModLockPostView,
+  ModlogActionType,
+  ModRemoveCommentView,
+  ModRemoveCommunityView,
+  ModRemovePostView,
+  ModTransferCommunityView,
+  Person,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { i18n } from "../i18next";

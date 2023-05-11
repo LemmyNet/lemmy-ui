@@ -1,12 +1,15 @@
 import { Component, linkEvent } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { CommunityResponse } from "lemmy-js-client/dist/types/CommunityResponse";
-import { FollowCommunity } from "lemmy-js-client/dist/types/FollowCommunity";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { ListCommunities } from "lemmy-js-client/dist/types/ListCommunities";
-import { ListCommunitiesResponse } from "lemmy-js-client/dist/types/ListCommunitiesResponse";
-import { ListingType } from "lemmy-js-client/dist/types/ListingType";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
+import {
+  CommunityResponse,
+  FollowCommunity,
+  GetSiteResponse,
+  ListCommunities,
+  ListCommunitiesResponse,
+  ListingType,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";

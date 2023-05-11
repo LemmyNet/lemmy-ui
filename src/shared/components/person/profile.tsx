@@ -3,22 +3,25 @@ import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { AddAdminResponse } from "lemmy-js-client/dist/types/AddAdminResponse";
-import { BanPerson } from "lemmy-js-client/dist/types/BanPerson";
-import { BanPersonResponse } from "lemmy-js-client/dist/types/BanPersonResponse";
-import { BlockPerson } from "lemmy-js-client/dist/types/BlockPerson";
-import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
-import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
-import { Community } from "lemmy-js-client/dist/types/Community";
-import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
-import { GetPersonDetails } from "lemmy-js-client/dist/types/GetPersonDetails";
-import { GetPersonDetailsResponse } from "lemmy-js-client/dist/types/GetPersonDetailsResponse";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PostResponse } from "lemmy-js-client/dist/types/PostResponse";
-import { PurgeItemResponse } from "lemmy-js-client/dist/types/PurgeItemResponse";
-import { SortType } from "lemmy-js-client/dist/types/SortType";
+import {
+  AddAdminResponse,
+  BanPerson,
+  BanPersonResponse,
+  BlockPerson,
+  BlockPersonResponse,
+  CommentResponse,
+  Community,
+  CommunityModeratorView,
+  GetPersonDetails,
+  GetPersonDetailsResponse,
+  GetSiteResponse,
+  PostResponse,
+  PurgeItemResponse,
+  SortType,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";

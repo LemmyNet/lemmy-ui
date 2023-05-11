@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { mdToHtml, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";

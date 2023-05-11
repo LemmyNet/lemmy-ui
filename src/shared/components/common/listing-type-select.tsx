@@ -1,5 +1,5 @@
 import { Component, linkEvent } from "inferno";
-import { ListingType } from "lemmy-js-client/dist/types/ListingType";
+import { ListingType } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { randomStr } from "../../utils";

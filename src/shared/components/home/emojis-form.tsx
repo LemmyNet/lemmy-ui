@@ -1,12 +1,15 @@
 import { Component, linkEvent } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { CreateCustomEmoji } from "lemmy-js-client/dist/types/CreateCustomEmoji";
-import { CustomEmojiResponse } from "lemmy-js-client/dist/types/CustomEmojiResponse";
-import { DeleteCustomEmoji } from "lemmy-js-client/dist/types/DeleteCustomEmoji";
-import { DeleteCustomEmojiResponse } from "lemmy-js-client/dist/types/DeleteCustomEmojiResponse";
-import { EditCustomEmoji } from "lemmy-js-client/dist/types/EditCustomEmoji";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
+import {
+  CreateCustomEmoji,
+  CustomEmojiResponse,
+  DeleteCustomEmoji,
+  DeleteCustomEmojiResponse,
+  EditCustomEmoji,
+  GetSiteResponse,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";

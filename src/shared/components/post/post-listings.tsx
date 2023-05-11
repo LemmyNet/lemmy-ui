@@ -1,8 +1,7 @@
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
+import { Language, PostView } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { PostListing } from "./post-listing";
 

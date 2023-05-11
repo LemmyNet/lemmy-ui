@@ -1,13 +1,16 @@
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { BannedPersonsResponse } from "lemmy-js-client/dist/types/BannedPersonsResponse";
-import { GetBannedPersons } from "lemmy-js-client/dist/types/GetBannedPersons";
-import { GetFederatedInstancesResponse } from "lemmy-js-client/dist/types/GetFederatedInstancesResponse";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
-import { SiteResponse } from "lemmy-js-client/dist/types/SiteResponse";
+import {
+  BannedPersonsResponse,
+  GetBannedPersons,
+  GetFederatedInstancesResponse,
+  GetSiteResponse,
+  PersonView,
+  SiteResponse,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";

@@ -1,27 +1,30 @@
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { CommunityView } from "lemmy-js-client/dist/types/CommunityView";
-import { GetCommunity } from "lemmy-js-client/dist/types/GetCommunity";
-import { GetCommunityResponse } from "lemmy-js-client/dist/types/GetCommunityResponse";
-import { GetPersonDetails } from "lemmy-js-client/dist/types/GetPersonDetails";
-import { GetPersonDetailsResponse } from "lemmy-js-client/dist/types/GetPersonDetailsResponse";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { ListCommunities } from "lemmy-js-client/dist/types/ListCommunities";
-import { ListCommunitiesResponse } from "lemmy-js-client/dist/types/ListCommunitiesResponse";
-import { ListingType } from "lemmy-js-client/dist/types/ListingType";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
-import { PostResponse } from "lemmy-js-client/dist/types/PostResponse";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
-import { ResolveObject } from "lemmy-js-client/dist/types/ResolveObject";
-import { ResolveObjectResponse } from "lemmy-js-client/dist/types/ResolveObjectResponse";
-import { Search as SearchForm } from "lemmy-js-client/dist/types/Search";
-import { SearchResponse } from "lemmy-js-client/dist/types/SearchResponse";
-import { SearchType } from "lemmy-js-client/dist/types/SearchType";
-import { SortType } from "lemmy-js-client/dist/types/SortType";
+import {
+  CommentResponse,
+  CommentView,
+  CommunityView,
+  GetCommunity,
+  GetCommunityResponse,
+  GetPersonDetails,
+  GetPersonDetailsResponse,
+  GetSiteResponse,
+  ListCommunities,
+  ListCommunitiesResponse,
+  ListingType,
+  PersonView,
+  PostResponse,
+  PostView,
+  ResolveObject,
+  ResolveObjectResponse,
+  Search as SearchForm,
+  SearchResponse,
+  SearchType,
+  SortType,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";

@@ -2,14 +2,17 @@ import { Options, passwordStrength } from "check-password-strength";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { CaptchaResponse } from "lemmy-js-client/dist/types/CaptchaResponse";
-import { GetCaptchaResponse } from "lemmy-js-client/dist/types/GetCaptchaResponse";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { LoginResponse } from "lemmy-js-client/dist/types/LoginResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { Register } from "lemmy-js-client/dist/types/Register";
-import { SiteView } from "lemmy-js-client/dist/types/SiteView";
+import {
+  CaptchaResponse,
+  GetCaptchaResponse,
+  GetSiteResponse,
+  LoginResponse,
+  Register,
+  SiteView,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";

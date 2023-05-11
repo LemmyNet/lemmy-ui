@@ -1,10 +1,12 @@
 import { Component } from "inferno";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { GetPersonDetailsResponse } from "lemmy-js-client/dist/types/GetPersonDetailsResponse";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
-import { SortType } from "lemmy-js-client/dist/types/SortType";
+import {
+  CommentView,
+  GetPersonDetailsResponse,
+  Language,
+  PersonView,
+  PostView,
+  SortType,
+} from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
 import { commentsToFlatNodes, setupTippy } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";

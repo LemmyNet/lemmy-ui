@@ -1,6 +1,5 @@
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
-import { EditSite } from "lemmy-js-client/dist/types/EditSite";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { EditSite, GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import { capitalizeFirstLetter, myAuth, wsClient } from "../../utils";

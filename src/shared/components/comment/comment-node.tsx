@@ -1,29 +1,31 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
-import { AddAdmin } from "lemmy-js-client/dist/types/AddAdmin";
-import { AddModToCommunity } from "lemmy-js-client/dist/types/AddModToCommunity";
-import { BanFromCommunity } from "lemmy-js-client/dist/types/BanFromCommunity";
-import { BanPerson } from "lemmy-js-client/dist/types/BanPerson";
-import { BlockPerson } from "lemmy-js-client/dist/types/BlockPerson";
-import { CommentReplyView } from "lemmy-js-client/dist/types/CommentReplyView";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
-import { CreateCommentLike } from "lemmy-js-client/dist/types/CreateCommentLike";
-import { CreateCommentReport } from "lemmy-js-client/dist/types/CreateCommentReport";
-import { DeleteComment } from "lemmy-js-client/dist/types/DeleteComment";
-import { DistinguishComment } from "lemmy-js-client/dist/types/DistinguishComment";
-import { GetComments } from "lemmy-js-client/dist/types/GetComments";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { MarkCommentReplyAsRead } from "lemmy-js-client/dist/types/MarkCommentReplyAsRead";
-import { MarkPersonMentionAsRead } from "lemmy-js-client/dist/types/MarkPersonMentionAsRead";
-import { PersonMentionView } from "lemmy-js-client/dist/types/PersonMentionView";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
-import { PurgeComment } from "lemmy-js-client/dist/types/PurgeComment";
-import { PurgePerson } from "lemmy-js-client/dist/types/PurgePerson";
-import { RemoveComment } from "lemmy-js-client/dist/types/RemoveComment";
-import { SaveComment } from "lemmy-js-client/dist/types/SaveComment";
-import { TransferCommunity } from "lemmy-js-client/dist/types/TransferCommunity";
+import {
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanPerson,
+  BlockPerson,
+  CommentReplyView,
+  CommentView,
+  CommunityModeratorView,
+  CreateCommentLike,
+  CreateCommentReport,
+  DeleteComment,
+  DistinguishComment,
+  GetComments,
+  Language,
+  MarkCommentReplyAsRead,
+  MarkPersonMentionAsRead,
+  PersonMentionView,
+  PersonView,
+  PurgeComment,
+  PurgePerson,
+  RemoveComment,
+  SaveComment,
+  TransferCommunity,
+} from "lemmy-js-client";
 import moment from "moment";
 import { i18n } from "../../i18next";
 import {

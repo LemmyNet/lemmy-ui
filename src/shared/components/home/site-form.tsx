@@ -1,10 +1,12 @@
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { CreateSite } from "lemmy-js-client/dist/types/CreateSite";
-import { EditSite } from "lemmy-js-client/dist/types/EditSite";
-import { GetFederatedInstancesResponse } from "lemmy-js-client/dist/types/GetFederatedInstancesResponse";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { ListingType } from "lemmy-js-client/dist/types/ListingType";
+import {
+  CreateSite,
+  EditSite,
+  GetFederatedInstancesResponse,
+  GetSiteResponse,
+  ListingType,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {

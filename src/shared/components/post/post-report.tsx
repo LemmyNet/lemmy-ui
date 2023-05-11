@@ -1,8 +1,6 @@
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { PostReportView } from "lemmy-js-client/dist/types/PostReportView";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
-import { ResolvePostReport } from "lemmy-js-client/dist/types/ResolvePostReport";
+import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import { myAuth, wsClient } from "../../utils";

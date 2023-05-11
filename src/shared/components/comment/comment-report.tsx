@@ -1,8 +1,10 @@
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { CommentReportView } from "lemmy-js-client/dist/types/CommentReportView";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { ResolveCommentReport } from "lemmy-js-client/dist/types/ResolveCommentReport";
+import {
+  CommentReportView,
+  CommentView,
+  ResolveCommentReport,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { WebSocketService } from "../../services";

@@ -1,29 +1,32 @@
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
-import { LemmyHttp, LemmyWebsocket } from "lemmy-js-client";
-import { BlockCommunityResponse } from "lemmy-js-client/dist/types/BlockCommunityResponse";
-import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
-import { Comment as CommentI } from "lemmy-js-client/dist/types/Comment";
-import { CommentReportView } from "lemmy-js-client/dist/types/CommentReportView";
-import { CommentSortType } from "lemmy-js-client/dist/types/CommentSortType";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
-import { CommunityView } from "lemmy-js-client/dist/types/CommunityView";
-import { CustomEmojiView } from "lemmy-js-client/dist/types/CustomEmojiView";
-import { GetSiteMetadata } from "lemmy-js-client/dist/types/GetSiteMetadata";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { MyUserInfo } from "lemmy-js-client/dist/types/MyUserInfo";
-import { UploadImageResponse } from "lemmy-js-client/dist/types/others";
-import { Person } from "lemmy-js-client/dist/types/Person";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
-import { PostReportView } from "lemmy-js-client/dist/types/PostReportView";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
-import { PrivateMessageReportView } from "lemmy-js-client/dist/types/PrivateMessageReportView";
-import { PrivateMessageView } from "lemmy-js-client/dist/types/PrivateMessageView";
-import { RegistrationApplicationView } from "lemmy-js-client/dist/types/RegistrationApplicationView";
-import { Search } from "lemmy-js-client/dist/types/Search";
-import { SortType } from "lemmy-js-client/dist/types/SortType";
+import {
+  BlockCommunityResponse,
+  BlockPersonResponse,
+  Comment as CommentI,
+  CommentReportView,
+  CommentSortType,
+  CommentView,
+  CommunityModeratorView,
+  CommunityView,
+  CustomEmojiView,
+  GetSiteMetadata,
+  GetSiteResponse,
+  Language,
+  LemmyHttp,
+  LemmyWebsocket,
+  MyUserInfo,
+  Person,
+  PersonView,
+  PostReportView,
+  PostView,
+  PrivateMessageReportView,
+  PrivateMessageView,
+  RegistrationApplicationView,
+  Search,
+  SortType,
+  UploadImageResponse,
+} from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
 import markdown_it_emoji from "markdown-it-emoji/bare";

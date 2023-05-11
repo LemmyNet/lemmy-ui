@@ -1,6 +1,6 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { Person } from "lemmy-js-client/dist/types/Person";
+import { Person } from "lemmy-js-client";
 import { hostname, isCakeDay, relTags, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";

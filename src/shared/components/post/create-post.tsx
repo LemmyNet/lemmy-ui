@@ -1,12 +1,15 @@
 import { Component } from "inferno";
 import { Redirect } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { GetCommunity } from "lemmy-js-client/dist/types/GetCommunity";
-import { GetCommunityResponse } from "lemmy-js-client/dist/types/GetCommunityResponse";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
+import {
+  GetCommunity,
+  GetCommunityResponse,
+  GetSiteResponse,
+  PostView,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { InitialFetchRequest, PostFormParams } from "shared/interfaces";
 import { i18n } from "../../i18next";

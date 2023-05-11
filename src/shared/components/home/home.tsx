@@ -2,29 +2,32 @@ import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent, MouseEventHandler } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { AddAdminResponse } from "lemmy-js-client/dist/types/AddAdminResponse";
-import { BanPersonResponse } from "lemmy-js-client/dist/types/BanPersonResponse";
-import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
-import { CommentReportResponse } from "lemmy-js-client/dist/types/CommentReportResponse";
-import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { CommunityView } from "lemmy-js-client/dist/types/CommunityView";
-import { GetComments } from "lemmy-js-client/dist/types/GetComments";
-import { GetCommentsResponse } from "lemmy-js-client/dist/types/GetCommentsResponse";
-import { GetPosts } from "lemmy-js-client/dist/types/GetPosts";
-import { GetPostsResponse } from "lemmy-js-client/dist/types/GetPostsResponse";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { ListCommunities } from "lemmy-js-client/dist/types/ListCommunities";
-import { ListCommunitiesResponse } from "lemmy-js-client/dist/types/ListCommunitiesResponse";
-import { ListingType } from "lemmy-js-client/dist/types/ListingType";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PostReportResponse } from "lemmy-js-client/dist/types/PostReportResponse";
-import { PostResponse } from "lemmy-js-client/dist/types/PostResponse";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
-import { PurgeItemResponse } from "lemmy-js-client/dist/types/PurgeItemResponse";
-import { SiteResponse } from "lemmy-js-client/dist/types/SiteResponse";
-import { SortType } from "lemmy-js-client/dist/types/SortType";
+import {
+  AddAdminResponse,
+  BanPersonResponse,
+  BlockPersonResponse,
+  CommentReportResponse,
+  CommentResponse,
+  CommentView,
+  CommunityView,
+  GetComments,
+  GetCommentsResponse,
+  GetPosts,
+  GetPostsResponse,
+  GetSiteResponse,
+  ListCommunities,
+  ListCommunitiesResponse,
+  ListingType,
+  PostReportResponse,
+  PostResponse,
+  PostView,
+  PurgeItemResponse,
+  SiteResponse,
+  SortType,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import {

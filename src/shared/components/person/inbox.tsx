@@ -1,26 +1,29 @@
 import { Component, linkEvent } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
-import { CommentReplyResponse } from "lemmy-js-client/dist/types/CommentReplyResponse";
-import { CommentReplyView } from "lemmy-js-client/dist/types/CommentReplyView";
-import { CommentReportResponse } from "lemmy-js-client/dist/types/CommentReportResponse";
-import { CommentResponse } from "lemmy-js-client/dist/types/CommentResponse";
-import { CommentSortType } from "lemmy-js-client/dist/types/CommentSortType";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { GetPersonMentions } from "lemmy-js-client/dist/types/GetPersonMentions";
-import { GetPersonMentionsResponse } from "lemmy-js-client/dist/types/GetPersonMentionsResponse";
-import { GetPrivateMessages } from "lemmy-js-client/dist/types/GetPrivateMessages";
-import { GetReplies } from "lemmy-js-client/dist/types/GetReplies";
-import { GetRepliesResponse } from "lemmy-js-client/dist/types/GetRepliesResponse";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PersonMentionResponse } from "lemmy-js-client/dist/types/PersonMentionResponse";
-import { PersonMentionView } from "lemmy-js-client/dist/types/PersonMentionView";
-import { PostReportResponse } from "lemmy-js-client/dist/types/PostReportResponse";
-import { PrivateMessageReportResponse } from "lemmy-js-client/dist/types/PrivateMessageReportResponse";
-import { PrivateMessageResponse } from "lemmy-js-client/dist/types/PrivateMessageResponse";
-import { PrivateMessagesResponse } from "lemmy-js-client/dist/types/PrivateMessagesResponse";
-import { PrivateMessageView } from "lemmy-js-client/dist/types/PrivateMessageView";
+import {
+  BlockPersonResponse,
+  CommentReplyResponse,
+  CommentReplyView,
+  CommentReportResponse,
+  CommentResponse,
+  CommentSortType,
+  CommentView,
+  GetPersonMentions,
+  GetPersonMentionsResponse,
+  GetPrivateMessages,
+  GetReplies,
+  GetRepliesResponse,
+  GetSiteResponse,
+  PersonMentionResponse,
+  PersonMentionView,
+  PostReportResponse,
+  PrivateMessageReportResponse,
+  PrivateMessageResponse,
+  PrivateMessagesResponse,
+  PrivateMessageView,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";

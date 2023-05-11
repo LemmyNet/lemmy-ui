@@ -1,7 +1,9 @@
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { ApproveRegistrationApplication } from "lemmy-js-client/dist/types/ApproveRegistrationApplication";
-import { RegistrationApplicationView } from "lemmy-js-client/dist/types/RegistrationApplicationView";
+import {
+  ApproveRegistrationApplication,
+  RegistrationApplicationView,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import { mdToHtml, myAuth, wsClient } from "../../utils";

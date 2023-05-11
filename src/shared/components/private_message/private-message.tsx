@@ -1,9 +1,11 @@
 import { Component, linkEvent } from "inferno";
-import { CreatePrivateMessageReport } from "lemmy-js-client/dist/types/CreatePrivateMessageReport";
-import { DeletePrivateMessage } from "lemmy-js-client/dist/types/DeletePrivateMessage";
-import { MarkPrivateMessageAsRead } from "lemmy-js-client/dist/types/MarkPrivateMessageAsRead";
-import { Person } from "lemmy-js-client/dist/types/Person";
-import { PrivateMessageView } from "lemmy-js-client/dist/types/PrivateMessageView";
+import {
+  CreatePrivateMessageReport,
+  DeletePrivateMessage,
+  MarkPrivateMessageAsRead,
+  Person,
+  PrivateMessageView,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import { mdToHtml, myAuth, toast, wsClient } from "../../utils";

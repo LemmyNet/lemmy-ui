@@ -1,25 +1,27 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
-import { AddAdmin } from "lemmy-js-client/dist/types/AddAdmin";
-import { AddModToCommunity } from "lemmy-js-client/dist/types/AddModToCommunity";
-import { BanFromCommunity } from "lemmy-js-client/dist/types/BanFromCommunity";
-import { BanPerson } from "lemmy-js-client/dist/types/BanPerson";
-import { BlockPerson } from "lemmy-js-client/dist/types/BlockPerson";
-import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
-import { CreatePostLike } from "lemmy-js-client/dist/types/CreatePostLike";
-import { CreatePostReport } from "lemmy-js-client/dist/types/CreatePostReport";
-import { DeletePost } from "lemmy-js-client/dist/types/DeletePost";
-import { FeaturePost } from "lemmy-js-client/dist/types/FeaturePost";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { LockPost } from "lemmy-js-client/dist/types/LockPost";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
-import { PurgePerson } from "lemmy-js-client/dist/types/PurgePerson";
-import { PurgePost } from "lemmy-js-client/dist/types/PurgePost";
-import { RemovePost } from "lemmy-js-client/dist/types/RemovePost";
-import { SavePost } from "lemmy-js-client/dist/types/SavePost";
-import { TransferCommunity } from "lemmy-js-client/dist/types/TransferCommunity";
+import {
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanPerson,
+  BlockPerson,
+  CommunityModeratorView,
+  CreatePostLike,
+  CreatePostReport,
+  DeletePost,
+  FeaturePost,
+  Language,
+  LockPost,
+  PersonView,
+  PostView,
+  PurgePerson,
+  PurgePost,
+  RemovePost,
+  SavePost,
+  TransferCommunity,
+} from "lemmy-js-client";
 import { externalHost } from "../../env";
 import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType } from "../../interfaces";

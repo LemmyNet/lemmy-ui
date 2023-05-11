@@ -1,6 +1,4 @@
-import { LemmyHttp } from "lemmy-js-client";
-import { CommentView } from "lemmy-js-client/dist/types/CommentView";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { CommentView, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import type { ParsedQs } from "qs";
 
 /**

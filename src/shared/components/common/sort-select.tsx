@@ -1,5 +1,5 @@
 import { Component, linkEvent } from "inferno";
-import { SortType } from "lemmy-js-client/dist/types/SortType";
+import { SortType } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { randomStr, relTags, sortingHelpUrl } from "../../utils";
 import { Icon } from "./icon";

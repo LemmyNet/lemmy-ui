@@ -1,7 +1,6 @@
 import { Component } from "inferno";
 import { Redirect } from "inferno-router";
-import { CommunityView } from "lemmy-js-client/dist/types/CommunityView";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
+import { CommunityView, GetSiteResponse } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services/UserService";

@@ -1,7 +1,5 @@
 import { Component } from "inferno";
-import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
+import { CommunityModeratorView, Language, PersonView } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { CommentNode } from "./comment-node";
 

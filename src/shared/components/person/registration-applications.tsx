@@ -1,10 +1,13 @@
 import { Component, linkEvent } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { ListRegistrationApplications } from "lemmy-js-client/dist/types/ListRegistrationApplications";
-import { ListRegistrationApplicationsResponse } from "lemmy-js-client/dist/types/ListRegistrationApplicationsResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { RegistrationApplicationResponse } from "lemmy-js-client/dist/types/RegistrationApplicationResponse";
+import {
+  GetSiteResponse,
+  ListRegistrationApplications,
+  ListRegistrationApplicationsResponse,
+  RegistrationApplicationResponse,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";

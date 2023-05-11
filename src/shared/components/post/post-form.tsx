@@ -1,15 +1,18 @@
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { CreatePost } from "lemmy-js-client/dist/types/CreatePost";
-import { EditPost } from "lemmy-js-client/dist/types/EditPost";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PostResponse } from "lemmy-js-client/dist/types/PostResponse";
-import { PostView } from "lemmy-js-client/dist/types/PostView";
-import { Search } from "lemmy-js-client/dist/types/Search";
-import { SearchResponse } from "lemmy-js-client/dist/types/SearchResponse";
+import {
+  CreatePost,
+  EditPost,
+  Language,
+  PostResponse,
+  PostView,
+  Search,
+  SearchResponse,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";

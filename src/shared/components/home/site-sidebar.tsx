@@ -1,8 +1,6 @@
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
-import { Site } from "lemmy-js-client/dist/types/Site";
-import { SiteAggregates } from "lemmy-js-client/dist/types/SiteAggregates";
+import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { mdToHtml, numToSI } from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";

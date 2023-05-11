@@ -1,19 +1,22 @@
 import { Component, linkEvent } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { CommentReportResponse } from "lemmy-js-client/dist/types/CommentReportResponse";
-import { CommentReportView } from "lemmy-js-client/dist/types/CommentReportView";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { ListCommentReports } from "lemmy-js-client/dist/types/ListCommentReports";
-import { ListCommentReportsResponse } from "lemmy-js-client/dist/types/ListCommentReportsResponse";
-import { ListPostReports } from "lemmy-js-client/dist/types/ListPostReports";
-import { ListPostReportsResponse } from "lemmy-js-client/dist/types/ListPostReportsResponse";
-import { ListPrivateMessageReports } from "lemmy-js-client/dist/types/ListPrivateMessageReports";
-import { ListPrivateMessageReportsResponse } from "lemmy-js-client/dist/types/ListPrivateMessageReportsResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PostReportResponse } from "lemmy-js-client/dist/types/PostReportResponse";
-import { PostReportView } from "lemmy-js-client/dist/types/PostReportView";
-import { PrivateMessageReportResponse } from "lemmy-js-client/dist/types/PrivateMessageReportResponse";
-import { PrivateMessageReportView } from "lemmy-js-client/dist/types/PrivateMessageReportView";
+import {
+  CommentReportResponse,
+  CommentReportView,
+  GetSiteResponse,
+  ListCommentReports,
+  ListCommentReportsResponse,
+  ListPostReports,
+  ListPostReportsResponse,
+  ListPrivateMessageReports,
+  ListPrivateMessageReportsResponse,
+  PostReportResponse,
+  PostReportView,
+  PrivateMessageReportResponse,
+  PrivateMessageReportView,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";

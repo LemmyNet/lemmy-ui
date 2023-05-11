@@ -1,20 +1,23 @@
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
-import { wsJsonToRes, wsUserOp } from "lemmy-js-client";
-import { BlockCommunity } from "lemmy-js-client/dist/types/BlockCommunity";
-import { BlockCommunityResponse } from "lemmy-js-client/dist/types/BlockCommunityResponse";
-import { BlockPerson } from "lemmy-js-client/dist/types/BlockPerson";
-import { BlockPersonResponse } from "lemmy-js-client/dist/types/BlockPersonResponse";
-import { ChangePassword } from "lemmy-js-client/dist/types/ChangePassword";
-import { CommunityBlockView } from "lemmy-js-client/dist/types/CommunityBlockView";
-import { DeleteAccount } from "lemmy-js-client/dist/types/DeleteAccount";
-import { GetSiteResponse } from "lemmy-js-client/dist/types/GetSiteResponse";
-import { ListingType } from "lemmy-js-client/dist/types/ListingType";
-import { LoginResponse } from "lemmy-js-client/dist/types/LoginResponse";
-import { UserOperation } from "lemmy-js-client/dist/types/others";
-import { PersonBlockView } from "lemmy-js-client/dist/types/PersonBlockView";
-import { SaveUserSettings } from "lemmy-js-client/dist/types/SaveUserSettings";
-import { SortType } from "lemmy-js-client/dist/types/SortType";
+import {
+  BlockCommunity,
+  BlockCommunityResponse,
+  BlockPerson,
+  BlockPersonResponse,
+  ChangePassword,
+  CommunityBlockView,
+  DeleteAccount,
+  GetSiteResponse,
+  ListingType,
+  LoginResponse,
+  PersonBlockView,
+  SaveUserSettings,
+  SortType,
+  UserOperation,
+  wsJsonToRes,
+  wsUserOp,
+} from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";

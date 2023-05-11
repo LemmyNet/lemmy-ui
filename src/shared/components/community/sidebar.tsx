@@ -1,15 +1,17 @@
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
-import { AddModToCommunity } from "lemmy-js-client/dist/types/AddModToCommunity";
-import { BlockCommunity } from "lemmy-js-client/dist/types/BlockCommunity";
-import { CommunityModeratorView } from "lemmy-js-client/dist/types/CommunityModeratorView";
-import { CommunityView } from "lemmy-js-client/dist/types/CommunityView";
-import { DeleteCommunity } from "lemmy-js-client/dist/types/DeleteCommunity";
-import { FollowCommunity } from "lemmy-js-client/dist/types/FollowCommunity";
-import { Language } from "lemmy-js-client/dist/types/Language";
-import { PersonView } from "lemmy-js-client/dist/types/PersonView";
-import { PurgeCommunity } from "lemmy-js-client/dist/types/PurgeCommunity";
-import { RemoveCommunity } from "lemmy-js-client/dist/types/RemoveCommunity";
+import {
+  AddModToCommunity,
+  BlockCommunity,
+  CommunityModeratorView,
+  CommunityView,
+  DeleteCommunity,
+  FollowCommunity,
+  Language,
+  PersonView,
+  PurgeCommunity,
+  RemoveCommunity,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
