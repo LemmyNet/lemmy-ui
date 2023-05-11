@@ -28,6 +28,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  QueryParams,
   canMod,
   capitalizeFirstLetter,
   createCommentLikeRes,
@@ -46,7 +47,6 @@ import {
   mdToHtml,
   myAuth,
   numToSI,
-  QueryParams,
   relTags,
   restoreScrollPosition,
   routeSortTypeToEnum,

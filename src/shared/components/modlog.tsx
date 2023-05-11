@@ -21,11 +21,11 @@ import {
   ModBanView,
   ModFeaturePostView,
   ModLockPostView,
-  ModlogActionType,
   ModRemoveCommentView,
   ModRemoveCommunityView,
   ModRemovePostView,
   ModTransferCommunityView,
+  ModlogActionType,
   PersonSafe,
   UserOperation,
   wsJsonToRes,
@@ -37,9 +37,10 @@ import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
 import { WebSocketService } from "../services";
 import {
+  Choice,
+  QueryParams,
   amAdmin,
   amMod,
-  Choice,
   debounce,
   fetchLimit,
   fetchUsers,
@@ -51,7 +52,6 @@ import {
   isBrowser,
   myAuth,
   personToChoice,
-  QueryParams,
   setIsoData,
   toast,
   wsClient,
