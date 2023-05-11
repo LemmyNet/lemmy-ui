@@ -15,13 +15,13 @@ import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
+  QueryParams,
   getPageFromString,
   getQueryParams,
   getQueryString,
   isBrowser,
   myAuth,
   numToSI,
-  QueryParams,
   setIsoData,
   showLocal,
   toast,

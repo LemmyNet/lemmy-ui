@@ -18,9 +18,9 @@ import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  Choice,
   archiveTodayUrl,
   capitalizeFirstLetter,
-  Choice,
   communityToChoice,
   debounce,
   fetchCommunities,

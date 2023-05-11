@@ -16,6 +16,7 @@ import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
   Choice,
+  QueryParams,
   enableDownvotes,
   enableNsfw,
   getIdFromString,
@@ -23,7 +24,6 @@ import {
   getQueryString,
   isBrowser,
   myAuth,
-  QueryParams,
   setIsoData,
   toast,
   wsClient,
