@@ -992,8 +992,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     let auth = myAuth() ?? "TODO";
     i.setState(s => ((s.siteForm.auth = auth), s));
     if (i.props.siteRes.site_view.local_site.site_setup) {
-      console.log(i.state.siteForm.allowed_instances);
-      console.log(i.state.siteForm.blocked_instances);
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
     } else {
       let sForm = i.state.siteForm;
