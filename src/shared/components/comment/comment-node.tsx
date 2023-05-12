@@ -257,11 +257,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {i18n.t("bot_account").toLowerCase()}
                 </div>
               )}
-              {(cv.creator_banned_from_community || isBanned(cv.creator)) && (
-                <div className="badge badge-danger mr-2">
-                  {i18n.t("banned")}
-                </div>
-              )}
               {this.props.showCommunity && (
                 <>
                   <span className="mx-1">{i18n.t("to")}</span>
