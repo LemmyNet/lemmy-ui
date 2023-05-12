@@ -335,13 +335,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {i18n.t("bot_account").toLowerCase()}
             </span>
           )}
-          {(post_view.creator_banned_from_community ||
-            isBanned(post_view.creator)) && (
-            <span className="mx-1 badge badge-danger">{i18n.t("banned")}</span>
-          )}
-          {post_view.creator_blocked && (
-            <span className="mx-1 badge badge-danger">{"blocked"}</span>
-          )}
           {this.props.showCommunity && (
             <span>
               <span className="mx-1"> {i18n.t("to")} </span>
