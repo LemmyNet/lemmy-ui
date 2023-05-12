@@ -1603,3 +1603,9 @@ export function getQueryString<T extends Record<string, string | undefined>>(
       "?"
     );
 }
+
+export function check_auth() {
+  if (!UserService.Instance.myUserInfo) {
+    throw { status: 401, message: "Login required" };
+  }
+}

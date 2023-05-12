@@ -2,7 +2,7 @@ import express from "express";
 import fs from "fs";
 import { IncomingHttpHeaders } from "http";
 import { Helmet } from "inferno-helmet";
-import { matchPath, StaticRouter } from "inferno-router";
+import { StaticRouter, matchPath } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
@@ -141,7 +141,7 @@ server.get("/*", async (req, res) => {
 
     const routeData = await Promise.all(promises);
 
-    // Redirect to the 404 if there's an API error
+    // Handle API errors
     if (routeData[0] && routeData[0].error) {
       const error = routeData[0].error;
       console.error(error);
@@ -209,7 +209,7 @@ server.get("/*", async (req, res) => {
 
            <!-- Current theme and more -->
            ${helmet.link.toString()}
-           
+  
            </head>
 
            <body ${helmet.bodyAttributes.toString()}>
@@ -223,10 +223,17 @@ server.get("/*", async (req, res) => {
              <script defer src='/static/js/client.js'></script>
            </body>
          </html>
-`);
+  `);
   } catch (err) {
-    console.error(err);
-    return res.send(`404: ${removeAuthParam(err)}`);
+    var formatted: string;
+    if (err.status && err.message) {
+      res.status(err.status);
+      formatted = `${err.status}: ${err.message}`;
+    } else {
+      res.status(500);
+      formatted = err;
+    }
+    res.send(formatted);
   }
 });
 

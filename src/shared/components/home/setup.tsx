@@ -67,6 +67,9 @@ export class Setup extends Component<any, State> {
   }
 
   render() {
+    if (this.state.siteRes.site_view.local_site.site_setup) {
+      throw { status: 403, message: "Site is already setup" };
+    }
     return (
       <div className="container-lg">
         <Helmet title={this.documentTitle} />

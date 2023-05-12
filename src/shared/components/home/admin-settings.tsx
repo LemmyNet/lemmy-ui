@@ -17,6 +17,7 @@ import { InitialFetchRequest } from "../../interfaces";
 import { WebSocketService } from "../../services";
 import {
   capitalizeFirstLetter,
+  check_auth,
   isBrowser,
   myAuth,
   randomStr,
@@ -59,6 +60,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
+
+    check_auth();
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
