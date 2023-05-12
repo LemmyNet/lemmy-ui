@@ -22,7 +22,7 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
-import { externalHost } from "../../env";
+import { getExternalHost } from "../../env";
 import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
@@ -350,7 +350,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
         </li>
         <li className="list-inline-item">•</li>
-        {url && !(hostname(url) == externalHost) && (
+        {url && !(hostname(url) === getExternalHost()) && (
           <>
             <li className="list-inline-item">
               <a
