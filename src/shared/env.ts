@@ -2,49 +2,69 @@ import { isBrowser } from "./utils";
 
 const testHost = "0.0.0.0:8536";
 
-let internalHost =
-  (!isBrowser() && process.env.LEMMY_UI_LEMMY_INTERNAL_HOST) || testHost; // used for local dev
-export let externalHost: string;
-let host: string;
-let wsHost: string;
-let secure: string;
-
-if (isBrowser()) {
-  // browser
-  const lemmyConfig =
-    typeof window.lemmyConfig !== "undefined" ? window.lemmyConfig : {};
-
-  externalHost = `${window.location.hostname}${
-    ["1234", "1235"].includes(window.location.port)
-      ? ":8536"
-      : window.location.port == ""
-      ? ""
-      : `:${window.location.port}`
-  }`;
-
-  host = externalHost;
-  wsHost = lemmyConfig.wsHost || host;
-  secure = window.location.protocol == "https:" ? "s" : "";
-} else {
-  // server-side
-  externalHost = process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST || testHost;
-  host = internalHost;
-  wsHost = process.env.LEMMY_UI_LEMMY_WS_HOST || externalHost;
-  secure = process.env.LEMMY_UI_HTTPS == "true" ? "s" : "";
+function getInternalHost() {
+  return !isBrowser()
+    ? process.env.LEMMY_UI_LEMMY_INTERNAL_HOST ?? testHost
+    : testHost; // used for local dev
 }
 
-export const httpBaseInternal = `http://${host}`; // Don't use secure here
-export const httpBase = `http${secure}://${host}`;
-export const wsUriBase = `ws${secure}://${wsHost}`;
-export const wsUri = `${wsUriBase}/api/v3/ws`;
-export const isHttps = secure.endsWith("s");
+export function getExternalHost() {
+  return isBrowser()
+    ? `${window.location.hostname}${
+        ["1234", "1235"].includes(window.location.port)
+          ? ":8536"
+          : window.location.port == ""
+          ? ""
+          : `:${window.location.port}`
+      }`
+    : process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST || testHost;
+}
 
-console.log(`httpbase: ${httpBase}`);
-console.log(`wsUri: ${wsUri}`);
-console.log(`isHttps: ${isHttps}`);
+function getSecure() {
+  return (
+    isBrowser()
+      ? window.location.protocol.includes("https")
+      : process.env.LEMMY_UI_HTTPS === "true"
+  )
+    ? "s"
+    : "";
+}
+
+function getHost() {
+  return isBrowser() ? getExternalHost() : getInternalHost();
+}
+
+function getWsHost() {
+  return isBrowser()
+    ? window.lemmyConfig?.wsHost ?? getHost()
+    : process.env.LEMMY_UI_LEMMY_WS_HOST ?? getExternalHost();
+}
+
+function getBaseLocal(s = "") {
+  return `http${s}://${getHost()}`;
+}
+
+export function getHttpBaseInternal() {
+  return getBaseLocal(); // Don't use secure here
+}
+export function getHttpBase() {
+  return getBaseLocal(getSecure());
+}
+export function getWsUri() {
+  return `ws${getSecure()}://${getWsHost()}/api/v3/ws`;
+}
+export function isHttps() {
+  return getSecure() === "s";
+}
+
+console.log(`httpbase: ${getHttpBase()}`);
+console.log(`wsUri: ${getWsUri()}`);
+console.log(`isHttps: ${isHttps()}`);
 
 // This is for html tags, don't include port
-const httpExternalUri = `http${secure}://${externalHost.split(":")[0]}`;
 export function httpExternalPath(path: string) {
-  return `${httpExternalUri}${path}`;
+  return `http${getSecure()}://${getExternalHost().replace(
+    /:\d+/g,
+    ""
+  )}${path}`;
 }

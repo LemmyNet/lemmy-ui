@@ -1,23 +1,25 @@
 import express from "express";
-import fs from "fs";
+import { existsSync } from "fs";
+import { readdir, readFile } from "fs/promises";
 import { IncomingHttpHeaders } from "http";
 import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { GetSite, GetSiteResponse, LemmyHttp, Site } from "lemmy-js-client";
 import path from "path";
 import process from "process";
 import serialize from "serialize-javascript";
+import sharp from "sharp";
 import { App } from "../shared/components/app/app";
-import { httpBaseInternal } from "../shared/env";
+import { getHttpBase, getHttpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import { initializeSite } from "../shared/utils";
+import { favIconPngUrl, favIconUrl, initializeSite } from "../shared/utils";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -54,6 +56,11 @@ Disallow: /password_change
 Disallow: /search/
 `;
 
+server.get("/service-worker.js", async (_req, res) => {
+  res.setHeader("Content-Type", "application/javascript");
+  res.sendFile(path.resolve("./dist/service-worker.js"));
+});
+
 server.get("/robots.txt", async (_req, res) => {
   res.setHeader("content-type", "text/plain; charset=utf-8");
   res.send(robotstxt);
@@ -67,13 +74,13 @@ server.get("/css/themes/:name", async (req, res) => {
   }
 
   const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
-  if (fs.existsSync(customTheme)) {
+  if (existsSync(customTheme)) {
     res.sendFile(customTheme);
   } else {
     const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
 
     // If the theme doesn't exist, just send litely
-    if (fs.existsSync(internalTheme)) {
+    if (existsSync(internalTheme)) {
       res.sendFile(internalTheme);
     } else {
       res.sendFile(path.resolve("./dist/assets/css/themes/litely.css"));
@@ -81,11 +88,11 @@ server.get("/css/themes/:name", async (req, res) => {
   }
 });
 
-function buildThemeList(): string[] {
-  let themes = ["darkly", "darkly-red", "litely", "litely-red"];
-  if (fs.existsSync(extraThemesFolder)) {
-    let dirThemes = fs.readdirSync(extraThemesFolder);
-    let cssThemes = dirThemes
+async function buildThemeList(): Promise<string[]> {
+  const themes = ["darkly", "darkly-red", "litely", "litely-red"];
+  if (existsSync(extraThemesFolder)) {
+    const dirThemes = await readdir(extraThemesFolder);
+    const cssThemes = dirThemes
       .filter(d => d.endsWith(".css"))
       .map(d => d.replace(".css", ""));
     themes.push(...cssThemes);
@@ -95,7 +102,7 @@ function buildThemeList(): string[] {
 
 server.get("/css/themelist", async (_req, res) => {
   res.type("json");
-  res.send(JSON.stringify(buildThemeList()));
+  res.send(JSON.stringify(await buildThemeList()));
 });
 
 // server.use(cookieParser());
@@ -110,7 +117,7 @@ server.get("/*", async (req, res) => {
     const promises: Promise<any>[] = [];
 
     const headers = setForwardedHeaders(req.headers);
-    const client = new LemmyHttp(httpBaseInternal, headers);
+    const client = new LemmyHttp(getHttpBaseInternal(), headers);
 
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
@@ -180,6 +187,23 @@ server.get("/*", async (req, res) => {
 
     const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
 
+    const appleTouchIcon = site.site_view.site.icon
+      ? `data:image/png;base64,${sharp(
+          await fetchIconPng(site.site_view.site.icon)
+        )
+          .resize(180, 180)
+          .extend({
+            bottom: 20,
+            top: 20,
+            left: 20,
+            right: 20,
+            background: "#222222",
+          })
+          .png()
+          .toBuffer()
+          .then(buf => buf.toString("base64"))}`
+      : favIconPngUrl;
+
     res.send(`
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
@@ -200,9 +224,19 @@ server.get("/*", async (req, res) => {
            <meta name="Description" content="Lemmy">
            <meta charset="utf-8">
            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+           <link
+              id="favicon"
+              rel="shortcut icon"
+              type="image/x-icon"
+              href=${site.site_view.site.icon ?? favIconUrl}
+            />
 
            <!-- Web app manifest -->
-           <link rel="manifest" href="/static/assets/manifest.webmanifest">
+           <link rel="manifest" href="data:application/manifest+json;base64,${await generateManifestBase64(
+             site.site_view.site
+           )}">
+           <link rel="apple-touch-icon" href=${appleTouchIcon} />
+           <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
 
            <!-- Styles -->
            <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
@@ -266,4 +300,64 @@ function removeParam(url: string, parameter: string): string {
   return url
     .replace(new RegExp("[?&]" + parameter + "=[^&#]*(#.*)?$"), "$1")
     .replace(new RegExp("([?&])" + parameter + "=[^&]*&"), "$1");
+}
+
+const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+const defaultLogoPathDirectory = path.join(
+  process.cwd(),
+  "dist",
+  "assets",
+  "icons"
+);
+
+export async function generateManifestBase64(site: Site) {
+  const url = (
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:1236/"
+      : getHttpBase()
+  ).replace(/\/$/g, "");
+  const icon = site.icon ? await fetchIconPng(site.icon) : null;
+
+  const manifest = {
+    name: site.name,
+    description: site.description ?? "A link aggregator for the fediverse",
+    start_url: url,
+    scope: url,
+    display: "standalone",
+    id: "/",
+    background_color: "#222222",
+    theme_color: "#222222",
+    icons: await Promise.all(
+      iconSizes.map(async size => {
+        let src = await readFile(
+          path.join(defaultLogoPathDirectory, `icon-${size}x${size}.png`)
+        ).then(buf => buf.toString("base64"));
+
+        if (icon) {
+          src = await sharp(icon)
+            .resize(size, size)
+            .png()
+            .toBuffer()
+            .then(buf => buf.toString("base64"));
+        }
+
+        return {
+          sizes: `${size}x${size}`,
+          type: "image/png",
+          src: `data:image/png;base64,${src}`,
+          purpose: "any maskable",
+        };
+      })
+    ),
+  };
+
+  return Buffer.from(JSON.stringify(manifest)).toString("base64");
+}
+
+async function fetchIconPng(iconUrl: string) {
+  return await fetch(
+    iconUrl.replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
+  )
+    .then(res => res.blob())
+    .then(blob => blob.arrayBuffer());
 }

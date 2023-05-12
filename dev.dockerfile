@@ -3,9 +3,13 @@ RUN apk update && apk add curl yarn python3 build-base gcc wget git --no-cache
 
 WORKDIR /usr/src/app
 
+ENV npm_config_target_arch=x64
+ENV npm_config_target_platform=linux
+ENV npm_config_target_libc=musl
+
 # Cache deps
 COPY package.json yarn.lock ./
-RUN yarn install --ignore-scripts --prefer-offline --pure-lockfile
+RUN yarn --prefer-offline --pure-lockfile
 
 # Build
 COPY generate_translations.js \
@@ -20,7 +24,7 @@ COPY src src
 # Set UI version 
 RUN echo "export const VERSION = 'dev';" > "src/shared/version.ts"
 
-RUN yarn install --ignore-scripts --prefer-offline
+RUN yarn --prefer-offline
 RUN yarn build:dev
 
 FROM node:alpine as runner
