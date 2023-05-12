@@ -944,15 +944,15 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             {selectedInstances.map(instance => (
               <li
                 key={instance}
-                className="my-1 row w-100 w-md-75 d-flex align-items-center"
+                className="my-1 w-100 w-md-75 d-flex align-items-center justify-content-between"
               >
-                <label className="d-block m-0 col-9 " htmlFor={instance}>
+                <label className="d-block m-0 w-100 " htmlFor={instance}>
                   <strong>{instance}</strong>
                 </label>
                 <button
                   id={instance}
                   type="button"
-                  className="btn btn-sm col-3 bg-danger"
+                  className="btn btn-sm bg-danger"
                   onClick={() => this.handleRemoveInstance(key, instance)}
                 >
                   <Icon icon="x" classes="icon-inline text-light m-auto" />
