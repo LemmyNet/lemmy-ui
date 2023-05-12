@@ -1,4 +1,9 @@
-import { Component, InfernoMouseEvent, linkEvent } from "inferno";
+import {
+  Component,
+  InfernoKeyboardEvent,
+  InfernoMouseEvent,
+  linkEvent,
+} from "inferno";
 import { Prompt } from "inferno-router";
 import {
   CreateSite,
@@ -15,7 +20,7 @@ import {
   myAuth,
   wsClient,
 } from "../../utils";
-import { Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
@@ -31,7 +36,13 @@ interface SiteFormState {
   siteForm: EditSite;
   loading: boolean;
   themeList?: string[];
+  instance_select: {
+    allowed_instances: string;
+    blocked_instances: string;
+  };
 }
+
+type InstanceKey = "allowed_instances" | "blocked_instances";
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   state: SiteFormState = {
@@ -39,6 +50,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       auth: "TODO",
     },
     loading: false,
+    instance_select: {
+      allowed_instances: "",
+      blocked_instances: "",
+    },
   };
 
   constructor(props: any, context: any) {
@@ -554,44 +569,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           {this.state.siteForm.federation_enabled && (
             <>
               <div className="form-group row">
-                <label
-                  className="col-12 col-form-label"
-                  htmlFor="create-site-allowed-instances"
-                >
-                  {i18n.t("allowed_instances")}
-                </label>
-                <div className="col-12">
-                  <input
-                    type="text"
-                    placeholder="instance1.tld,instance2.tld"
-                    id="create-site-allowed-instances"
-                    className="form-control"
-                    value={this.instancesToString(
-                      this.state.siteForm.allowed_instances
-                    )}
-                    onInput={linkEvent(this, this.handleSiteAllowedInstances)}
-                  />
-                </div>
-              </div>
-              <div className="form-group row">
-                <label
-                  className="col-12 col-form-label"
-                  htmlFor="create-site-blocked-instances"
-                >
-                  {i18n.t("blocked_instances")}
-                </label>
-                <div className="col-12">
-                  <input
-                    type="text"
-                    placeholder="instance1.tld,instance2.tld"
-                    id="create-site-blocked-instances"
-                    className="form-control"
-                    value={this.instancesToString(
-                      this.state.siteForm.blocked_instances
-                    )}
-                    onInput={linkEvent(this, this.handleSiteBlockedInstances)}
-                  />
-                </div>
+                {this.federatedInstanceSelect("allowed_instances")}
+                {this.federatedInstanceSelect("blocked_instances")}
               </div>
               <div className="form-group row">
                 <div className="col-12">
@@ -930,12 +909,91 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     );
   }
 
+  federatedInstanceSelect(key: InstanceKey) {
+    const id = `create_site_${key}`;
+    const value = this.state.instance_select[key];
+    const selectedInstances = this.state.siteForm[key];
+    return (
+      <div className="col-12 col-md-6">
+        <label className="col-form-label" htmlFor={id}>
+          {i18n.t(key)}
+        </label>
+        <div className="d-flex justify-content-between align-items-center">
+          <input
+            type="text"
+            placeholder="instance.tld"
+            id={id}
+            className="form-control"
+            value={value}
+            onInput={event => this.handleInstanceTextChange(key, event)}
+            onKeyUp={event => this.handleInstanceEnterPress(key, event)}
+          />
+          <button
+            type="button"
+            className="btn btn-sm bg-success ml-2"
+            onClick={() => this.handleAddInstance(key)}
+            tabIndex={
+              -1 /* Making this untabble because handling enter key in text input makes keyboard support for this button redundant */
+            }
+          >
+            <Icon icon="add" classes="icon-inline text-light m-auto" />
+          </button>
+        </div>
+        {selectedInstances && selectedInstances.length > 0 && (
+          <ul className="mt-3 list-unstyled w-100 d-flex flex-column justify-content-around align-items-center">
+            {selectedInstances.map(instance => (
+              <li
+                key={instance}
+                className="my-1 row w-100 w-md-75 d-flex align-items-center"
+              >
+                <label className="d-block m-0 col-9 " htmlFor={instance}>
+                  <strong>{instance}</strong>
+                </label>
+                <button
+                  id={instance}
+                  type="button"
+                  className="btn btn-sm col-3 bg-danger"
+                  onClick={() => this.handleRemoveInstance(key, instance)}
+                >
+                  <Icon icon="x" classes="icon-inline text-light m-auto" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  }
+
+  handleInstanceTextChange(type: InstanceKey, event: any) {
+    this.setState(s => ({
+      ...s,
+      instance_select: {
+        ...s.instance_select,
+        [type]: event.target.value,
+      },
+    }));
+  }
+
+  handleInstanceEnterPress(
+    key: InstanceKey,
+    event: InfernoKeyboardEvent<HTMLInputElement>
+  ) {
+    if (event.code.toLowerCase() === "enter") {
+      event.preventDefault();
+
+      this.handleAddInstance(key);
+    }
+  }
+
   handleCreateSiteSubmit(i: SiteForm, event: any) {
     event.preventDefault();
     i.setState({ loading: true });
     let auth = myAuth() ?? "TODO";
     i.setState(s => ((s.siteForm.auth = auth), s));
     if (i.props.siteRes.site_view.local_site.site_setup) {
+      console.log(i.state.siteForm.allowed_instances);
+      console.log(i.state.siteForm.blocked_instances);
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
     } else {
       let sForm = i.state.siteForm;
@@ -986,18 +1044,43 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
-  instancesToString(opt?: string[]): string {
-    return opt ? opt.join(",") : "";
+  handleAddInstance(key: InstanceKey) {
+    const instance = this.state.instance_select[key];
+    if (!this.state.siteForm[key]?.includes(instance)) {
+      this.setState(s => ({
+        ...s,
+        siteForm: {
+          ...s.siteForm,
+          [key]: [...(s.siteForm[key] ?? []), instance],
+        },
+        instance_select: {
+          ...s.instance_select,
+          [key]: "",
+        },
+      }));
+
+      const oppositeKey: InstanceKey =
+        key === "allowed_instances" ? "blocked_instances" : "allowed_instances";
+      if (this.state.siteForm[oppositeKey]?.includes(instance)) {
+        this.setState(s => ({
+          ...s,
+          siteForm: {
+            ...s.siteForm,
+            [oppositeKey]: s.siteForm[oppositeKey]?.filter(i => i !== instance),
+          },
+        }));
+      }
+    }
   }
 
-  handleSiteAllowedInstances(i: SiteForm, event: any) {
-    let list = splitToList(event.target.value);
-    i.setState(s => ((s.siteForm.allowed_instances = list), s));
-  }
-
-  handleSiteBlockedInstances(i: SiteForm, event: any) {
-    let list = splitToList(event.target.value);
-    i.setState(s => ((s.siteForm.blocked_instances = list), s));
+  handleRemoveInstance(key: InstanceKey, instance: string) {
+    this.setState(s => ({
+      ...s,
+      siteForm: {
+        ...s.siteForm,
+        [key]: s.siteForm[key]?.filter(i => i !== instance),
+      },
+    }));
   }
 
   handleSiteNameChange(i: SiteForm, event: any) {
