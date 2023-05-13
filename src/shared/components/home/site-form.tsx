@@ -1043,7 +1043,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleAddInstance(key: InstanceKey) {
-    const instance = this.state.instance_select[key];
+    const instance = this.state.instance_select[key].trim();
     if (!this.state.siteForm[key]?.includes(instance)) {
       this.setState(s => ({
         ...s,
@@ -1060,13 +1060,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       const oppositeKey: InstanceKey =
         key === "allowed_instances" ? "blocked_instances" : "allowed_instances";
       if (this.state.siteForm[oppositeKey]?.includes(instance)) {
-        this.setState(s => ({
-          ...s,
-          siteForm: {
-            ...s.siteForm,
-            [oppositeKey]: s.siteForm[oppositeKey]?.filter(i => i !== instance),
-          },
-        }));
+        this.handleRemoveInstance(oppositeKey, instance);
       }
     }
   }
