@@ -48,7 +48,15 @@ export class UserService {
     this.myUserInfo = undefined;
     IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
     document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
-    location.reload();
+    if (
+      /create_.*|inbox|settings|setup|admin|reports|registration_applications/g.test(
+        location.pathname
+      )
+    ) {
+      location.replace("/");
+    } else {
+      location.reload();
+    }
   }
 
   public auth(throwErr = true): string | undefined {
