@@ -105,6 +105,11 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
         aria-label="action"
         multiple={this.props.multiple}
       >
+        {!this.props.multiple && (
+          <option selected disabled hidden>
+            {i18n.t("language_select_placeholder")}
+          </option>
+        )}
         {filteredLangs.map(l => (
           <option
             key={l.id}

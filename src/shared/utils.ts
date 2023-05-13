@@ -1358,20 +1358,6 @@ export function postToCommentSortType(sort: SortType): CommentSortType {
   }
 }
 
-export function myFirstDiscussionLanguageId(
-  allLanguages: Language[],
-  siteLanguages: number[],
-  myUserInfo = UserService.Instance.myUserInfo
-): number | undefined {
-  return selectableLanguages(
-    allLanguages,
-    siteLanguages,
-    false,
-    false,
-    myUserInfo
-  ).at(0)?.id;
-}
-
 export function canCreateCommunity(
   siteRes: GetSiteResponse,
   myUserInfo = UserService.Instance.myUserInfo
