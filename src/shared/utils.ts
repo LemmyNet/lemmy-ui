@@ -105,6 +105,12 @@ export type ThemeColor =
   | "gray"
   | "gray-dark";
 
+export interface ErrorPageData {
+  type: "error";
+  error?: Error;
+  adminMatrixIds?: string[];
+}
+
 let customEmojis: EmojiMartCategory[] = [];
 export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
   string,

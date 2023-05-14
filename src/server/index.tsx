@@ -19,7 +19,14 @@ import {
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import { favIconPngUrl, favIconUrl, initializeSite } from "../shared/utils";
+import {
+  ErrorPageData,
+  favIconPngUrl,
+  favIconUrl,
+  initializeSite,
+  isAuthPath,
+} from "../shared/utils";
+import { VERSION } from "../shared/version";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -109,7 +116,6 @@ server.get("/css/themelist", async (_req, res) => {
 server.get("/*", async (req, res) => {
   try {
     const activeRoute = routes.find(route => matchPath(req.path, route));
-    const context = {} as any;
     let auth: string | undefined = IsomorphicCookie.load("jwt", req);
 
     const getSiteForm: GetSite = { auth };
@@ -118,6 +124,8 @@ server.get("/*", async (req, res) => {
 
     const headers = setForwardedHeaders(req.headers);
     const client = new LemmyHttp(getHttpBaseInternal(), headers);
+
+    const { path, url, query } = req;
 
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
@@ -131,14 +139,18 @@ server.get("/*", async (req, res) => {
       auth = undefined;
       try_site = await client.getSite(getSiteForm);
     }
+
+    if (!auth && isAuthPath(path)) {
+      res.redirect("/");
+    }
     const site: GetSiteResponse = try_site;
     initializeSite(site);
 
     const initialFetchReq: InitialFetchRequest = {
       client,
       auth,
-      path: req.path,
-      query: req.query,
+      path,
+      query,
       site,
     };
 
@@ -146,7 +158,7 @@ server.get("/*", async (req, res) => {
       promises.push(...activeRoute.fetchInitialData(initialFetchReq));
     }
 
-    const routeData = await Promise.all(promises);
+    let routeData = await Promise.all(promises);
 
     // Redirect to the 404 if there's an API error
     if (routeData[0] && routeData[0].error) {
@@ -155,24 +167,36 @@ server.get("/*", async (req, res) => {
       if (error === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        return res.send(`404: ${removeAuthParam(error)}`);
+        const errorPageData: ErrorPageData = { type: "error" };
+
+        // Exact error should only be seen in a development environment. Users
+        // in production will get a more generic message.
+        if (VERSION === "dev") {
+          errorPageData.error = error;
+        }
+
+        const adminMatrixIds = site.admins
+          .map(({ person: { matrix_user_id } }) => matrix_user_id)
+          .filter(id => id) as string[];
+        if (adminMatrixIds.length > 0) {
+          errorPageData.adminMatrixIds = adminMatrixIds;
+        }
+
+        routeData = [errorPageData];
       }
     }
 
     const isoData: IsoData = {
-      path: req.path,
+      path,
       site_res: site,
       routeData,
     };
 
     const wrapper = (
-      <StaticRouter location={req.url} context={isoData}>
+      <StaticRouter location={url} context={isoData}>
         <App />
       </StaticRouter>
     );
-    if (context.url) {
-      return res.redirect(context.url);
-    }
 
     const eruda = (
       <>
@@ -260,7 +284,8 @@ server.get("/*", async (req, res) => {
 `);
   } catch (err) {
     console.error(err);
-    return res.send(`404: ${removeAuthParam(err)}`);
+    res.statusCode = 500;
+    return res.send(VERSION === "dev" ? err.message : "Server error");
   }
 });
 
@@ -291,16 +316,6 @@ process.on("SIGINT", () => {
   console.info("Interrupted");
   process.exit(0);
 });
-
-function removeAuthParam(err: any): string {
-  return removeParam(err.toString(), "auth");
-}
-
-function removeParam(url: string, parameter: string): string {
-  return url
-    .replace(new RegExp("[?&]" + parameter + "=[^&#]*(#.*)?$"), "$1")
-    .replace(new RegExp("([?&])" + parameter + "=[^&]*&"), "$1");
-}
 
 const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
 const defaultLogoPathDirectory = path.join(
