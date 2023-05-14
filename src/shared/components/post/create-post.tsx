@@ -1,5 +1,4 @@
 import { Component } from "inferno";
-import { Redirect } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   GetCommunity,
@@ -13,7 +12,7 @@ import {
 import { Subscription } from "rxjs";
 import { InitialFetchRequest, PostFormParams } from "shared/interfaces";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
+import { WebSocketService } from "../../services";
 import {
   Choice,
   QueryParams,
@@ -145,7 +144,6 @@ export class CreatePost extends Component<
 
     return (
       <div className="container-lg">
-        {!UserService.Instance.myUserInfo && <Redirect to="/login" />}
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

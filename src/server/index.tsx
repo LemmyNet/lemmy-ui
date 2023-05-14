@@ -141,7 +141,7 @@ server.get("/*", async (req, res) => {
     }
 
     if (!auth && isAuthPath(path)) {
-      res.redirect("/");
+      res.redirect("/login");
       return;
     }
 

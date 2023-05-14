@@ -96,11 +96,6 @@ export class Reports extends Component<any, ReportsState> {
 
     this.handlePageChange = this.handlePageChange.bind(this);
 
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
-
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 

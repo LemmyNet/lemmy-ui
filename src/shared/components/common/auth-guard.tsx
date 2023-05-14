@@ -4,7 +4,7 @@ import { UserService } from "../../services";
 
 function AuthGuard(props: { children?: InfernoNode }) {
   if (!UserService.Instance.myUserInfo) {
-    return <Redirect to="/" />;
+    return <Redirect to="/login" />;
   } else {
     return <>{props.children}</>;
   }
