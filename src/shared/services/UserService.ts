@@ -5,7 +5,7 @@ import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { BehaviorSubject } from "rxjs";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";
-import { isBrowser, toast } from "../utils";
+import { isAuthPath, isBrowser, toast } from "../utils";
 
 interface Claims {
   sub: number;
@@ -48,11 +48,7 @@ export class UserService {
     this.myUserInfo = undefined;
     IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
     document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
-    if (
-      /create_.*|inbox|settings|setup|admin|reports|registration_applications/g.test(
-        location.pathname
-      )
-    ) {
+    if (isAuthPath(location.pathname)) {
       location.replace("/");
     } else {
       location.reload();
