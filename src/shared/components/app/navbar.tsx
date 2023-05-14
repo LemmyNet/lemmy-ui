@@ -35,7 +35,7 @@ import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 
 interface NavbarProps {
-  siteRes: GetSiteResponse;
+  siteRes?: GetSiteResponse;
 }
 
 interface NavbarState {
@@ -119,7 +119,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
-    let siteView = this.props.siteRes.site_view;
+    let siteView = this.props.siteRes?.site_view;
     let person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
       <nav className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3">
@@ -127,13 +127,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           <NavLink
             to="/"
             onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
-            title={siteView.site.description ?? siteView.site.name}
+            title={siteView?.site.description ?? siteView?.site.name ?? "Lemmy"}
             className="d-flex align-items-center navbar-brand mr-md-3"
           >
-            {siteView.site.icon && showAvatars() && (
+            {siteView?.site.icon && showAvatars() && (
               <PictrsImage src={siteView.site.icon} icon />
             )}
-            {siteView.site.name}
+            {siteView?.site.name ?? "Lemmy"}
           </NavLink>
           {UserService.Instance.myUserInfo && (
             <>
@@ -245,7 +245,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {i18n.t("create_post")}
                 </NavLink>
               </li>
-              {canCreateCommunity(this.props.siteRes) && (
+              {this.props.siteRes && canCreateCommunity(this.props.siteRes) && (
                 <li className="nav-item">
                   <NavLink
                     to="/create_community"

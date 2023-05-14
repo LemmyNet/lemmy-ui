@@ -16,7 +16,7 @@ import { getHttpBase, getHttpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
-  IsoData,
+  IsoDataOptionalSite,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
 import {
@@ -78,6 +78,7 @@ server.get("/css/themes/:name", async (req, res) => {
   res.contentType("text/css");
   const theme = req.params.name;
   if (!theme.endsWith(".css")) {
+    res.statusCode = 400;
     res.send("Theme must be a css file");
   }
 
@@ -121,8 +122,6 @@ server.get("/*", async (req, res) => {
 
     const getSiteForm: GetSite = { auth };
 
-    const promises: Promise<any>[] = [];
-
     const headers = setForwardedHeaders(req.headers);
     const client = new LemmyHttp(getHttpBaseInternal(), headers);
 
@@ -131,38 +130,45 @@ server.get("/*", async (req, res) => {
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
-    let try_site: any = await client.getSite(getSiteForm);
-    if (try_site.error == "not_logged_in") {
-      console.error(
-        "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
-      );
-      getSiteForm.auth = undefined;
-      auth = undefined;
-      try_site = await client.getSite(getSiteForm);
+    let site: GetSiteResponse | undefined = undefined;
+    let routeData: any[] = [];
+    try {
+      let try_site: any = await client.getSite(getSiteForm);
+      if (try_site.error == "not_logged_in") {
+        console.error(
+          "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
+        );
+        getSiteForm.auth = undefined;
+        auth = undefined;
+        try_site = await client.getSite(getSiteForm);
+      }
+
+      if (!auth && isAuthPath(path)) {
+        res.redirect("/login");
+        return;
+      }
+
+      site = try_site;
+      initializeSite(site);
+
+      if (site) {
+        const initialFetchReq: InitialFetchRequest = {
+          client,
+          auth,
+          path,
+          query,
+          site,
+        };
+
+        if (activeRoute?.fetchInitialData) {
+          routeData = await Promise.all([
+            ...activeRoute.fetchInitialData(initialFetchReq),
+          ]);
+        }
+      }
+    } catch (error) {
+      routeData = [getErrorRouteData(error)];
     }
-
-    if (!auth && isAuthPath(path)) {
-      res.redirect("/login");
-      return;
-    }
-
-    const site: GetSiteResponse = try_site;
-    initializeSite(site);
-
-    const initialFetchReq: InitialFetchRequest = {
-      client,
-      auth,
-      path,
-      query,
-      site,
-    };
-
-    if (activeRoute?.fetchInitialData) {
-      promises.push(...activeRoute.fetchInitialData(initialFetchReq));
-    }
-
-    let routeData = await Promise.all(promises);
-    // let routeData = [{ error: "I am an error, hear me roar!" } as any];
 
     // Redirect to the 404 if there's an API error
     if (routeData[0] && routeData[0].error) {
@@ -171,28 +177,14 @@ server.get("/*", async (req, res) => {
       if (error === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        const errorPageData: ErrorPageData = { type: "error" };
-
-        // Exact error should only be seen in a development environment. Users
-        // in production will get a more generic message.
-        if (NODE_ENV === "development") {
-          errorPageData.error = error;
-        }
-
-        const adminMatrixIds = site.admins
-          .map(({ person: { matrix_user_id } }) => matrix_user_id)
-          .filter(id => id) as string[];
-        if (adminMatrixIds.length > 0) {
-          errorPageData.adminMatrixIds = adminMatrixIds;
-        }
-
-        routeData = [errorPageData];
+        routeData = [getErrorRouteData(error, site)];
       }
     }
 
+    console.log("Route Data");
     console.log(routeData);
 
-    const isoData: IsoData = {
+    const isoData: IsoDataOptionalSite = {
       path,
       site_res: site,
       routeData,
@@ -204,91 +196,11 @@ server.get("/*", async (req, res) => {
       </StaticRouter>
     );
 
-    const eruda = (
-      <>
-        <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-        <script>eruda.init();</script>
-      </>
-    );
-
-    const erudaStr = process.env["LEMMY_UI_DEBUG"] ? renderToString(eruda) : "";
     const root = renderToString(wrapper);
-    const helmet = Helmet.renderStatic();
 
-    const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
-
-    const appleTouchIcon = site.site_view.site.icon
-      ? `data:image/png;base64,${sharp(
-          await fetchIconPng(site.site_view.site.icon)
-        )
-          .resize(180, 180)
-          .extend({
-            bottom: 20,
-            top: 20,
-            left: 20,
-            right: 20,
-            background: "#222222",
-          })
-          .png()
-          .toBuffer()
-          .then(buf => buf.toString("base64"))}`
-      : favIconPngUrl;
-
-    res.send(`
-           <!DOCTYPE html>
-           <html ${helmet.htmlAttributes.toString()} lang="en">
-           <head>
-           <script>window.isoData = ${JSON.stringify(isoData)}</script>
-           <script>window.lemmyConfig = ${serialize(config)}</script>
-
-           <!-- A remote debugging utility for mobile -->
-           ${erudaStr}
-
-           <!-- Custom injected script -->
-           ${customHtmlHeader}
-
-           ${helmet.title.toString()}
-           ${helmet.meta.toString()}
-
-           <!-- Required meta tags -->
-           <meta name="Description" content="Lemmy">
-           <meta charset="utf-8">
-           <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-           <link
-              id="favicon"
-              rel="shortcut icon"
-              type="image/x-icon"
-              href=${site.site_view.site.icon ?? favIconUrl}
-            />
-
-           <!-- Web app manifest -->
-           <link rel="manifest" href="data:application/manifest+json;base64,${await generateManifestBase64(
-             site.site_view.site
-           )}">
-           <link rel="apple-touch-icon" href=${appleTouchIcon} />
-           <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
-
-           <!-- Styles -->
-           <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
-
-           <!-- Current theme and more -->
-           ${helmet.link.toString()}
-           
-           </head>
-
-           <body ${helmet.bodyAttributes.toString()}>
-             <noscript>
-               <div class="alert alert-danger rounded-0" role="alert">
-                 <b>Javascript is disabled. Actions will not work.</b>
-               </div>
-             </noscript>
-
-             <div id='root'>${root}</div>
-             <script defer src='/static/js/client.js'></script>
-           </body>
-         </html>
-`);
+    res.send(await createSsrHtml(root, isoData));
   } catch (err) {
+    // If an error is caught here, the error page couldn't even be rendered
     console.error(err);
     res.statusCode = 500;
     return res.send(NODE_ENV === "development" ? err.message : "Server error");
@@ -381,4 +293,117 @@ async function fetchIconPng(iconUrl: string) {
   )
     .then(res => res.blob())
     .then(blob => blob.arrayBuffer());
+}
+
+function getErrorRouteData(error: string, site?: GetSiteResponse) {
+  const errorPageData: ErrorPageData = { type: "error" };
+
+  // Exact error should only be seen in a development environment. Users
+  // in production will get a more generic message.
+  if (NODE_ENV === "development") {
+    errorPageData.error = error;
+  }
+
+  const adminMatrixIds = site?.admins
+    .map(({ person: { matrix_user_id } }) => matrix_user_id)
+    .filter(id => id) as string[] | undefined;
+  if (adminMatrixIds && adminMatrixIds.length > 0) {
+    errorPageData.adminMatrixIds = adminMatrixIds;
+  }
+
+  return [errorPageData];
+}
+
+async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
+  const site = isoData.site_res;
+  const appleTouchIcon = site?.site_view.site.icon
+    ? `data:image/png;base64,${sharp(
+        await fetchIconPng(site.site_view.site.icon)
+      )
+        .resize(180, 180)
+        .extend({
+          bottom: 20,
+          top: 20,
+          left: 20,
+          right: 20,
+          background: "#222222",
+        })
+        .png()
+        .toBuffer()
+        .then(buf => buf.toString("base64"))}`
+    : favIconPngUrl;
+
+  const eruda = (
+    <>
+      <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+      <script>eruda.init();</script>
+    </>
+  );
+
+  const erudaStr = process.env["LEMMY_UI_DEBUG"] ? renderToString(eruda) : "";
+
+  const helmet = Helmet.renderStatic();
+
+  const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
+
+  return `
+  <!DOCTYPE html>
+  <html ${helmet.htmlAttributes.toString()} lang="en">
+  <head>
+  <script>window.isoData = ${JSON.stringify(isoData)}</script>
+  <script>window.lemmyConfig = ${serialize(config)}</script>
+
+  <!-- A remote debugging utility for mobile -->
+  ${erudaStr}
+
+  <!-- Custom injected script -->
+  ${customHtmlHeader}
+
+  ${helmet.title.toString()}
+  ${helmet.meta.toString()}
+
+  <!-- Required meta tags -->
+  <meta name="Description" content="Lemmy">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link
+     id="favicon"
+     rel="shortcut icon"
+     type="image/x-icon"
+     href=${site?.site_view.site.icon ?? favIconUrl}
+   />
+
+  <!-- Web app manifest -->
+  ${
+    site &&
+    `<link
+        rel="manifest"
+        href={${`data:application/manifest+json;base64,${await generateManifestBase64(
+          site.site_view.site
+        )}`}}
+      />`
+  }
+  <link rel="apple-touch-icon" href=${appleTouchIcon} />
+  <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
+
+  <!-- Styles -->
+  <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
+
+  <!-- Current theme and more -->
+  ${helmet.link.toString()}
+  
+  </head>
+
+  <body ${helmet.bodyAttributes.toString()}>
+    <noscript>
+      <div class="alert alert-danger rounded-0" role="alert">
+        <b>Javascript is disabled. Actions will not work.</b>
+      </div>
+    </noscript>
+
+    <div id='root'>${root}</div>
+    <script defer src='/static/js/client.js'></script>
+  </body>
+</html>
+`;
 }

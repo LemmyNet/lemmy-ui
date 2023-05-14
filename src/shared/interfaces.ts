@@ -10,6 +10,9 @@ export interface IsoData {
   site_res: GetSiteResponse;
 }
 
+export type IsoDataOptionalSite = Partial<IsoData> &
+  Pick<IsoData, Exclude<keyof IsoData, "site_res">>;
+
 export interface ILemmyConfig {
   wsHost?: string;
 }

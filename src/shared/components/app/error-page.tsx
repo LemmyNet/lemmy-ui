@@ -1,9 +1,10 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
+import { IsoDataOptionalSite } from "shared/interfaces";
 import { ErrorPageData, setIsoData } from "../../utils";
 
 export class ErrorPage extends Component<any, any> {
-  private isoData = setIsoData(this.context);
+  private isoData: IsoDataOptionalSite = setIsoData(this.context);
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -28,8 +29,8 @@ export class ErrorPage extends Component<any, any> {
             <div>
               <div>
                 If you would like to reach out to one of{" "}
-                {this.isoData.site_res.site_view.site.name}&apos;s admins for
-                support, try the following Matrix addresses:
+                {this.isoData.site_res?.site_view.site.name ?? "this instance"}
+                &apos;s admins for support, try the following Matrix addresses:
               </div>
               <ul>
                 {errorPageData.adminMatrixIds.map(matrixId => (

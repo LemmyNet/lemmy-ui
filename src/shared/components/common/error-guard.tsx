@@ -13,8 +13,9 @@ class ErrorGuard extends Component<any, any> {
     const errorPageData = this.isoData.routeData[0] as
       | ErrorPageData
       | undefined;
+    const siteRes = this.isoData.site_res;
 
-    if (errorPageData?.type === "error") {
+    if (errorPageData?.type === "error" || !siteRes) {
       return <ErrorPage />;
     } else {
       return this.props.children;

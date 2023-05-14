@@ -1399,10 +1399,12 @@ export function personSelectName({
   return local ? pName : `${hostname(actor_id)}/${pName}`;
 }
 
-export function initializeSite(site: GetSiteResponse) {
-  UserService.Instance.myUserInfo = site.my_user;
+export function initializeSite(site?: GetSiteResponse) {
+  UserService.Instance.myUserInfo = site?.my_user;
   i18n.changeLanguage(getLanguages()[0]);
-  setupEmojiDataModel(site.custom_emojis);
+  if (site) {
+    setupEmojiDataModel(site.custom_emojis);
+  }
   setupMarkdown();
 }
 
