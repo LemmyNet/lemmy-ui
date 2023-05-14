@@ -142,7 +142,9 @@ server.get("/*", async (req, res) => {
 
     if (!auth && isAuthPath(path)) {
       res.redirect("/");
+      return;
     }
+
     const site: GetSiteResponse = try_site;
     initializeSite(site);
 
