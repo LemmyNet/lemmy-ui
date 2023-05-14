@@ -13,11 +13,11 @@ export class ErrorPage extends Component<any, any> {
     const errorPageData = this.getErrorPageData();
 
     return (
-      <div className="container-lg">
+      <div className="container-lg text-center">
         <h1>{errorPageData ? "Error!" : "Page Not Found"}</h1>
         <p>
           {errorPageData
-            ? "There was an error on the server. Try refreshing your browser of coming back at a later time"
+            ? 'There was an error on the server. Try refreshing your browser. If that doesn\'t work, come back at a later time. If the problem persists, <a href="https://github.com/LemmyNet/lemmy/issues">consider opening an issue.</a>'
             : "The page you are looking for does not exist"}
         </p>
         {!errorPageData && (
@@ -38,7 +38,9 @@ export class ErrorPage extends Component<any, any> {
               </ul>
             </div>
           )}
-        {errorPageData?.error && <code>{errorPageData.error.message}</code>}
+        {errorPageData?.error && (
+          <code className="text-start">{errorPageData.error}</code>
+        )}
       </div>
     );
   }

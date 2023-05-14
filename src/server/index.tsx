@@ -26,7 +26,8 @@ import {
   initializeSite,
   isAuthPath,
 } from "../shared/utils";
-import { VERSION } from "../shared/version";
+
+const { NODE_ENV } = process.env as Record<string, string>;
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -161,6 +162,7 @@ server.get("/*", async (req, res) => {
     }
 
     let routeData = await Promise.all(promises);
+    // let routeData = [{ error: "I am an error, hear me roar!" } as any];
 
     // Redirect to the 404 if there's an API error
     if (routeData[0] && routeData[0].error) {
@@ -173,7 +175,7 @@ server.get("/*", async (req, res) => {
 
         // Exact error should only be seen in a development environment. Users
         // in production will get a more generic message.
-        if (VERSION === "dev") {
+        if (NODE_ENV === "development") {
           errorPageData.error = error;
         }
 
@@ -187,6 +189,8 @@ server.get("/*", async (req, res) => {
         routeData = [errorPageData];
       }
     }
+
+    console.log(routeData);
 
     const isoData: IsoData = {
       path,
@@ -287,7 +291,7 @@ server.get("/*", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.statusCode = 500;
-    return res.send(VERSION === "dev" ? err.message : "Server error");
+    return res.send(NODE_ENV === "development" ? err.message : "Server error");
   }
 });
 

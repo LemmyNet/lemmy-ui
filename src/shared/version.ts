@@ -1,1 +1,1 @@
-export const VERSION = "unknown version" as string;
+export const VERSION = "unknown version";

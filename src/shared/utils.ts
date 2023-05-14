@@ -107,7 +107,7 @@ export type ThemeColor =
 
 export interface ErrorPageData {
   type: "error";
-  error?: Error;
+  error?: string;
   adminMatrixIds?: string[];
 }
 
