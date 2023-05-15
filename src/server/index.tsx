@@ -27,8 +27,6 @@ import {
   isAuthPath,
 } from "../shared/utils";
 
-const { NODE_ENV } = process.env as Record<string, string>;
-
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
   ? process.env["LEMMY_UI_HOST"].split(":")
@@ -184,7 +182,7 @@ server.get("/*", async (req, res) => {
     const isoData: IsoDataOptionalSite = {
       path,
       site_res: site,
-      routeData,
+      routeData: getErrorRouteData("lel", site),
     };
 
     const wrapper = (
@@ -200,7 +198,9 @@ server.get("/*", async (req, res) => {
     // If an error is caught here, the error page couldn't even be rendered
     console.error(err);
     res.statusCode = 500;
-    return res.send(NODE_ENV === "development" ? err.message : "Server error");
+    return res.send(
+      process.env.NODE_ENV === "development" ? err.message : "Server error"
+    );
   }
 });
 
@@ -295,9 +295,11 @@ async function fetchIconPng(iconUrl: string) {
 function getErrorRouteData(error: string, site?: GetSiteResponse) {
   const errorPageData: ErrorPageData = { type: "error" };
 
+  console.log(`Error: ${process.env.NODE_ENV}`);
+
   // Exact error should only be seen in a development environment. Users
   // in production will get a more generic message.
-  if (NODE_ENV === "development") {
+  if (process.env.NODE_ENV === "development") {
     errorPageData.error = error;
   }
 

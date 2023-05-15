@@ -6,7 +6,6 @@ WORKDIR /usr/src/app
 ENV npm_config_target_arch=x64
 ENV npm_config_target_platform=linux
 ENV npm_config_target_libc=musl
-ENV NODE_ENV=development
 
 # Cache deps
 COPY package.json yarn.lock ./
