@@ -509,7 +509,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         type_: "Url",
         sort: "TopAll",
         listing_type: "All",
-        page: 1n,
+        page: 1,
         limit: trendingFetchLimit,
         auth: myAuth(false),
       };
@@ -539,7 +539,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         sort: "TopAll",
         listing_type: "All",
         community_id: this.state.form.community_id,
-        page: 1n,
+        page: 1,
         limit: trendingFetchLimit,
         auth: myAuth(false),
       };

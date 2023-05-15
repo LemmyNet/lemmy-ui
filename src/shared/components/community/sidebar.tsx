@@ -185,7 +185,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_online", {
             count: this.props.online,
-            formattedCount: numToSI(BigInt(this.props.online)),
+            formattedCount: numToSI(this.props.online),
           })}
         </li>
         <li

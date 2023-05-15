@@ -111,7 +111,7 @@ interface ModlogState {
 }
 
 interface ModlogProps {
-  page: bigint;
+  page: number;
   userId?: number | null;
   modId?: number | null;
   actionType: ModlogActionType;
@@ -868,20 +868,20 @@ export class Modlog extends Component<
   handleFilterActionChange(i: Modlog, event: any) {
     i.updateUrl({
       actionType: event.target.value as ModlogActionType,
-      page: 1n,
+      page: 1,
     });
   }
 
-  handlePageChange(page: bigint) {
+  handlePageChange(page: number) {
     this.updateUrl({ page });
   }
 
   handleUserChange(option: Choice) {
-    this.updateUrl({ userId: getIdFromString(option.value) ?? null, page: 1n });
+    this.updateUrl({ userId: getIdFromString(option.value) ?? null, page: 1 });
   }
 
   handleModChange(option: Choice) {
-    this.updateUrl({ modId: getIdFromString(option.value) ?? null, page: 1n });
+    this.updateUrl({ modId: getIdFromString(option.value) ?? null, page: 1 });
   }
 
   handleSearchUsers = debounce(async (text: string) => {

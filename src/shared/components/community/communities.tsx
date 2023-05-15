@@ -34,7 +34,7 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { Paginator } from "../common/paginator";
 import { CommunityLink } from "./community-link";
 
-const communityLimit = 50n;
+const communityLimit = 50;
 
 interface CommunitiesState {
   listCommunitiesResponse?: ListCommunitiesResponse;
@@ -45,7 +45,7 @@ interface CommunitiesState {
 
 interface CommunitiesProps {
   listingType: ListingType;
-  page: bigint;
+  page: number;
 }
 
 function getCommunitiesQueryParams() {
@@ -280,14 +280,14 @@ export class Communities extends Component<any, CommunitiesState> {
     refetch();
   }
 
-  handlePageChange(page: bigint) {
+  handlePageChange(page: number) {
     this.updateUrl({ page });
   }
 
   handleListingTypeChange(val: ListingType) {
     this.updateUrl({
       listingType: val,
-      page: 1n,
+      page: 1,
     });
   }
 

@@ -35,7 +35,7 @@ interface EmojiFormState {
   siteRes: GetSiteResponse;
   customEmojis: CustomEmojiViewForm[];
   loading: boolean;
-  page: bigint;
+  page: number;
 }
 
 interface CustomEmojiViewForm {
@@ -46,7 +46,7 @@ interface CustomEmojiViewForm {
   alt_text: string;
   keywords: string;
   changed: boolean;
-  page: bigint;
+  page: number;
 }
 
 export class EmojiForm extends Component<any, EmojiFormState> {
@@ -64,9 +64,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       alt_text: x.custom_emoji.alt_text,
       keywords: x.keywords.map(x => x.keyword).join(" "),
       changed: false,
-      page: BigInt(1 + Math.floor(index / this.itemsPerPage)),
+      page: 1 + Math.floor(index / this.itemsPerPage),
     })),
-    page: 1n,
+    page: 1,
   };
   state: EmojiFormState;
   private scrollRef: any = {};
@@ -125,10 +125,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
             <tbody>
               {this.state.customEmojis
                 .slice(
-                  Number((this.state.page - 1n) * BigInt(this.itemsPerPage)),
+                  Number((this.state.page - 1) * this.itemsPerPage),
                   Number(
-                    (this.state.page - 1n) * BigInt(this.itemsPerPage) +
-                      BigInt(this.itemsPerPage)
+                    (this.state.page - 1) * this.itemsPerPage +
+                      this.itemsPerPage
                   )
                 )
                 .map((cv, index) => (
@@ -304,7 +304,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     else return i18n.t("custom_emoji_save_validation");
   }
 
-  handlePageChange(page: bigint) {
+  handlePageChange(page: number) {
     this.setState({ page: page });
   }
 
@@ -327,10 +327,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
-      BigInt(props.index);
+      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
     let item = {
-      ...props.form.state.customEmojis[Number(pagedIndex)],
+      ...props.form.state.customEmojis[pagedIndex],
       category: event.target.value,
       changed: true,
     };
@@ -344,10 +343,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
-      BigInt(props.index);
+      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
     let item = {
-      ...props.form.state.customEmojis[Number(pagedIndex)],
+      ...props.form.state.customEmojis[pagedIndex],
       shortcode: event.target.value,
       changed: true,
     };
@@ -361,10 +359,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
-      BigInt(props.index);
+      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
     let item = {
-      ...props.form.state.customEmojis[Number(pagedIndex)],
+      ...props.form.state.customEmojis[pagedIndex],
       image_url: props.overrideValue ?? event.target.value,
       changed: true,
     };
@@ -378,10 +375,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
-      BigInt(props.index);
+      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
     let item = {
-      ...props.form.state.customEmojis[Number(pagedIndex)],
+      ...props.form.state.customEmojis[pagedIndex],
       alt_text: event.target.value,
       changed: true,
     };
@@ -395,10 +391,9 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   ) {
     let custom_emojis = [...props.form.state.customEmojis];
     let pagedIndex =
-      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
-      BigInt(props.index);
+      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
     let item = {
-      ...props.form.state.customEmojis[Number(pagedIndex)],
+      ...props.form.state.customEmojis[pagedIndex],
       keywords: event.target.value,
       changed: true,
     };
@@ -412,8 +407,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     cv: CustomEmojiViewForm;
   }) {
     let pagedIndex =
-      (props.form.state.page - 1n) * BigInt(props.form.itemsPerPage) +
-      BigInt(props.index);
+      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
     if (props.cv.id != 0) {
       const deleteForm: DeleteCustomEmoji = {
         id: props.cv.id,
@@ -458,9 +452,8 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   handleAddEmojiClick(form: EmojiForm, event: any) {
     event.preventDefault();
     let custom_emojis = [...form.state.customEmojis];
-    const page = BigInt(
-      1 + Math.floor(form.state.customEmojis.length / form.itemsPerPage)
-    );
+    const page =
+      1 + Math.floor(form.state.customEmojis.length / form.itemsPerPage);
     let item: CustomEmojiViewForm = {
       id: 0,
       shortcode: "",

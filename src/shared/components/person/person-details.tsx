@@ -18,13 +18,13 @@ interface PersonDetailsProps {
   admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
-  page: bigint;
-  limit: bigint;
+  page: number;
+  limit: number;
   sort: SortType;
   enableDownvotes: boolean;
   enableNsfw: boolean;
   view: PersonDetailsView;
-  onPageChange(page: bigint): bigint | any;
+  onPageChange(page: number): number | any;
 }
 
 enum ItemEnum {
@@ -36,7 +36,7 @@ type ItemType = {
   type_: ItemEnum;
   view: CommentView | PostView;
   published: string;
-  score: bigint;
+  score: number;
 };
 
 export class PersonDetails extends Component<PersonDetailsProps, any> {
@@ -199,7 +199,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     );
   }
 
-  handlePageChange(val: bigint) {
+  handlePageChange(val: number) {
     this.props.onPageChange(val);
   }
 }
