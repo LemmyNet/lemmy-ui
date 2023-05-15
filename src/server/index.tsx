@@ -167,7 +167,7 @@ server.get("/*", async (req, res) => {
         }
       }
     } catch (error) {
-      routeData = [getErrorRouteData(error)];
+      routeData = getErrorRouteData(error, site);
     }
 
     // Redirect to the 404 if there's an API error
@@ -177,12 +177,9 @@ server.get("/*", async (req, res) => {
       if (error === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        routeData = [getErrorRouteData(error, site)];
+        routeData = getErrorRouteData(error, site);
       }
     }
-
-    console.log("Route Data");
-    console.log(routeData);
 
     const isoData: IsoDataOptionalSite = {
       path,

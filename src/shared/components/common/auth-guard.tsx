@@ -6,7 +6,7 @@ function AuthGuard(props: { children?: InfernoNode }) {
   if (!UserService.Instance.myUserInfo) {
     return <Redirect to="/login" />;
   } else {
-    return <>{props.children}</>;
+    return props.children;
   }
 }
 
