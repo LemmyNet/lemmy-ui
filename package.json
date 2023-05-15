@@ -60,7 +60,7 @@
     "inferno-server": "^8.1.1",
     "isomorphic-cookie": "^1.2.4",
     "jwt-decode": "^3.1.2",
-    "lemmy-js-client": "0.17.2-rc.15",
+    "lemmy-js-client": "0.17.2-rc.16",
     "markdown-it": "^13.0.1",
     "markdown-it-container": "^3.0.0",
     "markdown-it-emoji": "^2.0.2",
