@@ -77,7 +77,7 @@ interface SearchProps {
   listingType: ListingType;
   communityId?: number | null;
   creatorId?: number | null;
-  page: bigint;
+  page: number;
 }
 
 type FilterType = "creator" | "community";
@@ -222,7 +222,7 @@ const personListing = ({ person, counts: { comment_count } }: PersonView) =>
 
 function getListing(
   listing: JSX.ElementClass,
-  count: bigint,
+  count: number,
   translationKey: "number_of_comments" | "number_of_subscribers"
 ) {
   return (
@@ -863,7 +863,7 @@ export class Search extends Component<any, SearchState> {
   });
 
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1n });
+    this.updateUrl({ sort, page: 1 });
   }
 
   handleTypeChange(i: Search, event: any) {
@@ -871,32 +871,32 @@ export class Search extends Component<any, SearchState> {
 
     i.updateUrl({
       type,
-      page: 1n,
+      page: 1,
     });
   }
 
-  handlePageChange(page: bigint) {
+  handlePageChange(page: number) {
     this.updateUrl({ page });
   }
 
   handleListingTypeChange(listingType: ListingType) {
     this.updateUrl({
       listingType,
-      page: 1n,
+      page: 1,
     });
   }
 
   handleCommunityFilterChange({ value }: Choice) {
     this.updateUrl({
       communityId: getIdFromString(value) ?? null,
-      page: 1n,
+      page: 1,
     });
   }
 
   handleCreatorFilterChange({ value }: Choice) {
     this.updateUrl({
       creatorId: getIdFromString(value) ?? null,
-      page: 1n,
+      page: 1,
     });
   }
 
@@ -905,7 +905,7 @@ export class Search extends Component<any, SearchState> {
 
     i.updateUrl({
       q: i.state.searchText,
-      page: 1n,
+      page: 1,
     });
   }
 

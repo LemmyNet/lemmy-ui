@@ -105,7 +105,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_online", {
             count: online,
-            formattedCount: numToSI(BigInt(online)),
+            formattedCount: numToSI(online),
           })}
         </li>
         <li

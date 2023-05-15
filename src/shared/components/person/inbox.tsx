@@ -84,7 +84,7 @@ interface InboxState {
   messages: PrivateMessageView[];
   combined: ReplyType[];
   sort: CommentSortType;
-  page: bigint;
+  page: number;
   siteRes: GetSiteResponse;
   loading: boolean;
 }
@@ -100,7 +100,7 @@ export class Inbox extends Component<any, InboxState> {
     messages: [],
     combined: [],
     sort: "New",
-    page: 1n,
+    page: 1,
     siteRes: this.isoData.site_res,
     loading: true,
   };
@@ -471,18 +471,18 @@ export class Inbox extends Component<any, InboxState> {
     );
   }
 
-  handlePageChange(page: bigint) {
+  handlePageChange(page: number) {
     this.setState({ page });
     this.refetch();
   }
 
   handleUnreadOrAllChange(i: Inbox, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1n });
+    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
     i.refetch();
   }
 
   handleMessageTypeChange(i: Inbox, event: any) {
-    i.setState({ messageType: Number(event.target.value), page: 1n });
+    i.setState({ messageType: Number(event.target.value), page: 1 });
     i.refetch();
   }
 
@@ -497,7 +497,7 @@ export class Inbox extends Component<any, InboxState> {
       let repliesForm: GetReplies = {
         sort: "New",
         unread_only: true,
-        page: 1n,
+        page: 1,
         limit: fetchLimit,
         auth,
       };
@@ -506,7 +506,7 @@ export class Inbox extends Component<any, InboxState> {
       let personMentionsForm: GetPersonMentions = {
         sort,
         unread_only: true,
-        page: 1n,
+        page: 1,
         limit: fetchLimit,
         auth,
       };
@@ -514,7 +514,7 @@ export class Inbox extends Component<any, InboxState> {
 
       let privateMessagesForm: GetPrivateMessages = {
         unread_only: true,
-        page: 1n,
+        page: 1,
         limit: fetchLimit,
         auth,
       };
@@ -565,7 +565,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   handleSortChange(val: CommentSortType) {
-    this.setState({ sort: val, page: 1n });
+    this.setState({ sort: val, page: 1 });
     this.refetch();
   }
 
@@ -579,7 +579,7 @@ export class Inbox extends Component<any, InboxState> {
       );
       i.setState({ replies: [], mentions: [], messages: [] });
       i.setState({ combined: i.buildCombined() });
-      UserService.Instance.unreadInboxCountSub.next(0n);
+      UserService.Instance.unreadInboxCountSub.next(0);
       window.scrollTo(0, 0);
       i.setState(i.state);
     }
@@ -588,9 +588,9 @@ export class Inbox extends Component<any, InboxState> {
   sendUnreadCount(read: boolean) {
     let urcs = UserService.Instance.unreadInboxCountSub;
     if (read) {
-      urcs.next(urcs.getValue() - 1n);
+      urcs.next(urcs.getValue() - 1);
     } else {
-      urcs.next(urcs.getValue() + 1n);
+      urcs.next(urcs.getValue() + 1);
     }
   }
 

@@ -81,7 +81,7 @@ interface ProfileState {
 interface ProfileProps {
   view: PersonDetailsView;
   sort: SortType;
-  page: bigint;
+  page: number;
 }
 
 function getProfileQueryParams() {
@@ -645,18 +645,18 @@ export class Profile extends Component<
     this.fetchUserData();
   }
 
-  handlePageChange(page: bigint) {
+  handlePageChange(page: number) {
     this.updateUrl({ page });
   }
 
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1n });
+    this.updateUrl({ sort, page: 1 });
   }
 
   handleViewChange(i: Profile, event: any) {
     i.updateUrl({
       view: PersonDetailsView[event.target.value],
-      page: 1n,
+      page: 1,
     });
   }
 
