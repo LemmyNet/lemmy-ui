@@ -508,11 +508,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.sendUnreadCount();
     } else if (op == UserOperation.GetReportCount) {
       let data = wsJsonToRes<GetReportCountResponse>(msg);
+
+      let count = data.post_reports + data.comment_reports;
+      // This is frustrating, but data.private_message_reports ?? 0 doesn't work in the browser
+      if (data.private_message_reports !== undefined) {
+        count += data.private_message_reports;
+      }
       this.setState({
-        unreadReportCount:
-          data.post_reports +
-          data.comment_reports +
-          (data.private_message_reports ?? 0n),
+        unreadReportCount: count,
       });
       this.sendReportUnread();
     } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
