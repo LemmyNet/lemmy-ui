@@ -60,7 +60,7 @@
     "inferno-server": "^8.1.1",
     "isomorphic-cookie": "^1.2.4",
     "jwt-decode": "^3.1.2",
-    "lemmy-js-client": "0.17.2-rc.14",
+    "lemmy-js-client": "0.17.2-rc.15",
     "markdown-it": "^13.0.1",
     "markdown-it-container": "^3.0.0",
     "markdown-it-emoji": "^2.0.2",
@@ -111,12 +111,12 @@
     "prettier-plugin-organize-imports": "^3.2.2",
     "prettier-plugin-packagejson": "^2.4.3",
     "rimraf": "^5.0.0",
+    "service-worker-webpack": "^1.0.0",
     "sortpack": "^2.3.4",
     "style-loader": "^3.3.2",
     "terser": "^5.17.3",
     "typescript": "^5.0.4",
-    "webpack-dev-server": "4.15.0",
-    "service-worker-webpack": "^1.0.0"
+    "webpack-dev-server": "4.15.0"
   },
   "engines": {
     "node": ">=8.9.0"
