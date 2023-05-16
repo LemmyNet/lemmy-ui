@@ -132,7 +132,7 @@ export class MarkdownTextArea extends Component<
   }
 
   render() {
-    let languageId = this.state.languageId;
+    const languageId = this.state.languageId;
 
     return (
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
@@ -185,7 +185,7 @@ export class MarkdownTextArea extends Component<
               <button
                 type="submit"
                 className="btn btn-sm btn-secondary mr-2"
-                disabled={this.isDisabled}
+                disabled={this.isDisabled || languageId === undefined}
               >
                 {this.state.loading ? (
                   <Spinner />
@@ -644,10 +644,7 @@ export class MarkdownTextArea extends Component<
   }
 
   get isDisabled() {
-    return (
-      this.state.loading ||
-      this.props.disabled ||
-      !!this.state.imageUploadStatus
-    );
+    const { loading, imageUploadStatus, previewMode } = this.state;
+    return loading || this.props.disabled || !!imageUploadStatus || previewMode;
   }
 }

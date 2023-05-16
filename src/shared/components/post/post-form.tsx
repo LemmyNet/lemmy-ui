@@ -186,10 +186,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   render() {
-    let firstLang = this.state.form.language_id;
-    let selectedLangs = firstLang ? Array.of(firstLang) : undefined;
+    const { url, language_id } = this.state.form;
+    const selectedLangs = language_id ? Array.of(language_id) : undefined;
 
-    let url = this.state.form.url;
     return (
       <div>
         <Prompt
@@ -411,7 +410,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           <div className="form-group row">
             <div className="col-sm-10">
               <button
-                disabled={!this.state.form.community_id || this.state.loading}
+                disabled={
+                  !this.state.form.community_id ||
+                  this.state.loading ||
+                  language_id === undefined
+                }
                 type="submit"
                 className="btn btn-secondary mr-2"
               >
