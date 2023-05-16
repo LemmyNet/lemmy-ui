@@ -182,7 +182,7 @@ server.get("/*", async (req, res) => {
     const isoData: IsoDataOptionalSite = {
       path,
       site_res: site,
-      routeData: getErrorRouteData("lel", site),
+      routeData,
     };
 
     const wrapper = (
