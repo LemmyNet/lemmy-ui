@@ -123,9 +123,12 @@ const createClientConfig = (_env, mode) => {
               urlPattern: ({ url: { pathname, host }, sameOrigin }) =>
                 (sameOrigin || host.includes("localhost")) &&
                 pathname.includes("static"),
-              handler: "CacheFirst",
+              handler: mode === "development" ? "NetworkFirst" : "CacheFirst",
               options: {
                 cacheName: "static-cache",
+                expiration: {
+                  maxAgeSeconds: 60 * 60 * 24,
+                },
               },
             },
             {
