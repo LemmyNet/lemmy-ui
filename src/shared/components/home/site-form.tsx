@@ -925,13 +925,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             id={id}
             className="form-control"
             value={value}
-            onInput={event => this.handleInstanceTextChange(key, event)}
-            onKeyUp={event => this.handleInstanceEnterPress(key, event)}
+            onInput={linkEvent(key, this.handleInstanceTextChange)}
+            onKeyUp={linkEvent(key, this.handleInstanceEnterPress)}
           />
           <button
             type="button"
             className="btn btn-sm bg-success ml-2"
-            onClick={() => this.handleAddInstance(key)}
+            onClick={linkEvent(key, this.handleAddInstance)}
             tabIndex={
               -1 /* Making this untabble because handling enter key in text input makes keyboard support for this button redundant */
             }
@@ -953,7 +953,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   id={instance}
                   type="button"
                   className="btn btn-sm bg-danger"
-                  onClick={() => this.handleRemoveInstance(key, instance)}
+                  onClick={linkEvent(
+                    { key, instance },
+                    this.handleRemoveInstance
+                  )}
                 >
                   <Icon icon="x" classes="icon-inline text-light m-auto" />
                 </button>
@@ -1060,12 +1063,18 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       const oppositeKey: InstanceKey =
         key === "allowed_instances" ? "blocked_instances" : "allowed_instances";
       if (this.state.siteForm[oppositeKey]?.includes(instance)) {
-        this.handleRemoveInstance(oppositeKey, instance);
+        this.handleRemoveInstance({ key: oppositeKey, instance });
       }
     }
   }
 
-  handleRemoveInstance(key: InstanceKey, instance: string) {
+  handleRemoveInstance({
+    key,
+    instance,
+  }: {
+    key: InstanceKey;
+    instance: string;
+  }) {
     this.setState(s => ({
       ...s,
       siteForm: {
@@ -1332,14 +1341,5 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleDefaultPostListingTypeChange(val: ListingType) {
     this.setState(s => ((s.siteForm.default_post_listing_type = val), s));
-  }
-}
-
-function splitToList(commaList: string): string[] {
-  if (commaList !== "") {
-    let list = commaList.trim().split(",");
-    return list;
-  } else {
-    return [];
   }
 }
