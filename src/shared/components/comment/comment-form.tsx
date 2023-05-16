@@ -17,7 +17,6 @@ import { UserService, WebSocketService } from "../../services";
 import {
   capitalizeFirstLetter,
   myAuth,
-  myFirstDiscussionLanguageId,
   wsClient,
   wsSubscribe,
 } from "../../utils";
@@ -77,21 +76,11 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
           : undefined
         : undefined;
 
-    let selectedLang =
-      typeof this.props.node !== "number"
-        ? this.props.node.comment_view.comment.language_id
-        : myFirstDiscussionLanguageId(
-            this.props.allLanguages,
-            this.props.siteLanguages,
-            UserService.Instance.myUserInfo
-          );
-
     return (
       <div className="mb-3">
         {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}
-            initialLanguageId={selectedLang}
             showLanguage
             buttonTitle={this.state.buttonTitle}
             finished={this.state.finished}

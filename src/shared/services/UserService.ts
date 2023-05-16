@@ -5,7 +5,7 @@ import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { BehaviorSubject } from "rxjs";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";
-import { isBrowser, toast } from "../utils";
+import { isAuthPath, isBrowser, toast } from "../utils";
 
 interface Claims {
   sub: number;
@@ -22,12 +22,12 @@ export class UserService {
   private static _instance: UserService;
   public myUserInfo?: MyUserInfo;
   public jwtInfo?: JwtInfo;
-  public unreadInboxCountSub: BehaviorSubject<bigint> =
-    new BehaviorSubject<bigint>(0n);
-  public unreadReportCountSub: BehaviorSubject<bigint> =
-    new BehaviorSubject<bigint>(0n);
-  public unreadApplicationCountSub: BehaviorSubject<bigint> =
-    new BehaviorSubject<bigint>(0n);
+  public unreadInboxCountSub: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
+  public unreadReportCountSub: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
+  public unreadApplicationCountSub: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
 
   private constructor() {
     this.setJwtInfo();
@@ -48,7 +48,11 @@ export class UserService {
     this.myUserInfo = undefined;
     IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
     document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
-    location.reload();
+    if (isAuthPath(location.pathname)) {
+      location.replace("/");
+    } else {
+      location.reload();
+    }
   }
 
   public auth(throwErr = true): string | undefined {

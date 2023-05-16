@@ -111,6 +111,11 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
         multiple={this.props.multiple}
         disabled={this.props.disabled}
       >
+        {!this.props.multiple && (
+          <option selected disabled hidden>
+            {i18n.t("language_select_placeholder")}
+          </option>
+        )}
         {filteredLangs.map(l => (
           <option
             key={l.id}

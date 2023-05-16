@@ -29,7 +29,6 @@ import {
   ghostArchiveUrl,
   isImage,
   myAuth,
-  myFirstDiscussionLanguageId,
   pictrsDeleteToast,
   relTags,
   setupTippy,
@@ -187,13 +186,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   render() {
-    let firstLang =
-      this.state.form.language_id ??
-      myFirstDiscussionLanguageId(
-        this.props.allLanguages,
-        this.props.siteLanguages,
-        UserService.Instance.myUserInfo
-      );
+    let firstLang = this.state.form.language_id;
     let selectedLangs = firstLang ? Array.of(firstLang) : undefined;
 
     let url = this.state.form.url;
@@ -516,7 +509,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         type_: "Url",
         sort: "TopAll",
         listing_type: "All",
-        page: 1n,
+        page: 1,
         limit: trendingFetchLimit,
         auth: myAuth(false),
       };
@@ -546,7 +539,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         sort: "TopAll",
         listing_type: "All",
         community_id: this.state.form.community_id,
-        page: 1n,
+        page: 1,
         limit: trendingFetchLimit,
         auth: myAuth(false),
       };
