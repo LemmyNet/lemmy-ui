@@ -295,8 +295,6 @@ async function fetchIconPng(iconUrl: string) {
 function getErrorRouteData(error: string, site?: GetSiteResponse) {
   const errorPageData: ErrorPageData = { type: "error" };
 
-  console.log(`Error: ${process.env.NODE_ENV}`);
-
   // Exact error should only be seen in a development environment. Users
   // in production will get a more generic message.
   if (process.env.NODE_ENV === "development") {

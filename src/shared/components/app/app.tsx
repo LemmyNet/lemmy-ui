@@ -21,7 +21,6 @@ export class App extends Component<any, any> {
   render() {
     const siteRes = this.isoData.site_res;
     const siteView = siteRes?.site_view;
-    console.log(`Path: ${this.isoData.path}`);
 
     return (
       <>
