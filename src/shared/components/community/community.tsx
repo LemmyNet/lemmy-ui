@@ -88,7 +88,7 @@ interface State {
 interface CommunityProps {
   dataType: DataType;
   sort: SortType;
-  page: bigint;
+  page: number;
 }
 
 function getCommunityQueryParams() {
@@ -427,18 +427,18 @@ export class Community extends Component<
     );
   }
 
-  handlePageChange(page: bigint) {
+  handlePageChange(page: number) {
     this.updateUrl({ page });
     window.scrollTo(0, 0);
   }
 
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1n });
+    this.updateUrl({ sort, page: 1 });
     window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(dataType: DataType) {
-    this.updateUrl({ dataType, page: 1n });
+    this.updateUrl({ dataType, page: 1 });
     window.scrollTo(0, 0);
   }
 
@@ -606,11 +606,7 @@ export class Community extends Component<
               .show_new_post_notifs;
 
           // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
-          if (
-            page === 1n &&
-            nsfwCheck(post_view) &&
-            !isPostBlocked(post_view)
-          ) {
+          if (page === 1 && nsfwCheck(post_view) && !isPostBlocked(post_view)) {
             this.state.posts.unshift(post_view);
             if (showPostNotifs) {
               notifyPost(post_view, this.context.router);

@@ -84,9 +84,9 @@ interface CommentNodeState {
   showReportDialog: boolean;
   reportReason?: string;
   my_vote?: number;
-  score: bigint;
-  upvotes: bigint;
-  downvotes: bigint;
+  score: number;
+  upvotes: number;
+  downvotes: number;
   readLoading: boolean;
   saveLoading: boolean;
 }
@@ -833,9 +833,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             >
               {i18n.t("x_more_replies", {
                 count: node.comment_view.counts.child_count,
-                formattedCount: numToSI(
-                  BigInt(node.comment_view.counts.child_count)
-                ),
+                formattedCount: numToSI(node.comment_view.counts.child_count),
               })}{" "}
               ➔
             </button>
@@ -1152,19 +1150,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     if (myVote == 1) {
       this.setState({
-        score: this.state.score - 1n,
-        upvotes: this.state.upvotes - 1n,
+        score: this.state.score - 1,
+        upvotes: this.state.upvotes - 1,
       });
     } else if (myVote == -1) {
       this.setState({
-        downvotes: this.state.downvotes - 1n,
-        upvotes: this.state.upvotes + 1n,
-        score: this.state.score + 2n,
+        downvotes: this.state.downvotes - 1,
+        upvotes: this.state.upvotes + 1,
+        score: this.state.score + 2,
       });
     } else {
       this.setState({
-        score: this.state.score + 1n,
-        upvotes: this.state.upvotes + 1n,
+        score: this.state.score + 1,
+        upvotes: this.state.upvotes + 1,
       });
     }
 
@@ -1189,19 +1187,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     if (myVote == 1) {
       this.setState({
-        downvotes: this.state.downvotes + 1n,
-        upvotes: this.state.upvotes - 1n,
-        score: this.state.score - 2n,
+        downvotes: this.state.downvotes + 1,
+        upvotes: this.state.upvotes - 1,
+        score: this.state.score - 2,
       });
     } else if (myVote == -1) {
       this.setState({
-        downvotes: this.state.downvotes - 1n,
-        score: this.state.score + 1n,
+        downvotes: this.state.downvotes - 1,
+        score: this.state.score + 1,
       });
     } else {
       this.setState({
-        downvotes: this.state.downvotes + 1n,
-        score: this.state.score - 1n,
+        downvotes: this.state.downvotes + 1,
+        score: this.state.score - 1,
       });
     }
 
@@ -1542,7 +1540,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       post_id: i.props.node.comment_view.post.id,
       parent_id: i.props.node.comment_view.comment.id,
       max_depth: commentTreeMaxDepth,
-      limit: 999n, // TODO
+      limit: 999, // TODO
       type_: "All",
       saved_only: false,
       auth: myAuth(false),

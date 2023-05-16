@@ -70,12 +70,12 @@ export const webArchiveUrl = "https://web.archive.org";
 export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
-export const fetchLimit = 40n;
-export const trendingFetchLimit = 6n;
+export const fetchLimit = 40;
+export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
 export const markdownFieldCharacterLimit = 50000;
-export const maxUploadImages = 20n;
+export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
 
 export const relTags = "noopener nofollow";
@@ -128,8 +128,8 @@ export function getIdFromString(id?: string): number | undefined {
   return id && id !== "0" && !Number.isNaN(Number(id)) ? Number(id) : undefined;
 }
 
-export function getPageFromString(page?: string): bigint {
-  return page && !Number.isNaN(Number(page)) ? BigInt(page) : BigInt(1);
+export function getPageFromString(page?: string): number {
+  return page && !Number.isNaN(Number(page)) ? Number(page) : 1;
 }
 
 export function randomStr(
@@ -191,14 +191,14 @@ export function hotRankPost(post_view: PostView): number {
   return hotRank(post_view.counts.score, post_view.post.published);
 }
 
-export function hotRank(score: bigint, timeStr: string): number {
+export function hotRank(score: number, timeStr: string): number {
   // Rank = ScaleFactor * sign(Score) * log(1 + abs(Score)) / (Time + 2)^Gravity
   let date: Date = new Date(timeStr + "Z"); // Add Z to convert from UTC date
   let now: Date = new Date();
   let hoursElapsed: number = (now.getTime() - date.getTime()) / 36e5;
 
   let rank =
-    (10000 * Math.log10(Math.max(1, Number(3n + score)))) /
+    (10000 * Math.log10(Math.max(1, 3 + Number(score)))) /
     Math.pow(hoursElapsed + 2, 1.8);
 
   // console.log(`Comment: ${comment.content}\nRank: ${rank}\nScore: ${comment.score}\nHours: ${hoursElapsed}`);
@@ -218,16 +218,14 @@ export function mdToHtmlInline(text: string) {
   return { __html: md.renderInline(text) };
 }
 
-export function getUnixTime(text?: string): bigint | undefined {
-  return text ? BigInt(new Date(text).getTime() / 1000) : undefined;
+export function getUnixTime(text?: string): number | undefined {
+  return text ? new Date(text).getTime() / 1000 : undefined;
 }
 
-export function futureDaysToUnixTime(days?: number): bigint | undefined {
+export function futureDaysToUnixTime(days?: number): number | undefined {
   return days
-    ? BigInt(
-        Math.trunc(
-          new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
-        )
+    ? Math.trunc(
+        new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
       )
     : undefined;
 }
@@ -1364,7 +1362,7 @@ export async function fetchCommunities(q: string) {
     type_: "Communities",
     sort: "TopAll",
     listing_type: "All",
-    page: 1n,
+    page: 1,
     limit: fetchLimit,
     auth: myAuth(false),
   };
@@ -1378,7 +1376,7 @@ export async function fetchUsers(q: string) {
     type_: "Users",
     sort: "TopAll",
     listing_type: "All",
-    page: 1n,
+    page: 1,
     limit: fetchLimit,
     auth: myAuth(false),
   };
@@ -1415,7 +1413,7 @@ const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
   compactDisplay: "short",
 });
 
-export function numToSI(value: bigint): string {
+export function numToSI(value: number): string {
   return SHORTNUM_SI_FORMAT.format(value);
 }
 

@@ -40,9 +40,9 @@ interface NavbarProps {
 
 interface NavbarState {
   expanded: boolean;
-  unreadInboxCount: bigint;
-  unreadReportCount: bigint;
-  unreadApplicationCount: bigint;
+  unreadInboxCount: number;
+  unreadReportCount: number;
+  unreadApplicationCount: number;
   showDropdown: boolean;
   onSiteBanner?(url: string): any;
 }
@@ -54,9 +54,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   private unreadReportCountSub: Subscription;
   private unreadApplicationCountSub: Subscription;
   state: NavbarState = {
-    unreadInboxCount: 0n,
-    unreadReportCount: 0n,
-    unreadApplicationCount: 0n,
+    unreadInboxCount: 0,
+    unreadReportCount: 0,
+    unreadApplicationCount: 0,
     expanded: false,
     showDropdown: false,
   };
@@ -512,7 +512,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         unreadReportCount:
           data.post_reports +
           data.comment_reports +
-          (data.private_message_reports ?? 0n),
+          (data.private_message_reports ?? 0),
       });
       this.sendReportUnread();
     } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
@@ -528,7 +528,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         data.recipient_ids.includes(mui.local_user_view.local_user.id)
       ) {
         this.setState({
-          unreadInboxCount: this.state.unreadInboxCount + 1n,
+          unreadInboxCount: this.state.unreadInboxCount + 1,
         });
         this.sendUnreadCount();
         notifyComment(data.comment_view, this.context.router);
@@ -541,7 +541,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         UserService.Instance.myUserInfo?.local_user_view.person.id
       ) {
         this.setState({
-          unreadInboxCount: this.state.unreadInboxCount + 1n,
+          unreadInboxCount: this.state.unreadInboxCount + 1,
         });
         this.sendUnreadCount();
         notifyPrivateMessage(data.private_message_view, this.context.router);

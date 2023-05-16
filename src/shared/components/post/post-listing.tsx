@@ -80,9 +80,9 @@ interface PostListingState {
   showReportDialog: boolean;
   reportReason?: string;
   my_vote?: number;
-  score: bigint;
-  upvotes: bigint;
-  downvotes: bigint;
+  score: number;
+  upvotes: number;
+  downvotes: number;
 }
 
 interface PostListingProps {
@@ -652,9 +652,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get unreadCount(): bigint | undefined {
+  get unreadCount(): number | undefined {
     let pv = this.props.post_view;
-    return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0n
+    return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0
       ? undefined
       : pv.unread_comments;
   }
@@ -691,7 +691,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {showScores() && (
                 <span
                   className={classNames("ml-2", {
-                    invisible: this.state.downvotes === 0n,
+                    invisible: this.state.downvotes === 0,
                   })}
                 >
                   {numToSI(this.state.downvotes)}
@@ -1311,19 +1311,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (myVote == 1) {
       this.setState({
-        score: this.state.score - 1n,
-        upvotes: this.state.upvotes - 1n,
+        score: this.state.score - 1,
+        upvotes: this.state.upvotes - 1,
       });
     } else if (myVote == -1) {
       this.setState({
-        score: this.state.score + 2n,
-        upvotes: this.state.upvotes + 1n,
-        downvotes: this.state.downvotes - 1n,
+        score: this.state.score + 2,
+        upvotes: this.state.upvotes + 1,
+        downvotes: this.state.downvotes - 1,
       });
     } else {
       this.setState({
-        score: this.state.score + 1n,
-        upvotes: this.state.upvotes + 1n,
+        score: this.state.score + 1,
+        upvotes: this.state.upvotes + 1,
       });
     }
 
@@ -1354,19 +1354,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (myVote == 1) {
       this.setState({
-        score: this.state.score - 2n,
-        upvotes: this.state.upvotes - 1n,
-        downvotes: this.state.downvotes + 1n,
+        score: this.state.score - 2,
+        upvotes: this.state.upvotes - 1,
+        downvotes: this.state.downvotes + 1,
       });
     } else if (myVote == -1) {
       this.setState({
-        score: this.state.score + 1n,
-        downvotes: this.state.downvotes - 1n,
+        score: this.state.score + 1,
+        downvotes: this.state.downvotes - 1,
       });
     } else {
       this.setState({
-        score: this.state.score - 1n,
-        downvotes: this.state.downvotes + 1n,
+        score: this.state.score - 1,
+        downvotes: this.state.downvotes + 1,
       });
     }
 

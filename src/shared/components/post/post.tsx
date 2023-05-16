@@ -189,7 +189,7 @@ export class Post extends Component<any, PostState> {
         type_: "Url",
         sort: "TopAll",
         listing_type: "All",
-        page: 1n,
+        page: 1,
         limit: trendingFetchLimit,
         auth: myAuth(false),
       };

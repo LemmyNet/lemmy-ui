@@ -100,7 +100,7 @@ interface HomeProps {
   listingType: ListingType;
   dataType: DataType;
   sort: SortType;
-  page: bigint;
+  page: number;
 }
 
 function getDataTypeFromQuery(type?: string): DataType {
@@ -324,7 +324,7 @@ export class Home extends Component<any, HomeState> {
     const type_ = getListingTypeFromQuery(listingType);
     const sort = getSortTypeFromQuery(urlSort);
 
-    const page = urlPage ? BigInt(urlPage) : 1n;
+    const page = urlPage ? Number(urlPage) : 1;
 
     const promises: Promise<any>[] = [];
 
@@ -700,23 +700,23 @@ export class Home extends Component<any, HomeState> {
     i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
-  handlePageChange(page: bigint) {
+  handlePageChange(page: number) {
     this.updateUrl({ page });
     window.scrollTo(0, 0);
   }
 
   handleSortChange(val: SortType) {
-    this.updateUrl({ sort: val, page: 1n });
+    this.updateUrl({ sort: val, page: 1 });
     window.scrollTo(0, 0);
   }
 
   handleListingTypeChange(val: ListingType) {
-    this.updateUrl({ listingType: val, page: 1n });
+    this.updateUrl({ listingType: val, page: 1 });
     window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(val: DataType) {
-    this.updateUrl({ dataType: val, page: 1n });
+    this.updateUrl({ dataType: val, page: 1 });
     window.scrollTo(0, 0);
   }
 
@@ -765,11 +765,7 @@ export class Home extends Component<any, HomeState> {
           const { post_view } = wsJsonToRes<PostResponse>(msg);
 
           // Only push these if you're on the first page, you pass the nsfw check, and it isn't blocked
-          if (
-            page === 1n &&
-            nsfwCheck(post_view) &&
-            !isPostBlocked(post_view)
-          ) {
+          if (page === 1 && nsfwCheck(post_view) && !isPostBlocked(post_view)) {
             const mui = UserService.Instance.myUserInfo;
             const showPostNotifs =
               mui?.local_user_view.local_user.show_new_post_notifs;
