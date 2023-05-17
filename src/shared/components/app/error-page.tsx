@@ -1,7 +1,7 @@
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { IsoDataOptionalSite } from "shared/interfaces";
-import { ErrorPageData, setIsoData } from "../../utils";
+import { setIsoData } from "../../utils";
 
 export class ErrorPage extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
@@ -11,7 +11,7 @@ export class ErrorPage extends Component<any, any> {
   }
 
   render() {
-    const errorPageData = this.getErrorPageData();
+    const { errorPageData } = this.isoData;
 
     return (
       <div className="container-lg text-center">
@@ -64,16 +64,5 @@ export class ErrorPage extends Component<any, any> {
         )}
       </div>
     );
-  }
-
-  private getErrorPageData() {
-    const errorPageData = this.isoData.routeData[0] as
-      | ErrorPageData
-      | undefined;
-    if (errorPageData?.type === "error") {
-      return errorPageData;
-    }
-
-    return undefined;
   }
 }

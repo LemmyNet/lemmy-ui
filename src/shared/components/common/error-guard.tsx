@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { ErrorPageData, setIsoData } from "../../utils";
+import { setIsoData } from "../../utils";
 import { ErrorPage } from "../app/error-page";
 
 class ErrorGuard extends Component<any, any> {
@@ -10,12 +10,10 @@ class ErrorGuard extends Component<any, any> {
   }
 
   render() {
-    const errorPageData = this.isoData.routeData[0] as
-      | ErrorPageData
-      | undefined;
+    const errorPageData = this.isoData.errorPageData;
     const siteRes = this.isoData.site_res;
 
-    if (errorPageData?.type === "error" || !siteRes) {
+    if (errorPageData || !siteRes) {
       return <ErrorPage />;
     } else {
       return this.props.children;

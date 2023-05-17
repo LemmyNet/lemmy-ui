@@ -106,7 +106,6 @@ export type ThemeColor =
   | "gray-dark";
 
 export interface ErrorPageData {
-  type: "error";
   error?: string;
   adminMatrixIds?: string[];
 }

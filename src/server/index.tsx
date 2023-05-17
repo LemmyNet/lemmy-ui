@@ -130,6 +130,7 @@ server.get("/*", async (req, res) => {
     // in order to remove the jwt on the browser. Necessary for wrong jwts
     let site: GetSiteResponse | undefined = undefined;
     let routeData: any[] = [];
+    let errorPageData: ErrorPageData | undefined;
     try {
       let try_site: any = await client.getSite(getSiteForm);
       if (try_site.error == "not_logged_in") {
@@ -165,7 +166,7 @@ server.get("/*", async (req, res) => {
         }
       }
     } catch (error) {
-      routeData = getErrorRouteData(error, site);
+      errorPageData = getErrorRouteData(error, site);
     }
 
     // Redirect to the 404 if there's an API error
@@ -175,7 +176,7 @@ server.get("/*", async (req, res) => {
       if (error === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        routeData = getErrorRouteData(error, site);
+        errorPageData = getErrorRouteData(error, site);
       }
     }
 
@@ -183,6 +184,7 @@ server.get("/*", async (req, res) => {
       path,
       site_res: site,
       routeData,
+      errorPageData,
     };
 
     const wrapper = (
@@ -293,7 +295,7 @@ async function fetchIconPng(iconUrl: string) {
 }
 
 function getErrorRouteData(error: string, site?: GetSiteResponse) {
-  const errorPageData: ErrorPageData = { type: "error" };
+  const errorPageData: ErrorPageData = {};
 
   // Exact error should only be seen in a development environment. Users
   // in production will get a more generic message.
@@ -308,7 +310,7 @@ function getErrorRouteData(error: string, site?: GetSiteResponse) {
     errorPageData.adminMatrixIds = adminMatrixIds;
   }
 
-  return [errorPageData];
+  return errorPageData;
 }
 
 async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
