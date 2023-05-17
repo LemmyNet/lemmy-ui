@@ -166,7 +166,7 @@ server.get("/*", async (req, res) => {
         }
       }
     } catch (error) {
-      errorPageData = getErrorRouteData(error, site);
+      errorPageData = getErrorPageData(error, site);
     }
 
     // Redirect to the 404 if there's an API error
@@ -176,7 +176,7 @@ server.get("/*", async (req, res) => {
       if (error === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        errorPageData = getErrorRouteData(error, site);
+        errorPageData = getErrorPageData(error, site);
       }
     }
 
@@ -294,7 +294,7 @@ async function fetchIconPng(iconUrl: string) {
     .then(blob => blob.arrayBuffer());
 }
 
-function getErrorRouteData(error: string, site?: GetSiteResponse) {
+function getErrorPageData(error: string, site?: GetSiteResponse) {
   const errorPageData: ErrorPageData = {};
 
   // Exact error should only be seen in a development environment. Users

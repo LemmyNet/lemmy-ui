@@ -1265,16 +1265,7 @@ export function isBrowser() {
 export function setIsoData(context: any): IsoData {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
-    let json = window.isoData;
-    let routeData = json.routeData;
-    let site_res = json.site_res;
-
-    let isoData: IsoData = {
-      path: json.path,
-      site_res,
-      routeData,
-    };
-    return isoData;
+    return window.isoData;
   } else return context.router.staticContext;
 }
 

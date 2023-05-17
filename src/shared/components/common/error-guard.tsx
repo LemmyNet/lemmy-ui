@@ -12,8 +12,11 @@ class ErrorGuard extends Component<any, any> {
   render() {
     const errorPageData = this.isoData.errorPageData;
     const siteRes = this.isoData.site_res;
+    console.log("In error guard");
+    console.log(errorPageData);
 
     if (errorPageData || !siteRes) {
+      console.log("triggered error page");
       return <ErrorPage />;
     } else {
       return this.props.children;
