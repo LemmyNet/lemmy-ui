@@ -282,8 +282,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 )}
               </button>
               {this.linkBtn(true)}
+              <div className="d-inline mx-2">
+                <Icon icon="language" inline classes="mr-1" />
+                {
+                  this.props.allLanguages.find(
+                    lang => lang.id === cv.comment.language_id
+                  )?.name
+                }
+              </div>
               {/* This is an expanding spacer for mobile */}
-              <div className="mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2"></div>
+              <div className="mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
               {showScores() && (
                 <>
                   <a
