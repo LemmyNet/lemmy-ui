@@ -19,14 +19,17 @@ export class ErrorPage extends Component<any, any> {
         <p className="p-4">
           {errorPageData ? (
             <>
-              <span>
-                There was an error on the server. Try refreshing your browser.
-                If that doesn&apos;t work, come back at a later time. If the
-                problem persists,
-              </span>{" "}
-              <a href="https://github.com/LemmyNet/lemmy/issues">
-                consider opening an issue.
+              There was an error on the server. Try refreshing your browser. If
+              that doesn&apos;t work, come back at a later time. If the problem
+              persists, you can seek help in the{" "}
+              <a href="https://lemmy.ml/c/lemmy_support">
+                Lemmy support community
+              </a>{" "}
+              or the{" "}
+              <a href="https://matrix.to/#/#lemmy-space:matrix.org">
+                Lemmy Matrix room
               </a>
+              .
             </>
           ) : (
             "The page you are looking for does not exist."
