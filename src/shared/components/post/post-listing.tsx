@@ -22,7 +22,7 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
-import { getExternalHost } from "../../env";
+import { getExternalHost, getHttpBase } from "../../env";
 import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
@@ -32,6 +32,7 @@ import {
   amMod,
   canAdmin,
   canMod,
+  canShare,
   futureDaysToUnixTime,
   hostname,
   isAdmin,
@@ -46,6 +47,7 @@ import {
   numToSI,
   relTags,
   setupTippy,
+  share,
   showScores,
   wsClient,
 } from "../../utils";
@@ -560,9 +562,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   commentsLine(mobile = false) {
     let post = this.props.post_view.post;
+
     return (
       <div className="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
+        {canShare() && (
+          <button
+            className="btn btn-link"
+            onClick={linkEvent(this, this.handleShare)}
+            type="button"
+          >
+            <Icon icon="share" inline />
+          </button>
+        )}
         {!post.local && (
           <a
             className="btn btn-link btn-animate text-muted py-0"
@@ -1397,6 +1409,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   // The actual editing is done in the recieve for post
   handleEditPost() {
     this.setState({ showEdit: false });
+  }
+
+  handleShare(i: PostListing) {
+    const { name, body, id } = i.props.post_view.post;
+    share({
+      title: name,
+      text: body?.slice(0, 50),
+      url: `${getHttpBase()}/post/${id}`,
+    });
   }
 
   handleShowReportDialog(i: PostListing) {
