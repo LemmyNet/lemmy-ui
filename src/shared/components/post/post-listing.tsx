@@ -316,15 +316,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   createdLine() {
-    const {
-      post: { language_id, updated, published, url, body },
-      community,
-      creator,
-    } = this.props.post_view;
+    let post_view = this.props.post_view;
+    let url = post_view.post.url;
+    let body = post_view.post.body;
     return (
       <ul className="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
-          <PersonListing person={creator} />
+          <PersonListing person={post_view.creator} />
 
           {this.creatorIsMod_ && (
             <span className="mx-1 badge badge-light">{i18n.t("mod")}</span>
@@ -332,7 +330,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.creatorIsAdmin_ && (
             <span className="mx-1 badge badge-light">{i18n.t("admin")}</span>
           )}
-          {creator.bot_account && (
+          {post_view.creator.bot_account && (
             <span className="mx-1 badge badge-light">
               {i18n.t("bot_account").toLowerCase()}
             </span>
@@ -340,13 +338,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.props.showCommunity && (
             <span>
               <span className="mx-1"> {i18n.t("to")} </span>
-              <CommunityLink community={community} />
+              <CommunityLink community={post_view.community} />
             </span>
           )}
-        </li>
-        <li className="list-inline-item">
-          <Icon icon="language" inline classes="mr-1" />
-          {this.props.allLanguages.find(lang => lang.id === language_id)?.name}
         </li>
         <li className="list-inline-item">•</li>
         {url && !(hostname(url) === getExternalHost()) && (
@@ -366,11 +360,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         <li className="list-inline-item">
           <span>
-            <MomentTime published={published} updated={updated} />
+            <MomentTime
+              published={post_view.post.published}
+              updated={post_view.post.updated}
+            />
           </span>
         </li>
         {body && (
           <>
+            <li className="list-inline-item">•</li>
             <li className="list-inline-item">
               <button
                 className="text-muted btn btn-sm btn-link p-0"
