@@ -31,6 +31,7 @@ import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
+import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 
@@ -146,6 +147,17 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                       {this.bannedUsers()}
                     </div>
                   </div>
+                ),
+              },
+              {
+                key: "rate_limiting",
+                label: "Rate Limiting",
+                getNode: () => (
+                  <RateLimitForm
+                    localSiteRateLimit={
+                      this.state.siteRes.site_view.local_site_rate_limit
+                    }
+                  />
                 ),
               },
               {
