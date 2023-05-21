@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import {
   CommentResponse,
@@ -43,7 +43,6 @@ interface NavbarState {
   unreadInboxCount: number;
   unreadReportCount: number;
   unreadApplicationCount: number;
-  showDropdown: boolean;
   onSiteBanner?(url: string): any;
 }
 
@@ -58,13 +57,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     unreadReportCount: 0,
     unreadApplicationCount: 0,
     expanded: false,
-    showDropdown: false,
   };
   subscription: any;
+  menuRef = createRef<HTMLDivElement>();
+  menuButtonRef = createRef<HTMLButtonElement>();
 
   constructor(props: any, context: any) {
     super(props, context);
 
+    this.handleClickOutsideMenu = this.handleClickOutsideMenu.bind(this);
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
   }
@@ -102,10 +103,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         UserService.Instance.unreadApplicationCountSub.subscribe(res => {
           this.setState({ unreadApplicationCount: res });
         });
+
+      document.addEventListener("mousedown", this.handleClickOutsideMenu);
     }
   }
 
   componentWillUnmount() {
+    document.removeEventListener("mousedown", this.handleClickOutsideMenu);
     this.wsSub.unsubscribe();
     this.userSub.unsubscribe();
     this.unreadInboxCountSub.unsubscribe();
@@ -211,11 +215,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             aria-label="menu"
             onClick={linkEvent(this, this.handleToggleExpandNavbar)}
             data-tippy-content={i18n.t("expand_here")}
+            ref={this.menuButtonRef}
           >
             <Icon icon="menu" />
           </button>
           <div
             className={`${!this.state.expanded && "collapse"} navbar-collapse`}
+            ref={this.menuRef}
           >
             <ul className="navbar-nav my-2 mr-auto">
               <li className="nav-item">
@@ -290,6 +296,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     to="/search"
                     className="nav-link"
                     title={i18n.t("search")}
+                    onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                   >
                     <Icon icon="search" />
                   </NavLink>
@@ -365,67 +372,64 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </ul>
                 )}
                 {person && (
-                  <ul className="navbar-nav">
-                    <li className="nav-item dropdown">
-                      <button
-                        className="nav-link btn btn-link dropdown-toggle"
-                        onClick={linkEvent(this, this.handleToggleDropdown)}
-                        id="navbarDropdown"
-                        role="button"
-                        aria-expanded="false"
-                      >
-                        <span>
-                          {showAvatars() && person.avatar && (
-                            <PictrsImage src={person.avatar} icon />
-                          )}
-                          {person.display_name ?? person.name}
-                        </span>
-                      </button>
-                      {this.state.showDropdown && (
-                        <div
-                          className="dropdown-content"
-                          onMouseLeave={linkEvent(
+                  <div className="dropdown">
+                    <button
+                      className="btn dropdown-toggle"
+                      role="button"
+                      aria-expanded="false"
+                      data-bs-toggle="dropdown"
+                    >
+                      {showAvatars() && person.avatar && (
+                        <PictrsImage src={person.avatar} icon />
+                      )}
+                      {person.display_name ?? person.name}
+                    </button>
+                    <ul
+                      className="dropdown-menu"
+                      style={{ "min-width": "fit-content" }}
+                    >
+                      <li>
+                        <NavLink
+                          to={`/u/${person.name}`}
+                          className="dropdown-item px-2"
+                          title={i18n.t("profile")}
+                          onMouseUp={linkEvent(
                             this,
-                            this.handleToggleDropdown
+                            this.handleHideExpandNavbar
                           )}
                         >
-                          <li className="nav-item">
-                            <NavLink
-                              to={`/u/${person.name}`}
-                              className="nav-link"
-                              title={i18n.t("profile")}
-                            >
-                              <Icon icon="user" classes="mr-1" />
-                              {i18n.t("profile")}
-                            </NavLink>
-                          </li>
-                          <li className="nav-item">
-                            <NavLink
-                              to="/settings"
-                              className="nav-link"
-                              title={i18n.t("settings")}
-                            >
-                              <Icon icon="settings" classes="mr-1" />
-                              {i18n.t("settings")}
-                            </NavLink>
-                          </li>
-                          <li>
-                            <hr className="dropdown-divider" />
-                          </li>
-                          <li className="nav-item">
-                            <button
-                              className="nav-link btn btn-link"
-                              onClick={linkEvent(this, this.handleLogoutClick)}
-                              title="test"
-                            >
-                              <Icon icon="log-out" classes="mr-1" />
-                              {i18n.t("logout")}
-                            </button>
-                          </li>
-                        </div>
-                      )}
-                    </li>
-                  </ul>
+                          <Icon icon="user" classes="mr-1" />
+                          {i18n.t("profile")}
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to="/settings"
+                          className="dropdown-item px-2"
+                          title={i18n.t("settings")}
+                          onMouseUp={linkEvent(
+                            this,
+                            this.handleHideExpandNavbar
+                          )}
+                        >
+                          <Icon icon="settings" classes="mr-1" />
+                          {i18n.t("settings")}
+                        </NavLink>
+                      </li>
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item btn btn-link px-2"
+                          onClick={linkEvent(this, this.handleLogoutClick)}
+                        >
+                          <Icon icon="log-out" classes="mr-1" />
+                          {i18n.t("logout")}
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
                 )}
               </>
             ) : (
@@ -458,6 +462,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     );
   }
 
+  handleClickOutsideMenu(event: MouseEvent) {
+    if (
+      event.target &&
+      !(
+        this.menuRef.current?.contains(event.target as Node) ||
+        this.menuButtonRef.current?.contains(event.target as Node)
+      )
+    ) {
+      this.setState({ expanded: false });
+    }
+  }
+
   get moderatesSomething(): boolean {
     let mods = UserService.Instance.myUserInfo?.moderates;
     let moderatesS = (mods && mods.length > 0) || false;
@@ -469,16 +485,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   handleHideExpandNavbar(i: Navbar) {
-    i.setState({ expanded: false, showDropdown: false });
+    i.setState({ expanded: false });
   }
 
   handleLogoutClick(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
+    i.setState({ expanded: false });
     UserService.Instance.logout();
-  }
-
-  handleToggleDropdown(i: Navbar) {
-    i.setState({ showDropdown: !i.state.showDropdown });
   }
 
   parseMessage(msg: any) {
