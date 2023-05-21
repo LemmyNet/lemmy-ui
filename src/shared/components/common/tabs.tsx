@@ -15,7 +15,6 @@ interface TabsState {
 }
 
 function handleSwitchTab({ ctx, tab }: { ctx: Tabs; tab: string }) {
-  console.log(tab);
   ctx.setState({ currentTab: tab });
 }
 
