@@ -29,7 +29,7 @@ export class ErrorPage extends Component<any, any> {
               <a href="https://matrix.to/#/#lemmy-space:matrix.org">#</a>#
             </T>
           ) : (
-            "The page you are looking for does not exist."
+            i18n.t("not_found_page_message")
           )}
         </p>
         {!errorPageData && (
