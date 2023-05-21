@@ -1,6 +1,8 @@
 import { Component } from "inferno";
+import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { IsoDataOptionalSite } from "shared/interfaces";
+import { i18n } from "../../i18next";
+import { IsoDataOptionalSite } from "../../interfaces";
 import { setIsoData } from "../../utils";
 
 export class ErrorPage extends Component<any, any> {
@@ -15,38 +17,35 @@ export class ErrorPage extends Component<any, any> {
 
     return (
       <div className="container-lg text-center">
-        <h1>{errorPageData ? "Error!" : "Page Not Found"}</h1>
+        <h1>
+          {errorPageData
+            ? i18n.t("error_page_title")
+            : i18n.t("not_found_page_title")}
+        </h1>
         <p className="p-4">
           {errorPageData ? (
-            <>
-              There was an error on the server. Try refreshing your browser. If
-              that doesn&apos;t work, come back at a later time. If the problem
-              persists, you can seek help in the{" "}
-              <a href="https://lemmy.ml/c/lemmy_support">
-                Lemmy support community
-              </a>{" "}
-              or the{" "}
-              <a href="https://matrix.to/#/#lemmy-space:matrix.org">
-                Lemmy Matrix room
-              </a>
-              .
-            </>
+            <T i18nKey="error_page_paragraph" class="d-inline">
+              #<a href="https://lemmy.ml/c/lemmy_support">#</a>#
+              <a href="https://matrix.to/#/#lemmy-space:matrix.org">#</a>#
+            </T>
           ) : (
             "The page you are looking for does not exist."
           )}
         </p>
         {!errorPageData && (
           <Link to="/" replace>
-            Click here to return to your home page.
+            {i18n.t("not_found_return_home_button")}
           </Link>
         )}
         {errorPageData?.adminMatrixIds &&
           errorPageData.adminMatrixIds.length > 0 && (
             <>
               <div>
-                If you would like to reach out to one of{" "}
-                {this.isoData.site_res?.site_view.site.name ?? "this instance"}
-                &apos;s admins for support, try the following Matrix addresses:
+                {i18n.t("error_page_admin_matrix", {
+                  instance:
+                    this.isoData.site_res?.site_view.site.name ??
+                    "this instance",
+                })}
               </div>
               <ul className="mx-auto mt-2" style={{ width: "fit-content" }}>
                 {errorPageData.adminMatrixIds.map(matrixId => (
