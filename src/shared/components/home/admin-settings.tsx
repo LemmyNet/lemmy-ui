@@ -157,6 +157,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                     localSiteRateLimit={
                       this.state.siteRes.site_view.local_site_rate_limit
                     }
+                    applicationQuestion={
+                      this.state.siteRes.site_view.local_site
+                        .application_question
+                    }
                   />
                 ),
               },

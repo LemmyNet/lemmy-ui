@@ -35,6 +35,7 @@ export default class Tabs extends Component<TabsProps, TabsState> {
           {this.props.tabs.map(({ key, label }) => (
             <li key={key} className="nav-item">
               <button
+                type="button"
                 className={`nav-link btn${
                   this.state?.currentTab === key ? " active" : ""
                 }`}
