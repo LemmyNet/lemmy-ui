@@ -1591,3 +1591,13 @@ export function isAuthPath(pathname: string) {
     pathname
   );
 }
+
+export function canShare() {
+  return isBrowser() && !!navigator.canShare;
+}
+
+export function share(shareData: ShareData) {
+  if (isBrowser()) {
+    navigator.share(shareData);
+  }
+}
