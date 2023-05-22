@@ -57,12 +57,7 @@ export class ErrorPage extends Component<any, any> {
             </>
           )}
         {errorPageData?.error && (
-          <code
-            style={{ "text-align": "start" }}
-            className="d-block bg-dark text-light p-2 mt-4"
-          >
-            {errorPageData.error}
-          </code>
+          <strong className="d-block">Error Code: {errorPageData.error}</strong>
         )}
       </div>
     );

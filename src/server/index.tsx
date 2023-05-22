@@ -294,13 +294,11 @@ async function fetchIconPng(iconUrl: string) {
     .then(blob => blob.arrayBuffer());
 }
 
-function getErrorPageData(error: string, site?: GetSiteResponse) {
+function getErrorPageData(error: Error, site?: GetSiteResponse) {
   const errorPageData: ErrorPageData = {};
 
-  // Exact error should only be seen in a development environment. Users
-  // in production will get a more generic message.
-  if (process.env.NODE_ENV === "development") {
-    errorPageData.error = error;
+  if (site) {
+    errorPageData.error = error.message;
   }
 
   const adminMatrixIds = site?.admins
