@@ -356,7 +356,9 @@ export async function generateManifestBase64(site: Site) {
 
 async function fetchIconPng(iconUrl: string) {
   return await fetch(
-    iconUrl.replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
+    iconUrl
+      .replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
+      .replace(/https/, "http")
   )
     .then(res => res.blob())
     .then(blob => blob.arrayBuffer());
