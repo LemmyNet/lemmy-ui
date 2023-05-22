@@ -90,6 +90,7 @@
   "devDependencies": {
     "@babel/core": "^7.21.8",
     "@types/autosize": "^4.0.0",
+    "@types/bootstrap": "^5.2.6",
     "@types/express": "^4.17.17",
     "@types/html-to-text": "^9.0.0",
     "@types/markdown-it": "^12.2.3",
