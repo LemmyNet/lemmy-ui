@@ -1053,7 +1053,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : i18n.t("link");
 
     // The context button should show the parent comment by default
-    let parentCommentId = getCommentParentId(cv.comment) ?? cv.comment.id;
+    const parentCommentId = getCommentParentId(cv.comment) ?? cv.comment.id;
 
     return (
       <>
