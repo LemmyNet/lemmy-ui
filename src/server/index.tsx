@@ -187,10 +187,13 @@ server.get("/*", async (req, res) => {
 
     const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
 
-    const appleTouchIcon = site.site_view.site.icon
-      ? `data:image/png;base64,${sharp(
-          await fetchIconPng(site.site_view.site.icon)
-        )
+    let appleTouchIcon = favIconPngUrl;
+
+    if (site.site_view.site.icon) {
+      const iconFile = await fetchIconPng(site.site_view.site.icon);
+
+      if (iconFile) {
+        appleTouchIcon = `data:image/png;base64,${sharp(iconFile)
           .resize(180, 180)
           .extend({
             bottom: 20,
@@ -201,8 +204,9 @@ server.get("/*", async (req, res) => {
           })
           .png()
           .toBuffer()
-          .then(buf => buf.toString("base64"))}`
-      : favIconPngUrl;
+          .then(buf => buf.toString("base64"))}`;
+      }
+    }
 
     res.send(`
            <!DOCTYPE html>
@@ -355,5 +359,6 @@ async function fetchIconPng(iconUrl: string) {
     iconUrl.replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
   )
     .then(res => res.blob())
-    .then(blob => blob.arrayBuffer());
+    .then(blob => blob.arrayBuffer())
+    .catch(() => null);
 }
