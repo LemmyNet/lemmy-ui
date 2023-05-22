@@ -12,7 +12,7 @@ import process from "process";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { App } from "../shared/components/app/app";
-import { getHttpBase, getHttpBaseInternal } from "../shared/env";
+import { getHttpBaseExternal, getHttpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
@@ -311,11 +311,7 @@ const defaultLogoPathDirectory = path.join(
 );
 
 export async function generateManifestBase64(site: Site) {
-  const url = (
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:1236/"
-      : getHttpBase()
-  ).replace(/\/$/g, "");
+  const url = getHttpBaseExternal();
   const icon = site.icon ? await fetchIconPng(site.icon) : null;
 
   const manifest = {

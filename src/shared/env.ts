@@ -13,7 +13,7 @@ export function getExternalHost() {
     ? `${window.location.hostname}${
         ["1234", "1235"].includes(window.location.port)
           ? ":8536"
-          : window.location.port == ""
+          : window.location.port === ""
           ? ""
           : `:${window.location.port}`
       }`
@@ -50,6 +50,10 @@ export function getHttpBaseInternal() {
 export function getHttpBase() {
   return getBaseLocal(getSecure());
 }
+export function getHttpBaseExternal() {
+  return `http${getSecure()}://${getExternalHost()}`;
+}
+
 export function getWsUri() {
   return `ws${getSecure()}://${getWsHost()}/api/v3/ws`;
 }
