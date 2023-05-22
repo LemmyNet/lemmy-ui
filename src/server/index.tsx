@@ -355,11 +355,11 @@ export async function generateManifestBase64(site: Site) {
 }
 
 async function fetchIconPng(iconUrl: string) {
-  return await fetch(
-    iconUrl
-      .replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
-      .replace(/https/, "http")
-  )
+  const fetchIconUrl = iconUrl
+    .replace(/https?:\/\/localhost:\d+/g, getHttpBaseInternal())
+    .replace(/https/, "http");
+  console.log(`PNG URL: ${fetchIconUrl}`);
+  return await fetch(fetchIconUrl)
     .then(res => res.blob())
     .then(blob => blob.arrayBuffer());
 }
