@@ -22,16 +22,14 @@ export class ErrorPage extends Component<any, any> {
             ? i18n.t("error_page_title")
             : i18n.t("not_found_page_title")}
         </h1>
-        <p className="p-4">
-          {errorPageData ? (
-            <T i18nKey="error_page_paragraph" class="d-inline">
-              #<a href="https://lemmy.ml/c/lemmy_support">#</a>#
-              <a href="https://matrix.to/#/#lemmy-space:matrix.org">#</a>#
-            </T>
-          ) : (
-            i18n.t("not_found_page_message")
-          )}
-        </p>
+        {errorPageData ? (
+          <T i18nKey="error_page_paragraph" className="p-4" parent="p">
+            #<a href="https://lemmy.ml/c/lemmy_support">#</a>#
+            <a href="https://matrix.to/#/#lemmy-space:matrix.org">#</a>#
+          </T>
+        ) : (
+          <p>{i18n.t("not_found_page_message")}</p>
+        )}
         {!errorPageData && (
           <Link to="/" replace>
             {i18n.t("not_found_return_home_button")}
@@ -57,7 +55,13 @@ export class ErrorPage extends Component<any, any> {
             </>
           )}
         {errorPageData?.error && (
-          <strong className="d-block">Error Code: {errorPageData.error}</strong>
+          <T
+            i18nKey="error_code_message"
+            parent="p"
+            interpolation={{ error: errorPageData.error }}
+          >
+            #<strong className="text-danger">#</strong>#
+          </T>
         )}
       </div>
     );
