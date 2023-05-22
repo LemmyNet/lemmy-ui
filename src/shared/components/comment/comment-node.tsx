@@ -42,6 +42,7 @@ import {
   colorList,
   commentTreeMaxDepth,
   futureDaysToUnixTime,
+  getCommentParentId,
   isAdmin,
   isBanned,
   isMod,
@@ -282,8 +283,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 )}
               </button>
               {this.linkBtn(true)}
+              <span className="mx-1 badge badge-secondary">
+                {
+                  this.props.allLanguages.find(
+                    lang => lang.id === cv.comment.language_id
+                  )?.name
+                }
+              </span>
               {/* This is an expanding spacer for mobile */}
-              <div className="mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2"></div>
+              <div className="mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
               {showScores() && (
                 <>
                   <a
@@ -1044,11 +1052,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       ? i18n.t("show_context")
       : i18n.t("link");
 
+    // The context button should show the parent comment by default
+    const parentCommentId = getCommentParentId(cv.comment) ?? cv.comment.id;
+
     return (
       <>
         <Link
           className={classnames}
-          to={`/comment/${cv.comment.id}`}
+          to={`/comment/${parentCommentId}`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />
