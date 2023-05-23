@@ -10,7 +10,7 @@ import {
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { WebSocketService } from "../../services";
 import {
   getRecipientIdFromProps,
   isBrowser,
@@ -50,11 +50,6 @@ export class CreatePrivateMessage extends Component<
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
-
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {

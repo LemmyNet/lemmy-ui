@@ -35,7 +35,7 @@ import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 
 interface NavbarProps {
-  siteRes: GetSiteResponse;
+  siteRes?: GetSiteResponse;
 }
 
 interface NavbarState {
