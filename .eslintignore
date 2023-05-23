@@ -2,6 +2,6 @@ generate_translations.js
 webpack.config.js
 src/api_tests
 **/*.png
-**/*.svg
 **/*.css
 **/*.scss
+**/*.svg
