@@ -42,6 +42,7 @@ import {
   colorList,
   commentTreeMaxDepth,
   futureDaysToUnixTime,
+  getCommentParentId,
   isAdmin,
   isBanned,
   isMod,
@@ -1051,11 +1052,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       ? i18n.t("show_context")
       : i18n.t("link");
 
+    // The context button should show the parent comment by default
+    const parentCommentId = getCommentParentId(cv.comment) ?? cv.comment.id;
+
     return (
       <>
         <Link
           className={classnames}
-          to={`/comment/${cv.comment.id}`}
+          to={`/comment/${parentCommentId}`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />

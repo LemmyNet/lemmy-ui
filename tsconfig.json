@@ -1,29 +1,28 @@
 {
-	"compilerOptions": {
-		"pretty": true,
-		"target": "esnext",
-		"module": "esnext",
-		"allowSyntheticDefaultImports": true,
-		"preserveConstEnums": true,
-		"sourceMap": true,
-		"moduleResolution": "node",
-		"lib": ["es2017", "dom"],
-		"types": [
-			"inferno"
-		],
-		"jsx": "preserve",
-		"noUnusedLocals": true,
-		"baseUrl": "./src",
-		"noEmit": true,
-		"skipLibCheck": true,
-		"noUnusedParameters": true,
-		"noImplicitReturns": true,
+  "compilerOptions": {
+    "pretty": true,
+    "target": "esnext",
+    "module": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "lib": ["es2017", "dom"],
+    "types": ["inferno"],
+    "jsx": "preserve",
+    "noUnusedLocals": true,
+    "baseUrl": "./src",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "experimentalDecorators": true,
     "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true
-	},
-	"include": [
-		"src/**/*",
-		"node_modules/inferno/dist/index.d.ts"
-	]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "node_modules/inferno/dist/index.d.ts"
+  ]
 }

@@ -12,7 +12,7 @@
     "build:prod": "webpack --mode=production",
     "clean": "yarn run rimraf dist",
     "dev": "yarn start",
-    "lint": "node generate_translations.js && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx src && prettier --check \"src/**/*.{ts,tsx,js,css,scss}\"",
+    "lint": "node generate_translations.js && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx \"src/**\" && prettier --check \"src/**/*.{ts,tsx,js,css,scss}\"",
     "prepare": "husky install",
     "start": "yarn build:dev --watch"
   },
@@ -89,6 +89,7 @@
   "devDependencies": {
     "@babel/core": "^7.21.8",
     "@types/autosize": "^4.0.0",
+    "@types/bootstrap": "^5.2.6",
     "@types/express": "^4.17.17",
     "@types/html-to-text": "^9.0.0",
     "@types/markdown-it": "^12.2.3",
