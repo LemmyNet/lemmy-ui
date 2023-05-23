@@ -18,7 +18,6 @@ const rateLimitTypes = [
 interface RateLimitsProps {
   handleRateLimit: FormEventHandler<HTMLInputElement>;
   handleRateLimitPerSecond: FormEventHandler<HTMLInputElement>;
-  rateLimitLabel: string;
   rateLimitValue?: number;
   rateLimitPerSecondValue?: number;
 }
@@ -49,14 +48,13 @@ interface RateLimitFormState {
 function RateLimits({
   handleRateLimit,
   handleRateLimitPerSecond,
-  rateLimitLabel,
   rateLimitPerSecondValue,
   rateLimitValue,
 }: RateLimitsProps) {
   return (
     <div className="form-group row">
       <label className="col-12 col-form-label" htmlFor="rate-limit">
-        {rateLimitLabel}
+        {i18n.t("rate_limit")}
       </label>
       <input
         type="number"
@@ -171,11 +169,11 @@ export default class RateLimitsForm extends Component<
   render() {
     return (
       <form onSubmit={linkEvent(this, submitRateLimitForm)}>
-        <h5>Rate Limit Options</h5>
+        <h5>{i18n.t("rate_limit_header")}</h5>
         <Tabs
           tabs={rateLimitTypes.map(rateLimitType => ({
             key: rateLimitType,
-            label: rateLimitType,
+            label: i18n.t(`rate_limit_${rateLimitType}`),
             getNode: () => (
               <RateLimits
                 handleRateLimit={linkEvent(
@@ -186,7 +184,6 @@ export default class RateLimitsForm extends Component<
                   { rateLimitType, ctx: this },
                   handlePerSecondChange
                 )}
-                rateLimitLabel={i18n.t(`rate_limit_${rateLimitType}`)}
                 rateLimitValue={this.state.form[rateLimitType]}
                 rateLimitPerSecondValue={
                   this.state.form[`${rateLimitType}_per_second`]
