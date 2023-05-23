@@ -36,12 +36,12 @@ interface MarkdownTextAreaProps {
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
-  finished?: boolean;
   showLanguage?: boolean;
+  loading: boolean;
   hideNavigationWarnings?: boolean;
-  onContentChange?(val: string): any;
-  onReplyCancel?(): any;
-  onSubmit?(msg: { val?: string; formId: string; languageId?: number }): any;
+  onContentChange?(val: string): void;
+  onReplyCancel?(): void;
+  onSubmit(content: string, formId: string, languageId?: number): void;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
 }
@@ -55,7 +55,6 @@ interface MarkdownTextAreaState {
   content?: string;
   languageId?: number;
   previewMode: boolean;
-  loading: boolean;
   imageUploadStatus?: ImageUploadStatus;
 }
 
@@ -71,7 +70,6 @@ export class MarkdownTextArea extends Component<
     content: this.props.initialContent,
     languageId: this.props.initialLanguageId,
     previewMode: false,
-    loading: false,
   };
 
   constructor(props: any, context: any) {
@@ -115,7 +113,7 @@ export class MarkdownTextArea extends Component<
 
   componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
     if (nextProps.finished) {
-      this.setState({ previewMode: false, loading: false, content: undefined });
+      this.setState({ previewMode: false, content: undefined });
       if (this.props.replyType) {
         this.props.onReplyCancel?.();
       }
@@ -440,13 +438,7 @@ export class MarkdownTextArea extends Component<
 
   handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
-    let msg = {
-      val: i.state.content,
-      formId: i.formId,
-      languageId: i.state.languageId,
-    };
-    i.props.onSubmit?.(msg);
+    i.props.onSubmit(i.state.content!!, formId, languageId);
   }
 
   handleReplyCancel(i: MarkdownTextArea) {

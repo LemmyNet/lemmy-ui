@@ -1,25 +1,12 @@
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import {
-  CommentResponse,
-  CreateComment,
-  EditComment,
-  Language,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { CommentId, Language, LanguageId, PostId } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { CommentNodeI } from "shared/interfaces";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
-import {
-  capitalizeFirstLetter,
-  myAuth,
-  wsClient,
-  wsSubscribe,
-} from "../../utils";
+import { UserService } from "../../services";
+import { capitalizeFirstLetter } from "../../utils";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
@@ -34,12 +21,24 @@ interface CommentFormProps {
   onReplyCancel?(): any;
   allLanguages: Language[];
   siteLanguages: number[];
+  onCreateComment(
+    content: string,
+    formId: string,
+    postId: PostId,
+    parentId?: CommentId,
+    languageId?: LanguageId
+  ): void;
+  onEditComment(
+    content: string,
+    formId: string,
+    commentId: CommentId,
+    languageId?: LanguageId
+  ): void;
+  loading: boolean;
 }
 
 interface CommentFormState {
   buttonTitle: string;
-  finished: boolean;
-  formId?: string;
 }
 
 export class CommentForm extends Component<CommentFormProps, CommentFormState> {
@@ -51,7 +50,6 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         : this.props.edit
         ? capitalizeFirstLetter(i18n.t("save"))
         : capitalizeFirstLetter(i18n.t("reply")),
-    finished: false,
   };
 
   constructor(props: any, context: any) {
@@ -59,9 +57,6 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
 
     this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
   }
 
   componentWillUnmount() {
@@ -83,7 +78,6 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             initialContent={initialContent}
             showLanguage
             buttonTitle={this.state.buttonTitle}
-            finished={this.state.finished}
             replyType={typeof this.props.node !== "number"}
             focus={this.props.focus}
             disabled={this.props.disabled}
@@ -92,6 +86,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             placeholder={i18n.t("comment_here")}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            loading={this.props.loading}
           />
         ) : (
           <div className="alert alert-warning" role="alert">
@@ -108,78 +103,37 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
     );
   }
 
-  handleCommentSubmit(msg: {
-    val: string;
-    formId: string;
-    languageId?: number;
-  }) {
-    let content = msg.val;
-    let language_id = msg.languageId;
+  handleCommentSubmit(content: string, formId: string, languageId?: number) {
     let node = this.props.node;
 
-    this.setState({ formId: msg.formId });
-
-    let auth = myAuth();
-    if (auth) {
-      if (typeof node === "number") {
-        let postId = node;
-        let form: CreateComment = {
-          content,
-          form_id: this.state.formId,
-          post_id: postId,
-          language_id,
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.createComment(form));
+    if (typeof node === "number") {
+      let postId = node;
+      this.props.onCreateComment(
+        content,
+        formId,
+        postId,
+        undefined,
+        languageId
+      );
+    } else {
+      if (this.props.edit) {
+        let commentId = node.comment_view.comment.id;
+        this.props.onEditComment(content, formId, commentId, languageId);
       } else {
-        if (this.props.edit) {
-          let form: EditComment = {
-            content,
-            form_id: this.state.formId,
-            comment_id: node.comment_view.comment.id,
-            language_id,
-            auth,
-          };
-          WebSocketService.Instance.send(wsClient.editComment(form));
-        } else {
-          let form: CreateComment = {
-            content,
-            form_id: this.state.formId,
-            post_id: node.comment_view.post.id,
-            parent_id: node.comment_view.comment.id,
-            language_id,
-            auth,
-          };
-          WebSocketService.Instance.send(wsClient.createComment(form));
-        }
+        let postId = node.comment_view.post.id;
+        let parentId = node.comment_view.comment.id;
+        this.props.onCreateComment(
+          content,
+          formId,
+          postId,
+          parentId,
+          languageId
+        );
       }
     }
   }
 
   handleReplyCancel() {
     this.props.onReplyCancel?.();
-  }
-
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-
-    // Only do the showing and hiding if logged in
-    if (UserService.Instance.myUserInfo) {
-      if (
-        op == UserOperation.CreateComment ||
-        op == UserOperation.EditComment
-      ) {
-        let data = wsJsonToRes<CommentResponse>(msg);
-
-        // This only finishes this form, if the randomly generated form_id matches the one received
-        if (this.state.formId && this.state.formId == data.form_id) {
-          this.setState({ finished: true });
-
-          // Necessary because it broke tribute for some reason
-          this.setState({ finished: false });
-        }
-      }
-    }
   }
 }

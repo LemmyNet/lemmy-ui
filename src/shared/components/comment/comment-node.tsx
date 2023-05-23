@@ -7,6 +7,7 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
+  CommentId,
   CommentReplyView,
   CommentView,
   CommunityModeratorView,
@@ -34,7 +35,7 @@ import {
   CommentViewType,
   PurgeType,
 } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
 import {
   amCommunityCreator,
   canAdmin,
@@ -107,6 +108,10 @@ interface CommentNodeProps {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
+  onCommentSave(commentId: CommentId, saved: boolean): void;
+  onCommentRead(commentId: CommentId, read: boolean): void;
+  saveLoading: boolean;
+  readLoading: boolean;
 }
 
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
@@ -132,8 +137,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     score: this.props.node.comment_view.counts.score,
     upvotes: this.props.node.comment_view.counts.upvotes,
     downvotes: this.props.node.comment_view.counts.downvotes,
-    readLoading: false,
-    saveLoading: false,
   };
 
   constructor(props: any, context: any) {

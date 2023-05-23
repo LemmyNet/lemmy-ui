@@ -13,7 +13,6 @@ import {
   GetSiteMetadata,
   GetSiteResponse,
   Language,
-  LemmyHttp,
   LemmyWebsocket,
   MyUserInfo,
   Person,
@@ -37,14 +36,11 @@ import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
 import moment from "moment";
-import { Subscription } from "rxjs";
-import { delay, retryWhen, take } from "rxjs/operators";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
-import { getHttpBase } from "./env";
 import { i18n, languages } from "./i18next";
-import { CommentNodeI, DataType, IsoData } from "./interfaces";
-import { UserService, WebSocketService } from "./services";
+import { CommentNodeI, DataType, IsoData, RequestState } from "./interfaces";
+import { HttpService, UserService } from "./services";
 
 let Tribute: any;
 if (isBrowser()) {
@@ -342,8 +338,7 @@ export function capitalizeFirstLetter(str: string): string {
 
 export async function getSiteMetadata(url: string) {
   let form: GetSiteMetadata = { url };
-  let client = new LemmyHttp(getHttpBase());
-  return client.getSiteMetadata(form);
+  return HttpService.client.getSiteMetadata(form);
 }
 
 export function getDataTypeString(dt: DataType) {
@@ -911,17 +906,16 @@ export function getCommentIdFromProps(props: any): number | undefined {
   return id ? Number(id) : undefined;
 }
 
-export function editCommentRes(data: CommentView, comments?: CommentView[]) {
-  let found = comments?.find(c => c.comment.id == data.comment.id);
-  if (found) {
-    found.comment.content = data.comment.content;
-    found.comment.distinguished = data.comment.distinguished;
-    found.comment.updated = data.comment.updated;
-    found.comment.removed = data.comment.removed;
-    found.comment.deleted = data.comment.deleted;
-    found.counts.upvotes = data.counts.upvotes;
-    found.counts.downvotes = data.counts.downvotes;
-    found.counts.score = data.counts.score;
+// TODO make all these immutable
+export function editCommentRes(data: CommentView, comments: CommentView[]): CommentView[] {
+  const foundIndex = comments.findIndex(c => c.comment.id == data.comment.id);
+  if (foundIndex != -1) {
+  const newComments = comments;
+  newComments[foundIndex] = data;
+    return newComments;
+      } else {
+    return comments;
+    
   }
 }
 
@@ -1168,6 +1162,7 @@ export function getDepthFromComment(comment?: CommentI): number | undefined {
   return len ? len - 2 : undefined;
 }
 
+// TODO make immutable
 export function insertCommentIntoTree(
   tree: CommentNodeI[],
   cv: CommentView,
@@ -1273,18 +1268,13 @@ export function setIsoData(context: any): IsoData {
   } else return context.router.staticContext;
 }
 
-export function wsSubscribe(parseMessage: any): Subscription | undefined {
-  if (isBrowser()) {
-    return WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => parseMessage(msg),
-        err => console.error(err),
-        () => console.log("complete")
-      );
-  } else {
-    return undefined;
-  }
+/**
+ * Will be true if your first page load is this route.
+ *
+ * Tells the node server to load the data from the isoData, or the browser to fetch it.
+ */
+export function isInitialRoute(isoData: IsoData, context: any): boolean {
+  return isoData.path == context.router.route.match.url;
 }
 
 moment.updateLocale("en", {
@@ -1360,8 +1350,7 @@ export async function fetchCommunities(q: string) {
     limit: fetchLimit,
     auth: myAuth(false),
   };
-  let client = new LemmyHttp(getHttpBase());
-  return client.search(form);
+  return HttpService.client.search(form);
 }
 
 export async function fetchUsers(q: string) {
@@ -1374,8 +1363,7 @@ export async function fetchUsers(q: string) {
     limit: fetchLimit,
     auth: myAuth(false),
   };
-  let client = new LemmyHttp(getHttpBase());
-  return client.search(form);
+  return HttpService.client.search(form);
 }
 
 export function communitySelectName(cv: CommunityView): string {
@@ -1524,9 +1512,7 @@ export function selectableLanguages(
 }
 
 export function uploadImage(image: File): Promise<UploadImageResponse> {
-  const client = new LemmyHttp(getHttpBase());
-
-  return client.uploadImage({ image });
+  return HttpService.client.uploadImage({ image });
 }
 
 interface EmojiMartCategory {
@@ -1601,5 +1587,21 @@ export function canShare() {
 export function share(shareData: ShareData) {
   if (isBrowser()) {
     navigator.share(shareData);
+  }
+}
+
+export function apiWrapper<ResponseType>(
+  res: ResponseType
+): RequestState<ResponseType> {
+  try {
+    return {
+      state: "success",
+      data: res,
+    };
+  } catch (error) {
+    return {
+      state: "failed",
+      msg: error,
+    };
   }
 }

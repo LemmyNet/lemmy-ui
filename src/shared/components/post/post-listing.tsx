@@ -25,7 +25,7 @@ import {
 import { getExternalHost, getHttpBase } from "../../env";
 import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
 import {
   amAdmin,
   amCommunityCreator,

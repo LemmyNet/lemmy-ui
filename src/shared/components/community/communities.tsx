@@ -98,7 +98,6 @@ export class Communities extends Component<any, CommunitiesState> {
   constructor(props: any, context: any) {
     super(props, context);
     this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -151,7 +150,7 @@ export class Communities extends Component<any, CommunitiesState> {
                     type_={listingType}
                     showLocal={showLocal(this.isoData)}
                     showSubscribed
-                    onChange={this.handleListingTypeChange}
+                    onChange={linkEvent({i: this, val: val}, this.handleListingTypeChange)}
                   />
                 </span>
               </div>
@@ -284,9 +283,9 @@ export class Communities extends Component<any, CommunitiesState> {
     this.updateUrl({ page });
   }
 
-  handleListingTypeChange(val: ListingType) {
-    this.updateUrl({
-      listingType: val,
+  handleListingTypeChange(data: {i: Communities, val: ListingType}) {
+    data.i.updateUrl({
+      listingType: data.val,
       page: 1,
     });
   }
