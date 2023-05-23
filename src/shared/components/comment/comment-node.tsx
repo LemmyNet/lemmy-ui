@@ -283,13 +283,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 )}
               </button>
               {this.linkBtn(true)}
-              <span className="mx-1 badge badge-secondary">
-                {
-                  this.props.allLanguages.find(
-                    lang => lang.id === cv.comment.language_id
-                  )?.name
-                }
-              </span>
+              {cv.comment.language_id != 0 && (
+                <span className="">
+                  {
+                    this.props.allLanguages.find(
+                      lang => lang.id === cv.comment.language_id
+                    )?.name
+                  }
+                </span>
+              )}
               {/* This is an expanding spacer for mobile */}
               <div className="mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
               {showScores() && (

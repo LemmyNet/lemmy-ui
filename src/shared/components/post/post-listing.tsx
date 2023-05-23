@@ -344,13 +344,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </span>
           )}
         </li>
-        <span className="mx-1 badge badge-secondary">
-          {
-            this.props.allLanguages.find(
-              lang => lang.id === post_view.post.language_id
-            )?.name
-          }
-        </span>
+        {post_view.post.language_id != 0 && (
+          <span className="list-inline-item">
+            {
+              this.props.allLanguages.find(
+                lang => lang.id === post_view.post.language_id
+              )?.name
+            }
+          </span>
+        )}
         <li className="list-inline-item">•</li>
         {url && !(hostname(url) === getExternalHost()) && (
           <>
