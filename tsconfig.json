@@ -20,5 +20,9 @@
     "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*", "node_modules/inferno/dist/index.d.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "node_modules/inferno/dist/index.d.ts"
+  ]
 }
