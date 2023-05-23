@@ -3,6 +3,7 @@ import { BrowserRouter } from "inferno-router";
 import { App } from "../shared/components/app/app";
 import { initializeSite } from "../shared/utils";
 
+import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 
 const site = window.isoData.site_res;
