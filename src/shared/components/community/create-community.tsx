@@ -1,9 +1,7 @@
 import { Component } from "inferno";
-import { Redirect } from "inferno-router";
 import { CommunityView, GetSiteResponse } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { UserService } from "../../services/UserService";
 import {
   enableNsfw,
   isBrowser,
@@ -50,7 +48,6 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   render() {
     return (
       <div className="container-lg">
-        {!UserService.Instance.myUserInfo && <Redirect to="/login" />}
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
