@@ -1,5 +1,6 @@
 import { CommentView, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import type { ParsedQs } from "qs";
+import { ErrorPageData } from "./utils";
 
 /**
  * This contains serialized data, it needs to be deserialized before use.
@@ -8,7 +9,11 @@ export interface IsoData {
   path: string;
   routeData: any[];
   site_res: GetSiteResponse;
+  errorPageData?: ErrorPageData;
 }
+
+export type IsoDataOptionalSite = Partial<IsoData> &
+  Pick<IsoData, Exclude<keyof IsoData, "site_res">>;
 
 export interface ILemmyConfig {
   wsHost?: string;

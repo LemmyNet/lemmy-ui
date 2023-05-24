@@ -54,6 +54,7 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SearchableSelect } from "../common/searchable-select";
 import { SortSelect } from "../common/sort-select";
+import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
 
@@ -176,6 +177,8 @@ export class Settings extends Component<any, SettingsState> {
 
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
+    this.userSettings = this.userSettings.bind(this);
+    this.blockCards = this.blockCards.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -253,44 +256,26 @@ export class Settings extends Component<any, SettingsState> {
   render() {
     return (
       <div className="container-lg">
-        <>
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-            description={this.documentTitle}
-            image={this.state.saveUserSettingsForm.avatar}
-          />
-          <ul className="nav nav-tabs mb-2">
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "settings" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "settings" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("settings")}
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "blocks" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "blocks" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("blocks")}
-              </button>
-            </li>
-          </ul>
-          {this.state.currentTab == "settings" && this.userSettings()}
-          {this.state.currentTab == "blocks" && this.blockCards()}
-        </>
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+          description={this.documentTitle}
+          image={this.state.saveUserSettingsForm.avatar}
+        />
+        <Tabs
+          tabs={[
+            {
+              key: "settings",
+              label: i18n.t("settings"),
+              getNode: this.userSettings,
+            },
+            {
+              key: "blocks",
+              label: i18n.t("blocks"),
+              getNode: this.blockCards,
+            },
+          ]}
+        />
       </div>
     );
   }
@@ -1231,9 +1216,6 @@ export class Settings extends Component<any, SettingsState> {
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.SaveUserSettings) {
-      let data = wsJsonToRes<LoginResponse>(msg);
-      UserService.Instance.login(data);
-      location.reload();
       this.setState({ saveUserSettingsLoading: false });
       toast(i18n.t("saved"));
       window.scrollTo(0, 0);
