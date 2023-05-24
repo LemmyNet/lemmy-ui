@@ -240,23 +240,23 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes={`text-danger mr-2`} />
               )}
-              {isMod_ && (
-                <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t("mod")}
-                </div>
-              )}
-              {isAdmin_ && (
-                <div className="badge badge-light d-none d-sm-inline mr-2">
-                  {i18n.t("admin")}
-                </div>
-              )}
               {this.isPostCreator && (
                 <div className="badge badge-light d-none d-sm-inline mr-2">
                   {i18n.t("creator")}
                 </div>
               )}
+              {isMod_ && (
+                <div className="badge badge-muted d-none d-sm-inline mr-2">
+                  {i18n.t("mod")}
+                </div>
+              )}
+              {isAdmin_ && (
+                <div className="badge badge-muted d-none d-sm-inline mr-2">
+                  {i18n.t("admin")}
+                </div>
+              )}
               {cv.creator.bot_account && (
-                <div className="badge badge-light d-none d-sm-inline mr-2">
+                <div className="badge badge-muted d-none d-sm-inline mr-2">
                   {i18n.t("bot_account").toLowerCase()}
                 </div>
               )}
@@ -283,8 +283,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 )}
               </button>
               {this.linkBtn(true)}
-              {cv.comment.language_id != 0 && (
-                <span className="">
+              {cv.comment.language_id !== 0 && (
+                <span className="badge badge-muted d-none d-sm-inline mr-2">
                   {
                     this.props.allLanguages.find(
                       lang => lang.id === cv.comment.language_id
