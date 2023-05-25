@@ -860,36 +860,56 @@ export function editCommentRes(
   data: CommentView,
   comments: CommentView[]
 ): CommentView[] {
-  const foundIndex = comments.findIndex(c => c.comment.id == data.comment.id);
-  if (foundIndex != -1) {
-    const newComments = comments;
-    newComments[foundIndex] = data;
-    return newComments;
-  } else {
-    return comments;
-  }
+  return editRes("comment", data, comments);
 }
 
 export function editCommunityRes(
   data: CommunityView,
   communities: CommunityView[]
 ): CommunityView[] {
-  const foundIndex = communities.findIndex(
-    c => c.community.id == data.community.id
-  );
-  if (foundIndex != -1) {
-    const newcommunities = communities;
-    newcommunities[foundIndex] = data;
-    return newcommunities;
-  } else {
-    return communities;
-  }
+  return editRes("community", data, communities);
 }
 
-export function saveCommentRes(data: CommentView, comments?: CommentView[]) {
-  let found = comments?.find(c => c.comment.id == data.comment.id);
-  if (found) {
-    found.saved = data.saved;
+export function editPostRes(data: PostView, posts: PostView[]): PostView[] {
+  return editRes("post", data, posts);
+}
+
+export function editPostReportRes(
+  data: PostReportView,
+  reports: PostReportView[]
+) {
+  return editRes("post_report", data, reports);
+}
+
+export function editCommentReportRes(
+  data: CommentReportView,
+  reports: CommentReportView[]
+): CommentReportView[] {
+  return editRes("comment_report", data, reports);
+}
+
+export function editPrivateMessageReportRes(
+  data: PrivateMessageReportView,
+  reports: PrivateMessageReportView[]
+): PrivateMessageReportView[] {
+  return editRes("private_message_report", data, reports);
+}
+
+export function editRegistrationApplicationRes(
+  data: RegistrationApplicationView,
+  apps: RegistrationApplicationView[]
+): RegistrationApplicationView[] {
+  return editRes("registration_application", data, apps);
+}
+
+function editRes<T>(fieldName: string, data: T, list: T[]): T[] {
+  const foundIndex = list.findIndex(c => c[fieldName].id == data[fieldName].id);
+  if (foundIndex != -1) {
+    const newList = list;
+    newList[foundIndex] = data;
+    return newList;
+  } else {
+    return list;
   }
 }
 
@@ -932,123 +952,6 @@ export function updateCommunityBlock(
       );
       toast(`${i18n.t("unblocked")} ${data.community_view.community.name}`);
     }
-  }
-}
-
-export function createCommentLikeRes(
-  data: CommentView,
-  comments?: CommentView[]
-) {
-  let found = comments?.find(c => c.comment.id === data.comment.id);
-  if (found) {
-    found.counts.score = data.counts.score;
-    found.counts.upvotes = data.counts.upvotes;
-    found.counts.downvotes = data.counts.downvotes;
-    if (data.my_vote !== null) {
-      found.my_vote = data.my_vote;
-    }
-  }
-}
-
-export function createPostLikeFindRes(data: PostView, posts?: PostView[]) {
-  let found = posts?.find(p => p.post.id == data.post.id);
-  if (found) {
-    createPostLikeRes(data, found);
-  }
-}
-
-export function createPostLikeRes(data: PostView, post_view?: PostView) {
-  if (post_view) {
-    post_view.counts.score = data.counts.score;
-    post_view.counts.upvotes = data.counts.upvotes;
-    post_view.counts.downvotes = data.counts.downvotes;
-    if (data.my_vote !== null) {
-      post_view.my_vote = data.my_vote;
-    }
-  }
-}
-
-export function editPostFindRes(data: PostView, posts?: PostView[]) {
-  let found = posts?.find(p => p.post.id == data.post.id);
-  if (found) {
-    editPostRes(data, found);
-  }
-}
-
-export function editPostRes(data: PostView, post: PostView) {
-  if (post) {
-    post.post.url = data.post.url;
-    post.post.name = data.post.name;
-    post.post.nsfw = data.post.nsfw;
-    post.post.deleted = data.post.deleted;
-    post.post.removed = data.post.removed;
-    post.post.featured_community = data.post.featured_community;
-    post.post.featured_local = data.post.featured_local;
-    post.post.body = data.post.body;
-    post.post.locked = data.post.locked;
-    post.saved = data.saved;
-  }
-}
-
-export function updatePostReportRes(
-  data: PostReportView,
-  reports: PostReportView[]
-) {
-  let foundIndex = reports.findIndex(
-    p => p.post_report.id == data.post_report.id
-  );
-  if (foundIndex != -1) {
-    const newReports = reports;
-    newReports[foundIndex] = data;
-    return newReports;
-  } else {
-    return reports;
-  }
-}
-
-export function updateCommentReportRes(
-  data: CommentReportView,
-  reports: CommentReportView[]
-): CommentReportView[] {
-  let foundIndex = reports.findIndex(
-    c => c.comment_report.id == data.comment_report.id
-  );
-  if (foundIndex != -1) {
-    const newReports = reports;
-    newReports[foundIndex] = data;
-    return newReports;
-  } else {
-    return reports;
-  }
-}
-
-export function updatePrivateMessageReportRes(
-  data: PrivateMessageReportView,
-  reports: PrivateMessageReportView[]
-): PrivateMessageReportView[] {
-  let foundIndex = reports.findIndex(
-    c => c.private_message_report.id == data.private_message_report.id
-  );
-  if (foundIndex != -1) {
-    const newReports = reports;
-    newReports[foundIndex] = data;
-    return newReports;
-  } else {
-    return reports;
-  }
-}
-
-export function updateRegistrationApplicationRes(
-  data: RegistrationApplicationView,
-  applications?: RegistrationApplicationView[]
-) {
-  let found = applications?.find(
-    ra => ra.registration_application.id == data.registration_application.id
-  );
-  if (found) {
-    found.registration_application = data.registration_application;
-    found.admin = data.admin;
-    found.creator_local_user = data.creator_local_user;
   }
 }
 

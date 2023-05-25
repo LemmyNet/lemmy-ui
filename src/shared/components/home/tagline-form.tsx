@@ -1,14 +1,14 @@
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { EditSite, GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
-import { capitalizeFirstLetter, myAuth, wsClient } from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface TaglineFormProps {
   siteRes: GetSiteResponse;
+  onEditSite(form: EditSite): void;
 }
 
 interface TaglineFormState {
@@ -167,9 +167,9 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   handleSaveClick(i: TaglineForm) {
     i.setState({ loading: true });
-    let auth = myAuth() ?? "TODO";
+    let auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));
-    WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
+    i.props.onEditSite(i.state.siteForm);
     i.setState({ ...i.state, editingRow: undefined });
   }
 

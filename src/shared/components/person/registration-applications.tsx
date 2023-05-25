@@ -1,32 +1,33 @@
 import { Component, linkEvent } from "inferno";
 import {
+  ApproveRegistrationApplication,
   GetSiteResponse,
   ListRegistrationApplications,
   ListRegistrationApplicationsResponse,
-  RegistrationApplicationResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
+  RegistrationApplicationView,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
 import {
+  editRegistrationApplicationRes,
   fetchLimit,
   isBrowser,
-  myAuth,
+  isInitialRoute,
+  myAuthRequired,
   setIsoData,
   setupTippy,
   toast,
-  updateRegistrationApplicationRes,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { RegistrationApplication } from "../common/registration-application";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
 
 enum UnreadOrAll {
   Unread,
@@ -34,11 +35,10 @@ enum UnreadOrAll {
 }
 
 interface RegistrationApplicationsState {
-  listRegistrationApplicationsResponse?: ListRegistrationApplicationsResponse;
+  appsRes: RequestState<ListRegistrationApplicationsResponse>;
   siteRes: GetSiteResponse;
   unreadOrAll: UnreadOrAll;
   page: number;
-  loading: boolean;
 }
 
 export class RegistrationApplications extends Component<
@@ -46,48 +46,40 @@ export class RegistrationApplications extends Component<
   RegistrationApplicationsState
 > {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: RegistrationApplicationsState = {
+    appsRes: { state: "empty" },
     siteRes: this.isoData.site_res,
     unreadOrAll: UnreadOrAll.Unread,
     page: 1,
-    loading: true,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleApproveApplication = this.handleApproveApplication.bind(this);
 
     if (!UserService.Instance.myUserInfo && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        listRegistrationApplicationsResponse: this.isoData
-          .routeData[0] as ListRegistrationApplicationsResponse,
-        loading: false,
+        appsRes: apiWrapper(
+          this.isoData.routeData[0] as ListRegistrationApplicationsResponse
+        ),
       };
-    } else {
-      this.refetch();
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    if (!isInitialRoute(this.isoData, this.context)) {
+      await this.refetch();
+    }
     setupTippy();
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
-    }
   }
 
   get documentTitle(): string {
@@ -99,14 +91,17 @@ export class RegistrationApplications extends Component<
       : "";
   }
 
-  render() {
-    return (
-      <div className="container-lg">
-        {this.state.loading ? (
+  renderApps() {
+    switch (this.state.appsRes.state) {
+      case "loading":
+        return (
           <h5>
             <Spinner large />
           </h5>
-        ) : (
+        );
+      case "success":
+        const apps = this.state.appsRes.data.registration_applications;
+        return (
           <div className="row">
             <div className="col-12">
               <HtmlTags
@@ -115,16 +110,19 @@ export class RegistrationApplications extends Component<
               />
               <h5 className="mb-2">{i18n.t("registration_applications")}</h5>
               {this.selects()}
-              {this.applicationList()}
+              {this.applicationList(apps)}
               <Paginator
                 page={this.state.page}
                 onChange={this.handlePageChange}
               />
             </div>
           </div>
-        )}
-      </div>
-    );
+        );
+    }
+  }
+
+  render() {
+    return <div className="container-lg">{this.renderApps()}</div>;
   }
 
   unreadOrAllRadios() {
@@ -168,22 +166,20 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  applicationList() {
-    let res = this.state.listRegistrationApplicationsResponse;
+  applicationList(apps: RegistrationApplicationView[]) {
     return (
-      res && (
-        <div>
-          {res.registration_applications.map(ra => (
-            <>
-              <hr />
-              <RegistrationApplication
-                key={ra.registration_application.id}
-                application={ra}
-              />
-            </>
-          ))}
-        </div>
-      )
+      <div>
+        {apps.map(ra => (
+          <>
+            <hr />
+            <RegistrationApplication
+              key={ra.registration_application.id}
+              application={ra}
+              onApproveApplication={this.handleApproveApplication}
+            />
+          </>
+        ))}
+      </div>
     );
   }
 
@@ -214,48 +210,37 @@ export class RegistrationApplications extends Component<
     return promises;
   }
 
-  refetch() {
+  async refetch() {
     let unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let auth = myAuth();
-    if (auth) {
-      let form: ListRegistrationApplications = {
-        unread_only: unread_only,
-        page: this.state.page,
-        limit: fetchLimit,
-        auth,
-      };
-      WebSocketService.Instance.send(
-        wsClient.listRegistrationApplications(form)
-      );
-    }
+    this.setState({
+      appsRes: { state: "loading" },
+    });
+    this.setState({
+      appsRes: apiWrapper(
+        await HttpService.client.listRegistrationApplications({
+          unread_only: unread_only,
+          page: this.state.page,
+          limit: fetchLimit,
+          auth: myAuthRequired(),
+        })
+      ),
+    });
   }
 
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      return;
-    } else if (msg.reconnect) {
-      this.refetch();
-    } else if (op == UserOperation.ListRegistrationApplications) {
-      let data = wsJsonToRes<ListRegistrationApplicationsResponse>(msg);
-      this.setState({
-        listRegistrationApplicationsResponse: data,
-        loading: false,
-      });
-      window.scrollTo(0, 0);
-    } else if (op == UserOperation.ApproveRegistrationApplication) {
-      let data = wsJsonToRes<RegistrationApplicationResponse>(msg);
-      updateRegistrationApplicationRes(
-        data.registration_application,
-        this.state.listRegistrationApplicationsResponse
-          ?.registration_applications
-      );
-      let uacs = UserService.Instance.unreadApplicationCountSub;
-      // Minor bug, where if the application switches from deny to approve, the count will still go down
-      uacs.next(uacs.getValue() - 1);
-      this.setState(this.state);
-    }
+  async handleApproveApplication(form: ApproveRegistrationApplication) {
+    const approveRes = apiWrapper(
+      await HttpService.client.approveRegistrationApplication(form)
+    );
+
+    this.setState(s => {
+      if (s.appsRes.state == "success" && approveRes.state == "success") {
+        s.appsRes.data.registration_applications =
+          editRegistrationApplicationRes(
+            approveRes.data.registration_application,
+            s.appsRes.data.registration_applications
+          );
+      }
+      return s;
+    });
   }
 }

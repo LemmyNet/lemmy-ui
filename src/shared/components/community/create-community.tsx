@@ -1,44 +1,28 @@
 import { Component } from "inferno";
 import { Redirect } from "inferno-router";
-import { CommunityView, GetSiteResponse } from "lemmy-js-client";
-import { Subscription } from "rxjs";
+import {
+  CreateCommunity as CreateCommunityI,
+  GetSiteResponse,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services/UserService";
-import {
-  enableNsfw,
-  isBrowser,
-  setIsoData,
-  toast,
-  wsSubscribe,
-} from "../../utils";
+import { enableNsfw, setIsoData, toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
 import { CommunityForm } from "./community-form";
+import { HttpService, apiWrapper } from "../../services/HttpService";
 
 interface CreateCommunityState {
   siteRes: GetSiteResponse;
-  loading: boolean;
 }
 
 export class CreateCommunity extends Component<any, CreateCommunityState> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: CreateCommunityState = {
     siteRes: this.isoData.site_res,
-    loading: false,
   };
   constructor(props: any, context: any) {
     super(props, context);
     this.handleCommunityCreate = this.handleCommunityCreate.bind(this);
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
-    }
   }
 
   get documentTitle(): string {
@@ -55,30 +39,28 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.state.loading ? (
-          <h5>
-            <Spinner large />
-          </h5>
-        ) : (
-          <div className="row">
-            <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-              <h5>{i18n.t("create_community")}</h5>
-              <CommunityForm
-                onCreate={this.handleCommunityCreate}
-                enableNsfw={enableNsfw(this.state.siteRes)}
-                allLanguages={this.state.siteRes.all_languages}
-                siteLanguages={this.state.siteRes.discussion_languages}
-                communityLanguages={this.state.siteRes.discussion_languages}
-              />
-            </div>
+        <div className="row">
+          <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+            <h5>{i18n.t("create_community")}</h5>
+            <CommunityForm
+              onCreateCommunity={this.handleCommunityCreate}
+              enableNsfw={enableNsfw(this.state.siteRes)}
+              allLanguages={this.state.siteRes.all_languages}
+              siteLanguages={this.state.siteRes.discussion_languages}
+              communityLanguages={this.state.siteRes.discussion_languages}
+            />
           </div>
-        )}
+        </div>
       </div>
     );
   }
 
-  handleCommunityCreate(cv: CommunityView) {
-    this.props.history.push(`/c/${cv.community.name}`);
+  async handleCommunityCreate(form: CreateCommunityI) {
+    const res = apiWrapper(await HttpService.client.createCommunity(form));
+    if (res.state == "success") {
+      const name = res.data.community_view.community.name;
+      this.props.history.push(`/c/${name}`);
+    }
   }
 
   parseMessage(msg: any) {

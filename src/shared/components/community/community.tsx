@@ -475,33 +475,40 @@ export class Community extends Component<
     const { dataType, page, sort } = getCommunityQueryParams();
     const { name } = this.props.match.params;
 
-    let req: string;
     if (dataType === DataType.Post) {
-      const form: GetPosts = {
-        page,
-        limit: fetchLimit,
-        sort,
-        type_: "All",
-        community_name: name,
-        saved_only: false,
-        auth: myAuth(false),
-      };
-      req = wsClient.getPosts(form);
+      this.setState({ postsRes: { state: "loading" } });
+      this.setState({
+        postsRes: apiWrapper(
+          await HttpService.client.getPosts({
+            page,
+            limit: fetchLimit,
+            sort,
+            type_: "All",
+            community_name: name,
+            saved_only: false,
+            auth: myAuth(),
+          })
+        ),
+      });
     } else {
-      const form: GetComments = {
-        page,
-        limit: fetchLimit,
-        sort: postToCommentSortType(sort),
-        type_: "All",
-        community_name: name,
-        saved_only: false,
-        auth: myAuth(false),
-      };
-
-      req = wsClient.getComments(form);
+      this.setState({ commentsRes: { state: "loading" } });
+      this.setState({
+        commentsRes: apiWrapper(
+          await HttpService.client.getComments({
+            page,
+            limit: fetchLimit,
+            sort: postToCommentSortType(sort),
+            type_: "All",
+            community_name: name,
+            saved_only: false,
+            auth: myAuth(),
+          })
+        ),
+      });
     }
 
-    WebSocketService.Instance.send(req);
+    restoreScrollPosition(this.context);
+    setupTippy();
   }
 
   parseMessage(msg: any) {

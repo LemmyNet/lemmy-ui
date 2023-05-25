@@ -1,6 +1,9 @@
 import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
+  CreateCustomEmoji,
+  DeleteCustomEmoji,
+  EditCustomEmoji,
   EditSite,
   GetBannedPersons,
   GetFederatedInstancesResponse,
@@ -12,9 +15,11 @@ import {
   capitalizeFirstLetter,
   isInitialRoute,
   myAuthRequired,
+  removeFromEmojiDataModel,
   setIsoData,
   showLocal,
   toast,
+  updateEmojiDataModel,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -50,6 +55,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     super(props, context);
 
     this.handleEditSite = this.handleEditSite.bind(this);
+    this.handleEditEmoji = this.handleEditEmoji.bind(this);
+    this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
+    this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
@@ -185,12 +193,19 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             )}
           {this.state.currentTab == "taglines" && (
             <div className="row">
-              <TaglineForm siteRes={this.state.siteRes}></TaglineForm>
+              <TaglineForm
+                siteRes={this.state.siteRes}
+                onEditSite={this.handleEditSite}
+              />
             </div>
           )}
           {this.state.currentTab == "emojis" && (
             <div className="row">
-              <EmojiForm></EmojiForm>
+              <EmojiForm
+                onEdit={this.handleEditEmoji}
+                onDelete={this.handleDeleteEmoji}
+                onCreate={this.handleCreateEmoji}
+              />
             </div>
           )}
         </div>
@@ -278,6 +293,27 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     if (editRes.state == "success") {
       this.setState(s => ((s.siteRes.site_view = editRes.data.site_view), s));
       toast(i18n.t("site_saved"));
+    }
+  }
+
+  async handleEditEmoji(form: EditCustomEmoji) {
+    const res = apiWrapper(await HttpService.client.editCustomEmoji(form));
+    if (res.state == "success") {
+      updateEmojiDataModel(res.data.custom_emoji);
+    }
+  }
+
+  async handleDeleteEmoji(form: DeleteCustomEmoji) {
+    const res = apiWrapper(await HttpService.client.deleteCustomEmoji(form));
+    if (res.state == "success") {
+      removeFromEmojiDataModel(res.data.id);
+    }
+  }
+
+  async handleCreateEmoji(form: CreateCustomEmoji) {
+    const res = apiWrapper(await HttpService.client.createCustomEmoji(form));
+    if (res.state == "success") {
+      updateEmojiDataModel(res.data.custom_emoji);
     }
   }
 }
