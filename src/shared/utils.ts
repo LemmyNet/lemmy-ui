@@ -13,14 +13,12 @@ import {
   GetSiteMetadata,
   GetSiteResponse,
   Language,
-  LemmyWebsocket,
   MyUserInfo,
   Person,
   PersonView,
   PostReportView,
   PostView,
   PrivateMessageReportView,
-  PrivateMessageView,
   RegistrationApplicationView,
   Search,
   SortType,
@@ -39,15 +37,13 @@ import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { i18n, languages } from "./i18next";
-import { CommentNodeI, DataType, IsoData, RequestState } from "./interfaces";
+import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
 import { HttpService, UserService } from "./services";
 
 let Tribute: any;
 if (isBrowser()) {
   Tribute = require("tributejs");
 }
-
-export const wsClient = new LemmyWebsocket();
 
 export const favIconUrl = "/static/assets/icons/favicon.svg";
 export const favIconPngUrl = "/static/assets/icons/apple-touch-icon.png";
@@ -582,53 +578,6 @@ export function messageToastify(info: NotifyInfo, router: any) {
   }
 }
 
-export function notifyPost(post_view: PostView, router: any) {
-  let info: NotifyInfo = {
-    name: post_view.community.name,
-    icon: post_view.community.icon,
-    link: `/post/${post_view.post.id}`,
-    body: post_view.post.name,
-  };
-  notify(info, router);
-}
-
-export function notifyComment(comment_view: CommentView, router: any) {
-  let info: NotifyInfo = {
-    name: comment_view.creator.name,
-    icon: comment_view.creator.avatar,
-    link: `/comment/${comment_view.comment.id}`,
-    body: comment_view.comment.content,
-  };
-  notify(info, router);
-}
-
-export function notifyPrivateMessage(pmv: PrivateMessageView, router: any) {
-  let info: NotifyInfo = {
-    name: pmv.creator.name,
-    icon: pmv.creator.avatar,
-    link: `/inbox`,
-    body: pmv.private_message.content,
-  };
-  notify(info, router);
-}
-
-function notify(info: NotifyInfo, router: any) {
-  messageToastify(info, router);
-
-  if (Notification.permission !== "granted") Notification.requestPermission();
-  else {
-    var notification = new Notification(info.name, {
-      ...{ body: info.body },
-      ...(info.icon && { icon: info.icon }),
-    });
-
-    notification.onclick = (ev: Event): any => {
-      ev.preventDefault();
-      router.history.push(info.link);
-    };
-  }
-}
-
 export function setupTribute() {
   return new Tribute({
     noMatchTemplate: function () {
@@ -907,15 +856,33 @@ export function getCommentIdFromProps(props: any): number | undefined {
 }
 
 // TODO make all these immutable
-export function editCommentRes(data: CommentView, comments: CommentView[]): CommentView[] {
+export function editCommentRes(
+  data: CommentView,
+  comments: CommentView[]
+): CommentView[] {
   const foundIndex = comments.findIndex(c => c.comment.id == data.comment.id);
   if (foundIndex != -1) {
-  const newComments = comments;
-  newComments[foundIndex] = data;
+    const newComments = comments;
+    newComments[foundIndex] = data;
     return newComments;
-      } else {
+  } else {
     return comments;
-    
+  }
+}
+
+export function editCommunityRes(
+  data: CommunityView,
+  communities: CommunityView[]
+): CommunityView[] {
+  const foundIndex = communities.findIndex(
+    c => c.community.id == data.community.id
+  );
+  if (foundIndex != -1) {
+    const newcommunities = communities;
+    newcommunities[foundIndex] = data;
+    return newcommunities;
+  } else {
+    return communities;
   }
 }
 
@@ -1023,36 +990,51 @@ export function editPostRes(data: PostView, post: PostView) {
   }
 }
 
-// TODO possible to make these generic?
 export function updatePostReportRes(
   data: PostReportView,
-  reports?: PostReportView[]
+  reports: PostReportView[]
 ) {
-  let found = reports?.find(p => p.post_report.id == data.post_report.id);
-  if (found) {
-    found.post_report = data.post_report;
+  let foundIndex = reports.findIndex(
+    p => p.post_report.id == data.post_report.id
+  );
+  if (foundIndex != -1) {
+    const newReports = reports;
+    newReports[foundIndex] = data;
+    return newReports;
+  } else {
+    return reports;
   }
 }
 
 export function updateCommentReportRes(
   data: CommentReportView,
-  reports?: CommentReportView[]
-) {
-  let found = reports?.find(c => c.comment_report.id == data.comment_report.id);
-  if (found) {
-    found.comment_report = data.comment_report;
+  reports: CommentReportView[]
+): CommentReportView[] {
+  let foundIndex = reports.findIndex(
+    c => c.comment_report.id == data.comment_report.id
+  );
+  if (foundIndex != -1) {
+    const newReports = reports;
+    newReports[foundIndex] = data;
+    return newReports;
+  } else {
+    return reports;
   }
 }
 
 export function updatePrivateMessageReportRes(
   data: PrivateMessageReportView,
-  reports?: PrivateMessageReportView[]
-) {
-  let found = reports?.find(
+  reports: PrivateMessageReportView[]
+): PrivateMessageReportView[] {
+  let foundIndex = reports.findIndex(
     c => c.private_message_report.id == data.private_message_report.id
   );
-  if (found) {
-    found.private_message_report = data.private_message_report;
+  if (foundIndex != -1) {
+    const newReports = reports;
+    newReports[foundIndex] = data;
+    return newReports;
+  } else {
+    return reports;
   }
 }
 
@@ -1348,7 +1330,7 @@ export async function fetchCommunities(q: string) {
     listing_type: "All",
     page: 1,
     limit: fetchLimit,
-    auth: myAuth(false),
+    auth: myAuth(),
   };
   return HttpService.client.search(form);
 }
@@ -1361,7 +1343,7 @@ export async function fetchUsers(q: string) {
     listing_type: "All",
     page: 1,
     limit: fetchLimit,
-    auth: myAuth(false),
+    auth: myAuth(),
   };
   return HttpService.client.search(form);
 }
@@ -1412,8 +1394,12 @@ export function isBanned(ps: Person): boolean {
   }
 }
 
-export function myAuth(throwErr = true): string | undefined {
-  return UserService.Instance.auth(throwErr);
+export function myAuth(): string | undefined {
+  return UserService.Instance.auth();
+}
+
+export function myAuthRequired(): string {
+  return UserService.Instance.auth(true) ?? "";
 }
 
 export function enableDownvotes(siteRes: GetSiteResponse): boolean {
@@ -1590,18 +1576,10 @@ export function share(shareData: ShareData) {
   }
 }
 
-export function apiWrapper<ResponseType>(
-  res: ResponseType
-): RequestState<ResponseType> {
-  try {
-    return {
-      state: "success",
-      data: res,
-    };
-  } catch (error) {
-    return {
-      state: "failed",
-      msg: error,
-    };
+export function newVote(voteType: VoteType, myVote?: number): number {
+  if (voteType == VoteType.Upvote) {
+    return myVote == 1 ? 0 : 1;
+  } else {
+    return myVote == -1 ? 0 : -1;
   }
 }

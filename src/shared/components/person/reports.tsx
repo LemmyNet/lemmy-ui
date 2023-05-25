@@ -13,27 +13,25 @@ import {
   PostReportView,
   PrivateMessageReportResponse,
   PrivateMessageReportView,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
+  ResolveCommentReport,
+  ResolvePostReport,
+  ResolvePrivateMessageReport,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { UserService, HttpService } from "../../services";
 import {
   amAdmin,
   fetchLimit,
   isBrowser,
-  myAuth,
+  isInitialRoute,
+  myAuthRequired,
   setIsoData,
-  setupTippy,
   toast,
   updateCommentReportRes,
   updatePostReportRes,
   updatePrivateMessageReportRes,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
@@ -41,6 +39,7 @@ import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
+import { RequestState, apiWrapper } from "../../services/HttpService";
 
 enum UnreadOrAll {
   Unread,
@@ -68,65 +67,62 @@ type ItemType = {
 };
 
 interface ReportsState {
-  listCommentReportsResponse?: ListCommentReportsResponse;
-  listPostReportsResponse?: ListPostReportsResponse;
-  listPrivateMessageReportsResponse?: ListPrivateMessageReportsResponse;
+  commentReportsRes: RequestState<ListCommentReportsResponse>;
+  postReportsRes: RequestState<ListPostReportsResponse>;
+  messageReportsRes: RequestState<ListPrivateMessageReportsResponse>;
   unreadOrAll: UnreadOrAll;
   messageType: MessageType;
-  combined: ItemType[];
   siteRes: GetSiteResponse;
   page: number;
-  loading: boolean;
 }
 
 export class Reports extends Component<any, ReportsState> {
   private isoData = setIsoData(this.context);
   private subscription?: Subscription;
   state: ReportsState = {
+    commentReportsRes: { state: "empty" },
+    postReportsRes: { state: "empty" },
+    messageReportsRes: { state: "empty" },
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
-    combined: [],
     page: 1,
     siteRes: this.isoData.site_res,
-    loading: true,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleResolveCommentReport =
+      this.handleResolveCommentReport.bind(this);
+    this.handleResolvePostReport = this.handleResolvePostReport.bind(this);
+    this.handleResolvePrivateMessageReport =
+      this.handleResolvePrivateMessageReport.bind(this);
 
     if (!UserService.Instance.myUserInfo && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
       this.context.router.history.push(`/login`);
     }
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        listCommentReportsResponse: this.isoData
-          .routeData[0] as ListCommentReportsResponse,
-        listPostReportsResponse: this.isoData
-          .routeData[1] as ListPostReportsResponse,
+        commentReportsRes: apiWrapper(
+          this.isoData.routeData[0] as ListCommentReportsResponse
+        ),
+        postReportsRes: apiWrapper(
+          this.isoData.routeData[1] as ListPostReportsResponse
+        ),
       };
       if (amAdmin()) {
         this.state = {
           ...this.state,
-          listPrivateMessageReportsResponse: this.isoData
-            .routeData[2] as ListPrivateMessageReportsResponse,
+          messageReportsRes: apiWrapper(
+            this.isoData.routeData[2] as ListPrivateMessageReportsResponse
+          ),
         };
       }
-      this.state = {
-        ...this.state,
-        combined: this.buildCombined(),
-        loading: false,
-      };
-    } else {
-      this.refetch();
     }
   }
 
@@ -137,7 +133,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   get documentTitle(): string {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${i18n.t("reports")} - ${
           this.state.siteRes.site_view.site.name
@@ -148,33 +144,27 @@ export class Reports extends Component<any, ReportsState> {
   render() {
     return (
       <div className="container-lg">
-        {this.state.loading ? (
-          <h5>
-            <Spinner large />
-          </h5>
-        ) : (
-          <div className="row">
-            <div className="col-12">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-              />
-              <h5 className="mb-2">{i18n.t("reports")}</h5>
-              {this.selects()}
-              {this.state.messageType == MessageType.All && this.all()}
-              {this.state.messageType == MessageType.CommentReport &&
-                this.commentReports()}
-              {this.state.messageType == MessageType.PostReport &&
-                this.postReports()}
-              {this.state.messageType == MessageType.PrivateMessageReport &&
-                this.privateMessageReports()}
-              <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
-              />
-            </div>
+        <div className="row">
+          <div className="col-12">
+            <HtmlTags
+              title={this.documentTitle}
+              path={this.context.router.route.match.url}
+            />
+            <h5 className="mb-2">{i18n.t("reports")}</h5>
+            {this.selects()}
+            {this.state.messageType == MessageType.All && this.all()}
+            {this.state.messageType == MessageType.CommentReport &&
+              this.commentReports()}
+            {this.state.messageType == MessageType.PostReport &&
+              this.postReports()}
+            {this.state.messageType == MessageType.PrivateMessageReport &&
+              this.privateMessageReports()}
+            <Paginator
+              page={this.state.page}
+              onChange={this.handlePageChange}
+            />
           </div>
-        )}
+        </div>
       </div>
     );
   }
@@ -314,23 +304,25 @@ export class Reports extends Component<any, ReportsState> {
     };
   }
 
-  buildCombined(): ItemType[] {
-    // let comments: ItemType[] = this.state.listCommentReportsResponse
-    //   .map(r => r.comment_reports)
-    //   .unwrapOr([])
-    //   .map(r => this.commentReportToItemType(r));
-    let comments =
-      this.state.listCommentReportsResponse?.comment_reports.map(
-        this.commentReportToItemType
-      ) ?? [];
-    let posts =
-      this.state.listPostReportsResponse?.post_reports.map(
-        this.postReportToItemType
-      ) ?? [];
-    let privateMessages =
-      this.state.listPrivateMessageReportsResponse?.private_message_reports.map(
-        this.privateMessageReportToItemType
-      ) ?? [];
+  get buildCombined(): ItemType[] {
+    const commentRes = this.state.commentReportsRes;
+    const comments =
+      commentRes.state == "success"
+        ? commentRes.data.comment_reports.map(this.commentReportToItemType)
+        : [];
+
+    const postRes = this.state.postReportsRes;
+    const posts =
+      postRes.state == "success"
+        ? postRes.data.post_reports.map(this.postReportToItemType)
+        : [];
+    const pmRes = this.state.messageReportsRes;
+    const privateMessages =
+      pmRes.state == "success"
+        ? pmRes.data.private_message_reports.map(
+            this.privateMessageReportToItemType
+          )
+        : [];
 
     return [...comments, ...posts, ...privateMessages].sort((a, b) =>
       b.published.localeCompare(a.published)
@@ -341,15 +333,26 @@ export class Reports extends Component<any, ReportsState> {
     switch (i.type_) {
       case MessageEnum.CommentReport:
         return (
-          <CommentReport key={i.id} report={i.view as CommentReportView} />
+          <CommentReport
+            key={i.id}
+            report={i.view as CommentReportView}
+            onResolveReport={this.handleResolveCommentReport}
+          />
         );
       case MessageEnum.PostReport:
-        return <PostReport key={i.id} report={i.view as PostReportView} />;
+        return (
+          <PostReport
+            key={i.id}
+            report={i.view as PostReportView}
+            onResolveReport={this.handleResolvePostReport}
+          />
+        );
       case MessageEnum.PrivateMessageReport:
         return (
           <PrivateMessageReport
             key={i.id}
             report={i.view as PrivateMessageReportView}
+            onResolveReport={this.handleResolvePrivateMessageReport}
           />
         );
       default:
@@ -360,7 +363,7 @@ export class Reports extends Component<any, ReportsState> {
   all() {
     return (
       <div>
-        {this.state.combined.map(i => (
+        {this.buildCombined.map(i => (
           <>
             <hr />
             {this.renderItemType(i)}
@@ -371,60 +374,92 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   commentReports() {
-    let reports = this.state.listCommentReportsResponse?.comment_reports;
-    return (
-      reports && (
-        <div>
-          {reports.map(cr => (
-            <>
-              <hr />
-              <CommentReport key={cr.comment_report.id} report={cr} />
-            </>
-          ))}
-        </div>
-      )
-    );
+    const res = this.state.commentReportsRes;
+    switch (res.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success":
+        const reports = res.data.comment_reports;
+        return (
+          <div>
+            {reports.map(cr => (
+              <>
+                <hr />
+                <CommentReport
+                  key={cr.comment_report.id}
+                  report={cr}
+                  onResolveReport={this.handleResolveCommentReport}
+                />
+              </>
+            ))}
+          </div>
+        );
+    }
   }
 
   postReports() {
-    let reports = this.state.listPostReportsResponse?.post_reports;
-    return (
-      reports && (
-        <div>
-          {reports.map(pr => (
-            <>
-              <hr />
-              <PostReport key={pr.post_report.id} report={pr} />
-            </>
-          ))}
-        </div>
-      )
-    );
+    const res = this.state.postReportsRes;
+    switch (res.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success":
+        const reports = res.data.post_reports;
+        return (
+          <div>
+            {reports.map(pr => (
+              <>
+                <hr />
+                <PostReport
+                  key={pr.post_report.id}
+                  report={pr}
+                  onResolveReport={this.handleResolvePostReport}
+                />
+              </>
+            ))}
+          </div>
+        );
+    }
   }
 
   privateMessageReports() {
-    let reports =
-      this.state.listPrivateMessageReportsResponse?.private_message_reports;
-    return (
-      reports && (
-        <div>
-          {reports.map(pmr => (
-            <>
-              <hr />
-              <PrivateMessageReport
-                key={pmr.private_message_report.id}
-                report={pmr}
-              />
-            </>
-          ))}
-        </div>
-      )
-    );
+    const res = this.state.messageReportsRes;
+    switch (res.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success":
+        const reports = res.data.private_message_reports;
+        return (
+          <div>
+            {reports.map(pmr => (
+              <>
+                <hr />
+                <PrivateMessageReport
+                  key={pmr.private_message_report.id}
+                  report={pmr}
+                  onResolveReport={this.handleResolvePrivateMessageReport}
+                />
+              </>
+            ))}
+          </div>
+        );
+    }
   }
 
-  handlePageChange(page: number) {
+  async handlePageChange(page: number) {
     this.setState({ page });
-    this.refetch();
+    await this.refetch();
   }
 
   handleUnreadOrAllChange(i: Reports, event: any) {
@@ -438,15 +473,15 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
-    let unresolved_only = true;
-    let page = 1;
-    let limit = fetchLimit;
-    let auth = req.auth;
+    const unresolved_only = true;
+    const page = 1;
+    const limit = fetchLimit;
+    const auth = req.auth;
 
     if (auth) {
-      let commentReportsForm: ListCommentReports = {
+      const commentReportsForm: ListCommentReports = {
         unresolved_only,
         page,
         limit,
@@ -454,7 +489,7 @@ export class Reports extends Component<any, ReportsState> {
       };
       promises.push(req.client.listCommentReports(commentReportsForm));
 
-      let postReportsForm: ListPostReports = {
+      const postReportsForm: ListPostReports = {
         unresolved_only,
         page,
         limit,
@@ -463,7 +498,7 @@ export class Reports extends Component<any, ReportsState> {
       promises.push(req.client.listPostReports(postReportsForm));
 
       if (amAdmin()) {
-        let privateMessageReportsForm: ListPrivateMessageReports = {
+        const privateMessageReportsForm: ListPrivateMessageReports = {
           unresolved_only,
           page,
           limit,
@@ -478,112 +513,97 @@ export class Reports extends Component<any, ReportsState> {
     return promises;
   }
 
-  refetch() {
-    let unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let page = this.state.page;
-    let limit = fetchLimit;
-    let auth = myAuth();
-    if (auth) {
-      let commentReportsForm: ListCommentReports = {
+  async refetch() {
+    const unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const page = this.state.page;
+    const limit = fetchLimit;
+    const auth = myAuthRequired();
+
+    this.setState({
+      commentReportsRes: { state: "loading" },
+      postReportsRes: { state: "loading" },
+      messageReportsRes: { state: "loading" },
+    });
+
+    let form: ListCommentReports | ListPostReports | ListPrivateMessageReports =
+      {
         unresolved_only,
         page,
         limit,
         auth,
       };
-      WebSocketService.Instance.send(
-        wsClient.listCommentReports(commentReportsForm)
-      );
 
-      let postReportsForm: ListPostReports = {
-        unresolved_only,
-        page,
-        limit,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.listPostReports(postReportsForm));
+    this.setState({
+      commentReportsRes: apiWrapper(
+        await HttpService.client.listCommentReports(form)
+      ),
+      postReportsRes: apiWrapper(
+        await HttpService.client.listPostReports(form)
+      ),
+    });
 
-      if (amAdmin()) {
-        let privateMessageReportsForm: ListPrivateMessageReports = {
-          unresolved_only,
-          page,
-          limit,
-          auth,
-        };
-        WebSocketService.Instance.send(
-          wsClient.listPrivateMessageReports(privateMessageReportsForm)
-        );
-      }
+    if (amAdmin()) {
+      this.setState({
+        messageReportsRes: apiWrapper(
+          await HttpService.client.listPrivateMessageReports(form)
+        ),
+      });
     }
   }
 
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      return;
-    } else if (msg.reconnect) {
-      this.refetch();
-    } else if (op == UserOperation.ListCommentReports) {
-      let data = wsJsonToRes<ListCommentReportsResponse>(msg);
-      this.setState({ listCommentReportsResponse: data });
-      this.setState({ combined: this.buildCombined(), loading: false });
-      // this.sendUnreadCount();
-      window.scrollTo(0, 0);
-      setupTippy();
-    } else if (op == UserOperation.ListPostReports) {
-      let data = wsJsonToRes<ListPostReportsResponse>(msg);
-      this.setState({ listPostReportsResponse: data });
-      this.setState({ combined: this.buildCombined(), loading: false });
-      // this.sendUnreadCount();
-      window.scrollTo(0, 0);
-      setupTippy();
-    } else if (op == UserOperation.ListPrivateMessageReports) {
-      let data = wsJsonToRes<ListPrivateMessageReportsResponse>(msg);
-      this.setState({ listPrivateMessageReportsResponse: data });
-      this.setState({ combined: this.buildCombined(), loading: false });
-      // this.sendUnreadCount();
-      window.scrollTo(0, 0);
-      setupTippy();
-    } else if (op == UserOperation.ResolvePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg);
-      updatePostReportRes(
-        data.post_report_view,
-        this.state.listPostReportsResponse?.post_reports
-      );
-      let urcs = UserService.Instance.unreadReportCountSub;
-      if (data.post_report_view.post_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
-      } else {
-        urcs.next(urcs.getValue() + 1);
+  async handleResolveCommentReport(form: ResolveCommentReport) {
+    const res = apiWrapper(await HttpService.client.resolveCommentReport(form));
+    this.findAndUpdateCommentReport(res);
+  }
+
+  async handleResolvePostReport(form: ResolvePostReport) {
+    const res = apiWrapper(await HttpService.client.resolvePostReport(form));
+    this.findAndUpdatePostReport(res);
+  }
+
+  async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
+    const res = apiWrapper(
+      await HttpService.client.resolvePrivateMessageReport(form)
+    );
+    this.findAndUpdatePrivateMessageReport(res);
+  }
+
+  findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
+    this.setState(s => {
+      if (s.commentReportsRes.state == "success" && res.state == "success") {
+        s.commentReportsRes.data.comment_reports = updateCommentReportRes(
+          res.data.comment_report_view,
+          s.commentReportsRes.data.comment_reports
+        );
       }
-      this.setState(this.state);
-    } else if (op == UserOperation.ResolveCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg);
-      updateCommentReportRes(
-        data.comment_report_view,
-        this.state.listCommentReportsResponse?.comment_reports
-      );
-      let urcs = UserService.Instance.unreadReportCountSub;
-      if (data.comment_report_view.comment_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
-      } else {
-        urcs.next(urcs.getValue() + 1);
+      return s;
+    });
+  }
+
+  findAndUpdatePostReport(res: RequestState<PostReportResponse>) {
+    this.setState(s => {
+      if (s.postReportsRes.state == "success" && res.state == "success") {
+        s.postReportsRes.data.post_reports = updatePostReportRes(
+          res.data.post_report_view,
+          s.postReportsRes.data.post_reports
+        );
       }
-      this.setState(this.state);
-    } else if (op == UserOperation.ResolvePrivateMessageReport) {
-      let data = wsJsonToRes<PrivateMessageReportResponse>(msg);
-      updatePrivateMessageReportRes(
-        data.private_message_report_view,
-        this.state.listPrivateMessageReportsResponse?.private_message_reports
-      );
-      let urcs = UserService.Instance.unreadReportCountSub;
-      if (data.private_message_report_view.private_message_report.resolved) {
-        urcs.next(urcs.getValue() - 1);
-      } else {
-        urcs.next(urcs.getValue() + 1);
+      return s;
+    });
+  }
+
+  findAndUpdatePrivateMessageReport(
+    res: RequestState<PrivateMessageReportResponse>
+  ) {
+    this.setState(s => {
+      if (s.messageReportsRes.state == "success" && res.state == "success") {
+        s.messageReportsRes.data.private_message_reports =
+          updatePrivateMessageReportRes(
+            res.data.private_message_report_view,
+            s.messageReportsRes.data.private_message_reports
+          );
       }
-      this.setState(this.state);
-    }
+      return s;
+    });
   }
 }

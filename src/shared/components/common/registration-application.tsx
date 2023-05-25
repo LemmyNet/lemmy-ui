@@ -5,19 +5,22 @@ import {
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
-import { mdToHtml, myAuth, wsClient } from "../../utils";
+import { mdToHtml, myAuthRequired } from "../../utils";
 import { PersonListing } from "../person/person-listing";
 import { MarkdownTextArea } from "./markdown-textarea";
 import { MomentTime } from "./moment-time";
+import { Spinner } from "./icon";
 
 interface RegistrationApplicationProps {
   application: RegistrationApplicationView;
+  onApproveApplication(form: ApproveRegistrationApplication): void;
 }
 
 interface RegistrationApplicationState {
   denyReason?: string;
   denyExpanded: boolean;
+  approveLoading: boolean;
+  denyLoading: boolean;
 }
 
 export class RegistrationApplication extends Component<
@@ -27,6 +30,8 @@ export class RegistrationApplication extends Component<
   state: RegistrationApplicationState = {
     denyReason: this.props.application.registration_application.deny_reason,
     denyExpanded: false,
+    approveLoading: false,
+    denyLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -99,7 +104,7 @@ export class RegistrationApplication extends Component<
             onClick={linkEvent(this, this.handleApprove)}
             aria-label={i18n.t("approve")}
           >
-            {i18n.t("approve")}
+            {this.state.approveLoading ? <Spinner /> : i18n.t("approve")}
           </button>
         )}
         {(!ra.admin_id || (ra.admin_id && accepted)) && (
@@ -108,7 +113,7 @@ export class RegistrationApplication extends Component<
             onClick={linkEvent(this, this.handleDeny)}
             aria-label={i18n.t("deny")}
           >
-            {i18n.t("deny")}
+            {this.state.denyLoading ? <Spinner /> : i18n.t("deny")}
           </button>
         )}
       </div>
@@ -116,35 +121,23 @@ export class RegistrationApplication extends Component<
   }
 
   handleApprove(i: RegistrationApplication) {
-    let auth = myAuth();
-    if (auth) {
-      i.setState({ denyExpanded: false });
-      let form: ApproveRegistrationApplication = {
-        id: i.props.application.registration_application.id,
-        approve: true,
-        auth,
-      };
-      WebSocketService.Instance.send(
-        wsClient.approveRegistrationApplication(form)
-      );
-    }
+    i.setState({ denyExpanded: false, approveLoading: true });
+    i.props.onApproveApplication({
+      id: i.props.application.registration_application.id,
+      approve: true,
+      auth: myAuthRequired(),
+    });
   }
 
   handleDeny(i: RegistrationApplication) {
     if (i.state.denyExpanded) {
-      i.setState({ denyExpanded: false });
-      let auth = myAuth();
-      if (auth) {
-        let form: ApproveRegistrationApplication = {
-          id: i.props.application.registration_application.id,
-          approve: false,
-          deny_reason: i.state.denyReason,
-          auth,
-        };
-        WebSocketService.Instance.send(
-          wsClient.approveRegistrationApplication(form)
-        );
-      }
+      i.setState({ denyExpanded: false, denyLoading: true });
+      i.props.onApproveApplication({
+        id: i.props.application.registration_application.id,
+        approve: false,
+        deny_reason: i.state.denyReason,
+        auth: myAuthRequired(),
+      });
     } else {
       i.setState({ denyExpanded: true });
     }

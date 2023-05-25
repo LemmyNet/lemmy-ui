@@ -7,17 +7,27 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
-import { WebSocketService } from "../../services";
-import { myAuth, wsClient } from "../../utils";
-import { Icon } from "../common/icon";
+import { myAuthRequired } from "../../utils";
+import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
 
 interface CommentReportProps {
   report: CommentReportView;
+  onResolveReport(form: ResolveCommentReport): void;
 }
 
-export class CommentReport extends Component<CommentReportProps, any> {
+interface CommentReportState {
+  loading: boolean;
+}
+
+export class CommentReport extends Component<
+  CommentReportProps,
+  CommentReportState
+> {
+  state: CommentReportState = {
+    loading: false,
+  };
   constructor(props: any, context: any) {
     super(props, context);
   }
@@ -90,26 +100,27 @@ export class CommentReport extends Component<CommentReportProps, any> {
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
-          <Icon
-            icon="check"
-            classes={`icon-inline ${
-              r.comment_report.resolved ? "text-success" : "text-danger"
-            }`}
-          />
+          {this.state.loading ? (
+            <Spinner />
+          ) : (
+            <Icon
+              icon="check"
+              classes={`icon-inline ${
+                r.comment_report.resolved ? "text-success" : "text-danger"
+              }`}
+            />
+          )}
         </button>
       </div>
     );
   }
 
   handleResolveReport(i: CommentReport) {
-    let auth = myAuth();
-    if (auth) {
-      let form: ResolveCommentReport = {
-        report_id: i.props.report.comment_report.id,
-        resolved: !i.props.report.comment_report.resolved,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.resolveCommentReport(form));
-    }
+    i.setState({ loading: true });
+    i.props.onResolveReport({
+      report_id: i.props.report.comment_report.id,
+      resolved: !i.props.report.comment_report.resolved,
+      auth: myAuthRequired(),
+    });
   }
 }

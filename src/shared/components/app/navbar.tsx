@@ -1,62 +1,49 @@
 import { Component, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import {
-  CommentResponse,
-  GetReportCount,
   GetReportCountResponse,
   GetSiteResponse,
-  GetUnreadCount,
   GetUnreadCountResponse,
-  GetUnreadRegistrationApplicationCount,
   GetUnreadRegistrationApplicationCountResponse,
-  PrivateMessageResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
 import {
   amAdmin,
   canCreateCommunity,
   donateLemmyUrl,
   isBrowser,
   myAuth,
-  notifyComment,
-  notifyPrivateMessage,
   numToSI,
   showAvatars,
   toast,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
 
 interface NavbarProps {
   siteRes: GetSiteResponse;
 }
 
 interface NavbarState {
+  unreadInboxCountRes: RequestState<GetUnreadCountResponse>;
+  unreadReportCountRes: RequestState<GetReportCountResponse>;
+  unreadApplicationCountRes: RequestState<GetUnreadRegistrationApplicationCountResponse>;
   expanded: boolean;
-  unreadInboxCount: number;
-  unreadReportCount: number;
-  unreadApplicationCount: number;
   showDropdown: boolean;
   onSiteBanner?(url: string): any;
 }
 
 export class Navbar extends Component<NavbarProps, NavbarState> {
-  private wsSub: Subscription;
-  private userSub: Subscription;
-  private unreadInboxCountSub: Subscription;
-  private unreadReportCountSub: Subscription;
-  private unreadApplicationCountSub: Subscription;
   state: NavbarState = {
-    unreadInboxCount: 0,
-    unreadReportCount: 0,
-    unreadApplicationCount: 0,
+    unreadInboxCountRes: { state: "empty" },
+    unreadReportCountRes: { state: "empty" },
+    unreadApplicationCountRes: { state: "empty" },
     expanded: false,
     showDropdown: false,
   };
@@ -64,53 +51,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads
-      let auth = myAuth(false);
-      if (auth && UserService.Instance.myUserInfo) {
-        this.requestNotificationPermission();
-        WebSocketService.Instance.send(
-          wsClient.userJoin({
-            auth,
-          })
-        );
-
-        this.fetchUnreads();
-      }
-
       this.requestNotificationPermission();
-
-      // Subscribe to unread count changes
-      this.unreadInboxCountSub =
-        UserService.Instance.unreadInboxCountSub.subscribe(res => {
-          this.setState({ unreadInboxCount: res });
-        });
-      // Subscribe to unread report count changes
-      this.unreadReportCountSub =
-        UserService.Instance.unreadReportCountSub.subscribe(res => {
-          this.setState({ unreadReportCount: res });
-        });
-      // Subscribe to unread application count
-      this.unreadApplicationCountSub =
-        UserService.Instance.unreadApplicationCountSub.subscribe(res => {
-          this.setState({ unreadApplicationCount: res });
-        });
+      await this.fetchUnreads();
+      this.requestNotificationPermission();
     }
-  }
-
-  componentWillUnmount() {
-    this.wsSub.unsubscribe();
-    this.userSub.unsubscribe();
-    this.unreadInboxCountSub.unsubscribe();
-    this.unreadReportCountSub.unsubscribe();
-    this.unreadApplicationCountSub.unsubscribe();
   }
 
   render() {
@@ -119,8 +69,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   // TODO class active corresponding to current page
   navbar() {
-    let siteView = this.props.siteRes.site_view;
-    let person = UserService.Instance.myUserInfo?.local_user_view.person;
+    const siteView = this.props.siteRes.site_view;
+    const person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
       <nav className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3">
         <div className="container-lg">
@@ -144,14 +94,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     className="p-1 navbar-toggler nav-link border-0"
                     onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                     title={i18n.t("unread_messages", {
-                      count: Number(this.state.unreadInboxCount),
-                      formattedCount: numToSI(this.state.unreadInboxCount),
+                      count: Number(this.unreadInboxCount),
+                      formattedCount: numToSI(this.unreadInboxCount),
                     })}
                   >
                     <Icon icon="bell" />
-                    {this.state.unreadInboxCount > 0 && (
+                    {this.unreadInboxCount > 0 && (
                       <span className="mx-1 badge badge-light">
-                        {numToSI(this.state.unreadInboxCount)}
+                        {numToSI(this.unreadInboxCount)}
                       </span>
                     )}
                   </NavLink>
@@ -165,14 +115,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       className="p-1 navbar-toggler nav-link border-0"
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_reports", {
-                        count: Number(this.state.unreadReportCount),
-                        formattedCount: numToSI(this.state.unreadReportCount),
+                        count: Number(this.unreadReportCount),
+                        formattedCount: numToSI(this.unreadReportCount),
                       })}
                     >
                       <Icon icon="shield" />
-                      {this.state.unreadReportCount > 0 && (
+                      {this.unreadReportCount > 0 && (
                         <span className="mx-1 badge badge-light">
-                          {numToSI(this.state.unreadReportCount)}
+                          {numToSI(this.unreadReportCount)}
                         </span>
                       )}
                     </NavLink>
@@ -187,16 +137,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       className="p-1 navbar-toggler nav-link border-0"
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_registration_applications", {
-                        count: Number(this.state.unreadApplicationCount),
-                        formattedCount: numToSI(
-                          this.state.unreadApplicationCount
-                        ),
+                        count: Number(this.unreadApplicationCount),
+                        formattedCount: numToSI(this.unreadApplicationCount),
                       })}
                     >
                       <Icon icon="clipboard" />
-                      {this.state.unreadApplicationCount > 0 && (
+                      {this.unreadApplicationCount > 0 && (
                         <span className="mx-1 badge badge-light">
-                          {numToSI(this.state.unreadApplicationCount)}
+                          {numToSI(this.unreadApplicationCount)}
                         </span>
                       )}
                     </NavLink>
@@ -305,14 +253,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       to="/inbox"
                       onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                       title={i18n.t("unread_messages", {
-                        count: Number(this.state.unreadInboxCount),
-                        formattedCount: numToSI(this.state.unreadInboxCount),
+                        count: Number(this.unreadInboxCount),
+                        formattedCount: numToSI(this.unreadInboxCount),
                       })}
                     >
                       <Icon icon="bell" />
-                      {this.state.unreadInboxCount > 0 && (
+                      {this.unreadInboxCount > 0 && (
                         <span className="ml-1 badge badge-light">
-                          {numToSI(this.state.unreadInboxCount)}
+                          {numToSI(this.unreadInboxCount)}
                         </span>
                       )}
                     </NavLink>
@@ -326,14 +274,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         to="/reports"
                         onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                         title={i18n.t("unread_reports", {
-                          count: Number(this.state.unreadReportCount),
-                          formattedCount: numToSI(this.state.unreadReportCount),
+                          count: Number(this.unreadReportCount),
+                          formattedCount: numToSI(this.unreadReportCount),
                         })}
                       >
                         <Icon icon="shield" />
-                        {this.state.unreadReportCount > 0 && (
+                        {this.unreadReportCount > 0 && (
                           <span className="ml-1 badge badge-light">
-                            {numToSI(this.state.unreadReportCount)}
+                            {numToSI(this.unreadReportCount)}
                           </span>
                         )}
                       </NavLink>
@@ -348,16 +296,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         className="nav-link"
                         onMouseUp={linkEvent(this, this.handleHideExpandNavbar)}
                         title={i18n.t("unread_registration_applications", {
-                          count: Number(this.state.unreadApplicationCount),
-                          formattedCount: numToSI(
-                            this.state.unreadApplicationCount
-                          ),
+                          count: Number(this.unreadApplicationCount),
+                          formattedCount: numToSI(this.unreadApplicationCount),
                         })}
                       >
                         <Icon icon="clipboard" />
-                        {this.state.unreadApplicationCount > 0 && (
+                        {this.unreadApplicationCount > 0 && (
                           <span className="mx-1 badge badge-light">
-                            {numToSI(this.state.unreadApplicationCount)}
+                            {numToSI(this.unreadApplicationCount)}
                           </span>
                         )}
                       </NavLink>
@@ -459,8 +405,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get moderatesSomething(): boolean {
-    let mods = UserService.Instance.myUserInfo?.moderates;
-    let moderatesS = (mods && mods.length > 0) || false;
+    const mods = UserService.Instance.myUserInfo?.moderates;
+    const moderatesS = (mods && mods.length > 0) || false;
     return amAdmin() || moderatesS;
   }
 
@@ -481,122 +427,71 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     i.setState({ showDropdown: !i.state.showDropdown });
   }
 
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      if (msg.error == "not_logged_in") {
-        UserService.Instance.logout();
-      }
-      return;
-    } else if (msg.reconnect) {
-      console.log(i18n.t("websocket_reconnected"));
-      let auth = myAuth(false);
-      if (UserService.Instance.myUserInfo && auth) {
-        WebSocketService.Instance.send(
-          wsClient.userJoin({
-            auth,
-          })
-        );
-        this.fetchUnreads();
-      }
-    } else if (op == UserOperation.GetUnreadCount) {
-      let data = wsJsonToRes<GetUnreadCountResponse>(msg);
+  async fetchUnreads() {
+    const auth = myAuth();
+    if (auth) {
+      this.setState({ unreadInboxCountRes: { state: "loading" } });
       this.setState({
-        unreadInboxCount: data.replies + data.mentions + data.private_messages,
+        unreadInboxCountRes: apiWrapper(
+          await HttpService.client.getUnreadCount({ auth })
+        ),
       });
-      this.sendUnreadCount();
-    } else if (op == UserOperation.GetReportCount) {
-      let data = wsJsonToRes<GetReportCountResponse>(msg);
-      this.setState({
-        unreadReportCount:
-          data.post_reports +
-          data.comment_reports +
-          (data.private_message_reports ?? 0),
-      });
-      this.sendReportUnread();
-    } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
-      let data =
-        wsJsonToRes<GetUnreadRegistrationApplicationCountResponse>(msg);
-      this.setState({ unreadApplicationCount: data.registration_applications });
-      this.sendApplicationUnread();
-    } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      let mui = UserService.Instance.myUserInfo;
-      if (
-        mui &&
-        data.recipient_ids.includes(mui.local_user_view.local_user.id)
-      ) {
-        this.setState({
-          unreadInboxCount: this.state.unreadInboxCount + 1,
-        });
-        this.sendUnreadCount();
-        notifyComment(data.comment_view, this.context.router);
-      }
-    } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
 
-      if (
-        data.private_message_view.recipient.id ==
-        UserService.Instance.myUserInfo?.local_user_view.person.id
-      ) {
+      if (this.moderatesSomething) {
+        this.setState({ unreadReportCountRes: { state: "loading" } });
         this.setState({
-          unreadInboxCount: this.state.unreadInboxCount + 1,
+          unreadReportCountRes: apiWrapper(
+            await HttpService.client.getReportCount({ auth })
+          ),
         });
-        this.sendUnreadCount();
-        notifyPrivateMessage(data.private_message_view, this.context.router);
+      }
+
+      if (amAdmin()) {
+        this.setState({ unreadApplicationCountRes: { state: "loading" } });
+        this.setState({
+          unreadApplicationCountRes: apiWrapper(
+            await HttpService.client.getUnreadRegistrationApplicationCount({
+              auth,
+            })
+          ),
+        });
       }
     }
   }
 
-  fetchUnreads() {
-    console.log("Fetching inbox unreads...");
+  get unreadInboxCount(): number {
+    if (this.state.unreadInboxCountRes.state == "success") {
+      const data = this.state.unreadInboxCountRes.data;
+      return data.replies + data.mentions + data.private_messages;
+    } else {
+      return 0;
+    }
+  }
 
-    let auth = myAuth();
-    if (auth) {
-      let unreadForm: GetUnreadCount = {
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
+  get unreadReportCount(): number {
+    if (this.state.unreadReportCountRes.state == "success") {
+      const data = this.state.unreadReportCountRes.data;
+      return (
+        data.post_reports +
+        data.comment_reports +
+        (data.private_message_reports ?? 0)
+      );
+    } else {
+      return 0;
+    }
+  }
 
-      console.log("Fetching reports...");
-
-      let reportCountForm: GetReportCount = {
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
-
-      if (amAdmin()) {
-        console.log("Fetching applications...");
-
-        let applicationCountForm: GetUnreadRegistrationApplicationCount = {
-          auth,
-        };
-        WebSocketService.Instance.send(
-          wsClient.getUnreadRegistrationApplicationCount(applicationCountForm)
-        );
-      }
+  get unreadApplicationCount(): number {
+    if (this.state.unreadApplicationCountRes.state == "success") {
+      const data = this.state.unreadApplicationCountRes.data;
+      return data.registration_applications;
+    } else {
+      return 0;
     }
   }
 
   get currentLocation() {
     return this.context.router.history.location.pathname;
-  }
-
-  sendUnreadCount() {
-    UserService.Instance.unreadInboxCountSub.next(this.state.unreadInboxCount);
-  }
-
-  sendReportUnread() {
-    UserService.Instance.unreadReportCountSub.next(
-      this.state.unreadReportCount
-    );
-  }
-
-  sendApplicationUnread() {
-    UserService.Instance.unreadApplicationCountSub.next(
-      this.state.unreadApplicationCount
-    );
   }
 
   requestNotificationPermission() {

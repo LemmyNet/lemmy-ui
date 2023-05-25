@@ -1,12 +1,12 @@
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { CommentId, Language, LanguageId, PostId } from "lemmy-js-client";
+import { CreateComment, EditComment, Language } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { CommentNodeI } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import { capitalizeFirstLetter } from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
@@ -21,20 +21,8 @@ interface CommentFormProps {
   onReplyCancel?(): any;
   allLanguages: Language[];
   siteLanguages: number[];
-  onCreateComment(
-    content: string,
-    formId: string,
-    postId: PostId,
-    parentId?: CommentId,
-    languageId?: LanguageId
-  ): void;
-  onEditComment(
-    content: string,
-    formId: string,
-    commentId: CommentId,
-    languageId?: LanguageId
-  ): void;
-  loading: boolean;
+  onCreateComment(form: CreateComment): void;
+  onEditComment(form: EditComment): void;
 }
 
 interface CommentFormState {
@@ -86,7 +74,6 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             placeholder={i18n.t("comment_here")}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
-            loading={this.props.loading}
           />
         ) : (
           <div className="alert alert-warning" role="alert">
@@ -103,32 +90,38 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
     );
   }
 
-  handleCommentSubmit(content: string, formId: string, languageId?: number) {
+  handleCommentSubmit(content: string, form_id: string, language_id?: number) {
     let node = this.props.node;
 
     if (typeof node === "number") {
-      let postId = node;
-      this.props.onCreateComment(
+      let post_id = node;
+      this.props.onCreateComment({
         content,
-        formId,
-        postId,
-        undefined,
-        languageId
-      );
+        post_id,
+        language_id,
+        form_id,
+        auth: myAuthRequired(),
+      });
     } else {
       if (this.props.edit) {
-        let commentId = node.comment_view.comment.id;
-        this.props.onEditComment(content, formId, commentId, languageId);
+        let comment_id = node.comment_view.comment.id;
+        this.props.onEditComment({
+          comment_id,
+          form_id,
+          language_id,
+          auth: myAuthRequired(),
+        });
       } else {
-        let postId = node.comment_view.post.id;
-        let parentId = node.comment_view.comment.id;
-        this.props.onCreateComment(
+        let post_id = node.comment_view.post.id;
+        let parent_id = node.comment_view.comment.id;
+        this.props.onCreateComment({
           content,
-          formId,
-          postId,
-          parentId,
-          languageId
-        );
+          parent_id,
+          post_id,
+          form_id,
+          language_id,
+          auth: myAuthRequired(),
+        });
       }
     }
   }

@@ -1,30 +1,20 @@
-import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
+  EditSite,
   GetBannedPersons,
   GetFederatedInstancesResponse,
   GetSiteResponse,
-  PersonView,
-  SiteResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { WebSocketService } from "../../services";
 import {
   capitalizeFirstLetter,
-  isBrowser,
-  myAuth,
-  randomStr,
+  isInitialRoute,
+  myAuthRequired,
   setIsoData,
   showLocal,
   toast,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -32,56 +22,69 @@ import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
-  instancesRes?: GetFederatedInstancesResponse;
-  banned: PersonView[];
-  loading: boolean;
-  leaveAdminTeamLoading: boolean;
+  instancesRes: RequestState<GetFederatedInstancesResponse>;
+  bannedRes: RequestState<BannedPersonsResponse>;
+  leaveAdminTeamRes: RequestState<GetSiteResponse>;
   currentTab: string;
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
-  private siteConfigTextAreaId = `site-config-${randomStr()}`;
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
-    banned: [],
-    loading: true,
-    leaveAdminTeamLoading: false,
+    bannedRes: { state: "empty" },
+    instancesRes: { state: "empty" },
+    leaveAdminTeamRes: { state: "empty" },
     currentTab: "site",
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
+    this.handleEditSite = this.handleEditSite.bind(this);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        banned: (this.isoData.routeData[0] as BannedPersonsResponse).banned,
-        instancesRes: this.isoData
-          .routeData[1] as GetFederatedInstancesResponse,
-        loading: false,
+        bannedRes: apiWrapper(
+          this.isoData.routeData[0] as BannedPersonsResponse
+        ),
+        instancesRes: apiWrapper(
+          this.isoData.routeData[1] as GetFederatedInstancesResponse
+        ),
       };
-    } else {
-      let cAuth = myAuth();
-      if (cAuth) {
-        WebSocketService.Instance.send(
-          wsClient.getBannedPersons({
-            auth: cAuth,
-          })
-        );
-        WebSocketService.Instance.send(
-          wsClient.getFederatedInstances({ auth: cAuth })
-        );
-      }
     }
+  }
+
+  async fetchData() {
+    this.setState({
+      bannedRes: { state: "loading" },
+      instancesRes: { state: "loading" },
+    });
+
+    const auth = myAuthRequired();
+
+    this.setState({
+      bannedRes: apiWrapper(
+        await HttpService.client.getBannedPersons({
+          auth,
+        })
+      ),
+      instancesRes: apiWrapper(
+        await HttpService.client.getFederatedInstances({
+          auth,
+        })
+      ),
+    });
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -97,16 +100,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     return promises;
   }
 
-  componentDidMount() {
-    if (isBrowser()) {
-      var textarea: any = document.getElementById(this.siteConfigTextAreaId);
-      autosize(textarea);
-    }
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
+  async componentDidMount() {
+    if (!isInitialRoute(this.isoData, this.context)) {
+      await this.fetchData();
     }
   }
 
@@ -119,64 +115,66 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   render() {
     return (
       <div className="container-lg">
-        {this.state.loading ? (
-          <h5>
-            <Spinner large />
-          </h5>
-        ) : (
-          <div>
-            <HtmlTags
-              title={this.documentTitle}
-              path={this.context.router.route.match.url}
-            />
-            <ul className="nav nav-tabs mb-2">
-              <li className="nav-item">
-                <button
-                  className={`nav-link btn ${
-                    this.state.currentTab == "site" && "active"
-                  }`}
-                  onClick={linkEvent(
-                    { ctx: this, tab: "site" },
-                    this.handleSwitchTab
-                  )}
-                >
-                  {i18n.t("site")}
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link btn ${
-                    this.state.currentTab == "taglines" && "active"
-                  }`}
-                  onClick={linkEvent(
-                    { ctx: this, tab: "taglines" },
-                    this.handleSwitchTab
-                  )}
-                >
-                  {i18n.t("taglines")}
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link btn ${
-                    this.state.currentTab == "emojis" && "active"
-                  }`}
-                  onClick={linkEvent(
-                    { ctx: this, tab: "emojis" },
-                    this.handleSwitchTab
-                  )}
-                >
-                  {i18n.t("emojis")}
-                </button>
-              </li>
-            </ul>
-            {this.state.currentTab == "site" && (
+        <div>
+          <HtmlTags
+            title={this.documentTitle}
+            path={this.context.router.route.match.url}
+          />
+          <ul className="nav nav-tabs mb-2">
+            <li className="nav-item">
+              <button
+                className={`nav-link btn ${
+                  this.state.currentTab == "site" && "active"
+                }`}
+                onClick={linkEvent(
+                  { ctx: this, tab: "site" },
+                  this.handleSwitchTab
+                )}
+              >
+                {i18n.t("site")}
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link btn ${
+                  this.state.currentTab == "taglines" && "active"
+                }`}
+                onClick={linkEvent(
+                  { ctx: this, tab: "taglines" },
+                  this.handleSwitchTab
+                )}
+              >
+                {i18n.t("taglines")}
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link btn ${
+                  this.state.currentTab == "emojis" && "active"
+                }`}
+                onClick={linkEvent(
+                  { ctx: this, tab: "emojis" },
+                  this.handleSwitchTab
+                )}
+              >
+                {i18n.t("emojis")}
+              </button>
+            </li>
+          </ul>
+          {this.state.currentTab == "site" &&
+            this.state.instancesRes.state == "success" && (
               <div className="row">
                 <div className="col-12 col-md-6">
                   <SiteForm
                     siteRes={this.state.siteRes}
-                    instancesRes={this.state.instancesRes}
+                    allowedInstances={
+                      this.state.instancesRes.data.federated_instances?.allowed
+                    }
+                    blockedInstances={
+                      this.state.instancesRes.data.federated_instances?.blocked
+                    }
                     showLocal={showLocal(this.isoData)}
+                    onEditSite={this.handleEditSite}
                   />
                 </div>
                 <div className="col-12 col-md-6">
@@ -185,18 +183,17 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 </div>
               </div>
             )}
-            {this.state.currentTab == "taglines" && (
-              <div className="row">
-                <TaglineForm siteRes={this.state.siteRes}></TaglineForm>
-              </div>
-            )}
-            {this.state.currentTab == "emojis" && (
-              <div className="row">
-                <EmojiForm></EmojiForm>
-              </div>
-            )}
-          </div>
-        )}
+          {this.state.currentTab == "taglines" && (
+            <div className="row">
+              <TaglineForm siteRes={this.state.siteRes}></TaglineForm>
+            </div>
+          )}
+          {this.state.currentTab == "emojis" && (
+            <div className="row">
+              <EmojiForm></EmojiForm>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -223,7 +220,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         onClick={linkEvent(this, this.handleLeaveAdminTeam)}
         className="btn btn-danger mb-2"
       >
-        {this.state.leaveAdminTeamLoading ? (
+        {this.state.leaveAdminTeamRes.state == "loading" ? (
           <Spinner />
         ) : (
           i18n.t("leave_admin_team")
@@ -233,56 +230,54 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   bannedUsers() {
-    return (
-      <>
-        <h5>{i18n.t("banned_users")}</h5>
-        <ul className="list-unstyled">
-          {this.state.banned.map(banned => (
-            <li key={banned.person.id} className="list-inline-item">
-              <PersonListing person={banned.person} />
-            </li>
-          ))}
-        </ul>
-      </>
-    );
+    switch (this.state.bannedRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success":
+        const bans = this.state.bannedRes.data.banned;
+        return (
+          <>
+            <h5>{i18n.t("banned_users")}</h5>
+            <ul className="list-unstyled">
+              {bans.map(banned => (
+                <li key={banned.person.id} className="list-inline-item">
+                  <PersonListing person={banned.person} />
+                </li>
+              ))}
+            </ul>
+          </>
+        );
+    }
   }
 
   handleSwitchTab(i: { ctx: AdminSettings; tab: string }) {
     i.ctx.setState({ currentTab: i.tab });
   }
 
-  handleLeaveAdminTeam(i: AdminSettings) {
-    let auth = myAuth();
-    if (auth) {
-      i.setState({ leaveAdminTeamLoading: true });
-      WebSocketService.Instance.send(wsClient.leaveAdmin({ auth }));
+  async handleLeaveAdminTeam(i: AdminSettings) {
+    i.setState({ leaveAdminTeamRes: { state: "loading" } });
+    this.setState({
+      leaveAdminTeamRes: apiWrapper(
+        await HttpService.client.leaveAdmin({ auth: myAuthRequired() })
+      ),
+    });
+
+    if (this.state.leaveAdminTeamRes.state == "success") {
+      toast(i18n.t("left_admin_team"));
+      this.context.router.history.push("/");
     }
   }
 
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.context.router.history.push("/");
-      this.setState({ loading: false });
-      return;
-    } else if (op == UserOperation.EditSite) {
-      let data = wsJsonToRes<SiteResponse>(msg);
-      this.setState(s => ((s.siteRes.site_view = data.site_view), s));
+  async handleEditSite(form: EditSite) {
+    const editRes = apiWrapper(await HttpService.client.editSite(form));
+
+    if (editRes.state == "success") {
+      this.setState(s => ((s.siteRes.site_view = editRes.data.site_view), s));
       toast(i18n.t("site_saved"));
-    } else if (op == UserOperation.GetBannedPersons) {
-      let data = wsJsonToRes<BannedPersonsResponse>(msg);
-      this.setState({ banned: data.banned, loading: false });
-    } else if (op == UserOperation.LeaveAdmin) {
-      let data = wsJsonToRes<GetSiteResponse>(msg);
-      this.setState(s => ((s.siteRes.site_view = data.site_view), s));
-      this.setState({ leaveAdminTeamLoading: false });
-      toast(i18n.t("left_admin_team"));
-      this.context.router.history.push("/");
-    } else if (op == UserOperation.GetFederatedInstances) {
-      let data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
-      this.setState({ instancesRes: data });
     }
   }
 }

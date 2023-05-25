@@ -5,24 +5,14 @@ import {
   CreatePrivateMessage,
   EditPrivateMessage,
   Person,
-  PrivateMessageResponse,
   PrivateMessageView,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
 import {
   capitalizeFirstLetter,
-  isBrowser,
-  myAuth,
+  myAuthRequired,
   relTags,
   setupTippy,
-  toast,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -32,8 +22,8 @@ interface PrivateMessageFormProps {
   recipient: Person;
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   onCancel?(): any;
-  onCreate?(message: PrivateMessageView): any;
-  onEdit?(message: PrivateMessageView): any;
+  onCreate?(form: CreatePrivateMessage): void;
+  onEdit?(form: EditPrivateMessage): void;
 }
 
 interface PrivateMessageFormState {
@@ -47,7 +37,6 @@ export class PrivateMessageForm extends Component<
   PrivateMessageFormProps,
   PrivateMessageFormState
 > {
-  private subscription?: Subscription;
   state: PrivateMessageFormState = {
     loading: false,
     previewMode: false,
@@ -58,9 +47,6 @@ export class PrivateMessageForm extends Component<
     super(props, context);
 
     this.handleContentChange = this.handleContentChange.bind(this);
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
 
     // Its an edit
     if (this.props.privateMessageView) {
@@ -73,17 +59,11 @@ export class PrivateMessageForm extends Component<
     setupTippy();
   }
 
+  // TODO what is this
   componentDidUpdate() {
     if (!this.state.loading && this.state.content) {
       window.onbeforeunload = () => true;
     } else {
-      window.onbeforeunload = null;
-    }
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
       window.onbeforeunload = null;
     }
   }
@@ -181,28 +161,23 @@ export class PrivateMessageForm extends Component<
     );
   }
 
-  handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
-    event.preventDefault();
+  handlePrivateMessageSubmit(i: PrivateMessageForm) {
+    i.setState({ loading: true });
     let pm = i.props.privateMessageView;
-    let auth = myAuth();
-    let content = i.state.content;
-    if (auth && content) {
-      if (pm) {
-        let form: EditPrivateMessage = {
-          private_message_id: pm.private_message.id,
-          content,
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.editPrivateMessage(form));
-      } else {
-        let form: CreatePrivateMessage = {
-          content,
-          recipient_id: i.props.recipient.id,
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.createPrivateMessage(form));
-      }
-      i.setState({ loading: true });
+    let auth = myAuthRequired();
+    let content = i.state.content ?? "";
+    if (pm) {
+      i.props.onEdit?.({
+        private_message_id: pm.private_message.id,
+        content,
+        auth,
+      });
+    } else {
+      i.props.onCreate?.({
+        content,
+        recipient_id: i.props.recipient.id,
+        auth,
+      });
     }
   }
 
@@ -221,26 +196,5 @@ export class PrivateMessageForm extends Component<
 
   handleShowDisclaimer(i: PrivateMessageForm) {
     i.setState({ showDisclaimer: !i.state.showDisclaimer });
-  }
-
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.setState({ loading: false });
-      return;
-    } else if (
-      op == UserOperation.EditPrivateMessage ||
-      op == UserOperation.DeletePrivateMessage ||
-      op == UserOperation.MarkPrivateMessageAsRead
-    ) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      this.setState({ loading: false });
-      this.props.onEdit?.(data.private_message_view);
-    } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      this.props.onCreate?.(data.private_message_view);
-    }
   }
 }

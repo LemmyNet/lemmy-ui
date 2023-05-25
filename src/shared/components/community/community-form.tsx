@@ -1,25 +1,14 @@
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
-  CommunityResponse,
   CommunityView,
   CreateCommunity,
   EditCommunity,
   Language,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
-import {
-  capitalizeFirstLetter,
-  myAuth,
-  randomStr,
-  wsClient,
-  wsSubscribe,
-} from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired, randomStr } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
@@ -31,8 +20,8 @@ interface CommunityFormProps {
   siteLanguages: number[];
   communityLanguages?: number[];
   onCancel?(): any;
-  onCreate?(community: CommunityView): any;
-  onEdit?(community: CommunityView): any;
+  onCreateCommunity?(form: CreateCommunity): void;
+  onEditCommunity?(form: EditCommunity): void;
   enableNsfw?: boolean;
 }
 
@@ -77,8 +66,6 @@ export class CommunityForm extends Component<
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
     let cv = this.props.community_view;
 
     if (cv) {
@@ -298,18 +285,29 @@ export class CommunityForm extends Component<
     );
   }
 
-  handleCreateCommunitySubmit(i: CommunityForm, event: any) {
-    event.preventDefault();
+  handleCreateCommunitySubmit(i: CommunityForm) {
     i.setState({ loading: true });
     let cForm = i.state.form;
-    let auth = myAuth();
+    let auth = myAuthRequired();
 
     let cv = i.props.community_view;
 
-    if (auth) {
-      if (cv) {
-        let form: EditCommunity = {
-          community_id: cv.community.id,
+    if (cv) {
+      i.props.onEditCommunity?.({
+        community_id: cv.community.id,
+        title: cForm.title,
+        description: cForm.description,
+        icon: cForm.icon,
+        banner: cForm.banner,
+        nsfw: cForm.nsfw,
+        posting_restricted_to_mods: cForm.posting_restricted_to_mods,
+        discussion_languages: cForm.discussion_languages,
+        auth,
+      });
+    } else {
+      if (cForm.title && cForm.name) {
+        i.props.onCreateCommunity?.({
+          name: cForm.name,
           title: cForm.title,
           description: cForm.description,
           icon: cForm.icon,
@@ -318,24 +316,7 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: cForm.posting_restricted_to_mods,
           discussion_languages: cForm.discussion_languages,
           auth,
-        };
-
-        WebSocketService.Instance.send(wsClient.editCommunity(form));
-      } else {
-        if (cForm.title && cForm.name) {
-          let form: CreateCommunity = {
-            name: cForm.name,
-            title: cForm.title,
-            description: cForm.description,
-            icon: cForm.icon,
-            banner: cForm.banner,
-            nsfw: cForm.nsfw,
-            posting_restricted_to_mods: cForm.posting_restricted_to_mods,
-            discussion_languages: cForm.discussion_languages,
-            auth,
-          };
-          WebSocketService.Instance.send(wsClient.createCommunity(form));
-        }
+        });
       }
     }
     i.setState(i.state);
@@ -387,57 +368,5 @@ export class CommunityForm extends Component<
 
   handleDiscussionLanguageChange(val: number[]) {
     this.setState(s => ((s.form.discussion_languages = val), s));
-  }
-
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      // Errors handled by top level pages
-      // toast(i18n.t(msg.error), "danger");
-      this.setState({ loading: false });
-      return;
-    } else if (op == UserOperation.CreateCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg);
-      this.props.onCreate?.(data.community_view);
-
-      // Update myUserInfo
-      let community = data.community_view.community;
-
-      let mui = UserService.Instance.myUserInfo;
-      if (mui) {
-        let person = mui.local_user_view.person;
-        mui.follows.push({
-          community,
-          follower: person,
-        });
-        mui.moderates.push({
-          community,
-          moderator: person,
-        });
-      }
-    } else if (op == UserOperation.EditCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg);
-      this.setState({ loading: false });
-      this.props.onEdit?.(data.community_view);
-      let community = data.community_view.community;
-
-      let mui = UserService.Instance.myUserInfo;
-      if (mui) {
-        let followFound = mui.follows.findIndex(
-          f => f.community.id == community.id
-        );
-        if (followFound) {
-          mui.follows[followFound].community = community;
-        }
-
-        let moderatesFound = mui.moderates.findIndex(
-          f => f.community.id == community.id
-        );
-        if (moderatesFound) {
-          mui.moderates[moderatesFound].community = community;
-        }
-      }
-    }
   }
 }

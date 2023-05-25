@@ -64,6 +64,11 @@ export enum PurgeType {
   Comment,
 }
 
+export enum VoteType {
+  Upvote,
+  Downvote
+}
+
 export interface CommentNodeI {
   comment_view: CommentView;
   children: Array<CommentNodeI>;

@@ -8,17 +8,15 @@ import { Prompt } from "inferno-router";
 import {
   CreateSite,
   EditSite,
-  GetFederatedInstancesResponse,
   GetSiteResponse,
+  Instance,
   ListingType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
 import {
   capitalizeFirstLetter,
   fetchThemeList,
-  myAuth,
-  wsClient,
+  myAuthRequired,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -28,8 +26,11 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface SiteFormProps {
   siteRes: GetSiteResponse;
-  instancesRes?: GetFederatedInstancesResponse;
+  blockedInstances?: Instance[];
+  allowedInstances?: Instance[];
   showLocal?: boolean;
+  onEditSite?(form: EditSite): void;
+  onCreateSite?(form: CreateSite): void;
 }
 
 interface SiteFormState {
@@ -120,14 +121,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         federation_worker_count: ls.federation_worker_count,
         captcha_enabled: ls.captcha_enabled,
         captcha_difficulty: ls.captcha_difficulty,
-        allowed_instances:
-          this.props.instancesRes?.federated_instances?.allowed.map(
-            i => i.domain
-          ),
-        blocked_instances:
-          this.props.instancesRes?.federated_instances?.blocked.map(
-            i => i.domain
-          ),
+        allowed_instances: this.props.allowedInstances?.map(i => i.domain),
+        blocked_instances: this.props.blockedInstances?.map(i => i.domain),
         auth: "TODO",
       },
     };
@@ -989,13 +984,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     }
   }
 
-  handleCreateSiteSubmit(i: SiteForm, event: any) {
-    event.preventDefault();
+  handleCreateSiteSubmit(i: SiteForm) {
     i.setState({ loading: true });
-    let auth = myAuth() ?? "TODO";
+    let auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));
     if (i.props.siteRes.site_view.local_site.site_setup) {
-      WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
+      i.props.onEditSite?.(i.state.siteForm);
     } else {
       let sForm = i.state.siteForm;
       let form: CreateSite = {
@@ -1040,7 +1034,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         discussion_languages: sForm.discussion_languages,
         auth,
       };
-      WebSocketService.Instance.send(wsClient.createSite(form));
+      i.props.onCreateSite?.(form);
     }
     i.setState(i.state);
   }

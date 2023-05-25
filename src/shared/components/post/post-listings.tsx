@@ -1,7 +1,25 @@
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { Language, PostView } from "lemmy-js-client";
+import {
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanPerson,
+  BlockPerson,
+  CreatePostLike,
+  CreatePostReport,
+  DeletePost,
+  FeaturePost,
+  Language,
+  LockPost,
+  PostView,
+  PurgePerson,
+  PurgePost,
+  RemovePost,
+  SavePost,
+  TransferCommunity,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { PostListing } from "./post-listing";
 
@@ -13,6 +31,21 @@ interface PostListingsProps {
   removeDuplicates?: boolean;
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
+  onPostVote(form: CreatePostLike): void;
+  onPostReport(form: CreatePostReport): void;
+  onBlockPerson(form: BlockPerson): void;
+  onLockPost(form: LockPost): void;
+  onDeletePost(form: DeletePost): void;
+  onRemovePost(form: RemovePost): void;
+  onSavePost(form: SavePost): void;
+  onFeaturePost(form: FeaturePost): void;
+  onPurgePerson(form: PurgePerson): void;
+  onPurgePost(form: PurgePost): void;
+  onBanPersonFromCommunity(form: BanFromCommunity): void;
+  onBanPerson(form: BanPerson): void;
+  onAddModToCommunity(form: AddModToCommunity): void;
+  onAddAdmin(form: AddAdmin): void;
+  onTransferCommunity(form: TransferCommunity): void;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -42,6 +75,21 @@ export class PostListings extends Component<PostListingsProps, any> {
                 enableNsfw={this.props.enableNsfw}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                onPostVote={this.props.onPostVote}
+                onPostReport={this.props.onPostReport}
+                onBlockPerson={this.props.onBlockPerson}
+                onLockPost={this.props.onLockPost}
+                onDeletePost={this.props.onDeletePost}
+                onRemovePost={this.props.onRemovePost}
+                onSavePost={this.props.onSavePost}
+                onFeaturePost={this.props.onFeaturePost}
+                onPurgePerson={this.props.onPurgePerson}
+                onPurgePost={this.props.onPurgePost}
+                onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+                onBanPerson={this.props.onBanPerson}
+                onAddModToCommunity={this.props.onAddModToCommunity}
+                onAddAdmin={this.props.onAddAdmin}
+                onTransferCommunity={this.props.onTransferCommunity}
               />
               <hr className="my-3" />
             </>
