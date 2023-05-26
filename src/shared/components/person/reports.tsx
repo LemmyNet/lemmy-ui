@@ -23,15 +23,15 @@ import { InitialFetchRequest } from "../../interfaces";
 import { UserService, HttpService } from "../../services";
 import {
   amAdmin,
+  editCommentReports,
+  editPostReports,
+  editPrivateMessageReports,
   fetchLimit,
   isBrowser,
   isInitialRoute,
   myAuthRequired,
   setIsoData,
   toast,
-  updateCommentReportRes,
-  updatePostReportRes,
-  updatePrivateMessageReportRes,
 } from "../../utils";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
@@ -571,7 +571,7 @@ export class Reports extends Component<any, ReportsState> {
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
     this.setState(s => {
       if (s.commentReportsRes.state == "success" && res.state == "success") {
-        s.commentReportsRes.data.comment_reports = updateCommentReportRes(
+        s.commentReportsRes.data.comment_reports = editCommentReports(
           res.data.comment_report_view,
           s.commentReportsRes.data.comment_reports
         );
@@ -583,7 +583,7 @@ export class Reports extends Component<any, ReportsState> {
   findAndUpdatePostReport(res: RequestState<PostReportResponse>) {
     this.setState(s => {
       if (s.postReportsRes.state == "success" && res.state == "success") {
-        s.postReportsRes.data.post_reports = updatePostReportRes(
+        s.postReportsRes.data.post_reports = editPostReports(
           res.data.post_report_view,
           s.postReportsRes.data.post_reports
         );
@@ -598,7 +598,7 @@ export class Reports extends Component<any, ReportsState> {
     this.setState(s => {
       if (s.messageReportsRes.state == "success" && res.state == "success") {
         s.messageReportsRes.data.private_message_reports =
-          updatePrivateMessageReportRes(
+          editPrivateMessageReports(
             res.data.private_message_report_view,
             s.messageReportsRes.data.private_message_reports
           );

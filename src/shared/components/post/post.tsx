@@ -3,6 +3,7 @@ import { Component, createRef, linkEvent, RefObject } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
+  AddModToCommunityResponse,
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
@@ -27,6 +28,7 @@ import {
   FollowCommunity,
   GetComments,
   GetCommentsResponse,
+  GetCommunityResponse,
   GetPost,
   GetPostResponse,
   GetSiteResponse,
@@ -58,7 +60,7 @@ import {
   commentsToFlatNodes,
   commentTreeMaxDepth,
   debounce,
-  editCommentRes,
+  editComments,
   enableDownvotes,
   enableNsfw,
   getCommentIdFromProps,
@@ -683,13 +685,7 @@ export class Post extends Component<any, PostState> {
       await HttpService.client.addModToCommunity(form)
     );
 
-    // Update the moderators
-    this.setState(s => {
-      if (s.postRes.state == "success" && addModRes.state == "success") {
-        s.postRes.data.moderators = addModRes.data.moderators;
-      }
-      return s;
-    });
+    this.updateModerators(addModRes);
   }
 
   async handleFollow(form: FollowCommunity) {
@@ -897,16 +893,7 @@ export class Post extends Component<any, PostState> {
       await HttpService.client.transferCommunity(form)
     );
 
-    if (transferCommunityRes.state == "success") {
-      this.setState(s => {
-        if (s.postRes.state == "success") {
-          s.postRes.data.community_view =
-            transferCommunityRes.data.community_view;
-          s.postRes.data.moderators = transferCommunityRes.data.moderators;
-        }
-        return s;
-      });
-    }
+    this.updateCommunityFull(transferCommunityRes);
   }
 
   async handleFetchChildren(form: GetComments) {
@@ -949,9 +936,7 @@ export class Post extends Component<any, PostState> {
     this.updateBan(banRes);
   }
 
-  updateBan(
-    banRes: RequestState<BanFromCommunityResponse | BanPersonResponse>
-  ) {
+  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
     // Maybe not necessary
     if (banRes.state == "success") {
       this.setState(s => {
@@ -975,10 +960,41 @@ export class Post extends Component<any, PostState> {
     }
   }
 
+  updateBan(banRes: RequestState<BanPersonResponse>) {
+    // Maybe not necessary
+    if (banRes.state == "success") {
+      this.setState(s => {
+        if (
+          s.postRes.state == "success" &&
+          s.postRes.data.post_view.creator.id ==
+            banRes.data.person_view.person.id
+        ) {
+          s.postRes.data.post_view.creator.banned = banRes.data.banned;
+        }
+        if (s.commentsRes.state == "success") {
+          s.commentsRes.data.comments
+            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .forEach(c => (c.creator.banned = banRes.data.banned));
+        }
+        return s;
+      });
+    }
+  }
+
   updateCommunity(communityRes: RequestState<CommunityResponse>) {
     this.setState(s => {
       if (s.postRes.state == "success" && communityRes.state == "success") {
         s.postRes.data.community_view = communityRes.data.community_view;
+      }
+      return s;
+    });
+  }
+
+  updateCommunityFull(res: RequestState<GetCommunityResponse>) {
+    this.setState(s => {
+      if (s.postRes.state == "success" && res.state == "success") {
+        s.postRes.data.community_view = res.data.community_view;
+        s.postRes.data.moderators = res.data.moderators;
       }
       return s;
     });
@@ -1003,10 +1019,20 @@ export class Post extends Component<any, PostState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state == "success" && res.state == "success") {
-        s.commentsRes.data.comments = editCommentRes(
+        s.commentsRes.data.comments = editComments(
           res.data.comment_view,
           s.commentsRes.data.comments
         );
+      }
+      return s;
+    });
+  }
+
+  updateModerators(res: RequestState<AddModToCommunityResponse>) {
+    // Update the moderators
+    this.setState(s => {
+      if (s.postRes.state == "success" && res.state == "success") {
+        s.postRes.data.moderators = res.data.moderators;
       }
       return s;
     });

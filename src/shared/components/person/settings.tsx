@@ -1,26 +1,18 @@
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
-  BlockCommunity,
   BlockCommunityResponse,
-  BlockPerson,
   BlockPersonResponse,
-  ChangePassword,
   CommunityBlockView,
-  DeleteAccount,
+  DeleteAccountResponse,
   GetSiteResponse,
   ListingType,
   LoginResponse,
   PersonBlockView,
-  SaveUserSettings,
   SortType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n, languages } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
 import {
   Choice,
   capitalizeFirstLetter,
@@ -34,6 +26,7 @@ import {
   fetchUsers,
   getLanguages,
   myAuth,
+  myAuthRequired,
   personToChoice,
   relTags,
   setIsoData,
@@ -43,8 +36,6 @@ import {
   toast,
   updateCommunityBlock,
   updatePersonBlock,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -56,8 +47,16 @@ import { SearchableSelect } from "../common/searchable-select";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
 
 interface SettingsState {
+  saveRes: RequestState<LoginResponse>;
+  changePasswordRes: RequestState<LoginResponse>;
+  deleteAccountRes: RequestState<DeleteAccountResponse>;
   // TODO redo these forms
   saveUserSettingsForm: {
     show_nsfw?: boolean;
@@ -93,9 +92,6 @@ interface SettingsState {
   communityBlocks: CommunityBlockView[];
   currentTab: string;
   themeList: string[];
-  saveUserSettingsLoading: boolean;
-  changePasswordLoading: boolean;
-  deleteAccountLoading: boolean;
   deleteAccountShowConfirm: boolean;
   siteRes: GetSiteResponse;
   searchCommunityLoading: boolean;
@@ -142,13 +138,12 @@ const Filter = ({
 
 export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: SettingsState = {
+    saveRes: { state: "empty" },
+    deleteAccountRes: { state: "empty" },
+    changePasswordRes: { state: "empty" },
     saveUserSettingsForm: {},
     changePasswordForm: {},
-    saveUserSettingsLoading: false,
-    changePasswordLoading: false,
-    deleteAccountLoading: false,
     deleteAccountShowConfirm: false,
     deleteAccountForm: {},
     personBlocks: [],
@@ -177,8 +172,8 @@ export class Settings extends Component<any, SettingsState> {
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
+    this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
 
     const mui = UserService.Instance.myUserInfo;
     if (mui) {
@@ -240,10 +235,6 @@ export class Settings extends Component<any, SettingsState> {
   async componentDidMount() {
     setupTippy();
     this.setState({ themeList: await fetchThemeList() });
-  }
-
-  componentWillUnmount() {
-    this.subscription?.unsubscribe();
   }
 
   get documentTitle(): string {
@@ -390,7 +381,7 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           <div className="form-group">
             <button type="submit" className="btn btn-block btn-secondary mr-4">
-              {this.state.changePasswordLoading ? (
+              {this.state.changePasswordRes.state == "loading" ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(i18n.t("save"))
@@ -805,7 +796,7 @@ export class Settings extends Component<any, SettingsState> {
           {this.totpSection()}
           <div className="form-group">
             <button type="submit" className="btn btn-block btn-secondary mr-4">
-              {this.state.saveUserSettingsLoading ? (
+              {this.state.saveRes.state == "loading" ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(i18n.t("save"))
@@ -844,7 +835,7 @@ export class Settings extends Component<any, SettingsState> {
                   disabled={!this.state.deleteAccountForm.password}
                   onClick={linkEvent(this, this.handleDeleteAccount)}
                 >
-                  {this.state.deleteAccountLoading ? (
+                  {this.state.deleteAccountRes.state == "loading" ? (
                     <Spinner />
                   ) : (
                     capitalizeFirstLetter(i18n.t("delete"))
@@ -953,100 +944,110 @@ export class Settings extends Component<any, SettingsState> {
     });
   });
 
-  handleBlockPerson({ value }: Choice) {
-    const auth = myAuth();
-    if (auth && value !== "0") {
-      const blockUserForm: BlockPerson = {
-        person_id: Number(value),
-        block: true,
-        auth,
-      };
+  async handleBlockPerson({ value }: Choice) {
+    if (value !== "0") {
+      const res = apiWrapper(
+        await HttpService.client.blockPerson({
+          person_id: Number(value),
+          block: true,
+          auth: myAuthRequired(),
+        })
+      );
 
-      WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+      this.personBlock(res);
     }
   }
 
-  handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
-    const auth = myAuth();
-    if (auth) {
-      const blockUserForm: BlockPerson = {
+  async handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
+    const res = apiWrapper(
+      await HttpService.client.blockPerson({
         person_id: i.recipientId,
         block: false,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
-    }
+        auth: myAuthRequired(),
+      })
+    );
+    i.ctx.personBlock(res);
   }
 
-  handleBlockCommunity({ value }: Choice) {
-    const auth = myAuth();
-    if (auth && value !== "0") {
-      const blockCommunityForm: BlockCommunity = {
-        community_id: Number(value),
-        block: true,
-        auth,
-      };
-      WebSocketService.Instance.send(
-        wsClient.blockCommunity(blockCommunityForm)
+  async handleBlockCommunity({ value }: Choice) {
+    if (value !== "0") {
+      const res = apiWrapper(
+        await HttpService.client.blockCommunity({
+          community_id: Number(value),
+          block: true,
+          auth: myAuthRequired(),
+        })
       );
+      this.communityBlock(res);
     }
   }
 
-  handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
+  async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
     const auth = myAuth();
     if (auth) {
-      const blockCommunityForm: BlockCommunity = {
-        community_id: i.communityId,
-        block: false,
-        auth,
-      };
-      WebSocketService.Instance.send(
-        wsClient.blockCommunity(blockCommunityForm)
+      const res = apiWrapper(
+        await HttpService.client.blockCommunity({
+          community_id: i.communityId,
+          block: false,
+          auth: myAuthRequired(),
+        })
       );
+      i.ctx.communityBlock(res);
     }
   }
 
   handleShowNsfwChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_nsfw = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.saveUserSettingsForm.show_nsfw = event.target.checked), s)
+    );
   }
 
   handleShowAvatarsChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_avatars = event.target.checked;
     let mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_avatars = event.target.checked;
     }
-    i.setState(i.state);
+    i.setState(
+      s => ((s.saveUserSettingsForm.show_avatars = event.target.checked), s)
+    );
   }
 
   handleBotAccount(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.bot_account = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.saveUserSettingsForm.bot_account = event.target.checked), s)
+    );
   }
 
   handleShowBotAccounts(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_bot_accounts = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.show_bot_accounts = event.target.checked), s
+      )
+    );
   }
 
   handleReadPosts(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_read_posts = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.saveUserSettingsForm.show_read_posts = event.target.checked), s)
+    );
   }
 
   handleShowNewPostNotifs(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_new_post_notifs = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.show_new_post_notifs = event.target.checked), s
+      )
+    );
   }
 
   handleShowScoresChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.show_scores = event.target.checked;
     let mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_scores = event.target.checked;
     }
-    i.setState(i.state);
+    i.setState(
+      s => ((s.saveUserSettingsForm.show_scores = event.target.checked), s)
+    );
   }
 
   handleGenerateTotp(i: Settings, event: any) {
@@ -1055,35 +1056,37 @@ export class Settings extends Component<any, SettingsState> {
     if (checked) {
       toast(i18n.t("two_factor_setup_instructions"));
     }
-    i.state.saveUserSettingsForm.generate_totp_2fa = checked;
-    i.setState(i.state);
+    i.setState(s => ((s.saveUserSettingsForm.generate_totp_2fa = checked), s));
   }
 
   handleRemoveTotp(i: Settings, event: any) {
     // Coerce true to undefined here, so it won't generate it.
     let checked: boolean | undefined = !event.target.checked && undefined;
-    i.state.saveUserSettingsForm.generate_totp_2fa = checked;
-    i.setState(i.state);
+    i.setState(s => ((s.saveUserSettingsForm.generate_totp_2fa = checked), s));
   }
 
   handleSendNotificationsToEmailChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.send_notifications_to_email =
-      event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.send_notifications_to_email =
+          event.target.checked),
+        s
+      )
+    );
   }
 
   handleThemeChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.theme = event.target.value;
+    i.setState(s => ((s.saveUserSettingsForm.theme = event.target.value), s));
     setTheme(event.target.value, true);
-    i.setState(i.state);
   }
 
   handleInterfaceLangChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.interface_language = event.target.value;
+    i.setState(
+      s => ((s.saveUserSettingsForm.interface_language = event.target.value), s)
+    );
     i18n.changeLanguage(
       getLanguages(i.state.saveUserSettingsForm.interface_language).at(0)
     );
-    i.setState(i.state);
   }
 
   handleDiscussionLanguageChange(val: number[]) {
@@ -1103,8 +1106,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleEmailChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.email = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.saveUserSettingsForm.email = event.target.value), s));
   }
 
   handleBioChange(val: string) {
@@ -1128,90 +1130,107 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleDisplayNameChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.display_name = event.target.value;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.saveUserSettingsForm.display_name = event.target.value), s)
+    );
   }
 
   handleMatrixUserIdChange(i: Settings, event: any) {
-    i.state.saveUserSettingsForm.matrix_user_id = event.target.value;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.saveUserSettingsForm.matrix_user_id = event.target.value), s)
+    );
   }
 
   handleNewPasswordChange(i: Settings, event: any) {
-    i.state.changePasswordForm.new_password = event.target.value;
-    if (i.state.changePasswordForm.new_password == "") {
-      i.state.changePasswordForm.new_password = undefined;
-    }
-    i.setState(i.state);
+    const newPass: string | undefined =
+      event.target.value == "" ? undefined : event.target.value;
+    i.setState(s => ((s.changePasswordForm.new_password = newPass), s));
   }
 
   handleNewPasswordVerifyChange(i: Settings, event: any) {
-    i.state.changePasswordForm.new_password_verify = event.target.value;
-    if (i.state.changePasswordForm.new_password_verify == "") {
-      i.state.changePasswordForm.new_password_verify = undefined;
-    }
-    i.setState(i.state);
+    const newPassVerify: string | undefined =
+      event.target.value == "" ? undefined : event.target.value;
+    i.setState(
+      s => ((s.changePasswordForm.new_password_verify = newPassVerify), s)
+    );
   }
 
   handleOldPasswordChange(i: Settings, event: any) {
-    i.state.changePasswordForm.old_password = event.target.value;
-    if (i.state.changePasswordForm.old_password == "") {
-      i.state.changePasswordForm.old_password = undefined;
-    }
-    i.setState(i.state);
+    const oldPass: string | undefined =
+      event.target.value == "" ? undefined : event.target.value;
+    i.setState(s => ((s.changePasswordForm.old_password = oldPass), s));
   }
 
-  handleSaveSettingsSubmit(i: Settings, event: any) {
-    event.preventDefault();
-    i.setState({ saveUserSettingsLoading: true });
-    let auth = myAuth();
-    if (auth) {
-      let form: SaveUserSettings = { ...i.state.saveUserSettingsForm, auth };
-      WebSocketService.Instance.send(wsClient.saveUserSettings(form));
+  async handleSaveSettingsSubmit(i: Settings) {
+    i.setState({ saveRes: { state: "loading" } });
+    i.setState({
+      saveRes: apiWrapper(
+        await HttpService.client.saveUserSettings({
+          ...i.state.saveUserSettingsForm,
+          auth: myAuthRequired(),
+        })
+      ),
+    });
+
+    if (i.state.saveRes.state == "success") {
+      UserService.Instance.login(i.state.saveRes.data);
+      location.reload();
+      toast(i18n.t("saved"));
+      window.scrollTo(0, 0);
     }
   }
 
-  handleChangePasswordSubmit(i: Settings, event: any) {
-    event.preventDefault();
-    i.setState({ changePasswordLoading: true });
-    let auth = myAuth();
+  async handleChangePasswordSubmit(i: Settings) {
     let pForm = i.state.changePasswordForm;
     let new_password = pForm.new_password;
     let new_password_verify = pForm.new_password_verify;
     let old_password = pForm.old_password;
-    if (auth && new_password && old_password && new_password_verify) {
-      let form: ChangePassword = {
-        new_password,
-        new_password_verify,
-        old_password,
-        auth,
-      };
+    if (new_password && old_password && new_password_verify) {
+      i.setState({ changePasswordRes: { state: "loading" } });
+      i.setState({
+        changePasswordRes: apiWrapper(
+          await HttpService.client.changePassword({
+            new_password,
+            new_password_verify,
+            old_password,
+            auth: myAuthRequired(),
+          })
+        ),
+      });
+    }
 
-      WebSocketService.Instance.send(wsClient.changePassword(form));
+    if (i.state.changePasswordRes.state == "success") {
+      UserService.Instance.login(i.state.changePasswordRes.data);
+      window.scrollTo(0, 0);
+      toast(i18n.t("password_changed"));
     }
   }
 
-  handleDeleteAccountShowConfirmToggle(i: Settings, event: any) {
-    event.preventDefault();
+  handleDeleteAccountShowConfirmToggle(i: Settings) {
     i.setState({ deleteAccountShowConfirm: !i.state.deleteAccountShowConfirm });
   }
 
   handleDeleteAccountPasswordChange(i: Settings, event: any) {
-    i.state.deleteAccountForm.password = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
   }
 
-  handleDeleteAccount(i: Settings, event: any) {
-    event.preventDefault();
-    i.setState({ deleteAccountLoading: true });
-    let auth = myAuth();
+  async handleDeleteAccount(i: Settings) {
     let password = i.state.deleteAccountForm.password;
-    if (auth && password) {
-      let form: DeleteAccount = {
-        password,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.deleteAccount(form));
+    if (password) {
+      i.setState({ deleteAccountRes: { state: "loading" } });
+      i.setState({
+        deleteAccountRes: apiWrapper(
+          await HttpService.client.deleteAccount({
+            password,
+            auth: myAuthRequired(),
+          })
+        ),
+      });
+    }
+
+    if (i.state.deleteAccountRes.state == "success") {
+      UserService.Instance.logout();
+      window.location.href = "/";
     }
   }
 
@@ -1219,47 +1238,19 @@ export class Settings extends Component<any, SettingsState> {
     i.ctx.setState({ currentTab: i.tab });
   }
 
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      this.setState({
-        saveUserSettingsLoading: false,
-        changePasswordLoading: false,
-        deleteAccountLoading: false,
-      });
-      toast(i18n.t(msg.error), "danger");
-      return;
-    } else if (op == UserOperation.SaveUserSettings) {
-      let data = wsJsonToRes<LoginResponse>(msg);
-      UserService.Instance.login(data);
-      location.reload();
-      this.setState({ saveUserSettingsLoading: false });
-      toast(i18n.t("saved"));
-      window.scrollTo(0, 0);
-    } else if (op == UserOperation.ChangePassword) {
-      let data = wsJsonToRes<LoginResponse>(msg);
-      UserService.Instance.login(data);
-      this.setState({ changePasswordLoading: false });
-      window.scrollTo(0, 0);
-      toast(i18n.t("password_changed"));
-    } else if (op == UserOperation.DeleteAccount) {
-      this.setState({
-        deleteAccountLoading: false,
-        deleteAccountShowConfirm: false,
-      });
-      UserService.Instance.logout();
-      window.location.href = "/";
-    } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
-      updatePersonBlock(data);
+  personBlock(res: RequestState<BlockPersonResponse>) {
+    if (res.state == "success") {
+      updatePersonBlock(res.data);
       let mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
       }
-    } else if (op == UserOperation.BlockCommunity) {
-      let data = wsJsonToRes<BlockCommunityResponse>(msg);
-      updateCommunityBlock(data);
+    }
+  }
+
+  communityBlock(res: RequestState<BlockCommunityResponse>) {
+    if (res.state == "success") {
+      updateCommunityBlock(res.data);
       let mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });

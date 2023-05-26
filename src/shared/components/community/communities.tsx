@@ -11,7 +11,7 @@ import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import {
   QueryParams,
-  editCommunityRes,
+  editCommunities,
   getPageFromString,
   getQueryParams,
   getQueryString,
@@ -349,7 +349,7 @@ export class Communities extends Component<any, CommunitiesState> {
         s.listCommunitiesResponse.state == "success" &&
         res.state == "success"
       ) {
-        s.listCommunitiesResponse.data.communities = editCommunityRes(
+        s.listCommunitiesResponse.data.communities = editCommunities(
           res.data.community_view,
           s.listCommunitiesResponse.data.communities
         );

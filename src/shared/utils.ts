@@ -855,54 +855,7 @@ export function getCommentIdFromProps(props: any): number | undefined {
   return id ? Number(id) : undefined;
 }
 
-// TODO make all these immutable
-export function editCommentRes(
-  data: CommentView,
-  comments: CommentView[]
-): CommentView[] {
-  return editRes("comment", data, comments);
-}
-
-export function editCommunityRes(
-  data: CommunityView,
-  communities: CommunityView[]
-): CommunityView[] {
-  return editRes("community", data, communities);
-}
-
-export function editPostRes(data: PostView, posts: PostView[]): PostView[] {
-  return editRes("post", data, posts);
-}
-
-export function editPostReportRes(
-  data: PostReportView,
-  reports: PostReportView[]
-) {
-  return editRes("post_report", data, reports);
-}
-
-export function editCommentReportRes(
-  data: CommentReportView,
-  reports: CommentReportView[]
-): CommentReportView[] {
-  return editRes("comment_report", data, reports);
-}
-
-export function editPrivateMessageReportRes(
-  data: PrivateMessageReportView,
-  reports: PrivateMessageReportView[]
-): PrivateMessageReportView[] {
-  return editRes("private_message_report", data, reports);
-}
-
-export function editRegistrationApplicationRes(
-  data: RegistrationApplicationView,
-  apps: RegistrationApplicationView[]
-): RegistrationApplicationView[] {
-  return editRes("registration_application", data, apps);
-}
-
-function editRes<T>(fieldName: string, data: T, list: T[]): T[] {
+function editListImmutable<T>(fieldName: string, data: T, list: T[]): T[] {
   const foundIndex = list.findIndex(c => c[fieldName].id == data[fieldName].id);
   if (foundIndex != -1) {
     const newList = list;
@@ -911,6 +864,52 @@ function editRes<T>(fieldName: string, data: T, list: T[]): T[] {
   } else {
     return list;
   }
+}
+
+export function editComments(
+  data: CommentView,
+  comments: CommentView[]
+): CommentView[] {
+  return editListImmutable("comment", data, comments);
+}
+
+export function editCommunities(
+  data: CommunityView,
+  communities: CommunityView[]
+): CommunityView[] {
+  return editListImmutable("community", data, communities);
+}
+
+export function editPosts(data: PostView, posts: PostView[]): PostView[] {
+  return editListImmutable("post", data, posts);
+}
+
+export function editPostReports(
+  data: PostReportView,
+  reports: PostReportView[]
+) {
+  return editListImmutable("post_report", data, reports);
+}
+
+export function editCommentReports(
+  data: CommentReportView,
+  reports: CommentReportView[]
+): CommentReportView[] {
+  return editListImmutable("comment_report", data, reports);
+}
+
+export function editPrivateMessageReports(
+  data: PrivateMessageReportView,
+  reports: PrivateMessageReportView[]
+): PrivateMessageReportView[] {
+  return editListImmutable("private_message_report", data, reports);
+}
+
+export function editRegistrationApplications(
+  data: RegistrationApplicationView,
+  apps: RegistrationApplicationView[]
+): RegistrationApplicationView[] {
+  return editListImmutable("registration_application", data, apps);
 }
 
 export function updatePersonBlock(

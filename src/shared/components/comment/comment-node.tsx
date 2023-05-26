@@ -136,7 +136,7 @@ interface CommentNodeProps {
   onBanPersonFromCommunity(form: BanFromCommunity): void;
   onBanPerson(form: BanPerson): void;
   onTransferCommunity(form: TransferCommunity): void;
-  onFetchChildren(form: GetComments): void;
+  onFetchChildren?(form: GetComments): void;
   onCommentReport(form: CreateCommentReport): void;
   onPurgePerson(form: PurgePerson): void;
   onPurgeComment(form: PurgeComment): void;
@@ -1562,7 +1562,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handleFetchChildren(i: CommentNode) {
     i.setState({ fetchChildrenLoading: true });
-    i.props.onFetchChildren({
+    i.props.onFetchChildren?.({
       parent_id: i.commentId,
       max_depth: commentTreeMaxDepth,
       limit: 999, // TODO

@@ -33,7 +33,7 @@ import {
   capitalizeFirstLetter,
   createCommentLikeRes,
   createPostLikeFindRes,
-  editCommentRes,
+  editComments,
   editPostFindRes,
   enableDownvotes,
   enableNsfw,
@@ -755,7 +755,7 @@ export class Profile extends Component<
         case UserOperation.DeleteComment:
         case UserOperation.RemoveComment: {
           const { comment_view } = wsJsonToRes<CommentResponse>(msg);
-          editCommentRes(comment_view, this.state.personRes?.comments);
+          editComments(comment_view, this.state.personRes?.comments);
           this.setState(this.state);
 
           break;

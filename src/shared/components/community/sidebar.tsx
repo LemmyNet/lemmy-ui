@@ -42,7 +42,6 @@ interface SidebarProps {
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
-  // TODO change all these click names
   onDeleteCommunity(form: DeleteCommunity): void;
   onRemoveCommunity(form: RemoveCommunity): void;
   onLeaveModTeam(form: AddModToCommunity): void;

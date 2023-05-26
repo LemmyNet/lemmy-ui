@@ -20,30 +20,24 @@ import {
   PrivateMessageResponse,
   PrivateMessageView,
   PrivateMessagesResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
 import {
   commentsToFlatNodes,
-  createCommentLikeRes,
-  editCommentRes,
+  editComments,
   enableDownvotes,
   fetchLimit,
   isBrowser,
+  isInitialRoute,
   myAuth,
+  myAuthRequired,
   relTags,
-  saveCommentRes,
   setIsoData,
   setupTippy,
   toast,
   updatePersonBlock,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
@@ -51,6 +45,11 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PrivateMessage } from "../private_message/private-message";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
 
 enum UnreadOrAll {
   Unread,
@@ -79,30 +78,25 @@ type ReplyType = {
 interface InboxState {
   unreadOrAll: UnreadOrAll;
   messageType: MessageType;
-  replies: CommentReplyView[];
-  mentions: PersonMentionView[];
-  messages: PrivateMessageView[];
-  combined: ReplyType[];
+  repliesRes: RequestState<GetRepliesResponse>;
+  mentionsRes: RequestState<GetPersonMentionsResponse>;
+  messagesRes: RequestState<PrivateMessagesResponse>;
   sort: CommentSortType;
   page: number;
   siteRes: GetSiteResponse;
-  loading: boolean;
 }
 
 export class Inbox extends Component<any, InboxState> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
-    replies: [],
-    mentions: [],
-    messages: [],
-    combined: [],
     sort: "New",
     page: 1,
     siteRes: this.isoData.site_res,
-    loading: true,
+    repliesRes: { state: "empty" },
+    mentionsRes: { state: "empty" },
+    messagesRes: { state: "empty" },
   };
 
   constructor(props: any, context: any) {
@@ -116,32 +110,24 @@ export class Inbox extends Component<any, InboxState> {
       this.context.router.history.push(`/login`);
     }
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        replies:
-          (this.isoData.routeData[0] as GetRepliesResponse).replies || [],
-        mentions:
-          (this.isoData.routeData[1] as GetPersonMentionsResponse).mentions ||
-          [],
-        messages:
-          (this.isoData.routeData[2] as PrivateMessagesResponse)
-            .private_messages || [],
-        loading: false,
+        repliesRes: apiWrapper(this.isoData.routeData[0] as GetRepliesResponse),
+        mentionsRes: apiWrapper(
+          this.isoData.routeData[1] as GetPersonMentionsResponse
+        ),
+        messagesRes: apiWrapper(
+          this.isoData.routeData[2] as PrivateMessagesResponse
+        ),
       };
-      this.state = { ...this.state, combined: this.buildCombined() };
-    } else {
-      this.refetch();
     }
   }
 
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
+  async componentDidMount() {
+    if (!isInitialRoute(this.isoData, this.context)) {
+      await this.refetch();
     }
   }
 
@@ -154,63 +140,69 @@ export class Inbox extends Component<any, InboxState> {
       : "";
   }
 
+  get hasUnreads(): boolean {
+    if (this.state.unreadOrAll == UnreadOrAll.Unread) {
+      const { repliesRes, mentionsRes, messagesRes } = this.state;
+      const replyCount =
+        repliesRes.state == "success" ? repliesRes.data.replies.length : 0;
+      const mentionCount =
+        mentionsRes.state == "success" ? mentionsRes.data.mentions.length : 0;
+      const messageCount =
+        messagesRes.state == "success"
+          ? messagesRes.data.private_messages.length
+          : 0;
+
+      return replyCount + mentionCount + messageCount > 0;
+    } else {
+      return false;
+    }
+  }
+
   render() {
     let auth = myAuth();
     let inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
     return (
       <div className="container-lg">
-        {this.state.loading ? (
-          <h5>
-            <Spinner large />
-          </h5>
-        ) : (
-          <div className="row">
-            <div className="col-12">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-              />
-              <h5 className="mb-2">
-                {i18n.t("inbox")}
-                {inboxRss && (
-                  <small>
-                    <a href={inboxRss} title="RSS" rel={relTags}>
-                      <Icon icon="rss" classes="ml-2 text-muted small" />
-                    </a>
-                    <link
-                      rel="alternate"
-                      type="application/atom+xml"
-                      href={inboxRss}
-                    />
-                  </small>
-                )}
-              </h5>
-              {this.state.replies.length +
-                this.state.mentions.length +
-                this.state.messages.length >
-                0 &&
-                this.state.unreadOrAll == UnreadOrAll.Unread && (
-                  <button
-                    className="btn btn-secondary mb-2"
-                    onClick={linkEvent(this, this.markAllAsRead)}
-                  >
-                    {i18n.t("mark_all_as_read")}
-                  </button>
-                )}
-              {this.selects()}
-              {this.state.messageType == MessageType.All && this.all()}
-              {this.state.messageType == MessageType.Replies && this.replies()}
-              {this.state.messageType == MessageType.Mentions &&
-                this.mentions()}
-              {this.state.messageType == MessageType.Messages &&
-                this.messages()}
-              <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
-              />
-            </div>
+        <div className="row">
+          <div className="col-12">
+            <HtmlTags
+              title={this.documentTitle}
+              path={this.context.router.route.match.url}
+            />
+            <h5 className="mb-2">
+              {i18n.t("inbox")}
+              {inboxRss && (
+                <small>
+                  <a href={inboxRss} title="RSS" rel={relTags}>
+                    <Icon icon="rss" classes="ml-2 text-muted small" />
+                  </a>
+                  <link
+                    rel="alternate"
+                    type="application/atom+xml"
+                    href={inboxRss}
+                  />
+                </small>
+              )}
+            </h5>
+            {this.hasUnreads && (
+              <button
+                className="btn btn-secondary mb-2"
+                onClick={linkEvent(this, this.markAllAsRead)}
+              >
+                {i18n.t("mark_all_as_read")}
+              </button>
+            )}
+            {this.selects()}
+            {this.state.messageType == MessageType.All && this.all()}
+            {this.state.messageType == MessageType.Replies && this.replies()}
+            {this.state.messageType == MessageType.Mentions && this.mentions()}
+            {this.state.messageType == MessageType.Messages && this.messages()}
+            <Paginator
+              page={this.state.page}
+              onChange={this.handlePageChange}
+            />
           </div>
-        )}
+        </div>
       </div>
     );
   }
@@ -348,15 +340,22 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   buildCombined(): ReplyType[] {
-    let replies: ReplyType[] = this.state.replies.map(r =>
-      this.replyToReplyType(r)
-    );
-    let mentions: ReplyType[] = this.state.mentions.map(r =>
-      this.mentionToReplyType(r)
-    );
-    let messages: ReplyType[] = this.state.messages.map(r =>
-      this.messageToReplyType(r)
-    );
+    let replies: ReplyType[] =
+      this.state.repliesRes.state == "success"
+        ? this.state.repliesRes.data.replies.map(r => this.replyToReplyType(r))
+        : [];
+    let mentions: ReplyType[] =
+      this.state.mentionsRes.state == "success"
+        ? this.state.mentionsRes.data.mentions.map(r =>
+            this.mentionToReplyType(r)
+          )
+        : [];
+    let messages: ReplyType[] =
+      this.state.messagesRes.state == "success"
+        ? this.state.messagesRes.data.private_messages.map(r =>
+            this.messageToReplyType(r)
+          )
+        : [];
 
     return [...replies, ...mentions, ...messages].sort((a, b) =>
       b.published.localeCompare(a.published)
@@ -416,74 +415,116 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   all() {
-    return <div>{this.state.combined.map(i => this.renderReplyType(i))}</div>;
+    if (
+      this.state.repliesRes.state == "loading" ||
+      this.state.mentionsRes.state == "loading" ||
+      this.state.messagesRes.state == "loading"
+    ) {
+      return (
+        <h5>
+          <Spinner large />
+        </h5>
+      );
+    } else {
+      return <div>{this.buildCombined().map(this.renderReplyType)}</div>;
+    }
   }
 
   replies() {
-    return (
-      <div>
-        <CommentNodes
-          nodes={commentsToFlatNodes(this.state.replies)}
-          viewType={CommentViewType.Flat}
-          noIndent
-          markable
-          showCommunity
-          showContext
-          enableDownvotes={enableDownvotes(this.state.siteRes)}
-          allLanguages={this.state.siteRes.all_languages}
-          siteLanguages={this.state.siteRes.discussion_languages}
-        />
-      </div>
-    );
+    switch (this.state.repliesRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success":
+        const replies = this.state.repliesRes.data.replies;
+        return (
+          <div>
+            <CommentNodes
+              nodes={commentsToFlatNodes(replies)}
+              viewType={CommentViewType.Flat}
+              noIndent
+              markable
+              showCommunity
+              showContext
+              enableDownvotes={enableDownvotes(this.state.siteRes)}
+              allLanguages={this.state.siteRes.all_languages}
+              siteLanguages={this.state.siteRes.discussion_languages}
+            />
+          </div>
+        );
+    }
   }
 
   mentions() {
-    return (
-      <div>
-        {this.state.mentions.map(umv => (
-          <CommentNodes
-            key={umv.person_mention.id}
-            nodes={[{ comment_view: umv, children: [], depth: 0 }]}
-            viewType={CommentViewType.Flat}
-            noIndent
-            markable
-            showCommunity
-            showContext
-            enableDownvotes={enableDownvotes(this.state.siteRes)}
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
-          />
-        ))}
-      </div>
-    );
+    switch (this.state.mentionsRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success":
+        const mentions = this.state.mentionsRes.data.mentions;
+        return (
+          <div>
+            {mentions.map(umv => (
+              <CommentNodes
+                key={umv.person_mention.id}
+                nodes={[{ comment_view: umv, children: [], depth: 0 }]}
+                viewType={CommentViewType.Flat}
+                noIndent
+                markable
+                showCommunity
+                showContext
+                enableDownvotes={enableDownvotes(this.state.siteRes)}
+                allLanguages={this.state.siteRes.all_languages}
+                siteLanguages={this.state.siteRes.discussion_languages}
+              />
+            ))}
+          </div>
+        );
+    }
   }
 
   messages() {
-    return (
-      <div>
-        {this.state.messages.map(pmv => (
-          <PrivateMessage
-            key={pmv.private_message.id}
-            private_message_view={pmv}
-          />
-        ))}
-      </div>
-    );
+    switch (this.state.messagesRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success":
+        const messages = this.state.messagesRes.data.private_messages;
+        return (
+          <div>
+            {messages.map(pmv => (
+              <PrivateMessage
+                key={pmv.private_message.id}
+                private_message_view={pmv}
+              />
+            ))}
+          </div>
+        );
+    }
   }
 
-  handlePageChange(page: number) {
+  async handlePageChange(page: number) {
     this.setState({ page });
-    this.refetch();
+    await this.refetch();
   }
 
-  handleUnreadOrAllChange(i: Inbox, event: any) {
+  async handleUnreadOrAllChange(i: Inbox, event: any) {
     i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
-    i.refetch();
+    await i.refetch();
   }
 
-  handleMessageTypeChange(i: Inbox, event: any) {
+  async handleMessageTypeChange(i: Inbox, event: any) {
     i.setState({ messageType: Number(event.target.value), page: 1 });
-    i.refetch();
+    await i.refetch();
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
@@ -524,73 +565,73 @@ export class Inbox extends Component<any, InboxState> {
     return promises;
   }
 
-  refetch() {
+  async refetch() {
     let sort = this.state.sort;
     let unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
     let page = this.state.page;
     let limit = fetchLimit;
-    let auth = myAuth();
+    let auth = myAuthRequired();
 
-    if (auth) {
-      let repliesForm: GetReplies = {
-        sort,
-        unread_only,
-        page,
-        limit,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
-
-      let personMentionsForm: GetPersonMentions = {
-        sort,
-        unread_only,
-        page,
-        limit,
-        auth,
-      };
-      WebSocketService.Instance.send(
-        wsClient.getPersonMentions(personMentionsForm)
-      );
-
-      let privateMessagesForm: GetPrivateMessages = {
-        unread_only,
-        page,
-        limit,
-        auth,
-      };
-      WebSocketService.Instance.send(
-        wsClient.getPrivateMessages(privateMessagesForm)
-      );
-    }
-  }
-
-  handleSortChange(val: CommentSortType) {
-    this.setState({ sort: val, page: 1 });
-    this.refetch();
-  }
-
-  markAllAsRead(i: Inbox) {
-    let auth = myAuth();
-    if (auth) {
-      WebSocketService.Instance.send(
-        wsClient.markAllAsRead({
+    this.setState({ repliesRes: { state: "loading" } });
+    this.setState({
+      repliesRes: apiWrapper(
+        await HttpService.client.getReplies({
+          sort,
+          unread_only,
+          page,
+          limit,
           auth,
         })
-      );
-      i.setState({ replies: [], mentions: [], messages: [] });
-      i.setState({ combined: i.buildCombined() });
-      UserService.Instance.unreadInboxCountSub.next(0);
-      window.scrollTo(0, 0);
-      i.setState(i.state);
-    }
+      ),
+    });
+
+    this.setState({ mentionsRes: { state: "loading" } });
+    this.setState({
+      mentionsRes: apiWrapper(
+        await HttpService.client.getPersonMentions({
+          sort,
+          unread_only,
+          page,
+          limit,
+          auth,
+        })
+      ),
+    });
+
+    this.setState({ messagesRes: { state: "loading" } });
+    this.setState({
+      messagesRes: apiWrapper(
+        await HttpService.client.getPrivateMessages({
+          unread_only,
+          page,
+          limit,
+          auth,
+        })
+      ),
+    });
   }
 
-  sendUnreadCount(read: boolean) {
-    let urcs = UserService.Instance.unreadInboxCountSub;
-    if (read) {
-      urcs.next(urcs.getValue() - 1);
-    } else {
-      urcs.next(urcs.getValue() + 1);
+  async handleSortChange(val: CommentSortType) {
+    this.setState({ sort: val, page: 1 });
+    await this.refetch();
+  }
+
+  async markAllAsRead(i: Inbox) {
+    WebSocketService.Instance.send(
+      wsClient.markAllAsRead({
+        auth,
+      })
+    );
+    const res = apiWrapper(
+      await HttpService.client.markAllAsRead({ auth: myAuthRequired() })
+    );
+
+    if (res.state == "success") {
+      i.setState({
+        repliesRes: { state: "empty" },
+        mentionsRes: { state: "empty" },
+        messagesRes: { state: "empty" },
+      });
     }
   }
 
@@ -598,28 +639,6 @@ export class Inbox extends Component<any, InboxState> {
     let op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      return;
-    } else if (msg.reconnect) {
-      this.refetch();
-    } else if (op == UserOperation.GetReplies) {
-      let data = wsJsonToRes<GetRepliesResponse>(msg);
-      this.setState({ replies: data.replies });
-      this.setState({ combined: this.buildCombined(), loading: false });
-      window.scrollTo(0, 0);
-      setupTippy();
-    } else if (op == UserOperation.GetPersonMentions) {
-      let data = wsJsonToRes<GetPersonMentionsResponse>(msg);
-      this.setState({ mentions: data.mentions });
-      this.setState({ combined: this.buildCombined() });
-      window.scrollTo(0, 0);
-      setupTippy();
-    } else if (op == UserOperation.GetPrivateMessages) {
-      let data = wsJsonToRes<PrivateMessagesResponse>(msg);
-      this.setState({ messages: data.private_messages });
-      this.setState({ combined: this.buildCombined() });
-      window.scrollTo(0, 0);
-      setupTippy();
     } else if (op == UserOperation.EditPrivateMessage) {
       let data = wsJsonToRes<PrivateMessageResponse>(msg);
       let found = this.state.messages.find(
@@ -706,7 +725,7 @@ export class Inbox extends Component<any, InboxState> {
       op == UserOperation.RemoveComment
     ) {
       let data = wsJsonToRes<CommentResponse>(msg);
-      editCommentRes(data.comment_view, this.state.replies);
+      editComments(data.comment_view, this.state.replies);
       this.setState(this.state);
     } else if (op == UserOperation.MarkCommentReplyAsRead) {
       let data = wsJsonToRes<CommentReplyResponse>(msg);

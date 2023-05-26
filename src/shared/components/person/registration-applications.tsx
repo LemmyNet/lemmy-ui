@@ -10,7 +10,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import {
-  editRegistrationApplicationRes,
+  editRegistrationApplications,
   fetchLimit,
   isBrowser,
   isInitialRoute,
@@ -234,11 +234,10 @@ export class RegistrationApplications extends Component<
 
     this.setState(s => {
       if (s.appsRes.state == "success" && approveRes.state == "success") {
-        s.appsRes.data.registration_applications =
-          editRegistrationApplicationRes(
-            approveRes.data.registration_application,
-            s.appsRes.data.registration_applications
-          );
+        s.appsRes.data.registration_applications = editRegistrationApplications(
+          approveRes.data.registration_application,
+          s.appsRes.data.registration_applications
+        );
       }
       return s;
     });
