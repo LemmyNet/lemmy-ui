@@ -99,7 +99,7 @@ interface PostListingState {
 
 interface PostListingProps {
   post_view: PostView;
-  duplicates?: PostView[];
+  crossPosts?: PostView[];
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
   allLanguages: Language[];
@@ -200,6 +200,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <div className="col-12">
             <PostForm
               post_view={this.postView}
+              crossPosts={this.props.crossPosts}
               onEdit={this.handleEditPost}
               onCancel={this.handleEditCancel}
               enableNsfw={this.props.enableNsfw}
@@ -589,7 +590,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   duplicatesLine() {
-    let dupes = this.props.duplicates;
+    let dupes = this.props.crossPosts;
     return dupes && dupes.length > 0 ? (
       <ul className="list-inline mb-1 small text-muted">
         <>

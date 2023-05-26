@@ -4,21 +4,23 @@ import {
   BlockCommunityResponse,
   BlockPersonResponse,
   Comment as CommentI,
+  CommentReplyView,
   CommentReportView,
   CommentSortType,
   CommentView,
   CommunityModeratorView,
   CommunityView,
   CustomEmojiView,
-  GetSiteMetadata,
   GetSiteResponse,
   Language,
   MyUserInfo,
   Person,
+  PersonMentionView,
   PersonView,
   PostReportView,
   PostView,
   PrivateMessageReportView,
+  PrivateMessageView,
   RegistrationApplicationView,
   Search,
   SortType,
@@ -330,11 +332,6 @@ export function validEmail(email: string) {
 
 export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-export async function getSiteMetadata(url: string) {
-  let form: GetSiteMetadata = { url };
-  return HttpService.client.getSiteMetadata(form);
 }
 
 export function getDataTypeString(dt: DataType) {
@@ -873,11 +870,83 @@ export function editComments(
   return editListImmutable("comment", data, comments);
 }
 
+export function editCommentReplies(
+  data: CommentReplyView,
+  replies: CommentReplyView[]
+): CommentReplyView[] {
+  return editListImmutable("comment_reply", data, replies);
+}
+
+export function editCommentRepliesWithComment(
+  data: CommentView,
+  replies: CommentReplyView[]
+): CommentReplyView[] {
+  const foundIndex = replies.findIndex(c => c.comment.id == data.comment.id);
+  if (foundIndex != -1) {
+    const newList = replies;
+    newList[foundIndex].comment = data.comment;
+    newList[foundIndex].counts = data.counts;
+    newList[foundIndex].my_vote = data.my_vote;
+    newList[foundIndex].saved = data.saved;
+    return newList;
+  } else {
+    return replies;
+  }
+}
+
+export function editMentionsWithComment(
+  data: CommentView,
+  mentions: PersonMentionView[]
+): PersonMentionView[] {
+  const foundIndex = mentions.findIndex(c => c.comment.id == data.comment.id);
+  if (foundIndex != -1) {
+    const newList = mentions;
+    newList[foundIndex].comment = data.comment;
+    newList[foundIndex].counts = data.counts;
+    newList[foundIndex].my_vote = data.my_vote;
+    newList[foundIndex].saved = data.saved;
+    return newList;
+  } else {
+    return mentions;
+  }
+}
+
+export function editCommentWithCommentReplies(
+  data: CommentReplyView,
+  comments: CommentView[]
+): CommentView[] {
+  const foundIndex = comments.findIndex(c => c.comment.id == data.comment.id);
+  if (foundIndex != -1) {
+    const newList = comments;
+    newList[foundIndex].comment = data.comment;
+    newList[foundIndex].counts = data.counts;
+    newList[foundIndex].my_vote = data.my_vote;
+    newList[foundIndex].saved = data.saved;
+    return newList;
+  } else {
+    return comments;
+  }
+}
+
+export function editMentions(
+  data: PersonMentionView,
+  comments: PersonMentionView[]
+): PersonMentionView[] {
+  return editListImmutable("person_mention", data, comments);
+}
+
 export function editCommunities(
   data: CommunityView,
   communities: CommunityView[]
 ): CommunityView[] {
   return editListImmutable("community", data, communities);
+}
+
+export function editPrivateMessages(
+  data: PrivateMessageView,
+  messages: PrivateMessageView[]
+): PrivateMessageView[] {
+  return editListImmutable("private_message", data, messages);
 }
 
 export function editPosts(data: PostView, posts: PostView[]): PostView[] {

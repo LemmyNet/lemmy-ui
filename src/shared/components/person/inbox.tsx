@@ -1,32 +1,61 @@
 import { Component, linkEvent } from "inferno";
 import {
-  BlockPersonResponse,
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanFromCommunityResponse,
+  BanPerson,
+  BanPersonResponse,
+  BlockPerson,
   CommentReplyResponse,
   CommentReplyView,
   CommentReportResponse,
   CommentResponse,
   CommentSortType,
   CommentView,
+  CreateComment,
+  CreateCommentLike,
+  CreateCommentReport,
+  CreatePrivateMessage,
+  CreatePrivateMessageReport,
+  DeleteComment,
+  DeletePrivateMessage,
+  DistinguishComment,
+  EditComment,
+  EditPrivateMessage,
   GetPersonMentions,
   GetPersonMentionsResponse,
   GetPrivateMessages,
   GetReplies,
   GetRepliesResponse,
   GetSiteResponse,
+  MarkCommentReplyAsRead,
+  MarkPersonMentionAsRead,
+  MarkPrivateMessageAsRead,
   PersonMentionResponse,
   PersonMentionView,
-  PostReportResponse,
   PrivateMessageReportResponse,
   PrivateMessageResponse,
   PrivateMessageView,
   PrivateMessagesResponse,
+  PurgeComment,
+  PurgeItemResponse,
+  PurgePerson,
+  PurgePost,
+  RemoveComment,
+  SaveComment,
+  TransferCommunity,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import {
   commentsToFlatNodes,
-  editComments,
+  editCommentReplies,
+  editCommentRepliesWithComment,
+  editMentions,
+  editMentionsWithComment,
+  editPrivateMessages,
   enableDownvotes,
   fetchLimit,
   isBrowser,
@@ -35,7 +64,6 @@ import {
   myAuthRequired,
   relTags,
   setIsoData,
-  setupTippy,
   toast,
   updatePersonBlock,
 } from "../../utils";
@@ -104,6 +132,31 @@ export class Inbox extends Component<any, InboxState> {
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+
+    this.handleCreateComment = this.handleCreateComment.bind(this);
+    this.handleEditComment = this.handleEditComment.bind(this);
+    this.handleSaveComment = this.handleSaveComment.bind(this);
+    this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleDeleteComment = this.handleDeleteComment.bind(this);
+    this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.handleCommentVote = this.handleCommentVote.bind(this);
+    this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
+    this.handleAddAdmin = this.handleAddAdmin.bind(this);
+    this.handlePurgePerson = this.handlePurgePerson.bind(this);
+    this.handlePurgeComment = this.handlePurgeComment.bind(this);
+    this.handleCommentReport = this.handleCommentReport.bind(this);
+    this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
+    this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
+    this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
+    this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
+    this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
+    this.handleBanPerson = this.handleBanPerson.bind(this);
+
+    this.handleDeleteMessage = this.handleDeleteMessage.bind(this);
+    this.handleMarkMessageAsRead = this.handleMarkMessageAsRead.bind(this);
+    this.handleMessageReport = this.handleMessageReport.bind(this);
+    this.handleCreateMessage = this.handleCreateMessage.bind(this);
+    this.handleEditMessage = this.handleEditMessage.bind(this);
 
     if (!UserService.Instance.myUserInfo && isBrowser()) {
       toast(i18n.t("not_logged_in"), "danger");
@@ -187,7 +240,7 @@ export class Inbox extends Component<any, InboxState> {
             {this.hasUnreads && (
               <button
                 className="btn btn-secondary mb-2"
-                onClick={linkEvent(this, this.markAllAsRead)}
+                onClick={linkEvent(this, this.handleMarkAllAsRead)}
               >
                 {i18n.t("mark_all_as_read")}
               </button>
@@ -379,6 +432,24 @@ export class Inbox extends Component<any, InboxState> {
             enableDownvotes={enableDownvotes(this.state.siteRes)}
             allLanguages={this.state.siteRes.all_languages}
             siteLanguages={this.state.siteRes.discussion_languages}
+            onSaveComment={this.handleSaveComment}
+            onBlockPerson={this.handleBlockPerson}
+            onDeleteComment={this.handleDeleteComment}
+            onRemoveComment={this.handleRemoveComment}
+            onCommentVote={this.handleCommentVote}
+            onCommentReport={this.handleCommentReport}
+            onDistinguishComment={this.handleDistinguishComment}
+            onAddModToCommunity={this.handleAddModToCommunity}
+            onAddAdmin={this.handleAddAdmin}
+            onTransferCommunity={this.handleTransferCommunity}
+            onPurgeComment={this.handlePurgeComment}
+            onPurgePerson={this.handlePurgePerson}
+            onCommentReplyRead={this.handleCommentReplyRead}
+            onPersonMentionRead={this.handlePersonMentionRead}
+            onBanPersonFromCommunity={this.handleBanFromCommunity}
+            onBanPerson={this.handleBanPerson}
+            onCreateComment={this.handleCreateComment}
+            onEditComment={this.handleEditComment}
           />
         );
       case ReplyEnum.Mention:
@@ -400,6 +471,24 @@ export class Inbox extends Component<any, InboxState> {
             enableDownvotes={enableDownvotes(this.state.siteRes)}
             allLanguages={this.state.siteRes.all_languages}
             siteLanguages={this.state.siteRes.discussion_languages}
+            onSaveComment={this.handleSaveComment}
+            onBlockPerson={this.handleBlockPerson}
+            onDeleteComment={this.handleDeleteComment}
+            onRemoveComment={this.handleRemoveComment}
+            onCommentVote={this.handleCommentVote}
+            onCommentReport={this.handleCommentReport}
+            onDistinguishComment={this.handleDistinguishComment}
+            onAddModToCommunity={this.handleAddModToCommunity}
+            onAddAdmin={this.handleAddAdmin}
+            onTransferCommunity={this.handleTransferCommunity}
+            onPurgeComment={this.handlePurgeComment}
+            onPurgePerson={this.handlePurgePerson}
+            onCommentReplyRead={this.handleCommentReplyRead}
+            onPersonMentionRead={this.handlePersonMentionRead}
+            onBanPersonFromCommunity={this.handleBanFromCommunity}
+            onBanPerson={this.handleBanPerson}
+            onCreateComment={this.handleCreateComment}
+            onEditComment={this.handleEditComment}
           />
         );
       case ReplyEnum.Message:
@@ -407,6 +496,11 @@ export class Inbox extends Component<any, InboxState> {
           <PrivateMessage
             key={i.id}
             private_message_view={i.view as PrivateMessageView}
+            onDelete={this.handleDeleteMessage}
+            onMarkRead={this.handleMarkMessageAsRead}
+            onReport={this.handleMessageReport}
+            onCreate={this.handleCreateMessage}
+            onEdit={this.handleEditMessage}
           />
         );
       default:
@@ -452,6 +546,24 @@ export class Inbox extends Component<any, InboxState> {
               enableDownvotes={enableDownvotes(this.state.siteRes)}
               allLanguages={this.state.siteRes.all_languages}
               siteLanguages={this.state.siteRes.discussion_languages}
+              onSaveComment={this.handleSaveComment}
+              onBlockPerson={this.handleBlockPerson}
+              onDeleteComment={this.handleDeleteComment}
+              onRemoveComment={this.handleRemoveComment}
+              onCommentVote={this.handleCommentVote}
+              onCommentReport={this.handleCommentReport}
+              onDistinguishComment={this.handleDistinguishComment}
+              onAddModToCommunity={this.handleAddModToCommunity}
+              onAddAdmin={this.handleAddAdmin}
+              onTransferCommunity={this.handleTransferCommunity}
+              onPurgeComment={this.handlePurgeComment}
+              onPurgePerson={this.handlePurgePerson}
+              onCommentReplyRead={this.handleCommentReplyRead}
+              onPersonMentionRead={this.handlePersonMentionRead}
+              onBanPersonFromCommunity={this.handleBanFromCommunity}
+              onBanPerson={this.handleBanPerson}
+              onCreateComment={this.handleCreateComment}
+              onEditComment={this.handleEditComment}
             />
           </div>
         );
@@ -482,6 +594,24 @@ export class Inbox extends Component<any, InboxState> {
                 enableDownvotes={enableDownvotes(this.state.siteRes)}
                 allLanguages={this.state.siteRes.all_languages}
                 siteLanguages={this.state.siteRes.discussion_languages}
+                onSaveComment={this.handleSaveComment}
+                onBlockPerson={this.handleBlockPerson}
+                onDeleteComment={this.handleDeleteComment}
+                onRemoveComment={this.handleRemoveComment}
+                onCommentVote={this.handleCommentVote}
+                onCommentReport={this.handleCommentReport}
+                onDistinguishComment={this.handleDistinguishComment}
+                onAddModToCommunity={this.handleAddModToCommunity}
+                onAddAdmin={this.handleAddAdmin}
+                onTransferCommunity={this.handleTransferCommunity}
+                onPurgeComment={this.handlePurgeComment}
+                onPurgePerson={this.handlePurgePerson}
+                onCommentReplyRead={this.handleCommentReplyRead}
+                onPersonMentionRead={this.handlePersonMentionRead}
+                onBanPersonFromCommunity={this.handleBanFromCommunity}
+                onBanPerson={this.handleBanPerson}
+                onCreateComment={this.handleCreateComment}
+                onEditComment={this.handleEditComment}
               />
             ))}
           </div>
@@ -505,6 +635,11 @@ export class Inbox extends Component<any, InboxState> {
               <PrivateMessage
                 key={pmv.private_message.id}
                 private_message_view={pmv}
+                onDelete={this.handleDeleteMessage}
+                onMarkRead={this.handleMarkMessageAsRead}
+                onReport={this.handleMessageReport}
+                onCreate={this.handleCreateMessage}
+                onEdit={this.handleEditMessage}
               />
             ))}
           </div>
@@ -616,12 +751,7 @@ export class Inbox extends Component<any, InboxState> {
     await this.refetch();
   }
 
-  async markAllAsRead(i: Inbox) {
-    WebSocketService.Instance.send(
-      wsClient.markAllAsRead({
-        auth,
-      })
-    );
+  async handleMarkAllAsRead(i: Inbox) {
     const res = apiWrapper(
       await HttpService.client.markAllAsRead({ auth: myAuthRequired() })
     );
@@ -635,255 +765,277 @@ export class Inbox extends Component<any, InboxState> {
     }
   }
 
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-    } else if (op == UserOperation.EditPrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      let found = this.state.messages.find(
-        m =>
-          m.private_message.id === data.private_message_view.private_message.id
-      );
-      if (found) {
-        let combinedView = this.state.combined.find(
-          i => i.id == data.private_message_view.private_message.id
-        )?.view as PrivateMessageView | undefined;
-        if (combinedView) {
-          found.private_message.content = combinedView.private_message.content =
-            data.private_message_view.private_message.content;
-          found.private_message.updated = combinedView.private_message.updated =
-            data.private_message_view.private_message.updated;
-        }
-      }
-      this.setState(this.state);
-    } else if (op == UserOperation.DeletePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      let found = this.state.messages.find(
-        m =>
-          m.private_message.id === data.private_message_view.private_message.id
-      );
-      if (found) {
-        let combinedView = this.state.combined.find(
-          i => i.id == data.private_message_view.private_message.id
-        )?.view as PrivateMessageView | undefined;
-        if (combinedView) {
-          found.private_message.deleted = combinedView.private_message.deleted =
-            data.private_message_view.private_message.deleted;
-          found.private_message.updated = combinedView.private_message.updated =
-            data.private_message_view.private_message.updated;
-        }
-      }
-      this.setState(this.state);
-    } else if (op == UserOperation.MarkPrivateMessageAsRead) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      let found = this.state.messages.find(
-        m =>
-          m.private_message.id === data.private_message_view.private_message.id
-      );
+  async handleAddModToCommunity(form: AddModToCommunity) {
+    // TODO not sure what to do here
+    apiWrapper(await HttpService.client.addModToCommunity(form));
+  }
 
-      if (found) {
-        let combinedView = this.state.combined.find(
-          i =>
-            i.id == data.private_message_view.private_message.id &&
-            i.type_ == ReplyEnum.Message
-        )?.view as PrivateMessageView | undefined;
-        if (combinedView) {
-          found.private_message.updated = combinedView.private_message.updated =
-            data.private_message_view.private_message.updated;
+  async handlePurgePerson(form: PurgePerson) {
+    const purgePersonRes = apiWrapper(
+      await HttpService.client.purgePerson(form)
+    );
+    this.purgeItem(purgePersonRes);
+  }
 
-          // If youre in the unread view, just remove it from the list
-          if (
-            this.state.unreadOrAll == UnreadOrAll.Unread &&
-            data.private_message_view.private_message.read
-          ) {
-            this.setState({
-              messages: this.state.messages.filter(
-                r =>
-                  r.private_message.id !==
-                  data.private_message_view.private_message.id
-              ),
-            });
-            this.setState({
-              combined: this.state.combined.filter(
-                r => r.id !== data.private_message_view.private_message.id
-              ),
-            });
-          } else {
-            found.private_message.read = combinedView.private_message.read =
-              data.private_message_view.private_message.read;
-          }
-        }
-      }
-      this.sendUnreadCount(data.private_message_view.private_message.read);
-      this.setState(this.state);
-    } else if (op == UserOperation.MarkAllAsRead) {
-      // Moved to be instant
-    } else if (
-      op == UserOperation.EditComment ||
-      op == UserOperation.DeleteComment ||
-      op == UserOperation.RemoveComment
-    ) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      editComments(data.comment_view, this.state.replies);
-      this.setState(this.state);
-    } else if (op == UserOperation.MarkCommentReplyAsRead) {
-      let data = wsJsonToRes<CommentReplyResponse>(msg);
+  async handlePurgeComment(form: PurgeComment) {
+    const purgeCommentRes = apiWrapper(
+      await HttpService.client.purgeComment(form)
+    );
+    this.purgeItem(purgeCommentRes);
+  }
 
-      let found = this.state.replies.find(
-        c => c.comment_reply.id == data.comment_reply_view.comment_reply.id
-      );
+  async handlePurgePost(form: PurgePost) {
+    const purgeRes = apiWrapper(await HttpService.client.purgePost(form));
+    this.purgeItem(purgeRes);
+  }
 
-      if (found) {
-        let combinedView = this.state.combined.find(
-          i =>
-            i.id == data.comment_reply_view.comment_reply.id &&
-            i.type_ == ReplyEnum.Reply
-        )?.view as CommentReplyView | undefined;
-        if (combinedView) {
-          found.comment.content = combinedView.comment.content =
-            data.comment_reply_view.comment.content;
-          found.comment.updated = combinedView.comment.updated =
-            data.comment_reply_view.comment.updated;
-          found.comment.removed = combinedView.comment.removed =
-            data.comment_reply_view.comment.removed;
-          found.comment.deleted = combinedView.comment.deleted =
-            data.comment_reply_view.comment.deleted;
-          found.counts.upvotes = combinedView.counts.upvotes =
-            data.comment_reply_view.counts.upvotes;
-          found.counts.downvotes = combinedView.counts.downvotes =
-            data.comment_reply_view.counts.downvotes;
-          found.counts.score = combinedView.counts.score =
-            data.comment_reply_view.counts.score;
+  async handleBlockPerson(form: BlockPerson) {
+    const blockPersonRes = apiWrapper(
+      await HttpService.client.blockPerson(form)
+    );
 
-          // If youre in the unread view, just remove it from the list
-          if (
-            this.state.unreadOrAll == UnreadOrAll.Unread &&
-            data.comment_reply_view.comment_reply.read
-          ) {
-            this.setState({
-              replies: this.state.replies.filter(
-                r =>
-                  r.comment_reply.id !==
-                  data.comment_reply_view.comment_reply.id
-              ),
-            });
-            this.setState({
-              combined: this.state.combined.filter(
-                r => r.id !== data.comment_reply_view.comment_reply.id
-              ),
-            });
-          } else {
-            found.comment_reply.read = combinedView.comment_reply.read =
-              data.comment_reply_view.comment_reply.read;
-          }
-        }
-      }
-      this.sendUnreadCount(data.comment_reply_view.comment_reply.read);
-      this.setState(this.state);
-    } else if (op == UserOperation.MarkPersonMentionAsRead) {
-      let data = wsJsonToRes<PersonMentionResponse>(msg);
-
-      // TODO this might not be correct, it might need to use the comment id
-      let found = this.state.mentions.find(
-        c => c.person_mention.id == data.person_mention_view.person_mention.id
-      );
-
-      if (found) {
-        let combinedView = this.state.combined.find(
-          i =>
-            i.id == data.person_mention_view.person_mention.id &&
-            i.type_ == ReplyEnum.Mention
-        )?.view as PersonMentionView | undefined;
-        if (combinedView) {
-          found.comment.content = combinedView.comment.content =
-            data.person_mention_view.comment.content;
-          found.comment.updated = combinedView.comment.updated =
-            data.person_mention_view.comment.updated;
-          found.comment.removed = combinedView.comment.removed =
-            data.person_mention_view.comment.removed;
-          found.comment.deleted = combinedView.comment.deleted =
-            data.person_mention_view.comment.deleted;
-          found.counts.upvotes = combinedView.counts.upvotes =
-            data.person_mention_view.counts.upvotes;
-          found.counts.downvotes = combinedView.counts.downvotes =
-            data.person_mention_view.counts.downvotes;
-          found.counts.score = combinedView.counts.score =
-            data.person_mention_view.counts.score;
-
-          // If youre in the unread view, just remove it from the list
-          if (
-            this.state.unreadOrAll == UnreadOrAll.Unread &&
-            data.person_mention_view.person_mention.read
-          ) {
-            this.setState({
-              mentions: this.state.mentions.filter(
-                r =>
-                  r.person_mention.id !==
-                  data.person_mention_view.person_mention.id
-              ),
-            });
-            this.setState({
-              combined: this.state.combined.filter(
-                r => r.id !== data.person_mention_view.person_mention.id
-              ),
-            });
-          } else {
-            // TODO test to make sure these mentions are getting marked as read
-            found.person_mention.read = combinedView.person_mention.read =
-              data.person_mention_view.person_mention.read;
-          }
-        }
-      }
-      this.sendUnreadCount(data.person_mention_view.person_mention.read);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      let mui = UserService.Instance.myUserInfo;
-      if (
-        data.private_message_view.recipient.id == mui?.local_user_view.person.id
-      ) {
-        this.state.messages.unshift(data.private_message_view);
-        this.state.combined.unshift(
-          this.messageToReplyType(data.private_message_view)
-        );
-        this.setState(this.state);
-      }
-    } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      saveCommentRes(data.comment_view, this.state.replies);
-      this.setState(this.state);
-      setupTippy();
-    } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      createCommentLikeRes(data.comment_view, this.state.replies);
-      this.setState(this.state);
-    } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
-      updatePersonBlock(data);
-    } else if (op == UserOperation.CreatePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg);
-      if (data) {
-        toast(i18n.t("report_created"));
-      }
-    } else if (op == UserOperation.CreateCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg);
-      if (data) {
-        toast(i18n.t("report_created"));
-      }
-    } else if (op == UserOperation.CreatePrivateMessageReport) {
-      let data = wsJsonToRes<PrivateMessageReportResponse>(msg);
-      if (data) {
-        toast(i18n.t("report_created"));
-      }
+    if (blockPersonRes.state == "success") {
+      updatePersonBlock(blockPersonRes.data);
     }
   }
 
-  isMention(view: any): view is PersonMentionView {
-    return (view as PersonMentionView).person_mention !== undefined;
+  async handleCreateComment(form: CreateComment) {
+    const res = apiWrapper(await HttpService.client.createComment(form));
+
+    if (res.state == "success") {
+      toast(i18n.t("created"));
+    }
   }
 
-  isReply(view: any): view is CommentReplyView {
-    return (view as CommentReplyView).comment_reply !== undefined;
+  async handleEditComment(form: EditComment) {
+    const res = apiWrapper(await HttpService.client.editComment(form));
+
+    if (res.state == "success") {
+      toast(i18n.t("edit"));
+    }
+  }
+
+  async handleDeleteComment(form: DeleteComment) {
+    const res = apiWrapper(await HttpService.client.deleteComment(form));
+    if (res.state == "success") {
+      toast(i18n.t("deleted"));
+    }
+  }
+
+  async handleRemoveComment(form: RemoveComment) {
+    const res = apiWrapper(await HttpService.client.removeComment(form));
+    if (res.state == "success") {
+      toast(i18n.t("remove_comment"));
+    }
+  }
+
+  async handleSaveComment(form: SaveComment) {
+    const res = apiWrapper(await HttpService.client.saveComment(form));
+    this.findAndUpdateComment(res);
+  }
+
+  async handleCommentVote(form: CreateCommentLike) {
+    const res = apiWrapper(await HttpService.client.likeComment(form));
+    this.findAndUpdateComment(res);
+  }
+
+  async handleCommentReport(form: CreateCommentReport) {
+    const reportRes = apiWrapper(
+      await HttpService.client.createCommentReport(form)
+    );
+    this.reportToast(reportRes);
+  }
+
+  async handleDistinguishComment(form: DistinguishComment) {
+    const res = apiWrapper(await HttpService.client.distinguishComment(form));
+    this.findAndUpdateComment(res);
+  }
+
+  async handleAddAdmin(form: AddAdmin) {
+    const addAdminRes = apiWrapper(await HttpService.client.addAdmin(form));
+
+    if (addAdminRes.state == "success") {
+      this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
+    }
+  }
+
+  async handleTransferCommunity(form: TransferCommunity) {
+    apiWrapper(await HttpService.client.transferCommunity(form));
+    toast(i18n.t("transfer_community"));
+  }
+
+  async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
+    const res = apiWrapper(
+      await HttpService.client.markCommentReplyAsRead(form)
+    );
+    this.findAndUpdateCommentReply(res);
+  }
+
+  async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
+    const res = apiWrapper(
+      await HttpService.client.markPersonMentionAsRead(form)
+    );
+    this.findAndUpdateMention(res);
+  }
+
+  async handleBanFromCommunity(form: BanFromCommunity) {
+    const banRes = apiWrapper(await HttpService.client.banFromCommunity(form));
+    this.updateBanFromCommunity(banRes);
+  }
+
+  async handleBanPerson(form: BanPerson) {
+    const banRes = apiWrapper(await HttpService.client.banPerson(form));
+    this.updateBan(banRes);
+  }
+
+  async handleDeleteMessage(form: DeletePrivateMessage) {
+    const res = apiWrapper(await HttpService.client.deletePrivateMessage(form));
+    this.findAndUpdateMessage(res);
+  }
+
+  async handleEditMessage(form: EditPrivateMessage) {
+    const res = apiWrapper(await HttpService.client.editPrivateMessage(form));
+    this.findAndUpdateMessage(res);
+  }
+
+  async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
+    const res = apiWrapper(
+      await HttpService.client.markPrivateMessageAsRead(form)
+    );
+    this.findAndUpdateMessage(res);
+  }
+
+  async handleMessageReport(form: CreatePrivateMessageReport) {
+    const res = apiWrapper(
+      await HttpService.client.createPrivateMessageReport(form)
+    );
+    this.reportToast(res);
+  }
+
+  async handleCreateMessage(form: CreatePrivateMessage) {
+    const res = apiWrapper(await HttpService.client.createPrivateMessage(form));
+    this.setState(s => {
+      if (s.messagesRes.state == "success" && res.state == "success") {
+        s.messagesRes.data.private_messages.unshift(
+          res.data.private_message_view
+        );
+      }
+
+      return s;
+    });
+  }
+
+  findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
+    this.setState(s => {
+      if (s.messagesRes.state == "success" && res.state == "success") {
+        s.messagesRes.data.private_messages = editPrivateMessages(
+          res.data.private_message_view,
+          s.messagesRes.data.private_messages
+        );
+      }
+      return s;
+    });
+  }
+
+  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+    // Maybe not necessary
+    if (banRes.state == "success") {
+      this.setState(s => {
+        if (s.repliesRes.state == "success") {
+          s.repliesRes.data.replies
+            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .forEach(
+              c => (c.creator_banned_from_community = banRes.data.banned)
+            );
+        }
+        if (s.mentionsRes.state == "success") {
+          s.mentionsRes.data.mentions
+            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .forEach(
+              c => (c.creator_banned_from_community = banRes.data.banned)
+            );
+        }
+        return s;
+      });
+    }
+  }
+
+  updateBan(banRes: RequestState<BanPersonResponse>) {
+    // Maybe not necessary
+    if (banRes.state == "success") {
+      this.setState(s => {
+        if (s.repliesRes.state == "success") {
+          s.repliesRes.data.replies
+            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .forEach(c => (c.creator.banned = banRes.data.banned));
+        }
+        if (s.mentionsRes.state == "success") {
+          s.mentionsRes.data.mentions
+            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .forEach(c => (c.creator.banned = banRes.data.banned));
+        }
+        return s;
+      });
+    }
+  }
+
+  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+    if (purgeRes.state == "success") {
+      toast(i18n.t("purge_success"));
+      this.context.router.history.push(`/`);
+    }
+  }
+
+  reportToast(
+    res: RequestState<PrivateMessageReportResponse | CommentReportResponse>
+  ) {
+    if (res.state == "success") {
+      toast(i18n.t("report_created"));
+    }
+  }
+
+  // A weird case, since you have only replies and mentions, not comment responses
+  findAndUpdateComment(res: RequestState<CommentResponse>) {
+    if (res.state == "success") {
+      this.setState(s => {
+        if (s.repliesRes.state == "success") {
+          s.repliesRes.data.replies = editCommentRepliesWithComment(
+            res.data.comment_view,
+            s.repliesRes.data.replies
+          );
+        }
+        if (s.mentionsRes.state == "success") {
+          s.mentionsRes.data.mentions = editMentionsWithComment(
+            res.data.comment_view,
+            s.mentionsRes.data.mentions
+          );
+        }
+        return s;
+      });
+    }
+  }
+
+  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
+    this.setState(s => {
+      if (s.repliesRes.state == "success" && res.state == "success") {
+        s.repliesRes.data.replies = editCommentReplies(
+          res.data.comment_reply_view,
+          s.repliesRes.data.replies
+        );
+      }
+      return s;
+    });
+  }
+
+  findAndUpdateMention(res: RequestState<PersonMentionResponse>) {
+    this.setState(s => {
+      if (s.mentionsRes.state == "success" && res.state == "success") {
+        s.mentionsRes.data.mentions = editMentions(
+          res.data.person_mention_view,
+          s.mentionsRes.data.mentions
+        );
+      }
+      return s;
+    });
   }
 }

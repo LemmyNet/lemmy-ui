@@ -10,6 +10,7 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
+  CommentReplyResponse,
   CommentResponse,
   CreateComment,
   CreateCommentLike,
@@ -55,6 +56,7 @@ import {
   canCreateCommunity,
   commentsToFlatNodes,
   editComments,
+  editCommentWithCommentReplies,
   editPosts,
   enableDownvotes,
   enableNsfw,
@@ -970,13 +972,14 @@ export class Home extends Component<any, HomeState> {
 
   async handleTransferCommunity(form: TransferCommunity) {
     apiWrapper(await HttpService.client.transferCommunity(form));
+    toast(i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
     const readRes = apiWrapper(
       await HttpService.client.markCommentReplyAsRead(form)
     );
-    this.findAndUpdateComment(readRes);
+    this.findAndUpdateCommentReply(readRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
@@ -1048,6 +1051,18 @@ export class Home extends Component<any, HomeState> {
       if (s.commentsRes.state == "success" && res.state == "success") {
         s.commentsRes.data.comments = editComments(
           res.data.comment_view,
+          s.commentsRes.data.comments
+        );
+      }
+      return s;
+    });
+  }
+
+  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state == "success" && res.state == "success") {
+        s.commentsRes.data.comments = editCommentWithCommentReplies(
+          res.data.comment_reply_view,
           s.commentsRes.data.comments
         );
       }

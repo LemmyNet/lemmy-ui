@@ -4,19 +4,14 @@ import { Prompt } from "inferno-router";
 import {
   CreatePost,
   EditPost,
+  GetSiteMetadataResponse,
   Language,
-  PostResponse,
   PostView,
-  Search,
   SearchResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
 import {
   Choice,
   archiveTodayUrl,
@@ -25,10 +20,10 @@ import {
   debounce,
   fetchCommunities,
   getIdFromString,
-  getSiteMetadata,
   ghostArchiveUrl,
   isImage,
   myAuth,
+  myAuthRequired,
   pictrsDeleteToast,
   relTags,
   setupTippy,
@@ -38,25 +33,29 @@ import {
   validTitle,
   validURL,
   webArchiveUrl,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
 interface PostFormProps {
   post_view?: PostView; // If a post is given, that means this is an edit
+  crossPosts?: PostView[];
   allLanguages: Language[];
   siteLanguages: number[];
   params?: PostFormParams;
-  onCancel?(): any;
-  onCreate?(post: PostView): any;
-  onEdit?(post: PostView): any;
+  onCancel?(): void;
+  onCreate?(form: CreatePost): void;
+  onEdit?(form: EditPost): void;
   enableNsfw?: boolean;
   enableDownvotes?: boolean;
   selectedCommunityChoice?: Choice;
@@ -73,10 +72,9 @@ interface PostFormState {
     community_id?: number;
     honeypot?: string;
   };
-  suggestedTitle?: string;
-  suggestedPosts?: PostView[];
-  crossPosts?: PostView[];
   loading: boolean;
+  suggestedPostsRes: RequestState<SearchResponse>;
+  metadataRes: RequestState<GetSiteMetadataResponse>;
   imageLoading: boolean;
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
@@ -84,8 +82,9 @@ interface PostFormState {
 }
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
-  private subscription?: Subscription;
   state: PostFormState = {
+    suggestedPostsRes: { state: "empty" },
+    metadataRes: { state: "empty" },
     form: {},
     loading: false,
     imageLoading: false,
@@ -101,9 +100,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.handlePostBodyChange = this.handlePostBodyChange.bind(this);
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
     this.handleCommunitySelect = this.handleCommunitySelect.bind(this);
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
 
     // Means its an edit
     const pv = this.props.post_view;
@@ -155,23 +151,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  componentDidUpdate() {
-    if (
-      !this.state.loading &&
-      (this.state.form.name || this.state.form.url || this.state.form.body)
-    ) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-  }
-
-  componentWillUnmount() {
-    this.subscription?.unsubscribe();
-    /* this.choices && this.choices.destroy(); */
-    window.onbeforeunload = null;
-  }
-
   static getDerivedStateFromProps(
     { selectedCommunityChoice }: PostFormProps,
     { form, ...restState }: PostFormState
@@ -194,10 +173,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       <div>
         <Prompt
           when={
-            !this.state.loading &&
-            (this.state.form.name ||
+            !(
+              this.state.form.name ||
               this.state.form.url ||
-              this.state.form.body)
+              this.state.form.body
+            )
           }
           message={i18n.t("block_leaving")}
         />
@@ -215,16 +195,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onInput={linkEvent(this, this.handlePostUrlChange)}
                 onPaste={linkEvent(this, this.handleImageUploadPaste)}
               />
-              {this.state.suggestedTitle && (
-                <div
-                  className="mt-1 text-muted small font-weight-bold pointer"
-                  role="button"
-                  onClick={linkEvent(this, this.copySuggestedTitle)}
-                >
-                  {i18n.t("copy_suggested_title", { title: "" })}{" "}
-                  {this.state.suggestedTitle}
-                </div>
-              )}
+              {this.renderSuggestedTitleCopy()}
               <form>
                 <label
                   htmlFor="file-upload"
@@ -278,18 +249,35 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               {url && isImage(url) && (
                 <img src={url} className="img-fluid" alt="" />
               )}
-              {this.state.crossPosts && this.state.crossPosts.length > 0 && (
+              {this.props.crossPosts && this.props.crossPosts.length > 0 && (
                 <>
                   <div className="my-1 text-muted small font-weight-bold">
                     {i18n.t("cross_posts")}
                   </div>
                   <PostListings
                     showCommunity
-                    posts={this.state.crossPosts}
+                    posts={this.props.crossPosts}
                     enableDownvotes={this.props.enableDownvotes}
                     enableNsfw={this.props.enableNsfw}
                     allLanguages={this.props.allLanguages}
                     siteLanguages={this.props.siteLanguages}
+                    viewOnly
+                    // All of these are unused, since its view only
+                    onPostVote={() => {}}
+                    onPostReport={() => {}}
+                    onBlockPerson={() => {}}
+                    onLockPost={() => {}}
+                    onDeletePost={() => {}}
+                    onRemovePost={() => {}}
+                    onSavePost={() => {}}
+                    onFeaturePost={() => {}}
+                    onPurgePerson={() => {}}
+                    onPurgePost={() => {}}
+                    onBanPersonFromCommunity={() => {}}
+                    onBanPerson={() => {}}
+                    onAddModToCommunity={() => {}}
+                    onAddAdmin={() => {}}
+                    onTransferCommunity={() => {}}
                   />
                 </>
               )}
@@ -317,22 +305,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   {i18n.t("invalid_post_title")}
                 </div>
               )}
-              {this.state.suggestedPosts &&
-                this.state.suggestedPosts.length > 0 && (
-                  <>
-                    <div className="my-1 text-muted small font-weight-bold">
-                      {i18n.t("related_posts")}
-                    </div>
-                    <PostListings
-                      showCommunity
-                      posts={this.state.suggestedPosts}
-                      enableDownvotes={this.props.enableDownvotes}
-                      enableNsfw={this.props.enableNsfw}
-                      allLanguages={this.props.allLanguages}
-                      siteLanguages={this.props.siteLanguages}
-                    />
-                  </>
-                )}
+              {this.renderSuggestedPosts()}
             </div>
           </div>
 
@@ -439,56 +412,118 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     );
   }
 
-  handlePostSubmit(i: PostForm, event: any) {
-    event.preventDefault();
+  renderSuggestedTitleCopy() {
+    switch (this.state.metadataRes.state) {
+      case "loading":
+        return <Spinner />;
+      case "success":
+        const suggestedTitle = this.state.metadataRes.data.metadata.title;
 
-    i.setState({ loading: true });
+        return (
+          suggestedTitle && (
+            <div
+              className="mt-1 text-muted small font-weight-bold pointer"
+              role="button"
+              onClick={linkEvent(
+                { i: this, suggestedTitle },
+                this.copySuggestedTitle
+              )}
+            >
+              {i18n.t("copy_suggested_title", { title: "" })} {suggestedTitle}
+            </div>
+          )
+        );
+    }
+  }
 
+  renderSuggestedPosts() {
+    switch (this.state.suggestedPostsRes.state) {
+      case "loading":
+        return <Spinner />;
+      case "success":
+        const suggestedPosts = this.state.suggestedPostsRes.data.posts;
+
+        return (
+          suggestedPosts &&
+          suggestedPosts.length > 0 && (
+            <>
+              <div className="my-1 text-muted small font-weight-bold">
+                {i18n.t("related_posts")}
+              </div>
+              <PostListings
+                showCommunity
+                posts={suggestedPosts}
+                enableDownvotes={this.props.enableDownvotes}
+                enableNsfw={this.props.enableNsfw}
+                allLanguages={this.props.allLanguages}
+                siteLanguages={this.props.siteLanguages}
+                viewOnly
+                // All of these are unused, since its view only
+                onPostVote={() => {}}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+              />
+            </>
+          )
+        );
+    }
+  }
+
+  async handlePostSubmit(i: PostForm) {
     // Coerce empty url string to undefined
     if ((i.state.form.url ?? "blank") === "") {
       i.setState(s => ((s.form.url = undefined), s));
     }
+    i.setState({ loading: true });
+    const auth = myAuthRequired();
 
     let pForm = i.state.form;
     let pv = i.props.post_view;
-    let auth = myAuth();
-    if (auth) {
-      if (pv) {
-        let form: EditPost = {
+    if (pv) {
+      i.props.onEdit?.({
+        name: pForm.name,
+        url: pForm.url,
+        body: pForm.body,
+        nsfw: pForm.nsfw,
+        post_id: pv.post.id,
+        language_id: pv.post.language_id,
+        auth,
+      });
+    } else {
+      if (pForm.name && pForm.community_id) {
+        i.props.onCreate?.({
           name: pForm.name,
+          community_id: pForm.community_id,
           url: pForm.url,
           body: pForm.body,
           nsfw: pForm.nsfw,
-          post_id: pv.post.id,
-          language_id: pv.post.language_id,
+          language_id: pForm.language_id,
+          honeypot: pForm.honeypot,
           auth,
-        };
-        WebSocketService.Instance.send(wsClient.editPost(form));
-      } else {
-        if (pForm.name && pForm.community_id) {
-          let form: CreatePost = {
-            name: pForm.name,
-            community_id: pForm.community_id,
-            url: pForm.url,
-            body: pForm.body,
-            nsfw: pForm.nsfw,
-            language_id: pForm.language_id,
-            honeypot: pForm.honeypot,
-            auth,
-          };
-          WebSocketService.Instance.send(wsClient.createPost(form));
-        }
+        });
       }
     }
   }
 
-  copySuggestedTitle(i: PostForm) {
-    let sTitle = i.state.suggestedTitle;
+  copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
+    let sTitle = d.suggestedTitle;
     if (sTitle) {
-      i.setState(
+      d.i.setState(
         s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
       );
-      i.setState({ suggestedTitle: undefined });
+      d.i.setState({ suggestedPostsRes: { state: "empty" } });
       setTimeout(() => {
         let textarea: any = document.getElementById("post-title");
         autosize.update(textarea);
@@ -501,27 +536,15 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     i.fetchPageTitle();
   }
 
-  fetchPageTitle() {
+  async fetchPageTitle() {
     let url = this.state.form.url;
     if (url && validURL(url)) {
-      let form: Search = {
-        q: url,
-        type_: "Url",
-        sort: "TopAll",
-        listing_type: "All",
-        page: 1,
-        limit: trendingFetchLimit,
-        auth: myAuth(false),
-      };
-
-      WebSocketService.Instance.send(wsClient.search(form));
-
-      // Fetch the page title
-      getSiteMetadata(url).then(d => {
-        this.setState({ suggestedTitle: d.metadata.title });
+      this.setState({ metadataRes: { state: "loading" } });
+      this.setState({
+        metadataRes: apiWrapper(
+          await HttpService.client.getSiteMetadata({ url })
+        ),
       });
-    } else {
-      this.setState({ suggestedTitle: undefined, crossPosts: undefined });
     }
   }
 
@@ -530,23 +553,24 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     i.fetchSimilarPosts();
   }
 
-  fetchSimilarPosts() {
+  async fetchSimilarPosts() {
     let q = this.state.form.name;
     if (q && q !== "") {
-      let form: Search = {
-        q,
-        type_: "Posts",
-        sort: "TopAll",
-        listing_type: "All",
-        community_id: this.state.form.community_id,
-        page: 1,
-        limit: trendingFetchLimit,
-        auth: myAuth(false),
-      };
-
-      WebSocketService.Instance.send(wsClient.search(form));
-    } else {
-      this.setState({ suggestedPosts: undefined });
+      this.setState({ suggestedPostsRes: { state: "loading" } });
+      this.setState({
+        suggestedPostsRes: apiWrapper(
+          await HttpService.client.search({
+            q,
+            type_: "Posts",
+            sort: "TopAll",
+            listing_type: "All",
+            community_id: this.state.form.community_id,
+            page: 1,
+            limit: trendingFetchLimit,
+            auth: myAuth(),
+          })
+        ),
+      });
     }
   }
 
@@ -647,41 +671,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       this.setState({
         loading: true,
       });
-
       this.props.onSelectCommunity(choice);
-
       this.setState({ loading: false });
-    }
-  }
-
-  parseMessage(msg: any) {
-    let mui = UserService.Instance.myUserInfo;
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      // Errors handled by top level pages
-      // toast(i18n.t(msg.error), "danger");
-      this.setState({ loading: false });
-      return;
-    } else if (op == UserOperation.CreatePost) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      if (data.post_view.creator.id == mui?.local_user_view.person.id) {
-        this.props.onCreate?.(data.post_view);
-      }
-    } else if (op == UserOperation.EditPost) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      if (data.post_view.creator.id == mui?.local_user_view.person.id) {
-        this.setState({ loading: false });
-        this.props.onEdit?.(data.post_view);
-      }
-    } else if (op == UserOperation.Search) {
-      let data = wsJsonToRes<SearchResponse>(msg);
-
-      if (data.type_ == "Posts") {
-        this.setState({ suggestedPosts: data.posts });
-      } else if (data.type_ == "Url") {
-        this.setState({ crossPosts: data.posts });
-      }
     }
   }
 }

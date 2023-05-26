@@ -62,6 +62,22 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           allLanguages={[]}
           siteLanguages={[]}
           hideImage
+          // All of these are unused, since its view only
+          onPostVote={() => {}}
+          onPostReport={() => {}}
+          onBlockPerson={() => {}}
+          onLockPost={() => {}}
+          onDeletePost={() => {}}
+          onRemovePost={() => {}}
+          onSavePost={() => {}}
+          onFeaturePost={() => {}}
+          onPurgePerson={() => {}}
+          onPurgePost={() => {}}
+          onBanPersonFromCommunity={() => {}}
+          onBanPerson={() => {}}
+          onAddModToCommunity={() => {}}
+          onAddAdmin={() => {}}
+          onTransferCommunity={() => {}}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />

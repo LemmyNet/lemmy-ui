@@ -31,6 +31,7 @@ interface PostListingsProps {
   removeDuplicates?: boolean;
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
+  viewOnly?: boolean;
   onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
   onBlockPerson(form: BlockPerson): void;
@@ -69,10 +70,11 @@ export class PostListings extends Component<PostListingsProps, any> {
             <>
               <PostListing
                 post_view={post_view}
-                duplicates={this.duplicatesMap.get(post_view.post.id)}
+                crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
+                viewOnly={this.props.viewOnly}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 onPostVote={this.props.onPostVote}

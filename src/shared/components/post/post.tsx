@@ -10,6 +10,7 @@ import {
   BanPersonResponse,
   BlockCommunity,
   BlockPerson,
+  CommentReplyResponse,
   CommentResponse,
   CommentSortType,
   CommunityResponse,
@@ -61,6 +62,7 @@ import {
   commentTreeMaxDepth,
   debounce,
   editComments,
+  editCommentWithCommentReplies,
   enableDownvotes,
   enableNsfw,
   getCommentIdFromProps,
@@ -345,7 +347,7 @@ export class Post extends Component<any, PostState> {
               />
               <PostListing
                 post_view={res.post_view}
-                duplicates={res.cross_posts}
+                crossPosts={res.cross_posts}
                 showBody
                 showCommunity
                 moderators={res.moderators}
@@ -918,7 +920,7 @@ export class Post extends Component<any, PostState> {
     const readRes = apiWrapper(
       await HttpService.client.markCommentReplyAsRead(form)
     );
-    this.findAndUpdateComment(readRes);
+    this.findAndUpdateCommentReply(readRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
@@ -1021,6 +1023,18 @@ export class Post extends Component<any, PostState> {
       if (s.commentsRes.state == "success" && res.state == "success") {
         s.commentsRes.data.comments = editComments(
           res.data.comment_view,
+          s.commentsRes.data.comments
+        );
+      }
+      return s;
+    });
+  }
+
+  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state == "success" && res.state == "success") {
+        s.commentsRes.data.comments = editCommentWithCommentReplies(
+          res.data.comment_reply_view,
           s.commentsRes.data.comments
         );
       }

@@ -72,6 +72,25 @@ export class CommentReport extends Component<
           allLanguages={[]}
           siteLanguages={[]}
           hideImages
+          // All of these are unused, since its viewonly
+          onSaveComment={() => {}}
+          onBlockPerson={() => {}}
+          onDeleteComment={() => {}}
+          onRemoveComment={() => {}}
+          onCommentVote={() => {}}
+          onCommentReport={() => {}}
+          onDistinguishComment={() => {}}
+          onAddModToCommunity={() => {}}
+          onAddAdmin={() => {}}
+          onTransferCommunity={() => {}}
+          onPurgeComment={() => {}}
+          onPurgePerson={() => {}}
+          onCommentReplyRead={() => {}}
+          onPersonMentionRead={() => {}}
+          onBanPersonFromCommunity={() => {}}
+          onBanPerson={() => {}}
+          onCreateComment={() => {}}
+          onEditComment={() => {}}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />

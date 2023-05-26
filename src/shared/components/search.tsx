@@ -616,6 +616,22 @@ export class Search extends Component<any, SearchState> {
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
                   viewOnly
+                  // All of these are unused, since its view only
+                  onPostVote={() => {}}
+                  onPostReport={() => {}}
+                  onBlockPerson={() => {}}
+                  onLockPost={() => {}}
+                  onDeletePost={() => {}}
+                  onRemovePost={() => {}}
+                  onSavePost={() => {}}
+                  onFeaturePost={() => {}}
+                  onPurgePerson={() => {}}
+                  onPurgePost={() => {}}
+                  onBanPersonFromCommunity={() => {}}
+                  onBanPerson={() => {}}
+                  onAddModToCommunity={() => {}}
+                  onAddAdmin={() => {}}
+                  onTransferCommunity={() => {}}
                 />
               )}
               {i.type_ === "comments" && (
@@ -635,6 +651,25 @@ export class Search extends Component<any, SearchState> {
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
+                  // All of these are unused, since its viewonly
+                  onSaveComment={() => {}}
+                  onBlockPerson={() => {}}
+                  onDeleteComment={() => {}}
+                  onRemoveComment={() => {}}
+                  onCommentVote={() => {}}
+                  onCommentReport={() => {}}
+                  onDistinguishComment={() => {}}
+                  onAddModToCommunity={() => {}}
+                  onAddAdmin={() => {}}
+                  onTransferCommunity={() => {}}
+                  onPurgeComment={() => {}}
+                  onPurgePerson={() => {}}
+                  onCommentReplyRead={() => {}}
+                  onPersonMentionRead={() => {}}
+                  onBanPersonFromCommunity={() => {}}
+                  onBanPerson={() => {}}
+                  onCreateComment={() => {}}
+                  onEditComment={() => {}}
                 />
               )}
               {i.type_ === "communities" && (
@@ -676,6 +711,25 @@ export class Search extends Component<any, SearchState> {
         enableDownvotes={enableDownvotes(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
+        // All of these are unused, since its viewonly
+        onSaveComment={() => {}}
+        onBlockPerson={() => {}}
+        onDeleteComment={() => {}}
+        onRemoveComment={() => {}}
+        onCommentVote={() => {}}
+        onCommentReport={() => {}}
+        onDistinguishComment={() => {}}
+        onAddModToCommunity={() => {}}
+        onAddAdmin={() => {}}
+        onTransferCommunity={() => {}}
+        onPurgeComment={() => {}}
+        onPurgePerson={() => {}}
+        onCommentReplyRead={() => {}}
+        onPersonMentionRead={() => {}}
+        onBanPersonFromCommunity={() => {}}
+        onBanPerson={() => {}}
+        onCreateComment={() => {}}
+        onEditComment={() => {}}
       />
     );
   }
@@ -709,6 +763,22 @@ export class Search extends Component<any, SearchState> {
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
+                // All of these are unused, since its view only
+                onPostVote={() => {}}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
               />
             </div>
           </div>

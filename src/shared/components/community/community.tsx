@@ -10,6 +10,7 @@ import {
   BanPersonResponse,
   BlockCommunity,
   BlockPerson,
+  CommentReplyResponse,
   CommentResponse,
   CommunityResponse,
   CreateComment,
@@ -60,6 +61,7 @@ import {
   QueryParams,
   commentsToFlatNodes,
   communityRSSUrl,
+  editCommentWithCommentReplies,
   editComments,
   editPosts,
   enableDownvotes,
@@ -816,6 +818,7 @@ export class Community extends Component<
     const transferCommunityRes = apiWrapper(
       await HttpService.client.transferCommunity(form)
     );
+    toast(i18n.t("transfer_community"));
     this.updateCommunityFull(transferCommunityRes);
   }
 
@@ -823,7 +826,7 @@ export class Community extends Component<
     const readRes = apiWrapper(
       await HttpService.client.markCommentReplyAsRead(form)
     );
-    this.findAndUpdateComment(readRes);
+    this.findAndUpdateCommentReply(readRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
@@ -916,6 +919,18 @@ export class Community extends Component<
       if (s.commentsRes.state == "success" && res.state == "success") {
         s.commentsRes.data.comments = editComments(
           res.data.comment_view,
+          s.commentsRes.data.comments
+        );
+      }
+      return s;
+    });
+  }
+
+  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state == "success" && res.state == "success") {
+        s.commentsRes.data.comments = editCommentWithCommentReplies(
+          res.data.comment_reply_view,
           s.commentsRes.data.comments
         );
       }
