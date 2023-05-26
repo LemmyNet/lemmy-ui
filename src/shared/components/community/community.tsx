@@ -58,6 +58,11 @@ import {
 } from "../../interfaces";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   QueryParams,
   commentsToFlatNodes,
   communityRSSUrl,
@@ -95,11 +100,6 @@ import { Sidebar } from "../community/sidebar";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 interface State {
   communityRes: RequestState<GetCommunityResponse>;
@@ -305,7 +305,7 @@ export class Community extends Component<
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const res = this.state.communityRes.data;
         const { page } = getCommunityQueryParams();
 
@@ -348,6 +348,7 @@ export class Community extends Component<
             </div>
           </>
         );
+      }
     }
   }
 

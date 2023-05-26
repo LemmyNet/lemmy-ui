@@ -10,6 +10,11 @@ import { Subscription } from "rxjs";
 import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   QueryParams,
   editCommunities,
   getPageFromString,
@@ -28,11 +33,6 @@ import { Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { Paginator } from "../common/paginator";
 import { CommunityLink } from "./community-link";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 const communityLimit = 50;
 
@@ -102,7 +102,7 @@ export class Communities extends Component<any, CommunitiesState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const { listingType, page } = this.getCommunitiesQueryParams();
         return (
           <div>
@@ -209,6 +209,7 @@ export class Communities extends Component<any, CommunitiesState> {
             <Paginator page={page} onChange={this.handlePageChange} />
           </div>
         );
+      }
     }
   }
 

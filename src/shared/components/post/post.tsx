@@ -57,6 +57,11 @@ import {
 } from "../../interfaces";
 import { UserService } from "../../services";
 import {
+  apiWrapper,
+  HttpService,
+  RequestState,
+} from "../../services/HttpService";
+import {
   buildCommentsTree,
   commentsToFlatNodes,
   commentTreeMaxDepth,
@@ -87,11 +92,6 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
-import {
-  apiWrapper,
-  HttpService,
-  RequestState,
-} from "../../services/HttpService";
 
 const commentsShownInterval = 15;
 
@@ -334,7 +334,7 @@ export class Post extends Component<any, PostState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const res = this.state.postRes.data;
         return (
           <div className="row">
@@ -407,6 +407,7 @@ export class Post extends Component<any, PostState> {
             <div className="d-none d-md-block col-md-4">{this.sidebar()}</div>
           </div>
         );
+      }
     }
   }
 

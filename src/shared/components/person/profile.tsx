@@ -49,6 +49,11 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   QueryParams,
   canMod,
   capitalizeFirstLetter,
@@ -85,11 +90,6 @@ import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 interface ProfileState {
   personRes: RequestState<GetPersonDetailsResponse>;
@@ -305,7 +305,7 @@ export class Profile extends Component<
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
         const { page, sort, view } = getProfileQueryParams();
@@ -374,6 +374,7 @@ export class Profile extends Component<
             </div>
           </div>
         );
+      }
     }
   }
 

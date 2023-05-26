@@ -66,7 +66,7 @@ export enum PurgeType {
 
 export enum VoteType {
   Upvote,
-  Downvote
+  Downvote,
 }
 
 export interface CommentNodeI {

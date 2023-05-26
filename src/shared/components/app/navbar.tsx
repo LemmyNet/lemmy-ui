@@ -9,6 +9,11 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   amAdmin,
   canCreateCommunity,
   donateLemmyUrl,
@@ -20,11 +25,6 @@ import {
 } from "../../utils";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 interface NavbarProps {
   siteRes: GetSiteResponse;

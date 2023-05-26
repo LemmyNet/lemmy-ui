@@ -7,13 +7,13 @@ import {
   wsUserOp,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { setIsoData, toast } from "../../utils";
-import { HtmlTags } from "../common/html-tags";
 import {
   HttpService,
   RequestState,
   apiWrapper,
 } from "../../services/HttpService";
+import { setIsoData, toast } from "../../utils";
+import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
 interface State {

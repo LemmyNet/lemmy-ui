@@ -1,7 +1,7 @@
 import { LemmyHttp } from "lemmy-js-client";
 import { getHttpBase } from "../../shared/env";
-import { toast } from "../../shared/utils";
 import { i18n } from "../../shared/i18next";
+import { toast } from "../../shared/utils";
 
 type EmptyRequestState = {
   state: "empty";
@@ -41,7 +41,7 @@ export function apiWrapper<ResponseType>(
       data: res,
     };
   } catch (error) {
-      toast(i18n.t(error), "danger");
+    toast(i18n.t(error), "danger");
     return {
       state: "failed",
       msg: error,

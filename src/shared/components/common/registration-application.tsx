@@ -7,9 +7,9 @@ import {
 import { i18n } from "../../i18next";
 import { mdToHtml, myAuthRequired } from "../../utils";
 import { PersonListing } from "../person/person-listing";
+import { Spinner } from "./icon";
 import { MarkdownTextArea } from "./markdown-textarea";
 import { MomentTime } from "./moment-time";
-import { Spinner } from "./icon";
 
 interface RegistrationApplicationProps {
   application: RegistrationApplicationView;

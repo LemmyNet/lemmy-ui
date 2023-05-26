@@ -50,6 +50,11 @@ import { i18n } from "../../i18next";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   commentsToFlatNodes,
   editCommentReplies,
   editCommentRepliesWithComment,
@@ -73,11 +78,6 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PrivateMessage } from "../private_message/private-message";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 enum UnreadOrAll {
   Unread,
@@ -532,7 +532,7 @@ export class Inbox extends Component<any, InboxState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const replies = this.state.repliesRes.data.replies;
         return (
           <div>
@@ -567,6 +567,7 @@ export class Inbox extends Component<any, InboxState> {
             />
           </div>
         );
+      }
     }
   }
 
@@ -578,7 +579,7 @@ export class Inbox extends Component<any, InboxState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const mentions = this.state.mentionsRes.data.mentions;
         return (
           <div>
@@ -616,6 +617,7 @@ export class Inbox extends Component<any, InboxState> {
             ))}
           </div>
         );
+      }
     }
   }
 
@@ -627,7 +629,7 @@ export class Inbox extends Component<any, InboxState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const messages = this.state.messagesRes.data.private_messages;
         return (
           <div>
@@ -644,6 +646,7 @@ export class Inbox extends Component<any, InboxState> {
             ))}
           </div>
         );
+      }
     }
   }
 

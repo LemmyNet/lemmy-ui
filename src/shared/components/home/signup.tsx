@@ -12,6 +12,11 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   isBrowser,
   joinLemmyUrl,
   mdToHtml,
@@ -22,11 +27,6 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 const passwordStrengthOptions: Options<string> = [
   {
@@ -348,7 +348,7 @@ export class Signup extends Component<any, State> {
     switch (this.state.captchaRes.state) {
       case "loading":
         return <Spinner />;
-      case "success":
+      case "success": {
         const res = this.state.captchaRes.data;
         return (
           <div className="form-group row">
@@ -379,6 +379,7 @@ export class Signup extends Component<any, State> {
             </div>
           </div>
         );
+      }
     }
   }
 

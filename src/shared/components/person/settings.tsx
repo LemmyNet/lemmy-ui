@@ -14,6 +14,11 @@ import {
 import { i18n, languages } from "../../i18next";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   Choice,
   capitalizeFirstLetter,
   communityToChoice,
@@ -47,11 +52,6 @@ import { SearchableSelect } from "../common/searchable-select";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 interface SettingsState {
   saveRes: RequestState<LoginResponse>;

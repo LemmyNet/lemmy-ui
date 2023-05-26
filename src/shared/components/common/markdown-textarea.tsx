@@ -437,10 +437,11 @@ export class MarkdownTextArea extends Component<
     this.setState({ languageId: val[0] });
   }
 
-  handleSubmit(i: MarkdownTextArea, event: any) {
-    event.preventDefault();
-    i.setState({ loading: true });
-    i.props.onSubmit?.(i.state.content!!, i.formId, i.state.languageId);
+  handleSubmit(i: MarkdownTextArea) {
+    if (i.state.content) {
+      i.setState({ loading: true });
+      i.props.onSubmit?.(i.state.content, i.formId, i.state.languageId);
+    }
   }
 
   handleReplyCancel(i: MarkdownTextArea) {

@@ -5,11 +5,11 @@ import {
   GetSiteResponse,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
+import { HttpService, apiWrapper } from "../../services/HttpService";
 import { UserService } from "../../services/UserService";
 import { enableNsfw, setIsoData, toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
-import { HttpService, apiWrapper } from "../../services/HttpService";
 
 interface CreateCommunityState {
   siteRes: GetSiteResponse;

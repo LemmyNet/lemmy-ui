@@ -2,14 +2,15 @@ import { Component } from "inferno";
 import { Redirect } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
+  CreatePost as CreatePostI,
   GetCommunity,
   GetCommunityResponse,
   GetSiteResponse,
-  CreatePost as CreatePostI,
 } from "lemmy-js-client";
 import { InitialFetchRequest, PostFormParams } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
+import { HttpService, apiWrapper } from "../../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -25,7 +26,6 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";
-import { HttpService, apiWrapper } from "../../services/HttpService";
 
 export interface CreatePostProps {
   communityId?: number;

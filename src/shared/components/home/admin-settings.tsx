@@ -12,6 +12,11 @@ import {
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   capitalizeFirstLetter,
   isInitialRoute,
   myAuthRequired,
@@ -27,11 +32,6 @@ import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
@@ -252,7 +252,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const bans = this.state.bannedRes.data.banned;
         return (
           <>
@@ -266,6 +266,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             </ul>
           </>
         );
+      }
     }
   }
 

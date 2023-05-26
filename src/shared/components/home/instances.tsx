@@ -6,13 +6,13 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { isInitialRoute, relTags, setIsoData } from "../../utils";
-import { HtmlTags } from "../common/html-tags";
 import {
   HttpService,
   RequestState,
   apiWrapper,
 } from "../../services/HttpService";
+import { isInitialRoute, relTags, setIsoData } from "../../utils";
+import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
 interface InstancesState {
@@ -77,7 +77,7 @@ export class Instances extends Component<any, InstancesState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const instances = this.state.instancesRes.data.federated_instances;
         return instances ? (
           <div className="row">
@@ -101,6 +101,7 @@ export class Instances extends Component<any, InstancesState> {
         ) : (
           <></>
         );
+      }
     }
   }
 

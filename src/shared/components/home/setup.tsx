@@ -8,14 +8,14 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import { setIsoData } from "../../utils";
-import { Spinner } from "../common/icon";
-import { SiteForm } from "./site-form";
 import {
   HttpService,
   RequestState,
   apiWrapper,
 } from "../../services/HttpService";
+import { setIsoData } from "../../utils";
+import { Spinner } from "../common/icon";
+import { SiteForm } from "./site-form";
 
 interface State {
   form: {

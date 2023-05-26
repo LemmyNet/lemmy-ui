@@ -87,8 +87,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>,
-    _nextContext: any
+    nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>
   ): void {
     if (this.props.moderators != nextProps.moderators) {
       this.setState({

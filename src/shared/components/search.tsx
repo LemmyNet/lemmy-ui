@@ -22,6 +22,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
+import { HttpService, RequestState, apiWrapper } from "../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -58,7 +59,6 @@ import { SortSelect } from "./common/sort-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
-import { HttpService, RequestState, apiWrapper } from "../services/HttpService";
 
 interface SearchProps {
   q?: string;

@@ -2,10 +2,10 @@ import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { HttpService, UserService } from "../../services";
+import { RequestState, apiWrapper } from "../../services/HttpService";
 import { capitalizeFirstLetter, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
-import { RequestState, apiWrapper } from "../../services/HttpService";
 
 interface State {
   passwordChangeRes: RequestState<LoginResponse>;

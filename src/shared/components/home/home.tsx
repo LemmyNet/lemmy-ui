@@ -53,6 +53,11 @@ import {
 } from "../../interfaces";
 import { UserService } from "../../services";
 import {
+  apiWrapper,
+  HttpService,
+  RequestState,
+} from "../../services/HttpService";
+import {
   canCreateCommunity,
   commentsToFlatNodes,
   editComments,
@@ -91,11 +96,6 @@ import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
-import {
-  apiWrapper,
-  HttpService,
-  RequestState,
-} from "../../services/HttpService";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -484,7 +484,7 @@ export class Home extends Component<any, HomeState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const trending = this.state.trendingCommunitiesRes.data.communities;
         return (
           <div className={!isMobile ? "mb-2" : ""}>
@@ -508,6 +508,7 @@ export class Home extends Component<any, HomeState> {
             </ul>
           </div>
         );
+      }
     }
   }
 
@@ -600,7 +601,7 @@ export class Home extends Component<any, HomeState> {
               <Spinner large />
             </h5>
           );
-        case "success":
+        case "success": {
           const posts = this.state.postsRes.data.posts;
           return (
             <PostListings
@@ -628,6 +629,7 @@ export class Home extends Component<any, HomeState> {
               onFeaturePost={this.handleFeaturePost}
             />
           );
+        }
       }
     } else {
       switch (this.state.commentsRes.state) {
@@ -637,7 +639,7 @@ export class Home extends Component<any, HomeState> {
               <Spinner large />
             </h5>
           );
-        case "success":
+        case "success": {
           const comments = this.state.commentsRes.data.comments;
           return (
             <CommentNodes
@@ -669,6 +671,7 @@ export class Home extends Component<any, HomeState> {
               onEditComment={this.handleEditComment}
             />
           );
+        }
       }
     }
   }

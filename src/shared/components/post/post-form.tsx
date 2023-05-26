@@ -13,6 +13,11 @@ import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   Choice,
   archiveTodayUrl,
   capitalizeFirstLetter,
@@ -39,11 +44,6 @@ import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -416,7 +416,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     switch (this.state.metadataRes.state) {
       case "loading":
         return <Spinner />;
-      case "success":
+      case "success": {
         const suggestedTitle = this.state.metadataRes.data.metadata.title;
 
         return (
@@ -433,6 +433,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </div>
           )
         );
+      }
     }
   }
 
@@ -440,7 +441,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     switch (this.state.suggestedPostsRes.state) {
       case "loading":
         return <Spinner />;
-      case "success":
+      case "success": {
         const suggestedPosts = this.state.suggestedPostsRes.data.posts;
 
         return (
@@ -478,6 +479,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </>
           )
         );
+      }
     }
   }
 

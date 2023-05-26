@@ -2,14 +2,14 @@ import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import { isBrowser, setIsoData, toast, validEmail } from "../../utils";
-import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
 import {
   HttpService,
   RequestState,
   apiWrapper,
 } from "../../services/HttpService";
+import { isBrowser, setIsoData, toast, validEmail } from "../../utils";
+import { HtmlTags } from "../common/html-tags";
+import { Spinner } from "../common/icon";
 
 interface State {
   loginRes: RequestState<LoginResponse>;

@@ -30,6 +30,7 @@ import {
 import moment from "moment";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
+import { HttpService, RequestState, apiWrapper } from "../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -55,7 +56,6 @@ import { Paginator } from "./common/paginator";
 import { SearchableSelect } from "./common/searchable-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
-import { HttpService, RequestState, apiWrapper } from "../services/HttpService";
 
 type FilterType = "mod" | "user";
 
@@ -838,7 +838,7 @@ export class Modlog extends Component<
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const page = getModlogQueryParams().page;
         return (
           <div className="table-responsive">
@@ -855,6 +855,7 @@ export class Modlog extends Component<
             <Paginator page={page} onChange={this.handlePageChange} />
           </div>
         );
+      }
     }
   }
 

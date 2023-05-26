@@ -33,7 +33,7 @@ export class ListingTypeSelect extends Component<
     props: ListingTypeSelectProps
   ): ListingTypeSelectState {
     return {
-      type_: props.type_
+      type_: props.type_,
     };
   }
 

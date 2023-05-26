@@ -10,6 +10,11 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   editRegistrationApplications,
   fetchLimit,
   isBrowser,
@@ -23,11 +28,6 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { RegistrationApplication } from "../common/registration-application";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 enum UnreadOrAll {
   Unread,
@@ -99,7 +99,7 @@ export class RegistrationApplications extends Component<
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const apps = this.state.appsRes.data.registration_applications;
         return (
           <div className="row">
@@ -118,6 +118,7 @@ export class RegistrationApplications extends Component<
             </div>
           </div>
         );
+      }
     }
   }
 

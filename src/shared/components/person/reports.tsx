@@ -20,7 +20,8 @@ import {
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { UserService, HttpService } from "../../services";
+import { HttpService, UserService } from "../../services";
+import { RequestState, apiWrapper } from "../../services/HttpService";
 import {
   amAdmin,
   editCommentReports,
@@ -39,7 +40,6 @@ import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
-import { RequestState, apiWrapper } from "../../services/HttpService";
 
 enum UnreadOrAll {
   Unread,
@@ -382,7 +382,7 @@ export class Reports extends Component<any, ReportsState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const reports = res.data.comment_reports;
         return (
           <div>
@@ -398,6 +398,7 @@ export class Reports extends Component<any, ReportsState> {
             ))}
           </div>
         );
+      }
     }
   }
 
@@ -410,7 +411,7 @@ export class Reports extends Component<any, ReportsState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const reports = res.data.post_reports;
         return (
           <div>
@@ -426,6 +427,7 @@ export class Reports extends Component<any, ReportsState> {
             ))}
           </div>
         );
+      }
     }
   }
 
@@ -438,7 +440,7 @@ export class Reports extends Component<any, ReportsState> {
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const reports = res.data.private_message_reports;
         return (
           <div>
@@ -454,6 +456,7 @@ export class Reports extends Component<any, ReportsState> {
             ))}
           </div>
         );
+      }
     }
   }
 

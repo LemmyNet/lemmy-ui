@@ -9,6 +9,11 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
+import {
   getRecipientIdFromProps,
   isBrowser,
   isInitialRoute,
@@ -19,11 +24,6 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
 
 interface CreatePrivateMessageState {
   siteRes: GetSiteResponse;
@@ -121,7 +121,7 @@ export class CreatePrivateMessage extends Component<
             <Spinner large />
           </h5>
         );
-      case "success":
+      case "success": {
         const res = this.state.recipientRes.data;
         return (
           <div className="row">
@@ -134,6 +134,7 @@ export class CreatePrivateMessage extends Component<
             </div>
           </div>
         );
+      }
     }
   }
 
