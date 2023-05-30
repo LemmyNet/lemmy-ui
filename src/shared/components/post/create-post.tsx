@@ -21,7 +21,6 @@ import {
   enableNsfw,
   getIdFromString,
   getQueryParams,
-  getQueryString,
   isBrowser,
   myAuth,
   setIsoData,
@@ -80,7 +79,7 @@ export class CreatePost extends Component<
 
       if (communityResponse) {
         const communityChoice: Choice = {
-          label: communityResponse.community_view.community.name,
+          label: communityResponse.community_view.community.title,
           value: communityResponse.community_view.community.id.toString(),
         };
 
@@ -179,18 +178,21 @@ export class CreatePost extends Component<
   updateUrl({ communityId }: Partial<CreatePostProps>) {
     const { communityId: urlCommunityId } = getCreatePostQueryParams();
 
-    const queryParams: QueryParams<CreatePostProps> = {
-      communityId: (communityId ?? urlCommunityId)?.toString(),
-    };
-
     const locationState = this.props.history.location.state as
       | PostFormParams
       | undefined;
 
-    this.props.history.replace(
-      `/create_post${getQueryString(queryParams)}`,
-      locationState
-    );
+    const url = new URL(location.href);
+
+    const newId = (communityId ?? urlCommunityId)?.toString();
+
+    if (newId !== undefined) {
+      url.searchParams.set("communityId", newId);
+    } else {
+      url.searchParams.delete("communityId");
+    }
+
+    history.replaceState(locationState, "", url);
 
     this.fetchCommunity();
   }
@@ -237,12 +239,12 @@ export class CreatePost extends Component<
     if (op === UserOperation.GetCommunity) {
       const {
         community_view: {
-          community: { name, id },
+          community: { title, id },
         },
       } = wsJsonToRes<GetCommunityResponse>(msg);
 
       this.setState({
-        selectedCommunityChoice: { label: name, value: id.toString() },
+        selectedCommunityChoice: { label: title, value: id.toString() },
         loading: false,
       });
     }

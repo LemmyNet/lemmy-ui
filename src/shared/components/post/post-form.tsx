@@ -644,13 +644,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   handleCommunitySelect(choice: Choice) {
     if (this.props.onSelectCommunity) {
-      this.setState({
-        loading: true,
-      });
-
       this.props.onSelectCommunity(choice);
-
-      this.setState({ loading: false });
     }
   }
 
