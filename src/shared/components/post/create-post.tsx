@@ -16,6 +16,7 @@ import { WebSocketService } from "../../services";
 import {
   Choice,
   QueryParams,
+  WithPromiseKeys,
   enableDownvotes,
   enableNsfw,
   getIdFromString,
@@ -36,6 +37,10 @@ export interface CreatePostProps {
   communityId?: number;
 }
 
+interface CreatePostData {
+  communityResponse?: GetCommunityResponse;
+}
+
 function getCreatePostQueryParams() {
   return getQueryParams<CreatePostProps>({
     communityId: getIdFromString,
@@ -52,7 +57,7 @@ export class CreatePost extends Component<
   RouteComponentProps<Record<string, never>>,
   CreatePostState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<CreatePostData>(this.context);
   private subscription?: Subscription;
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
@@ -71,14 +76,12 @@ export class CreatePost extends Component<
 
     // Only fetch the data if coming from another route
     if (this.isoData.path === this.context.router.route.match.url) {
-      const communityRes = this.isoData.routeData[0] as
-        | GetCommunityResponse
-        | undefined;
+      const { communityResponse } = this.isoData.routeData;
 
-      if (communityRes) {
+      if (communityResponse) {
         const communityChoice: Choice = {
-          label: communityRes.community_view.community.name,
-          value: communityRes.community_view.community.id.toString(),
+          label: communityResponse.community_view.community.name,
+          value: communityResponse.community_view.community.id.toString(),
         };
 
         this.state = {
@@ -206,8 +209,10 @@ export class CreatePost extends Component<
     client,
     query: { communityId },
     auth,
-  }: InitialFetchRequest<QueryParams<CreatePostProps>>): Promise<any>[] {
-    const promises: Promise<any>[] = [];
+  }: InitialFetchRequest<
+    QueryParams<CreatePostProps>
+  >): WithPromiseKeys<CreatePostData> {
+    const data: WithPromiseKeys<CreatePostData> = {};
 
     if (communityId) {
       const form: GetCommunity = {
@@ -215,12 +220,10 @@ export class CreatePost extends Component<
         id: getIdFromString(communityId),
       };
 
-      promises.push(client.getCommunity(form));
-    } else {
-      promises.push(Promise.resolve());
+      data.communityResponse = client.getCommunity(form);
     }
 
-    return promises;
+    return data;
   }
 
   parseMessage(msg: any) {

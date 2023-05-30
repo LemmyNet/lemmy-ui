@@ -69,6 +69,7 @@ import {
   toast,
   trendingFetchLimit,
   updatePersonBlock,
+  WithPromiseKeys,
   wsClient,
   wsSubscribe,
 } from "../../utils";
@@ -101,6 +102,12 @@ interface HomeProps {
   dataType: DataType;
   sort: SortType;
   page: number;
+}
+
+interface HomeData {
+  postsResponse?: GetPostsResponse;
+  commentsResponse?: GetCommentsResponse;
+  trendingResponse: ListCommunitiesResponse;
 }
 
 function getDataTypeFromQuery(type?: string): DataType {
@@ -237,7 +244,7 @@ function getRss(listingType: ListingType) {
 }
 
 export class Home extends Component<any, HomeState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<HomeData>(this.context);
   private subscription?: Subscription;
   state: HomeState = {
     trendingCommunities: [],
@@ -264,22 +271,15 @@ export class Home extends Component<any, HomeState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path === this.context.router.route.match.url) {
-      const postsRes = this.isoData.routeData[0] as
-        | GetPostsResponse
-        | undefined;
-      const commentsRes = this.isoData.routeData[1] as
-        | GetCommentsResponse
-        | undefined;
-      const trendingRes = this.isoData.routeData[2] as
-        | ListCommunitiesResponse
-        | undefined;
+      const { trendingResponse, commentsResponse, postsResponse } =
+        this.isoData.routeData;
 
-      if (postsRes) {
-        this.state = { ...this.state, posts: postsRes.posts };
+      if (postsResponse) {
+        this.state = { ...this.state, posts: postsResponse.posts };
       }
 
-      if (commentsRes) {
-        this.state = { ...this.state, comments: commentsRes.comments };
+      if (commentsResponse) {
+        this.state = { ...this.state, comments: commentsResponse.comments };
       }
 
       if (isBrowser()) {
@@ -290,7 +290,7 @@ export class Home extends Component<any, HomeState> {
       const taglines = this.state?.siteRes?.taglines ?? [];
       this.state = {
         ...this.state,
-        trendingCommunities: trendingRes?.communities ?? [],
+        trendingCommunities: trendingResponse?.communities ?? [],
         loading: false,
         tagline: getRandomFromList(taglines)?.content,
       };
@@ -317,7 +317,7 @@ export class Home extends Component<any, HomeState> {
     client,
     auth,
     query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
-  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<HomeProps>>): WithPromiseKeys<HomeData> {
     const dataType = getDataTypeFromQuery(urlDataType);
 
     // TODO figure out auth default_listingType, default_sort_type
@@ -327,6 +327,9 @@ export class Home extends Component<any, HomeState> {
     const page = urlPage ? Number(urlPage) : 1;
 
     const promises: Promise<any>[] = [];
+
+    let postsResponse: Promise<GetPostsResponse> | undefined = undefined;
+    let commentsResponse: Promise<GetCommentsResponse> | undefined = undefined;
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -338,8 +341,7 @@ export class Home extends Component<any, HomeState> {
         auth,
       };
 
-      promises.push(client.getPosts(getPostsForm));
-      promises.push(Promise.resolve());
+      postsResponse = client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         page,
@@ -349,8 +351,8 @@ export class Home extends Component<any, HomeState> {
         saved_only: false,
         auth,
       };
-      promises.push(Promise.resolve());
-      promises.push(client.getComments(getCommentsForm));
+
+      commentsResponse = client.getComments(getCommentsForm);
     }
 
     const trendingCommunitiesForm: ListCommunities = {
@@ -361,7 +363,11 @@ export class Home extends Component<any, HomeState> {
     };
     promises.push(client.listCommunities(trendingCommunitiesForm));
 
-    return promises;
+    return {
+      trendingResponse: client.listCommunities(trendingCommunitiesForm),
+      commentsResponse,
+      postsResponse,
+    };
   }
 
   get documentTitle(): string {

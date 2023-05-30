@@ -39,6 +39,7 @@ import { WebSocketService } from "../services";
 import {
   Choice,
   QueryParams,
+  WithPromiseKeys,
   amAdmin,
   amMod,
   debounce,
@@ -82,6 +83,13 @@ type View =
   | AdminPurgeCommunityView
   | AdminPurgePostView
   | AdminPurgeCommentView;
+
+interface ModlogData {
+  modlogResponse: GetModlogResponse;
+  communityResponse?: GetCommunityResponse;
+  modUserResponse?: GetPersonDetailsResponse;
+  userResponse?: GetPersonDetailsResponse;
+}
 
 interface ModlogType {
   id: number;
@@ -642,7 +650,7 @@ export class Modlog extends Component<
   RouteComponentProps<{ communityId?: string }>,
   ModlogState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<ModlogData>(this.context);
   private subscription?: Subscription;
 
   state: ModlogState = {
@@ -667,35 +675,35 @@ export class Modlog extends Component<
 
     // Only fetch the data if coming from another route
     if (this.isoData.path === this.context.router.route.match.url) {
+      const {
+        modlogResponse,
+        communityResponse,
+        modUserResponse,
+        userResponse,
+      } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        res: this.isoData.routeData[0] as GetModlogResponse,
+        res: modlogResponse,
       };
-
-      const communityRes: GetCommunityResponse | undefined =
-        this.isoData.routeData[1];
 
       // Getting the moderators
       this.state = {
         ...this.state,
-        communityMods: communityRes?.moderators,
+        communityMods: communityResponse?.moderators,
       };
 
-      const filteredModRes: GetPersonDetailsResponse | undefined =
-        this.isoData.routeData[2];
-      if (filteredModRes) {
+      if (modUserResponse) {
         this.state = {
           ...this.state,
-          modSearchOptions: [personToChoice(filteredModRes.person_view)],
+          modSearchOptions: [personToChoice(modUserResponse.person_view)],
         };
       }
 
-      const filteredUserRes: GetPersonDetailsResponse | undefined =
-        this.isoData.routeData[3];
-      if (filteredUserRes) {
+      if (userResponse) {
         this.state = {
           ...this.state,
-          userSearchOptions: [personToChoice(filteredUserRes.person_view)],
+          userSearchOptions: [personToChoice(userResponse.person_view)],
         };
       }
 
@@ -986,9 +994,10 @@ export class Modlog extends Component<
     query: { modId: urlModId, page, userId: urlUserId, actionType },
     auth,
     site,
-  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<any>[] {
+  }: InitialFetchRequest<
+    QueryParams<ModlogProps>
+  >): WithPromiseKeys<ModlogData> {
     const pathSplit = path.split("/");
-    const promises: Promise<any>[] = [];
     const communityId = getIdFromString(pathSplit[2]);
     const modId = !site.site_view.local_site.hide_modlog_mod_names
       ? getIdFromString(urlModId)
@@ -1005,17 +1014,20 @@ export class Modlog extends Component<
       auth,
     };
 
-    promises.push(client.getModlog(modlogForm));
+    let communityResponse: Promise<GetCommunityResponse> | undefined =
+      undefined;
 
     if (communityId) {
       const communityForm: GetCommunity = {
         id: communityId,
         auth,
       };
-      promises.push(client.getCommunity(communityForm));
-    } else {
-      promises.push(Promise.resolve());
+
+      communityResponse = client.getCommunity(communityForm);
     }
+
+    let modUserResponse: Promise<GetPersonDetailsResponse> | undefined =
+      undefined;
 
     if (modId) {
       const getPersonForm: GetPersonDetails = {
@@ -1023,10 +1035,10 @@ export class Modlog extends Component<
         auth,
       };
 
-      promises.push(client.getPersonDetails(getPersonForm));
-    } else {
-      promises.push(Promise.resolve());
+      modUserResponse = client.getPersonDetails(getPersonForm);
     }
+
+    let userResponse: Promise<GetPersonDetailsResponse> | undefined = undefined;
 
     if (userId) {
       const getPersonForm: GetPersonDetails = {
@@ -1034,12 +1046,15 @@ export class Modlog extends Component<
         auth,
       };
 
-      promises.push(client.getPersonDetails(getPersonForm));
-    } else {
-      promises.push(Promise.resolve());
+      userResponse = client.getPersonDetails(getPersonForm);
     }
 
-    return promises;
+    return {
+      modlogResponse: client.getModlog(modlogForm),
+      communityResponse,
+      modUserResponse,
+      userResponse,
+    };
   }
 
   parseMessage(msg: any) {

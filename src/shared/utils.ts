@@ -1262,7 +1262,7 @@ export function isBrowser() {
   return typeof window !== "undefined";
 }
 
-export function setIsoData(context: any): IsoData {
+export function setIsoData<T extends object>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData;
@@ -1555,6 +1555,10 @@ const groupBy = <T>(
 
 export type QueryParams<T extends Record<string, any>> = {
   [key in keyof T]?: string;
+};
+
+export type WithPromiseKeys<T extends object> = {
+  [K in keyof T]: Promise<T[K]>;
 };
 
 export function getQueryParams<T extends Record<string, any>>(processors: {

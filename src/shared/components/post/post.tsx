@@ -60,6 +60,7 @@ import {
   toast,
   trendingFetchLimit,
   updatePersonBlock,
+  WithPromiseKeys,
   wsClient,
   wsSubscribe,
 } from "../../utils";
@@ -71,6 +72,11 @@ import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 
 const commentsShownInterval = 15;
+
+interface PostData {
+  postResponse: GetPostResponse;
+  commentsResponse: GetCommentsResponse;
+}
 
 interface PostState {
   postId?: number;
@@ -91,7 +97,7 @@ interface PostState {
 
 export class Post extends Component<any, PostState> {
   private subscription?: Subscription;
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
   state: PostState = {
     postId: getIdFromProps(this.props),
@@ -115,11 +121,13 @@ export class Post extends Component<any, PostState> {
     this.state = { ...this.state, commentSectionRef: createRef() };
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (this.isoData.path === this.context.router.route.match.url) {
+      const { commentsResponse, postResponse } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        postRes: this.isoData.routeData[0] as GetPostResponse,
-        commentsRes: this.isoData.routeData[1] as GetCommentsResponse,
+        postRes: postResponse,
+        commentsRes: commentsResponse,
       };
 
       if (this.state.commentsRes) {
@@ -197,19 +205,18 @@ export class Post extends Component<any, PostState> {
     }
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split("/");
-    let promises: Promise<any>[] = [];
+  static fetchInitialData(req: InitialFetchRequest): WithPromiseKeys<PostData> {
+    const pathSplit = req.path.split("/");
 
-    let pathType = pathSplit.at(1);
-    let id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
-    let auth = req.auth;
+    const pathType = pathSplit.at(1);
+    const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
+    const auth = req.auth;
 
-    let postForm: GetPost = {
+    const postForm: GetPost = {
       auth,
     };
 
-    let commentsForm: GetComments = {
+    const commentsForm: GetComments = {
       max_depth: commentTreeMaxDepth,
       sort: "Hot",
       type_: "All",
@@ -218,7 +225,7 @@ export class Post extends Component<any, PostState> {
     };
 
     // Set the correct id based on the path type
-    if (pathType == "post") {
+    if (pathType === "post") {
       postForm.id = id;
       commentsForm.post_id = id;
     } else {
@@ -226,10 +233,10 @@ export class Post extends Component<any, PostState> {
       commentsForm.parent_id = id;
     }
 
-    promises.push(req.client.getPost(postForm));
-    promises.push(req.client.getComments(commentsForm));
-
-    return promises;
+    return {
+      postResponse: req.client.getPost(postForm),
+      commentsResponse: req.client.getComments(commentsForm),
+    };
   }
 
   componentWillUnmount() {

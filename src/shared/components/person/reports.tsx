@@ -22,6 +22,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  WithPromiseKeys,
   amAdmin,
   fetchLimit,
   isBrowser,
@@ -60,6 +61,12 @@ enum MessageEnum {
   PrivateMessageReport,
 }
 
+interface ReportsData {
+  commentReportsResponse: ListCommentReportsResponse;
+  postReportsResponse: ListPostReportsResponse;
+  privateMessageReportsResponse?: ListPrivateMessageReportsResponse;
+}
+
 type ItemType = {
   id: number;
   type_: MessageEnum;
@@ -80,7 +87,7 @@ interface ReportsState {
 }
 
 export class Reports extends Component<any, ReportsState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<ReportsData>(this.context);
   private subscription?: Subscription;
   state: ReportsState = {
     unreadOrAll: UnreadOrAll.Unread,
@@ -100,21 +107,20 @@ export class Reports extends Component<any, ReportsState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (this.isoData.path === this.context.router.route.match.url) {
+      const {
+        commentReportsResponse,
+        postReportsResponse,
+        privateMessageReportsResponse,
+      } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        listCommentReportsResponse: this.isoData
-          .routeData[0] as ListCommentReportsResponse,
-        listPostReportsResponse: this.isoData
-          .routeData[1] as ListPostReportsResponse,
+        listCommentReportsResponse: commentReportsResponse,
+        listPostReportsResponse: postReportsResponse,
+        listPrivateMessageReportsResponse: privateMessageReportsResponse,
       };
-      if (amAdmin()) {
-        this.state = {
-          ...this.state,
-          listPrivateMessageReportsResponse: this.isoData
-            .routeData[2] as ListPrivateMessageReportsResponse,
-        };
-      }
+
       this.state = {
         ...this.state,
         combined: this.buildCombined(),
@@ -432,73 +438,78 @@ export class Reports extends Component<any, ReportsState> {
     i.refetch();
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): WithPromiseKeys<ReportsData> {
+    const unresolved_only = true;
+    const page = 1;
+    const limit = fetchLimit;
 
-    let unresolved_only = true;
-    let page = 1;
-    let limit = fetchLimit;
-    let auth = req.auth;
+    const commentReportsForm: ListCommentReports = {
+      unresolved_only,
+      page,
+      limit,
+      auth: auth as string,
+    };
 
-    if (auth) {
-      let commentReportsForm: ListCommentReports = {
+    const postReportsForm: ListPostReports = {
+      unresolved_only,
+      page,
+      limit,
+      auth: auth as string,
+    };
+
+    const data: WithPromiseKeys<ReportsData> = {
+      commentReportsResponse: client.listCommentReports(commentReportsForm),
+      postReportsResponse: client.listPostReports(postReportsForm),
+    };
+
+    if (amAdmin()) {
+      const privateMessageReportsForm: ListPrivateMessageReports = {
         unresolved_only,
         page,
         limit,
-        auth,
+        auth: auth as string,
       };
-      promises.push(req.client.listCommentReports(commentReportsForm));
 
-      let postReportsForm: ListPostReports = {
-        unresolved_only,
-        page,
-        limit,
-        auth,
-      };
-      promises.push(req.client.listPostReports(postReportsForm));
-
-      if (amAdmin()) {
-        let privateMessageReportsForm: ListPrivateMessageReports = {
-          unresolved_only,
-          page,
-          limit,
-          auth,
-        };
-        promises.push(
-          req.client.listPrivateMessageReports(privateMessageReportsForm)
-        );
-      }
+      data.privateMessageReportsResponse = client.listPrivateMessageReports(
+        privateMessageReportsForm
+      );
     }
 
-    return promises;
+    return data;
   }
 
   refetch() {
-    let unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let page = this.state.page;
-    let limit = fetchLimit;
-    let auth = myAuth();
+    const unresolved_only = this.state.unreadOrAll === UnreadOrAll.Unread;
+    const page = this.state.page;
+    const limit = fetchLimit;
+    const auth = myAuth();
+
     if (auth) {
-      let commentReportsForm: ListCommentReports = {
+      const commentReportsForm: ListCommentReports = {
         unresolved_only,
         page,
         limit,
         auth,
       };
+
       WebSocketService.Instance.send(
         wsClient.listCommentReports(commentReportsForm)
       );
 
-      let postReportsForm: ListPostReports = {
+      const postReportsForm: ListPostReports = {
         unresolved_only,
         page,
         limit,
         auth,
       };
+
       WebSocketService.Instance.send(wsClient.listPostReports(postReportsForm));
 
       if (amAdmin()) {
-        let privateMessageReportsForm: ListPrivateMessageReports = {
+        const privateMessageReportsForm: ListPrivateMessageReports = {
           unresolved_only,
           page,
           limit,

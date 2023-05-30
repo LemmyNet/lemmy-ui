@@ -16,6 +16,7 @@ import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
   QueryParams,
+  WithPromiseKeys,
   getPageFromString,
   getQueryParams,
   getQueryString,
@@ -35,6 +36,10 @@ import { Paginator } from "../common/paginator";
 import { CommunityLink } from "./community-link";
 
 const communityLimit = 50;
+
+interface CommunitiesData {
+  listCommunitiesResponse: ListCommunitiesResponse;
+}
 
 interface CommunitiesState {
   listCommunitiesResponse?: ListCommunitiesResponse;
@@ -88,7 +93,7 @@ function refetch() {
 
 export class Communities extends Component<any, CommunitiesState> {
   private subscription?: Subscription;
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<CommunitiesData>(this.context);
   state: CommunitiesState = {
     loading: true,
     siteRes: this.isoData.site_res,
@@ -105,10 +110,11 @@ export class Communities extends Component<any, CommunitiesState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path === this.context.router.route.match.url) {
-      const listRes = this.isoData.routeData[0] as ListCommunitiesResponse;
+      const { listCommunitiesResponse } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        listCommunitiesResponse: listRes,
+        listCommunitiesResponse,
         loading: false,
       };
     } else {
@@ -312,7 +318,9 @@ export class Communities extends Component<any, CommunitiesState> {
     query: { listingType, page },
     client,
     auth,
-  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<any>[] {
+  }: InitialFetchRequest<
+    QueryParams<CommunitiesProps>
+  >): WithPromiseKeys<CommunitiesData> {
     const listCommunitiesForm: ListCommunities = {
       type_: getListingTypeFromQuery(listingType),
       sort: "TopMonth",
@@ -321,7 +329,9 @@ export class Communities extends Component<any, CommunitiesState> {
       auth: auth,
     };
 
-    return [client.listCommunities(listCommunitiesForm)];
+    return {
+      listCommunitiesResponse: client.listCommunities(listCommunitiesForm),
+    };
   }
 
   parseMessage(msg: any) {

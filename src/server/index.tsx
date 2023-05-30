@@ -129,7 +129,7 @@ server.get("/*", async (req, res) => {
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
     let site: GetSiteResponse | undefined = undefined;
-    let routeData: any[] = [];
+    let routeData: Record<string, any> = {};
     let errorPageData: ErrorPageData | undefined;
     try {
       let try_site: any = await client.getSite(getSiteForm);
@@ -160,18 +160,27 @@ server.get("/*", async (req, res) => {
         };
 
         if (activeRoute?.fetchInitialData) {
-          routeData = await Promise.all([
-            ...activeRoute.fetchInitialData(initialFetchReq),
-          ]);
+          const routeDataKeysAndVals = await Promise.all(
+            Object.entries(activeRoute.fetchInitialData(initialFetchReq)).map(
+              async ([key, val]) => [key, await val]
+            )
+          );
+
+          routeData = routeDataKeysAndVals.reduce((acc, [key, val]) => {
+            acc[key] = val;
+
+            return acc;
+          }, {});
         }
       }
     } catch (error) {
       errorPageData = getErrorPageData(error, site);
     }
 
+    const error = Object.values(routeData).find(val => val?.error)?.error;
+
     // Redirect to the 404 if there's an API error
-    if (routeData[0] && routeData[0].error) {
-      const error = routeData[0].error;
+    if (error) {
       console.error(error);
       if (error === "instance_is_private") {
         return res.redirect(`/signup`);

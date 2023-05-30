@@ -13,6 +13,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  WithPromiseKeys,
   fetchLimit,
   isBrowser,
   myAuth,
@@ -33,6 +34,10 @@ enum UnreadOrAll {
   All,
 }
 
+interface RegistrationApplicationsData {
+  listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
+}
+
 interface RegistrationApplicationsState {
   listRegistrationApplicationsResponse?: ListRegistrationApplicationsResponse;
   siteRes: GetSiteResponse;
@@ -45,7 +50,7 @@ export class RegistrationApplications extends Component<
   any,
   RegistrationApplicationsState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<RegistrationApplicationsData>(this.context);
   private subscription?: Subscription;
   state: RegistrationApplicationsState = {
     siteRes: this.isoData.site_res,
@@ -63,11 +68,11 @@ export class RegistrationApplications extends Component<
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (this.isoData.path === this.context.router.route.match.url) {
       this.state = {
         ...this.state,
-        listRegistrationApplicationsResponse: this.isoData
-          .routeData[0] as ListRegistrationApplicationsResponse,
+        listRegistrationApplicationsResponse:
+          this.isoData.routeData.listRegistrationApplicationsResponse,
         loading: false,
       };
     } else {
@@ -192,21 +197,21 @@ export class RegistrationApplications extends Component<
     this.refetch();
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): WithPromiseKeys<RegistrationApplicationsData> {
+    const form: ListRegistrationApplications = {
+      unread_only: true,
+      page: 1,
+      limit: fetchLimit,
+      auth: auth as string,
+    };
 
-    let auth = req.auth;
-    if (auth) {
-      let form: ListRegistrationApplications = {
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(req.client.listRegistrationApplications(form));
-    }
-
-    return promises;
+    return {
+      listRegistrationApplicationsResponse:
+        client.listRegistrationApplications(form),
+    };
   }
 
   refetch() {

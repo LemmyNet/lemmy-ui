@@ -32,6 +32,7 @@ import { WebSocketService } from "../services";
 import {
   Choice,
   QueryParams,
+  WithPromiseKeys,
   capitalizeFirstLetter,
   commentsToFlatNodes,
   communityToChoice,
@@ -78,6 +79,14 @@ interface SearchProps {
   communityId?: number | null;
   creatorId?: number | null;
   page: number;
+}
+
+interface SearchData {
+  communityResponse?: GetCommunityResponse;
+  listCommunitiesResponse?: ListCommunitiesResponse;
+  creatorDetailsResponse?: GetPersonDetailsResponse;
+  searchResponse?: SearchResponse;
+  resolveObjectResponse?: ResolveObjectResponse;
 }
 
 type FilterType = "creator" | "community";
@@ -237,7 +246,7 @@ function getListing(
 }
 
 export class Search extends Component<any, SearchState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<SearchData>(this.context);
   private subscription?: Subscription;
   state: SearchState = {
     searchLoading: false,
@@ -271,45 +280,44 @@ export class Search extends Component<any, SearchState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path === this.context.router.route.match.url) {
-      const communityRes = this.isoData.routeData[0] as
-        | GetCommunityResponse
-        | undefined;
-      const communitiesRes = this.isoData.routeData[1] as
-        | ListCommunitiesResponse
-        | undefined;
+      const {
+        communityResponse,
+        creatorDetailsResponse,
+        listCommunitiesResponse,
+        resolveObjectResponse,
+        searchResponse,
+      } = this.isoData.routeData;
+
       // This can be single or multiple communities given
-      if (communitiesRes) {
+      if (listCommunitiesResponse) {
         this.state = {
           ...this.state,
-          communities: communitiesRes.communities,
+          communities: listCommunitiesResponse.communities,
         };
       }
-      if (communityRes) {
+      if (communityResponse) {
         this.state = {
           ...this.state,
-          communities: [communityRes.community_view],
+          communities: [communityResponse.community_view],
           communitySearchOptions: [
-            communityToChoice(communityRes.community_view),
+            communityToChoice(communityResponse.community_view),
           ],
         };
       }
 
-      const creatorRes = this.isoData.routeData[2] as GetPersonDetailsResponse;
-
       this.state = {
         ...this.state,
-        creatorDetails: creatorRes,
-        creatorSearchOptions: creatorRes
-          ? [personToChoice(creatorRes.person_view)]
+        creatorDetails: creatorDetailsResponse,
+        creatorSearchOptions: creatorDetailsResponse
+          ? [personToChoice(creatorDetailsResponse.person_view)]
           : [],
       };
 
       if (q !== "") {
         this.state = {
           ...this.state,
-          searchResponse: this.isoData.routeData[3] as SearchResponse,
-          resolveObjectResponse: this.isoData
-            .routeData[4] as ResolveObjectResponse,
+          searchResponse,
+          resolveObjectResponse,
           searchLoading: false,
         };
       } else {
@@ -342,17 +350,21 @@ export class Search extends Component<any, SearchState> {
     client,
     auth,
     query: { communityId, creatorId, q, type, sort, listingType, page },
-  }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<any>[] {
-    const promises: Promise<any>[] = [];
-
+  }: InitialFetchRequest<
+    QueryParams<SearchProps>
+  >): WithPromiseKeys<SearchData> {
     const community_id = getIdFromString(communityId);
+    let communityResponse: Promise<GetCommunityResponse> | undefined =
+      undefined;
+    let listCommunitiesResponse: Promise<ListCommunitiesResponse> | undefined =
+      undefined;
     if (community_id) {
       const getCommunityForm: GetCommunity = {
         id: community_id,
         auth,
       };
-      promises.push(client.getCommunity(getCommunityForm));
-      promises.push(Promise.resolve());
+
+      communityResponse = client.getCommunity(getCommunityForm);
     } else {
       const listCommunitiesForm: ListCommunities = {
         type_: defaultListingType,
@@ -360,22 +372,28 @@ export class Search extends Component<any, SearchState> {
         limit: fetchLimit,
         auth,
       };
-      promises.push(Promise.resolve());
-      promises.push(client.listCommunities(listCommunitiesForm));
+
+      listCommunitiesResponse = client.listCommunities(listCommunitiesForm);
     }
 
     const creator_id = getIdFromString(creatorId);
+    let creatorDetailsResponse: Promise<GetPersonDetailsResponse> | undefined =
+      undefined;
     if (creator_id) {
       const getCreatorForm: GetPersonDetails = {
         person_id: creator_id,
         auth,
       };
-      promises.push(client.getPersonDetails(getCreatorForm));
-    } else {
-      promises.push(Promise.resolve());
+
+      creatorDetailsResponse = client.getPersonDetails(getCreatorForm);
     }
 
     const query = getSearchQueryFromQuery(q);
+
+    let searchResponse: Promise<SearchResponse> | undefined = undefined;
+    let resolveObjectResponse:
+      | Promise<ResolveObjectResponse | undefined>
+      | undefined = undefined;
 
     if (query) {
       const form: SearchForm = {
@@ -391,21 +409,26 @@ export class Search extends Component<any, SearchState> {
       };
 
       if (query !== "") {
-        promises.push(client.search(form));
+        searchResponse = client.search(form);
         if (auth) {
           const resolveObjectForm: ResolveObject = {
             q: query,
             auth,
           };
-          promises.push(client.resolveObject(resolveObjectForm));
+          resolveObjectResponse = client
+            .resolveObject(resolveObjectForm)
+            .catch(() => undefined);
         }
-      } else {
-        promises.push(Promise.resolve());
-        promises.push(Promise.resolve());
       }
     }
 
-    return promises;
+    return {
+      communityResponse,
+      creatorDetailsResponse,
+      listCommunitiesResponse,
+      resolveObjectResponse,
+      searchResponse,
+    };
   }
 
   get documentTitle(): string {

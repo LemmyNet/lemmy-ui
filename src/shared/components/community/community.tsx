@@ -33,6 +33,7 @@ import {
 import { UserService, WebSocketService } from "../../services";
 import {
   QueryParams,
+  WithPromiseKeys,
   commentsToFlatNodes,
   communityRSSUrl,
   createCommentLikeRes,
@@ -76,6 +77,12 @@ import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
 
+interface CommunityData {
+  communityResponse: GetCommunityResponse;
+  postsResponse?: GetPostsResponse;
+  commentsResponse?: GetCommentsResponse;
+}
+
 interface State {
   communityRes?: GetCommunityResponse;
   communityLoading: boolean;
@@ -115,7 +122,7 @@ export class Community extends Component<
   RouteComponentProps<{ name: string }>,
   State
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<CommunityData>(this.context);
   private subscription?: Subscription;
   state: State = {
     communityLoading: true,
@@ -137,23 +144,20 @@ export class Community extends Component<
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
+      const { communityResponse, commentsResponse, postsResponse } =
+        this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        communityRes: this.isoData.routeData[0] as GetCommunityResponse,
+        communityRes: communityResponse,
       };
-      const postsRes = this.isoData.routeData[1] as
-        | GetPostsResponse
-        | undefined;
-      const commentsRes = this.isoData.routeData[2] as
-        | GetCommentsResponse
-        | undefined;
 
-      if (postsRes) {
-        this.state = { ...this.state, posts: postsRes.posts };
+      if (postsResponse) {
+        this.state = { ...this.state, posts: postsResponse.posts };
       }
 
-      if (commentsRes) {
-        this.state = { ...this.state, comments: commentsRes.comments };
+      if (commentsResponse) {
+        this.state = { ...this.state, comments: commentsResponse.comments };
       }
 
       this.state = {
@@ -189,22 +193,25 @@ export class Community extends Component<
     path,
     query: { dataType: urlDataType, page: urlPage, sort: urlSort },
     auth,
-  }: InitialFetchRequest<QueryParams<CommunityProps>>): Promise<any>[] {
+  }: InitialFetchRequest<
+    QueryParams<CommunityProps>
+  >): WithPromiseKeys<CommunityData> {
     const pathSplit = path.split("/");
-    const promises: Promise<any>[] = [];
 
     const communityName = pathSplit[2];
     const communityForm: GetCommunity = {
       name: communityName,
       auth,
     };
-    promises.push(client.getCommunity(communityForm));
 
     const dataType = getDataTypeFromQuery(urlDataType);
 
     const sort = getSortTypeFromQuery(urlSort);
 
     const page = getPageFromString(urlPage);
+
+    let postsResponse: Promise<GetPostsResponse> | undefined = undefined;
+    let commentsResponse: Promise<GetCommentsResponse> | undefined = undefined;
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -216,8 +223,8 @@ export class Community extends Component<
         saved_only: false,
         auth,
       };
-      promises.push(client.getPosts(getPostsForm));
-      promises.push(Promise.resolve());
+
+      postsResponse = client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         community_name: communityName,
@@ -228,11 +235,15 @@ export class Community extends Component<
         saved_only: false,
         auth,
       };
-      promises.push(Promise.resolve());
-      promises.push(client.getComments(getCommentsForm));
+
+      commentsResponse = client.getComments(getCommentsForm);
     }
 
-    return promises;
+    return {
+      communityResponse: client.getCommunity(communityForm),
+      commentsResponse,
+      postsResponse,
+    };
   }
 
   get documentTitle(): string {

@@ -29,6 +29,7 @@ import { i18n } from "../../i18next";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  WithPromiseKeys,
   commentsToFlatNodes,
   createCommentLikeRes,
   editCommentRes,
@@ -69,6 +70,13 @@ enum ReplyEnum {
   Mention,
   Message,
 }
+
+interface InboxData {
+  repliesResponse: GetRepliesResponse;
+  personMentionsResponse: GetPersonMentionsResponse;
+  privateMessagesResponse: PrivateMessagesResponse;
+}
+
 type ReplyType = {
   id: number;
   type_: ReplyEnum;
@@ -90,7 +98,7 @@ interface InboxState {
 }
 
 export class Inbox extends Component<any, InboxState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<InboxData>(this.context);
   private subscription?: Subscription;
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
@@ -115,17 +123,18 @@ export class Inbox extends Component<any, InboxState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (this.isoData.path === this.context.router.route.match.url) {
+      const {
+        personMentionsResponse,
+        privateMessagesResponse,
+        repliesResponse,
+      } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        replies:
-          (this.isoData.routeData[0] as GetRepliesResponse).replies || [],
-        mentions:
-          (this.isoData.routeData[1] as GetPersonMentionsResponse).mentions ||
-          [],
-        messages:
-          (this.isoData.routeData[2] as PrivateMessagesResponse)
-            .private_messages || [],
+        replies: repliesResponse.replies ?? [],
+        mentions: personMentionsResponse.mentions ?? [],
+        messages: privateMessagesResponse.private_messages ?? [],
         loading: false,
       };
       this.state = { ...this.state, combined: this.buildCombined() };
@@ -481,53 +490,51 @@ export class Inbox extends Component<any, InboxState> {
     i.refetch();
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): WithPromiseKeys<InboxData> {
+    const sort: CommentSortType = "New";
 
-    let sort: CommentSortType = "New";
-    let auth = req.auth;
+    // It can be /u/me, or /username/1
+    const repliesForm: GetReplies = {
+      sort,
+      unread_only: true,
+      page: 1,
+      limit: fetchLimit,
+      auth: auth as string,
+    };
 
-    if (auth) {
-      // It can be /u/me, or /username/1
-      let repliesForm: GetReplies = {
-        sort: "New",
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(req.client.getReplies(repliesForm));
+    const personMentionsForm: GetPersonMentions = {
+      sort,
+      unread_only: true,
+      page: 1,
+      limit: fetchLimit,
+      auth: auth as string,
+    };
 
-      let personMentionsForm: GetPersonMentions = {
-        sort,
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(req.client.getPersonMentions(personMentionsForm));
+    const privateMessagesForm: GetPrivateMessages = {
+      unread_only: true,
+      page: 1,
+      limit: fetchLimit,
+      auth: auth as string,
+    };
 
-      let privateMessagesForm: GetPrivateMessages = {
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(req.client.getPrivateMessages(privateMessagesForm));
-    }
-
-    return promises;
+    return {
+      privateMessagesResponse: client.getPrivateMessages(privateMessagesForm),
+      personMentionsResponse: client.getPersonMentions(personMentionsForm),
+      repliesResponse: client.getReplies(repliesForm),
+    };
   }
 
   refetch() {
-    let sort = this.state.sort;
-    let unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let page = this.state.page;
-    let limit = fetchLimit;
-    let auth = myAuth();
+    const { sort, page, unreadOrAll } = this.state;
+    const unread_only = unreadOrAll === UnreadOrAll.Unread;
+    const limit = fetchLimit;
+    const auth = myAuth();
 
     if (auth) {
-      let repliesForm: GetReplies = {
+      const repliesForm: GetReplies = {
         sort,
         unread_only,
         page,
@@ -536,7 +543,7 @@ export class Inbox extends Component<any, InboxState> {
       };
       WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
 
-      let personMentionsForm: GetPersonMentions = {
+      const personMentionsForm: GetPersonMentions = {
         sort,
         unread_only,
         page,
@@ -547,7 +554,7 @@ export class Inbox extends Component<any, InboxState> {
         wsClient.getPersonMentions(personMentionsForm)
       );
 
-      let privateMessagesForm: GetPrivateMessages = {
+      const privateMessagesForm: GetPrivateMessages = {
         unread_only,
         page,
         limit,

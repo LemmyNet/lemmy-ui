@@ -12,6 +12,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { WebSocketService } from "../../services";
 import {
+  WithPromiseKeys,
   isBrowser,
   relTags,
   setIsoData,
@@ -21,6 +22,10 @@ import {
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 
+interface InstancesData {
+  federatedInstancesResponse: GetFederatedInstancesResponse;
+}
+
 interface InstancesState {
   siteRes: GetSiteResponse;
   instancesRes?: GetFederatedInstancesResponse;
@@ -28,7 +33,7 @@ interface InstancesState {
 }
 
 export class Instances extends Component<any, InstancesState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<InstancesData>(this.context);
   state: InstancesState = {
     siteRes: this.isoData.site_res,
     loading: true,
@@ -45,8 +50,7 @@ export class Instances extends Component<any, InstancesState> {
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state = {
         ...this.state,
-        instancesRes: this.isoData
-          .routeData[0] as GetFederatedInstancesResponse,
+        instancesRes: this.isoData.routeData.federatedInstancesResponse,
         loading: false,
       };
     } else {
@@ -54,12 +58,14 @@ export class Instances extends Component<any, InstancesState> {
     }
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
-
-    promises.push(req.client.getFederatedInstances({}));
-
-    return promises;
+  static fetchInitialData({
+    client,
+  }: InitialFetchRequest): WithPromiseKeys<InstancesData> {
+    return {
+      federatedInstancesResponse: client.getFederatedInstances(
+        {}
+      ) as Promise<GetFederatedInstancesResponse>,
+    };
   }
 
   get documentTitle(): string {

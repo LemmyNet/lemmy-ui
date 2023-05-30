@@ -2,7 +2,6 @@ import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
-  GetBannedPersons,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   PersonView,
@@ -16,6 +15,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { WebSocketService } from "../../services";
 import {
+  WithPromiseKeys,
   capitalizeFirstLetter,
   isBrowser,
   myAuth,
@@ -35,6 +35,11 @@ import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 
+interface AdminSettingsData {
+  bannedPersonsResponse: BannedPersonsResponse;
+  federatedInstancesResponse: GetFederatedInstancesResponse;
+}
+
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
   instancesRes?: GetFederatedInstancesResponse;
@@ -45,7 +50,7 @@ interface AdminSettingsState {
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
   private siteConfigTextAreaId = `site-config-${randomStr()}`;
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<AdminSettingsData>(this.context);
   private subscription?: Subscription;
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
@@ -62,11 +67,13 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
+      const { bannedPersonsResponse, federatedInstancesResponse } =
+        this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        banned: (this.isoData.routeData[0] as BannedPersonsResponse).banned,
-        instancesRes: this.isoData
-          .routeData[1] as GetFederatedInstancesResponse,
+        banned: bannedPersonsResponse.banned,
+        instancesRes: federatedInstancesResponse,
         loading: false,
       };
     } else {
@@ -84,17 +91,16 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     }
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
-
-    let auth = req.auth;
-    if (auth) {
-      let bannedPersonsForm: GetBannedPersons = { auth };
-      promises.push(req.client.getBannedPersons(bannedPersonsForm));
-      promises.push(req.client.getFederatedInstances({ auth }));
-    }
-
-    return promises;
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): WithPromiseKeys<AdminSettingsData> {
+    return {
+      bannedPersonsResponse: client.getBannedPersons({ auth: auth as string }),
+      federatedInstancesResponse: client.getFederatedInstances({
+        auth: auth as string,
+      }) as Promise<GetFederatedInstancesResponse>,
+    };
   }
 
   componentDidMount() {

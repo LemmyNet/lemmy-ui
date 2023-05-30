@@ -12,6 +12,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { WebSocketService } from "../../services";
 import {
+  WithPromiseKeys,
   getRecipientIdFromProps,
   isBrowser,
   myAuth,
@@ -24,6 +25,10 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
 
+interface CreatePrivateMessageData {
+  recipientDetailsResponse: GetPersonDetailsResponse;
+}
+
 interface CreatePrivateMessageState {
   siteRes: GetSiteResponse;
   recipientDetailsRes?: GetPersonDetailsResponse;
@@ -35,7 +40,7 @@ export class CreatePrivateMessage extends Component<
   any,
   CreatePrivateMessageState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<CreatePrivateMessageData>(this.context);
   private subscription?: Subscription;
   state: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
@@ -52,11 +57,10 @@ export class CreatePrivateMessage extends Component<
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (this.isoData.path === this.context.router.route.match.url) {
       this.state = {
         ...this.state,
-        recipientDetailsRes: this.isoData
-          .routeData[0] as GetPersonDetailsResponse,
+        recipientDetailsRes: this.isoData.routeData.recipientDetailsResponse,
         loading: false,
       };
     } else {
@@ -74,15 +78,21 @@ export class CreatePrivateMessage extends Component<
     WebSocketService.Instance.send(wsClient.getPersonDetails(form));
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let person_id = Number(req.path.split("/").pop());
-    let form: GetPersonDetails = {
+  static fetchInitialData(
+    req: InitialFetchRequest
+  ): WithPromiseKeys<CreatePrivateMessageData> {
+    const person_id = Number(req.path.split("/").pop());
+
+    const form: GetPersonDetails = {
       person_id,
       sort: "New",
       saved_only: false,
       auth: req.auth,
     };
-    return [req.client.getPersonDetails(form)];
+
+    return {
+      recipientDetailsResponse: req.client.getPersonDetails(form),
+    };
   }
 
   get documentTitle(): string {
