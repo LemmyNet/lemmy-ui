@@ -87,22 +87,6 @@ interface CommentNodeState {
   showAdvanced: boolean;
   showReportDialog: boolean;
   reportReason?: string;
-  createOrEditCommentLoading: boolean;
-  upvoteLoading: boolean;
-  downvoteLoading: boolean;
-  saveLoading: boolean;
-  readLoading: boolean;
-  blockPersonLoading: boolean;
-  deleteLoading: boolean;
-  removeLoading: boolean;
-  distinguishLoading: boolean;
-  banLoading: boolean;
-  addModLoading: boolean;
-  addAdminLoading: boolean;
-  transferCommunityLoading: boolean;
-  fetchChildrenLoading: boolean;
-  reportLoading: boolean;
-  purgeLoading: boolean;
 }
 
 interface CommentNodeProps {
@@ -140,8 +124,26 @@ interface CommentNodeProps {
   onCommentReport(form: CreateCommentReport): void;
   onPurgePerson(form: PurgePerson): void;
   onPurgeComment(form: PurgeComment): void;
+  createOrEditCommentLoading: boolean;
+  upvoteLoading: boolean;
+  downvoteLoading: boolean;
+  saveLoading: boolean;
+  readLoading: boolean;
+  blockPersonLoading: boolean;
+  deleteLoading: boolean;
+  removeLoading: boolean;
+  distinguishLoading: boolean;
+  banLoading: boolean;
+  addModLoading: boolean;
+  addAdminLoading: boolean;
+  transferCommunityLoading: boolean;
+  fetchChildrenLoading: boolean;
+  reportLoading: boolean;
+  purgeLoading: boolean;
 }
 
+// TODO create a *view only* version of this.
+// That will help keep the props slimmed down, while still requiring them to be required in the non-view-only version
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   state: CommentNodeState = {
     showReply: false,
@@ -160,22 +162,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showConfirmAppointAsMod: false,
     showConfirmAppointAsAdmin: false,
     showReportDialog: false,
-    createOrEditCommentLoading: false,
-    upvoteLoading: false,
-    downvoteLoading: false,
-    saveLoading: false,
-    readLoading: false,
-    blockPersonLoading: false,
-    deleteLoading: false,
-    removeLoading: false,
-    distinguishLoading: false,
-    banLoading: false,
-    addModLoading: false,
-    addAdminLoading: false,
-    transferCommunityLoading: false,
-    fetchChildrenLoading: false,
-    reportLoading: false,
-    purgeLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -331,7 +317,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     onClick={linkEvent(this, this.handleUpvote)}
                     data-tippy-content={this.pointsTippy}
                   >
-                    {this.state.upvoteLoading ? (
+                    {this.props.upvoteLoading ? (
                       <Spinner />
                     ) : (
                       <span
@@ -369,6 +355,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 siteLanguages={this.props.siteLanguages}
                 onCreateComment={this.props.onCreateComment}
                 onEditComment={this.props.onEditComment}
+                loading={this.props.createOrEditCommentLoading}
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
@@ -402,7 +389,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           : i18n.t("mark_as_read")
                       }
                     >
-                      {this.state.readLoading ? (
+                      {this.props.readLoading ? (
                         <Spinner />
                       ) : (
                         <Icon
@@ -426,7 +413,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         data-tippy-content={i18n.t("upvote")}
                         aria-label={i18n.t("upvote")}
                       >
-                        {this.state.upvoteLoading ? (
+                        {this.props.upvoteLoading ? (
                           <Spinner />
                         ) : (
                           <>
@@ -452,7 +439,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           data-tippy-content={i18n.t("downvote")}
                           aria-label={i18n.t("downvote")}
                         >
-                          {this.state.downvoteLoading ? (
+                          {this.props.downvoteLoading ? (
                             <Spinner />
                           ) : (
                             <>
@@ -520,7 +507,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 data-tippy-content={i18n.t("block_user")}
                                 aria-label={i18n.t("block_user")}
                               >
-                                {this.state.blockPersonLoading ? (
+                                {this.props.blockPersonLoading ? (
                                   <Spinner />
                                 ) : (
                                   <Icon icon="slash" />
@@ -538,7 +525,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               cv.saved ? i18n.t("unsave") : i18n.t("save")
                             }
                           >
-                            {this.state.saveLoading ? (
+                            {this.props.saveLoading ? (
                               <Spinner />
                             ) : (
                               <Icon
@@ -589,7 +576,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     : i18n.t("restore")
                                 }
                               >
-                                {this.state.deleteLoading ? (
+                                {this.props.deleteLoading ? (
                                   <Spinner />
                                 ) : (
                                   <Icon
@@ -652,7 +639,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   )}
                                   aria-label={i18n.t("restore")}
                                 >
-                                  {this.state.removeLoading ? (
+                                  {this.props.removeLoading ? (
                                     <Spinner />
                                   ) : (
                                     i18n.t("restore")
@@ -685,7 +672,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     )}
                                     aria-label={i18n.t("unban")}
                                   >
-                                    {this.state.banLoading ? (
+                                    {this.props.banLoading ? (
                                       <Spinner />
                                     ) : (
                                       i18n.t("unban")
@@ -726,7 +713,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       )}
                                       aria-label={i18n.t("yes")}
                                     >
-                                      {this.state.addModLoading ? (
+                                      {this.props.addModLoading ? (
                                         <Spinner />
                                       ) : (
                                         i18n.t("yes")
@@ -777,7 +764,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   )}
                                   aria-label={i18n.t("yes")}
                                 >
-                                  {this.state.transferCommunityLoading ? (
+                                  {this.props.transferCommunityLoading ? (
                                     <Spinner />
                                   ) : (
                                     i18n.t("yes")
@@ -842,7 +829,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       )}
                                       aria-label={i18n.t("unban_from_site")}
                                     >
-                                      {this.state.banLoading ? (
+                                      {this.props.banLoading ? (
                                         <Spinner />
                                       ) : (
                                         i18n.t("unban_from_site")
@@ -883,7 +870,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       )}
                                       aria-label={i18n.t("yes")}
                                     >
-                                      {this.state.addAdminLoading ? (
+                                      {this.props.addAdminLoading ? (
                                         <Spinner />
                                       ) : (
                                         i18n.t("yes")
@@ -924,7 +911,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               className="btn btn-link text-muted"
               onClick={linkEvent(this, this.handleFetchChildren)}
             >
-              {this.state.fetchChildrenLoading ? (
+              {this.props.fetchChildrenLoading ? (
                 <Spinner />
               ) : (
                 <>
@@ -1059,7 +1046,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 className="btn btn-secondary"
                 aria-label={i18n.t("ban")}
               >
-                {this.state.banLoading ? (
+                {this.props.banLoading ? (
                   <Spinner />
                 ) : (
                   <span>
@@ -1086,7 +1073,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               onInput={linkEvent(this, this.handlePurgeReasonChange)}
             />
             <div className="form-group row col-12">
-              {this.state.purgeLoading ? (
+              {this.props.purgeLoading ? (
                 <Spinner />
               ) : (
                 <button
@@ -1110,6 +1097,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             siteLanguages={this.props.siteLanguages}
             onCreateComment={this.props.onCreateComment}
             onEditComment={this.props.onEditComment}
+            loading={this.props.createOrEditCommentLoading}
           />
         )}
         {!this.state.collapsed && node.children.length > 0 && (
@@ -1142,6 +1130,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onCommentReport={this.props.onCommentReport}
             onPurgePerson={this.props.onPurgePerson}
             onPurgeComment={this.props.onPurgeComment}
+            createOrEditCommentLoading={this.props.createOrEditCommentLoading}
+            upvoteLoading={this.props.upvoteLoading}
+            downvoteLoading={this.props.downvoteLoading}
+            saveLoading={this.props.saveLoading}
+            readLoading={this.props.readLoading}
+            blockPersonLoading={this.props.blockPersonLoading}
+            deleteLoading={this.props.deleteLoading}
+            removeLoading={this.props.removeLoading}
+            distinguishLoading={this.props.distinguishLoading}
+            banLoading={this.props.banLoading}
+            addModLoading={this.props.addModLoading}
+            addAdminLoading={this.props.addAdminLoading}
+            transferCommunityLoading={this.props.transferCommunityLoading}
+            fetchChildrenLoading={this.props.fetchChildrenLoading}
+            reportLoading={this.props.reportLoading}
+            purgeLoading={this.props.purgeLoading}
           />
         )}
         {/* A collapsed clearfix */}
@@ -1387,8 +1391,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleSaveComment(i: CommentNode) {
-    i.setState({ saveLoading: true });
-
     i.props.onSaveComment({
       comment_id: i.commentView.comment.id,
       save: !i.commentView.saved,
@@ -1397,7 +1399,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleUpvote(i: CommentNode) {
-    i.setState({ upvoteLoading: true });
     i.props.onCommentVote({
       comment_id: i.commentId,
       score: newVote(VoteType.Upvote, i.commentView.my_vote),
@@ -1406,7 +1407,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleDownvote(i: CommentNode) {
-    i.setState({ downvoteLoading: true });
     i.props.onCommentVote({
       comment_id: i.commentId,
       score: newVote(VoteType.Downvote, i.commentView.my_vote),
@@ -1415,7 +1415,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleBlockPerson(i: CommentNode) {
-    i.setState({ blockPersonLoading: true });
     i.props.onBlockPerson({
       person_id: i.commentView.creator.id,
       block: true,
@@ -1424,7 +1423,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleMarkAsRead(i: CommentNode) {
-    i.setState({ readLoading: true });
     const cv = i.commentView;
     if (i.isPersonMentionType(cv)) {
       i.props.onPersonMentionRead({
@@ -1442,7 +1440,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleDeleteComment(i: CommentNode) {
-    i.setState({ deleteLoading: true });
     i.props.onDeleteComment({
       comment_id: i.commentId,
       deleted: !i.commentView.comment.deleted,
@@ -1451,7 +1448,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleRemoveComment(i: CommentNode) {
-    i.setState({ removeLoading: true });
     i.props.onRemoveComment({
       comment_id: i.commentId,
       removed: !i.commentView.comment.removed,
@@ -1460,7 +1456,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleDistinguishComment(i: CommentNode) {
-    i.setState({ distinguishLoading: true });
     i.props.onDistinguishComment({
       comment_id: i.commentId,
       distinguished: !i.commentView.comment.distinguished,
@@ -1469,7 +1464,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleBanPersonFromCommunity(i: CommentNode) {
-    i.setState({ banLoading: true });
     i.props.onBanPersonFromCommunity({
       community_id: i.commentView.community.id,
       person_id: i.commentView.creator.id,
@@ -1482,7 +1476,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleBanPerson(i: CommentNode) {
-    i.setState({ banLoading: true });
     i.props.onBanPerson({
       person_id: i.commentView.creator.id,
       ban: !i.commentView.creator_banned_from_community,
@@ -1502,8 +1495,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleAddModToCommunity(i: CommentNode) {
-    i.setState({ addModLoading: true });
-
     const added = !isMod(i.commentView.comment.creator_id, i.props.moderators);
     i.props.onAddModToCommunity({
       community_id: i.commentView.community.id,
@@ -1514,8 +1505,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleAddAdmin(i: CommentNode) {
-    i.setState({ addAdminLoading: true });
-
     const added = !isAdmin(i.commentView.comment.creator_id, i.props.admins);
     i.props.onAddAdmin({
       person_id: i.commentView.creator.id,
@@ -1525,7 +1514,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleTransferCommunity(i: CommentNode) {
-    i.setState({ transferCommunityLoading: true });
     i.props.onTransferCommunity({
       community_id: i.commentView.community.id,
       person_id: i.commentView.creator.id,
@@ -1534,7 +1522,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleReportComment(i: CommentNode) {
-    i.setState({ reportLoading: true });
     i.props.onCommentReport({
       comment_id: i.commentId,
       reason: i.state.reportReason ?? "",
@@ -1543,8 +1530,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handlePurgeBothSubmit(i: CommentNode) {
-    i.setState({ purgeLoading: true });
-
     if (i.state.purgeType == PurgeType.Person) {
       i.props.onPurgePerson({
         person_id: i.commentView.creator.id,
@@ -1561,7 +1546,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleFetchChildren(i: CommentNode) {
-    i.setState({ fetchChildrenLoading: true });
     i.props.onFetchChildren?.({
       parent_id: i.commentId,
       max_depth: commentTreeMaxDepth,

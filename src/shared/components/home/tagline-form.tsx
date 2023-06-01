@@ -18,6 +18,7 @@ interface TaglineFormState {
   editingRow?: number;
 }
 
+// TODO go over this file, lots of issues with it
 export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
     loading: false,
@@ -59,7 +60,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                   <td>
                     {this.state.editingRow == index && (
                       <MarkdownTextArea
-                        initialContent={cv}
+                        content={cv}
                         onContentChange={s =>
                           this.handleTaglineChange(this, index, s)
                         }

@@ -89,7 +89,7 @@ export class RegistrationApplication extends Component<
             </label>
             <div className="col-sm-10">
               <MarkdownTextArea
-                initialContent={this.state.denyReason}
+                content={this.state.denyReason}
                 onContentChange={this.handleDenyReasonChange}
                 hideNavigationWarnings
                 allLanguages={[]}

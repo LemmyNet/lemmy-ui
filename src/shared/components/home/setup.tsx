@@ -183,7 +183,7 @@ export class Setup extends Component<any, State> {
         answer: cForm.answer,
       };
       i.setState({
-        registerRes: apiWrapper(await HttpService.client.register(form)),
+        registerRes: await apiWrapper(HttpService.client.register(form)),
       });
 
       if (this.state.registerRes.state == "success") {
@@ -198,7 +198,7 @@ export class Setup extends Component<any, State> {
   }
 
   async handleCreateSite(form: CreateSite) {
-    const createRes = apiWrapper(await HttpService.client.createSite(form));
+    const createRes = await apiWrapper(HttpService.client.createSite(form));
     if (createRes.state == "success") {
       window.location.href = "/";
     }

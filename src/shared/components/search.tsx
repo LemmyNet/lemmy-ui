@@ -22,7 +22,12 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
-import { HttpService, RequestState, apiWrapper } from "../services/HttpService";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+  apiWrapperIso,
+} from "../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -267,20 +272,20 @@ export class Search extends Component<any, SearchState> {
       if (communitiesRes) {
         this.state = {
           ...this.state,
-          communitiesRes: apiWrapper(communitiesRes),
+          communitiesRes: apiWrapperIso(communitiesRes),
         };
       }
       if (communityRes) {
         this.state = {
           ...this.state,
-          communityRes: apiWrapper(communityRes),
+          communityRes: apiWrapperIso(communityRes),
           communitySearchOptions: [
             communityToChoice(communityRes.community_view),
           ],
         };
       }
 
-      const creatorRes = apiWrapper(
+      const creatorRes = apiWrapperIso(
         this.isoData.routeData[2] as GetPersonDetailsResponse
       );
 
@@ -296,8 +301,8 @@ export class Search extends Component<any, SearchState> {
       if (q !== "") {
         this.state = {
           ...this.state,
-          searchRes: apiWrapper(this.isoData.routeData[3] as SearchResponse),
-          resolveObjectRes: apiWrapper(
+          searchRes: apiWrapperIso(this.isoData.routeData[3] as SearchResponse),
+          resolveObjectRes: apiWrapperIso(
             this.isoData.routeData[4] as ResolveObjectResponse
           ),
         };
@@ -317,8 +322,8 @@ export class Search extends Component<any, SearchState> {
   async fetchCommunities() {
     this.setState({ communitiesRes: { state: "loading" } });
     this.setState({
-      communitiesRes: apiWrapper(
-        await HttpService.client.listCommunities({
+      communitiesRes: await apiWrapper(
+        HttpService.client.listCommunities({
           type_: defaultListingType,
           sort: defaultSortType,
           limit: fetchLimit,
@@ -624,7 +629,8 @@ export class Search extends Component<any, SearchState> {
                   onDeletePost={() => {}}
                   onRemovePost={() => {}}
                   onSavePost={() => {}}
-                  onFeaturePost={() => {}}
+                  onFeaturePostLocal={() => {}}
+                  onFeaturePostCommunity={() => {}}
                   onPurgePerson={() => {}}
                   onPurgePost={() => {}}
                   onBanPersonFromCommunity={() => {}}
@@ -632,6 +638,21 @@ export class Search extends Component<any, SearchState> {
                   onAddModToCommunity={() => {}}
                   onAddAdmin={() => {}}
                   onTransferCommunity={() => {}}
+                  upvoteLoading={false}
+                  downvoteLoading={false}
+                  reportLoading={false}
+                  blockLoading={false}
+                  lockLoading={false}
+                  deleteLoading={false}
+                  removeLoading={false}
+                  saveLoading={false}
+                  featureCommunityLoading={false}
+                  featureLocalLoading={false}
+                  banLoading={false}
+                  addModLoading={false}
+                  addAdminLoading={false}
+                  transferLoading={false}
+                  purgeLoading={false}
                 />
               )}
               {i.type_ === "comments" && (
@@ -670,6 +691,22 @@ export class Search extends Component<any, SearchState> {
                   onBanPerson={() => {}}
                   onCreateComment={() => {}}
                   onEditComment={() => {}}
+                  createOrEditCommentLoading={false}
+                  upvoteLoading={false}
+                  downvoteLoading={false}
+                  saveLoading={false}
+                  readLoading={false}
+                  blockPersonLoading={false}
+                  deleteLoading={false}
+                  removeLoading={false}
+                  distinguishLoading={false}
+                  banLoading={false}
+                  addModLoading={false}
+                  addAdminLoading={false}
+                  transferCommunityLoading={false}
+                  fetchChildrenLoading={false}
+                  reportLoading={false}
+                  purgeLoading={false}
                 />
               )}
               {i.type_ === "communities" && (
@@ -730,6 +767,22 @@ export class Search extends Component<any, SearchState> {
         onBanPerson={() => {}}
         onCreateComment={() => {}}
         onEditComment={() => {}}
+        createOrEditCommentLoading={false}
+        upvoteLoading={false}
+        downvoteLoading={false}
+        saveLoading={false}
+        readLoading={false}
+        blockPersonLoading={false}
+        deleteLoading={false}
+        removeLoading={false}
+        distinguishLoading={false}
+        banLoading={false}
+        addModLoading={false}
+        addAdminLoading={false}
+        transferCommunityLoading={false}
+        fetchChildrenLoading={false}
+        reportLoading={false}
+        purgeLoading={false}
       />
     );
   }
@@ -771,7 +824,8 @@ export class Search extends Component<any, SearchState> {
                 onDeletePost={() => {}}
                 onRemovePost={() => {}}
                 onSavePost={() => {}}
-                onFeaturePost={() => {}}
+                onFeaturePostLocal={() => {}}
+                onFeaturePostCommunity={() => {}}
                 onPurgePerson={() => {}}
                 onPurgePost={() => {}}
                 onBanPersonFromCommunity={() => {}}
@@ -779,6 +833,21 @@ export class Search extends Component<any, SearchState> {
                 onAddModToCommunity={() => {}}
                 onAddAdmin={() => {}}
                 onTransferCommunity={() => {}}
+                upvoteLoading={false}
+                downvoteLoading={false}
+                reportLoading={false}
+                blockLoading={false}
+                lockLoading={false}
+                deleteLoading={false}
+                removeLoading={false}
+                saveLoading={false}
+                featureCommunityLoading={false}
+                featureLocalLoading={false}
+                banLoading={false}
+                addModLoading={false}
+                addAdminLoading={false}
+                transferLoading={false}
+                purgeLoading={false}
               />
             </div>
           </div>
@@ -872,8 +941,8 @@ export class Search extends Component<any, SearchState> {
     if (q && q !== "") {
       this.setState({ searchRes: { state: "loading" } });
       this.setState({
-        searchRes: apiWrapper(
-          await HttpService.client.search({
+        searchRes: await apiWrapper(
+          HttpService.client.search({
             q,
             community_id: communityId ?? undefined,
             creator_id: creatorId ?? undefined,
@@ -892,8 +961,8 @@ export class Search extends Component<any, SearchState> {
       if (auth) {
         this.setState({ resolveObjectRes: { state: "loading" } });
         this.setState({
-          resolveObjectRes: apiWrapper(
-            await HttpService.client.resolveObject({
+          resolveObjectRes: await apiWrapper(
+            HttpService.client.resolveObject({
               q,
               auth,
             })

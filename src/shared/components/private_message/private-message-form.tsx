@@ -101,7 +101,7 @@ export class PrivateMessageForm extends Component<
             </label>
             <div className="col-sm-10">
               <MarkdownTextArea
-                initialContent={this.state.content}
+                content={this.state.content}
                 onContentChange={this.handleContentChange}
                 allLanguages={[]}
                 siteLanguages={[]}

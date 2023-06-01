@@ -65,7 +65,6 @@ interface PostListingState {
   showPurgeDialog: boolean;
   purgeReason?: string;
   purgeType?: PurgeType;
-  purgeLoading: boolean;
   removeReason?: string;
   showBanDialog: boolean;
   banReason?: string;
@@ -81,20 +80,6 @@ interface PostListingState {
   showBody: boolean;
   showReportDialog: boolean;
   reportReason?: string;
-  upvoteLoading: boolean;
-  downvoteLoading: boolean;
-  reportLoading: boolean;
-  blockLoading: boolean;
-  lockLoading: boolean;
-  deleteLoading: boolean;
-  removeLoading: boolean;
-  saveLoading: boolean;
-  featureCommunityLoading: boolean;
-  featureLocalLoading: boolean;
-  banLoading: boolean;
-  addModLoading: boolean;
-  addAdminLoading: boolean;
-  transferLoading: boolean;
 }
 
 interface PostListingProps {
@@ -117,7 +102,8 @@ interface PostListingProps {
   onDeletePost(form: DeletePost): void;
   onRemovePost(form: RemovePost): void;
   onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
+  onFeaturePostCommunity(form: FeaturePost): void;
+  onFeaturePostLocal(form: FeaturePost): void;
   onPurgePerson(form: PurgePerson): void;
   onPurgePost(form: PurgePost): void;
   onBanPersonFromCommunity(form: BanFromCommunity): void;
@@ -125,8 +111,25 @@ interface PostListingProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  upvoteLoading: boolean;
+  downvoteLoading: boolean;
+  reportLoading: boolean;
+  blockLoading: boolean;
+  lockLoading: boolean;
+  deleteLoading: boolean;
+  removeLoading: boolean;
+  saveLoading: boolean;
+  featureCommunityLoading: boolean;
+  featureLocalLoading: boolean;
+  banLoading: boolean;
+  addModLoading: boolean;
+  addAdminLoading: boolean;
+  transferLoading: boolean;
+  purgeLoading: boolean;
 }
 
+// TODO create a *view only* version of this.
+// That will help keep the props slimmed down, while still requiring them to be required in the non-view-only version
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
@@ -144,21 +147,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showMoreMobile: false,
     showBody: false,
     showReportDialog: false,
-    upvoteLoading: false,
-    downvoteLoading: false,
-    purgeLoading: false,
-    reportLoading: false,
-    blockLoading: false,
-    lockLoading: false,
-    deleteLoading: false,
-    removeLoading: false,
-    saveLoading: false,
-    featureCommunityLoading: false,
-    featureLocalLoading: false,
-    banLoading: false,
-    addModLoading: false,
-    addAdminLoading: false,
-    transferLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -168,11 +156,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleEditCancel = this.handleEditCancel.bind(this);
   }
 
+  // TODO this necessary?
   componentWillReceiveProps(nextProps: PostListingProps) {
-    this.setState({
-      upvoteLoading: false,
-      downvoteLoading: false,
-    });
     if (this.postView.post.id !== nextProps.post_view.post.id) {
       this.setState({ imageExpanded: false });
     }
@@ -441,7 +426,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           data-tippy-content={i18n.t("upvote")}
           aria-label={i18n.t("upvote")}
         >
-          {this.state.upvoteLoading ? (
+          {this.props.upvoteLoading ? (
             <Spinner />
           ) : (
             <Icon icon="arrow-up1" classes="upvote" />
@@ -466,7 +451,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             data-tippy-content={i18n.t("downvote")}
             aria-label={i18n.t("downvote")}
           >
-            {this.state.downvoteLoading ? (
+            {this.props.downvoteLoading ? (
               <Spinner />
             ) : (
               <Icon icon="arrow-down1" classes="downvote" />
@@ -736,7 +721,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onClick={linkEvent(this, this.handleUpvote)}
             aria-label={i18n.t("upvote")}
           >
-            {this.state.upvoteLoading ? (
+            {this.props.upvoteLoading ? (
               <Spinner />
             ) : (
               <>
@@ -758,7 +743,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {...tippy}
               aria-label={i18n.t("downvote")}
             >
-              {this.state.downvoteLoading ? (
+              {this.props.downvoteLoading ? (
                 <Spinner />
               ) : (
                 <>
@@ -791,7 +776,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         data-tippy-content={label}
         aria-label={label}
       >
-        {this.state.saveLoading ? (
+        {this.props.saveLoading ? (
           <Spinner />
         ) : (
           <Icon
@@ -844,7 +829,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         data-tippy-content={i18n.t("block_user")}
         aria-label={i18n.t("block_user")}
       >
-        {this.state.blockLoading ? <Spinner /> : <Icon icon="slash" inline />}
+        {this.props.blockLoading ? <Spinner /> : <Icon icon="slash" inline />}
       </button>
     );
   }
@@ -872,7 +857,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         data-tippy-content={label}
         aria-label={label}
       >
-        {this.state.deleteLoading ? (
+        {this.props.deleteLoading ? (
           <Spinner />
         ) : (
           <Icon
@@ -925,7 +910,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         data-tippy-content={label}
         aria-label={label}
       >
-        {this.state.lockLoading ? (
+        {this.props.lockLoading ? (
           <Spinner />
         ) : (
           <Icon
@@ -956,7 +941,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           data-tippy-content={labelCommunity}
           aria-label={labelCommunity}
         >
-          {this.state.featureCommunityLoading ? (
+          {this.props.featureCommunityLoading ? (
             <Spinner />
           ) : (
             <span>
@@ -976,7 +961,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             data-tippy-content={labelLocal}
             aria-label={labelLocal}
           >
-            {this.state.featureLocalLoading ? (
+            {this.props.featureLocalLoading ? (
               <Spinner />
             ) : (
               <span>
@@ -1005,7 +990,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
       >
         {/* TODO: Find an icon for this. */}
-        {this.state.removeLoading ? (
+        {this.props.removeLoading ? (
           <Spinner />
         ) : !removed ? (
           i18n.t("remove")
@@ -1048,7 +1033,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     )}
                     aria-label={i18n.t("unban")}
                   >
-                    {this.state.banLoading ? <Spinner /> : i18n.t("unban")}
+                    {this.props.banLoading ? <Spinner /> : i18n.t("unban")}
                   </button>
                 ))}
               {!post_view.creator_banned_from_community && (
@@ -1061,7 +1046,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       : i18n.t("appoint_as_mod")
                   }
                 >
-                  {this.state.addModLoading ? (
+                  {this.props.addModLoading ? (
                     <Spinner />
                   ) : this.creatorIsMod_ ? (
                     i18n.t("remove_as_mod")
@@ -1100,7 +1085,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   aria-label={i18n.t("yes")}
                   onClick={linkEvent(this, this.handleTransferCommunity)}
                 >
-                  {this.state.transferLoading ? <Spinner /> : i18n.t("yes")}
+                  {this.props.transferLoading ? <Spinner /> : i18n.t("yes")}
                 </button>
                 <button
                   className="btn btn-link btn-animate text-muted py-0 d-inline-block"
@@ -1133,7 +1118,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       onClick={linkEvent(this, this.handleModBanSubmit)}
                       aria-label={i18n.t("unban_from_site")}
                     >
-                      {this.state.banLoading ? (
+                      {this.props.banLoading ? (
                         <Spinner />
                       ) : (
                         i18n.t("unban_from_site")
@@ -1166,7 +1151,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                       : i18n.t("appoint_as_admin")
                   }
                 >
-                  {this.state.addAdminLoading ? (
+                  {this.props.addAdminLoading ? (
                     <Spinner />
                   ) : this.creatorIsAdmin_ ? (
                     i18n.t("remove_as_admin")
@@ -1211,7 +1196,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="btn btn-secondary"
               aria-label={i18n.t("remove_post")}
             >
-              {this.state.removeLoading ? <Spinner /> : i18n.t("remove_post")}
+              {this.props.removeLoading ? <Spinner /> : i18n.t("remove_post")}
             </button>
           </form>
         )}
@@ -1273,7 +1258,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 className="btn btn-secondary"
                 aria-label={i18n.t("ban")}
               >
-                {this.state.banLoading ? (
+                {this.props.banLoading ? (
                   <Spinner />
                 ) : (
                   <span>
@@ -1306,7 +1291,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="btn btn-secondary"
               aria-label={i18n.t("create_report")}
             >
-              {this.state.reportLoading ? <Spinner /> : i18n.t("create_report")}
+              {this.props.reportLoading ? <Spinner /> : i18n.t("create_report")}
             </button>
           </form>
         )}
@@ -1327,7 +1312,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               value={this.state.purgeReason}
               onInput={linkEvent(this, this.handlePurgeReasonChange)}
             />
-            {this.state.purgeLoading ? (
+            {this.props.purgeLoading ? (
               <Spinner />
             ) : (
               <button
@@ -1335,7 +1320,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 className="btn btn-secondary"
                 aria-label={purgeTypeText}
               >
-                {this.state.purgeLoading ? <Spinner /> : { purgeTypeText }}
+                {this.props.purgeLoading ? <Spinner /> : { purgeTypeText }}
               </button>
             )}
           </form>
@@ -1455,7 +1440,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleReportSubmit(i: PostListing) {
-    i.setState({ reportLoading: true });
     i.props.onPostReport({
       post_id: i.postView.post.id,
       reason: i.state.reportReason ?? "",
@@ -1464,7 +1448,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleBlockPersonClick(i: PostListing) {
-    i.setState({ blockLoading: true });
     i.props.onBlockPerson({
       person_id: i.postView.creator.id,
       block: true,
@@ -1473,7 +1456,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleDeleteClick(i: PostListing) {
-    i.setState({ deleteLoading: true });
     i.props.onDeletePost({
       post_id: i.postView.post.id,
       deleted: !i.postView.post.deleted,
@@ -1482,7 +1464,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleSavePostClick(i: PostListing) {
-    i.setState({ saveLoading: true });
     i.props.onSavePost({
       post_id: i.postView.post.id,
       save: !i.postView.saved,
@@ -1540,7 +1521,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModRemoveSubmit(i: PostListing) {
-    i.setState({ removeLoading: true });
     i.props.onRemovePost({
       post_id: i.postView.post.id,
       removed: !i.postView.post.removed,
@@ -1549,7 +1529,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModLock(i: PostListing) {
-    i.setState({ lockLoading: true });
     i.props.onLockPost({
       post_id: i.postView.post.id,
       locked: !i.postView.post.locked,
@@ -1558,8 +1537,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModFeaturePostLocal(i: PostListing) {
-    i.setState({ featureLocalLoading: true });
-    i.props.onFeaturePost({
+    i.props.onFeaturePostLocal({
       post_id: i.postView.post.id,
       featured: !i.postView.post.featured_local,
       feature_type: "Local",
@@ -1568,8 +1546,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModFeaturePostCommunity(i: PostListing) {
-    i.setState({ featureCommunityLoading: true });
-    i.props.onFeaturePost({
+    i.props.onFeaturePostCommunity({
       post_id: i.postView.post.id,
       featured: !i.postView.post.featured_community,
       feature_type: "Community",
@@ -1614,7 +1591,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handlePurgeSubmit(i: PostListing) {
-    i.setState({ purgeLoading: true });
     if (i.state.purgeType == PurgeType.Person) {
       i.props.onPurgePerson({
         person_id: i.postView.creator.id,
@@ -1649,8 +1625,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModBanBothSubmit(i: PostListing) {
-    i.setState({ banLoading: true });
-
     let ban = !i.props.post_view.creator_banned_from_community;
     // If its an unban, restore all their data
     if (ban == false) {
@@ -1685,7 +1659,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleAddModToCommunity(i: PostListing) {
-    i.setState({ addModLoading: true });
     i.props.onAddModToCommunity({
       community_id: i.postView.community.id,
       person_id: i.postView.creator.id,
@@ -1695,7 +1668,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleAddAdmin(i: PostListing) {
-    i.setState({ addAdminLoading: true });
     i.props.onAddAdmin({
       person_id: i.postView.creator.id,
       added: !i.creatorIsAdmin_,
@@ -1712,7 +1684,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleTransferCommunity(i: PostListing) {
-    i.setState({ transferLoading: true });
     i.props.onTransferCommunity({
       community_id: i.postView.community.id,
       person_id: i.postView.creator.id,
@@ -1757,7 +1728,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleUpvote(i: PostListing) {
-    i.setState({ upvoteLoading: true });
     i.props.onPostVote({
       post_id: i.postView.post.id,
       score: newVote(VoteType.Upvote, i.props.post_view.my_vote),
@@ -1766,7 +1736,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleDownvote(i: PostListing) {
-    i.setState({ downvoteLoading: true });
     i.props.onPostVote({
       post_id: i.postView.post.id,
       score: newVote(VoteType.Downvote, i.props.post_view.my_vote),

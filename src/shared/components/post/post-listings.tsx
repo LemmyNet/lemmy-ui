@@ -39,7 +39,8 @@ interface PostListingsProps {
   onDeletePost(form: DeletePost): void;
   onRemovePost(form: RemovePost): void;
   onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
+  onFeaturePostLocal(form: FeaturePost): void;
+  onFeaturePostCommunity(form: FeaturePost): void;
   onPurgePerson(form: PurgePerson): void;
   onPurgePost(form: PurgePost): void;
   onBanPersonFromCommunity(form: BanFromCommunity): void;
@@ -47,6 +48,21 @@ interface PostListingsProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  upvoteLoading: boolean;
+  downvoteLoading: boolean;
+  reportLoading: boolean;
+  blockLoading: boolean;
+  lockLoading: boolean;
+  deleteLoading: boolean;
+  removeLoading: boolean;
+  saveLoading: boolean;
+  featureCommunityLoading: boolean;
+  featureLocalLoading: boolean;
+  banLoading: boolean;
+  addModLoading: boolean;
+  addAdminLoading: boolean;
+  transferLoading: boolean;
+  purgeLoading: boolean;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -84,7 +100,8 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onDeletePost={this.props.onDeletePost}
                 onRemovePost={this.props.onRemovePost}
                 onSavePost={this.props.onSavePost}
-                onFeaturePost={this.props.onFeaturePost}
+                onFeaturePostLocal={this.props.onFeaturePostLocal}
+                onFeaturePostCommunity={this.props.onFeaturePostCommunity}
                 onPurgePerson={this.props.onPurgePerson}
                 onPurgePost={this.props.onPurgePost}
                 onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
@@ -92,6 +109,21 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onAddModToCommunity={this.props.onAddModToCommunity}
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
+                upvoteLoading={this.props.upvoteLoading}
+                downvoteLoading={this.props.downvoteLoading}
+                reportLoading={this.props.reportLoading}
+                blockLoading={this.props.blockLoading}
+                lockLoading={this.props.lockLoading}
+                deleteLoading={this.props.deleteLoading}
+                removeLoading={this.props.removeLoading}
+                saveLoading={this.props.saveLoading}
+                featureCommunityLoading={this.props.featureCommunityLoading}
+                featureLocalLoading={this.props.featureLocalLoading}
+                banLoading={this.props.banLoading}
+                addModLoading={this.props.addModLoading}
+                addAdminLoading={this.props.addAdminLoading}
+                transferLoading={this.props.transferLoading}
+                purgeLoading={this.props.purgeLoading}
               />
               <hr className="my-3" />
             </>

@@ -2,7 +2,7 @@ import autosize from "autosize";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { Language } from "lemmy-js-client";
+import { Language, LanguageId } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
@@ -28,8 +28,8 @@ import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
-  initialContent?: string;
-  initialLanguageId?: number;
+  content?: string;
+  languageId?: number;
   placeholder?: string;
   buttonTitle?: string;
   maxLength?: number;
@@ -39,10 +39,12 @@ interface MarkdownTextAreaProps {
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
+  onLanguageChange?(val: LanguageId): void;
   onReplyCancel?(): void;
-  onSubmit?(content: string, formId: string, languageId?: number): void;
+  onSubmit?(content: string, formId: string, languageId?: LanguageId): void;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
+  loading?: boolean;
 }
 
 interface ImageUploadStatus {
@@ -51,11 +53,8 @@ interface ImageUploadStatus {
 }
 
 interface MarkdownTextAreaState {
-  content?: string;
-  languageId?: number;
   previewMode: boolean;
   imageUploadStatus?: ImageUploadStatus;
-  loading: boolean;
 }
 
 export class MarkdownTextArea extends Component<
@@ -67,10 +66,7 @@ export class MarkdownTextArea extends Component<
   private tribute: any;
 
   state: MarkdownTextAreaState = {
-    content: this.props.initialContent,
-    languageId: this.props.initialLanguageId,
     previewMode: false,
-    loading: false,
   };
 
   constructor(props: any, context: any) {
@@ -89,54 +85,45 @@ export class MarkdownTextArea extends Component<
       autosize(textarea);
       this.tribute.attach(textarea);
       textarea.addEventListener("tribute-replaced", () => {
-        this.setState({ content: textarea.value });
         autosize.update(textarea);
       });
-
-      this.quoteInsert();
-
+      //   this.quoteInsert();
       if (this.props.focus) {
         textarea.focus();
       }
-
-      // TODO this is slow for some reason
+      //   // TODO this is slow for some reason
       setupTippy();
     }
   }
 
-  componentDidUpdate() {
-    if (!this.props.hideNavigationWarnings && this.state.content) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-  }
+  // componentDidUpdate() {
+  //   if (!this.props.hideNavigationWarnings && this.state.content) {
+  //     window.onbeforeunload = () => true;
+  //   } else {
+  //     window.onbeforeunload = null;
+  //   }
+  // }
 
-  componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
-    if (nextProps != this.props) {
-      this.setState({ previewMode: false, content: undefined });
-      if (this.props.replyType) {
-        this.props.onReplyCancel?.();
-      }
-
-      const textarea: any = document.getElementById(this.id);
-      const form: any = document.getElementById(this.formId);
-      form.reset();
-      setTimeout(() => autosize.update(textarea), 10);
-    }
-  }
-
-  componentWillUnmount() {
-    window.onbeforeunload = null;
-  }
+  // componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
+  // if (nextProps != this.props) {
+  //   this.setState({ previewMode: false });
+  //   if (this.props.replyType) {
+  //     this.props.onReplyCancel?.();
+  //   }
+  //   const textarea: any = document.getElementById(this.id);
+  //   const form: any = document.getElementById(this.formId);
+  //   form.reset();
+  //   setTimeout(() => autosize.update(textarea), 10);
+  // }
+  // }
 
   render() {
-    let languageId = this.state.languageId;
+    let languageId = this.props.languageId;
 
     return (
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
         <Prompt
-          when={!this.props.hideNavigationWarnings && this.state.content}
+          when={!this.props.hideNavigationWarnings && this.props.content}
           message={i18n.t("block_leaving")}
         />
         <div className="form-group row">
@@ -144,7 +131,7 @@ export class MarkdownTextArea extends Component<
             <textarea
               id={this.id}
               className={`form-control ${this.state.previewMode && "d-none"}`}
-              value={this.state.content}
+              value={this.props.content}
               onInput={linkEvent(this, this.handleContentChange)}
               onPaste={linkEvent(this, this.handleImageUploadPaste)}
               required
@@ -153,10 +140,10 @@ export class MarkdownTextArea extends Component<
               maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
               placeholder={this.props.placeholder}
             />
-            {this.state.previewMode && this.state.content && (
+            {this.state.previewMode && this.props.content && (
               <div
                 className="card border-secondary card-body md-div"
-                dangerouslySetInnerHTML={mdToHtml(this.state.content)}
+                dangerouslySetInnerHTML={mdToHtml(this.props.content)}
               />
             )}
             {this.state.imageUploadStatus &&
@@ -186,7 +173,7 @@ export class MarkdownTextArea extends Component<
                 className="btn btn-sm btn-secondary mr-2"
                 disabled={this.isDisabled}
               >
-                {this.state.loading ? (
+                {this.props.loading ? (
                   <Spinner />
                 ) : (
                   <span>{this.props.buttonTitle}</span>
@@ -202,7 +189,7 @@ export class MarkdownTextArea extends Component<
                 {i18n.t("cancel")}
               </button>
             )}
-            {this.state.content && (
+            {this.props.content && (
               <button
                 className={`btn btn-sm btn-secondary mr-2 ${
                   this.state.previewMode && "active"
@@ -325,10 +312,7 @@ export class MarkdownTextArea extends Component<
         value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;
       }
     }
-    i.setState({
-      content: `${i.state.content ?? ""} ${value} `,
-    });
-    i.contentChange();
+    i.props.onContentChange?.(`${i.props.content ?? ""} ${value} `);
     let textarea: any = document.getElementById(i.id);
     autosize.update(textarea);
   }
@@ -398,10 +382,10 @@ export class MarkdownTextArea extends Component<
       console.log(res);
       if (res.msg === "ok") {
         const imageMarkdown = `![](${res.url})`;
-        i.setState(({ content }) => ({
-          content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
-        }));
-        i.contentChange();
+        const content = i.props.content;
+        i.props.onContentChange?.(
+          content ? `${content}\n${imageMarkdown}` : imageMarkdown
+        );
         const textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
         pictrsDeleteToast(file.name, res.delete_url as string);
@@ -417,15 +401,16 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  contentChange() {
-    // Coerces the undefineds to empty strings, for replacing in the DB
-    let content = this.state.content ?? "";
-    this.props.onContentChange?.(content);
-  }
+  // contentChange() {
+  //   // Coerces the undefineds to empty strings, for replacing in the DB
+  //   let content = this.state.content ?? "";
+  //   this.props.onContentChange?.(content);
+  // }
 
   handleContentChange(i: MarkdownTextArea, event: any) {
-    i.setState({ content: event.target.value });
-    i.contentChange();
+    i.props.onContentChange?.(event.target.value);
+    // i.setState({ content: event.target.value });
+    // i.contentChange();
   }
 
   handlePreviewToggle(i: MarkdownTextArea, event: any) {
@@ -434,13 +419,13 @@ export class MarkdownTextArea extends Component<
   }
 
   handleLanguageChange(val: number[]) {
-    this.setState({ languageId: val[0] });
+    this.props.onLanguageChange?.(val[0]);
   }
 
-  handleSubmit(i: MarkdownTextArea) {
-    if (i.state.content) {
-      i.setState({ loading: true });
-      i.props.onSubmit?.(i.state.content, i.formId, i.state.languageId);
+  handleSubmit(i: MarkdownTextArea, event: any) {
+    event.preventDefault();
+    if (i.props.content) {
+      i.props.onSubmit?.(i.props.content, i.formId, i.props.languageId);
     }
   }
 
@@ -455,28 +440,26 @@ export class MarkdownTextArea extends Component<
     const start: number = textarea.selectionStart;
     const end: number = textarea.selectionEnd;
 
-    const content = i.state.content ?? "";
+    const content = i.props.content ?? "";
 
-    if (!i.state.content) {
-      i.setState({ content: "" });
+    if (!i.props.content) {
+      i.props.onContentChange?.("");
     }
 
     if (start !== end) {
       const selectedText = content?.substring(start, end);
-      i.setState({
-        content: `${content?.substring(
-          0,
-          start
-        )}[${selectedText}]()${content?.substring(end)}`,
-      });
+      i.props.onContentChange?.(
+        `${content?.substring(0, start)}[${selectedText}]()${content?.substring(
+          end
+        )}`
+      );
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd = end + 3), 10);
     } else {
-      i.setState({ content: `${content} []()` });
+      i.props.onContentChange?.(`${content} []()`);
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd -= 1), 10);
     }
-    i.contentChange();
   }
 
   simpleSurround(chars: string) {
@@ -492,9 +475,9 @@ export class MarkdownTextArea extends Component<
     afterChars: string,
     emptyChars = "___"
   ) {
-    const content = this.state.content ?? "";
-    if (!this.state.content) {
-      this.setState({ content: "" });
+    const content = this.props.content;
+    if (!content) {
+      this.props.onContentChange?.("");
     }
     const textarea: any = document.getElementById(this.id);
     const start: number = textarea.selectionStart;
@@ -502,18 +485,17 @@ export class MarkdownTextArea extends Component<
 
     if (start !== end) {
       const selectedText = content?.substring(start, end);
-      this.setState({
-        content: `${content?.substring(
+      this.props.onContentChange?.(
+        `${content?.substring(
           0,
           start
-        )}${beforeChars}${selectedText}${afterChars}${content?.substring(end)}`,
-      });
+        )}${beforeChars}${selectedText}${afterChars}${content?.substring(end)}`
+      );
     } else {
-      this.setState({
-        content: `${content}${beforeChars}${emptyChars}${afterChars}`,
-      });
+      this.props.onContentChange?.(
+        `${content}${beforeChars}${emptyChars}${afterChars}`
+      );
     }
-    this.contentChange();
 
     textarea.focus();
 
@@ -584,13 +566,11 @@ export class MarkdownTextArea extends Component<
   }
 
   simpleInsert(chars: string) {
-    let content = this.state.content;
+    let content = this.props.content;
     if (!content) {
-      this.setState({ content: `${chars} ` });
+      this.props.onContentChange?.(`${chars} `);
     } else {
-      this.setState({
-        content: `${content}\n${chars} `,
-      });
+      this.props.onContentChange?.(`${content}\n${chars} `);
     }
 
     let textarea: any = document.getElementById(this.id);
@@ -598,7 +578,6 @@ export class MarkdownTextArea extends Component<
     setTimeout(() => {
       autosize.update(textarea);
     }, 10);
-    this.contentChange();
   }
 
   handleInsertSpoiler(i: MarkdownTextArea, event: any) {
@@ -611,7 +590,7 @@ export class MarkdownTextArea extends Component<
   quoteInsert() {
     const textarea: any = document.getElementById(this.id);
     const selectedText = window.getSelection()?.toString();
-    const { content } = this.state;
+    const content = this.props.content;
     if (selectedText) {
       const quotedText =
         selectedText
@@ -619,14 +598,11 @@ export class MarkdownTextArea extends Component<
           .map(t => `> ${t}`)
           .join("\n") + "\n\n";
       if (!content) {
-        this.setState({ content: "" });
+        this.props.onContentChange?.("");
       } else {
-        this.setState({ content: `${content}\n` });
+        this.props.onContentChange?.(`${content}\n`);
       }
-      this.setState({
-        content: `${content}${quotedText}`,
-      });
-      this.contentChange();
+      this.props.onContentChange?.(`${content}${quotedText}`);
       // Not sure why this needs a delay
       setTimeout(() => autosize.update(textarea), 10);
     }
@@ -635,12 +611,12 @@ export class MarkdownTextArea extends Component<
   getSelectedText(): string {
     const { selectionStart: start, selectionEnd: end } =
       document.getElementById(this.id) as any;
-    return start !== end ? this.state.content?.substring(start, end) ?? "" : "";
+    return start !== end ? this.props.content?.substring(start, end) ?? "" : "";
   }
 
   get isDisabled() {
     return (
-      this.state.loading ||
+      this.props.loading ||
       this.props.disabled ||
       !!this.state.imageUploadStatus
     );

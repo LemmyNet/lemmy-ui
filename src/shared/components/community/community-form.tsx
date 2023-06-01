@@ -23,6 +23,7 @@ interface CommunityFormProps {
   onCreateCommunity?(form: CreateCommunity): void;
   onEditCommunity?(form: EditCommunity): void;
   enableNsfw?: boolean;
+  loading: boolean;
 }
 
 interface CommunityFormState {
@@ -36,7 +37,6 @@ interface CommunityFormState {
     posting_restricted_to_mods?: boolean;
     discussion_languages?: number[];
   };
-  loading: boolean;
 }
 
 export class CommunityForm extends Component<
@@ -48,14 +48,10 @@ export class CommunityForm extends Component<
 
   state: CommunityFormState = {
     form: {},
-    loading: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleCommunityDescriptionChange =
-      this.handleCommunityDescriptionChange.bind(this);
 
     this.handleIconUpload = this.handleIconUpload.bind(this);
     this.handleIconRemove = this.handleIconRemove.bind(this);
@@ -65,6 +61,8 @@ export class CommunityForm extends Component<
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
+    this.handleCommunityDescriptionChange =
+      this.handleCommunityDescriptionChange.bind(this);
 
     let cv = this.props.community_view;
 
@@ -80,14 +78,14 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
           discussion_languages: this.props.communityLanguages,
         },
-        loading: false,
       };
     }
   }
 
+  // TODO this necessary?
   componentDidUpdate() {
     if (
-      !this.state.loading &&
+      !this.props.loading &&
       (this.state.form.name ||
         this.state.form.title ||
         this.state.form.description)
@@ -108,7 +106,7 @@ export class CommunityForm extends Component<
       <>
         <Prompt
           when={
-            !this.state.loading &&
+            !this.props.loading &&
             (this.state.form.name ||
               this.state.form.title ||
               this.state.form.description)
@@ -200,11 +198,12 @@ export class CommunityForm extends Component<
             </label>
             <div className="col-12 col-sm-10">
               <MarkdownTextArea
-                initialContent={this.state.form.description}
+                content={this.state.form.description}
                 placeholder={i18n.t("description")}
                 onContentChange={this.handleCommunityDescriptionChange}
                 allLanguages={[]}
                 siteLanguages={[]}
+                loading={this.props.loading}
               />
             </div>
           </div>
@@ -259,9 +258,9 @@ export class CommunityForm extends Component<
               <button
                 type="submit"
                 className="btn btn-secondary mr-2"
-                disabled={this.state.loading}
+                disabled={this.props.loading}
               >
-                {this.state.loading ? (
+                {this.props.loading ? (
                   <Spinner />
                 ) : this.props.community_view ? (
                   capitalizeFirstLetter(i18n.t("save"))
@@ -285,8 +284,8 @@ export class CommunityForm extends Component<
     );
   }
 
-  handleCreateCommunitySubmit(i: CommunityForm) {
-    i.setState({ loading: true });
+  handleCreateCommunitySubmit(i: CommunityForm, event: any) {
+    event.preventDefault();
     let cForm = i.state.form;
     let auth = myAuthRequired();
 
@@ -319,31 +318,24 @@ export class CommunityForm extends Component<
         });
       }
     }
-    i.setState(i.state);
   }
 
   handleCommunityNameChange(i: CommunityForm, event: any) {
-    i.state.form.name = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.form.name = event.target.value), s));
   }
 
   handleCommunityTitleChange(i: CommunityForm, event: any) {
-    i.state.form.title = event.target.value;
-    i.setState(i.state);
-  }
-
-  handleCommunityDescriptionChange(val: string) {
-    this.setState(s => ((s.form.description = val), s));
+    i.setState(s => ((s.form.title = event.target.value), s));
   }
 
   handleCommunityNsfwChange(i: CommunityForm, event: any) {
-    i.state.form.nsfw = event.target.checked;
-    i.setState(i.state);
+    i.setState(s => ((s.form.nsfw = event.target.checked), s));
   }
 
   handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
-    i.state.form.posting_restricted_to_mods = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.form.posting_restricted_to_mods = event.target.checked), s)
+    );
   }
 
   handleCancel(i: CommunityForm) {
@@ -368,5 +360,9 @@ export class CommunityForm extends Component<
 
   handleDiscussionLanguageChange(val: number[]) {
     this.setState(s => ((s.form.discussion_languages = val), s));
+  }
+
+  handleCommunityDescriptionChange(val: string) {
+    this.setState(s => ((s.form.description = val), s));
   }
 }

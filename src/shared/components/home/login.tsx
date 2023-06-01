@@ -157,7 +157,8 @@ export class Login extends Component<any, State> {
     );
   }
 
-  async handleLoginSubmit(i: Login) {
+  async handleLoginSubmit(i: Login, event: any) {
+    event.preventDefault();
     let lForm = i.state.form;
     let username_or_email = lForm.username_or_email;
     let password = lForm.password;
@@ -165,8 +166,8 @@ export class Login extends Component<any, State> {
     if (username_or_email && password) {
       i.setState({ loginRes: { state: "loading" } });
       i.setState({
-        loginRes: apiWrapper(
-          await HttpService.client.login({
+        loginRes: await apiWrapper(
+          HttpService.client.login({
             username_or_email,
             password,
             totp_2fa_token,
@@ -177,14 +178,14 @@ export class Login extends Component<any, State> {
       switch (i.state.loginRes.state) {
         case "failed":
           if (i.state.loginRes.msg == "missing_totp_token") {
-            this.setState({ showTotp: true, loginRes: { state: "empty" } });
+            i.setState({ showTotp: true, loginRes: { state: "empty" } });
             toast(i18n.t("enter_two_factor_code"));
           }
           break;
 
         case "success":
           UserService.Instance.login(i.state.loginRes.data);
-          this.props.history.push("/");
+          i.props.history.push("/");
           location.reload();
           break;
       }
@@ -210,7 +211,7 @@ export class Login extends Component<any, State> {
     event.preventDefault();
     let email = i.state.form.username_or_email;
     if (email) {
-      const res = apiWrapper(await HttpService.client.passwordReset({ email }));
+      const res = await apiWrapper(HttpService.client.passwordReset({ email }));
       if (res.state == "success") {
         toast(i18n.t("reset_password_mail_sent"));
       }

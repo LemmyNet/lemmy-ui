@@ -49,6 +49,13 @@ interface SidebarProps {
   onBlockCommunity(form: BlockCommunity): void;
   onPurgeCommunity(form: PurgeCommunity): void;
   onEditCommunity(form: EditCommunity): void;
+  editCommunityLoading: boolean;
+  deleteCommunityLoading: boolean;
+  removeCommunityLoading: boolean;
+  leaveModTeamLoading: boolean;
+  followCommunityLoading: boolean;
+  blockCommunityLoading: boolean;
+  purgeCommunityLoading: boolean;
 }
 
 interface SidebarState {
@@ -59,12 +66,6 @@ interface SidebarState {
   showPurgeDialog: boolean;
   purgeReason?: string;
   showConfirmLeaveModTeam: boolean;
-  deleteCommunityLoading: boolean;
-  removeCommunityLoading: boolean;
-  leaveModTeamLoading: boolean;
-  followCommunityLoading: boolean;
-  blockCommunityLoading: boolean;
-  purgeCommunityLoading: boolean;
 }
 
 export class Sidebar extends Component<SidebarProps, SidebarState> {
@@ -73,12 +74,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     showRemoveDialog: false,
     showPurgeDialog: false,
     showConfirmLeaveModTeam: false,
-    deleteCommunityLoading: false,
-    removeCommunityLoading: false,
-    leaveModTeamLoading: false,
-    followCommunityLoading: false,
-    blockCommunityLoading: false,
-    purgeCommunityLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -86,6 +81,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     this.handleEditCancel = this.handleEditCancel.bind(this);
   }
 
+  // TODO this necessary?
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>
   ): void {
@@ -100,12 +96,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         showEdit: false,
         showPurgeDialog: false,
         showRemoveDialog: false,
-        deleteCommunityLoading: false,
-        removeCommunityLoading: false,
-        leaveModTeamLoading: false,
-        followCommunityLoading: false,
-        blockCommunityLoading: false,
-        purgeCommunityLoading: false,
       });
     }
   }
@@ -124,6 +114,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             onEditCommunity={this.props.onEditCommunity}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
+            loading={this.props.editCommunityLoading}
           />
         )}
       </div>
@@ -131,7 +122,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   sidebar() {
-    const myUSerInfo = UserService.Instance.myUserInfo;
+    const myUserInfo = UserService.Instance.myUserInfo;
     const { name, actor_id } = this.props.community_view.community;
     return (
       <div>
@@ -139,10 +130,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           <div className="card-body">
             {this.communityTitle()}
             {this.props.editable && this.adminButtons()}
-            {myUSerInfo && this.subscribe()}
+            {myUserInfo && this.subscribe()}
             {this.canPost && this.createPost()}
-            {myUSerInfo && this.blockCommunity()}
-            {!myUSerInfo && (
+            {myUserInfo && this.blockCommunity()}
+            {!myUserInfo && (
               <div className="alert alert-info" role="alert">
                 {i18n.t("community_not_logged_in_alert", {
                   community: name,
@@ -178,7 +169,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               className="btn btn-secondary btn-sm mr-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
-              {this.state.followCommunityLoading ? (
+              {this.props.followCommunityLoading ? (
                 <Spinner />
               ) : (
                 <>
@@ -193,7 +184,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               className="btn btn-warning mr-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
-              {this.state.followCommunityLoading ? (
+              {this.props.followCommunityLoading ? (
                 <Spinner />
               ) : (
                 i18n.t("subscribe_pending")
@@ -356,7 +347,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             className="btn btn-secondary btn-block"
             onClick={linkEvent(this, this.handleFollowCommunity)}
           >
-            {this.state.followCommunityLoading ? (
+            {this.props.followCommunityLoading ? (
               <Spinner />
             ) : (
               i18n.t("subscribe")
@@ -379,7 +370,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               className="btn btn-danger btn-block"
               onClick={linkEvent(this, this.handleBlockCommunity)}
             >
-              {this.state.blockCommunityLoading ? (
+              {this.props.blockCommunityLoading ? (
                 <Spinner />
               ) : (
                 i18n.t("unblock_community")
@@ -390,7 +381,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               className="btn btn-danger btn-block"
               onClick={linkEvent(this, this.handleBlockCommunity)}
             >
-              {this.state.blockCommunityLoading ? (
+              {this.props.blockCommunityLoading ? (
                 <Spinner />
               ) : (
                 i18n.t("block_community")
@@ -482,7 +473,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         : i18n.t("restore")
                     }
                   >
-                    {this.state.deleteCommunityLoading ? (
+                    {this.props.deleteCommunityLoading ? (
                       <Spinner />
                     ) : (
                       <Icon
@@ -511,7 +502,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   className="btn btn-link text-muted d-inline-block"
                   onClick={linkEvent(this, this.handleRemoveCommunity)}
                 >
-                  {this.state.removeCommunityLoading ? (
+                  {this.props.removeCommunityLoading ? (
                     <Spinner />
                   ) : (
                     i18n.t("restore")
@@ -550,7 +541,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {/* </div> */}
             <div className="form-group">
               <button type="submit" className="btn btn-secondary">
-                {this.state.removeCommunityLoading ? (
+                {this.props.removeCommunityLoading ? (
                   <Spinner />
                 ) : (
                   i18n.t("remove_community")
@@ -578,7 +569,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               />
             </div>
             <div className="form-group">
-              {this.state.purgeCommunityLoading ? (
+              {this.props.purgeCommunityLoading ? (
                 <Spinner />
               ) : (
                 <button
@@ -642,7 +633,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   // TODO Do we need two of these?
   handleUnfollowCommunity(i: Sidebar) {
-    i.setState({ followCommunityLoading: true });
     i.props.onFollowCommunity({
       community_id: i.props.community_view.community.id,
       follow: false,
@@ -651,7 +641,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleFollowCommunity(i: Sidebar) {
-    i.setState({ followCommunityLoading: true });
     i.props.onFollowCommunity({
       community_id: i.props.community_view.community.id,
       follow: true,
@@ -660,7 +649,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    i.setState({ blockCommunityLoading: true });
     i.props.onBlockCommunity({
       community_id: 0,
       block: !i.props.community_view.blocked,
@@ -671,7 +659,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   handleLeaveModTeam(i: Sidebar) {
     const myId = UserService.Instance.myUserInfo?.local_user_view.person.id;
     if (myId) {
-      i.setState({ leaveModTeamLoading: true });
       i.props.onLeaveModTeam({
         community_id: i.props.community_view.community.id,
         person_id: 92,
@@ -682,7 +669,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleDeleteCommunity(i: Sidebar) {
-    i.setState({ deleteCommunityLoading: true });
     i.props.onDeleteCommunity({
       community_id: i.props.community_view.community.id,
       deleted: !i.props.community_view.community.deleted,
@@ -691,7 +677,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleRemoveCommunity(i: Sidebar) {
-    i.setState({ removeCommunityLoading: true });
     i.props.onRemoveCommunity({
       community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
@@ -702,7 +687,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handlePurgeCommunity(i: Sidebar) {
-    i.setState({ purgeCommunityLoading: true });
     i.props.onPurgeCommunity({
       community_id: i.props.community_view.community.id,
       reason: i.state.purgeReason,

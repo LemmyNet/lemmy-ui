@@ -70,7 +70,8 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onDeletePost={() => {}}
           onRemovePost={() => {}}
           onSavePost={() => {}}
-          onFeaturePost={() => {}}
+          onFeaturePostLocal={() => {}}
+          onFeaturePostCommunity={() => {}}
           onPurgePerson={() => {}}
           onPurgePost={() => {}}
           onBanPersonFromCommunity={() => {}}
@@ -78,6 +79,21 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onAddModToCommunity={() => {}}
           onAddAdmin={() => {}}
           onTransferCommunity={() => {}}
+          upvoteLoading={false}
+          downvoteLoading={false}
+          reportLoading={false}
+          blockLoading={false}
+          lockLoading={false}
+          deleteLoading={false}
+          removeLoading={false}
+          saveLoading={false}
+          featureCommunityLoading={false}
+          featureLocalLoading={false}
+          banLoading={false}
+          addModLoading={false}
+          addAdminLoading={false}
+          transferLoading={false}
+          purgeLoading={false}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />

@@ -91,6 +91,22 @@ export class CommentReport extends Component<
           onBanPerson={() => {}}
           onCreateComment={() => {}}
           onEditComment={() => {}}
+          createOrEditCommentLoading={false}
+          upvoteLoading={false}
+          downvoteLoading={false}
+          saveLoading={false}
+          readLoading={false}
+          blockPersonLoading={false}
+          deleteLoading={false}
+          removeLoading={false}
+          distinguishLoading={false}
+          banLoading={false}
+          addModLoading={false}
+          addAdminLoading={false}
+          transferCommunityLoading={false}
+          fetchChildrenLoading={false}
+          reportLoading={false}
+          purgeLoading={false}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />

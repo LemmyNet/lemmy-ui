@@ -123,8 +123,8 @@ export class PasswordChange extends Component<any, State> {
 
     if (password && password_verify) {
       i.setState({
-        passwordChangeRes: apiWrapper(
-          await HttpService.client.passwordChangeAfterReset({
+        passwordChangeRes: await apiWrapper(
+          HttpService.client.passwordChangeAfterReset({
             token: i.state.form.token,
             password,
             password_verify,

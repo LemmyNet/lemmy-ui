@@ -18,14 +18,17 @@ interface CommentFormProps {
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
-  onReplyCancel?(): any;
+  onReplyCancel?(): void;
   allLanguages: Language[];
   siteLanguages: number[];
   onCreateComment(form: CreateComment): void;
   onEditComment(form: EditComment): void;
+  loading: boolean;
 }
 
 interface CommentFormState {
+  content?: string;
+  languageId?: number;
   buttonTitle: string;
 }
 
@@ -38,6 +41,12 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         : this.props.edit
         ? capitalizeFirstLetter(i18n.t("save"))
         : capitalizeFirstLetter(i18n.t("reply")),
+    content:
+      typeof this.props.node !== "number"
+        ? this.props.edit
+          ? this.props.node.comment_view.comment.content
+          : undefined
+        : undefined,
   };
 
   constructor(props: any, context: any) {
@@ -45,6 +54,9 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
 
     this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
+
+    this.handleLanguageChange = this.handleLanguageChange.bind(this);
+    this.handleContentChange = this.handleContentChange.bind(this);
   }
 
   componentWillUnmount() {
@@ -52,18 +64,13 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
   }
 
   render() {
-    let initialContent =
-      typeof this.props.node !== "number"
-        ? this.props.edit
-          ? this.props.node.comment_view.comment.content
-          : undefined
-        : undefined;
-
     return (
       <div className="mb-3">
         {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea
-            initialContent={initialContent}
+            content={this.state.content}
+            onContentChange={this.handleContentChange}
+            onLanguageChange={this.handleLanguageChange}
             showLanguage
             buttonTitle={this.state.buttonTitle}
             replyType={typeof this.props.node !== "number"}
@@ -74,6 +81,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
             placeholder={i18n.t("comment_here")}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            loading={this.props.loading}
           />
         ) : (
           <div className="alert alert-warning" role="alert">
@@ -128,5 +136,13 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
 
   handleReplyCancel() {
     this.props.onReplyCancel?.();
+  }
+
+  handleLanguageChange(languageId: number) {
+    this.setState({ languageId });
+  }
+
+  handleContentChange(content: string) {
+    this.setState({ content });
   }
 }

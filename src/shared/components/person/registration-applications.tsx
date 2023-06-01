@@ -13,6 +13,7 @@ import {
   HttpService,
   RequestState,
   apiWrapper,
+  apiWrapperIso,
 } from "../../services/HttpService";
 import {
   editRegistrationApplications,
@@ -68,7 +69,7 @@ export class RegistrationApplications extends Component<
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        appsRes: apiWrapper(
+        appsRes: apiWrapperIso(
           this.isoData.routeData[0] as ListRegistrationApplicationsResponse
         ),
       };
@@ -217,8 +218,8 @@ export class RegistrationApplications extends Component<
       appsRes: { state: "loading" },
     });
     this.setState({
-      appsRes: apiWrapper(
-        await HttpService.client.listRegistrationApplications({
+      appsRes: await apiWrapper(
+        HttpService.client.listRegistrationApplications({
           unread_only: unread_only,
           page: this.state.page,
           limit: fetchLimit,
@@ -229,8 +230,8 @@ export class RegistrationApplications extends Component<
   }
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {
-    const approveRes = apiWrapper(
-      await HttpService.client.approveRegistrationApplication(form)
+    const approveRes = await apiWrapper(
+      HttpService.client.approveRegistrationApplication(form)
     );
 
     this.setState(s => {

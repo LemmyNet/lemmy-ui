@@ -1,23 +1,30 @@
 import { Component } from "inferno";
 import { Redirect } from "inferno-router";
 import {
+  CommunityResponse,
   CreateCommunity as CreateCommunityI,
   GetSiteResponse,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { HttpService, apiWrapper } from "../../services/HttpService";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+} from "../../services/HttpService";
 import { UserService } from "../../services/UserService";
 import { enableNsfw, setIsoData, toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
 
 interface CreateCommunityState {
+  createRes: RequestState<CommunityResponse>;
   siteRes: GetSiteResponse;
 }
 
 export class CreateCommunity extends Component<any, CreateCommunityState> {
   private isoData = setIsoData(this.context);
   state: CreateCommunityState = {
+    createRes: { state: "empty" },
     siteRes: this.isoData.site_res,
   };
   constructor(props: any, context: any) {
@@ -48,6 +55,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
               allLanguages={this.state.siteRes.all_languages}
               siteLanguages={this.state.siteRes.discussion_languages}
               communityLanguages={this.state.siteRes.discussion_languages}
+              loading={this.state.createRes.state == "loading"}
             />
           </div>
         </div>
@@ -56,7 +64,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   }
 
   async handleCommunityCreate(form: CreateCommunityI) {
-    const res = apiWrapper(await HttpService.client.createCommunity(form));
+    const res = await apiWrapper(HttpService.client.createCommunity(form));
     if (res.state == "success") {
       const name = res.data.community_view.community.name;
       this.props.history.push(`/c/${name}`);

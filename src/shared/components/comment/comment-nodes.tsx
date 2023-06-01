@@ -62,6 +62,22 @@ interface CommentNodesProps {
   onCommentReport(form: CreateCommentReport): void;
   onPurgePerson(form: PurgePerson): void;
   onPurgeComment(form: PurgeComment): void;
+  createOrEditCommentLoading: boolean;
+  upvoteLoading: boolean;
+  downvoteLoading: boolean;
+  saveLoading: boolean;
+  readLoading: boolean;
+  blockPersonLoading: boolean;
+  deleteLoading: boolean;
+  removeLoading: boolean;
+  distinguishLoading: boolean;
+  banLoading: boolean;
+  addModLoading: boolean;
+  addAdminLoading: boolean;
+  transferCommunityLoading: boolean;
+  fetchChildrenLoading: boolean;
+  reportLoading: boolean;
+  purgeLoading: boolean;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -111,6 +127,22 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             onCommentReport={this.props.onCommentReport}
             onPurgePerson={this.props.onPurgePerson}
             onPurgeComment={this.props.onPurgeComment}
+            createOrEditCommentLoading={this.props.createOrEditCommentLoading}
+            upvoteLoading={this.props.upvoteLoading}
+            downvoteLoading={this.props.downvoteLoading}
+            saveLoading={this.props.saveLoading}
+            readLoading={this.props.readLoading}
+            blockPersonLoading={this.props.blockPersonLoading}
+            deleteLoading={this.props.deleteLoading}
+            removeLoading={this.props.removeLoading}
+            distinguishLoading={this.props.distinguishLoading}
+            banLoading={this.props.banLoading}
+            addModLoading={this.props.addModLoading}
+            addAdminLoading={this.props.addAdminLoading}
+            transferCommunityLoading={this.props.transferCommunityLoading}
+            fetchChildrenLoading={this.props.fetchChildrenLoading}
+            reportLoading={this.props.reportLoading}
+            purgeLoading={this.props.purgeLoading}
           />
         ))}
       </div>

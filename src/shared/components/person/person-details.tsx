@@ -79,6 +79,31 @@ interface PersonDetailsProps {
   onSavePost(form: SavePost): void;
   onFeaturePost(form: FeaturePost): void;
   onPurgePost(form: PurgePost): void;
+  createOrEditCommentLoading: boolean;
+  upvoteCommentLoading: boolean;
+  downvoteCommentLoading: boolean;
+  saveCommentLoading: boolean;
+  readCommentLoading: boolean;
+  blockPersonLoading: boolean;
+  deleteCommentLoading: boolean;
+  removeCommentLoading: boolean;
+  distinguishCommentLoading: boolean;
+  banLoading: boolean;
+  addModLoading: boolean;
+  addAdminLoading: boolean;
+  transferCommunityLoading: boolean;
+  fetchChildrenLoading: boolean;
+  reportCommentLoading: boolean;
+  purgeCommentLoading: boolean;
+  upvotePostLoading: boolean;
+  downvotePostLoading: boolean;
+  reportPostLoading: boolean;
+  lockPostLoading: boolean;
+  deletePostLoading: boolean;
+  removePostLoading: boolean;
+  savePostLoading: boolean;
+  featureCommunityLoading: boolean;
+  featureLocalLoading: boolean;
 }
 
 enum ItemEnum {
@@ -174,6 +199,22 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onCommentReport={this.props.onCommentReport}
             onPurgePerson={this.props.onPurgePerson}
             onPurgeComment={this.props.onPurgeComment}
+            createOrEditCommentLoading={this.props.createOrEditCommentLoading}
+            upvoteLoading={this.props.upvoteCommentLoading}
+            downvoteLoading={this.props.downvoteCommentLoading}
+            saveLoading={this.props.saveCommentLoading}
+            readLoading={this.props.readCommentLoading}
+            blockPersonLoading={this.props.blockPersonLoading}
+            deleteLoading={this.props.deleteCommentLoading}
+            removeLoading={this.props.removeCommentLoading}
+            distinguishLoading={this.props.distinguishCommentLoading}
+            banLoading={this.props.banLoading}
+            addModLoading={this.props.addModLoading}
+            addAdminLoading={this.props.addAdminLoading}
+            transferCommunityLoading={this.props.transferCommunityLoading}
+            fetchChildrenLoading={this.props.fetchChildrenLoading}
+            reportLoading={this.props.reportCommentLoading}
+            purgeLoading={this.props.purgeCommentLoading}
           />
         );
       }
@@ -204,6 +245,21 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onAddModToCommunity={this.props.onAddModToCommunity}
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
+            upvoteLoading={this.props.upvotePostLoading}
+            downvoteLoading={this.props.downvotePostLoading}
+            reportLoading={this.props.reportPostLoading}
+            blockLoading={this.props.blockPersonLoading}
+            lockLoading={this.props.lockPostLoading}
+            deleteLoading={this.props.deletePostLoading}
+            removeLoading={this.props.removePostLoading}
+            saveLoading={this.props.savePostLoading}
+            featureCommunityLoading={this.props.featureCommunityLoading}
+            featureLocalLoading={this.props.featureLocalLoading}
+            banLoading={this.props.banLoading}
+            addModLoading={this.props.addModLoading}
+            addAdminLoading={this.props.addAdminLoading}
+            transferLoading={this.props.transferCommunityLoading}
+            purgeLoading={this.props.purgeCommentLoading}
           />
         );
       }
@@ -280,6 +336,22 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           onCommentReport={this.props.onCommentReport}
           onPurgePerson={this.props.onPurgePerson}
           onPurgeComment={this.props.onPurgeComment}
+          createOrEditCommentLoading={this.props.createOrEditCommentLoading}
+          upvoteLoading={this.props.upvoteCommentLoading}
+          downvoteLoading={this.props.downvoteCommentLoading}
+          saveLoading={this.props.saveCommentLoading}
+          readLoading={this.props.readCommentLoading}
+          blockPersonLoading={this.props.blockPersonLoading}
+          deleteLoading={this.props.deleteCommentLoading}
+          removeLoading={this.props.removeCommentLoading}
+          distinguishLoading={this.props.distinguishCommentLoading}
+          banLoading={this.props.banLoading}
+          addModLoading={this.props.addModLoading}
+          addAdminLoading={this.props.addAdminLoading}
+          transferCommunityLoading={this.props.transferCommunityLoading}
+          fetchChildrenLoading={this.props.fetchChildrenLoading}
+          reportLoading={this.props.reportCommentLoading}
+          purgeLoading={this.props.purgeCommentLoading}
         />
       </div>
     );
@@ -313,6 +385,21 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               onAddModToCommunity={this.props.onAddModToCommunity}
               onAddAdmin={this.props.onAddAdmin}
               onTransferCommunity={this.props.onTransferCommunity}
+              upvoteLoading={this.props.upvotePostLoading}
+              downvoteLoading={this.props.downvotePostLoading}
+              reportLoading={this.props.reportPostLoading}
+              blockLoading={this.props.blockPersonLoading}
+              lockLoading={this.props.lockPostLoading}
+              deleteLoading={this.props.deletePostLoading}
+              removeLoading={this.props.removePostLoading}
+              saveLoading={this.props.savePostLoading}
+              featureCommunityLoading={this.props.featureCommunityLoading}
+              featureLocalLoading={this.props.featureLocalLoading}
+              banLoading={this.props.banLoading}
+              addModLoading={this.props.addModLoading}
+              addAdminLoading={this.props.addAdminLoading}
+              transferLoading={this.props.transferCommunityLoading}
+              purgeLoading={this.props.purgeCommentLoading}
             />
             <hr className="my-3" />
           </>

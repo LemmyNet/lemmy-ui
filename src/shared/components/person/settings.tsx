@@ -511,7 +511,7 @@ export class Settings extends Component<any, SettingsState> {
             </label>
             <div className="col-sm-9">
               <MarkdownTextArea
-                initialContent={this.state.saveUserSettingsForm.bio}
+                content={this.state.saveUserSettingsForm.bio}
                 onContentChange={this.handleBioChange}
                 maxLength={300}
                 hideNavigationWarnings
@@ -946,8 +946,8 @@ export class Settings extends Component<any, SettingsState> {
 
   async handleBlockPerson({ value }: Choice) {
     if (value !== "0") {
-      const res = apiWrapper(
-        await HttpService.client.blockPerson({
+      const res = await apiWrapper(
+        HttpService.client.blockPerson({
           person_id: Number(value),
           block: true,
           auth: myAuthRequired(),
@@ -959,8 +959,8 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   async handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
-    const res = apiWrapper(
-      await HttpService.client.blockPerson({
+    const res = await apiWrapper(
+      HttpService.client.blockPerson({
         person_id: i.recipientId,
         block: false,
         auth: myAuthRequired(),
@@ -971,8 +971,8 @@ export class Settings extends Component<any, SettingsState> {
 
   async handleBlockCommunity({ value }: Choice) {
     if (value !== "0") {
-      const res = apiWrapper(
-        await HttpService.client.blockCommunity({
+      const res = await apiWrapper(
+        HttpService.client.blockCommunity({
           community_id: Number(value),
           block: true,
           auth: myAuthRequired(),
@@ -985,8 +985,8 @@ export class Settings extends Component<any, SettingsState> {
   async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
     const auth = myAuth();
     if (auth) {
-      const res = apiWrapper(
-        await HttpService.client.blockCommunity({
+      const res = await apiWrapper(
+        HttpService.client.blockCommunity({
           community_id: i.communityId,
           block: false,
           auth: myAuthRequired(),
@@ -1164,8 +1164,8 @@ export class Settings extends Component<any, SettingsState> {
   async handleSaveSettingsSubmit(i: Settings) {
     i.setState({ saveRes: { state: "loading" } });
     i.setState({
-      saveRes: apiWrapper(
-        await HttpService.client.saveUserSettings({
+      saveRes: await apiWrapper(
+        HttpService.client.saveUserSettings({
           ...i.state.saveUserSettingsForm,
           auth: myAuthRequired(),
         })
@@ -1188,8 +1188,8 @@ export class Settings extends Component<any, SettingsState> {
     if (new_password && old_password && new_password_verify) {
       i.setState({ changePasswordRes: { state: "loading" } });
       i.setState({
-        changePasswordRes: apiWrapper(
-          await HttpService.client.changePassword({
+        changePasswordRes: await apiWrapper(
+          HttpService.client.changePassword({
             new_password,
             new_password_verify,
             old_password,
@@ -1219,8 +1219,8 @@ export class Settings extends Component<any, SettingsState> {
     if (password) {
       i.setState({ deleteAccountRes: { state: "loading" } });
       i.setState({
-        deleteAccountRes: apiWrapper(
-          await HttpService.client.deleteAccount({
+        deleteAccountRes: await apiWrapper(
+          HttpService.client.deleteAccount({
             password,
             auth: myAuthRequired(),
           })

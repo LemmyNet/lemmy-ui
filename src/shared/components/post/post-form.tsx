@@ -270,7 +270,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     onDeletePost={() => {}}
                     onRemovePost={() => {}}
                     onSavePost={() => {}}
-                    onFeaturePost={() => {}}
+                    onFeaturePostLocal={() => {}}
+                    onFeaturePostCommunity={() => {}}
                     onPurgePerson={() => {}}
                     onPurgePost={() => {}}
                     onBanPersonFromCommunity={() => {}}
@@ -278,6 +279,21 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     onAddModToCommunity={() => {}}
                     onAddAdmin={() => {}}
                     onTransferCommunity={() => {}}
+                    upvoteLoading={false}
+                    downvoteLoading={false}
+                    reportLoading={false}
+                    blockLoading={false}
+                    lockLoading={false}
+                    deleteLoading={false}
+                    removeLoading={false}
+                    saveLoading={false}
+                    featureCommunityLoading={false}
+                    featureLocalLoading={false}
+                    banLoading={false}
+                    addModLoading={false}
+                    addAdminLoading={false}
+                    transferLoading={false}
+                    purgeLoading={false}
                   />
                 </>
               )}
@@ -313,7 +329,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             <label className="col-sm-2 col-form-label">{i18n.t("body")}</label>
             <div className="col-sm-10">
               <MarkdownTextArea
-                initialContent={this.state.form.body}
+                content={this.state.form.body}
                 onContentChange={this.handlePostBodyChange}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
@@ -467,7 +483,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onDeletePost={() => {}}
                 onRemovePost={() => {}}
                 onSavePost={() => {}}
-                onFeaturePost={() => {}}
+                onFeaturePostLocal={() => {}}
+                onFeaturePostCommunity={() => {}}
                 onPurgePerson={() => {}}
                 onPurgePost={() => {}}
                 onBanPersonFromCommunity={() => {}}
@@ -475,6 +492,21 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onAddModToCommunity={() => {}}
                 onAddAdmin={() => {}}
                 onTransferCommunity={() => {}}
+                upvoteLoading={false}
+                downvoteLoading={false}
+                reportLoading={false}
+                blockLoading={false}
+                lockLoading={false}
+                deleteLoading={false}
+                removeLoading={false}
+                saveLoading={false}
+                featureCommunityLoading={false}
+                featureLocalLoading={false}
+                banLoading={false}
+                addModLoading={false}
+                addAdminLoading={false}
+                transferLoading={false}
+                purgeLoading={false}
               />
             </>
           )
@@ -483,7 +515,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  async handlePostSubmit(i: PostForm) {
+  async handlePostSubmit(i: PostForm, event: any) {
+    event.preventDefault();
     // Coerce empty url string to undefined
     if ((i.state.form.url ?? "blank") === "") {
       i.setState(s => ((s.form.url = undefined), s));
@@ -543,8 +576,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (url && validURL(url)) {
       this.setState({ metadataRes: { state: "loading" } });
       this.setState({
-        metadataRes: apiWrapper(
-          await HttpService.client.getSiteMetadata({ url })
+        metadataRes: await apiWrapper(
+          HttpService.client.getSiteMetadata({ url })
         ),
       });
     }
@@ -560,8 +593,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (q && q !== "") {
       this.setState({ suggestedPostsRes: { state: "loading" } });
       this.setState({
-        suggestedPostsRes: apiWrapper(
-          await HttpService.client.search({
+        suggestedPostsRes: await apiWrapper(
+          HttpService.client.search({
             q,
             type_: "Posts",
             sort: "TopAll",

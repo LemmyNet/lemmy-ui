@@ -232,7 +232,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <label className="col-12 col-form-label">{i18n.t("sidebar")}</label>
             <div className="col-12">
               <MarkdownTextArea
-                initialContent={this.state.siteForm.sidebar}
+                content={this.state.siteForm.sidebar}
                 onContentChange={this.handleSiteSidebarChange}
                 hideNavigationWarnings
                 allLanguages={[]}
@@ -246,7 +246,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </label>
             <div className="col-12">
               <MarkdownTextArea
-                initialContent={this.state.siteForm.legal_information}
+                content={this.state.siteForm.legal_information}
                 onContentChange={this.handleSiteLegalInfoChange}
                 hideNavigationWarnings
                 allLanguages={[]}
@@ -327,7 +327,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </label>
               <div className="col-12">
                 <MarkdownTextArea
-                  initialContent={this.state.siteForm.application_question}
+                  content={this.state.siteForm.application_question}
                   onContentChange={this.handleSiteApplicationQuestionChange}
                   hideNavigationWarnings
                   allLanguages={[]}
