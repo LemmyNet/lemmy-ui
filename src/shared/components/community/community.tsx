@@ -124,7 +124,6 @@ interface State {
 
   votePostRes: RequestState<PostResponse>;
   reportPostRes: RequestState<PostReportResponse>;
-  blockPostRes: RequestState<PostResponse>;
   lockPostRes: RequestState<PostResponse>;
   deletePostRes: RequestState<PostResponse>;
   removePostRes: RequestState<PostResponse>;
@@ -200,7 +199,6 @@ export class Community extends Component<
     purgeCommunityRes: { state: "empty" },
     votePostRes: { state: "empty" },
     reportPostRes: { state: "empty" },
-    blockPostRes: { state: "empty" },
     lockPostRes: { state: "empty" },
     deletePostRes: { state: "empty" },
     removePostRes: { state: "empty" },
@@ -532,7 +530,7 @@ export class Community extends Component<
               upvoteLoading={this.state.votePostRes.state == "loading"}
               downvoteLoading={this.state.votePostRes.state == "loading"}
               reportLoading={this.state.reportPostRes.state == "loading"}
-              blockLoading={this.state.blockPostRes.state == "loading"}
+              blockLoading={this.state.blockPersonRes.state == "loading"}
               lockLoading={this.state.lockPostRes.state == "loading"}
               deleteLoading={this.state.deletePostRes.state == "loading"}
               removeLoading={this.state.removePostRes.state == "loading"}

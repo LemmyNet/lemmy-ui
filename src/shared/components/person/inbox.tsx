@@ -1,18 +1,22 @@
 import { Component, linkEvent } from "inferno";
 import {
   AddAdmin,
+  AddAdminResponse,
   AddModToCommunity,
+  AddModToCommunityResponse,
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
   BanPersonResponse,
   BlockPerson,
+  BlockPersonResponse,
   CommentReplyResponse,
   CommentReplyView,
   CommentReportResponse,
   CommentResponse,
   CommentSortType,
   CommentView,
+  CommunityResponse,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -23,6 +27,7 @@ import {
   DistinguishComment,
   EditComment,
   EditPrivateMessage,
+  GetCommentsResponse,
   GetPersonMentions,
   GetPersonMentionsResponse,
   GetPrivateMessages,
@@ -110,6 +115,38 @@ interface InboxState {
   repliesRes: RequestState<GetRepliesResponse>;
   mentionsRes: RequestState<GetPersonMentionsResponse>;
   messagesRes: RequestState<PrivateMessagesResponse>;
+
+  // Some used for loading indicators
+  banPersonRes: RequestState<BanPersonResponse>;
+  banFromCommunityRes: RequestState<BanPersonResponse>;
+  addModRes: RequestState<AddModToCommunityResponse>;
+  addAdminRes: RequestState<AddAdminResponse>;
+  transferCommunityRes: RequestState<CommunityResponse>;
+
+  createCommentRes: RequestState<CommentResponse>;
+  editCommentRes: RequestState<CommentResponse>;
+  voteCommentRes: RequestState<CommentResponse>;
+  saveCommentRes: RequestState<CommentResponse>;
+  readCommentReplyRes: RequestState<CommentReplyResponse>;
+  readPersonMentionRes: RequestState<PersonMentionResponse>;
+  blockPersonRes: RequestState<BlockPersonResponse>;
+  deleteCommentRes: RequestState<CommentResponse>;
+  removeCommentRes: RequestState<CommentResponse>;
+  distinguishCommentRes: RequestState<CommentResponse>;
+  fetchChildrenRes: RequestState<GetCommentsResponse>;
+  reportCommentRes: RequestState<CommentReportResponse>;
+  purgeCommentRes: RequestState<PurgeItemResponse>;
+
+  deletePrivateMessageRes: RequestState<PrivateMessageResponse>;
+  editPrivateMessageRes: RequestState<PrivateMessageResponse>;
+  createPrivateMessageRes: RequestState<PrivateMessageResponse>;
+  readPrivateMessageRes: RequestState<PrivateMessageResponse>;
+  reportPrivateMessageRes: RequestState<PrivateMessageReportResponse>;
+
+  markAllAsReadRes: RequestState<GetRepliesResponse>;
+  purgePostRes: RequestState<PurgeItemResponse>;
+  purgePersonRes: RequestState<PurgeItemResponse>;
+
   sort: CommentSortType;
   page: number;
   siteRes: GetSiteResponse;
@@ -126,6 +163,32 @@ export class Inbox extends Component<any, InboxState> {
     repliesRes: { state: "empty" },
     mentionsRes: { state: "empty" },
     messagesRes: { state: "empty" },
+    createCommentRes: { state: "empty" },
+    editCommentRes: { state: "empty" },
+    voteCommentRes: { state: "empty" },
+    saveCommentRes: { state: "empty" },
+    readCommentReplyRes: { state: "empty" },
+    readPersonMentionRes: { state: "empty" },
+    blockPersonRes: { state: "empty" },
+    deleteCommentRes: { state: "empty" },
+    removeCommentRes: { state: "empty" },
+    distinguishCommentRes: { state: "empty" },
+    fetchChildrenRes: { state: "empty" },
+    reportCommentRes: { state: "empty" },
+    purgeCommentRes: { state: "empty" },
+    banPersonRes: { state: "empty" },
+    banFromCommunityRes: { state: "empty" },
+    addModRes: { state: "empty" },
+    addAdminRes: { state: "empty" },
+    transferCommunityRes: { state: "empty" },
+    deletePrivateMessageRes: { state: "empty" },
+    editPrivateMessageRes: { state: "empty" },
+    createPrivateMessageRes: { state: "empty" },
+    readPrivateMessageRes: { state: "empty" },
+    reportPrivateMessageRes: { state: "empty" },
+    markAllAsReadRes: { state: "empty" },
+    purgePostRes: { state: "empty" },
+    purgePersonRes: { state: "empty" },
   };
 
   constructor(props: any, context: any) {
@@ -245,7 +308,11 @@ export class Inbox extends Component<any, InboxState> {
                 className="btn btn-secondary mb-2"
                 onClick={linkEvent(this, this.handleMarkAllAsRead)}
               >
-                {i18n.t("mark_all_as_read")}
+                {this.state.markAllAsReadRes.state == "loading" ? (
+                  <Spinner />
+                ) : (
+                  i18n.t("mark_all_as_read")
+                )}
               </button>
             )}
             {this.selects()}
@@ -453,6 +520,34 @@ export class Inbox extends Component<any, InboxState> {
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
+            createOrEditCommentLoading={
+              this.state.createCommentRes.state == "loading" ||
+              this.state.editCommentRes.state == "loading"
+            }
+            upvoteLoading={this.state.voteCommentRes.state == "loading"}
+            downvoteLoading={this.state.voteCommentRes.state == "loading"}
+            saveLoading={this.state.saveCommentRes.state == "loading"}
+            readLoading={
+              this.state.readCommentReplyRes.state == "loading" ||
+              this.state.readPersonMentionRes.state == "loading"
+            }
+            blockPersonLoading={this.state.blockPersonRes.state == "loading"}
+            deleteLoading={this.state.deleteCommentRes.state == "loading"}
+            removeLoading={this.state.removeCommentRes.state == "loading"}
+            distinguishLoading={
+              this.state.distinguishCommentRes.state == "loading"
+            }
+            banLoading={this.state.banPersonRes.state == "loading"}
+            addModLoading={this.state.addModRes.state == "loading"}
+            addAdminLoading={this.state.addAdminRes.state == "loading"}
+            transferCommunityLoading={
+              this.state.transferCommunityRes.state == "loading"
+            }
+            fetchChildrenLoading={
+              this.state.fetchChildrenRes.state == "loading"
+            }
+            reportLoading={this.state.reportCommentRes.state == "loading"}
+            purgeLoading={this.state.purgeCommentRes.state == "loading"}
           />
         );
       case ReplyEnum.Mention:
@@ -492,6 +587,34 @@ export class Inbox extends Component<any, InboxState> {
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
+            createOrEditCommentLoading={
+              this.state.createCommentRes.state == "loading" ||
+              this.state.editCommentRes.state == "loading"
+            }
+            upvoteLoading={this.state.voteCommentRes.state == "loading"}
+            downvoteLoading={this.state.voteCommentRes.state == "loading"}
+            saveLoading={this.state.saveCommentRes.state == "loading"}
+            readLoading={
+              this.state.readCommentReplyRes.state == "loading" ||
+              this.state.readPersonMentionRes.state == "loading"
+            }
+            blockPersonLoading={this.state.blockPersonRes.state == "loading"}
+            deleteLoading={this.state.deleteCommentRes.state == "loading"}
+            removeLoading={this.state.removeCommentRes.state == "loading"}
+            distinguishLoading={
+              this.state.distinguishCommentRes.state == "loading"
+            }
+            banLoading={this.state.banPersonRes.state == "loading"}
+            addModLoading={this.state.addModRes.state == "loading"}
+            addAdminLoading={this.state.addAdminRes.state == "loading"}
+            transferCommunityLoading={
+              this.state.transferCommunityRes.state == "loading"
+            }
+            fetchChildrenLoading={
+              this.state.fetchChildrenRes.state == "loading"
+            }
+            reportLoading={this.state.reportCommentRes.state == "loading"}
+            purgeLoading={this.state.purgeCommentRes.state == "loading"}
           />
         );
       case ReplyEnum.Message:
@@ -504,6 +627,17 @@ export class Inbox extends Component<any, InboxState> {
             onReport={this.handleMessageReport}
             onCreate={this.handleCreateMessage}
             onEdit={this.handleEditMessage}
+            deleteLoading={
+              this.state.deletePrivateMessageRes.state == "loading"
+            }
+            createOrEditLoading={
+              this.state.editPrivateMessageRes.state == "loading" ||
+              this.state.createPrivateMessageRes.state == "loading"
+            }
+            readLoading={this.state.readPrivateMessageRes.state == "loading"}
+            reportLoading={
+              this.state.reportPrivateMessageRes.state == "loading"
+            }
           />
         );
       default:
@@ -567,6 +701,34 @@ export class Inbox extends Component<any, InboxState> {
               onBanPerson={this.handleBanPerson}
               onCreateComment={this.handleCreateComment}
               onEditComment={this.handleEditComment}
+              createOrEditCommentLoading={
+                this.state.createCommentRes.state == "loading" ||
+                this.state.editCommentRes.state == "loading"
+              }
+              upvoteLoading={this.state.voteCommentRes.state == "loading"}
+              downvoteLoading={this.state.voteCommentRes.state == "loading"}
+              saveLoading={this.state.saveCommentRes.state == "loading"}
+              readLoading={
+                this.state.readCommentReplyRes.state == "loading" ||
+                this.state.readPersonMentionRes.state == "loading"
+              }
+              blockPersonLoading={this.state.blockPersonRes.state == "loading"}
+              deleteLoading={this.state.deleteCommentRes.state == "loading"}
+              removeLoading={this.state.removeCommentRes.state == "loading"}
+              distinguishLoading={
+                this.state.distinguishCommentRes.state == "loading"
+              }
+              banLoading={this.state.banPersonRes.state == "loading"}
+              addModLoading={this.state.addModRes.state == "loading"}
+              addAdminLoading={this.state.addAdminRes.state == "loading"}
+              transferCommunityLoading={
+                this.state.transferCommunityRes.state == "loading"
+              }
+              fetchChildrenLoading={
+                this.state.fetchChildrenRes.state == "loading"
+              }
+              reportLoading={this.state.reportCommentRes.state == "loading"}
+              purgeLoading={this.state.purgeCommentRes.state == "loading"}
             />
           </div>
         );
@@ -616,6 +778,36 @@ export class Inbox extends Component<any, InboxState> {
                 onBanPerson={this.handleBanPerson}
                 onCreateComment={this.handleCreateComment}
                 onEditComment={this.handleEditComment}
+                createOrEditCommentLoading={
+                  this.state.createCommentRes.state == "loading" ||
+                  this.state.editCommentRes.state == "loading"
+                }
+                upvoteLoading={this.state.voteCommentRes.state == "loading"}
+                downvoteLoading={this.state.voteCommentRes.state == "loading"}
+                saveLoading={this.state.saveCommentRes.state == "loading"}
+                readLoading={
+                  this.state.readCommentReplyRes.state == "loading" ||
+                  this.state.readPersonMentionRes.state == "loading"
+                }
+                blockPersonLoading={
+                  this.state.blockPersonRes.state == "loading"
+                }
+                deleteLoading={this.state.deleteCommentRes.state == "loading"}
+                removeLoading={this.state.removeCommentRes.state == "loading"}
+                distinguishLoading={
+                  this.state.distinguishCommentRes.state == "loading"
+                }
+                banLoading={this.state.banPersonRes.state == "loading"}
+                addModLoading={this.state.addModRes.state == "loading"}
+                addAdminLoading={this.state.addAdminRes.state == "loading"}
+                transferCommunityLoading={
+                  this.state.transferCommunityRes.state == "loading"
+                }
+                fetchChildrenLoading={
+                  this.state.fetchChildrenRes.state == "loading"
+                }
+                reportLoading={this.state.reportCommentRes.state == "loading"}
+                purgeLoading={this.state.purgeCommentRes.state == "loading"}
               />
             ))}
           </div>
@@ -645,6 +837,19 @@ export class Inbox extends Component<any, InboxState> {
                 onReport={this.handleMessageReport}
                 onCreate={this.handleCreateMessage}
                 onEdit={this.handleEditMessage}
+                deleteLoading={
+                  this.state.deletePrivateMessageRes.state == "loading"
+                }
+                createOrEditLoading={
+                  this.state.editPrivateMessageRes.state == "loading" ||
+                  this.state.createPrivateMessageRes.state == "loading"
+                }
+                readLoading={
+                  this.state.readPrivateMessageRes.state == "loading"
+                }
+                reportLoading={
+                  this.state.reportPrivateMessageRes.state == "loading"
+                }
               />
             ))}
           </div>
@@ -758,11 +963,13 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleMarkAllAsRead(i: Inbox) {
-    const res = await apiWrapper(
+    i.setState({ markAllAsReadRes: { state: "loading" } });
+    const markAllAsReadRes = await apiWrapper(
       HttpService.client.markAllAsRead({ auth: myAuthRequired() })
     );
+    i.setState({ markAllAsReadRes });
 
-    if (res.state == "success") {
+    if (markAllAsReadRes.state == "success") {
       i.setState({
         repliesRes: { state: "empty" },
         mentionsRes: { state: "empty" },
@@ -772,33 +979,42 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
-    // TODO not sure what to do here
-    await apiWrapper(HttpService.client.addModToCommunity(form));
+    this.setState({ addModRes: { state: "loading" } });
+    this.setState({
+      addModRes: await apiWrapper(HttpService.client.addModToCommunity(form)),
+    });
   }
 
   async handlePurgePerson(form: PurgePerson) {
-    const purgePersonRes = await apiWrapper(
-      HttpService.client.purgePerson(form)
-    );
-    this.purgeItem(purgePersonRes);
+    this.setState({ purgePersonRes: { state: "loading" } });
+    this.setState({
+      purgePersonRes: await apiWrapper(HttpService.client.purgePerson(form)),
+    });
+    this.purgeItem(this.state.purgePersonRes);
   }
 
   async handlePurgeComment(form: PurgeComment) {
-    const purgeCommentRes = await apiWrapper(
-      HttpService.client.purgeComment(form)
-    );
-    this.purgeItem(purgeCommentRes);
+    this.setState({ purgeCommentRes: { state: "loading" } });
+    this.setState({
+      purgeCommentRes: await apiWrapper(HttpService.client.purgeComment(form)),
+    });
+    this.purgeItem(this.state.purgeCommentRes);
   }
 
   async handlePurgePost(form: PurgePost) {
-    const purgeRes = await apiWrapper(HttpService.client.purgePost(form));
-    this.purgeItem(purgeRes);
+    this.setState({ purgePostRes: { state: "loading" } });
+    this.setState({
+      purgePostRes: await apiWrapper(HttpService.client.purgePost(form)),
+    });
+    this.purgeItem(this.state.purgePostRes);
   }
 
   async handleBlockPerson(form: BlockPerson) {
+    this.setState({ blockPersonRes: { state: "loading" } });
     const blockPersonRes = await apiWrapper(
       HttpService.client.blockPerson(form)
     );
+    this.setState({ blockPersonRes });
 
     if (blockPersonRes.state == "success") {
       updatePersonBlock(blockPersonRes.data);
@@ -806,59 +1022,90 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleCreateComment(form: CreateComment) {
-    const res = await apiWrapper(HttpService.client.createComment(form));
+    this.setState({ createCommentRes: { state: "loading" } });
 
-    if (res.state == "success") {
+    const createCommentRes = await apiWrapper(
+      HttpService.client.createComment(form)
+    );
+    this.setState({ createCommentRes });
+
+    if (createCommentRes.state == "success") {
       toast(i18n.t("created"));
     }
   }
 
   async handleEditComment(form: EditComment) {
-    const res = await apiWrapper(HttpService.client.editComment(form));
+    this.setState({ editCommentRes: { state: "loading" } });
+    const editCommentRes = await apiWrapper(
+      HttpService.client.editComment(form)
+    );
+    this.setState({ editCommentRes });
 
-    if (res.state == "success") {
-      toast(i18n.t("edit"));
-    }
+    this.findAndUpdateComment(editCommentRes);
   }
 
   async handleDeleteComment(form: DeleteComment) {
-    const res = await apiWrapper(HttpService.client.deleteComment(form));
-    if (res.state == "success") {
-      toast(i18n.t("deleted"));
-    }
+    this.setState({ deleteCommentRes: { state: "loading" } });
+    const deleteCommentRes = await apiWrapper(
+      HttpService.client.deleteComment(form)
+    );
+    this.setState({ deleteCommentRes });
+
+    this.findAndUpdateComment(deleteCommentRes);
   }
 
   async handleRemoveComment(form: RemoveComment) {
-    const res = await apiWrapper(HttpService.client.removeComment(form));
-    if (res.state == "success") {
-      toast(i18n.t("remove_comment"));
-    }
+    this.setState({ removeCommentRes: { state: "loading" } });
+    const removeCommentRes = await apiWrapper(
+      HttpService.client.removeComment(form)
+    );
+    this.setState({ removeCommentRes });
+
+    this.findAndUpdateComment(removeCommentRes);
   }
 
   async handleSaveComment(form: SaveComment) {
-    const res = await apiWrapper(HttpService.client.saveComment(form));
-    this.findAndUpdateComment(res);
+    this.setState({ saveCommentRes: { state: "loading" } });
+    const saveCommentRes = await apiWrapper(
+      HttpService.client.saveComment(form)
+    );
+    this.setState({ saveCommentRes });
+    this.findAndUpdateComment(saveCommentRes);
   }
 
   async handleCommentVote(form: CreateCommentLike) {
-    const res = await apiWrapper(HttpService.client.likeComment(form));
-    this.findAndUpdateComment(res);
+    this.setState({ voteCommentRes: { state: "loading" } });
+    const voteCommentRes = await apiWrapper(
+      HttpService.client.likeComment(form)
+    );
+    this.setState({ voteCommentRes });
+    this.findAndUpdateComment(voteCommentRes);
   }
 
   async handleCommentReport(form: CreateCommentReport) {
-    const reportRes = await apiWrapper(
+    this.setState({ reportCommentRes: { state: "loading" } });
+    const reportCommentRes = await apiWrapper(
       HttpService.client.createCommentReport(form)
     );
-    this.reportToast(reportRes);
+    this.setState({ reportCommentRes });
+    if (reportCommentRes.state == "success") {
+      toast(i18n.t("report_created"));
+    }
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
-    const res = await apiWrapper(HttpService.client.distinguishComment(form));
-    this.findAndUpdateComment(res);
+    this.setState({ distinguishCommentRes: { state: "loading" } });
+    const distinguishCommentRes = await apiWrapper(
+      HttpService.client.distinguishComment(form)
+    );
+    this.setState({ distinguishCommentRes });
+    this.findAndUpdateComment(distinguishCommentRes);
   }
 
   async handleAddAdmin(form: AddAdmin) {
+    this.setState({ addAdminRes: { state: "loading" } });
     const addAdminRes = await apiWrapper(HttpService.client.addAdmin(form));
+    this.setState({ addAdminRes });
 
     if (addAdminRes.state == "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
@@ -866,64 +1113,97 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    await apiWrapper(HttpService.client.transferCommunity(form));
+    this.setState({ transferCommunityRes: { state: "loading" } });
+    const transferCommunityRes = await apiWrapper(
+      HttpService.client.transferCommunity(form)
+    );
+    this.setState({ transferCommunityRes });
     toast(i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const res = await apiWrapper(
+    this.setState({ readCommentReplyRes: { state: "loading" } });
+    const readCommentReplyRes = await apiWrapper(
       HttpService.client.markCommentReplyAsRead(form)
     );
-    this.findAndUpdateCommentReply(res);
+    this.setState({ readCommentReplyRes });
+    this.findAndUpdateCommentReply(readCommentReplyRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
-    const res = await apiWrapper(
+    this.setState({ readPersonMentionRes: { state: "loading" } });
+    const readPersonMentionRes = await apiWrapper(
       HttpService.client.markPersonMentionAsRead(form)
     );
-    this.findAndUpdateMention(res);
+    this.setState({ readPersonMentionRes });
+    this.findAndUpdateMention(readPersonMentionRes);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
-    const banRes = await apiWrapper(HttpService.client.banFromCommunity(form));
-    this.updateBanFromCommunity(banRes);
+    this.setState({ banFromCommunityRes: { state: "loading" } });
+    const banFromCommunityRes = await apiWrapper(
+      HttpService.client.banFromCommunity(form)
+    );
+    this.setState({ banFromCommunityRes });
+    this.updateBanFromCommunity(banFromCommunityRes);
   }
 
   async handleBanPerson(form: BanPerson) {
-    const banRes = await apiWrapper(HttpService.client.banPerson(form));
-    this.updateBan(banRes);
+    this.setState({ banPersonRes: { state: "loading" } });
+    const banPersonRes = await apiWrapper(HttpService.client.banPerson(form));
+    this.setState({ banPersonRes });
+    this.updateBan(banPersonRes);
   }
 
   async handleDeleteMessage(form: DeletePrivateMessage) {
-    const res = await apiWrapper(HttpService.client.deletePrivateMessage(form));
-    this.findAndUpdateMessage(res);
+    this.setState({ deletePrivateMessageRes: { state: "loading" } });
+    const deletePrivateMessageRes = await apiWrapper(
+      HttpService.client.deletePrivateMessage(form)
+    );
+    this.setState({ deletePrivateMessageRes });
+    this.findAndUpdateMessage(deletePrivateMessageRes);
   }
 
   async handleEditMessage(form: EditPrivateMessage) {
-    const res = await apiWrapper(HttpService.client.editPrivateMessage(form));
-    this.findAndUpdateMessage(res);
+    this.setState({ editPrivateMessageRes: { state: "loading" } });
+    const editPrivateMessageRes = await apiWrapper(
+      HttpService.client.editPrivateMessage(form)
+    );
+    this.setState({ editPrivateMessageRes });
+    this.findAndUpdateMessage(editPrivateMessageRes);
   }
 
   async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
-    const res = await apiWrapper(
+    this.setState({ readPrivateMessageRes: { state: "loading" } });
+    const readPrivateMessageRes = await apiWrapper(
       HttpService.client.markPrivateMessageAsRead(form)
     );
-    this.findAndUpdateMessage(res);
+    this.setState({ readPrivateMessageRes });
+    this.findAndUpdateMessage(readPrivateMessageRes);
   }
 
   async handleMessageReport(form: CreatePrivateMessageReport) {
-    const res = await apiWrapper(
+    this.setState({ reportPrivateMessageRes: { state: "loading" } });
+    const reportPrivateMessageRes = await apiWrapper(
       HttpService.client.createPrivateMessageReport(form)
     );
-    this.reportToast(res);
+    this.setState({ reportPrivateMessageRes });
+    this.reportToast(reportPrivateMessageRes);
   }
 
   async handleCreateMessage(form: CreatePrivateMessage) {
-    const res = await apiWrapper(HttpService.client.createPrivateMessage(form));
+    this.setState({ createPrivateMessageRes: { state: "loading" } });
+    const createPrivateMessageRes = await apiWrapper(
+      HttpService.client.createPrivateMessage(form)
+    );
+    this.setState({ createPrivateMessageRes });
     this.setState(s => {
-      if (s.messagesRes.state == "success" && res.state == "success") {
+      if (
+        s.messagesRes.state == "success" &&
+        createPrivateMessageRes.state == "success"
+      ) {
         s.messagesRes.data.private_messages.unshift(
-          res.data.private_message_view
+          createPrivateMessageRes.data.private_message_view
         );
       }
 

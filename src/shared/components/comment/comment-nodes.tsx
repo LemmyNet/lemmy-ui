@@ -75,7 +75,7 @@ interface CommentNodesProps {
   addModLoading: boolean;
   addAdminLoading: boolean;
   transferCommunityLoading: boolean;
-  fetchChildrenLoading: boolean;
+  fetchChildrenLoading?: boolean;
   reportLoading: boolean;
   purgeLoading: boolean;
 }

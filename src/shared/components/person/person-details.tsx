@@ -77,7 +77,8 @@ interface PersonDetailsProps {
   onDeletePost(form: DeletePost): void;
   onRemovePost(form: RemovePost): void;
   onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
+  onFeaturePostLocal(form: FeaturePost): void;
+  onFeaturePostCommunity(form: FeaturePost): void;
   onPurgePost(form: PurgePost): void;
   createOrEditCommentLoading: boolean;
   upvoteCommentLoading: boolean;
@@ -92,9 +93,10 @@ interface PersonDetailsProps {
   addModLoading: boolean;
   addAdminLoading: boolean;
   transferCommunityLoading: boolean;
-  fetchChildrenLoading: boolean;
+  fetchChildrenLoading?: boolean;
   reportCommentLoading: boolean;
   purgeCommentLoading: boolean;
+  purgePostLoading: boolean;
   upvotePostLoading: boolean;
   downvotePostLoading: boolean;
   reportPostLoading: boolean;
@@ -237,7 +239,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onDeletePost={this.props.onDeletePost}
             onRemovePost={this.props.onRemovePost}
             onSavePost={this.props.onSavePost}
-            onFeaturePost={this.props.onFeaturePost}
+            onFeaturePostLocal={this.props.onFeaturePostLocal}
+            onFeaturePostCommunity={this.props.onFeaturePostCommunity}
             onPurgePerson={this.props.onPurgePerson}
             onPurgePost={this.props.onPurgePost}
             onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
@@ -259,7 +262,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             addModLoading={this.props.addModLoading}
             addAdminLoading={this.props.addAdminLoading}
             transferLoading={this.props.transferCommunityLoading}
-            purgeLoading={this.props.purgeCommentLoading}
+            purgeLoading={this.props.purgePostLoading}
           />
         );
       }
@@ -377,7 +380,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               onDeletePost={this.props.onDeletePost}
               onRemovePost={this.props.onRemovePost}
               onSavePost={this.props.onSavePost}
-              onFeaturePost={this.props.onFeaturePost}
+              onFeaturePostLocal={this.props.onFeaturePostLocal}
+              onFeaturePostCommunity={this.props.onFeaturePostCommunity}
               onPurgePerson={this.props.onPurgePerson}
               onPurgePost={this.props.onPurgePost}
               onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}

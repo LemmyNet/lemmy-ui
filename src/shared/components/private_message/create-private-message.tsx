@@ -1,8 +1,10 @@
 import { Component } from "inferno";
 import {
+  CreatePrivateMessage as CreatePrivateMessageI,
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
+  PrivateMessageResponse,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
@@ -30,6 +32,7 @@ interface CreatePrivateMessageState {
   siteRes: GetSiteResponse;
   recipientRes: RequestState<GetPersonDetailsResponse>;
   recipientId: number;
+  createMessageRes: RequestState<PrivateMessageResponse>;
 }
 
 export class CreatePrivateMessage extends Component<
@@ -40,7 +43,8 @@ export class CreatePrivateMessage extends Component<
   private subscription?: Subscription;
   state: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
-    recipientRes: { state: "loading" },
+    recipientRes: { state: "empty" },
+    createMessageRes: { state: "empty" },
     recipientId: getRecipientIdFromProps(this.props),
   };
 
@@ -131,6 +135,7 @@ export class CreatePrivateMessage extends Component<
               <PrivateMessageForm
                 onCreate={this.handlePrivateMessageCreate}
                 recipient={res.person_view.person}
+                loading={this.state.createMessageRes.state == "loading"}
               />
             </div>
           </div>
@@ -151,10 +156,17 @@ export class CreatePrivateMessage extends Component<
     );
   }
 
-  handlePrivateMessageCreate() {
-    toast(i18n.t("message_sent"));
+  async handlePrivateMessageCreate(form: CreatePrivateMessageI) {
+    this.setState({ createMessageRes: { state: "loading" } });
+    const createMessageRes = await apiWrapper(
+      HttpService.client.createPrivateMessage(form)
+    );
+    this.setState({ createMessageRes });
+    if (createMessageRes.state == "success") {
+      toast(i18n.t("message_sent"));
 
-    // Navigate to the front
-    this.context.router.history.push("/");
+      // Navigate to the front
+      this.context.router.history.push("/");
+    }
   }
 }

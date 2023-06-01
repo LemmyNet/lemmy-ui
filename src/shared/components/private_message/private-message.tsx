@@ -23,9 +23,6 @@ interface PrivateMessageState {
   viewSource: boolean;
   showReportDialog: boolean;
   reportReason?: string;
-  deleteLoading: boolean;
-  readLoading: boolean;
-  reportLoading: boolean;
 }
 
 interface PrivateMessageProps {
@@ -35,6 +32,10 @@ interface PrivateMessageProps {
   onReport(form: CreatePrivateMessageReport): void;
   onCreate(form: CreatePrivateMessage): void;
   onEdit(form: EditPrivateMessage): void;
+  deleteLoading: boolean;
+  createOrEditLoading: boolean;
+  readLoading: boolean;
+  reportLoading: boolean;
 }
 
 export class PrivateMessage extends Component<
@@ -47,9 +48,6 @@ export class PrivateMessage extends Component<
     collapsed: false,
     viewSource: false,
     showReportDialog: false,
-    deleteLoading: false,
-    readLoading: false,
-    reportLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -109,6 +107,7 @@ export class PrivateMessage extends Component<
               privateMessageView={message_view}
               onEdit={this.props.onEdit}
               onCancel={this.handleReplyCancel}
+              loading={this.props.createOrEditLoading}
             />
           )}
           {!this.state.showEdit && !this.state.collapsed && (
@@ -139,7 +138,7 @@ export class PrivateMessage extends Component<
                             : i18n.t("mark_as_read")
                         }
                       >
-                        {this.state.readLoading ? (
+                        {this.props.readLoading ? (
                           <Spinner />
                         ) : (
                           <Icon
@@ -192,7 +191,7 @@ export class PrivateMessage extends Component<
                             : i18n.t("restore")
                         }
                       >
-                        {this.state.deleteLoading ? (
+                        {this.props.deleteLoading ? (
                           <Spinner />
                         ) : (
                           <Icon
@@ -248,7 +247,7 @@ export class PrivateMessage extends Component<
               className="btn btn-secondary"
               aria-label={i18n.t("create_report")}
             >
-              {this.state.reportLoading ? <Spinner /> : i18n.t("create_report")}
+              {this.props.reportLoading ? <Spinner /> : i18n.t("create_report")}
             </button>
           </form>
         )}
@@ -256,6 +255,7 @@ export class PrivateMessage extends Component<
           <PrivateMessageForm
             recipient={otherPerson}
             onCreate={this.props.onCreate}
+            loading={this.props.createOrEditLoading}
           />
         )}
         {/* A collapsed clearfix */}
@@ -292,7 +292,6 @@ export class PrivateMessage extends Component<
   }
 
   handleDeleteClick(i: PrivateMessage) {
-    i.setState({ deleteLoading: true });
     i.props.onDelete({
       private_message_id: i.props.private_message_view.private_message.id,
       deleted: !i.props.private_message_view.private_message.deleted,
@@ -305,7 +304,6 @@ export class PrivateMessage extends Component<
   }
 
   handleMarkRead(i: PrivateMessage) {
-    i.setState({ readLoading: true });
     i.props.onMarkRead({
       private_message_id: i.props.private_message_view.private_message.id,
       read: !i.props.private_message_view.private_message.read,
@@ -330,7 +328,6 @@ export class PrivateMessage extends Component<
   }
 
   handleReportSubmit(i: PrivateMessage) {
-    i.setState({ reportLoading: true });
     i.props.onReport({
       private_message_id: i.props.private_message_view.private_message.id,
       reason: i.state.reportReason ?? "",

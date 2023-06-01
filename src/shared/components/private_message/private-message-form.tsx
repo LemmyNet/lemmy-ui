@@ -24,11 +24,11 @@ interface PrivateMessageFormProps {
   onCancel?(): any;
   onCreate?(form: CreatePrivateMessage): void;
   onEdit?(form: EditPrivateMessage): void;
+  loading: boolean;
 }
 
 interface PrivateMessageFormState {
   content?: string;
-  loading: boolean;
   previewMode: boolean;
   showDisclaimer: boolean;
 }
@@ -38,21 +38,17 @@ export class PrivateMessageForm extends Component<
   PrivateMessageFormState
 > {
   state: PrivateMessageFormState = {
-    loading: false,
     previewMode: false,
     showDisclaimer: false,
+    content: this.props.privateMessageView
+      ? this.props.privateMessageView.private_message.content
+      : undefined,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
     this.handleContentChange = this.handleContentChange.bind(this);
-
-    // Its an edit
-    if (this.props.privateMessageView) {
-      this.state.content =
-        this.props.privateMessageView.private_message.content;
-    }
   }
 
   componentDidMount() {
@@ -61,7 +57,7 @@ export class PrivateMessageForm extends Component<
 
   // TODO what is this
   componentDidUpdate() {
-    if (!this.state.loading && this.state.content) {
+    if (!this.props.loading && this.state.content) {
       window.onbeforeunload = () => true;
     } else {
       window.onbeforeunload = null;
@@ -72,7 +68,7 @@ export class PrivateMessageForm extends Component<
     return (
       <div>
         <Prompt
-          when={!this.state.loading && this.state.content}
+          when={!this.props.loading && this.state.content}
           message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
@@ -132,9 +128,9 @@ export class PrivateMessageForm extends Component<
               <button
                 type="submit"
                 className="btn btn-secondary mr-2"
-                disabled={this.state.loading}
+                disabled={this.props.loading}
               >
-                {this.state.loading ? (
+                {this.props.loading ? (
                   <Spinner />
                 ) : this.props.privateMessageView ? (
                   capitalizeFirstLetter(i18n.t("save"))
@@ -162,7 +158,6 @@ export class PrivateMessageForm extends Component<
   }
 
   handlePrivateMessageSubmit(i: PrivateMessageForm) {
-    i.setState({ loading: true });
     let pm = i.props.privateMessageView;
     let auth = myAuthRequired();
     let content = i.state.content ?? "";

@@ -7,6 +7,7 @@ import {
   AddAdmin,
   AddAdminResponse,
   AddModToCommunity,
+  AddModToCommunityResponse,
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
@@ -29,7 +30,6 @@ import {
   DistinguishComment,
   EditComment,
   FeaturePost,
-  GetCommentsResponse,
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
@@ -108,9 +108,10 @@ interface ProfileState {
   removeData: boolean;
   siteRes: GetSiteResponse;
 
+  addModRes: RequestState<AddModToCommunityResponse>;
+
   votePostRes: RequestState<PostResponse>;
   reportPostRes: RequestState<PostReportResponse>;
-  blockPostRes: RequestState<PostResponse>;
   lockPostRes: RequestState<PostResponse>;
   deletePostRes: RequestState<PostResponse>;
   removePostRes: RequestState<PostResponse>;
@@ -134,7 +135,6 @@ interface ProfileState {
   deleteCommentRes: RequestState<CommentResponse>;
   removeCommentRes: RequestState<CommentResponse>;
   distinguishCommentRes: RequestState<CommentResponse>;
-  fetchChildrenRes: RequestState<GetCommentsResponse>;
   reportCommentRes: RequestState<CommentReportResponse>;
   purgeCommentRes: RequestState<PurgeItemResponse>;
 }
@@ -200,9 +200,9 @@ export class Profile extends Component<
     siteRes: this.isoData.site_res,
     showBanDialog: false,
     removeData: false,
+    addModRes: { state: "empty" },
     votePostRes: { state: "empty" },
     reportPostRes: { state: "empty" },
-    blockPostRes: { state: "empty" },
     lockPostRes: { state: "empty" },
     deletePostRes: { state: "empty" },
     removePostRes: { state: "empty" },
@@ -225,7 +225,6 @@ export class Profile extends Component<
     deleteCommentRes: { state: "empty" },
     removeCommentRes: { state: "empty" },
     distinguishCommentRes: { state: "empty" },
-    fetchChildrenRes: { state: "empty" },
     reportCommentRes: { state: "empty" },
     purgeCommentRes: { state: "empty" },
   };
@@ -264,7 +263,9 @@ export class Profile extends Component<
     this.handleRemovePost = this.handleRemovePost.bind(this);
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
-    this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleFeaturePostLocal = this.handleFeaturePostLocal.bind(this);
+    this.handleFeaturePostCommunity =
+      this.handleFeaturePostCommunity.bind(this);
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
@@ -429,7 +430,63 @@ export class Profile extends Component<
                 onRemovePost={this.handleRemovePost}
                 onSavePost={this.handleSavePost}
                 onPurgePost={this.handlePurgePost}
-                onFeaturePost={this.handleFeaturePost}
+                onFeaturePostLocal={this.handleFeaturePostLocal}
+                onFeaturePostCommunity={this.handleFeaturePostCommunity}
+                upvotePostLoading={this.state.votePostRes.state == "loading"}
+                downvotePostLoading={this.state.votePostRes.state == "loading"}
+                reportPostLoading={this.state.reportPostRes.state == "loading"}
+                blockPersonLoading={
+                  this.state.blockPersonRes.state == "loading"
+                }
+                lockPostLoading={this.state.lockPostRes.state == "loading"}
+                deletePostLoading={this.state.deletePostRes.state == "loading"}
+                removePostLoading={this.state.removePostRes.state == "loading"}
+                savePostLoading={this.state.savePostRes.state == "loading"}
+                featureCommunityLoading={
+                  this.state.featurePostCommunityRes.state == "loading"
+                }
+                featureLocalLoading={
+                  this.state.featurePostLocalRes.state == "loading"
+                }
+                banLoading={this.state.banPersonRes.state == "loading"}
+                addModLoading={this.state.addModRes.state == "loading"}
+                addAdminLoading={this.state.addAdminRes.state == "loading"}
+                transferCommunityLoading={
+                  this.state.transferCommunityRes.state == "loading"
+                }
+                purgeCommentLoading={
+                  this.state.purgeCommentRes.state == "loading"
+                }
+                purgePostLoading={this.state.purgePersonRes.state == "loading"}
+                createOrEditCommentLoading={
+                  this.state.createCommentRes.state == "loading" ||
+                  this.state.editCommentRes.state == "loading"
+                }
+                upvoteCommentLoading={
+                  this.state.voteCommentRes.state == "loading"
+                }
+                downvoteCommentLoading={
+                  this.state.voteCommentRes.state == "loading"
+                }
+                saveCommentLoading={
+                  this.state.saveCommentRes.state == "loading"
+                }
+                readCommentLoading={
+                  this.state.readCommentReplyRes.state == "loading" ||
+                  this.state.readPersonMentionRes.state == "loading"
+                }
+                deleteCommentLoading={
+                  this.state.deleteCommentRes.state == "loading"
+                }
+                removeCommentLoading={
+                  this.state.removeCommentRes.state == "loading"
+                }
+                distinguishCommentLoading={
+                  this.state.distinguishCommentRes.state == "loading"
+                }
+                reportCommentLoading={
+                  this.state.reportCommentRes.state == "loading"
+                }
               />
             </div>
 
@@ -828,7 +885,9 @@ export class Profile extends Component<
         i.setState({ removeData: false });
       }
 
-      const res = await apiWrapper(
+      i.setState({ banPersonRes: { state: "loading" } });
+
+      const banPersonRes = await apiWrapper(
         HttpService.client.banPerson({
           person_id: person.id,
           ban,
@@ -838,14 +897,16 @@ export class Profile extends Component<
           auth: myAuthRequired(),
         })
       );
+      i.setState({ banPersonRes });
 
-      this.updateBan(res);
+      i.updateBan(banPersonRes);
       i.setState({ showBanDialog: false });
     }
   }
 
   async toggleBlockPerson(recipientId: number, block: boolean) {
-    const res = await apiWrapper(
+    this.setState({ blockPersonRes: { state: "loading" } });
+    const blockPersonRes = await apiWrapper(
       HttpService.client.blockPerson({
         person_id: recipientId,
         block,
@@ -853,8 +914,9 @@ export class Profile extends Component<
       })
     );
 
-    if (res.state == "success") {
-      updatePersonBlock(res.data);
+    this.setState({ blockPersonRes });
+    if (blockPersonRes.state == "success") {
+      updatePersonBlock(blockPersonRes.data);
     }
   }
 
@@ -867,33 +929,42 @@ export class Profile extends Component<
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
-    // TODO not sure what to do here
-    await apiWrapper(HttpService.client.addModToCommunity(form));
+    this.setState({ addModRes: { state: "loading" } });
+    this.setState({
+      addModRes: await apiWrapper(HttpService.client.addModToCommunity(form)),
+    });
   }
 
   async handlePurgePerson(form: PurgePerson) {
-    const purgePersonRes = await apiWrapper(
-      HttpService.client.purgePerson(form)
-    );
-    this.purgeItem(purgePersonRes);
+    this.setState({ purgePersonRes: { state: "loading" } });
+    this.setState({
+      purgePersonRes: await apiWrapper(HttpService.client.purgePerson(form)),
+    });
+    this.purgeItem(this.state.purgePersonRes);
   }
 
   async handlePurgeComment(form: PurgeComment) {
-    const purgeCommentRes = await apiWrapper(
-      HttpService.client.purgeComment(form)
-    );
-    this.purgeItem(purgeCommentRes);
+    this.setState({ purgeCommentRes: { state: "loading" } });
+    this.setState({
+      purgeCommentRes: await apiWrapper(HttpService.client.purgeComment(form)),
+    });
+    this.purgeItem(this.state.purgeCommentRes);
   }
 
   async handlePurgePost(form: PurgePost) {
-    const purgeRes = await apiWrapper(HttpService.client.purgePost(form));
-    this.purgeItem(purgeRes);
+    this.setState({ purgePostRes: { state: "loading" } });
+    this.setState({
+      purgePostRes: await apiWrapper(HttpService.client.purgePost(form)),
+    });
+    this.purgeItem(this.state.purgePostRes);
   }
 
   async handleBlockPersonAlt(form: BlockPerson) {
+    this.setState({ blockPersonRes: { state: "loading" } });
     const blockPersonRes = await apiWrapper(
       HttpService.client.blockPerson(form)
     );
+    this.setState({ blockPersonRes });
 
     if (blockPersonRes.state == "success") {
       updatePersonBlock(blockPersonRes.data);
@@ -901,9 +972,12 @@ export class Profile extends Component<
   }
 
   async handleCreateComment(form: CreateComment) {
+    this.setState({ createCommentRes: { state: "loading" } });
+
     const createCommentRes = await apiWrapper(
       HttpService.client.createComment(form)
     );
+    this.setState({ createCommentRes });
 
     this.setState(s => {
       if (
@@ -917,98 +991,142 @@ export class Profile extends Component<
   }
 
   async handleEditComment(form: EditComment) {
+    this.setState({ editCommentRes: { state: "loading" } });
     const editCommentRes = await apiWrapper(
       HttpService.client.editComment(form)
     );
+    this.setState({ editCommentRes });
 
     this.findAndUpdateComment(editCommentRes);
   }
 
   async handleDeleteComment(form: DeleteComment) {
+    this.setState({ deleteCommentRes: { state: "loading" } });
     const deleteCommentRes = await apiWrapper(
       HttpService.client.deleteComment(form)
     );
+    this.setState({ deleteCommentRes });
 
     this.findAndUpdateComment(deleteCommentRes);
   }
 
   async handleDeletePost(form: DeletePost) {
-    const deleteRes = await apiWrapper(HttpService.client.deletePost(form));
-    this.findAndUpdatePost(deleteRes);
+    this.setState({ deletePostRes: { state: "loading" } });
+    const deletePostRes = await apiWrapper(HttpService.client.deletePost(form));
+    this.setState({ deletePostRes });
+    this.findAndUpdatePost(deletePostRes);
   }
 
   async handleRemovePost(form: RemovePost) {
-    const removeRes = await apiWrapper(HttpService.client.removePost(form));
-    this.findAndUpdatePost(removeRes);
+    this.setState({ removePostRes: { state: "loading" } });
+    const removePostRes = await apiWrapper(HttpService.client.removePost(form));
+    this.setState({ removePostRes });
+    this.findAndUpdatePost(removePostRes);
   }
 
   async handleRemoveComment(form: RemoveComment) {
+    this.setState({ removeCommentRes: { state: "loading" } });
     const removeCommentRes = await apiWrapper(
       HttpService.client.removeComment(form)
     );
+    this.setState({ removeCommentRes });
 
     this.findAndUpdateComment(removeCommentRes);
   }
 
   async handleSaveComment(form: SaveComment) {
+    this.setState({ saveCommentRes: { state: "loading" } });
     const saveCommentRes = await apiWrapper(
       HttpService.client.saveComment(form)
     );
+    this.setState({ saveCommentRes });
     this.findAndUpdateComment(saveCommentRes);
   }
 
   async handleSavePost(form: SavePost) {
-    const saveRes = await apiWrapper(HttpService.client.savePost(form));
-    this.findAndUpdatePost(saveRes);
+    this.setState({ savePostRes: { state: "loading" } });
+    const savePostRes = await apiWrapper(HttpService.client.savePost(form));
+    this.setState({ savePostRes });
+    this.findAndUpdatePost(savePostRes);
   }
 
-  async handleFeaturePost(form: FeaturePost) {
-    const featureRes = await apiWrapper(HttpService.client.featurePost(form));
-    this.findAndUpdatePost(featureRes);
+  async handleFeaturePostLocal(form: FeaturePost) {
+    this.setState({ featurePostLocalRes: { state: "loading" } });
+    const featurePostLocalRes = await apiWrapper(
+      HttpService.client.featurePost(form)
+    );
+    this.setState({ featurePostLocalRes });
+    this.findAndUpdatePost(featurePostLocalRes);
+  }
+
+  async handleFeaturePostCommunity(form: FeaturePost) {
+    this.setState({ featurePostCommunityRes: { state: "loading" } });
+    const featurePostCommunityRes = await apiWrapper(
+      HttpService.client.featurePost(form)
+    );
+    this.setState({ featurePostCommunityRes });
+    this.findAndUpdatePost(featurePostCommunityRes);
   }
 
   async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = await apiWrapper(HttpService.client.likeComment(form));
-    this.findAndUpdateComment(voteRes);
+    this.setState({ voteCommentRes: { state: "loading" } });
+    const voteCommentRes = await apiWrapper(
+      HttpService.client.likeComment(form)
+    );
+    this.setState({ voteCommentRes });
+    this.findAndUpdateComment(voteCommentRes);
   }
 
   async handlePostVote(form: CreatePostLike) {
-    const voteRes = await apiWrapper(HttpService.client.likePost(form));
-    this.findAndUpdatePost(voteRes);
+    this.setState({ votePostRes: { state: "loading" } });
+    const votePostRes = await apiWrapper(HttpService.client.likePost(form));
+    this.setState({ votePostRes });
+    this.findAndUpdatePost(votePostRes);
   }
 
   async handleCommentReport(form: CreateCommentReport) {
-    const reportRes = await apiWrapper(
+    this.setState({ reportCommentRes: { state: "loading" } });
+    const reportCommentRes = await apiWrapper(
       HttpService.client.createCommentReport(form)
     );
-    if (reportRes.state == "success") {
+    this.setState({ reportCommentRes });
+    if (reportCommentRes.state == "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
-    const reportRes = await apiWrapper(
+    this.setState({ reportPostRes: { state: "loading" } });
+    const reportPostRes = await apiWrapper(
       HttpService.client.createPostReport(form)
     );
-    if (reportRes.state == "success") {
+    this.setState({ reportPostRes });
+    if (reportPostRes.state == "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handleLockPost(form: LockPost) {
-    const lockRes = await apiWrapper(HttpService.client.lockPost(form));
-    this.findAndUpdatePost(lockRes);
+    this.setState({ lockPostRes: { state: "loading" } });
+    const lockPostRes = await apiWrapper(HttpService.client.lockPost(form));
+    this.setState({ lockPostRes });
+
+    this.findAndUpdatePost(lockPostRes);
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
-    const distinguishRes = await apiWrapper(
+    this.setState({ distinguishCommentRes: { state: "loading" } });
+    const distinguishCommentRes = await apiWrapper(
       HttpService.client.distinguishComment(form)
     );
-    this.findAndUpdateComment(distinguishRes);
+    this.setState({ distinguishCommentRes });
+    this.findAndUpdateComment(distinguishCommentRes);
   }
 
   async handleAddAdmin(form: AddAdmin) {
+    this.setState({ addAdminRes: { state: "loading" } });
     const addAdminRes = await apiWrapper(HttpService.client.addAdmin(form));
+    this.setState({ addAdminRes });
 
     if (addAdminRes.state == "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
@@ -1016,30 +1134,46 @@ export class Profile extends Component<
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    await apiWrapper(HttpService.client.transferCommunity(form));
+    this.setState({ transferCommunityRes: { state: "loading" } });
+    const transferCommunityRes = await apiWrapper(
+      HttpService.client.transferCommunity(form)
+    );
+    this.setState({ transferCommunityRes });
     toast(i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await apiWrapper(
+    this.setState({ readCommentReplyRes: { state: "loading" } });
+    const readCommentReplyRes = await apiWrapper(
       HttpService.client.markCommentReplyAsRead(form)
     );
-    this.findAndUpdateCommentReply(readRes);
+    this.setState({ readCommentReplyRes });
+    this.findAndUpdateCommentReply(readCommentReplyRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
+    this.setState({ readPersonMentionRes: { state: "loading" } });
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await apiWrapper(HttpService.client.markPersonMentionAsRead(form));
+    const readPersonMentionRes = await apiWrapper(
+      HttpService.client.markPersonMentionAsRead(form)
+    );
+    this.setState({ readPersonMentionRes });
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
-    const banRes = await apiWrapper(HttpService.client.banFromCommunity(form));
-    this.updateBanFromCommunity(banRes);
+    this.setState({ banFromCommunityRes: { state: "loading" } });
+    const banFromCommunityRes = await apiWrapper(
+      HttpService.client.banFromCommunity(form)
+    );
+    this.setState({ banFromCommunityRes });
+    this.updateBanFromCommunity(banFromCommunityRes);
   }
 
   async handleBanPerson(form: BanPerson) {
-    const banRes = await apiWrapper(HttpService.client.banPerson(form));
-    this.updateBan(banRes);
+    this.setState({ banPersonRes: { state: "loading" } });
+    const banPersonRes = await apiWrapper(HttpService.client.banPerson(form));
+    this.setState({ banPersonRes });
+    this.updateBan(banPersonRes);
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
