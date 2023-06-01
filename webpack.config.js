@@ -69,11 +69,6 @@ const createServerConfig = (_env, mode) => {
   });
 
   if (mode === "development") {
-    config.cache = {
-      type: "filesystem",
-      name: "server",
-    };
-
     config.plugins.push(
       new RunNodeWebpackPlugin({
         runOnlyInWatchMode: true,
@@ -147,13 +142,6 @@ const createClientConfig = (_env, mode) => {
       }),
     ],
   });
-
-  if (mode === "development") {
-    config.cache = {
-      type: "filesystem",
-      name: "client",
-    };
-  }
 
   return config;
 };
