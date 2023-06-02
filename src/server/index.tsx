@@ -1,3 +1,4 @@
+import Cookies from "cookies";
 import express from "express";
 import { existsSync } from "fs";
 import { readdir, readFile } from "fs/promises";
@@ -5,7 +6,6 @@ import { IncomingHttpHeaders } from "http";
 import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
-import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp, Site } from "lemmy-js-client";
 import path from "path";
 import process from "process";
@@ -112,11 +112,11 @@ server.get("/css/themelist", async (_req, res) => {
   res.send(JSON.stringify(await buildThemeList()));
 });
 
-// server.use(cookieParser());
 server.get("/*", async (req, res) => {
   try {
+    const cookies = new Cookies(req, res);
     const activeRoute = routes.find(route => matchPath(req.path, route));
-    let auth: string | undefined = IsomorphicCookie.load("jwt", req);
+    let auth: string | undefined = cookies.get("jwt");
 
     const getSiteForm: GetSite = { auth };
 

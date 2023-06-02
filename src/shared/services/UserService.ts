@@ -1,5 +1,4 @@
-// import Cookies from 'js-cookie';
-import IsomorphicCookie from "isomorphic-cookie";
+import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { BehaviorSubject } from "rxjs";
@@ -38,7 +37,11 @@ export class UserService {
     expires.setDate(expires.getDate() + 365);
     if (res.jwt) {
       toast(i18n.t("logged_in"));
-      IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps() });
+      Cookies.set("jwt", res.jwt, {
+        expires,
+        secure: isHttps(),
+        sameSite: "Strict",
+      });
       this.setJwtInfo();
     }
   }
@@ -46,8 +49,7 @@ export class UserService {
   public logout() {
     this.jwtInfo = undefined;
     this.myUserInfo = undefined;
-    IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
-    document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
+    Cookies.remove("jwt");
     if (isAuthPath(location.pathname)) {
       location.replace("/");
     } else {
@@ -71,7 +73,7 @@ export class UserService {
   }
 
   private setJwtInfo() {
-    let jwt: string | undefined = IsomorphicCookie.load("jwt");
+    let jwt = Cookies.get("jwt");
 
     if (jwt) {
       this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
