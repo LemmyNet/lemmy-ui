@@ -157,6 +157,7 @@ export class Community extends Component<
 
     // All of the action binds
     this.handleDeleteCommunity = this.handleDeleteCommunity.bind(this);
+    this.handleEditCommunity = this.handleEditCommunity.bind(this);
     this.handleFollow = this.handleFollow.bind(this);
     this.handleRemoveCommunity = this.handleRemoveCommunity.bind(this);
     this.handleCreateComment = this.handleCreateComment.bind(this);

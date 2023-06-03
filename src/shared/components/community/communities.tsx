@@ -322,7 +322,7 @@ export class Communities extends Component<any, CommunitiesState> {
       })
     );
 
-    this.findAndUpdateCommunity(res);
+    data.i.findAndUpdateCommunity(res);
   }
 
   async refetch() {

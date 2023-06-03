@@ -130,6 +130,7 @@ export class Post extends Component<any, PostState> {
 
     this.handleDeleteCommunityClick =
       this.handleDeleteCommunityClick.bind(this);
+    this.handleEditCommunity = this.handleEditCommunity.bind(this);
     this.handleFollow = this.handleFollow.bind(this);
     this.handleModRemoveCommunity = this.handleModRemoveCommunity.bind(this);
     this.handleCreateComment = this.handleCreateComment.bind(this);

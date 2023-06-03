@@ -113,8 +113,18 @@ export class MarkdownTextArea extends Component<
   }
 
   componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
-    if (nextProps != this.props) {
-      this.setState({ previewMode: false, content: undefined });
+    if (
+      nextProps != this.props &&
+      // Don't trigger this on an initial content change (IE the form field version)
+      // This should only trigger in an
+      this.props.initialContent == nextProps.initialContent
+    ) {
+      this.setState({
+        previewMode: false,
+        imageUploadStatus: undefined,
+        loading: false,
+        content: undefined,
+      });
       if (this.props.replyType) {
         this.props.onReplyCancel?.();
       }

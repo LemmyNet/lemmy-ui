@@ -192,6 +192,31 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return this.commentView.comment.id;
   }
 
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({
+        createOrEditCommentLoading: false,
+        upvoteLoading: false,
+        downvoteLoading: false,
+        saveLoading: false,
+        readLoading: false,
+        blockPersonLoading: false,
+        deleteLoading: false,
+        removeLoading: false,
+        distinguishLoading: false,
+        banLoading: false,
+        addModLoading: false,
+        addAdminLoading: false,
+        transferCommunityLoading: false,
+        fetchChildrenLoading: false,
+        reportLoading: false,
+        purgeLoading: false,
+      });
+    }
+  }
+
   render() {
     let node = this.props.node;
     let cv = this.commentView;

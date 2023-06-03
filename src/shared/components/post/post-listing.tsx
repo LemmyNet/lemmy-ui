@@ -169,12 +169,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
-    this.setState({
-      upvoteLoading: false,
-      downvoteLoading: false,
-    });
-    if (this.postView.post.id !== nextProps.post_view.post.id) {
-      this.setState({ imageExpanded: false });
+    if (this.props != nextProps) {
+      this.setState({
+        upvoteLoading: false,
+        downvoteLoading: false,
+        purgeLoading: false,
+        reportLoading: false,
+        blockLoading: false,
+        lockLoading: false,
+        deleteLoading: false,
+        removeLoading: false,
+        saveLoading: false,
+        featureCommunityLoading: false,
+        featureLocalLoading: false,
+        banLoading: false,
+        addModLoading: false,
+        addAdminLoading: false,
+        transferLoading: false,
+        imageExpanded: false,
+      });
     }
   }
 
