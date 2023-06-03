@@ -94,7 +94,9 @@ export class Signup extends Component<any, State> {
   }
 
   async componentDidMount() {
-    await this.fetchCaptcha();
+    if (this.state.siteRes.site_view.local_site.captcha_enabled) {
+      await this.fetchCaptcha();
+    }
   }
 
   async fetchCaptcha() {
@@ -288,6 +290,7 @@ export class Signup extends Component<any, State> {
               </label>
               <div className="col-sm-10">
                 <MarkdownTextArea
+                  initialContent=""
                   onContentChange={this.handleAnswerChange}
                   hideNavigationWarnings
                   allLanguages={[]}
@@ -459,7 +462,7 @@ export class Signup extends Component<any, State> {
         // Only log them in if a jwt was set
         if (data.jwt) {
           UserService.Instance.login(data);
-          this.props.history.push("/communities");
+          i.props.history.push("/communities");
           location.reload();
         } else {
           if (data.verify_email_sent) {
@@ -468,7 +471,7 @@ export class Signup extends Component<any, State> {
           if (data.registration_created) {
             toast(i18n.t("registration_application_sent"));
           }
-          this.props.history.push("/");
+          i.props.history.push("/");
         }
       }
     }

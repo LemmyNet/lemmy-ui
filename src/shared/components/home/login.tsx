@@ -178,14 +178,14 @@ export class Login extends Component<any, State> {
       switch (i.state.loginRes.state) {
         case "failed":
           if (i.state.loginRes.msg == "missing_totp_token") {
-            this.setState({ showTotp: true, loginRes: { state: "empty" } });
+            i.setState({ showTotp: true, loginRes: { state: "empty" } });
             toast(i18n.t("enter_two_factor_code"));
           }
           break;
 
         case "success":
           UserService.Instance.login(i.state.loginRes.data);
-          this.props.history.push("/");
+          i.props.history.push("/");
           location.reload();
           break;
       }
