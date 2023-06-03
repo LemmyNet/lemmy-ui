@@ -749,7 +749,8 @@ export class Profile extends Component<
     i.setState({ showBanDialog: false });
   }
 
-  async handleModBanSubmit(i: Profile) {
+  async handleModBanSubmit(i: Profile, event: any) {
+    event.preventDefault();
     const { removeData, banReason, banExpireDays } = i.state;
 
     const personRes = i.state.personRes;

@@ -167,7 +167,8 @@ export class Setup extends Component<any, State> {
     );
   }
 
-  async handleRegisterSubmit(i: Setup) {
+  async handleRegisterSubmit(i: Setup, event: any) {
+    event.preventDefault();
     i.setState({ registerRes: { state: "loading" } });
     let cForm = i.state.form;
     if (cForm.username && cForm.password && cForm.password_verify) {

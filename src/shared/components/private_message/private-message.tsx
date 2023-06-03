@@ -329,7 +329,8 @@ export class PrivateMessage extends Component<
     i.setState({ reportReason: event.target.value });
   }
 
-  handleReportSubmit(i: PrivateMessage) {
+  handleReportSubmit(i: PrivateMessage, event: any) {
+    event.preventDefault();
     i.setState({ reportLoading: true });
     i.props.onReport({
       private_message_id: i.props.private_message_view.private_message.id,

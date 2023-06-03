@@ -2,7 +2,6 @@ import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { CreateComment, EditComment, Language } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { CommentNodeI } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
@@ -30,7 +29,6 @@ interface CommentFormState {
 }
 
 export class CommentForm extends Component<CommentFormProps, CommentFormState> {
-  private subscription?: Subscription;
   state: CommentFormState = {
     buttonTitle:
       typeof this.props.node === "number"
@@ -45,10 +43,6 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
 
     this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
-  }
-
-  componentWillUnmount() {
-    this.subscription?.unsubscribe();
   }
 
   render() {

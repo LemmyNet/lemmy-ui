@@ -115,7 +115,8 @@ export class PasswordChange extends Component<any, State> {
     i.setState(i.state);
   }
 
-  async handlePasswordChangeSubmit(i: PasswordChange) {
+  async handlePasswordChangeSubmit(i: PasswordChange, event: any) {
+    event.preventDefault();
     i.setState({ passwordChangeRes: { state: "loading" } });
 
     let password = i.state.form.password;

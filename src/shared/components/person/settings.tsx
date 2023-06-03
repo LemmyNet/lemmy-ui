@@ -1161,7 +1161,8 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(s => ((s.changePasswordForm.old_password = oldPass), s));
   }
 
-  async handleSaveSettingsSubmit(i: Settings) {
+  async handleSaveSettingsSubmit(i: Settings, event: any) {
+    event.preventDefault();
     i.setState({ saveRes: { state: "loading" } });
     i.setState({
       saveRes: apiWrapper(
@@ -1180,7 +1181,8 @@ export class Settings extends Component<any, SettingsState> {
     }
   }
 
-  async handleChangePasswordSubmit(i: Settings) {
+  async handleChangePasswordSubmit(i: Settings, event: any) {
+    event.preventDefault();
     let pForm = i.state.changePasswordForm;
     let new_password = pForm.new_password;
     let new_password_verify = pForm.new_password_verify;

@@ -984,7 +984,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     }
   }
 
-  handleCreateSiteSubmit(i: SiteForm) {
+  handleCreateSiteSubmit(i: SiteForm, event: any) {
+    event.preventDefault();
     i.setState({ loading: true });
     let auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));

@@ -161,7 +161,8 @@ export class PrivateMessageForm extends Component<
     );
   }
 
-  handlePrivateMessageSubmit(i: PrivateMessageForm) {
+  handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
+    event.preventDefault();
     i.setState({ loading: true });
     let pm = i.props.privateMessageView;
     let auth = myAuthRequired();

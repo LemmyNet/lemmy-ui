@@ -483,7 +483,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  async handlePostSubmit(i: PostForm) {
+  async handlePostSubmit(i: PostForm, event: any) {
+    event.preventDefault();
     // Coerce empty url string to undefined
     if ((i.state.form.url ?? "blank") === "") {
       i.setState(s => ((s.form.url = undefined), s));

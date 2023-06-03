@@ -690,7 +690,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     });
   }
 
-  handleRemoveCommunity(i: Sidebar) {
+  handleRemoveCommunity(i: Sidebar, event: any) {
+    event.preventDefault();
     i.setState({ removeCommunityLoading: true });
     i.props.onRemoveCommunity({
       community_id: i.props.community_view.community.id,
@@ -701,7 +702,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     });
   }
 
-  handlePurgeCommunity(i: Sidebar) {
+  handlePurgeCommunity(i: Sidebar, event: any) {
+    event.preventDefault();
     i.setState({ purgeCommunityLoading: true });
     i.props.onPurgeCommunity({
       community_id: i.props.community_view.community.id,

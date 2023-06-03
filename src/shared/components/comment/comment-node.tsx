@@ -1450,7 +1450,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleRemoveComment(i: CommentNode) {
+  handleRemoveComment(i: CommentNode, event: any) {
+    event.preventDefault();
     i.setState({ removeLoading: true });
     i.props.onRemoveComment({
       comment_id: i.commentId,
@@ -1493,7 +1494,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleModBanBothSubmit(i: CommentNode) {
+  handleModBanBothSubmit(i: CommentNode, event: any) {
+    event.preventDefault();
     if (i.state.banType == BanType.Community) {
       i.handleBanPersonFromCommunity(i);
     } else {
@@ -1533,7 +1535,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleReportComment(i: CommentNode) {
+  handleReportComment(i: CommentNode, event: any) {
+    event.preventDefault();
     i.setState({ reportLoading: true });
     i.props.onCommentReport({
       comment_id: i.commentId,
@@ -1542,7 +1545,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handlePurgeBothSubmit(i: CommentNode) {
+  handlePurgeBothSubmit(i: CommentNode, event: any) {
+    event.preventDefault();
     i.setState({ purgeLoading: true });
 
     if (i.state.purgeType == PurgeType.Person) {

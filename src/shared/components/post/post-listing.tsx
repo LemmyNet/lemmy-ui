@@ -1454,7 +1454,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ reportReason: event.target.value });
   }
 
-  handleReportSubmit(i: PostListing) {
+  handleReportSubmit(i: PostListing, event: any) {
+    event.preventDefault();
     i.setState({ reportLoading: true });
     i.props.onPostReport({
       post_id: i.postView.post.id,
@@ -1539,7 +1540,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ removeData: event.target.checked });
   }
 
-  handleModRemoveSubmit(i: PostListing) {
+  handleModRemoveSubmit(i: PostListing, event: any) {
+    event.preventDefault();
     i.setState({ removeLoading: true });
     i.props.onRemovePost({
       post_id: i.postView.post.id,
@@ -1613,7 +1615,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ purgeReason: event.target.value });
   }
 
-  handlePurgeSubmit(i: PostListing) {
+  handlePurgeSubmit(i: PostListing, event: any) {
+    event.preventDefault();
     i.setState({ purgeLoading: true });
     if (i.state.purgeType == PurgeType.Person) {
       i.props.onPurgePerson({
@@ -1638,17 +1641,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ banExpireDays: event.target.value });
   }
 
-  handleModBanFromCommunitySubmit(i: PostListing) {
+  handleModBanFromCommunitySubmit(i: PostListing, event: any) {
     i.setState({ banType: BanType.Community });
-    i.handleModBanBothSubmit(i);
+    i.handleModBanBothSubmit(i, event);
   }
 
-  handleModBanSubmit(i: PostListing) {
+  handleModBanSubmit(i: PostListing, event: any) {
     i.setState({ banType: BanType.Site });
-    i.handleModBanBothSubmit(i);
+    i.handleModBanBothSubmit(i, event);
   }
 
-  handleModBanBothSubmit(i: PostListing) {
+  handleModBanBothSubmit(i: PostListing, event: any) {
+    event.preventDefault();
     i.setState({ banLoading: true });
 
     let ban = !i.props.post_view.creator_banned_from_community;

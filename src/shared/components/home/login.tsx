@@ -157,7 +157,8 @@ export class Login extends Component<any, State> {
     );
   }
 
-  async handleLoginSubmit(i: Login) {
+  async handleLoginSubmit(i: Login, event: any) {
+    event.preventDefault();
     let lForm = i.state.form;
     let username_or_email = lForm.username_or_email;
     let password = lForm.password;
