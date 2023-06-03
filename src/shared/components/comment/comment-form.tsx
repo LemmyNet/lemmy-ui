@@ -17,7 +17,7 @@ interface CommentFormProps {
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
-  onReplyCancel?(): any;
+  onReplyCancel?(): void;
   allLanguages: Language[];
   siteLanguages: number[];
   onCreateComment(form: CreateComment): void;

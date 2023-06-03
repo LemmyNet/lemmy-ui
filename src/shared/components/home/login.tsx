@@ -166,8 +166,8 @@ export class Login extends Component<any, State> {
     if (username_or_email && password) {
       i.setState({ loginRes: { state: "loading" } });
       i.setState({
-        loginRes: apiWrapper(
-          await HttpService.client.login({
+        loginRes: await apiWrapper(
+          HttpService.client.login({
             username_or_email,
             password,
             totp_2fa_token,
@@ -211,7 +211,7 @@ export class Login extends Component<any, State> {
     event.preventDefault();
     let email = i.state.form.username_or_email;
     if (email) {
-      const res = apiWrapper(await HttpService.client.passwordReset({ email }));
+      const res = await apiWrapper(HttpService.client.passwordReset({ email }));
       if (res.state == "success") {
         toast(i18n.t("reset_password_mail_sent"));
       }

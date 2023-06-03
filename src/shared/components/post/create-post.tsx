@@ -90,8 +90,8 @@ export class CreatePost extends Component<
     const auth = myAuth();
 
     if (communityId) {
-      const res = apiWrapper(
-        await HttpService.client.getCommunity({
+      const res = await apiWrapper(
+        HttpService.client.getCommunity({
           id: communityId,
           auth,
         })
@@ -172,7 +172,7 @@ export class CreatePost extends Component<
     );
   }
 
-  updateUrl({ communityId }: Partial<CreatePostProps>) {
+  async updateUrl({ communityId }: Partial<CreatePostProps>) {
     const { communityId: urlCommunityId } = getCreatePostQueryParams();
 
     const queryParams: QueryParams<CreatePostProps> = {
@@ -188,7 +188,7 @@ export class CreatePost extends Component<
       locationState
     );
 
-    this.fetchCommunity();
+    await this.fetchCommunity();
   }
 
   handleSelectedCommunityChange(choice: Choice) {
@@ -198,7 +198,7 @@ export class CreatePost extends Component<
   }
 
   async handlePostCreate(form: CreatePostI) {
-    const res = apiWrapper(await HttpService.client.createPost(form));
+    const res = await apiWrapper(HttpService.client.createPost(form));
     if (res.state == "success") {
       const postId = res.data.post_view.post.id;
       this.props.history.replace(`/post/${postId}`);

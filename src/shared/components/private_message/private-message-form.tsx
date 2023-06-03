@@ -41,18 +41,15 @@ export class PrivateMessageForm extends Component<
     loading: false,
     previewMode: false,
     showDisclaimer: false,
+    content: this.props.privateMessageView
+      ? this.props.privateMessageView.private_message.content
+      : undefined,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
     this.handleContentChange = this.handleContentChange.bind(this);
-
-    // Its an edit
-    if (this.props.privateMessageView) {
-      this.state.content =
-        this.props.privateMessageView.private_message.content;
-    }
   }
 
   componentDidMount() {

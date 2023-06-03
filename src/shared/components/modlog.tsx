@@ -30,7 +30,12 @@ import {
 import moment from "moment";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
-import { HttpService, RequestState, apiWrapper } from "../services/HttpService";
+import {
+  HttpService,
+  RequestState,
+  apiWrapper,
+  apiWrapperIso,
+} from "../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -656,7 +661,7 @@ export class Modlog extends Component<
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        res: apiWrapper(this.isoData.routeData[0] as GetModlogResponse),
+        res: apiWrapperIso(this.isoData.routeData[0] as GetModlogResponse),
       };
 
       const communityRes: GetCommunityResponse | undefined =
@@ -666,7 +671,7 @@ export class Modlog extends Component<
         // Getting the moderators
         this.state = {
           ...this.state,
-          communityRes: apiWrapper(communityRes),
+          communityRes: apiWrapperIso(communityRes),
         };
       }
 
@@ -946,8 +951,8 @@ export class Modlog extends Component<
 
     this.setState({ res: { state: "loading" } });
     this.setState({
-      res: apiWrapper(
-        await HttpService.client.getModlog({
+      res: await apiWrapper(
+        HttpService.client.getModlog({
           community_id: communityId,
           page,
           limit: fetchLimit,
@@ -965,8 +970,8 @@ export class Modlog extends Component<
     if (communityId) {
       this.setState({ communityRes: { state: "loading" } });
       this.setState({
-        communityRes: apiWrapper(
-          await HttpService.client.getCommunity({
+        communityRes: await apiWrapper(
+          HttpService.client.getCommunity({
             id: communityId,
             auth,
           })

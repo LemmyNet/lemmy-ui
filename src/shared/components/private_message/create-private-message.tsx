@@ -12,6 +12,7 @@ import {
   HttpService,
   RequestState,
   apiWrapper,
+  apiWrapperIso,
 } from "../../services/HttpService";
 import {
   getRecipientIdFromProps,
@@ -39,7 +40,7 @@ export class CreatePrivateMessage extends Component<
   private subscription?: Subscription;
   state: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
-    recipientRes: { state: "loading" },
+    recipientRes: { state: "empty" },
     recipientId: getRecipientIdFromProps(this.props),
   };
 
@@ -57,7 +58,7 @@ export class CreatePrivateMessage extends Component<
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        recipientRes: apiWrapper(
+        recipientRes: apiWrapperIso(
           this.isoData.routeData[0] as GetPersonDetailsResponse
         ),
       };
@@ -76,8 +77,8 @@ export class CreatePrivateMessage extends Component<
     });
 
     this.setState({
-      recipientRes: apiWrapper(
-        await HttpService.client.getPersonDetails({
+      recipientRes: await apiWrapper(
+        HttpService.client.getPersonDetails({
           person_id: this.state.recipientId,
           sort: "New",
           saved_only: false,

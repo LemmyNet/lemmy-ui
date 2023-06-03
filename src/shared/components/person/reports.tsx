@@ -21,7 +21,11 @@ import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, UserService } from "../../services";
-import { RequestState, apiWrapper } from "../../services/HttpService";
+import {
+  RequestState,
+  apiWrapper,
+  apiWrapperIso,
+} from "../../services/HttpService";
 import {
   amAdmin,
   editCommentReports,
@@ -108,17 +112,17 @@ export class Reports extends Component<any, ReportsState> {
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        commentReportsRes: apiWrapper(
+        commentReportsRes: apiWrapperIso(
           this.isoData.routeData[0] as ListCommentReportsResponse
         ),
-        postReportsRes: apiWrapper(
+        postReportsRes: apiWrapperIso(
           this.isoData.routeData[1] as ListPostReportsResponse
         ),
       };
       if (amAdmin()) {
         this.state = {
           ...this.state,
-          messageReportsRes: apiWrapper(
+          messageReportsRes: apiWrapperIso(
             this.isoData.routeData[2] as ListPrivateMessageReportsResponse
           ),
         };
@@ -537,36 +541,36 @@ export class Reports extends Component<any, ReportsState> {
       };
 
     this.setState({
-      commentReportsRes: apiWrapper(
-        await HttpService.client.listCommentReports(form)
+      commentReportsRes: await apiWrapper(
+        HttpService.client.listCommentReports(form)
       ),
-      postReportsRes: apiWrapper(
-        await HttpService.client.listPostReports(form)
+      postReportsRes: await apiWrapper(
+        HttpService.client.listPostReports(form)
       ),
     });
 
     if (amAdmin()) {
       this.setState({
-        messageReportsRes: apiWrapper(
-          await HttpService.client.listPrivateMessageReports(form)
+        messageReportsRes: await apiWrapper(
+          HttpService.client.listPrivateMessageReports(form)
         ),
       });
     }
   }
 
   async handleResolveCommentReport(form: ResolveCommentReport) {
-    const res = apiWrapper(await HttpService.client.resolveCommentReport(form));
+    const res = await apiWrapper(HttpService.client.resolveCommentReport(form));
     this.findAndUpdateCommentReport(res);
   }
 
   async handleResolvePostReport(form: ResolvePostReport) {
-    const res = apiWrapper(await HttpService.client.resolvePostReport(form));
+    const res = await apiWrapper(HttpService.client.resolvePostReport(form));
     this.findAndUpdatePostReport(res);
   }
 
   async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
-    const res = apiWrapper(
-      await HttpService.client.resolvePrivateMessageReport(form)
+    const res = await apiWrapper(
+      HttpService.client.resolvePrivateMessageReport(form)
     );
     this.findAndUpdatePrivateMessageReport(res);
   }

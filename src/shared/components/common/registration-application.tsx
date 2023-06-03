@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   ApproveRegistrationApplication,
@@ -37,6 +37,19 @@ export class RegistrationApplication extends Component<
   constructor(props: any, context: any) {
     super(props, context);
     this.handleDenyReasonChange = this.handleDenyReasonChange.bind(this);
+  }
+  componentWillReceiveProps(
+    nextProps: Readonly<
+      { children?: InfernoNode } & RegistrationApplicationProps
+    >
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({
+        denyExpanded: false,
+        approveLoading: false,
+        denyLoading: false,
+      });
+    }
   }
 
   render() {

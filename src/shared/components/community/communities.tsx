@@ -13,6 +13,7 @@ import {
   HttpService,
   RequestState,
   apiWrapper,
+  apiWrapperIso,
 } from "../../services/HttpService";
 import {
   QueryParams,
@@ -69,7 +70,7 @@ export class Communities extends Component<any, CommunitiesState> {
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        listCommunitiesResponse: apiWrapper(
+        listCommunitiesResponse: apiWrapperIso(
           this.isoData.routeData[0] as ListCommunitiesResponse
         ),
       };
@@ -314,8 +315,8 @@ export class Communities extends Component<any, CommunitiesState> {
     communityId: number;
     follow: boolean;
   }) {
-    const res = apiWrapper(
-      await HttpService.client.followCommunity({
+    const res = await apiWrapper(
+      HttpService.client.followCommunity({
         community_id: data.communityId,
         follow: data.follow,
         auth: myAuthRequired(),
@@ -331,8 +332,8 @@ export class Communities extends Component<any, CommunitiesState> {
     const { listingType, page } = this.getCommunitiesQueryParams();
 
     this.setState({
-      listCommunitiesResponse: apiWrapper(
-        await HttpService.client.listCommunities({
+      listCommunitiesResponse: await apiWrapper(
+        HttpService.client.listCommunities({
           type_: listingType,
           sort: "TopMonth",
           limit: communityLimit,

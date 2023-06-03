@@ -32,7 +32,31 @@ export type RequestState<T> =
   | FailedRequestState
   | SuccessRequestState<T>;
 
-export function apiWrapper<ResponseType>(
+export async function apiWrapper<ResponseType>(
+  req: Promise<ResponseType>
+): Promise<RequestState<ResponseType>> {
+  try {
+    const res = await req;
+    return {
+      state: "success",
+      data: res,
+    };
+  } catch (error) {
+    console.error(`API error: ${error}`);
+    toast(i18n.t(error), "danger");
+    return {
+      state: "failed",
+      msg: error,
+    };
+  }
+}
+
+/**
+ * A Special type of apiWrapper, used only for the iso routes.
+ *
+ * Necessary because constructors can't be async
+ */
+export function apiWrapperIso<ResponseType>(
   res: ResponseType
 ): RequestState<ResponseType> {
   try {
@@ -41,6 +65,7 @@ export function apiWrapper<ResponseType>(
       data: res,
     };
   } catch (error) {
+    console.error(`API error: ${error}`);
     toast(i18n.t(error), "danger");
     return {
       state: "failed",

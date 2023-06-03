@@ -544,8 +544,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (url && validURL(url)) {
       this.setState({ metadataRes: { state: "loading" } });
       this.setState({
-        metadataRes: apiWrapper(
-          await HttpService.client.getSiteMetadata({ url })
+        metadataRes: await apiWrapper(
+          HttpService.client.getSiteMetadata({ url })
         ),
       });
     }
@@ -561,8 +561,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (q && q !== "") {
       this.setState({ suggestedPostsRes: { state: "loading" } });
       this.setState({
-        suggestedPostsRes: apiWrapper(
-          await HttpService.client.search({
+        suggestedPostsRes: await apiWrapper(
+          HttpService.client.search({
             q,
             type_: "Posts",
             sort: "TopAll",

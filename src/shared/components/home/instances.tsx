@@ -10,6 +10,7 @@ import {
   HttpService,
   RequestState,
   apiWrapper,
+  apiWrapperIso,
 } from "../../services/HttpService";
 import { isInitialRoute, relTags, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
@@ -34,7 +35,7 @@ export class Instances extends Component<any, InstancesState> {
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        instancesRes: apiWrapper(
+        instancesRes: apiWrapperIso(
           this.isoData.routeData[0] as GetFederatedInstancesResponse
         ),
       };
@@ -53,8 +54,8 @@ export class Instances extends Component<any, InstancesState> {
     });
 
     this.setState({
-      instancesRes: apiWrapper(
-        await HttpService.client.getFederatedInstances({})
+      instancesRes: await apiWrapper(
+        HttpService.client.getFederatedInstances({})
       ),
     });
   }

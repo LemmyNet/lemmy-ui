@@ -34,12 +34,6 @@ function getHost() {
   return isBrowser() ? getExternalHost() : getInternalHost();
 }
 
-function getWsHost() {
-  return isBrowser()
-    ? window.lemmyConfig?.wsHost ?? getHost()
-    : process.env.LEMMY_UI_LEMMY_WS_HOST ?? getExternalHost();
-}
-
 function getBaseLocal(s = "") {
   return `http${s}://${getHost()}`;
 }
@@ -50,15 +44,11 @@ export function getHttpBaseInternal() {
 export function getHttpBase() {
   return getBaseLocal(getSecure());
 }
-export function getWsUri() {
-  return `ws${getSecure()}://${getWsHost()}/api/v3/ws`;
-}
 export function isHttps() {
   return getSecure() === "s";
 }
 
 console.log(`httpbase: ${getHttpBase()}`);
-console.log(`wsUri: ${getWsUri()}`);
 console.log(`isHttps: ${isHttps()}`);
 
 // This is for html tags, don't include port

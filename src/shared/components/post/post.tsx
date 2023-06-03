@@ -58,6 +58,7 @@ import {
 import { UserService } from "../../services";
 import {
   apiWrapper,
+  apiWrapperIso,
   HttpService,
   RequestState,
 } from "../../services/HttpService";
@@ -168,8 +169,8 @@ export class Post extends Component<any, PostState> {
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        postRes: apiWrapper(this.isoData.routeData[0] as GetPostResponse),
-        commentsRes: apiWrapper(
+        postRes: apiWrapperIso(this.isoData.routeData[0] as GetPostResponse),
+        commentsRes: apiWrapperIso(
           this.isoData.routeData[1] as GetCommentsResponse
         ),
       };
@@ -191,15 +192,15 @@ export class Post extends Component<any, PostState> {
     const auth = myAuth();
 
     this.setState({
-      postRes: apiWrapper(
-        await HttpService.client.getPost({
+      postRes: await apiWrapper(
+        HttpService.client.getPost({
           id: this.state.postId,
           comment_id: this.state.commentId,
           auth,
         })
       ),
-      commentsRes: apiWrapper(
-        await HttpService.client.getComments({
+      commentsRes: await apiWrapper(
+        HttpService.client.getComments({
           post_id: this.state.postId,
           parent_id: this.state.commentId,
           max_depth: commentTreeMaxDepth,
@@ -677,24 +678,24 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleDeleteCommunityClick(form: DeleteCommunity) {
-    const deleteCommunityRes = apiWrapper(
-      await HttpService.client.deleteCommunity(form)
+    const deleteCommunityRes = await apiWrapper(
+      HttpService.client.deleteCommunity(form)
     );
 
     this.updateCommunity(deleteCommunityRes);
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
-    const addModRes = apiWrapper(
-      await HttpService.client.addModToCommunity(form)
+    const addModRes = await apiWrapper(
+      HttpService.client.addModToCommunity(form)
     );
 
     this.updateModerators(addModRes);
   }
 
   async handleFollow(form: FollowCommunity) {
-    const followCommunityRes = apiWrapper(
-      await HttpService.client.followCommunity(form)
+    const followCommunityRes = await apiWrapper(
+      HttpService.client.followCommunity(form)
     );
     this.updateCommunity(followCommunityRes);
 
@@ -709,34 +710,34 @@ export class Post extends Component<any, PostState> {
   }
 
   async handlePurgeCommunity(form: PurgeCommunity) {
-    const purgeCommunityRes = apiWrapper(
-      await HttpService.client.purgeCommunity(form)
+    const purgeCommunityRes = await apiWrapper(
+      HttpService.client.purgeCommunity(form)
     );
     this.purgeItem(purgeCommunityRes);
   }
 
   async handlePurgePerson(form: PurgePerson) {
-    const purgePersonRes = apiWrapper(
-      await HttpService.client.purgePerson(form)
+    const purgePersonRes = await apiWrapper(
+      HttpService.client.purgePerson(form)
     );
     this.purgeItem(purgePersonRes);
   }
 
   async handlePurgeComment(form: PurgeComment) {
-    const purgeCommentRes = apiWrapper(
-      await HttpService.client.purgeComment(form)
+    const purgeCommentRes = await apiWrapper(
+      HttpService.client.purgeComment(form)
     );
     this.purgeItem(purgeCommentRes);
   }
 
   async handlePurgePost(form: PurgePost) {
-    const purgeRes = apiWrapper(await HttpService.client.purgePost(form));
+    const purgeRes = await apiWrapper(HttpService.client.purgePost(form));
     this.purgeItem(purgeRes);
   }
 
   async handleBlockCommunity(form: BlockCommunity) {
-    const blockCommunityRes = apiWrapper(
-      await HttpService.client.blockCommunity(form)
+    const blockCommunityRes = await apiWrapper(
+      HttpService.client.blockCommunity(form)
     );
 
     // TODO Probably isn't necessary
@@ -756,8 +757,8 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleBlockPerson(form: BlockPerson) {
-    const blockPersonRes = apiWrapper(
-      await HttpService.client.blockPerson(form)
+    const blockPersonRes = await apiWrapper(
+      HttpService.client.blockPerson(form)
     );
 
     if (blockPersonRes.state == "success") {
@@ -766,20 +767,20 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleModRemoveCommunity(form: RemoveCommunity) {
-    const removeCommunityRes = apiWrapper(
-      await HttpService.client.removeCommunity(form)
+    const removeCommunityRes = await apiWrapper(
+      HttpService.client.removeCommunity(form)
     );
     this.updateCommunity(removeCommunityRes);
   }
 
   async handleEditCommunity(form: EditCommunity) {
-    const res = apiWrapper(await HttpService.client.editCommunity(form));
+    const res = await apiWrapper(HttpService.client.editCommunity(form));
     this.updateCommunity(res);
   }
 
   async handleCreateComment(form: CreateComment) {
-    const createCommentRes = apiWrapper(
-      await HttpService.client.createComment(form)
+    const createCommentRes = await apiWrapper(
+      HttpService.client.createComment(form)
     );
 
     this.setState(s => {
@@ -794,69 +795,69 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleEditComment(form: EditComment) {
-    const editCommentRes = apiWrapper(
-      await HttpService.client.editComment(form)
+    const editCommentRes = await apiWrapper(
+      HttpService.client.editComment(form)
     );
 
     this.findAndUpdateComment(editCommentRes);
   }
 
   async handleDeleteComment(form: DeleteComment) {
-    const deleteCommentRes = apiWrapper(
-      await HttpService.client.deleteComment(form)
+    const deleteCommentRes = await apiWrapper(
+      HttpService.client.deleteComment(form)
     );
 
     this.findAndUpdateComment(deleteCommentRes);
   }
 
   async handleDeletePost(form: DeletePost) {
-    const deleteRes = apiWrapper(await HttpService.client.deletePost(form));
+    const deleteRes = await apiWrapper(HttpService.client.deletePost(form));
     this.updatePost(deleteRes);
   }
 
   async handleRemovePost(form: RemovePost) {
-    const removeRes = apiWrapper(await HttpService.client.removePost(form));
+    const removeRes = await apiWrapper(HttpService.client.removePost(form));
     this.updatePost(removeRes);
   }
 
   async handleRemoveComment(form: RemoveComment) {
-    const removeCommentRes = apiWrapper(
-      await HttpService.client.removeComment(form)
+    const removeCommentRes = await apiWrapper(
+      HttpService.client.removeComment(form)
     );
 
     this.findAndUpdateComment(removeCommentRes);
   }
 
   async handleSaveComment(form: SaveComment) {
-    const saveCommentRes = apiWrapper(
-      await HttpService.client.saveComment(form)
+    const saveCommentRes = await apiWrapper(
+      HttpService.client.saveComment(form)
     );
     this.findAndUpdateComment(saveCommentRes);
   }
 
   async handleSavePost(form: SavePost) {
-    const saveRes = apiWrapper(await HttpService.client.savePost(form));
+    const saveRes = await apiWrapper(HttpService.client.savePost(form));
     this.updatePost(saveRes);
   }
 
   async handleFeaturePost(form: FeaturePost) {
-    const featureRes = apiWrapper(await HttpService.client.featurePost(form));
+    const featureRes = await apiWrapper(HttpService.client.featurePost(form));
     this.updatePost(featureRes);
   }
 
   async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = apiWrapper(await HttpService.client.likeComment(form));
+    const voteRes = await apiWrapper(HttpService.client.likeComment(form));
     this.findAndUpdateComment(voteRes);
   }
 
   async handlePostVote(form: CreatePostLike) {
-    const voteRes = apiWrapper(await HttpService.client.likePost(form));
+    const voteRes = await apiWrapper(HttpService.client.likePost(form));
     this.updatePost(voteRes);
   }
 
   async handleCommentReport(form: CreateCommentReport) {
-    const reportRes = apiWrapper(
-      await HttpService.client.createCommentReport(form)
+    const reportRes = await apiWrapper(
+      HttpService.client.createCommentReport(form)
     );
     if (reportRes.state == "success") {
       toast(i18n.t("report_created"));
@@ -864,8 +865,8 @@ export class Post extends Component<any, PostState> {
   }
 
   async handlePostReport(form: CreatePostReport) {
-    const reportRes = apiWrapper(
-      await HttpService.client.createPostReport(form)
+    const reportRes = await apiWrapper(
+      HttpService.client.createPostReport(form)
     );
     if (reportRes.state == "success") {
       toast(i18n.t("report_created"));
@@ -873,19 +874,19 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleLockPost(form: LockPost) {
-    const lockRes = apiWrapper(await HttpService.client.lockPost(form));
+    const lockRes = await apiWrapper(HttpService.client.lockPost(form));
     this.updatePost(lockRes);
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
-    const distinguishRes = apiWrapper(
-      await HttpService.client.distinguishComment(form)
+    const distinguishRes = await apiWrapper(
+      HttpService.client.distinguishComment(form)
     );
     this.findAndUpdateComment(distinguishRes);
   }
 
   async handleAddAdmin(form: AddAdmin) {
-    const addAdminRes = apiWrapper(await HttpService.client.addAdmin(form));
+    const addAdminRes = await apiWrapper(HttpService.client.addAdmin(form));
 
     if (addAdminRes.state == "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
@@ -893,16 +894,16 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    const transferCommunityRes = apiWrapper(
-      await HttpService.client.transferCommunity(form)
+    const transferCommunityRes = await apiWrapper(
+      HttpService.client.transferCommunity(form)
     );
 
     this.updateCommunityFull(transferCommunityRes);
   }
 
   async handleFetchChildren(form: GetComments) {
-    const moreCommentsRes = apiWrapper(
-      await HttpService.client.getComments(form)
+    const moreCommentsRes = await apiWrapper(
+      HttpService.client.getComments(form)
     );
 
     if (
@@ -919,24 +920,24 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = apiWrapper(
-      await HttpService.client.markCommentReplyAsRead(form)
+    const readRes = await apiWrapper(
+      HttpService.client.markCommentReplyAsRead(form)
     );
     this.findAndUpdateCommentReply(readRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    apiWrapper(await HttpService.client.markPersonMentionAsRead(form));
+    await apiWrapper(HttpService.client.markPersonMentionAsRead(form));
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
-    const banRes = apiWrapper(await HttpService.client.banFromCommunity(form));
+    const banRes = await apiWrapper(HttpService.client.banFromCommunity(form));
     this.updateBan(banRes);
   }
 
   async handleBanPerson(form: BanPerson) {
-    const banRes = apiWrapper(await HttpService.client.banPerson(form));
+    const banRes = await apiWrapper(HttpService.client.banPerson(form));
     this.updateBan(banRes);
   }
 

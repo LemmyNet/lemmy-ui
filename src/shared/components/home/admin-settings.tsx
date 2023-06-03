@@ -15,6 +15,7 @@ import {
   HttpService,
   RequestState,
   apiWrapper,
+  apiWrapperIso,
 } from "../../services/HttpService";
 import {
   capitalizeFirstLetter,
@@ -63,10 +64,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        bannedRes: apiWrapper(
+        bannedRes: apiWrapperIso(
           this.isoData.routeData[0] as BannedPersonsResponse
         ),
-        instancesRes: apiWrapper(
+        instancesRes: apiWrapperIso(
           this.isoData.routeData[1] as GetFederatedInstancesResponse
         ),
       };
@@ -82,13 +83,13 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     const auth = myAuthRequired();
 
     this.setState({
-      bannedRes: apiWrapper(
-        await HttpService.client.getBannedPersons({
+      bannedRes: await apiWrapper(
+        HttpService.client.getBannedPersons({
           auth,
         })
       ),
-      instancesRes: apiWrapper(
-        await HttpService.client.getFederatedInstances({
+      instancesRes: await apiWrapper(
+        HttpService.client.getFederatedInstances({
           auth,
         })
       ),
@@ -277,8 +278,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   async handleLeaveAdminTeam(i: AdminSettings) {
     i.setState({ leaveAdminTeamRes: { state: "loading" } });
     this.setState({
-      leaveAdminTeamRes: apiWrapper(
-        await HttpService.client.leaveAdmin({ auth: myAuthRequired() })
+      leaveAdminTeamRes: await apiWrapper(
+        HttpService.client.leaveAdmin({ auth: myAuthRequired() })
       ),
     });
 
@@ -289,7 +290,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditSite(form: EditSite) {
-    const editRes = apiWrapper(await HttpService.client.editSite(form));
+    const editRes = await apiWrapper(HttpService.client.editSite(form));
 
     if (editRes.state == "success") {
       this.setState(s => ((s.siteRes.site_view = editRes.data.site_view), s));
@@ -298,21 +299,21 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
-    const res = apiWrapper(await HttpService.client.editCustomEmoji(form));
+    const res = await apiWrapper(HttpService.client.editCustomEmoji(form));
     if (res.state == "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
-    const res = apiWrapper(await HttpService.client.deleteCustomEmoji(form));
+    const res = await apiWrapper(HttpService.client.deleteCustomEmoji(form));
     if (res.state == "success") {
       removeFromEmojiDataModel(res.data.id);
     }
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
-    const res = apiWrapper(await HttpService.client.createCustomEmoji(form));
+    const res = await apiWrapper(HttpService.client.createCustomEmoji(form));
     if (res.state == "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }

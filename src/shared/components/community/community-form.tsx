@@ -324,13 +324,11 @@ export class CommunityForm extends Component<
   }
 
   handleCommunityNameChange(i: CommunityForm, event: any) {
-    i.state.form.name = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.form.name = event.target.value), s));
   }
 
   handleCommunityTitleChange(i: CommunityForm, event: any) {
-    i.state.form.title = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.form.title = event.target.value), s));
   }
 
   handleCommunityDescriptionChange(val: string) {
@@ -338,13 +336,13 @@ export class CommunityForm extends Component<
   }
 
   handleCommunityNsfwChange(i: CommunityForm, event: any) {
-    i.state.form.nsfw = event.target.checked;
-    i.setState(i.state);
+    i.setState(s => ((s.form.nsfw = event.target.checked), s));
   }
 
   handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
-    i.state.form.posting_restricted_to_mods = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.form.posting_restricted_to_mods = event.target.checked), s)
+    );
   }
 
   handleCancel(i: CommunityForm) {

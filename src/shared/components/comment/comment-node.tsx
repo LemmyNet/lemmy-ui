@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
