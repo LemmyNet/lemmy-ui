@@ -3,6 +3,7 @@ import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
+  CommentAggregates,
   Comment as CommentI,
   CommentReplyView,
   CommentReportView,
@@ -23,6 +24,7 @@ import {
   PrivateMessageView,
   RegistrationApplicationView,
   Search,
+  SearchType,
   SortType,
   UploadImageResponse,
 } from "lemmy-js-client";
@@ -813,15 +815,14 @@ interface PersonTribute {
 }
 
 async function personSearch(text: string): Promise<PersonTribute[]> {
-  let users = (await fetchUsers(text)).users;
-  let persons: PersonTribute[] = users.map(pv => {
-    let tribute: PersonTribute = {
+  const usersResponse = await fetchUsers(text);
+
+  return (
+    usersResponse?.users.map(pv => ({
       key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
       view: pv,
-    };
-    return tribute;
-  });
-  return persons;
+    })) ?? []
+  );
 }
 
 interface CommunityTribute {
@@ -830,15 +831,14 @@ interface CommunityTribute {
 }
 
 async function communitySearch(text: string): Promise<CommunityTribute[]> {
-  let comms = (await fetchCommunities(text)).communities;
-  let communities: CommunityTribute[] = comms.map(cv => {
-    let tribute: CommunityTribute = {
+  const communitiesResponse = await fetchCommunities(text);
+
+  return (
+    communitiesResponse?.communities.map(cv => ({
       key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
       view: cv,
-    };
-    return tribute;
-  });
-  return communities;
+    })) ?? []
+  );
 }
 
 export function getRecipientIdFromProps(props: any): number {
@@ -857,150 +857,128 @@ export function getCommentIdFromProps(props: any): number | undefined {
   return id ? Number(id) : undefined;
 }
 
-function editListImmutable<T>(fieldName: string, data: T, list: T[]): T[] {
-  const foundIndex = list.findIndex(c => c[fieldName].id == data[fieldName].id);
-  if (foundIndex != -1) {
-    const newList = list;
-    newList[foundIndex] = data;
-    return newList;
-  } else {
-    return list;
-  }
+type ImmutableListKey =
+  | "comment"
+  | "comment_reply"
+  | "person_mention"
+  | "community"
+  | "private_message"
+  | "post"
+  | "post_report"
+  | "comment_report"
+  | "private_message_report"
+  | "registration_application";
+
+function editListImmutable<
+  T extends { [key in F]: { id: number } },
+  F extends ImmutableListKey
+>(fieldName: F, data: T, list: T[]): T[] {
+  return [
+    ...list.map(c => (c[fieldName].id === data[fieldName].id ? data : c)),
+  ];
 }
 
-export function editComments(
+export function editComment(
   data: CommentView,
   comments: CommentView[]
 ): CommentView[] {
   return editListImmutable("comment", data, comments);
 }
 
-export function editCommentReplies(
+export function editCommentReply(
   data: CommentReplyView,
   replies: CommentReplyView[]
 ): CommentReplyView[] {
   return editListImmutable("comment_reply", data, replies);
 }
 
-export function editCommentRepliesWithComment(
-  data: CommentView,
-  replies: CommentReplyView[]
-): CommentReplyView[] {
-  const foundIndex = replies.findIndex(c => c.comment.id == data.comment.id);
-  if (foundIndex != -1) {
-    const newList = replies;
-    newList[foundIndex].comment = data.comment;
-    newList[foundIndex].counts = data.counts;
-    newList[foundIndex].my_vote = data.my_vote;
-    newList[foundIndex].saved = data.saved;
-    return newList;
-  } else {
-    return replies;
-  }
+interface WithComment {
+  comment: CommentI;
+  counts: CommentAggregates;
+  my_vote?: number;
+  saved: boolean;
 }
 
-export function editMentionsWithComment(
-  data: CommentView,
-  mentions: PersonMentionView[]
-): PersonMentionView[] {
-  const foundIndex = mentions.findIndex(c => c.comment.id == data.comment.id);
-  if (foundIndex != -1) {
-    const newList = mentions;
-    newList[foundIndex].comment = data.comment;
-    newList[foundIndex].counts = data.counts;
-    newList[foundIndex].my_vote = data.my_vote;
-    newList[foundIndex].saved = data.saved;
-    return newList;
-  } else {
-    return mentions;
-  }
-}
-
-export function editCommentWithCommentReplies(
-  data: CommentReplyView,
-  comments: CommentView[]
-): CommentView[] {
-  const foundIndex = comments.findIndex(c => c.comment.id == data.comment.id);
-  if (foundIndex != -1) {
-    const newList = comments;
-    newList[foundIndex].comment = data.comment;
-    newList[foundIndex].counts = data.counts;
-    newList[foundIndex].my_vote = data.my_vote;
-    newList[foundIndex].saved = data.saved;
-    return newList;
-  } else {
-    return comments;
-  }
-}
-
-export function editMentions(
+export function editMention(
   data: PersonMentionView,
   comments: PersonMentionView[]
 ): PersonMentionView[] {
   return editListImmutable("person_mention", data, comments);
 }
 
-export function editCommunities(
+export function editCommunity(
   data: CommunityView,
   communities: CommunityView[]
 ): CommunityView[] {
   return editListImmutable("community", data, communities);
 }
 
-export function editPrivateMessages(
+export function editPrivateMessage(
   data: PrivateMessageView,
   messages: PrivateMessageView[]
 ): PrivateMessageView[] {
   return editListImmutable("private_message", data, messages);
 }
 
-export function editPosts(data: PostView, posts: PostView[]): PostView[] {
+export function editPost(data: PostView, posts: PostView[]): PostView[] {
   return editListImmutable("post", data, posts);
 }
 
-export function editPostReports(
+export function editPostReport(
   data: PostReportView,
   reports: PostReportView[]
 ) {
   return editListImmutable("post_report", data, reports);
 }
 
-export function editCommentReports(
+export function editCommentReport(
   data: CommentReportView,
   reports: CommentReportView[]
 ): CommentReportView[] {
   return editListImmutable("comment_report", data, reports);
 }
 
-export function editPrivateMessageReports(
+export function editPrivateMessageReport(
   data: PrivateMessageReportView,
   reports: PrivateMessageReportView[]
 ): PrivateMessageReportView[] {
   return editListImmutable("private_message_report", data, reports);
 }
 
-export function editRegistrationApplications(
+export function editRegistrationApplication(
   data: RegistrationApplicationView,
   apps: RegistrationApplicationView[]
 ): RegistrationApplicationView[] {
   return editListImmutable("registration_application", data, apps);
 }
 
+export function editWith<D extends WithComment, L extends WithComment>(
+  { comment, counts, saved, my_vote }: D,
+  list: L[]
+) {
+  return [
+    ...list.map(c =>
+      c.comment.id === comment.id
+        ? { ...c, comment, counts, saved, my_vote }
+        : c
+    ),
+  ];
+}
+
 export function updatePersonBlock(
   data: BlockPersonResponse,
   myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
 ) {
-  let mui = myUserInfo;
-  if (mui) {
+  if (myUserInfo) {
     if (data.blocked) {
-      mui.person_blocks.push({
-        person: mui.local_user_view.person,
+      myUserInfo.person_blocks.push({
+        person: myUserInfo.local_user_view.person,
         target: data.person_view.person,
       });
       toast(`${i18n.t("blocked")} ${data.person_view.person.name}`);
     } else {
-      mui.person_blocks = mui.person_blocks.filter(
-        i => i.target.id != data.person_view.person.id
+      myUserInfo.person_blocks = myUserInfo.person_blocks.filter(
+        i => i.target.id !== data.person_view.person.id
       );
       toast(`${i18n.t("unblocked")} ${data.person_view.person.name}`);
     }
@@ -1011,17 +989,16 @@ export function updateCommunityBlock(
   data: BlockCommunityResponse,
   myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
 ) {
-  let mui = myUserInfo;
-  if (mui) {
+  if (myUserInfo) {
     if (data.blocked) {
-      mui.community_blocks.push({
-        person: mui.local_user_view.person,
+      myUserInfo.community_blocks.push({
+        person: myUserInfo.local_user_view.person,
         community: data.community_view.community,
       });
       toast(`${i18n.t("blocked")} ${data.community_view.community.name}`);
     } else {
-      mui.community_blocks = mui.community_blocks.filter(
-        i => i.community.id != data.community_view.community.id
+      myUserInfo.community_blocks = myUserInfo.community_blocks.filter(
+        i => i.community.id !== data.community_view.community.id
       );
       toast(`${i18n.t("unblocked")} ${data.community_view.community.name}`);
     }
@@ -1289,30 +1266,26 @@ export function personToChoice(pvs: PersonView): Choice {
   };
 }
 
-export async function fetchCommunities(q: string) {
-  let form: Search = {
+function fetchSearchResults(q: string, type_: SearchType) {
+  const form: Search = {
     q,
-    type_: "Communities",
+    type_,
     sort: "TopAll",
     listing_type: "All",
     page: 1,
     limit: fetchLimit,
     auth: myAuth(),
   };
+
   return HttpService.client.search(form);
 }
 
+export function fetchCommunities(q: string) {
+  return fetchSearchResults(q, "Communities");
+}
+
 export async function fetchUsers(q: string) {
-  let form: Search = {
-    q,
-    type_: "Users",
-    sort: "TopAll",
-    listing_type: "All",
-    page: 1,
-    limit: fetchLimit,
-    auth: myAuth(),
-  };
-  return HttpService.client.search(form);
+  return fetchSearchResults(q, "Users");
 }
 
 export function communitySelectName(cv: CommunityView): string {

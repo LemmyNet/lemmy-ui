@@ -62,9 +62,9 @@ import {
 import {
   canCreateCommunity,
   commentsToFlatNodes,
-  editComments,
-  editCommentWithCommentReplies,
-  editPosts,
+  editComment,
+  editPost,
+  editWith,
   enableDownvotes,
   enableNsfw,
   fetchLimit,
@@ -1054,7 +1054,7 @@ export class Home extends Component<any, HomeState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state == "success" && res.state == "success") {
-        s.commentsRes.data.comments = editComments(
+        s.commentsRes.data.comments = editComment(
           res.data.comment_view,
           s.commentsRes.data.comments
         );
@@ -1082,7 +1082,7 @@ export class Home extends Component<any, HomeState> {
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
       if (s.commentsRes.state == "success" && res.state == "success") {
-        s.commentsRes.data.comments = editCommentWithCommentReplies(
+        s.commentsRes.data.comments = editWith(
           res.data.comment_reply_view,
           s.commentsRes.data.comments
         );
@@ -1094,7 +1094,7 @@ export class Home extends Component<any, HomeState> {
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.postsRes.state == "success" && res.state == "success") {
-        s.postsRes.data.posts = editPosts(
+        s.postsRes.data.posts = editPost(
           res.data.post_view,
           s.postsRes.data.posts
         );

@@ -68,8 +68,8 @@ import {
   commentsToFlatNodes,
   commentTreeMaxDepth,
   debounce,
-  editComments,
-  editCommentWithCommentReplies,
+  editComment,
+  editWith,
   enableDownvotes,
   enableNsfw,
   getCommentIdFromProps,
@@ -1042,7 +1042,7 @@ export class Post extends Component<any, PostState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state == "success" && res.state == "success") {
-        s.commentsRes.data.comments = editComments(
+        s.commentsRes.data.comments = editComment(
           res.data.comment_view,
           s.commentsRes.data.comments
         );
@@ -1055,7 +1055,7 @@ export class Post extends Component<any, PostState> {
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
       if (s.commentsRes.state == "success" && res.state == "success") {
-        s.commentsRes.data.comments = editCommentWithCommentReplies(
+        s.commentsRes.data.comments = editWith(
           res.data.comment_reply_view,
           s.commentsRes.data.comments
         );

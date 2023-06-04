@@ -17,7 +17,7 @@ import {
 } from "../../services/HttpService";
 import {
   QueryParams,
-  editCommunities,
+  editCommunity,
   getPageFromString,
   getQueryParams,
   getQueryString,
@@ -352,7 +352,7 @@ export class Communities extends Component<any, CommunitiesState> {
         s.listCommunitiesResponse.state == "success" &&
         res.state == "success"
       ) {
-        s.listCommunitiesResponse.data.communities = editCommunities(
+        s.listCommunitiesResponse.data.communities = editCommunity(
           res.data.community_view,
           s.listCommunitiesResponse.data.communities
         );

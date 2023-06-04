@@ -27,9 +27,9 @@ import {
 } from "../../services/HttpService";
 import {
   amAdmin,
-  editCommentReports,
-  editPostReports,
-  editPrivateMessageReports,
+  editCommentReport,
+  editPostReport,
+  editPrivateMessageReport,
   fetchLimit,
   isInitialRoute,
   myAuthRequired,
@@ -569,7 +569,7 @@ export class Reports extends Component<any, ReportsState> {
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
     this.setState(s => {
       if (s.commentReportsRes.state == "success" && res.state == "success") {
-        s.commentReportsRes.data.comment_reports = editCommentReports(
+        s.commentReportsRes.data.comment_reports = editCommentReport(
           res.data.comment_report_view,
           s.commentReportsRes.data.comment_reports
         );
@@ -581,7 +581,7 @@ export class Reports extends Component<any, ReportsState> {
   findAndUpdatePostReport(res: RequestState<PostReportResponse>) {
     this.setState(s => {
       if (s.postReportsRes.state == "success" && res.state == "success") {
-        s.postReportsRes.data.post_reports = editPostReports(
+        s.postReportsRes.data.post_reports = editPostReport(
           res.data.post_report_view,
           s.postReportsRes.data.post_reports
         );
@@ -596,7 +596,7 @@ export class Reports extends Component<any, ReportsState> {
     this.setState(s => {
       if (s.messageReportsRes.state == "success" && res.state == "success") {
         s.messageReportsRes.data.private_message_reports =
-          editPrivateMessageReports(
+          editPrivateMessageReport(
             res.data.private_message_report_view,
             s.messageReportsRes.data.private_message_reports
           );

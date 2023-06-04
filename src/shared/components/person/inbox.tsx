@@ -58,11 +58,10 @@ import {
 } from "../../services/HttpService";
 import {
   commentsToFlatNodes,
-  editCommentReplies,
-  editCommentRepliesWithComment,
-  editMentions,
-  editMentionsWithComment,
-  editPrivateMessages,
+  editCommentReply,
+  editMention,
+  editPrivateMessage,
+  editWith,
   enableDownvotes,
   fetchLimit,
   getCommentParentId,
@@ -958,7 +957,7 @@ export class Inbox extends Component<any, InboxState> {
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
     this.setState(s => {
       if (s.messagesRes.state == "success" && res.state == "success") {
-        s.messagesRes.data.private_messages = editPrivateMessages(
+        s.messagesRes.data.private_messages = editPrivateMessage(
           res.data.private_message_view,
           s.messagesRes.data.private_messages
         );
@@ -1029,13 +1028,13 @@ export class Inbox extends Component<any, InboxState> {
     if (res.state == "success") {
       this.setState(s => {
         if (s.repliesRes.state == "success") {
-          s.repliesRes.data.replies = editCommentRepliesWithComment(
+          s.repliesRes.data.replies = editWith(
             res.data.comment_view,
             s.repliesRes.data.replies
           );
         }
         if (s.mentionsRes.state == "success") {
-          s.mentionsRes.data.mentions = editMentionsWithComment(
+          s.mentionsRes.data.mentions = editWith(
             res.data.comment_view,
             s.mentionsRes.data.mentions
           );
@@ -1053,7 +1052,7 @@ export class Inbox extends Component<any, InboxState> {
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
       if (s.repliesRes.state == "success" && res.state == "success") {
-        s.repliesRes.data.replies = editCommentReplies(
+        s.repliesRes.data.replies = editCommentReply(
           res.data.comment_reply_view,
           s.repliesRes.data.replies
         );
@@ -1065,7 +1064,7 @@ export class Inbox extends Component<any, InboxState> {
   findAndUpdateMention(res: RequestState<PersonMentionResponse>) {
     this.setState(s => {
       if (s.mentionsRes.state == "success" && res.state == "success") {
-        s.mentionsRes.data.mentions = editMentions(
+        s.mentionsRes.data.mentions = editMention(
           res.data.person_mention_view,
           s.mentionsRes.data.mentions
         );

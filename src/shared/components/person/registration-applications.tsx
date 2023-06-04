@@ -16,7 +16,7 @@ import {
   apiWrapperIso,
 } from "../../services/HttpService";
 import {
-  editRegistrationApplications,
+  editRegistrationApplication,
   fetchLimit,
   isInitialRoute,
   myAuthRequired,
@@ -229,7 +229,7 @@ export class RegistrationApplications extends Component<
 
     this.setState(s => {
       if (s.appsRes.state == "success" && approveRes.state == "success") {
-        s.appsRes.data.registration_applications = editRegistrationApplications(
+        s.appsRes.data.registration_applications = editRegistrationApplication(
           approveRes.data.registration_application,
           s.appsRes.data.registration_applications
         );

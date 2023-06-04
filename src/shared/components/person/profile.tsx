@@ -59,9 +59,9 @@ import {
   QueryParams,
   canMod,
   capitalizeFirstLetter,
-  editCommentWithCommentReplies,
-  editComments,
-  editPosts,
+  editComment,
+  editPost,
+  editWith,
   enableDownvotes,
   enableNsfw,
   fetchLimit,
@@ -1029,7 +1029,7 @@ export class Profile extends Component<
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.personRes.state == "success" && res.state == "success") {
-        s.personRes.data.comments = editComments(
+        s.personRes.data.comments = editComment(
           res.data.comment_view,
           s.personRes.data.comments
         );
@@ -1056,7 +1056,7 @@ export class Profile extends Component<
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
       if (s.personRes.state == "success" && res.state == "success") {
-        s.personRes.data.comments = editCommentWithCommentReplies(
+        s.personRes.data.comments = editWith(
           res.data.comment_reply_view,
           s.personRes.data.comments
         );
@@ -1068,7 +1068,7 @@ export class Profile extends Component<
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.personRes.state == "success" && res.state == "success") {
-        s.personRes.data.posts = editPosts(
+        s.personRes.data.posts = editPost(
           res.data.post_view,
           s.personRes.data.posts
         );
