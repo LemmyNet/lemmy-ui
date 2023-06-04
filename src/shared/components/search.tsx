@@ -657,6 +657,7 @@ export class Search extends Component<any, SearchState> {
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
                   // All of these are unused, since its viewonly
+                  finished={new Map()}
                   onSaveComment={() => {}}
                   onBlockPerson={() => {}}
                   onDeleteComment={() => {}}
@@ -717,6 +718,7 @@ export class Search extends Component<any, SearchState> {
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         // All of these are unused, since its viewonly
+        finished={new Map()}
         onSaveComment={() => {}}
         onBlockPerson={() => {}}
         onDeleteComment={() => {}}

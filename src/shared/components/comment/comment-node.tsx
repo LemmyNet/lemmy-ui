@@ -121,6 +121,7 @@ interface CommentNodeProps {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
+  finished: Map<CommentId, boolean | undefined>;
   onSaveComment(form: SaveComment): void;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -197,6 +198,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   ): void {
     if (this.props != nextProps) {
       this.setState({
+        showReply: false,
+        showEdit: false,
+        showRemoveDialog: false,
+        showBanDialog: false,
+        removeData: false,
+        banType: BanType.Community,
+        showPurgeDialog: false,
+        purgeType: PurgeType.Person,
+        collapsed: false,
+        viewSource: false,
+        showAdvanced: false,
+        showConfirmTransferSite: false,
+        showConfirmTransferCommunity: false,
+        showConfirmAppointAsMod: false,
+        showConfirmAppointAsAdmin: false,
+        showReportDialog: false,
         createOrEditCommentLoading: false,
         upvoteLoading: false,
         downvoteLoading: false,
@@ -389,6 +406,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 edit
                 onReplyCancel={this.handleReplyCancel}
                 disabled={this.props.locked}
+                finished={this.props.finished.get(
+                  this.props.node.comment_view.comment.id
+                )}
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
@@ -1130,6 +1150,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             node={node}
             onReplyCancel={this.handleReplyCancel}
             disabled={this.props.locked}
+            finished={this.props.finished.get(
+              this.props.node.comment_view.comment.id
+            )}
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -1148,6 +1171,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
+            finished={this.props.finished}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}
@@ -1457,7 +1481,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         read: !cv.person_mention.read,
         auth: myAuthRequired(),
       });
-    } else if (this.isCommentReplyType(cv)) {
+    } else if (i.isCommentReplyType(cv)) {
       i.props.onCommentReplyRead({
         comment_reply_id: cv.comment_reply.id,
         read: !cv.comment_reply.read,

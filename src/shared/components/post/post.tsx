@@ -10,6 +10,7 @@ import {
   BanPersonResponse,
   BlockCommunity,
   BlockPerson,
+  CommentId,
   CommentReplyResponse,
   CommentResponse,
   CommentSortType,
@@ -108,6 +109,7 @@ interface PostState {
   commentSectionRef?: RefObject<HTMLDivElement>;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
+  finished: Map<CommentId, boolean | undefined>;
 }
 
 export class Post extends Component<any, PostState> {
@@ -124,6 +126,7 @@ export class Post extends Component<any, PostState> {
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
+    finished: new Map(),
   };
 
   constructor(props: any, context: any) {
@@ -382,6 +385,7 @@ export class Post extends Component<any, PostState> {
                 siteLanguages={this.state.siteRes.discussion_languages}
                 onCreateComment={this.handleCreateComment}
                 onEditComment={this.handleEditComment}
+                finished={this.state.finished.get(0)}
               />
               <div className="d-block d-md-none">
                 <button
@@ -511,6 +515,7 @@ export class Post extends Component<any, PostState> {
             admins={this.state.siteRes.admins}
             enableDownvotes={enableDownvotes(this.state.siteRes)}
             showContext
+            finished={this.state.finished}
             allLanguages={this.state.siteRes.all_languages}
             siteLanguages={this.state.siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
@@ -600,6 +605,7 @@ export class Post extends Component<any, PostState> {
             moderators={res.data.moderators}
             admins={this.state.siteRes.admins}
             enableDownvotes={enableDownvotes(this.state.siteRes)}
+            finished={this.state.finished}
             allLanguages={this.state.siteRes.all_languages}
             siteLanguages={this.state.siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
@@ -782,16 +788,7 @@ export class Post extends Component<any, PostState> {
     const createCommentRes = await apiWrapper(
       HttpService.client.createComment(form)
     );
-
-    this.setState(s => {
-      if (
-        s.commentsRes.state == "success" &&
-        createCommentRes.state == "success"
-      ) {
-        s.commentsRes.data.comments.unshift(createCommentRes.data.comment_view);
-      }
-      return s;
-    });
+    this.createAndUpdateComments(createCommentRes);
   }
 
   async handleEditComment(form: EditComment) {
@@ -1021,6 +1018,21 @@ export class Post extends Component<any, PostState> {
     }
   }
 
+  createAndUpdateComments(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state == "success" && res.state == "success") {
+        s.commentsRes.data.comments.unshift(res.data.comment_view);
+
+        // Set finished for the parent
+        s.finished.set(
+          getCommentParentId(res.data.comment_view.comment) ?? 0,
+          true
+        );
+      }
+      return s;
+    });
+  }
+
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state == "success" && res.state == "success") {
@@ -1028,6 +1040,7 @@ export class Post extends Component<any, PostState> {
           res.data.comment_view,
           s.commentsRes.data.comments
         );
+        s.finished.set(res.data.comment_view.comment.id, true);
       }
       return s;
     });

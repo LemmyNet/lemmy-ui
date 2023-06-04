@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
 import { i18n } from "../../i18next";
@@ -23,6 +23,14 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
 
   constructor(props: any, context: any) {
     super(props, context);
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({ loading: false });
+    }
   }
 
   render() {

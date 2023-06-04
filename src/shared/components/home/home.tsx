@@ -10,6 +10,7 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
+  CommentId,
   CommentReplyResponse,
   CommentResponse,
   CreateComment,
@@ -67,6 +68,7 @@ import {
   enableDownvotes,
   enableNsfw,
   fetchLimit,
+  getCommentParentId,
   getDataTypeString,
   getPageFromString,
   getQueryParams,
@@ -108,6 +110,7 @@ interface HomeState {
   subscribedCollapsed: boolean;
   tagline?: string;
   siteRes: GetSiteResponse;
+  finished: Map<CommentId, boolean | undefined>;
 }
 
 interface HomeProps {
@@ -186,6 +189,7 @@ export class Home extends Component<any, HomeState> {
     showTrendingMobile: false,
     showSidebarMobile: false,
     subscribedCollapsed: false,
+    finished: new Map(),
   };
 
   constructor(props: any, context: any) {
@@ -646,6 +650,7 @@ export class Home extends Component<any, HomeState> {
             <CommentNodes
               nodes={commentsToFlatNodes(comments)}
               viewType={CommentViewType.Flat}
+              finished={this.state.finished}
               noIndent
               showCommunity
               showContext
@@ -864,15 +869,7 @@ export class Home extends Component<any, HomeState> {
       HttpService.client.createComment(form)
     );
 
-    this.setState(s => {
-      if (
-        s.commentsRes.state == "success" &&
-        createCommentRes.state == "success"
-      ) {
-        s.commentsRes.data.comments.unshift(createCommentRes.data.comment_view);
-      }
-      return s;
-    });
+    this.createAndUpdateComments(createCommentRes);
   }
 
   async handleEditComment(form: EditComment) {
@@ -1056,6 +1053,22 @@ export class Home extends Component<any, HomeState> {
         s.commentsRes.data.comments = editComments(
           res.data.comment_view,
           s.commentsRes.data.comments
+        );
+        s.finished.set(res.data.comment_view.comment.id, true);
+      }
+      return s;
+    });
+  }
+
+  createAndUpdateComments(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state == "success" && res.state == "success") {
+        s.commentsRes.data.comments.unshift(res.data.comment_view);
+
+        // Set finished for the parent
+        s.finished.set(
+          getCommentParentId(res.data.comment_view.comment) ?? 0,
+          true
         );
       }
       return s;

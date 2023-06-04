@@ -36,6 +36,7 @@ interface MarkdownTextAreaProps {
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
+  finished?: boolean;
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
@@ -113,12 +114,7 @@ export class MarkdownTextArea extends Component<
   }
 
   componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
-    if (
-      nextProps != this.props &&
-      // Don't trigger this on an initial content change (IE the form field version)
-      // This should only trigger in an
-      this.props.initialContent == nextProps.initialContent
-    ) {
+    if (nextProps.finished) {
       this.setState({
         previewMode: false,
         imageUploadStatus: undefined,

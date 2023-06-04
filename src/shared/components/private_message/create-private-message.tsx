@@ -1,5 +1,6 @@
 import { Component } from "inferno";
 import {
+  CreatePrivateMessage as CreatePrivateMessageI,
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
@@ -151,10 +152,14 @@ export class CreatePrivateMessage extends Component<
     );
   }
 
-  handlePrivateMessageCreate() {
-    toast(i18n.t("message_sent"));
+  async handlePrivateMessageCreate(form: CreatePrivateMessageI) {
+    const res = await apiWrapper(HttpService.client.createPrivateMessage(form));
 
-    // Navigate to the front
-    this.context.router.history.push("/");
+    if (res.state == "success") {
+      toast(i18n.t("message_sent"));
+
+      // Navigate to the front
+      this.context.router.history.push("/");
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
@@ -30,6 +30,14 @@ export class CommentReport extends Component<
   };
   constructor(props: any, context: any) {
     super(props, context);
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & CommentReportProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({ loading: false });
+    }
   }
 
   render() {
@@ -73,6 +81,7 @@ export class CommentReport extends Component<
           siteLanguages={[]}
           hideImages
           // All of these are unused, since its viewonly
+          finished={new Map()}
           onSaveComment={() => {}}
           onBlockPerson={() => {}}
           onDeleteComment={() => {}}

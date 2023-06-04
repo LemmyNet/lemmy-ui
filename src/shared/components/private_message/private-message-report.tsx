@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   PrivateMessageReportView,
@@ -25,6 +25,14 @@ export class PrivateMessageReport extends Component<Props, State> {
 
   constructor(props: any, context: any) {
     super(props, context);
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & Props>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({ loading: false });
+    }
   }
 
   render() {

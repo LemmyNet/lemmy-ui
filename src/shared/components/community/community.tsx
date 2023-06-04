@@ -10,6 +10,7 @@ import {
   BanPersonResponse,
   BlockCommunity,
   BlockPerson,
+  CommentId,
   CommentReplyResponse,
   CommentResponse,
   CommunityResponse,
@@ -73,6 +74,7 @@ import {
   enableDownvotes,
   enableNsfw,
   fetchLimit,
+  getCommentParentId,
   getDataTypeString,
   getPageFromString,
   getQueryParams,
@@ -108,6 +110,7 @@ interface State {
   commentsRes: RequestState<GetCommentsResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
+  finished: Map<CommentId, boolean | undefined>;
 }
 
 interface CommunityProps {
@@ -147,6 +150,7 @@ export class Community extends Component<
     commentsRes: { state: "empty" },
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
+    finished: new Map(),
   };
 
   constructor(props: RouteComponentProps<{ name: string }>, context: any) {
@@ -445,6 +449,7 @@ export class Community extends Component<
             <CommentNodes
               nodes={commentsToFlatNodes(this.state.commentsRes.data.comments)}
               viewType={CommentViewType.Flat}
+              finished={this.state.finished}
               noIndent
               showContext
               enableDownvotes={enableDownvotes(site_res)}
@@ -706,16 +711,7 @@ export class Community extends Component<
     const createCommentRes = await apiWrapper(
       HttpService.client.createComment(form)
     );
-
-    this.setState(s => {
-      if (
-        s.commentsRes.state == "success" &&
-        createCommentRes.state == "success"
-      ) {
-        s.commentsRes.data.comments.unshift(createCommentRes.data.comment_view);
-      }
-      return s;
-    });
+    this.createAndUpdateComments(createCommentRes);
   }
 
   async handleEditComment(form: EditComment) {
@@ -923,6 +919,22 @@ export class Community extends Component<
         s.commentsRes.data.comments = editComments(
           res.data.comment_view,
           s.commentsRes.data.comments
+        );
+        s.finished.set(res.data.comment_view.comment.id, true);
+      }
+      return s;
+    });
+  }
+
+  createAndUpdateComments(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state == "success" && res.state == "success") {
+        s.commentsRes.data.comments.unshift(res.data.comment_view);
+
+        // Set finished for the parent
+        s.finished.set(
+          getCommentParentId(res.data.comment_view.comment) ?? 0,
+          true
         );
       }
       return s;

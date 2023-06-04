@@ -7,6 +7,7 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
+  CommentId,
   CommentReplyResponse,
   CommentReplyView,
   CommentReportResponse,
@@ -64,6 +65,7 @@ import {
   editPrivateMessages,
   enableDownvotes,
   fetchLimit,
+  getCommentParentId,
   isBrowser,
   isInitialRoute,
   myAuth,
@@ -114,6 +116,7 @@ interface InboxState {
   sort: CommentSortType;
   page: number;
   siteRes: GetSiteResponse;
+  finished: Map<CommentId, boolean | undefined>;
 }
 
 export class Inbox extends Component<any, InboxState> {
@@ -128,6 +131,7 @@ export class Inbox extends Component<any, InboxState> {
     mentionsRes: { state: "empty" },
     messagesRes: { state: "empty" },
     markAllAsReadRes: { state: "empty" },
+    finished: new Map(),
   };
 
   constructor(props: any, context: any) {
@@ -434,6 +438,7 @@ export class Inbox extends Component<any, InboxState> {
               { comment_view: i.view as CommentView, children: [], depth: 0 },
             ]}
             viewType={CommentViewType.Flat}
+            finished={this.state.finished}
             noIndent
             markable
             showCommunity
@@ -472,6 +477,7 @@ export class Inbox extends Component<any, InboxState> {
                 depth: 0,
               },
             ]}
+            finished={this.state.finished}
             viewType={CommentViewType.Flat}
             noIndent
             markable
@@ -529,7 +535,9 @@ export class Inbox extends Component<any, InboxState> {
         </h5>
       );
     } else {
-      return <div>{this.buildCombined().map(this.renderReplyType)}</div>;
+      return (
+        <div>{this.buildCombined().map(r => this.renderReplyType(r))}</div>
+      );
     }
   }
 
@@ -548,6 +556,7 @@ export class Inbox extends Component<any, InboxState> {
             <CommentNodes
               nodes={commentsToFlatNodes(replies)}
               viewType={CommentViewType.Flat}
+              finished={this.state.finished}
               noIndent
               markable
               showCommunity
@@ -597,6 +606,7 @@ export class Inbox extends Component<any, InboxState> {
                 key={umv.person_mention.id}
                 nodes={[{ comment_view: umv, children: [], depth: 0 }]}
                 viewType={CommentViewType.Flat}
+                finished={this.state.finished}
                 noIndent
                 markable
                 showCommunity
@@ -683,7 +693,7 @@ export class Inbox extends Component<any, InboxState> {
     if (auth) {
       // It can be /u/me, or /username/1
       let repliesForm: GetReplies = {
-        sort: "New",
+        sort,
         unread_only: true,
         page: 1,
         limit: fetchLimit,
@@ -772,7 +782,7 @@ export class Inbox extends Component<any, InboxState> {
       ),
     });
 
-    if (this.state.markAllAsReadRes.state == "success") {
+    if (i.state.markAllAsReadRes.state == "success") {
       i.setState({
         repliesRes: { state: "empty" },
         mentionsRes: { state: "empty" },
@@ -819,7 +829,8 @@ export class Inbox extends Component<any, InboxState> {
     const res = await apiWrapper(HttpService.client.createComment(form));
 
     if (res.state == "success") {
-      toast(i18n.t("created"));
+      toast(i18n.t("reply_sent"));
+      this.findAndUpdateComment(res);
     }
   }
 
@@ -828,6 +839,7 @@ export class Inbox extends Component<any, InboxState> {
 
     if (res.state == "success") {
       toast(i18n.t("edit"));
+      this.findAndUpdateComment(res);
     }
   }
 
@@ -835,6 +847,7 @@ export class Inbox extends Component<any, InboxState> {
     const res = await apiWrapper(HttpService.client.deleteComment(form));
     if (res.state == "success") {
       toast(i18n.t("deleted"));
+      this.findAndUpdateComment(res);
     }
   }
 
@@ -842,6 +855,7 @@ export class Inbox extends Component<any, InboxState> {
     const res = await apiWrapper(HttpService.client.removeComment(form));
     if (res.state == "success") {
       toast(i18n.t("remove_comment"));
+      this.findAndUpdateComment(res);
     }
   }
 
@@ -1026,6 +1040,11 @@ export class Inbox extends Component<any, InboxState> {
             s.mentionsRes.data.mentions
           );
         }
+        // Set finished for the parent
+        s.finished.set(
+          getCommentParentId(res.data.comment_view.comment) ?? 0,
+          true
+        );
         return s;
       });
     }

@@ -11,6 +11,7 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
+  CommentId,
   CommentReplyResponse,
   CommentResponse,
   Community,
@@ -65,6 +66,7 @@ import {
   enableNsfw,
   fetchLimit,
   futureDaysToUnixTime,
+  getCommentParentId,
   getPageFromString,
   getQueryParams,
   getQueryString,
@@ -100,6 +102,7 @@ interface ProfileState {
   showBanDialog: boolean;
   removeData: boolean;
   siteRes: GetSiteResponse;
+  finished: Map<CommentId, boolean | undefined>;
 }
 
 interface ProfileProps {
@@ -163,6 +166,7 @@ export class Profile extends Component<
     siteRes: this.isoData.site_res,
     showBanDialog: false,
     removeData: false,
+    finished: new Map(),
   };
 
   constructor(props: RouteComponentProps<{ username: string }>, context: any) {
@@ -333,6 +337,7 @@ export class Profile extends Component<
                 sort={sort}
                 page={page}
                 limit={fetchLimit}
+                finished={this.state.finished}
                 enableDownvotes={enableDownvotes(siteRes)}
                 enableNsfw={enableNsfw(siteRes)}
                 view={view}
@@ -842,16 +847,7 @@ export class Profile extends Component<
     const createCommentRes = await apiWrapper(
       HttpService.client.createComment(form)
     );
-
-    this.setState(s => {
-      if (
-        s.personRes.state == "success" &&
-        createCommentRes.state == "success"
-      ) {
-        s.personRes.data.comments.unshift(createCommentRes.data.comment_view);
-      }
-      return s;
-    });
+    this.createAndUpdateComments(createCommentRes);
   }
 
   async handleEditComment(form: EditComment) {
@@ -1032,6 +1028,21 @@ export class Profile extends Component<
         s.personRes.data.comments = editComments(
           res.data.comment_view,
           s.personRes.data.comments
+        );
+        s.finished.set(res.data.comment_view.comment.id, true);
+      }
+      return s;
+    });
+  }
+
+  createAndUpdateComments(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.personRes.state == "success" && res.state == "success") {
+        s.personRes.data.comments.unshift(res.data.comment_view);
+        // Set finished for the parent
+        s.finished.set(
+          getCommentParentId(res.data.comment_view.comment) ?? 0,
+          true
         );
       }
       return s;

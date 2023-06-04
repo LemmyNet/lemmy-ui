@@ -17,7 +17,6 @@ import {
   ResolvePostReport,
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, UserService } from "../../services";
@@ -82,7 +81,6 @@ interface ReportsState {
 
 export class Reports extends Component<any, ReportsState> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: ReportsState = {
     commentReportsRes: { state: "empty" },
     postReportsRes: { state: "empty" },
@@ -130,9 +128,9 @@ export class Reports extends Component<any, ReportsState> {
     }
   }
 
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
+  async componentDidMount() {
+    if (!isInitialRoute(this.isoData, this.context)) {
+      await this.refetch();
     }
   }
 
@@ -469,14 +467,14 @@ export class Reports extends Component<any, ReportsState> {
     await this.refetch();
   }
 
-  handleUnreadOrAllChange(i: Reports, event: any) {
+  async handleUnreadOrAllChange(i: Reports, event: any) {
     i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
-    i.refetch();
+    await i.refetch();
   }
 
-  handleMessageTypeChange(i: Reports, event: any) {
+  async handleMessageTypeChange(i: Reports, event: any) {
     i.setState({ messageType: Number(event.target.value), page: 1 });
-    i.refetch();
+    await i.refetch();
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {

@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageReport,
@@ -62,6 +62,23 @@ export class PrivateMessage extends Component<
       UserService.Instance.myUserInfo?.local_user_view.person.id ==
       this.props.private_message_view.creator.id
     );
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({
+        showReply: false,
+        showEdit: false,
+        collapsed: false,
+        viewSource: false,
+        showReportDialog: false,
+        deleteLoading: false,
+        readLoading: false,
+        reportLoading: false,
+      });
+    }
   }
 
   render() {

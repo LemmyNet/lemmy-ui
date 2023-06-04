@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Prompt } from "inferno-router";
 import {
@@ -56,12 +56,11 @@ export class PrivateMessageForm extends Component<
     setupTippy();
   }
 
-  // TODO what is this
-  componentDidUpdate() {
-    if (!this.state.loading && this.state.content) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageFormProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({ loading: false, content: undefined, previewMode: false });
     }
   }
 
