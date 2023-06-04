@@ -705,6 +705,8 @@ export class Community extends Component<
   async handleEditCommunity(form: EditCommunity) {
     const res = await apiWrapper(HttpService.client.editCommunity(form));
     this.updateCommunity(res);
+
+    return res;
   }
 
   async handleCreateComment(form: CreateComment) {
@@ -712,6 +714,8 @@ export class Community extends Component<
       HttpService.client.createComment(form)
     );
     this.createAndUpdateComments(createCommentRes);
+
+    return createCommentRes;
   }
 
   async handleEditComment(form: EditComment) {
@@ -720,6 +724,8 @@ export class Community extends Component<
     );
 
     this.findAndUpdateComment(editCommentRes);
+
+    return editCommentRes;
   }
 
   async handleDeleteComment(form: DeleteComment) {

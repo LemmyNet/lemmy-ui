@@ -66,11 +66,7 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm
-                siteRes={this.state.siteRes}
-                showLocal
-                onCreateSite={this.handleCreateSite}
-              />
+              <SiteForm showLocal onSaveSite={this.handleCreateSite} />
             )}
           </div>
         </div>
@@ -200,9 +196,11 @@ export class Setup extends Component<any, State> {
 
   async handleCreateSite(form: CreateSite) {
     const createRes = await apiWrapper(HttpService.client.createSite(form));
-    if (createRes.state == "success") {
-      window.location.href = "/";
+    if (createRes.state === "success") {
+      this.context.router.history.replace("/");
     }
+
+    return createRes;
   }
 
   handleRegisterUsernameChange(i: Setup, event: any) {

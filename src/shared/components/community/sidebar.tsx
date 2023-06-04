@@ -4,6 +4,7 @@ import {
   AddModToCommunity,
   BlockCommunity,
   CommunityModeratorView,
+  CommunityResponse,
   CommunityView,
   DeleteCommunity,
   EditCommunity,
@@ -15,6 +16,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
+import { RequestState } from "../../services/HttpService";
 import {
   amAdmin,
   amMod,
@@ -48,7 +50,9 @@ interface SidebarProps {
   onFollowCommunity(form: FollowCommunity): void;
   onBlockCommunity(form: BlockCommunity): void;
   onPurgeCommunity(form: PurgeCommunity): void;
-  onEditCommunity(form: EditCommunity): void;
+  onEditCommunity(
+    form: EditCommunity
+  ): Promise<RequestState<CommunityResponse>>;
 }
 
 interface SidebarState {
@@ -121,7 +125,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             communityLanguages={this.props.communityLanguages}
-            onEditCommunity={this.props.onEditCommunity}
+            onUpsertCommunity={this.props.onEditCommunity}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
           />

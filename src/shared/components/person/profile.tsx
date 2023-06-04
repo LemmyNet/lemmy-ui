@@ -848,6 +848,8 @@ export class Profile extends Component<
       HttpService.client.createComment(form)
     );
     this.createAndUpdateComments(createCommentRes);
+
+    return createCommentRes;
   }
 
   async handleEditComment(form: EditComment) {
@@ -856,6 +858,8 @@ export class Profile extends Component<
     );
 
     this.findAndUpdateComment(editCommentRes);
+
+    return editCommentRes;
   }
 
   async handleDeleteComment(form: DeleteComment) {

@@ -66,7 +66,6 @@ import {
   enableDownvotes,
   fetchLimit,
   getCommentParentId,
-  isBrowser,
   isInitialRoute,
   myAuth,
   myAuthRequired,
@@ -164,11 +163,6 @@ export class Inbox extends Component<any, InboxState> {
     this.handleMessageReport = this.handleMessageReport.bind(this);
     this.handleCreateMessage = this.handleCreateMessage.bind(this);
     this.handleEditMessage = this.handleEditMessage.bind(this);
-
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
@@ -828,19 +822,25 @@ export class Inbox extends Component<any, InboxState> {
   async handleCreateComment(form: CreateComment) {
     const res = await apiWrapper(HttpService.client.createComment(form));
 
-    if (res.state == "success") {
+    if (res.state === "success") {
       toast(i18n.t("reply_sent"));
       this.findAndUpdateComment(res);
     }
+
+    return res;
   }
 
   async handleEditComment(form: EditComment) {
     const res = await apiWrapper(HttpService.client.editComment(form));
 
-    if (res.state == "success") {
+    if (res.state === "success") {
       toast(i18n.t("edit"));
       this.findAndUpdateComment(res);
+    } else if (res.state === "failed") {
+      toast(res.msg, "danger");
     }
+
+    return res;
   }
 
   async handleDeleteComment(form: DeleteComment) {

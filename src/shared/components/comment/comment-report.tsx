@@ -98,8 +98,8 @@ export class CommentReport extends Component<
           onPersonMentionRead={() => {}}
           onBanPersonFromCommunity={() => {}}
           onBanPerson={() => {}}
-          onCreateComment={() => {}}
-          onEditComment={() => {}}
+          onCreateComment={() => Promise.resolve({ state: "empty" })}
+          onEditComment={() => Promise.resolve({ state: "empty" })}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />

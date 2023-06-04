@@ -159,35 +159,36 @@ export class Login extends Component<any, State> {
 
   async handleLoginSubmit(i: Login, event: any) {
     event.preventDefault();
-    let lForm = i.state.form;
-    let username_or_email = lForm.username_or_email;
-    let password = lForm.password;
-    let totp_2fa_token = lForm.totp_2fa_token;
+    const { password, totp_2fa_token, username_or_email } = i.state.form;
+
     if (username_or_email && password) {
       i.setState({ loginRes: { state: "loading" } });
-      i.setState({
-        loginRes: await apiWrapper(
-          HttpService.client.login({
-            username_or_email,
-            password,
-            totp_2fa_token,
-          })
-        ),
-      });
 
-      switch (i.state.loginRes.state) {
-        case "failed":
-          if (i.state.loginRes.msg == "missing_totp_token") {
-            i.setState({ showTotp: true, loginRes: { state: "empty" } });
-            toast(i18n.t("enter_two_factor_code"));
+      const loginRes = await apiWrapper(
+        HttpService.client.login({
+          username_or_email,
+          password,
+          totp_2fa_token,
+        })
+      );
+
+      switch (loginRes.state) {
+        case "failed": {
+          if (loginRes.msg === "missing_totp_token") {
+            i.setState({ showTotp: true });
+            toast(i18n.t("enter_two_factor_code"), "info");
           }
-          break;
 
-        case "success":
-          UserService.Instance.login(i.state.loginRes.data);
+          i.setState({ loginRes: { state: "empty" } });
+          break;
+        }
+
+        case "success": {
+          UserService.Instance.login(loginRes.data);
           i.props.history.push("/");
           location.reload();
           break;
+        }
       }
     }
   }

@@ -8,7 +8,6 @@ import {
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { UserService } from "../../services";
 import {
   HttpService,
   RequestState,
@@ -49,11 +48,6 @@ export class CreatePrivateMessage extends Component<
     super(props, context);
     this.handlePrivateMessageCreate =
       this.handlePrivateMessageCreate.bind(this);
-
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {

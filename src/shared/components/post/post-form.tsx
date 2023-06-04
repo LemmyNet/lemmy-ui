@@ -6,6 +6,7 @@ import {
   EditPost,
   GetSiteMetadataResponse,
   Language,
+  PostResponse,
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
@@ -54,8 +55,8 @@ interface PostFormProps {
   siteLanguages: number[];
   params?: PostFormParams;
   onCancel?(): void;
-  onCreate?(form: CreatePost): void;
-  onEdit?(form: EditPost): void;
+  onCreate?(form: CreatePost): Promise<RequestState<PostResponse>>;
+  onEdit?(form: EditPost): Promise<RequestState<PostResponse>>;
   enableNsfw?: boolean;
   enableDownvotes?: boolean;
   selectedCommunityChoice?: Choice;
@@ -101,25 +102,22 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
     this.handleCommunitySelect = this.handleCommunitySelect.bind(this);
 
+    const { post_view, selectedCommunityChoice, params } = this.props;
+
     // Means its an edit
-    const pv = this.props.post_view;
-    if (pv) {
+    if (post_view) {
       this.state = {
         ...this.state,
         form: {
-          body: pv.post.body,
-          name: pv.post.name,
-          community_id: pv.community.id,
-          url: pv.post.url,
-          nsfw: pv.post.nsfw,
-          language_id: pv.post.language_id,
+          body: post_view.post.body,
+          name: post_view.post.name,
+          community_id: post_view.community.id,
+          url: post_view.post.url,
+          nsfw: post_view.post.nsfw,
+          language_id: post_view.post.language_id,
         },
       };
-    }
-
-    const selectedCommunityChoice = this.props.selectedCommunityChoice;
-
-    if (selectedCommunityChoice) {
+    } else if (selectedCommunityChoice) {
       this.state = {
         ...this.state,
         form: {
@@ -130,7 +128,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       };
     }
 
-    const params = this.props.params;
     if (params) {
       this.state = {
         ...this.state,
@@ -152,16 +149,21 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   static getDerivedStateFromProps(
-    { selectedCommunityChoice }: PostFormProps,
+    { selectedCommunityChoice, post_view }: PostFormProps,
     { form, ...restState }: PostFormState
   ) {
-    return {
-      ...restState,
-      form: {
-        ...form,
-        community_id: getIdFromString(selectedCommunityChoice?.value),
-      },
-    };
+    return post_view
+      ? {
+          ...restState,
+          form,
+        }
+      : {
+          ...restState,
+          form: {
+            ...form,
+            community_id: getIdFromString(selectedCommunityChoice?.value),
+          },
+        };
   }
 
   render() {
@@ -169,6 +171,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     let selectedLangs = firstLang ? Array.of(firstLang) : undefined;
 
     let url = this.state.form.url;
+
     return (
       <div>
         <Prompt
@@ -495,7 +498,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     let pForm = i.state.form;
     let pv = i.props.post_view;
     if (pv) {
-      i.props.onEdit?.({
+      await i.props.onEdit?.({
         name: pForm.name,
         url: pForm.url,
         body: pForm.body,
@@ -504,20 +507,20 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         language_id: pv.post.language_id,
         auth,
       });
-    } else {
-      if (pForm.name && pForm.community_id) {
-        i.props.onCreate?.({
-          name: pForm.name,
-          community_id: pForm.community_id,
-          url: pForm.url,
-          body: pForm.body,
-          nsfw: pForm.nsfw,
-          language_id: pForm.language_id,
-          honeypot: pForm.honeypot,
-          auth,
-        });
-      }
+    } else if (pForm.name && pForm.community_id) {
+      await i.props.onCreate?.({
+        name: pForm.name,
+        community_id: pForm.community_id,
+        url: pForm.url,
+        body: pForm.body,
+        nsfw: pForm.nsfw,
+        language_id: pForm.language_id,
+        honeypot: pForm.honeypot,
+        auth,
+      });
     }
+
+    i.setState({ loading: false });
   }
 
   copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
@@ -671,11 +674,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   handleCommunitySelect(choice: Choice) {
     if (this.props.onSelectCommunity) {
-      this.setState({
-        loading: true,
-      });
       this.props.onSelectCommunity(choice);
-      this.setState({ loading: false });
     }
   }
 }

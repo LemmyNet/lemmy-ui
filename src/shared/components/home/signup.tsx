@@ -437,41 +437,49 @@ export class Signup extends Component<any, State> {
 
   async handleRegisterSubmit(i: Signup, event: any) {
     event.preventDefault();
-    let cForm = i.state.form;
+    const cForm = i.state.form;
     if (cForm.username && cForm.password && cForm.password_verify) {
       i.setState({ registerRes: { state: "loading" } });
-      i.setState({
-        registerRes: await apiWrapper(
-          HttpService.client.register({
-            username: cForm.username,
-            password: cForm.password,
-            password_verify: cForm.password_verify,
-            email: cForm.email,
-            show_nsfw: cForm.show_nsfw,
-            captcha_uuid: cForm.captcha_uuid,
-            captcha_answer: cForm.captcha_answer,
-            honeypot: cForm.honeypot,
-            answer: cForm.answer,
-          })
-        ),
-      });
 
-      if (i.state.registerRes.state == "success") {
-        const data = i.state.registerRes.data;
+      const registerRes = await apiWrapper(
+        HttpService.client.register({
+          username: cForm.username,
+          password: cForm.password,
+          password_verify: cForm.password_verify,
+          email: cForm.email,
+          show_nsfw: cForm.show_nsfw,
+          captcha_uuid: cForm.captcha_uuid,
+          captcha_answer: cForm.captcha_answer,
+          honeypot: cForm.honeypot,
+          answer: cForm.answer,
+        })
+      );
 
-        // Only log them in if a jwt was set
-        if (data.jwt) {
-          UserService.Instance.login(data);
-          i.props.history.push("/communities");
-          location.reload();
-        } else {
-          if (data.verify_email_sent) {
-            toast(i18n.t("verify_email_sent"));
+      switch (registerRes.state) {
+        case "failed": {
+          toast(registerRes.msg, "danger");
+          i.setState({ registerRes: { state: "empty" } });
+          break;
+        }
+
+        case "success": {
+          const data = registerRes.data;
+
+          // Only log them in if a jwt was set
+          if (data.jwt) {
+            UserService.Instance.login(data);
+            i.props.history.push("/communities");
+            location.reload();
+          } else {
+            if (data.verify_email_sent) {
+              toast(i18n.t("verify_email_sent"));
+            }
+            if (data.registration_created) {
+              toast(i18n.t("registration_application_sent"));
+            }
+            i.props.history.push("/");
           }
-          if (data.registration_created) {
-            toast(i18n.t("registration_application_sent"));
-          }
-          i.props.history.push("/");
+          break;
         }
       }
     }

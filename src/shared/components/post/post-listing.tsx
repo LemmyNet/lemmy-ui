@@ -11,6 +11,7 @@ import {
   CreatePostLike,
   CreatePostReport,
   DeletePost,
+  EditPost,
   FeaturePost,
   Language,
   LockPost,
@@ -26,6 +27,7 @@ import { getExternalHost, getHttpBase } from "../../env";
 import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { UserService } from "../../services";
+import { HttpService, apiWrapper } from "../../services/HttpService";
 import {
   amAdmin,
   amCommunityCreator,
@@ -169,7 +171,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({
         upvoteLoading: false,
         downvoteLoading: false,
@@ -210,18 +212,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {this.showBody && this.body()}
           </>
         ) : (
-          <div className="col-12">
-            <PostForm
-              post_view={this.postView}
-              crossPosts={this.props.crossPosts}
-              onEdit={this.handleEditPost}
-              onCancel={this.handleEditCancel}
-              enableNsfw={this.props.enableNsfw}
-              enableDownvotes={this.props.enableDownvotes}
-              allLanguages={this.props.allLanguages}
-              siteLanguages={this.props.siteLanguages}
-            />
-          </div>
+          <PostForm
+            post_view={this.postView}
+            crossPosts={this.props.crossPosts}
+            onEdit={this.handleEditPost}
+            onCancel={this.handleEditCancel}
+            enableNsfw={this.props.enableNsfw}
+            enableDownvotes={this.props.enableDownvotes}
+            allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
+          />
         )}
       </div>
     );
@@ -243,12 +243,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get img() {
-    let src = this.imageSrc;
-    return src ? (
+    return this.imageSrc ? (
       <>
         <div className="offset-sm-3 my-2 d-none d-sm-block">
-          <a href={src} className="d-inline-block">
-            <PictrsImage src={src} />
+          <a href={this.imageSrc} className="d-inline-block">
+            <PictrsImage src={this.imageSrc} />
           </a>
         </div>
         <div className="my-2 d-block d-sm-none">
@@ -256,7 +255,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className="d-inline-block"
             onClick={linkEvent(this, this.handleImageExpandClick)}
           >
-            <PictrsImage src={src} />
+            <PictrsImage src={this.imageSrc} />
           </a>
         </div>
       </>
@@ -376,13 +375,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <PersonListing person={post_view.creator} />
 
           {this.creatorIsMod_ && (
-            <span className="mx-1 badge badge-light">{i18n.t("mod")}</span>
+            <span className="mx-1 badge">{i18n.t("mod")}</span>
           )}
           {this.creatorIsAdmin_ && (
-            <span className="mx-1 badge badge-light">{i18n.t("admin")}</span>
+            <span className="mx-1 badge">{i18n.t("admin")}</span>
           )}
           {post_view.creator.bot_account && (
-            <span className="mx-1 badge badge-light">
+            <span className="mx-1 badge">
               {i18n.t("bot_account").toLowerCase()}
             </span>
           )}
@@ -393,13 +392,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </span>
           )}
         </li>
-        <span className="mx-1 badge badge-secondary">
-          {
-            this.props.allLanguages.find(
-              lang => lang.id === post_view.post.language_id
-            )?.name
-          }
-        </span>
+        {post_view.post.language_id !== 0 && (
+          <span className="mx-1 badge">
+            {
+              this.props.allLanguages.find(
+                lang => lang.id === post_view.post.language_id
+              )?.name
+            }
+          </span>
+        )}
         <li className="list-inline-item">•</li>
         {url && !(hostname(url) === getExternalHost()) && (
           <>
@@ -1445,9 +1446,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.setState({ showEdit: false });
   }
 
-  // The actual editing is done in the recieve for post
-  handleEditPost() {
-    this.setState({ showEdit: false });
+  async handleEditPost(form: EditPost) {
+    const res = await apiWrapper(HttpService.client.editPost(form));
+
+    if (res.state === "success") {
+      this.setState({ showEdit: false });
+    }
+
+    return res;
   }
 
   handleShare(i: PostListing) {

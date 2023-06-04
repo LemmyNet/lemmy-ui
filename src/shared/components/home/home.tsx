@@ -870,6 +870,8 @@ export class Home extends Component<any, HomeState> {
     );
 
     this.createAndUpdateComments(createCommentRes);
+
+    return createCommentRes;
   }
 
   async handleEditComment(form: EditComment) {
@@ -878,6 +880,8 @@ export class Home extends Component<any, HomeState> {
     );
 
     this.findAndUpdateComment(editCommentRes);
+
+    return editCommentRes;
   }
 
   async handleDeleteComment(form: DeleteComment) {

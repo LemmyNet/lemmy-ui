@@ -1,6 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
+  CommunityResponse,
   CommunityView,
   CreateCommunity,
   EditCommunity,
@@ -8,6 +9,7 @@ import {
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
+import { RequestState } from "../../services/HttpService";
 import { capitalizeFirstLetter, myAuthRequired, randomStr } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -20,8 +22,9 @@ interface CommunityFormProps {
   siteLanguages: number[];
   communityLanguages?: number[];
   onCancel?(): any;
-  onCreateCommunity?(form: CreateCommunity): void;
-  onEditCommunity?(form: EditCommunity): void;
+  onUpsertCommunity(
+    form: CreateCommunity | EditCommunity
+  ): Promise<RequestState<CommunityResponse>>;
   enableNsfw?: boolean;
 }
 
@@ -285,16 +288,16 @@ export class CommunityForm extends Component<
     );
   }
 
-  handleCreateCommunitySubmit(i: CommunityForm, event: any) {
+  async handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
     i.setState({ loading: true });
-    let cForm = i.state.form;
-    let auth = myAuthRequired();
+    const cForm = i.state.form;
+    const auth = myAuthRequired();
 
-    let cv = i.props.community_view;
+    const cv = i.props.community_view;
 
     if (cv) {
-      i.props.onEditCommunity?.({
+      await i.props.onUpsertCommunity({
         community_id: cv.community.id,
         title: cForm.title,
         description: cForm.description,
@@ -307,7 +310,7 @@ export class CommunityForm extends Component<
       });
     } else {
       if (cForm.title && cForm.name) {
-        i.props.onCreateCommunity?.({
+        await i.props.onUpsertCommunity({
           name: cForm.name,
           title: cForm.title,
           description: cForm.description,
@@ -320,7 +323,8 @@ export class CommunityForm extends Component<
         });
       }
     }
-    i.setState(i.state);
+
+    i.setState({ loading: false });
   }
 
   handleCommunityNameChange(i: CommunityForm, event: any) {

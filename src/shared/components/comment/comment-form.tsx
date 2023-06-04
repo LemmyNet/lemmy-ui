@@ -1,10 +1,16 @@
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { CreateComment, EditComment, Language } from "lemmy-js-client";
-import { CommentNodeI } from "shared/interfaces";
+import {
+  CommentResponse,
+  CreateComment,
+  EditComment,
+  Language,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
+import { CommentNodeI } from "../../interfaces";
 import { UserService } from "../../services";
+import { RequestState } from "../../services/HttpService";
 import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -21,8 +27,9 @@ interface CommentFormProps {
   onReplyCancel?(): void;
   allLanguages: Language[];
   siteLanguages: number[];
-  onCreateComment(form: CreateComment): void;
-  onEditComment(form: EditComment): void;
+  onUpsertComment(
+    form: EditComment | CreateComment
+  ): Promise<RequestState<CommentResponse>>;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {
@@ -81,11 +88,11 @@ export class CommentForm extends Component<CommentFormProps, any> {
   }
 
   handleCommentSubmit(content: string, form_id: string, language_id?: number) {
-    let node = this.props.node;
+    const { node, onUpsertComment, edit } = this.props;
 
     if (typeof node === "number") {
-      let post_id = node;
-      this.props.onCreateComment({
+      const post_id = node;
+      onUpsertComment({
         content,
         post_id,
         language_id,
@@ -93,9 +100,9 @@ export class CommentForm extends Component<CommentFormProps, any> {
         auth: myAuthRequired(),
       });
     } else {
-      if (this.props.edit) {
-        let comment_id = node.comment_view.comment.id;
-        this.props.onEditComment({
+      if (edit) {
+        const comment_id = node.comment_view.comment.id;
+        onUpsertComment({
           content,
           comment_id,
           form_id,
@@ -103,9 +110,9 @@ export class CommentForm extends Component<CommentFormProps, any> {
           auth: myAuthRequired(),
         });
       } else {
-        let post_id = node.comment_view.post.id;
-        let parent_id = node.comment_view.comment.id;
-        this.props.onCreateComment({
+        const post_id = node.comment_view.post.id;
+        const parent_id = node.comment_view.comment.id;
+        this.props.onUpsertComment({
           content,
           parent_id,
           post_id,

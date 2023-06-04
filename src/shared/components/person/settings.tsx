@@ -50,6 +50,7 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SearchableSelect } from "../common/searchable-select";
 import { SortSelect } from "../common/sort-select";
+import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
 
@@ -171,6 +172,8 @@ export class Settings extends Component<any, SettingsState> {
 
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
+    this.userSettings = this.userSettings.bind(this);
+    this.blockCards = this.blockCards.bind(this);
 
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
@@ -244,44 +247,26 @@ export class Settings extends Component<any, SettingsState> {
   render() {
     return (
       <div className="container-lg">
-        <>
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-            description={this.documentTitle}
-            image={this.state.saveUserSettingsForm.avatar}
-          />
-          <ul className="nav nav-tabs mb-2">
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "settings" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "settings" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("settings")}
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "blocks" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "blocks" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("blocks")}
-              </button>
-            </li>
-          </ul>
-          {this.state.currentTab == "settings" && this.userSettings()}
-          {this.state.currentTab == "blocks" && this.blockCards()}
-        </>
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+          description={this.documentTitle}
+          image={this.state.saveUserSettingsForm.avatar}
+        />
+        <Tabs
+          tabs={[
+            {
+              key: "settings",
+              label: i18n.t("settings"),
+              getNode: this.userSettings,
+            },
+            {
+              key: "blocks",
+              label: i18n.t("blocks"),
+              getNode: this.blockCards,
+            },
+          ]}
+        />
       </div>
     );
   }
@@ -1164,47 +1149,47 @@ export class Settings extends Component<any, SettingsState> {
   async handleSaveSettingsSubmit(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ saveRes: { state: "loading" } });
-    i.setState({
-      saveRes: await apiWrapper(
-        HttpService.client.saveUserSettings({
-          ...i.state.saveUserSettingsForm,
-          auth: myAuthRequired(),
-        })
-      ),
-    });
 
-    if (i.state.saveRes.state == "success") {
-      UserService.Instance.login(i.state.saveRes.data);
+    const saveRes = await apiWrapper(
+      HttpService.client.saveUserSettings({
+        ...i.state.saveUserSettingsForm,
+        auth: myAuthRequired(),
+      })
+    );
+
+    if (saveRes.state === "success") {
+      UserService.Instance.login(saveRes.data);
       location.reload();
       toast(i18n.t("saved"));
       window.scrollTo(0, 0);
     }
+
+    i.setState({ saveRes });
   }
 
   async handleChangePasswordSubmit(i: Settings, event: any) {
     event.preventDefault();
-    let pForm = i.state.changePasswordForm;
-    let new_password = pForm.new_password;
-    let new_password_verify = pForm.new_password_verify;
-    let old_password = pForm.old_password;
+    const { new_password, new_password_verify, old_password } =
+      i.state.changePasswordForm;
+
     if (new_password && old_password && new_password_verify) {
       i.setState({ changePasswordRes: { state: "loading" } });
-      i.setState({
-        changePasswordRes: await apiWrapper(
-          HttpService.client.changePassword({
-            new_password,
-            new_password_verify,
-            old_password,
-            auth: myAuthRequired(),
-          })
-        ),
-      });
-    }
+      const changePasswordRes = await apiWrapper(
+        HttpService.client.changePassword({
+          new_password,
+          new_password_verify,
+          old_password,
+          auth: myAuthRequired(),
+        })
+      );
 
-    if (i.state.changePasswordRes.state == "success") {
-      UserService.Instance.login(i.state.changePasswordRes.data);
-      window.scrollTo(0, 0);
-      toast(i18n.t("password_changed"));
+      if (changePasswordRes.state === "success") {
+        UserService.Instance.login(changePasswordRes.data);
+        window.scrollTo(0, 0);
+        toast(i18n.t("password_changed"));
+      }
+
+      i.setState({ changePasswordRes });
     }
   }
 
@@ -1217,22 +1202,22 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   async handleDeleteAccount(i: Settings) {
-    let password = i.state.deleteAccountForm.password;
+    const password = i.state.deleteAccountForm.password;
     if (password) {
       i.setState({ deleteAccountRes: { state: "loading" } });
-      i.setState({
-        deleteAccountRes: await apiWrapper(
-          HttpService.client.deleteAccount({
-            password,
-            auth: myAuthRequired(),
-          })
-        ),
-      });
-    }
+      const deleteAccountRes = await apiWrapper(
+        HttpService.client.deleteAccount({
+          password,
+          auth: myAuthRequired(),
+        })
+      );
 
-    if (i.state.deleteAccountRes.state == "success") {
-      UserService.Instance.logout();
-      window.location.href = "/";
+      if (deleteAccountRes.state === "success") {
+        UserService.Instance.logout();
+        this.context.router.history.replace("/");
+      }
+
+      i.setState({ deleteAccountRes });
     }
   }
 
@@ -1241,9 +1226,9 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   personBlock(res: RequestState<BlockPersonResponse>) {
-    if (res.state == "success") {
+    if (res.state === "success") {
       updatePersonBlock(res.data);
-      let mui = UserService.Instance.myUserInfo;
+      const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
       }

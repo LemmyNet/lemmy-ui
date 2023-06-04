@@ -18,12 +18,10 @@ import {
 import {
   editRegistrationApplications,
   fetchLimit,
-  isBrowser,
   isInitialRoute,
   myAuthRequired,
   setIsoData,
   setupTippy,
-  toast,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -59,11 +57,6 @@ export class RegistrationApplications extends Component<
 
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleApproveApplication = this.handleApproveApplication.bind(this);
-
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {

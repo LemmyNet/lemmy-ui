@@ -57,7 +57,7 @@ export const donateLemmyUrl = `${joinLemmyUrl}/donate`;
 export const docsUrl = `${joinLemmyUrl}/docs/en/index.html`;
 export const helpGuideUrl = `${joinLemmyUrl}/docs/en/users/01-getting-started.html`; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${joinLemmyUrl}/docs/en/users/02-media.html`;
-export const sortingHelpUrl = `${helpGuideUrl}/docs/en/users/03-votes-and-ranking.html`;
+export const sortingHelpUrl = `${joinLemmyUrl}/docs/en/users/03-votes-and-ranking.html`;
 export const archiveTodayUrl = "https://archive.today";
 export const ghostArchiveUrl = "https://ghostarchive.org";
 export const webArchiveUrl = "https://web.archive.org";
@@ -98,6 +98,11 @@ export type ThemeColor =
   | "white"
   | "gray"
   | "gray-dark";
+
+export interface ErrorPageData {
+  error?: string;
+  adminMatrixIds?: string[];
+}
 
 let customEmojis: EmojiMartCategory[] = [];
 export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
@@ -1208,16 +1213,7 @@ export function isBrowser() {
 export function setIsoData(context: any): IsoData {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
-    let json = window.isoData;
-    let routeData = json.routeData;
-    let site_res = json.site_res;
-
-    let isoData: IsoData = {
-      path: json.path,
-      site_res,
-      routeData,
-    };
-    return isoData;
+    return window.isoData;
   } else return context.router.staticContext;
 }
 
@@ -1332,10 +1328,12 @@ export function personSelectName({
   return local ? pName : `${hostname(actor_id)}/${pName}`;
 }
 
-export function initializeSite(site: GetSiteResponse) {
-  UserService.Instance.myUserInfo = site.my_user;
+export function initializeSite(site?: GetSiteResponse) {
+  UserService.Instance.myUserInfo = site?.my_user;
   i18n.changeLanguage(getLanguages()[0]);
-  setupEmojiDataModel(site.custom_emojis);
+  if (site) {
+    setupEmojiDataModel(site.custom_emojis);
+  }
   setupMarkdown();
 }
 

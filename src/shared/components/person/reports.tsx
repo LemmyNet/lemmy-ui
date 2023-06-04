@@ -31,11 +31,9 @@ import {
   editPostReports,
   editPrivateMessageReports,
   fetchLimit,
-  isBrowser,
   isInitialRoute,
   myAuthRequired,
   setIsoData,
-  toast,
 } from "../../utils";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
@@ -100,11 +98,6 @@ export class Reports extends Component<any, ReportsState> {
     this.handleResolvePostReport = this.handleResolvePostReport.bind(this);
     this.handleResolvePrivateMessageReport =
       this.handleResolvePrivateMessageReport.bind(this);
-
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {

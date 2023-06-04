@@ -674,8 +674,8 @@ export class Search extends Component<any, SearchState> {
                   onPersonMentionRead={() => {}}
                   onBanPersonFromCommunity={() => {}}
                   onBanPerson={() => {}}
-                  onCreateComment={() => {}}
-                  onEditComment={() => {}}
+                  onCreateComment={() => Promise.resolve({ state: "empty" })}
+                  onEditComment={() => Promise.resolve({ state: "empty" })}
                 />
               )}
               {i.type_ === "communities" && (
@@ -735,8 +735,8 @@ export class Search extends Component<any, SearchState> {
         onPersonMentionRead={() => {}}
         onBanPersonFromCommunity={() => {}}
         onBanPerson={() => {}}
-        onCreateComment={() => {}}
-        onEditComment={() => {}}
+        onCreateComment={() => Promise.resolve({ state: "empty" })}
+        onEditComment={() => Promise.resolve({ state: "empty" })}
       />
     );
   }

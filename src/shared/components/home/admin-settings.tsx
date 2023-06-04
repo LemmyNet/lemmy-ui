@@ -8,6 +8,7 @@ import {
   GetBannedPersons,
   GetFederatedInstancesResponse,
   GetSiteResponse,
+  PersonView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
@@ -29,27 +30,31 @@ import {
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
+import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
+  banned: PersonView[];
+  currentTab: string;
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
-  currentTab: string;
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
   private isoData = setIsoData(this.context);
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
+    banned: [],
+    currentTab: "site",
     bannedRes: { state: "empty" },
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
-    currentTab: "site",
   };
 
   constructor(props: any, context: any) {
@@ -122,94 +127,68 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   render() {
+    const federationData =
+      this.state.instancesRes.state === "success"
+        ? this.state.instancesRes.data.federated_instances
+        : undefined;
+
     return (
       <div className="container-lg">
-        <div>
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-          />
-          <ul className="nav nav-tabs mb-2">
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "site" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "site" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("site")}
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "taglines" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "taglines" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("taglines")}
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "emojis" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "emojis" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("emojis")}
-              </button>
-            </li>
-          </ul>
-          {this.state.currentTab == "site" &&
-            this.state.instancesRes.state == "success" && (
-              <div className="row">
-                <div className="col-12 col-md-6">
-                  <SiteForm
-                    siteRes={this.state.siteRes}
-                    allowedInstances={
-                      this.state.instancesRes.data.federated_instances?.allowed
-                    }
-                    blockedInstances={
-                      this.state.instancesRes.data.federated_instances?.blocked
-                    }
-                    showLocal={showLocal(this.isoData)}
-                    onEditSite={this.handleEditSite}
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
+        <Tabs
+          tabs={[
+            {
+              key: "site",
+              label: i18n.t("site"),
+              getNode: () => (
+                <div className="row">
+                  <div className="col-12 col-md-6">
+                    <SiteForm
+                      showLocal={showLocal(this.isoData)}
+                      allowedInstances={federationData?.allowed}
+                      blockedInstances={federationData?.blocked}
+                      onSaveSite={this.handleEditSite}
+                    />
+                  </div>
+                  <div className="col-12 col-md-6">
+                    {this.admins()}
+                    {this.bannedUsers()}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: "rate_limiting",
+              label: "Rate Limiting",
+              getNode: () => <RateLimitForm onSaveSite={this.handleEditSite} />,
+            },
+            {
+              key: "taglines",
+              label: i18n.t("taglines"),
+              getNode: () => (
+                <div className="row">
+                  <TaglineForm onSaveSite={this.handleEditSite} />
+                </div>
+              ),
+            },
+            {
+              key: "emojis",
+              label: i18n.t("emojis"),
+              getNode: () => (
+                <div className="row">
+                  <EmojiForm
+                    onCreate={this.handleCreateEmoji}
+                    onDelete={this.handleDeleteEmoji}
+                    onEdit={this.handleEditEmoji}
                   />
                 </div>
-                <div className="col-12 col-md-6">
-                  {this.admins()}
-                  {this.bannedUsers()}
-                </div>
-              </div>
-            )}
-          {this.state.currentTab == "taglines" && (
-            <div className="row">
-              <TaglineForm
-                siteRes={this.state.siteRes}
-                onEditSite={this.handleEditSite}
-              />
-            </div>
-          )}
-          {this.state.currentTab == "emojis" && (
-            <div className="row">
-              <EmojiForm
-                onEdit={this.handleEditEmoji}
-                onDelete={this.handleDeleteEmoji}
-                onCreate={this.handleCreateEmoji}
-              />
-            </div>
-          )}
-        </div>
+              ),
+            },
+          ]}
+        />
       </div>
     );
   }
@@ -271,6 +250,16 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     }
   }
 
+  async handleEditSite(form: EditSite) {
+    const editRes = await apiWrapper(HttpService.client.editSite(form));
+
+    if (editRes.state === "success") {
+      toast(i18n.t("site_saved"));
+    }
+
+    return editRes;
+  }
+
   handleSwitchTab(i: { ctx: AdminSettings; tab: string }) {
     i.ctx.setState({ currentTab: i.tab });
   }
@@ -283,38 +272,29 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       ),
     });
 
-    if (this.state.leaveAdminTeamRes.state == "success") {
+    if (this.state.leaveAdminTeamRes.state === "success") {
       toast(i18n.t("left_admin_team"));
-      this.context.router.history.push("/");
-    }
-  }
-
-  async handleEditSite(form: EditSite) {
-    const editRes = await apiWrapper(HttpService.client.editSite(form));
-
-    if (editRes.state == "success") {
-      this.setState(s => ((s.siteRes.site_view = editRes.data.site_view), s));
-      toast(i18n.t("site_saved"));
+      this.context.router.history.replace("/");
     }
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
     const res = await apiWrapper(HttpService.client.editCustomEmoji(form));
-    if (res.state == "success") {
+    if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
     const res = await apiWrapper(HttpService.client.deleteCustomEmoji(form));
-    if (res.state == "success") {
+    if (res.state === "success") {
       removeFromEmojiDataModel(res.data.id);
     }
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
     const res = await apiWrapper(HttpService.client.createCustomEmoji(form));
-    if (res.state == "success") {
+    if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
   }

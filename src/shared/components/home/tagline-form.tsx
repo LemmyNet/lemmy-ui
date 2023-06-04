@@ -1,14 +1,14 @@
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
-import { EditSite, GetSiteResponse } from "lemmy-js-client";
+import { EditSite, GetSiteResponse, SiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
+import { RequestState } from "../../services/HttpService";
+import { capitalizeFirstLetter, myAuthRequired, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface TaglineFormProps {
-  siteRes: GetSiteResponse;
-  onEditSite(form: EditSite): void;
+  onSaveSite(form: EditSite): Promise<RequestState<SiteResponse>>;
 }
 
 interface TaglineFormState {
@@ -19,12 +19,13 @@ interface TaglineFormState {
 }
 
 export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
+  private isoData = setIsoData(this.context);
   state: TaglineFormState = {
     loading: false,
-    siteRes: this.props.siteRes,
+    siteRes: this.isoData.site_res,
     editingRow: undefined,
     siteForm: {
-      taglines: this.props.siteRes.taglines?.map(x => x.content),
+      taglines: this.state.siteRes.taglines?.map(x => x.content),
       auth: "TODO",
     },
   };
@@ -165,12 +166,17 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     }
   }
 
-  handleSaveClick(i: TaglineForm) {
-    i.setState({ loading: true });
-    let auth = myAuthRequired();
+  async handleSaveClick(i: TaglineForm) {
+    const auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));
-    i.props.onEditSite(i.state.siteForm);
-    i.setState({ ...i.state, editingRow: undefined });
+    i.setState({ loading: true });
+    const editRes = await i.props.onSaveSite(i.state.siteForm);
+
+    if (editRes.state === "success") {
+      i.setState(s => ((s.siteRes.site_view = editRes.data.site_view), s));
+    }
+
+    i.setState({ loading: false });
   }
 
   handleAddTaglineClick(

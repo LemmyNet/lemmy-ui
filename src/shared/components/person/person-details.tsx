@@ -6,6 +6,7 @@ import {
   BanPerson,
   BlockPerson,
   CommentId,
+  CommentResponse,
   CommentView,
   CreateComment,
   CreateCommentLike,
@@ -36,6 +37,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
+import { RequestState } from "../../services/HttpService";
 import { commentsToFlatNodes, setupTippy } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
@@ -57,8 +59,8 @@ interface PersonDetailsProps {
   onSaveComment(form: SaveComment): void;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
-  onCreateComment(form: CreateComment): void;
-  onEditComment(form: EditComment): void;
+  onCreateComment(form: CreateComment): Promise<RequestState<CommentResponse>>;
+  onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): void;
   onBlockPerson(form: BlockPerson): void;
   onDeleteComment(form: DeleteComment): void;

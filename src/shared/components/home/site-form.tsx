@@ -11,12 +11,15 @@ import {
   GetSiteResponse,
   Instance,
   ListingType,
+  SiteResponse,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
+import { RequestState } from "../../services/HttpService";
 import {
   capitalizeFirstLetter,
   fetchThemeList,
   myAuthRequired,
+  setIsoData,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -25,12 +28,10 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface SiteFormProps {
-  siteRes: GetSiteResponse;
   blockedInstances?: Instance[];
   allowedInstances?: Instance[];
   showLocal?: boolean;
-  onEditSite?(form: EditSite): void;
-  onCreateSite?(form: CreateSite): void;
+  onSaveSite(form: EditSite): Promise<RequestState<SiteResponse>>;
 }
 
 interface SiteFormState {
@@ -41,12 +42,15 @@ interface SiteFormState {
     allowed_instances: string;
     blocked_instances: string;
   };
+  siteRes: GetSiteResponse;
 }
 
 type InstanceKey = "allowed_instances" | "blocked_instances";
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
+  private isoData = setIsoData(this.context);
   state: SiteFormState = {
+    siteRes: this.isoData.site_res,
     siteForm: {
       auth: "TODO",
     },
@@ -76,10 +80,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
+    this.handleAddInstance = this.handleAddInstance.bind(this);
+    this.handleInstanceEnterPress = this.handleInstanceEnterPress.bind(this);
+    this.handleInstanceTextChange = this.handleInstanceTextChange.bind(this);
 
-    let site = this.props.siteRes.site_view.site;
-    let ls = this.props.siteRes.site_view.local_site;
-    let lsrl = this.props.siteRes.site_view.local_site_rate_limit;
+    const site = this.state.siteRes.site_view.site;
+    const ls = this.state.siteRes.site_view.local_site;
     this.state = {
       ...this.state,
       siteForm: {
@@ -101,21 +107,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         application_email_admins: ls.application_email_admins,
         reports_email_admins: ls.reports_email_admins,
         hide_modlog_mod_names: ls.hide_modlog_mod_names,
-        discussion_languages: this.props.siteRes.discussion_languages,
+        discussion_languages: this.state.siteRes.discussion_languages,
         slur_filter_regex: ls.slur_filter_regex,
         actor_name_max_length: ls.actor_name_max_length,
-        rate_limit_message: lsrl.message,
-        rate_limit_message_per_second: lsrl.message_per_second,
-        rate_limit_comment: lsrl.comment,
-        rate_limit_comment_per_second: lsrl.comment_per_second,
-        rate_limit_image: lsrl.image,
-        rate_limit_image_per_second: lsrl.image_per_second,
-        rate_limit_post: lsrl.post,
-        rate_limit_post_per_second: lsrl.post_per_second,
-        rate_limit_register: lsrl.register,
-        rate_limit_register_per_second: lsrl.register_per_second,
-        rate_limit_search: lsrl.search,
-        rate_limit_search_per_second: lsrl.search_per_second,
         federation_enabled: ls.federation_enabled,
         federation_debug: ls.federation_debug,
         federation_worker_count: ls.federation_worker_count,
@@ -140,7 +134,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   componentDidUpdate() {
     if (
       !this.state.loading &&
-      !this.props.siteRes.site_view.local_site.site_setup &&
+      !this.state.siteRes.site_view.local_site.site_setup &&
       (this.state.siteForm.name ||
         this.state.siteForm.sidebar ||
         this.state.siteForm.application_question ||
@@ -157,7 +151,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   render() {
-    let siteSetup = this.props.siteRes.site_view.local_site.site_setup;
+    let siteSetup = this.state.siteRes.site_view.local_site.site_setup;
     return (
       <>
         <Prompt
@@ -171,7 +165,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           }
           message={i18n.t("block_leaving")}
         />
-        <form onSubmit={linkEvent(this, this.handleCreateSiteSubmit)}>
+        <form onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}>
           <h5>{`${
             siteSetup
               ? capitalizeFirstLetter(i18n.t("save"))
@@ -517,8 +511,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
           <LanguageSelect
-            allLanguages={this.props.siteRes.all_languages}
-            siteLanguages={this.props.siteRes.discussion_languages}
+            allLanguages={this.state.siteRes.all_languages}
+            siteLanguages={this.state.siteRes.discussion_languages}
             selectedLanguageIds={this.state.siteForm.discussion_languages}
             multiple={true}
             onChange={this.handleDiscussionLanguageChange}
@@ -651,238 +645,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           )}
           <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-message"
-            >
-              {i18n.t("rate_limit_message")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-message"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_message}
-                onInput={linkEvent(this, this.handleSiteRateLimitMessage)}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-message-per-second"
-            >
-              {i18n.t("per_second")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-message-per-second"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_message_per_second}
-                onInput={linkEvent(
-                  this,
-                  this.handleSiteRateLimitMessagePerSecond
-                )}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-post"
-            >
-              {i18n.t("rate_limit_post")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-post"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_post}
-                onInput={linkEvent(this, this.handleSiteRateLimitPost)}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-post-per-second"
-            >
-              {i18n.t("per_second")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-post-per-second"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_post_per_second}
-                onInput={linkEvent(this, this.handleSiteRateLimitPostPerSecond)}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-register"
-            >
-              {i18n.t("rate_limit_register")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-register"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_register}
-                onInput={linkEvent(this, this.handleSiteRateLimitRegister)}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-register-per-second"
-            >
-              {i18n.t("per_second")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-register-per-second"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_register_per_second}
-                onInput={linkEvent(
-                  this,
-                  this.handleSiteRateLimitRegisterPerSecond
-                )}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-image"
-            >
-              {i18n.t("rate_limit_image")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-image"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_image}
-                onInput={linkEvent(this, this.handleSiteRateLimitImage)}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-image-per-second"
-            >
-              {i18n.t("per_second")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-image-per-second"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_image_per_second}
-                onInput={linkEvent(
-                  this,
-                  this.handleSiteRateLimitImagePerSecond
-                )}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-comment"
-            >
-              {i18n.t("rate_limit_comment")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-comment"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_comment}
-                onInput={linkEvent(this, this.handleSiteRateLimitComment)}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-comment-per-second"
-            >
-              {i18n.t("per_second")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-comment-per-second"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_comment_per_second}
-                onInput={linkEvent(
-                  this,
-                  this.handleSiteRateLimitCommentPerSecond
-                )}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-search"
-            >
-              {i18n.t("rate_limit_search")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-search"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_search}
-                onInput={linkEvent(this, this.handleSiteRateLimitSearch)}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-rate-limit-search-per-second"
-            >
-              {i18n.t("per_second")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-rate-limit-search-per-second"
-                className="form-control"
-                min={0}
-                value={this.state.siteForm.rate_limit_search_per_second}
-                onInput={linkEvent(
-                  this,
-                  this.handleSiteRateLimitSearchPerSecond
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="form-group row">
             <div className="col-12">
               <button
                 type="submit"
@@ -984,60 +746,75 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     }
   }
 
-  handleCreateSiteSubmit(i: SiteForm, event: any) {
+  async handleSaveSiteSubmit(i: SiteForm, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
-    let auth = myAuthRequired();
+    const auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));
-    if (i.props.siteRes.site_view.local_site.site_setup) {
-      i.props.onEditSite?.(i.state.siteForm);
+    i.setState({ loading: true });
+
+    const stateSiteForm = i.state.siteForm;
+
+    let form: EditSite | CreateSite;
+
+    if (i.state.siteRes.site_view.local_site.site_setup) {
+      form = stateSiteForm;
     } else {
-      let sForm = i.state.siteForm;
-      let form: CreateSite = {
-        name: sForm.name ?? "My site",
-        sidebar: sForm.sidebar,
-        description: sForm.description,
-        icon: sForm.icon,
-        banner: sForm.banner,
-        community_creation_admin_only: sForm.community_creation_admin_only,
-        enable_nsfw: sForm.enable_nsfw,
-        enable_downvotes: sForm.enable_downvotes,
-        application_question: sForm.application_question,
-        registration_mode: sForm.registration_mode,
-        require_email_verification: sForm.require_email_verification,
-        private_instance: sForm.private_instance,
-        default_theme: sForm.default_theme,
-        default_post_listing_type: sForm.default_post_listing_type,
-        application_email_admins: sForm.application_email_admins,
-        hide_modlog_mod_names: sForm.hide_modlog_mod_names,
-        legal_information: sForm.legal_information,
-        slur_filter_regex: sForm.slur_filter_regex,
-        actor_name_max_length: sForm.actor_name_max_length,
-        rate_limit_message: sForm.rate_limit_message,
-        rate_limit_message_per_second: sForm.rate_limit_message_per_second,
-        rate_limit_comment: sForm.rate_limit_comment,
-        rate_limit_comment_per_second: sForm.rate_limit_comment_per_second,
-        rate_limit_image: sForm.rate_limit_image,
-        rate_limit_image_per_second: sForm.rate_limit_image_per_second,
-        rate_limit_post: sForm.rate_limit_post,
-        rate_limit_post_per_second: sForm.rate_limit_post_per_second,
-        rate_limit_register: sForm.rate_limit_register,
-        rate_limit_register_per_second: sForm.rate_limit_register_per_second,
-        rate_limit_search: sForm.rate_limit_search,
-        rate_limit_search_per_second: sForm.rate_limit_search_per_second,
-        federation_enabled: sForm.federation_enabled,
-        federation_debug: sForm.federation_debug,
-        federation_worker_count: sForm.federation_worker_count,
-        captcha_enabled: sForm.captcha_enabled,
-        captcha_difficulty: sForm.captcha_difficulty,
-        allowed_instances: sForm.allowed_instances,
-        blocked_instances: sForm.blocked_instances,
-        discussion_languages: sForm.discussion_languages,
+      form = {
+        name: stateSiteForm.name ?? "My site",
+        sidebar: stateSiteForm.sidebar,
+        description: stateSiteForm.description,
+        icon: stateSiteForm.icon,
+        banner: stateSiteForm.banner,
+        community_creation_admin_only:
+          stateSiteForm.community_creation_admin_only,
+        enable_nsfw: stateSiteForm.enable_nsfw,
+        enable_downvotes: stateSiteForm.enable_downvotes,
+        application_question: stateSiteForm.application_question,
+        registration_mode: stateSiteForm.registration_mode,
+        require_email_verification: stateSiteForm.require_email_verification,
+        private_instance: stateSiteForm.private_instance,
+        default_theme: stateSiteForm.default_theme,
+        default_post_listing_type: stateSiteForm.default_post_listing_type,
+        application_email_admins: stateSiteForm.application_email_admins,
+        hide_modlog_mod_names: stateSiteForm.hide_modlog_mod_names,
+        legal_information: stateSiteForm.legal_information,
+        slur_filter_regex: stateSiteForm.slur_filter_regex,
+        actor_name_max_length: stateSiteForm.actor_name_max_length,
+        rate_limit_message: stateSiteForm.rate_limit_message,
+        rate_limit_message_per_second:
+          stateSiteForm.rate_limit_message_per_second,
+        rate_limit_comment: stateSiteForm.rate_limit_comment,
+        rate_limit_comment_per_second:
+          stateSiteForm.rate_limit_comment_per_second,
+        rate_limit_image: stateSiteForm.rate_limit_image,
+        rate_limit_image_per_second: stateSiteForm.rate_limit_image_per_second,
+        rate_limit_post: stateSiteForm.rate_limit_post,
+        rate_limit_post_per_second: stateSiteForm.rate_limit_post_per_second,
+        rate_limit_register: stateSiteForm.rate_limit_register,
+        rate_limit_register_per_second:
+          stateSiteForm.rate_limit_register_per_second,
+        rate_limit_search: stateSiteForm.rate_limit_search,
+        rate_limit_search_per_second:
+          stateSiteForm.rate_limit_search_per_second,
+        federation_enabled: stateSiteForm.federation_enabled,
+        federation_debug: stateSiteForm.federation_debug,
+        federation_worker_count: stateSiteForm.federation_worker_count,
+        captcha_enabled: stateSiteForm.captcha_enabled,
+        captcha_difficulty: stateSiteForm.captcha_difficulty,
+        allowed_instances: stateSiteForm.allowed_instances,
+        blocked_instances: stateSiteForm.blocked_instances,
+        discussion_languages: stateSiteForm.discussion_languages,
         auth,
       };
-      i.props.onCreateSite?.(form);
     }
-    i.setState(i.state);
+
+    const res = await i.props.onSaveSite(form);
+
+    if (res.state === "success") {
+      i.setState(s => ((s.siteRes.site_view = res.data.site_view), s));
+    }
+
+    i.setState({ loading: false });
   }
 
   handleAddInstance(key: InstanceKey) {
@@ -1210,96 +987,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleSiteActorNameMaxLength(i: SiteForm, event: any) {
     i.setState(
       s => ((s.siteForm.actor_name_max_length = Number(event.target.value)), s)
-    );
-  }
-
-  handleSiteRateLimitMessage(i: SiteForm, event: any) {
-    i.setState(
-      s => ((s.siteForm.rate_limit_message = Number(event.target.value)), s)
-    );
-  }
-
-  handleSiteRateLimitMessagePerSecond(i: SiteForm, event: any) {
-    i.setState(
-      s => (
-        (s.siteForm.rate_limit_message_per_second = Number(event.target.value)),
-        s
-      )
-    );
-  }
-
-  handleSiteRateLimitPost(i: SiteForm, event: any) {
-    i.setState(
-      s => ((s.siteForm.rate_limit_post = Number(event.target.value)), s)
-    );
-  }
-
-  handleSiteRateLimitPostPerSecond(i: SiteForm, event: any) {
-    i.setState(
-      s => (
-        (s.siteForm.rate_limit_post_per_second = Number(event.target.value)), s
-      )
-    );
-  }
-
-  handleSiteRateLimitImage(i: SiteForm, event: any) {
-    i.setState(
-      s => ((s.siteForm.rate_limit_image = Number(event.target.value)), s)
-    );
-  }
-
-  handleSiteRateLimitImagePerSecond(i: SiteForm, event: any) {
-    i.setState(
-      s => (
-        (s.siteForm.rate_limit_image_per_second = Number(event.target.value)), s
-      )
-    );
-  }
-
-  handleSiteRateLimitComment(i: SiteForm, event: any) {
-    i.setState(
-      s => ((s.siteForm.rate_limit_comment = Number(event.target.value)), s)
-    );
-  }
-
-  handleSiteRateLimitCommentPerSecond(i: SiteForm, event: any) {
-    i.setState(
-      s => (
-        (s.siteForm.rate_limit_comment_per_second = Number(event.target.value)),
-        s
-      )
-    );
-  }
-
-  handleSiteRateLimitSearch(i: SiteForm, event: any) {
-    i.setState(
-      s => ((s.siteForm.rate_limit_search = Number(event.target.value)), s)
-    );
-  }
-
-  handleSiteRateLimitSearchPerSecond(i: SiteForm, event: any) {
-    i.setState(
-      s => (
-        (s.siteForm.rate_limit_search_per_second = Number(event.target.value)),
-        s
-      )
-    );
-  }
-
-  handleSiteRateLimitRegister(i: SiteForm, event: any) {
-    i.setState(
-      s => ((s.siteForm.rate_limit_register = Number(event.target.value)), s)
-    );
-  }
-
-  handleSiteRateLimitRegisterPerSecond(i: SiteForm, event: any) {
-    i.setState(
-      s => (
-        (s.siteForm.rate_limit_register_per_second = Number(
-          event.target.value
-        )),
-        s
-      )
     );
   }
 

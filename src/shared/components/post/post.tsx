@@ -383,8 +383,7 @@ export class Post extends Component<any, PostState> {
                 disabled={res.post_view.post.locked}
                 allLanguages={this.state.siteRes.all_languages}
                 siteLanguages={this.state.siteRes.discussion_languages}
-                onCreateComment={this.handleCreateComment}
-                onEditComment={this.handleEditComment}
+                onUpsertComment={this.handleCreateComment}
                 finished={this.state.finished.get(0)}
               />
               <div className="d-block d-md-none">
@@ -782,13 +781,18 @@ export class Post extends Component<any, PostState> {
   async handleEditCommunity(form: EditCommunity) {
     const res = await apiWrapper(HttpService.client.editCommunity(form));
     this.updateCommunity(res);
+
+    return res;
   }
 
   async handleCreateComment(form: CreateComment) {
     const createCommentRes = await apiWrapper(
       HttpService.client.createComment(form)
     );
+
     this.createAndUpdateComments(createCommentRes);
+
+    return createCommentRes;
   }
 
   async handleEditComment(form: EditComment) {
@@ -797,6 +801,8 @@ export class Post extends Component<any, PostState> {
     );
 
     this.findAndUpdateComment(editCommentRes);
+
+    return editCommentRes;
   }
 
   async handleDeleteComment(form: DeleteComment) {
@@ -1020,7 +1026,7 @@ export class Post extends Component<any, PostState> {
 
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments.unshift(res.data.comment_view);
 
         // Set finished for the parent
