@@ -41,14 +41,10 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
     return this.props.nodes.length > 0 ? (
       <ul
         className={classNames("comments", {
-          "ms-2": !!this.props.isChild,
+          "ms-1": !!this.props.isChild,
           "border-top border-light": !this.props.noBorder,
         })}
-        style={{
-          "border-left-color": borderColor,
-          "border-left-style": "solid",
-          "border-left-width": `2px`,
-        }}
+        style={`border-left: 2px solid ${borderColor} !important;`}
       >
         {this.props.nodes.slice(0, maxComments).map(node => (
           <CommentNode
