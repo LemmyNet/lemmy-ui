@@ -1,6 +1,8 @@
+import classNames from "classnames";
 import { Component } from "inferno";
 import { CommunityModeratorView, Language, PersonView } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
+import { colorList } from "../../utils";
 import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
@@ -20,6 +22,8 @@ interface CommentNodesProps {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
+  isChild?: boolean;
+  depth?: number;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -28,10 +32,24 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
   }
 
   render() {
-    let maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
+    const maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
 
-    return (
-      <div className="comments">
+    const borderColor = this.props.depth
+      ? colorList[this.props.depth % colorList.length]
+      : colorList[0];
+
+    return this.props.nodes.length > 0 ? (
+      <ul
+        className={classNames("comments", {
+          "ms-2": !!this.props.isChild,
+          "border-top border-light": !this.props.noBorder,
+        })}
+        style={{
+          "border-left-color": borderColor,
+          "border-left-style": "solid",
+          "border-left-width": `2px`,
+        }}
+      >
         {this.props.nodes.slice(0, maxComments).map(node => (
           <CommentNode
             key={node.comment_view.comment.id}
@@ -52,7 +70,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             hideImages={this.props.hideImages}
           />
         ))}
-      </div>
-    );
+      </ul>
+    ) : null;
   }
 }

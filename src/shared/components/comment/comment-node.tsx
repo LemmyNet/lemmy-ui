@@ -159,18 +159,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   render() {
-    let node = this.props.node;
-    let cv = this.props.node.comment_view;
+    const node = this.props.node;
+    const cv = this.props.node.comment_view;
 
-    let purgeTypeText =
+    const purgeTypeText =
       this.state.purgeType == PurgeType.Comment
         ? i18n.t("purge_comment")
         : `${i18n.t("purge")} ${cv.creator.name}`;
 
-    let canMod_ =
+    const canMod_ =
       canMod(cv.creator.id, this.props.moderators, this.props.admins) &&
       cv.community.local;
-    let canModOnSelf =
+    const canModOnSelf =
       canMod(
         cv.creator.id,
         this.props.moderators,
@@ -178,59 +178,46 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         UserService.Instance.myUserInfo,
         true
       ) && cv.community.local;
-    let canAdmin_ =
+    const canAdmin_ =
       canAdmin(cv.creator.id, this.props.admins) && cv.community.local;
-    let canAdminOnSelf =
+    const canAdminOnSelf =
       canAdmin(
         cv.creator.id,
         this.props.admins,
         UserService.Instance.myUserInfo,
         true
       ) && cv.community.local;
-    let isMod_ = isMod(cv.creator.id, this.props.moderators);
-    let isAdmin_ =
+    const isMod_ = isMod(cv.creator.id, this.props.moderators);
+    const isAdmin_ =
       isAdmin(cv.creator.id, this.props.admins) && cv.community.local;
-    let amCommunityCreator_ = amCommunityCreator(
+    const amCommunityCreator_ = amCommunityCreator(
       cv.creator.id,
       this.props.moderators
     );
 
-    let borderColor = this.props.node.depth
-      ? colorList[(this.props.node.depth - 1) % colorList.length]
-      : colorList[0];
-    let moreRepliesBorderColor = this.props.node.depth
+    const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
       : colorList[0];
 
-    let showMoreChildren =
+    const showMoreChildren =
       this.props.viewType == CommentViewType.Tree &&
       !this.state.collapsed &&
       node.children.length == 0 &&
       node.comment_view.counts.child_count > 0;
 
     return (
-      <div
-        className={`comment ${
-          this.props.node.depth && !this.props.noIndent ? "ml-1" : ""
-        }`}
-      >
+      <li className="comment" role="comment">
         <div
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
-            "border-top border-light": !this.props.noBorder,
             mark:
               this.isCommentNew ||
               this.props.node.comment_view.comment.distinguished,
           })}
-          style={
-            !this.props.noIndent && this.props.node.depth
-              ? `border-left: 2px ${borderColor} solid !important`
-              : ""
-          }
         >
           <div
             className={classNames({
-              "ml-2": !this.props.noIndent && this.props.node.depth,
+              "ml-2": !this.props.noIndent,
             })}
           >
             <div className="d-flex flex-wrap align-items-center text-muted small">
@@ -1024,11 +1011,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
+            isChild={!this.props.noIndent}
+            depth={this.props.node.depth + 1}
           />
         )}
         {/* A collapsed clearfix */}
-        {this.state.collapsed && <div className="row col-12"></div>}
-      </div>
+        {this.state.collapsed && <div className="row col-12" />}
+      </li>
     );
   }
 
