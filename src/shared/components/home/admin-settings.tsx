@@ -29,27 +29,53 @@ import {
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
+import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
+<<<<<<< HEAD
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   currentTab: string;
+||||||| 0bd9a17
+  instancesRes?: GetFederatedInstancesResponse;
+  banned: PersonView[];
+  loading: boolean;
+  leaveAdminTeamLoading: boolean;
+  currentTab: string;
+=======
+  instancesRes?: GetFederatedInstancesResponse;
+  banned: PersonView[];
+  loading: boolean;
+  leaveAdminTeamLoading: boolean;
+>>>>>>> main
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
   private isoData = setIsoData(this.context);
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
+<<<<<<< HEAD
     bannedRes: { state: "empty" },
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
     currentTab: "site",
+||||||| 0bd9a17
+    banned: [],
+    loading: true,
+    leaveAdminTeamLoading: false,
+    currentTab: "site",
+=======
+    banned: [],
+    loading: true,
+    leaveAdminTeamLoading: false,
+>>>>>>> main
   };
 
   constructor(props: any, context: any) {
@@ -124,6 +150,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   render() {
     return (
       <div className="container-lg">
+<<<<<<< HEAD
         <div>
           <HtmlTags
             title={this.documentTitle}
@@ -184,7 +211,111 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                     }
                     showLocal={showLocal(this.isoData)}
                     onEditSite={this.handleEditSite}
+||||||| 0bd9a17
+        {this.state.loading ? (
+          <h5>
+            <Spinner large />
+          </h5>
+        ) : (
+          <div>
+            <HtmlTags
+              title={this.documentTitle}
+              path={this.context.router.route.match.url}
+            />
+            <ul className="nav nav-tabs mb-2">
+              <li className="nav-item">
+                <button
+                  className={`nav-link btn ${
+                    this.state.currentTab == "site" && "active"
+                  }`}
+                  onClick={linkEvent(
+                    { ctx: this, tab: "site" },
+                    this.handleSwitchTab
+                  )}
+                >
+                  {i18n.t("site")}
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  className={`nav-link btn ${
+                    this.state.currentTab == "taglines" && "active"
+                  }`}
+                  onClick={linkEvent(
+                    { ctx: this, tab: "taglines" },
+                    this.handleSwitchTab
+                  )}
+                >
+                  {i18n.t("taglines")}
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  className={`nav-link btn ${
+                    this.state.currentTab == "emojis" && "active"
+                  }`}
+                  onClick={linkEvent(
+                    { ctx: this, tab: "emojis" },
+                    this.handleSwitchTab
+                  )}
+                >
+                  {i18n.t("emojis")}
+                </button>
+              </li>
+            </ul>
+            {this.state.currentTab == "site" && (
+              <div className="row">
+                <div className="col-12 col-md-6">
+                  <SiteForm
+                    siteRes={this.state.siteRes}
+                    instancesRes={this.state.instancesRes}
+                    showLocal={showLocal(this.isoData)}
+=======
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
+        {this.state.loading ? (
+          <h5>
+            <Spinner large />
+          </h5>
+        ) : (
+          <Tabs
+            tabs={[
+              {
+                key: "site",
+                label: i18n.t("site"),
+                getNode: () => (
+                  <div className="row">
+                    <div className="col-12 col-md-6">
+                      <SiteForm
+                        siteRes={this.state.siteRes}
+                        instancesRes={this.state.instancesRes}
+                        showLocal={showLocal(this.isoData)}
+                      />
+                    </div>
+                    <div className="col-12 col-md-6">
+                      {this.admins()}
+                      {this.bannedUsers()}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: "rate_limiting",
+                label: "Rate Limiting",
+                getNode: () => (
+                  <RateLimitForm
+                    localSiteRateLimit={
+                      this.state.siteRes.site_view.local_site_rate_limit
+                    }
+                    applicationQuestion={
+                      this.state.siteRes.site_view.local_site
+                        .application_question
+                    }
+>>>>>>> main
                   />
+<<<<<<< HEAD
                 </div>
                 <div className="col-12 col-md-6">
                   {this.admins()}
@@ -210,6 +341,51 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             </div>
           )}
         </div>
+||||||| 0bd9a17
+                </div>
+                <div className="col-12 col-md-6">
+                  {this.admins()}
+                  {this.bannedUsers()}
+                </div>
+              </div>
+            )}
+            {this.state.currentTab == "taglines" && (
+              <div className="row">
+                <TaglineForm siteRes={this.state.siteRes}></TaglineForm>
+              </div>
+            )}
+            {this.state.currentTab == "emojis" && (
+              <div className="row">
+                <EmojiForm></EmojiForm>
+              </div>
+            )}
+          </div>
+        )}
+=======
+                ),
+              },
+              {
+                key: "taglines",
+                label: i18n.t("taglines"),
+                getNode: () => (
+                  <div className="row">
+                    <TaglineForm siteRes={this.state.siteRes} />
+                  </div>
+                ),
+              },
+              {
+                key: "emojis",
+                label: i18n.t("emojis"),
+                getNode: () => (
+                  <div className="row">
+                    <EmojiForm />
+                  </div>
+                ),
+              },
+            ]}
+          />
+        )}
+>>>>>>> main
       </div>
     );
   }
@@ -271,6 +447,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     }
   }
 
+<<<<<<< HEAD
   handleSwitchTab(i: { ctx: AdminSettings; tab: string }) {
     i.ctx.setState({ currentTab: i.tab });
   }
@@ -286,6 +463,23 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     if (this.state.leaveAdminTeamRes.state == "success") {
       toast(i18n.t("left_admin_team"));
       this.context.router.history.push("/");
+||||||| 0bd9a17
+  handleSwitchTab(i: { ctx: AdminSettings; tab: string }) {
+    i.ctx.setState({ currentTab: i.tab });
+  }
+
+  handleLeaveAdminTeam(i: AdminSettings) {
+    let auth = myAuth();
+    if (auth) {
+      i.setState({ leaveAdminTeamLoading: true });
+      WebSocketService.Instance.send(wsClient.leaveAdmin({ auth }));
+=======
+  handleLeaveAdminTeam(i: AdminSettings) {
+    let auth = myAuth();
+    if (auth) {
+      i.setState({ leaveAdminTeamLoading: true });
+      WebSocketService.Instance.send(wsClient.leaveAdmin({ auth }));
+>>>>>>> main
     }
   }
 

@@ -69,7 +69,7 @@ pipeline:
 
   publish_release_docker_manifest:
     image: plugins/manifest
-    settings: 
+    settings:
       username:
         from_secret: docker_username
       password:
@@ -85,7 +85,7 @@ pipeline:
 
   publish_latest_release_docker_manifest:
     image: plugins/manifest
-    settings: 
+    settings:
       username:
         from_secret: docker_username
       password:

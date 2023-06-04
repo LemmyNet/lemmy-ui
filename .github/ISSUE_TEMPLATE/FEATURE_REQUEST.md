@@ -1,10 +1,9 @@
 ---
 name: "\U0001F680 Feature request"
 about: Suggest an idea for improving Lemmy
-title: ''
+title: ""
 labels: enhancement
-assignees: ''
-
+assignees: ""
 ---
 
 For backend issues, use [lemmy](https://github.com/LemmyNet/lemmy)

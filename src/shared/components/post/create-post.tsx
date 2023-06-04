@@ -1,5 +1,4 @@
 import { Component } from "inferno";
-import { Redirect } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   CreatePost as CreatePostI,
@@ -9,8 +8,14 @@ import {
 } from "lemmy-js-client";
 import { InitialFetchRequest, PostFormParams } from "shared/interfaces";
 import { i18n } from "../../i18next";
+<<<<<<< HEAD
 import { UserService } from "../../services";
 import { HttpService, apiWrapper } from "../../services/HttpService";
+||||||| 0bd9a17
+import { UserService, WebSocketService } from "../../services";
+=======
+import { WebSocketService } from "../../services";
+>>>>>>> main
 import {
   Choice,
   QueryParams,
@@ -18,8 +23,15 @@ import {
   enableNsfw,
   getIdFromString,
   getQueryParams,
+<<<<<<< HEAD
   getQueryString,
   isInitialRoute,
+||||||| 0bd9a17
+  getQueryString,
+  isBrowser,
+=======
+  isBrowser,
+>>>>>>> main
   myAuth,
   setIsoData,
 } from "../../utils";
@@ -68,7 +80,7 @@ export class CreatePost extends Component<
 
       if (communityRes) {
         const communityChoice: Choice = {
-          label: communityRes.community_view.community.name,
+          label: communityRes.community_view.community.title,
           value: communityRes.community_view.community.id.toString(),
         };
 
@@ -142,7 +154,6 @@ export class CreatePost extends Component<
 
     return (
       <div className="container-lg">
-        {!UserService.Instance.myUserInfo && <Redirect to="/login" />}
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -175,18 +186,21 @@ export class CreatePost extends Component<
   async updateUrl({ communityId }: Partial<CreatePostProps>) {
     const { communityId: urlCommunityId } = getCreatePostQueryParams();
 
-    const queryParams: QueryParams<CreatePostProps> = {
-      communityId: (communityId ?? urlCommunityId)?.toString(),
-    };
-
     const locationState = this.props.history.location.state as
       | PostFormParams
       | undefined;
 
-    this.props.history.replace(
-      `/create_post${getQueryString(queryParams)}`,
-      locationState
-    );
+    const url = new URL(location.href);
+
+    const newId = (communityId ?? urlCommunityId)?.toString();
+
+    if (newId !== undefined) {
+      url.searchParams.set("communityId", newId);
+    } else {
+      url.searchParams.delete("communityId");
+    }
+
+    history.replaceState(locationState, "", url);
 
     await this.fetchCommunity();
   }
@@ -225,4 +239,52 @@ export class CreatePost extends Component<
 
     return promises;
   }
+<<<<<<< HEAD
+||||||| 0bd9a17
+
+  parseMessage(msg: any) {
+    const op = wsUserOp(msg);
+    console.log(msg);
+    if (msg.error) {
+      toast(i18n.t(msg.error), "danger");
+      return;
+    }
+
+    if (op === UserOperation.GetCommunity) {
+      const {
+        community_view: {
+          community: { name, id },
+        },
+      } = wsJsonToRes<GetCommunityResponse>(msg);
+
+      this.setState({
+        selectedCommunityChoice: { label: name, value: id.toString() },
+        loading: false,
+      });
+    }
+  }
+=======
+
+  parseMessage(msg: any) {
+    const op = wsUserOp(msg);
+    console.log(msg);
+    if (msg.error) {
+      toast(i18n.t(msg.error), "danger");
+      return;
+    }
+
+    if (op === UserOperation.GetCommunity) {
+      const {
+        community_view: {
+          community: { title, id },
+        },
+      } = wsJsonToRes<GetCommunityResponse>(msg);
+
+      this.setState({
+        selectedCommunityChoice: { label: title, value: id.toString() },
+        loading: false,
+      });
+    }
+  }
+>>>>>>> main
 }
