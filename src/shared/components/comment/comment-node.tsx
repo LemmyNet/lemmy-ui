@@ -380,11 +380,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <>
                       <button
                         className={`btn btn-link btn-animate ${
-                          this.state.my_vote == 1 ? "text-info" : "text-muted"
+                          this.state.my_vote === 1 ? "text-info" : "text-muted"
                         }`}
                         onClick={this.handleCommentUpvote}
                         data-tippy-content={i18n.t("upvote")}
                         aria-label={i18n.t("upvote")}
+                        aria-pressed={this.state.my_vote === 1}
                       >
                         <Icon icon="arrow-up1" classes="icon-inline" />
                         {showScores() &&
@@ -397,13 +398,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       {this.props.enableDownvotes && (
                         <button
                           className={`btn btn-link btn-animate ${
-                            this.state.my_vote == -1
+                            this.state.my_vote === -1
                               ? "text-danger"
                               : "text-muted"
                           }`}
                           onClick={this.handleCommentDownvote}
                           data-tippy-content={i18n.t("downvote")}
                           aria-label={i18n.t("downvote")}
+                          aria-pressed={this.state.my_vote === -1}
                         >
                           <Icon icon="arrow-down1" classes="icon-inline" />
                           {showScores() &&
