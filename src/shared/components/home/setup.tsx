@@ -173,9 +173,9 @@ export class Setup extends Component<any, State> {
     event.preventDefault();
     i.setState({ userLoading: true });
     event.preventDefault();
-    let cForm = i.state.form;
+    const cForm = i.state.form;
     if (cForm.username && cForm.password && cForm.password_verify) {
-      let form: Register = {
+      const form: Register = {
         username: cForm.username,
         password: cForm.password,
         password_verify: cForm.password_verify,
@@ -211,13 +211,13 @@ export class Setup extends Component<any, State> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       this.setState({ userLoading: false });
       return;
     } else if (op == UserOperation.Register) {
-      let data = wsJsonToRes<LoginResponse>(msg);
+      const data = wsJsonToRes<LoginResponse>(msg);
       this.setState({ userLoading: false });
       UserService.Instance.login(data);
       if (UserService.Instance.jwtInfo) {

@@ -325,10 +325,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       category: event.target.value,
       changed: true,
@@ -341,10 +341,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       shortcode: event.target.value,
       changed: true,
@@ -357,10 +357,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     props: { form: EmojiForm; index: number; overrideValue: string | null },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       image_url: props.overrideValue ?? event.target.value,
       changed: true,
@@ -373,10 +373,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       alt_text: event.target.value,
       changed: true,
@@ -389,10 +389,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       keywords: event.target.value,
       changed: true,
@@ -406,7 +406,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     index: number;
     cv: CustomEmojiViewForm;
   }) {
-    let pagedIndex =
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
     if (props.cv.id != 0) {
       const deleteForm: DeleteCustomEmoji = {
@@ -415,7 +415,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       };
       WebSocketService.Instance.send(wsClient.deleteCustomEmoji(deleteForm));
     } else {
-      let custom_emojis = [...props.form.state.customEmojis];
+      const custom_emojis = [...props.form.state.customEmojis];
       custom_emojis.splice(Number(pagedIndex), 1);
       props.form.setState({ customEmojis: custom_emojis });
     }
@@ -451,10 +451,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
 
   handleAddEmojiClick(form: EmojiForm, event: any) {
     event.preventDefault();
-    let custom_emojis = [...form.state.customEmojis];
+    const custom_emojis = [...form.state.customEmojis];
     const page =
       1 + Math.floor(form.state.customEmojis.length / form.itemsPerPage);
-    let item: CustomEmojiViewForm = {
+    const item: CustomEmojiViewForm = {
       id: 0,
       shortcode: "",
       alt_text: "",
@@ -485,8 +485,8 @@ export class EmojiForm extends Component<any, EmojiFormState> {
           pictrsDeleteToast(file.name, res.delete_url as string);
         } else {
           toast(JSON.stringify(res), "danger");
-          let hash = res.files?.at(0)?.file;
-          let url = `${res.url}/${hash}`;
+          const hash = res.files?.at(0)?.file;
+          const url = `${res.url}/${hash}`;
           props.form.handleEmojiImageUrlChange(
             { form: props.form, index: props.index, overrideValue: url },
             event
@@ -508,7 +508,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -516,11 +516,11 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.CreateCustomEmoji) {
-      let data = wsJsonToRes<CustomEmojiResponse>(msg);
+      const data = wsJsonToRes<CustomEmojiResponse>(msg);
       const custom_emoji_view = data.custom_emoji;
       updateEmojiDataModel(custom_emoji_view);
-      let currentEmojis = this.state.customEmojis;
-      let newEmojiIndex = currentEmojis.findIndex(
+      const currentEmojis = this.state.customEmojis;
+      const newEmojiIndex = currentEmojis.findIndex(
         x => x.shortcode == custom_emoji_view.custom_emoji.shortcode
       );
       currentEmojis[newEmojiIndex].id = custom_emoji_view.custom_emoji.id;
@@ -529,11 +529,11 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       toast(i18n.t("saved_emoji"));
       this.setState({ loading: false });
     } else if (op == UserOperation.EditCustomEmoji) {
-      let data = wsJsonToRes<CustomEmojiResponse>(msg);
+      const data = wsJsonToRes<CustomEmojiResponse>(msg);
       const custom_emoji_view = data.custom_emoji;
       updateEmojiDataModel(data.custom_emoji);
-      let currentEmojis = this.state.customEmojis;
-      let newEmojiIndex = currentEmojis.findIndex(
+      const currentEmojis = this.state.customEmojis;
+      const newEmojiIndex = currentEmojis.findIndex(
         x => x.shortcode == custom_emoji_view.custom_emoji.shortcode
       );
       currentEmojis[newEmojiIndex].changed = false;
@@ -541,10 +541,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       toast(i18n.t("saved_emoji"));
       this.setState({ loading: false });
     } else if (op == UserOperation.DeleteCustomEmoji) {
-      let data = wsJsonToRes<DeleteCustomEmojiResponse>(msg);
+      const data = wsJsonToRes<DeleteCustomEmojiResponse>(msg);
       if (data.success) {
         removeFromEmojiDataModel(data.id);
-        let custom_emojis = [
+        const custom_emojis = [
           ...this.state.customEmojis.filter(x => x.id != data.id),
         ];
         this.setState({ customEmojis: custom_emojis });

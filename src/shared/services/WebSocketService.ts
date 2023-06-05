@@ -30,7 +30,7 @@ export class WebSocketService {
           console.log(`Connected to ${getWsUri()}`);
 
           if (!firstConnect) {
-            let res = {
+            const res = {
               reconnect: true,
             };
             obs.next(res);

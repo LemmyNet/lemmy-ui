@@ -56,8 +56,8 @@ export class PrivateMessage extends Component<
   }
 
   render() {
-    let message_view = this.props.private_message_view;
-    let otherPerson: Person = this.mine
+    const message_view = this.props.private_message_view;
+    const otherPerson: Person = this.mine
       ? message_view.recipient
       : message_view.creator;
 
@@ -261,7 +261,7 @@ export class PrivateMessage extends Component<
   }
 
   get messageUnlessRemoved(): string {
-    let message = this.props.private_message_view.private_message;
+    const message = this.props.private_message_view.private_message;
     return message.deleted ? `*${i18n.t("deleted")}*` : message.content;
   }
 
@@ -275,9 +275,9 @@ export class PrivateMessage extends Component<
   }
 
   handleDeleteClick(i: PrivateMessage) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: DeletePrivateMessage = {
+      const form: DeletePrivateMessage = {
         private_message_id: i.props.private_message_view.private_message.id,
         deleted: !i.props.private_message_view.private_message.deleted,
         auth,
@@ -291,9 +291,9 @@ export class PrivateMessage extends Component<
   }
 
   handleMarkRead(i: PrivateMessage) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: MarkPrivateMessageAsRead = {
+      const form: MarkPrivateMessageAsRead = {
         private_message_id: i.props.private_message_view.private_message.id,
         read: !i.props.private_message_view.private_message.read,
         auth,
@@ -320,10 +320,10 @@ export class PrivateMessage extends Component<
 
   handleReportSubmit(i: PrivateMessage, event: any) {
     event.preventDefault();
-    let auth = myAuth();
-    let reason = i.state.reportReason;
+    const auth = myAuth();
+    const reason = i.state.reportReason;
     if (auth && reason) {
-      let form: CreatePrivateMessageReport = {
+      const form: CreatePrivateMessageReport = {
         private_message_id: i.props.private_message_view.private_message.id,
         reason,
         auth,

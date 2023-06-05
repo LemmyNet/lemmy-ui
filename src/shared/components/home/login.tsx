@@ -181,12 +181,12 @@ export class Login extends Component<any, State> {
   handleLoginSubmit(i: Login, event: any) {
     event.preventDefault();
     i.setState({ loginLoading: true });
-    let lForm = i.state.form;
-    let username_or_email = lForm.username_or_email;
-    let password = lForm.password;
-    let totp_2fa_token = lForm.totp_2fa_token;
+    const lForm = i.state.form;
+    const username_or_email = lForm.username_or_email;
+    const password = lForm.password;
+    const totp_2fa_token = lForm.totp_2fa_token;
     if (username_or_email && password) {
-      let form: LoginI = {
+      const form: LoginI = {
         username_or_email,
         password,
         totp_2fa_token,
@@ -212,15 +212,15 @@ export class Login extends Component<any, State> {
 
   handlePasswordReset(i: Login, event: any) {
     event.preventDefault();
-    let email = i.state.form.username_or_email;
+    const email = i.state.form.username_or_email;
     if (email) {
-      let resetForm: PasswordReset = { email };
+      const resetForm: PasswordReset = { email };
       WebSocketService.Instance.send(wsClient.passwordReset(resetForm));
     }
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       // If the error comes back that the token is missing, show the TOTP field
@@ -235,14 +235,14 @@ export class Login extends Component<any, State> {
       }
     } else {
       if (op == UserOperation.Login) {
-        let data = wsJsonToRes<LoginResponse>(msg);
+        const data = wsJsonToRes<LoginResponse>(msg);
         UserService.Instance.login(data);
         this.props.history.push("/");
         location.reload();
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
-        let data = wsJsonToRes<GetSiteResponse>(msg);
+        const data = wsJsonToRes<GetSiteResponse>(msg);
         this.setState({ siteRes: data });
       }
     }

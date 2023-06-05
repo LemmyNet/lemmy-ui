@@ -14,9 +14,9 @@ interface HtmlTagsProps {
 /// Taken from https://metatags.io/
 export class HtmlTags extends Component<HtmlTagsProps, any> {
   render() {
-    let url = httpExternalPath(this.props.path);
-    let desc = this.props.description;
-    let image = this.props.image;
+    const url = httpExternalPath(this.props.path);
+    const desc = this.props.description;
+    const image = this.props.image;
 
     return (
       <Helmet title={this.props.title}>

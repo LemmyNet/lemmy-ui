@@ -34,7 +34,7 @@ export class UserService {
   }
 
   public login(res: LoginResponse) {
-    let expires = new Date();
+    const expires = new Date();
     expires.setDate(expires.getDate() + 365);
     if (res.jwt) {
       toast(i18n.t("logged_in"));
@@ -56,11 +56,11 @@ export class UserService {
   }
 
   public auth(throwErr = true): string | undefined {
-    let jwt = this.jwtInfo?.jwt;
+    const jwt = this.jwtInfo?.jwt;
     if (jwt) {
       return jwt;
     } else {
-      let msg = "No JWT cookie found";
+      const msg = "No JWT cookie found";
       if (throwErr && isBrowser()) {
         console.error(msg);
         toast(i18n.t("not_logged_in"), "danger");
@@ -71,7 +71,7 @@ export class UserService {
   }
 
   private setJwtInfo() {
-    let jwt: string | undefined = IsomorphicCookie.load("jwt");
+    const jwt: string | undefined = IsomorphicCookie.load("jwt");
 
     if (jwt) {
       this.jwtInfo = { jwt, claims: jwt_decode(jwt) };

@@ -55,7 +55,7 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
     promises.push(req.client.getFederatedInstances({}));
 
@@ -73,7 +73,7 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   render() {
-    let federated_instances = this.state.instancesRes?.federated_instances;
+    const federated_instances = this.state.instancesRes?.federated_instances;
     return federated_instances ? (
       <div className="container-lg">
         <HtmlTags
@@ -137,7 +137,7 @@ export class Instances extends Component<any, InstancesState> {
     );
   }
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -145,7 +145,7 @@ export class Instances extends Component<any, InstancesState> {
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.GetFederatedInstances) {
-      let data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
+      const data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
       this.setState({ loading: false, instancesRes: data });
     }
   }

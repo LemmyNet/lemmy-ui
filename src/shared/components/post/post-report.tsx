@@ -18,10 +18,10 @@ export class PostReport extends Component<PostReportProps, any> {
   }
 
   render() {
-    let r = this.props.report;
-    let resolver = r.resolver;
-    let post = r.post;
-    let tippyContent = i18n.t(
+    const r = this.props.report;
+    const resolver = r.resolver;
+    const post = r.post;
+    const tippyContent = i18n.t(
       r.post_report.resolved ? "unresolve_report" : "resolve_report"
     );
 
@@ -29,7 +29,7 @@ export class PostReport extends Component<PostReportProps, any> {
     post.name = r.post_report.original_post_name;
     post.url = r.post_report.original_post_url;
     post.body = r.post_report.original_post_body;
-    let pv: PostView = {
+    const pv: PostView = {
       post,
       creator: r.post_creator,
       community: r.community,
@@ -94,9 +94,9 @@ export class PostReport extends Component<PostReportProps, any> {
   }
 
   handleResolveReport(i: PostReport) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: ResolvePostReport = {
+      const form: ResolvePostReport = {
         report_id: i.props.report.post_report.id,
         resolved: !i.props.report.post_report.resolved,
         auth,

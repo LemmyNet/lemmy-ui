@@ -147,7 +147,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   // TODO see if there's a better way to do this, and all willReceiveProps
   componentWillReceiveProps(nextProps: CommentNodeProps) {
-    let cv = nextProps.node.comment_view;
+    const cv = nextProps.node.comment_view;
     this.setState({
       my_vote: cv.my_vote,
       upvotes: cv.counts.upvotes,
@@ -159,18 +159,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   render() {
-    let node = this.props.node;
-    let cv = this.props.node.comment_view;
+    const node = this.props.node;
+    const cv = this.props.node.comment_view;
 
-    let purgeTypeText =
+    const purgeTypeText =
       this.state.purgeType == PurgeType.Comment
         ? i18n.t("purge_comment")
         : `${i18n.t("purge")} ${cv.creator.name}`;
 
-    let canMod_ =
+    const canMod_ =
       canMod(cv.creator.id, this.props.moderators, this.props.admins) &&
       cv.community.local;
-    let canModOnSelf =
+    const canModOnSelf =
       canMod(
         cv.creator.id,
         this.props.moderators,
@@ -178,31 +178,31 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         UserService.Instance.myUserInfo,
         true
       ) && cv.community.local;
-    let canAdmin_ =
+    const canAdmin_ =
       canAdmin(cv.creator.id, this.props.admins) && cv.community.local;
-    let canAdminOnSelf =
+    const canAdminOnSelf =
       canAdmin(
         cv.creator.id,
         this.props.admins,
         UserService.Instance.myUserInfo,
         true
       ) && cv.community.local;
-    let isMod_ = isMod(cv.creator.id, this.props.moderators);
-    let isAdmin_ =
+    const isMod_ = isMod(cv.creator.id, this.props.moderators);
+    const isAdmin_ =
       isAdmin(cv.creator.id, this.props.admins) && cv.community.local;
-    let amCommunityCreator_ = amCommunityCreator(
+    const amCommunityCreator_ = amCommunityCreator(
       cv.creator.id,
       this.props.moderators
     );
 
-    let borderColor = this.props.node.depth
+    const borderColor = this.props.node.depth
       ? colorList[(this.props.node.depth - 1) % colorList.length]
       : colorList[0];
-    let moreRepliesBorderColor = this.props.node.depth
+    const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
       : colorList[0];
 
-    let showMoreChildren =
+    const showMoreChildren =
       this.props.viewType == CommentViewType.Tree &&
       !this.state.collapsed &&
       node.children.length == 0 &&
@@ -1035,7 +1035,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentReplyOrMentionRead(): boolean {
-    let cv = this.props.node.comment_view;
+    const cv = this.props.node.comment_view;
 
     if (this.isPersonMentionType(cv)) {
       return cv.person_mention.read;
@@ -1047,12 +1047,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   linkBtn(small = false) {
-    let cv = this.props.node.comment_view;
-    let classnames = classNames("btn btn-link btn-animate text-muted", {
+    const cv = this.props.node.comment_view;
+    const classnames = classNames("btn btn-link btn-animate text-muted", {
       "btn-sm": small,
     });
 
-    let title = this.props.showContext
+    const title = this.props.showContext
       ? i18n.t("show_context")
       : i18n.t("link");
 
@@ -1096,7 +1096,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentUnlessRemoved(): string {
-    let comment = this.props.node.comment_view.comment;
+    const comment = this.props.node.comment_view.comment;
     return comment.removed
       ? `*${i18n.t("removed")}*`
       : comment.deleted
@@ -1113,9 +1113,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleBlockUserClick(i: CommentNode) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let blockUserForm: BlockPerson = {
+      const blockUserForm: BlockPerson = {
         person_id: i.props.node.comment_view.creator.id,
         block: true,
         auth,
@@ -1125,10 +1125,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleDeleteClick(i: CommentNode) {
-    let comment = i.props.node.comment_view.comment;
-    let auth = myAuth();
+    const comment = i.props.node.comment_view.comment;
+    const auth = myAuth();
     if (auth) {
-      let deleteForm: DeleteComment = {
+      const deleteForm: DeleteComment = {
         comment_id: comment.id,
         deleted: !comment.deleted,
         auth,
@@ -1138,11 +1138,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleSaveCommentClick(i: CommentNode) {
-    let cv = i.props.node.comment_view;
-    let save = cv.saved == undefined ? true : !cv.saved;
-    let auth = myAuth();
+    const cv = i.props.node.comment_view;
+    const save = cv.saved == undefined ? true : !cv.saved;
+    const auth = myAuth();
     if (auth) {
-      let form: SaveComment = {
+      const form: SaveComment = {
         comment_id: cv.comment.id,
         save,
         auth,
@@ -1160,8 +1160,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handleCommentUpvote(event: any) {
     event.preventDefault();
-    let myVote = this.state.my_vote;
-    let newVote = myVote == 1 ? 0 : 1;
+    const myVote = this.state.my_vote;
+    const newVote = myVote == 1 ? 0 : 1;
 
     if (myVote == 1) {
       this.setState({
@@ -1183,9 +1183,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     this.setState({ my_vote: newVote });
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: CreateCommentLike = {
+      const form: CreateCommentLike = {
         comment_id: this.props.node.comment_view.comment.id,
         score: newVote,
         auth,
@@ -1197,8 +1197,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handleCommentDownvote(event: any) {
     event.preventDefault();
-    let myVote = this.state.my_vote;
-    let newVote = myVote == -1 ? 0 : -1;
+    const myVote = this.state.my_vote;
+    const newVote = myVote == -1 ? 0 : -1;
 
     if (myVote == 1) {
       this.setState({
@@ -1220,9 +1220,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     this.setState({ my_vote: newVote });
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: CreateCommentLike = {
+      const form: CreateCommentLike = {
         comment_id: this.props.node.comment_view.comment.id,
         score: newVote,
         auth,
@@ -1242,11 +1242,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleReportSubmit(i: CommentNode) {
-    let comment = i.props.node.comment_view.comment;
-    let reason = i.state.reportReason;
-    let auth = myAuth();
+    const comment = i.props.node.comment_view.comment;
+    const reason = i.state.reportReason;
+    const auth = myAuth();
     if (reason && auth) {
-      let form: CreateCommentReport = {
+      const form: CreateCommentReport = {
         comment_id: comment.id,
         reason,
         auth,
@@ -1272,10 +1272,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModRemoveSubmit(i: CommentNode) {
-    let comment = i.props.node.comment_view.comment;
-    let auth = myAuth();
+    const comment = i.props.node.comment_view.comment;
+    const auth = myAuth();
     if (auth) {
-      let form: RemoveComment = {
+      const form: RemoveComment = {
         comment_id: comment.id,
         removed: !comment.removed,
         reason: i.state.removeReason,
@@ -1288,10 +1288,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleDistinguishClick(i: CommentNode) {
-    let comment = i.props.node.comment_view.comment;
-    let auth = myAuth();
+    const comment = i.props.node.comment_view.comment;
+    const auth = myAuth();
     if (auth) {
-      let form: DistinguishComment = {
+      const form: DistinguishComment = {
         comment_id: comment.id,
         distinguished: !comment.distinguished,
         auth,
@@ -1314,17 +1314,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleMarkRead(i: CommentNode) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
       if (i.isPersonMentionType(i.props.node.comment_view)) {
-        let form: MarkPersonMentionAsRead = {
+        const form: MarkPersonMentionAsRead = {
           person_mention_id: i.props.node.comment_view.person_mention.id,
           read: !i.props.node.comment_view.person_mention.read,
           auth,
         };
         WebSocketService.Instance.send(wsClient.markPersonMentionAsRead(form));
       } else if (i.isCommentReplyType(i.props.node.comment_view)) {
-        let form: MarkCommentReplyAsRead = {
+        const form: MarkCommentReplyAsRead = {
           comment_reply_id: i.props.node.comment_view.comment_reply.id,
           read: !i.props.node.comment_view.comment_reply.read,
           auth,
@@ -1371,16 +1371,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModBanBothSubmit(i: CommentNode) {
-    let cv = i.props.node.comment_view;
-    let auth = myAuth();
+    const cv = i.props.node.comment_view;
+    const auth = myAuth();
     if (auth) {
       if (i.state.banType == BanType.Community) {
         // If its an unban, restore all their data
-        let ban = !cv.creator_banned_from_community;
+        const ban = !cv.creator_banned_from_community;
         if (ban == false) {
           i.setState({ removeData: false });
         }
-        let form: BanFromCommunity = {
+        const form: BanFromCommunity = {
           person_id: cv.creator.id,
           community_id: cv.community.id,
           ban,
@@ -1392,11 +1392,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         WebSocketService.Instance.send(wsClient.banFromCommunity(form));
       } else {
         // If its an unban, restore all their data
-        let ban = !cv.creator.banned;
+        const ban = !cv.creator.banned;
         if (ban == false) {
           i.setState({ removeData: false });
         }
-        let form: BanPerson = {
+        const form: BanPerson = {
           person_id: cv.creator.id,
           ban,
           remove_data: i.state.removeData,
@@ -1433,17 +1433,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handlePurgeSubmit(i: CommentNode, event: any) {
     event.preventDefault();
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
       if (i.state.purgeType == PurgeType.Person) {
-        let form: PurgePerson = {
+        const form: PurgePerson = {
           person_id: i.props.node.comment_view.creator.id,
           reason: i.state.purgeReason,
           auth,
         };
         WebSocketService.Instance.send(wsClient.purgePerson(form));
       } else if (i.state.purgeType == PurgeType.Comment) {
-        let form: PurgeComment = {
+        const form: PurgeComment = {
           comment_id: i.props.node.comment_view.comment.id,
           reason: i.state.purgeReason,
           auth,
@@ -1464,10 +1464,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleAddModToCommunity(i: CommentNode) {
-    let cv = i.props.node.comment_view;
-    let auth = myAuth();
+    const cv = i.props.node.comment_view;
+    const auth = myAuth();
     if (auth) {
-      let form: AddModToCommunity = {
+      const form: AddModToCommunity = {
         person_id: cv.creator.id,
         community_id: cv.community.id,
         added: !isMod(cv.creator.id, i.props.moderators),
@@ -1487,10 +1487,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleAddAdmin(i: CommentNode) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let creatorId = i.props.node.comment_view.creator.id;
-      let form: AddAdmin = {
+      const creatorId = i.props.node.comment_view.creator.id;
+      const form: AddAdmin = {
         person_id: creatorId,
         added: !isAdmin(creatorId, i.props.admins),
         auth,
@@ -1509,10 +1509,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleTransferCommunity(i: CommentNode) {
-    let cv = i.props.node.comment_view;
-    let auth = myAuth();
+    const cv = i.props.node.comment_view;
+    const auth = myAuth();
     if (auth) {
-      let form: TransferCommunity = {
+      const form: TransferCommunity = {
         community_id: cv.community.id,
         person_id: cv.creator.id,
         auth,
@@ -1531,8 +1531,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get isCommentNew(): boolean {
-    let now = moment.utc().subtract(10, "minutes");
-    let then = moment.utc(this.props.node.comment_view.comment.published);
+    const now = moment.utc().subtract(10, "minutes");
+    const then = moment.utc(this.props.node.comment_view.comment.published);
     return now.isBefore(then);
   }
 
@@ -1551,7 +1551,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleFetchChildren(i: CommentNode) {
-    let form: GetComments = {
+    const form: GetComments = {
       post_id: i.props.node.comment_view.post.id,
       parent_id: i.props.node.comment_view.comment.id,
       max_depth: commentTreeMaxDepth,
@@ -1575,17 +1575,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get pointsTippy(): string {
-    let points = i18n.t("number_of_points", {
+    const points = i18n.t("number_of_points", {
       count: Number(this.state.score),
       formattedCount: numToSI(this.state.score),
     });
 
-    let upvotes = i18n.t("number_of_upvotes", {
+    const upvotes = i18n.t("number_of_upvotes", {
       count: Number(this.state.upvotes),
       formattedCount: numToSI(this.state.upvotes),
     });
 
-    let downvotes = i18n.t("number_of_downvotes", {
+    const downvotes = i18n.t("number_of_downvotes", {
       count: Number(this.state.downvotes),
       formattedCount: numToSI(this.state.downvotes),
     });

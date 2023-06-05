@@ -35,9 +35,9 @@ export class RegistrationApplication extends Component<
   }
 
   render() {
-    let a = this.props.application;
-    let ra = this.props.application.registration_application;
-    let accepted = a.creator_local_user.accepted_application;
+    const a = this.props.application;
+    const ra = this.props.application.registration_application;
+    const accepted = a.creator_local_user.accepted_application;
 
     return (
       <div>
@@ -116,10 +116,10 @@ export class RegistrationApplication extends Component<
   }
 
   handleApprove(i: RegistrationApplication) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
       i.setState({ denyExpanded: false });
-      let form: ApproveRegistrationApplication = {
+      const form: ApproveRegistrationApplication = {
         id: i.props.application.registration_application.id,
         approve: true,
         auth,
@@ -133,9 +133,9 @@ export class RegistrationApplication extends Component<
   handleDeny(i: RegistrationApplication) {
     if (i.state.denyExpanded) {
       i.setState({ denyExpanded: false });
-      let auth = myAuth();
+      const auth = myAuth();
       if (auth) {
-        let form: ApproveRegistrationApplication = {
+        const form: ApproveRegistrationApplication = {
           id: i.props.application.registration_application.id,
           approve: false,
           deny_reason: i.state.denyReason,
