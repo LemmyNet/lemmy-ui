@@ -107,7 +107,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
         )}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
-        aria-label="action"
+        aria-label={i18n.t("language_select_placeholder")}
         multiple={this.props.multiple}
         disabled={this.props.disabled}
       >
