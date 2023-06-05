@@ -76,7 +76,7 @@ export class VerifyEmail extends Component<any, State> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -84,7 +84,7 @@ export class VerifyEmail extends Component<any, State> {
       this.props.history.push("/");
       return;
     } else if (op == UserOperation.VerifyEmail) {
-      let data = wsJsonToRes(msg);
+      const data = wsJsonToRes(msg);
       if (data) {
         toast(i18n.t("email_verified"));
         this.props.history.push("/login");

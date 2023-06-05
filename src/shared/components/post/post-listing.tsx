@@ -179,7 +179,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   body() {
-    let body = this.props.post_view.post.body;
+    const body = this.props.post_view.post.body;
     return body ? (
       <div className="col-12 card my-2 p-2">
         {this.state.viewSource ? (
@@ -194,7 +194,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get img() {
-    let src = this.imageSrc;
+    const src = this.imageSrc;
     return src ? (
       <>
         <div className="offset-sm-3 my-2 d-none d-sm-block">
@@ -217,7 +217,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   imgThumb(src: string) {
-    let post_view = this.props.post_view;
+    const post_view = this.props.post_view;
     return (
       <PictrsImage
         src={src}
@@ -229,9 +229,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get imageSrc(): string | undefined {
-    let post = this.props.post_view.post;
-    let url = post.url;
-    let thumbnail = post.thumbnail_url;
+    const post = this.props.post_view.post;
+    const url = post.url;
+    const thumbnail = post.thumbnail_url;
 
     if (url && isImage(url)) {
       if (url.includes("pictrs")) {
@@ -249,9 +249,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   thumbnail() {
-    let post = this.props.post_view.post;
-    let url = post.url;
-    let thumbnail = post.thumbnail_url;
+    const post = this.props.post_view.post;
+    const url = post.url;
+    const thumbnail = post.thumbnail_url;
 
     if (!this.props.hideImage && url && isImage(url) && this.imageSrc) {
       return (
@@ -318,9 +318,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   createdLine() {
-    let post_view = this.props.post_view;
-    let url = post_view.post.url;
-    let body = post_view.post.body;
+    const post_view = this.props.post_view;
+    const url = post_view.post.url;
+    const body = post_view.post.body;
     return (
       <ul className="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
@@ -438,7 +438,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get postLink() {
-    let post = this.props.post_view.post;
+    const post = this.props.post_view.post;
     return (
       <Link
         className={`d-inline-block ${
@@ -458,8 +458,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   postTitleLine() {
-    let post = this.props.post_view.post;
-    let url = post.url;
+    const post = this.props.post_view.post;
+    const url = post.url;
 
     return (
       <div className="post-title overflow-hidden">
@@ -550,7 +550,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   duplicatesLine() {
-    let dupes = this.props.duplicates;
+    const dupes = this.props.duplicates;
     return dupes && dupes.length > 0 ? (
       <ul className="list-inline mb-1 small text-muted">
         <>
@@ -572,7 +572,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    let post = this.props.post_view.post;
+    const post = this.props.post_view.post;
 
     return (
       <div className="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
@@ -606,7 +606,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postActions(mobile = false) {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
-    let post_view = this.props.post_view;
+    const post_view = this.props.post_view;
     return (
       <>
         {this.saveButton}
@@ -647,7 +647,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get commentsButton() {
-    let post_view = this.props.post_view;
+    const post_view = this.props.post_view;
     return (
       <button className="btn btn-link text-muted py-0 pl-0">
         <Link
@@ -676,7 +676,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get unreadCount(): number | undefined {
-    let pv = this.props.post_view;
+    const pv = this.props.post_view;
     return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0
       ? undefined
       : pv.unread_comments;
@@ -684,7 +684,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get mobileVotes() {
     // TODO: make nicer
-    let tippy = showScores() ? { "data-tippy-content": this.pointsTippy } : {};
+    const tippy = showScores()
+      ? { "data-tippy-content": this.pointsTippy }
+      : {};
     return (
       <>
         <div>
@@ -730,8 +732,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get saveButton() {
-    let saved = this.props.post_view.saved;
-    let label = saved ? i18n.t("unsave") : i18n.t("save");
+    const saved = this.props.post_view.saved;
+    const label = saved ? i18n.t("unsave") : i18n.t("save");
     return (
       <button
         className="btn btn-link btn-animate text-muted py-0"
@@ -807,8 +809,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get deleteButton() {
-    let deleted = this.props.post_view.post.deleted;
-    let label = !deleted ? i18n.t("delete") : i18n.t("restore");
+    const deleted = this.props.post_view.post.deleted;
+    const label = !deleted ? i18n.t("delete") : i18n.t("restore");
     return (
       <button
         className="btn btn-link btn-animate text-muted py-0"
@@ -856,8 +858,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get lockButton() {
-    let locked = this.props.post_view.post.locked;
-    let label = locked ? i18n.t("unlock") : i18n.t("lock");
+    const locked = this.props.post_view.post.locked;
+    const label = locked ? i18n.t("unlock") : i18n.t("lock");
     return (
       <button
         className="btn btn-link btn-animate text-muted py-0"
@@ -919,7 +921,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get modRemoveButton() {
-    let removed = this.props.post_view.post.removed;
+    const removed = this.props.post_view.post.removed;
     return (
       <button
         className="btn btn-link btn-animate text-muted py-0"
@@ -939,7 +941,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
    */
   userActionsLine() {
     // TODO: make nicer
-    let post_view = this.props.post_view;
+    const post_view = this.props.post_view;
     return (
       this.state.showAdvanced && (
         <>
@@ -1089,8 +1091,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   removeAndBanDialogs() {
-    let post = this.props.post_view;
-    let purgeTypeText =
+    const post = this.props.post_view;
+    const purgeTypeText =
       this.state.purgeType == PurgeType.Post
         ? i18n.t("purge_post")
         : `${i18n.t("purge")} ${post.creator.name}`;
@@ -1245,7 +1247,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   mobileThumbnail() {
-    let post = this.props.post_view.post;
+    const post = this.props.post_view.post;
     return post.thumbnail_url || (post.url && isImage(post.url)) ? (
       <div className="row">
         <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
@@ -1262,7 +1264,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   showMobilePreview() {
-    let body = this.props.post_view.post.body;
+    const body = this.props.post_view.post.body;
     return !this.showBody && body ? (
       <div className="md-div mb-1 preview-lines">{body}</div>
     ) : (
@@ -1331,8 +1333,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       this.context.router.history.push(`/login`);
     }
 
-    let myVote = this.state.my_vote;
-    let newVote = myVote == 1 ? 0 : 1;
+    const myVote = this.state.my_vote;
+    const newVote = myVote == 1 ? 0 : 1;
 
     if (myVote == 1) {
       this.setState({
@@ -1354,9 +1356,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     this.setState({ my_vote: newVote });
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: CreatePostLike = {
+      const form: CreatePostLike = {
         post_id: this.props.post_view.post.id,
         score: newVote,
         auth,
@@ -1374,8 +1376,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       this.context.router.history.push(`/login`);
     }
 
-    let myVote = this.state.my_vote;
-    let newVote = myVote == -1 ? 0 : -1;
+    const myVote = this.state.my_vote;
+    const newVote = myVote == -1 ? 0 : -1;
 
     if (myVote == 1) {
       this.setState({
@@ -1397,9 +1399,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     this.setState({ my_vote: newVote });
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: CreatePostLike = {
+      const form: CreatePostLike = {
         post_id: this.props.post_view.post.id,
         score: newVote,
         auth,
@@ -1443,10 +1445,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleReportSubmit(i: PostListing, event: any) {
     event.preventDefault();
-    let auth = myAuth();
-    let reason = i.state.reportReason;
+    const auth = myAuth();
+    const reason = i.state.reportReason;
     if (auth && reason) {
-      let form: CreatePostReport = {
+      const form: CreatePostReport = {
         post_id: i.props.post_view.post.id,
         reason,
         auth,
@@ -1458,9 +1460,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleBlockUserClick(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let blockUserForm: BlockPerson = {
+      const blockUserForm: BlockPerson = {
         person_id: i.props.post_view.creator.id,
         block: true,
         auth,
@@ -1470,9 +1472,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleDeleteClick(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let deleteForm: DeletePost = {
+      const deleteForm: DeletePost = {
         post_id: i.props.post_view.post.id,
         deleted: !i.props.post_view.post.deleted,
         auth,
@@ -1482,11 +1484,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleSavePostClick(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let saved =
+      const saved =
         i.props.post_view.saved == undefined ? true : !i.props.post_view.saved;
-      let form: SavePost = {
+      const form: SavePost = {
         post_id: i.props.post_view.post.id,
         save: saved,
         auth,
@@ -1514,8 +1516,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   crossPostBody(): string | undefined {
-    let post = this.props.post_view.post;
-    let body = post.body;
+    const post = this.props.post_view.post;
+    const body = post.body;
 
     return body
       ? `${i18n.t("cross_posted_from")} ${post.ap_id}\n\n${body.replace(
@@ -1547,9 +1549,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModRemoveSubmit(i: PostListing, event: any) {
     event.preventDefault();
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: RemovePost = {
+      const form: RemovePost = {
         post_id: i.props.post_view.post.id,
         removed: !i.props.post_view.post.removed,
         reason: i.state.removeReason,
@@ -1561,9 +1563,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModLock(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: LockPost = {
+      const form: LockPost = {
         post_id: i.props.post_view.post.id,
         locked: !i.props.post_view.post.locked,
         auth,
@@ -1573,9 +1575,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModFeaturePostLocal(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: FeaturePost = {
+      const form: FeaturePost = {
         post_id: i.props.post_view.post.id,
         feature_type: "Local",
         featured: !i.props.post_view.post.featured_local,
@@ -1586,9 +1588,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModFeaturePostCommunity(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: FeaturePost = {
+      const form: FeaturePost = {
         post_id: i.props.post_view.post.id,
         feature_type: "Community",
         featured: !i.props.post_view.post.featured_community,
@@ -1637,17 +1639,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handlePurgeSubmit(i: PostListing, event: any) {
     event.preventDefault();
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
       if (i.state.purgeType == PurgeType.Person) {
-        let form: PurgePerson = {
+        const form: PurgePerson = {
           person_id: i.props.post_view.creator.id,
           reason: i.state.purgeReason,
           auth,
         };
         WebSocketService.Instance.send(wsClient.purgePerson(form));
       } else if (i.state.purgeType == PurgeType.Post) {
-        let form: PurgePost = {
+        const form: PurgePost = {
           post_id: i.props.post_view.post.id,
           reason: i.state.purgeReason,
           auth,
@@ -1679,13 +1681,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleModBanBothSubmit(i: PostListing, event?: any) {
     if (event) event.preventDefault();
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let ban = !i.props.post_view.creator_banned_from_community;
-      let person_id = i.props.post_view.creator.id;
-      let remove_data = i.state.removeData;
-      let reason = i.state.banReason;
-      let expires = futureDaysToUnixTime(i.state.banExpireDays);
+      const ban = !i.props.post_view.creator_banned_from_community;
+      const person_id = i.props.post_view.creator.id;
+      const remove_data = i.state.removeData;
+      const reason = i.state.banReason;
+      const expires = futureDaysToUnixTime(i.state.banExpireDays);
 
       if (i.state.banType == BanType.Community) {
         // If its an unban, restore all their data
@@ -1693,7 +1695,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           i.setState({ removeData: false });
         }
 
-        let form: BanFromCommunity = {
+        const form: BanFromCommunity = {
           person_id,
           community_id: i.props.post_view.community.id,
           ban,
@@ -1705,11 +1707,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         WebSocketService.Instance.send(wsClient.banFromCommunity(form));
       } else {
         // If its an unban, restore all their data
-        let ban = !i.props.post_view.creator.banned;
+        const ban = !i.props.post_view.creator.banned;
         if (ban == false) {
           i.setState({ removeData: false });
         }
-        let form: BanPerson = {
+        const form: BanPerson = {
           person_id,
           ban,
           remove_data,
@@ -1725,9 +1727,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleAddModToCommunity(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: AddModToCommunity = {
+      const form: AddModToCommunity = {
         person_id: i.props.post_view.creator.id,
         community_id: i.props.post_view.community.id,
         added: !i.creatorIsMod_,
@@ -1739,9 +1741,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleAddAdmin(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: AddAdmin = {
+      const form: AddAdmin = {
         person_id: i.props.post_view.creator.id,
         added: !i.creatorIsAdmin_,
         auth,
@@ -1760,9 +1762,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleTransferCommunity(i: PostListing) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: TransferCommunity = {
+      const form: TransferCommunity = {
         community_id: i.props.post_view.community.id,
         person_id: i.props.post_view.creator.id,
         auth,
@@ -1809,17 +1811,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get pointsTippy(): string {
-    let points = i18n.t("number_of_points", {
+    const points = i18n.t("number_of_points", {
       count: Number(this.state.score),
       formattedCount: Number(this.state.score),
     });
 
-    let upvotes = i18n.t("number_of_upvotes", {
+    const upvotes = i18n.t("number_of_upvotes", {
       count: Number(this.state.upvotes),
       formattedCount: Number(this.state.upvotes),
     });
 
-    let downvotes = i18n.t("number_of_downvotes", {
+    const downvotes = i18n.t("number_of_downvotes", {
       count: Number(this.state.downvotes),
       formattedCount: Number(this.state.downvotes),
     });

@@ -161,15 +161,15 @@ export class Post extends Component<any, PostState> {
   }
 
   fetchPost() {
-    let auth = myAuth(false);
-    let postForm: GetPost = {
+    const auth = myAuth(false);
+    const postForm: GetPost = {
       id: this.state.postId,
       comment_id: this.state.commentId,
       auth,
     };
     WebSocketService.Instance.send(wsClient.getPost(postForm));
 
-    let commentsForm: GetComments = {
+    const commentsForm: GetComments = {
       post_id: this.state.postId,
       parent_id: this.state.commentId,
       max_depth: commentTreeMaxDepth,
@@ -182,9 +182,9 @@ export class Post extends Component<any, PostState> {
   }
 
   fetchCrossPosts() {
-    let q = this.state.postRes?.post_view.post.url;
+    const q = this.state.postRes?.post_view.post.url;
     if (q) {
-      let form: Search = {
+      const form: Search = {
         q,
         type_: "Url",
         sort: "TopAll",
@@ -198,18 +198,18 @@ export class Post extends Component<any, PostState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split("/");
-    let promises: Promise<any>[] = [];
+    const pathSplit = req.path.split("/");
+    const promises: Promise<any>[] = [];
 
-    let pathType = pathSplit.at(1);
-    let id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
-    let auth = req.auth;
+    const pathType = pathSplit.at(1);
+    const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
+    const auth = req.auth;
 
-    let postForm: GetPost = {
+    const postForm: GetPost = {
       auth,
     };
 
-    let commentsForm: GetComments = {
+    const commentsForm: GetComments = {
       max_depth: commentTreeMaxDepth,
       sort: "Hot",
       type_: "All",
@@ -286,21 +286,21 @@ export class Post extends Component<any, PostState> {
   };
 
   get documentTitle(): string {
-    let name_ = this.state.postRes?.post_view.post.name;
-    let siteName = this.state.siteRes.site_view.site.name;
+    const name_ = this.state.postRes?.post_view.post.name;
+    const siteName = this.state.siteRes.site_view.site.name;
     return name_ ? `${name_} - ${siteName}` : "";
   }
 
   get imageTag(): string | undefined {
-    let post = this.state.postRes?.post_view.post;
-    let thumbnail = post?.thumbnail_url;
-    let url = post?.url;
+    const post = this.state.postRes?.post_view.post;
+    const thumbnail = post?.thumbnail_url;
+    const url = post?.url;
     return thumbnail || (url && isImage(url) ? url : undefined);
   }
 
   render() {
-    let res = this.state.postRes;
-    let description = res?.post_view.post.body;
+    const res = this.state.postRes;
+    const description = res?.post_view.post.body;
     return (
       <div className="container-lg">
         {this.state.loading ? (
@@ -445,8 +445,8 @@ export class Post extends Component<any, PostState> {
 
   commentsFlat() {
     // These are already sorted by new
-    let commentsRes = this.state.commentsRes;
-    let postRes = this.state.postRes;
+    const commentsRes = this.state.commentsRes;
+    const postRes = this.state.postRes;
     return (
       commentsRes &&
       postRes && (
@@ -470,7 +470,7 @@ export class Post extends Component<any, PostState> {
   }
 
   sidebar() {
-    let res = this.state.postRes;
+    const res = this.state.postRes;
     return (
       res && (
         <div className="mb-3">
@@ -500,7 +500,7 @@ export class Post extends Component<any, PostState> {
   }
 
   handleCommentViewTypeChange(i: Post, event: any) {
-    let comments = i.state.commentsRes?.comments;
+    const comments = i.state.commentsRes?.comments;
     if (comments) {
       i.setState({
         commentViewType: Number(event.target.value),
@@ -515,14 +515,14 @@ export class Post extends Component<any, PostState> {
   }
 
   handleViewPost(i: Post) {
-    let id = i.state.postRes?.post_view.post.id;
+    const id = i.state.postRes?.post_view.post.id;
     if (id) {
       i.context.router.history.push(`/post/${id}`);
     }
   }
 
   handleViewContext(i: Post) {
-    let parentId = getCommentParentId(
+    const parentId = getCommentParentId(
       i.state.commentsRes?.comments?.at(0)?.comment
     );
     if (parentId) {
@@ -531,10 +531,10 @@ export class Post extends Component<any, PostState> {
   }
 
   commentsTree() {
-    let res = this.state.postRes;
-    let firstComment = this.state.commentTree.at(0)?.comment_view.comment;
-    let depth = getDepthFromComment(firstComment);
-    let showContextButton = depth ? depth > 0 : false;
+    const res = this.state.postRes;
+    const firstComment = this.state.commentTree.at(0)?.comment_view.comment;
+    const depth = getDepthFromComment(firstComment);
+    const showContextButton = depth ? depth > 0 : false;
 
     return (
       res && (
@@ -574,13 +574,13 @@ export class Post extends Component<any, PostState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (msg.reconnect) {
-      let post_id = this.state.postRes?.post_view.post.id;
+      const post_id = this.state.postRes?.post_view.post.id;
       if (post_id) {
         WebSocketService.Instance.send(wsClient.postJoin({ post_id }));
         WebSocketService.Instance.send(
@@ -591,7 +591,7 @@ export class Post extends Component<any, PostState> {
         );
       }
     } else if (op == UserOperation.GetPost) {
-      let data = wsJsonToRes<GetPostResponse>(msg);
+      const data = wsJsonToRes<GetPostResponse>(msg);
       this.setState({ postRes: data });
 
       // join the rooms
@@ -614,35 +614,35 @@ export class Post extends Component<any, PostState> {
         this.scrollIntoCommentSection();
       }
     } else if (op == UserOperation.GetComments) {
-      let data = wsJsonToRes<GetCommentsResponse>(msg);
+      const data = wsJsonToRes<GetCommentsResponse>(msg);
       // This section sets the comments res
-      let comments = this.state.commentsRes?.comments;
+      const comments = this.state.commentsRes?.comments;
       if (comments) {
         // You might need to append here, since this could be building more comments from a tree fetch
         // Remove the first comment, since it is the parent
-        let newComments = data.comments;
+        const newComments = data.comments;
         newComments.shift();
         comments.push(...newComments);
       } else {
         this.setState({ commentsRes: data });
       }
 
-      let cComments = this.state.commentsRes?.comments ?? [];
+      const cComments = this.state.commentsRes?.comments ?? [];
       this.setState({
         commentTree: buildCommentsTree(cComments, !!this.state.commentId),
         loading: false,
       });
     } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
+      const data = wsJsonToRes<CommentResponse>(msg);
 
       // Don't get comments from the post room, if the creator is blocked
-      let creatorBlocked = UserService.Instance.myUserInfo?.person_blocks
+      const creatorBlocked = UserService.Instance.myUserInfo?.person_blocks
         .map(pb => pb.target.id)
         .includes(data.comment_view.creator.id);
 
       // Necessary since it might be a user reply, which has the recipients, to avoid double
-      let postRes = this.state.postRes;
-      let commentsRes = this.state.commentsRes;
+      const postRes = this.state.postRes;
+      const commentsRes = this.state.commentsRes;
       if (
         data.recipient_ids.length == 0 &&
         !creatorBlocked &&
@@ -666,21 +666,21 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.DeleteComment ||
       op == UserOperation.RemoveComment
     ) {
-      let data = wsJsonToRes<CommentResponse>(msg);
+      const data = wsJsonToRes<CommentResponse>(msg);
       editCommentRes(data.comment_view, this.state.commentsRes?.comments);
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
+      const data = wsJsonToRes<CommentResponse>(msg);
       saveCommentRes(data.comment_view, this.state.commentsRes?.comments);
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg);
+      const data = wsJsonToRes<CommentResponse>(msg);
       createCommentLikeRes(data.comment_view, this.state.commentsRes?.comments);
       this.setState(this.state);
     } else if (op == UserOperation.CreatePostLike) {
-      let data = wsJsonToRes<PostResponse>(msg);
+      const data = wsJsonToRes<PostResponse>(msg);
       createPostLikeRes(data.post_view, this.state.postRes?.post_view);
       this.setState(this.state);
     } else if (
@@ -691,8 +691,8 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.FeaturePost ||
       op == UserOperation.SavePost
     ) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      let res = this.state.postRes;
+      const data = wsJsonToRes<PostResponse>(msg);
+      const res = this.state.postRes;
       if (res) {
         res.post_view = data.post_view;
         this.setState(this.state);
@@ -704,17 +704,17 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.RemoveCommunity ||
       op == UserOperation.FollowCommunity
     ) {
-      let data = wsJsonToRes<CommunityResponse>(msg);
-      let res = this.state.postRes;
+      const data = wsJsonToRes<CommunityResponse>(msg);
+      const res = this.state.postRes;
       if (res) {
         res.community_view = data.community_view;
         res.post_view.community = data.community_view.community;
         this.setState(this.state);
       }
     } else if (op == UserOperation.BanFromCommunity) {
-      let data = wsJsonToRes<BanFromCommunityResponse>(msg);
+      const data = wsJsonToRes<BanFromCommunityResponse>(msg);
 
-      let res = this.state.postRes;
+      const res = this.state.postRes;
       if (res) {
         if (res.post_view.creator.id == data.person_view.person.id) {
           res.post_view.creator_banned_from_community = data.banned;
@@ -726,19 +726,19 @@ export class Post extends Component<any, PostState> {
         .forEach(c => (c.creator_banned_from_community = data.banned));
       this.setState(this.state);
     } else if (op == UserOperation.AddModToCommunity) {
-      let data = wsJsonToRes<AddModToCommunityResponse>(msg);
-      let res = this.state.postRes;
+      const data = wsJsonToRes<AddModToCommunityResponse>(msg);
+      const res = this.state.postRes;
       if (res) {
         res.moderators = data.moderators;
         this.setState(this.state);
       }
     } else if (op == UserOperation.BanPerson) {
-      let data = wsJsonToRes<BanPersonResponse>(msg);
+      const data = wsJsonToRes<BanPersonResponse>(msg);
       this.state.commentsRes?.comments
         .filter(c => c.creator.id == data.person_view.person.id)
         .forEach(c => (c.creator.banned = data.banned));
 
-      let res = this.state.postRes;
+      const res = this.state.postRes;
       if (res) {
         if (res.post_view.creator.id == data.person_view.person.id) {
           res.post_view.creator.banned = data.banned;
@@ -746,20 +746,20 @@ export class Post extends Component<any, PostState> {
       }
       this.setState(this.state);
     } else if (op == UserOperation.AddAdmin) {
-      let data = wsJsonToRes<AddAdminResponse>(msg);
+      const data = wsJsonToRes<AddAdminResponse>(msg);
       this.setState(s => ((s.siteRes.admins = data.admins), s));
     } else if (op == UserOperation.Search) {
-      let data = wsJsonToRes<SearchResponse>(msg);
-      let xPosts = data.posts.filter(
+      const data = wsJsonToRes<SearchResponse>(msg);
+      const xPosts = data.posts.filter(
         p => p.post.ap_id != this.state.postRes?.post_view.post.ap_id
       );
       this.setState({ crossPosts: xPosts.length > 0 ? xPosts : undefined });
     } else if (op == UserOperation.LeaveAdmin) {
-      let data = wsJsonToRes<GetSiteResponse>(msg);
+      const data = wsJsonToRes<GetSiteResponse>(msg);
       this.setState({ siteRes: data });
     } else if (op == UserOperation.TransferCommunity) {
-      let data = wsJsonToRes<GetCommunityResponse>(msg);
-      let res = this.state.postRes;
+      const data = wsJsonToRes<GetCommunityResponse>(msg);
+      const res = this.state.postRes;
       if (res) {
         res.community_view = data.community_view;
         res.post_view.community = data.community_view.community;
@@ -767,15 +767,15 @@ export class Post extends Component<any, PostState> {
         this.setState(this.state);
       }
     } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
+      const data = wsJsonToRes<BlockPersonResponse>(msg);
       updatePersonBlock(data);
     } else if (op == UserOperation.CreatePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg);
+      const data = wsJsonToRes<PostReportResponse>(msg);
       if (data) {
         toast(i18n.t("report_created"));
       }
     } else if (op == UserOperation.CreateCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg);
+      const data = wsJsonToRes<CommentReportResponse>(msg);
       if (data) {
         toast(i18n.t("report_created"));
       }
@@ -785,7 +785,7 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.PurgeComment ||
       op == UserOperation.PurgeCommunity
     ) {
-      let data = wsJsonToRes<PurgeItemResponse>(msg);
+      const data = wsJsonToRes<PurgeItemResponse>(msg);
       if (data.success) {
         toast(i18n.t("purge_success"));
         this.context.router.history.push(`/`);

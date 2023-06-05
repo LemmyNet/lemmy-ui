@@ -79,7 +79,7 @@ export class CommunityForm extends Component<
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
-    let cv = this.props.community_view;
+    const cv = this.props.community_view;
 
     if (cv) {
       this.state = {
@@ -301,14 +301,14 @@ export class CommunityForm extends Component<
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
     i.setState({ loading: true });
-    let cForm = i.state.form;
-    let auth = myAuth();
+    const cForm = i.state.form;
+    const auth = myAuth();
 
-    let cv = i.props.community_view;
+    const cv = i.props.community_view;
 
     if (auth) {
       if (cv) {
-        let form: EditCommunity = {
+        const form: EditCommunity = {
           community_id: cv.community.id,
           title: cForm.title,
           description: cForm.description,
@@ -323,7 +323,7 @@ export class CommunityForm extends Component<
         WebSocketService.Instance.send(wsClient.editCommunity(form));
       } else {
         if (cForm.title && cForm.name) {
-          let form: CreateCommunity = {
+          const form: CreateCommunity = {
             name: cForm.name,
             title: cForm.title,
             description: cForm.description,
@@ -390,7 +390,7 @@ export class CommunityForm extends Component<
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       // Errors handled by top level pages
@@ -398,15 +398,15 @@ export class CommunityForm extends Component<
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.CreateCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg);
+      const data = wsJsonToRes<CommunityResponse>(msg);
       this.props.onCreate?.(data.community_view);
 
       // Update myUserInfo
-      let community = data.community_view.community;
+      const community = data.community_view.community;
 
-      let mui = UserService.Instance.myUserInfo;
+      const mui = UserService.Instance.myUserInfo;
       if (mui) {
-        let person = mui.local_user_view.person;
+        const person = mui.local_user_view.person;
         mui.follows.push({
           community,
           follower: person,
@@ -417,21 +417,21 @@ export class CommunityForm extends Component<
         });
       }
     } else if (op == UserOperation.EditCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg);
+      const data = wsJsonToRes<CommunityResponse>(msg);
       this.setState({ loading: false });
       this.props.onEdit?.(data.community_view);
-      let community = data.community_view.community;
+      const community = data.community_view.community;
 
-      let mui = UserService.Instance.myUserInfo;
+      const mui = UserService.Instance.myUserInfo;
       if (mui) {
-        let followFound = mui.follows.findIndex(
+        const followFound = mui.follows.findIndex(
           f => f.community.id == community.id
         );
         if (followFound) {
           mui.follows[followFound].community = community;
         }
 
-        let moderatesFound = mui.moderates.findIndex(
+        const moderatesFound = mui.moderates.findIndex(
           f => f.community.id == community.id
         );
         if (moderatesFound) {

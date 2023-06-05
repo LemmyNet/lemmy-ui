@@ -23,16 +23,16 @@ export class CommentReport extends Component<CommentReportProps, any> {
   }
 
   render() {
-    let r = this.props.report;
-    let comment = r.comment;
-    let tippyContent = i18n.t(
+    const r = this.props.report;
+    const comment = r.comment;
+    const tippyContent = i18n.t(
       r.comment_report.resolved ? "unresolve_report" : "resolve_report"
     );
 
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
 
-    let comment_view: CommentView = {
+    const comment_view: CommentView = {
       comment,
       creator: r.comment_creator,
       post: r.post,
@@ -45,7 +45,7 @@ export class CommentReport extends Component<CommentReportProps, any> {
       my_vote: r.my_vote,
     };
 
-    let node: CommentNodeI = {
+    const node: CommentNodeI = {
       comment_view,
       children: [],
       depth: 0,
@@ -102,9 +102,9 @@ export class CommentReport extends Component<CommentReportProps, any> {
   }
 
   handleResolveReport(i: CommentReport) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: ResolveCommentReport = {
+      const form: ResolveCommentReport = {
         report_id: i.props.report.comment_report.id,
         resolved: !i.props.report.comment_report.resolved,
         auth,

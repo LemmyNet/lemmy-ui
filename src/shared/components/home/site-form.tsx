@@ -76,8 +76,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
 
-    let site = this.props.siteRes.site_view.site;
-    let ls = this.props.siteRes.site_view.local_site;
+    const site = this.props.siteRes.site_view.site;
+    const ls = this.props.siteRes.site_view.local_site;
     this.state = {
       ...this.state,
       siteForm: {
@@ -149,7 +149,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   render() {
-    let siteSetup = this.props.siteRes.site_view.local_site.site_setup;
+    const siteSetup = this.props.siteRes.site_view.local_site.site_setup;
     return (
       <>
         <Prompt
@@ -747,13 +747,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleCreateSiteSubmit(i: SiteForm, event: any) {
     event.preventDefault();
     i.setState({ loading: true });
-    let auth = myAuth() ?? "TODO";
+    const auth = myAuth() ?? "TODO";
     i.setState(s => ((s.siteForm.auth = auth), s));
     if (i.props.siteRes.site_view.local_site.site_setup) {
       WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
     } else {
-      let sForm = i.state.siteForm;
-      let form: CreateSite = {
+      const sForm = i.state.siteForm;
+      const form: CreateSite = {
         name: sForm.name ?? "My site",
         sidebar: sForm.sidebar,
         description: sForm.description,
@@ -841,7 +841,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleTaglineChange(i: SiteForm, index: number, val: string) {
-    let taglines = i.state.siteForm.taglines;
+    const taglines = i.state.siteForm.taglines;
     if (taglines) {
       taglines[index] = val;
       i.setState(i.state);
@@ -854,7 +854,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
-    let taglines = i.state.siteForm.taglines;
+    const taglines = i.state.siteForm.taglines;
     if (taglines) {
       taglines.splice(index, 1);
       i.state.siteForm.taglines = undefined;

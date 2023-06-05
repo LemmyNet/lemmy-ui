@@ -476,7 +476,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   saveUserSettingsHtmlForm() {
-    let selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
+    const selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
 
     return (
       <>
@@ -853,7 +853,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   totpSection() {
-    let totpUrl =
+    const totpUrl =
       UserService.Instance.myUserInfo?.local_user_view.local_user.totp_2fa_url;
 
     return (
@@ -998,7 +998,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleShowAvatarsChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_avatars = event.target.checked;
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_avatars = event.target.checked;
     }
@@ -1027,7 +1027,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleShowScoresChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_scores = event.target.checked;
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_scores = event.target.checked;
     }
@@ -1036,7 +1036,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleGenerateTotp(i: Settings, event: any) {
     // Coerce false to undefined here, so it won't generate it.
-    let checked: boolean | undefined = event.target.checked || undefined;
+    const checked: boolean | undefined = event.target.checked || undefined;
     if (checked) {
       toast(i18n.t("two_factor_setup_instructions"));
     }
@@ -1046,7 +1046,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleRemoveTotp(i: Settings, event: any) {
     // Coerce true to undefined here, so it won't generate it.
-    let checked: boolean | undefined = !event.target.checked && undefined;
+    const checked: boolean | undefined = !event.target.checked && undefined;
     i.state.saveUserSettingsForm.generate_totp_2fa = checked;
     i.setState(i.state);
   }
@@ -1149,9 +1149,9 @@ export class Settings extends Component<any, SettingsState> {
   handleSaveSettingsSubmit(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ saveUserSettingsLoading: true });
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: SaveUserSettings = { ...i.state.saveUserSettingsForm, auth };
+      const form: SaveUserSettings = { ...i.state.saveUserSettingsForm, auth };
       WebSocketService.Instance.send(wsClient.saveUserSettings(form));
     }
   }
@@ -1159,13 +1159,13 @@ export class Settings extends Component<any, SettingsState> {
   handleChangePasswordSubmit(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ changePasswordLoading: true });
-    let auth = myAuth();
-    let pForm = i.state.changePasswordForm;
-    let new_password = pForm.new_password;
-    let new_password_verify = pForm.new_password_verify;
-    let old_password = pForm.old_password;
+    const auth = myAuth();
+    const pForm = i.state.changePasswordForm;
+    const new_password = pForm.new_password;
+    const new_password_verify = pForm.new_password_verify;
+    const old_password = pForm.old_password;
     if (auth && new_password && old_password && new_password_verify) {
-      let form: ChangePassword = {
+      const form: ChangePassword = {
         new_password,
         new_password_verify,
         old_password,
@@ -1189,10 +1189,10 @@ export class Settings extends Component<any, SettingsState> {
   handleDeleteAccount(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ deleteAccountLoading: true });
-    let auth = myAuth();
-    let password = i.state.deleteAccountForm.password;
+    const auth = myAuth();
+    const password = i.state.deleteAccountForm.password;
     if (auth && password) {
-      let form: DeleteAccount = {
+      const form: DeleteAccount = {
         password,
         auth,
       };
@@ -1205,7 +1205,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       this.setState({
@@ -1220,7 +1220,7 @@ export class Settings extends Component<any, SettingsState> {
       toast(i18n.t("saved"));
       window.scrollTo(0, 0);
     } else if (op == UserOperation.ChangePassword) {
-      let data = wsJsonToRes<LoginResponse>(msg);
+      const data = wsJsonToRes<LoginResponse>(msg);
       UserService.Instance.login(data);
       this.setState({ changePasswordLoading: false });
       window.scrollTo(0, 0);
@@ -1233,16 +1233,16 @@ export class Settings extends Component<any, SettingsState> {
       UserService.Instance.logout();
       window.location.href = "/";
     } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
+      const data = wsJsonToRes<BlockPersonResponse>(msg);
       updatePersonBlock(data);
-      let mui = UserService.Instance.myUserInfo;
+      const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
       }
     } else if (op == UserOperation.BlockCommunity) {
-      let data = wsJsonToRes<BlockCommunityResponse>(msg);
+      const data = wsJsonToRes<BlockCommunityResponse>(msg);
       updateCommunityBlock(data);
-      let mui = UserService.Instance.myUserInfo;
+      const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });
       }

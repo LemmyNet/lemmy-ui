@@ -62,14 +62,14 @@ export class PostListings extends Component<PostListingsProps, any> {
 
   removeDuplicates(): PostView[] {
     // Must use a spread to clone the props, because splice will fail below otherwise.
-    let posts = [...this.props.posts];
+    const posts = [...this.props.posts];
 
     // A map from post url to list of posts (dupes)
-    let urlMap = new Map<string, PostView[]>();
+    const urlMap = new Map<string, PostView[]>();
 
     // Loop over the posts, find ones with same urls
-    for (let pv of posts) {
-      let url = pv.post.url;
+    for (const pv of posts) {
+      const url = pv.post.url;
       if (
         !pv.post.deleted &&
         !pv.post.removed &&
@@ -87,7 +87,7 @@ export class PostListings extends Component<PostListingsProps, any> {
 
     // Sort by oldest
     // Remove the ones that have no length
-    for (let e of urlMap.entries()) {
+    for (const e of urlMap.entries()) {
       if (e[1].length == 1) {
         urlMap.delete(e[0]);
       } else {
@@ -96,10 +96,10 @@ export class PostListings extends Component<PostListingsProps, any> {
     }
 
     for (let i = 0; i < posts.length; i++) {
-      let pv = posts[i];
-      let url = pv.post.url;
+      const pv = posts[i];
+      const url = pv.post.url;
       if (url) {
-        let found = urlMap.get(url);
+        const found = urlMap.get(url);
         if (found) {
           // If its the oldest, add
           if (pv.post.id == found[0].post.id) {

@@ -183,19 +183,19 @@ export class PrivateMessageForm extends Component<
 
   handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
     event.preventDefault();
-    let pm = i.props.privateMessageView;
-    let auth = myAuth();
-    let content = i.state.content;
+    const pm = i.props.privateMessageView;
+    const auth = myAuth();
+    const content = i.state.content;
     if (auth && content) {
       if (pm) {
-        let form: EditPrivateMessage = {
+        const form: EditPrivateMessage = {
           private_message_id: pm.private_message.id,
           content,
           auth,
         };
         WebSocketService.Instance.send(wsClient.editPrivateMessage(form));
       } else {
-        let form: CreatePrivateMessage = {
+        const form: CreatePrivateMessage = {
           content,
           recipient_id: i.props.recipient.id,
           auth,
@@ -224,7 +224,7 @@ export class PrivateMessageForm extends Component<
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -235,11 +235,11 @@ export class PrivateMessageForm extends Component<
       op == UserOperation.DeletePrivateMessage ||
       op == UserOperation.MarkPrivateMessageAsRead
     ) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
+      const data = wsJsonToRes<PrivateMessageResponse>(msg);
       this.setState({ loading: false });
       this.props.onEdit?.(data.private_message_view);
     } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
+      const data = wsJsonToRes<PrivateMessageResponse>(msg);
       this.props.onCreate?.(data.private_message_view);
     }
   }

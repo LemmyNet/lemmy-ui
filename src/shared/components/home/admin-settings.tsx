@@ -70,7 +70,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         loading: false,
       };
     } else {
-      let cAuth = myAuth();
+      const cAuth = myAuth();
       if (cAuth) {
         WebSocketService.Instance.send(
           wsClient.getBannedPersons({
@@ -85,11 +85,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
-    let auth = req.auth;
+    const auth = req.auth;
     if (auth) {
-      let bannedPersonsForm: GetBannedPersons = { auth };
+      const bannedPersonsForm: GetBannedPersons = { auth };
       promises.push(req.client.getBannedPersons(bannedPersonsForm));
       promises.push(req.client.getFederatedInstances({ auth }));
     }
@@ -236,7 +236,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   handleLeaveAdminTeam(i: AdminSettings) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
       i.setState({ leaveAdminTeamLoading: true });
       WebSocketService.Instance.send(wsClient.leaveAdmin({ auth }));
@@ -244,7 +244,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -252,20 +252,20 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.EditSite) {
-      let data = wsJsonToRes<SiteResponse>(msg);
+      const data = wsJsonToRes<SiteResponse>(msg);
       this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetBannedPersons) {
-      let data = wsJsonToRes<BannedPersonsResponse>(msg);
+      const data = wsJsonToRes<BannedPersonsResponse>(msg);
       this.setState({ banned: data.banned, loading: false });
     } else if (op == UserOperation.LeaveAdmin) {
-      let data = wsJsonToRes<GetSiteResponse>(msg);
+      const data = wsJsonToRes<GetSiteResponse>(msg);
       this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       this.setState({ leaveAdminTeamLoading: false });
       toast(i18n.t("left_admin_team"));
       this.context.router.history.push("/");
     } else if (op == UserOperation.GetFederatedInstances) {
-      let data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
+      const data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
       this.setState({ instancesRes: data });
     }
   }

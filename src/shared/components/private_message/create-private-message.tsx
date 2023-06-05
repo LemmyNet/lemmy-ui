@@ -65,7 +65,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   fetchPersonDetails() {
-    let form: GetPersonDetails = {
+    const form: GetPersonDetails = {
       person_id: this.state.recipient_id,
       sort: "New",
       saved_only: false,
@@ -75,8 +75,8 @@ export class CreatePrivateMessage extends Component<
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let person_id = Number(req.path.split("/").pop());
-    let form: GetPersonDetails = {
+    const person_id = Number(req.path.split("/").pop());
+    const form: GetPersonDetails = {
       person_id,
       sort: "New",
       saved_only: false,
@@ -86,7 +86,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   get documentTitle(): string {
-    let name_ = this.state.recipientDetailsRes?.person_view.person.name;
+    const name_ = this.state.recipientDetailsRes?.person_view.person.name;
     return name_ ? `${i18n.t("create_private_message")} - ${name_}` : "";
   }
 
@@ -97,7 +97,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   render() {
-    let res = this.state.recipientDetailsRes;
+    const res = this.state.recipientDetailsRes;
     return (
       <div className="container-lg">
         <HtmlTags
@@ -133,14 +133,14 @@ export class CreatePrivateMessage extends Component<
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.GetPersonDetails) {
-      let data = wsJsonToRes<GetPersonDetailsResponse>(msg);
+      const data = wsJsonToRes<GetPersonDetailsResponse>(msg);
       this.setState({ recipientDetailsRes: data, loading: false });
     }
   }

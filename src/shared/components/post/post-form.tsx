@@ -186,10 +186,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   render() {
-    let firstLang = this.state.form.language_id;
-    let selectedLangs = firstLang ? Array.of(firstLang) : undefined;
+    const firstLang = this.state.form.language_id;
+    const selectedLangs = firstLang ? Array.of(firstLang) : undefined;
 
-    let url = this.state.form.url;
+    const url = this.state.form.url;
     return (
       <div>
         <Prompt
@@ -449,12 +449,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       i.setState(s => ((s.form.url = undefined), s));
     }
 
-    let pForm = i.state.form;
-    let pv = i.props.post_view;
-    let auth = myAuth();
+    const pForm = i.state.form;
+    const pv = i.props.post_view;
+    const auth = myAuth();
     if (auth) {
       if (pv) {
-        let form: EditPost = {
+        const form: EditPost = {
           name: pForm.name,
           url: pForm.url,
           body: pForm.body,
@@ -466,7 +466,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         WebSocketService.Instance.send(wsClient.editPost(form));
       } else {
         if (pForm.name && pForm.community_id) {
-          let form: CreatePost = {
+          const form: CreatePost = {
             name: pForm.name,
             community_id: pForm.community_id,
             url: pForm.url,
@@ -483,14 +483,14 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   copySuggestedTitle(i: PostForm) {
-    let sTitle = i.state.suggestedTitle;
+    const sTitle = i.state.suggestedTitle;
     if (sTitle) {
       i.setState(
         s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
       );
       i.setState({ suggestedTitle: undefined });
       setTimeout(() => {
-        let textarea: any = document.getElementById("post-title");
+        const textarea: any = document.getElementById("post-title");
         autosize.update(textarea);
       }, 10);
     }
@@ -502,9 +502,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   fetchPageTitle() {
-    let url = this.state.form.url;
+    const url = this.state.form.url;
     if (url && validURL(url)) {
-      let form: Search = {
+      const form: Search = {
         q: url,
         type_: "Url",
         sort: "TopAll",
@@ -531,9 +531,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   fetchSimilarPosts() {
-    let q = this.state.form.name;
+    const q = this.state.form.name;
     if (q && q !== "") {
-      let form: Search = {
+      const form: Search = {
         q,
         type_: "Posts",
         sort: "TopAll",
@@ -580,7 +580,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   handleImageUploadPaste(i: PostForm, event: any) {
-    let image = event.clipboardData.files[0];
+    const image = event.clipboardData.files[0];
     if (image) {
       i.handleImageUpload(i, image);
     }
@@ -649,8 +649,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   parseMessage(msg: any) {
-    let mui = UserService.Instance.myUserInfo;
-    let op = wsUserOp(msg);
+    const mui = UserService.Instance.myUserInfo;
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       // Errors handled by top level pages
@@ -658,18 +658,18 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.CreatePost) {
-      let data = wsJsonToRes<PostResponse>(msg);
+      const data = wsJsonToRes<PostResponse>(msg);
       if (data.post_view.creator.id == mui?.local_user_view.person.id) {
         this.props.onCreate?.(data.post_view);
       }
     } else if (op == UserOperation.EditPost) {
-      let data = wsJsonToRes<PostResponse>(msg);
+      const data = wsJsonToRes<PostResponse>(msg);
       if (data.post_view.creator.id == mui?.local_user_view.person.id) {
         this.setState({ loading: false });
         this.props.onEdit?.(data.post_view);
       }
     } else if (op == UserOperation.Search) {
-      let data = wsJsonToRes<SearchResponse>(msg);
+      const data = wsJsonToRes<SearchResponse>(msg);
 
       if (data.type_ == "Posts") {
         this.setState({ suggestedPosts: data.posts });

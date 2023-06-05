@@ -213,15 +213,15 @@ server.listen(Number(port), hostname, () => {
 function setForwardedHeaders(headers: IncomingHttpHeaders): {
   [key: string]: string;
 } {
-  let out: { [key: string]: string } = {};
+  const out: { [key: string]: string } = {};
   if (headers.host) {
     out.host = headers.host;
   }
-  let realIp = headers["x-real-ip"];
+  const realIp = headers["x-real-ip"];
   if (realIp) {
     out["x-real-ip"] = realIp as string;
   }
-  let forwardedFor = headers["x-forwarded-for"];
+  const forwardedFor = headers["x-forwarded-for"];
   if (forwardedFor) {
     out["x-forwarded-for"] = forwardedFor as string;
   }

@@ -12,7 +12,7 @@ export class EmojiMart extends Component<EmojiMartProps> {
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
   componentDidMount() {
-    let div: any = document.getElementById("emoji-picker");
+    const div: any = document.getElementById("emoji-picker");
     if (div) {
       div.appendChild(
         getEmojiMart(this.handleEmojiClick, this.props.pickerOptions)

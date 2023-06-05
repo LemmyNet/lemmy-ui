@@ -109,7 +109,7 @@ export class Signup extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    let siteView = this.state.siteRes.site_view;
+    const siteView = this.state.siteRes.site_view;
     return `${this.titleName(siteView)} - ${siteView.site.name}`;
   }
 
@@ -140,7 +140,7 @@ export class Signup extends Component<any, State> {
   }
 
   registerForm() {
-    let siteView = this.state.siteRes.site_view;
+    const siteView = this.state.siteRes.site_view;
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
         <h5>{this.titleName(siteView)}</h5>
@@ -371,7 +371,7 @@ export class Signup extends Component<any, State> {
   }
 
   showCaptcha() {
-    let captchaRes = this.state.captcha?.ok;
+    const captchaRes = this.state.captcha?.ok;
     return captchaRes ? (
       <div className="col-sm-4">
         <>
@@ -401,14 +401,14 @@ export class Signup extends Component<any, State> {
   }
 
   get passwordStrength(): string | undefined {
-    let password = this.state.form.password;
+    const password = this.state.form.password;
     return password
       ? passwordStrength(password, passwordStrengthOptions).value
       : undefined;
   }
 
   get passwordColorClass(): string {
-    let strength = this.passwordStrength;
+    const strength = this.passwordStrength;
 
     if (strength && ["weak", "medium"].includes(strength)) {
       return "text-warning";
@@ -422,9 +422,9 @@ export class Signup extends Component<any, State> {
   handleRegisterSubmit(i: Signup, event: any) {
     event.preventDefault();
     i.setState({ registerLoading: true });
-    let cForm = i.state.form;
+    const cForm = i.state.form;
     if (cForm.username && cForm.password && cForm.password_verify) {
-      let form: Register = {
+      const form: Register = {
         username: cForm.username,
         password: cForm.password,
         password_verify: cForm.password_verify,
@@ -490,10 +490,10 @@ export class Signup extends Component<any, State> {
   handleCaptchaPlay(i: Signup) {
     // This was a bad bug, it should only build the new audio on a new file.
     // Replays would stop prematurely if this was rebuilt every time.
-    let captchaRes = i.state.captcha?.ok;
+    const captchaRes = i.state.captcha?.ok;
     if (captchaRes) {
       if (!i.audio) {
-        let base64 = `data:audio/wav;base64,${captchaRes.wav}`;
+        const base64 = `data:audio/wav;base64,${captchaRes.wav}`;
         i.audio = new Audio(base64);
         i.audio.play();
 
@@ -514,7 +514,7 @@ export class Signup extends Component<any, State> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -524,7 +524,7 @@ export class Signup extends Component<any, State> {
       return;
     } else {
       if (op == UserOperation.Register) {
-        let data = wsJsonToRes<LoginResponse>(msg);
+        const data = wsJsonToRes<LoginResponse>(msg);
         // Only log them in if a jwt was set
         if (data.jwt) {
           UserService.Instance.login(data);
@@ -540,7 +540,7 @@ export class Signup extends Component<any, State> {
           this.props.history.push("/");
         }
       } else if (op == UserOperation.GetCaptcha) {
-        let data = wsJsonToRes<GetCaptchaResponse>(msg);
+        const data = wsJsonToRes<GetCaptchaResponse>(msg);
         if (data.ok) {
           this.setState({ captcha: data });
           this.setState(s => ((s.form.captcha_uuid = data.ok?.uuid), s));
@@ -548,7 +548,7 @@ export class Signup extends Component<any, State> {
       } else if (op == UserOperation.PasswordReset) {
         toast(i18n.t("reset_password_mail_sent"));
       } else if (op == UserOperation.GetSite) {
-        let data = wsJsonToRes<GetSiteResponse>(msg);
+        const data = wsJsonToRes<GetSiteResponse>(msg);
         this.setState({ siteRes: data });
       }
     }

@@ -80,7 +80,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads
-      let auth = myAuth(false);
+      const auth = myAuth(false);
       if (auth && UserService.Instance.myUserInfo) {
         this.requestNotificationPermission();
         WebSocketService.Instance.send(
@@ -438,13 +438,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get moderatesSomething(): boolean {
-    let mods = UserService.Instance.myUserInfo?.moderates;
-    let moderatesS = (mods && mods.length > 0) || false;
+    const mods = UserService.Instance.myUserInfo?.moderates;
+    const moderatesS = (mods && mods.length > 0) || false;
     return amAdmin() || moderatesS;
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       if (msg.error == "not_logged_in") {
@@ -453,7 +453,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       return;
     } else if (msg.reconnect) {
       console.log(i18n.t("websocket_reconnected"));
-      let auth = myAuth(false);
+      const auth = myAuth(false);
       if (UserService.Instance.myUserInfo && auth) {
         WebSocketService.Instance.send(
           wsClient.userJoin({
@@ -463,13 +463,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         this.fetchUnreads();
       }
     } else if (op == UserOperation.GetUnreadCount) {
-      let data = wsJsonToRes<GetUnreadCountResponse>(msg);
+      const data = wsJsonToRes<GetUnreadCountResponse>(msg);
       this.setState({
         unreadInboxCount: data.replies + data.mentions + data.private_messages,
       });
       this.sendUnreadCount();
     } else if (op == UserOperation.GetReportCount) {
-      let data = wsJsonToRes<GetReportCountResponse>(msg);
+      const data = wsJsonToRes<GetReportCountResponse>(msg);
       this.setState({
         unreadReportCount:
           data.post_reports +
@@ -478,13 +478,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       });
       this.sendReportUnread();
     } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
-      let data =
+      const data =
         wsJsonToRes<GetUnreadRegistrationApplicationCountResponse>(msg);
       this.setState({ unreadApplicationCount: data.registration_applications });
       this.sendApplicationUnread();
     } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      let mui = UserService.Instance.myUserInfo;
+      const data = wsJsonToRes<CommentResponse>(msg);
+      const mui = UserService.Instance.myUserInfo;
       if (
         mui &&
         data.recipient_ids.includes(mui.local_user_view.local_user.id)
@@ -496,7 +496,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         notifyComment(data.comment_view, this.context.router);
       }
     } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
+      const data = wsJsonToRes<PrivateMessageResponse>(msg);
 
       if (
         data.private_message_view.recipient.id ==
@@ -514,16 +514,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   fetchUnreads() {
     console.log("Fetching inbox unreads...");
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let unreadForm: GetUnreadCount = {
+      const unreadForm: GetUnreadCount = {
         auth,
       };
       WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
 
       console.log("Fetching reports...");
 
-      let reportCountForm: GetReportCount = {
+      const reportCountForm: GetReportCount = {
         auth,
       };
       WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
@@ -531,7 +531,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       if (amAdmin()) {
         console.log("Fetching applications...");
 
-        let applicationCountForm: GetUnreadRegistrationApplicationCount = {
+        const applicationCountForm: GetUnreadRegistrationApplicationCount = {
           auth,
         };
         WebSocketService.Instance.send(

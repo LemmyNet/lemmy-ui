@@ -132,7 +132,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   get documentTitle(): string {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${i18n.t("reports")} - ${
           this.state.siteRes.site_view.site.name
@@ -314,15 +314,15 @@ export class Reports extends Component<any, ReportsState> {
     //   .map(r => r.comment_reports)
     //   .unwrapOr([])
     //   .map(r => this.commentReportToItemType(r));
-    let comments =
+    const comments =
       this.state.listCommentReportsResponse?.comment_reports.map(
         this.commentReportToItemType
       ) ?? [];
-    let posts =
+    const posts =
       this.state.listPostReportsResponse?.post_reports.map(
         this.postReportToItemType
       ) ?? [];
-    let privateMessages =
+    const privateMessages =
       this.state.listPrivateMessageReportsResponse?.private_message_reports.map(
         this.privateMessageReportToItemType
       ) ?? [];
@@ -366,7 +366,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   commentReports() {
-    let reports = this.state.listCommentReportsResponse?.comment_reports;
+    const reports = this.state.listCommentReportsResponse?.comment_reports;
     return (
       reports && (
         <div>
@@ -382,7 +382,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   postReports() {
-    let reports = this.state.listPostReportsResponse?.post_reports;
+    const reports = this.state.listPostReportsResponse?.post_reports;
     return (
       reports && (
         <div>
@@ -398,7 +398,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   privateMessageReports() {
-    let reports =
+    const reports =
       this.state.listPrivateMessageReportsResponse?.private_message_reports;
     return (
       reports && (
@@ -433,15 +433,15 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
-    let unresolved_only = true;
-    let page = 1;
-    let limit = fetchLimit;
-    let auth = req.auth;
+    const unresolved_only = true;
+    const page = 1;
+    const limit = fetchLimit;
+    const auth = req.auth;
 
     if (auth) {
-      let commentReportsForm: ListCommentReports = {
+      const commentReportsForm: ListCommentReports = {
         unresolved_only,
         page,
         limit,
@@ -449,7 +449,7 @@ export class Reports extends Component<any, ReportsState> {
       };
       promises.push(req.client.listCommentReports(commentReportsForm));
 
-      let postReportsForm: ListPostReports = {
+      const postReportsForm: ListPostReports = {
         unresolved_only,
         page,
         limit,
@@ -458,7 +458,7 @@ export class Reports extends Component<any, ReportsState> {
       promises.push(req.client.listPostReports(postReportsForm));
 
       if (amAdmin()) {
-        let privateMessageReportsForm: ListPrivateMessageReports = {
+        const privateMessageReportsForm: ListPrivateMessageReports = {
           unresolved_only,
           page,
           limit,
@@ -474,12 +474,12 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   refetch() {
-    let unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let page = this.state.page;
-    let limit = fetchLimit;
-    let auth = myAuth();
+    const unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const page = this.state.page;
+    const limit = fetchLimit;
+    const auth = myAuth();
     if (auth) {
-      let commentReportsForm: ListCommentReports = {
+      const commentReportsForm: ListCommentReports = {
         unresolved_only,
         page,
         limit,
@@ -489,7 +489,7 @@ export class Reports extends Component<any, ReportsState> {
         wsClient.listCommentReports(commentReportsForm)
       );
 
-      let postReportsForm: ListPostReports = {
+      const postReportsForm: ListPostReports = {
         unresolved_only,
         page,
         limit,
@@ -498,7 +498,7 @@ export class Reports extends Component<any, ReportsState> {
       WebSocketService.Instance.send(wsClient.listPostReports(postReportsForm));
 
       if (amAdmin()) {
-        let privateMessageReportsForm: ListPrivateMessageReports = {
+        const privateMessageReportsForm: ListPrivateMessageReports = {
           unresolved_only,
           page,
           limit,
@@ -512,7 +512,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -520,33 +520,33 @@ export class Reports extends Component<any, ReportsState> {
     } else if (msg.reconnect) {
       this.refetch();
     } else if (op == UserOperation.ListCommentReports) {
-      let data = wsJsonToRes<ListCommentReportsResponse>(msg);
+      const data = wsJsonToRes<ListCommentReportsResponse>(msg);
       this.setState({ listCommentReportsResponse: data });
       this.setState({ combined: this.buildCombined(), loading: false });
       // this.sendUnreadCount();
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.ListPostReports) {
-      let data = wsJsonToRes<ListPostReportsResponse>(msg);
+      const data = wsJsonToRes<ListPostReportsResponse>(msg);
       this.setState({ listPostReportsResponse: data });
       this.setState({ combined: this.buildCombined(), loading: false });
       // this.sendUnreadCount();
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.ListPrivateMessageReports) {
-      let data = wsJsonToRes<ListPrivateMessageReportsResponse>(msg);
+      const data = wsJsonToRes<ListPrivateMessageReportsResponse>(msg);
       this.setState({ listPrivateMessageReportsResponse: data });
       this.setState({ combined: this.buildCombined(), loading: false });
       // this.sendUnreadCount();
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.ResolvePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg);
+      const data = wsJsonToRes<PostReportResponse>(msg);
       updatePostReportRes(
         data.post_report_view,
         this.state.listPostReportsResponse?.post_reports
       );
-      let urcs = UserService.Instance.unreadReportCountSub;
+      const urcs = UserService.Instance.unreadReportCountSub;
       if (data.post_report_view.post_report.resolved) {
         urcs.next(urcs.getValue() - 1);
       } else {
@@ -554,12 +554,12 @@ export class Reports extends Component<any, ReportsState> {
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolveCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg);
+      const data = wsJsonToRes<CommentReportResponse>(msg);
       updateCommentReportRes(
         data.comment_report_view,
         this.state.listCommentReportsResponse?.comment_reports
       );
-      let urcs = UserService.Instance.unreadReportCountSub;
+      const urcs = UserService.Instance.unreadReportCountSub;
       if (data.comment_report_view.comment_report.resolved) {
         urcs.next(urcs.getValue() - 1);
       } else {
@@ -567,12 +567,12 @@ export class Reports extends Component<any, ReportsState> {
       }
       this.setState(this.state);
     } else if (op == UserOperation.ResolvePrivateMessageReport) {
-      let data = wsJsonToRes<PrivateMessageReportResponse>(msg);
+      const data = wsJsonToRes<PrivateMessageReportResponse>(msg);
       updatePrivateMessageReportRes(
         data.private_message_report_view,
         this.state.listPrivateMessageReportsResponse?.private_message_reports
       );
-      let urcs = UserService.Instance.unreadReportCountSub;
+      const urcs = UserService.Instance.unreadReportCountSub;
       if (data.private_message_report_view.private_message_report.resolved) {
         urcs.next(urcs.getValue() - 1);
       } else {
