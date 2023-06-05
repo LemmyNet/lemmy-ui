@@ -94,7 +94,7 @@ const createClientConfig = (_env, mode) => {
     plugins: [
       ...base.plugins,
       new ServiceWorkerPlugin({
-        enableInDevelopment: true,
+        enableInDevelopment: mode !== "development",
         workbox: {
           modifyURLPrefix: {
             "/": "/static/",

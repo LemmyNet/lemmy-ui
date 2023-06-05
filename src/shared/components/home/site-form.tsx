@@ -689,6 +689,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             type="button"
             className="btn btn-sm bg-success ml-2"
             onClick={linkEvent(key, this.handleAddInstance)}
+            style={"width: 2rem; height: 2rem;"}
             tabIndex={
               -1 /* Making this untabble because handling enter key in text input makes keyboard support for this button redundant */
             }
@@ -710,6 +711,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   id={instance}
                   type="button"
                   className="btn btn-sm bg-danger"
+                  style={"width: 2rem; height: 2rem;"}
                   onClick={linkEvent(
                     { key, instance },
                     this.handleRemoveInstance
