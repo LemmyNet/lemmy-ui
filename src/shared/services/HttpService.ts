@@ -59,19 +59,10 @@ export async function apiWrapper<ResponseType>(
 export function apiWrapperIso<ResponseType>(
   res: ResponseType
 ): RequestState<ResponseType> {
-  try {
-    return {
-      state: "success",
-      data: res,
-    };
-  } catch (error) {
-    console.error(`API error: ${error}`);
-    toast(i18n.t(error), "danger");
-    return {
-      state: "failed",
-      msg: error,
-    };
-  }
+  return {
+    state: "success",
+    data: res,
+  };
 }
 
 export class HttpService {
