@@ -1,5 +1,6 @@
-import { CommentView, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { CommentView, GetSiteResponse } from "lemmy-js-client";
 import type { ParsedQs } from "qs";
+import { RequestState, WrappedLemmyHttp } from "./services/HttpService";
 import { ErrorPageData } from "./utils";
 
 /**
@@ -7,7 +8,7 @@ import { ErrorPageData } from "./utils";
  */
 export interface IsoData {
   path: string;
-  routeData: any[];
+  routeData: RequestState<any>[];
   site_res: GetSiteResponse;
   errorPageData?: ErrorPageData;
 }
@@ -28,7 +29,7 @@ declare global {
 
 export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
   auth?: string;
-  client: LemmyHttp;
+  client: WrappedLemmyHttp;
   path: string;
   query: T;
   site: GetSiteResponse;

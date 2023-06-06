@@ -417,7 +417,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (auth) {
       this.setState({ unreadInboxCountRes: { state: "loading" } });
       this.setState({
-        unreadInboxCountRes: await HttpService.wrappedClient.getUnreadCount({
+        unreadInboxCountRes: await HttpService.client.getUnreadCount({
           auth,
         }),
       });
@@ -425,7 +425,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       if (this.moderatesSomething) {
         this.setState({ unreadReportCountRes: { state: "loading" } });
         this.setState({
-          unreadReportCountRes: await HttpService.wrappedClient.getReportCount({
+          unreadReportCountRes: await HttpService.client.getReportCount({
             auth,
           }),
         });
@@ -435,11 +435,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         this.setState({ unreadApplicationCountRes: { state: "loading" } });
         this.setState({
           unreadApplicationCountRes:
-            await HttpService.wrappedClient.getUnreadRegistrationApplicationCount(
-              {
-                auth,
-              }
-            ),
+            await HttpService.client.getUnreadRegistrationApplicationCount({
+              auth,
+            }),
         });
       }
     }

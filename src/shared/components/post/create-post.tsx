@@ -8,7 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
-import { HttpService } from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -60,13 +60,13 @@ export class CreatePost extends Component<
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
       const communityRes = this.isoData.routeData[0] as
-        | GetCommunityResponse
+        | RequestState<GetCommunityResponse>
         | undefined;
 
-      if (communityRes) {
+      if (communityRes?.state === "success") {
         const communityChoice: Choice = {
-          label: communityRes.community_view.community.title,
-          value: communityRes.community_view.community.id.toString(),
+          label: communityRes.data.community_view.community.title,
+          value: communityRes.data.community_view.community.id.toString(),
         };
 
         this.state = {
@@ -87,7 +87,7 @@ export class CreatePost extends Component<
     const auth = myAuth();
 
     if (communityId) {
-      const res = await HttpService.wrappedClient.getCommunity({
+      const res = await HttpService.client.getCommunity({
         id: communityId,
         auth,
       });
@@ -194,7 +194,7 @@ export class CreatePost extends Component<
   }
 
   async handlePostCreate(form: CreatePostI) {
-    const res = await HttpService.wrappedClient.createPost(form);
+    const res = await HttpService.client.createPost(form);
 
     if (res.state === "success") {
       const postId = res.data.post_view.post.id;
@@ -208,8 +208,10 @@ export class CreatePost extends Component<
     client,
     query: { communityId },
     auth,
-  }: InitialFetchRequest<QueryParams<CreatePostProps>>): Promise<any>[] {
-    const promises: Promise<any>[] = [];
+  }: InitialFetchRequest<QueryParams<CreatePostProps>>): Promise<
+    RequestState<any>
+  >[] {
+    const promises: Promise<RequestState<any>>[] = [];
 
     if (communityId) {
       const form: GetCommunity = {
@@ -219,7 +221,7 @@ export class CreatePost extends Component<
 
       promises.push(client.getCommunity(form));
     } else {
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     }
 
     return promises;

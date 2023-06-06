@@ -5,18 +5,13 @@ import {
   DeleteCustomEmoji,
   EditCustomEmoji,
   EditSite,
-  GetBannedPersons,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   PersonView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import {
-  HttpService,
-  RequestState,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   capitalizeFirstLetter,
   isInitialRoute,
@@ -66,14 +61,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
+      const [bannedRes, instancesRes] = this.isoData.routeData;
       this.state = {
         ...this.state,
-        bannedRes: apiWrapperIso(
-          this.isoData.routeData[0] as BannedPersonsResponse
-        ),
-        instancesRes: apiWrapperIso(
-          this.isoData.routeData[1] as GetFederatedInstancesResponse
-        ),
+        bannedRes,
+        instancesRes,
       };
     }
   }
@@ -87,23 +79,29 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     const auth = myAuthRequired();
 
     this.setState({
-      bannedRes: await HttpService.wrappedClient.getBannedPersons({
+      bannedRes: await HttpService.client.getBannedPersons({
         auth,
       }),
-      instancesRes: await HttpService.wrappedClient.getFederatedInstances({
+      instancesRes: await HttpService.client.getFederatedInstances({
         auth,
       }),
     });
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): Promise<any>[] {
+    const promises: Promise<RequestState<any>>[] = [];
 
-    let auth = req.auth;
     if (auth) {
-      let bannedPersonsForm: GetBannedPersons = { auth };
-      promises.push(req.client.getBannedPersons(bannedPersonsForm));
-      promises.push(req.client.getFederatedInstances({ auth }));
+      promises.push(client.getBannedPersons({ auth }));
+      promises.push(client.getFederatedInstances({ auth }));
+    } else {
+      promises.push(
+        Promise.resolve({ state: "empty" }),
+        Promise.resolve({ state: "empty" })
+      );
     }
 
     return promises;
@@ -246,7 +244,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditSite(form: EditSite) {
-    const editRes = await HttpService.wrappedClient.editSite(form);
+    const editRes = await HttpService.client.editSite(form);
 
     if (editRes.state === "success") {
       toast(i18n.t("site_saved"));
@@ -262,7 +260,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   async handleLeaveAdminTeam(i: AdminSettings) {
     i.setState({ leaveAdminTeamRes: { state: "loading" } });
     this.setState({
-      leaveAdminTeamRes: await HttpService.wrappedClient.leaveAdmin({
+      leaveAdminTeamRes: await HttpService.client.leaveAdmin({
         auth: myAuthRequired(),
       }),
     });
@@ -274,21 +272,21 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
-    const res = await HttpService.wrappedClient.editCustomEmoji(form);
+    const res = await HttpService.client.editCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
-    const res = await HttpService.wrappedClient.deleteCustomEmoji(form);
+    const res = await HttpService.client.deleteCustomEmoji(form);
     if (res.state === "success") {
       removeFromEmojiDataModel(res.data.id);
     }
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
-    const res = await HttpService.wrappedClient.createCustomEmoji(form);
+    const res = await HttpService.client.createCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }

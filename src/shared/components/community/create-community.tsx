@@ -53,7 +53,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   }
 
   async handleCommunityCreate(form: CreateCommunityI) {
-    const res = await HttpService.wrappedClient.createCommunity(form);
+    const res = await HttpService.client.createCommunity(form);
     if (res.state === "success") {
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);

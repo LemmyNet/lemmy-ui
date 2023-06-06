@@ -1447,7 +1447,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   async handleEditPost(form: EditPost) {
-    const res = await HttpService.wrappedClient.editPost(form);
+    const res = await HttpService.client.editPost(form);
 
     if (res.state === "success") {
       this.setState({ showEdit: false });

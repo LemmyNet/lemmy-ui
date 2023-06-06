@@ -53,11 +53,7 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { UserService } from "../../services";
-import {
-  apiWrapperIso,
-  HttpService,
-  RequestState,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   canCreateCommunity,
   commentsToFlatNodes,
@@ -228,38 +224,19 @@ export class Home extends Component<any, HomeState> {
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
-      const postsRes = this.isoData.routeData[0] as
-        | GetPostsResponse
-        | undefined;
-      const commentsRes = this.isoData.routeData[1] as
-        | GetCommentsResponse
-        | undefined;
-      const trendingRes = this.isoData.routeData[2] as
-        | ListCommunitiesResponse
-        | undefined;
+      const [postsRes, commentsRes, trendingCommunitiesRes] =
+        this.isoData.routeData;
 
-      if (postsRes) {
-        this.state = { ...this.state, postsRes: apiWrapperIso(postsRes) };
-      }
+      console.log("reoutedata");
+      console.log(this.isoData.routeData);
 
-      if (commentsRes) {
-        this.state = {
-          ...this.state,
-          commentsRes: apiWrapperIso(commentsRes),
-        };
-      }
-
-      if (trendingRes) {
-        this.state = {
-          ...this.state,
-          trendingCommunitiesRes: apiWrapperIso(trendingRes),
-        };
-      }
-
-      const taglines = this.state?.siteRes?.taglines ?? [];
       this.state = {
         ...this.state,
-        tagline: getRandomFromList(taglines)?.content,
+        postsRes,
+        commentsRes,
+        trendingCommunitiesRes,
+        tagline: getRandomFromList(this.state?.siteRes?.taglines ?? [])
+          ?.content,
       };
     }
   }
@@ -285,7 +262,9 @@ export class Home extends Component<any, HomeState> {
     client,
     auth,
     query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
-  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<
+    RequestState<any>
+  >[] {
     const dataType = getDataTypeFromQuery(urlDataType);
 
     // TODO figure out auth default_listingType, default_sort_type
@@ -294,7 +273,7 @@ export class Home extends Component<any, HomeState> {
 
     const page = urlPage ? Number(urlPage) : 1;
 
-    const promises: Promise<any>[] = [];
+    const promises: Promise<RequestState<any>>[] = [];
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -307,7 +286,7 @@ export class Home extends Component<any, HomeState> {
       };
 
       promises.push(client.getPosts(getPostsForm));
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     } else {
       const getCommentsForm: GetComments = {
         page,
@@ -317,7 +296,7 @@ export class Home extends Component<any, HomeState> {
         saved_only: false,
         auth,
       };
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
       promises.push(client.getComments(getCommentsForm));
     }
 
@@ -585,7 +564,7 @@ export class Home extends Component<any, HomeState> {
     return (
       <div className="main-content-wrapper">
         <div>
-          {this.selects()}
+          {this.selects}
           {this.listings}
           <Paginator page={page} onChange={this.handlePageChange} />
         </div>
@@ -681,7 +660,7 @@ export class Home extends Component<any, HomeState> {
     }
   }
 
-  selects() {
+  get selects() {
     const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
@@ -744,7 +723,7 @@ export class Home extends Component<any, HomeState> {
   async fetchTrendingCommunities() {
     this.setState({ trendingCommunitiesRes: { state: "loading" } });
     this.setState({
-      trendingCommunitiesRes: await HttpService.wrappedClient.listCommunities({
+      trendingCommunitiesRes: await HttpService.client.listCommunities({
         type_: "Local",
         sort: "Hot",
         limit: trendingFetchLimit,
@@ -760,7 +739,7 @@ export class Home extends Component<any, HomeState> {
     if (dataType === DataType.Post) {
       this.setState({ postsRes: { state: "loading" } });
       this.setState({
-        postsRes: await HttpService.wrappedClient.getPosts({
+        postsRes: await HttpService.client.getPosts({
           page,
           limit: fetchLimit,
           sort,
@@ -772,7 +751,7 @@ export class Home extends Component<any, HomeState> {
     } else {
       this.setState({ commentsRes: { state: "loading" } });
       this.setState({
-        commentsRes: await HttpService.wrappedClient.getComments({
+        commentsRes: await HttpService.client.getComments({
           page,
           limit: fetchLimit,
           sort: postToCommentSortType(sort),
@@ -825,124 +804,116 @@ export class Home extends Component<any, HomeState> {
 
   async handleAddModToCommunity(form: AddModToCommunity) {
     // TODO not sure what to do here
-    await HttpService.wrappedClient.addModToCommunity(form);
+    await HttpService.client.addModToCommunity(form);
   }
 
   async handlePurgePerson(form: PurgePerson) {
-    const purgePersonRes = await HttpService.wrappedClient.purgePerson(form);
+    const purgePersonRes = await HttpService.client.purgePerson(form);
     this.purgeItem(purgePersonRes);
   }
 
   async handlePurgeComment(form: PurgeComment) {
-    const purgeCommentRes = await HttpService.wrappedClient.purgeComment(form);
+    const purgeCommentRes = await HttpService.client.purgeComment(form);
     this.purgeItem(purgeCommentRes);
   }
 
   async handlePurgePost(form: PurgePost) {
-    const purgeRes = await HttpService.wrappedClient.purgePost(form);
+    const purgeRes = await HttpService.client.purgePost(form);
     this.purgeItem(purgeRes);
   }
 
   async handleBlockPerson(form: BlockPerson) {
-    const blockPersonRes = await HttpService.wrappedClient.blockPerson(form);
+    const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state == "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
 
   async handleCreateComment(form: CreateComment) {
-    const createCommentRes = await HttpService.wrappedClient.createComment(
-      form
-    );
+    const createCommentRes = await HttpService.client.createComment(form);
     this.createAndUpdateComments(createCommentRes);
 
     return createCommentRes;
   }
 
   async handleEditComment(form: EditComment) {
-    const editCommentRes = await HttpService.wrappedClient.editComment(form);
+    const editCommentRes = await HttpService.client.editComment(form);
     this.findAndUpdateComment(editCommentRes);
 
     return editCommentRes;
   }
 
   async handleDeleteComment(form: DeleteComment) {
-    const deleteCommentRes = await HttpService.wrappedClient.deleteComment(
-      form
-    );
+    const deleteCommentRes = await HttpService.client.deleteComment(form);
     this.findAndUpdateComment(deleteCommentRes);
   }
 
   async handleDeletePost(form: DeletePost) {
-    const deleteRes = await HttpService.wrappedClient.deletePost(form);
+    const deleteRes = await HttpService.client.deletePost(form);
     this.findAndUpdatePost(deleteRes);
   }
 
   async handleRemovePost(form: RemovePost) {
-    const removeRes = await HttpService.wrappedClient.removePost(form);
+    const removeRes = await HttpService.client.removePost(form);
     this.findAndUpdatePost(removeRes);
   }
 
   async handleRemoveComment(form: RemoveComment) {
-    const removeCommentRes = await HttpService.wrappedClient.removeComment(
-      form
-    );
+    const removeCommentRes = await HttpService.client.removeComment(form);
     this.findAndUpdateComment(removeCommentRes);
   }
 
   async handleSaveComment(form: SaveComment) {
-    const saveCommentRes = await HttpService.wrappedClient.saveComment(form);
+    const saveCommentRes = await HttpService.client.saveComment(form);
     this.findAndUpdateComment(saveCommentRes);
   }
 
   async handleSavePost(form: SavePost) {
-    const saveRes = await HttpService.wrappedClient.savePost(form);
+    const saveRes = await HttpService.client.savePost(form);
     this.findAndUpdatePost(saveRes);
   }
 
   async handleFeaturePost(form: FeaturePost) {
-    const featureRes = await HttpService.wrappedClient.featurePost(form);
+    const featureRes = await HttpService.client.featurePost(form);
     this.findAndUpdatePost(featureRes);
   }
 
   async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = await HttpService.wrappedClient.likeComment(form);
+    const voteRes = await HttpService.client.likeComment(form);
     this.findAndUpdateComment(voteRes);
   }
 
   async handlePostVote(form: CreatePostLike) {
-    const voteRes = await HttpService.wrappedClient.likePost(form);
+    const voteRes = await HttpService.client.likePost(form);
     this.findAndUpdatePost(voteRes);
   }
 
   async handleCommentReport(form: CreateCommentReport) {
-    const reportRes = await HttpService.wrappedClient.createCommentReport(form);
+    const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state == "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
-    const reportRes = await HttpService.wrappedClient.createPostReport(form);
+    const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state == "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handleLockPost(form: LockPost) {
-    const lockRes = await HttpService.wrappedClient.lockPost(form);
+    const lockRes = await HttpService.client.lockPost(form);
     this.findAndUpdatePost(lockRes);
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
-    const distinguishRes = await HttpService.wrappedClient.distinguishComment(
-      form
-    );
+    const distinguishRes = await HttpService.client.distinguishComment(form);
     this.findAndUpdateComment(distinguishRes);
   }
 
   async handleAddAdmin(form: AddAdmin) {
-    const addAdminRes = await HttpService.wrappedClient.addAdmin(form);
+    const addAdminRes = await HttpService.client.addAdmin(form);
 
     if (addAdminRes.state == "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
@@ -950,29 +921,27 @@ export class Home extends Component<any, HomeState> {
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    await HttpService.wrappedClient.transferCommunity(form);
+    await HttpService.client.transferCommunity(form);
     toast(i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await HttpService.wrappedClient.markCommentReplyAsRead(
-      form
-    );
+    const readRes = await HttpService.client.markCommentReplyAsRead(form);
     this.findAndUpdateCommentReply(readRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await HttpService.wrappedClient.markPersonMentionAsRead(form);
+    await HttpService.client.markPersonMentionAsRead(form);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
-    const banRes = await HttpService.wrappedClient.banFromCommunity(form);
+    const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
   }
 
   async handleBanPerson(form: BanPerson) {
-    const banRes = await HttpService.wrappedClient.banPerson(form);
+    const banRes = await HttpService.client.banPerson(form);
     this.updateBan(banRes);
   }
 

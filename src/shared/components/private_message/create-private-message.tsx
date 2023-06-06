@@ -8,11 +8,7 @@ import {
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import {
-  HttpService,
-  RequestState,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   getRecipientIdFromProps,
   isBrowser,
@@ -52,9 +48,7 @@ export class CreatePrivateMessage extends Component<
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        recipientRes: apiWrapperIso(
-          this.isoData.routeData[0] as GetPersonDetailsResponse
-        ),
+        recipientRes: this.isoData.routeData[0],
       };
     }
   }
@@ -71,7 +65,7 @@ export class CreatePrivateMessage extends Component<
     });
 
     this.setState({
-      recipientRes: await HttpService.wrappedClient.getPersonDetails({
+      recipientRes: await HttpService.client.getPersonDetails({
         person_id: this.state.recipientId,
         sort: "New",
         saved_only: false,
@@ -80,9 +74,11 @@ export class CreatePrivateMessage extends Component<
     });
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let person_id = Number(req.path.split("/").pop());
-    let form: GetPersonDetails = {
+  static fetchInitialData(
+    req: InitialFetchRequest
+  ): Promise<RequestState<any>>[] {
+    const person_id = Number(req.path.split("/").pop());
+    const form: GetPersonDetails = {
       person_id,
       sort: "New",
       saved_only: false,
@@ -144,7 +140,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   async handlePrivateMessageCreate(form: CreatePrivateMessageI) {
-    const res = await HttpService.wrappedClient.createPrivateMessage(form);
+    const res = await HttpService.client.createPrivateMessage(form);
 
     if (res.state == "success") {
       toast(i18n.t("message_sent"));

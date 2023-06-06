@@ -26,7 +26,6 @@ import {
   Search,
   SearchType,
   SortType,
-  UploadImageResponse,
 } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
@@ -817,12 +816,10 @@ interface PersonTribute {
 async function personSearch(text: string): Promise<PersonTribute[]> {
   const usersResponse = await fetchUsers(text);
 
-  return (
-    usersResponse?.users.map(pv => ({
-      key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
-      view: pv,
-    })) ?? []
-  );
+  return usersResponse.map(pv => ({
+    key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
+    view: pv,
+  }));
 }
 
 interface CommunityTribute {
@@ -833,12 +830,10 @@ interface CommunityTribute {
 async function communitySearch(text: string): Promise<CommunityTribute[]> {
   const communitiesResponse = await fetchCommunities(text);
 
-  return (
-    communitiesResponse?.communities.map(cv => ({
-      key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
-      view: cv,
-    })) ?? []
-  );
+  return communitiesResponse.map(cv => ({
+    key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
+    view: cv,
+  }));
 }
 
 export function getRecipientIdFromProps(props: any): number {
@@ -1280,12 +1275,16 @@ function fetchSearchResults(q: string, type_: SearchType) {
   return HttpService.client.search(form);
 }
 
-export function fetchCommunities(q: string) {
-  return fetchSearchResults(q, "Communities");
+export async function fetchCommunities(q: string) {
+  const res = await fetchSearchResults(q, "Communities");
+
+  return res.state === "success" ? res.data.communities : [];
 }
 
 export async function fetchUsers(q: string) {
-  return fetchSearchResults(q, "Users");
+  const res = await fetchSearchResults(q, "Users");
+
+  return res.state === "success" ? res.data.users : [];
 }
 
 export function communitySelectName(cv: CommunityView): string {
@@ -1437,10 +1436,6 @@ export function selectableLanguages(
         .filter(x => myLangs.includes(x.id));
     }
   }
-}
-
-export function uploadImage(image: File): Promise<UploadImageResponse> {
-  return HttpService.client.uploadImage({ image });
 }
 
 interface EmojiMartCategory {

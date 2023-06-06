@@ -897,9 +897,7 @@ export class Settings extends Component<any, SettingsState> {
     const searchPersonOptions: Choice[] = [];
 
     if (text.length > 0) {
-      searchPersonOptions.push(
-        ...(await fetchUsers(text)).users.map(personToChoice)
-      );
+      searchPersonOptions.push(...(await fetchUsers(text)).map(personToChoice));
     }
 
     this.setState({
@@ -915,7 +913,7 @@ export class Settings extends Component<any, SettingsState> {
 
     if (text.length > 0) {
       searchCommunityOptions.push(
-        ...(await fetchCommunities(text)).communities.map(communityToChoice)
+        ...(await fetchCommunities(text)).map(communityToChoice)
       );
     }
 
@@ -927,7 +925,7 @@ export class Settings extends Component<any, SettingsState> {
 
   async handleBlockPerson({ value }: Choice) {
     if (value !== "0") {
-      const res = await HttpService.wrappedClient.blockPerson({
+      const res = await HttpService.client.blockPerson({
         person_id: Number(value),
         block: true,
         auth: myAuthRequired(),
@@ -937,7 +935,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   async handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
-    const res = await HttpService.wrappedClient.blockPerson({
+    const res = await HttpService.client.blockPerson({
       person_id: i.recipientId,
       block: false,
       auth: myAuthRequired(),
@@ -947,7 +945,7 @@ export class Settings extends Component<any, SettingsState> {
 
   async handleBlockCommunity({ value }: Choice) {
     if (value !== "0") {
-      const res = await HttpService.wrappedClient.blockCommunity({
+      const res = await HttpService.client.blockCommunity({
         community_id: Number(value),
         block: true,
         auth: myAuthRequired(),
@@ -959,7 +957,7 @@ export class Settings extends Component<any, SettingsState> {
   async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
     const auth = myAuth();
     if (auth) {
-      const res = await HttpService.wrappedClient.blockCommunity({
+      const res = await HttpService.client.blockCommunity({
         community_id: i.communityId,
         block: false,
         auth: myAuthRequired(),
@@ -1137,7 +1135,7 @@ export class Settings extends Component<any, SettingsState> {
     event.preventDefault();
     i.setState({ saveRes: { state: "loading" } });
 
-    const saveRes = await HttpService.wrappedClient.saveUserSettings({
+    const saveRes = await HttpService.client.saveUserSettings({
       ...i.state.saveUserSettingsForm,
       auth: myAuthRequired(),
     });
@@ -1158,7 +1156,7 @@ export class Settings extends Component<any, SettingsState> {
 
     if (new_password && old_password && new_password_verify) {
       i.setState({ changePasswordRes: { state: "loading" } });
-      const changePasswordRes = await HttpService.wrappedClient.changePassword({
+      const changePasswordRes = await HttpService.client.changePassword({
         new_password,
         new_password_verify,
         old_password,
@@ -1186,7 +1184,7 @@ export class Settings extends Component<any, SettingsState> {
     const password = i.state.deleteAccountForm.password;
     if (password) {
       i.setState({ deleteAccountRes: { state: "loading" } });
-      const deleteAccountRes = await HttpService.wrappedClient.deleteAccount({
+      const deleteAccountRes = await HttpService.client.deleteAccount({
         password,
         auth: myAuthRequired(),
       });

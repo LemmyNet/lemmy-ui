@@ -31,7 +31,6 @@ import {
   setupTippy,
   toast,
   trendingFetchLimit,
-  uploadImage,
   validTitle,
   validURL,
   webArchiveUrl,
@@ -543,7 +542,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (url && validURL(url)) {
       this.setState({ metadataRes: { state: "loading" } });
       this.setState({
-        metadataRes: await HttpService.wrappedClient.getSiteMetadata({ url }),
+        metadataRes: await HttpService.client.getSiteMetadata({ url }),
       });
     }
   }
@@ -558,7 +557,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (q && q !== "") {
       this.setState({ suggestedPostsRes: { state: "loading" } });
       this.setState({
-        suggestedPostsRes: await HttpService.wrappedClient.search({
+        suggestedPostsRes: await HttpService.client.search({
           q,
           type_: "Posts",
           sort: "TopAll",
@@ -619,24 +618,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     i.setState({ imageLoading: true });
 
-    uploadImage(file)
-      .then(res => {
-        console.log("pictrs upload:");
-        console.log(res);
-        if (res.msg === "ok") {
-          i.state.form.url = res.url;
-          i.setState({ imageLoading: false });
-          pictrsDeleteToast(file.name, res.delete_url as string);
+    HttpService.client.uploadImage(file).then(res => {
+      console.log("pictrs upload:");
+      console.log(res);
+      if (res.state === "success") {
+        if (res.data.msg === "ok") {
+          i.state.form.url = res.data.url;
+          pictrsDeleteToast(file.name, res.data.delete_url as string);
         } else {
-          i.setState({ imageLoading: false });
           toast(JSON.stringify(res), "danger");
         }
-      })
-      .catch(error => {
-        i.setState({ imageLoading: false });
-        console.error(error);
-        toast(error, "danger");
-      });
+      } else if (res.state === "failed") {
+        console.error(res.msg);
+        toast(res.msg, "danger");
+      }
+
+      i.setState({ imageLoading: false });
+    });
   }
 
   handleCommunitySearch = debounce(async (text: string) => {
@@ -650,9 +648,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
 
     if (text.length > 0) {
-      newOptions.push(
-        ...(await fetchCommunities(text)).communities.map(communityToChoice)
-      );
+      newOptions.push(...(await fetchCommunities(text)).map(communityToChoice));
 
       this.setState({
         communitySearchOptions: newOptions,

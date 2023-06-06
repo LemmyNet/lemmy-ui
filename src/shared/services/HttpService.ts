@@ -32,7 +32,7 @@ export type RequestState<T> =
   | FailedRequestState
   | SuccessRequestState<T>;
 
-type WrappedLemmyHttp = {
+export type WrappedLemmyHttp = {
   [K in keyof LemmyHttp]: LemmyHttp[K] extends (...args: any[]) => any
     ? ReturnType<LemmyHttp[K]> extends Promise<infer U>
       ? (...args: Parameters<LemmyHttp[K]>) => Promise<RequestState<U>>
@@ -41,25 +41,6 @@ type WrappedLemmyHttp = {
         ) => Promise<RequestState<LemmyHttp[K]>>
     : LemmyHttp[K];
 };
-
-export async function apiWrapper<ResponseType>(
-  req: Promise<ResponseType>
-): Promise<RequestState<ResponseType>> {
-  try {
-    const res = await req;
-    return {
-      state: "success",
-      data: res,
-    };
-  } catch (error) {
-    console.error(`API error: ${error}`);
-    toast(i18n.t(error), "danger");
-    return {
-      state: "failed",
-      msg: error,
-    };
-  }
-}
 
 class WrappedLemmyHttpClient {
   #client: LemmyHttp;
@@ -91,41 +72,16 @@ class WrappedLemmyHttpClient {
   }
 }
 
-export function getWrappedClient(client: LemmyHttp) {
+export function wrapClient(client: LemmyHttp) {
   return new WrappedLemmyHttpClient(client) as unknown as WrappedLemmyHttp; // unfortunately, this verbose cast is necessary
-}
-
-/**
- * A Special type of apiWrapper, used only for the iso routes.
- *
- * Necessary because constructors can't be async
- */
-export function apiWrapperIso<ResponseType>(
-  res: ResponseType
-): RequestState<ResponseType> {
-  try {
-    return {
-      state: "success",
-      data: res,
-    };
-  } catch (error) {
-    console.error(`API error: ${error}`);
-    toast(i18n.t(error), "danger");
-    return {
-      state: "failed",
-      msg: error,
-    };
-  }
 }
 
 export class HttpService {
   static #_instance: HttpService;
-  #client: LemmyHttp;
-  #wrappedClient: WrappedLemmyHttp;
+  #client: WrappedLemmyHttp;
 
   private constructor() {
-    this.#client = new LemmyHttp(getHttpBase());
-    this.#wrappedClient = getWrappedClient(this.#client);
+    this.#client = wrapClient(new LemmyHttp(getHttpBase()));
   }
 
   static get #Instance() {
@@ -134,9 +90,5 @@ export class HttpService {
 
   public static get client() {
     return this.#Instance.#client;
-  }
-
-  public static get wrappedClient() {
-    return this.#Instance.#wrappedClient;
   }
 }

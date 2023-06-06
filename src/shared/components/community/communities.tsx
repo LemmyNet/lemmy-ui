@@ -9,11 +9,7 @@ import {
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import {
-  HttpService,
-  RequestState,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
   editCommunity,
@@ -69,9 +65,7 @@ export class Communities extends Component<any, CommunitiesState> {
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        listCommunitiesResponse: apiWrapperIso(
-          this.isoData.routeData[0] as ListCommunitiesResponse
-        ),
+        listCommunitiesResponse: this.isoData.routeData[0],
       };
     }
   }
@@ -290,7 +284,9 @@ export class Communities extends Component<any, CommunitiesState> {
     query: { listingType, page },
     client,
     auth,
-  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<
+    RequestState<any>
+  >[] {
     const listCommunitiesForm: ListCommunities = {
       type_: getListingTypeFromQuery(listingType),
       sort: "TopMonth",
@@ -314,7 +310,7 @@ export class Communities extends Component<any, CommunitiesState> {
     communityId: number;
     follow: boolean;
   }) {
-    const res = await HttpService.wrappedClient.followCommunity({
+    const res = await HttpService.client.followCommunity({
       community_id: data.communityId,
       follow: data.follow,
       auth: myAuthRequired(),
@@ -328,7 +324,7 @@ export class Communities extends Component<any, CommunitiesState> {
     const { listingType, page } = this.getCommunitiesQueryParams();
 
     this.setState({
-      listCommunitiesResponse: await HttpService.wrappedClient.listCommunities({
+      listCommunitiesResponse: await HttpService.client.listCommunities({
         type_: listingType,
         sort: "TopMonth",
         limit: communityLimit,

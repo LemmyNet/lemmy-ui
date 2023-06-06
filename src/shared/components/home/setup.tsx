@@ -176,7 +176,7 @@ export class Setup extends Component<any, State> {
         answer: cForm.answer,
       };
       i.setState({
-        registerRes: await HttpService.wrappedClient.register(form),
+        registerRes: await HttpService.client.register(form),
       });
 
       if (this.state.registerRes.state == "success") {
@@ -191,7 +191,7 @@ export class Setup extends Component<any, State> {
   }
 
   async handleCreateSite(form: CreateSite) {
-    const createRes = await HttpService.wrappedClient.createSite(form);
+    const createRes = await HttpService.client.createSite(form);
     if (createRes.state === "success") {
       this.context.router.history.replace("/");
     }

@@ -98,7 +98,7 @@ export class Signup extends Component<any, State> {
   async fetchCaptcha() {
     this.setState({ captchaRes: { state: "loading" } });
     this.setState({
-      captchaRes: await HttpService.wrappedClient.getCaptcha({}),
+      captchaRes: await HttpService.client.getCaptcha({}),
     });
 
     this.setState(s => {
@@ -437,7 +437,7 @@ export class Signup extends Component<any, State> {
     if (cForm.username && cForm.password && cForm.password_verify) {
       i.setState({ registerRes: { state: "loading" } });
 
-      const registerRes = await HttpService.wrappedClient.register({
+      const registerRes = await HttpService.client.register({
         username: cForm.username,
         password: cForm.password,
         password_verify: cForm.password_verify,

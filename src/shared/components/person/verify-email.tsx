@@ -35,7 +35,7 @@ export class VerifyEmail extends Component<any, State> {
     });
 
     this.setState({
-      verifyRes: await HttpService.wrappedClient.verifyEmail({
+      verifyRes: await HttpService.client.verifyEmail({
         token: this.props.match.params.token,
       }),
     });

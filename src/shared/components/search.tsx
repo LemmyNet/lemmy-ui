@@ -22,11 +22,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
-import {
-  HttpService,
-  RequestState,
-  apiWrapperIso,
-} from "../services/HttpService";
+import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -261,49 +257,39 @@ export class Search extends Component<any, SearchState> {
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
-      const communityRes = this.isoData.routeData[0] as
-        | GetCommunityResponse
-        | undefined;
-      const communitiesRes = this.isoData.routeData[1] as
-        | ListCommunitiesResponse
-        | undefined;
-      // This can be single or multiple communities given
-      if (communitiesRes) {
+      const [
+        communityRes,
+        communitiesRes,
+        creatorDetailsRes,
+        searchRes,
+        resolveObjectRes,
+      ] = this.isoData.routeData;
+
+      this.state = {
+        ...this.state,
+        communitiesRes,
+        communityRes,
+        creatorDetailsRes,
+        creatorSearchOptions:
+          creatorDetailsRes.state == "success"
+            ? [personToChoice(creatorDetailsRes.data.person_view)]
+            : [],
+      };
+
+      if (communityRes.state === "success") {
         this.state = {
           ...this.state,
-          communitiesRes: apiWrapperIso(communitiesRes),
-        };
-      }
-      if (communityRes) {
-        this.state = {
-          ...this.state,
-          communityRes: apiWrapperIso(communityRes),
           communitySearchOptions: [
-            communityToChoice(communityRes.community_view),
+            communityToChoice(communityRes.data.community_view),
           ],
         };
       }
 
-      const creatorRes = apiWrapperIso(
-        this.isoData.routeData[2] as GetPersonDetailsResponse
-      );
-
-      this.state = {
-        ...this.state,
-        creatorDetailsRes: creatorRes,
-        creatorSearchOptions:
-          creatorRes.state == "success"
-            ? [personToChoice(creatorRes.data.person_view)]
-            : [],
-      };
-
       if (q !== "") {
         this.state = {
           ...this.state,
-          searchRes: apiWrapperIso(this.isoData.routeData[3] as SearchResponse),
-          resolveObjectRes: apiWrapperIso(
-            this.isoData.routeData[4] as ResolveObjectResponse
-          ),
+          searchRes,
+          resolveObjectRes,
         };
       }
     }
@@ -321,7 +307,7 @@ export class Search extends Component<any, SearchState> {
   async fetchCommunities() {
     this.setState({ communitiesRes: { state: "loading" } });
     this.setState({
-      communitiesRes: await HttpService.wrappedClient.listCommunities({
+      communitiesRes: await HttpService.client.listCommunities({
         type_: defaultListingType,
         sort: defaultSortType,
         limit: fetchLimit,
@@ -338,8 +324,10 @@ export class Search extends Component<any, SearchState> {
     client,
     auth,
     query: { communityId, creatorId, q, type, sort, listingType, page },
-  }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<any>[] {
-    const promises: Promise<any>[] = [];
+  }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<
+    RequestState<any>
+  >[] {
+    const promises: Promise<RequestState<any>>[] = [];
 
     const community_id = getIdFromString(communityId);
     if (community_id) {
@@ -348,7 +336,7 @@ export class Search extends Component<any, SearchState> {
         auth,
       };
       promises.push(client.getCommunity(getCommunityForm));
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     } else {
       const listCommunitiesForm: ListCommunities = {
         type_: defaultListingType,
@@ -356,7 +344,7 @@ export class Search extends Component<any, SearchState> {
         limit: fetchLimit,
         auth,
       };
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
       promises.push(client.listCommunities(listCommunitiesForm));
     }
 
@@ -368,7 +356,7 @@ export class Search extends Component<any, SearchState> {
       };
       promises.push(client.getPersonDetails(getCreatorForm));
     } else {
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     }
 
     const query = getSearchQueryFromQuery(q);
@@ -396,8 +384,8 @@ export class Search extends Component<any, SearchState> {
           promises.push(client.resolveObject(resolveObjectForm));
         }
       } else {
-        promises.push(Promise.resolve());
-        promises.push(Promise.resolve());
+        promises.push(Promise.resolve({ state: "empty" }));
+        promises.push(Promise.resolve({ state: "empty" }));
       }
     }
 
@@ -876,7 +864,7 @@ export class Search extends Component<any, SearchState> {
     if (q && q !== "") {
       this.setState({ searchRes: { state: "loading" } });
       this.setState({
-        searchRes: await HttpService.wrappedClient.search({
+        searchRes: await HttpService.client.search({
           q,
           community_id: communityId ?? undefined,
           creator_id: creatorId ?? undefined,
@@ -894,7 +882,7 @@ export class Search extends Component<any, SearchState> {
       if (auth) {
         this.setState({ resolveObjectRes: { state: "loading" } });
         this.setState({
-          resolveObjectRes: await HttpService.wrappedClient.resolveObject({
+          resolveObjectRes: await HttpService.client.resolveObject({
             q,
             auth,
           }),
@@ -917,7 +905,7 @@ export class Search extends Component<any, SearchState> {
     }
 
     if (text.length > 0) {
-      newOptions.push(...(await fetchUsers(text)).users.map(personToChoice));
+      newOptions.push(...(await fetchUsers(text)).map(personToChoice));
     }
 
     this.setState({
@@ -944,9 +932,7 @@ export class Search extends Component<any, SearchState> {
     }
 
     if (text.length > 0) {
-      newOptions.push(
-        ...(await fetchCommunities(text)).communities.map(communityToChoice)
-      );
+      newOptions.push(...(await fetchCommunities(text)).map(communityToChoice));
     }
 
     this.setState({

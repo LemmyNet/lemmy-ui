@@ -49,11 +49,7 @@ import moment from "moment";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
   canMod,
@@ -208,9 +204,7 @@ export class Profile extends Component<
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        personRes: apiWrapperIso(
-          this.isoData.routeData[0] as GetPersonDetailsResponse
-        ),
+        personRes: this.isoData.routeData[0],
       };
     }
   }
@@ -231,7 +225,7 @@ export class Profile extends Component<
 
     this.setState({ personRes: { state: "empty" } });
     this.setState({
-      personRes: await HttpService.wrappedClient.getPersonDetails({
+      personRes: await HttpService.client.getPersonDetails({
         username: this.props.match.params.username,
         sort,
         saved_only: view === PersonDetailsView.Saved,
@@ -273,7 +267,9 @@ export class Profile extends Component<
     path,
     query: { page, sort, view: urlView },
     auth,
-  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<
+    RequestState<any>
+  >[] {
     const pathSplit = path.split("/");
 
     const username = pathSplit[2];
@@ -767,7 +763,7 @@ export class Profile extends Component<
         i.setState({ removeData: false });
       }
 
-      const res = await HttpService.wrappedClient.banPerson({
+      const res = await HttpService.client.banPerson({
         person_id: person.id,
         ban,
         remove_data: removeData,
@@ -782,7 +778,7 @@ export class Profile extends Component<
   }
 
   async toggleBlockPerson(recipientId: number, block: boolean) {
-    const res = await HttpService.wrappedClient.blockPerson({
+    const res = await HttpService.client.blockPerson({
       person_id: recipientId,
       block,
       auth: myAuthRequired(),
@@ -802,124 +798,116 @@ export class Profile extends Component<
 
   async handleAddModToCommunity(form: AddModToCommunity) {
     // TODO not sure what to do here
-    await HttpService.wrappedClient.addModToCommunity(form);
+    await HttpService.client.addModToCommunity(form);
   }
 
   async handlePurgePerson(form: PurgePerson) {
-    const purgePersonRes = await HttpService.wrappedClient.purgePerson(form);
+    const purgePersonRes = await HttpService.client.purgePerson(form);
     this.purgeItem(purgePersonRes);
   }
 
   async handlePurgeComment(form: PurgeComment) {
-    const purgeCommentRes = await HttpService.wrappedClient.purgeComment(form);
+    const purgeCommentRes = await HttpService.client.purgeComment(form);
     this.purgeItem(purgeCommentRes);
   }
 
   async handlePurgePost(form: PurgePost) {
-    const purgeRes = await HttpService.wrappedClient.purgePost(form);
+    const purgeRes = await HttpService.client.purgePost(form);
     this.purgeItem(purgeRes);
   }
 
   async handleBlockPersonAlt(form: BlockPerson) {
-    const blockPersonRes = await HttpService.wrappedClient.blockPerson(form);
+    const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
 
   async handleCreateComment(form: CreateComment) {
-    const createCommentRes = await HttpService.wrappedClient.createComment(
-      form
-    );
+    const createCommentRes = await HttpService.client.createComment(form);
     this.createAndUpdateComments(createCommentRes);
 
     return createCommentRes;
   }
 
   async handleEditComment(form: EditComment) {
-    const editCommentRes = await HttpService.wrappedClient.editComment(form);
+    const editCommentRes = await HttpService.client.editComment(form);
     this.findAndUpdateComment(editCommentRes);
 
     return editCommentRes;
   }
 
   async handleDeleteComment(form: DeleteComment) {
-    const deleteCommentRes = await HttpService.wrappedClient.deleteComment(
-      form
-    );
+    const deleteCommentRes = await HttpService.client.deleteComment(form);
     this.findAndUpdateComment(deleteCommentRes);
   }
 
   async handleDeletePost(form: DeletePost) {
-    const deleteRes = await HttpService.wrappedClient.deletePost(form);
+    const deleteRes = await HttpService.client.deletePost(form);
     this.findAndUpdatePost(deleteRes);
   }
 
   async handleRemovePost(form: RemovePost) {
-    const removeRes = await HttpService.wrappedClient.removePost(form);
+    const removeRes = await HttpService.client.removePost(form);
     this.findAndUpdatePost(removeRes);
   }
 
   async handleRemoveComment(form: RemoveComment) {
-    const removeCommentRes = await HttpService.wrappedClient.removeComment(
-      form
-    );
+    const removeCommentRes = await HttpService.client.removeComment(form);
     this.findAndUpdateComment(removeCommentRes);
   }
 
   async handleSaveComment(form: SaveComment) {
-    const saveCommentRes = await HttpService.wrappedClient.saveComment(form);
+    const saveCommentRes = await HttpService.client.saveComment(form);
     this.findAndUpdateComment(saveCommentRes);
   }
 
   async handleSavePost(form: SavePost) {
-    const saveRes = await HttpService.wrappedClient.savePost(form);
+    const saveRes = await HttpService.client.savePost(form);
     this.findAndUpdatePost(saveRes);
   }
 
   async handleFeaturePost(form: FeaturePost) {
-    const featureRes = await HttpService.wrappedClient.featurePost(form);
+    const featureRes = await HttpService.client.featurePost(form);
     this.findAndUpdatePost(featureRes);
   }
 
   async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = await HttpService.wrappedClient.likeComment(form);
+    const voteRes = await HttpService.client.likeComment(form);
     this.findAndUpdateComment(voteRes);
   }
 
   async handlePostVote(form: CreatePostLike) {
-    const voteRes = await HttpService.wrappedClient.likePost(form);
+    const voteRes = await HttpService.client.likePost(form);
     this.findAndUpdatePost(voteRes);
   }
 
   async handleCommentReport(form: CreateCommentReport) {
-    const reportRes = await HttpService.wrappedClient.createCommentReport(form);
+    const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state === "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
-    const reportRes = await HttpService.wrappedClient.createPostReport(form);
+    const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state === "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handleLockPost(form: LockPost) {
-    const lockRes = await HttpService.wrappedClient.lockPost(form);
+    const lockRes = await HttpService.client.lockPost(form);
     this.findAndUpdatePost(lockRes);
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
-    const distinguishRes = await HttpService.wrappedClient.distinguishComment(
-      form
-    );
+    const distinguishRes = await HttpService.client.distinguishComment(form);
     this.findAndUpdateComment(distinguishRes);
   }
 
   async handleAddAdmin(form: AddAdmin) {
-    const addAdminRes = await HttpService.wrappedClient.addAdmin(form);
+    const addAdminRes = await HttpService.client.addAdmin(form);
 
     if (addAdminRes.state == "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
@@ -927,29 +915,27 @@ export class Profile extends Component<
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    await HttpService.wrappedClient.transferCommunity(form);
+    await HttpService.client.transferCommunity(form);
     toast(i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await HttpService.wrappedClient.markCommentReplyAsRead(
-      form
-    );
+    const readRes = await HttpService.client.markCommentReplyAsRead(form);
     this.findAndUpdateCommentReply(readRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await HttpService.wrappedClient.markPersonMentionAsRead(form);
+    await HttpService.client.markPersonMentionAsRead(form);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
-    const banRes = await HttpService.wrappedClient.banFromCommunity(form);
+    const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
   }
 
   async handleBanPerson(form: BanPerson) {
-    const banRes = await HttpService.wrappedClient.banPerson(form);
+    const banRes = await HttpService.client.banPerson(form);
     this.updateBan(banRes);
   }
 
