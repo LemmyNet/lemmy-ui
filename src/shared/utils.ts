@@ -12,8 +12,10 @@ import {
   CommunityModeratorView,
   CommunityView,
   CustomEmojiView,
+  GetSiteMetadata,
   GetSiteResponse,
   Language,
+  LemmyHttp,
   MyUserInfo,
   Person,
   PersonMentionView,
@@ -39,6 +41,7 @@ import Token from "markdown-it/lib/token";
 import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
+import { getHttpBase } from "./env";
 import { i18n, languages } from "./i18next";
 import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
 import { HttpService, UserService } from "./services";
