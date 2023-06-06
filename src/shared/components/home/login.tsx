@@ -2,11 +2,7 @@ import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import { isBrowser, setIsoData, toast, validEmail } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -164,14 +160,11 @@ export class Login extends Component<any, State> {
     if (username_or_email && password) {
       i.setState({ loginRes: { state: "loading" } });
 
-      const loginRes = await apiWrapper(
-        HttpService.client.login({
-          username_or_email,
-          password,
-          totp_2fa_token,
-        })
-      );
-
+      const loginRes = await HttpService.wrappedClient.login({
+        username_or_email,
+        password,
+        totp_2fa_token,
+      });
       switch (loginRes.state) {
         case "failed": {
           if (loginRes.msg === "missing_totp_token") {
@@ -212,7 +205,7 @@ export class Login extends Component<any, State> {
     event.preventDefault();
     let email = i.state.form.username_or_email;
     if (email) {
-      const res = await apiWrapper(HttpService.client.passwordReset({ email }));
+      const res = await HttpService.wrappedClient.passwordReset({ email });
       if (res.state == "success") {
         toast(i18n.t("reset_password_mail_sent"));
       }

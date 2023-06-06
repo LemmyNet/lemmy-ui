@@ -54,7 +54,6 @@ import {
 } from "../../interfaces";
 import { UserService } from "../../services";
 import {
-  apiWrapper,
   apiWrapperIso,
   HttpService,
   RequestState,
@@ -745,14 +744,12 @@ export class Home extends Component<any, HomeState> {
   async fetchTrendingCommunities() {
     this.setState({ trendingCommunitiesRes: { state: "loading" } });
     this.setState({
-      trendingCommunitiesRes: await apiWrapper(
-        HttpService.client.listCommunities({
-          type_: "Local",
-          sort: "Hot",
-          limit: trendingFetchLimit,
-          auth: myAuth(),
-        })
-      ),
+      trendingCommunitiesRes: await HttpService.wrappedClient.listCommunities({
+        type_: "Local",
+        sort: "Hot",
+        limit: trendingFetchLimit,
+        auth: myAuth(),
+      }),
     });
   }
 
@@ -763,30 +760,26 @@ export class Home extends Component<any, HomeState> {
     if (dataType === DataType.Post) {
       this.setState({ postsRes: { state: "loading" } });
       this.setState({
-        postsRes: await apiWrapper(
-          HttpService.client.getPosts({
-            page,
-            limit: fetchLimit,
-            sort,
-            saved_only: false,
-            type_: listingType,
-            auth,
-          })
-        ),
+        postsRes: await HttpService.wrappedClient.getPosts({
+          page,
+          limit: fetchLimit,
+          sort,
+          saved_only: false,
+          type_: listingType,
+          auth,
+        }),
       });
     } else {
       this.setState({ commentsRes: { state: "loading" } });
       this.setState({
-        commentsRes: await apiWrapper(
-          HttpService.client.getComments({
-            page,
-            limit: fetchLimit,
-            sort: postToCommentSortType(sort),
-            saved_only: false,
-            type_: listingType,
-            auth,
-          })
-        ),
+        commentsRes: await HttpService.wrappedClient.getComments({
+          page,
+          limit: fetchLimit,
+          sort: postToCommentSortType(sort),
+          saved_only: false,
+          type_: listingType,
+          auth,
+        }),
       });
     }
 
@@ -832,143 +825,124 @@ export class Home extends Component<any, HomeState> {
 
   async handleAddModToCommunity(form: AddModToCommunity) {
     // TODO not sure what to do here
-    await apiWrapper(HttpService.client.addModToCommunity(form));
+    await HttpService.wrappedClient.addModToCommunity(form);
   }
 
   async handlePurgePerson(form: PurgePerson) {
-    const purgePersonRes = await apiWrapper(
-      HttpService.client.purgePerson(form)
-    );
+    const purgePersonRes = await HttpService.wrappedClient.purgePerson(form);
     this.purgeItem(purgePersonRes);
   }
 
   async handlePurgeComment(form: PurgeComment) {
-    const purgeCommentRes = await apiWrapper(
-      HttpService.client.purgeComment(form)
-    );
+    const purgeCommentRes = await HttpService.wrappedClient.purgeComment(form);
     this.purgeItem(purgeCommentRes);
   }
 
   async handlePurgePost(form: PurgePost) {
-    const purgeRes = await apiWrapper(HttpService.client.purgePost(form));
+    const purgeRes = await HttpService.wrappedClient.purgePost(form);
     this.purgeItem(purgeRes);
   }
 
   async handleBlockPerson(form: BlockPerson) {
-    const blockPersonRes = await apiWrapper(
-      HttpService.client.blockPerson(form)
-    );
-
+    const blockPersonRes = await HttpService.wrappedClient.blockPerson(form);
     if (blockPersonRes.state == "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
 
   async handleCreateComment(form: CreateComment) {
-    const createCommentRes = await apiWrapper(
-      HttpService.client.createComment(form)
+    const createCommentRes = await HttpService.wrappedClient.createComment(
+      form
     );
-
     this.createAndUpdateComments(createCommentRes);
 
     return createCommentRes;
   }
 
   async handleEditComment(form: EditComment) {
-    const editCommentRes = await apiWrapper(
-      HttpService.client.editComment(form)
-    );
-
+    const editCommentRes = await HttpService.wrappedClient.editComment(form);
     this.findAndUpdateComment(editCommentRes);
 
     return editCommentRes;
   }
 
   async handleDeleteComment(form: DeleteComment) {
-    const deleteCommentRes = await apiWrapper(
-      HttpService.client.deleteComment(form)
+    const deleteCommentRes = await HttpService.wrappedClient.deleteComment(
+      form
     );
-
     this.findAndUpdateComment(deleteCommentRes);
   }
 
   async handleDeletePost(form: DeletePost) {
-    const deleteRes = await apiWrapper(HttpService.client.deletePost(form));
+    const deleteRes = await HttpService.wrappedClient.deletePost(form);
     this.findAndUpdatePost(deleteRes);
   }
 
   async handleRemovePost(form: RemovePost) {
-    const removeRes = await apiWrapper(HttpService.client.removePost(form));
+    const removeRes = await HttpService.wrappedClient.removePost(form);
     this.findAndUpdatePost(removeRes);
   }
 
   async handleRemoveComment(form: RemoveComment) {
-    const removeCommentRes = await apiWrapper(
-      HttpService.client.removeComment(form)
+    const removeCommentRes = await HttpService.wrappedClient.removeComment(
+      form
     );
-
     this.findAndUpdateComment(removeCommentRes);
   }
 
   async handleSaveComment(form: SaveComment) {
-    const saveCommentRes = await apiWrapper(
-      HttpService.client.saveComment(form)
-    );
+    const saveCommentRes = await HttpService.wrappedClient.saveComment(form);
     this.findAndUpdateComment(saveCommentRes);
   }
 
   async handleSavePost(form: SavePost) {
-    const saveRes = await apiWrapper(HttpService.client.savePost(form));
+    const saveRes = await HttpService.wrappedClient.savePost(form);
     this.findAndUpdatePost(saveRes);
   }
 
   async handleFeaturePost(form: FeaturePost) {
-    const featureRes = await apiWrapper(HttpService.client.featurePost(form));
+    const featureRes = await HttpService.wrappedClient.featurePost(form);
     this.findAndUpdatePost(featureRes);
   }
 
   async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = await apiWrapper(HttpService.client.likeComment(form));
+    const voteRes = await HttpService.wrappedClient.likeComment(form);
     this.findAndUpdateComment(voteRes);
   }
 
   async handlePostVote(form: CreatePostLike) {
-    const voteRes = await apiWrapper(HttpService.client.likePost(form));
+    const voteRes = await HttpService.wrappedClient.likePost(form);
     this.findAndUpdatePost(voteRes);
   }
 
   async handleCommentReport(form: CreateCommentReport) {
-    const reportRes = await apiWrapper(
-      HttpService.client.createCommentReport(form)
-    );
+    const reportRes = await HttpService.wrappedClient.createCommentReport(form);
     if (reportRes.state == "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
-    const reportRes = await apiWrapper(
-      HttpService.client.createPostReport(form)
-    );
+    const reportRes = await HttpService.wrappedClient.createPostReport(form);
     if (reportRes.state == "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handleLockPost(form: LockPost) {
-    const lockRes = await apiWrapper(HttpService.client.lockPost(form));
+    const lockRes = await HttpService.wrappedClient.lockPost(form);
     this.findAndUpdatePost(lockRes);
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
-    const distinguishRes = await apiWrapper(
-      HttpService.client.distinguishComment(form)
+    const distinguishRes = await HttpService.wrappedClient.distinguishComment(
+      form
     );
     this.findAndUpdateComment(distinguishRes);
   }
 
   async handleAddAdmin(form: AddAdmin) {
-    const addAdminRes = await apiWrapper(HttpService.client.addAdmin(form));
+    const addAdminRes = await HttpService.wrappedClient.addAdmin(form);
 
     if (addAdminRes.state == "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
@@ -976,29 +950,29 @@ export class Home extends Component<any, HomeState> {
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    await apiWrapper(HttpService.client.transferCommunity(form));
+    await HttpService.wrappedClient.transferCommunity(form);
     toast(i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await apiWrapper(
-      HttpService.client.markCommentReplyAsRead(form)
+    const readRes = await HttpService.wrappedClient.markCommentReplyAsRead(
+      form
     );
     this.findAndUpdateCommentReply(readRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await apiWrapper(HttpService.client.markPersonMentionAsRead(form));
+    await HttpService.wrappedClient.markPersonMentionAsRead(form);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
-    const banRes = await apiWrapper(HttpService.client.banFromCommunity(form));
+    const banRes = await HttpService.wrappedClient.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
   }
 
   async handleBanPerson(form: BanPerson) {
-    const banRes = await apiWrapper(HttpService.client.banPerson(form));
+    const banRes = await HttpService.wrappedClient.banPerson(form);
     this.updateBan(banRes);
   }
 

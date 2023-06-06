@@ -7,11 +7,7 @@ import {
   wsUserOp,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import { setIsoData, toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -39,11 +35,9 @@ export class VerifyEmail extends Component<any, State> {
     });
 
     this.setState({
-      verifyRes: await apiWrapper(
-        HttpService.client.verifyEmail({
-          token: this.props.match.params.token,
-        })
-      ),
+      verifyRes: await HttpService.wrappedClient.verifyEmail({
+        token: this.props.match.params.token,
+      }),
     });
 
     if (this.state.verifyRes.state == "success") {

@@ -32,6 +32,16 @@ export type RequestState<T> =
   | FailedRequestState
   | SuccessRequestState<T>;
 
+type WrappedLemmyHttp = {
+  [K in keyof LemmyHttp]: LemmyHttp[K] extends (...args: any[]) => any
+    ? ReturnType<LemmyHttp[K]> extends Promise<infer U>
+      ? (...args: Parameters<LemmyHttp[K]>) => Promise<RequestState<U>>
+      : (
+          ...args: Parameters<LemmyHttp[K]>
+        ) => Promise<RequestState<LemmyHttp[K]>>
+    : LemmyHttp[K];
+};
+
 export async function apiWrapper<ResponseType>(
   req: Promise<ResponseType>
 ): Promise<RequestState<ResponseType>> {
@@ -49,6 +59,40 @@ export async function apiWrapper<ResponseType>(
       msg: error,
     };
   }
+}
+
+class WrappedLemmyHttpClient {
+  #client: LemmyHttp;
+
+  constructor(client: LemmyHttp) {
+    this.#client = client;
+
+    for (const key of Object.getOwnPropertyNames(
+      Object.getPrototypeOf(this.#client)
+    )) {
+      WrappedLemmyHttpClient.prototype[key] = async (...args) => {
+        try {
+          const res = await this.#client[key](...args);
+
+          return {
+            data: res,
+            state: "success",
+          };
+        } catch (error) {
+          console.error(`API error: ${error}`);
+          toast(i18n.t(error), "danger");
+          return {
+            state: "failed",
+            msg: error,
+          };
+        }
+      };
+    }
+  }
+}
+
+export function getWrappedClient(client: LemmyHttp) {
+  return new WrappedLemmyHttpClient(client) as unknown as WrappedLemmyHttp; // unfortunately, this verbose cast is necessary
 }
 
 /**
@@ -75,18 +119,24 @@ export function apiWrapperIso<ResponseType>(
 }
 
 export class HttpService {
-  private static _instance: HttpService;
-  private client: LemmyHttp;
+  static #_instance: HttpService;
+  #client: LemmyHttp;
+  #wrappedClient: WrappedLemmyHttp;
 
   private constructor() {
-    this.client = new LemmyHttp(getHttpBase());
+    this.#client = new LemmyHttp(getHttpBase());
+    this.#wrappedClient = getWrappedClient(this.#client);
   }
 
-  private static get Instance() {
-    return this._instance || (this._instance = new this());
+  static get #Instance() {
+    return this.#_instance ?? (this.#_instance = new this());
   }
 
   public static get client() {
-    return this.Instance.client;
+    return this.#Instance.#client;
+  }
+
+  public static get wrappedClient() {
+    return this.#Instance.#wrappedClient;
   }
 }

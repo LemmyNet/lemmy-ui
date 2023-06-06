@@ -13,11 +13,7 @@ import {
 } from "lemmy-js-client";
 import { i18n, languages } from "../../i18next";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   Choice,
   capitalizeFirstLetter,
@@ -931,38 +927,31 @@ export class Settings extends Component<any, SettingsState> {
 
   async handleBlockPerson({ value }: Choice) {
     if (value !== "0") {
-      const res = await apiWrapper(
-        HttpService.client.blockPerson({
-          person_id: Number(value),
-          block: true,
-          auth: myAuthRequired(),
-        })
-      );
-
+      const res = await HttpService.wrappedClient.blockPerson({
+        person_id: Number(value),
+        block: true,
+        auth: myAuthRequired(),
+      });
       this.personBlock(res);
     }
   }
 
   async handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
-    const res = await apiWrapper(
-      HttpService.client.blockPerson({
-        person_id: i.recipientId,
-        block: false,
-        auth: myAuthRequired(),
-      })
-    );
+    const res = await HttpService.wrappedClient.blockPerson({
+      person_id: i.recipientId,
+      block: false,
+      auth: myAuthRequired(),
+    });
     i.ctx.personBlock(res);
   }
 
   async handleBlockCommunity({ value }: Choice) {
     if (value !== "0") {
-      const res = await apiWrapper(
-        HttpService.client.blockCommunity({
-          community_id: Number(value),
-          block: true,
-          auth: myAuthRequired(),
-        })
-      );
+      const res = await HttpService.wrappedClient.blockCommunity({
+        community_id: Number(value),
+        block: true,
+        auth: myAuthRequired(),
+      });
       this.communityBlock(res);
     }
   }
@@ -970,13 +959,11 @@ export class Settings extends Component<any, SettingsState> {
   async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
     const auth = myAuth();
     if (auth) {
-      const res = await apiWrapper(
-        HttpService.client.blockCommunity({
-          community_id: i.communityId,
-          block: false,
-          auth: myAuthRequired(),
-        })
-      );
+      const res = await HttpService.wrappedClient.blockCommunity({
+        community_id: i.communityId,
+        block: false,
+        auth: myAuthRequired(),
+      });
       i.ctx.communityBlock(res);
     }
   }
@@ -1150,13 +1137,10 @@ export class Settings extends Component<any, SettingsState> {
     event.preventDefault();
     i.setState({ saveRes: { state: "loading" } });
 
-    const saveRes = await apiWrapper(
-      HttpService.client.saveUserSettings({
-        ...i.state.saveUserSettingsForm,
-        auth: myAuthRequired(),
-      })
-    );
-
+    const saveRes = await HttpService.wrappedClient.saveUserSettings({
+      ...i.state.saveUserSettingsForm,
+      auth: myAuthRequired(),
+    });
     if (saveRes.state === "success") {
       UserService.Instance.login(saveRes.data);
       location.reload();
@@ -1174,15 +1158,12 @@ export class Settings extends Component<any, SettingsState> {
 
     if (new_password && old_password && new_password_verify) {
       i.setState({ changePasswordRes: { state: "loading" } });
-      const changePasswordRes = await apiWrapper(
-        HttpService.client.changePassword({
-          new_password,
-          new_password_verify,
-          old_password,
-          auth: myAuthRequired(),
-        })
-      );
-
+      const changePasswordRes = await HttpService.wrappedClient.changePassword({
+        new_password,
+        new_password_verify,
+        old_password,
+        auth: myAuthRequired(),
+      });
       if (changePasswordRes.state === "success") {
         UserService.Instance.login(changePasswordRes.data);
         window.scrollTo(0, 0);
@@ -1205,13 +1186,10 @@ export class Settings extends Component<any, SettingsState> {
     const password = i.state.deleteAccountForm.password;
     if (password) {
       i.setState({ deleteAccountRes: { state: "loading" } });
-      const deleteAccountRes = await apiWrapper(
-        HttpService.client.deleteAccount({
-          password,
-          auth: myAuthRequired(),
-        })
-      );
-
+      const deleteAccountRes = await HttpService.wrappedClient.deleteAccount({
+        password,
+        auth: myAuthRequired(),
+      });
       if (deleteAccountRes.state === "success") {
         UserService.Instance.logout();
         this.context.router.history.replace("/");

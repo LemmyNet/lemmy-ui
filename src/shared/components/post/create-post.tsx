@@ -8,7 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
-import { HttpService, apiWrapper } from "../../services/HttpService";
+import { HttpService } from "../../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -87,13 +87,10 @@ export class CreatePost extends Component<
     const auth = myAuth();
 
     if (communityId) {
-      const res = await apiWrapper(
-        HttpService.client.getCommunity({
-          id: communityId,
-          auth,
-        })
-      );
-
+      const res = await HttpService.wrappedClient.getCommunity({
+        id: communityId,
+        auth,
+      });
       if (res.state == "success") {
         this.setState({
           selectedCommunityChoice: {
@@ -197,7 +194,7 @@ export class CreatePost extends Component<
   }
 
   async handlePostCreate(form: CreatePostI) {
-    const res = await apiWrapper(HttpService.client.createPost(form));
+    const res = await HttpService.wrappedClient.createPost(form);
 
     if (res.state === "success") {
       const postId = res.data.post_view.post.id;

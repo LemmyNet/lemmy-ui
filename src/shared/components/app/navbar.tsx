@@ -8,11 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   amAdmin,
   canCreateCommunity,
@@ -421,28 +417,29 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (auth) {
       this.setState({ unreadInboxCountRes: { state: "loading" } });
       this.setState({
-        unreadInboxCountRes: await apiWrapper(
-          HttpService.client.getUnreadCount({ auth })
-        ),
+        unreadInboxCountRes: await HttpService.wrappedClient.getUnreadCount({
+          auth,
+        }),
       });
 
       if (this.moderatesSomething) {
         this.setState({ unreadReportCountRes: { state: "loading" } });
         this.setState({
-          unreadReportCountRes: await apiWrapper(
-            HttpService.client.getReportCount({ auth })
-          ),
+          unreadReportCountRes: await HttpService.wrappedClient.getReportCount({
+            auth,
+          }),
         });
       }
 
       if (amAdmin()) {
         this.setState({ unreadApplicationCountRes: { state: "loading" } });
         this.setState({
-          unreadApplicationCountRes: await apiWrapper(
-            HttpService.client.getUnreadRegistrationApplicationCount({
-              auth,
-            })
-          ),
+          unreadApplicationCountRes:
+            await HttpService.wrappedClient.getUnreadRegistrationApplicationCount(
+              {
+                auth,
+              }
+            ),
         });
       }
     }

@@ -25,7 +25,6 @@ import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import {
   HttpService,
   RequestState,
-  apiWrapper,
   apiWrapperIso,
 } from "../services/HttpService";
 import {
@@ -322,14 +321,12 @@ export class Search extends Component<any, SearchState> {
   async fetchCommunities() {
     this.setState({ communitiesRes: { state: "loading" } });
     this.setState({
-      communitiesRes: await apiWrapper(
-        HttpService.client.listCommunities({
-          type_: defaultListingType,
-          sort: defaultSortType,
-          limit: fetchLimit,
-          auth: myAuth(),
-        })
-      ),
+      communitiesRes: await HttpService.wrappedClient.listCommunities({
+        type_: defaultListingType,
+        sort: defaultSortType,
+        limit: fetchLimit,
+        auth: myAuth(),
+      }),
     });
   }
 
@@ -879,19 +876,17 @@ export class Search extends Component<any, SearchState> {
     if (q && q !== "") {
       this.setState({ searchRes: { state: "loading" } });
       this.setState({
-        searchRes: await apiWrapper(
-          HttpService.client.search({
-            q,
-            community_id: communityId ?? undefined,
-            creator_id: creatorId ?? undefined,
-            type_: type,
-            sort,
-            listing_type: listingType,
-            page,
-            limit: fetchLimit,
-            auth,
-          })
-        ),
+        searchRes: await HttpService.wrappedClient.search({
+          q,
+          community_id: communityId ?? undefined,
+          creator_id: creatorId ?? undefined,
+          type_: type,
+          sort,
+          listing_type: listingType,
+          page,
+          limit: fetchLimit,
+          auth,
+        }),
       });
       window.scrollTo(0, 0);
       restoreScrollPosition(this.context);
@@ -899,12 +894,10 @@ export class Search extends Component<any, SearchState> {
       if (auth) {
         this.setState({ resolveObjectRes: { state: "loading" } });
         this.setState({
-          resolveObjectRes: await apiWrapper(
-            HttpService.client.resolveObject({
-              q,
-              auth,
-            })
-          ),
+          resolveObjectRes: await HttpService.wrappedClient.resolveObject({
+            q,
+            auth,
+          }),
         });
       }
     }

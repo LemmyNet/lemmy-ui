@@ -11,7 +11,6 @@ import { InitialFetchRequest } from "../../interfaces";
 import {
   HttpService,
   RequestState,
-  apiWrapper,
   apiWrapperIso,
 } from "../../services/HttpService";
 import {
@@ -72,14 +71,12 @@ export class CreatePrivateMessage extends Component<
     });
 
     this.setState({
-      recipientRes: await apiWrapper(
-        HttpService.client.getPersonDetails({
-          person_id: this.state.recipientId,
-          sort: "New",
-          saved_only: false,
-          auth: myAuth(),
-        })
-      ),
+      recipientRes: await HttpService.wrappedClient.getPersonDetails({
+        person_id: this.state.recipientId,
+        sort: "New",
+        saved_only: false,
+        auth: myAuth(),
+      }),
     });
   }
 
@@ -147,7 +144,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   async handlePrivateMessageCreate(form: CreatePrivateMessageI) {
-    const res = await apiWrapper(HttpService.client.createPrivateMessage(form));
+    const res = await HttpService.wrappedClient.createPrivateMessage(form);
 
     if (res.state == "success") {
       toast(i18n.t("message_sent"));

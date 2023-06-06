@@ -12,7 +12,6 @@ import { UserService } from "../../services";
 import {
   HttpService,
   RequestState,
-  apiWrapper,
   apiWrapperIso,
 } from "../../services/HttpService";
 import {
@@ -211,22 +210,18 @@ export class RegistrationApplications extends Component<
       appsRes: { state: "loading" },
     });
     this.setState({
-      appsRes: await apiWrapper(
-        HttpService.client.listRegistrationApplications({
-          unread_only: unread_only,
-          page: this.state.page,
-          limit: fetchLimit,
-          auth: myAuthRequired(),
-        })
-      ),
+      appsRes: await HttpService.wrappedClient.listRegistrationApplications({
+        unread_only: unread_only,
+        page: this.state.page,
+        limit: fetchLimit,
+        auth: myAuthRequired(),
+      }),
     });
   }
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {
-    const approveRes = await apiWrapper(
-      HttpService.client.approveRegistrationApplication(form)
-    );
-
+    const approveRes =
+      await HttpService.wrappedClient.approveRegistrationApplication(form);
     this.setState(s => {
       if (s.appsRes.state == "success" && approveRes.state == "success") {
         s.appsRes.data.registration_applications = editRegistrationApplication(

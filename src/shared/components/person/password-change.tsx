@@ -2,7 +2,7 @@ import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { HttpService, UserService } from "../../services";
-import { RequestState, apiWrapper } from "../../services/HttpService";
+import { RequestState } from "../../services/HttpService";
 import { capitalizeFirstLetter, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -124,13 +124,12 @@ export class PasswordChange extends Component<any, State> {
 
     if (password && password_verify) {
       i.setState({
-        passwordChangeRes: await apiWrapper(
-          HttpService.client.passwordChangeAfterReset({
+        passwordChangeRes:
+          await HttpService.wrappedClient.passwordChangeAfterReset({
             token: i.state.form.token,
             password,
             password_verify,
-          })
-        ),
+          }),
       });
 
       if (i.state.passwordChangeRes.state == "success") {

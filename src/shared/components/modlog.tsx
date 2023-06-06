@@ -33,7 +33,6 @@ import { InitialFetchRequest } from "../interfaces";
 import {
   HttpService,
   RequestState,
-  apiWrapper,
   apiWrapperIso,
 } from "../services/HttpService";
 import {
@@ -951,31 +950,27 @@ export class Modlog extends Component<
 
     this.setState({ res: { state: "loading" } });
     this.setState({
-      res: await apiWrapper(
-        HttpService.client.getModlog({
-          community_id: communityId,
-          page,
-          limit: fetchLimit,
-          type_: actionType,
-          other_person_id: userId ?? undefined,
-          mod_person_id: !this.isoData.site_res.site_view.local_site
-            .hide_modlog_mod_names
-            ? modId ?? undefined
-            : undefined,
-          auth,
-        })
-      ),
+      res: await HttpService.wrappedClient.getModlog({
+        community_id: communityId,
+        page,
+        limit: fetchLimit,
+        type_: actionType,
+        other_person_id: userId ?? undefined,
+        mod_person_id: !this.isoData.site_res.site_view.local_site
+          .hide_modlog_mod_names
+          ? modId ?? undefined
+          : undefined,
+        auth,
+      }),
     });
 
     if (communityId) {
       this.setState({ communityRes: { state: "loading" } });
       this.setState({
-        communityRes: await apiWrapper(
-          HttpService.client.getCommunity({
-            id: communityId,
-            auth,
-          })
-        ),
+        communityRes: await HttpService.wrappedClient.getCommunity({
+          id: communityId,
+          auth,
+        }),
       });
     }
   }

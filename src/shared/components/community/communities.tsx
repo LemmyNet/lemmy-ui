@@ -12,7 +12,6 @@ import { InitialFetchRequest } from "../../interfaces";
 import {
   HttpService,
   RequestState,
-  apiWrapper,
   apiWrapperIso,
 } from "../../services/HttpService";
 import {
@@ -315,14 +314,11 @@ export class Communities extends Component<any, CommunitiesState> {
     communityId: number;
     follow: boolean;
   }) {
-    const res = await apiWrapper(
-      HttpService.client.followCommunity({
-        community_id: data.communityId,
-        follow: data.follow,
-        auth: myAuthRequired(),
-      })
-    );
-
+    const res = await HttpService.wrappedClient.followCommunity({
+      community_id: data.communityId,
+      follow: data.follow,
+      auth: myAuthRequired(),
+    });
     data.i.findAndUpdateCommunity(res);
   }
 
@@ -332,15 +328,13 @@ export class Communities extends Component<any, CommunitiesState> {
     const { listingType, page } = this.getCommunitiesQueryParams();
 
     this.setState({
-      listCommunitiesResponse: await apiWrapper(
-        HttpService.client.listCommunities({
-          type_: listingType,
-          sort: "TopMonth",
-          limit: communityLimit,
-          page,
-          auth: myAuth(),
-        })
-      ),
+      listCommunitiesResponse: await HttpService.wrappedClient.listCommunities({
+        type_: listingType,
+        sort: "TopMonth",
+        limit: communityLimit,
+        page,
+        auth: myAuth(),
+      }),
     });
 
     window.scrollTo(0, 0);

@@ -53,7 +53,6 @@ import { UserService } from "../../services";
 import {
   HttpService,
   RequestState,
-  apiWrapper,
   apiWrapperIso,
 } from "../../services/HttpService";
 import {
@@ -724,40 +723,34 @@ export class Inbox extends Component<any, InboxState> {
 
     this.setState({ repliesRes: { state: "loading" } });
     this.setState({
-      repliesRes: await apiWrapper(
-        HttpService.client.getReplies({
-          sort,
-          unread_only,
-          page,
-          limit,
-          auth,
-        })
-      ),
+      repliesRes: await HttpService.wrappedClient.getReplies({
+        sort,
+        unread_only,
+        page,
+        limit,
+        auth,
+      }),
     });
 
     this.setState({ mentionsRes: { state: "loading" } });
     this.setState({
-      mentionsRes: await apiWrapper(
-        HttpService.client.getPersonMentions({
-          sort,
-          unread_only,
-          page,
-          limit,
-          auth,
-        })
-      ),
+      mentionsRes: await HttpService.wrappedClient.getPersonMentions({
+        sort,
+        unread_only,
+        page,
+        limit,
+        auth,
+      }),
     });
 
     this.setState({ messagesRes: { state: "loading" } });
     this.setState({
-      messagesRes: await apiWrapper(
-        HttpService.client.getPrivateMessages({
-          unread_only,
-          page,
-          limit,
-          auth,
-        })
-      ),
+      messagesRes: await HttpService.wrappedClient.getPrivateMessages({
+        unread_only,
+        page,
+        limit,
+        auth,
+      }),
     });
   }
 
@@ -770,9 +763,9 @@ export class Inbox extends Component<any, InboxState> {
     i.setState({ markAllAsReadRes: { state: "loading" } });
 
     i.setState({
-      markAllAsReadRes: await apiWrapper(
-        HttpService.client.markAllAsRead({ auth: myAuthRequired() })
-      ),
+      markAllAsReadRes: await HttpService.wrappedClient.markAllAsRead({
+        auth: myAuthRequired(),
+      }),
     });
 
     if (i.state.markAllAsReadRes.state == "success") {
@@ -786,40 +779,33 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleAddModToCommunity(form: AddModToCommunity) {
     // TODO not sure what to do here
-    apiWrapper(HttpService.client.addModToCommunity(form));
+    HttpService.wrappedClient.addModToCommunity(form);
   }
 
   async handlePurgePerson(form: PurgePerson) {
-    const purgePersonRes = await apiWrapper(
-      HttpService.client.purgePerson(form)
-    );
+    const purgePersonRes = await HttpService.wrappedClient.purgePerson(form);
     this.purgeItem(purgePersonRes);
   }
 
   async handlePurgeComment(form: PurgeComment) {
-    const purgeCommentRes = await apiWrapper(
-      HttpService.client.purgeComment(form)
-    );
+    const purgeCommentRes = await HttpService.wrappedClient.purgeComment(form);
     this.purgeItem(purgeCommentRes);
   }
 
   async handlePurgePost(form: PurgePost) {
-    const purgeRes = await apiWrapper(HttpService.client.purgePost(form));
+    const purgeRes = await HttpService.wrappedClient.purgePost(form);
     this.purgeItem(purgeRes);
   }
 
   async handleBlockPerson(form: BlockPerson) {
-    const blockPersonRes = await apiWrapper(
-      HttpService.client.blockPerson(form)
-    );
-
+    const blockPersonRes = await HttpService.wrappedClient.blockPerson(form);
     if (blockPersonRes.state == "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
 
   async handleCreateComment(form: CreateComment) {
-    const res = await apiWrapper(HttpService.client.createComment(form));
+    const res = await HttpService.wrappedClient.createComment(form);
 
     if (res.state === "success") {
       toast(i18n.t("reply_sent"));
@@ -830,7 +816,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleEditComment(form: EditComment) {
-    const res = await apiWrapper(HttpService.client.editComment(form));
+    const res = await HttpService.wrappedClient.editComment(form);
 
     if (res.state === "success") {
       toast(i18n.t("edit"));
@@ -843,7 +829,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleDeleteComment(form: DeleteComment) {
-    const res = await apiWrapper(HttpService.client.deleteComment(form));
+    const res = await HttpService.wrappedClient.deleteComment(form);
     if (res.state == "success") {
       toast(i18n.t("deleted"));
       this.findAndUpdateComment(res);
@@ -851,7 +837,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleRemoveComment(form: RemoveComment) {
-    const res = await apiWrapper(HttpService.client.removeComment(form));
+    const res = await HttpService.wrappedClient.removeComment(form);
     if (res.state == "success") {
       toast(i18n.t("remove_comment"));
       this.findAndUpdateComment(res);
@@ -859,90 +845,82 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleSaveComment(form: SaveComment) {
-    const res = await apiWrapper(HttpService.client.saveComment(form));
+    const res = await HttpService.wrappedClient.saveComment(form);
     this.findAndUpdateComment(res);
   }
 
   async handleCommentVote(form: CreateCommentLike) {
-    const res = await apiWrapper(HttpService.client.likeComment(form));
+    const res = await HttpService.wrappedClient.likeComment(form);
     this.findAndUpdateComment(res);
   }
 
   async handleCommentReport(form: CreateCommentReport) {
-    const reportRes = await apiWrapper(
-      HttpService.client.createCommentReport(form)
-    );
+    const reportRes = await HttpService.wrappedClient.createCommentReport(form);
     this.reportToast(reportRes);
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
-    const res = await apiWrapper(HttpService.client.distinguishComment(form));
+    const res = await HttpService.wrappedClient.distinguishComment(form);
     this.findAndUpdateComment(res);
   }
 
   async handleAddAdmin(form: AddAdmin) {
-    const addAdminRes = await apiWrapper(HttpService.client.addAdmin(form));
+    const addAdminRes = await HttpService.wrappedClient.addAdmin(form);
 
-    if (addAdminRes.state == "success") {
+    if (addAdminRes.state === "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
     }
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    await apiWrapper(HttpService.client.transferCommunity(form));
+    await HttpService.wrappedClient.transferCommunity(form);
     toast(i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const res = await apiWrapper(
-      HttpService.client.markCommentReplyAsRead(form)
-    );
+    const res = await HttpService.wrappedClient.markCommentReplyAsRead(form);
     this.findAndUpdateCommentReply(res);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
-    const res = await apiWrapper(
-      HttpService.client.markPersonMentionAsRead(form)
-    );
+    const res = await HttpService.wrappedClient.markPersonMentionAsRead(form);
     this.findAndUpdateMention(res);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
-    const banRes = await apiWrapper(HttpService.client.banFromCommunity(form));
+    const banRes = await HttpService.wrappedClient.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
   }
 
   async handleBanPerson(form: BanPerson) {
-    const banRes = await apiWrapper(HttpService.client.banPerson(form));
+    const banRes = await HttpService.wrappedClient.banPerson(form);
     this.updateBan(banRes);
   }
 
   async handleDeleteMessage(form: DeletePrivateMessage) {
-    const res = await apiWrapper(HttpService.client.deletePrivateMessage(form));
+    const res = await HttpService.wrappedClient.deletePrivateMessage(form);
     this.findAndUpdateMessage(res);
   }
 
   async handleEditMessage(form: EditPrivateMessage) {
-    const res = await apiWrapper(HttpService.client.editPrivateMessage(form));
+    const res = await HttpService.wrappedClient.editPrivateMessage(form);
     this.findAndUpdateMessage(res);
   }
 
   async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
-    const res = await apiWrapper(
-      HttpService.client.markPrivateMessageAsRead(form)
-    );
+    const res = await HttpService.wrappedClient.markPrivateMessageAsRead(form);
     this.findAndUpdateMessage(res);
   }
 
   async handleMessageReport(form: CreatePrivateMessageReport) {
-    const res = await apiWrapper(
-      HttpService.client.createPrivateMessageReport(form)
+    const res = await HttpService.wrappedClient.createPrivateMessageReport(
+      form
     );
     this.reportToast(res);
   }
 
   async handleCreateMessage(form: CreatePrivateMessage) {
-    const res = await apiWrapper(HttpService.client.createPrivateMessage(form));
+    const res = await HttpService.wrappedClient.createPrivateMessage(form);
     this.setState(s => {
       if (s.messagesRes.state == "success" && res.state == "success") {
         s.messagesRes.data.private_messages.unshift(
@@ -956,7 +934,7 @@ export class Inbox extends Component<any, InboxState> {
 
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
     this.setState(s => {
-      if (s.messagesRes.state == "success" && res.state == "success") {
+      if (s.messagesRes.state === "success" && res.state === "success") {
         s.messagesRes.data.private_messages = editPrivateMessage(
           res.data.private_message_view,
           s.messagesRes.data.private_messages

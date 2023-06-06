@@ -15,7 +15,6 @@ import { InitialFetchRequest } from "../../interfaces";
 import {
   HttpService,
   RequestState,
-  apiWrapper,
   apiWrapperIso,
 } from "../../services/HttpService";
 import {
@@ -88,16 +87,12 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     const auth = myAuthRequired();
 
     this.setState({
-      bannedRes: await apiWrapper(
-        HttpService.client.getBannedPersons({
-          auth,
-        })
-      ),
-      instancesRes: await apiWrapper(
-        HttpService.client.getFederatedInstances({
-          auth,
-        })
-      ),
+      bannedRes: await HttpService.wrappedClient.getBannedPersons({
+        auth,
+      }),
+      instancesRes: await HttpService.wrappedClient.getFederatedInstances({
+        auth,
+      }),
     });
   }
 
@@ -251,7 +246,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditSite(form: EditSite) {
-    const editRes = await apiWrapper(HttpService.client.editSite(form));
+    const editRes = await HttpService.wrappedClient.editSite(form);
 
     if (editRes.state === "success") {
       toast(i18n.t("site_saved"));
@@ -267,9 +262,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   async handleLeaveAdminTeam(i: AdminSettings) {
     i.setState({ leaveAdminTeamRes: { state: "loading" } });
     this.setState({
-      leaveAdminTeamRes: await apiWrapper(
-        HttpService.client.leaveAdmin({ auth: myAuthRequired() })
-      ),
+      leaveAdminTeamRes: await HttpService.wrappedClient.leaveAdmin({
+        auth: myAuthRequired(),
+      }),
     });
 
     if (this.state.leaveAdminTeamRes.state === "success") {
@@ -279,21 +274,21 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
-    const res = await apiWrapper(HttpService.client.editCustomEmoji(form));
+    const res = await HttpService.wrappedClient.editCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
-    const res = await apiWrapper(HttpService.client.deleteCustomEmoji(form));
+    const res = await HttpService.wrappedClient.deleteCustomEmoji(form);
     if (res.state === "success") {
       removeFromEmojiDataModel(res.data.id);
     }
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
-    const res = await apiWrapper(HttpService.client.createCustomEmoji(form));
+    const res = await HttpService.wrappedClient.createCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }

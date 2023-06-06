@@ -8,11 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import { setIsoData } from "../../utils";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
@@ -180,7 +176,7 @@ export class Setup extends Component<any, State> {
         answer: cForm.answer,
       };
       i.setState({
-        registerRes: await apiWrapper(HttpService.client.register(form)),
+        registerRes: await HttpService.wrappedClient.register(form),
       });
 
       if (this.state.registerRes.state == "success") {
@@ -195,7 +191,7 @@ export class Setup extends Component<any, State> {
   }
 
   async handleCreateSite(form: CreateSite) {
-    const createRes = await apiWrapper(HttpService.client.createSite(form));
+    const createRes = await HttpService.wrappedClient.createSite(form);
     if (createRes.state === "success") {
       this.context.router.history.replace("/");
     }

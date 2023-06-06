@@ -9,7 +9,6 @@ import { InitialFetchRequest } from "../../interfaces";
 import {
   HttpService,
   RequestState,
-  apiWrapper,
   apiWrapperIso,
 } from "../../services/HttpService";
 import { isInitialRoute, relTags, setIsoData } from "../../utils";
@@ -54,9 +53,7 @@ export class Instances extends Component<any, InstancesState> {
     });
 
     this.setState({
-      instancesRes: await apiWrapper(
-        HttpService.client.getFederatedInstances({})
-      ),
+      instancesRes: await HttpService.wrappedClient.getFederatedInstances({}),
     });
   }
 

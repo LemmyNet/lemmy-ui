@@ -20,11 +20,7 @@ import {
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, UserService } from "../../services";
-import {
-  RequestState,
-  apiWrapper,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { RequestState, apiWrapperIso } from "../../services/HttpService";
 import {
   amAdmin,
   editCommentReport,
@@ -532,36 +528,33 @@ export class Reports extends Component<any, ReportsState> {
       };
 
     this.setState({
-      commentReportsRes: await apiWrapper(
-        HttpService.client.listCommentReports(form)
+      commentReportsRes: await HttpService.wrappedClient.listCommentReports(
+        form
       ),
-      postReportsRes: await apiWrapper(
-        HttpService.client.listPostReports(form)
-      ),
+      postReportsRes: await HttpService.wrappedClient.listPostReports(form),
     });
 
     if (amAdmin()) {
       this.setState({
-        messageReportsRes: await apiWrapper(
-          HttpService.client.listPrivateMessageReports(form)
-        ),
+        messageReportsRes:
+          await HttpService.wrappedClient.listPrivateMessageReports(form),
       });
     }
   }
 
   async handleResolveCommentReport(form: ResolveCommentReport) {
-    const res = await apiWrapper(HttpService.client.resolveCommentReport(form));
+    const res = await HttpService.wrappedClient.resolveCommentReport(form);
     this.findAndUpdateCommentReport(res);
   }
 
   async handleResolvePostReport(form: ResolvePostReport) {
-    const res = await apiWrapper(HttpService.client.resolvePostReport(form));
+    const res = await HttpService.wrappedClient.resolvePostReport(form);
     this.findAndUpdatePostReport(res);
   }
 
   async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
-    const res = await apiWrapper(
-      HttpService.client.resolvePrivateMessageReport(form)
+    const res = await HttpService.wrappedClient.resolvePrivateMessageReport(
+      form
     );
     this.findAndUpdatePrivateMessageReport(res);
   }
