@@ -132,7 +132,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   }
 
   handleTaglineChange(i: TaglineForm, index: number, val: string) {
-    let taglines = i.state.siteForm.taglines;
+    const taglines = i.state.siteForm.taglines;
     if (taglines) {
       taglines[index] = val;
       i.setState(i.state);
@@ -144,7 +144,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     event: any
   ) {
     event.preventDefault();
-    let taglines = props.form.state.siteForm.taglines;
+    const taglines = props.form.state.siteForm.taglines;
     if (taglines) {
       taglines.splice(props.index, 1);
       props.form.state.siteForm.taglines = undefined;

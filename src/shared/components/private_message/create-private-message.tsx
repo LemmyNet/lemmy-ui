@@ -89,7 +89,7 @@ export class CreatePrivateMessage extends Component<
 
   get documentTitle(): string {
     if (this.state.recipientRes.state == "success") {
-      let name_ = this.state.recipientRes.data.person_view.person.name;
+      const name_ = this.state.recipientRes.data.person_view.person.name;
       return `${i18n.t("create_private_message")} - ${name_}`;
     } else {
       return "";

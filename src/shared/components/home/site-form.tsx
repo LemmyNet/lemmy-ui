@@ -151,7 +151,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   render() {
-    let siteSetup = this.state.siteRes.site_view.local_site.site_setup;
+    const siteSetup = this.state.siteRes.site_view.local_site.site_setup;
     return (
       <>
         <Prompt
@@ -872,7 +872,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleTaglineChange(i: SiteForm, index: number, val: string) {
-    let taglines = i.state.siteForm.taglines;
+    const taglines = i.state.siteForm.taglines;
     if (taglines) {
       taglines[index] = val;
       i.setState(i.state);
@@ -885,7 +885,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
-    let taglines = i.state.siteForm.taglines;
+    const taglines = i.state.siteForm.taglines;
     if (taglines) {
       taglines.splice(index, 1);
       i.state.siteForm.taglines = undefined;

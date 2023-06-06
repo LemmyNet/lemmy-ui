@@ -78,7 +78,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
   }
 
   render() {
-    let maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
+    const maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
 
     return (
       <div className="comments">

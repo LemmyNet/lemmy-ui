@@ -70,7 +70,7 @@ export class RegistrationApplications extends Component<
   }
 
   get documentTitle(): string {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${i18n.t(
           "registration_applications"
@@ -203,7 +203,7 @@ export class RegistrationApplications extends Component<
   }
 
   async refetch() {
-    let unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
     this.setState({
       appsRes: { state: "loading" },
     });

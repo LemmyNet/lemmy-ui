@@ -145,7 +145,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   renderItemType(i: ItemType) {
     switch (i.type_) {
       case ItemEnum.Comment: {
-        let c = i.view as CommentView;
+        const c = i.view as CommentView;
         return (
           <CommentNodes
             key={i.id}
@@ -183,7 +183,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
         );
       }
       case ItemEnum.Post: {
-        let p = i.view as PostView;
+        const p = i.view as PostView;
         return (
           <PostListing
             key={i.id}
@@ -219,14 +219,14 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   overview() {
     let id = 0;
-    let comments: ItemType[] = this.props.personRes.comments.map(r => ({
+    const comments: ItemType[] = this.props.personRes.comments.map(r => ({
       id: id++,
       type_: ItemEnum.Comment,
       view: r,
       published: r.comment.published,
       score: r.counts.score,
     }));
-    let posts: ItemType[] = this.props.personRes.posts.map(r => ({
+    const posts: ItemType[] = this.props.personRes.posts.map(r => ({
       id: id++,
       type_: ItemEnum.Post,
       view: r,
@@ -234,7 +234,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       score: r.counts.score,
     }));
 
-    let combined = [...comments, ...posts];
+    const combined = [...comments, ...posts];
 
     // Sort it
     if (this.props.sort === "New") {

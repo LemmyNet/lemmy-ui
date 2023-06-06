@@ -110,7 +110,7 @@ export class Signup extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    let siteView = this.state.siteRes.site_view;
+    const siteView = this.state.siteRes.site_view;
     return `${this.titleName(siteView)} - ${siteView.site.name}`;
   }
 
@@ -141,7 +141,7 @@ export class Signup extends Component<any, State> {
   }
 
   registerForm() {
-    let siteView = this.state.siteRes.site_view;
+    const siteView = this.state.siteRes.site_view;
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
         <h5>{this.titleName(siteView)}</h5>
@@ -383,7 +383,7 @@ export class Signup extends Component<any, State> {
   }
 
   showCaptcha(res: GetCaptchaResponse) {
-    let captchaRes = res?.ok;
+    const captchaRes = res?.ok;
     return captchaRes ? (
       <div className="col-sm-4">
         <>
@@ -413,14 +413,14 @@ export class Signup extends Component<any, State> {
   }
 
   get passwordStrength(): string | undefined {
-    let password = this.state.form.password;
+    const password = this.state.form.password;
     return password
       ? passwordStrength(password, passwordStrengthOptions).value
       : undefined;
   }
 
   get passwordColorClass(): string {
-    let strength = this.passwordStrength;
+    const strength = this.passwordStrength;
 
     if (strength && ["weak", "medium"].includes(strength)) {
       return "text-warning";
@@ -433,20 +433,30 @@ export class Signup extends Component<any, State> {
 
   async handleRegisterSubmit(i: Signup, event: any) {
     event.preventDefault();
-    const cForm = i.state.form;
-    if (cForm.username && cForm.password && cForm.password_verify) {
+    const {
+      show_nsfw,
+      answer,
+      captcha_answer,
+      captcha_uuid,
+      email,
+      honeypot,
+      password,
+      password_verify,
+      username,
+    } = i.state.form;
+    if (username && password && password_verify) {
       i.setState({ registerRes: { state: "loading" } });
 
       const registerRes = await HttpService.client.register({
-        username: cForm.username,
-        password: cForm.password,
-        password_verify: cForm.password_verify,
-        email: cForm.email,
-        show_nsfw: cForm.show_nsfw,
-        captcha_uuid: cForm.captcha_uuid,
-        captcha_answer: cForm.captcha_answer,
-        honeypot: cForm.honeypot,
-        answer: cForm.answer,
+        username,
+        password,
+        password_verify,
+        email,
+        show_nsfw,
+        captcha_uuid,
+        captcha_answer,
+        honeypot,
+        answer,
       });
       switch (registerRes.state) {
         case "failed": {
@@ -531,9 +541,9 @@ export class Signup extends Component<any, State> {
     // Replays would stop prematurely if this was rebuilt every time.
 
     if (i.state.captchaRes.state == "success" && i.state.captchaRes.data.ok) {
-      let captchaRes = i.state.captchaRes.data.ok;
+      const captchaRes = i.state.captchaRes.data.ok;
       if (!i.audio) {
-        let base64 = `data:audio/wav;base64,${captchaRes.wav}`;
+        const base64 = `data:audio/wav;base64,${captchaRes.wav}`;
         i.audio = new Audio(base64);
         i.audio.play();
 

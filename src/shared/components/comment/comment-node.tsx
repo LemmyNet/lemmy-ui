@@ -242,18 +242,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   render() {
-    let node = this.props.node;
-    let cv = this.commentView;
+    const node = this.props.node;
+    const cv = this.commentView;
 
-    let purgeTypeText =
+    const purgeTypeText =
       this.state.purgeType == PurgeType.Comment
         ? i18n.t("purge_comment")
         : `${i18n.t("purge")} ${cv.creator.name}`;
 
-    let canMod_ =
+    const canMod_ =
       canMod(cv.creator.id, this.props.moderators, this.props.admins) &&
       cv.community.local;
-    let canModOnSelf =
+    const canModOnSelf =
       canMod(
         cv.creator.id,
         this.props.moderators,
@@ -261,31 +261,31 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         UserService.Instance.myUserInfo,
         true
       ) && cv.community.local;
-    let canAdmin_ =
+    const canAdmin_ =
       canAdmin(cv.creator.id, this.props.admins) && cv.community.local;
-    let canAdminOnSelf =
+    const canAdminOnSelf =
       canAdmin(
         cv.creator.id,
         this.props.admins,
         UserService.Instance.myUserInfo,
         true
       ) && cv.community.local;
-    let isMod_ = isMod(cv.creator.id, this.props.moderators);
-    let isAdmin_ =
+    const isMod_ = isMod(cv.creator.id, this.props.moderators);
+    const isAdmin_ =
       isAdmin(cv.creator.id, this.props.admins) && cv.community.local;
-    let amCommunityCreator_ = amCommunityCreator(
+    const amCommunityCreator_ = amCommunityCreator(
       cv.creator.id,
       this.props.moderators
     );
 
-    let borderColor = this.props.node.depth
+    const borderColor = this.props.node.depth
       ? colorList[(this.props.node.depth - 1) % colorList.length]
       : colorList[0];
-    let moreRepliesBorderColor = this.props.node.depth
+    const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
       : colorList[0];
 
-    let showMoreChildren =
+    const showMoreChildren =
       this.props.viewType == CommentViewType.Tree &&
       !this.state.collapsed &&
       node.children.length == 0 &&
@@ -471,13 +471,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <>
                       <button
                         className={`btn btn-link btn-animate ${
-                          this.commentView.my_vote == 1
+                          this.commentView.my_vote === 1
                             ? "text-info"
                             : "text-muted"
                         }`}
                         onClick={linkEvent(this, this.handleUpvote)}
                         data-tippy-content={i18n.t("upvote")}
                         aria-label={i18n.t("upvote")}
+                        aria-pressed={this.commentView.my_vote === 1}
                       >
                         {this.state.upvoteLoading ? (
                           <Spinner />
@@ -497,13 +498,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       {this.props.enableDownvotes && (
                         <button
                           className={`btn btn-link btn-animate ${
-                            this.commentView.my_vote == -1
+                            this.commentView.my_vote === -1
                               ? "text-danger"
                               : "text-muted"
                           }`}
                           onClick={linkEvent(this, this.handleDownvote)}
                           data-tippy-content={i18n.t("downvote")}
                           aria-label={i18n.t("downvote")}
+                          aria-pressed={this.commentView.my_vote === -1}
                         >
                           {this.state.downvoteLoading ? (
                             <Spinner />
@@ -1207,7 +1209,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentReplyOrMentionRead(): boolean {
-    let cv = this.commentView;
+    const cv = this.commentView;
 
     if (this.isPersonMentionType(cv)) {
       return cv.person_mention.read;
@@ -1219,12 +1221,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   linkBtn(small = false) {
-    let cv = this.commentView;
-    let classnames = classNames("btn btn-link btn-animate text-muted", {
+    const cv = this.commentView;
+    const classnames = classNames("btn btn-link btn-animate text-muted", {
       "btn-sm": small,
     });
 
-    let title = this.props.showContext
+    const title = this.props.showContext
       ? i18n.t("show_context")
       : i18n.t("link");
 
@@ -1271,17 +1273,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get pointsTippy(): string {
-    let points = i18n.t("number_of_points", {
+    const points = i18n.t("number_of_points", {
       count: Number(this.commentView.counts.score),
       formattedCount: numToSI(this.commentView.counts.score),
     });
 
-    let upvotes = i18n.t("number_of_upvotes", {
+    const upvotes = i18n.t("number_of_upvotes", {
       count: Number(this.commentView.counts.upvotes),
       formattedCount: numToSI(this.commentView.counts.upvotes),
     });
 
-    let downvotes = i18n.t("number_of_downvotes", {
+    const downvotes = i18n.t("number_of_downvotes", {
       count: Number(this.commentView.counts.downvotes),
       formattedCount: numToSI(this.commentView.counts.downvotes),
     });
@@ -1294,7 +1296,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentUnlessRemoved(): string {
-    let comment = this.commentView.comment;
+    const comment = this.commentView.comment;
     return comment.removed
       ? `*${i18n.t("removed")}*`
       : comment.deleted
@@ -1426,8 +1428,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get isCommentNew(): boolean {
-    let now = moment.utc().subtract(10, "minutes");
-    let then = moment.utc(this.commentView.comment.published);
+    const now = moment.utc().subtract(10, "minutes");
+    const then = moment.utc(this.commentView.comment.published);
     return now.isBefore(then);
   }
 

@@ -463,7 +463,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   saveUserSettingsHtmlForm() {
-    let selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
+    const selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
 
     return (
       <>
@@ -840,7 +840,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   totpSection() {
-    let totpUrl =
+    const totpUrl =
       UserService.Instance.myUserInfo?.local_user_view.local_user.totp_2fa_url;
 
     return (
@@ -973,7 +973,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleShowAvatarsChange(i: Settings, event: any) {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_avatars = event.target.checked;
     }
@@ -1011,7 +1011,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleShowScoresChange(i: Settings, event: any) {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_scores = event.target.checked;
     }
@@ -1022,7 +1022,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleGenerateTotp(i: Settings, event: any) {
     // Coerce false to undefined here, so it won't generate it.
-    let checked: boolean | undefined = event.target.checked || undefined;
+    const checked: boolean | undefined = event.target.checked || undefined;
     if (checked) {
       toast(i18n.t("two_factor_setup_instructions"));
     }
@@ -1031,7 +1031,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleRemoveTotp(i: Settings, event: any) {
     // Coerce true to undefined here, so it won't generate it.
-    let checked: boolean | undefined = !event.target.checked && undefined;
+    const checked: boolean | undefined = !event.target.checked && undefined;
     i.setState(s => ((s.saveUserSettingsForm.generate_totp_2fa = checked), s));
   }
 
@@ -1214,7 +1214,7 @@ export class Settings extends Component<any, SettingsState> {
   communityBlock(res: RequestState<BlockCommunityResponse>) {
     if (res.state == "success") {
       updateCommunityBlock(res.data);
-      let mui = UserService.Instance.myUserInfo;
+      const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });
       }

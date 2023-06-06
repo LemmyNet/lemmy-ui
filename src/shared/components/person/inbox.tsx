@@ -178,7 +178,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   get documentTitle(): string {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${i18n.t("inbox")} - ${
           this.state.siteRes.site_view.site.name
@@ -205,8 +205,8 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   render() {
-    let auth = myAuth();
-    let inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
+    const auth = myAuth();
+    const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
     return (
       <div className="container-lg">
         <div className="row">
@@ -390,20 +390,18 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   buildCombined(): ReplyType[] {
-    let replies: ReplyType[] =
+    const replies: ReplyType[] =
       this.state.repliesRes.state == "success"
-        ? this.state.repliesRes.data.replies.map(r => this.replyToReplyType(r))
+        ? this.state.repliesRes.data.replies.map(this.replyToReplyType)
         : [];
-    let mentions: ReplyType[] =
+    const mentions: ReplyType[] =
       this.state.mentionsRes.state == "success"
-        ? this.state.mentionsRes.data.mentions.map(r =>
-            this.mentionToReplyType(r)
-          )
+        ? this.state.mentionsRes.data.mentions.map(this.mentionToReplyType)
         : [];
-    let messages: ReplyType[] =
+    const messages: ReplyType[] =
       this.state.messagesRes.state == "success"
-        ? this.state.messagesRes.data.private_messages.map(r =>
-            this.messageToReplyType(r)
+        ? this.state.messagesRes.data.private_messages.map(
+            this.messageToReplyType
           )
         : [];
 
@@ -715,11 +713,11 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async refetch() {
-    let sort = this.state.sort;
-    let unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let page = this.state.page;
-    let limit = fetchLimit;
-    let auth = myAuthRequired();
+    const sort = this.state.sort;
+    const unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const page = this.state.page;
+    const limit = fetchLimit;
+    const auth = myAuthRequired();
 
     this.setState({ repliesRes: { state: "loading" } });
     this.setState({

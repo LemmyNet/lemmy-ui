@@ -105,7 +105,7 @@ export interface ErrorPageData {
   adminMatrixIds?: string[];
 }
 
-let customEmojis: EmojiMartCategory[] = [];
+const customEmojis: EmojiMartCategory[] = [];
 export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
   string,
   CustomEmojiView
@@ -187,11 +187,11 @@ export function hotRankPost(post_view: PostView): number {
 
 export function hotRank(score: number, timeStr: string): number {
   // Rank = ScaleFactor * sign(Score) * log(1 + abs(Score)) / (Time + 2)^Gravity
-  let date: Date = new Date(timeStr + "Z"); // Add Z to convert from UTC date
-  let now: Date = new Date();
-  let hoursElapsed: number = (now.getTime() - date.getTime()) / 36e5;
+  const date: Date = new Date(timeStr + "Z"); // Add Z to convert from UTC date
+  const now: Date = new Date();
+  const hoursElapsed: number = (now.getTime() - date.getTime()) / 36e5;
 
-  let rank =
+  const rank =
     (10000 * Math.log10(Math.max(1, 3 + Number(score)))) /
     Math.pow(hoursElapsed + 2, 1.8);
 
@@ -238,7 +238,7 @@ export function canMod(
       .concat(mods?.map(m => m.moderator.id) ?? []) ?? [];
 
   if (myUserInfo) {
-    let myIndex = adminsThenMods.findIndex(
+    const myIndex = adminsThenMods.findIndex(
       id => id == myUserInfo.local_user_view.person.id
     );
     if (myIndex == -1) {
@@ -289,7 +289,7 @@ export function amCommunityCreator(
   mods?: CommunityModeratorView[],
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {
-  let myId = myUserInfo?.local_user_view.person.id;
+  const myId = myUserInfo?.local_user_view.person.id;
   // Don't allow mod actions on yourself
   return myId == mods?.at(0)?.moderator.id && myId != creator_id;
 }
@@ -299,7 +299,7 @@ export function amSiteCreator(
   admins?: PersonView[],
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {
-  let myId = myUserInfo?.local_user_view.person.id;
+  const myId = myUserInfo?.local_user_view.person.id;
   return myId == admins?.at(0)?.person.id && myId != creator_id;
 }
 
@@ -326,18 +326,24 @@ export function validURL(str: string) {
 }
 
 export function communityRSSUrl(actorId: string, sort: string): string {
-  let url = new URL(actorId);
+  const url = new URL(actorId);
   return `${url.origin}/feeds${url.pathname}.xml?sort=${sort}`;
 }
 
 export function validEmail(email: string) {
-  let re =
+  const re =
     /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z\-]+\.)+[A-Za-z]{2,}))$/;
   return re.test(String(email).toLowerCase());
 }
 
 export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export async function getSiteMetadata(url: string) {
+  const form: GetSiteMetadata = { url };
+  const client = new LemmyHttp(getHttpBase());
+  return client.getSiteMetadata(form);
 }
 
 export function getDataTypeString(dt: DataType) {
@@ -393,8 +399,8 @@ export function getLanguages(
   override?: string,
   myUserInfo = UserService.Instance.myUserInfo
 ): string[] {
-  let myLang = myUserInfo?.local_user_view.local_user.interface_language;
-  let lang = override || myLang || "browser";
+  const myLang = myUserInfo?.local_user_view.local_user.interface_language;
+  const lang = override || myLang || "browser";
 
   if (lang == "browser" && isBrowser()) {
     return getBrowserLanguages();
@@ -405,10 +411,10 @@ export function getLanguages(
 
 function getBrowserLanguages(): string[] {
   // Intersect lemmy's langs, with the browser langs
-  let langs = languages ? languages.map(l => l.code) : ["en"];
+  const langs = languages ? languages.map(l => l.code) : ["en"];
 
   // NOTE, mobile browsers seem to be missing this list, so append en
-  let allowedLangs = navigator.languages
+  const allowedLangs = navigator.languages
     .concat("en")
     .filter(v => langs.includes(v));
   return allowedLangs;
@@ -430,11 +436,11 @@ export async function setTheme(theme: string, forceReload = false) {
     theme = "darkly";
   }
 
-  let themeList = await fetchThemeList();
+  const themeList = await fetchThemeList();
 
   // Unload all the other themes
   for (var i = 0; i < themeList.length; i++) {
-    let styleSheet = document.getElementById(themeList[i]);
+    const styleSheet = document.getElementById(themeList[i]);
     if (styleSheet) {
       styleSheet.setAttribute("disabled", "disabled");
     }
@@ -446,7 +452,7 @@ export async function setTheme(theme: string, forceReload = false) {
   document.getElementById("default-dark")?.setAttribute("disabled", "disabled");
 
   // Load the theme dynamically
-  let cssLoc = `/css/themes/${theme}.css`;
+  const cssLoc = `/css/themes/${theme}.css`;
 
   loadCss(theme, cssLoc);
   document.getElementById(theme)?.removeAttribute("disabled");
@@ -557,10 +563,10 @@ interface NotifyInfo {
 
 export function messageToastify(info: NotifyInfo, router: any) {
   if (isBrowser()) {
-    let htmlBody = info.body ? md.render(info.body) : "";
-    let backgroundColor = `var(--light)`;
+    const htmlBody = info.body ? md.render(info.body) : "";
+    const backgroundColor = `var(--light)`;
 
-    let toast = Toastify({
+    const toast = Toastify({
       text: `${htmlBody}<br />${info.name}`,
       avatar: info.icon,
       backgroundColor: backgroundColor,
@@ -591,11 +597,11 @@ export function setupTribute() {
       {
         trigger: ":",
         menuItemTemplate: (item: any) => {
-          let shortName = `:${item.original.key}:`;
+          const shortName = `:${item.original.key}:`;
           return `${item.original.val} ${shortName}`;
         },
         selectTemplate: (item: any) => {
-          let customEmoji = customEmojisLookup.get(
+          const customEmoji = customEmojisLookup.get(
             item.original.key
           )?.custom_emoji;
           if (customEmoji == undefined) return `${item.original.val}`;
@@ -622,7 +628,7 @@ export function setupTribute() {
       {
         trigger: "@",
         selectTemplate: (item: any) => {
-          let it: PersonTribute = item.original;
+          const it: PersonTribute = item.original;
           return `[${it.key}](${it.view.person.actor_id})`;
         },
         values: debounce(async (text: string, cb: any) => {
@@ -639,7 +645,7 @@ export function setupTribute() {
       {
         trigger: "!",
         selectTemplate: (item: any) => {
-          let it: CommunityTribute = item.original;
+          const it: CommunityTribute = item.original;
           return `[${it.key}](${it.view.community.actor_id})`;
         },
         values: debounce(async (text: string, cb: any) => {
@@ -656,7 +662,10 @@ export function setupTribute() {
 }
 
 function setupEmojiDataModel(custom_emoji_views: CustomEmojiView[]) {
-  let groupedEmojis = groupBy(custom_emoji_views, x => x.custom_emoji.category);
+  const groupedEmojis = groupBy(
+    custom_emoji_views,
+    x => x.custom_emoji.category
+  );
   for (const [category, emojis] of Object.entries(groupedEmojis)) {
     customEmojis.push({
       id: category,
@@ -681,7 +690,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
     keywords: custom_emoji_view.keywords.map(x => x.keyword),
     skins: [{ src: custom_emoji_view.custom_emoji.image_url }],
   };
-  let categoryIndex = customEmojis.findIndex(
+  const categoryIndex = customEmojis.findIndex(
     x => x.id == custom_emoji_view.custom_emoji.category
   );
   if (categoryIndex == -1) {
@@ -691,7 +700,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
       emojis: [emoji],
     });
   } else {
-    let emojiIndex = customEmojis[categoryIndex].emojis.findIndex(
+    const emojiIndex = customEmojis[categoryIndex].emojis.findIndex(
       x => x.id == custom_emoji_view.custom_emoji.shortcode
     );
     if (emojiIndex == -1) {
@@ -708,7 +717,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
 
 export function removeFromEmojiDataModel(id: number) {
   let view: CustomEmojiView | undefined;
-  for (let item of customEmojisLookup.values()) {
+  for (const item of customEmojisLookup.values()) {
     if (item.custom_emoji.id === id) {
       view = item;
       break;
@@ -843,12 +852,12 @@ export function getRecipientIdFromProps(props: any): number {
 }
 
 export function getIdFromProps(props: any): number | undefined {
-  let id = props.match.params.post_id;
+  const id = props.match.params.post_id;
   return id ? Number(id) : undefined;
 }
 
 export function getCommentIdFromProps(props: any): number | undefined {
-  let id = props.match.params.comment_id;
+  const id = props.match.params.comment_id;
   return id ? Number(id) : undefined;
 }
 
@@ -1001,8 +1010,8 @@ export function updateCommunityBlock(
 }
 
 export function commentsToFlatNodes(comments: CommentView[]): CommentNodeI[] {
-  let nodes: CommentNodeI[] = [];
-  for (let comment of comments) {
+  const nodes: CommentNodeI[] = [];
+  for (const comment of comments) {
     nodes.push({ comment_view: comment, children: [], depth: 0 });
   }
   return nodes;
@@ -1030,15 +1039,15 @@ export function buildCommentsTree(
   comments: CommentView[],
   parentComment: boolean
 ): CommentNodeI[] {
-  let map = new Map<number, CommentNodeI>();
-  let depthOffset = !parentComment
+  const map = new Map<number, CommentNodeI>();
+  const depthOffset = !parentComment
     ? 0
     : getDepthFromComment(comments[0].comment) ?? 0;
 
-  for (let comment_view of comments) {
-    let depthI = getDepthFromComment(comment_view.comment) ?? 0;
-    let depth = depthI ? depthI - depthOffset : 0;
-    let node: CommentNodeI = {
+  for (const comment_view of comments) {
+    const depthI = getDepthFromComment(comment_view.comment) ?? 0;
+    const depth = depthI ? depthI - depthOffset : 0;
+    const node: CommentNodeI = {
       comment_view,
       children: [],
       depth,
@@ -1046,22 +1055,22 @@ export function buildCommentsTree(
     map.set(comment_view.comment.id, { ...node });
   }
 
-  let tree: CommentNodeI[] = [];
+  const tree: CommentNodeI[] = [];
 
   // if its a parent comment fetch, then push the first comment to the top node.
   if (parentComment) {
-    let cNode = map.get(comments[0].comment.id);
+    const cNode = map.get(comments[0].comment.id);
     if (cNode) {
       tree.push(cNode);
     }
   }
 
-  for (let comment_view of comments) {
-    let child = map.get(comment_view.comment.id);
+  for (const comment_view of comments) {
+    const child = map.get(comment_view.comment.id);
     if (child) {
-      let parent_id = getCommentParentId(comment_view.comment);
+      const parent_id = getCommentParentId(comment_view.comment);
       if (parent_id) {
-        let parent = map.get(parent_id);
+        const parent = map.get(parent_id);
         // Necessary because blocked comment might not exist
         if (parent) {
           parent.children.push(child);
@@ -1078,7 +1087,7 @@ export function buildCommentsTree(
 }
 
 export function getCommentParentId(comment?: CommentI): number | undefined {
-  let split = comment?.path.split(".");
+  const split = comment?.path.split(".");
   // remove the 0
   split?.shift();
 
@@ -1088,7 +1097,7 @@ export function getCommentParentId(comment?: CommentI): number | undefined {
 }
 
 export function getDepthFromComment(comment?: CommentI): number | undefined {
-  let len = comment?.path.split(".").length;
+  const len = comment?.path.split(".").length;
   return len ? len - 2 : undefined;
 }
 
@@ -1099,15 +1108,15 @@ export function insertCommentIntoTree(
   parentComment: boolean
 ) {
   // Building a fake node to be used for later
-  let node: CommentNodeI = {
+  const node: CommentNodeI = {
     comment_view: cv,
     children: [],
     depth: 0,
   };
 
-  let parentId = getCommentParentId(cv.comment);
+  const parentId = getCommentParentId(cv.comment);
   if (parentId) {
-    let parent_comment = searchCommentTree(tree, parentId);
+    const parent_comment = searchCommentTree(tree, parentId);
     if (parent_comment) {
       node.depth = parent_comment.depth + 1;
       parent_comment.children.unshift(node);
@@ -1121,13 +1130,13 @@ export function searchCommentTree(
   tree: CommentNodeI[],
   id: number
 ): CommentNodeI | undefined {
-  for (let node of tree) {
+  for (const node of tree) {
     if (node.comment_view.comment.id === id) {
       return node;
     }
 
     for (const child of node.children) {
-      let res = searchCommentTree([child], id);
+      const res = searchCommentTree([child], id);
 
       if (res) {
         return res;
@@ -1152,7 +1161,7 @@ function hsl(num: number) {
 }
 
 export function hostname(url: string): string {
-  let cUrl = new URL(url);
+  const cUrl = new URL(url);
   return cUrl.port ? `${cUrl.hostname}:${cUrl.port}` : `${cUrl.hostname}`;
 }
 
@@ -1220,14 +1229,14 @@ moment.updateLocale("en", {
 });
 
 export function saveScrollPosition(context: any) {
-  let path: string = context.router.route.location.pathname;
-  let y = window.scrollY;
+  const path: string = context.router.route.location.pathname;
+  const y = window.scrollY;
   sessionStorage.setItem(`scrollPosition_${path}`, y.toString());
 }
 
 export function restoreScrollPosition(context: any) {
-  let path: string = context.router.route.location.pathname;
-  let y = Number(sessionStorage.getItem(`scrollPosition_${path}`));
+  const path: string = context.router.route.location.pathname;
+  const y = Number(sessionStorage.getItem(`scrollPosition_${path}`));
   window.scrollTo(0, y);
 }
 
@@ -1321,7 +1330,7 @@ export function numToSI(value: number): string {
 }
 
 export function isBanned(ps: Person): boolean {
-  let expires = ps.ban_expires;
+  const expires = ps.ban_expires;
   // Add Z to convert from UTC date
   // TODO this check probably isn't necessary anymore
   if (expires) {
@@ -1395,8 +1404,8 @@ export function nsfwCheck(
   pv: PostView,
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {
-  let nsfw = pv.post.nsfw || pv.community.nsfw;
-  let myShowNsfw = myUserInfo?.local_user_view.local_user.show_nsfw ?? false;
+  const nsfw = pv.post.nsfw || pv.community.nsfw;
+  const myShowNsfw = myUserInfo?.local_user_view.local_user.show_nsfw ?? false;
   return !nsfw || (nsfw && myShowNsfw);
 }
 
@@ -1420,10 +1429,10 @@ export function selectableLanguages(
   showSite?: boolean,
   myUserInfo = UserService.Instance.myUserInfo
 ): Language[] {
-  let allLangIds = allLanguages.map(l => l.id);
+  const allLangIds = allLanguages.map(l => l.id);
   let myLangs = myUserInfo?.discussion_languages ?? allLangIds;
   myLangs = myLangs.length == 0 ? allLangIds : myLangs;
-  let siteLangs = siteLanguages.length == 0 ? allLangIds : siteLanguages;
+  const siteLangs = siteLanguages.length == 0 ? allLangIds : siteLanguages;
 
   if (showAll) {
     return allLanguages;

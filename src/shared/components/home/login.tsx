@@ -203,7 +203,7 @@ export class Login extends Component<any, State> {
 
   async handlePasswordReset(i: Login, event: any) {
     event.preventDefault();
-    let email = i.state.form.username_or_email;
+    const email = i.state.form.username_or_email;
     if (email) {
       const res = await HttpService.client.passwordReset({ email });
       if (res.state == "success") {

@@ -310,10 +310,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       category: event.target.value,
       changed: true,
@@ -326,10 +326,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       shortcode: event.target.value,
       changed: true,
@@ -342,10 +342,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     props: { form: EmojiForm; index: number; overrideValue: string | null },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       image_url: props.overrideValue ?? event.target.value,
       changed: true,
@@ -358,10 +358,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       alt_text: event.target.value,
       changed: true,
@@ -374,10 +374,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any
   ) {
-    let custom_emojis = [...props.form.state.customEmojis];
-    let pagedIndex =
+    const custom_emojis = [...props.form.state.customEmojis];
+    const pagedIndex =
       (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    let item = {
+    const item = {
       ...props.form.state.customEmojis[pagedIndex],
       keywords: event.target.value,
       changed: true,
@@ -391,14 +391,14 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     index: number;
     cv: CustomEmojiViewForm;
   }) {
-    let pagedIndex = (d.i.state.page - 1) * d.i.itemsPerPage + d.index;
+    const pagedIndex = (d.i.state.page - 1) * d.i.itemsPerPage + d.index;
     if (d.cv.id != 0) {
       d.i.props.onDelete({
         id: d.cv.id,
         auth: myAuthRequired(),
       });
     } else {
-      let custom_emojis = [...d.i.state.customEmojis];
+      const custom_emojis = [...d.i.state.customEmojis];
       custom_emojis.splice(Number(pagedIndex), 1);
       d.i.setState({ customEmojis: custom_emojis });
     }
@@ -432,10 +432,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   handleAddEmojiClick(form: EmojiForm, event: any) {
     event.preventDefault();
-    let custom_emojis = [...form.state.customEmojis];
+    const custom_emojis = [...form.state.customEmojis];
     const page =
       1 + Math.floor(form.state.customEmojis.length / form.itemsPerPage);
-    let item: CustomEmojiViewForm = {
+    const item: CustomEmojiViewForm = {
       id: 0,
       shortcode: "",
       alt_text: "",

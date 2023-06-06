@@ -162,18 +162,29 @@ export class Setup extends Component<any, State> {
   async handleRegisterSubmit(i: Setup, event: any) {
     event.preventDefault();
     i.setState({ registerRes: { state: "loading" } });
-    let cForm = i.state.form;
-    if (cForm.username && cForm.password && cForm.password_verify) {
-      let form: Register = {
-        username: cForm.username,
-        password: cForm.password,
-        password_verify: cForm.password_verify,
-        email: cForm.email,
-        show_nsfw: cForm.show_nsfw,
-        captcha_uuid: cForm.captcha_uuid,
-        captcha_answer: cForm.captcha_answer,
-        honeypot: cForm.honeypot,
-        answer: cForm.answer,
+    const {
+      username,
+      password_verify,
+      password,
+      email,
+      show_nsfw,
+      captcha_uuid,
+      captcha_answer,
+      honeypot,
+      answer,
+    } = i.state.form;
+
+    if (username && password && password_verify) {
+      const form: Register = {
+        username,
+        password,
+        password_verify,
+        email,
+        show_nsfw,
+        captcha_uuid,
+        captcha_answer,
+        honeypot,
+        answer,
       };
       i.setState({
         registerRes: await HttpService.client.register(form),

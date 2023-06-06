@@ -82,8 +82,8 @@ export class PrivateMessage extends Component<
   }
 
   render() {
-    let message_view = this.props.private_message_view;
-    let otherPerson: Person = this.mine
+    const message_view = this.props.private_message_view;
+    const otherPerson: Person = this.mine
       ? message_view.recipient
       : message_view.creator;
 
@@ -295,7 +295,7 @@ export class PrivateMessage extends Component<
   }
 
   get messageUnlessRemoved(): string {
-    let message = this.props.private_message_view.private_message;
+    const message = this.props.private_message_view.private_message;
     return message.deleted ? `*${i18n.t("deleted")}*` : message.content;
   }
 

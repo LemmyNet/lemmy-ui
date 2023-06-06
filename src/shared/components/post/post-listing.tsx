@@ -228,7 +228,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   body() {
-    let body = this.postView.post.body;
+    const body = this.postView.post.body;
     return body ? (
       <div className="col-12 card my-2 p-2">
         {this.state.viewSource ? (
@@ -265,7 +265,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   imgThumb(src: string) {
-    let post_view = this.postView;
+    const post_view = this.postView;
     return (
       <PictrsImage
         src={src}
@@ -277,9 +277,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get imageSrc(): string | undefined {
-    let post = this.postView.post;
-    let url = post.url;
-    let thumbnail = post.thumbnail_url;
+    const post = this.postView.post;
+    const url = post.url;
+    const thumbnail = post.thumbnail_url;
 
     if (url && isImage(url)) {
       if (url.includes("pictrs")) {
@@ -297,9 +297,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   thumbnail() {
-    let post = this.postView.post;
-    let url = post.url;
-    let thumbnail = post.thumbnail_url;
+    const post = this.postView.post;
+    const url = post.url;
+    const thumbnail = post.thumbnail_url;
 
     if (!this.props.hideImage && url && isImage(url) && this.imageSrc) {
       return (
@@ -366,9 +366,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   createdLine() {
-    let post_view = this.postView;
-    let url = post_view.post.url;
-    let body = post_view.post.body;
+    const post_view = this.postView;
+    const url = post_view.post.url;
+    const body = post_view.post.body;
     return (
       <ul className="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
@@ -454,6 +454,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           onClick={linkEvent(this, this.handleUpvote)}
           data-tippy-content={i18n.t("upvote")}
           aria-label={i18n.t("upvote")}
+          aria-pressed={this.postView.my_vote === 1}
         >
           {this.state.upvoteLoading ? (
             <Spinner />
@@ -479,6 +480,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onClick={linkEvent(this, this.handleDownvote)}
             data-tippy-content={i18n.t("downvote")}
             aria-label={i18n.t("downvote")}
+            aria-pressed={this.postView.my_vote === -1}
           >
             {this.state.downvoteLoading ? (
               <Spinner />
@@ -492,7 +494,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get postLink() {
-    let post = this.postView.post;
+    const post = this.postView.post;
     return (
       <Link
         className={`d-inline-block ${
@@ -512,8 +514,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   postTitleLine() {
-    let post = this.postView.post;
-    let url = post.url;
+    const post = this.postView.post;
+    const url = post.url;
 
     return (
       <div className="post-title overflow-hidden">
@@ -604,7 +606,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   duplicatesLine() {
-    let dupes = this.props.crossPosts;
+    const dupes = this.props.crossPosts;
     return dupes && dupes.length > 0 ? (
       <ul className="list-inline mb-1 small text-muted">
         <>
@@ -626,7 +628,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    let post = this.postView.post;
+    const post = this.postView.post;
 
     return (
       <div className="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
@@ -660,7 +662,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postActions(mobile = false) {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
-    let post_view = this.postView;
+    const post_view = this.postView;
     return (
       <>
         {this.saveButton}
@@ -701,7 +703,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get commentsButton() {
-    let post_view = this.postView;
+    const post_view = this.postView;
     return (
       <button className="btn btn-link text-muted py-0 pl-0">
         <Link
@@ -730,7 +732,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get unreadCount(): number | undefined {
-    let pv = this.postView;
+    const pv = this.postView;
     return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0
       ? undefined
       : pv.unread_comments;
@@ -738,17 +740,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get mobileVotes() {
     // TODO: make nicer
-    let tippy = showScores() ? { "data-tippy-content": this.pointsTippy } : {};
+    const tippy = showScores()
+      ? { "data-tippy-content": this.pointsTippy }
+      : {};
     return (
       <>
         <div>
           <button
             className={`btn-animate btn py-0 px-1 ${
-              this.postView.my_vote == 1 ? "text-info" : "text-muted"
+              this.postView.my_vote === 1 ? "text-info" : "text-muted"
             }`}
             {...tippy}
             onClick={linkEvent(this, this.handleUpvote)}
             aria-label={i18n.t("upvote")}
+            aria-pressed={this.postView.my_vote === 1}
           >
             {this.state.upvoteLoading ? (
               <Spinner />
@@ -766,11 +771,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.props.enableDownvotes && (
             <button
               className={`ml-2 btn-animate btn py-0 px-1 ${
-                this.postView.my_vote == -1 ? "text-danger" : "text-muted"
+                this.postView.my_vote === -1 ? "text-danger" : "text-muted"
               }`}
               onClick={linkEvent(this, this.handleDownvote)}
               {...tippy}
               aria-label={i18n.t("downvote")}
+              aria-pressed={this.postView.my_vote === -1}
             >
               {this.state.downvoteLoading ? (
                 <Spinner />
@@ -796,8 +802,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get saveButton() {
-    let saved = this.postView.saved;
-    let label = saved ? i18n.t("unsave") : i18n.t("save");
+    const saved = this.postView.saved;
+    const label = saved ? i18n.t("unsave") : i18n.t("save");
     return (
       <button
         className="btn btn-link btn-animate text-muted py-0"
@@ -877,8 +883,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get deleteButton() {
-    let deleted = this.postView.post.deleted;
-    let label = !deleted ? i18n.t("delete") : i18n.t("restore");
+    const deleted = this.postView.post.deleted;
+    const label = !deleted ? i18n.t("delete") : i18n.t("restore");
     return (
       <button
         className="btn btn-link btn-animate text-muted py-0"
@@ -930,8 +936,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get lockButton() {
-    let locked = this.postView.post.locked;
-    let label = locked ? i18n.t("unlock") : i18n.t("lock");
+    const locked = this.postView.post.locked;
+    const label = locked ? i18n.t("unlock") : i18n.t("lock");
     return (
       <button
         className="btn btn-link btn-animate text-muted py-0"
@@ -1009,7 +1015,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get modRemoveButton() {
-    let removed = this.postView.post.removed;
+    const removed = this.postView.post.removed;
     return (
       <button
         className="btn btn-link btn-animate text-muted py-0"
@@ -1035,7 +1041,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
    */
   userActionsLine() {
     // TODO: make nicer
-    let post_view = this.postView;
+    const post_view = this.postView;
     return (
       this.state.showAdvanced && (
         <>
@@ -1197,8 +1203,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   removeAndBanDialogs() {
-    let post = this.postView;
-    let purgeTypeText =
+    const post = this.postView;
+    const purgeTypeText =
       this.state.purgeType == PurgeType.Post
         ? i18n.t("purge_post")
         : `${i18n.t("purge")} ${post.creator.name}`;
@@ -1359,7 +1365,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   mobileThumbnail() {
-    let post = this.postView.post;
+    const post = this.postView.post;
     return post.thumbnail_url || (post.url && isImage(post.url)) ? (
       <div className="row">
         <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
@@ -1376,7 +1382,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   showMobilePreview() {
-    let body = this.postView.post.body;
+    const body = this.postView.post.body;
     return !this.showBody && body ? (
       <div className="md-div mb-1 preview-lines">{body}</div>
     ) : (
@@ -1529,8 +1535,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   crossPostBody(): string | undefined {
-    let post = this.postView.post;
-    let body = post.body;
+    const post = this.postView.post;
+    const body = post.body;
 
     return body
       ? `${i18n.t("cross_posted_from")} ${post.ap_id}\n\n${body.replace(
@@ -1674,15 +1680,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ banLoading: true });
 
-    let ban = !i.props.post_view.creator_banned_from_community;
+    const ban = !i.props.post_view.creator_banned_from_community;
     // If its an unban, restore all their data
     if (ban == false) {
       i.setState({ removeData: false });
     }
-    let person_id = i.props.post_view.creator.id;
-    let remove_data = i.state.removeData;
-    let reason = i.state.banReason;
-    let expires = futureDaysToUnixTime(i.state.banExpireDays);
+    const person_id = i.props.post_view.creator.id;
+    const remove_data = i.state.removeData;
+    const reason = i.state.banReason;
+    const expires = futureDaysToUnixTime(i.state.banExpireDays);
 
     if (i.state.banType == BanType.Community) {
       const community_id = i.postView.community.id;
@@ -1798,17 +1804,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get pointsTippy(): string {
-    let points = i18n.t("number_of_points", {
+    const points = i18n.t("number_of_points", {
       count: Number(this.postView.counts.score),
       formattedCount: Number(this.postView.counts.score),
     });
 
-    let upvotes = i18n.t("number_of_upvotes", {
+    const upvotes = i18n.t("number_of_upvotes", {
       count: Number(this.postView.counts.upvotes),
       formattedCount: Number(this.postView.counts.upvotes),
     });
 
-    let downvotes = i18n.t("number_of_downvotes", {
+    const downvotes = i18n.t("number_of_downvotes", {
       count: Number(this.postView.counts.downvotes),
       formattedCount: Number(this.postView.counts.downvotes),
     });

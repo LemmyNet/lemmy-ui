@@ -69,7 +69,7 @@ export class CommunityForm extends Component<
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
 
-    let cv = this.props.community_view;
+    const cv = this.props.community_view;
 
     if (cv) {
       this.state = {

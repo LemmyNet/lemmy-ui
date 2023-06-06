@@ -119,8 +119,8 @@ export class PasswordChange extends Component<any, State> {
     event.preventDefault();
     i.setState({ passwordChangeRes: { state: "loading" } });
 
-    let password = i.state.form.password;
-    let password_verify = i.state.form.password_verify;
+    const password = i.state.form.password;
+    const password_verify = i.state.form.password_verify;
 
     if (password && password_verify) {
       i.setState({

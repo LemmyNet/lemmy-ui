@@ -53,9 +53,9 @@ export class RegistrationApplication extends Component<
   }
 
   render() {
-    let a = this.props.application;
-    let ra = this.props.application.registration_application;
-    let accepted = a.creator_local_user.accepted_application;
+    const a = this.props.application;
+    const ra = this.props.application.registration_application;
+    const accepted = a.creator_local_user.accepted_application;
 
     return (
       <div>

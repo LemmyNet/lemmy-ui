@@ -526,13 +526,15 @@ export class Reports extends Component<any, ReportsState> {
       messageReportsRes: { state: "loading" },
     });
 
-    let form: ListCommentReports | ListPostReports | ListPrivateMessageReports =
-      {
-        unresolved_only,
-        page,
-        limit,
-        auth,
-      };
+    const form:
+      | ListCommentReports
+      | ListPostReports
+      | ListPrivateMessageReports = {
+      unresolved_only,
+      page,
+      limit,
+      auth,
+    };
 
     this.setState({
       commentReportsRes: await HttpService.client.listCommentReports(form),

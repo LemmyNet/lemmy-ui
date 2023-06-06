@@ -538,7 +538,7 @@ export class Post extends Component<any, PostState> {
 
   sidebar() {
     const res = this.state.postRes;
-    if (res.state == "success") {
+    if (res.state === "success") {
       return (
         <div className="mb-3">
           <Sidebar

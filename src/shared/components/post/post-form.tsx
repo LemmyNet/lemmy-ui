@@ -162,10 +162,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   render() {
-    let firstLang = this.state.form.language_id;
-    let selectedLangs = firstLang ? Array.of(firstLang) : undefined;
+    const firstLang = this.state.form.language_id;
+    const selectedLangs = firstLang ? Array.of(firstLang) : undefined;
 
-    let url = this.state.form.url;
+    const url = this.state.form.url;
 
     return (
       <div>
@@ -490,8 +490,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     i.setState({ loading: true });
     const auth = myAuthRequired();
 
-    let pForm = i.state.form;
-    let pv = i.props.post_view;
+    const pForm = i.state.form;
+    const pv = i.props.post_view;
     if (pv) {
       await i.props.onEdit?.({
         name: pForm.name,
@@ -519,14 +519,14 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
-    let sTitle = d.suggestedTitle;
+    const sTitle = d.suggestedTitle;
     if (sTitle) {
       d.i.setState(
         s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
       );
       d.i.setState({ suggestedPostsRes: { state: "empty" } });
       setTimeout(() => {
-        let textarea: any = document.getElementById("post-title");
+        const textarea: any = document.getElementById("post-title");
         autosize.update(textarea);
       }, 10);
     }
@@ -538,7 +538,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   async fetchPageTitle() {
-    let url = this.state.form.url;
+    const url = this.state.form.url;
     if (url && validURL(url)) {
       this.setState({ metadataRes: { state: "loading" } });
       this.setState({
@@ -553,7 +553,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   async fetchSimilarPosts() {
-    let q = this.state.form.name;
+    const q = this.state.form.name;
     if (q && q !== "") {
       this.setState({ suggestedPostsRes: { state: "loading" } });
       this.setState({
@@ -601,7 +601,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   handleImageUploadPaste(i: PostForm, event: any) {
-    let image = event.clipboardData.files[0];
+    const image = event.clipboardData.files[0];
     if (image) {
       i.handleImageUpload(i, image);
     }

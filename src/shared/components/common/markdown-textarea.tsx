@@ -84,7 +84,7 @@ export class MarkdownTextArea extends Component<
   }
 
   componentDidMount() {
-    let textarea: any = document.getElementById(this.id);
+    const textarea: any = document.getElementById(this.id);
     if (textarea) {
       autosize(textarea);
       this.tribute.attach(textarea);
@@ -136,7 +136,7 @@ export class MarkdownTextArea extends Component<
   }
 
   render() {
-    let languageId = this.state.languageId;
+    const languageId = this.state.languageId;
 
     return (
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
@@ -325,7 +325,7 @@ export class MarkdownTextArea extends Component<
   handleEmoji(i: MarkdownTextArea, e: any) {
     let value = e.native;
     if (value == null) {
-      let emoji = customEmojisLookup.get(e.id)?.custom_emoji;
+      const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
       if (emoji) {
         value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;
       }
@@ -334,7 +334,7 @@ export class MarkdownTextArea extends Component<
       content: `${i.state.content ?? ""} ${value} `,
     });
     i.contentChange();
-    let textarea: any = document.getElementById(i.id);
+    const textarea: any = document.getElementById(i.id);
     autosize.update(textarea);
   }
 
@@ -424,7 +424,7 @@ export class MarkdownTextArea extends Component<
 
   contentChange() {
     // Coerces the undefineds to empty strings, for replacing in the DB
-    let content = this.state.content ?? "";
+    const content = this.state.content ?? "";
     this.props.onContentChange?.(content);
   }
 
@@ -590,7 +590,7 @@ export class MarkdownTextArea extends Component<
   }
 
   simpleInsert(chars: string) {
-    let content = this.state.content;
+    const content = this.state.content;
     if (!content) {
       this.setState({ content: `${chars} ` });
     } else {
@@ -599,7 +599,7 @@ export class MarkdownTextArea extends Component<
       });
     }
 
-    let textarea: any = document.getElementById(this.id);
+    const textarea: any = document.getElementById(this.id);
     textarea.focus();
     setTimeout(() => {
       autosize.update(textarea);
@@ -609,8 +609,8 @@ export class MarkdownTextArea extends Component<
 
   handleInsertSpoiler(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    let beforeChars = `\n::: spoiler ${i18n.t("spoiler")}\n`;
-    let afterChars = "\n:::\n";
+    const beforeChars = `\n::: spoiler ${i18n.t("spoiler")}\n`;
+    const afterChars = "\n:::\n";
     i.simpleSurroundBeforeAfter(beforeChars, afterChars);
   }
 

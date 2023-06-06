@@ -40,7 +40,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
   }
 
   render() {
-    let initialContent =
+    const initialContent =
       typeof this.props.node !== "number"
         ? this.props.edit
           ? this.props.node.comment_view.comment.content
@@ -89,7 +89,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
 
   handleCommentSubmit(content: string, form_id: string, language_id?: number) {
     const { node, onUpsertComment, edit } = this.props;
-
     if (typeof node === "number") {
       const post_id = node;
       onUpsertComment({

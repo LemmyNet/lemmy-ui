@@ -36,9 +36,9 @@ export class PrivateMessageReport extends Component<Props, State> {
   }
 
   render() {
-    let r = this.props.report;
-    let pmr = r.private_message_report;
-    let tippyContent = i18n.t(
+    const r = this.props.report;
+    const pmr = r.private_message_report;
+    const tippyContent = i18n.t(
       r.private_message_report.resolved ? "unresolve_report" : "resolve_report"
     );
 
@@ -99,7 +99,7 @@ export class PrivateMessageReport extends Component<Props, State> {
 
   handleResolveReport(i: PrivateMessageReport) {
     i.setState({ loading: true });
-    let pmr = i.props.report.private_message_report;
+    const pmr = i.props.report.private_message_report;
     i.props.onResolveReport({
       report_id: pmr.id,
       resolved: !pmr.resolved,

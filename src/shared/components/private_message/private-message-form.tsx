@@ -160,9 +160,9 @@ export class PrivateMessageForm extends Component<
   handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
     event.preventDefault();
     i.setState({ loading: true });
-    let pm = i.props.privateMessageView;
-    let auth = myAuthRequired();
-    let content = i.state.content ?? "";
+    const pm = i.props.privateMessageView;
+    const auth = myAuthRequired();
+    const content = i.state.content ?? "";
     if (pm) {
       i.props.onEdit?.({
         private_message_id: pm.private_message.id,
