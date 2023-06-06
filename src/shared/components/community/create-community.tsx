@@ -4,7 +4,7 @@ import {
   GetSiteResponse,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { HttpService, apiWrapper } from "../../services/HttpService";
+import { HttpService } from "../../services/HttpService";
 import { enableNsfw, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
@@ -53,7 +53,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   }
 
   async handleCommunityCreate(form: CreateCommunityI) {
-    const res = await apiWrapper(HttpService.client.createCommunity(form));
+    const res = await HttpService.client.createCommunity(form);
     if (res.state === "success") {
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);

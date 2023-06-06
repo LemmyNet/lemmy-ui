@@ -9,12 +9,7 @@ import {
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   editRegistrationApplication,
   fetchLimit,
@@ -62,9 +57,7 @@ export class RegistrationApplications extends Component<
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        appsRes: apiWrapperIso(
-          this.isoData.routeData[0] as ListRegistrationApplicationsResponse
-        ),
+        appsRes: this.isoData.routeData[0],
       };
     }
   }
@@ -188,18 +181,22 @@ export class RegistrationApplications extends Component<
     this.refetch();
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): Promise<any>[] {
+    const promises: Promise<RequestState<any>>[] = [];
 
-    let auth = req.auth;
     if (auth) {
-      let form: ListRegistrationApplications = {
+      const form: ListRegistrationApplications = {
         unread_only: true,
         page: 1,
         limit: fetchLimit,
         auth,
       };
-      promises.push(req.client.listRegistrationApplications(form));
+      promises.push(client.listRegistrationApplications(form));
+    } else {
+      promises.push(Promise.resolve({ state: "empty" }));
     }
 
     return promises;
@@ -211,22 +208,19 @@ export class RegistrationApplications extends Component<
       appsRes: { state: "loading" },
     });
     this.setState({
-      appsRes: await apiWrapper(
-        HttpService.client.listRegistrationApplications({
-          unread_only: unread_only,
-          page: this.state.page,
-          limit: fetchLimit,
-          auth: myAuthRequired(),
-        })
-      ),
+      appsRes: await HttpService.client.listRegistrationApplications({
+        unread_only: unread_only,
+        page: this.state.page,
+        limit: fetchLimit,
+        auth: myAuthRequired(),
+      }),
     });
   }
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {
-    const approveRes = await apiWrapper(
-      HttpService.client.approveRegistrationApplication(form)
+    const approveRes = await HttpService.client.approveRegistrationApplication(
+      form
     );
-
     this.setState(s => {
       if (s.appsRes.state == "success" && approveRes.state == "success") {
         s.appsRes.data.registration_applications = editRegistrationApplication(

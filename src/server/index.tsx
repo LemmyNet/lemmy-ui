@@ -19,6 +19,7 @@ import {
   IsoDataOptionalSite,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
+import { RequestState, wrapClient } from "../shared/services/HttpService";
 import {
   ErrorPageData,
   favIconPngUrl,
@@ -121,7 +122,7 @@ server.get("/*", async (req, res) => {
     const getSiteForm: GetSite = { auth };
 
     const headers = setForwardedHeaders(req.headers);
-    const client = new LemmyHttp(getHttpBaseInternal(), headers);
+    const client = wrapClient(new LemmyHttp(getHttpBaseInternal(), headers));
 
     const { path, url, query } = req;
 
@@ -129,25 +130,25 @@ server.get("/*", async (req, res) => {
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
     let site: GetSiteResponse | undefined = undefined;
-    let routeData: any[] = [];
-    let errorPageData: ErrorPageData | undefined;
-    try {
-      let try_site: any = await client.getSite(getSiteForm);
-      if (try_site.error == "not_logged_in") {
-        console.error(
-          "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
-        );
-        getSiteForm.auth = undefined;
-        auth = undefined;
-        try_site = await client.getSite(getSiteForm);
-      }
+    const routeData: RequestState<any>[] = [];
+    let errorPageData: ErrorPageData | undefined = undefined;
+    let try_site = await client.getSite(getSiteForm);
+    if (try_site.state === "failed" && try_site.msg == "not_logged_in") {
+      console.error(
+        "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
+      );
+      getSiteForm.auth = undefined;
+      auth = undefined;
+      try_site = await client.getSite(getSiteForm);
+    }
 
-      if (!auth && isAuthPath(path)) {
-        res.redirect("/login");
-        return;
-      }
+    if (!auth && isAuthPath(path)) {
+      res.redirect("/login");
+      return;
+    }
 
-      site = try_site;
+    if (try_site.state === "success") {
+      site = try_site.data;
       initializeSite(site);
 
       if (site) {
@@ -160,23 +161,25 @@ server.get("/*", async (req, res) => {
         };
 
         if (activeRoute?.fetchInitialData) {
-          routeData = await Promise.all([
-            ...activeRoute.fetchInitialData(initialFetchReq),
-          ]);
+          routeData.push(
+            ...(await Promise.all([
+              ...activeRoute.fetchInitialData(initialFetchReq),
+            ]))
+          );
         }
       }
-    } catch (error) {
-      errorPageData = getErrorPageData(error, site);
+    } else if (try_site.state === "failed") {
+      errorPageData = getErrorPageData(new Error(try_site.msg), site);
     }
 
     // Redirect to the 404 if there's an API error
-    if (routeData[0] && routeData[0].error) {
-      const error = routeData[0].error;
+    if (routeData[0] && routeData[0].state === "failed") {
+      const error = routeData[0].msg;
       console.error(error);
       if (error === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        errorPageData = getErrorPageData(error, site);
+        errorPageData = getErrorPageData(new Error(error), site);
       }
     }
 

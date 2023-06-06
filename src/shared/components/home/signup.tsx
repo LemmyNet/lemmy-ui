@@ -11,11 +11,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   isBrowser,
   joinLemmyUrl,
@@ -102,7 +98,7 @@ export class Signup extends Component<any, State> {
   async fetchCaptcha() {
     this.setState({ captchaRes: { state: "loading" } });
     this.setState({
-      captchaRes: await apiWrapper(HttpService.client.getCaptcha({})),
+      captchaRes: await HttpService.client.getCaptcha({}),
     });
 
     this.setState(s => {
@@ -441,20 +437,17 @@ export class Signup extends Component<any, State> {
     if (cForm.username && cForm.password && cForm.password_verify) {
       i.setState({ registerRes: { state: "loading" } });
 
-      const registerRes = await apiWrapper(
-        HttpService.client.register({
-          username: cForm.username,
-          password: cForm.password,
-          password_verify: cForm.password_verify,
-          email: cForm.email,
-          show_nsfw: cForm.show_nsfw,
-          captcha_uuid: cForm.captcha_uuid,
-          captcha_answer: cForm.captcha_answer,
-          honeypot: cForm.honeypot,
-          answer: cForm.answer,
-        })
-      );
-
+      const registerRes = await HttpService.client.register({
+        username: cForm.username,
+        password: cForm.password,
+        password_verify: cForm.password_verify,
+        email: cForm.email,
+        show_nsfw: cForm.show_nsfw,
+        captcha_uuid: cForm.captcha_uuid,
+        captcha_answer: cForm.captcha_answer,
+        honeypot: cForm.honeypot,
+        answer: cForm.answer,
+      });
       switch (registerRes.state) {
         case "failed": {
           toast(registerRes.msg, "danger");

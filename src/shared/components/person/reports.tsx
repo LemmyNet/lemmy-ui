@@ -20,11 +20,7 @@ import {
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, UserService } from "../../services";
-import {
-  RequestState,
-  apiWrapper,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { RequestState } from "../../services/HttpService";
 import {
   amAdmin,
   editCommentReport,
@@ -101,21 +97,18 @@ export class Reports extends Component<any, ReportsState> {
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
+      const [commentReportsRes, postReportsRes, messageReportsRes] =
+        this.isoData.routeData;
       this.state = {
         ...this.state,
-        commentReportsRes: apiWrapperIso(
-          this.isoData.routeData[0] as ListCommentReportsResponse
-        ),
-        postReportsRes: apiWrapperIso(
-          this.isoData.routeData[1] as ListPostReportsResponse
-        ),
+        commentReportsRes,
+        postReportsRes,
       };
+
       if (amAdmin()) {
         this.state = {
           ...this.state,
-          messageReportsRes: apiWrapperIso(
-            this.isoData.routeData[2] as ListPrivateMessageReportsResponse
-          ),
+          messageReportsRes,
         };
       }
     }
@@ -470,13 +463,15 @@ export class Reports extends Component<any, ReportsState> {
     await i.refetch();
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    const promises: Promise<any>[] = [];
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): Promise<any>[] {
+    const promises: Promise<RequestState<any>>[] = [];
 
     const unresolved_only = true;
     const page = 1;
     const limit = fetchLimit;
-    const auth = req.auth;
 
     if (auth) {
       const commentReportsForm: ListCommentReports = {
@@ -485,7 +480,7 @@ export class Reports extends Component<any, ReportsState> {
         limit,
         auth,
       };
-      promises.push(req.client.listCommentReports(commentReportsForm));
+      promises.push(client.listCommentReports(commentReportsForm));
 
       const postReportsForm: ListPostReports = {
         unresolved_only,
@@ -493,7 +488,7 @@ export class Reports extends Component<any, ReportsState> {
         limit,
         auth,
       };
-      promises.push(req.client.listPostReports(postReportsForm));
+      promises.push(client.listPostReports(postReportsForm));
 
       if (amAdmin()) {
         const privateMessageReportsForm: ListPrivateMessageReports = {
@@ -503,9 +498,17 @@ export class Reports extends Component<any, ReportsState> {
           auth,
         };
         promises.push(
-          req.client.listPrivateMessageReports(privateMessageReportsForm)
+          client.listPrivateMessageReports(privateMessageReportsForm)
         );
+      } else {
+        promises.push(Promise.resolve({ state: "empty" }));
       }
+    } else {
+      promises.push(
+        Promise.resolve({ state: "empty" }),
+        Promise.resolve({ state: "empty" }),
+        Promise.resolve({ state: "empty" })
+      );
     }
 
     return promises;
@@ -532,37 +535,31 @@ export class Reports extends Component<any, ReportsState> {
       };
 
     this.setState({
-      commentReportsRes: await apiWrapper(
-        HttpService.client.listCommentReports(form)
-      ),
-      postReportsRes: await apiWrapper(
-        HttpService.client.listPostReports(form)
-      ),
+      commentReportsRes: await HttpService.client.listCommentReports(form),
+      postReportsRes: await HttpService.client.listPostReports(form),
     });
 
     if (amAdmin()) {
       this.setState({
-        messageReportsRes: await apiWrapper(
-          HttpService.client.listPrivateMessageReports(form)
+        messageReportsRes: await HttpService.client.listPrivateMessageReports(
+          form
         ),
       });
     }
   }
 
   async handleResolveCommentReport(form: ResolveCommentReport) {
-    const res = await apiWrapper(HttpService.client.resolveCommentReport(form));
+    const res = await HttpService.client.resolveCommentReport(form);
     this.findAndUpdateCommentReport(res);
   }
 
   async handleResolvePostReport(form: ResolvePostReport) {
-    const res = await apiWrapper(HttpService.client.resolvePostReport(form));
+    const res = await HttpService.client.resolvePostReport(form);
     this.findAndUpdatePostReport(res);
   }
 
   async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
-    const res = await apiWrapper(
-      HttpService.client.resolvePrivateMessageReport(form)
-    );
+    const res = await HttpService.client.resolvePrivateMessageReport(form);
     this.findAndUpdatePrivateMessageReport(res);
   }
 

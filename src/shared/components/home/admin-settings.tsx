@@ -5,19 +5,13 @@ import {
   DeleteCustomEmoji,
   EditCustomEmoji,
   EditSite,
-  GetBannedPersons,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   PersonView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   capitalizeFirstLetter,
   fetchThemeList,
@@ -70,15 +64,12 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
+      const [bannedRes, instancesRes, themeList] = this.isoData.routeData;
       this.state = {
         ...this.state,
-        bannedRes: apiWrapperIso(
-          this.isoData.routeData[0] as BannedPersonsResponse
-        ),
-        instancesRes: apiWrapperIso(
-          this.isoData.routeData[1] as GetFederatedInstancesResponse
-        ),
-        themeList: apiWrapperIso(this.isoData.routeData[2] as string[]),
+        bannedRes,
+        instancesRes,
+        themeList,
       };
     }
   }
@@ -93,29 +84,32 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     const auth = myAuthRequired();
 
     this.setState({
-      bannedRes: await apiWrapper(
-        HttpService.client.getBannedPersons({
-          auth,
-        })
-      ),
-      instancesRes: await apiWrapper(
-        HttpService.client.getFederatedInstances({
-          auth,
-        })
-      ),
-      themeList: await apiWrapper(fetchThemeList()),
+      bannedRes: await HttpService.client.getBannedPersons({
+        auth,
+      }),
+      instancesRes: await HttpService.client.getFederatedInstances({
+        auth,
+      }),
+      themeList: await fetchThemeList(),
     });
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): Promise<any>[] {
+    const promises: Promise<RequestState<any>>[] = [];
 
-    let auth = req.auth;
     if (auth) {
-      let bannedPersonsForm: GetBannedPersons = { auth };
-      promises.push(req.client.getBannedPersons(bannedPersonsForm));
-      promises.push(req.client.getFederatedInstances({ auth }));
+      promises.push(client.getBannedPersons({ auth }));
+      promises.push(client.getFederatedInstances({ auth }));
       promises.push(fetchThemeList());
+    } else {
+      promises.push(
+        Promise.resolve({ state: "empty" }),
+        Promise.resolve({ state: "empty" }),
+        Promise.resolve({ state: "empty" })
+      );
     }
 
     return promises;
@@ -274,7 +268,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditSite(form: EditSite) {
-    const editRes = await apiWrapper(HttpService.client.editSite(form));
+    const editRes = await HttpService.client.editSite(form);
 
     if (editRes.state === "success") {
       this.setState(s => {
@@ -295,9 +289,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   async handleLeaveAdminTeam(i: AdminSettings) {
     i.setState({ leaveAdminTeamRes: { state: "loading" } });
     this.setState({
-      leaveAdminTeamRes: await apiWrapper(
-        HttpService.client.leaveAdmin({ auth: myAuthRequired() })
-      ),
+      leaveAdminTeamRes: await HttpService.client.leaveAdmin({
+        auth: myAuthRequired(),
+      }),
     });
 
     if (this.state.leaveAdminTeamRes.state === "success") {
@@ -307,21 +301,21 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
-    const res = await apiWrapper(HttpService.client.editCustomEmoji(form));
+    const res = await HttpService.client.editCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
-    const res = await apiWrapper(HttpService.client.deleteCustomEmoji(form));
+    const res = await HttpService.client.deleteCustomEmoji(form);
     if (res.state === "success") {
       removeFromEmojiDataModel(res.data.id);
     }
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
-    const res = await apiWrapper(HttpService.client.createCustomEmoji(form));
+    const res = await HttpService.client.createCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }

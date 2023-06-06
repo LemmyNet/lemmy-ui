@@ -13,7 +13,6 @@ import {
   GetModlog,
   GetModlogResponse,
   GetPersonDetails,
-  GetPersonDetailsResponse,
   ModAddCommunityView,
   ModAddView,
   ModBanFromCommunityView,
@@ -30,12 +29,7 @@ import {
 import moment from "moment";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-  apiWrapperIso,
-} from "../services/HttpService";
+import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -624,7 +618,7 @@ async function createNewOptions({
 
   if (text.length > 0) {
     newOptions.push(
-      ...(await fetchUsers(text)).users
+      ...(await fetchUsers(text))
         .slice(0, Number(fetchLimit))
         .map<Choice>(personToChoice)
     );
@@ -659,37 +653,25 @@ export class Modlog extends Component<
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
+      const [res, communityRes, filteredModRes, filteredUserRes] =
+        this.isoData.routeData;
       this.state = {
         ...this.state,
-        res: apiWrapperIso(this.isoData.routeData[0] as GetModlogResponse),
+        res,
+        communityRes,
       };
 
-      const communityRes: GetCommunityResponse | undefined =
-        this.isoData.routeData[1];
-
-      if (communityRes) {
-        // Getting the moderators
+      if (filteredModRes.state === "success") {
         this.state = {
           ...this.state,
-          communityRes: apiWrapperIso(communityRes),
+          modSearchOptions: [personToChoice(filteredModRes.data.person_view)],
         };
       }
 
-      const filteredModRes: GetPersonDetailsResponse | undefined =
-        this.isoData.routeData[2];
-      if (filteredModRes) {
+      if (filteredUserRes.state === "success") {
         this.state = {
           ...this.state,
-          modSearchOptions: [personToChoice(filteredModRes.person_view)],
-        };
-      }
-
-      const filteredUserRes: GetPersonDetailsResponse | undefined =
-        this.isoData.routeData[3];
-      if (filteredUserRes) {
-        this.state = {
-          ...this.state,
-          userSearchOptions: [personToChoice(filteredUserRes.person_view)],
+          userSearchOptions: [personToChoice(filteredUserRes.data.person_view)],
         };
       }
     }
@@ -951,31 +933,27 @@ export class Modlog extends Component<
 
     this.setState({ res: { state: "loading" } });
     this.setState({
-      res: await apiWrapper(
-        HttpService.client.getModlog({
-          community_id: communityId,
-          page,
-          limit: fetchLimit,
-          type_: actionType,
-          other_person_id: userId ?? undefined,
-          mod_person_id: !this.isoData.site_res.site_view.local_site
-            .hide_modlog_mod_names
-            ? modId ?? undefined
-            : undefined,
-          auth,
-        })
-      ),
+      res: await HttpService.client.getModlog({
+        community_id: communityId,
+        page,
+        limit: fetchLimit,
+        type_: actionType,
+        other_person_id: userId ?? undefined,
+        mod_person_id: !this.isoData.site_res.site_view.local_site
+          .hide_modlog_mod_names
+          ? modId ?? undefined
+          : undefined,
+        auth,
+      }),
     });
 
     if (communityId) {
       this.setState({ communityRes: { state: "loading" } });
       this.setState({
-        communityRes: await apiWrapper(
-          HttpService.client.getCommunity({
-            id: communityId,
-            auth,
-          })
-        ),
+        communityRes: await HttpService.client.getCommunity({
+          id: communityId,
+          auth,
+        }),
       });
     }
   }
@@ -986,9 +964,11 @@ export class Modlog extends Component<
     query: { modId: urlModId, page, userId: urlUserId, actionType },
     auth,
     site,
-  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<
+    RequestState<any>
+  >[] {
     const pathSplit = path.split("/");
-    const promises: Promise<any>[] = [];
+    const promises: Promise<RequestState<any>>[] = [];
     const communityId = getIdFromString(pathSplit[2]);
     const modId = !site.site_view.local_site.hide_modlog_mod_names
       ? getIdFromString(urlModId)
@@ -1014,7 +994,7 @@ export class Modlog extends Component<
       };
       promises.push(client.getCommunity(communityForm));
     } else {
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     }
 
     if (modId) {
@@ -1025,7 +1005,7 @@ export class Modlog extends Component<
 
       promises.push(client.getPersonDetails(getPersonForm));
     } else {
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     }
 
     if (userId) {
@@ -1036,7 +1016,7 @@ export class Modlog extends Component<
 
       promises.push(client.getPersonDetails(getPersonForm));
     } else {
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     }
 
     return promises;

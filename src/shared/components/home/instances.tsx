@@ -6,12 +6,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import { isInitialRoute, relTags, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -35,9 +30,7 @@ export class Instances extends Component<any, InstancesState> {
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        instancesRes: apiWrapperIso(
-          this.isoData.routeData[0] as GetFederatedInstancesResponse
-        ),
+        instancesRes: this.isoData.routeData[0],
       };
     }
   }
@@ -54,16 +47,14 @@ export class Instances extends Component<any, InstancesState> {
     });
 
     this.setState({
-      instancesRes: await apiWrapper(
-        HttpService.client.getFederatedInstances({})
-      ),
+      instancesRes: await HttpService.client.getFederatedInstances({}),
     });
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
-    promises.push(req.client.getFederatedInstances({}));
-    return promises;
+  static fetchInitialData(
+    req: InitialFetchRequest
+  ): Promise<RequestState<any>>[] {
+    return [req.client.getFederatedInstances({})];
   }
 
   get documentTitle(): string {

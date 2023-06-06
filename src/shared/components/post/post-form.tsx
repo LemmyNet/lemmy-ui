@@ -12,11 +12,7 @@ import {
 import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   Choice,
   archiveTodayUrl,
@@ -34,7 +30,6 @@ import {
   setupTippy,
   toast,
   trendingFetchLimit,
-  uploadImage,
   validTitle,
   validURL,
   webArchiveUrl,
@@ -546,9 +541,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (url && validURL(url)) {
       this.setState({ metadataRes: { state: "loading" } });
       this.setState({
-        metadataRes: await apiWrapper(
-          HttpService.client.getSiteMetadata({ url })
-        ),
+        metadataRes: await HttpService.client.getSiteMetadata({ url }),
       });
     }
   }
@@ -563,18 +556,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     if (q && q !== "") {
       this.setState({ suggestedPostsRes: { state: "loading" } });
       this.setState({
-        suggestedPostsRes: await apiWrapper(
-          HttpService.client.search({
-            q,
-            type_: "Posts",
-            sort: "TopAll",
-            listing_type: "All",
-            community_id: this.state.form.community_id,
-            page: 1,
-            limit: trendingFetchLimit,
-            auth: myAuth(),
-          })
-        ),
+        suggestedPostsRes: await HttpService.client.search({
+          q,
+          type_: "Posts",
+          sort: "TopAll",
+          listing_type: "All",
+          community_id: this.state.form.community_id,
+          page: 1,
+          limit: trendingFetchLimit,
+          auth: myAuth(),
+        }),
       });
     }
   }
@@ -626,24 +617,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     i.setState({ imageLoading: true });
 
-    uploadImage(file)
-      .then(res => {
-        console.log("pictrs upload:");
-        console.log(res);
-        if (res.msg === "ok") {
-          i.state.form.url = res.url;
-          i.setState({ imageLoading: false });
-          pictrsDeleteToast(file.name, res.delete_url as string);
+    HttpService.client.uploadImage(file).then(res => {
+      console.log("pictrs upload:");
+      console.log(res);
+      if (res.state === "success") {
+        if (res.data.msg === "ok") {
+          i.state.form.url = res.data.url;
+          pictrsDeleteToast(file.name, res.data.delete_url as string);
         } else {
-          i.setState({ imageLoading: false });
           toast(JSON.stringify(res), "danger");
         }
-      })
-      .catch(error => {
-        i.setState({ imageLoading: false });
-        console.error(error);
-        toast(error, "danger");
-      });
+      } else if (res.state === "failed") {
+        console.error(res.msg);
+        toast(res.msg, "danger");
+      }
+
+      i.setState({ imageLoading: false });
+    });
   }
 
   handleCommunitySearch = debounce(async (text: string) => {
@@ -657,9 +647,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
 
     if (text.length > 0) {
-      newOptions.push(
-        ...(await fetchCommunities(text)).communities.map(communityToChoice)
-      );
+      newOptions.push(...(await fetchCommunities(text)).map(communityToChoice));
 
       this.setState({
         communitySearchOptions: newOptions,

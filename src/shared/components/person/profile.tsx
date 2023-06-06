@@ -49,12 +49,7 @@ import moment from "moment";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { UserService } from "../../services";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
   canMod,
@@ -209,9 +204,7 @@ export class Profile extends Component<
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        personRes: apiWrapperIso(
-          this.isoData.routeData[0] as GetPersonDetailsResponse
-        ),
+        personRes: this.isoData.routeData[0],
       };
     }
   }
@@ -232,16 +225,14 @@ export class Profile extends Component<
 
     this.setState({ personRes: { state: "empty" } });
     this.setState({
-      personRes: await apiWrapper(
-        HttpService.client.getPersonDetails({
-          username: this.props.match.params.username,
-          sort,
-          saved_only: view === PersonDetailsView.Saved,
-          page,
-          limit: fetchLimit,
-          auth: myAuth(),
-        })
-      ),
+      personRes: await HttpService.client.getPersonDetails({
+        username: this.props.match.params.username,
+        sort,
+        saved_only: view === PersonDetailsView.Saved,
+        page,
+        limit: fetchLimit,
+        auth: myAuth(),
+      }),
     });
     restoreScrollPosition(this.context);
     this.setPersonBlock();
@@ -276,7 +267,9 @@ export class Profile extends Component<
     path,
     query: { page, sort, view: urlView },
     auth,
-  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<
+    RequestState<any>
+  >[] {
     const pathSplit = path.split("/");
 
     const username = pathSplit[2];
@@ -770,17 +763,14 @@ export class Profile extends Component<
         i.setState({ removeData: false });
       }
 
-      const res = await apiWrapper(
-        HttpService.client.banPerson({
-          person_id: person.id,
-          ban,
-          remove_data: removeData,
-          reason: banReason,
-          expires: futureDaysToUnixTime(banExpireDays),
-          auth: myAuthRequired(),
-        })
-      );
-
+      const res = await HttpService.client.banPerson({
+        person_id: person.id,
+        ban,
+        remove_data: removeData,
+        reason: banReason,
+        expires: futureDaysToUnixTime(banExpireDays),
+        auth: myAuthRequired(),
+      });
       // TODO
       this.updateBan(res);
       i.setState({ showBanDialog: false });
@@ -788,14 +778,11 @@ export class Profile extends Component<
   }
 
   async toggleBlockPerson(recipientId: number, block: boolean) {
-    const res = await apiWrapper(
-      HttpService.client.blockPerson({
-        person_id: recipientId,
-        block,
-        auth: myAuthRequired(),
-      })
-    );
-
+    const res = await HttpService.client.blockPerson({
+      person_id: recipientId,
+      block,
+      auth: myAuthRequired(),
+    });
     if (res.state == "success") {
       updatePersonBlock(res.data);
     }
@@ -811,142 +798,116 @@ export class Profile extends Component<
 
   async handleAddModToCommunity(form: AddModToCommunity) {
     // TODO not sure what to do here
-    await apiWrapper(HttpService.client.addModToCommunity(form));
+    await HttpService.client.addModToCommunity(form);
   }
 
   async handlePurgePerson(form: PurgePerson) {
-    const purgePersonRes = await apiWrapper(
-      HttpService.client.purgePerson(form)
-    );
+    const purgePersonRes = await HttpService.client.purgePerson(form);
     this.purgeItem(purgePersonRes);
   }
 
   async handlePurgeComment(form: PurgeComment) {
-    const purgeCommentRes = await apiWrapper(
-      HttpService.client.purgeComment(form)
-    );
+    const purgeCommentRes = await HttpService.client.purgeComment(form);
     this.purgeItem(purgeCommentRes);
   }
 
   async handlePurgePost(form: PurgePost) {
-    const purgeRes = await apiWrapper(HttpService.client.purgePost(form));
+    const purgeRes = await HttpService.client.purgePost(form);
     this.purgeItem(purgeRes);
   }
 
   async handleBlockPersonAlt(form: BlockPerson) {
-    const blockPersonRes = await apiWrapper(
-      HttpService.client.blockPerson(form)
-    );
-
-    if (blockPersonRes.state == "success") {
+    const blockPersonRes = await HttpService.client.blockPerson(form);
+    if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
 
   async handleCreateComment(form: CreateComment) {
-    const createCommentRes = await apiWrapper(
-      HttpService.client.createComment(form)
-    );
+    const createCommentRes = await HttpService.client.createComment(form);
     this.createAndUpdateComments(createCommentRes);
 
     return createCommentRes;
   }
 
   async handleEditComment(form: EditComment) {
-    const editCommentRes = await apiWrapper(
-      HttpService.client.editComment(form)
-    );
-
+    const editCommentRes = await HttpService.client.editComment(form);
     this.findAndUpdateComment(editCommentRes);
 
     return editCommentRes;
   }
 
   async handleDeleteComment(form: DeleteComment) {
-    const deleteCommentRes = await apiWrapper(
-      HttpService.client.deleteComment(form)
-    );
-
+    const deleteCommentRes = await HttpService.client.deleteComment(form);
     this.findAndUpdateComment(deleteCommentRes);
   }
 
   async handleDeletePost(form: DeletePost) {
-    const deleteRes = await apiWrapper(HttpService.client.deletePost(form));
+    const deleteRes = await HttpService.client.deletePost(form);
     this.findAndUpdatePost(deleteRes);
   }
 
   async handleRemovePost(form: RemovePost) {
-    const removeRes = await apiWrapper(HttpService.client.removePost(form));
+    const removeRes = await HttpService.client.removePost(form);
     this.findAndUpdatePost(removeRes);
   }
 
   async handleRemoveComment(form: RemoveComment) {
-    const removeCommentRes = await apiWrapper(
-      HttpService.client.removeComment(form)
-    );
-
+    const removeCommentRes = await HttpService.client.removeComment(form);
     this.findAndUpdateComment(removeCommentRes);
   }
 
   async handleSaveComment(form: SaveComment) {
-    const saveCommentRes = await apiWrapper(
-      HttpService.client.saveComment(form)
-    );
+    const saveCommentRes = await HttpService.client.saveComment(form);
     this.findAndUpdateComment(saveCommentRes);
   }
 
   async handleSavePost(form: SavePost) {
-    const saveRes = await apiWrapper(HttpService.client.savePost(form));
+    const saveRes = await HttpService.client.savePost(form);
     this.findAndUpdatePost(saveRes);
   }
 
   async handleFeaturePost(form: FeaturePost) {
-    const featureRes = await apiWrapper(HttpService.client.featurePost(form));
+    const featureRes = await HttpService.client.featurePost(form);
     this.findAndUpdatePost(featureRes);
   }
 
   async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = await apiWrapper(HttpService.client.likeComment(form));
+    const voteRes = await HttpService.client.likeComment(form);
     this.findAndUpdateComment(voteRes);
   }
 
   async handlePostVote(form: CreatePostLike) {
-    const voteRes = await apiWrapper(HttpService.client.likePost(form));
+    const voteRes = await HttpService.client.likePost(form);
     this.findAndUpdatePost(voteRes);
   }
 
   async handleCommentReport(form: CreateCommentReport) {
-    const reportRes = await apiWrapper(
-      HttpService.client.createCommentReport(form)
-    );
-    if (reportRes.state == "success") {
+    const reportRes = await HttpService.client.createCommentReport(form);
+    if (reportRes.state === "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
-    const reportRes = await apiWrapper(
-      HttpService.client.createPostReport(form)
-    );
-    if (reportRes.state == "success") {
+    const reportRes = await HttpService.client.createPostReport(form);
+    if (reportRes.state === "success") {
       toast(i18n.t("report_created"));
     }
   }
 
   async handleLockPost(form: LockPost) {
-    const lockRes = await apiWrapper(HttpService.client.lockPost(form));
+    const lockRes = await HttpService.client.lockPost(form);
     this.findAndUpdatePost(lockRes);
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
-    const distinguishRes = await apiWrapper(
-      HttpService.client.distinguishComment(form)
-    );
+    const distinguishRes = await HttpService.client.distinguishComment(form);
     this.findAndUpdateComment(distinguishRes);
   }
 
   async handleAddAdmin(form: AddAdmin) {
-    const addAdminRes = await apiWrapper(HttpService.client.addAdmin(form));
+    const addAdminRes = await HttpService.client.addAdmin(form);
 
     if (addAdminRes.state == "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
@@ -954,45 +915,43 @@ export class Profile extends Component<
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    await apiWrapper(HttpService.client.transferCommunity(form));
+    await HttpService.client.transferCommunity(form);
     toast(i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await apiWrapper(
-      HttpService.client.markCommentReplyAsRead(form)
-    );
+    const readRes = await HttpService.client.markCommentReplyAsRead(form);
     this.findAndUpdateCommentReply(readRes);
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await apiWrapper(HttpService.client.markPersonMentionAsRead(form));
+    await HttpService.client.markPersonMentionAsRead(form);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
-    const banRes = await apiWrapper(HttpService.client.banFromCommunity(form));
+    const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
   }
 
   async handleBanPerson(form: BanPerson) {
-    const banRes = await apiWrapper(HttpService.client.banPerson(form));
+    const banRes = await HttpService.client.banPerson(form);
     this.updateBan(banRes);
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
         if (s.personRes.state == "success") {
           s.personRes.data.posts
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
               c => (c.creator_banned_from_community = banRes.data.banned)
             );
 
           s.personRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
               c => (c.creator_banned_from_community = banRes.data.banned)
             );

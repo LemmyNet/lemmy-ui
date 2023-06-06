@@ -9,12 +9,7 @@ import {
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import {
-  HttpService,
-  RequestState,
-  apiWrapper,
-  apiWrapperIso,
-} from "../../services/HttpService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
   editCommunity,
@@ -70,9 +65,7 @@ export class Communities extends Component<any, CommunitiesState> {
     if (isInitialRoute(this.isoData, this.context)) {
       this.state = {
         ...this.state,
-        listCommunitiesResponse: apiWrapperIso(
-          this.isoData.routeData[0] as ListCommunitiesResponse
-        ),
+        listCommunitiesResponse: this.isoData.routeData[0],
       };
     }
   }
@@ -291,7 +284,9 @@ export class Communities extends Component<any, CommunitiesState> {
     query: { listingType, page },
     client,
     auth,
-  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<
+    RequestState<any>
+  >[] {
     const listCommunitiesForm: ListCommunities = {
       type_: getListingTypeFromQuery(listingType),
       sort: "TopMonth",
@@ -315,14 +310,11 @@ export class Communities extends Component<any, CommunitiesState> {
     communityId: number;
     follow: boolean;
   }) {
-    const res = await apiWrapper(
-      HttpService.client.followCommunity({
-        community_id: data.communityId,
-        follow: data.follow,
-        auth: myAuthRequired(),
-      })
-    );
-
+    const res = await HttpService.client.followCommunity({
+      community_id: data.communityId,
+      follow: data.follow,
+      auth: myAuthRequired(),
+    });
     data.i.findAndUpdateCommunity(res);
   }
 
@@ -332,15 +324,13 @@ export class Communities extends Component<any, CommunitiesState> {
     const { listingType, page } = this.getCommunitiesQueryParams();
 
     this.setState({
-      listCommunitiesResponse: await apiWrapper(
-        HttpService.client.listCommunities({
-          type_: listingType,
-          sort: "TopMonth",
-          limit: communityLimit,
-          page,
-          auth: myAuth(),
-        })
-      ),
+      listCommunitiesResponse: await HttpService.client.listCommunities({
+        type_: listingType,
+        sort: "TopMonth",
+        limit: communityLimit,
+        page,
+        auth: myAuth(),
+      }),
     });
 
     window.scrollTo(0, 0);

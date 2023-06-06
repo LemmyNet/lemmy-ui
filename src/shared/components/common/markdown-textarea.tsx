@@ -4,7 +4,7 @@ import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { HttpService, UserService } from "../../services";
 import {
   concurrentImageUpload,
   customEmojisLookup,
@@ -20,7 +20,6 @@ import {
   setupTippy,
   setupTribute,
   toast,
-  uploadImage,
 } from "../../utils";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
@@ -397,29 +396,29 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  async uploadSingleImage(i: MarkdownTextArea, file: File) {
-    try {
-      const res = await uploadImage(file);
-      console.log("pictrs upload:");
-      console.log(res);
-      if (res.msg === "ok") {
-        const imageMarkdown = `![](${res.url})`;
+  async uploadSingleImage(i: MarkdownTextArea, image: File) {
+    const res = await HttpService.client.uploadImage({ image });
+    console.log("pictrs upload:");
+    console.log(res);
+    if (res.state === "success") {
+      if (res.data.msg === "ok") {
+        const imageMarkdown = `![](${res.data.url})`;
         i.setState(({ content }) => ({
           content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
         }));
         i.contentChange();
         const textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
-        pictrsDeleteToast(file.name, res.delete_url as string);
+        pictrsDeleteToast(image.name, res.data.delete_url as string);
       } else {
-        throw JSON.stringify(res);
+        throw JSON.stringify(res.data);
       }
-    } catch (error) {
+    } else if (res.state === "failed") {
       i.setState({ imageUploadStatus: undefined });
-      console.error(error);
-      toast(error, "danger");
+      console.error(res.msg);
+      toast(res.msg, "danger");
 
-      throw error;
+      throw res.msg;
     }
   }
 

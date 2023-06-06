@@ -27,7 +27,7 @@ import { getExternalHost, getHttpBase } from "../../env";
 import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { UserService } from "../../services";
-import { HttpService, apiWrapper } from "../../services/HttpService";
+import { HttpService } from "../../services/HttpService";
 import {
   amAdmin,
   amCommunityCreator,
@@ -1447,7 +1447,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   async handleEditPost(form: EditPost) {
-    const res = await apiWrapper(HttpService.client.editPost(form));
+    const res = await HttpService.client.editPost(form);
 
     if (res.state === "success") {
       this.setState({ showEdit: false });

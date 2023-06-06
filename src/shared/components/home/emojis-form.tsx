@@ -6,13 +6,13 @@ import {
   GetSiteResponse,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
+import { HttpService } from "../../services/HttpService";
 import {
   customEmojisLookup,
   myAuthRequired,
   pictrsDeleteToast,
   setIsoData,
   toast,
-  uploadImage,
 } from "../../utils";
 import { EmojiMart } from "../common/emoji-mart";
 import { HtmlTags } from "../common/html-tags";
@@ -458,26 +458,26 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
       file = event;
     }
 
-    uploadImage(file)
-      .then(res => {
-        console.log("pictrs upload:");
-        console.log(res);
-        if (res.msg === "ok") {
-          pictrsDeleteToast(file.name, res.delete_url as string);
+    HttpService.client.uploadImage(file).then(res => {
+      console.log("pictrs upload:");
+      console.log(res);
+      if (res.state === "success") {
+        if (res.data.msg === "ok") {
+          pictrsDeleteToast(file.name, res.data.delete_url as string);
         } else {
           toast(JSON.stringify(res), "danger");
-          let hash = res.files?.at(0)?.file;
-          let url = `${res.url}/${hash}`;
+          const hash = res.data.files?.at(0)?.file;
+          const url = `${res.data.url}/${hash}`;
           props.form.handleEmojiImageUrlChange(
             { form: props.form, index: props.index, overrideValue: url },
             event
           );
         }
-      })
-      .catch(error => {
-        console.error(error);
-        toast(error, "danger");
-      });
+      } else if (res.state === "failed") {
+        console.error(res.msg);
+        toast(res.msg, "danger");
+      }
+    });
   }
 
   configurePicker(): any {
