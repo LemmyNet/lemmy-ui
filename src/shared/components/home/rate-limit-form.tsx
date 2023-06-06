@@ -1,8 +1,7 @@
 import { Component, FormEventHandler, linkEvent } from "inferno";
-import { EditSite, GetSiteResponse, SiteResponse } from "lemmy-js-client";
+import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { RequestState } from "../../services/HttpService";
-import { capitalizeFirstLetter, myAuthRequired, setIsoData } from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 
@@ -23,11 +22,11 @@ interface RateLimitsProps {
 }
 
 interface RateLimitFormProps {
-  onSaveSite(form: EditSite): Promise<RequestState<SiteResponse>>;
+  rateLimits: LocalSiteRateLimit;
+  onSaveSite(form: EditSite): void;
 }
 
 interface RateLimitFormState {
-  siteRes: GetSiteResponse;
   form: {
     message?: number;
     message_per_second?: number;
@@ -105,7 +104,7 @@ function handlePerSecondChange(
   }));
 }
 
-async function submitRateLimitForm(i: RateLimitsForm, event: any) {
+function submitRateLimitForm(i: RateLimitsForm, event: any) {
   event.preventDefault();
   const auth = myAuthRequired();
   const form: EditSite = Object.entries(i.state.form).reduce(
@@ -115,67 +114,23 @@ async function submitRateLimitForm(i: RateLimitsForm, event: any) {
     },
     {
       auth,
-      application_question:
-        i.state.siteRes.site_view.local_site.application_question,
     }
   );
 
   i.setState({ loading: true });
-
-  const res = await i.props.onSaveSite(form);
-
-  if (res.state === "success") {
-    i.setState(s => ((s.siteRes.site_view = res.data.site_view), s));
-  }
-
-  i.setState({ loading: false });
+  i.props.onSaveSite(form);
 }
 
 export default class RateLimitsForm extends Component<
   RateLimitFormProps,
   RateLimitFormState
 > {
-  private isoData = setIsoData(this.context);
   state: RateLimitFormState = {
-    siteRes: this.isoData.site_res,
     loading: false,
-    form: {},
+    form: this.props.rateLimits,
   };
-  constructor(props: RateLimitFormProps, context) {
+  constructor(props: RateLimitFormProps, context: any) {
     super(props, context);
-
-    const {
-      comment,
-      comment_per_second,
-      image,
-      image_per_second,
-      message,
-      message_per_second,
-      post,
-      post_per_second,
-      register,
-      register_per_second,
-      search,
-      search_per_second,
-    } = this.state.siteRes.site_view.local_site_rate_limit;
-
-    this.state = {
-      ...this.state,
-      form: {
-        comment,
-        comment_per_second,
-        image,
-        image_per_second,
-        message,
-        message_per_second,
-        post,
-        post_per_second,
-        register,
-        register_per_second,
-        search,
-        search_per_second,
-      },
-    };
   }
 
   render() {
