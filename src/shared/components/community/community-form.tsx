@@ -1,7 +1,6 @@
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
-  CommunityResponse,
   CommunityView,
   CreateCommunity,
   EditCommunity,
@@ -9,7 +8,6 @@ import {
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { RequestState } from "../../services/HttpService";
 import { capitalizeFirstLetter, myAuthRequired, randomStr } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -22,9 +20,7 @@ interface CommunityFormProps {
   siteLanguages: number[];
   communityLanguages?: number[];
   onCancel?(): any;
-  onUpsertCommunity(
-    form: CreateCommunity | EditCommunity
-  ): Promise<RequestState<CommunityResponse>>;
+  onUpsertCommunity(form: CreateCommunity | EditCommunity): void;
   enableNsfw?: boolean;
 }
 
@@ -288,7 +284,7 @@ export class CommunityForm extends Component<
     );
   }
 
-  async handleCreateCommunitySubmit(i: CommunityForm, event: any) {
+  handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
     i.setState({ loading: true });
     const cForm = i.state.form;
@@ -297,7 +293,7 @@ export class CommunityForm extends Component<
     const cv = i.props.community_view;
 
     if (cv) {
-      await i.props.onUpsertCommunity({
+      i.props.onUpsertCommunity({
         community_id: cv.community.id,
         title: cForm.title,
         description: cForm.description,
@@ -310,7 +306,7 @@ export class CommunityForm extends Component<
       });
     } else {
       if (cForm.title && cForm.name) {
-        await i.props.onUpsertCommunity({
+        i.props.onUpsertCommunity({
           name: cForm.name,
           title: cForm.title,
           description: cForm.description,
@@ -323,8 +319,6 @@ export class CommunityForm extends Component<
         });
       }
     }
-
-    i.setState({ loading: false });
   }
 
   handleCommunityNameChange(i: CommunityForm, event: any) {

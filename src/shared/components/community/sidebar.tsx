@@ -4,7 +4,6 @@ import {
   AddModToCommunity,
   BlockCommunity,
   CommunityModeratorView,
-  CommunityResponse,
   CommunityView,
   DeleteCommunity,
   EditCommunity,
@@ -16,7 +15,6 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import { RequestState } from "../../services/HttpService";
 import {
   amAdmin,
   amMod,
@@ -50,9 +48,7 @@ interface SidebarProps {
   onFollowCommunity(form: FollowCommunity): void;
   onBlockCommunity(form: BlockCommunity): void;
   onPurgeCommunity(form: PurgeCommunity): void;
-  onEditCommunity(
-    form: EditCommunity
-  ): Promise<RequestState<CommunityResponse>>;
+  onEditCommunity(form: EditCommunity): void;
 }
 
 interface SidebarState {

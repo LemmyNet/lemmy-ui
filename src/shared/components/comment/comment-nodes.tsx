@@ -6,7 +6,6 @@ import {
   BanPerson,
   BlockPerson,
   CommentId,
-  CommentResponse,
   CommunityModeratorView,
   CreateComment,
   CreateCommentLike,
@@ -26,7 +25,6 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
-import { RequestState } from "../../services/HttpService";
 import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
@@ -50,12 +48,8 @@ interface CommentNodesProps {
   onSaveComment(form: SaveComment): void;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
-  onCreateComment(
-    form: EditComment | CreateComment
-  ): Promise<RequestState<CommentResponse>>;
-  onEditComment(
-    form: EditComment | CreateComment
-  ): Promise<RequestState<CommentResponse>>;
+  onCreateComment(form: EditComment | CreateComment): void;
+  onEditComment(form: EditComment | CreateComment): void;
   onCommentVote(form: CreateCommentLike): void;
   onBlockPerson(form: BlockPerson): void;
   onDeleteComment(form: DeleteComment): void;

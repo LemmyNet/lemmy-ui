@@ -11,16 +11,9 @@ import {
   GetSiteResponse,
   Instance,
   ListingType,
-  SiteResponse,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { RequestState } from "../../services/HttpService";
-import {
-  capitalizeFirstLetter,
-  fetchThemeList,
-  myAuthRequired,
-  setIsoData,
-} from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
@@ -31,35 +24,67 @@ interface SiteFormProps {
   blockedInstances?: Instance[];
   allowedInstances?: Instance[];
   showLocal?: boolean;
-  onSaveSite(form: EditSite): Promise<RequestState<SiteResponse>>;
+  themeList?: string[];
+  onSaveSite(form: EditSite): void;
+  siteRes: GetSiteResponse;
 }
 
 interface SiteFormState {
   siteForm: EditSite;
   loading: boolean;
-  themeList?: string[];
   instance_select: {
     allowed_instances: string;
     blocked_instances: string;
   };
-  siteRes: GetSiteResponse;
 }
 
 type InstanceKey = "allowed_instances" | "blocked_instances";
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
-  private isoData = setIsoData(this.context);
   state: SiteFormState = {
-    siteRes: this.isoData.site_res,
-    siteForm: {
-      auth: "TODO",
-    },
+    siteForm: this.initSiteForm(),
     loading: false,
     instance_select: {
       allowed_instances: "",
       blocked_instances: "",
     },
   };
+
+  initSiteForm(): EditSite {
+    const site = this.props.siteRes.site_view.site;
+    const ls = this.props.siteRes.site_view.local_site;
+    return {
+      name: site.name,
+      sidebar: site.sidebar,
+      description: site.description,
+      enable_downvotes: ls.enable_downvotes,
+      registration_mode: ls.registration_mode,
+      enable_nsfw: ls.enable_nsfw,
+      community_creation_admin_only: ls.community_creation_admin_only,
+      icon: site.icon,
+      banner: site.banner,
+      require_email_verification: ls.require_email_verification,
+      application_question: ls.application_question,
+      private_instance: ls.private_instance,
+      default_theme: ls.default_theme,
+      default_post_listing_type: ls.default_post_listing_type,
+      legal_information: ls.legal_information,
+      application_email_admins: ls.application_email_admins,
+      reports_email_admins: ls.reports_email_admins,
+      hide_modlog_mod_names: ls.hide_modlog_mod_names,
+      discussion_languages: this.props.siteRes.discussion_languages,
+      slur_filter_regex: ls.slur_filter_regex,
+      actor_name_max_length: ls.actor_name_max_length,
+      federation_enabled: ls.federation_enabled,
+      federation_debug: ls.federation_debug,
+      federation_worker_count: ls.federation_worker_count,
+      captcha_enabled: ls.captcha_enabled,
+      captcha_difficulty: ls.captcha_difficulty,
+      allowed_instances: this.props.allowedInstances?.map(i => i.domain),
+      blocked_instances: this.props.blockedInstances?.map(i => i.domain),
+      auth: "TODO",
+    };
+  }
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -83,47 +108,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleAddInstance = this.handleAddInstance.bind(this);
     this.handleInstanceEnterPress = this.handleInstanceEnterPress.bind(this);
     this.handleInstanceTextChange = this.handleInstanceTextChange.bind(this);
-
-    const site = this.state.siteRes.site_view.site;
-    const ls = this.state.siteRes.site_view.local_site;
-    this.state = {
-      ...this.state,
-      siteForm: {
-        name: site.name,
-        sidebar: site.sidebar,
-        description: site.description,
-        enable_downvotes: ls.enable_downvotes,
-        registration_mode: ls.registration_mode,
-        enable_nsfw: ls.enable_nsfw,
-        community_creation_admin_only: ls.community_creation_admin_only,
-        icon: site.icon,
-        banner: site.banner,
-        require_email_verification: ls.require_email_verification,
-        application_question: ls.application_question,
-        private_instance: ls.private_instance,
-        default_theme: ls.default_theme,
-        default_post_listing_type: ls.default_post_listing_type,
-        legal_information: ls.legal_information,
-        application_email_admins: ls.application_email_admins,
-        reports_email_admins: ls.reports_email_admins,
-        hide_modlog_mod_names: ls.hide_modlog_mod_names,
-        discussion_languages: this.state.siteRes.discussion_languages,
-        slur_filter_regex: ls.slur_filter_regex,
-        actor_name_max_length: ls.actor_name_max_length,
-        federation_enabled: ls.federation_enabled,
-        federation_debug: ls.federation_debug,
-        federation_worker_count: ls.federation_worker_count,
-        captcha_enabled: ls.captcha_enabled,
-        captcha_difficulty: ls.captcha_difficulty,
-        allowed_instances: this.props.allowedInstances?.map(i => i.domain),
-        blocked_instances: this.props.blockedInstances?.map(i => i.domain),
-        auth: "TODO",
-      },
-    };
-  }
-
-  async componentDidMount() {
-    this.setState({ themeList: await fetchThemeList() });
   }
 
   // Necessary to stop the loading
@@ -134,7 +118,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   componentDidUpdate() {
     if (
       !this.state.loading &&
-      !this.state.siteRes.site_view.local_site.site_setup &&
+      !this.props.siteRes.site_view.local_site.site_setup &&
       (this.state.siteForm.name ||
         this.state.siteForm.sidebar ||
         this.state.siteForm.application_question ||
@@ -151,7 +135,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   render() {
-    let siteSetup = this.state.siteRes.site_view.local_site.site_setup;
+    let siteSetup = this.props.siteRes.site_view.local_site.site_setup;
     return (
       <>
         <Prompt
@@ -430,7 +414,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="custom-select w-auto"
               >
                 <option value="browser">{i18n.t("browser_default")}</option>
-                {this.state.themeList?.map(theme => (
+                {this.props.themeList?.map(theme => (
                   <option key={theme} value={theme}>
                     {theme}
                   </option>
@@ -511,8 +495,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
           <LanguageSelect
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
+            allLanguages={this.props.siteRes.all_languages}
+            siteLanguages={this.props.siteRes.discussion_languages}
             selectedLanguageIds={this.state.siteForm.discussion_languages}
             multiple={true}
             onChange={this.handleDiscussionLanguageChange}
@@ -748,7 +732,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     }
   }
 
-  async handleSaveSiteSubmit(i: SiteForm, event: any) {
+  handleSaveSiteSubmit(i: SiteForm, event: any) {
     event.preventDefault();
     const auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));
@@ -758,7 +742,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     let form: EditSite | CreateSite;
 
-    if (i.state.siteRes.site_view.local_site.site_setup) {
+    if (i.props.siteRes.site_view.local_site.site_setup) {
       form = stateSiteForm;
     } else {
       form = {
@@ -810,13 +794,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       };
     }
 
-    const res = await i.props.onSaveSite(form);
-
-    if (res.state === "success") {
-      i.setState(s => ((s.siteRes.site_view = res.data.site_view), s));
-    }
-
-    i.setState({ loading: false });
+    i.props.onSaveSite(form);
   }
 
   handleAddInstance(key: InstanceKey) {

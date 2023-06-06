@@ -20,6 +20,7 @@ import {
 } from "../../services/HttpService";
 import {
   capitalizeFirstLetter,
+  fetchThemeList,
   isInitialRoute,
   myAuthRequired,
   removeFromEmojiDataModel,
@@ -44,6 +45,7 @@ interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
+  themeList: RequestState<string[]>;
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
@@ -55,6 +57,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     bannedRes: { state: "empty" },
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
+    themeList: { state: "empty" },
   };
 
   constructor(props: any, context: any) {
@@ -75,6 +78,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         instancesRes: apiWrapperIso(
           this.isoData.routeData[1] as GetFederatedInstancesResponse
         ),
+        themeList: apiWrapperIso(this.isoData.routeData[2] as string[]),
       };
     }
   }
@@ -83,6 +87,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     this.setState({
       bannedRes: { state: "loading" },
       instancesRes: { state: "loading" },
+      themeList: { state: "loading" },
     });
 
     const auth = myAuthRequired();
@@ -98,6 +103,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
           auth,
         })
       ),
+      themeList: await apiWrapper(fetchThemeList()),
     });
   }
 
@@ -109,6 +115,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       let bannedPersonsForm: GetBannedPersons = { auth };
       promises.push(req.client.getBannedPersons(bannedPersonsForm));
       promises.push(req.client.getFederatedInstances({ auth }));
+      promises.push(fetchThemeList());
     }
 
     return promises;
@@ -131,6 +138,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state.instancesRes.state === "success"
         ? this.state.instancesRes.data.federated_instances
         : undefined;
+    const themeList =
+      this.state.themeList.state == "success"
+        ? this.state.themeList.data
+        : undefined;
 
     return (
       <div className="container-lg">
@@ -151,6 +162,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                       allowedInstances={federationData?.allowed}
                       blockedInstances={federationData?.blocked}
                       onSaveSite={this.handleEditSite}
+                      siteRes={this.state.siteRes}
+                      themeList={themeList}
                     />
                   </div>
                   <div className="col-12 col-md-6">

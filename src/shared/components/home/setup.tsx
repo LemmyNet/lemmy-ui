@@ -13,7 +13,7 @@ import {
   RequestState,
   apiWrapper,
 } from "../../services/HttpService";
-import { setIsoData } from "../../utils";
+import { fetchThemeList, setIsoData } from "../../utils";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
 
@@ -31,6 +31,7 @@ interface State {
   };
   doneRegisteringUser: boolean;
   registerRes: RequestState<LoginResponse>;
+  themeList: RequestState<string[]>;
   siteRes: GetSiteResponse;
 }
 
@@ -39,6 +40,7 @@ export class Setup extends Component<any, State> {
 
   state: State = {
     registerRes: { state: "empty" },
+    themeList: { state: "empty" },
     form: {
       show_nsfw: true,
     },
@@ -52,11 +54,19 @@ export class Setup extends Component<any, State> {
     this.handleCreateSite = this.handleCreateSite.bind(this);
   }
 
+  async componentDidMount() {
+    this.setState({ themeList: await apiWrapper(fetchThemeList()) });
+  }
+
   get documentTitle(): string {
     return `${i18n.t("setup")} - Lemmy`;
   }
 
   render() {
+    const themeList =
+      this.state.themeList.state == "success"
+        ? this.state.themeList.data
+        : undefined;
     return (
       <div className="container-lg">
         <Helmet title={this.documentTitle} />
@@ -66,7 +76,12 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm showLocal onSaveSite={this.handleCreateSite} />
+              <SiteForm
+                showLocal
+                onSaveSite={this.handleCreateSite}
+                siteRes={this.state.siteRes}
+                themeList={themeList}
+              />
             )}
           </div>
         </div>

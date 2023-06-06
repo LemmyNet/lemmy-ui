@@ -9,7 +9,6 @@ import {
   BlockPerson,
   CommentId,
   CommentReplyView,
-  CommentResponse,
   CommentView,
   CommunityModeratorView,
   CreateComment,
@@ -40,7 +39,6 @@ import {
   VoteType,
 } from "../../interfaces";
 import { UserService } from "../../services";
-import { RequestState } from "../../services/HttpService";
 import {
   amCommunityCreator,
   canAdmin,
@@ -128,12 +126,8 @@ interface CommentNodeProps {
   onSaveComment(form: SaveComment): void;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
-  onCreateComment(
-    form: EditComment | CreateComment
-  ): Promise<RequestState<CommentResponse>>;
-  onEditComment(
-    form: EditComment | CreateComment
-  ): Promise<RequestState<CommentResponse>>;
+  onCreateComment(form: EditComment | CreateComment): void;
+  onEditComment(form: EditComment | CreateComment): void;
   onCommentVote(form: CreateCommentLike): void;
   onBlockPerson(form: BlockPerson): void;
   onDeleteComment(form: DeleteComment): void;
