@@ -1,11 +1,5 @@
 import { Component } from "inferno";
-import {
-  GetSiteResponse,
-  UserOperation,
-  VerifyEmailResponse,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
+import { GetSiteResponse, VerifyEmailResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setIsoData, toast } from "../../utils";
@@ -75,22 +69,5 @@ export class VerifyEmail extends Component<any, State> {
         </div>
       </div>
     );
-  }
-
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.setState(this.state);
-      this.props.history.push("/");
-      return;
-    } else if (op == UserOperation.VerifyEmail) {
-      let data = wsJsonToRes(msg);
-      if (data) {
-        toast(i18n.t("email_verified"));
-        this.props.history.push("/login");
-      }
-    }
   }
 }
