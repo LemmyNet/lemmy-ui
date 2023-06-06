@@ -156,14 +156,24 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             {
               key: "rate_limiting",
               label: "Rate Limiting",
-              getNode: () => <RateLimitForm onSaveSite={this.handleEditSite} />,
+              getNode: () => (
+                <RateLimitForm
+                  rateLimits={
+                    this.state.siteRes.site_view.local_site_rate_limit
+                  }
+                  onSaveSite={this.handleEditSite}
+                />
+              ),
             },
             {
               key: "taglines",
               label: i18n.t("taglines"),
               getNode: () => (
                 <div className="row">
-                  <TaglineForm onSaveSite={this.handleEditSite} />
+                  <TaglineForm
+                    taglines={this.state.siteRes.taglines}
+                    onSaveSite={this.handleEditSite}
+                  />
                 </div>
               ),
             },
@@ -247,6 +257,12 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     const editRes = await HttpService.client.editSite(form);
 
     if (editRes.state === "success") {
+      this.setState(s => {
+        s.siteRes.site_view = editRes.data.site_view;
+        // TODO: Where to get taglines from?
+        s.siteRes.taglines = editRes.data.taglines;
+        return s;
+      });
       toast(i18n.t("site_saved"));
     }
 
