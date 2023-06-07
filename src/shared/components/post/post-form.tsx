@@ -6,7 +6,6 @@ import {
   EditPost,
   GetSiteMetadataResponse,
   Language,
-  PostResponse,
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
@@ -50,8 +49,8 @@ interface PostFormProps {
   siteLanguages: number[];
   params?: PostFormParams;
   onCancel?(): void;
-  onCreate?(form: CreatePost): Promise<RequestState<PostResponse>>;
-  onEdit?(form: EditPost): Promise<RequestState<PostResponse>>;
+  onCreate?(form: CreatePost): void;
+  onEdit?(form: EditPost): void;
   enableNsfw?: boolean;
   enableDownvotes?: boolean;
   selectedCommunityChoice?: Choice;
@@ -481,7 +480,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  async handlePostSubmit(i: PostForm, event: any) {
+  handlePostSubmit(i: PostForm, event: any) {
     event.preventDefault();
     // Coerce empty url string to undefined
     if ((i.state.form.url ?? "blank") === "") {
@@ -493,7 +492,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     const pForm = i.state.form;
     const pv = i.props.post_view;
     if (pv) {
-      await i.props.onEdit?.({
+      i.props.onEdit?.({
         name: pForm.name,
         url: pForm.url,
         body: pForm.body,
@@ -503,7 +502,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         auth,
       });
     } else if (pForm.name && pForm.community_id) {
-      await i.props.onCreate?.({
+      i.props.onCreate?.({
         name: pForm.name,
         community_id: pForm.community_id,
         url: pForm.url,

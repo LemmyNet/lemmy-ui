@@ -9,7 +9,7 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { setIsoData } from "../../utils";
+import { fetchThemeList, setIsoData } from "../../utils";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
 
@@ -27,6 +27,7 @@ interface State {
   };
   doneRegisteringUser: boolean;
   registerRes: RequestState<LoginResponse>;
+  themeList: string[];
   siteRes: GetSiteResponse;
 }
 
@@ -35,6 +36,7 @@ export class Setup extends Component<any, State> {
 
   state: State = {
     registerRes: { state: "empty" },
+    themeList: [],
     form: {
       show_nsfw: true,
     },
@@ -46,6 +48,10 @@ export class Setup extends Component<any, State> {
     super(props, context);
 
     this.handleCreateSite = this.handleCreateSite.bind(this);
+  }
+
+  async componentDidMount() {
+    this.setState({ themeList: await fetchThemeList() });
   }
 
   get documentTitle(): string {
@@ -62,7 +68,12 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm showLocal onSaveSite={this.handleCreateSite} />
+              <SiteForm
+                showLocal
+                onSaveSite={this.handleCreateSite}
+                siteRes={this.state.siteRes}
+                themeList={this.state.themeList}
+              />
             )}
           </div>
         </div>

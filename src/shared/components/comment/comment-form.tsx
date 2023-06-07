@@ -1,16 +1,10 @@
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import {
-  CommentResponse,
-  CreateComment,
-  EditComment,
-  Language,
-} from "lemmy-js-client";
+import { CreateComment, EditComment, Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { CommentNodeI } from "../../interfaces";
 import { UserService } from "../../services";
-import { RequestState } from "../../services/HttpService";
 import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -27,9 +21,7 @@ interface CommentFormProps {
   onReplyCancel?(): void;
   allLanguages: Language[];
   siteLanguages: number[];
-  onUpsertComment(
-    form: EditComment | CreateComment
-  ): Promise<RequestState<CommentResponse>>;
+  onUpsertComment(form: EditComment | CreateComment): void;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {

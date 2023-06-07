@@ -14,6 +14,7 @@ import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   capitalizeFirstLetter,
+  fetchThemeList,
   isInitialRoute,
   myAuthRequired,
   removeFromEmojiDataModel,
@@ -38,6 +39,7 @@ interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
+  themeList: string[];
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
@@ -49,6 +51,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     bannedRes: { state: "empty" },
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
+    themeList: [],
   };
 
   constructor(props: any, context: any) {
@@ -74,6 +77,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     this.setState({
       bannedRes: { state: "loading" },
       instancesRes: { state: "loading" },
+      themeList: [],
     });
 
     const auth = myAuthRequired();
@@ -85,6 +89,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       instancesRes: await HttpService.client.getFederatedInstances({
         auth,
       }),
+      themeList: await fetchThemeList(),
     });
   }
 
@@ -144,6 +149,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                       allowedInstances={federationData?.allowed}
                       blockedInstances={federationData?.blocked}
                       onSaveSite={this.handleEditSite}
+                      siteRes={this.state.siteRes}
+                      themeList={this.state.themeList}
                     />
                   </div>
                   <div className="col-12 col-md-6">
