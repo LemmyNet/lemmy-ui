@@ -1,6 +1,6 @@
 pipeline:
   fetch_git_submodules:
-    image: node:14-alpine
+    image: node:alpine
     commands:
       - apk add git
       - git submodule init
@@ -8,17 +8,17 @@ pipeline:
       # - git fetch --tags
 
   yarn:
-    image: node:14-alpine
+    image: node:alpine
     commands:
       - yarn
 
   yarn_lint:
-    image: node:14-alpine
+    image: node:alpine
     commands:
       - yarn lint
 
   yarn_build_dev:
-    image: node:14-alpine
+    image: node:alpine
     commands:
       - yarn build:dev
 
