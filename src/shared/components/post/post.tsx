@@ -303,9 +303,16 @@ export class Post extends Component<any, PostState> {
   trackCommentsBoxScrolling = () => {
     const wrappedElement = document.getElementsByClassName("comments")[0];
     if (wrappedElement && this.isBottom(wrappedElement)) {
-      this.setState({
-        maxCommentsShown: this.state.maxCommentsShown + commentsShownInterval,
-      });
+      const commentCount =
+        this.state.commentsRes.state == "success"
+          ? this.state.commentsRes.data.comments.length
+          : 0;
+
+      if (this.state.maxCommentsShown < commentCount) {
+        this.setState({
+          maxCommentsShown: this.state.maxCommentsShown + commentsShownInterval,
+        });
+      }
     }
   };
 
