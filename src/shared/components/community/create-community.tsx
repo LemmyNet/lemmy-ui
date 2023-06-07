@@ -58,7 +58,5 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);
     }
-
-    return res;
   }
 }

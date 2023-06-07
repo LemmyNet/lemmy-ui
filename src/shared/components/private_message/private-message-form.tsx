@@ -1,6 +1,5 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { Prompt } from "inferno-router";
 import {
   CreatePrivateMessage,
   EditPrivateMessage,
@@ -63,14 +62,15 @@ export class PrivateMessageForm extends Component<
       this.setState({ loading: false, content: undefined, previewMode: false });
     }
   }
+  // TODO
+  // <Prompt
+  //   when={!this.state.loading && this.state.content}
+  //   message={i18n.t("block_leaving")}
+  // />
 
   render() {
     return (
       <div>
-        <Prompt
-          when={!this.state.loading && this.state.content}
-          message={i18n.t("block_leaving")}
-        />
         <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
           {!this.props.privateMessageView && (
             <div className="form-group row">

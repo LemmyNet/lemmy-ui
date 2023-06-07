@@ -1,12 +1,10 @@
 import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
 import {
   CommunityView,
   CreateCommunity,
   EditCommunity,
   Language,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { capitalizeFirstLetter, myAuthRequired, randomStr } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
@@ -43,7 +41,6 @@ export class CommunityForm extends Component<
   CommunityFormState
 > {
   private id = `community-form-${randomStr()}`;
-  private subscription?: Subscription;
 
   state: CommunityFormState = {
     form: {},
@@ -84,36 +81,20 @@ export class CommunityForm extends Component<
     }
   }
 
-  componentDidUpdate() {
-    if (
-      !this.state.loading &&
-      (this.state.form.name ||
-        this.state.form.title ||
-        this.state.form.description)
-    ) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-  }
-
-  componentWillUnmount() {
-    this.subscription?.unsubscribe();
-    window.onbeforeunload = null;
-  }
+  // TODO
+  // <Prompt
+  //   when={
+  //     !this.state.loading &&
+  //     (this.state.form.name ||
+  //       this.state.form.title ||
+  //       this.state.form.description)
+  //   }
+  //   message={i18n.t("block_leaving")}
+  // />
 
   render() {
     return (
       <>
-        <Prompt
-          when={
-            !this.state.loading &&
-            (this.state.form.name ||
-              this.state.form.title ||
-              this.state.form.description)
-          }
-          message={i18n.t("block_leaving")}
-        />
         <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
           {!this.props.community_view && (
             <div className="form-group row">

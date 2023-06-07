@@ -1,6 +1,5 @@
 import autosize from "autosize";
-import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import {
   CreatePost,
   EditPost,
@@ -142,22 +141,19 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  static getDerivedStateFromProps(
-    { selectedCommunityChoice, post_view }: PostFormProps,
-    { form, ...restState }: PostFormState
-  ) {
-    return post_view
-      ? {
-          ...restState,
-          form,
-        }
-      : {
-          ...restState,
-          form: {
-            ...form,
-            community_id: getIdFromString(selectedCommunityChoice?.value),
-          },
-        };
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PostFormProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState(
+        s => (
+          (s.form.community_id = getIdFromString(
+            nextProps.selectedCommunityChoice?.value
+          )),
+          s
+        )
+      );
+    }
   }
 
   render() {
@@ -166,18 +162,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     const url = this.state.form.url;
 
+    // TODO
+    // const promptCheck =
+    // !!this.state.form.name || !!this.state.form.url || !!this.state.form.body;
+    // <Prompt when={promptCheck} message={i18n.t("block_leaving")} />
     return (
       <div>
-        <Prompt
-          when={
-            !(
-              this.state.form.name ||
-              this.state.form.url ||
-              this.state.form.body
-            )
-          }
-          message={i18n.t("block_leaving")}
-        />
         <form onSubmit={linkEvent(this, this.handlePostSubmit)}>
           <div className="form-group row">
             <label className="col-sm-2 col-form-label" htmlFor="post-url">
@@ -513,8 +503,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         auth,
       });
     }
-
-    i.setState({ loading: false });
   }
 
   copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
@@ -624,6 +612,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         if (res.data.msg === "ok") {
           i.state.form.url = res.data.url;
           pictrsDeleteToast(file.name, res.data.delete_url as string);
+          i.setState({ imageLoading: false });
         } else {
           toast(JSON.stringify(res), "danger");
         }
@@ -631,8 +620,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         console.error(res.msg);
         toast(res.msg, "danger");
       }
-
-      i.setState({ imageLoading: false });
     });
   }
 

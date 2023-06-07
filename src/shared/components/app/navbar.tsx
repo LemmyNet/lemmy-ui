@@ -53,7 +53,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     expanded: false,
     showDropdown: false,
   };
-  subscription: any;
   collapseButtonRef = createRef<HTMLButtonElement>();
 
   constructor(props: any, context: any) {

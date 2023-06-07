@@ -4,7 +4,6 @@ import {
   InfernoMouseEvent,
   linkEvent,
 } from "inferno";
-import { Prompt } from "inferno-router";
 import {
   CreateSite,
   EditSite,
@@ -115,40 +114,23 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.setState({ loading: false });
   }
 
-  componentDidUpdate() {
-    if (
-      !this.state.loading &&
-      !this.props.siteRes.site_view.local_site.site_setup &&
-      (this.state.siteForm.name ||
-        this.state.siteForm.sidebar ||
-        this.state.siteForm.application_question ||
-        this.state.siteForm.description)
-    ) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-  }
-
-  componentWillUnmount() {
-    window.onbeforeunload = null;
-  }
+  // TODO
+  // <Prompt
+  //   when={
+  //     !this.state.loading &&
+  //     !siteSetup &&
+  //     (this.state.siteForm.name ||
+  //       this.state.siteForm.sidebar ||
+  //       this.state.siteForm.application_question ||
+  //       this.state.siteForm.description)
+  //   }
+  //   message={i18n.t("block_leaving")}
+  // />
 
   render() {
     const siteSetup = this.props.siteRes.site_view.local_site.site_setup;
     return (
       <>
-        <Prompt
-          when={
-            !this.state.loading &&
-            !siteSetup &&
-            (this.state.siteForm.name ||
-              this.state.siteForm.sidebar ||
-              this.state.siteForm.application_question ||
-              this.state.siteForm.description)
-          }
-          message={i18n.t("block_leaving")}
-        />
         <form onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}>
           <h5>{`${
             siteSetup

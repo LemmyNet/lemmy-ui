@@ -5,13 +5,11 @@ import {
   GetPersonDetailsResponse,
   GetSiteResponse,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   getRecipientIdFromProps,
-  isBrowser,
   isInitialRoute,
   myAuth,
   setIsoData,
@@ -32,7 +30,6 @@ export class CreatePrivateMessage extends Component<
   CreatePrivateMessageState
 > {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
     recipientRes: { state: "empty" },
@@ -93,12 +90,6 @@ export class CreatePrivateMessage extends Component<
       return `${i18n.t("create_private_message")} - ${name_}`;
     } else {
       return "";
-    }
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
     }
   }
 

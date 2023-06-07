@@ -6,7 +6,6 @@ import {
   ListCommunitiesResponse,
   ListingType,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, RequestState } from "../../services/HttpService";
@@ -16,7 +15,6 @@ import {
   getPageFromString,
   getQueryParams,
   getQueryString,
-  isBrowser,
   isInitialRoute,
   myAuth,
   myAuthRequired,
@@ -48,7 +46,6 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
 }
 
 export class Communities extends Component<any, CommunitiesState> {
-  private subscription?: Subscription;
   private isoData = setIsoData(this.context);
   state: CommunitiesState = {
     listCommunitiesResponse: { state: "empty" },
@@ -73,12 +70,6 @@ export class Communities extends Component<any, CommunitiesState> {
   async componentDidMount() {
     if (!isInitialRoute(this.isoData, this.context)) {
       await this.refetch();
-    }
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
     }
   }
 
