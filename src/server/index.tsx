@@ -8,6 +8,7 @@ import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import path from "path";
 import process from "process";
+import sanitize from "sanitize-html";
 import serialize from "serialize-javascript";
 import { App } from "../shared/components/app/app";
 import { httpBaseInternal } from "../shared/env";
@@ -17,7 +18,7 @@ import {
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import { initializeSite, md } from "../shared/utils";
+import { initializeSite } from "../shared/utils";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -180,7 +181,7 @@ server.get("/*", async (req, res) => {
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
-           <script>window.isoData = ${md.utils.escapeHtml(
+           <script>window.isoData = ${sanitize(
              JSON.stringify(isoData)
            )}</script>
            <script>window.lemmyConfig = ${serialize(config)}</script>
