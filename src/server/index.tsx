@@ -17,7 +17,7 @@ import {
   IsoData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import { initializeSite } from "../shared/utils";
+import { initializeSite, md } from "../shared/utils";
 
 const server = express();
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
@@ -180,7 +180,9 @@ server.get("/*", async (req, res) => {
            <!DOCTYPE html>
            <html ${helmet.htmlAttributes.toString()} lang="en">
            <head>
-           <script>window.isoData = ${JSON.stringify(isoData)}</script>
+           <script>window.isoData = ${md.utils.escapeHtml(
+             JSON.stringify(isoData)
+           )}</script>
            <script>window.lemmyConfig = ${serialize(config)}</script>
 
            <!-- A remote debugging utility for mobile -->
