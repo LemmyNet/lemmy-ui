@@ -35,6 +35,7 @@ interface CommunityFormState {
     discussion_languages?: number[];
   };
   loading: boolean;
+  submitted: boolean;
 }
 
 export class CommunityForm extends Component<
@@ -46,6 +47,7 @@ export class CommunityForm extends Component<
   state: CommunityFormState = {
     form: {},
     loading: false,
+    submitted: false,
   };
 
   constructor(props: any, context: any) {
@@ -67,6 +69,7 @@ export class CommunityForm extends Component<
 
     if (cv) {
       this.state = {
+        ...this.state,
         form: {
           name: cv.community.name,
           title: cv.community.title,
@@ -92,7 +95,8 @@ export class CommunityForm extends Component<
               this.state.form.name ||
               this.state.form.title ||
               this.state.form.description
-            )
+            ) &&
+            !this.state.submitted
           }
         />
         {!this.props.community_view && (
@@ -266,7 +270,7 @@ export class CommunityForm extends Component<
 
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
+    i.setState({ loading: true, submitted: true });
     const cForm = i.state.form;
     const auth = myAuthRequired();
 

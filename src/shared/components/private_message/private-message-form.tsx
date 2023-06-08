@@ -31,6 +31,7 @@ interface PrivateMessageFormState {
   loading: boolean;
   previewMode: boolean;
   showDisclaimer: boolean;
+  submitted: boolean;
 }
 
 export class PrivateMessageForm extends Component<
@@ -44,6 +45,7 @@ export class PrivateMessageForm extends Component<
     content: this.props.privateMessageView
       ? this.props.privateMessageView.private_message.content
       : undefined,
+    submitted: false,
   };
 
   constructor(props: any, context: any) {
@@ -67,7 +69,11 @@ export class PrivateMessageForm extends Component<
   render() {
     return (
       <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
-        <NavigationPrompt when={!this.state.loading && !!this.state.content} />
+        <NavigationPrompt
+          when={
+            !this.state.loading && !!this.state.content && !this.state.submitted
+          }
+        />
         {!this.props.privateMessageView && (
           <div className="form-group row">
             <label className="col-sm-2 col-form-label">
@@ -155,7 +161,7 @@ export class PrivateMessageForm extends Component<
 
   handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
+    i.setState({ loading: true, submitted: true });
     const pm = i.props.privateMessageView;
     const auth = myAuthRequired();
     const content = i.state.content ?? "";

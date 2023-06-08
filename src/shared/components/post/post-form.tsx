@@ -74,6 +74,7 @@ interface PostFormState {
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
   previewMode: boolean;
+  submitted: boolean;
 }
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
@@ -86,6 +87,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     communitySearchLoading: false,
     previewMode: false,
     communitySearchOptions: [],
+    submitted: false,
   };
 
   constructor(props: PostFormProps, context: any) {
@@ -174,7 +176,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               this.state.form.name ||
               this.state.form.url ||
               this.state.form.body
-            )
+            ) && !this.state.submitted
           }
         />
         <div className="form-group row">
@@ -478,10 +480,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   handlePostSubmit(i: PostForm, event: any) {
     event.preventDefault();
     // Coerce empty url string to undefined
-    if ((i.state.form.url ?? "blank") === "") {
+    if ((i.state.form.url ?? "") === "") {
       i.setState(s => ((s.form.url = undefined), s));
     }
-    i.setState({ loading: true });
+    i.setState({ loading: true, submitted: true });
     const auth = myAuthRequired();
 
     const pForm = i.state.form;
@@ -612,7 +614,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     i.setState({ imageLoading: true });
 
-    HttpService.client.uploadImage(file).then(res => {
+    HttpService.client.uploadImage({ image: file }).then(res => {
       console.log("pictrs upload:");
       console.log(res);
       if (res.state === "success") {

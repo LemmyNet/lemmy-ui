@@ -36,6 +36,7 @@ interface SiteFormState {
     allowed_instances: string;
     blocked_instances: string;
   };
+  submitted: boolean;
 }
 
 type InstanceKey = "allowed_instances" | "blocked_instances";
@@ -48,6 +49,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       allowed_instances: "",
       blocked_instances: "",
     },
+    submitted: false,
   };
 
   initSiteForm(): EditSite {
@@ -128,7 +130,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               this.state.siteForm.sidebar ||
               this.state.siteForm.application_question ||
               this.state.siteForm.description
-            )
+            ) &&
+            !this.state.submitted
           }
         />
         <h5>{`${
@@ -708,7 +711,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event.preventDefault();
     const auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));
-    i.setState({ loading: true });
+    i.setState({ loading: true, submitted: true });
 
     const stateSiteForm = i.state.siteForm;
 
