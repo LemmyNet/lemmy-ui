@@ -22,79 +22,13 @@ pipeline:
     commands:
       - yarn build:dev
 
-  nightly_build:
-    image: plugins/docker
+  publish_release_docker:
+    image: woodpeckerci/plugin-docker-buildx
+    secrets: [docker_username, docker_password]
     settings:
+      repo: woodpeckerci/woodpecker-agent
       dockerfile: Dockerfile
-      repo: dessalines/lemmy-ui
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      tags:
-        - dev
-    when:
-      event:
-        - cron
-
-  publish_release_docker_image_amd:
-    image: plugins/docker
-    settings:
-      dockerfile: Dockerfile
-      repo: dessalines/lemmy-ui
+      platforms: linux/amd64
       auto_tag: true
-      auto_tag_suffix: linux-amd64
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-    when:
-      event: tag
-      platform: linux/arm64
-
-  publish_release_docker_image_arm:
-    image: plugins/docker
-    settings:
-      dockerfile: Dockerfile
-      repo: dessalines/lemmy-ui
-      auto_tag: true
-      auto_tag_suffix: linux-arm64
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-    when:
-      event: tag
-      platform: linux/amd64
-
-  publish_release_docker_manifest:
-    image: plugins/manifest
-    settings:
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      target: "dessalines/lemmy-ui:${CI_COMMIT_TAG}"
-      template: "dessalines/lemmy-ui:${CI_COMMIT_TAG}-OS-ARCH"
-      platforms:
-        - linux/amd64
-        - linux/arm64
-      ignore_missing: true
-    when:
-      event: tag
-
-  publish_latest_release_docker_manifest:
-    image: plugins/manifest
-    settings:
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      target: "dessalines/lemmy-ui:latest"
-      template: "dessalines/lemmy-ui:${CI_COMMIT_TAG}-OS-ARCH"
-      platforms:
-        - linux/amd64
-        - linux/arm64
-      ignore_missing: true
     when:
       event: tag
