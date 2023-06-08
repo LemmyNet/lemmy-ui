@@ -18,9 +18,9 @@ import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
-  Choice,
   archiveTodayUrl,
   capitalizeFirstLetter,
+  Choice,
   communityToChoice,
   debounce,
   fetchCommunities,
@@ -460,7 +460,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           body: pForm.body,
           nsfw: pForm.nsfw,
           post_id: pv.post.id,
-          language_id: pv.post.language_id,
+          language_id: pForm.language_id,
           auth,
         };
         WebSocketService.Instance.send(wsClient.editPost(form));
