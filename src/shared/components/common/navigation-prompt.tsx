@@ -4,11 +4,11 @@ import { HistoryService } from "../../services/HistoryService";
 
 interface NavigationPromptProps {
   when: boolean;
+  suppress?: boolean;
 }
 
 interface NavigationPromptState {
   promptState: "hidden" | "show" | "approved";
-  calls: number;
 }
 
 export default class NavigationPrompt extends Component<
@@ -17,7 +17,6 @@ export default class NavigationPrompt extends Component<
 > {
   state: NavigationPromptState = {
     promptState: "hidden",
-    calls: 0,
   };
 
   constructor(props: NavigationPromptProps, context: any) {
@@ -25,15 +24,15 @@ export default class NavigationPrompt extends Component<
   }
 
   componentDidMount(): void {
-    console.log("mounted");
-    const unblock = HistoryService.history.block(tx => {
-      this.setState(prev => ({ ...prev, calls: prev.calls + 1 }));
-      if (!this.props.when || window.confirm(i18n.t("block_leaving"))) {
-        console.log("Not blocked");
-        console.log(this.state.calls);
-        unblock();
-      }
-    });
+    if (!this.props.suppress) {
+      const unblock = HistoryService.history.block(tx => {
+        if (!this.props.when || window.confirm(i18n.t("block_leaving"))) {
+          unblock();
+
+          tx.retry();
+        }
+      });
+    }
   }
 
   componentWillUnmount(): void {
