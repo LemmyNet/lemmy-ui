@@ -16,6 +16,7 @@ interface LanguageSelectProps {
   showSite?: boolean;
   iconVersion?: boolean;
   disabled?: boolean;
+  hideLanguageWarning?: boolean;
 }
 
 export class LanguageSelect extends Component<LanguageSelectProps, any> {
@@ -49,7 +50,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
       this.selectBtn
     ) : (
       <div>
-        {this.props.multiple && (
+        {this.props.multiple && !this.props.hideLanguageWarning && (
           <div className="alert alert-warning" role="alert">
             {i18n.t("undetermined_language_warning")}
           </div>

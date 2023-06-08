@@ -265,6 +265,7 @@ export class CommunityForm extends Component<
             showSite
             selectedLanguageIds={this.state.form.discussion_languages}
             multiple={true}
+            hideLanguageWarning={true}
             onChange={this.handleDiscussionLanguageChange}
           />
           <div className="form-group row">
