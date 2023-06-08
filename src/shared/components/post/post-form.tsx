@@ -1,6 +1,5 @@
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
 import {
   CreatePost,
   EditPost,
@@ -168,7 +167,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     return (
       <div>
-        <Prompt
+        {/* <Prompt
           when={
             !(
               this.state.form.name ||
@@ -177,7 +176,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )
           }
           message={i18n.t("block_leaving")}
-        />
+        /> */}
         <form onSubmit={linkEvent(this, this.handlePostSubmit)}>
           <div className="form-group row">
             <label className="col-sm-2 col-form-label" htmlFor="post-url">

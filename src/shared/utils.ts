@@ -557,39 +557,6 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
   }
 }
 
-interface NotifyInfo {
-  name: string;
-  icon?: string;
-  link: string;
-  body?: string;
-}
-
-export function messageToastify(info: NotifyInfo, router: any) {
-  if (isBrowser()) {
-    const htmlBody = info.body ? md.render(info.body) : "";
-    const backgroundColor = `var(--light)`;
-
-    const toast = Toastify({
-      text: `${htmlBody}<br />${info.name}`,
-      avatar: info.icon,
-      backgroundColor: backgroundColor,
-      className: "text-dark",
-      close: true,
-      gravity: "top",
-      position: "right",
-      duration: 5000,
-      escapeMarkup: false,
-      onClick: () => {
-        if (toast) {
-          toast.hideToast();
-          router.history.push(info.link);
-        }
-      },
-    });
-    toast.showToast();
-  }
-}
-
 export function setupTribute() {
   return new Tribute({
     noMatchTemplate: function () {

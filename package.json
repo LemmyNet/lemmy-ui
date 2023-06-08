@@ -17,9 +17,16 @@
     "start": "yarn build:dev --watch"
   },
   "lint-staged": {
-    "*.{ts,tsx,js}": ["prettier --write", "eslint --fix"],
-    "*.{css, scss}": ["prettier --write"],
-    "package.json": ["sortpack"]
+    "*.{ts,tsx,js}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{css, scss}": [
+      "prettier --write"
+    ],
+    "package.json": [
+      "sortpack"
+    ]
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.21.0",
@@ -42,6 +49,7 @@
     "emoji-mart": "^5.4.0",
     "emoji-short-name": "^2.0.0",
     "express": "~4.18.2",
+    "history": "^5.3.0",
     "html-to-text": "^9.0.5",
     "i18next": "^22.4.15",
     "inferno": "^8.1.1",

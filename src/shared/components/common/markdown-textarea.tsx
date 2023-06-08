@@ -1,7 +1,6 @@
 import autosize from "autosize";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { HttpService, UserService } from "../../services";
@@ -24,6 +23,7 @@ import {
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
+import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
@@ -104,14 +104,6 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  componentDidUpdate() {
-    if (!this.props.hideNavigationWarnings && this.state.content) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-  }
-
   componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
     if (nextProps.finished) {
       this.setState({
@@ -131,18 +123,13 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  componentWillUnmount() {
-    window.onbeforeunload = null;
-  }
-
   render() {
     const languageId = this.state.languageId;
 
     return (
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
-        <Prompt
-          when={!this.props.hideNavigationWarnings && this.state.content}
-          message={i18n.t("block_leaving")}
+        <NavigationPrompt
+          when={!this.props.hideNavigationWarnings && !!this.state.content}
         />
         <div className="form-group row">
           <div className={`col-sm-12`}>
