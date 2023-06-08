@@ -460,7 +460,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           body: pForm.body,
           nsfw: pForm.nsfw,
           post_id: pv.post.id,
-          language_id: pv.post.language_id,
+          language_id: pForm.language_id,
           auth,
         };
         WebSocketService.Instance.send(wsClient.editPost(form));
