@@ -26,7 +26,7 @@ pipeline:
     image: woodpeckerci/plugin-docker-buildx
     secrets: [docker_username, docker_password]
     settings:
-      repo: woodpeckerci/woodpecker-agent
+      repo: dessalines/lemmy-ui
       dockerfile: Dockerfile
       platforms: linux/amd64
       auto_tag: true
