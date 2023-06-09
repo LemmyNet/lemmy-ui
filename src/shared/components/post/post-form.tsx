@@ -488,6 +488,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     const pForm = i.state.form;
     const pv = i.props.post_view;
+    
     if (pv) {
       i.props.onEdit?.({
         name: pForm.name,
@@ -495,7 +496,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         body: pForm.body,
         nsfw: pForm.nsfw,
         post_id: pv.post.id,
-        language_id: pv.post.language_id,
+        language_id: pForm.language_id,
         auth,
       });
     } else if (pForm.name && pForm.community_id) {
