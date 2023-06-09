@@ -207,12 +207,12 @@ export function hotRank(score: number, timeStr: string): number {
 
 export function mdToHtml(text: string) {
   // restore '>' character to fix quotes
-  return { __html: md.render(text).split("&gt;").join(">") };
+  return { __html: md.render(text.split("&gt;").join(">")) };
 }
 
 export function mdToHtmlNoImages(text: string) {
   // restore '>' character to fix quotes
-  return { __html: mdNoImages.render(text).split("&gt;").join(">") };
+  return { __html: mdNoImages.render(text.split("&gt;").join(">")) };
 }
 
 export function mdToHtmlInline(text: string) {
