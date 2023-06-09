@@ -25,7 +25,6 @@ import {
   favIconUrl,
   initializeSite,
   isAuthPath,
-  md,
 } from "../shared/utils";
 
 const server = express();
@@ -348,8 +347,9 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
   <!DOCTYPE html>
   <html ${helmet.htmlAttributes.toString()} lang="en">
   <head>
-  <script>window.isoData = ${md.utils.escapeHtml(
-    JSON.stringify(isoData)
+  <script>window.isoData = ${JSON.stringify(isoData).replaceAll(
+    ">",
+    "&gt;"
   )}</script>
   <script>window.lemmyConfig = ${serialize(config)}</script>
 
