@@ -347,10 +347,9 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
   <!DOCTYPE html>
   <html ${helmet.htmlAttributes.toString()} lang="en">
   <head>
-  <script>window.isoData = ${JSON.stringify(isoData).replaceAll(
-    ">",
-    "&gt;"
-  )}</script>
+  <script>window.isoData = ${JSON.stringify(isoData)
+    .split(">")
+    .join("&gt;")}</script>
   <script>window.lemmyConfig = ${serialize(config)}</script>
 
   <!-- A remote debugging utility for mobile -->
