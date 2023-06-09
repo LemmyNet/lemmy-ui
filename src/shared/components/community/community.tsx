@@ -563,7 +563,8 @@ export class Community extends Component<any, State> {
       op == UserOperation.RemovePost ||
       op == UserOperation.LockPost ||
       op == UserOperation.FeaturePost ||
-      op == UserOperation.SavePost
+      op == UserOperation.SavePost ||
+      op == UserOperation.MarkPostAsRead
     ) {
       let data = wsJsonToRes<PostResponse>(msg);
       editPostFindRes(data.post_view, this.state.posts);

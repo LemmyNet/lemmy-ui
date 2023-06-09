@@ -14,6 +14,7 @@ import {
   FeaturePost,
   Language,
   LockPost,
+  MarkPostAsRead,
   PersonViewSafe,
   PostFeatureType,
   PostView,
@@ -596,6 +597,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         {this.saveButton}
+        {this.markReadButton}
         {this.crossPostButton}
         {mobile && this.showMoreButton}
         {(!mobile || this.state.showAdvanced) && (
@@ -726,6 +728,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <Icon
           icon="star"
           classes={classNames({ "text-warning": saved })}
+          inline
+        />
+      </button>
+    );
+  }
+
+  get markReadButton() {
+    let read = this.props.post_view.read;
+    let label = read ? i18n.t("mark read") : i18n.t("mark unread");
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleMarkReadPostClick)}
+        data-tippy-content={label}
+        aria-label={label}
+      >
+        <Icon
+          icon="file-text"
+          classes={classNames({ "text-warning": read })}
           inline
         />
       </button>
@@ -1460,6 +1481,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         auth,
       };
       WebSocketService.Instance.send(wsClient.savePost(form));
+    }
+  }
+
+  handleMarkReadPostClick(i: PostListing) {
+    let auth = myAuth();
+    if (auth) {
+      let read =
+        i.props.post_view.read == undefined ? true : !i.props.post_view.read;
+      let form: MarkPostAsRead = {
+        post_id: i.props.post_view.post.id,
+        read,
+        auth,
+      };
+      WebSocketService.Instance.send(wsClient.markPostAsRead(form));
     }
   }
 

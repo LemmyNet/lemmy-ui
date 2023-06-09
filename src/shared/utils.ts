@@ -906,6 +906,7 @@ export function editPostRes(data: PostView, post: PostView) {
     post.post.body = data.post.body;
     post.post.locked = data.post.locked;
     post.saved = data.saved;
+    post.read = data.read;
   }
 }
 

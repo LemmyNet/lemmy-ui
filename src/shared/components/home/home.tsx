@@ -765,7 +765,8 @@ export class Home extends Component<any, HomeState> {
       op == UserOperation.RemovePost ||
       op == UserOperation.LockPost ||
       op == UserOperation.FeaturePost ||
-      op == UserOperation.SavePost
+      op == UserOperation.SavePost ||
+      op == UserOperation.MarkPostAsRead
     ) {
       let data = wsJsonToRes<PostResponse>(msg);
       editPostFindRes(data.post_view, this.state.posts);

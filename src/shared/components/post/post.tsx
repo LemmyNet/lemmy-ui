@@ -693,13 +693,17 @@ export class Post extends Component<any, PostState> {
       op == UserOperation.RemovePost ||
       op == UserOperation.LockPost ||
       op == UserOperation.FeaturePost ||
-      op == UserOperation.SavePost
+      op == UserOperation.SavePost ||
+      op == UserOperation.MarkPostAsRead
     ) {
       let data = wsJsonToRes<PostResponse>(msg);
-      let res = this.state.postRes;
-      if (res) {
-        res.post_view = data.post_view;
-        this.setState(this.state);
+      if (this.state.postRes) {
+        this.setState(prevState => ({
+          postRes: {
+            ...prevState.postRes,
+            post_view: data.post_view,
+          },
+        }));
         setupTippy();
       }
     } else if (
