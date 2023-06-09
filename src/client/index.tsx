@@ -7,7 +7,7 @@ import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import { HistoryService } from "../shared/services/HistoryService";
 
-const site = window.isoData.site_res;
+const site = JSON.parse(window.isoData).site_res;
 initializeSite(site);
 
 const wrapper = (
