@@ -36,6 +36,7 @@ import {
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import NavigationPrompt from "../common/navigation-prompt";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 
@@ -73,6 +74,7 @@ interface PostFormState {
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
   previewMode: boolean;
+  submitted: boolean;
 }
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
@@ -85,6 +87,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     communitySearchLoading: false,
     previewMode: false,
     communitySearchOptions: [],
+    submitted: false,
   };
 
   constructor(props: PostFormProps, context: any) {
@@ -167,235 +170,240 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     // !!this.state.form.name || !!this.state.form.url || !!this.state.form.body;
     // <Prompt when={promptCheck} message={i18n.t("block_leaving")} />
     return (
-      <div>
-        <form onSubmit={linkEvent(this, this.handlePostSubmit)}>
-          <div className="form-group row">
-            <label className="col-sm-2 col-form-label" htmlFor="post-url">
-              {i18n.t("url")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                type="url"
-                id="post-url"
-                className="form-control"
-                value={this.state.form.url}
-                onInput={linkEvent(this, this.handlePostUrlChange)}
-                onPaste={linkEvent(this, this.handleImageUploadPaste)}
-              />
-              {this.renderSuggestedTitleCopy()}
-              <form>
-                <label
-                  htmlFor="file-upload"
-                  className={`${
-                    UserService.Instance.myUserInfo && "pointer"
-                  } d-inline-block float-right text-muted font-weight-bold`}
-                  data-tippy-content={i18n.t("upload_image")}
-                >
-                  <Icon icon="image" classes="icon-inline" />
-                </label>
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept="image/*,video/*"
-                  name="file"
-                  className="d-none"
-                  disabled={!UserService.Instance.myUserInfo}
-                  onChange={linkEvent(this, this.handleImageUpload)}
-                />
-              </form>
-              {url && validURL(url) && (
-                <div>
-                  <a
-                    href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
-                    className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                    rel={relTags}
-                  >
-                    archive.org {i18n.t("archive_link")}
-                  </a>
-                  <a
-                    href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
-                      url
-                    )}`}
-                    className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                    rel={relTags}
-                  >
-                    ghostarchive.org {i18n.t("archive_link")}
-                  </a>
-                  <a
-                    href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
-                      url
-                    )}`}
-                    className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
-                    rel={relTags}
-                  >
-                    archive.today {i18n.t("archive_link")}
-                  </a>
-                </div>
-              )}
-              {this.state.imageLoading && <Spinner />}
-              {url && isImage(url) && (
-                <img src={url} className="img-fluid" alt="" />
-              )}
-              {this.props.crossPosts && this.props.crossPosts.length > 0 && (
-                <>
-                  <div className="my-1 text-muted small font-weight-bold">
-                    {i18n.t("cross_posts")}
-                  </div>
-                  <PostListings
-                    showCommunity
-                    posts={this.props.crossPosts}
-                    enableDownvotes={this.props.enableDownvotes}
-                    enableNsfw={this.props.enableNsfw}
-                    allLanguages={this.props.allLanguages}
-                    siteLanguages={this.props.siteLanguages}
-                    viewOnly
-                    // All of these are unused, since its view only
-                    onPostVote={() => {}}
-                    onPostReport={() => {}}
-                    onBlockPerson={() => {}}
-                    onLockPost={() => {}}
-                    onDeletePost={() => {}}
-                    onRemovePost={() => {}}
-                    onSavePost={() => {}}
-                    onFeaturePost={() => {}}
-                    onPurgePerson={() => {}}
-                    onPurgePost={() => {}}
-                    onBanPersonFromCommunity={() => {}}
-                    onBanPerson={() => {}}
-                    onAddModToCommunity={() => {}}
-                    onAddAdmin={() => {}}
-                    onTransferCommunity={() => {}}
-                  />
-                </>
-              )}
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-2 col-form-label" htmlFor="post-title">
-              {i18n.t("title")}
-            </label>
-            <div className="col-sm-10">
-              <textarea
-                value={this.state.form.name}
-                id="post-title"
-                onInput={linkEvent(this, this.handlePostNameChange)}
-                className={`form-control ${
-                  !validTitle(this.state.form.name) && "is-invalid"
-                }`}
-                required
-                rows={1}
-                minLength={3}
-                maxLength={MAX_POST_TITLE_LENGTH}
-              />
-              {!validTitle(this.state.form.name) && (
-                <div className="invalid-feedback">
-                  {i18n.t("invalid_post_title")}
-                </div>
-              )}
-              {this.renderSuggestedPosts()}
-            </div>
-          </div>
-
-          <div className="form-group row">
-            <label className="col-sm-2 col-form-label">{i18n.t("body")}</label>
-            <div className="col-sm-10">
-              <MarkdownTextArea
-                initialContent={this.state.form.body}
-                onContentChange={this.handlePostBodyChange}
-                allLanguages={this.props.allLanguages}
-                siteLanguages={this.props.siteLanguages}
-              />
-            </div>
-          </div>
-          {!this.props.post_view && (
-            <div className="form-group row">
+      <form onSubmit={linkEvent(this, this.handlePostSubmit)}>
+        <NavigationPrompt
+          when={
+            !!(
+              this.state.form.name ||
+              this.state.form.url ||
+              this.state.form.body
+            ) && !this.state.submitted
+          }
+        />
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label" htmlFor="post-url">
+            {i18n.t("url")}
+          </label>
+          <div className="col-sm-10">
+            <input
+              type="url"
+              id="post-url"
+              className="form-control"
+              value={this.state.form.url}
+              onInput={linkEvent(this, this.handlePostUrlChange)}
+              onPaste={linkEvent(this, this.handleImageUploadPaste)}
+            />
+            {this.renderSuggestedTitleCopy()}
+            <form>
               <label
-                className="col-sm-2 col-form-label"
-                htmlFor="post-community"
+                htmlFor="file-upload"
+                className={`${
+                  UserService.Instance.myUserInfo && "pointer"
+                } d-inline-block float-right text-muted font-weight-bold`}
+                data-tippy-content={i18n.t("upload_image")}
               >
-                {i18n.t("community")}
+                <Icon icon="image" classes="icon-inline" />
               </label>
-              <div className="col-sm-10">
-                <SearchableSelect
-                  id="post-community"
-                  value={this.state.form.community_id}
-                  options={[
-                    {
-                      label: i18n.t("select_a_community"),
-                      value: "",
-                      disabled: true,
-                    } as Choice,
-                  ].concat(this.state.communitySearchOptions)}
-                  loading={this.state.communitySearchLoading}
-                  onChange={this.handleCommunitySelect}
-                  onSearch={this.handleCommunitySearch}
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*,video/*"
+                name="file"
+                className="d-none"
+                disabled={!UserService.Instance.myUserInfo}
+                onChange={linkEvent(this, this.handleImageUpload)}
+              />
+            </form>
+            {url && validURL(url) && (
+              <div>
+                <a
+                  href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
+                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  rel={relTags}
+                >
+                  archive.org {i18n.t("archive_link")}
+                </a>
+                <a
+                  href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
+                    url
+                  )}`}
+                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  rel={relTags}
+                >
+                  ghostarchive.org {i18n.t("archive_link")}
+                </a>
+                <a
+                  href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
+                    url
+                  )}`}
+                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  rel={relTags}
+                >
+                  archive.today {i18n.t("archive_link")}
+                </a>
+              </div>
+            )}
+            {this.state.imageLoading && <Spinner />}
+            {url && isImage(url) && (
+              <img src={url} className="img-fluid" alt="" />
+            )}
+            {this.props.crossPosts && this.props.crossPosts.length > 0 && (
+              <>
+                <div className="my-1 text-muted small font-weight-bold">
+                  {i18n.t("cross_posts")}
+                </div>
+                <PostListings
+                  showCommunity
+                  posts={this.props.crossPosts}
+                  enableDownvotes={this.props.enableDownvotes}
+                  enableNsfw={this.props.enableNsfw}
+                  allLanguages={this.props.allLanguages}
+                  siteLanguages={this.props.siteLanguages}
+                  viewOnly
+                  // All of these are unused, since its view only
+                  onPostVote={() => {}}
+                  onPostReport={() => {}}
+                  onBlockPerson={() => {}}
+                  onLockPost={() => {}}
+                  onDeletePost={() => {}}
+                  onRemovePost={() => {}}
+                  onSavePost={() => {}}
+                  onFeaturePost={() => {}}
+                  onPurgePerson={() => {}}
+                  onPurgePost={() => {}}
+                  onBanPersonFromCommunity={() => {}}
+                  onBanPerson={() => {}}
+                  onAddModToCommunity={() => {}}
+                  onAddAdmin={() => {}}
+                  onTransferCommunity={() => {}}
+                />
+              </>
+            )}
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label" htmlFor="post-title">
+            {i18n.t("title")}
+          </label>
+          <div className="col-sm-10">
+            <textarea
+              value={this.state.form.name}
+              id="post-title"
+              onInput={linkEvent(this, this.handlePostNameChange)}
+              className={`form-control ${
+                !validTitle(this.state.form.name) && "is-invalid"
+              }`}
+              required
+              rows={1}
+              minLength={3}
+              maxLength={MAX_POST_TITLE_LENGTH}
+            />
+            {!validTitle(this.state.form.name) && (
+              <div className="invalid-feedback">
+                {i18n.t("invalid_post_title")}
+              </div>
+            )}
+            {this.renderSuggestedPosts()}
+          </div>
+        </div>
+
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label">{i18n.t("body")}</label>
+          <div className="col-sm-10">
+            <MarkdownTextArea
+              initialContent={this.state.form.body}
+              onContentChange={this.handlePostBodyChange}
+              allLanguages={this.props.allLanguages}
+              siteLanguages={this.props.siteLanguages}
+              hideNavigationWarnings
+            />
+          </div>
+        </div>
+        {!this.props.post_view && (
+          <div className="form-group row">
+            <label className="col-sm-2 col-form-label" htmlFor="post-community">
+              {i18n.t("community")}
+            </label>
+            <div className="col-sm-10">
+              <SearchableSelect
+                id="post-community"
+                value={this.state.form.community_id}
+                options={[
+                  {
+                    label: i18n.t("select_a_community"),
+                    value: "",
+                    disabled: true,
+                  } as Choice,
+                ].concat(this.state.communitySearchOptions)}
+                loading={this.state.communitySearchLoading}
+                onChange={this.handleCommunitySelect}
+                onSearch={this.handleCommunitySearch}
+              />
+            </div>
+          </div>
+        )}
+        {this.props.enableNsfw && (
+          <div className="form-group row">
+            <legend className="col-form-label col-sm-2 pt-0">
+              {i18n.t("nsfw")}
+            </legend>
+            <div className="col-sm-10">
+              <div className="form-check">
+                <input
+                  className="form-check-input position-static"
+                  id="post-nsfw"
+                  type="checkbox"
+                  checked={this.state.form.nsfw}
+                  onChange={linkEvent(this, this.handlePostNsfwChange)}
                 />
               </div>
             </div>
-          )}
-          {this.props.enableNsfw && (
-            <div className="form-group row">
-              <legend className="col-form-label col-sm-2 pt-0">
-                {i18n.t("nsfw")}
-              </legend>
-              <div className="col-sm-10">
-                <div className="form-check">
-                  <input
-                    className="form-check-input position-static"
-                    id="post-nsfw"
-                    type="checkbox"
-                    checked={this.state.form.nsfw}
-                    onChange={linkEvent(this, this.handlePostNsfwChange)}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-          <LanguageSelect
-            allLanguages={this.props.allLanguages}
-            siteLanguages={this.props.siteLanguages}
-            selectedLanguageIds={selectedLangs}
-            multiple={false}
-            onChange={this.handleLanguageChange}
-          />
-          <input
-            tabIndex={-1}
-            autoComplete="false"
-            name="a_password"
-            type="text"
-            className="form-control honeypot"
-            id="register-honey"
-            value={this.state.form.honeypot}
-            onInput={linkEvent(this, this.handleHoneyPotChange)}
-          />
-          <div className="form-group row">
-            <div className="col-sm-10">
-              <button
-                disabled={!this.state.form.community_id || this.state.loading}
-                type="submit"
-                className="btn btn-secondary mr-2"
-              >
-                {this.state.loading ? (
-                  <Spinner />
-                ) : this.props.post_view ? (
-                  capitalizeFirstLetter(i18n.t("save"))
-                ) : (
-                  capitalizeFirstLetter(i18n.t("create"))
-                )}
-              </button>
-              {this.props.post_view && (
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={linkEvent(this, this.handleCancel)}
-                >
-                  {i18n.t("cancel")}
-                </button>
-              )}
-            </div>
           </div>
-        </form>
-      </div>
+        )}
+        <LanguageSelect
+          allLanguages={this.props.allLanguages}
+          siteLanguages={this.props.siteLanguages}
+          selectedLanguageIds={selectedLangs}
+          multiple={false}
+          onChange={this.handleLanguageChange}
+        />
+        <input
+          tabIndex={-1}
+          autoComplete="false"
+          name="a_password"
+          type="text"
+          className="form-control honeypot"
+          id="register-honey"
+          value={this.state.form.honeypot}
+          onInput={linkEvent(this, this.handleHoneyPotChange)}
+        />
+        <div className="form-group row">
+          <div className="col-sm-10">
+            <button
+              disabled={!this.state.form.community_id || this.state.loading}
+              type="submit"
+              className="btn btn-secondary mr-2"
+            >
+              {this.state.loading ? (
+                <Spinner />
+              ) : this.props.post_view ? (
+                capitalizeFirstLetter(i18n.t("save"))
+              ) : (
+                capitalizeFirstLetter(i18n.t("create"))
+              )}
+            </button>
+            {this.props.post_view && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={linkEvent(this, this.handleCancel)}
+              >
+                {i18n.t("cancel")}
+              </button>
+            )}
+          </div>
+        </div>
+      </form>
     );
   }
 
@@ -473,14 +481,15 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   handlePostSubmit(i: PostForm, event: any) {
     event.preventDefault();
     // Coerce empty url string to undefined
-    if ((i.state.form.url ?? "blank") === "") {
+    if ((i.state.form.url ?? "") === "") {
       i.setState(s => ((s.form.url = undefined), s));
     }
-    i.setState({ loading: true });
+    i.setState({ loading: true, submitted: true });
     const auth = myAuthRequired();
 
     const pForm = i.state.form;
     const pv = i.props.post_view;
+
     if (pv) {
       i.props.onEdit?.({
         name: pForm.name,
@@ -488,7 +497,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         body: pForm.body,
         nsfw: pForm.nsfw,
         post_id: pv.post.id,
-        language_id: pv.post.language_id,
+        language_id: pForm.language_id,
         auth,
       });
     } else if (pForm.name && pForm.community_id) {
@@ -605,7 +614,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     i.setState({ imageLoading: true });
 
-    HttpService.client.uploadImage(file).then(res => {
+    HttpService.client.uploadImage({ image: file }).then(res => {
       console.log("pictrs upload:");
       console.log(res);
       if (res.state === "success") {

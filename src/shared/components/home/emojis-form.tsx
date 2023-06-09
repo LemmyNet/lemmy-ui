@@ -458,7 +458,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
       file = event;
     }
 
-    HttpService.client.uploadImage(file).then(res => {
+    HttpService.client.uploadImage({ image: file }).then(res => {
       console.log("pictrs upload:");
       console.log(res);
       if (res.state === "success") {

@@ -11,6 +11,7 @@ import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import NavigationPrompt from "../common/navigation-prompt";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
@@ -34,6 +35,7 @@ interface CommunityFormState {
     discussion_languages?: number[];
   };
   loading: boolean;
+  submitted: boolean;
 }
 
 export class CommunityForm extends Component<
@@ -45,6 +47,7 @@ export class CommunityForm extends Component<
   state: CommunityFormState = {
     form: {},
     loading: false,
+    submitted: false,
   };
 
   constructor(props: any, context: any) {
@@ -66,6 +69,7 @@ export class CommunityForm extends Component<
 
     if (cv) {
       this.state = {
+        ...this.state,
         form: {
           name: cv.community.name,
           title: cv.community.title,
@@ -81,59 +85,30 @@ export class CommunityForm extends Component<
     }
   }
 
-  // TODO
-  // <Prompt
-  //   when={
-  //     !this.state.loading &&
-  //     (this.state.form.name ||
-  //       this.state.form.title ||
-  //       this.state.form.description)
-  //   }
-  //   message={i18n.t("block_leaving")}
-  // />
-
   render() {
     return (
-      <>
-        <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
-          {!this.props.community_view && (
-            <div className="form-group row">
-              <label
-                className="col-12 col-sm-2 col-form-label"
-                htmlFor="community-name"
-              >
-                {i18n.t("name")}
-                <span
-                  className="position-absolute pointer unselectable ml-2 text-muted"
-                  data-tippy-content={i18n.t("name_explain")}
-                >
-                  <Icon icon="help-circle" classes="icon-inline" />
-                </span>
-              </label>
-              <div className="col-12 col-sm-10">
-                <input
-                  type="text"
-                  id="community-name"
-                  className="form-control"
-                  value={this.state.form.name}
-                  onInput={linkEvent(this, this.handleCommunityNameChange)}
-                  required
-                  minLength={3}
-                  pattern="[a-z0-9_]+"
-                  title={i18n.t("community_reqs")}
-                />
-              </div>
-            </div>
-          )}
+      <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
+        <NavigationPrompt
+          when={
+            !this.state.loading &&
+            !!(
+              this.state.form.name ||
+              this.state.form.title ||
+              this.state.form.description
+            ) &&
+            !this.state.submitted
+          }
+        />
+        {!this.props.community_view && (
           <div className="form-group row">
             <label
               className="col-12 col-sm-2 col-form-label"
-              htmlFor="community-title"
+              htmlFor="community-name"
             >
-              {i18n.t("display_name")}
+              {i18n.t("name")}
               <span
                 className="position-absolute pointer unselectable ml-2 text-muted"
-                data-tippy-content={i18n.t("display_name_explain")}
+                data-tippy-content={i18n.t("name_explain")}
               >
                 <Icon icon="help-circle" classes="icon-inline" />
               </span>
@@ -141,133 +116,161 @@ export class CommunityForm extends Component<
             <div className="col-12 col-sm-10">
               <input
                 type="text"
-                id="community-title"
-                value={this.state.form.title}
-                onInput={linkEvent(this, this.handleCommunityTitleChange)}
+                id="community-name"
                 className="form-control"
+                value={this.state.form.name}
+                onInput={linkEvent(this, this.handleCommunityNameChange)}
                 required
                 minLength={3}
-                maxLength={100}
+                pattern="[a-z0-9_]+"
+                title={i18n.t("community_reqs")}
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-sm-2">{i18n.t("icon")}</label>
-            <div className="col-12 col-sm-10">
-              <ImageUploadForm
-                uploadTitle={i18n.t("upload_icon")}
-                imageSrc={this.state.form.icon}
-                onUpload={this.handleIconUpload}
-                onRemove={this.handleIconRemove}
-                rounded
-              />
-            </div>
+        )}
+        <div className="form-group row">
+          <label
+            className="col-12 col-sm-2 col-form-label"
+            htmlFor="community-title"
+          >
+            {i18n.t("display_name")}
+            <span
+              className="position-absolute pointer unselectable ml-2 text-muted"
+              data-tippy-content={i18n.t("display_name_explain")}
+            >
+              <Icon icon="help-circle" classes="icon-inline" />
+            </span>
+          </label>
+          <div className="col-12 col-sm-10">
+            <input
+              type="text"
+              id="community-title"
+              value={this.state.form.title}
+              onInput={linkEvent(this, this.handleCommunityTitleChange)}
+              className="form-control"
+              required
+              minLength={3}
+              maxLength={100}
+            />
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-sm-2">{i18n.t("banner")}</label>
-            <div className="col-12 col-sm-10">
-              <ImageUploadForm
-                uploadTitle={i18n.t("upload_banner")}
-                imageSrc={this.state.form.banner}
-                onUpload={this.handleBannerUpload}
-                onRemove={this.handleBannerRemove}
-              />
-            </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-2">{i18n.t("icon")}</label>
+          <div className="col-12 col-sm-10">
+            <ImageUploadForm
+              uploadTitle={i18n.t("upload_icon")}
+              imageSrc={this.state.form.icon}
+              onUpload={this.handleIconUpload}
+              onRemove={this.handleIconRemove}
+              rounded
+            />
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
-              {i18n.t("sidebar")}
-            </label>
-            <div className="col-12 col-sm-10">
-              <MarkdownTextArea
-                initialContent={this.state.form.description}
-                placeholder={i18n.t("description")}
-                onContentChange={this.handleCommunityDescriptionChange}
-                allLanguages={[]}
-                siteLanguages={[]}
-              />
-            </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-2">{i18n.t("banner")}</label>
+          <div className="col-12 col-sm-10">
+            <ImageUploadForm
+              uploadTitle={i18n.t("upload_banner")}
+              imageSrc={this.state.form.banner}
+              onUpload={this.handleBannerUpload}
+              onRemove={this.handleBannerRemove}
+            />
           </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
+            {i18n.t("sidebar")}
+          </label>
+          <div className="col-12 col-sm-10">
+            <MarkdownTextArea
+              initialContent={this.state.form.description}
+              placeholder={i18n.t("description")}
+              onContentChange={this.handleCommunityDescriptionChange}
+              hideNavigationWarnings
+              allLanguages={[]}
+              siteLanguages={[]}
+            />
+          </div>
+        </div>
 
-          {this.props.enableNsfw && (
-            <div className="form-group row">
-              <legend className="col-form-label col-sm-2 pt-0">
-                {i18n.t("nsfw")}
-              </legend>
-              <div className="col-10">
-                <div className="form-check">
-                  <input
-                    className="form-check-input position-static"
-                    id="community-nsfw"
-                    type="checkbox"
-                    checked={this.state.form.nsfw}
-                    onChange={linkEvent(this, this.handleCommunityNsfwChange)}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+        {this.props.enableNsfw && (
           <div className="form-group row">
-            <legend className="col-form-label col-6 pt-0">
-              {i18n.t("only_mods_can_post_in_community")}
+            <legend className="col-form-label col-sm-2 pt-0">
+              {i18n.t("nsfw")}
             </legend>
-            <div className="col-6">
+            <div className="col-10">
               <div className="form-check">
                 <input
                   className="form-check-input position-static"
-                  id="community-only-mods-can-post"
+                  id="community-nsfw"
                   type="checkbox"
-                  checked={this.state.form.posting_restricted_to_mods}
-                  onChange={linkEvent(
-                    this,
-                    this.handleCommunityPostingRestrictedToMods
-                  )}
+                  checked={this.state.form.nsfw}
+                  onChange={linkEvent(this, this.handleCommunityNsfwChange)}
                 />
               </div>
             </div>
           </div>
-          <LanguageSelect
-            allLanguages={this.props.allLanguages}
-            siteLanguages={this.props.siteLanguages}
-            showSite
-            selectedLanguageIds={this.state.form.discussion_languages}
-            multiple={true}
-            onChange={this.handleDiscussionLanguageChange}
-          />
-          <div className="form-group row">
-            <div className="col-12">
-              <button
-                type="submit"
-                className="btn btn-secondary mr-2"
-                disabled={this.state.loading}
-              >
-                {this.state.loading ? (
-                  <Spinner />
-                ) : this.props.community_view ? (
-                  capitalizeFirstLetter(i18n.t("save"))
-                ) : (
-                  capitalizeFirstLetter(i18n.t("create"))
+        )}
+        <div className="form-group row">
+          <legend className="col-form-label col-6 pt-0">
+            {i18n.t("only_mods_can_post_in_community")}
+          </legend>
+          <div className="col-6">
+            <div className="form-check">
+              <input
+                className="form-check-input position-static"
+                id="community-only-mods-can-post"
+                type="checkbox"
+                checked={this.state.form.posting_restricted_to_mods}
+                onChange={linkEvent(
+                  this,
+                  this.handleCommunityPostingRestrictedToMods
                 )}
-              </button>
-              {this.props.community_view && (
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={linkEvent(this, this.handleCancel)}
-                >
-                  {i18n.t("cancel")}
-                </button>
-              )}
+              />
             </div>
           </div>
-        </form>
-      </>
+        </div>
+        <LanguageSelect
+          allLanguages={this.props.allLanguages}
+          siteLanguages={this.props.siteLanguages}
+          showSite
+          selectedLanguageIds={this.state.form.discussion_languages}
+          multiple={true}
+          onChange={this.handleDiscussionLanguageChange}
+        />
+        <div className="form-group row">
+          <div className="col-12">
+            <button
+              type="submit"
+              className="btn btn-secondary mr-2"
+              disabled={this.state.loading}
+            >
+              {this.state.loading ? (
+                <Spinner />
+              ) : this.props.community_view ? (
+                capitalizeFirstLetter(i18n.t("save"))
+              ) : (
+                capitalizeFirstLetter(i18n.t("create"))
+              )}
+            </button>
+            {this.props.community_view && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={linkEvent(this, this.handleCancel)}
+              >
+                {i18n.t("cancel")}
+              </button>
+            )}
+          </div>
+        </div>
+      </form>
     );
   }
 
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
+    i.setState({ loading: true, submitted: true });
     const cForm = i.state.form;
     const auth = myAuthRequired();
 

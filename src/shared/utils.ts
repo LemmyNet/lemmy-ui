@@ -204,11 +204,13 @@ export function hotRank(score: number, timeStr: string): number {
 }
 
 export function mdToHtml(text: string) {
-  return { __html: md.render(text) };
+  // restore '>' character to fix quotes
+  return { __html: md.render(text.replace(/&gt;/g, ">")) };
 }
 
 export function mdToHtmlNoImages(text: string) {
-  return { __html: mdNoImages.render(text) };
+  // restore '>' character to fix quotes
+  return { __html: mdNoImages.render(text.replace(/&gt;/g, ">")) };
 }
 
 export function mdToHtmlInline(text: string) {
@@ -553,39 +555,6 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
       close: true,
     });
 
-    toast.showToast();
-  }
-}
-
-interface NotifyInfo {
-  name: string;
-  icon?: string;
-  link: string;
-  body?: string;
-}
-
-export function messageToastify(info: NotifyInfo, router: any) {
-  if (isBrowser()) {
-    const htmlBody = info.body ? md.render(info.body) : "";
-    const backgroundColor = `var(--light)`;
-
-    const toast = Toastify({
-      text: `${htmlBody}<br />${info.name}`,
-      avatar: info.icon,
-      backgroundColor: backgroundColor,
-      className: "text-dark",
-      close: true,
-      gravity: "top",
-      position: "right",
-      duration: 5000,
-      escapeMarkup: false,
-      onClick: () => {
-        if (toast) {
-          toast.hideToast();
-          router.history.push(info.link);
-        }
-      },
-    });
     toast.showToast();
   }
 }
@@ -1207,7 +1176,7 @@ export function setIsoData(context: any): IsoData {
  * Tells the node server to load the data from the isoData, or the browser to fetch it.
  */
 export function isInitialRoute(isoData: IsoData, context: any): boolean {
-  return isoData.path == context.router.route.match.url;
+  return isoData.path === context.router.route.match.url;
 }
 
 moment.updateLocale("en", {

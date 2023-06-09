@@ -18,6 +18,7 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import NavigationPrompt from "../common/navigation-prompt";
 
 interface SiteFormProps {
   blockedInstances?: Instance[];
@@ -35,6 +36,7 @@ interface SiteFormState {
     allowed_instances: string;
     blocked_instances: string;
   };
+  submitted: boolean;
 }
 
 type InstanceKey = "allowed_instances" | "blocked_instances";
@@ -47,6 +49,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       allowed_instances: "",
       blocked_instances: "",
     },
+    submitted: false,
   };
 
   initSiteForm(): EditSite {
@@ -114,521 +117,511 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.setState({ loading: false });
   }
 
-  // TODO
-  // <Prompt
-  //   when={
-  //     !this.state.loading &&
-  //     !siteSetup &&
-  //     (this.state.siteForm.name ||
-  //       this.state.siteForm.sidebar ||
-  //       this.state.siteForm.application_question ||
-  //       this.state.siteForm.description)
-  //   }
-  //   message={i18n.t("block_leaving")}
-  // />
-
   render() {
     const siteSetup = this.props.siteRes.site_view.local_site.site_setup;
     return (
-      <>
-        <form onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}>
-          <h5>{`${
-            siteSetup
-              ? capitalizeFirstLetter(i18n.t("save"))
-              : capitalizeFirstLetter(i18n.t("name"))
-          } ${i18n.t("your_site")}`}</h5>
-          <div className="form-group row">
-            <label className="col-12 col-form-label" htmlFor="create-site-name">
-              {i18n.t("name")}
-            </label>
-            <div className="col-12">
-              <input
-                type="text"
-                id="create-site-name"
-                className="form-control"
-                value={this.state.siteForm.name}
-                onInput={linkEvent(this, this.handleSiteNameChange)}
-                required
-                minLength={3}
-                maxLength={20}
-              />
-            </div>
-          </div>
-          <div className="form-group">
-            <label>{i18n.t("icon")}</label>
-            <ImageUploadForm
-              uploadTitle={i18n.t("upload_icon")}
-              imageSrc={this.state.siteForm.icon}
-              onUpload={this.handleIconUpload}
-              onRemove={this.handleIconRemove}
-              rounded
+      <form onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}>
+        <NavigationPrompt
+          when={
+            !this.state.loading &&
+            !siteSetup &&
+            !!(
+              this.state.siteForm.name ||
+              this.state.siteForm.sidebar ||
+              this.state.siteForm.application_question ||
+              this.state.siteForm.description
+            ) &&
+            !this.state.submitted
+          }
+        />
+        <h5>{`${
+          siteSetup
+            ? capitalizeFirstLetter(i18n.t("save"))
+            : capitalizeFirstLetter(i18n.t("name"))
+        } ${i18n.t("your_site")}`}</h5>
+        <div className="form-group row">
+          <label className="col-12 col-form-label" htmlFor="create-site-name">
+            {i18n.t("name")}
+          </label>
+          <div className="col-12">
+            <input
+              type="text"
+              id="create-site-name"
+              className="form-control"
+              value={this.state.siteForm.name}
+              onInput={linkEvent(this, this.handleSiteNameChange)}
+              required
+              minLength={3}
+              maxLength={20}
             />
           </div>
-          <div className="form-group">
-            <label>{i18n.t("banner")}</label>
-            <ImageUploadForm
-              uploadTitle={i18n.t("upload_banner")}
-              imageSrc={this.state.siteForm.banner}
-              onUpload={this.handleBannerUpload}
-              onRemove={this.handleBannerRemove}
+        </div>
+        <div className="form-group">
+          <label>{i18n.t("icon")}</label>
+          <ImageUploadForm
+            uploadTitle={i18n.t("upload_icon")}
+            imageSrc={this.state.siteForm.icon}
+            onUpload={this.handleIconUpload}
+            onRemove={this.handleIconRemove}
+            rounded
+          />
+        </div>
+        <div className="form-group">
+          <label>{i18n.t("banner")}</label>
+          <ImageUploadForm
+            uploadTitle={i18n.t("upload_banner")}
+            imageSrc={this.state.siteForm.banner}
+            onUpload={this.handleBannerUpload}
+            onRemove={this.handleBannerRemove}
+          />
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-form-label" htmlFor="site-desc">
+            {i18n.t("description")}
+          </label>
+          <div className="col-12">
+            <input
+              type="text"
+              className="form-control"
+              id="site-desc"
+              value={this.state.siteForm.description}
+              onInput={linkEvent(this, this.handleSiteDescChange)}
+              maxLength={150}
             />
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-form-label" htmlFor="site-desc">
-              {i18n.t("description")}
-            </label>
-            <div className="col-12">
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-form-label">{i18n.t("sidebar")}</label>
+          <div className="col-12">
+            <MarkdownTextArea
+              initialContent={this.state.siteForm.sidebar}
+              onContentChange={this.handleSiteSidebarChange}
+              hideNavigationWarnings
+              allLanguages={[]}
+              siteLanguages={[]}
+            />
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-form-label">
+            {i18n.t("legal_information")}
+          </label>
+          <div className="col-12">
+            <MarkdownTextArea
+              initialContent={this.state.siteForm.legal_information}
+              onContentChange={this.handleSiteLegalInfoChange}
+              hideNavigationWarnings
+              allLanguages={[]}
+              siteLanguages={[]}
+            />
+          </div>
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
               <input
-                type="text"
-                className="form-control"
-                id="site-desc"
-                value={this.state.siteForm.description}
-                onInput={linkEvent(this, this.handleSiteDescChange)}
-                maxLength={150}
+                className="form-check-input"
+                id="create-site-downvotes"
+                type="checkbox"
+                checked={this.state.siteForm.enable_downvotes}
+                onChange={linkEvent(this, this.handleSiteEnableDownvotesChange)}
               />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-downvotes"
+              >
+                {i18n.t("enable_downvotes")}
+              </label>
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-form-label">{i18n.t("sidebar")}</label>
-            <div className="col-12">
-              <MarkdownTextArea
-                initialContent={this.state.siteForm.sidebar}
-                onContentChange={this.handleSiteSidebarChange}
-                hideNavigationWarnings
-                allLanguages={[]}
-                siteLanguages={[]}
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-enable-nsfw"
+                type="checkbox"
+                checked={this.state.siteForm.enable_nsfw}
+                onChange={linkEvent(this, this.handleSiteEnableNsfwChange)}
               />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-enable-nsfw"
+              >
+                {i18n.t("enable_nsfw")}
+              </label>
             </div>
           </div>
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <label
+              className="form-check-label mr-2"
+              htmlFor="create-site-registration-mode"
+            >
+              {i18n.t("registration_mode")}
+            </label>
+            <select
+              id="create-site-registration-mode"
+              value={this.state.siteForm.registration_mode}
+              onChange={linkEvent(this, this.handleSiteRegistrationModeChange)}
+              className="custom-select w-auto"
+            >
+              <option value={"RequireApplication"}>
+                {i18n.t("require_registration_application")}
+              </option>
+              <option value={"Open"}>{i18n.t("open_registration")}</option>
+              <option value={"Closed"}>{i18n.t("close_registration")}</option>
+            </select>
+          </div>
+        </div>
+        {this.state.siteForm.registration_mode == "RequireApplication" && (
           <div className="form-group row">
             <label className="col-12 col-form-label">
-              {i18n.t("legal_information")}
+              {i18n.t("application_questionnaire")}
             </label>
             <div className="col-12">
               <MarkdownTextArea
-                initialContent={this.state.siteForm.legal_information}
-                onContentChange={this.handleSiteLegalInfoChange}
+                initialContent={this.state.siteForm.application_question}
+                onContentChange={this.handleSiteApplicationQuestionChange}
                 hideNavigationWarnings
                 allLanguages={[]}
                 siteLanguages={[]}
               />
             </div>
           </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-downvotes"
-                  type="checkbox"
-                  checked={this.state.siteForm.enable_downvotes}
-                  onChange={linkEvent(
-                    this,
-                    this.handleSiteEnableDownvotesChange
-                  )}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-downvotes"
-                >
-                  {i18n.t("enable_downvotes")}
-                </label>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-enable-nsfw"
-                  type="checkbox"
-                  checked={this.state.siteForm.enable_nsfw}
-                  onChange={linkEvent(this, this.handleSiteEnableNsfwChange)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-enable-nsfw"
-                >
-                  {i18n.t("enable_nsfw")}
-                </label>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <label
-                className="form-check-label mr-2"
-                htmlFor="create-site-registration-mode"
-              >
-                {i18n.t("registration_mode")}
-              </label>
-              <select
-                id="create-site-registration-mode"
-                value={this.state.siteForm.registration_mode}
+        )}
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-community-creation-admin-only"
+                type="checkbox"
+                checked={this.state.siteForm.community_creation_admin_only}
                 onChange={linkEvent(
                   this,
-                  this.handleSiteRegistrationModeChange
+                  this.handleSiteCommunityCreationAdminOnly
                 )}
-                className="custom-select w-auto"
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-community-creation-admin-only"
               >
-                <option value={"RequireApplication"}>
-                  {i18n.t("require_registration_application")}
-                </option>
-                <option value={"Open"}>{i18n.t("open_registration")}</option>
-                <option value={"Closed"}>{i18n.t("close_registration")}</option>
-              </select>
+                {i18n.t("community_creation_admin_only")}
+              </label>
             </div>
           </div>
-          {this.state.siteForm.registration_mode == "RequireApplication" && (
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-require-email-verification"
+                type="checkbox"
+                checked={this.state.siteForm.require_email_verification}
+                onChange={linkEvent(
+                  this,
+                  this.handleSiteRequireEmailVerification
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-require-email-verification"
+              >
+                {i18n.t("require_email_verification")}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-application-email-admins"
+                type="checkbox"
+                checked={this.state.siteForm.application_email_admins}
+                onChange={linkEvent(
+                  this,
+                  this.handleSiteApplicationEmailAdmins
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-email-admins"
+              >
+                {i18n.t("application_email_admins")}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-reports-email-admins"
+                type="checkbox"
+                checked={this.state.siteForm.reports_email_admins}
+                onChange={linkEvent(this, this.handleSiteReportsEmailAdmins)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-reports-email-admins"
+              >
+                {i18n.t("reports_email_admins")}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <label
+              className="form-check-label mr-2"
+              htmlFor="create-site-default-theme"
+            >
+              {i18n.t("theme")}
+            </label>
+            <select
+              id="create-site-default-theme"
+              value={this.state.siteForm.default_theme}
+              onChange={linkEvent(this, this.handleSiteDefaultTheme)}
+              className="custom-select w-auto"
+            >
+              <option value="browser">{i18n.t("browser_default")}</option>
+              {this.props.themeList?.map(theme => (
+                <option key={theme} value={theme}>
+                  {theme}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {this.props.showLocal && (
+          <form className="form-group row">
+            <label className="col-sm-3">{i18n.t("listing_type")}</label>
+            <div className="col-sm-9">
+              <ListingTypeSelect
+                type_={this.state.siteForm.default_post_listing_type ?? "Local"}
+                showLocal
+                showSubscribed={false}
+                onChange={this.handleDefaultPostListingTypeChange}
+              />
+            </div>
+          </form>
+        )}
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-private-instance"
+                type="checkbox"
+                checked={this.state.siteForm.private_instance}
+                onChange={linkEvent(this, this.handleSitePrivateInstance)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-private-instance"
+              >
+                {i18n.t("private_instance")}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-hide-modlog-mod-names"
+                type="checkbox"
+                checked={this.state.siteForm.hide_modlog_mod_names}
+                onChange={linkEvent(this, this.handleSiteHideModlogModNames)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-hide-modlog-mod-names"
+              >
+                {i18n.t("hide_modlog_mod_names")}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="create-site-slur-filter-regex"
+          >
+            {i18n.t("slur_filter_regex")}
+          </label>
+          <div className="col-12">
+            <input
+              type="text"
+              id="create-site-slur-filter-regex"
+              placeholder="(word1|word2)"
+              className="form-control"
+              value={this.state.siteForm.slur_filter_regex}
+              onInput={linkEvent(this, this.handleSiteSlurFilterRegex)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <LanguageSelect
+          allLanguages={this.props.siteRes.all_languages}
+          siteLanguages={this.props.siteRes.discussion_languages}
+          selectedLanguageIds={this.state.siteForm.discussion_languages}
+          multiple={true}
+          onChange={this.handleDiscussionLanguageChange}
+          showAll
+        />
+        <div className="form-group row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="create-site-actor-name"
+          >
+            {i18n.t("actor_name_max_length")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="create-site-actor-name"
+              className="form-control"
+              min={5}
+              value={this.state.siteForm.actor_name_max_length}
+              onInput={linkEvent(this, this.handleSiteActorNameMaxLength)}
+            />
+          </div>
+        </div>
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-federation-enabled"
+                type="checkbox"
+                checked={this.state.siteForm.federation_enabled}
+                onChange={linkEvent(this, this.handleSiteFederationEnabled)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-federation-enabled"
+              >
+                {i18n.t("federation_enabled")}
+              </label>
+            </div>
+          </div>
+        </div>
+        {this.state.siteForm.federation_enabled && (
+          <>
             <div className="form-group row">
-              <label className="col-12 col-form-label">
-                {i18n.t("application_questionnaire")}
+              {this.federatedInstanceSelect("allowed_instances")}
+              {this.federatedInstanceSelect("blocked_instances")}
+            </div>
+            <div className="form-group row">
+              <div className="col-12">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    id="create-site-federation-debug"
+                    type="checkbox"
+                    checked={this.state.siteForm.federation_debug}
+                    onChange={linkEvent(this, this.handleSiteFederationDebug)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor="create-site-federation-debug"
+                  >
+                    {i18n.t("federation_debug")}
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="form-group row">
+              <label
+                className="col-12 col-form-label"
+                htmlFor="create-site-federation-worker-count"
+              >
+                {i18n.t("federation_worker_count")}
               </label>
               <div className="col-12">
-                <MarkdownTextArea
-                  initialContent={this.state.siteForm.application_question}
-                  onContentChange={this.handleSiteApplicationQuestionChange}
-                  hideNavigationWarnings
-                  allLanguages={[]}
-                  siteLanguages={[]}
-                />
-              </div>
-            </div>
-          )}
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
                 <input
-                  className="form-check-input"
-                  id="create-site-community-creation-admin-only"
-                  type="checkbox"
-                  checked={this.state.siteForm.community_creation_admin_only}
-                  onChange={linkEvent(
+                  type="number"
+                  id="create-site-federation-worker-count"
+                  className="form-control"
+                  min={0}
+                  value={this.state.siteForm.federation_worker_count}
+                  onInput={linkEvent(
                     this,
-                    this.handleSiteCommunityCreationAdminOnly
+                    this.handleSiteFederationWorkerCount
                   )}
                 />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-community-creation-admin-only"
-                >
-                  {i18n.t("community_creation_admin_only")}
-                </label>
               </div>
             </div>
-          </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-require-email-verification"
-                  type="checkbox"
-                  checked={this.state.siteForm.require_email_verification}
-                  onChange={linkEvent(
-                    this,
-                    this.handleSiteRequireEmailVerification
-                  )}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-require-email-verification"
-                >
-                  {i18n.t("require_email_verification")}
-                </label>
-              </div>
+          </>
+        )}
+        <div className="form-group row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-captcha-enabled"
+                type="checkbox"
+                checked={this.state.siteForm.captcha_enabled}
+                onChange={linkEvent(this, this.handleSiteCaptchaEnabled)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-captcha-enabled"
+              >
+                {i18n.t("captcha_enabled")}
+              </label>
             </div>
           </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-application-email-admins"
-                  type="checkbox"
-                  checked={this.state.siteForm.application_email_admins}
-                  onChange={linkEvent(
-                    this,
-                    this.handleSiteApplicationEmailAdmins
-                  )}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-email-admins"
-                >
-                  {i18n.t("application_email_admins")}
-                </label>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-reports-email-admins"
-                  type="checkbox"
-                  checked={this.state.siteForm.reports_email_admins}
-                  onChange={linkEvent(this, this.handleSiteReportsEmailAdmins)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-reports-email-admins"
-                >
-                  {i18n.t("reports_email_admins")}
-                </label>
-              </div>
-            </div>
-          </div>
+        </div>
+        {this.state.siteForm.captcha_enabled && (
           <div className="form-group row">
             <div className="col-12">
               <label
                 className="form-check-label mr-2"
-                htmlFor="create-site-default-theme"
+                htmlFor="create-site-captcha-difficulty"
               >
-                {i18n.t("theme")}
+                {i18n.t("captcha_difficulty")}
               </label>
               <select
-                id="create-site-default-theme"
-                value={this.state.siteForm.default_theme}
-                onChange={linkEvent(this, this.handleSiteDefaultTheme)}
+                id="create-site-captcha-difficulty"
+                value={this.state.siteForm.captcha_difficulty}
+                onChange={linkEvent(this, this.handleSiteCaptchaDifficulty)}
                 className="custom-select w-auto"
               >
-                <option value="browser">{i18n.t("browser_default")}</option>
-                {this.props.themeList?.map(theme => (
-                  <option key={theme} value={theme}>
-                    {theme}
-                  </option>
-                ))}
+                <option value="easy">{i18n.t("easy")}</option>
+                <option value="medium">{i18n.t("medium")}</option>
+                <option value="hard">{i18n.t("hard")}</option>
               </select>
             </div>
           </div>
-          {this.props.showLocal && (
-            <form className="form-group row">
-              <label className="col-sm-3">{i18n.t("listing_type")}</label>
-              <div className="col-sm-9">
-                <ListingTypeSelect
-                  type_={
-                    this.state.siteForm.default_post_listing_type ?? "Local"
-                  }
-                  showLocal
-                  showSubscribed={false}
-                  onChange={this.handleDefaultPostListingTypeChange}
-                />
-              </div>
-            </form>
-          )}
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-private-instance"
-                  type="checkbox"
-                  checked={this.state.siteForm.private_instance}
-                  onChange={linkEvent(this, this.handleSitePrivateInstance)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-private-instance"
-                >
-                  {i18n.t("private_instance")}
-                </label>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-hide-modlog-mod-names"
-                  type="checkbox"
-                  checked={this.state.siteForm.hide_modlog_mod_names}
-                  onChange={linkEvent(this, this.handleSiteHideModlogModNames)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-hide-modlog-mod-names"
-                >
-                  {i18n.t("hide_modlog_mod_names")}
-                </label>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-slur-filter-regex"
+        )}
+        <div className="form-group row">
+          <div className="col-12">
+            <button
+              type="submit"
+              className="btn btn-secondary mr-2"
+              disabled={this.state.loading}
             >
-              {i18n.t("slur_filter_regex")}
-            </label>
-            <div className="col-12">
-              <input
-                type="text"
-                id="create-site-slur-filter-regex"
-                placeholder="(word1|word2)"
-                className="form-control"
-                value={this.state.siteForm.slur_filter_regex}
-                onInput={linkEvent(this, this.handleSiteSlurFilterRegex)}
-                minLength={3}
-              />
-            </div>
+              {this.state.loading ? (
+                <Spinner />
+              ) : siteSetup ? (
+                capitalizeFirstLetter(i18n.t("save"))
+              ) : (
+                capitalizeFirstLetter(i18n.t("create"))
+              )}
+            </button>
           </div>
-          <LanguageSelect
-            allLanguages={this.props.siteRes.all_languages}
-            siteLanguages={this.props.siteRes.discussion_languages}
-            selectedLanguageIds={this.state.siteForm.discussion_languages}
-            multiple={true}
-            onChange={this.handleDiscussionLanguageChange}
-            showAll
-          />
-          <div className="form-group row">
-            <label
-              className="col-12 col-form-label"
-              htmlFor="create-site-actor-name"
-            >
-              {i18n.t("actor_name_max_length")}
-            </label>
-            <div className="col-12">
-              <input
-                type="number"
-                id="create-site-actor-name"
-                className="form-control"
-                min={5}
-                value={this.state.siteForm.actor_name_max_length}
-                onInput={linkEvent(this, this.handleSiteActorNameMaxLength)}
-              />
-            </div>
-          </div>
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-federation-enabled"
-                  type="checkbox"
-                  checked={this.state.siteForm.federation_enabled}
-                  onChange={linkEvent(this, this.handleSiteFederationEnabled)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-federation-enabled"
-                >
-                  {i18n.t("federation_enabled")}
-                </label>
-              </div>
-            </div>
-          </div>
-          {this.state.siteForm.federation_enabled && (
-            <>
-              <div className="form-group row">
-                {this.federatedInstanceSelect("allowed_instances")}
-                {this.federatedInstanceSelect("blocked_instances")}
-              </div>
-              <div className="form-group row">
-                <div className="col-12">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id="create-site-federation-debug"
-                      type="checkbox"
-                      checked={this.state.siteForm.federation_debug}
-                      onChange={linkEvent(this, this.handleSiteFederationDebug)}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="create-site-federation-debug"
-                    >
-                      {i18n.t("federation_debug")}
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row">
-                <label
-                  className="col-12 col-form-label"
-                  htmlFor="create-site-federation-worker-count"
-                >
-                  {i18n.t("federation_worker_count")}
-                </label>
-                <div className="col-12">
-                  <input
-                    type="number"
-                    id="create-site-federation-worker-count"
-                    className="form-control"
-                    min={0}
-                    value={this.state.siteForm.federation_worker_count}
-                    onInput={linkEvent(
-                      this,
-                      this.handleSiteFederationWorkerCount
-                    )}
-                  />
-                </div>
-              </div>
-            </>
-          )}
-          <div className="form-group row">
-            <div className="col-12">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="create-site-captcha-enabled"
-                  type="checkbox"
-                  checked={this.state.siteForm.captcha_enabled}
-                  onChange={linkEvent(this, this.handleSiteCaptchaEnabled)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="create-site-captcha-enabled"
-                >
-                  {i18n.t("captcha_enabled")}
-                </label>
-              </div>
-            </div>
-          </div>
-          {this.state.siteForm.captcha_enabled && (
-            <div className="form-group row">
-              <div className="col-12">
-                <label
-                  className="form-check-label mr-2"
-                  htmlFor="create-site-captcha-difficulty"
-                >
-                  {i18n.t("captcha_difficulty")}
-                </label>
-                <select
-                  id="create-site-captcha-difficulty"
-                  value={this.state.siteForm.captcha_difficulty}
-                  onChange={linkEvent(this, this.handleSiteCaptchaDifficulty)}
-                  className="custom-select w-auto"
-                >
-                  <option value="easy">{i18n.t("easy")}</option>
-                  <option value="medium">{i18n.t("medium")}</option>
-                  <option value="hard">{i18n.t("hard")}</option>
-                </select>
-              </div>
-            </div>
-          )}
-          <div className="form-group row">
-            <div className="col-12">
-              <button
-                type="submit"
-                className="btn btn-secondary mr-2"
-                disabled={this.state.loading}
-              >
-                {this.state.loading ? (
-                  <Spinner />
-                ) : siteSetup ? (
-                  capitalizeFirstLetter(i18n.t("save"))
-                ) : (
-                  capitalizeFirstLetter(i18n.t("create"))
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
-      </>
+        </div>
+      </form>
     );
   }
 
@@ -718,7 +711,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event.preventDefault();
     const auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));
-    i.setState({ loading: true });
+    i.setState({ loading: true, submitted: true });
 
     const stateSiteForm = i.state.siteForm;
 

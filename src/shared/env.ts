@@ -41,9 +41,15 @@ function getBaseLocal(s = "") {
 export function getHttpBaseInternal() {
   return getBaseLocal(); // Don't use secure here
 }
+
+export function getHttpBaseExternal() {
+  return `http${getSecure()}://${getExternalHost()}`;
+}
+
 export function getHttpBase() {
   return getBaseLocal(getSecure());
 }
+
 export function isHttps() {
   return getSecure() === "s";
 }

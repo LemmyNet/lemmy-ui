@@ -23,6 +23,7 @@ import {
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
+import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
@@ -55,6 +56,7 @@ interface MarkdownTextAreaState {
   previewMode: boolean;
   imageUploadStatus?: ImageUploadStatus;
   loading: boolean;
+  submitted: boolean;
 }
 
 export class MarkdownTextArea extends Component<
@@ -70,6 +72,7 @@ export class MarkdownTextArea extends Component<
     languageId: this.props.initialLanguageId,
     previewMode: false,
     loading: false,
+    submitted: false,
   };
 
   constructor(props: any, context: any) {
@@ -132,6 +135,10 @@ export class MarkdownTextArea extends Component<
     // />
     return (
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
+        <NavigationPrompt
+          when={!!this.state.content && !this.state.submitted}
+          suppress={this.props.hideNavigationWarnings}
+        />
         <div className="form-group row">
           <div className={`col-sm-12`}>
             <textarea
@@ -433,7 +440,7 @@ export class MarkdownTextArea extends Component<
   handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
     if (i.state.content) {
-      i.setState({ loading: true });
+      i.setState({ loading: true, submitted: true });
       i.props.onSubmit?.(i.state.content, i.formId, i.state.languageId);
     }
   }
