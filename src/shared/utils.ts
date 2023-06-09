@@ -1176,7 +1176,7 @@ export function setIsoData(context: any): IsoData {
  * Tells the node server to load the data from the isoData, or the browser to fetch it.
  */
 export function isInitialRoute(isoData: IsoData, context: any): boolean {
-  return isoData.path == context.router.route.match.url;
+  return isoData.path === context.router.route.match.url;
 }
 
 moment.updateLocale("en", {

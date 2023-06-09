@@ -285,7 +285,7 @@ export class Search extends Component<any, SearchState> {
         };
       }
 
-      if (q !== "") {
+      if (q) {
         this.state = {
           ...this.state,
           searchRes,
@@ -411,9 +411,10 @@ export class Search extends Component<any, SearchState> {
         {this.selects}
         {this.searchForm}
         {this.displayResults(type)}
-        {this.resultsCount === 0 && this.state.searchRes.state == "success" && (
-          <span>{i18n.t("no_results")}</span>
-        )}
+        {this.resultsCount === 0 &&
+          this.state.searchRes.state === "success" && (
+            <span>{i18n.t("no_results")}</span>
+          )}
         <Paginator page={page} onChange={this.handlePageChange} />
       </div>
     );
@@ -861,7 +862,7 @@ export class Search extends Component<any, SearchState> {
     const { communityId, creatorId, type, sort, listingType, page } =
       getSearchQueryParams();
 
-    if (q && q !== "") {
+    if (q) {
       this.setState({ searchRes: { state: "loading" } });
       this.setState({
         searchRes: await HttpService.client.search({
@@ -992,7 +993,7 @@ export class Search extends Component<any, SearchState> {
     i.setState({ searchText: event.target.value });
   }
 
-  updateUrl({
+  async updateUrl({
     q,
     type,
     listingType,
@@ -1029,6 +1030,6 @@ export class Search extends Component<any, SearchState> {
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);
 
-    this.search();
+    await this.search();
   }
 }
