@@ -204,11 +204,13 @@ export function hotRank(score: number, timeStr: string): number {
 }
 
 export function mdToHtml(text: string) {
-  return { __html: md.render(text) };
+  // restore '>' character to fix quotes
+  return { __html: md.render(text.replace(/&gt;/g, ">")) };
 }
 
 export function mdToHtmlNoImages(text: string) {
-  return { __html: mdNoImages.render(text) };
+  // restore '>' character to fix quotes
+  return { __html: mdNoImages.render(text.replace(/&gt;/g, ">")) };
 }
 
 export function mdToHtmlInline(text: string) {
@@ -1164,7 +1166,7 @@ export function isBrowser() {
 export function setIsoData(context: any): IsoData {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
-    return JSON.parse(window.isoData);
+    return window.isoData;
   } else return context.router.staticContext;
 }
 

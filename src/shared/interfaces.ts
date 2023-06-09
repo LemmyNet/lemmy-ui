@@ -22,7 +22,7 @@ export interface ILemmyConfig {
 
 declare global {
   interface Window {
-    isoData: string;
+    isoData: IsoData;
     lemmyConfig?: ILemmyConfig;
   }
 }
