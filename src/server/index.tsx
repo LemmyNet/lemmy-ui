@@ -12,7 +12,7 @@ import process from "process";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { App } from "../shared/components/app/app";
-import { getHttpBase, getHttpBaseInternal } from "../shared/env";
+import { getHttpBaseExternal, getHttpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
@@ -65,7 +65,13 @@ Disallow: /search/
 
 server.get("/service-worker.js", async (_req, res) => {
   res.setHeader("Content-Type", "application/javascript");
-  res.sendFile(path.resolve("./dist/service-worker.js"));
+  res.sendFile(
+    path.resolve(
+      `./dist/service-worker${
+        process.env.NODE_ENV === "development" ? "-development" : ""
+      }.js`
+    )
+  );
 });
 
 server.get("/robots.txt", async (_req, res) => {
@@ -237,7 +243,7 @@ process.on("SIGINT", () => {
   process.exit(0);
 });
 
-const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+const iconSizes = [72, 96, 144, 192, 512];
 const defaultLogoPathDirectory = path.join(
   process.cwd(),
   "dist",
@@ -246,11 +252,8 @@ const defaultLogoPathDirectory = path.join(
 );
 
 export async function generateManifestBase64(site: Site) {
-  const url = (
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:1236/"
-      : getHttpBase()
-  ).replace(/\/$/g, "");
+  const url = getHttpBaseExternal();
+
   const icon = site.icon ? await fetchIconPng(site.icon) : null;
 
   const manifest = {
@@ -378,9 +381,9 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
     site &&
     `<link
         rel="manifest"
-        href={${`data:application/manifest+json;base64,${await generateManifestBase64(
+        href=${`data:application/manifest+json;base64,${await generateManifestBase64(
           site.site_view.site
-        )}`}}
+        )}`}
       />`
   }
   <link rel="apple-touch-icon" href=${appleTouchIcon} />
