@@ -148,6 +148,7 @@ export class MarkdownTextArea extends Component<
               value={this.state.content}
               onInput={linkEvent(this, this.handleContentChange)}
               onPaste={linkEvent(this, this.handleImageUploadPaste)}
+              onKeyDown={linkEvent(this, this.handleKeyBinds)}
               required
               disabled={this.isDisabled}
               rows={2}
@@ -427,6 +428,18 @@ export class MarkdownTextArea extends Component<
   handleContentChange(i: MarkdownTextArea, event: any) {
     i.setState({ content: event.target.value });
     i.contentChange();
+  }
+
+  // Keybind handler
+  handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
+    if (event.ctrlKey) {
+      switch (event.key) {
+        case "k": {
+          // Currently only one case but will support further keybinds
+          i.handleInsertLink(i, event);
+        }
+      }
+    }
   }
 
   handlePreviewToggle(i: MarkdownTextArea, event: any) {
