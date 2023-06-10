@@ -330,7 +330,7 @@ export function validURL(str: string) {
   try {
     new URL(str);
     return true;
-  } catch (_) {
+  } catch {
     return false;
   }
 }
