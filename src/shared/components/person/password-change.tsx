@@ -3,7 +3,7 @@ import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { HttpService, UserService } from "../../services";
 import { RequestState } from "../../services/HttpService";
-import { capitalizeFirstLetter, setIsoData } from "../../utils";
+import { capitalizeFirstLetter, myAuth, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -131,11 +131,16 @@ export class PasswordChange extends Component<any, State> {
         }),
       });
 
-      if (i.state.passwordChangeRes.state == "success") {
+      if (i.state.passwordChangeRes.state === "success") {
         const data = i.state.passwordChangeRes.data;
         UserService.Instance.login(data);
-        this.props.history.push("/");
-        location.reload();
+
+        const site = await HttpService.client.getSite({ auth: myAuth() });
+        if (site.state === "success") {
+          UserService.Instance.myUserInfo = site.data.my_user;
+        }
+
+        this.props.history.replace("/");
       }
     }
   }

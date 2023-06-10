@@ -18,12 +18,12 @@ interface JwtInfo {
 }
 
 export class UserService {
-  private static _instance: UserService;
+  static #instance: UserService;
   public myUserInfo?: MyUserInfo;
   public jwtInfo?: JwtInfo;
 
   private constructor() {
-    this.setJwtInfo();
+    this.#setJwtInfo();
   }
 
   public login(res: LoginResponse) {
@@ -32,7 +32,7 @@ export class UserService {
     if (res.jwt) {
       toast(i18n.t("logged_in"));
       IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps() });
-      this.setJwtInfo();
+      this.#setJwtInfo();
     }
   }
 
@@ -63,7 +63,7 @@ export class UserService {
     }
   }
 
-  private setJwtInfo() {
+  #setJwtInfo() {
     const jwt: string | undefined = IsomorphicCookie.load("jwt");
 
     if (jwt) {
@@ -72,6 +72,6 @@ export class UserService {
   }
 
   public static get Instance() {
-    return this._instance || (this._instance = new this());
+    return this.#instance || (this.#instance = new this());
   }
 }

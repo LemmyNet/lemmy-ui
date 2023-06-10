@@ -273,16 +273,10 @@ export class Post extends Component<any, PostState> {
     document.addEventListener("scroll", this.commentScrollDebounced);
   }
 
-  componentDidUpdate(_lastProps: any) {
+  async componentDidUpdate(_lastProps: any) {
     // Necessary if you are on a post and you click another post (same route)
     if (_lastProps.location.pathname !== _lastProps.history.location.pathname) {
-      // TODO Couldnt get a refresh working. This does for now.
-      location.reload();
-
-      // const currentId = this.props.match.params.id;
-      // WebSocketService.Instance.getPost(currentId);
-      // this.context.refresh();
-      // this.context.router.history.push(_lastProps.location.pathname);
+      await this.fetchPost();
     }
   }
 

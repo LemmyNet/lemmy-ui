@@ -3,7 +3,7 @@ import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { isBrowser, setIsoData, toast, validEmail } from "../../utils";
+import { isBrowser, myAuth, setIsoData, toast, validEmail } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -178,8 +178,16 @@ export class Login extends Component<any, State> {
 
         case "success": {
           UserService.Instance.login(loginRes.data);
-          i.props.history.push("/");
-          location.reload();
+          const site = await HttpService.client.getSite({
+            auth: myAuth(),
+          });
+
+          if (site.state === "success") {
+            UserService.Instance.myUserInfo = site.data.my_user;
+          }
+
+          i.props.history.replace("/");
+
           break;
         }
       }

@@ -121,12 +121,9 @@ function getDataTypeFromQuery(type?: string): DataType {
 }
 
 function getListingTypeFromQuery(type?: string): ListingType {
-  console.log(`Listing type: ${type}`);
   const myListingType =
     UserService.Instance.myUserInfo?.local_user_view?.local_user
       ?.default_listing_type;
-
-  console.log(`my listing type: ${myListingType}`);
 
   return (type ? (type as ListingType) : myListingType) ?? "Local";
 }

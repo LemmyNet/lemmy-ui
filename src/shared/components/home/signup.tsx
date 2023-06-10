@@ -16,6 +16,7 @@ import {
   isBrowser,
   joinLemmyUrl,
   mdToHtml,
+  myAuth,
   setIsoData,
   toast,
   validEmail,
@@ -471,8 +472,14 @@ export class Signup extends Component<any, State> {
           // Only log them in if a jwt was set
           if (data.jwt) {
             UserService.Instance.login(data);
-            i.props.history.push("/communities");
-            location.reload();
+
+            const site = await HttpService.client.getSite({ auth: myAuth() });
+
+            if (site.state === "success") {
+              UserService.Instance.myUserInfo = site.data.my_user;
+            }
+
+            i.props.history.replace("/communities");
           } else {
             if (data.verify_email_sent) {
               toast(i18n.t("verify_email_sent"));
