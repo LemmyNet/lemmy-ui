@@ -327,7 +327,12 @@ export function isVideo(url: string) {
 }
 
 export function validURL(str: string) {
-  return !!new URL(str);
+  try {
+    new URL(str);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 export function validInstanceTLD(str: string) {
