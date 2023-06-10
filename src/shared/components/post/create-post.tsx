@@ -3,12 +3,16 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   CreatePost as CreatePostI,
   GetCommunity,
-  GetCommunityResponse,
   GetSiteResponse,
+  ListCommunitiesResponse,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  HttpService,
+  RequestState,
+  WrappedLemmyHttp,
+} from "../../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -34,10 +38,15 @@ function getCreatePostQueryParams() {
   });
 }
 
+function fetchCommunitiesForOptions(client: WrappedLemmyHttp) {
+  return client.listCommunities({ limit: 30, sort: "TopMonth", type_: "All" });
+}
+
 interface CreatePostState {
   siteRes: GetSiteResponse;
   loading: boolean;
   selectedCommunityChoice?: Choice;
+  initialCommunitiesRes: RequestState<ListCommunitiesResponse>;
 }
 
 export class CreatePost extends Component<
@@ -48,6 +57,7 @@ export class CreatePost extends Component<
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
     loading: true,
+    initialCommunitiesRes: { state: "empty" },
   };
 
   constructor(props: RouteComponentProps<Record<string, never>>, context: any) {
@@ -59,9 +69,7 @@ export class CreatePost extends Component<
 
     // Only fetch the data if coming from another route
     if (isInitialRoute(this.isoData, this.context)) {
-      const communityRes = this.isoData.routeData[0] as
-        | RequestState<GetCommunityResponse>
-        | undefined;
+      const [communityRes, listCommunitiesRes] = this.isoData.routeData;
 
       if (communityRes?.state === "success") {
         const communityChoice: Choice = {
@@ -78,6 +86,7 @@ export class CreatePost extends Component<
       this.state = {
         ...this.state,
         loading: false,
+        initialCommunitiesRes: listCommunitiesRes,
       };
     }
   }
@@ -107,6 +116,14 @@ export class CreatePost extends Component<
     // TODO test this
     if (!isInitialRoute(this.isoData, this.context)) {
       const { communityId } = getCreatePostQueryParams();
+
+      const initialCommunitiesRes = await fetchCommunitiesForOptions(
+        HttpService.client
+      );
+
+      this.setState({
+        initialCommunitiesRes,
+      });
 
       if (
         communityId?.toString() !== this.state.selectedCommunityChoice?.value
@@ -157,6 +174,11 @@ export class CreatePost extends Component<
                 siteLanguages={this.state.siteRes.discussion_languages}
                 selectedCommunityChoice={selectedCommunityChoice}
                 onSelectCommunity={this.handleSelectedCommunityChange}
+                initialCommunities={
+                  this.state.initialCommunitiesRes.state === "success"
+                    ? this.state.initialCommunitiesRes.data.communities
+                    : []
+                }
               />
             </div>
           </div>
@@ -223,6 +245,8 @@ export class CreatePost extends Component<
     } else {
       promises.push(Promise.resolve({ state: "empty" }));
     }
+
+    promises.push(fetchCommunitiesForOptions(client));
 
     return promises;
   }

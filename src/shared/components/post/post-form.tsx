@@ -1,6 +1,7 @@
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
+  CommunityView,
   CreatePost,
   EditPost,
   GetSiteMetadataResponse,
@@ -55,6 +56,7 @@ interface PostFormProps {
   enableDownvotes?: boolean;
   selectedCommunityChoice?: Choice;
   onSelectCommunity?: (choice: Choice) => void;
+  initialCommunities: CommunityView[];
 }
 
 interface PostFormState {
@@ -120,7 +122,26 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           ...this.state.form,
           community_id: getIdFromString(selectedCommunityChoice.value),
         },
-        communitySearchOptions: [selectedCommunityChoice],
+        communitySearchOptions: [selectedCommunityChoice]
+          .concat(
+            this.props.initialCommunities.map(
+              ({ community: { id, title } }) => ({
+                label: title,
+                value: id.toString(),
+              })
+            )
+          )
+          .filter(option => option.value !== selectedCommunityChoice.value),
+      };
+    } else {
+      this.state = {
+        ...this.state,
+        communitySearchOptions: this.props.initialCommunities.map(
+          ({ community: { id, title } }) => ({
+            label: title,
+            value: id.toString(),
+          })
+        ),
       };
     }
 
