@@ -8,6 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import {
   HttpService,
   RequestState,
@@ -20,7 +21,6 @@ import {
   enableNsfw,
   getIdFromString,
   getQueryParams,
-  isInitialRoute,
   myAuth,
   setIsoData,
 } from "../../utils";
@@ -68,7 +68,7 @@ export class CreatePost extends Component<
       this.handleSelectedCommunityChange.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [communityRes, listCommunitiesRes] = this.isoData.routeData;
 
       if (communityRes?.state === "success") {
@@ -114,7 +114,7 @@ export class CreatePost extends Component<
 
   async componentDidMount() {
     // TODO test this
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       const { communityId } = getCreatePostQueryParams();
 
       const initialCommunitiesRes = await fetchCommunitiesForOptions(

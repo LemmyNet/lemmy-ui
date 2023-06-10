@@ -6,8 +6,9 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { isInitialRoute, relTags, setIsoData } from "../../utils";
+import { relTags, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -27,7 +28,7 @@ export class Instances extends Component<any, InstancesState> {
     super(props, context);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
         instancesRes: this.isoData.routeData[0],
@@ -36,7 +37,7 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.fetchInstances();
     }
   }

@@ -22,6 +22,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
+import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
@@ -40,7 +41,6 @@ import {
   getQueryParams,
   getQueryString,
   getUpdatedSearchId,
-  isInitialRoute,
   myAuth,
   numToSI,
   personToChoice,
@@ -256,7 +256,7 @@ export class Search extends Component<any, SearchState> {
     };
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [
         communityRes,
         communitiesRes,
@@ -296,7 +296,7 @@ export class Search extends Component<any, SearchState> {
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.fetchCommunities();
       if (this.state.searchText) {
         await this.search();

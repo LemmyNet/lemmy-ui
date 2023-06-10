@@ -58,6 +58,7 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { UserService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
@@ -74,7 +75,6 @@ import {
   getPageFromString,
   getQueryParams,
   getQueryString,
-  isInitialRoute,
   myAuth,
   postToCommentSortType,
   relTags,
@@ -189,7 +189,7 @@ export class Community extends Component<
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [communityRes, postsRes, commentsRes] = this.isoData.routeData;
       this.state = {
         ...this.state,
@@ -211,7 +211,7 @@ export class Community extends Component<
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.fetchCommunity();
       await this.fetchData();
     }

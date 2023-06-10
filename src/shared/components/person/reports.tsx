@@ -20,6 +20,7 @@ import {
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, UserService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { RequestState } from "../../services/HttpService";
 import {
   amAdmin,
@@ -27,7 +28,6 @@ import {
   editPostReport,
   editPrivateMessageReport,
   fetchLimit,
-  isInitialRoute,
   myAuthRequired,
   setIsoData,
 } from "../../utils";
@@ -96,7 +96,7 @@ export class Reports extends Component<any, ReportsState> {
       this.handleResolvePrivateMessageReport.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [commentReportsRes, postReportsRes, messageReportsRes] =
         this.isoData.routeData;
       this.state = {
@@ -115,7 +115,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.refetch();
     }
   }

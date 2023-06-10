@@ -11,11 +11,11 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   capitalizeFirstLetter,
   fetchThemeList,
-  isInitialRoute,
   myAuthRequired,
   removeFromEmojiDataModel,
   setIsoData,
@@ -63,7 +63,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [bannedRes, instancesRes] = this.isoData.routeData;
       this.state = {
         ...this.state,
@@ -113,7 +113,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.fetchData();
     }
   }

@@ -57,6 +57,7 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { UserService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   buildCommentsTree,
@@ -73,7 +74,6 @@ import {
   getIdFromProps,
   isBrowser,
   isImage,
-  isInitialRoute,
   myAuth,
   restoreScrollPosition,
   saveScrollPosition,
@@ -164,7 +164,7 @@ export class Post extends Component<any, PostState> {
     this.state = { ...this.state, commentSectionRef: createRef() };
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [postRes, commentsRes] = this.isoData.routeData;
 
       this.state = {
@@ -260,7 +260,7 @@ export class Post extends Component<any, PostState> {
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.fetchPost();
     }
 

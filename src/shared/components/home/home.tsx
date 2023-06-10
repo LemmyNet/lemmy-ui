@@ -53,6 +53,7 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { UserService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   canCreateCommunity,
@@ -69,7 +70,6 @@ import {
   getQueryParams,
   getQueryString,
   getRandomFromList,
-  isInitialRoute,
   mdToHtml,
   myAuth,
   postToCommentSortType,
@@ -223,7 +223,7 @@ export class Home extends Component<any, HomeState> {
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [postsRes, commentsRes, trendingCommunitiesRes] =
         this.isoData.routeData;
 
@@ -247,7 +247,8 @@ export class Home extends Component<any, HomeState> {
       this.context.router.history.push("/setup");
     }
 
-    if (!isInitialRoute(this.isoData, this.context)) {
+    console.log("in mount");
+    if (!FirstLoadService.isFirstLoad) {
       await this.fetchTrendingCommunities();
       await this.fetchData();
     }

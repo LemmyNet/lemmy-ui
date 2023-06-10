@@ -7,10 +7,10 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   getRecipientIdFromProps,
-  isInitialRoute,
   myAuth,
   setIsoData,
   toast,
@@ -42,7 +42,7 @@ export class CreatePrivateMessage extends Component<
       this.handlePrivateMessageCreate.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
         recipientRes: this.isoData.routeData[0],
@@ -51,7 +51,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.fetchPersonDetails();
     }
   }

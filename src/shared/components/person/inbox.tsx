@@ -50,6 +50,7 @@ import {
 import { i18n } from "../../i18next";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   commentsToFlatNodes,
@@ -60,7 +61,6 @@ import {
   enableDownvotes,
   fetchLimit,
   getCommentParentId,
-  isInitialRoute,
   myAuth,
   myAuthRequired,
   relTags,
@@ -159,7 +159,7 @@ export class Inbox extends Component<any, InboxState> {
     this.handleEditMessage = this.handleEditMessage.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [repliesRes, mentionsRes, messagesRes] = this.isoData.routeData;
 
       this.state = {
@@ -172,7 +172,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.refetch();
     }
   }

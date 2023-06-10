@@ -51,23 +51,25 @@ class WrappedLemmyHttpClient {
     for (const key of Object.getOwnPropertyNames(
       Object.getPrototypeOf(this.#client)
     )) {
-      WrappedLemmyHttpClient.prototype[key] = async (...args) => {
-        try {
-          const res = await this.#client[key](...args);
+      if (key !== "constructor") {
+        WrappedLemmyHttpClient.prototype[key] = async (...args) => {
+          try {
+            const res = await this.#client[key](...args);
 
-          return {
-            data: res,
-            state: "success",
-          };
-        } catch (error) {
-          console.error(`API error: ${error}`);
-          toast(i18n.t(error), "danger");
-          return {
-            state: "failed",
-            msg: error,
-          };
-        }
-      };
+            return {
+              data: res,
+              state: "success",
+            };
+          } catch (error) {
+            console.error(`API error: ${error}`);
+            toast(i18n.t(error), "danger");
+            return {
+              state: "failed",
+              msg: error,
+            };
+          }
+        };
+      }
     }
   }
 }

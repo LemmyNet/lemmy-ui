@@ -29,6 +29,7 @@ import {
 import moment from "moment";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
+import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
@@ -43,7 +44,6 @@ import {
   getQueryParams,
   getQueryString,
   getUpdatedSearchId,
-  isInitialRoute,
   myAuth,
   personToChoice,
   setIsoData,
@@ -652,7 +652,7 @@ export class Modlog extends Component<
     this.handleModChange = this.handleModChange.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       const [res, communityRes, filteredModRes, filteredUserRes] =
         this.isoData.routeData;
       this.state = {

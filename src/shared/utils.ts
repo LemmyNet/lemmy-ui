@@ -1170,15 +1170,6 @@ export function setIsoData(context: any): IsoData {
   } else return context.router.staticContext;
 }
 
-/**
- * Will be true if your first page load is this route.
- *
- * Tells the node server to load the data from the isoData, or the browser to fetch it.
- */
-export function isInitialRoute(isoData: IsoData, context: any): boolean {
-  return isoData.path === context.router.route.match.url;
-}
-
 moment.updateLocale("en", {
   relativeTime: {
     future: "in %s",

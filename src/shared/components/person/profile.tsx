@@ -49,6 +49,7 @@ import moment from "moment";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { UserService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
@@ -67,7 +68,6 @@ import {
   getQueryString,
   isAdmin,
   isBanned,
-  isInitialRoute,
   mdToHtml,
   myAuth,
   myAuthRequired,
@@ -201,7 +201,7 @@ export class Profile extends Component<
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
         personRes: this.isoData.routeData[0],
@@ -210,7 +210,7 @@ export class Profile extends Component<
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.fetchUserData();
     }
     setupTippy();

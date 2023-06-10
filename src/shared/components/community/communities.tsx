@@ -8,6 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
@@ -15,7 +16,6 @@ import {
   getPageFromString,
   getQueryParams,
   getQueryString,
-  isInitialRoute,
   myAuth,
   myAuthRequired,
   numToSI,
@@ -59,7 +59,7 @@ export class Communities extends Component<any, CommunitiesState> {
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
         listCommunitiesResponse: this.isoData.routeData[0],
@@ -68,7 +68,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.refetch();
     }
   }

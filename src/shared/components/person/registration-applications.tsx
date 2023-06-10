@@ -9,11 +9,11 @@ import {
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   editRegistrationApplication,
   fetchLimit,
-  isInitialRoute,
   myAuthRequired,
   setIsoData,
   setupTippy,
@@ -54,7 +54,7 @@ export class RegistrationApplications extends Component<
     this.handleApproveApplication = this.handleApproveApplication.bind(this);
 
     // Only fetch the data if coming from another route
-    if (isInitialRoute(this.isoData, this.context)) {
+    if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
         appsRes: this.isoData.routeData[0],
@@ -63,7 +63,7 @@ export class RegistrationApplications extends Component<
   }
 
   async componentDidMount() {
-    if (!isInitialRoute(this.isoData, this.context)) {
+    if (!FirstLoadService.isFirstLoad) {
       await this.refetch();
     }
     setupTippy();
