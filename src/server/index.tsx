@@ -6,7 +6,7 @@ import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, GetSiteResponse, LemmyHttp, Site } from "lemmy-js-client";
+import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import path from "path";
 import process from "process";
 import sanitize from "sanitize-html";
@@ -252,7 +252,13 @@ const defaultLogoPathDirectory = path.join(
   "icons"
 );
 
-export async function generateManifestBase64(site: Site) {
+export async function generateManifestBase64({
+  my_user,
+  site_view: {
+    site,
+    local_site: { community_creation_admin_only },
+  },
+}: GetSiteResponse) {
   const url = getHttpBaseExternal();
 
   const icon = site.icon ? await fetchIconPng(site.icon) : null;
@@ -288,6 +294,16 @@ export async function generateManifestBase64(site: Site) {
         };
       })
     ),
+    shortcuts: [
+      { name: "Search", url: "/search" },
+      { name: "Communities", url: "/communities" },
+    ]
+      .concat(my_user ? [{ name: "Create Post", url: "/create_post" }] : [])
+      .concat(
+        my_user?.local_user_view.person.admin || !community_creation_admin_only
+          ? [{ name: "Create Community", url: "/create_community" }]
+          : []
+      ),
   };
 
   return Buffer.from(JSON.stringify(manifest)).toString("base64");
@@ -381,7 +397,7 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
     `<link
         rel="manifest"
         href=${`data:application/manifest+json;base64,${await generateManifestBase64(
-          site.site_view.site
+          site
         )}`}
       />`
   }
