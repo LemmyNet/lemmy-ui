@@ -431,13 +431,34 @@ export class MarkdownTextArea extends Component<
   }
 
   // Keybind handler
+  // Keybinds inspired by github comment area
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
     if (event.ctrlKey) {
       switch (event.key) {
-        case "k": {
-          // Currently only one case but will support further keybinds
+        case "k":
           i.handleInsertLink(i, event);
-        }
+          break;
+        case "b":
+          i.handleInsertBold(i, event);
+          break;
+        case "i":
+          i.handleInsertItalic(i, event);
+          break;
+        case "e":
+          i.handleInsertCode(i, event);
+          break;
+        case "8":
+          i.handleInsertList(i, event);
+          break;
+        case "s":
+          i.handleInsertSpoiler(i, event);
+          break;
+        case "p":
+          if (i.state.content) i.handlePreviewToggle(i, event);
+          break;
+        case ".":
+          i.handleInsertQuote(i, event);
+          break;
       }
     }
   }
@@ -578,7 +599,7 @@ export class MarkdownTextArea extends Component<
 
   handleInsertList(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleBeginningofLine("-");
+    i.simpleBeginningofLine(`-${i.getSelectedText() ? " " : ""}`);
   }
 
   handleInsertQuote(i: MarkdownTextArea, event: any) {
