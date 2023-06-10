@@ -110,6 +110,7 @@ interface InboxState {
   page: number;
   siteRes: GetSiteResponse;
   finished: Map<CommentId, boolean | undefined>;
+  isIsomorphic: boolean;
 }
 
 export class Inbox extends Component<any, InboxState> {
@@ -125,6 +126,7 @@ export class Inbox extends Component<any, InboxState> {
     messagesRes: { state: "empty" },
     markAllAsReadRes: { state: "empty" },
     finished: new Map(),
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -167,12 +169,13 @@ export class Inbox extends Component<any, InboxState> {
         repliesRes,
         mentionsRes,
         messagesRes,
+        isIsomorphic: true,
       };
     }
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.refetch();
     }
   }
@@ -243,10 +246,7 @@ export class Inbox extends Component<any, InboxState> {
               </button>
             )}
             {this.selects()}
-            {this.state.messageType == MessageType.All && this.all()}
-            {this.state.messageType == MessageType.Replies && this.replies()}
-            {this.state.messageType == MessageType.Mentions && this.mentions()}
-            {this.state.messageType == MessageType.Messages && this.messages()}
+            {this.section}
             <Paginator
               page={this.state.page}
               onChange={this.handlePageChange}
@@ -255,6 +255,26 @@ export class Inbox extends Component<any, InboxState> {
         </div>
       </div>
     );
+  }
+
+  get section() {
+    switch (this.state.messageType) {
+      case MessageType.All: {
+        return this.all();
+      }
+      case MessageType.Replies: {
+        return this.replies();
+      }
+      case MessageType.Mentions: {
+        return this.mentions();
+      }
+      case MessageType.Messages: {
+        return this.messages();
+      }
+      default: {
+        return null;
+      }
+    }
   }
 
   unreadOrAllRadios() {

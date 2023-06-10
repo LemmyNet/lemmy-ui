@@ -84,6 +84,7 @@ interface SearchState {
   creatorSearchOptions: Choice[];
   searchCreatorLoading: boolean;
   searchCommunitiesLoading: boolean;
+  isIsomorphic: boolean;
 }
 
 interface Combined {
@@ -236,6 +237,7 @@ export class Search extends Component<any, SearchState> {
     searchRes: { state: "empty" },
     searchCreatorLoading: false,
     searchCommunitiesLoading: false,
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -274,6 +276,7 @@ export class Search extends Component<any, SearchState> {
           creatorDetailsRes.state == "success"
             ? [personToChoice(creatorDetailsRes.data.person_view)]
             : [],
+        isIsomorphic: true,
       };
 
       if (communityRes.state === "success") {
@@ -296,11 +299,13 @@ export class Search extends Component<any, SearchState> {
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
-      await this.fetchCommunities();
+    if (!this.state.isIsomorphic) {
+      const promises = [this.fetchCommunities()];
       if (this.state.searchText) {
-        await this.search();
+        promises.push(this.search());
       }
+
+      await Promise.all(promises);
     }
   }
 

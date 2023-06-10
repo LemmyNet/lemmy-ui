@@ -105,6 +105,7 @@ interface PostState {
   showSidebarMobile: boolean;
   maxCommentsShown: number;
   finished: Map<CommentId, boolean | undefined>;
+  isIsomorphic: boolean;
 }
 
 export class Post extends Component<any, PostState> {
@@ -122,6 +123,7 @@ export class Post extends Component<any, PostState> {
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
     finished: new Map(),
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -171,6 +173,7 @@ export class Post extends Component<any, PostState> {
         ...this.state,
         postRes,
         commentsRes,
+        isIsomorphic: true,
       };
 
       if (isBrowser()) {
@@ -260,7 +263,7 @@ export class Post extends Component<any, PostState> {
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.fetchPost();
     }
 

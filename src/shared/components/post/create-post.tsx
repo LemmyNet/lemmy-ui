@@ -47,6 +47,7 @@ interface CreatePostState {
   loading: boolean;
   selectedCommunityChoice?: Choice;
   initialCommunitiesRes: RequestState<ListCommunitiesResponse>;
+  isIsomorphic: boolean;
 }
 
 export class CreatePost extends Component<
@@ -58,6 +59,7 @@ export class CreatePost extends Component<
     siteRes: this.isoData.site_res,
     loading: true,
     initialCommunitiesRes: { state: "empty" },
+    isIsomorphic: false,
   };
 
   constructor(props: RouteComponentProps<Record<string, never>>, context: any) {
@@ -87,6 +89,7 @@ export class CreatePost extends Component<
         ...this.state,
         loading: false,
         initialCommunitiesRes: listCommunitiesRes,
+        isIsomorphic: true,
       };
     }
   }
@@ -114,7 +117,7 @@ export class CreatePost extends Component<
 
   async componentDidMount() {
     // TODO test this
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       const { communityId } = getCreatePostQueryParams();
 
       const initialCommunitiesRes = await fetchCommunitiesForOptions(

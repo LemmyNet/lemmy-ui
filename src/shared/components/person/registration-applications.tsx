@@ -33,6 +33,7 @@ interface RegistrationApplicationsState {
   siteRes: GetSiteResponse;
   unreadOrAll: UnreadOrAll;
   page: number;
+  isIsomorphic: boolean;
 }
 
 export class RegistrationApplications extends Component<
@@ -45,6 +46,7 @@ export class RegistrationApplications extends Component<
     siteRes: this.isoData.site_res,
     unreadOrAll: UnreadOrAll.Unread,
     page: 1,
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -58,12 +60,13 @@ export class RegistrationApplications extends Component<
       this.state = {
         ...this.state,
         appsRes: this.isoData.routeData[0],
+        isIsomorphic: true,
       };
     }
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.refetch();
     }
     setupTippy();

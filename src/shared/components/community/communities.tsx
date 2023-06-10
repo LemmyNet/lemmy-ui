@@ -34,6 +34,7 @@ interface CommunitiesState {
   listCommunitiesResponse: RequestState<ListCommunitiesResponse>;
   siteRes: GetSiteResponse;
   searchText: string;
+  isIsomorphic: boolean;
 }
 
 interface CommunitiesProps {
@@ -51,6 +52,7 @@ export class Communities extends Component<any, CommunitiesState> {
     listCommunitiesResponse: { state: "empty" },
     siteRes: this.isoData.site_res,
     searchText: "",
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -63,12 +65,13 @@ export class Communities extends Component<any, CommunitiesState> {
       this.state = {
         ...this.state,
         listCommunitiesResponse: this.isoData.routeData[0],
+        isIsomorphic: true,
       };
     }
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.refetch();
     }
   }

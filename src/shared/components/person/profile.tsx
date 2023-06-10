@@ -98,6 +98,7 @@ interface ProfileState {
   removeData: boolean;
   siteRes: GetSiteResponse;
   finished: Map<CommentId, boolean | undefined>;
+  isIsomorphic: boolean;
 }
 
 interface ProfileProps {
@@ -162,6 +163,7 @@ export class Profile extends Component<
     showBanDialog: false,
     removeData: false,
     finished: new Map(),
+    isIsomorphic: false,
   };
 
   constructor(props: RouteComponentProps<{ username: string }>, context: any) {
@@ -205,12 +207,13 @@ export class Profile extends Component<
       this.state = {
         ...this.state,
         personRes: this.isoData.routeData[0],
+        isIsomorphic: true,
       };
     }
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.fetchUserData();
     }
     setupTippy();
@@ -239,7 +242,7 @@ export class Profile extends Component<
   }
 
   get amCurrentUser() {
-    if (this.state.personRes.state == "success") {
+    if (this.state.personRes.state === "success") {
       return (
         UserService.Instance.myUserInfo?.local_user_view.person.id ===
         this.state.personRes.data.person_view.person.id
@@ -253,7 +256,7 @@ export class Profile extends Component<
     const mui = UserService.Instance.myUserInfo;
     const res = this.state.personRes;
 
-    if (mui && res.state == "success") {
+    if (mui && res.state === "success") {
       this.setState({
         personBlocked: mui.person_blocks.some(
           ({ target: { id } }) => id === res.data.person_view.person.id

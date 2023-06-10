@@ -15,6 +15,7 @@ import { Spinner } from "../common/icon";
 interface InstancesState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   siteRes: GetSiteResponse;
+  isIsomorphic: boolean;
 }
 
 export class Instances extends Component<any, InstancesState> {
@@ -22,6 +23,7 @@ export class Instances extends Component<any, InstancesState> {
   state: InstancesState = {
     instancesRes: { state: "empty" },
     siteRes: this.isoData.site_res,
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -32,12 +34,13 @@ export class Instances extends Component<any, InstancesState> {
       this.state = {
         ...this.state,
         instancesRes: this.isoData.routeData[0],
+        isIsomorphic: true,
       };
     }
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.fetchInstances();
     }
   }

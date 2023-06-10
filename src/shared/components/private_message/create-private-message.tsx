@@ -23,6 +23,7 @@ interface CreatePrivateMessageState {
   siteRes: GetSiteResponse;
   recipientRes: RequestState<GetPersonDetailsResponse>;
   recipientId: number;
+  isIsomorphic: boolean;
 }
 
 export class CreatePrivateMessage extends Component<
@@ -34,6 +35,7 @@ export class CreatePrivateMessage extends Component<
     siteRes: this.isoData.site_res,
     recipientRes: { state: "empty" },
     recipientId: getRecipientIdFromProps(this.props),
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -46,12 +48,13 @@ export class CreatePrivateMessage extends Component<
       this.state = {
         ...this.state,
         recipientRes: this.isoData.routeData[0],
+        isIsomorphic: true,
       };
     }
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.fetchPersonDetails();
     }
   }

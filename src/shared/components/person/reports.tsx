@@ -71,6 +71,7 @@ interface ReportsState {
   messageType: MessageType;
   siteRes: GetSiteResponse;
   page: number;
+  isIsomorphic: boolean;
 }
 
 export class Reports extends Component<any, ReportsState> {
@@ -83,6 +84,7 @@ export class Reports extends Component<any, ReportsState> {
     messageType: MessageType.All,
     page: 1,
     siteRes: this.isoData.site_res,
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -103,6 +105,7 @@ export class Reports extends Component<any, ReportsState> {
         ...this.state,
         commentReportsRes,
         postReportsRes,
+        isIsomorphic: true,
       };
 
       if (amAdmin()) {
@@ -115,7 +118,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.refetch();
     }
   }
@@ -140,13 +143,7 @@ export class Reports extends Component<any, ReportsState> {
             />
             <h5 className="mb-2">{i18n.t("reports")}</h5>
             {this.selects()}
-            {this.state.messageType == MessageType.All && this.all()}
-            {this.state.messageType == MessageType.CommentReport &&
-              this.commentReports()}
-            {this.state.messageType == MessageType.PostReport &&
-              this.postReports()}
-            {this.state.messageType == MessageType.PrivateMessageReport &&
-              this.privateMessageReports()}
+            {this.section}
             <Paginator
               page={this.state.page}
               onChange={this.handlePageChange}
@@ -155,6 +152,27 @@ export class Reports extends Component<any, ReportsState> {
         </div>
       </div>
     );
+  }
+
+  get section() {
+    switch (this.state.messageType) {
+      case MessageType.All: {
+        return this.all();
+      }
+      case MessageType.CommentReport: {
+        return this.commentReports();
+      }
+      case MessageType.PostReport: {
+        return this.postReports();
+      }
+      case MessageType.PrivateMessageReport: {
+        return this.privateMessageReports();
+      }
+
+      default: {
+        return null;
+      }
+    }
   }
 
   unreadOrAllRadios() {

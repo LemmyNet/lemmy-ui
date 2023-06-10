@@ -40,6 +40,7 @@ interface AdminSettingsState {
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   themeList: string[];
+  isIsomorphic: boolean;
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
@@ -52,6 +53,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
     themeList: [],
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -69,6 +71,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         ...this.state,
         bannedRes,
         instancesRes,
+        isIsomorphic: true,
       };
     }
   }
@@ -82,14 +85,16 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     const auth = myAuthRequired();
 
+    const [bannedRes, instancesRes, themeList] = await Promise.all([
+      HttpService.client.getBannedPersons({ auth }),
+      HttpService.client.getFederatedInstances({ auth }),
+      fetchThemeList(),
+    ]);
+
     this.setState({
-      bannedRes: await HttpService.client.getBannedPersons({
-        auth,
-      }),
-      instancesRes: await HttpService.client.getFederatedInstances({
-        auth,
-      }),
-      themeList: await fetchThemeList(),
+      bannedRes,
+      instancesRes,
+      themeList,
     });
   }
 
@@ -113,7 +118,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
+    if (!this.state.isIsomorphic) {
       await this.fetchData();
     }
   }

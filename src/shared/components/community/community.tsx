@@ -106,6 +106,7 @@ interface State {
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   finished: Map<CommentId, boolean | undefined>;
+  isIsomorphic: boolean;
 }
 
 interface CommunityProps {
@@ -146,6 +147,7 @@ export class Community extends Component<
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
     finished: new Map(),
+    isIsomorphic: false,
   };
 
   constructor(props: RouteComponentProps<{ name: string }>, context: any) {
@@ -196,6 +198,7 @@ export class Community extends Component<
         communityRes,
         postsRes,
         commentsRes,
+        isIsomorphic: true,
       };
     }
   }
@@ -211,10 +214,10 @@ export class Community extends Component<
   }
 
   async componentDidMount() {
-    if (!FirstLoadService.isFirstLoad) {
-      await this.fetchCommunity();
-      await this.fetchData();
+    if (!this.state.isIsomorphic) {
+      await Promise.all([this.fetchCommunity(), this.fetchData()]);
     }
+
     setupTippy();
   }
 
