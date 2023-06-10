@@ -295,15 +295,50 @@ export async function generateManifestBase64({
       })
     ),
     shortcuts: [
-      { name: "Search", url: "/search" },
-      { name: "Communities", url: "/communities" },
+      {
+        name: "Search",
+        short_name: "Search",
+        description: "Perform a search.",
+        url: "/search",
+      },
+      {
+        name: "Communities",
+        url: "/communities",
+        short_name: "Communities",
+        description: "Browse communities",
+      },
     ]
-      .concat(my_user ? [{ name: "Create Post", url: "/create_post" }] : [])
+      .concat(
+        my_user
+          ? [
+              {
+                name: "Create Post",
+                url: "/create_post",
+                short_name: "Create Post",
+                description: "Create a post.",
+              },
+            ]
+          : []
+      )
       .concat(
         my_user?.local_user_view.person.admin || !community_creation_admin_only
-          ? [{ name: "Create Community", url: "/create_community" }]
+          ? [
+              {
+                name: "Create Community",
+                url: "/create_community",
+                short_name: "Create Community",
+                description: "Create a community",
+              },
+            ]
           : []
       ),
+    related_applications: [
+      {
+        platform: "f-droid",
+        url: "https://f-droid.org/packages/com.jerboa/",
+        id: "com.jerboa",
+      },
+    ],
   };
 
   return Buffer.from(JSON.stringify(manifest)).toString("base64");
