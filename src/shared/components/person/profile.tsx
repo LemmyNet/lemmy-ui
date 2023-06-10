@@ -387,7 +387,7 @@ export class Profile extends Component<
         {this.getRadio(PersonDetailsView.Overview)}
         {this.getRadio(PersonDetailsView.Comments)}
         {this.getRadio(PersonDetailsView.Posts)}
-        {this.getRadio(PersonDetailsView.Saved)}
+        {this.amCurrentUser && this.getRadio(PersonDetailsView.Saved)}
       </div>
     );
   }
