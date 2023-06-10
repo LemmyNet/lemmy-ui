@@ -56,7 +56,7 @@ interface PostFormProps {
   enableDownvotes?: boolean;
   selectedCommunityChoice?: Choice;
   onSelectCommunity?: (choice: Choice) => void;
-  initialCommunities: CommunityView[];
+  initialCommunities?: CommunityView[];
 }
 
 interface PostFormState {
@@ -124,24 +124,25 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         },
         communitySearchOptions: [selectedCommunityChoice]
           .concat(
-            this.props.initialCommunities.map(
+            this.props.initialCommunities?.map(
               ({ community: { id, title } }) => ({
                 label: title,
                 value: id.toString(),
               })
-            )
+            ) ?? []
           )
           .filter(option => option.value !== selectedCommunityChoice.value),
       };
     } else {
       this.state = {
         ...this.state,
-        communitySearchOptions: this.props.initialCommunities.map(
-          ({ community: { id, title } }) => ({
-            label: title,
-            value: id.toString(),
-          })
-        ),
+        communitySearchOptions:
+          this.props.initialCommunities?.map(
+            ({ community: { id, title } }) => ({
+              label: title,
+              value: id.toString(),
+            })
+          ) ?? [],
       };
     }
 
