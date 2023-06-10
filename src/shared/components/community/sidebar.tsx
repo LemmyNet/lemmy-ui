@@ -132,7 +132,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
-          <span className="mr-2">{community.title}</span>
+          <span className="mr-2">
+            <CommunityLink community={community} hideAvatar />
+          </span>
           {subscribed === "Subscribed" && (
             <button
               className="btn btn-secondary btn-sm mr-2"
