@@ -106,6 +106,7 @@ interface HomeState {
   tagline?: string;
   siteRes: GetSiteResponse;
   finished: Map<CommentId, boolean | undefined>;
+  isIsomorphic: boolean;
 }
 
 interface HomeProps {
@@ -120,11 +121,14 @@ function getDataTypeFromQuery(type?: string): DataType {
 }
 
 function getListingTypeFromQuery(type?: string): ListingType {
+  console.log(`Listing type: ${type}`);
   const myListingType =
     UserService.Instance.myUserInfo?.local_user_view?.local_user
       ?.default_listing_type;
 
-  return type ? (type as ListingType) : myListingType ?? "Local";
+  console.log(`my listing type: ${myListingType}`);
+
+  return (type ? (type as ListingType) : myListingType) ?? "Local";
 }
 
 function getSortTypeFromQuery(type?: string): SortType {
@@ -132,7 +136,7 @@ function getSortTypeFromQuery(type?: string): SortType {
     UserService.Instance.myUserInfo?.local_user_view?.local_user
       ?.default_sort_type;
 
-  return type ? (type as SortType) : mySortType ?? "Active";
+  return (type ? (type as SortType) : mySortType) ?? "Active";
 }
 
 const getHomeQueryParams = () =>
@@ -185,6 +189,7 @@ export class Home extends Component<any, HomeState> {
     showSidebarMobile: false,
     subscribedCollapsed: false,
     finished: new Map(),
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -227,9 +232,6 @@ export class Home extends Component<any, HomeState> {
       const [postsRes, commentsRes, trendingCommunitiesRes] =
         this.isoData.routeData;
 
-      console.log("reoutedata");
-      console.log(this.isoData.routeData);
-
       this.state = {
         ...this.state,
         postsRes,
@@ -237,6 +239,7 @@ export class Home extends Component<any, HomeState> {
         trendingCommunitiesRes,
         tagline: getRandomFromList(this.state?.siteRes?.taglines ?? [])
           ?.content,
+        isIsomorphic: true,
       };
     }
   }
@@ -244,13 +247,11 @@ export class Home extends Component<any, HomeState> {
   async componentDidMount() {
     // This means it hasn't been set up yet
     if (!this.state.siteRes.site_view.local_site.site_setup) {
-      this.context.router.history.push("/setup");
+      this.context.router.history.replace("/setup");
     }
 
-    console.log("in mount");
-    if (!FirstLoadService.isFirstLoad) {
-      await this.fetchTrendingCommunities();
-      await this.fetchData();
+    if (!this.state.isIsomorphic) {
+      await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
     setupTippy();
   }
