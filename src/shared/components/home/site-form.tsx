@@ -653,7 +653,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               -1 /* Making this untabble because handling enter key in text input makes keyboard support for this button redundant */
             }
           >
-            <Icon icon="add" classes="icon-inline text-light m-auto" />
+            <Icon
+              icon="add"
+              classes="icon-inline text-light m-auto d-block position-static"
+            />
           </button>
         </div>
         {selectedInstances && selectedInstances.length > 0 && (
@@ -669,14 +672,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 <button
                   id={instance}
                   type="button"
-                  className="btn btn-sm bg-danger"
                   style={"width: 2rem; height: 2rem;"}
+                  className="btn btn-sm bg-danger"
                   onClick={linkEvent(
                     { key, instance },
                     this.handleRemoveInstance
                   )}
                 >
-                  <Icon icon="x" classes="icon-inline text-light m-auto" />
+                  <Icon
+                    icon="x"
+                    classes="icon-inline text-light m-auto d-block position-static"
+                  />
                 </button>
               </li>
             ))}
