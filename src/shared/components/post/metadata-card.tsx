@@ -26,7 +26,7 @@ export class MetadataCard extends Component<
   }
 
   render() {
-    let post = this.props.post;
+    const post = this.props.post;
     return (
       <>
         {!this.state.expanded && post.embed_title && post.url && (

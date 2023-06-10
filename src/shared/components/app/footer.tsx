@@ -6,7 +6,7 @@ import { docsUrl, joinLemmyUrl, repoUrl } from "../../utils";
 import { VERSION } from "../../version";
 
 interface FooterProps {
-  site: GetSiteResponse;
+  site?: GetSiteResponse;
 }
 
 export class Footer extends Component<FooterProps, any> {
@@ -19,27 +19,27 @@ export class Footer extends Component<FooterProps, any> {
       <nav className="container-lg navbar navbar-expand-md navbar-light navbar-bg p-3">
         <div className="navbar-collapse">
           <ul className="navbar-nav ml-auto">
-            {this.props.site.version !== VERSION && (
+            {this.props.site?.version !== VERSION && (
               <li className="nav-item">
                 <span className="nav-link">UI: {VERSION}</span>
               </li>
             )}
             <li className="nav-item">
-              <span className="nav-link">BE: {this.props.site.version}</span>
+              <span className="nav-link">BE: {this.props.site?.version}</span>
             </li>
             <li className="nav-item">
               <NavLink className="nav-link" to="/modlog">
                 {i18n.t("modlog")}
               </NavLink>
             </li>
-            {this.props.site.site_view.local_site.legal_information && (
+            {this.props.site?.site_view.local_site.legal_information && (
               <li className="nav-item">
                 <NavLink className="nav-link" to="/legal">
                   {i18n.t("legal_information")}
                 </NavLink>
               </li>
             )}
-            {this.props.site.federated_instances && (
+            {this.props.site?.site_view.local_site.federation_enabled && (
               <li className="nav-item">
                 <NavLink className="nav-link" to="/instances">
                   {i18n.t("instances")}

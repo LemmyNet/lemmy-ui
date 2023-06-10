@@ -6,7 +6,7 @@ import {
   Websocket as WS,
   WebsocketBuilder,
 } from "websocket-ts";
-import { wsUri } from "../env";
+import { getWsUri } from "../env";
 import { isBrowser } from "../utils";
 
 export class WebSocketService {
@@ -18,7 +18,7 @@ export class WebSocketService {
     let firstConnect = true;
 
     this.subject = new Observable((obs: any) => {
-      this.ws = new WebsocketBuilder(wsUri)
+      this.ws = new WebsocketBuilder(getWsUri())
         .onMessage((_i, e) => {
           try {
             obs.next(JSON.parse(e.data.toString()));
@@ -27,10 +27,10 @@ export class WebSocketService {
           }
         })
         .onOpen(() => {
-          console.log(`Connected to ${wsUri}`);
+          console.log(`Connected to ${getWsUri()}`);
 
           if (!firstConnect) {
-            let res = {
+            const res = {
               reconnect: true,
             };
             obs.next(res);

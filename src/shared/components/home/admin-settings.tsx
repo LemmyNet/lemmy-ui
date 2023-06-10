@@ -3,8 +3,9 @@ import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
   GetBannedPersons,
+  GetFederatedInstancesResponse,
   GetSiteResponse,
-  PersonViewSafe,
+  PersonView,
   SiteResponse,
   UserOperation,
   wsJsonToRes,
@@ -27,12 +28,17 @@ import {
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
+import { EmojiForm } from "./emojis-form";
+import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
+import { TaglineForm } from "./tagline-form";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
-  banned: PersonViewSafe[];
+  instancesRes?: GetFederatedInstancesResponse;
+  banned: PersonView[];
   loading: boolean;
   leaveAdminTeamLoading: boolean;
 }
@@ -59,27 +65,33 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state = {
         ...this.state,
         banned: (this.isoData.routeData[0] as BannedPersonsResponse).banned,
+        instancesRes: this.isoData
+          .routeData[1] as GetFederatedInstancesResponse,
         loading: false,
       };
     } else {
-      let cAuth = myAuth();
+      const cAuth = myAuth();
       if (cAuth) {
         WebSocketService.Instance.send(
           wsClient.getBannedPersons({
             auth: cAuth,
           })
         );
+        WebSocketService.Instance.send(
+          wsClient.getFederatedInstances({ auth: cAuth })
+        );
       }
     }
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
-    let auth = req.auth;
+    const auth = req.auth;
     if (auth) {
-      let bannedPersonsForm: GetBannedPersons = { auth };
+      const bannedPersonsForm: GetBannedPersons = { auth };
       promises.push(req.client.getBannedPersons(bannedPersonsForm));
+      promises.push(req.client.getFederatedInstances({ auth }));
     }
 
     return promises;
@@ -107,27 +119,71 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   render() {
     return (
       <div className="container-lg">
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
         {this.state.loading ? (
           <h5>
             <Spinner large />
           </h5>
         ) : (
-          <div className="row">
-            <div className="col-12 col-md-6">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-              />
-              <SiteForm
-                siteRes={this.state.siteRes}
-                showLocal={showLocal(this.isoData)}
-              />
-            </div>
-            <div className="col-12 col-md-6">
-              {this.admins()}
-              {this.bannedUsers()}
-            </div>
-          </div>
+          <Tabs
+            tabs={[
+              {
+                key: "site",
+                label: i18n.t("site"),
+                getNode: () => (
+                  <div className="row">
+                    <div className="col-12 col-md-6">
+                      <SiteForm
+                        siteRes={this.state.siteRes}
+                        instancesRes={this.state.instancesRes}
+                        showLocal={showLocal(this.isoData)}
+                      />
+                    </div>
+                    <div className="col-12 col-md-6">
+                      {this.admins()}
+                      {this.bannedUsers()}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: "rate_limiting",
+                label: "Rate Limiting",
+                getNode: () => (
+                  <RateLimitForm
+                    localSiteRateLimit={
+                      this.state.siteRes.site_view.local_site_rate_limit
+                    }
+                    applicationQuestion={
+                      this.state.siteRes.site_view.local_site
+                        .application_question
+                    }
+                  />
+                ),
+              },
+              {
+                key: "taglines",
+                label: i18n.t("taglines"),
+                getNode: () => (
+                  <div className="row">
+                    <TaglineForm siteRes={this.state.siteRes} />
+                  </div>
+                ),
+              },
+              {
+                key: "emojis",
+                label: i18n.t("emojis"),
+                getNode: () => (
+                  <div className="row">
+                    <EmojiForm />
+                  </div>
+                ),
+              },
+            ]}
+          />
         )}
       </div>
     );
@@ -180,7 +236,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   handleLeaveAdminTeam(i: AdminSettings) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
       i.setState({ leaveAdminTeamLoading: true });
       WebSocketService.Instance.send(wsClient.leaveAdmin({ auth }));
@@ -188,7 +244,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -196,19 +252,21 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.EditSite) {
-      let data = wsJsonToRes<SiteResponse>(msg);
+      const data = wsJsonToRes<SiteResponse>(msg);
       this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       toast(i18n.t("site_saved"));
     } else if (op == UserOperation.GetBannedPersons) {
-      let data = wsJsonToRes<BannedPersonsResponse>(msg);
+      const data = wsJsonToRes<BannedPersonsResponse>(msg);
       this.setState({ banned: data.banned, loading: false });
     } else if (op == UserOperation.LeaveAdmin) {
-      let data = wsJsonToRes<GetSiteResponse>(msg);
+      const data = wsJsonToRes<GetSiteResponse>(msg);
       this.setState(s => ((s.siteRes.site_view = data.site_view), s));
       this.setState({ leaveAdminTeamLoading: false });
-
       toast(i18n.t("left_admin_team"));
       this.context.router.history.push("/");
+    } else if (op == UserOperation.GetFederatedInstances) {
+      const data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
+      this.setState({ instancesRes: data });
     }
   }
 }

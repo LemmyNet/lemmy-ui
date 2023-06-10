@@ -2,7 +2,6 @@ import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
-  CommentNode as CommentNodeI,
   CommentResponse,
   CreateComment,
   EditComment,
@@ -12,6 +11,7 @@ import {
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
+import { CommentNodeI } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
@@ -69,7 +69,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
   }
 
   render() {
-    let initialContent =
+    const initialContent =
       typeof this.props.node !== "number"
         ? this.props.edit
           ? this.props.node.comment_view.comment.content
@@ -113,17 +113,17 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
     formId: string;
     languageId?: number;
   }) {
-    let content = msg.val;
-    let language_id = msg.languageId;
-    let node = this.props.node;
+    const content = msg.val;
+    const language_id = msg.languageId;
+    const node = this.props.node;
 
     this.setState({ formId: msg.formId });
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
       if (typeof node === "number") {
-        let postId = node;
-        let form: CreateComment = {
+        const postId = node;
+        const form: CreateComment = {
           content,
           form_id: this.state.formId,
           post_id: postId,
@@ -133,7 +133,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         WebSocketService.Instance.send(wsClient.createComment(form));
       } else {
         if (this.props.edit) {
-          let form: EditComment = {
+          const form: EditComment = {
             content,
             form_id: this.state.formId,
             comment_id: node.comment_view.comment.id,
@@ -142,7 +142,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
           };
           WebSocketService.Instance.send(wsClient.editComment(form));
         } else {
-          let form: CreateComment = {
+          const form: CreateComment = {
             content,
             form_id: this.state.formId,
             post_id: node.comment_view.post.id,
@@ -161,7 +161,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
 
     // Only do the showing and hiding if logged in
@@ -170,7 +170,7 @@ export class CommentForm extends Component<CommentFormProps, CommentFormState> {
         op == UserOperation.CreateComment ||
         op == UserOperation.EditComment
       ) {
-        let data = wsJsonToRes<CommentResponse>(msg);
+        const data = wsJsonToRes<CommentResponse>(msg);
 
         // This only finishes this form, if the randomly generated form_id matches the one received
         if (this.state.formId && this.state.formId == data.form_id) {

@@ -1,5 +1,8 @@
+import classNames from "classnames";
+import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   AddAdminResponse,
   BanPerson,
@@ -7,6 +10,8 @@ import {
   BlockPerson,
   BlockPersonResponse,
   CommentResponse,
+  Community,
+  CommunityModeratorView,
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
@@ -23,6 +28,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  QueryParams,
   canMod,
   capitalizeFirstLetter,
   createCommentLikeRes,
@@ -33,7 +39,9 @@ import {
   enableNsfw,
   fetchLimit,
   futureDaysToUnixTime,
-  getUsernameFromProps,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
   isAdmin,
   isBanned,
   mdToHtml,
@@ -41,7 +49,6 @@ import {
   numToSI,
   relTags,
   restoreScrollPosition,
-  routeSortTypeToEnum,
   saveCommentRes,
   saveScrollPosition,
   setIsoData,
@@ -62,10 +69,6 @@ import { PersonListing } from "./person-listing";
 
 interface ProfileState {
   personRes?: GetPersonDetailsResponse;
-  userName: string;
-  view: PersonDetailsView;
-  sort: SortType;
-  page: number;
   loading: boolean;
   personBlocked: boolean;
   banReason?: string;
@@ -79,32 +82,87 @@ interface ProfileProps {
   view: PersonDetailsView;
   sort: SortType;
   page: number;
-  person_id?: number;
-  username: string;
 }
 
-interface UrlParams {
-  view?: string;
-  sort?: SortType;
-  page?: number;
+function getProfileQueryParams() {
+  return getQueryParams<ProfileProps>({
+    view: getViewFromProps,
+    page: getPageFromString,
+    sort: getSortTypeFromQuery,
+  });
 }
 
-export class Profile extends Component<any, ProfileState> {
+function getSortTypeFromQuery(sort?: string): SortType {
+  return sort ? (sort as SortType) : "New";
+}
+
+function getViewFromProps(view?: string): PersonDetailsView {
+  return view
+    ? PersonDetailsView[view] ?? PersonDetailsView.Overview
+    : PersonDetailsView.Overview;
+}
+
+function toggleBlockPerson(recipientId: number, block: boolean) {
+  const auth = myAuth();
+
+  if (auth) {
+    const blockUserForm: BlockPerson = {
+      person_id: recipientId,
+      block,
+      auth,
+    };
+
+    WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
+  }
+}
+
+const handleUnblockPerson = (personId: number) =>
+  toggleBlockPerson(personId, false);
+
+const handleBlockPerson = (personId: number) =>
+  toggleBlockPerson(personId, true);
+
+const getCommunitiesListing = (
+  translationKey: NoOptionI18nKeys,
+  communityViews?: { community: Community }[]
+) =>
+  communityViews &&
+  communityViews.length > 0 && (
+    <div className="card border-secondary mb-3">
+      <div className="card-body">
+        <h5>{i18n.t(translationKey)}</h5>
+        <ul className="list-unstyled mb-0">
+          {communityViews.map(({ community }) => (
+            <li key={community.id}>
+              <CommunityLink community={community} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+
+const Moderates = ({ moderates }: { moderates?: CommunityModeratorView[] }) =>
+  getCommunitiesListing("moderates", moderates);
+
+const Follows = () =>
+  getCommunitiesListing("subscribed", UserService.Instance.myUserInfo?.follows);
+
+export class Profile extends Component<
+  RouteComponentProps<{ username: string }>,
+  ProfileState
+> {
   private isoData = setIsoData(this.context);
   private subscription?: Subscription;
   state: ProfileState = {
-    userName: getUsernameFromProps(this.props),
     loading: true,
-    view: Profile.getViewFromProps(this.props.match.view),
-    sort: Profile.getSortTypeFromProps(this.props.match.sort),
-    page: Profile.getPageFromProps(this.props.match.page),
     personBlocked: false,
     siteRes: this.isoData.site_res,
     showBanDialog: false,
     removeData: false,
   };
 
-  constructor(props: any, context: any) {
+  constructor(props: RouteComponentProps<{ username: string }>, context: any) {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
@@ -114,7 +172,7 @@ export class Profile extends Component<any, ProfileState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (this.isoData.path === this.context.router.route.match.url) {
       this.state = {
         ...this.state,
         personRes: this.isoData.routeData[0] as GetPersonDetailsResponse,
@@ -126,65 +184,61 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   fetchUserData() {
-    let form: GetPersonDetails = {
-      username: this.state.userName,
-      sort: this.state.sort,
-      saved_only: this.state.view === PersonDetailsView.Saved,
-      page: this.state.page,
+    const { page, sort, view } = getProfileQueryParams();
+
+    const form: GetPersonDetails = {
+      username: this.props.match.params.username,
+      sort,
+      saved_only: view === PersonDetailsView.Saved,
+      page,
       limit: fetchLimit,
       auth: myAuth(false),
     };
+
     WebSocketService.Instance.send(wsClient.getPersonDetails(form));
   }
 
   get amCurrentUser() {
     return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ==
+      UserService.Instance.myUserInfo?.local_user_view.person.id ===
       this.state.personRes?.person_view.person.id
     );
   }
 
   setPersonBlock() {
-    let mui = UserService.Instance.myUserInfo;
-    let res = this.state.personRes;
+    const mui = UserService.Instance.myUserInfo;
+    const res = this.state.personRes;
+
     if (mui && res) {
       this.setState({
-        personBlocked: mui.person_blocks
-          .map(a => a.target.id)
-          .includes(res.person_view.person.id),
+        personBlocked: mui.person_blocks.some(
+          ({ target: { id } }) => id === res.person_view.person.id
+        ),
       });
     }
   }
 
-  static getViewFromProps(view: string): PersonDetailsView {
-    return view ? PersonDetailsView[view] : PersonDetailsView.Overview;
-  }
+  static fetchInitialData({
+    client,
+    path,
+    query: { page, sort, view: urlView },
+    auth,
+  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<any>[] {
+    const pathSplit = path.split("/");
 
-  static getSortTypeFromProps(sort: string): SortType {
-    return sort ? routeSortTypeToEnum(sort) : SortType.New;
-  }
+    const username = pathSplit[2];
+    const view = getViewFromProps(urlView);
 
-  static getPageFromProps(page: number): number {
-    return page ? Number(page) : 1;
-  }
-
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split("/");
-
-    let username = pathSplit[2];
-    let view = this.getViewFromProps(pathSplit[4]);
-    let sort = this.getSortTypeFromProps(pathSplit[6]);
-    let page = this.getPageFromProps(Number(pathSplit[8]));
-
-    let form: GetPersonDetails = {
+    const form: GetPersonDetails = {
       username: username,
-      sort,
+      sort: getSortTypeFromQuery(sort),
       saved_only: view === PersonDetailsView.Saved,
-      page,
+      page: getPageFromString(page),
       limit: fetchLimit,
-      auth: req.auth,
+      auth,
     };
-    return [req.client.getPersonDetails(form)];
+
+    return [client.getPersonDetails(form)];
   }
 
   componentDidMount() {
@@ -197,78 +251,59 @@ export class Profile extends Component<any, ProfileState> {
     saveScrollPosition(this.context);
   }
 
-  static getDerivedStateFromProps(props: any): ProfileProps {
-    return {
-      view: this.getViewFromProps(props.match.params.view),
-      sort: this.getSortTypeFromProps(props.match.params.sort),
-      page: this.getPageFromProps(props.match.params.page),
-      person_id: Number(props.match.params.id),
-      username: props.match.params.username,
-    };
-  }
-
-  componentDidUpdate(lastProps: any) {
-    // Necessary if you are on a post and you click another post (same route)
-    if (
-      lastProps.location.pathname.split("/")[2] !==
-      lastProps.history.location.pathname.split("/")[2]
-    ) {
-      // Couldnt get a refresh working. This does for now.
-      location.reload();
-    }
-  }
-
   get documentTitle(): string {
-    let res = this.state.personRes;
+    const res = this.state.personRes;
     return res
       ? `@${res.person_view.person.name} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
 
   render() {
-    let res = this.state.personRes;
+    const { personRes, loading, siteRes } = this.state;
+    const { page, sort, view } = getProfileQueryParams();
+
     return (
       <div className="container-lg">
-        {this.state.loading ? (
+        {loading ? (
           <h5>
             <Spinner large />
           </h5>
         ) : (
-          res && (
+          personRes && (
             <div className="row">
               <div className="col-12 col-md-8">
-                <>
-                  <HtmlTags
-                    title={this.documentTitle}
-                    path={this.context.router.route.match.url}
-                    description={res.person_view.person.bio}
-                    image={res.person_view.person.avatar}
-                  />
-                  {this.userInfo()}
-                  <hr />
-                </>
-                {!this.state.loading && this.selects()}
+                <HtmlTags
+                  title={this.documentTitle}
+                  path={this.context.router.route.match.url}
+                  description={personRes.person_view.person.bio}
+                  image={personRes.person_view.person.avatar}
+                />
+
+                {this.userInfo}
+
+                <hr />
+
+                {this.selects}
+
                 <PersonDetails
-                  personRes={res}
-                  admins={this.state.siteRes.admins}
-                  sort={this.state.sort}
-                  page={this.state.page}
+                  personRes={personRes}
+                  admins={siteRes.admins}
+                  sort={sort}
+                  page={page}
                   limit={fetchLimit}
-                  enableDownvotes={enableDownvotes(this.state.siteRes)}
-                  enableNsfw={enableNsfw(this.state.siteRes)}
-                  view={this.state.view}
+                  enableDownvotes={enableDownvotes(siteRes)}
+                  enableNsfw={enableNsfw(siteRes)}
+                  view={view}
                   onPageChange={this.handlePageChange}
-                  allLanguages={this.state.siteRes.all_languages}
-                  siteLanguages={this.state.siteRes.discussion_languages}
+                  allLanguages={siteRes.all_languages}
+                  siteLanguages={siteRes.discussion_languages}
                 />
               </div>
 
-              {!this.state.loading && (
-                <div className="col-12 col-md-4">
-                  {this.moderates()}
-                  {this.amCurrentUser && this.follows()}
-                </div>
-              )}
+              <div className="col-12 col-md-4">
+                <Moderates moderates={personRes.moderates} />
+                {this.amCurrentUser && <Follows />}
+              </div>
             </div>
           )
         )}
@@ -276,73 +311,49 @@ export class Profile extends Component<any, ProfileState> {
     );
   }
 
-  viewRadios() {
+  get viewRadios() {
     return (
       <div className="btn-group btn-group-toggle flex-wrap mb-2">
-        <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.view == PersonDetailsView.Overview && "active"}
-          `}
-        >
-          <input
-            type="radio"
-            value={PersonDetailsView.Overview}
-            checked={this.state.view === PersonDetailsView.Overview}
-            onChange={linkEvent(this, this.handleViewChange)}
-          />
-          {i18n.t("overview")}
-        </label>
-        <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.view == PersonDetailsView.Comments && "active"}
-          `}
-        >
-          <input
-            type="radio"
-            value={PersonDetailsView.Comments}
-            checked={this.state.view == PersonDetailsView.Comments}
-            onChange={linkEvent(this, this.handleViewChange)}
-          />
-          {i18n.t("comments")}
-        </label>
-        <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.view == PersonDetailsView.Posts && "active"}
-          `}
-        >
-          <input
-            type="radio"
-            value={PersonDetailsView.Posts}
-            checked={this.state.view == PersonDetailsView.Posts}
-            onChange={linkEvent(this, this.handleViewChange)}
-          />
-          {i18n.t("posts")}
-        </label>
-        <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.view == PersonDetailsView.Saved && "active"}
-          `}
-        >
-          <input
-            type="radio"
-            value={PersonDetailsView.Saved}
-            checked={this.state.view == PersonDetailsView.Saved}
-            onChange={linkEvent(this, this.handleViewChange)}
-          />
-          {i18n.t("saved")}
-        </label>
+        {this.getRadio(PersonDetailsView.Overview)}
+        {this.getRadio(PersonDetailsView.Comments)}
+        {this.getRadio(PersonDetailsView.Posts)}
+        {this.amCurrentUser && this.getRadio(PersonDetailsView.Saved)}
       </div>
     );
   }
 
-  selects() {
-    let profileRss = `/feeds/u/${this.state.userName}.xml?sort=${this.state.sort}`;
+  getRadio(view: PersonDetailsView) {
+    const { view: urlView } = getProfileQueryParams();
+    const active = view === urlView;
+
+    return (
+      <label
+        className={classNames("btn btn-outline-secondary pointer", {
+          active,
+        })}
+      >
+        <input
+          type="radio"
+          value={view}
+          checked={active}
+          onChange={linkEvent(this, this.handleViewChange)}
+        />
+        {i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+      </label>
+    );
+  }
+
+  get selects() {
+    const { sort } = getProfileQueryParams();
+    const { username } = this.props.match.params;
+
+    const profileRss = `/feeds/u/${username}.xml?sort=${sort}`;
 
     return (
       <div className="mb-2">
-        <span className="mr-3">{this.viewRadios()}</span>
+        <span className="mr-3">{this.viewRadios}</span>
         <SortSelect
-          sort={this.state.sort}
+          sort={sort}
           onChange={this.handleSortChange}
           hideHot
           hideMostComments
@@ -354,37 +365,24 @@ export class Profile extends Component<any, ProfileState> {
       </div>
     );
   }
-  handleBlockPerson(personId: number) {
-    let auth = myAuth();
-    if (auth) {
-      if (personId != 0) {
-        let blockUserForm: BlockPerson = {
-          person_id: personId,
-          block: true,
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
-      }
-    }
-  }
-  handleUnblockPerson(recipientId: number) {
-    let auth = myAuth();
-    if (auth) {
-      let blockUserForm: BlockPerson = {
-        person_id: recipientId,
-        block: false,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
-    }
-  }
 
-  userInfo() {
-    let pv = this.state.personRes?.person_view;
+  get userInfo() {
+    const pv = this.state.personRes?.person_view;
+    const {
+      personBlocked,
+      siteRes: { admins },
+      showBanDialog,
+    } = this.state;
+
     return (
       pv && (
         <div>
-          <BannerIconHeader banner={pv.person.banner} icon={pv.person.avatar} />
+          {!isBanned(pv.person) && (
+            <BannerIconHeader
+              banner={pv.person.banner}
+              icon={pv.person.avatar}
+            />
+          )}
           <div className="mb-3">
             <div className="">
               <div className="mb-0 d-flex flex-wrap">
@@ -424,7 +422,7 @@ export class Profile extends Component<any, ProfileState> {
                     )}
                   </ul>
                 </div>
-                {this.banDialog()}
+                {this.banDialog}
                 <div className="flex-grow-1 unselectable pointer mx-2"></div>
                 {!this.amCurrentUser && UserService.Instance.myUserInfo && (
                   <>
@@ -441,19 +439,16 @@ export class Profile extends Component<any, ProfileState> {
                       className={
                         "d-flex align-self-start btn btn-secondary mr-2"
                       }
-                      to={`/create_private_message/recipient/${pv.person.id}`}
+                      to={`/create_private_message/${pv.person.id}`}
                     >
                       {i18n.t("send_message")}
                     </Link>
-                    {this.state.personBlocked ? (
+                    {personBlocked ? (
                       <button
                         className={
                           "d-flex align-self-start btn btn-secondary mr-2"
                         }
-                        onClick={linkEvent(
-                          pv.person.id,
-                          this.handleUnblockPerson
-                        )}
+                        onClick={linkEvent(pv.person.id, handleUnblockPerson)}
                       >
                         {i18n.t("unblock_user")}
                       </button>
@@ -462,10 +457,7 @@ export class Profile extends Component<any, ProfileState> {
                         className={
                           "d-flex align-self-start btn btn-secondary mr-2"
                         }
-                        onClick={linkEvent(
-                          pv.person.id,
-                          this.handleBlockPerson
-                        )}
+                        onClick={linkEvent(pv.person.id, handleBlockPerson)}
                       >
                         {i18n.t("block_user")}
                       </button>
@@ -473,9 +465,9 @@ export class Profile extends Component<any, ProfileState> {
                   </>
                 )}
 
-                {canMod(pv.person.id, undefined, this.state.siteRes.admins) &&
-                  !isAdmin(pv.person.id, this.state.siteRes.admins) &&
-                  !this.state.showBanDialog &&
+                {canMod(pv.person.id, undefined, admins) &&
+                  !isAdmin(pv.person.id, admins) &&
+                  !showBanDialog &&
                   (!isBanned(pv.person) ? (
                     <button
                       className={
@@ -510,13 +502,13 @@ export class Profile extends Component<any, ProfileState> {
                 <ul className="list-inline mb-2">
                   <li className="list-inline-item badge badge-light">
                     {i18n.t("number_of_posts", {
-                      count: pv.counts.post_count,
+                      count: Number(pv.counts.post_count),
                       formattedCount: numToSI(pv.counts.post_count),
                     })}
                   </li>
                   <li className="list-inline-item badge badge-light">
                     {i18n.t("number_of_comments", {
-                      count: pv.counts.comment_count,
+                      count: Number(pv.counts.comment_count),
                       formattedCount: numToSI(pv.counts.comment_count),
                     })}
                   </li>
@@ -552,12 +544,14 @@ export class Profile extends Component<any, ProfileState> {
     );
   }
 
-  banDialog() {
-    let pv = this.state.personRes?.person_view;
+  get banDialog() {
+    const pv = this.state.personRes?.person_view;
+    const { showBanDialog } = this.state;
+
     return (
       pv && (
         <>
-          {this.state.showBanDialog && (
+          {showBanDialog && (
             <form onSubmit={linkEvent(this, this.handleModBanSubmit)}>
               <div className="form-group row col-12">
                 <label className="col-form-label" htmlFor="profile-ban-reason">
@@ -630,73 +624,38 @@ export class Profile extends Component<any, ProfileState> {
     );
   }
 
-  moderates() {
-    let moderates = this.state.personRes?.moderates;
-    return (
-      moderates &&
-      moderates.length > 0 && (
-        <div className="card border-secondary mb-3">
-          <div className="card-body">
-            <h5>{i18n.t("moderates")}</h5>
-            <ul className="list-unstyled mb-0">
-              {moderates.map(cmv => (
-                <li key={cmv.community.id}>
-                  <CommunityLink community={cmv.community} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )
-    );
-  }
+  updateUrl({ page, sort, view }: Partial<ProfileProps>) {
+    const {
+      page: urlPage,
+      sort: urlSort,
+      view: urlView,
+    } = getProfileQueryParams();
 
-  follows() {
-    let follows = UserService.Instance.myUserInfo?.follows;
-    return (
-      follows &&
-      follows.length > 0 && (
-        <div className="card border-secondary mb-3">
-          <div className="card-body">
-            <h5>{i18n.t("subscribed")}</h5>
-            <ul className="list-unstyled mb-0">
-              {follows.map(cfv => (
-                <li key={cfv.community.id}>
-                  <CommunityLink community={cfv.community} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )
-    );
-  }
+    const queryParams: QueryParams<ProfileProps> = {
+      page: (page ?? urlPage).toString(),
+      sort: sort ?? urlSort,
+      view: view ?? urlView,
+    };
 
-  updateUrl(paramUpdates: UrlParams) {
-    const page = paramUpdates.page || this.state.page;
-    const viewStr = paramUpdates.view || PersonDetailsView[this.state.view];
-    const sortStr = paramUpdates.sort || this.state.sort;
+    const { username } = this.props.match.params;
 
-    let typeView = `/u/${this.state.userName}`;
+    this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
 
-    this.props.history.push(
-      `${typeView}/view/${viewStr}/sort/${sortStr}/page/${page}`
-    );
     this.setState({ loading: true });
     this.fetchUserData();
   }
 
   handlePageChange(page: number) {
-    this.updateUrl({ page: page });
+    this.updateUrl({ page });
   }
 
-  handleSortChange(val: SortType) {
-    this.updateUrl({ sort: val, page: 1 });
+  handleSortChange(sort: SortType) {
+    this.updateUrl({ sort, page: 1 });
   }
 
   handleViewChange(i: Profile, event: any) {
     i.updateUrl({
-      view: PersonDetailsView[Number(event.target.value)],
+      view: PersonDetailsView[event.target.value],
       page: 1,
     });
   }
@@ -724,20 +683,25 @@ export class Profile extends Component<any, ProfileState> {
 
   handleModBanSubmit(i: Profile, event?: any) {
     if (event) event.preventDefault();
-    let person = i.state.personRes?.person_view.person;
-    let auth = myAuth();
+    const { personRes, removeData, banReason, banExpireDays } = i.state;
+
+    const person = personRes?.person_view.person;
+    const auth = myAuth();
+
     if (person && auth) {
+      const ban = !person.banned;
+
       // If its an unban, restore all their data
-      let ban = !person.banned;
-      if (ban == false) {
+      if (!ban) {
         i.setState({ removeData: false });
       }
-      let form: BanPerson = {
+
+      const form: BanPerson = {
         person_id: person.id,
         ban,
-        remove_data: i.state.removeData,
-        reason: i.state.banReason,
-        expires: futureDaysToUnixTime(i.state.banExpireDays),
+        remove_data: removeData,
+        reason: banReason,
+        expires: futureDaysToUnixTime(banExpireDays),
         auth,
       };
       WebSocketService.Instance.send(wsClient.banPerson(form));
@@ -747,95 +711,138 @@ export class Profile extends Component<any, ProfileState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
+
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      if (msg.error == "couldnt_find_that_username_or_email") {
+
+      if (msg.error === "couldnt_find_that_username_or_email") {
         this.context.router.history.push("/");
       }
-      return;
     } else if (msg.reconnect) {
       this.fetchUserData();
-    } else if (op == UserOperation.GetPersonDetails) {
-      // Since the PersonDetails contains posts/comments as well as some general user info we listen here as well
-      // and set the parent state if it is not set or differs
-      // TODO this might need to get abstracted
-      let data = wsJsonToRes<GetPersonDetailsResponse>(msg);
-      this.setState({ personRes: data, loading: false });
-      this.setPersonBlock();
-      restoreScrollPosition(this.context);
-    } else if (op == UserOperation.AddAdmin) {
-      let data = wsJsonToRes<AddAdminResponse>(msg);
-      this.setState(s => ((s.siteRes.admins = data.admins), s));
-    } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      createCommentLikeRes(data.comment_view, this.state.personRes?.comments);
-      this.setState(this.state);
-    } else if (
-      op == UserOperation.EditComment ||
-      op == UserOperation.DeleteComment ||
-      op == UserOperation.RemoveComment
-    ) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      editCommentRes(data.comment_view, this.state.personRes?.comments);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreateComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      let mui = UserService.Instance.myUserInfo;
-      if (data.comment_view.creator.id == mui?.local_user_view.person.id) {
-        toast(i18n.t("reply_sent"));
-      }
-    } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
-      saveCommentRes(data.comment_view, this.state.personRes?.comments);
-      this.setState(this.state);
-    } else if (
-      op == UserOperation.EditPost ||
-      op == UserOperation.DeletePost ||
-      op == UserOperation.RemovePost ||
-      op == UserOperation.LockPost ||
-      op == UserOperation.FeaturePost ||
-      op == UserOperation.SavePost ||
-      op == UserOperation.MarkPostAsRead
-    ) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      editPostFindRes(data.post_view, this.state.personRes?.posts);
-      this.setState(this.state);
-    } else if (op == UserOperation.CreatePostLike) {
-      let data = wsJsonToRes<PostResponse>(msg);
-      createPostLikeFindRes(data.post_view, this.state.personRes?.posts);
-      this.setState(this.state);
-    } else if (op == UserOperation.BanPerson) {
-      let data = wsJsonToRes<BanPersonResponse>(msg);
-      let res = this.state.personRes;
-      res?.comments
-        .filter(c => c.creator.id == data.person_view.person.id)
-        .forEach(c => (c.creator.banned = data.banned));
-      res?.posts
-        .filter(c => c.creator.id == data.person_view.person.id)
-        .forEach(c => (c.creator.banned = data.banned));
-      let pv = res?.person_view;
+    } else {
+      switch (op) {
+        case UserOperation.GetPersonDetails: {
+          // Since the PersonDetails contains posts/comments as well as some general user info we listen here as well
+          // and set the parent state if it is not set or differs
+          // TODO this might need to get abstracted
+          const data = wsJsonToRes<GetPersonDetailsResponse>(msg);
+          this.setState({ personRes: data, loading: false });
+          this.setPersonBlock();
+          restoreScrollPosition(this.context);
 
-      if (pv?.person.id == data.person_view.person.id) {
-        pv.person.banned = data.banned;
-      }
-      this.setState(this.state);
-    } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
-      updatePersonBlock(data);
-      this.setPersonBlock();
-      this.setState(this.state);
-    } else if (
-      op == UserOperation.PurgePerson ||
-      op == UserOperation.PurgePost ||
-      op == UserOperation.PurgeComment ||
-      op == UserOperation.PurgeCommunity
-    ) {
-      let data = wsJsonToRes<PurgeItemResponse>(msg);
-      if (data.success) {
-        toast(i18n.t("purge_success"));
-        this.context.router.history.push(`/`);
+          break;
+        }
+
+        case UserOperation.AddAdmin: {
+          const { admins } = wsJsonToRes<AddAdminResponse>(msg);
+          this.setState(s => ((s.siteRes.admins = admins), s));
+
+          break;
+        }
+
+        case UserOperation.CreateCommentLike: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+          createCommentLikeRes(comment_view, this.state.personRes?.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.EditComment:
+        case UserOperation.DeleteComment:
+        case UserOperation.RemoveComment: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+          editCommentRes(comment_view, this.state.personRes?.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.CreateComment: {
+          const {
+            comment_view: {
+              creator: { id },
+            },
+          } = wsJsonToRes<CommentResponse>(msg);
+          const mui = UserService.Instance.myUserInfo;
+
+          if (id === mui?.local_user_view.person.id) {
+            toast(i18n.t("reply_sent"));
+          }
+
+          break;
+        }
+
+        case UserOperation.SaveComment: {
+          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
+          saveCommentRes(comment_view, this.state.personRes?.comments);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.EditPost:
+        case UserOperation.DeletePost:
+        case UserOperation.RemovePost:
+        case UserOperation.LockPost:
+        case UserOperation.FeaturePost:
+        case UserOperation.SavePost: {
+          const { post_view } = wsJsonToRes<PostResponse>(msg);
+          editPostFindRes(post_view, this.state.personRes?.posts);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.CreatePostLike: {
+          const { post_view } = wsJsonToRes<PostResponse>(msg);
+          createPostLikeFindRes(post_view, this.state.personRes?.posts);
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.BanPerson: {
+          const data = wsJsonToRes<BanPersonResponse>(msg);
+          const res = this.state.personRes;
+          res?.comments
+            .filter(c => c.creator.id === data.person_view.person.id)
+            .forEach(c => (c.creator.banned = data.banned));
+          res?.posts
+            .filter(c => c.creator.id === data.person_view.person.id)
+            .forEach(c => (c.creator.banned = data.banned));
+          const pv = res?.person_view;
+
+          if (pv?.person.id === data.person_view.person.id) {
+            pv.person.banned = data.banned;
+          }
+          this.setState(this.state);
+
+          break;
+        }
+
+        case UserOperation.BlockPerson: {
+          const data = wsJsonToRes<BlockPersonResponse>(msg);
+          updatePersonBlock(data);
+          this.setPersonBlock();
+
+          break;
+        }
+
+        case UserOperation.PurgePerson:
+        case UserOperation.PurgePost:
+        case UserOperation.PurgeComment:
+        case UserOperation.PurgeCommunity: {
+          const { success } = wsJsonToRes<PurgeItemResponse>(msg);
+
+          if (success) {
+            toast(i18n.t("purge_success"));
+            this.context.router.history.push(`/`);
+          }
+        }
       }
     }
   }

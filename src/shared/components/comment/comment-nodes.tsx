@@ -1,17 +1,12 @@
 import { Component } from "inferno";
-import {
-  CommentNode as CommentNodeI,
-  CommunityModeratorView,
-  Language,
-  PersonViewSafe,
-} from "lemmy-js-client";
-import { CommentViewType } from "../../interfaces";
+import { CommunityModeratorView, Language, PersonView } from "lemmy-js-client";
+import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
   moderators?: CommunityModeratorView[];
-  admins?: PersonViewSafe[];
+  admins?: PersonView[];
   maxCommentsShown?: number;
   noBorder?: boolean;
   noIndent?: boolean;
@@ -28,12 +23,12 @@ interface CommentNodesProps {
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
-  constructor(props: any, context: any) {
+  constructor(props: CommentNodesProps, context: any) {
     super(props, context);
   }
 
   render() {
-    let maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
+    const maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
 
     return (
       <div className="comments">

@@ -2,7 +2,7 @@ import { Component, linkEvent } from "inferno";
 import {
   GetSiteResponse,
   LoginResponse,
-  PasswordChange as PWordChange,
+  PasswordChangeAfterReset,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -143,11 +143,11 @@ export class PasswordChange extends Component<any, State> {
     event.preventDefault();
     i.setState({ loading: true });
 
-    let password = i.state.form.password;
-    let password_verify = i.state.form.password_verify;
+    const password = i.state.form.password;
+    const password_verify = i.state.form.password_verify;
 
     if (password && password_verify) {
-      let form: PWordChange = {
+      const form: PasswordChangeAfterReset = {
         token: i.state.form.token,
         password,
         password_verify,
@@ -158,14 +158,14 @@ export class PasswordChange extends Component<any, State> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       this.setState({ loading: false });
       return;
-    } else if (op == UserOperation.PasswordChange) {
-      let data = wsJsonToRes<LoginResponse>(msg);
+    } else if (op == UserOperation.PasswordChangeAfterReset) {
+      const data = wsJsonToRes<LoginResponse>(msg);
       UserService.Instance.login(data);
       this.props.history.push("/");
       location.reload();

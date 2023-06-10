@@ -2,37 +2,31 @@ import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
-  CommunityView,
   CreatePost,
   EditPost,
   Language,
-  ListingType,
   PostResponse,
   PostView,
   Search,
   SearchResponse,
-  SearchType,
-  SortType,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { pictrsUri } from "../../env";
 import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
+  Choice,
   archiveTodayUrl,
   capitalizeFirstLetter,
-  choicesConfig,
-  communitySelectName,
   communityToChoice,
   debounce,
   fetchCommunities,
+  getIdFromString,
   getSiteMetadata,
   ghostArchiveUrl,
-  isBrowser,
   isImage,
   myAuth,
   pictrsDeleteToast,
@@ -40,6 +34,7 @@ import {
   setupTippy,
   toast,
   trendingFetchLimit,
+  uploadImage,
   validTitle,
   validURL,
   webArchiveUrl,
@@ -49,12 +44,8 @@ import {
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
-
-var Choices: any;
-if (isBrowser()) {
-  Choices = require("choices.js");
-}
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -62,13 +53,14 @@ interface PostFormProps {
   post_view?: PostView; // If a post is given, that means this is an edit
   allLanguages: Language[];
   siteLanguages: number[];
-  communities?: CommunityView[];
   params?: PostFormParams;
   onCancel?(): any;
   onCreate?(post: PostView): any;
   onEdit?(post: PostView): any;
   enableNsfw?: boolean;
   enableDownvotes?: boolean;
+  selectedCommunityChoice?: Choice;
+  onSelectCommunity?: (choice: Choice) => void;
 }
 
 interface PostFormState {
@@ -87,32 +79,34 @@ interface PostFormState {
   loading: boolean;
   imageLoading: boolean;
   communitySearchLoading: boolean;
+  communitySearchOptions: Choice[];
   previewMode: boolean;
 }
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
   private subscription?: Subscription;
-  private choices: any;
   state: PostFormState = {
     form: {},
     loading: false,
     imageLoading: false,
     communitySearchLoading: false,
     previewMode: false,
+    communitySearchOptions: [],
   };
 
-  constructor(props: any, context: any) {
+  constructor(props: PostFormProps, context: any) {
     super(props, context);
     this.fetchSimilarPosts = debounce(this.fetchSimilarPosts.bind(this));
     this.fetchPageTitle = debounce(this.fetchPageTitle.bind(this));
     this.handlePostBodyChange = this.handlePostBodyChange.bind(this);
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
+    this.handleCommunitySelect = this.handleCommunitySelect.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Means its an edit
-    let pv = this.props.post_view;
+    const pv = this.props.post_view;
     if (pv) {
       this.state = {
         ...this.state,
@@ -127,15 +121,26 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       };
     }
 
-    let params = this.props.params;
+    const selectedCommunityChoice = this.props.selectedCommunityChoice;
+
+    if (selectedCommunityChoice) {
+      this.state = {
+        ...this.state,
+        form: {
+          ...this.state.form,
+          community_id: getIdFromString(selectedCommunityChoice.value),
+        },
+        communitySearchOptions: [selectedCommunityChoice],
+      };
+    }
+
+    const params = this.props.params;
     if (params) {
       this.state = {
         ...this.state,
         form: {
           ...this.state.form,
-          name: params.name,
-          url: params.url,
-          body: params.body,
+          ...params,
         },
       };
     }
@@ -143,8 +148,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   componentDidMount() {
     setupTippy();
-    this.setupCommunities();
-    let textarea: any = document.getElementById("post-title");
+    const textarea: any = document.getElementById("post-title");
+
     if (textarea) {
       autosize(textarea);
     }
@@ -167,11 +172,24 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     window.onbeforeunload = null;
   }
 
-  render() {
-    let firstLang = this.state.form.language_id;
-    let selectedLangs = firstLang ? Array.of(firstLang) : undefined;
+  static getDerivedStateFromProps(
+    { selectedCommunityChoice }: PostFormProps,
+    { form, ...restState }: PostFormState
+  ) {
+    return {
+      ...restState,
+      form: {
+        ...form,
+        community_id: getIdFromString(selectedCommunityChoice?.value),
+      },
+    };
+  }
 
-    let url = this.state.form.url;
+  render() {
+    const firstLang = this.state.form.language_id;
+    const selectedLangs = firstLang ? Array.of(firstLang) : undefined;
+
+    const url = this.state.form.url;
     return (
       <div>
         <Prompt
@@ -335,26 +353,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className="col-sm-2 col-form-label"
                 htmlFor="post-community"
               >
-                {this.state.communitySearchLoading ? (
-                  <Spinner />
-                ) : (
-                  i18n.t("community")
-                )}
+                {i18n.t("community")}
               </label>
               <div className="col-sm-10">
-                <select
-                  className="form-control"
+                <SearchableSelect
                   id="post-community"
                   value={this.state.form.community_id}
-                  onInput={linkEvent(this, this.handlePostCommunityChange)}
-                >
-                  <option>{i18n.t("select_a_community")}</option>
-                  {this.props.communities?.map(cv => (
-                    <option key={cv.community.id} value={cv.community.id}>
-                      {communitySelectName(cv)}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    {
+                      label: i18n.t("select_a_community"),
+                      value: "",
+                      disabled: true,
+                    } as Choice,
+                  ].concat(this.state.communitySearchOptions)}
+                  loading={this.state.communitySearchLoading}
+                  onChange={this.handleCommunitySelect}
+                  onSearch={this.handleCommunitySearch}
+                />
               </div>
             </div>
           )}
@@ -434,24 +449,24 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       i.setState(s => ((s.form.url = undefined), s));
     }
 
-    let pForm = i.state.form;
-    let pv = i.props.post_view;
-    let auth = myAuth();
+    const pForm = i.state.form;
+    const pv = i.props.post_view;
+    const auth = myAuth();
     if (auth) {
       if (pv) {
-        let form: EditPost = {
+        const form: EditPost = {
           name: pForm.name,
           url: pForm.url,
           body: pForm.body,
           nsfw: pForm.nsfw,
           post_id: pv.post.id,
-          language_id: pv.post.language_id,
+          language_id: pForm.language_id,
           auth,
         };
         WebSocketService.Instance.send(wsClient.editPost(form));
       } else {
         if (pForm.name && pForm.community_id) {
-          let form: CreatePost = {
+          const form: CreatePost = {
             name: pForm.name,
             community_id: pForm.community_id,
             url: pForm.url,
@@ -468,14 +483,14 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   copySuggestedTitle(i: PostForm) {
-    let sTitle = i.state.suggestedTitle;
+    const sTitle = i.state.suggestedTitle;
     if (sTitle) {
       i.setState(
         s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
       );
       i.setState({ suggestedTitle: undefined });
       setTimeout(() => {
-        let textarea: any = document.getElementById("post-title");
+        const textarea: any = document.getElementById("post-title");
         autosize.update(textarea);
       }, 10);
     }
@@ -487,13 +502,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   fetchPageTitle() {
-    let url = this.state.form.url;
+    const url = this.state.form.url;
     if (url && validURL(url)) {
-      let form: Search = {
+      const form: Search = {
         q: url,
-        type_: SearchType.Url,
-        sort: SortType.TopAll,
-        listing_type: ListingType.All,
+        type_: "Url",
+        sort: "TopAll",
+        listing_type: "All",
         page: 1,
         limit: trendingFetchLimit,
         auth: myAuth(false),
@@ -516,13 +531,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   fetchSimilarPosts() {
-    let q = this.state.form.name;
+    const q = this.state.form.name;
     if (q && q !== "") {
-      let form: Search = {
+      const form: Search = {
         q,
-        type_: SearchType.Posts,
-        sort: SortType.TopAll,
-        listing_type: ListingType.All,
+        type_: "Posts",
+        sort: "TopAll",
+        listing_type: "All",
         community_id: this.state.form.community_id,
         page: 1,
         limit: trendingFetchLimit,
@@ -565,7 +580,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   handleImageUploadPaste(i: PostForm, event: any) {
-    let image = event.clipboardData.files[0];
+    const image = event.clipboardData.files[0];
     if (image) {
       i.handleImageUpload(i, image);
     }
@@ -580,32 +595,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       file = event;
     }
 
-    const formData = new FormData();
-    formData.append("images[]", file);
-
     i.setState({ imageLoading: true });
 
-    fetch(pictrsUri, {
-      method: "POST",
-      body: formData,
-    })
-      .then(res => res.json())
+    uploadImage(file)
       .then(res => {
         console.log("pictrs upload:");
         console.log(res);
-        if (res.msg == "ok") {
-          let hash = res.files[0].file;
-          let url = `${pictrsUri}/${hash}`;
-          let deleteToken = res.files[0].delete_token;
-          let deleteUrl = `${pictrsUri}/delete/${deleteToken}/${hash}`;
-          i.state.form.url = url;
+        if (res.msg === "ok") {
+          i.state.form.url = res.url;
           i.setState({ imageLoading: false });
-          pictrsDeleteToast(
-            i18n.t("click_to_delete_picture", file.name),
-            i18n.t("picture_deleted", file.name),
-            i18n.t("failed_to_delete_picture", file.name),
-            deleteUrl
-          );
+          pictrsDeleteToast(file.name, res.delete_url as string);
         } else {
           i.setState({ imageLoading: false });
           toast(JSON.stringify(res), "danger");
@@ -618,72 +617,40 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       });
   }
 
-  setupCommunities() {
-    // Set up select searching
-    if (isBrowser()) {
-      let selectId: any = document.getElementById("post-community");
-      if (selectId) {
-        this.choices = new Choices(selectId, choicesConfig);
-        this.choices.passedElement.element.addEventListener(
-          "choice",
-          (e: any) => {
-            this.setState(
-              s => ((s.form.community_id = Number(e.detail.choice.value)), s)
-            );
-          },
-          false
-        );
-        this.choices.passedElement.element.addEventListener("search", () => {
-          this.setState({ communitySearchLoading: true });
-        });
-        this.choices.passedElement.element.addEventListener(
-          "search",
-          debounce(async (e: any) => {
-            try {
-              let communities = (await fetchCommunities(e.detail.value))
-                .communities;
-              this.choices.setChoices(
-                communities.map(cv => communityToChoice(cv)),
-                "value",
-                "label",
-                true
-              );
-              this.setState({ communitySearchLoading: false });
-            } catch (err) {
-              console.log(err);
-            }
-          }),
-          false
-        );
-      }
+  handleCommunitySearch = debounce(async (text: string) => {
+    const { selectedCommunityChoice } = this.props;
+    this.setState({ communitySearchLoading: true });
+
+    const newOptions: Choice[] = [];
+
+    if (selectedCommunityChoice) {
+      newOptions.push(selectedCommunityChoice);
     }
 
-    let pv = this.props.post_view;
-    this.setState(s => ((s.form.community_id = pv?.community.id), s));
+    if (text.length > 0) {
+      newOptions.push(
+        ...(await fetchCommunities(text)).communities.map(communityToChoice)
+      );
 
-    let nameOrId = this.props.params?.nameOrId;
-    if (nameOrId) {
-      if (typeof nameOrId === "string") {
-        let name_ = nameOrId;
-        let foundCommunityId = this.props.communities?.find(
-          r => r.community.name == name_
-        )?.community.id;
-        this.setState(s => ((s.form.community_id = foundCommunityId), s));
-      } else {
-        let id = nameOrId;
-        this.setState(s => ((s.form.community_id = id), s));
-      }
+      this.setState({
+        communitySearchOptions: newOptions,
+      });
     }
 
-    if (isBrowser() && this.state.form.community_id) {
-      this.choices.setChoiceByValue(this.state.form.community_id.toString());
+    this.setState({
+      communitySearchLoading: false,
+    });
+  });
+
+  handleCommunitySelect(choice: Choice) {
+    if (this.props.onSelectCommunity) {
+      this.props.onSelectCommunity(choice);
     }
-    this.setState(this.state);
   }
 
   parseMessage(msg: any) {
-    let mui = UserService.Instance.myUserInfo;
-    let op = wsUserOp(msg);
+    const mui = UserService.Instance.myUserInfo;
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       // Errors handled by top level pages
@@ -691,22 +658,22 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.CreatePost) {
-      let data = wsJsonToRes<PostResponse>(msg);
+      const data = wsJsonToRes<PostResponse>(msg);
       if (data.post_view.creator.id == mui?.local_user_view.person.id) {
         this.props.onCreate?.(data.post_view);
       }
     } else if (op == UserOperation.EditPost) {
-      let data = wsJsonToRes<PostResponse>(msg);
+      const data = wsJsonToRes<PostResponse>(msg);
       if (data.post_view.creator.id == mui?.local_user_view.person.id) {
         this.setState({ loading: false });
         this.props.onEdit?.(data.post_view);
       }
     } else if (op == UserOperation.Search) {
-      let data = wsJsonToRes<SearchResponse>(msg);
+      const data = wsJsonToRes<SearchResponse>(msg);
 
-      if (data.type_ == SearchType[SearchType.Posts]) {
+      if (data.type_ == "Posts") {
         this.setState({ suggestedPosts: data.posts });
-      } else if (data.type_ == SearchType[SearchType.Url]) {
+      } else if (data.type_ == "Url") {
         this.setState({ crossPosts: data.posts });
       }
     }

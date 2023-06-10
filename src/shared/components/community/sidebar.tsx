@@ -8,10 +8,9 @@ import {
   DeleteCommunity,
   FollowCommunity,
   Language,
-  PersonViewSafe,
+  PersonView,
   PurgeCommunity,
   RemoveCommunity,
-  SubscribedType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
@@ -35,7 +34,7 @@ import { PersonListing } from "../person/person-listing";
 interface SidebarProps {
   community_view: CommunityView;
   moderators: CommunityModeratorView[];
-  admins: PersonViewSafe[];
+  admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
   communityLanguages?: number[];
@@ -125,16 +124,16 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   communityTitle() {
-    let community = this.props.community_view.community;
-    let subscribed = this.props.community_view.subscribed;
+    const community = this.props.community_view.community;
+    const subscribed = this.props.community_view.subscribed;
     return (
       <div>
         <h5 className="mb-0">
-          {this.props.showIcon && (
+          {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span className="mr-2">{community.title}</span>
-          {subscribed === SubscribedType.Subscribed && (
+          {subscribed === "Subscribed" && (
             <button
               className="btn btn-secondary btn-sm mr-2"
               onClick={linkEvent(this, this.handleUnsubscribe)}
@@ -143,7 +142,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               {i18n.t("joined")}
             </button>
           )}
-          {subscribed === SubscribedType.Pending && (
+          {subscribed === "Pending" && (
             <button
               className="btn btn-warning mr-2"
               onClick={linkEvent(this, this.handleUnsubscribe)}
@@ -179,8 +178,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   badges() {
-    let community_view = this.props.community_view;
-    let counts = community_view.counts;
+    const community_view = this.props.community_view;
+    const counts = community_view.counts;
     return (
       <ul className="my-1 list-inline">
         <li className="list-inline-item badge badge-secondary">
@@ -192,12 +191,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_day", {
-            count: counts.users_active_day,
-            formattedCount: counts.users_active_day,
+            count: Number(counts.users_active_day),
+            formattedCount: numToSI(counts.users_active_day),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_day,
+            count: Number(counts.users_active_day),
             formattedCount: numToSI(counts.users_active_day),
           })}{" "}
           / {i18n.t("day")}
@@ -205,12 +204,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_week", {
-            count: counts.users_active_week,
-            formattedCount: counts.users_active_week,
+            count: Number(counts.users_active_week),
+            formattedCount: numToSI(counts.users_active_week),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_week,
+            count: Number(counts.users_active_week),
             formattedCount: numToSI(counts.users_active_week),
           })}{" "}
           / {i18n.t("week")}
@@ -218,12 +217,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_month", {
-            count: counts.users_active_month,
-            formattedCount: counts.users_active_month,
+            count: Number(counts.users_active_month),
+            formattedCount: numToSI(counts.users_active_month),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_month,
+            count: Number(counts.users_active_month),
             formattedCount: numToSI(counts.users_active_month),
           })}{" "}
           / {i18n.t("month")}
@@ -231,31 +230,31 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-            count: counts.users_active_half_year,
-            formattedCount: counts.users_active_half_year,
+            count: Number(counts.users_active_half_year),
+            formattedCount: numToSI(counts.users_active_half_year),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_half_year,
+            count: Number(counts.users_active_half_year),
             formattedCount: numToSI(counts.users_active_half_year),
           })}{" "}
           / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_subscribers", {
-            count: counts.subscribers,
+            count: Number(counts.subscribers),
             formattedCount: numToSI(counts.subscribers),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_posts", {
-            count: counts.posts,
+            count: Number(counts.posts),
             formattedCount: numToSI(counts.posts),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_comments", {
-            count: counts.comments,
+            count: Number(counts.comments),
             formattedCount: numToSI(counts.comments),
           })}
         </li>
@@ -285,13 +284,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   createPost() {
-    let cv = this.props.community_view;
+    const cv = this.props.community_view;
     return (
       <Link
         className={`btn btn-secondary btn-block mb-2 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
-        to={`/create_post?community_id=${cv.community.id}`}
+        to={`/create_post?communityId=${cv.community.id}`}
       >
         {i18n.t("create_a_post")}
       </Link>
@@ -299,10 +298,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   subscribe() {
-    let community_view = this.props.community_view;
+    const community_view = this.props.community_view;
     return (
       <div className="mb-2">
-        {community_view.subscribed == SubscribedType.NotSubscribed && (
+        {community_view.subscribed == "NotSubscribed" && (
           <button
             className="btn btn-secondary btn-block"
             onClick={linkEvent(this, this.handleSubscribe)}
@@ -315,12 +314,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   blockCommunity() {
-    let community_view = this.props.community_view;
-    let blocked = this.props.community_view.blocked;
+    const community_view = this.props.community_view;
+    const blocked = this.props.community_view.blocked;
 
     return (
       <div className="mb-2">
-        {community_view.subscribed == SubscribedType.NotSubscribed &&
+        {community_view.subscribed == "NotSubscribed" &&
           (blocked ? (
             <button
               className="btn btn-danger btn-block"
@@ -341,7 +340,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   description() {
-    let desc = this.props.community_view.community.description;
+    const desc = this.props.community_view.community.description;
     return (
       desc && (
         <div className="md-div" dangerouslySetInnerHTML={mdToHtml(desc)} />
@@ -350,7 +349,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   adminButtons() {
-    let community_view = this.props.community_view;
+    const community_view = this.props.community_view;
     return (
       <>
         <ul className="list-inline mb-1 text-muted font-weight-bold">
@@ -537,9 +536,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleDeleteClick(i: Sidebar, event: any) {
     event.preventDefault();
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let deleteForm: DeleteCommunity = {
+      const deleteForm: DeleteCommunity = {
         community_id: i.props.community_view.community.id,
         deleted: !i.props.community_view.community.deleted,
         auth,
@@ -553,10 +552,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleLeaveModTeamClick(i: Sidebar) {
-    let mui = UserService.Instance.myUserInfo;
-    let auth = myAuth();
+    const mui = UserService.Instance.myUserInfo;
+    const auth = myAuth();
     if (auth && mui) {
-      let form: AddModToCommunity = {
+      const form: AddModToCommunity = {
         person_id: mui.local_user_view.person.id,
         community_id: i.props.community_view.community.id,
         added: false,
@@ -573,10 +572,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleUnsubscribe(i: Sidebar, event: any) {
     event.preventDefault();
-    let community_id = i.props.community_view.community.id;
-    let auth = myAuth();
+    const community_id = i.props.community_view.community.id;
+    const auth = myAuth();
     if (auth) {
-      let form: FollowCommunity = {
+      const form: FollowCommunity = {
         community_id,
         follow: false,
         auth,
@@ -585,7 +584,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     }
 
     // Update myUserInfo
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.follows = mui.follows.filter(i => i.community.id != community_id);
     }
@@ -593,10 +592,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleSubscribe(i: Sidebar, event: any) {
     event.preventDefault();
-    let community_id = i.props.community_view.community.id;
-    let auth = myAuth();
+    const community_id = i.props.community_view.community.id;
+    const auth = myAuth();
     if (auth) {
-      let form: FollowCommunity = {
+      const form: FollowCommunity = {
         community_id,
         follow: true,
         auth,
@@ -605,7 +604,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     }
 
     // Update myUserInfo
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.follows.push({
         community: i.props.community_view.community,
@@ -636,9 +635,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleModRemoveSubmit(i: Sidebar, event: any) {
     event.preventDefault();
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let removeForm: RemoveCommunity = {
+      const removeForm: RemoveCommunity = {
         community_id: i.props.community_view.community.id,
         removed: !i.props.community_view.community.removed,
         reason: i.state.removeReason,
@@ -662,9 +661,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   handlePurgeSubmit(i: Sidebar, event: any) {
     event.preventDefault();
 
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: PurgeCommunity = {
+      const form: PurgeCommunity = {
         community_id: i.props.community_view.community.id,
         reason: i.state.purgeReason,
         auth,
@@ -676,9 +675,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleBlock(i: Sidebar, event: any) {
     event.preventDefault();
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let blockCommunityForm: BlockCommunity = {
+      const blockCommunityForm: BlockCommunity = {
         community_id: i.props.community_view.community.id,
         block: true,
         auth,
@@ -691,9 +690,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleUnblock(i: Sidebar, event: any) {
     event.preventDefault();
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let blockCommunityForm: BlockCommunity = {
+      const blockCommunityForm: BlockCommunity = {
         community_id: i.props.community_view.community.id,
         block: false,
         auth,

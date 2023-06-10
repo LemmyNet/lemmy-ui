@@ -3,9 +3,7 @@
   "env": {
     "browser": true
   },
-  "plugins": [
-    "@typescript-eslint"
-  ],
+  "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -39,7 +37,7 @@
     "no-useless-constructor": 0,
     "no-useless-escape": 0,
     "no-var": 0,
-    "prefer-const": 0,
+    "prefer-const": 1,
     "prefer-rest-params": 0,
     "quote-props": 0,
     "unicorn/filename-case": 0

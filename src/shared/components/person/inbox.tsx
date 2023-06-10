@@ -18,8 +18,8 @@ import {
   PostReportResponse,
   PrivateMessageReportResponse,
   PrivateMessageResponse,
-  PrivateMessagesResponse,
   PrivateMessageView,
+  PrivateMessagesResponse,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -99,7 +99,7 @@ export class Inbox extends Component<any, InboxState> {
     mentions: [],
     messages: [],
     combined: [],
-    sort: CommentSortType.New,
+    sort: "New",
     page: 1,
     siteRes: this.isoData.site_res,
     loading: true,
@@ -110,11 +110,6 @@ export class Inbox extends Component<any, InboxState> {
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
-
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
@@ -146,7 +141,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   get documentTitle(): string {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${i18n.t("inbox")} - ${
           this.state.siteRes.site_view.site.name
@@ -155,8 +150,8 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   render() {
-    let auth = myAuth();
-    let inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
+    const auth = myAuth();
+    const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
     return (
       <div className="container-lg">
         {this.state.loading ? (
@@ -348,13 +343,13 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   buildCombined(): ReplyType[] {
-    let replies: ReplyType[] = this.state.replies.map(r =>
+    const replies: ReplyType[] = this.state.replies.map(r =>
       this.replyToReplyType(r)
     );
-    let mentions: ReplyType[] = this.state.mentions.map(r =>
+    const mentions: ReplyType[] = this.state.mentions.map(r =>
       this.mentionToReplyType(r)
     );
-    let messages: ReplyType[] = this.state.messages.map(r =>
+    const messages: ReplyType[] = this.state.messages.map(r =>
       this.messageToReplyType(r)
     );
 
@@ -487,15 +482,15 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
-    let sort = CommentSortType.New;
-    let auth = req.auth;
+    const sort: CommentSortType = "New";
+    const auth = req.auth;
 
     if (auth) {
       // It can be /u/me, or /username/1
-      let repliesForm: GetReplies = {
-        sort,
+      const repliesForm: GetReplies = {
+        sort: "New",
         unread_only: true,
         page: 1,
         limit: fetchLimit,
@@ -503,7 +498,7 @@ export class Inbox extends Component<any, InboxState> {
       };
       promises.push(req.client.getReplies(repliesForm));
 
-      let personMentionsForm: GetPersonMentions = {
+      const personMentionsForm: GetPersonMentions = {
         sort,
         unread_only: true,
         page: 1,
@@ -512,7 +507,7 @@ export class Inbox extends Component<any, InboxState> {
       };
       promises.push(req.client.getPersonMentions(personMentionsForm));
 
-      let privateMessagesForm: GetPrivateMessages = {
+      const privateMessagesForm: GetPrivateMessages = {
         unread_only: true,
         page: 1,
         limit: fetchLimit,
@@ -525,14 +520,14 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   refetch() {
-    let sort = this.state.sort;
-    let unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let page = this.state.page;
-    let limit = fetchLimit;
-    let auth = myAuth();
+    const sort = this.state.sort;
+    const unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const page = this.state.page;
+    const limit = fetchLimit;
+    const auth = myAuth();
 
     if (auth) {
-      let repliesForm: GetReplies = {
+      const repliesForm: GetReplies = {
         sort,
         unread_only,
         page,
@@ -541,7 +536,7 @@ export class Inbox extends Component<any, InboxState> {
       };
       WebSocketService.Instance.send(wsClient.getReplies(repliesForm));
 
-      let personMentionsForm: GetPersonMentions = {
+      const personMentionsForm: GetPersonMentions = {
         sort,
         unread_only,
         page,
@@ -552,7 +547,7 @@ export class Inbox extends Component<any, InboxState> {
         wsClient.getPersonMentions(personMentionsForm)
       );
 
-      let privateMessagesForm: GetPrivateMessages = {
+      const privateMessagesForm: GetPrivateMessages = {
         unread_only,
         page,
         limit,
@@ -570,7 +565,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   markAllAsRead(i: Inbox) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
       WebSocketService.Instance.send(
         wsClient.markAllAsRead({
@@ -586,7 +581,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   sendUnreadCount(read: boolean) {
-    let urcs = UserService.Instance.unreadInboxCountSub;
+    const urcs = UserService.Instance.unreadInboxCountSub;
     if (read) {
       urcs.next(urcs.getValue() - 1);
     } else {
@@ -595,7 +590,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -603,31 +598,31 @@ export class Inbox extends Component<any, InboxState> {
     } else if (msg.reconnect) {
       this.refetch();
     } else if (op == UserOperation.GetReplies) {
-      let data = wsJsonToRes<GetRepliesResponse>(msg);
+      const data = wsJsonToRes<GetRepliesResponse>(msg);
       this.setState({ replies: data.replies });
       this.setState({ combined: this.buildCombined(), loading: false });
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.GetPersonMentions) {
-      let data = wsJsonToRes<GetPersonMentionsResponse>(msg);
+      const data = wsJsonToRes<GetPersonMentionsResponse>(msg);
       this.setState({ mentions: data.mentions });
       this.setState({ combined: this.buildCombined() });
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.GetPrivateMessages) {
-      let data = wsJsonToRes<PrivateMessagesResponse>(msg);
+      const data = wsJsonToRes<PrivateMessagesResponse>(msg);
       this.setState({ messages: data.private_messages });
       this.setState({ combined: this.buildCombined() });
       window.scrollTo(0, 0);
       setupTippy();
     } else if (op == UserOperation.EditPrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      let found = this.state.messages.find(
+      const data = wsJsonToRes<PrivateMessageResponse>(msg);
+      const found = this.state.messages.find(
         m =>
           m.private_message.id === data.private_message_view.private_message.id
       );
       if (found) {
-        let combinedView = this.state.combined.find(
+        const combinedView = this.state.combined.find(
           i => i.id == data.private_message_view.private_message.id
         )?.view as PrivateMessageView | undefined;
         if (combinedView) {
@@ -639,13 +634,13 @@ export class Inbox extends Component<any, InboxState> {
       }
       this.setState(this.state);
     } else if (op == UserOperation.DeletePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      let found = this.state.messages.find(
+      const data = wsJsonToRes<PrivateMessageResponse>(msg);
+      const found = this.state.messages.find(
         m =>
           m.private_message.id === data.private_message_view.private_message.id
       );
       if (found) {
-        let combinedView = this.state.combined.find(
+        const combinedView = this.state.combined.find(
           i => i.id == data.private_message_view.private_message.id
         )?.view as PrivateMessageView | undefined;
         if (combinedView) {
@@ -657,14 +652,14 @@ export class Inbox extends Component<any, InboxState> {
       }
       this.setState(this.state);
     } else if (op == UserOperation.MarkPrivateMessageAsRead) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      let found = this.state.messages.find(
+      const data = wsJsonToRes<PrivateMessageResponse>(msg);
+      const found = this.state.messages.find(
         m =>
           m.private_message.id === data.private_message_view.private_message.id
       );
 
       if (found) {
-        let combinedView = this.state.combined.find(
+        const combinedView = this.state.combined.find(
           i =>
             i.id == data.private_message_view.private_message.id &&
             i.type_ == ReplyEnum.Message
@@ -705,18 +700,18 @@ export class Inbox extends Component<any, InboxState> {
       op == UserOperation.DeleteComment ||
       op == UserOperation.RemoveComment
     ) {
-      let data = wsJsonToRes<CommentResponse>(msg);
+      const data = wsJsonToRes<CommentResponse>(msg);
       editCommentRes(data.comment_view, this.state.replies);
       this.setState(this.state);
     } else if (op == UserOperation.MarkCommentReplyAsRead) {
-      let data = wsJsonToRes<CommentReplyResponse>(msg);
+      const data = wsJsonToRes<CommentReplyResponse>(msg);
 
-      let found = this.state.replies.find(
+      const found = this.state.replies.find(
         c => c.comment_reply.id == data.comment_reply_view.comment_reply.id
       );
 
       if (found) {
-        let combinedView = this.state.combined.find(
+        const combinedView = this.state.combined.find(
           i =>
             i.id == data.comment_reply_view.comment_reply.id &&
             i.type_ == ReplyEnum.Reply
@@ -763,15 +758,15 @@ export class Inbox extends Component<any, InboxState> {
       this.sendUnreadCount(data.comment_reply_view.comment_reply.read);
       this.setState(this.state);
     } else if (op == UserOperation.MarkPersonMentionAsRead) {
-      let data = wsJsonToRes<PersonMentionResponse>(msg);
+      const data = wsJsonToRes<PersonMentionResponse>(msg);
 
       // TODO this might not be correct, it might need to use the comment id
-      let found = this.state.mentions.find(
+      const found = this.state.mentions.find(
         c => c.person_mention.id == data.person_mention_view.person_mention.id
       );
 
       if (found) {
-        let combinedView = this.state.combined.find(
+        const combinedView = this.state.combined.find(
           i =>
             i.id == data.person_mention_view.person_mention.id &&
             i.type_ == ReplyEnum.Mention
@@ -819,8 +814,8 @@ export class Inbox extends Component<any, InboxState> {
       this.sendUnreadCount(data.person_mention_view.person_mention.read);
       this.setState(this.state);
     } else if (op == UserOperation.CreatePrivateMessage) {
-      let data = wsJsonToRes<PrivateMessageResponse>(msg);
-      let mui = UserService.Instance.myUserInfo;
+      const data = wsJsonToRes<PrivateMessageResponse>(msg);
+      const mui = UserService.Instance.myUserInfo;
       if (
         data.private_message_view.recipient.id == mui?.local_user_view.person.id
       ) {
@@ -831,29 +826,29 @@ export class Inbox extends Component<any, InboxState> {
         this.setState(this.state);
       }
     } else if (op == UserOperation.SaveComment) {
-      let data = wsJsonToRes<CommentResponse>(msg);
+      const data = wsJsonToRes<CommentResponse>(msg);
       saveCommentRes(data.comment_view, this.state.replies);
       this.setState(this.state);
       setupTippy();
     } else if (op == UserOperation.CreateCommentLike) {
-      let data = wsJsonToRes<CommentResponse>(msg);
+      const data = wsJsonToRes<CommentResponse>(msg);
       createCommentLikeRes(data.comment_view, this.state.replies);
       this.setState(this.state);
     } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
+      const data = wsJsonToRes<BlockPersonResponse>(msg);
       updatePersonBlock(data);
     } else if (op == UserOperation.CreatePostReport) {
-      let data = wsJsonToRes<PostReportResponse>(msg);
+      const data = wsJsonToRes<PostReportResponse>(msg);
       if (data) {
         toast(i18n.t("report_created"));
       }
     } else if (op == UserOperation.CreateCommentReport) {
-      let data = wsJsonToRes<CommentReportResponse>(msg);
+      const data = wsJsonToRes<CommentReportResponse>(msg);
       if (data) {
         toast(i18n.t("report_created"));
       }
     } else if (op == UserOperation.CreatePrivateMessageReport) {
-      let data = wsJsonToRes<PrivateMessageReportResponse>(msg);
+      const data = wsJsonToRes<PrivateMessageReportResponse>(msg);
       if (data) {
         toast(i18n.t("report_created"));
       }

@@ -3,7 +3,6 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
-  SortType,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -11,7 +10,7 @@ import {
 import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { WebSocketService } from "../../services";
 import {
   getRecipientIdFromProps,
   isBrowser,
@@ -52,11 +51,6 @@ export class CreatePrivateMessage extends Component<
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
-
     // Only fetch the data if coming from another route
     if (this.isoData.path == this.context.router.route.match.url) {
       this.state = {
@@ -71,9 +65,9 @@ export class CreatePrivateMessage extends Component<
   }
 
   fetchPersonDetails() {
-    let form: GetPersonDetails = {
+    const form: GetPersonDetails = {
       person_id: this.state.recipient_id,
-      sort: SortType.New,
+      sort: "New",
       saved_only: false,
       auth: myAuth(false),
     };
@@ -81,10 +75,10 @@ export class CreatePrivateMessage extends Component<
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let person_id = Number(req.path.split("/").pop());
-    let form: GetPersonDetails = {
+    const person_id = Number(req.path.split("/").pop());
+    const form: GetPersonDetails = {
       person_id,
-      sort: SortType.New,
+      sort: "New",
       saved_only: false,
       auth: req.auth,
     };
@@ -92,7 +86,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   get documentTitle(): string {
-    let name_ = this.state.recipientDetailsRes?.person_view.person.name;
+    const name_ = this.state.recipientDetailsRes?.person_view.person.name;
     return name_ ? `${i18n.t("create_private_message")} - ${name_}` : "";
   }
 
@@ -103,7 +97,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   render() {
-    let res = this.state.recipientDetailsRes;
+    const res = this.state.recipientDetailsRes;
     return (
       <div className="container-lg">
         <HtmlTags
@@ -139,14 +133,14 @@ export class CreatePrivateMessage extends Component<
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
       this.setState({ loading: false });
       return;
     } else if (op == UserOperation.GetPersonDetails) {
-      let data = wsJsonToRes<GetPersonDetailsResponse>(msg);
+      const data = wsJsonToRes<GetPersonDetailsResponse>(msg);
       this.setState({ recipientDetailsRes: data, loading: false });
     }
   }

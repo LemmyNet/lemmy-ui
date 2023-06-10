@@ -51,17 +51,17 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     // sample url:
     // http://localhost:8535/pictrs/image/file.png?thumbnail=256&format=jpg
 
-    let split = this.props.src.split("/pictrs/image/");
+    const split = this.props.src.split("/pictrs/image/");
 
     // If theres not multiple, then its not a pictrs image
     if (split.length == 1) {
       return this.props.src;
     }
 
-    let host = split[0];
-    let path = split[1];
+    const host = split[0];
+    const path = split[1];
 
-    let params = { format };
+    const params = { format };
 
     if (this.props.thumbnail) {
       params["thumbnail"] = thumbnailSize;
@@ -69,8 +69,8 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
       params["thumbnail"] = iconThumbnailSize;
     }
 
-    let paramsStr = new URLSearchParams(params).toString();
-    let out = `${host}/pictrs/image/${path}?${paramsStr}`;
+    const paramsStr = new URLSearchParams(params).toString();
+    const out = `${host}/pictrs/image/${path}?${paramsStr}`;
 
     return out;
   }

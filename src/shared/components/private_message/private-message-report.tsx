@@ -20,9 +20,9 @@ export class PrivateMessageReport extends Component<Props, any> {
   }
 
   render() {
-    let r = this.props.report;
-    let pmr = r.private_message_report;
-    let tippyContent = i18n.t(
+    const r = this.props.report;
+    const pmr = r.private_message_report;
+    const tippyContent = i18n.t(
       r.private_message_report.resolved ? "unresolve_report" : "resolve_report"
     );
 
@@ -78,10 +78,10 @@ export class PrivateMessageReport extends Component<Props, any> {
   }
 
   handleResolveReport(i: PrivateMessageReport) {
-    let pmr = i.props.report.private_message_report;
-    let auth = myAuth();
+    const pmr = i.props.report.private_message_report;
+    const auth = myAuth();
     if (auth) {
-      let form: ResolvePrivateMessageReport = {
+      const form: ResolvePrivateMessageReport = {
         report_id: pmr.id,
         resolved: !pmr.resolved,
         auth,

@@ -10,11 +10,13 @@ interface LanguageSelectProps {
   allLanguages: Language[];
   siteLanguages: number[];
   selectedLanguageIds?: number[];
-  multiple: boolean;
+  multiple?: boolean;
   onChange(val: number[]): any;
   showAll?: boolean;
   showSite?: boolean;
   iconVersion?: boolean;
+  disabled?: boolean;
+  showLanguageWarning?: boolean;
 }
 
 export class LanguageSelect extends Component<LanguageSelectProps, any> {
@@ -30,12 +32,12 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
   // Necessary because there is no HTML way to set selected for multiple in value=
   setSelectedValues() {
-    let ids = this.props.selectedLanguageIds?.map(toString);
+    const ids = this.props.selectedLanguageIds?.map(toString);
     if (ids) {
-      let select = (document.getElementById(this.id) as HTMLSelectElement)
+      const select = (document.getElementById(this.id) as HTMLSelectElement)
         .options;
       for (let i = 0; i < select.length; i++) {
-        let o = select[i];
+        const o = select[i];
         if (ids.includes(o.value)) {
           o.selected = true;
         }
@@ -48,24 +50,26 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
       this.selectBtn
     ) : (
       <div>
-        <div className="alert alert-warning" role="alert">
-          {i18n.t("undetermined_language_warning")}
-        </div>
+        {this.props.multiple && this.props.showLanguageWarning && (
+          <div className="alert alert-warning" role="alert">
+            {i18n.t("undetermined_language_warning")}
+          </div>
+        )}
         <div className="form-group row">
           <label
-            className={classNames("col-form-label", {
-              "col-sm-3": this.props.multiple,
-              "col-sm-2": !this.props.multiple,
-            })}
+            className={classNames(
+              "col-form-label",
+              `col-sm-${this.props.multiple ? 3 : 2}`
+            )}
             htmlFor={this.id}
           >
             {i18n.t(this.props.multiple ? "language_plural" : "language")}
           </label>
           <div
-            className={classNames("input-group", {
-              "col-sm-9": this.props.multiple,
-              "col-sm-10": !this.props.multiple,
-            })}
+            className={classNames(
+              "input-group",
+              `col-sm-${this.props.multiple ? 9 : 10}`
+            )}
           >
             {this.selectBtn}
             {this.props.multiple && (
@@ -85,8 +89,8 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
   }
 
   get selectBtn() {
-    let selectedLangs = this.props.selectedLanguageIds;
-    let filteredLangs = selectableLanguages(
+    const selectedLangs = this.props.selectedLanguageIds;
+    const filteredLangs = selectableLanguages(
       this.props.allLanguages,
       this.props.siteLanguages,
       this.props.showAll,
@@ -96,14 +100,17 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
     return (
       <select
-        className={classNames("lang-select-action", {
-          "form-control custom-select": !this.props.iconVersion,
-          "btn btn-sm text-muted": this.props.iconVersion,
-        })}
+        className={classNames(
+          "lang-select-action",
+          this.props.iconVersion
+            ? "btn btn-sm text-muted"
+            : "form-control custom-select"
+        )}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
-        aria-label="action"
+        aria-label={i18n.t("language_select_placeholder")}
         multiple={this.props.multiple}
+        disabled={this.props.disabled}
       >
         {!this.props.multiple && (
           <option selected disabled hidden>
@@ -124,8 +131,8 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
   }
 
   handleLanguageChange(i: LanguageSelect, event: any) {
-    let options: HTMLOptionElement[] = Array.from(event.target.options);
-    let selected: number[] = options
+    const options: HTMLOptionElement[] = Array.from(event.target.options);
+    const selected: number[] = options
       .filter(o => o.selected)
       .map(o => Number(o.value));
 

@@ -6,8 +6,6 @@ import {
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
-  SortType,
-  SubscribedType,
   UserOperation,
   wsJsonToRes,
   wsUserOp,
@@ -17,8 +15,10 @@ import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
 import { WebSocketService } from "../../services";
 import {
-  getListingTypeFromPropsNoDefault,
-  getPageFromProps,
+  QueryParams,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
   isBrowser,
   myAuth,
   numToSI,
@@ -38,16 +38,52 @@ const communityLimit = 50;
 
 interface CommunitiesState {
   listCommunitiesResponse?: ListCommunitiesResponse;
-  page: number;
   loading: boolean;
   siteRes: GetSiteResponse;
   searchText: string;
-  listingType: ListingType;
 }
 
 interface CommunitiesProps {
-  listingType?: ListingType;
-  page?: number;
+  listingType: ListingType;
+  page: number;
+}
+
+function getCommunitiesQueryParams() {
+  return getQueryParams<CommunitiesProps>({
+    listingType: getListingTypeFromQuery,
+    page: getPageFromString,
+  });
+}
+
+function getListingTypeFromQuery(listingType?: string): ListingType {
+  return listingType ? (listingType as ListingType) : "Local";
+}
+
+function toggleSubscribe(community_id: number, follow: boolean) {
+  const auth = myAuth();
+  if (auth) {
+    const form: FollowCommunity = {
+      community_id,
+      follow,
+      auth,
+    };
+
+    WebSocketService.Instance.send(wsClient.followCommunity(form));
+  }
+}
+
+function refetch() {
+  const { listingType, page } = getCommunitiesQueryParams();
+
+  const listCommunitiesForm: ListCommunities = {
+    type_: listingType,
+    sort: "TopMonth",
+    limit: communityLimit,
+    page,
+    auth: myAuth(false),
+  };
+
+  WebSocketService.Instance.send(wsClient.listCommunities(listCommunitiesForm));
 }
 
 export class Communities extends Component<any, CommunitiesState> {
@@ -55,8 +91,6 @@ export class Communities extends Component<any, CommunitiesState> {
   private isoData = setIsoData(this.context);
   state: CommunitiesState = {
     loading: true,
-    page: getPageFromProps(this.props),
-    listingType: getListingTypeFromPropsNoDefault(this.props),
     siteRes: this.isoData.site_res,
     searchText: "",
   };
@@ -70,38 +104,21 @@ export class Communities extends Component<any, CommunitiesState> {
     this.subscription = wsSubscribe(this.parseMessage);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
-      let listRes = this.isoData.routeData[0] as ListCommunitiesResponse;
+    if (this.isoData.path === this.context.router.route.match.url) {
+      const listRes = this.isoData.routeData[0] as ListCommunitiesResponse;
       this.state = {
         ...this.state,
         listCommunitiesResponse: listRes,
         loading: false,
       };
     } else {
-      this.refetch();
+      refetch();
     }
   }
 
   componentWillUnmount() {
     if (isBrowser()) {
       this.subscription?.unsubscribe();
-    }
-  }
-
-  static getDerivedStateFromProps(props: any): CommunitiesProps {
-    return {
-      listingType: getListingTypeFromPropsNoDefault(props),
-      page: getPageFromProps(props),
-    };
-  }
-
-  componentDidUpdate(_: any, lastState: CommunitiesState) {
-    if (
-      lastState.page !== this.state.page ||
-      lastState.listingType !== this.state.listingType
-    ) {
-      this.setState({ loading: true });
-      this.refetch();
     }
   }
 
@@ -112,6 +129,8 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   render() {
+    const { listingType, page } = getCommunitiesQueryParams();
+
     return (
       <div className="container-lg">
         <HtmlTags
@@ -129,7 +148,7 @@ export class Communities extends Component<any, CommunitiesState> {
                 <h4>{i18n.t("list_of_communities")}</h4>
                 <span className="mb-2">
                   <ListingTypeSelect
-                    type_={this.state.listingType}
+                    type_={listingType}
                     showLocal={showLocal(this.isoData)}
                     showSubscribed
                     onChange={this.handleListingTypeChange}
@@ -181,7 +200,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         {numToSI(cv.counts.comments)}
                       </td>
                       <td className="text-right">
-                        {cv.subscribed == SubscribedType.Subscribed && (
+                        {cv.subscribed == "Subscribed" && (
                           <button
                             className="btn btn-link d-inline-block"
                             onClick={linkEvent(
@@ -192,7 +211,7 @@ export class Communities extends Component<any, CommunitiesState> {
                             {i18n.t("unsubscribe")}
                           </button>
                         )}
-                        {cv.subscribed == SubscribedType.NotSubscribed && (
+                        {cv.subscribed === "NotSubscribed" && (
                           <button
                             className="btn btn-link d-inline-block"
                             onClick={linkEvent(
@@ -203,7 +222,7 @@ export class Communities extends Component<any, CommunitiesState> {
                             {i18n.t("subscribe")}
                           </button>
                         )}
-                        {cv.subscribed == SubscribedType.Pending && (
+                        {cv.subscribed === "Pending" && (
                           <div className="text-warning d-inline-block">
                             {i18n.t("subscribe_pending")}
                           </div>
@@ -214,10 +233,7 @@ export class Communities extends Component<any, CommunitiesState> {
                 </tbody>
               </table>
             </div>
-            <Paginator
-              page={this.state.page}
-              onChange={this.handlePageChange}
-            />
+            <Paginator page={page} onChange={this.handlePageChange} />
           </div>
         )}
       </div>
@@ -250,12 +266,18 @@ export class Communities extends Component<any, CommunitiesState> {
     );
   }
 
-  updateUrl(paramUpdates: CommunitiesProps) {
-    const page = paramUpdates.page || this.state.page;
-    const listingTypeStr = paramUpdates.listingType || this.state.listingType;
-    this.props.history.push(
-      `/communities/listing_type/${listingTypeStr}/page/${page}`
-    );
+  updateUrl({ listingType, page }: Partial<CommunitiesProps>) {
+    const { listingType: urlListingType, page: urlPage } =
+      getCommunitiesQueryParams();
+
+    const queryParams: QueryParams<CommunitiesProps> = {
+      listingType: listingType ?? urlListingType,
+      page: (page ?? urlPage)?.toString(),
+    };
+
+    this.props.history.push(`/communities${getQueryString(queryParams)}`);
+
+    refetch();
   }
 
   handlePageChange(page: number) {
@@ -270,27 +292,11 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   handleUnsubscribe(communityId: number) {
-    let auth = myAuth();
-    if (auth) {
-      let form: FollowCommunity = {
-        community_id: communityId,
-        follow: false,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.followCommunity(form));
-    }
+    toggleSubscribe(communityId, false);
   }
 
   handleSubscribe(communityId: number) {
-    let auth = myAuth();
-    if (auth) {
-      let form: FollowCommunity = {
-        community_id: communityId,
-        follow: true,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.followCommunity(form));
-    }
+    toggleSubscribe(communityId, true);
   }
 
   handleSearchChange(i: Communities, event: any) {
@@ -299,61 +305,50 @@ export class Communities extends Component<any, CommunitiesState> {
 
   handleSearchSubmit(i: Communities) {
     const searchParamEncoded = encodeURIComponent(i.state.searchText);
-    i.context.router.history.push(
-      `/search/q/${searchParamEncoded}/type/Communities/sort/TopAll/listing_type/All/community_id/0/creator_id/0/page/1`
-    );
+    i.context.router.history.push(`/search?q=${searchParamEncoded}`);
   }
 
-  refetch() {
-    let listCommunitiesForm: ListCommunities = {
-      type_: this.state.listingType,
-      sort: SortType.TopMonth,
+  static fetchInitialData({
+    query: { listingType, page },
+    client,
+    auth,
+  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<any>[] {
+    const listCommunitiesForm: ListCommunities = {
+      type_: getListingTypeFromQuery(listingType),
+      sort: "TopMonth",
       limit: communityLimit,
-      page: this.state.page,
-      auth: myAuth(false),
+      page: getPageFromString(page),
+      auth: auth,
     };
 
-    WebSocketService.Instance.send(
-      wsClient.listCommunities(listCommunitiesForm)
-    );
-  }
-
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let pathSplit = req.path.split("/");
-    let type_: ListingType = pathSplit[3]
-      ? ListingType[pathSplit[3]]
-      : ListingType.Local;
-    let page = pathSplit[5] ? Number(pathSplit[5]) : 1;
-    let listCommunitiesForm: ListCommunities = {
-      type_,
-      sort: SortType.TopMonth,
-      limit: communityLimit,
-      page,
-      auth: req.auth,
-    };
-
-    return [req.client.listCommunities(listCommunitiesForm)];
+    return [client.listCommunities(listCommunitiesForm)];
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
-      return;
-    } else if (op == UserOperation.ListCommunities) {
-      let data = wsJsonToRes<ListCommunitiesResponse>(msg);
+    } else if (op === UserOperation.ListCommunities) {
+      const data = wsJsonToRes<ListCommunitiesResponse>(msg);
       this.setState({ listCommunitiesResponse: data, loading: false });
       window.scrollTo(0, 0);
-    } else if (op == UserOperation.FollowCommunity) {
-      let data = wsJsonToRes<CommunityResponse>(msg);
-      let res = this.state.listCommunitiesResponse;
-      let found = res?.communities.find(
-        c => c.community.id == data.community_view.community.id
+    } else if (op === UserOperation.FollowCommunity) {
+      const {
+        community_view: {
+          community,
+          subscribed,
+          counts: { subscribers },
+        },
+      } = wsJsonToRes<CommunityResponse>(msg);
+      const res = this.state.listCommunitiesResponse;
+      const found = res?.communities.find(
+        ({ community: { id } }) => id == community.id
       );
+
       if (found) {
-        found.subscribed = data.community_view.subscribed;
-        found.counts.subscribers = data.community_view.counts.subscribers;
+        found.subscribed = subscribed;
+        found.counts.subscribers = subscribers;
         this.setState(this.state);
       }
     }

@@ -1,3 +1,4 @@
+import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
   BlockCommunity,
@@ -6,13 +7,11 @@ import {
   BlockPersonResponse,
   ChangePassword,
   CommunityBlockView,
-  CommunityView,
   DeleteAccount,
   GetSiteResponse,
   ListingType,
   LoginResponse,
   PersonBlockView,
-  PersonViewSafe,
   SaveUserSettings,
   SortType,
   UserOperation,
@@ -23,20 +22,18 @@ import { Subscription } from "rxjs";
 import { i18n, languages } from "../../i18next";
 import { UserService, WebSocketService } from "../../services";
 import {
+  Choice,
   capitalizeFirstLetter,
-  choicesConfig,
-  communitySelectName,
   communityToChoice,
   debounce,
   elementUrl,
+  emDash,
   enableNsfw,
   fetchCommunities,
   fetchThemeList,
   fetchUsers,
   getLanguages,
-  isBrowser,
   myAuth,
-  personSelectName,
   personToChoice,
   relTags,
   setIsoData,
@@ -55,22 +52,19 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import { SearchableSelect } from "../common/searchable-select";
 import { SortSelect } from "../common/sort-select";
+import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
-
-var Choices: any;
-if (isBrowser()) {
-  Choices = require("choices.js");
-}
 
 interface SettingsState {
   // TODO redo these forms
   saveUserSettingsForm: {
     show_nsfw?: boolean;
     theme?: string;
-    default_sort_type?: number;
-    default_listing_type?: number;
+    default_sort_type?: SortType;
+    default_listing_type?: ListingType;
     interface_language?: string;
     avatar?: string;
     banner?: string;
@@ -86,6 +80,7 @@ interface SettingsState {
     show_read_posts?: boolean;
     show_new_post_notifs?: boolean;
     discussion_languages?: number[];
+    generate_totp_2fa?: boolean;
   };
   changePasswordForm: {
     new_password?: string;
@@ -96,10 +91,7 @@ interface SettingsState {
     password?: string;
   };
   personBlocks: PersonBlockView[];
-  blockPerson?: PersonViewSafe;
   communityBlocks: CommunityBlockView[];
-  blockCommunityId: number;
-  blockCommunity?: CommunityView;
   currentTab: string;
   themeList: string[];
   saveUserSettingsLoading: boolean;
@@ -107,12 +99,50 @@ interface SettingsState {
   deleteAccountLoading: boolean;
   deleteAccountShowConfirm: boolean;
   siteRes: GetSiteResponse;
+  searchCommunityLoading: boolean;
+  searchCommunityOptions: Choice[];
+  searchPersonLoading: boolean;
+  searchPersonOptions: Choice[];
 }
+
+type FilterType = "user" | "community";
+
+const Filter = ({
+  filterType,
+  options,
+  onChange,
+  onSearch,
+  loading,
+}: {
+  filterType: FilterType;
+  options: Choice[];
+  onSearch: (text: string) => void;
+  onChange: (choice: Choice) => void;
+  loading: boolean;
+}) => (
+  <div className="form-group row">
+    <label
+      className="col-md-4 col-form-label"
+      htmlFor={`block-${filterType}-filter`}
+    >
+      {i18n.t(`block_${filterType}` as NoOptionI18nKeys)}
+    </label>
+    <div className="col-md-8">
+      <SearchableSelect
+        id={`block-${filterType}-filter`}
+        options={[
+          { label: emDash, value: "0", disabled: true } as Choice,
+        ].concat(options)}
+        loading={loading}
+        onChange={onChange}
+        onSearch={onSearch}
+      />
+    </div>
+  </div>
+);
 
 export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData(this.context);
-  private blockPersonChoices: any;
-  private blockCommunityChoices: any;
   private subscription?: Subscription;
   state: SettingsState = {
     saveUserSettingsForm: {},
@@ -124,10 +154,13 @@ export class Settings extends Component<any, SettingsState> {
     deleteAccountForm: {},
     personBlocks: [],
     communityBlocks: [],
-    blockCommunityId: 0,
     currentTab: "settings",
     siteRes: this.isoData.site_res,
     themeList: [],
+    searchCommunityLoading: false,
+    searchCommunityOptions: [],
+    searchPersonLoading: false,
+    searchPersonOptions: [],
   };
 
   constructor(props: any, context: any) {
@@ -144,39 +177,64 @@ export class Settings extends Component<any, SettingsState> {
 
     this.handleBannerUpload = this.handleBannerUpload.bind(this);
     this.handleBannerRemove = this.handleBannerRemove.bind(this);
+    this.userSettings = this.userSettings.bind(this);
+    this.blockCards = this.blockCards.bind(this);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
-      let luv = mui.local_user_view;
+      const {
+        local_user: {
+          show_nsfw,
+          theme,
+          default_sort_type,
+          default_listing_type,
+          interface_language,
+          show_avatars,
+          show_bot_accounts,
+          show_scores,
+          show_read_posts,
+          show_new_post_notifs,
+          send_notifications_to_email,
+          email,
+        },
+        person: {
+          avatar,
+          banner,
+          display_name,
+          bot_account,
+          bio,
+          matrix_user_id,
+        },
+      } = mui.local_user_view;
+
       this.state = {
         ...this.state,
         personBlocks: mui.person_blocks,
         communityBlocks: mui.community_blocks,
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
-          show_nsfw: luv.local_user.show_nsfw,
-          theme: luv.local_user.theme ? luv.local_user.theme : "browser",
-          default_sort_type: luv.local_user.default_sort_type,
-          default_listing_type: luv.local_user.default_listing_type,
-          interface_language: luv.local_user.interface_language,
+          show_nsfw,
+          theme: theme ?? "browser",
+          default_sort_type,
+          default_listing_type,
+          interface_language,
           discussion_languages: mui.discussion_languages,
-          avatar: luv.person.avatar,
-          banner: luv.person.banner,
-          display_name: luv.person.display_name,
-          show_avatars: luv.local_user.show_avatars,
-          bot_account: luv.person.bot_account,
-          show_bot_accounts: luv.local_user.show_bot_accounts,
-          show_scores: luv.local_user.show_scores,
-          show_read_posts: luv.local_user.show_read_posts,
-          show_new_post_notifs: luv.local_user.show_new_post_notifs,
-          email: luv.local_user.email,
-          bio: luv.person.bio,
-          send_notifications_to_email:
-            luv.local_user.send_notifications_to_email,
-          matrix_user_id: luv.person.matrix_user_id,
+          avatar,
+          banner,
+          display_name,
+          show_avatars,
+          bot_account,
+          show_bot_accounts,
+          show_scores,
+          show_read_posts,
+          show_new_post_notifs,
+          email,
+          bio,
+          send_notifications_to_email,
+          matrix_user_id,
         },
       };
     }
@@ -198,44 +256,26 @@ export class Settings extends Component<any, SettingsState> {
   render() {
     return (
       <div className="container-lg">
-        <>
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-            description={this.documentTitle}
-            image={this.state.saveUserSettingsForm.avatar}
-          />
-          <ul className="nav nav-tabs mb-2">
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "settings" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "settings" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("settings")}
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link btn ${
-                  this.state.currentTab == "blocks" && "active"
-                }`}
-                onClick={linkEvent(
-                  { ctx: this, tab: "blocks" },
-                  this.handleSwitchTab
-                )}
-              >
-                {i18n.t("blocks")}
-              </button>
-            </li>
-          </ul>
-          {this.state.currentTab == "settings" && this.userSettings()}
-          {this.state.currentTab == "blocks" && this.blockCards()}
-        </>
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+          description={this.documentTitle}
+          image={this.state.saveUserSettingsForm.avatar}
+        />
+        <Tabs
+          tabs={[
+            {
+              key: "settings",
+              label: i18n.t("settings"),
+              getNode: this.userSettings,
+            },
+            {
+              key: "blocks",
+              label: i18n.t("blocks"),
+              getNode: this.blockCards,
+            },
+          ]}
+        />
       </div>
     );
   }
@@ -348,9 +388,17 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   blockUserCard() {
+    const { searchPersonLoading, searchPersonOptions } = this.state;
+
     return (
       <div>
-        {this.blockUserForm()}
+        <Filter
+          filterType="user"
+          loading={searchPersonLoading}
+          onChange={this.handleBlockPerson}
+          onSearch={this.handlePersonSearch}
+          options={searchPersonOptions}
+        />
         {this.blockedUsersList()}
       </div>
     );
@@ -383,38 +431,18 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  blockUserForm() {
-    let blockPerson = this.state.blockPerson;
-    return (
-      <div className="form-group row">
-        <label
-          className="col-md-4 col-form-label"
-          htmlFor="block-person-filter"
-        >
-          {i18n.t("block_user")}
-        </label>
-        <div className="col-md-8">
-          <select
-            className="form-control"
-            id="block-person-filter"
-            value={blockPerson?.person.id ?? 0}
-          >
-            <option value="0">—</option>
-            {blockPerson && (
-              <option value={blockPerson.person.id}>
-                {personSelectName(blockPerson)}
-              </option>
-            )}
-          </select>
-        </div>
-      </div>
-    );
-  }
-
   blockCommunityCard() {
+    const { searchCommunityLoading, searchCommunityOptions } = this.state;
+
     return (
       <div>
-        {this.blockCommunityForm()}
+        <Filter
+          filterType="community"
+          loading={searchCommunityLoading}
+          onChange={this.handleBlockCommunity}
+          onSearch={this.handleCommunitySearch}
+          options={searchCommunityOptions}
+        />
         {this.blockedCommunitiesList()}
       </div>
     );
@@ -447,35 +475,8 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  blockCommunityForm() {
-    return (
-      <div className="form-group row">
-        <label
-          className="col-md-4 col-form-label"
-          htmlFor="block-community-filter"
-        >
-          {i18n.t("block_community")}
-        </label>
-        <div className="col-md-8">
-          <select
-            className="form-control"
-            id="block-community-filter"
-            value={this.state.blockCommunityId}
-          >
-            <option value="0">—</option>
-            {this.state.blockCommunity && (
-              <option value={this.state.blockCommunity.community.id}>
-                {communitySelectName(this.state.blockCommunity)}
-              </option>
-            )}
-          </select>
-        </div>
-      </div>
-    );
-  }
-
   saveUserSettingsHtmlForm() {
-    let selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
+    const selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
 
     return (
       <>
@@ -603,6 +604,7 @@ export class Settings extends Component<any, SettingsState> {
             siteLanguages={this.state.siteRes.discussion_languages}
             selectedLanguageIds={selectedLangs}
             multiple={true}
+            showLanguageWarning={true}
             showSite
             onChange={this.handleDiscussionLanguageChange}
           />
@@ -634,9 +636,8 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={
-                  Object.values(ListingType)[
-                    this.state.saveUserSettingsForm.default_listing_type ?? 1
-                  ]
+                  this.state.saveUserSettingsForm.default_listing_type ??
+                  "Local"
                 }
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
@@ -649,9 +650,7 @@ export class Settings extends Component<any, SettingsState> {
             <div className="col-sm-9">
               <SortSelect
                 sort={
-                  Object.values(SortType)[
-                    this.state.saveUserSettingsForm.default_sort_type ?? 0
-                  ]
+                  this.state.saveUserSettingsForm.default_sort_type ?? "Active"
                 }
                 onChange={this.handleSortTypeChange}
               />
@@ -789,6 +788,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
+          {this.totpSection()}
           <div className="form-group">
             <button type="submit" className="btn btn-block btn-secondary mr-4">
               {this.state.saveUserSettingsLoading ? (
@@ -853,91 +853,109 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  setupBlockPersonChoices() {
-    if (isBrowser()) {
-      let selectId: any = document.getElementById("block-person-filter");
-      if (selectId) {
-        this.blockPersonChoices = new Choices(selectId, choicesConfig);
-        this.blockPersonChoices.passedElement.element.addEventListener(
-          "choice",
-          (e: any) => {
-            this.handleBlockPerson(Number(e.detail.choice.value));
-          },
-          false
-        );
-        this.blockPersonChoices.passedElement.element.addEventListener(
-          "search",
-          debounce(async (e: any) => {
-            try {
-              let persons = (await fetchUsers(e.detail.value)).users;
-              let choices = persons.map(pvs => personToChoice(pvs));
-              this.blockPersonChoices.setChoices(
-                choices,
-                "value",
-                "label",
-                true
-              );
-            } catch (err) {
-              console.error(err);
-            }
-          }),
-          false
-        );
-      }
-    }
+  totpSection() {
+    const totpUrl =
+      UserService.Instance.myUserInfo?.local_user_view.local_user.totp_2fa_url;
+
+    return (
+      <>
+        {!totpUrl && (
+          <div className="form-group">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-generate-totp"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.generate_totp_2fa}
+                onChange={linkEvent(this, this.handleGenerateTotp)}
+              />
+              <label className="form-check-label" htmlFor="user-generate-totp">
+                {i18n.t("set_up_two_factor")}
+              </label>
+            </div>
+          </div>
+        )}
+
+        {totpUrl && (
+          <>
+            <div>
+              <a className="btn btn-secondary mb-2" href={totpUrl}>
+                {i18n.t("two_factor_link")}
+              </a>
+            </div>
+            <div className="form-group">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  id="user-remove-totp"
+                  type="checkbox"
+                  checked={
+                    this.state.saveUserSettingsForm.generate_totp_2fa == false
+                  }
+                  onChange={linkEvent(this, this.handleRemoveTotp)}
+                />
+                <label className="form-check-label" htmlFor="user-remove-totp">
+                  {i18n.t("remove_two_factor")}
+                </label>
+              </div>
+            </div>
+          </>
+        )}
+      </>
+    );
   }
 
-  setupBlockCommunityChoices() {
-    if (isBrowser()) {
-      let selectId: any = document.getElementById("block-community-filter");
-      if (selectId) {
-        this.blockCommunityChoices = new Choices(selectId, choicesConfig);
-        this.blockCommunityChoices.passedElement.element.addEventListener(
-          "choice",
-          (e: any) => {
-            this.handleBlockCommunity(Number(e.detail.choice.value));
-          },
-          false
-        );
-        this.blockCommunityChoices.passedElement.element.addEventListener(
-          "search",
-          debounce(async (e: any) => {
-            try {
-              let communities = (await fetchCommunities(e.detail.value))
-                .communities;
-              let choices = communities.map(cv => communityToChoice(cv));
-              this.blockCommunityChoices.setChoices(
-                choices,
-                "value",
-                "label",
-                true
-              );
-            } catch (err) {
-              console.log(err);
-            }
-          }),
-          false
-        );
-      }
-    }
-  }
+  handlePersonSearch = debounce(async (text: string) => {
+    this.setState({ searchPersonLoading: true });
 
-  handleBlockPerson(personId: number) {
-    let auth = myAuth();
-    if (auth && personId != 0) {
-      let blockUserForm: BlockPerson = {
-        person_id: personId,
+    const searchPersonOptions: Choice[] = [];
+
+    if (text.length > 0) {
+      searchPersonOptions.push(
+        ...(await fetchUsers(text)).users.map(personToChoice)
+      );
+    }
+
+    this.setState({
+      searchPersonLoading: false,
+      searchPersonOptions,
+    });
+  });
+
+  handleCommunitySearch = debounce(async (text: string) => {
+    this.setState({ searchCommunityLoading: true });
+
+    const searchCommunityOptions: Choice[] = [];
+
+    if (text.length > 0) {
+      searchCommunityOptions.push(
+        ...(await fetchCommunities(text)).communities.map(communityToChoice)
+      );
+    }
+
+    this.setState({
+      searchCommunityLoading: false,
+      searchCommunityOptions,
+    });
+  });
+
+  handleBlockPerson({ value }: Choice) {
+    const auth = myAuth();
+    if (auth && value !== "0") {
+      const blockUserForm: BlockPerson = {
+        person_id: Number(value),
         block: true,
         auth,
       };
+
       WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
     }
   }
 
   handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let blockUserForm: BlockPerson = {
+      const blockUserForm: BlockPerson = {
         person_id: i.recipientId,
         block: false,
         auth,
@@ -946,11 +964,11 @@ export class Settings extends Component<any, SettingsState> {
     }
   }
 
-  handleBlockCommunity(community_id: number) {
-    let auth = myAuth();
-    if (auth && community_id != 0) {
-      let blockCommunityForm: BlockCommunity = {
-        community_id,
+  handleBlockCommunity({ value }: Choice) {
+    const auth = myAuth();
+    if (auth && value !== "0") {
+      const blockCommunityForm: BlockCommunity = {
+        community_id: Number(value),
         block: true,
         auth,
       };
@@ -961,9 +979,9 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let blockCommunityForm: BlockCommunity = {
+      const blockCommunityForm: BlockCommunity = {
         community_id: i.communityId,
         block: false,
         auth,
@@ -981,7 +999,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleShowAvatarsChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_avatars = event.target.checked;
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_avatars = event.target.checked;
     }
@@ -1010,10 +1028,27 @@ export class Settings extends Component<any, SettingsState> {
 
   handleShowScoresChange(i: Settings, event: any) {
     i.state.saveUserSettingsForm.show_scores = event.target.checked;
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_scores = event.target.checked;
     }
+    i.setState(i.state);
+  }
+
+  handleGenerateTotp(i: Settings, event: any) {
+    // Coerce false to undefined here, so it won't generate it.
+    const checked: boolean | undefined = event.target.checked || undefined;
+    if (checked) {
+      toast(i18n.t("two_factor_setup_instructions"));
+    }
+    i.state.saveUserSettingsForm.generate_totp_2fa = checked;
+    i.setState(i.state);
+  }
+
+  handleRemoveTotp(i: Settings, event: any) {
+    // Coerce true to undefined here, so it won't generate it.
+    const checked: boolean | undefined = !event.target.checked && undefined;
+    i.state.saveUserSettingsForm.generate_totp_2fa = checked;
     i.setState(i.state);
   }
 
@@ -1044,22 +1079,12 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleSortTypeChange(val: SortType) {
-    this.setState(
-      s => (
-        (s.saveUserSettingsForm.default_sort_type =
-          Object.keys(SortType).indexOf(val)),
-        s
-      )
-    );
+    this.setState(s => ((s.saveUserSettingsForm.default_sort_type = val), s));
   }
 
   handleListingTypeChange(val: ListingType) {
     this.setState(
-      s => (
-        (s.saveUserSettingsForm.default_listing_type =
-          Object.keys(ListingType).indexOf(val)),
-        s
-      )
+      s => ((s.saveUserSettingsForm.default_listing_type = val), s)
     );
   }
 
@@ -1125,9 +1150,9 @@ export class Settings extends Component<any, SettingsState> {
   handleSaveSettingsSubmit(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ saveUserSettingsLoading: true });
-    let auth = myAuth();
+    const auth = myAuth();
     if (auth) {
-      let form: SaveUserSettings = { ...i.state.saveUserSettingsForm, auth };
+      const form: SaveUserSettings = { ...i.state.saveUserSettingsForm, auth };
       WebSocketService.Instance.send(wsClient.saveUserSettings(form));
     }
   }
@@ -1135,13 +1160,13 @@ export class Settings extends Component<any, SettingsState> {
   handleChangePasswordSubmit(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ changePasswordLoading: true });
-    let auth = myAuth();
-    let pForm = i.state.changePasswordForm;
-    let new_password = pForm.new_password;
-    let new_password_verify = pForm.new_password_verify;
-    let old_password = pForm.old_password;
+    const auth = myAuth();
+    const pForm = i.state.changePasswordForm;
+    const new_password = pForm.new_password;
+    const new_password_verify = pForm.new_password_verify;
+    const old_password = pForm.old_password;
     if (auth && new_password && old_password && new_password_verify) {
-      let form: ChangePassword = {
+      const form: ChangePassword = {
         new_password,
         new_password_verify,
         old_password,
@@ -1165,10 +1190,10 @@ export class Settings extends Component<any, SettingsState> {
   handleDeleteAccount(i: Settings, event: any) {
     event.preventDefault();
     i.setState({ deleteAccountLoading: true });
-    let auth = myAuth();
-    let password = i.state.deleteAccountForm.password;
+    const auth = myAuth();
+    const password = i.state.deleteAccountForm.password;
     if (auth && password) {
-      let form: DeleteAccount = {
+      const form: DeleteAccount = {
         password,
         auth,
       };
@@ -1178,15 +1203,10 @@ export class Settings extends Component<any, SettingsState> {
 
   handleSwitchTab(i: { ctx: Settings; tab: string }) {
     i.ctx.setState({ currentTab: i.tab });
-
-    if (i.ctx.state.currentTab == "blocks") {
-      i.ctx.setupBlockPersonChoices();
-      i.ctx.setupBlockCommunityChoices();
-    }
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       this.setState({
@@ -1197,14 +1217,11 @@ export class Settings extends Component<any, SettingsState> {
       toast(i18n.t(msg.error), "danger");
       return;
     } else if (op == UserOperation.SaveUserSettings) {
-      let data = wsJsonToRes<LoginResponse>(msg);
-      UserService.Instance.login(data);
-      location.reload();
       this.setState({ saveUserSettingsLoading: false });
       toast(i18n.t("saved"));
       window.scrollTo(0, 0);
     } else if (op == UserOperation.ChangePassword) {
-      let data = wsJsonToRes<LoginResponse>(msg);
+      const data = wsJsonToRes<LoginResponse>(msg);
       UserService.Instance.login(data);
       this.setState({ changePasswordLoading: false });
       window.scrollTo(0, 0);
@@ -1217,16 +1234,16 @@ export class Settings extends Component<any, SettingsState> {
       UserService.Instance.logout();
       window.location.href = "/";
     } else if (op == UserOperation.BlockPerson) {
-      let data = wsJsonToRes<BlockPersonResponse>(msg);
+      const data = wsJsonToRes<BlockPersonResponse>(msg);
       updatePersonBlock(data);
-      let mui = UserService.Instance.myUserInfo;
+      const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
       }
     } else if (op == UserOperation.BlockCommunity) {
-      let data = wsJsonToRes<BlockCommunityResponse>(msg);
+      const data = wsJsonToRes<BlockCommunityResponse>(msg);
       updateCommunityBlock(data);
-      let mui = UserService.Instance.myUserInfo;
+      const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });
       }

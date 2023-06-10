@@ -59,11 +59,6 @@ export class RegistrationApplications extends Component<
 
     this.handlePageChange = this.handlePageChange.bind(this);
 
-    if (!UserService.Instance.myUserInfo && isBrowser()) {
-      toast(i18n.t("not_logged_in"), "danger");
-      this.context.router.history.push(`/login`);
-    }
-
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
 
@@ -91,7 +86,7 @@ export class RegistrationApplications extends Component<
   }
 
   get documentTitle(): string {
-    let mui = UserService.Instance.myUserInfo;
+    const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${i18n.t(
           "registration_applications"
@@ -169,7 +164,7 @@ export class RegistrationApplications extends Component<
   }
 
   applicationList() {
-    let res = this.state.listRegistrationApplicationsResponse;
+    const res = this.state.listRegistrationApplicationsResponse;
     return (
       res && (
         <div>
@@ -198,11 +193,11 @@ export class RegistrationApplications extends Component<
   }
 
   static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
-    let auth = req.auth;
+    const auth = req.auth;
     if (auth) {
-      let form: ListRegistrationApplications = {
+      const form: ListRegistrationApplications = {
         unread_only: true,
         page: 1,
         limit: fetchLimit,
@@ -215,10 +210,10 @@ export class RegistrationApplications extends Component<
   }
 
   refetch() {
-    let unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
-    let auth = myAuth();
+    const unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const auth = myAuth();
     if (auth) {
-      let form: ListRegistrationApplications = {
+      const form: ListRegistrationApplications = {
         unread_only: unread_only,
         page: this.state.page,
         limit: fetchLimit,
@@ -231,7 +226,7 @@ export class RegistrationApplications extends Component<
   }
 
   parseMessage(msg: any) {
-    let op = wsUserOp(msg);
+    const op = wsUserOp(msg);
     console.log(msg);
     if (msg.error) {
       toast(i18n.t(msg.error), "danger");
@@ -239,20 +234,20 @@ export class RegistrationApplications extends Component<
     } else if (msg.reconnect) {
       this.refetch();
     } else if (op == UserOperation.ListRegistrationApplications) {
-      let data = wsJsonToRes<ListRegistrationApplicationsResponse>(msg);
+      const data = wsJsonToRes<ListRegistrationApplicationsResponse>(msg);
       this.setState({
         listRegistrationApplicationsResponse: data,
         loading: false,
       });
       window.scrollTo(0, 0);
     } else if (op == UserOperation.ApproveRegistrationApplication) {
-      let data = wsJsonToRes<RegistrationApplicationResponse>(msg);
+      const data = wsJsonToRes<RegistrationApplicationResponse>(msg);
       updateRegistrationApplicationRes(
         data.registration_application,
         this.state.listRegistrationApplicationsResponse
           ?.registration_applications
       );
-      let uacs = UserService.Instance.unreadApplicationCountSub;
+      const uacs = UserService.Instance.unreadApplicationCountSub;
       // Minor bug, where if the application switches from deny to approve, the count will still go down
       uacs.next(uacs.getValue() - 1);
       this.setState(this.state);

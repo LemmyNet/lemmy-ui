@@ -1,6 +1,6 @@
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
-import { PersonViewSafe, Site, SiteAggregates } from "lemmy-js-client";
+import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { mdToHtml, numToSI } from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";
@@ -11,7 +11,7 @@ interface SiteSidebarProps {
   site: Site;
   showLocal: boolean;
   counts?: SiteAggregates;
-  admins?: PersonViewSafe[];
+  admins?: PersonView[];
   online?: number;
 }
 
@@ -67,7 +67,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteInfo() {
-    let site = this.props.site;
+    const site = this.props.site;
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}
@@ -84,7 +84,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     );
   }
 
-  admins(admins: PersonViewSafe[]) {
+  admins(admins: PersonView[]) {
     return (
       <ul className="mt-1 list-inline small mb-0">
         <li className="list-inline-item">{i18n.t("admins")}:</li>
@@ -98,8 +98,8 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   badges(siteAggregates: SiteAggregates) {
-    let counts = siteAggregates;
-    let online = this.props.online ?? 1;
+    const counts = siteAggregates;
+    const online = this.props.online ?? 1;
     return (
       <ul className="my-2 list-inline">
         <li className="list-inline-item badge badge-secondary">
@@ -111,12 +111,12 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_day", {
-            count: counts.users_active_day,
+            count: Number(counts.users_active_day),
             formattedCount: numToSI(counts.users_active_day),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_day,
+            count: Number(counts.users_active_day),
             formattedCount: numToSI(counts.users_active_day),
           })}{" "}
           / {i18n.t("day")}
@@ -124,12 +124,12 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_week", {
-            count: counts.users_active_week,
-            formattedCount: counts.users_active_week,
+            count: Number(counts.users_active_week),
+            formattedCount: numToSI(counts.users_active_week),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_week,
+            count: Number(counts.users_active_week),
             formattedCount: numToSI(counts.users_active_week),
           })}{" "}
           / {i18n.t("week")}
@@ -137,12 +137,12 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_month", {
-            count: counts.users_active_month,
-            formattedCount: counts.users_active_month,
+            count: Number(counts.users_active_month),
+            formattedCount: numToSI(counts.users_active_month),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_month,
+            count: Number(counts.users_active_month),
             formattedCount: numToSI(counts.users_active_month),
           })}{" "}
           / {i18n.t("month")}
@@ -150,37 +150,37 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-            count: counts.users_active_half_year,
-            formattedCount: counts.users_active_half_year,
+            count: Number(counts.users_active_half_year),
+            formattedCount: numToSI(counts.users_active_half_year),
           })}
         >
           {i18n.t("number_of_users", {
-            count: counts.users_active_half_year,
+            count: Number(counts.users_active_half_year),
             formattedCount: numToSI(counts.users_active_half_year),
           })}{" "}
           / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_users", {
-            count: counts.users,
+            count: Number(counts.users),
             formattedCount: numToSI(counts.users),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_communities", {
-            count: counts.communities,
+            count: Number(counts.communities),
             formattedCount: numToSI(counts.communities),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_posts", {
-            count: counts.posts,
+            count: Number(counts.posts),
             formattedCount: numToSI(counts.posts),
           })}
         </li>
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_comments", {
-            count: counts.comments,
+            count: Number(counts.comments),
             formattedCount: numToSI(counts.comments),
           })}
         </li>

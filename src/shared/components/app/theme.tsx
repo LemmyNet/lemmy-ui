@@ -8,8 +8,8 @@ interface Props {
 
 export class Theme extends Component<Props> {
   render() {
-    let user = UserService.Instance.myUserInfo;
-    let hasTheme = user?.local_user_view.local_user.theme !== "browser";
+    const user = UserService.Instance.myUserInfo;
+    const hasTheme = user?.local_user_view.local_user.theme !== "browser";
 
     if (user && hasTheme) {
       return (

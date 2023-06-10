@@ -5,7 +5,7 @@ import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { BehaviorSubject } from "rxjs";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";
-import { isBrowser, toast } from "../utils";
+import { isAuthPath, isBrowser, toast } from "../utils";
 
 interface Claims {
   sub: number;
@@ -34,11 +34,11 @@ export class UserService {
   }
 
   public login(res: LoginResponse) {
-    let expires = new Date();
+    const expires = new Date();
     expires.setDate(expires.getDate() + 365);
     if (res.jwt) {
       toast(i18n.t("logged_in"));
-      IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps });
+      IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps() });
       this.setJwtInfo();
     }
   }
@@ -48,15 +48,19 @@ export class UserService {
     this.myUserInfo = undefined;
     IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
     document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
-    location.reload();
+    if (isAuthPath(location.pathname)) {
+      location.replace("/");
+    } else {
+      location.reload();
+    }
   }
 
   public auth(throwErr = true): string | undefined {
-    let jwt = this.jwtInfo?.jwt;
+    const jwt = this.jwtInfo?.jwt;
     if (jwt) {
       return jwt;
     } else {
-      let msg = "No JWT cookie found";
+      const msg = "No JWT cookie found";
       if (throwErr && isBrowser()) {
         console.error(msg);
         toast(i18n.t("not_logged_in"), "danger");
@@ -67,7 +71,7 @@ export class UserService {
   }
 
   private setJwtInfo() {
-    let jwt: string | undefined = IsomorphicCookie.load("jwt");
+    const jwt: string | undefined = IsomorphicCookie.load("jwt");
 
     if (jwt) {
       this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
