@@ -435,28 +435,28 @@ export class MarkdownTextArea extends Component<
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
     if (event.ctrlKey) {
       switch (event.key) {
-        case "k": // Insert link
+        case "k":
           i.handleInsertLink(i, event);
           break;
-        case "b": // Insert bold
+        case "b":
           i.handleInsertBold(i, event);
           break;
-        case "i": // Insert italic
+        case "i":
           i.handleInsertItalic(i, event);
           break;
-        case "e": // Insert code
+        case "e":
           i.handleInsertCode(i, event);
           break;
-        case "8": // Insert unordered list
+        case "8":
           i.handleInsertList(i, event);
           break;
-        case "s": // Insert spoiler
+        case "s":
           i.handleInsertSpoiler(i, event);
           break;
-        case "p": // Move to preview view
+        case "p":
           if (i.state.content) i.handlePreviewToggle(i, event);
           break;
-        case ".": // Insert quote
+        case ".":
           i.handleInsertQuote(i, event);
           break;
       }
