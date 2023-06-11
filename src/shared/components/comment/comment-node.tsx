@@ -240,7 +240,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 aria-label={this.expandText}
                 data-tippy-content={this.expandText}
               >
-                <Icon icon={`${this.state.collapsed ? "plus" : "minus"}-square`} classes="icon-inline" />
+                <Icon
+                  icon={`${this.state.collapsed ? "plus" : "minus"}-square`}
+                  classes="icon-inline"
+                />
               </button>
               <span className="mr-2">
                 <PersonListing person={cv.creator} />
