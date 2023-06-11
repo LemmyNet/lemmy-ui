@@ -39,6 +39,7 @@ import Token from "markdown-it/lib/token";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
+import sanitizeHtml from "sanitize-html";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
@@ -1607,4 +1608,8 @@ export function share(shareData: ShareData) {
   if (isBrowser()) {
     navigator.share(shareData);
   }
+}
+
+export function sanitize(text: string) {
+  return sanitizeHtml(text).replace(/"/g, '\\"');
 }

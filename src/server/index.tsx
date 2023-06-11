@@ -9,7 +9,6 @@ import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp, Site } from "lemmy-js-client";
 import path from "path";
 import process from "process";
-import sanitize from "sanitize-html";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { App } from "../shared/components/app/app";
@@ -26,6 +25,7 @@ import {
   favIconUrl,
   initializeSite,
   isAuthPath,
+  sanitize,
 } from "../shared/utils";
 
 const server = express();
