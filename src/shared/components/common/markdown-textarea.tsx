@@ -211,7 +211,7 @@ export class MarkdownTextArea extends Component<
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}
               >
-                {i18n.t("preview")}
+                {this.state.previewMode ? i18n.t("edit") : i18n.t("preview")}
               </button>
             )}
             {/* A flex expander */}
