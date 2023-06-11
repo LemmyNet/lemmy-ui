@@ -57,7 +57,9 @@ export const favIconUrl = "/static/assets/icons/favicon.svg";
 export const favIconPngUrl = "/static/assets/icons/apple-touch-icon.png";
 // TODO
 // export const defaultFavIcon = `${window.location.protocol}//${window.location.host}${favIconPngUrl}`;
-export const repoUrl = "https://github.com/LemmyNet";
+export const githubOrgUrl = "https://github.com/LemmyNet";
+export const frontendRepoUrl = "https://github.com/LemmyNet/lemmy-ui";
+export const backendRepoUrl = "https://github.com/LemmyNet/lemmy";
 export const joinLemmyUrl = "https://join-lemmy.org";
 export const donateLemmyUrl = `${joinLemmyUrl}/donate`;
 export const docsUrl = `${joinLemmyUrl}/docs/en/index.html`;

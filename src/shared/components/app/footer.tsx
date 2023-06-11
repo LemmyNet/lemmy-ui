@@ -2,7 +2,7 @@ import { Component } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { docsUrl, joinLemmyUrl, repoUrl } from "../../utils";
+import { docsUrl, joinLemmyUrl, githubOrgUrl, frontendRepoUrl, backendRepoUrl } from "../../utils";
 import { VERSION } from "../../version";
 
 interface FooterProps {
@@ -21,11 +21,15 @@ export class Footer extends Component<FooterProps, any> {
           <ul className="navbar-nav ml-auto">
             {this.props.site?.version !== VERSION && (
               <li className="nav-item">
-                <span className="nav-link">UI: {VERSION}</span>
+                <a className="nav-link" href={frontendRepoUrl} target="_blank">
+                  UI: {VERSION}
+                </a>
               </li>
             )}
             <li className="nav-item">
-              <span className="nav-link">BE: {this.props.site?.version}</span>
+              <a className="nav-link" href={backendRepoUrl} target="_blank">
+                BE: {this.props.site?.version}
+              </a>
             </li>
             <li className="nav-item">
               <NavLink className="nav-link" to="/modlog">
@@ -47,17 +51,17 @@ export class Footer extends Component<FooterProps, any> {
               </li>
             )}
             <li className="nav-item">
-              <a className="nav-link" href={docsUrl}>
+              <a className="nav-link" href={docsUrl} target="_blank">
                 {i18n.t("docs")}
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href={repoUrl}>
+              <a className="nav-link" href={githubOrgUrl} target="_blank">
                 {i18n.t("code")}
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href={joinLemmyUrl}>
+              <a className="nav-link" href={joinLemmyUrl} target="_blank">
                 {i18n.t("join_lemmy")}
               </a>
             </li>
