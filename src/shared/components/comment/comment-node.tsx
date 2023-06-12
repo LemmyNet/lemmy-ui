@@ -537,15 +537,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <>
                           {!this.myComment && (
                             <>
-                              <button className="btn btn-link btn-animate">
-                                <Link
-                                  className="text-muted"
-                                  to={`/create_private_message/${cv.creator.id}`}
-                                  title={i18n.t("message").toLowerCase()}
-                                >
-                                  <Icon icon="mail" />
-                                </Link>
-                              </button>
+                              <Link
+                                className="btn btn-link btn-animate text-muted"
+                                to={`/create_private_message/${cv.creator.id}`}
+                                title={i18n.t("message").toLowerCase()}
+                              >
+                                <Icon icon="mail" />
+                              </Link>
                               <button
                                 className="btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(

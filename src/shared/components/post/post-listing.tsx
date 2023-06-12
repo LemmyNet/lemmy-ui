@@ -705,29 +705,27 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get commentsButton() {
     const post_view = this.postView;
     return (
-      <button className="btn btn-link text-muted py-0 pl-0">
-        <Link
-          className="text-muted"
-          title={i18n.t("number_of_comments", {
+      <Link
+        className="btn btn-link text-muted py-0 pl-0 text-muted"
+        title={i18n.t("number_of_comments", {
+          count: Number(post_view.counts.comments),
+          formattedCount: Number(post_view.counts.comments),
+        })}
+        to={`/post/${post_view.post.id}?scrollToComments=true`}
+      >
+        <Icon icon="message-square" classes="mr-1" inline />
+        <span className="mr-2">
+          {i18n.t("number_of_comments", {
             count: Number(post_view.counts.comments),
-            formattedCount: Number(post_view.counts.comments),
+            formattedCount: numToSI(post_view.counts.comments),
           })}
-          to={`/post/${post_view.post.id}?scrollToComments=true`}
-        >
-          <Icon icon="message-square" classes="mr-1" inline />
-          <span className="mr-2">
-            {i18n.t("number_of_comments", {
-              count: Number(post_view.counts.comments),
-              formattedCount: numToSI(post_view.counts.comments),
-            })}
+        </span>
+        {this.unreadCount && (
+          <span className="small text-warning">
+            ({this.unreadCount} {i18n.t("new")})
           </span>
-          {this.unreadCount && (
-            <span className="small text-warning">
-              ({this.unreadCount} {i18n.t("new")})
-            </span>
-          )}
-        </Link>
-      </button>
+        )}
+      </Link>
     );
   }
 
