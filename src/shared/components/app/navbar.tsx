@@ -217,20 +217,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             </li>
           </ul>
           <ul className="navbar-nav">
-            {!this.context.router.history.location.pathname.match(
-              /^\/search/
-            ) && (
-              <li className="nav-item">
-                <NavLink
-                  to="/search"
-                  className="nav-link"
-                  title={i18n.t("search")}
-                  onMouseUp={linkEvent(this, handleCollapseClick)}
-                >
-                  <Icon icon="search" />
-                </NavLink>
-              </li>
-            )}
+            <li className="nav-item">
+              <NavLink
+                to="/search"
+                className="nav-link"
+                title={i18n.t("search")}
+                onMouseUp={linkEvent(this, handleCollapseClick)}
+              >
+                <Icon icon="search" />
+              </NavLink>
+            </li>
             {amAdmin() && (
               <li className="nav-item">
                 <NavLink
