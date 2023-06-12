@@ -700,7 +700,7 @@ export function setupTribute() {
         trigger: "!",
         selectTemplate: (item: any) => {
           const it: CommunityTribute = item.original;
-          return `[${it.key}](${"/c/" + it.key.substring(1)})`;
+          return `${it.key}`;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await communitySearch(text));

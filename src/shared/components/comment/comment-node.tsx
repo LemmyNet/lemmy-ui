@@ -1095,13 +1095,33 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     );
   }
 
+  renderCommentContent(content: string): string {
+    /* 
+      Iterate through all the words in a comment and provide frontend support
+      for implementation-agnostic syntactic sugar standards
+    */
+    const words: string[] = []
+    content.split(" ").forEach(word => {
+      if (word.charAt(0) == "!") {
+        words.push(this.handleCommunityLinking(word))
+      } else {
+        words.push(word)
+      }
+    })
+    return words.join(" ")
+  }
+  
+  handleCommunityLinking(text: string): string {
+    return `[${text}](/c/${text.substring(1)})`
+  }
+
   get commentUnlessRemoved(): string {
     const comment = this.props.node.comment_view.comment;
     return comment.removed
       ? `*${i18n.t("removed")}*`
       : comment.deleted
       ? `*${i18n.t("deleted")}*`
-      : comment.content;
+      : this.renderCommentContent(comment.content);
   }
 
   handleReplyClick(i: CommentNode) {
