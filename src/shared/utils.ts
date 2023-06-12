@@ -39,7 +39,6 @@ import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
 import moment from "moment";
-import sanitize from "sanitize-html";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
@@ -206,12 +205,12 @@ export function hotRank(score: number, timeStr: string): number {
 
 export function mdToHtml(text: string) {
   // restore '>' character to fix quotes
-  return { __html: md.render(text.replace(/&gt;/g, ">")) };
+  return { __html: md.render(text) };
 }
 
 export function mdToHtmlNoImages(text: string) {
   // restore '>' character to fix quotes
-  return { __html: mdNoImages.render(text.replace(/&gt;/g, ">")) };
+  return { __html: mdNoImages.render(text) };
 }
 
 export function mdToHtmlInline(text: string) {
@@ -1492,12 +1491,4 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   } else {
     return myVote == -1 ? 0 : -1;
   }
-}
-
-export function sanitizeJson(unsanitized: any): string {
-  return JSON.stringify(
-    JSON.parse(sanitize(JSON.stringify(unsanitized)), (key, value) =>
-      key === "__proto__" ? undefined : value
-    )
-  );
 }

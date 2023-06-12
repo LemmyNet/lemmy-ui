@@ -26,7 +26,6 @@ import {
   favIconUrl,
   initializeSite,
   isAuthPath,
-  sanitizeJson,
 } from "../shared/utils";
 
 const server = express();
@@ -406,7 +405,7 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
   <!DOCTYPE html>
   <html ${helmet.htmlAttributes.toString()}>
   <head>
-  <script>window.isoData = ${sanitizeJson(isoData)}</script>
+  <script>window.isoData = ${serialize(isoData)}</script>
   <script>window.lemmyConfig = ${serialize(config)}</script>
 
   <!-- A remote debugging utility for mobile -->
