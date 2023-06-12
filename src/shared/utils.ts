@@ -206,16 +206,16 @@ export function hotRank(score: number, timeStr: string): number {
 
 export function mdToHtml(text: string) {
   // restore '>' character to fix quotes
-  return { __html: md.render(sanitize(text).replace(/&gt;/g, ">")) };
+  return { __html: md.render(text.replace(/&gt;/g, ">")) };
 }
 
 export function mdToHtmlNoImages(text: string) {
   // restore '>' character to fix quotes
-  return { __html: mdNoImages.render(sanitize(text).replace(/&gt;/g, ">")) };
+  return { __html: mdNoImages.render(text.replace(/&gt;/g, ">")) };
 }
 
 export function mdToHtmlInline(text: string) {
-  return { __html: md.renderInline(sanitize(text)) };
+  return { __html: md.renderInline(text) };
 }
 
 export function getUnixTime(text?: string): number | undefined {
@@ -1492,4 +1492,12 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   } else {
     return myVote == -1 ? 0 : -1;
   }
+}
+
+export function sanitizeJson(unsanitized: any): string {
+  return JSON.stringify(
+    JSON.parse(sanitize(JSON.stringify(unsanitized)), (key, value) =>
+      key === "__proto__" ? undefined : value
+    )
+  );
 }
