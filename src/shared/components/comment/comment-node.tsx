@@ -1102,7 +1102,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const words: string[] = []
     content.split(" ").forEach(word => {
       if (word.charAt(0) == "!") {
-        words.push(this.handleCommunityLinking(word))
+        words.push(this.renderCommunityLink(word))
       } else {
         words.push(word)
       }
@@ -1110,7 +1110,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return words.join(" ")
   }
   
-  handleCommunityLinking(text: string): string {
+  renderCommunityLink(text: string): string {
     return `[${text}](/c/${text.substring(1)})`
   }
 
