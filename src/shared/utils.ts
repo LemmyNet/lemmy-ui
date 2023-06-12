@@ -39,7 +39,6 @@ import Token from "markdown-it/lib/token";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
-import sanitize from "sanitize-html";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
@@ -208,12 +207,12 @@ export function hotRank(score: number, timeStr: string): number {
 
 export function mdToHtml(text: string) {
   // restore '>' character to fix quotes
-  return { __html: md.render(text.replace(/&gt;/g, ">")) };
+  return { __html: md.render(text) };
 }
 
 export function mdToHtmlNoImages(text: string) {
   // restore '>' character to fix quotes
-  return { __html: mdNoImages.render(text.replace(/&gt;/g, ">")) };
+  return { __html: mdNoImages.render(text) };
 }
 
 export function mdToHtmlInline(text: string) {
@@ -1608,12 +1607,4 @@ export function share(shareData: ShareData) {
   if (isBrowser()) {
     navigator.share(shareData);
   }
-}
-
-export function sanitizeJson(unsanitized: any): string {
-  return JSON.stringify(
-    JSON.parse(sanitize(JSON.stringify(unsanitized)), (key, value) =>
-      key === "__proto__" ? undefined : value
-    )
-  );
 }
