@@ -379,7 +379,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <>
                       <button
                         className={`btn btn-link btn-animate ${
-                          this.state.my_vote === 1 ? "text-danger" : "text-muted"
+                          this.state.my_vote === 1
+                            ? "text-danger"
+                            : "text-muted"
                         }`}
                         onClick={this.handleCommentUpvote}
                         data-tippy-content={i18n.t("upvote")}
