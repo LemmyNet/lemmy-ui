@@ -401,7 +401,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <div className={`vote-bar col-1 pr-0 small text-center`}>
         <button
           className={`btn-animate btn btn-link p-0 ${
-            this.state.my_vote === 1 ? "text-info" : "text-muted"
+            this.state.my_vote === 1 ? "text-danger" : "text-muted"
           }`}
           onClick={this.handlePostLike}
           data-tippy-content={i18n.t("upvote")}
@@ -423,7 +423,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.props.enableDownvotes && (
           <button
             className={`btn-animate btn btn-link p-0 ${
-              this.state.my_vote === -1 ? "text-danger" : "text-muted"
+              this.state.my_vote === -1 ? "text-info" : "text-muted"
             }`}
             onClick={this.handlePostDisLike}
             data-tippy-content={i18n.t("downvote")}
@@ -692,7 +692,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div>
           <button
             className={`btn-animate btn py-0 px-1 ${
-              this.state.my_vote === 1 ? "text-info" : "text-muted"
+              this.state.my_vote === 1 ? "text-danger" : "text-muted"
             }`}
             {...tippy}
             onClick={this.handlePostLike}
@@ -707,7 +707,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.props.enableDownvotes && (
             <button
               className={`ml-2 btn-animate btn py-0 px-1 ${
-                this.state.my_vote === -1 ? "text-danger" : "text-muted"
+                this.state.my_vote === -1 ? "text-info" : "text-muted"
               }`}
               onClick={this.handlePostDisLike}
               {...tippy}
