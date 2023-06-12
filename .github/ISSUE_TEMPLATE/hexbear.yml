@@ -1,6 +1,5 @@
 name: "Hexbear"
 description: For hexbear issues
-title: ""
 labels: ["hexbear", "triage"]
 body:
   - type: textarea
