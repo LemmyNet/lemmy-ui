@@ -2,7 +2,13 @@ import { Component } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { docsUrl, joinLemmyUrl, githubOrgUrl, frontendRepoUrl, backendRepoUrl } from "../../utils";
+import {
+  backendRepoUrl,
+  docsUrl,
+  frontendRepoUrl,
+  githubOrgUrl,
+  joinLemmyUrl,
+} from "../../utils";
 import { VERSION } from "../../version";
 
 interface FooterProps {
@@ -21,13 +27,23 @@ export class Footer extends Component<FooterProps, any> {
           <ul className="navbar-nav ml-auto">
             {this.props.site?.version !== VERSION && (
               <li className="nav-item">
-                <a className="nav-link" href={frontendRepoUrl} target="_blank" rel="noreferrer">
+                <a
+                  className="nav-link"
+                  href={frontendRepoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   UI: {VERSION}
                 </a>
               </li>
             )}
             <li className="nav-item">
-              <a className="nav-link" href={backendRepoUrl} target="_blank" rel="noreferrer">
+              <a
+                className="nav-link"
+                href={backendRepoUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
                 BE: {this.props.site?.version}
               </a>
             </li>
@@ -51,17 +67,32 @@ export class Footer extends Component<FooterProps, any> {
               </li>
             )}
             <li className="nav-item">
-              <a className="nav-link" href={docsUrl} target="_blank" rel="noreferrer">
+              <a
+                className="nav-link"
+                href={docsUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
                 {i18n.t("docs")}
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href={githubOrgUrl} target="_blank" rel="noreferrer">
+              <a
+                className="nav-link"
+                href={githubOrgUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
                 {i18n.t("code")}
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href={joinLemmyUrl} target="_blank" rel="noreferrer">
+              <a
+                className="nav-link"
+                href={joinLemmyUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
                 {i18n.t("join_lemmy")}
               </a>
             </li>
