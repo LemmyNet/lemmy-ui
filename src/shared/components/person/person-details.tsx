@@ -16,6 +16,7 @@ import {
   DeletePost,
   DistinguishComment,
   EditComment,
+  EditPost,
   FeaturePost,
   GetComments,
   GetPersonDetailsResponse,
@@ -73,6 +74,7 @@ interface PersonDetailsProps {
   onCommentReport(form: CreateCommentReport): void;
   onPurgePerson(form: PurgePerson): void;
   onPurgeComment(form: PurgeComment): void;
+  onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
   onLockPost(form: LockPost): void;
@@ -192,6 +194,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             enableNsfw={this.props.enableNsfw}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            onPostEdit={this.props.onPostEdit}
             onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
             onBlockPerson={this.props.onBlockPerson}
@@ -302,6 +305,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               enableNsfw={this.props.enableNsfw}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
+              onPostEdit={this.props.onPostEdit}
               onPostVote={this.props.onPostVote}
               onPostReport={this.props.onPostReport}
               onBlockPerson={this.props.onBlockPerson}

@@ -11,6 +11,7 @@ import {
   CreatePostLike,
   CreatePostReport,
   DeletePost,
+  EditPost,
   FeaturePost,
   Language,
   LockPost,
@@ -110,6 +111,7 @@ interface PostListingProps {
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
   viewOnly?: boolean;
+  onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
   onBlockPerson(form: BlockPerson): void;
@@ -1451,8 +1453,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   // The actual editing is done in the receive for post
-  handleEditPost() {
+  handleEditPost(form: EditPost) {
     this.setState({ showEdit: false });
+    this.props.onPostEdit(form);
   }
 
   handleShare(i: PostListing) {

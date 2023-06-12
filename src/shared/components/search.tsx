@@ -613,6 +613,7 @@ export class Search extends Component<any, SearchState> {
                   siteLanguages={this.state.siteRes.discussion_languages}
                   viewOnly
                   // All of these are unused, since its view only
+                  onPostEdit={() => {}}
                   onPostVote={() => {}}
                   onPostReport={() => {}}
                   onBlockPerson={() => {}}
@@ -762,6 +763,7 @@ export class Search extends Component<any, SearchState> {
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
                 // All of these are unused, since its view only
+                onPostEdit={() => {}}
                 onPostVote={() => {}}
                 onPostReport={() => {}}
                 onBlockPerson={() => {}}

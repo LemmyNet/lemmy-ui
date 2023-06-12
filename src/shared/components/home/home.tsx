@@ -22,6 +22,7 @@ import {
   DeletePost,
   DistinguishComment,
   EditComment,
+  EditPost,
   FeaturePost,
   GetComments,
   GetCommentsResponse,
@@ -215,6 +216,7 @@ export class Home extends Component<any, HomeState> {
     this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
+    this.handlePostEdit = this.handlePostEdit.bind(this);
     this.handlePostVote = this.handlePostVote.bind(this);
     this.handlePostReport = this.handlePostReport.bind(this);
     this.handleLockPost = this.handleLockPost.bind(this);
@@ -595,6 +597,7 @@ export class Home extends Component<any, HomeState> {
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               onBlockPerson={this.handleBlockPerson}
+              onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
               onLockPost={this.handleLockPost}
@@ -880,6 +883,11 @@ export class Home extends Component<any, HomeState> {
   async handleCommentVote(form: CreateCommentLike) {
     const voteRes = await HttpService.client.likeComment(form);
     this.findAndUpdateComment(voteRes);
+  }
+
+  async handlePostEdit(form: EditPost) {
+    const res = await HttpService.client.editPost(form);
+    this.findAndUpdatePost(res);
   }
 
   async handlePostVote(form: CreatePostLike) {

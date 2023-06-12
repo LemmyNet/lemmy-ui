@@ -25,6 +25,7 @@ import {
   DeletePost,
   DistinguishComment,
   EditComment,
+  EditPost,
   FeaturePost,
   GetPersonDetails,
   GetPersonDetailsResponse,
@@ -194,6 +195,7 @@ export class Profile extends Component<
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostVote = this.handlePostVote.bind(this);
+    this.handlePostEdit = this.handlePostEdit.bind(this);
     this.handlePostReport = this.handlePostReport.bind(this);
     this.handleLockPost = this.handleLockPost.bind(this);
     this.handleDeletePost = this.handleDeletePost.bind(this);
@@ -359,6 +361,7 @@ export class Profile extends Component<
                 onBanPerson={this.handleBanPerson}
                 onCreateComment={this.handleCreateComment}
                 onEditComment={this.handleEditComment}
+                onPostEdit={this.handlePostEdit}
                 onPostVote={this.handlePostVote}
                 onPostReport={this.handlePostReport}
                 onLockPost={this.handleLockPost}
@@ -883,6 +886,11 @@ export class Profile extends Component<
   async handlePostVote(form: CreatePostLike) {
     const voteRes = await HttpService.client.likePost(form);
     this.findAndUpdatePost(voteRes);
+  }
+
+  async handlePostEdit(form: EditPost) {
+    const res = await HttpService.client.editPost(form);
+    this.findAndUpdatePost(res);
   }
 
   async handleCommentReport(form: CreateCommentReport) {

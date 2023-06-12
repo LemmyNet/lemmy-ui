@@ -25,6 +25,7 @@ import {
   DistinguishComment,
   EditComment,
   EditCommunity,
+  EditPost,
   FeaturePost,
   FollowCommunity,
   GetComments,
@@ -182,6 +183,7 @@ export class Community extends Component<
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostVote = this.handlePostVote.bind(this);
+    this.handlePostEdit = this.handlePostEdit.bind(this);
     this.handlePostReport = this.handlePostReport.bind(this);
     this.handleLockPost = this.handleLockPost.bind(this);
     this.handleDeletePost = this.handleDeletePost.bind(this);
@@ -401,6 +403,7 @@ export class Community extends Component<
               allLanguages={site_res.all_languages}
               siteLanguages={site_res.discussion_languages}
               onBlockPerson={this.handleBlockPerson}
+              onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
               onLockPost={this.handleLockPost}
@@ -718,6 +721,11 @@ export class Community extends Component<
   async handleCommentVote(form: CreateCommentLike) {
     const voteRes = await HttpService.client.likeComment(form);
     this.findAndUpdateComment(voteRes);
+  }
+
+  async handlePostEdit(form: EditPost) {
+    const res = await HttpService.client.editPost(form);
+    this.findAndUpdatePost(res);
   }
 
   async handlePostVote(form: CreatePostLike) {

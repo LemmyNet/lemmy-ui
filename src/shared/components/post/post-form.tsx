@@ -283,6 +283,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   siteLanguages={this.props.siteLanguages}
                   viewOnly
                   // All of these are unused, since its view only
+                  onPostEdit={() => {}}
                   onPostVote={() => {}}
                   onPostReport={() => {}}
                   onBlockPerson={() => {}}
@@ -477,6 +478,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 siteLanguages={this.props.siteLanguages}
                 viewOnly
                 // All of these are unused, since its view only
+                onPostEdit={() => {}}
                 onPostVote={() => {}}
                 onPostReport={() => {}}
                 onBlockPerson={() => {}}
