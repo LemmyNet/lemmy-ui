@@ -1,8 +1,7 @@
 name: "\U0001F41E Bug Report"
-about: Create a report to help us improve lemmy-ui
-title: ""
-labels: bug
-assignees: ""
+description: Create a report to help us improve lemmy-ui
+title: "[Bug]: "
+labels: ["bug", "triage"]
 body:
   - type: markdown
     attributes:
