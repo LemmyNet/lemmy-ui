@@ -201,12 +201,12 @@ export class Setup extends Component<any, State> {
         registerRes: await HttpService.client.register(form),
       });
 
-      if (this.state.registerRes.state == "success") {
-        const data = this.state.registerRes.data;
+      if (i.state.registerRes.state == "success") {
+        const data = i.state.registerRes.data;
 
         UserService.Instance.login(data);
         if (UserService.Instance.jwtInfo) {
-          this.setState({ doneRegisteringUser: true });
+          i.setState({ doneRegisteringUser: true });
         }
       }
     }
@@ -215,10 +215,9 @@ export class Setup extends Component<any, State> {
   async handleCreateSite(form: CreateSite) {
     const createRes = await HttpService.client.createSite(form);
     if (createRes.state === "success") {
-      this.context.router.history.replace("/");
+      this.props.history.replace("/");
+      location.reload();
     }
-
-    return createRes;
   }
 
   handleRegisterUsernameChange(i: Setup, event: any) {

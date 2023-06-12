@@ -244,11 +244,6 @@ export class Home extends Component<any, HomeState> {
   }
 
   async componentDidMount() {
-    // This means it hasn't been set up yet
-    if (!this.state.siteRes.site_view.local_site.site_setup) {
-      this.context.router.history.replace("/setup");
-    }
-
     if (!this.state.isIsomorphic) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }

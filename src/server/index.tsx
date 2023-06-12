@@ -150,13 +150,16 @@ server.get("/*", async (req, res) => {
     }
 
     if (!auth && isAuthPath(path)) {
-      res.redirect("/login");
-      return;
+      return res.redirect("/login");
     }
 
     if (try_site.state === "success") {
       site = try_site.data;
       initializeSite(site);
+
+      if (path != "/setup" && !site.site_view.local_site.site_setup) {
+        return res.redirect("/setup");
+      }
 
       if (site) {
         const initialFetchReq: InitialFetchRequest = {

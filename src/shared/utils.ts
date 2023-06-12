@@ -1470,7 +1470,7 @@ export function getQueryString<T extends Record<string, string | undefined>>(
 }
 
 export function isAuthPath(pathname: string) {
-  return /create_.*|inbox|settings|setup|admin|reports|registration_applications/g.test(
+  return /create_.*|inbox|settings|admin|reports|registration_applications/g.test(
     pathname
   );
 }
