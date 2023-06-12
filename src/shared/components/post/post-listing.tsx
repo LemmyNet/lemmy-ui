@@ -1421,7 +1421,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.setState({ showEdit: false });
   }
 
-  // The actual editing is done in the recieve for post
+  // The actual editing is done in the receive for post
   handleEditPost() {
     this.setState({ showEdit: false });
   }
