@@ -1101,7 +1101,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     */
     const words: string[] = []
     content.split(" ").forEach(word => {
-      if (word.charAt(0) == "!") {
+      if (word.charAt(0) == "!" && word.substring(2).indexOf("@") != -1) {
+        // We start search for the asperand at index 2 to ensure that there is at least
+        // one character between "!" and "@" to denote a community name
         words.push(this.renderCommunityLink(word))
       } else {
         words.push(word)
