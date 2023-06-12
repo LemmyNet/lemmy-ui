@@ -38,8 +38,8 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
             "img-expanded slight-radius":
               !this.props.thumbnail && !this.props.icon,
             "img-blur": this.props.thumbnail && this.props.nsfw,
-            "rounded-circle img-icon mr-2": this.props.icon,
-            "ml-2 mb-0 rounded-circle avatar-overlay": this.props.iconOverlay,
+            "rounded-circle img-cover img-icon mr-2": this.props.icon,
+            "ml-2 mb-0 rounded-circle img-cover avatar-overlay": this.props.iconOverlay,
             "avatar-pushup": this.props.pushup,
           })}
         />
