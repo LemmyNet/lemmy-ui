@@ -120,6 +120,7 @@
     "typescript": "^5.0.4",
     "webpack-dev-server": "4.15.0"
   },
+  "packageManager": "yarn@1.22.19",
   "engines": {
     "node": ">=8.9.0"
   },
