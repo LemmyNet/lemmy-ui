@@ -270,6 +270,10 @@ hr {
   -ms-filter: blur(10px);
 }
 
+.img-cover {
+  object-fit: cover;
+}
+
 .img-expanded {
   max-height: 90vh;
 }

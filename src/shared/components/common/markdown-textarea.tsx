@@ -210,7 +210,7 @@ export class MarkdownTextArea extends Component<
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}
               >
-                {i18n.t("preview")}
+                {this.state.previewMode ? i18n.t("edit") : i18n.t("preview")}
               </button>
             )}
             {/* A flex expander */}
@@ -434,30 +434,45 @@ export class MarkdownTextArea extends Component<
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
     if (event.ctrlKey) {
       switch (event.key) {
-        case "k":
+        case "k": {
           i.handleInsertLink(i, event);
           break;
-        case "b":
+        }
+        case "Enter": {
+          if (!this.isDisabled) {
+            i.handleSubmit(i, event);
+          }
+
+          break;
+        }
+        case "b": {
           i.handleInsertBold(i, event);
           break;
-        case "i":
+        }
+        case "i": {
           i.handleInsertItalic(i, event);
           break;
-        case "e":
+        }
+        case "e": {
           i.handleInsertCode(i, event);
           break;
-        case "8":
+        }
+        case "8": {
           i.handleInsertList(i, event);
           break;
-        case "s":
+        }
+        case "s": {
           i.handleInsertSpoiler(i, event);
           break;
-        case "p":
+        }
+        case "p": {
           if (i.state.content) i.handlePreviewToggle(i, event);
           break;
-        case ".":
+        }
+        case ".": {
           i.handleInsertQuote(i, event);
           break;
+        }
       }
     }
   }

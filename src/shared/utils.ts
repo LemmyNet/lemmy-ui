@@ -204,13 +204,11 @@ export function hotRank(score: number, timeStr: string): number {
 }
 
 export function mdToHtml(text: string) {
-  // restore '>' character to fix quotes
-  return { __html: md.render(text.replace(/&gt;/g, ">")) };
+  return { __html: md.render(text) };
 }
 
 export function mdToHtmlNoImages(text: string) {
-  // restore '>' character to fix quotes
-  return { __html: mdNoImages.render(text.replace(/&gt;/g, ">")) };
+  return { __html: mdNoImages.render(text) };
 }
 
 export function mdToHtmlInline(text: string) {
