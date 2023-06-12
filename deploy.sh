@@ -4,8 +4,7 @@ set -e
 new_tag="$1"
 
 # Old deploy
-# sudo docker build . --tag dessalines/lemmy-ui:$new_tag
-# sudo docker push dessalines/lemmy-ui:$new_tag
+# sudo docker build . --tag dessalines/lemmy-ui:$new_tag --platform=linux/amd64 --push
 
 # Upgrade version
 yarn version --new-version $new_tag
