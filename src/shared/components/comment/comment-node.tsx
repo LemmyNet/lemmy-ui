@@ -240,7 +240,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 aria-label={this.expandText}
                 data-tippy-content={this.expandText}
               >
-                <Icon icon={`${this.state.collapsed ? "plus" : "minus"}-square`} classes="icon-inline" />
+                <Icon
+                  icon={`${this.state.collapsed ? "plus" : "minus"}-square`}
+                  classes="icon-inline"
+                />
               </button>
               <span className="mr-2">
                 <PersonListing person={cv.creator} />
@@ -376,7 +379,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <>
                       <button
                         className={`btn btn-link btn-animate ${
-                          this.state.my_vote === 1 ? "text-info" : "text-muted"
+                          this.state.my_vote === 1 ? "text-danger" : "text-muted"
                         }`}
                         onClick={this.handleCommentUpvote}
                         data-tippy-content={i18n.t("upvote")}
@@ -395,7 +398,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <button
                           className={`btn btn-link btn-animate ${
                             this.state.my_vote === -1
-                              ? "text-danger"
+                              ? "text-info"
                               : "text-muted"
                           }`}
                           onClick={this.handleCommentDownvote}
@@ -1562,9 +1565,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get scoreColor() {
     if (this.state.my_vote == 1) {
-      return "text-info";
-    } else if (this.state.my_vote == -1) {
       return "text-danger";
+    } else if (this.state.my_vote == -1) {
+      return "text-info";
     } else {
       return "text-muted";
     }
