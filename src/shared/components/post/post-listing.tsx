@@ -11,7 +11,6 @@ import {
   CreatePostLike,
   CreatePostReport,
   DeletePost,
-  EditPost,
   FeaturePost,
   Language,
   LockPost,
@@ -27,7 +26,6 @@ import { getExternalHost, getHttpBase } from "../../env";
 import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { UserService } from "../../services";
-import { HttpService } from "../../services/HttpService";
 import {
   amAdmin,
   amCommunityCreator,
@@ -1452,14 +1450,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.setState({ showEdit: false });
   }
 
-  async handleEditPost(form: EditPost) {
-    const res = await HttpService.client.editPost(form);
-
-    if (res.state === "success") {
-      this.setState({ showEdit: false });
-    }
-
-    return res;
+  // The actual editing is done in the receive for post
+  handleEditPost() {
+    this.setState({ showEdit: false });
   }
 
   handleShare(i: PostListing) {
