@@ -39,6 +39,7 @@ import Token from "markdown-it/lib/token";
 import moment from "moment";
 import { Subscription } from "rxjs";
 import { delay, retryWhen, take } from "rxjs/operators";
+import sanitize from "sanitize-html";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
@@ -207,16 +208,16 @@ export function hotRank(score: number, timeStr: string): number {
 
 export function mdToHtml(text: string) {
   // restore '>' character to fix quotes
-  return { __html: md.render(text.split("&gt;").join(">")) };
+  return { __html: md.render(sanitize(text).replace(/&gt;/g, ">")) };
 }
 
 export function mdToHtmlNoImages(text: string) {
   // restore '>' character to fix quotes
-  return { __html: mdNoImages.render(text.split("&gt;").join(">")) };
+  return { __html: mdNoImages.render(sanitize(text).replace(/&gt;/g, ">")) };
 }
 
 export function mdToHtmlInline(text: string) {
-  return { __html: md.renderInline(text) };
+  return { __html: md.renderInline(sanitize(text)) };
 }
 
 export function getUnixTime(text?: string): number | undefined {
