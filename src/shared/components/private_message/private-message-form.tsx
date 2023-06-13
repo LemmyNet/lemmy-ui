@@ -1,6 +1,5 @@
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { Prompt } from "inferno-router";
 import {
   CreatePrivateMessage,
   EditPrivateMessage,
@@ -26,6 +25,7 @@ import {
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import NavigationPrompt from "../common/navigation-prompt";
 import { PersonListing } from "../person/person-listing";
 
 interface PrivateMessageFormProps {
@@ -91,10 +91,7 @@ export class PrivateMessageForm extends Component<
   render() {
     return (
       <div>
-        <Prompt
-          when={!this.state.loading && this.state.content}
-          message={i18n.t("block_leaving")}
-        />
+        <NavigationPrompt when={!this.state.loading && !!this.state.content} />
         <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
           {!this.props.privateMessageView && (
             <div className="form-group row">

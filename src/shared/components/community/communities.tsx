@@ -11,8 +11,8 @@ import {
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
+import { InitialFetchRequest } from "../../interfaces";
 import { WebSocketService } from "../../services";
 import {
   QueryParams,
