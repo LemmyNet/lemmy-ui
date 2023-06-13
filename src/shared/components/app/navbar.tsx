@@ -30,19 +30,16 @@ interface NavbarState {
   unreadInboxCountRes: RequestState<GetUnreadCountResponse>;
   unreadReportCountRes: RequestState<GetReportCountResponse>;
   unreadApplicationCountRes: RequestState<GetUnreadRegistrationApplicationCountResponse>;
-  expanded: boolean;
-  showDropdown: boolean;
   onSiteBanner?(url: string): any;
 }
 
 function handleCollapseClick(i: Navbar) {
-  if (i.collapseButtonRef.current?.ariaExpanded === "true") {
-    i.collapseButtonRef.current?.click();
-  }
+  i.collapseButtonRef.current?.click();
 }
 
-function handleLogOut() {
+function handleLogOut(i: Navbar) {
   UserService.Instance.logout();
+  handleCollapseClick(i);
 }
 
 export class Navbar extends Component<NavbarProps, NavbarState> {
@@ -50,13 +47,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     unreadInboxCountRes: { state: "empty" },
     unreadReportCountRes: { state: "empty" },
     unreadApplicationCountRes: { state: "empty" },
-    expanded: false,
-    showDropdown: false,
   };
   collapseButtonRef = createRef<HTMLButtonElement>();
+  mobileMenuRef = createRef<HTMLDivElement>();
 
   constructor(props: any, context: any) {
     super(props, context);
+
+    this.handleOutsideMenuClick = this.handleOutsideMenuClick.bind(this);
   }
 
   async componentDidMount() {
@@ -66,7 +64,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.requestNotificationPermission();
       await this.fetchUnreads();
       this.requestNotificationPermission();
+
+      document.addEventListener("click", this.handleOutsideMenuClick);
     }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("click", this.handleOutsideMenuClick);
   }
 
   render() {
@@ -165,7 +169,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         >
           <Icon icon="menu" />
         </button>
-        <div className="collapse navbar-collapse my-2" id="navbarDropdown">
+        <div
+          className="collapse navbar-collapse my-2"
+          id="navbarDropdown"
+          ref={this.mobileMenuRef}
+        >
           <ul className="mr-auto navbar-nav">
             <li className="nav-item">
               <NavLink
@@ -344,7 +352,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       <li>
                         <button
                           className="dropdown-item btn btn-link px-2"
-                          onClick={handleLogOut}
+                          onClick={linkEvent(this, handleLogOut)}
                         >
                           <Icon icon="log-out" classes="mr-1" />
                           {i18n.t("logout")}
@@ -384,27 +392,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     );
   }
 
+  handleOutsideMenuClick(event: MouseEvent) {
+    if (!this.mobileMenuRef.current?.contains(event.target as Node | null)) {
+      handleCollapseClick(this);
+    }
+  }
+
   get moderatesSomething(): boolean {
     const mods = UserService.Instance.myUserInfo?.moderates;
     const moderatesS = (mods && mods.length > 0) || false;
     return amAdmin() || moderatesS;
-  }
-
-  handleToggleExpandNavbar(i: Navbar) {
-    i.setState({ expanded: !i.state.expanded });
-  }
-
-  handleHideExpandNavbar(i: Navbar) {
-    i.setState({ expanded: false, showDropdown: false });
-  }
-
-  handleLogoutClick(i: Navbar) {
-    i.setState({ showDropdown: false, expanded: false });
-    UserService.Instance.logout();
-  }
-
-  handleToggleDropdown(i: Navbar) {
-    i.setState({ showDropdown: !i.state.showDropdown });
   }
 
   async fetchUnreads() {
