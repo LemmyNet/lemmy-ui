@@ -4,7 +4,6 @@ import {
   InfernoMouseEvent,
   linkEvent,
 } from "inferno";
-import { Prompt } from "inferno-router";
 import {
   CreateSite,
   EditSite,
@@ -25,6 +24,7 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import NavigationPrompt from "../common/navigation-prompt";
 
 interface SiteFormProps {
   siteRes: GetSiteResponse;
@@ -152,16 +152,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     const siteSetup = this.props.siteRes.site_view.local_site.site_setup;
     return (
       <>
-        <Prompt
+        <NavigationPrompt
           when={
             !this.state.loading &&
             !siteSetup &&
-            (this.state.siteForm.name ||
+            !!(
+              this.state.siteForm.name ||
               this.state.siteForm.sidebar ||
               this.state.siteForm.application_question ||
-              this.state.siteForm.description)
+              this.state.siteForm.description
+            )
           }
-          message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handleCreateSiteSubmit)}>
           <h5>{`${

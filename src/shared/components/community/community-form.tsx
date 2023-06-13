@@ -1,5 +1,4 @@
 import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
 import {
   CommunityResponse,
   CommunityView,
@@ -24,6 +23,7 @@ import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import NavigationPrompt from "../common/navigation-prompt";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
@@ -119,14 +119,15 @@ export class CommunityForm extends Component<
   render() {
     return (
       <>
-        <Prompt
+        <NavigationPrompt
           when={
             !this.state.loading &&
-            (this.state.form.name ||
+            !!(
+              this.state.form.name ||
               this.state.form.title ||
-              this.state.form.description)
+              this.state.form.description
+            )
           }
-          message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
           {!this.props.community_view && (

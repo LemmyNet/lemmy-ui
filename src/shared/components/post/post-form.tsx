@@ -1,6 +1,5 @@
 import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
 import {
   CreatePost,
   EditPost,
@@ -44,6 +43,7 @@ import {
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import NavigationPrompt from "../common/navigation-prompt";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 
@@ -192,14 +192,15 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     const url = this.state.form.url;
     return (
       <div>
-        <Prompt
+        <NavigationPrompt
           when={
             !this.state.loading &&
-            (this.state.form.name ||
+            !!(
+              this.state.form.name ||
               this.state.form.url ||
-              this.state.form.body)
+              this.state.form.body
+            )
           }
-          message={i18n.t("block_leaving")}
         />
         <form onSubmit={linkEvent(this, this.handlePostSubmit)}>
           <div className="form-group row">
