@@ -11,8 +11,8 @@ import {
   wsUserOp,
 } from "lemmy-js-client";
 import { Subscription } from "rxjs";
-import { CommentNodeI } from "shared/interfaces";
 import { i18n } from "../../i18next";
+import { CommentNodeI } from "../../interfaces";
 import { UserService, WebSocketService } from "../../services";
 import {
   capitalizeFirstLetter,
