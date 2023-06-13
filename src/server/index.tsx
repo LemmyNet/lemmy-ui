@@ -9,7 +9,6 @@ import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp, Site } from "lemmy-js-client";
 import path from "path";
 import process from "process";
-import sanitize from "sanitize-html";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { App } from "../shared/components/app/app";
@@ -346,9 +345,9 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
 
   return `
   <!DOCTYPE html>
-  <html ${helmet.htmlAttributes.toString()} lang="en">
+  <html ${helmet.htmlAttributes.toString()}>
   <head>
-  <script>window.isoData = ${sanitize(JSON.stringify(isoData))}</script>
+  <script>window.isoData = ${serialize(isoData)}</script>
   <script>window.lemmyConfig = ${serialize(config)}</script>
 
   <!-- A remote debugging utility for mobile -->
