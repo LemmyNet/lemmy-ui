@@ -46,13 +46,12 @@ interface NavbarState {
 }
 
 function handleCollapseClick(i: Navbar) {
-  if (i.collapseButtonRef.current?.ariaExpanded === "true") {
-    i.collapseButtonRef.current?.click();
-  }
+  i.collapseButtonRef.current?.click();
 }
 
-function handleLogOut() {
+function handleLogOut(i: Navbar) {
   UserService.Instance.logout();
+  handleCollapseClick(i);
 }
 
 export class Navbar extends Component<NavbarProps, NavbarState> {
@@ -68,12 +67,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   };
   subscription: any;
   collapseButtonRef = createRef<HTMLButtonElement>();
+  mobileMenuRef = createRef<HTMLDivElement>();
 
   constructor(props: any, context: any) {
     super(props, context);
 
     this.parseMessage = this.parseMessage.bind(this);
     this.subscription = wsSubscribe(this.parseMessage);
+    this.handleOutsideMenuClick = this.handleOutsideMenuClick.bind(this);
   }
 
   componentDidMount() {
@@ -109,6 +110,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         UserService.Instance.unreadApplicationCountSub.subscribe(res => {
           this.setState({ unreadApplicationCount: res });
         });
+
+      document.addEventListener("click", this.handleOutsideMenuClick);
     }
   }
 
@@ -118,6 +121,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     this.unreadInboxCountSub.unsubscribe();
     this.unreadReportCountSub.unsubscribe();
     this.unreadApplicationCountSub.unsubscribe();
+    document.removeEventListener("click", this.handleOutsideMenuClick);
   }
 
   // TODO class active corresponding to current page
@@ -212,7 +216,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         >
           <Icon icon="menu" />
         </button>
-        <div className="collapse navbar-collapse my-2" id="navbarDropdown">
+        <div
+          className="collapse navbar-collapse my-2"
+          id="navbarDropdown"
+          ref={this.mobileMenuRef}
+        >
           <ul className="mr-auto navbar-nav">
             <li className="nav-item">
               <NavLink
@@ -397,7 +405,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       <li>
                         <button
                           className="dropdown-item btn btn-link px-2"
-                          onClick={handleLogOut}
+                          onClick={linkEvent(this, handleLogOut)}
                         >
                           <Icon icon="log-out" classes="mr-1" />
                           {i18n.t("logout")}
@@ -435,6 +443,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         </div>
       </nav>
     );
+  }
+
+  handleOutsideMenuClick(event: MouseEvent) {
+    if (!this.mobileMenuRef.current?.contains(event.target as Node | null)) {
+      handleCollapseClick(this);
+    }
   }
 
   get moderatesSomething(): boolean {
