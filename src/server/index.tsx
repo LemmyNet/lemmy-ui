@@ -388,14 +388,15 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
         .then(buf => buf.toString("base64"))}`
     : favIconPngUrl;
 
-  const eruda = (
-    <>
-      <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-      <script>eruda.init();</script>
-    </>
-  );
-
-  const erudaStr = process.env["LEMMY_UI_DEBUG"] ? renderToString(eruda) : "";
+  const erudaStr =
+    process.env["LEMMY_UI_DEBUG"] === "true"
+      ? renderToString(
+          <>
+            <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+            <script>eruda.init();</script>
+          </>
+        )
+      : "";
 
   const helmet = Helmet.renderStatic();
 
