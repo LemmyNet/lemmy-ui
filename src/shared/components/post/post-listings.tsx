@@ -115,7 +115,7 @@ export class PostListings extends Component<PostListingsProps, any> {
 
   removeDuplicates(): PostView[] {
     // Must use a spread to clone the props, because splice will fail below otherwise.
-    const posts = [...this.props.posts];
+    const posts = [...this.props.posts].filter(empty => empty);
 
     // A map from post url to list of posts (dupes)
     const urlMap = new Map<string, PostView[]>();

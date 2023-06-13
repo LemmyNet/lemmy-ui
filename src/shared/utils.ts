@@ -1274,7 +1274,7 @@ export function initializeSite(site?: GetSiteResponse) {
   UserService.Instance.myUserInfo = site?.my_user;
   i18n.changeLanguage(getLanguages()[0]);
   if (site) {
-    setupEmojiDataModel(site.custom_emojis);
+    setupEmojiDataModel(site.custom_emojis ?? []);
   }
   setupMarkdown();
 }
