@@ -234,6 +234,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             })}
           >
             <div className="d-flex flex-wrap align-items-center text-muted small">
+              <button
+                className="btn btn-sm text-muted mr-2"
+                onClick={linkEvent(this, this.handleCommentCollapse)}
+                aria-label={this.expandText}
+                data-tippy-content={this.expandText}
+              >
+                <Icon
+                  icon={`${this.state.collapsed ? "plus" : "minus"}-square`}
+                  classes="icon-inline"
+                />
+              </button>
               <span className="mr-2">
                 <PersonListing person={cv.creator} />
               </span>
@@ -270,18 +281,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   </Link>
                 </>
               )}
-              <button
-                className="btn btn-sm text-muted"
-                onClick={linkEvent(this, this.handleCommentCollapse)}
-                aria-label={this.expandText}
-                data-tippy-content={this.expandText}
-              >
-                {this.state.collapsed ? (
-                  <Icon icon="plus-square" classes="icon-inline" />
-                ) : (
-                  <Icon icon="minus-square" classes="icon-inline" />
-                )}
-              </button>
               {this.linkBtn(true)}
               {cv.comment.language_id !== 0 && (
                 <span className="badge d-none d-sm-inline mr-2">
@@ -437,15 +436,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <>
                           {!this.myComment && (
                             <>
-                              <button className="btn btn-link btn-animate">
-                                <Link
-                                  className="text-muted"
-                                  to={`/create_private_message/${cv.creator.id}`}
-                                  title={i18n.t("message").toLowerCase()}
-                                >
-                                  <Icon icon="mail" />
-                                </Link>
-                              </button>
+                              <Link
+                                className="btn btn-link btn-animate text-muted"
+                                to={`/create_private_message/${cv.creator.id}`}
+                                title={i18n.t("message").toLowerCase()}
+                              >
+                                <Icon icon="mail" />
+                              </Link>
                               <button
                                 className="btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(
