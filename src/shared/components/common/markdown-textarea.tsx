@@ -137,7 +137,6 @@ export class MarkdownTextArea extends Component<
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
         <NavigationPrompt
           when={!!this.state.content && !this.state.submitted}
-          suppress={this.props.hideNavigationWarnings}
         />
         <div className="form-group row">
           <div className={`col-sm-12`}>

@@ -1,45 +1,53 @@
 import { Component } from "inferno";
-import { i18n } from "../../i18next";
-import { HistoryService } from "../../services/HistoryService";
+import { i18n } from "../../../shared/i18next";
 
-interface NavigationPromptProps {
+export interface IPromptProps {
   when: boolean;
-  suppress?: boolean;
 }
 
-interface NavigationPromptState {
-  promptState: "hidden" | "show" | "approved";
-}
+export default class NavigationPrompt extends Component<IPromptProps, any> {
+  public unblock;
 
-export default class NavigationPrompt extends Component<
-  NavigationPromptProps,
-  NavigationPromptState
-> {
-  state: NavigationPromptState = {
-    promptState: "hidden",
-  };
+  public enable() {
+    if (this.unblock) {
+      this.unblock();
+    }
 
-  constructor(props: NavigationPromptProps, context: any) {
-    super(props, context);
+    this.unblock = this.context.router.history.block(tx => {
+      if (window.confirm(i18n.t("block_leaving"))) {
+        this.unblock();
+        tx.retry();
+      }
+    });
   }
 
-  componentDidMount(): void {
-    if (!this.props.suppress) {
-      const unblock = HistoryService.history.block(tx => {
-        if (!this.props.when || window.confirm(i18n.t("block_leaving"))) {
-          unblock();
-
-          tx.retry();
-        }
-      });
+  public disable() {
+    if (this.unblock) {
+      this.unblock();
+      this.unblock = null;
+    }
+  }
+  public componentWillMount() {
+    if (this.props.when) {
+      this.enable();
     }
   }
 
-  componentWillUnmount(): void {
-    console.log("unmounted");
+  public componentWillReceiveProps(nextProps: IPromptProps) {
+    if (nextProps.when) {
+      if (!this.props.when) {
+        this.enable();
+      }
+    } else {
+      this.disable();
+    }
   }
 
-  render() {
+  public componentWillUnmount() {
+    this.disable();
+  }
+
+  public render() {
     return null;
   }
 }
