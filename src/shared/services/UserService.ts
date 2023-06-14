@@ -2,7 +2,6 @@
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
-import { BehaviorSubject } from "rxjs";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";
 import { isAuthPath, isBrowser, toast } from "../utils";
@@ -19,27 +18,21 @@ interface JwtInfo {
 }
 
 export class UserService {
-  private static _instance: UserService;
+  static #instance: UserService;
   public myUserInfo?: MyUserInfo;
   public jwtInfo?: JwtInfo;
-  public unreadInboxCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
-  public unreadReportCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
-  public unreadApplicationCountSub: BehaviorSubject<number> =
-    new BehaviorSubject<number>(0);
 
   private constructor() {
-    this.setJwtInfo();
+    this.#setJwtInfo();
   }
 
   public login(res: LoginResponse) {
-    let expires = new Date();
+    const expires = new Date();
     expires.setDate(expires.getDate() + 365);
     if (res.jwt) {
       toast(i18n.t("logged_in"));
       IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps() });
-      this.setJwtInfo();
+      this.#setJwtInfo();
     }
   }
 
@@ -55,12 +48,12 @@ export class UserService {
     }
   }
 
-  public auth(throwErr = true): string | undefined {
-    let jwt = this.jwtInfo?.jwt;
+  public auth(throwErr = false): string | undefined {
+    const jwt = this.jwtInfo?.jwt;
     if (jwt) {
       return jwt;
     } else {
-      let msg = "No JWT cookie found";
+      const msg = "No JWT cookie found";
       if (throwErr && isBrowser()) {
         console.error(msg);
         toast(i18n.t("not_logged_in"), "danger");
@@ -70,8 +63,8 @@ export class UserService {
     }
   }
 
-  private setJwtInfo() {
-    let jwt: string | undefined = IsomorphicCookie.load("jwt");
+  #setJwtInfo() {
+    const jwt: string | undefined = IsomorphicCookie.load("jwt");
 
     if (jwt) {
       this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
@@ -79,6 +72,6 @@ export class UserService {
   }
 
   public static get Instance() {
-    return this._instance || (this._instance = new this());
+    return this.#instance || (this.#instance = new this());
   }
 }

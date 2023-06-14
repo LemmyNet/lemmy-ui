@@ -1,8 +1,8 @@
 import { Component } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
-import { IsoDataOptionalSite } from "shared/interfaces";
 import { i18n } from "../../i18next";
+import { IsoDataOptionalSite } from "../../interfaces";
 import { routes } from "../../routes";
 import { isAuthPath, setIsoData } from "../../utils";
 import AuthGuard from "../common/auth-guard";

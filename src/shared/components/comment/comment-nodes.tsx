@@ -1,6 +1,30 @@
 import classNames from "classnames";
 import { Component } from "inferno";
-import { CommunityModeratorView, Language, PersonView } from "lemmy-js-client";
+import {
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanPerson,
+  BlockPerson,
+  CommentId,
+  CommunityModeratorView,
+  CreateComment,
+  CreateCommentLike,
+  CreateCommentReport,
+  DeleteComment,
+  DistinguishComment,
+  EditComment,
+  GetComments,
+  Language,
+  MarkCommentReplyAsRead,
+  MarkPersonMentionAsRead,
+  PersonView,
+  PurgeComment,
+  PurgePerson,
+  RemoveComment,
+  SaveComment,
+  TransferCommunity,
+} from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { colorList } from "../../utils";
 import { CommentNode } from "./comment-node";
@@ -24,6 +48,26 @@ interface CommentNodesProps {
   hideImages?: boolean;
   isChild?: boolean;
   depth?: number;
+  finished: Map<CommentId, boolean | undefined>;
+  onSaveComment(form: SaveComment): void;
+  onCommentReplyRead(form: MarkCommentReplyAsRead): void;
+  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
+  onCreateComment(form: EditComment | CreateComment): void;
+  onEditComment(form: EditComment | CreateComment): void;
+  onCommentVote(form: CreateCommentLike): void;
+  onBlockPerson(form: BlockPerson): void;
+  onDeleteComment(form: DeleteComment): void;
+  onRemoveComment(form: RemoveComment): void;
+  onDistinguishComment(form: DistinguishComment): void;
+  onAddModToCommunity(form: AddModToCommunity): void;
+  onAddAdmin(form: AddAdmin): void;
+  onBanPersonFromCommunity(form: BanFromCommunity): void;
+  onBanPerson(form: BanPerson): void;
+  onTransferCommunity(form: TransferCommunity): void;
+  onFetchChildren?(form: GetComments): void;
+  onCommentReport(form: CreateCommentReport): void;
+  onPurgePerson(form: PurgePerson): void;
+  onPurgeComment(form: PurgeComment): void;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -64,6 +108,26 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
+            onCommentReplyRead={this.props.onCommentReplyRead}
+            onPersonMentionRead={this.props.onPersonMentionRead}
+            finished={this.props.finished}
+            onCreateComment={this.props.onCreateComment}
+            onEditComment={this.props.onEditComment}
+            onCommentVote={this.props.onCommentVote}
+            onBlockPerson={this.props.onBlockPerson}
+            onSaveComment={this.props.onSaveComment}
+            onDeleteComment={this.props.onDeleteComment}
+            onRemoveComment={this.props.onRemoveComment}
+            onDistinguishComment={this.props.onDistinguishComment}
+            onAddModToCommunity={this.props.onAddModToCommunity}
+            onAddAdmin={this.props.onAddAdmin}
+            onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+            onBanPerson={this.props.onBanPerson}
+            onTransferCommunity={this.props.onTransferCommunity}
+            onFetchChildren={this.props.onFetchChildren}
+            onCommentReport={this.props.onCommentReport}
+            onPurgePerson={this.props.onPurgePerson}
+            onPurgeComment={this.props.onPurgeComment}
           />
         ))}
       </ul>

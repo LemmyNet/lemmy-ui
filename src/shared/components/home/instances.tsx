@@ -3,106 +3,113 @@ import {
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { WebSocketService } from "../../services";
-import {
-  isBrowser,
-  relTags,
-  setIsoData,
-  toast,
-  wsClient,
-  wsSubscribe,
-} from "../../utils";
+import { FirstLoadService } from "../../services/FirstLoadService";
+import { HttpService, RequestState } from "../../services/HttpService";
+import { relTags, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
+import { Spinner } from "../common/icon";
 
 interface InstancesState {
+  instancesRes: RequestState<GetFederatedInstancesResponse>;
   siteRes: GetSiteResponse;
-  instancesRes?: GetFederatedInstancesResponse;
-  loading: boolean;
+  isIsomorphic: boolean;
 }
 
 export class Instances extends Component<any, InstancesState> {
   private isoData = setIsoData(this.context);
   state: InstancesState = {
+    instancesRes: { state: "empty" },
     siteRes: this.isoData.site_res,
-    loading: true,
+    isIsomorphic: false,
   };
-  private subscription?: Subscription;
 
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
-        instancesRes: this.isoData
-          .routeData[0] as GetFederatedInstancesResponse,
-        loading: false,
+        instancesRes: this.isoData.routeData[0],
+        isIsomorphic: true,
       };
-    } else {
-      WebSocketService.Instance.send(wsClient.getFederatedInstances({}));
     }
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+  async componentDidMount() {
+    if (!this.state.isIsomorphic) {
+      await this.fetchInstances();
+    }
+  }
 
-    promises.push(req.client.getFederatedInstances({}));
+  async fetchInstances() {
+    this.setState({
+      instancesRes: { state: "loading" },
+    });
 
-    return promises;
+    this.setState({
+      instancesRes: await HttpService.client.getFederatedInstances({}),
+    });
+  }
+
+  static fetchInitialData(
+    req: InitialFetchRequest
+  ): Promise<RequestState<any>>[] {
+    return [req.client.getFederatedInstances({})];
   }
 
   get documentTitle(): string {
     return `${i18n.t("instances")} - ${this.state.siteRes.site_view.site.name}`;
   }
 
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
+  renderInstances() {
+    switch (this.state.instancesRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const instances = this.state.instancesRes.data.federated_instances;
+        return instances ? (
+          <div className="row">
+            <div className="col-md-6">
+              <h5>{i18n.t("linked_instances")}</h5>
+              {this.itemList(instances.linked)}
+            </div>
+            {instances.allowed && instances.allowed.length > 0 && (
+              <div className="col-md-6">
+                <h5>{i18n.t("allowed_instances")}</h5>
+                {this.itemList(instances.allowed)}
+              </div>
+            )}
+            {instances.blocked && instances.blocked.length > 0 && (
+              <div className="col-md-6">
+                <h5>{i18n.t("blocked_instances")}</h5>
+                {this.itemList(instances.blocked)}
+              </div>
+            )}
+          </div>
+        ) : (
+          <></>
+        );
+      }
     }
   }
 
   render() {
-    let federated_instances = this.state.instancesRes?.federated_instances;
-    return federated_instances ? (
+    return (
       <div className="container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
-          <div className="col-md-6">
-            <h5>{i18n.t("linked_instances")}</h5>
-            {this.itemList(federated_instances.linked)}
-          </div>
-          {federated_instances.allowed &&
-            federated_instances.allowed.length > 0 && (
-              <div className="col-md-6">
-                <h5>{i18n.t("allowed_instances")}</h5>
-                {this.itemList(federated_instances.allowed)}
-              </div>
-            )}
-          {federated_instances.blocked &&
-            federated_instances.blocked.length > 0 && (
-              <div className="col-md-6">
-                <h5>{i18n.t("blocked_instances")}</h5>
-                {this.itemList(federated_instances.blocked)}
-              </div>
-            )}
-        </div>
+        {this.renderInstances()}
       </div>
-    ) : (
-      <></>
     );
   }
 
@@ -135,18 +142,5 @@ export class Instances extends Component<any, InstancesState> {
     ) : (
       <div>{i18n.t("none_found")}</div>
     );
-  }
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.context.router.history.push("/");
-      this.setState({ loading: false });
-      return;
-    } else if (op == UserOperation.GetFederatedInstances) {
-      let data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
-      this.setState({ loading: false, instancesRes: data });
-    }
   }
 }

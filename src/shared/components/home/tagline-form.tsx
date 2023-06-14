@@ -1,19 +1,18 @@
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
-import { EditSite, GetSiteResponse } from "lemmy-js-client";
+import { EditSite, Tagline } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
-import { capitalizeFirstLetter, myAuth, wsClient } from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface TaglineFormProps {
-  siteRes: GetSiteResponse;
+  taglines: Array<Tagline>;
+  onSaveSite(form: EditSite): void;
 }
 
 interface TaglineFormState {
-  siteRes: GetSiteResponse;
-  siteForm: EditSite;
+  taglines: Array<string>;
   loading: boolean;
   editingRow?: number;
 }
@@ -21,12 +20,8 @@ interface TaglineFormState {
 export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
     loading: false,
-    siteRes: this.props.siteRes,
     editingRow: undefined,
-    siteForm: {
-      taglines: this.props.siteRes.taglines?.map(x => x.content),
-      auth: "TODO",
-    },
+    taglines: this.props.taglines.map(x => x.content),
   };
   constructor(props: any, context: any) {
     super(props, context);
@@ -54,7 +49,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               <th style="width:121px"></th>
             </thead>
             <tbody>
-              {this.state.siteForm.taglines?.map((cv, index) => (
+              {this.state.taglines.map((cv, index) => (
                 <tr key={index}>
                   <td>
                     {this.state.editingRow == index && (
@@ -64,8 +59,8 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                           this.handleTaglineChange(this, index, s)
                         }
                         hideNavigationWarnings
-                        allLanguages={this.state.siteRes.all_languages}
-                        siteLanguages={this.state.siteRes.discussion_languages}
+                        allLanguages={[]}
+                        siteLanguages={[]}
                       />
                     )}
                     {this.state.editingRow != index && <div>{cv}</div>}
@@ -74,7 +69,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                     <button
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(
-                        { form: this, index: index },
+                        { i: this, index: index },
                         this.handleEditTaglineClick
                       )}
                       data-tippy-content={i18n.t("edit")}
@@ -86,7 +81,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                     <button
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(
-                        { form: this, index: index },
+                        { i: this, index: index },
                         this.handleDeleteTaglineClick
                       )}
                       data-tippy-content={i18n.t("delete")}
@@ -131,46 +126,38 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   }
 
   handleTaglineChange(i: TaglineForm, index: number, val: string) {
-    let taglines = i.state.siteForm.taglines;
-    if (taglines) {
-      taglines[index] = val;
-      i.setState(i.state);
+    if (i.state.taglines) {
+      i.setState(prev => ({
+        ...prev,
+        taglines: prev.taglines.map((tl, i) => (i === index ? val : tl)),
+      }));
     }
   }
 
-  handleDeleteTaglineClick(
-    props: { form: TaglineForm; index: number },
-    event: any
-  ) {
+  handleDeleteTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
     event.preventDefault();
-    let taglines = props.form.state.siteForm.taglines;
-    if (taglines) {
-      taglines.splice(props.index, 1);
-      props.form.state.siteForm.taglines = undefined;
-      props.form.setState(props.form.state);
-      props.form.state.siteForm.taglines = taglines;
-      props.form.setState({ ...props.form.state, editingRow: undefined });
-    }
+    d.i.setState(prev => ({
+      ...prev,
+      taglines: prev.taglines.filter((_, i) => i !== d.index),
+      editingRow: undefined,
+    }));
   }
 
-  handleEditTaglineClick(
-    props: { form: TaglineForm; index: number },
-    event: any
-  ) {
+  handleEditTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
     event.preventDefault();
-    if (this.state.editingRow == props.index) {
-      props.form.setState({ editingRow: undefined });
+    if (this.state.editingRow == d.index) {
+      d.i.setState({ editingRow: undefined });
     } else {
-      props.form.setState({ editingRow: props.index });
+      d.i.setState({ editingRow: d.index });
     }
   }
 
-  handleSaveClick(i: TaglineForm) {
+  async handleSaveClick(i: TaglineForm) {
     i.setState({ loading: true });
-    let auth = myAuth() ?? "TODO";
-    i.setState(s => ((s.siteForm.auth = auth), s));
-    WebSocketService.Instance.send(wsClient.editSite(i.state.siteForm));
-    i.setState({ ...i.state, editingRow: undefined });
+    i.props.onSaveSite({
+      taglines: i.state.taglines,
+      auth: myAuthRequired(),
+    });
   }
 
   handleAddTaglineClick(
@@ -178,13 +165,12 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
-    if (!i.state.siteForm.taglines) {
-      i.state.siteForm.taglines = [];
-    }
-    i.state.siteForm.taglines.push("");
+    const newTaglines = [...i.state.taglines];
+    newTaglines.push("");
+
     i.setState({
-      ...i.state,
-      editingRow: i.state.siteForm.taglines.length - 1,
+      taglines: newTaglines,
+      editingRow: newTaglines.length - 1,
     });
   }
 }

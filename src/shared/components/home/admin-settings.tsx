@@ -1,30 +1,27 @@
-import autosize from "autosize";
 import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
-  GetBannedPersons,
+  CreateCustomEmoji,
+  DeleteCustomEmoji,
+  EditCustomEmoji,
+  EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   PersonView,
-  SiteResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { WebSocketService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   capitalizeFirstLetter,
-  isBrowser,
-  myAuth,
-  randomStr,
+  fetchThemeList,
+  myAuthRequired,
+  removeFromEmojiDataModel,
   setIsoData,
   showLocal,
   toast,
-  wsClient,
-  wsSubscribe,
+  updateEmojiDataModel,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -37,76 +34,92 @@ import { TaglineForm } from "./tagline-form";
 
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
-  instancesRes?: GetFederatedInstancesResponse;
   banned: PersonView[];
-  loading: boolean;
-  leaveAdminTeamLoading: boolean;
+  currentTab: string;
+  instancesRes: RequestState<GetFederatedInstancesResponse>;
+  bannedRes: RequestState<BannedPersonsResponse>;
+  leaveAdminTeamRes: RequestState<GetSiteResponse>;
+  themeList: string[];
+  isIsomorphic: boolean;
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
-  private siteConfigTextAreaId = `site-config-${randomStr()}`;
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     banned: [],
-    loading: true,
-    leaveAdminTeamLoading: false,
+    currentTab: "site",
+    bannedRes: { state: "empty" },
+    instancesRes: { state: "empty" },
+    leaveAdminTeamRes: { state: "empty" },
+    themeList: [],
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
+    this.handleEditSite = this.handleEditSite.bind(this);
+    this.handleEditEmoji = this.handleEditEmoji.bind(this);
+    this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
+    this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path == this.context.router.route.match.url) {
+    if (FirstLoadService.isFirstLoad) {
+      const [bannedRes, instancesRes] = this.isoData.routeData;
       this.state = {
         ...this.state,
-        banned: (this.isoData.routeData[0] as BannedPersonsResponse).banned,
-        instancesRes: this.isoData
-          .routeData[1] as GetFederatedInstancesResponse,
-        loading: false,
+        bannedRes,
+        instancesRes,
+        isIsomorphic: true,
       };
-    } else {
-      let cAuth = myAuth();
-      if (cAuth) {
-        WebSocketService.Instance.send(
-          wsClient.getBannedPersons({
-            auth: cAuth,
-          })
-        );
-        WebSocketService.Instance.send(
-          wsClient.getFederatedInstances({ auth: cAuth })
-        );
-      }
     }
   }
 
-  static fetchInitialData(req: InitialFetchRequest): Promise<any>[] {
-    let promises: Promise<any>[] = [];
+  async fetchData() {
+    this.setState({
+      bannedRes: { state: "loading" },
+      instancesRes: { state: "loading" },
+      themeList: [],
+    });
 
-    let auth = req.auth;
+    const auth = myAuthRequired();
+
+    const [bannedRes, instancesRes, themeList] = await Promise.all([
+      HttpService.client.getBannedPersons({ auth }),
+      HttpService.client.getFederatedInstances({ auth }),
+      fetchThemeList(),
+    ]);
+
+    this.setState({
+      bannedRes,
+      instancesRes,
+      themeList,
+    });
+  }
+
+  static fetchInitialData({
+    auth,
+    client,
+  }: InitialFetchRequest): Promise<any>[] {
+    const promises: Promise<RequestState<any>>[] = [];
+
     if (auth) {
-      let bannedPersonsForm: GetBannedPersons = { auth };
-      promises.push(req.client.getBannedPersons(bannedPersonsForm));
-      promises.push(req.client.getFederatedInstances({ auth }));
+      promises.push(client.getBannedPersons({ auth }));
+      promises.push(client.getFederatedInstances({ auth }));
+    } else {
+      promises.push(
+        Promise.resolve({ state: "empty" }),
+        Promise.resolve({ state: "empty" })
+      );
     }
 
     return promises;
   }
 
-  componentDidMount() {
-    if (isBrowser()) {
-      var textarea: any = document.getElementById(this.siteConfigTextAreaId);
-      autosize(textarea);
-    }
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
+  async componentDidMount() {
+    if (!this.state.isIsomorphic) {
+      await this.fetchData();
     }
   }
 
@@ -117,74 +130,80 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   render() {
+    const federationData =
+      this.state.instancesRes.state === "success"
+        ? this.state.instancesRes.data.federated_instances
+        : undefined;
+
     return (
       <div className="container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.state.loading ? (
-          <h5>
-            <Spinner large />
-          </h5>
-        ) : (
-          <Tabs
-            tabs={[
-              {
-                key: "site",
-                label: i18n.t("site"),
-                getNode: () => (
-                  <div className="row">
-                    <div className="col-12 col-md-6">
-                      <SiteForm
-                        siteRes={this.state.siteRes}
-                        instancesRes={this.state.instancesRes}
-                        showLocal={showLocal(this.isoData)}
-                      />
-                    </div>
-                    <div className="col-12 col-md-6">
-                      {this.admins()}
-                      {this.bannedUsers()}
-                    </div>
+        <Tabs
+          tabs={[
+            {
+              key: "site",
+              label: i18n.t("site"),
+              getNode: () => (
+                <div className="row">
+                  <div className="col-12 col-md-6">
+                    <SiteForm
+                      showLocal={showLocal(this.isoData)}
+                      allowedInstances={federationData?.allowed}
+                      blockedInstances={federationData?.blocked}
+                      onSaveSite={this.handleEditSite}
+                      siteRes={this.state.siteRes}
+                      themeList={this.state.themeList}
+                    />
                   </div>
-                ),
-              },
-              {
-                key: "rate_limiting",
-                label: "Rate Limiting",
-                getNode: () => (
-                  <RateLimitForm
-                    localSiteRateLimit={
-                      this.state.siteRes.site_view.local_site_rate_limit
-                    }
-                    applicationQuestion={
-                      this.state.siteRes.site_view.local_site
-                        .application_question
-                    }
+                  <div className="col-12 col-md-6">
+                    {this.admins()}
+                    {this.bannedUsers()}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: "rate_limiting",
+              label: "Rate Limiting",
+              getNode: () => (
+                <RateLimitForm
+                  rateLimits={
+                    this.state.siteRes.site_view.local_site_rate_limit
+                  }
+                  onSaveSite={this.handleEditSite}
+                />
+              ),
+            },
+            {
+              key: "taglines",
+              label: i18n.t("taglines"),
+              getNode: () => (
+                <div className="row">
+                  <TaglineForm
+                    taglines={this.state.siteRes.taglines}
+                    onSaveSite={this.handleEditSite}
                   />
-                ),
-              },
-              {
-                key: "taglines",
-                label: i18n.t("taglines"),
-                getNode: () => (
-                  <div className="row">
-                    <TaglineForm siteRes={this.state.siteRes} />
-                  </div>
-                ),
-              },
-              {
-                key: "emojis",
-                label: i18n.t("emojis"),
-                getNode: () => (
-                  <div className="row">
-                    <EmojiForm />
-                  </div>
-                ),
-              },
-            ]}
-          />
-        )}
+                </div>
+              ),
+            },
+            {
+              key: "emojis",
+              label: i18n.t("emojis"),
+              getNode: () => (
+                <div className="row">
+                  <EmojiForm
+                    onCreate={this.handleCreateEmoji}
+                    onDelete={this.handleDeleteEmoji}
+                    onEdit={this.handleEditEmoji}
+                  />
+                </div>
+              ),
+            },
+          ]}
+        />
       </div>
     );
   }
@@ -211,7 +230,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         onClick={linkEvent(this, this.handleLeaveAdminTeam)}
         className="btn btn-danger mb-2"
       >
-        {this.state.leaveAdminTeamLoading ? (
+        {this.state.leaveAdminTeamRes.state == "loading" ? (
           <Spinner />
         ) : (
           i18n.t("leave_admin_team")
@@ -221,52 +240,83 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   bannedUsers() {
-    return (
-      <>
-        <h5>{i18n.t("banned_users")}</h5>
-        <ul className="list-unstyled">
-          {this.state.banned.map(banned => (
-            <li key={banned.person.id} className="list-inline-item">
-              <PersonListing person={banned.person} />
-            </li>
-          ))}
-        </ul>
-      </>
-    );
-  }
-
-  handleLeaveAdminTeam(i: AdminSettings) {
-    let auth = myAuth();
-    if (auth) {
-      i.setState({ leaveAdminTeamLoading: true });
-      WebSocketService.Instance.send(wsClient.leaveAdmin({ auth }));
+    switch (this.state.bannedRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const bans = this.state.bannedRes.data.banned;
+        return (
+          <>
+            <h5>{i18n.t("banned_users")}</h5>
+            <ul className="list-unstyled">
+              {bans.map(banned => (
+                <li key={banned.person.id} className="list-inline-item">
+                  <PersonListing person={banned.person} />
+                </li>
+              ))}
+            </ul>
+          </>
+        );
+      }
     }
   }
 
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.context.router.history.push("/");
-      this.setState({ loading: false });
-      return;
-    } else if (op == UserOperation.EditSite) {
-      let data = wsJsonToRes<SiteResponse>(msg);
-      this.setState(s => ((s.siteRes.site_view = data.site_view), s));
+  async handleEditSite(form: EditSite) {
+    const editRes = await HttpService.client.editSite(form);
+
+    if (editRes.state === "success") {
+      this.setState(s => {
+        s.siteRes.site_view = editRes.data.site_view;
+        // TODO: Where to get taglines from?
+        s.siteRes.taglines = editRes.data.taglines;
+        return s;
+      });
       toast(i18n.t("site_saved"));
-    } else if (op == UserOperation.GetBannedPersons) {
-      let data = wsJsonToRes<BannedPersonsResponse>(msg);
-      this.setState({ banned: data.banned, loading: false });
-    } else if (op == UserOperation.LeaveAdmin) {
-      let data = wsJsonToRes<GetSiteResponse>(msg);
-      this.setState(s => ((s.siteRes.site_view = data.site_view), s));
-      this.setState({ leaveAdminTeamLoading: false });
+    }
+
+    return editRes;
+  }
+
+  handleSwitchTab(i: { ctx: AdminSettings; tab: string }) {
+    i.ctx.setState({ currentTab: i.tab });
+  }
+
+  async handleLeaveAdminTeam(i: AdminSettings) {
+    i.setState({ leaveAdminTeamRes: { state: "loading" } });
+    this.setState({
+      leaveAdminTeamRes: await HttpService.client.leaveAdmin({
+        auth: myAuthRequired(),
+      }),
+    });
+
+    if (this.state.leaveAdminTeamRes.state === "success") {
       toast(i18n.t("left_admin_team"));
-      this.context.router.history.push("/");
-    } else if (op == UserOperation.GetFederatedInstances) {
-      let data = wsJsonToRes<GetFederatedInstancesResponse>(msg);
-      this.setState({ instancesRes: data });
+      this.context.router.history.replace("/");
+    }
+  }
+
+  async handleEditEmoji(form: EditCustomEmoji) {
+    const res = await HttpService.client.editCustomEmoji(form);
+    if (res.state === "success") {
+      updateEmojiDataModel(res.data.custom_emoji);
+    }
+  }
+
+  async handleDeleteEmoji(form: DeleteCustomEmoji) {
+    const res = await HttpService.client.deleteCustomEmoji(form);
+    if (res.state === "success") {
+      removeFromEmojiDataModel(res.data.id);
+    }
+  }
+
+  async handleCreateEmoji(form: CreateCustomEmoji) {
+    const res = await HttpService.client.createCustomEmoji(form);
+    if (res.state === "success") {
+      updateEmojiDataModel(res.data.custom_emoji);
     }
   }
 }

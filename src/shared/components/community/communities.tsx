@@ -1,32 +1,26 @@
 import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
-  FollowCommunity,
   GetSiteResponse,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
-import { InitialFetchRequest } from "shared/interfaces";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
+import { InitialFetchRequest } from "../../interfaces";
+import { FirstLoadService } from "../../services/FirstLoadService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
+  editCommunity,
   getPageFromString,
   getQueryParams,
   getQueryString,
-  isBrowser,
   myAuth,
+  myAuthRequired,
   numToSI,
   setIsoData,
   showLocal,
-  toast,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -37,10 +31,10 @@ import { CommunityLink } from "./community-link";
 const communityLimit = 50;
 
 interface CommunitiesState {
-  listCommunitiesResponse?: ListCommunitiesResponse;
-  loading: boolean;
+  listCommunitiesResponse: RequestState<ListCommunitiesResponse>;
   siteRes: GetSiteResponse;
   searchText: string;
+  isIsomorphic: boolean;
 }
 
 interface CommunitiesProps {
@@ -48,51 +42,17 @@ interface CommunitiesProps {
   page: number;
 }
 
-function getCommunitiesQueryParams() {
-  return getQueryParams<CommunitiesProps>({
-    listingType: getListingTypeFromQuery,
-    page: getPageFromString,
-  });
-}
-
 function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : "Local";
 }
 
-function toggleSubscribe(community_id: number, follow: boolean) {
-  const auth = myAuth();
-  if (auth) {
-    const form: FollowCommunity = {
-      community_id,
-      follow,
-      auth,
-    };
-
-    WebSocketService.Instance.send(wsClient.followCommunity(form));
-  }
-}
-
-function refetch() {
-  const { listingType, page } = getCommunitiesQueryParams();
-
-  const listCommunitiesForm: ListCommunities = {
-    type_: listingType,
-    sort: "TopMonth",
-    limit: communityLimit,
-    page,
-    auth: myAuth(false),
-  };
-
-  WebSocketService.Instance.send(wsClient.listCommunities(listCommunitiesForm));
-}
-
 export class Communities extends Component<any, CommunitiesState> {
-  private subscription?: Subscription;
   private isoData = setIsoData(this.context);
   state: CommunitiesState = {
-    loading: true,
+    listCommunitiesResponse: { state: "empty" },
     siteRes: this.isoData.site_res,
     searchText: "",
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -100,25 +60,19 @@ export class Communities extends Component<any, CommunitiesState> {
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
     // Only fetch the data if coming from another route
-    if (this.isoData.path === this.context.router.route.match.url) {
-      const listRes = this.isoData.routeData[0] as ListCommunitiesResponse;
+    if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
-        listCommunitiesResponse: listRes,
-        loading: false,
+        listCommunitiesResponse: this.isoData.routeData[0],
+        isIsomorphic: true,
       };
-    } else {
-      refetch();
     }
   }
 
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
+  async componentDidMount() {
+    if (!this.state.isIsomorphic) {
+      await this.refetch();
     }
   }
 
@@ -128,20 +82,17 @@ export class Communities extends Component<any, CommunitiesState> {
     }`;
   }
 
-  render() {
-    const { listingType, page } = getCommunitiesQueryParams();
-
-    return (
-      <div className="container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
-        {this.state.loading ? (
+  renderListings() {
+    switch (this.state.listCommunitiesResponse.state) {
+      case "loading":
+        return (
           <h5>
             <Spinner large />
           </h5>
-        ) : (
+        );
+      case "success": {
+        const { listingType, page } = this.getCommunitiesQueryParams();
+        return (
           <div>
             <div className="row">
               <div className="col-md-6">
@@ -182,60 +133,82 @@ export class Communities extends Component<any, CommunitiesState> {
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.listCommunitiesResponse?.communities.map(cv => (
-                    <tr key={cv.community.id}>
-                      <td>
-                        <CommunityLink community={cv.community} />
-                      </td>
-                      <td className="text-right">
-                        {numToSI(cv.counts.subscribers)}
-                      </td>
-                      <td className="text-right">
-                        {numToSI(cv.counts.users_active_month)}
-                      </td>
-                      <td className="text-right d-none d-lg-table-cell">
-                        {numToSI(cv.counts.posts)}
-                      </td>
-                      <td className="text-right d-none d-lg-table-cell">
-                        {numToSI(cv.counts.comments)}
-                      </td>
-                      <td className="text-right">
-                        {cv.subscribed == "Subscribed" && (
-                          <button
-                            className="btn btn-link d-inline-block"
-                            onClick={linkEvent(
-                              cv.community.id,
-                              this.handleUnsubscribe
-                            )}
-                          >
-                            {i18n.t("unsubscribe")}
-                          </button>
-                        )}
-                        {cv.subscribed === "NotSubscribed" && (
-                          <button
-                            className="btn btn-link d-inline-block"
-                            onClick={linkEvent(
-                              cv.community.id,
-                              this.handleSubscribe
-                            )}
-                          >
-                            {i18n.t("subscribe")}
-                          </button>
-                        )}
-                        {cv.subscribed === "Pending" && (
-                          <div className="text-warning d-inline-block">
-                            {i18n.t("subscribe_pending")}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {this.state.listCommunitiesResponse.data.communities.map(
+                    cv => (
+                      <tr key={cv.community.id}>
+                        <td>
+                          <CommunityLink community={cv.community} />
+                        </td>
+                        <td className="text-right">
+                          {numToSI(cv.counts.subscribers)}
+                        </td>
+                        <td className="text-right">
+                          {numToSI(cv.counts.users_active_month)}
+                        </td>
+                        <td className="text-right d-none d-lg-table-cell">
+                          {numToSI(cv.counts.posts)}
+                        </td>
+                        <td className="text-right d-none d-lg-table-cell">
+                          {numToSI(cv.counts.comments)}
+                        </td>
+                        <td className="text-right">
+                          {cv.subscribed == "Subscribed" && (
+                            <button
+                              className="btn btn-link d-inline-block"
+                              onClick={linkEvent(
+                                {
+                                  i: this,
+                                  communityId: cv.community.id,
+                                  follow: false,
+                                },
+                                this.handleFollow
+                              )}
+                            >
+                              {i18n.t("unsubscribe")}
+                            </button>
+                          )}
+                          {cv.subscribed === "NotSubscribed" && (
+                            <button
+                              className="btn btn-link d-inline-block"
+                              onClick={linkEvent(
+                                {
+                                  i: this,
+                                  communityId: cv.community.id,
+                                  follow: true,
+                                },
+                                this.handleFollow
+                              )}
+                            >
+                              {i18n.t("subscribe")}
+                            </button>
+                          )}
+                          {cv.subscribed === "Pending" && (
+                            <div className="text-warning d-inline-block">
+                              {i18n.t("subscribe_pending")}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  )}
                 </tbody>
               </table>
             </div>
             <Paginator page={page} onChange={this.handlePageChange} />
           </div>
-        )}
+        );
+      }
+    }
+  }
+
+  render() {
+    return (
+      <div className="container-lg">
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
+        {this.renderListings()}
       </div>
     );
   }
@@ -266,9 +239,9 @@ export class Communities extends Component<any, CommunitiesState> {
     );
   }
 
-  updateUrl({ listingType, page }: Partial<CommunitiesProps>) {
+  async updateUrl({ listingType, page }: Partial<CommunitiesProps>) {
     const { listingType: urlListingType, page: urlPage } =
-      getCommunitiesQueryParams();
+      this.getCommunitiesQueryParams();
 
     const queryParams: QueryParams<CommunitiesProps> = {
       listingType: listingType ?? urlListingType,
@@ -277,7 +250,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
 
-    refetch();
+    await this.refetch();
   }
 
   handlePageChange(page: number) {
@@ -291,19 +264,12 @@ export class Communities extends Component<any, CommunitiesState> {
     });
   }
 
-  handleUnsubscribe(communityId: number) {
-    toggleSubscribe(communityId, false);
-  }
-
-  handleSubscribe(communityId: number) {
-    toggleSubscribe(communityId, true);
-  }
-
   handleSearchChange(i: Communities, event: any) {
     i.setState({ searchText: event.target.value });
   }
 
-  handleSearchSubmit(i: Communities) {
+  handleSearchSubmit(i: Communities, event: any) {
+    event.preventDefault();
     const searchParamEncoded = encodeURIComponent(i.state.searchText);
     i.context.router.history.push(`/search?q=${searchParamEncoded}`);
   }
@@ -312,7 +278,9 @@ export class Communities extends Component<any, CommunitiesState> {
     query: { listingType, page },
     client,
     auth,
-  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<
+    RequestState<any>
+  >[] {
     const listCommunitiesForm: ListCommunities = {
       type_: getListingTypeFromQuery(listingType),
       sort: "TopMonth",
@@ -324,33 +292,56 @@ export class Communities extends Component<any, CommunitiesState> {
     return [client.listCommunities(listCommunitiesForm)];
   }
 
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-    } else if (op === UserOperation.ListCommunities) {
-      const data = wsJsonToRes<ListCommunitiesResponse>(msg);
-      this.setState({ listCommunitiesResponse: data, loading: false });
-      window.scrollTo(0, 0);
-    } else if (op === UserOperation.FollowCommunity) {
-      const {
-        community_view: {
-          community,
-          subscribed,
-          counts: { subscribers },
-        },
-      } = wsJsonToRes<CommunityResponse>(msg);
-      const res = this.state.listCommunitiesResponse;
-      const found = res?.communities.find(
-        ({ community: { id } }) => id == community.id
-      );
+  getCommunitiesQueryParams() {
+    return getQueryParams<CommunitiesProps>({
+      listingType: getListingTypeFromQuery,
+      page: getPageFromString,
+    });
+  }
 
-      if (found) {
-        found.subscribed = subscribed;
-        found.counts.subscribers = subscribers;
-        this.setState(this.state);
+  async handleFollow(data: {
+    i: Communities;
+    communityId: number;
+    follow: boolean;
+  }) {
+    const res = await HttpService.client.followCommunity({
+      community_id: data.communityId,
+      follow: data.follow,
+      auth: myAuthRequired(),
+    });
+    data.i.findAndUpdateCommunity(res);
+  }
+
+  async refetch() {
+    this.setState({ listCommunitiesResponse: { state: "loading" } });
+
+    const { listingType, page } = this.getCommunitiesQueryParams();
+
+    this.setState({
+      listCommunitiesResponse: await HttpService.client.listCommunities({
+        type_: listingType,
+        sort: "TopMonth",
+        limit: communityLimit,
+        page,
+        auth: myAuth(),
+      }),
+    });
+
+    window.scrollTo(0, 0);
+  }
+
+  findAndUpdateCommunity(res: RequestState<CommunityResponse>) {
+    this.setState(s => {
+      if (
+        s.listCommunitiesResponse.state == "success" &&
+        res.state == "success"
+      ) {
+        s.listCommunitiesResponse.data.communities = editCommunity(
+          res.data.community_view,
+          s.listCommunitiesResponse.data.communities
+        );
       }
-    }
+      return s;
+    });
   }
 }

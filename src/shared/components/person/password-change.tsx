@@ -1,59 +1,35 @@
 import { Component, linkEvent } from "inferno";
-import {
-  GetSiteResponse,
-  LoginResponse,
-  PasswordChangeAfterReset,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
-import { Subscription } from "rxjs";
+import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
-import {
-  capitalizeFirstLetter,
-  isBrowser,
-  setIsoData,
-  toast,
-  wsClient,
-  wsSubscribe,
-} from "../../utils";
+import { HttpService, UserService } from "../../services";
+import { RequestState } from "../../services/HttpService";
+import { capitalizeFirstLetter, myAuth, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
 interface State {
+  passwordChangeRes: RequestState<LoginResponse>;
   form: {
     token: string;
     password?: string;
     password_verify?: string;
   };
-  loading: boolean;
   siteRes: GetSiteResponse;
 }
 
 export class PasswordChange extends Component<any, State> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
 
   state: State = {
+    passwordChangeRes: { state: "empty" },
+    siteRes: this.isoData.site_res,
     form: {
       token: this.props.match.params.token,
     },
-    loading: false,
-    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
-    }
   }
 
   get documentTitle(): string {
@@ -117,7 +93,7 @@ export class PasswordChange extends Component<any, State> {
         <div className="form-group row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.loading ? (
+              {this.state.passwordChangeRes.state == "loading" ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(i18n.t("save"))
@@ -139,36 +115,33 @@ export class PasswordChange extends Component<any, State> {
     i.setState(i.state);
   }
 
-  handlePasswordChangeSubmit(i: PasswordChange, event: any) {
+  async handlePasswordChangeSubmit(i: PasswordChange, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
+    i.setState({ passwordChangeRes: { state: "loading" } });
 
-    let password = i.state.form.password;
-    let password_verify = i.state.form.password_verify;
+    const password = i.state.form.password;
+    const password_verify = i.state.form.password_verify;
 
     if (password && password_verify) {
-      let form: PasswordChangeAfterReset = {
-        token: i.state.form.token,
-        password,
-        password_verify,
-      };
+      i.setState({
+        passwordChangeRes: await HttpService.client.passwordChangeAfterReset({
+          token: i.state.form.token,
+          password,
+          password_verify,
+        }),
+      });
 
-      WebSocketService.Instance.send(wsClient.passwordChange(form));
-    }
-  }
+      if (i.state.passwordChangeRes.state === "success") {
+        const data = i.state.passwordChangeRes.data;
+        UserService.Instance.login(data);
 
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.setState({ loading: false });
-      return;
-    } else if (op == UserOperation.PasswordChangeAfterReset) {
-      let data = wsJsonToRes<LoginResponse>(msg);
-      UserService.Instance.login(data);
-      this.props.history.push("/");
-      location.reload();
+        const site = await HttpService.client.getSite({ auth: myAuth() });
+        if (site.state === "success") {
+          UserService.Instance.myUserInfo = site.data.my_user;
+        }
+
+        this.props.history.replace("/");
+      }
     }
   }
 }

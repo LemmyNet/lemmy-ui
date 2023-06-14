@@ -67,7 +67,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteInfo() {
-    let site = this.props.site;
+    const site = this.props.site;
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}
@@ -98,8 +98,8 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   badges(siteAggregates: SiteAggregates) {
-    let counts = siteAggregates;
-    let online = this.props.online ?? 1;
+    const counts = siteAggregates;
+    const online = this.props.online ?? 1;
     return (
       <ul className="my-2 list-inline">
         <li className="list-inline-item badge badge-secondary">

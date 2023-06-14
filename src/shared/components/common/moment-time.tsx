@@ -15,13 +15,13 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    let lang = getLanguages();
+    const lang = getLanguages();
 
     moment.locale(lang);
   }
 
   createdAndModifiedTimes() {
-    let updated = this.props.updated;
+    const updated = this.props.updated;
     let line = `${capitalizeFirstLetter(i18n.t("created"))}: ${this.format(
       this.props.published
     )}`;
@@ -45,7 +45,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
         </span>
       );
     } else {
-      let published = this.props.published;
+      const published = this.props.published;
       return (
         <span
           className="pointer unselectable"
