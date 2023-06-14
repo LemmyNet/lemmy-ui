@@ -272,7 +272,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )}
             {this.state.imageDeleteUrl && (
               <button
-                className="btn btn-danger mt-2"
+                className="btn btn-danger btn-sm mt-2"
                 onClick={linkEvent(this, this.handleImageDelete)}
                 aria-label={i18n.t("delete")}
                 data-tippy-content={i18n.t("delete")}
