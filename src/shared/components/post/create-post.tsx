@@ -225,8 +225,6 @@ export class CreatePost extends Component<
       const postId = res.data.post_view.post.id;
       this.props.history.replace(`/post/${postId}`);
     }
-
-    return res;
   }
 
   static fetchInitialData({
