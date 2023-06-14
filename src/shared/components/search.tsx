@@ -163,12 +163,14 @@ const Filter = ({
   onChange,
   onSearch,
   value,
+  loading,
 }: {
   filterType: FilterType;
   options: Choice[];
   onSearch: (text: string) => void;
   onChange: (choice: Choice) => void;
   value?: number | null;
+  loading: boolean;
 }) => {
   return (
     <div className="form-group col-sm-6">
@@ -186,6 +188,7 @@ const Filter = ({
         value={value ?? 0}
         onSearch={onSearch}
         onChange={onChange}
+        loading={loading}
       />
     </div>
   );
@@ -473,11 +476,17 @@ export class Search extends Component<any, SearchState> {
   get selects() {
     const { type, listingType, sort, communityId, creatorId } =
       getSearchQueryParams();
-    const { communitySearchOptions, creatorSearchOptions } = this.state;
+    const {
+      communitySearchOptions,
+      creatorSearchOptions,
+      searchCommunitiesLoading,
+      searchCreatorLoading,
+      communitiesRes,
+    } = this.state;
 
     const hasCommunities =
-      this.state.communitiesRes.state == "success" &&
-      this.state.communitiesRes.data.communities.length > 0;
+      communitiesRes.state == "success" &&
+      communitiesRes.data.communities.length > 0;
 
     return (
       <div className="mb-2">
@@ -520,6 +529,7 @@ export class Search extends Component<any, SearchState> {
               onSearch={this.handleCommunitySearch}
               options={communitySearchOptions}
               value={communityId}
+              loading={searchCommunitiesLoading}
             />
           )}
           <Filter
@@ -528,6 +538,7 @@ export class Search extends Component<any, SearchState> {
             onSearch={this.handleCreatorSearch}
             options={creatorSearchOptions}
             value={creatorId}
+            loading={searchCreatorLoading}
           />
         </div>
       </div>
@@ -560,7 +571,7 @@ export class Search extends Component<any, SearchState> {
     }
 
     // Push the search results
-    if (searchResponse.state == "success") {
+    if (searchResponse.state === "success") {
       const { comments, posts, communities, users } = searchResponse.data;
 
       combined.push(
@@ -690,10 +701,10 @@ export class Search extends Component<any, SearchState> {
       siteRes,
     } = this.state;
     const comments =
-      searchResponse.state == "success" ? searchResponse.data.comments : [];
+      searchResponse.state === "success" ? searchResponse.data.comments : [];
 
     if (
-      resolveObjectResponse.state == "success" &&
+      resolveObjectResponse.state === "success" &&
       resolveObjectResponse.data.comment
     ) {
       comments.unshift(resolveObjectResponse.data.comment);
@@ -740,10 +751,10 @@ export class Search extends Component<any, SearchState> {
       siteRes,
     } = this.state;
     const posts =
-      searchResponse.state == "success" ? searchResponse.data.posts : [];
+      searchResponse.state === "success" ? searchResponse.data.posts : [];
 
     if (
-      resolveObjectResponse.state == "success" &&
+      resolveObjectResponse.state === "success" &&
       resolveObjectResponse.data.post
     ) {
       posts.unshift(resolveObjectResponse.data.post);
@@ -793,10 +804,10 @@ export class Search extends Component<any, SearchState> {
       resolveObjectRes: resolveObjectResponse,
     } = this.state;
     const communities =
-      searchResponse.state == "success" ? searchResponse.data.communities : [];
+      searchResponse.state === "success" ? searchResponse.data.communities : [];
 
     if (
-      resolveObjectResponse.state == "success" &&
+      resolveObjectResponse.state === "success" &&
       resolveObjectResponse.data.community
     ) {
       communities.unshift(resolveObjectResponse.data.community);
@@ -819,10 +830,10 @@ export class Search extends Component<any, SearchState> {
       resolveObjectRes: resolveObjectResponse,
     } = this.state;
     const users =
-      searchResponse.state == "success" ? searchResponse.data.users : [];
+      searchResponse.state === "success" ? searchResponse.data.users : [];
 
     if (
-      resolveObjectResponse.state == "success" &&
+      resolveObjectResponse.state === "success" &&
       resolveObjectResponse.data.person
     ) {
       users.unshift(resolveObjectResponse.data.person);
@@ -843,7 +854,7 @@ export class Search extends Component<any, SearchState> {
     const { searchRes: r, resolveObjectRes: resolveRes } = this.state;
 
     const searchCount =
-      r.state == "success"
+      r.state === "success"
         ? r.data.posts.length +
           r.data.comments.length +
           r.data.communities.length +
@@ -851,7 +862,7 @@ export class Search extends Component<any, SearchState> {
         : 0;
 
     const resObjCount =
-      resolveRes.state == "success"
+      resolveRes.state === "success"
         ? resolveRes.data.post ||
           resolveRes.data.person ||
           resolveRes.data.community ||
@@ -903,6 +914,8 @@ export class Search extends Component<any, SearchState> {
     const { creatorId } = getSearchQueryParams();
     const { creatorSearchOptions } = this.state;
     const newOptions: Choice[] = [];
+
+    this.setState({ searchCreatorLoading: true });
 
     const selectedChoice = creatorSearchOptions.find(
       choice => getIdFromString(choice.value) === creatorId

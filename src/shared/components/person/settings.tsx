@@ -362,7 +362,7 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           <div className="form-group">
             <button type="submit" className="btn btn-block btn-secondary mr-4">
-              {this.state.changePasswordRes.state == "loading" ? (
+              {this.state.changePasswordRes.state === "loading" ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(i18n.t("save"))
@@ -778,7 +778,7 @@ export class Settings extends Component<any, SettingsState> {
           {this.totpSection()}
           <div className="form-group">
             <button type="submit" className="btn btn-block btn-secondary mr-4">
-              {this.state.saveRes.state == "loading" ? (
+              {this.state.saveRes.state === "loading" ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(i18n.t("save"))
@@ -817,7 +817,7 @@ export class Settings extends Component<any, SettingsState> {
                   disabled={!this.state.deleteAccountForm.password}
                   onClick={linkEvent(this, this.handleDeleteAccount)}
                 >
-                  {this.state.deleteAccountRes.state == "loading" ? (
+                  {this.state.deleteAccountRes.state === "loading" ? (
                     <Spinner />
                   ) : (
                     capitalizeFirstLetter(i18n.t("delete"))
@@ -935,13 +935,19 @@ export class Settings extends Component<any, SettingsState> {
     }
   }
 
-  async handleUnblockPerson(i: { ctx: Settings; recipientId: number }) {
+  async handleUnblockPerson({
+    ctx,
+    recipientId,
+  }: {
+    ctx: Settings;
+    recipientId: number;
+  }) {
     const res = await HttpService.client.blockPerson({
-      person_id: i.recipientId,
+      person_id: recipientId,
       block: false,
       auth: myAuthRequired(),
     });
-    i.ctx.personBlock(res);
+    ctx.personBlock(res);
   }
 
   async handleBlockCommunity({ value }: Choice) {
@@ -1213,7 +1219,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   communityBlock(res: RequestState<BlockCommunityResponse>) {
-    if (res.state == "success") {
+    if (res.state === "success") {
       updateCommunityBlock(res.data);
       const mui = UserService.Instance.myUserInfo;
       if (mui) {

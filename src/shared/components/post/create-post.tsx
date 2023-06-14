@@ -103,7 +103,7 @@ export class CreatePost extends Component<
         id: communityId,
         auth,
       });
-      if (res.state == "success") {
+      if (res.state === "success") {
         this.setState({
           selectedCommunityChoice: {
             label: res.data.community_view.community.name,

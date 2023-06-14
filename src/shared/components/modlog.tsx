@@ -752,7 +752,7 @@ export class Modlog extends Component<
               #<strong>#</strong>#
             </T>
           </div>
-          {this.state.communityRes.state == "success" && (
+          {this.state.communityRes.state === "success" && (
             <h5>
               <Link
                 className="text-body"
