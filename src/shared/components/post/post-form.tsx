@@ -25,7 +25,6 @@ import {
   isImage,
   myAuth,
   myAuthRequired,
-  pictrsDeleteToast,
   relTags,
   setupTippy,
   toast,
@@ -73,6 +72,7 @@ interface PostFormState {
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
   imageLoading: boolean;
+  imageDeleteUrl: string;
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
   previewMode: boolean;
@@ -86,6 +86,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     form: {},
     loading: false,
     imageLoading: false,
+    imageDeleteUrl: "",
     communitySearchLoading: false,
     previewMode: false,
     communitySearchOptions: [],
@@ -268,6 +269,17 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.state.imageLoading && <Spinner />}
             {url && isImage(url) && (
               <img src={url} className="img-fluid" alt="" />
+            )}
+            {this.state.imageDeleteUrl && (
+              <button
+                className="btn btn-danger mt-2"
+                onClick={linkEvent(this, this.handleImageDelete)}
+                aria-label={i18n.t("delete")}
+                data-tippy-content={i18n.t("delete")}
+              >
+                <Icon icon="x" classes="icon-inline mr-1" />
+                {capitalizeFirstLetter(i18n.t("delete"))}
+              </button>
             )}
             {this.props.crossPosts && this.props.crossPosts.length > 0 && (
               <>
@@ -553,7 +565,15 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   handlePostUrlChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.url = event.target.value), s));
+    const url = event.target.value;
+
+    i.setState({
+      form: {
+        url,
+      },
+      imageDeleteUrl: "",
+    });
+
     i.fetchPageTitle();
   }
 
@@ -644,15 +664,32 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       if (res.state === "success") {
         if (res.data.msg === "ok") {
           i.state.form.url = res.data.url;
-          pictrsDeleteToast(file.name, res.data.delete_url as string);
-          i.setState({ imageLoading: false });
+          i.setState({
+            imageLoading: false,
+            imageDeleteUrl: res.data.delete_url as string,
+          });
         } else {
           toast(JSON.stringify(res), "danger");
         }
       } else if (res.state === "failed") {
         console.error(res.msg);
         toast(res.msg, "danger");
+        i.setState({ imageLoading: false });
       }
+    });
+  }
+
+  handleImageDelete(i: PostForm) {
+    const { imageDeleteUrl } = i.state;
+
+    fetch(imageDeleteUrl);
+
+    i.setState({
+      imageDeleteUrl: "",
+      imageLoading: false,
+      form: {
+        url: "",
+      },
     });
   }
 
