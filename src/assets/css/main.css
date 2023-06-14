@@ -213,6 +213,13 @@ blockquote {
   overflow-y: auto;
 }
 
+.comment-node > div > div > .md-div p {
+  /* Prevent text in comments from being placed next to images, when in the same <p> block */
+  display:        flex;   
+  align-items:    start;  /* Align items to start (and prevent images from stretching, as align-items default is stretch */
+  flex-direction: column; /* Place items vertically */
+}
+
 .thumbnail {
   object-fit: cover;
   min-height: 60px;
@@ -435,11 +442,7 @@ em-emoji-picker {
   width: 100%;
 }
 
-/* Applies to the text-contents of a comment-node. */
-.comment-node > div > div > .md-div p {
-  display:          flex;
-  align-items:    start;
-  flex-direction: column;
-}
+
+
 
 
