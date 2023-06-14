@@ -195,7 +195,7 @@ export class Login extends Component<any, State> {
   }
 
   handleLoginUsernameChange(i: Login, event: any) {
-    i.state.form.username_or_email = event.target.value;
+    i.state.form.username_or_email = event.target.value.trim();
     i.setState(i.state);
   }
 
