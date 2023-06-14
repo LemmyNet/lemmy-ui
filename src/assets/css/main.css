@@ -215,9 +215,11 @@ blockquote {
 
 .comment-node > div > div > .md-div p {
   /* Prevent text in comments from being placed next to images, when in the same <p> block */
-  display:        flex;   
-  align-items:    start;  /* Align items to start (and prevent images from stretching, as align-items default is stretch */
-  flex-direction: column; /* Place items vertically */
+  display: flex;
+  /* Align items to start (and prevent images from stretching, as align-items default is stretch */
+  align-items: start;
+  /* Place items vertically */
+  flex-direction: column;
 }
 
 .thumbnail {
