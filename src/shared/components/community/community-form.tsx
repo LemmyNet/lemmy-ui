@@ -1,24 +1,12 @@
 import { Component, linkEvent } from "inferno";
 import {
-  CommunityResponse,
   CommunityView,
   CreateCommunity,
   EditCommunity,
   Language,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
-import {
-  capitalizeFirstLetter,
-  myAuth,
-  randomStr,
-  wsClient,
-  wsSubscribe,
-} from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired, randomStr } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
@@ -31,9 +19,9 @@ interface CommunityFormProps {
   siteLanguages: number[];
   communityLanguages?: number[];
   onCancel?(): any;
-  onCreate?(community: CommunityView): any;
-  onEdit?(community: CommunityView): any;
+  onUpsertCommunity(form: CreateCommunity | EditCommunity): void;
   enableNsfw?: boolean;
+  loading?: boolean;
 }
 
 interface CommunityFormState {
@@ -47,7 +35,7 @@ interface CommunityFormState {
     posting_restricted_to_mods?: boolean;
     discussion_languages?: number[];
   };
-  loading: boolean;
+  submitted: boolean;
 }
 
 export class CommunityForm extends Component<
@@ -55,11 +43,10 @@ export class CommunityForm extends Component<
   CommunityFormState
 > {
   private id = `community-form-${randomStr()}`;
-  private subscription?: Subscription;
 
   state: CommunityFormState = {
     form: {},
-    loading: false,
+    submitted: false,
   };
 
   constructor(props: any, context: any) {
@@ -77,12 +64,11 @@ export class CommunityForm extends Component<
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
     const cv = this.props.community_view;
 
     if (cv) {
       this.state = {
+        ...this.state,
         form: {
           name: cv.community.name,
           title: cv.community.title,
@@ -93,81 +79,34 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
           discussion_languages: this.props.communityLanguages,
         },
-        loading: false,
       };
     }
   }
 
-  componentDidUpdate() {
-    if (
-      !this.state.loading &&
-      (this.state.form.name ||
-        this.state.form.title ||
-        this.state.form.description)
-    ) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-  }
-
-  componentWillUnmount() {
-    this.subscription?.unsubscribe();
-    window.onbeforeunload = null;
-  }
-
   render() {
     return (
-      <>
+      <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
         <NavigationPrompt
           when={
-            !this.state.loading &&
+            !this.props.loading &&
             !!(
               this.state.form.name ||
               this.state.form.title ||
               this.state.form.description
-            )
+            ) &&
+            !this.state.submitted
           }
         />
-        <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
-          {!this.props.community_view && (
-            <div className="form-group row">
-              <label
-                className="col-12 col-sm-2 col-form-label"
-                htmlFor="community-name"
-              >
-                {i18n.t("name")}
-                <span
-                  className="position-absolute pointer unselectable ml-2 text-muted"
-                  data-tippy-content={i18n.t("name_explain")}
-                >
-                  <Icon icon="help-circle" classes="icon-inline" />
-                </span>
-              </label>
-              <div className="col-12 col-sm-10">
-                <input
-                  type="text"
-                  id="community-name"
-                  className="form-control"
-                  value={this.state.form.name}
-                  onInput={linkEvent(this, this.handleCommunityNameChange)}
-                  required
-                  minLength={3}
-                  pattern="[a-z0-9_]+"
-                  title={i18n.t("community_reqs")}
-                />
-              </div>
-            </div>
-          )}
+        {!this.props.community_view && (
           <div className="form-group row">
             <label
               className="col-12 col-sm-2 col-form-label"
-              htmlFor="community-title"
+              htmlFor="community-name"
             >
-              {i18n.t("display_name")}
+              {i18n.t("name")}
               <span
                 className="position-absolute pointer unselectable ml-2 text-muted"
-                data-tippy-content={i18n.t("display_name_explain")}
+                data-tippy-content={i18n.t("name_explain")}
               >
                 <Icon icon="help-circle" classes="icon-inline" />
               </span>
@@ -175,142 +114,182 @@ export class CommunityForm extends Component<
             <div className="col-12 col-sm-10">
               <input
                 type="text"
-                id="community-title"
-                value={this.state.form.title}
-                onInput={linkEvent(this, this.handleCommunityTitleChange)}
+                id="community-name"
                 className="form-control"
+                value={this.state.form.name}
+                onInput={linkEvent(this, this.handleCommunityNameChange)}
                 required
                 minLength={3}
-                maxLength={100}
+                pattern="[a-z0-9_]+"
+                title={i18n.t("community_reqs")}
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-sm-2">{i18n.t("icon")}</label>
-            <div className="col-12 col-sm-10">
-              <ImageUploadForm
-                uploadTitle={i18n.t("upload_icon")}
-                imageSrc={this.state.form.icon}
-                onUpload={this.handleIconUpload}
-                onRemove={this.handleIconRemove}
-                rounded
-              />
-            </div>
+        )}
+        <div className="form-group row">
+          <label
+            className="col-12 col-sm-2 col-form-label"
+            htmlFor="community-title"
+          >
+            {i18n.t("display_name")}
+            <span
+              className="position-absolute pointer unselectable ml-2 text-muted"
+              data-tippy-content={i18n.t("display_name_explain")}
+            >
+              <Icon icon="help-circle" classes="icon-inline" />
+            </span>
+          </label>
+          <div className="col-12 col-sm-10">
+            <input
+              type="text"
+              id="community-title"
+              value={this.state.form.title}
+              onInput={linkEvent(this, this.handleCommunityTitleChange)}
+              className="form-control"
+              required
+              minLength={3}
+              maxLength={100}
+            />
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-sm-2">{i18n.t("banner")}</label>
-            <div className="col-12 col-sm-10">
-              <ImageUploadForm
-                uploadTitle={i18n.t("upload_banner")}
-                imageSrc={this.state.form.banner}
-                onUpload={this.handleBannerUpload}
-                onRemove={this.handleBannerRemove}
-              />
-            </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-2">{i18n.t("icon")}</label>
+          <div className="col-12 col-sm-10">
+            <ImageUploadForm
+              uploadTitle={i18n.t("upload_icon")}
+              imageSrc={this.state.form.icon}
+              onUpload={this.handleIconUpload}
+              onRemove={this.handleIconRemove}
+              rounded
+            />
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
-              {i18n.t("sidebar")}
-            </label>
-            <div className="col-12 col-sm-10">
-              <MarkdownTextArea
-                initialContent={this.state.form.description}
-                placeholder={i18n.t("description")}
-                onContentChange={this.handleCommunityDescriptionChange}
-                allLanguages={[]}
-                siteLanguages={[]}
-              />
-            </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-2">{i18n.t("banner")}</label>
+          <div className="col-12 col-sm-10">
+            <ImageUploadForm
+              uploadTitle={i18n.t("upload_banner")}
+              imageSrc={this.state.form.banner}
+              onUpload={this.handleBannerUpload}
+              onRemove={this.handleBannerRemove}
+            />
           </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
+            {i18n.t("sidebar")}
+          </label>
+          <div className="col-12 col-sm-10">
+            <MarkdownTextArea
+              initialContent={this.state.form.description}
+              placeholder={i18n.t("description")}
+              onContentChange={this.handleCommunityDescriptionChange}
+              hideNavigationWarnings
+              allLanguages={[]}
+              siteLanguages={[]}
+            />
+          </div>
+        </div>
 
-          {this.props.enableNsfw && (
-            <div className="form-group row">
-              <legend className="col-form-label col-sm-2 pt-0">
-                {i18n.t("nsfw")}
-              </legend>
-              <div className="col-10">
-                <div className="form-check">
-                  <input
-                    className="form-check-input position-static"
-                    id="community-nsfw"
-                    type="checkbox"
-                    checked={this.state.form.nsfw}
-                    onChange={linkEvent(this, this.handleCommunityNsfwChange)}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+        {this.props.enableNsfw && (
           <div className="form-group row">
-            <legend className="col-form-label col-6 pt-0">
-              {i18n.t("only_mods_can_post_in_community")}
+            <legend className="col-form-label col-sm-2 pt-0">
+              {i18n.t("nsfw")}
             </legend>
-            <div className="col-6">
+            <div className="col-10">
               <div className="form-check">
                 <input
                   className="form-check-input position-static"
-                  id="community-only-mods-can-post"
+                  id="community-nsfw"
                   type="checkbox"
-                  checked={this.state.form.posting_restricted_to_mods}
-                  onChange={linkEvent(
-                    this,
-                    this.handleCommunityPostingRestrictedToMods
-                  )}
+                  checked={this.state.form.nsfw}
+                  onChange={linkEvent(this, this.handleCommunityNsfwChange)}
                 />
               </div>
             </div>
           </div>
-          <LanguageSelect
-            allLanguages={this.props.allLanguages}
-            siteLanguages={this.props.siteLanguages}
-            showSite
-            selectedLanguageIds={this.state.form.discussion_languages}
-            multiple={true}
-            onChange={this.handleDiscussionLanguageChange}
-          />
-          <div className="form-group row">
-            <div className="col-12">
-              <button
-                type="submit"
-                className="btn btn-secondary mr-2"
-                disabled={this.state.loading}
-              >
-                {this.state.loading ? (
-                  <Spinner />
-                ) : this.props.community_view ? (
-                  capitalizeFirstLetter(i18n.t("save"))
-                ) : (
-                  capitalizeFirstLetter(i18n.t("create"))
+        )}
+        <div className="form-group row">
+          <legend className="col-form-label col-6 pt-0">
+            {i18n.t("only_mods_can_post_in_community")}
+          </legend>
+          <div className="col-6">
+            <div className="form-check">
+              <input
+                className="form-check-input position-static"
+                id="community-only-mods-can-post"
+                type="checkbox"
+                checked={this.state.form.posting_restricted_to_mods}
+                onChange={linkEvent(
+                  this,
+                  this.handleCommunityPostingRestrictedToMods
                 )}
-              </button>
-              {this.props.community_view && (
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={linkEvent(this, this.handleCancel)}
-                >
-                  {i18n.t("cancel")}
-                </button>
-              )}
+              />
             </div>
           </div>
-        </form>
-      </>
+        </div>
+        <LanguageSelect
+          allLanguages={this.props.allLanguages}
+          siteLanguages={this.props.siteLanguages}
+          showSite
+          selectedLanguageIds={this.state.form.discussion_languages}
+          multiple={true}
+          onChange={this.handleDiscussionLanguageChange}
+        />
+        <div className="form-group row">
+          <div className="col-12">
+            <button
+              type="submit"
+              className="btn btn-secondary mr-2"
+              disabled={this.props.loading}
+            >
+              {this.props.loading ? (
+                <Spinner />
+              ) : this.props.community_view ? (
+                capitalizeFirstLetter(i18n.t("save"))
+              ) : (
+                capitalizeFirstLetter(i18n.t("create"))
+              )}
+            </button>
+            {this.props.community_view && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={linkEvent(this, this.handleCancel)}
+              >
+                {i18n.t("cancel")}
+              </button>
+            )}
+          </div>
+        </div>
+      </form>
     );
   }
 
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
+    i.setState({ submitted: true });
     const cForm = i.state.form;
-    const auth = myAuth();
+    const auth = myAuthRequired();
 
     const cv = i.props.community_view;
 
-    if (auth) {
-      if (cv) {
-        const form: EditCommunity = {
-          community_id: cv.community.id,
+    if (cv) {
+      i.props.onUpsertCommunity({
+        community_id: cv.community.id,
+        title: cForm.title,
+        description: cForm.description,
+        icon: cForm.icon,
+        banner: cForm.banner,
+        nsfw: cForm.nsfw,
+        posting_restricted_to_mods: cForm.posting_restricted_to_mods,
+        discussion_languages: cForm.discussion_languages,
+        auth,
+      });
+    } else {
+      if (cForm.title && cForm.name) {
+        i.props.onUpsertCommunity({
+          name: cForm.name,
           title: cForm.title,
           description: cForm.description,
           icon: cForm.icon,
@@ -319,37 +298,17 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: cForm.posting_restricted_to_mods,
           discussion_languages: cForm.discussion_languages,
           auth,
-        };
-
-        WebSocketService.Instance.send(wsClient.editCommunity(form));
-      } else {
-        if (cForm.title && cForm.name) {
-          const form: CreateCommunity = {
-            name: cForm.name,
-            title: cForm.title,
-            description: cForm.description,
-            icon: cForm.icon,
-            banner: cForm.banner,
-            nsfw: cForm.nsfw,
-            posting_restricted_to_mods: cForm.posting_restricted_to_mods,
-            discussion_languages: cForm.discussion_languages,
-            auth,
-          };
-          WebSocketService.Instance.send(wsClient.createCommunity(form));
-        }
+        });
       }
     }
-    i.setState(i.state);
   }
 
   handleCommunityNameChange(i: CommunityForm, event: any) {
-    i.state.form.name = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.form.name = event.target.value), s));
   }
 
   handleCommunityTitleChange(i: CommunityForm, event: any) {
-    i.state.form.title = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.form.title = event.target.value), s));
   }
 
   handleCommunityDescriptionChange(val: string) {
@@ -357,13 +316,13 @@ export class CommunityForm extends Component<
   }
 
   handleCommunityNsfwChange(i: CommunityForm, event: any) {
-    i.state.form.nsfw = event.target.checked;
-    i.setState(i.state);
+    i.setState(s => ((s.form.nsfw = event.target.checked), s));
   }
 
   handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
-    i.state.form.posting_restricted_to_mods = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.form.posting_restricted_to_mods = event.target.checked), s)
+    );
   }
 
   handleCancel(i: CommunityForm) {
@@ -388,57 +347,5 @@ export class CommunityForm extends Component<
 
   handleDiscussionLanguageChange(val: number[]) {
     this.setState(s => ((s.form.discussion_languages = val), s));
-  }
-
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      // Errors handled by top level pages
-      // toast(i18n.t(msg.error), "danger");
-      this.setState({ loading: false });
-      return;
-    } else if (op == UserOperation.CreateCommunity) {
-      const data = wsJsonToRes<CommunityResponse>(msg);
-      this.props.onCreate?.(data.community_view);
-
-      // Update myUserInfo
-      const community = data.community_view.community;
-
-      const mui = UserService.Instance.myUserInfo;
-      if (mui) {
-        const person = mui.local_user_view.person;
-        mui.follows.push({
-          community,
-          follower: person,
-        });
-        mui.moderates.push({
-          community,
-          moderator: person,
-        });
-      }
-    } else if (op == UserOperation.EditCommunity) {
-      const data = wsJsonToRes<CommunityResponse>(msg);
-      this.setState({ loading: false });
-      this.props.onEdit?.(data.community_view);
-      const community = data.community_view.community;
-
-      const mui = UserService.Instance.myUserInfo;
-      if (mui) {
-        const followFound = mui.follows.findIndex(
-          f => f.community.id == community.id
-        );
-        if (followFound) {
-          mui.follows[followFound].community = community;
-        }
-
-        const moderatesFound = mui.moderates.findIndex(
-          f => f.community.id == community.id
-        );
-        if (moderatesFound) {
-          mui.moderates[moderatesFound].community = community;
-        }
-      }
-    }
   }
 }

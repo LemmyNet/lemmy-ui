@@ -1,70 +1,41 @@
 import { Component, linkEvent } from "inferno";
-import {
-  GetSiteResponse,
-  Login as LoginI,
-  LoginResponse,
-  PasswordReset,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
-import { Subscription } from "rxjs";
+import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
-import {
-  isBrowser,
-  setIsoData,
-  toast,
-  validEmail,
-  wsClient,
-  wsSubscribe,
-} from "../../utils";
+import { UserService } from "../../services";
+import { HttpService, RequestState } from "../../services/HttpService";
+import { isBrowser, myAuth, setIsoData, toast, validEmail } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
 interface State {
+  loginRes: RequestState<LoginResponse>;
   form: {
     username_or_email?: string;
     password?: string;
     totp_2fa_token?: string;
   };
-  loginLoading: boolean;
   showTotp: boolean;
   siteRes: GetSiteResponse;
 }
 
 export class Login extends Component<any, State> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
 
   state: State = {
+    loginRes: { state: "empty" },
     form: {},
-    loginLoading: false,
     showTotp: false,
     siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
-    if (isBrowser()) {
-      WebSocketService.Instance.send(wsClient.getCaptcha({}));
-    }
   }
 
   componentDidMount() {
     // Navigate to home if already logged in
     if (UserService.Instance.myUserInfo) {
       this.context.router.history.push("/");
-    }
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
     }
   }
 
@@ -169,7 +140,11 @@ export class Login extends Component<any, State> {
           <div className="form-group row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-secondary">
-                {this.state.loginLoading ? <Spinner /> : i18n.t("login")}
+                {this.state.loginRes.state == "loading" ? (
+                  <Spinner />
+                ) : (
+                  i18n.t("login")
+                )}
               </button>
             </div>
           </div>
@@ -178,20 +153,44 @@ export class Login extends Component<any, State> {
     );
   }
 
-  handleLoginSubmit(i: Login, event: any) {
+  async handleLoginSubmit(i: Login, event: any) {
     event.preventDefault();
-    i.setState({ loginLoading: true });
-    const lForm = i.state.form;
-    const username_or_email = lForm.username_or_email;
-    const password = lForm.password;
-    const totp_2fa_token = lForm.totp_2fa_token;
+    const { password, totp_2fa_token, username_or_email } = i.state.form;
+
     if (username_or_email && password) {
-      const form: LoginI = {
+      i.setState({ loginRes: { state: "loading" } });
+
+      const loginRes = await HttpService.client.login({
         username_or_email,
         password,
         totp_2fa_token,
-      };
-      WebSocketService.Instance.send(wsClient.login(form));
+      });
+      switch (loginRes.state) {
+        case "failed": {
+          if (loginRes.msg === "missing_totp_token") {
+            i.setState({ showTotp: true });
+            toast(i18n.t("enter_two_factor_code"), "info");
+          }
+
+          i.setState({ loginRes: { state: "empty" } });
+          break;
+        }
+
+        case "success": {
+          UserService.Instance.login(loginRes.data);
+          const site = await HttpService.client.getSite({
+            auth: myAuth(),
+          });
+
+          if (site.state === "success") {
+            UserService.Instance.myUserInfo = site.data.my_user;
+          }
+
+          i.props.history.replace("/");
+
+          break;
+        }
+      }
     }
   }
 
@@ -210,40 +209,13 @@ export class Login extends Component<any, State> {
     i.setState(i.state);
   }
 
-  handlePasswordReset(i: Login, event: any) {
+  async handlePasswordReset(i: Login, event: any) {
     event.preventDefault();
     const email = i.state.form.username_or_email;
     if (email) {
-      const resetForm: PasswordReset = { email };
-      WebSocketService.Instance.send(wsClient.passwordReset(resetForm));
-    }
-  }
-
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      // If the error comes back that the token is missing, show the TOTP field
-      if (msg.error == "missing_totp_token") {
-        this.setState({ showTotp: true, loginLoading: false });
-        toast(i18n.t("enter_two_factor_code"));
-        return;
-      } else {
-        toast(i18n.t(msg.error), "danger");
-        this.setState({ form: {}, loginLoading: false });
-        return;
-      }
-    } else {
-      if (op == UserOperation.Login) {
-        const data = wsJsonToRes<LoginResponse>(msg);
-        UserService.Instance.login(data);
-        this.props.history.push("/");
-        location.reload();
-      } else if (op == UserOperation.PasswordReset) {
+      const res = await HttpService.client.passwordReset({ email });
+      if (res.state == "success") {
         toast(i18n.t("reset_password_mail_sent"));
-      } else if (op == UserOperation.GetSite) {
-        const data = wsJsonToRes<GetSiteResponse>(msg);
-        this.setState({ siteRes: data });
       }
     }
   }

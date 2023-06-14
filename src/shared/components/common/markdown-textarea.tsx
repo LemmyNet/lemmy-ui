@@ -3,7 +3,7 @@ import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { HttpService, UserService } from "../../services";
 import {
   concurrentImageUpload,
   customEmojisLookup,
@@ -19,7 +19,6 @@ import {
   setupTippy,
   setupTribute,
   toast,
-  uploadImage,
 } from "../../utils";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
@@ -39,9 +38,9 @@ interface MarkdownTextAreaProps {
   finished?: boolean;
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
-  onContentChange?(val: string): any;
-  onReplyCancel?(): any;
-  onSubmit?(msg: { val?: string; formId: string; languageId?: number }): any;
+  onContentChange?(val: string): void;
+  onReplyCancel?(): void;
+  onSubmit?(content: string, formId: string, languageId?: number): void;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
 }
@@ -55,8 +54,9 @@ interface MarkdownTextAreaState {
   content?: string;
   languageId?: number;
   previewMode: boolean;
-  loading: boolean;
   imageUploadStatus?: ImageUploadStatus;
+  loading: boolean;
+  submitted: boolean;
 }
 
 export class MarkdownTextArea extends Component<
@@ -72,6 +72,7 @@ export class MarkdownTextArea extends Component<
     languageId: this.props.initialLanguageId,
     previewMode: false,
     loading: false,
+    submitted: false,
   };
 
   constructor(props: any, context: any) {
@@ -105,17 +106,14 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  componentDidUpdate() {
-    if (!this.props.hideNavigationWarnings && this.state.content) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-  }
-
   componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
     if (nextProps.finished) {
-      this.setState({ previewMode: false, loading: false, content: undefined });
+      this.setState({
+        previewMode: false,
+        imageUploadStatus: undefined,
+        loading: false,
+        content: undefined,
+      });
       if (this.props.replyType) {
         this.props.onReplyCancel?.();
       }
@@ -127,16 +125,23 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  componentWillUnmount() {
-    window.onbeforeunload = null;
-  }
-
   render() {
     const languageId = this.state.languageId;
 
+    // TODO add these prompts back in at some point
+    // <Prompt
+    //   when={!this.props.hideNavigationWarnings && this.state.content}
+    //   message={i18n.t("block_leaving")}
+    // />
     return (
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
-        <NavigationPrompt when={!!this.state.content} />
+        <NavigationPrompt
+          when={
+            !this.props.hideNavigationWarnings &&
+            !!this.state.content &&
+            !this.state.submitted
+          }
+        />
         <div className="form-group row">
           <div className={`col-sm-12`}>
             <textarea
@@ -390,29 +395,29 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  async uploadSingleImage(i: MarkdownTextArea, file: File) {
-    try {
-      const res = await uploadImage(file);
-      console.log("pictrs upload:");
-      console.log(res);
-      if (res.msg === "ok") {
-        const imageMarkdown = `![](${res.url})`;
+  async uploadSingleImage(i: MarkdownTextArea, image: File) {
+    const res = await HttpService.client.uploadImage({ image });
+    console.log("pictrs upload:");
+    console.log(res);
+    if (res.state === "success") {
+      if (res.data.msg === "ok") {
+        const imageMarkdown = `![](${res.data.url})`;
         i.setState(({ content }) => ({
           content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
         }));
         i.contentChange();
         const textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
-        pictrsDeleteToast(file.name, res.delete_url as string);
+        pictrsDeleteToast(image.name, res.data.delete_url as string);
       } else {
-        throw JSON.stringify(res);
+        throw JSON.stringify(res.data);
       }
-    } catch (error) {
+    } else if (res.state === "failed") {
       i.setState({ imageUploadStatus: undefined });
-      console.error(error);
-      toast(error, "danger");
+      console.error(res.msg);
+      toast(res.msg, "danger");
 
-      throw error;
+      throw res.msg;
     }
   }
 
@@ -486,13 +491,10 @@ export class MarkdownTextArea extends Component<
 
   handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
-    const msg = {
-      val: i.state.content,
-      formId: i.formId,
-      languageId: i.state.languageId,
-    };
-    i.props.onSubmit?.(msg);
+    if (i.state.content) {
+      i.setState({ loading: true, submitted: true });
+      i.props.onSubmit?.(i.state.content, i.formId, i.state.languageId);
+    }
   }
 
   handleReplyCancel(i: MarkdownTextArea) {

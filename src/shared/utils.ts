@@ -3,7 +3,9 @@ import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
+  CommentAggregates,
   Comment as CommentI,
+  CommentReplyView,
   CommentReportView,
   CommentSortType,
   CommentView,
@@ -14,9 +16,9 @@ import {
   GetSiteResponse,
   Language,
   LemmyHttp,
-  LemmyWebsocket,
   MyUserInfo,
   Person,
+  PersonMentionView,
   PersonView,
   PostReportView,
   PostView,
@@ -24,8 +26,8 @@ import {
   PrivateMessageView,
   RegistrationApplicationView,
   Search,
+  SearchType,
   SortType,
-  UploadImageResponse,
 } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
@@ -37,21 +39,17 @@ import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
 import moment from "moment";
-import { Subscription } from "rxjs";
-import { delay, retryWhen, take } from "rxjs/operators";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
 import { i18n, languages } from "./i18next";
-import { CommentNodeI, DataType, IsoData } from "./interfaces";
-import { UserService, WebSocketService } from "./services";
+import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
+import { HttpService, UserService } from "./services";
 
 let Tribute: any;
 if (isBrowser()) {
   Tribute = require("tributejs");
 }
-
-export const wsClient = new LemmyWebsocket();
 
 export const favIconUrl = "/static/assets/icons/favicon.svg";
 export const favIconPngUrl = "/static/assets/icons/apple-touch-icon.png";
@@ -206,12 +204,10 @@ export function hotRank(score: number, timeStr: string): number {
 }
 
 export function mdToHtml(text: string) {
-  // restore '>' character to fix quotes
   return { __html: md.render(text) };
 }
 
 export function mdToHtmlNoImages(text: string) {
-  // restore '>' character to fix quotes
   return { __html: mdNoImages.render(text) };
 }
 
@@ -561,86 +557,6 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
   }
 }
 
-interface NotifyInfo {
-  name: string;
-  icon?: string;
-  link: string;
-  body?: string;
-}
-
-export function messageToastify(info: NotifyInfo, router: any) {
-  if (isBrowser()) {
-    const htmlBody = info.body ? md.render(info.body) : "";
-    const backgroundColor = `var(--light)`;
-
-    const toast = Toastify({
-      text: `${htmlBody}<br />${info.name}`,
-      avatar: info.icon,
-      backgroundColor: backgroundColor,
-      className: "text-dark",
-      close: true,
-      gravity: "top",
-      position: "right",
-      duration: 5000,
-      escapeMarkup: false,
-      onClick: () => {
-        if (toast) {
-          toast.hideToast();
-          router.history.push(info.link);
-        }
-      },
-    });
-    toast.showToast();
-  }
-}
-
-export function notifyPost(post_view: PostView, router: any) {
-  const info: NotifyInfo = {
-    name: post_view.community.name,
-    icon: post_view.community.icon,
-    link: `/post/${post_view.post.id}`,
-    body: post_view.post.name,
-  };
-  notify(info, router);
-}
-
-export function notifyComment(comment_view: CommentView, router: any) {
-  const info: NotifyInfo = {
-    name: comment_view.creator.name,
-    icon: comment_view.creator.avatar,
-    link: `/comment/${comment_view.comment.id}`,
-    body: comment_view.comment.content,
-  };
-  notify(info, router);
-}
-
-export function notifyPrivateMessage(pmv: PrivateMessageView, router: any) {
-  const info: NotifyInfo = {
-    name: pmv.creator.name,
-    icon: pmv.creator.avatar,
-    link: `/inbox`,
-    body: pmv.private_message.content,
-  };
-  notify(info, router);
-}
-
-function notify(info: NotifyInfo, router: any) {
-  messageToastify(info, router);
-
-  if (Notification.permission !== "granted") Notification.requestPermission();
-  else {
-    var notification = new Notification(info.name, {
-      ...{ body: info.body },
-      ...(info.icon && { icon: info.icon }),
-    });
-
-    notification.onclick = (ev: Event): any => {
-      ev.preventDefault();
-      router.history.push(info.link);
-    };
-  }
-}
-
 export function setupTribute() {
   return new Tribute({
     noMatchTemplate: function () {
@@ -877,15 +793,12 @@ interface PersonTribute {
 }
 
 async function personSearch(text: string): Promise<PersonTribute[]> {
-  const users = (await fetchUsers(text)).users;
-  const persons: PersonTribute[] = users.map(pv => {
-    const tribute: PersonTribute = {
-      key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
-      view: pv,
-    };
-    return tribute;
-  });
-  return persons;
+  const usersResponse = await fetchUsers(text);
+
+  return usersResponse.map(pv => ({
+    key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
+    view: pv,
+  }));
 }
 
 interface CommunityTribute {
@@ -894,15 +807,12 @@ interface CommunityTribute {
 }
 
 async function communitySearch(text: string): Promise<CommunityTribute[]> {
-  const comms = (await fetchCommunities(text)).communities;
-  const communities: CommunityTribute[] = comms.map(cv => {
-    const tribute: CommunityTribute = {
-      key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
-      view: cv,
-    };
-    return tribute;
-  });
-  return communities;
+  const communitiesResponse = await fetchCommunities(text);
+
+  return communitiesResponse.map(cv => ({
+    key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
+    view: cv,
+  }));
 }
 
 export function getRecipientIdFromProps(props: any): number {
@@ -921,42 +831,128 @@ export function getCommentIdFromProps(props: any): number | undefined {
   return id ? Number(id) : undefined;
 }
 
-export function editCommentRes(data: CommentView, comments?: CommentView[]) {
-  const found = comments?.find(c => c.comment.id == data.comment.id);
-  if (found) {
-    found.comment.content = data.comment.content;
-    found.comment.distinguished = data.comment.distinguished;
-    found.comment.updated = data.comment.updated;
-    found.comment.removed = data.comment.removed;
-    found.comment.deleted = data.comment.deleted;
-    found.counts.upvotes = data.counts.upvotes;
-    found.counts.downvotes = data.counts.downvotes;
-    found.counts.score = data.counts.score;
-  }
+type ImmutableListKey =
+  | "comment"
+  | "comment_reply"
+  | "person_mention"
+  | "community"
+  | "private_message"
+  | "post"
+  | "post_report"
+  | "comment_report"
+  | "private_message_report"
+  | "registration_application";
+
+function editListImmutable<
+  T extends { [key in F]: { id: number } },
+  F extends ImmutableListKey
+>(fieldName: F, data: T, list: T[]): T[] {
+  return [
+    ...list.map(c => (c[fieldName].id === data[fieldName].id ? data : c)),
+  ];
 }
 
-export function saveCommentRes(data: CommentView, comments?: CommentView[]) {
-  const found = comments?.find(c => c.comment.id == data.comment.id);
-  if (found) {
-    found.saved = data.saved;
-  }
+export function editComment(
+  data: CommentView,
+  comments: CommentView[]
+): CommentView[] {
+  return editListImmutable("comment", data, comments);
+}
+
+export function editCommentReply(
+  data: CommentReplyView,
+  replies: CommentReplyView[]
+): CommentReplyView[] {
+  return editListImmutable("comment_reply", data, replies);
+}
+
+interface WithComment {
+  comment: CommentI;
+  counts: CommentAggregates;
+  my_vote?: number;
+  saved: boolean;
+}
+
+export function editMention(
+  data: PersonMentionView,
+  comments: PersonMentionView[]
+): PersonMentionView[] {
+  return editListImmutable("person_mention", data, comments);
+}
+
+export function editCommunity(
+  data: CommunityView,
+  communities: CommunityView[]
+): CommunityView[] {
+  return editListImmutable("community", data, communities);
+}
+
+export function editPrivateMessage(
+  data: PrivateMessageView,
+  messages: PrivateMessageView[]
+): PrivateMessageView[] {
+  return editListImmutable("private_message", data, messages);
+}
+
+export function editPost(data: PostView, posts: PostView[]): PostView[] {
+  return editListImmutable("post", data, posts);
+}
+
+export function editPostReport(
+  data: PostReportView,
+  reports: PostReportView[]
+) {
+  return editListImmutable("post_report", data, reports);
+}
+
+export function editCommentReport(
+  data: CommentReportView,
+  reports: CommentReportView[]
+): CommentReportView[] {
+  return editListImmutable("comment_report", data, reports);
+}
+
+export function editPrivateMessageReport(
+  data: PrivateMessageReportView,
+  reports: PrivateMessageReportView[]
+): PrivateMessageReportView[] {
+  return editListImmutable("private_message_report", data, reports);
+}
+
+export function editRegistrationApplication(
+  data: RegistrationApplicationView,
+  apps: RegistrationApplicationView[]
+): RegistrationApplicationView[] {
+  return editListImmutable("registration_application", data, apps);
+}
+
+export function editWith<D extends WithComment, L extends WithComment>(
+  { comment, counts, saved, my_vote }: D,
+  list: L[]
+) {
+  return [
+    ...list.map(c =>
+      c.comment.id === comment.id
+        ? { ...c, comment, counts, saved, my_vote }
+        : c
+    ),
+  ];
 }
 
 export function updatePersonBlock(
   data: BlockPersonResponse,
   myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
 ) {
-  const mui = myUserInfo;
-  if (mui) {
+  if (myUserInfo) {
     if (data.blocked) {
-      mui.person_blocks.push({
-        person: mui.local_user_view.person,
+      myUserInfo.person_blocks.push({
+        person: myUserInfo.local_user_view.person,
         target: data.person_view.person,
       });
       toast(`${i18n.t("blocked")} ${data.person_view.person.name}`);
     } else {
-      mui.person_blocks = mui.person_blocks.filter(
-        i => i.target.id != data.person_view.person.id
+      myUserInfo.person_blocks = myUserInfo.person_blocks.filter(
+        i => i.target.id !== data.person_view.person.id
       );
       toast(`${i18n.t("unblocked")} ${data.person_view.person.name}`);
     }
@@ -967,124 +963,19 @@ export function updateCommunityBlock(
   data: BlockCommunityResponse,
   myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
 ) {
-  const mui = myUserInfo;
-  if (mui) {
+  if (myUserInfo) {
     if (data.blocked) {
-      mui.community_blocks.push({
-        person: mui.local_user_view.person,
+      myUserInfo.community_blocks.push({
+        person: myUserInfo.local_user_view.person,
         community: data.community_view.community,
       });
       toast(`${i18n.t("blocked")} ${data.community_view.community.name}`);
     } else {
-      mui.community_blocks = mui.community_blocks.filter(
-        i => i.community.id != data.community_view.community.id
+      myUserInfo.community_blocks = myUserInfo.community_blocks.filter(
+        i => i.community.id !== data.community_view.community.id
       );
       toast(`${i18n.t("unblocked")} ${data.community_view.community.name}`);
     }
-  }
-}
-
-export function createCommentLikeRes(
-  data: CommentView,
-  comments?: CommentView[]
-) {
-  const found = comments?.find(c => c.comment.id === data.comment.id);
-  if (found) {
-    found.counts.score = data.counts.score;
-    found.counts.upvotes = data.counts.upvotes;
-    found.counts.downvotes = data.counts.downvotes;
-    if (data.my_vote !== null) {
-      found.my_vote = data.my_vote;
-    }
-  }
-}
-
-export function createPostLikeFindRes(data: PostView, posts?: PostView[]) {
-  const found = posts?.find(p => p.post.id == data.post.id);
-  if (found) {
-    createPostLikeRes(data, found);
-  }
-}
-
-export function createPostLikeRes(data: PostView, post_view?: PostView) {
-  if (post_view) {
-    post_view.counts.score = data.counts.score;
-    post_view.counts.upvotes = data.counts.upvotes;
-    post_view.counts.downvotes = data.counts.downvotes;
-    if (data.my_vote !== null) {
-      post_view.my_vote = data.my_vote;
-    }
-  }
-}
-
-export function editPostFindRes(data: PostView, posts?: PostView[]) {
-  const found = posts?.find(p => p.post.id == data.post.id);
-  if (found) {
-    editPostRes(data, found);
-  }
-}
-
-export function editPostRes(data: PostView, post: PostView) {
-  if (post) {
-    post.post.url = data.post.url;
-    post.post.name = data.post.name;
-    post.post.nsfw = data.post.nsfw;
-    post.post.deleted = data.post.deleted;
-    post.post.removed = data.post.removed;
-    post.post.featured_community = data.post.featured_community;
-    post.post.featured_local = data.post.featured_local;
-    post.post.body = data.post.body;
-    post.post.locked = data.post.locked;
-    post.saved = data.saved;
-  }
-}
-
-// TODO possible to make these generic?
-export function updatePostReportRes(
-  data: PostReportView,
-  reports?: PostReportView[]
-) {
-  const found = reports?.find(p => p.post_report.id == data.post_report.id);
-  if (found) {
-    found.post_report = data.post_report;
-  }
-}
-
-export function updateCommentReportRes(
-  data: CommentReportView,
-  reports?: CommentReportView[]
-) {
-  const found = reports?.find(
-    c => c.comment_report.id == data.comment_report.id
-  );
-  if (found) {
-    found.comment_report = data.comment_report;
-  }
-}
-
-export function updatePrivateMessageReportRes(
-  data: PrivateMessageReportView,
-  reports?: PrivateMessageReportView[]
-) {
-  const found = reports?.find(
-    c => c.private_message_report.id == data.private_message_report.id
-  );
-  if (found) {
-    found.private_message_report = data.private_message_report;
-  }
-}
-
-export function updateRegistrationApplicationRes(
-  data: RegistrationApplicationView,
-  applications?: RegistrationApplicationView[]
-) {
-  const found = applications?.find(
-    ra => ra.registration_application.id == data.registration_application.id
-  );
-  if (found) {
-    found.registration_application = data.registration_application;
-    found.admin = data.admin;
-    found.creator_local_user = data.creator_local_user;
   }
 }
 
@@ -1180,6 +1071,7 @@ export function getDepthFromComment(comment?: CommentI): number | undefined {
   return len ? len - 2 : undefined;
 }
 
+// TODO make immutable
 export function insertCommentIntoTree(
   tree: CommentNodeI[],
   cv: CommentView,
@@ -1276,20 +1168,6 @@ export function setIsoData(context: any): IsoData {
   } else return context.router.staticContext;
 }
 
-export function wsSubscribe(parseMessage: any): Subscription | undefined {
-  if (isBrowser()) {
-    return WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => parseMessage(msg),
-        err => console.error(err),
-        () => console.log("complete")
-      );
-  } else {
-    return undefined;
-  }
-}
-
 moment.updateLocale("en", {
   relativeTime: {
     future: "in %s",
@@ -1353,32 +1231,30 @@ export function personToChoice(pvs: PersonView): Choice {
   };
 }
 
-export async function fetchCommunities(q: string) {
+function fetchSearchResults(q: string, type_: SearchType) {
   const form: Search = {
     q,
-    type_: "Communities",
+    type_,
     sort: "TopAll",
     listing_type: "All",
     page: 1,
     limit: fetchLimit,
-    auth: myAuth(false),
+    auth: myAuth(),
   };
-  const client = new LemmyHttp(getHttpBase());
-  return client.search(form);
+
+  return HttpService.client.search(form);
+}
+
+export async function fetchCommunities(q: string) {
+  const res = await fetchSearchResults(q, "Communities");
+
+  return res.state === "success" ? res.data.communities : [];
 }
 
 export async function fetchUsers(q: string) {
-  const form: Search = {
-    q,
-    type_: "Users",
-    sort: "TopAll",
-    listing_type: "All",
-    page: 1,
-    limit: fetchLimit,
-    auth: myAuth(false),
-  };
-  const client = new LemmyHttp(getHttpBase());
-  return client.search(form);
+  const res = await fetchSearchResults(q, "Users");
+
+  return res.state === "success" ? res.data.users : [];
 }
 
 export function communitySelectName(cv: CommunityView): string {
@@ -1398,7 +1274,7 @@ export function initializeSite(site?: GetSiteResponse) {
   UserService.Instance.myUserInfo = site?.my_user;
   i18n.changeLanguage(getLanguages()[0]);
   if (site) {
-    setupEmojiDataModel(site.custom_emojis);
+    setupEmojiDataModel(site.custom_emojis ?? []);
   }
   setupMarkdown();
 }
@@ -1429,8 +1305,12 @@ export function isBanned(ps: Person): boolean {
   }
 }
 
-export function myAuth(throwErr = true): string | undefined {
-  return UserService.Instance.auth(throwErr);
+export function myAuth(): string | undefined {
+  return UserService.Instance.auth();
+}
+
+export function myAuthRequired(): string {
+  return UserService.Instance.auth(true) ?? "";
 }
 
 export function enableDownvotes(siteRes: GetSiteResponse): boolean {
@@ -1528,12 +1408,6 @@ export function selectableLanguages(
   }
 }
 
-export function uploadImage(image: File): Promise<UploadImageResponse> {
-  const client = new LemmyHttp(getHttpBase());
-
-  return client.uploadImage({ image });
-}
-
 interface EmojiMartCategory {
   id: string;
   name: string;
@@ -1594,7 +1468,7 @@ export function getQueryString<T extends Record<string, string | undefined>>(
 }
 
 export function isAuthPath(pathname: string) {
-  return /create_.*|inbox|settings|setup|admin|reports|registration_applications/g.test(
+  return /create_.*|inbox|settings|admin|reports|registration_applications/g.test(
     pathname
   );
 }
@@ -1606,5 +1480,13 @@ export function canShare() {
 export function share(shareData: ShareData) {
   if (isBrowser()) {
     navigator.share(shareData);
+  }
+}
+
+export function newVote(voteType: VoteType, myVote?: number): number {
+  if (voteType == VoteType.Upvote) {
+    return myVote == 1 ? 0 : 1;
+  } else {
+    return myVote == -1 ? 0 : -1;
   }
 }
