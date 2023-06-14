@@ -1,22 +1,38 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   PrivateMessageReportView,
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
-import { mdToHtml, myAuth, wsClient } from "../../utils";
-import { Icon } from "../common/icon";
+import { mdToHtml, myAuthRequired } from "../../utils";
+import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 
 interface Props {
   report: PrivateMessageReportView;
+  onResolveReport(form: ResolvePrivateMessageReport): void;
 }
 
-export class PrivateMessageReport extends Component<Props, any> {
+interface State {
+  loading: boolean;
+}
+
+export class PrivateMessageReport extends Component<Props, State> {
+  state: State = {
+    loading: false,
+  };
+
   constructor(props: any, context: any) {
     super(props, context);
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & Props>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({ loading: false });
+    }
   }
 
   render() {
@@ -66,29 +82,28 @@ export class PrivateMessageReport extends Component<Props, any> {
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
-          <Icon
-            icon="check"
-            classes={`icon-inline ${
-              pmr.resolved ? "text-success" : "text-danger"
-            }`}
-          />
+          {this.state.loading ? (
+            <Spinner />
+          ) : (
+            <Icon
+              icon="check"
+              classes={`icon-inline ${
+                pmr.resolved ? "text-success" : "text-danger"
+              }`}
+            />
+          )}
         </button>
       </div>
     );
   }
 
   handleResolveReport(i: PrivateMessageReport) {
+    i.setState({ loading: true });
     const pmr = i.props.report.private_message_report;
-    const auth = myAuth();
-    if (auth) {
-      const form: ResolvePrivateMessageReport = {
-        report_id: pmr.id,
-        resolved: !pmr.resolved,
-        auth,
-      };
-      WebSocketService.Instance.send(
-        wsClient.resolvePrivateMessageReport(form)
-      );
-    }
+    i.props.onResolveReport({
+      report_id: pmr.id,
+      resolved: !pmr.resolved,
+      auth: myAuthRequired(),
+    });
   }
 }

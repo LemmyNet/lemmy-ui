@@ -1,15 +1,17 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import {
+  CreatePrivateMessage,
   CreatePrivateMessageReport,
   DeletePrivateMessage,
+  EditPrivateMessage,
   MarkPrivateMessageAsRead,
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
-import { mdToHtml, myAuth, toast, wsClient } from "../../utils";
-import { Icon } from "../common/icon";
+import { UserService } from "../../services";
+import { mdToHtml, myAuthRequired } from "../../utils";
+import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
 import { PrivateMessageForm } from "./private-message-form";
@@ -21,10 +23,18 @@ interface PrivateMessageState {
   viewSource: boolean;
   showReportDialog: boolean;
   reportReason?: string;
+  deleteLoading: boolean;
+  readLoading: boolean;
+  reportLoading: boolean;
 }
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
+  onDelete(form: DeletePrivateMessage): void;
+  onMarkRead(form: MarkPrivateMessageAsRead): void;
+  onReport(form: CreatePrivateMessageReport): void;
+  onCreate(form: CreatePrivateMessage): void;
+  onEdit(form: EditPrivateMessage): void;
 }
 
 export class PrivateMessage extends Component<
@@ -37,15 +47,14 @@ export class PrivateMessage extends Component<
     collapsed: false,
     viewSource: false,
     showReportDialog: false,
+    deleteLoading: false,
+    readLoading: false,
+    reportLoading: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
-    this.handlePrivateMessageCreate =
-      this.handlePrivateMessageCreate.bind(this);
-    this.handlePrivateMessageEdit = this.handlePrivateMessageEdit.bind(this);
   }
 
   get mine(): boolean {
@@ -53,6 +62,23 @@ export class PrivateMessage extends Component<
       UserService.Instance.myUserInfo?.local_user_view.person.id ==
       this.props.private_message_view.creator.id
     );
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({
+        showReply: false,
+        showEdit: false,
+        collapsed: false,
+        viewSource: false,
+        showReportDialog: false,
+        deleteLoading: false,
+        readLoading: false,
+        reportLoading: false,
+      });
+    }
   }
 
   render() {
@@ -98,8 +124,7 @@ export class PrivateMessage extends Component<
             <PrivateMessageForm
               recipient={otherPerson}
               privateMessageView={message_view}
-              onEdit={this.handlePrivateMessageEdit}
-              onCreate={this.handlePrivateMessageCreate}
+              onEdit={this.props.onEdit}
               onCancel={this.handleReplyCancel}
             />
           )}
@@ -131,12 +156,17 @@ export class PrivateMessage extends Component<
                             : i18n.t("mark_as_read")
                         }
                       >
-                        <Icon
-                          icon="check"
-                          classes={`icon-inline ${
-                            message_view.private_message.read && "text-success"
-                          }`}
-                        />
+                        {this.state.readLoading ? (
+                          <Spinner />
+                        ) : (
+                          <Icon
+                            icon="check"
+                            classes={`icon-inline ${
+                              message_view.private_message.read &&
+                              "text-success"
+                            }`}
+                          />
+                        )}
                       </button>
                     </li>
                     <li className="list-inline-item">{this.reportButton}</li>
@@ -179,13 +209,17 @@ export class PrivateMessage extends Component<
                             : i18n.t("restore")
                         }
                       >
-                        <Icon
-                          icon="trash"
-                          classes={`icon-inline ${
-                            message_view.private_message.deleted &&
-                            "text-danger"
-                          }`}
-                        />
+                        {this.state.deleteLoading ? (
+                          <Spinner />
+                        ) : (
+                          <Icon
+                            icon="trash"
+                            classes={`icon-inline ${
+                              message_view.private_message.deleted &&
+                              "text-danger"
+                            }`}
+                          />
+                        )}
                       </button>
                     </li>
                   </>
@@ -231,14 +265,14 @@ export class PrivateMessage extends Component<
               className="btn btn-secondary"
               aria-label={i18n.t("create_report")}
             >
-              {i18n.t("create_report")}
+              {this.state.reportLoading ? <Spinner /> : i18n.t("create_report")}
             </button>
           </form>
         )}
         {this.state.showReply && (
           <PrivateMessageForm
             recipient={otherPerson}
-            onCreate={this.handlePrivateMessageCreate}
+            onCreate={this.props.onCreate}
           />
         )}
         {/* A collapsed clearfix */}
@@ -275,15 +309,12 @@ export class PrivateMessage extends Component<
   }
 
   handleDeleteClick(i: PrivateMessage) {
-    const auth = myAuth();
-    if (auth) {
-      const form: DeletePrivateMessage = {
-        private_message_id: i.props.private_message_view.private_message.id,
-        deleted: !i.props.private_message_view.private_message.deleted,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.deletePrivateMessage(form));
-    }
+    i.setState({ deleteLoading: true });
+    i.props.onDelete({
+      private_message_id: i.props.private_message_view.private_message.id,
+      deleted: !i.props.private_message_view.private_message.deleted,
+      auth: myAuthRequired(),
+    });
   }
 
   handleReplyCancel() {
@@ -291,15 +322,12 @@ export class PrivateMessage extends Component<
   }
 
   handleMarkRead(i: PrivateMessage) {
-    const auth = myAuth();
-    if (auth) {
-      const form: MarkPrivateMessageAsRead = {
-        private_message_id: i.props.private_message_view.private_message.id,
-        read: !i.props.private_message_view.private_message.read,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.markPrivateMessageAsRead(form));
-    }
+    i.setState({ readLoading: true });
+    i.props.onMarkRead({
+      private_message_id: i.props.private_message_view.private_message.id,
+      read: !i.props.private_message_view.private_message.read,
+      auth: myAuthRequired(),
+    });
   }
 
   handleMessageCollapse(i: PrivateMessage) {
@@ -320,31 +348,11 @@ export class PrivateMessage extends Component<
 
   handleReportSubmit(i: PrivateMessage, event: any) {
     event.preventDefault();
-    const auth = myAuth();
-    const reason = i.state.reportReason;
-    if (auth && reason) {
-      const form: CreatePrivateMessageReport = {
-        private_message_id: i.props.private_message_view.private_message.id,
-        reason,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.createPrivateMessageReport(form));
-
-      i.setState({ showReportDialog: false });
-    }
-  }
-
-  handlePrivateMessageEdit() {
-    this.setState({ showEdit: false });
-  }
-
-  handlePrivateMessageCreate(message: PrivateMessageView) {
-    if (
-      message.creator.id ==
-      UserService.Instance.myUserInfo?.local_user_view.person.id
-    ) {
-      this.setState({ showReply: false });
-      toast(i18n.t("message_sent"));
-    }
+    i.setState({ reportLoading: true });
+    i.props.onReport({
+      private_message_id: i.props.private_message_view.private_message.id,
+      reason: i.state.reportReason ?? "",
+      auth: myAuthRequired(),
+    });
   }
 }

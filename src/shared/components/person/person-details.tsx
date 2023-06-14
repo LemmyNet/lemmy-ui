@@ -1,11 +1,40 @@
 import { Component } from "inferno";
 import {
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanPerson,
+  BlockPerson,
+  CommentId,
   CommentView,
+  CreateComment,
+  CreateCommentLike,
+  CreateCommentReport,
+  CreatePostLike,
+  CreatePostReport,
+  DeleteComment,
+  DeletePost,
+  DistinguishComment,
+  EditComment,
+  EditPost,
+  FeaturePost,
+  GetComments,
   GetPersonDetailsResponse,
   Language,
+  LockPost,
+  MarkCommentReplyAsRead,
+  MarkPersonMentionAsRead,
   PersonView,
   PostView,
+  PurgeComment,
+  PurgePerson,
+  PurgePost,
+  RemoveComment,
+  RemovePost,
+  SaveComment,
+  SavePost,
   SortType,
+  TransferCommunity,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
 import { commentsToFlatNodes, setupTippy } from "../../utils";
@@ -15,6 +44,7 @@ import { PostListing } from "../post/post-listing";
 
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
+  finished: Map<CommentId, boolean | undefined>;
   admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
@@ -25,6 +55,34 @@ interface PersonDetailsProps {
   enableNsfw: boolean;
   view: PersonDetailsView;
   onPageChange(page: number): number | any;
+  onSaveComment(form: SaveComment): void;
+  onCommentReplyRead(form: MarkCommentReplyAsRead): void;
+  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
+  onCreateComment(form: CreateComment): void;
+  onEditComment(form: EditComment): void;
+  onCommentVote(form: CreateCommentLike): void;
+  onBlockPerson(form: BlockPerson): void;
+  onDeleteComment(form: DeleteComment): void;
+  onRemoveComment(form: RemoveComment): void;
+  onDistinguishComment(form: DistinguishComment): void;
+  onAddModToCommunity(form: AddModToCommunity): void;
+  onAddAdmin(form: AddAdmin): void;
+  onBanPersonFromCommunity(form: BanFromCommunity): void;
+  onBanPerson(form: BanPerson): void;
+  onTransferCommunity(form: TransferCommunity): void;
+  onFetchChildren?(form: GetComments): void;
+  onCommentReport(form: CreateCommentReport): void;
+  onPurgePerson(form: PurgePerson): void;
+  onPurgeComment(form: PurgeComment): void;
+  onPostEdit(form: EditPost): void;
+  onPostVote(form: CreatePostLike): void;
+  onPostReport(form: CreatePostReport): void;
+  onLockPost(form: LockPost): void;
+  onDeletePost(form: DeletePost): void;
+  onRemovePost(form: RemovePost): void;
+  onSavePost(form: SavePost): void;
+  onFeaturePost(form: FeaturePost): void;
+  onPurgePost(form: PurgePost): void;
 }
 
 enum ItemEnum {
@@ -93,6 +151,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             key={i.id}
             nodes={[{ comment_view: c, children: [], depth: 0 }]}
             viewType={CommentViewType.Flat}
+            finished={this.props.finished}
             admins={this.props.admins}
             noBorder
             noIndent
@@ -101,6 +160,25 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             enableDownvotes={this.props.enableDownvotes}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            onCommentReplyRead={this.props.onCommentReplyRead}
+            onPersonMentionRead={this.props.onPersonMentionRead}
+            onCreateComment={this.props.onCreateComment}
+            onEditComment={this.props.onEditComment}
+            onCommentVote={this.props.onCommentVote}
+            onBlockPerson={this.props.onBlockPerson}
+            onSaveComment={this.props.onSaveComment}
+            onDeleteComment={this.props.onDeleteComment}
+            onRemoveComment={this.props.onRemoveComment}
+            onDistinguishComment={this.props.onDistinguishComment}
+            onAddModToCommunity={this.props.onAddModToCommunity}
+            onAddAdmin={this.props.onAddAdmin}
+            onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+            onBanPerson={this.props.onBanPerson}
+            onTransferCommunity={this.props.onTransferCommunity}
+            onFetchChildren={this.props.onFetchChildren}
+            onCommentReport={this.props.onCommentReport}
+            onPurgePerson={this.props.onPurgePerson}
+            onPurgeComment={this.props.onPurgeComment}
           />
         );
       }
@@ -116,6 +194,22 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             enableNsfw={this.props.enableNsfw}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            onPostEdit={this.props.onPostEdit}
+            onPostVote={this.props.onPostVote}
+            onPostReport={this.props.onPostReport}
+            onBlockPerson={this.props.onBlockPerson}
+            onLockPost={this.props.onLockPost}
+            onDeletePost={this.props.onDeletePost}
+            onRemovePost={this.props.onRemovePost}
+            onSavePost={this.props.onSavePost}
+            onFeaturePost={this.props.onFeaturePost}
+            onPurgePerson={this.props.onPurgePerson}
+            onPurgePost={this.props.onPurgePost}
+            onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+            onBanPerson={this.props.onBanPerson}
+            onAddModToCommunity={this.props.onAddModToCommunity}
+            onAddAdmin={this.props.onAddAdmin}
+            onTransferCommunity={this.props.onTransferCommunity}
           />
         );
       }
@@ -167,12 +261,32 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           nodes={commentsToFlatNodes(this.props.personRes.comments)}
           viewType={CommentViewType.Flat}
           admins={this.props.admins}
+          finished={this.props.finished}
           noIndent
           showCommunity
           showContext
           enableDownvotes={this.props.enableDownvotes}
           allLanguages={this.props.allLanguages}
           siteLanguages={this.props.siteLanguages}
+          onCommentReplyRead={this.props.onCommentReplyRead}
+          onPersonMentionRead={this.props.onPersonMentionRead}
+          onCreateComment={this.props.onCreateComment}
+          onEditComment={this.props.onEditComment}
+          onCommentVote={this.props.onCommentVote}
+          onBlockPerson={this.props.onBlockPerson}
+          onSaveComment={this.props.onSaveComment}
+          onDeleteComment={this.props.onDeleteComment}
+          onRemoveComment={this.props.onRemoveComment}
+          onDistinguishComment={this.props.onDistinguishComment}
+          onAddModToCommunity={this.props.onAddModToCommunity}
+          onAddAdmin={this.props.onAddAdmin}
+          onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+          onBanPerson={this.props.onBanPerson}
+          onTransferCommunity={this.props.onTransferCommunity}
+          onFetchChildren={this.props.onFetchChildren}
+          onCommentReport={this.props.onCommentReport}
+          onPurgePerson={this.props.onPurgePerson}
+          onPurgeComment={this.props.onPurgeComment}
         />
       </div>
     );
@@ -191,6 +305,22 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               enableNsfw={this.props.enableNsfw}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
+              onPostEdit={this.props.onPostEdit}
+              onPostVote={this.props.onPostVote}
+              onPostReport={this.props.onPostReport}
+              onBlockPerson={this.props.onBlockPerson}
+              onLockPost={this.props.onLockPost}
+              onDeletePost={this.props.onDeletePost}
+              onRemovePost={this.props.onRemovePost}
+              onSavePost={this.props.onSavePost}
+              onFeaturePost={this.props.onFeaturePost}
+              onPurgePerson={this.props.onPurgePerson}
+              onPurgePost={this.props.onPurgePost}
+              onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+              onBanPerson={this.props.onBanPerson}
+              onAddModToCommunity={this.props.onAddModToCommunity}
+              onAddAdmin={this.props.onAddAdmin}
+              onTransferCommunity={this.props.onTransferCommunity}
             />
             <hr className="my-3" />
           </>

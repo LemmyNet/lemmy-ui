@@ -8,7 +8,7 @@ interface ListingTypeSelectProps {
   type_: ListingType;
   showLocal: boolean;
   showSubscribed: boolean;
-  onChange?(val: ListingType): any;
+  onChange(val: ListingType): void;
 }
 
 interface ListingTypeSelectState {
@@ -29,11 +29,11 @@ export class ListingTypeSelect extends Component<
     super(props, context);
   }
 
-  static getDerivedStateFromProps(props: any): ListingTypeSelectProps {
+  static getDerivedStateFromProps(
+    props: ListingTypeSelectProps
+  ): ListingTypeSelectState {
     return {
       type_: props.type_,
-      showLocal: props.showLocal,
-      showSubscribed: props.showSubscribed,
     };
   }
 
@@ -97,6 +97,6 @@ export class ListingTypeSelect extends Component<
   }
 
   handleTypeChange(i: ListingTypeSelect, event: any) {
-    i.props.onChange?.(event.target.value);
+    i.props.onChange(event.target.value);
   }
 }

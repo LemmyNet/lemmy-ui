@@ -1,20 +1,36 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
-import { myAuth, wsClient } from "../../utils";
-import { Icon } from "../common/icon";
+import { myAuthRequired } from "../../utils";
+import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
 
 interface PostReportProps {
   report: PostReportView;
+  onResolveReport(form: ResolvePostReport): void;
 }
 
-export class PostReport extends Component<PostReportProps, any> {
+interface PostReportState {
+  loading: boolean;
+}
+
+export class PostReport extends Component<PostReportProps, PostReportState> {
+  state: PostReportState = {
+    loading: false,
+  };
+
   constructor(props: any, context: any) {
     super(props, context);
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({ loading: false });
+    }
   }
 
   render() {
@@ -54,6 +70,23 @@ export class PostReport extends Component<PostReportProps, any> {
           allLanguages={[]}
           siteLanguages={[]}
           hideImage
+          // All of these are unused, since its view only
+          onPostEdit={() => {}}
+          onPostVote={() => {}}
+          onPostReport={() => {}}
+          onBlockPerson={() => {}}
+          onLockPost={() => {}}
+          onDeletePost={() => {}}
+          onRemovePost={() => {}}
+          onSavePost={() => {}}
+          onFeaturePost={() => {}}
+          onPurgePerson={() => {}}
+          onPurgePost={() => {}}
+          onBanPersonFromCommunity={() => {}}
+          onBanPerson={() => {}}
+          onAddModToCommunity={() => {}}
+          onAddAdmin={() => {}}
+          onTransferCommunity={() => {}}
         />
         <div>
           {i18n.t("reporter")}: <PersonListing person={r.creator} />
@@ -82,26 +115,27 @@ export class PostReport extends Component<PostReportProps, any> {
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
-          <Icon
-            icon="check"
-            classes={`icon-inline ${
-              r.post_report.resolved ? "text-success" : "text-danger"
-            }`}
-          />
+          {this.state.loading ? (
+            <Spinner />
+          ) : (
+            <Icon
+              icon="check"
+              classes={`icon-inline ${
+                r.post_report.resolved ? "text-success" : "text-danger"
+              }`}
+            />
+          )}
         </button>
       </div>
     );
   }
 
   handleResolveReport(i: PostReport) {
-    const auth = myAuth();
-    if (auth) {
-      const form: ResolvePostReport = {
-        report_id: i.props.report.post_report.id,
-        resolved: !i.props.report.post_report.resolved,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.resolvePostReport(form));
-    }
+    i.setState({ loading: true });
+    i.props.onResolveReport({
+      report_id: i.props.report.post_report.id,
+      resolved: !i.props.report.post_report.resolved,
+      auth: myAuthRequired(),
+    });
   }
 }

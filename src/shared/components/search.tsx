@@ -1,7 +1,6 @@
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
-  CommentResponse,
   CommentView,
   CommunityView,
   GetCommunity,
@@ -13,7 +12,6 @@ import {
   ListCommunitiesResponse,
   ListingType,
   PersonView,
-  PostResponse,
   PostView,
   ResolveObject,
   ResolveObjectResponse,
@@ -21,22 +19,17 @@ import {
   SearchResponse,
   SearchType,
   SortType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
-import { WebSocketService } from "../services";
+import { FirstLoadService } from "../services/FirstLoadService";
+import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
   QueryParams,
   capitalizeFirstLetter,
   commentsToFlatNodes,
   communityToChoice,
-  createCommentLikeRes,
-  createPostLikeFindRes,
   debounce,
   enableDownvotes,
   enableNsfw,
@@ -55,9 +48,6 @@ import {
   saveScrollPosition,
   setIsoData,
   showLocal,
-  toast,
-  wsClient,
-  wsSubscribe,
 } from "../utils";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
@@ -83,17 +73,18 @@ interface SearchProps {
 type FilterType = "creator" | "community";
 
 interface SearchState {
-  searchResponse?: SearchResponse;
-  communities: CommunityView[];
-  creatorDetails?: GetPersonDetailsResponse;
-  searchLoading: boolean;
-  searchCommunitiesLoading: boolean;
-  searchCreatorLoading: boolean;
+  searchRes: RequestState<SearchResponse>;
+  resolveObjectRes: RequestState<ResolveObjectResponse>;
+  creatorDetailsRes: RequestState<GetPersonDetailsResponse>;
+  communitiesRes: RequestState<ListCommunitiesResponse>;
+  communityRes: RequestState<GetCommunityResponse>;
   siteRes: GetSiteResponse;
   searchText?: string;
-  resolveObjectResponse?: ResolveObjectResponse;
   communitySearchOptions: Choice[];
   creatorSearchOptions: Choice[];
+  searchCreatorLoading: boolean;
+  searchCommunitiesLoading: boolean;
+  isIsomorphic: boolean;
 }
 
 interface Combined {
@@ -238,15 +229,18 @@ function getListing(
 
 export class Search extends Component<any, SearchState> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: SearchState = {
-    searchLoading: false,
+    resolveObjectRes: { state: "empty" },
+    creatorDetailsRes: { state: "empty" },
+    communitiesRes: { state: "empty" },
+    communityRes: { state: "empty" },
     siteRes: this.isoData.site_res,
-    communities: [],
-    searchCommunitiesLoading: false,
-    searchCreatorLoading: false,
     creatorSearchOptions: [],
     communitySearchOptions: [],
+    searchRes: { state: "empty" },
+    searchCreatorLoading: false,
+    searchCommunitiesLoading: false,
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -259,9 +253,6 @@ export class Search extends Component<any, SearchState> {
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
     const { q } = getSearchQueryParams();
 
     this.state = {
@@ -270,71 +261,70 @@ export class Search extends Component<any, SearchState> {
     };
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path === this.context.router.route.match.url) {
-      const communityRes = this.isoData.routeData[0] as
-        | GetCommunityResponse
-        | undefined;
-      const communitiesRes = this.isoData.routeData[1] as
-        | ListCommunitiesResponse
-        | undefined;
-      // This can be single or multiple communities given
-      if (communitiesRes) {
+    if (FirstLoadService.isFirstLoad) {
+      const [
+        communityRes,
+        communitiesRes,
+        creatorDetailsRes,
+        searchRes,
+        resolveObjectRes,
+      ] = this.isoData.routeData;
+
+      this.state = {
+        ...this.state,
+        communitiesRes,
+        communityRes,
+        creatorDetailsRes,
+        creatorSearchOptions:
+          creatorDetailsRes.state == "success"
+            ? [personToChoice(creatorDetailsRes.data.person_view)]
+            : [],
+        isIsomorphic: true,
+      };
+
+      if (communityRes.state === "success") {
         this.state = {
           ...this.state,
-          communities: communitiesRes.communities,
-        };
-      }
-      if (communityRes) {
-        this.state = {
-          ...this.state,
-          communities: [communityRes.community_view],
           communitySearchOptions: [
-            communityToChoice(communityRes.community_view),
+            communityToChoice(communityRes.data.community_view),
           ],
         };
       }
 
-      const creatorRes = this.isoData.routeData[2] as GetPersonDetailsResponse;
-
-      this.state = {
-        ...this.state,
-        creatorDetails: creatorRes,
-        creatorSearchOptions: creatorRes
-          ? [personToChoice(creatorRes.person_view)]
-          : [],
-      };
-
-      if (q !== "") {
+      if (q) {
         this.state = {
           ...this.state,
-          searchResponse: this.isoData.routeData[3] as SearchResponse,
-          resolveObjectResponse: this.isoData
-            .routeData[4] as ResolveObjectResponse,
-          searchLoading: false,
+          searchRes,
+          resolveObjectRes,
         };
-      } else {
-        this.search();
-      }
-    } else {
-      const listCommunitiesForm: ListCommunities = {
-        type_: defaultListingType,
-        sort: defaultSortType,
-        limit: fetchLimit,
-        auth: myAuth(false),
-      };
-
-      WebSocketService.Instance.send(
-        wsClient.listCommunities(listCommunitiesForm)
-      );
-
-      if (q) {
-        this.search();
       }
     }
   }
 
+  async componentDidMount() {
+    if (!this.state.isIsomorphic) {
+      const promises = [this.fetchCommunities()];
+      if (this.state.searchText) {
+        promises.push(this.search());
+      }
+
+      await Promise.all(promises);
+    }
+  }
+
+  async fetchCommunities() {
+    this.setState({ communitiesRes: { state: "loading" } });
+    this.setState({
+      communitiesRes: await HttpService.client.listCommunities({
+        type_: defaultListingType,
+        sort: defaultSortType,
+        limit: fetchLimit,
+        auth: myAuth(),
+      }),
+    });
+  }
+
   componentWillUnmount() {
-    this.subscription?.unsubscribe();
     saveScrollPosition(this.context);
   }
 
@@ -342,8 +332,10 @@ export class Search extends Component<any, SearchState> {
     client,
     auth,
     query: { communityId, creatorId, q, type, sort, listingType, page },
-  }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<any>[] {
-    const promises: Promise<any>[] = [];
+  }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<
+    RequestState<any>
+  >[] {
+    const promises: Promise<RequestState<any>>[] = [];
 
     const community_id = getIdFromString(communityId);
     if (community_id) {
@@ -352,7 +344,7 @@ export class Search extends Component<any, SearchState> {
         auth,
       };
       promises.push(client.getCommunity(getCommunityForm));
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     } else {
       const listCommunitiesForm: ListCommunities = {
         type_: defaultListingType,
@@ -360,7 +352,7 @@ export class Search extends Component<any, SearchState> {
         limit: fetchLimit,
         auth,
       };
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
       promises.push(client.listCommunities(listCommunitiesForm));
     }
 
@@ -372,7 +364,7 @@ export class Search extends Component<any, SearchState> {
       };
       promises.push(client.getPersonDetails(getCreatorForm));
     } else {
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     }
 
     const query = getSearchQueryFromQuery(q);
@@ -400,8 +392,8 @@ export class Search extends Component<any, SearchState> {
           promises.push(client.resolveObject(resolveObjectForm));
         }
       } else {
-        promises.push(Promise.resolve());
-        promises.push(Promise.resolve());
+        promises.push(Promise.resolve({ state: "empty" }));
+        promises.push(Promise.resolve({ state: "empty" }));
       }
     }
 
@@ -427,9 +419,10 @@ export class Search extends Component<any, SearchState> {
         {this.selects}
         {this.searchForm}
         {this.displayResults(type)}
-        {this.resultsCount === 0 && !this.state.searchLoading && (
-          <span>{i18n.t("no_results")}</span>
-        )}
+        {this.resultsCount === 0 &&
+          this.state.searchRes.state === "success" && (
+            <span>{i18n.t("no_results")}</span>
+          )}
         <Paginator page={page} onChange={this.handlePageChange} />
       </div>
     );
@@ -470,7 +463,7 @@ export class Search extends Component<any, SearchState> {
           minLength={1}
         />
         <button type="submit" className="btn btn-secondary mr-2 mb-2">
-          {this.state.searchLoading ? (
+          {this.state.searchRes.state == "loading" ? (
             <Spinner />
           ) : (
             <span>{i18n.t("search")}</span>
@@ -488,7 +481,12 @@ export class Search extends Component<any, SearchState> {
       creatorSearchOptions,
       searchCommunitiesLoading,
       searchCreatorLoading,
+      communitiesRes,
     } = this.state;
+
+    const hasCommunities =
+      communitiesRes.state == "success" &&
+      communitiesRes.data.communities.length > 0;
 
     return (
       <div className="mb-2">
@@ -524,14 +522,14 @@ export class Search extends Component<any, SearchState> {
           />
         </span>
         <div className="form-row">
-          {this.state.communities.length > 0 && (
+          {hasCommunities && (
             <Filter
               filterType="community"
               onChange={this.handleCommunityFilterChange}
               onSearch={this.handleCommunitySearch}
               options={communitySearchOptions}
-              loading={searchCommunitiesLoading}
               value={communityId}
+              loading={searchCommunitiesLoading}
             />
           )}
           <Filter
@@ -539,8 +537,8 @@ export class Search extends Component<any, SearchState> {
             onChange={this.handleCreatorFilterChange}
             onSearch={this.handleCreatorSearch}
             options={creatorSearchOptions}
-            loading={searchCreatorLoading}
             value={creatorId}
+            loading={searchCreatorLoading}
           />
         </div>
       </div>
@@ -549,11 +547,14 @@ export class Search extends Component<any, SearchState> {
 
   buildCombined(): Combined[] {
     const combined: Combined[] = [];
-    const { resolveObjectResponse, searchResponse } = this.state;
+    const {
+      resolveObjectRes: resolveObjectResponse,
+      searchRes: searchResponse,
+    } = this.state;
 
     // Push the possible resolve / federated objects first
-    if (resolveObjectResponse) {
-      const { comment, post, community, person } = resolveObjectResponse;
+    if (resolveObjectResponse.state == "success") {
+      const { comment, post, community, person } = resolveObjectResponse.data;
 
       if (comment) {
         combined.push(commentViewToCombined(comment));
@@ -570,8 +571,8 @@ export class Search extends Component<any, SearchState> {
     }
 
     // Push the search results
-    if (searchResponse) {
-      const { comments, posts, communities, users } = searchResponse;
+    if (searchResponse.state === "success") {
+      const { comments, posts, communities, users } = searchResponse.data;
 
       combined.push(
         ...[
@@ -622,6 +623,23 @@ export class Search extends Component<any, SearchState> {
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
                   viewOnly
+                  // All of these are unused, since its view only
+                  onPostEdit={() => {}}
+                  onPostVote={() => {}}
+                  onPostReport={() => {}}
+                  onBlockPerson={() => {}}
+                  onLockPost={() => {}}
+                  onDeletePost={() => {}}
+                  onRemovePost={() => {}}
+                  onSavePost={() => {}}
+                  onFeaturePost={() => {}}
+                  onPurgePerson={() => {}}
+                  onPurgePost={() => {}}
+                  onBanPersonFromCommunity={() => {}}
+                  onBanPerson={() => {}}
+                  onAddModToCommunity={() => {}}
+                  onAddAdmin={() => {}}
+                  onTransferCommunity={() => {}}
                 />
               )}
               {i.type_ === "comments" && (
@@ -641,6 +659,26 @@ export class Search extends Component<any, SearchState> {
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
+                  // All of these are unused, since its viewonly
+                  finished={new Map()}
+                  onSaveComment={() => {}}
+                  onBlockPerson={() => {}}
+                  onDeleteComment={() => {}}
+                  onRemoveComment={() => {}}
+                  onCommentVote={() => {}}
+                  onCommentReport={() => {}}
+                  onDistinguishComment={() => {}}
+                  onAddModToCommunity={() => {}}
+                  onAddAdmin={() => {}}
+                  onTransferCommunity={() => {}}
+                  onPurgeComment={() => {}}
+                  onPurgePerson={() => {}}
+                  onCommentReplyRead={() => {}}
+                  onPersonMentionRead={() => {}}
+                  onBanPersonFromCommunity={() => {}}
+                  onBanPerson={() => {}}
+                  onCreateComment={() => Promise.resolve({ state: "empty" })}
+                  onEditComment={() => Promise.resolve({ state: "empty" })}
                 />
               )}
               {i.type_ === "communities" && (
@@ -657,11 +695,19 @@ export class Search extends Component<any, SearchState> {
   }
 
   get comments() {
-    const { searchResponse, resolveObjectResponse, siteRes } = this.state;
-    const comments = searchResponse?.comments ?? [];
+    const {
+      searchRes: searchResponse,
+      resolveObjectRes: resolveObjectResponse,
+      siteRes,
+    } = this.state;
+    const comments =
+      searchResponse.state === "success" ? searchResponse.data.comments : [];
 
-    if (resolveObjectResponse?.comment) {
-      comments.unshift(resolveObjectResponse?.comment);
+    if (
+      resolveObjectResponse.state === "success" &&
+      resolveObjectResponse.data.comment
+    ) {
+      comments.unshift(resolveObjectResponse.data.comment);
     }
 
     return (
@@ -674,16 +720,44 @@ export class Search extends Component<any, SearchState> {
         enableDownvotes={enableDownvotes(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
+        // All of these are unused, since its viewonly
+        finished={new Map()}
+        onSaveComment={() => {}}
+        onBlockPerson={() => {}}
+        onDeleteComment={() => {}}
+        onRemoveComment={() => {}}
+        onCommentVote={() => {}}
+        onCommentReport={() => {}}
+        onDistinguishComment={() => {}}
+        onAddModToCommunity={() => {}}
+        onAddAdmin={() => {}}
+        onTransferCommunity={() => {}}
+        onPurgeComment={() => {}}
+        onPurgePerson={() => {}}
+        onCommentReplyRead={() => {}}
+        onPersonMentionRead={() => {}}
+        onBanPersonFromCommunity={() => {}}
+        onBanPerson={() => {}}
+        onCreateComment={() => Promise.resolve({ state: "empty" })}
+        onEditComment={() => Promise.resolve({ state: "empty" })}
       />
     );
   }
 
   get posts() {
-    const { searchResponse, resolveObjectResponse, siteRes } = this.state;
-    const posts = searchResponse?.posts ?? [];
+    const {
+      searchRes: searchResponse,
+      resolveObjectRes: resolveObjectResponse,
+      siteRes,
+    } = this.state;
+    const posts =
+      searchResponse.state === "success" ? searchResponse.data.posts : [];
 
-    if (resolveObjectResponse?.post) {
-      posts.unshift(resolveObjectResponse.post);
+    if (
+      resolveObjectResponse.state === "success" &&
+      resolveObjectResponse.data.post
+    ) {
+      posts.unshift(resolveObjectResponse.data.post);
     }
 
     return (
@@ -699,6 +773,23 @@ export class Search extends Component<any, SearchState> {
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
+                // All of these are unused, since its view only
+                onPostEdit={() => {}}
+                onPostVote={() => {}}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
               />
             </div>
           </div>
@@ -708,11 +799,18 @@ export class Search extends Component<any, SearchState> {
   }
 
   get communities() {
-    const { searchResponse, resolveObjectResponse } = this.state;
-    const communities = searchResponse?.communities ?? [];
+    const {
+      searchRes: searchResponse,
+      resolveObjectRes: resolveObjectResponse,
+    } = this.state;
+    const communities =
+      searchResponse.state === "success" ? searchResponse.data.communities : [];
 
-    if (resolveObjectResponse?.community) {
-      communities.unshift(resolveObjectResponse.community);
+    if (
+      resolveObjectResponse.state === "success" &&
+      resolveObjectResponse.data.community
+    ) {
+      communities.unshift(resolveObjectResponse.data.community);
     }
 
     return (
@@ -727,11 +825,18 @@ export class Search extends Component<any, SearchState> {
   }
 
   get users() {
-    const { searchResponse, resolveObjectResponse } = this.state;
-    const users = searchResponse?.users ?? [];
+    const {
+      searchRes: searchResponse,
+      resolveObjectRes: resolveObjectResponse,
+    } = this.state;
+    const users =
+      searchResponse.state === "success" ? searchResponse.data.users : [];
 
-    if (resolveObjectResponse?.person) {
-      users.unshift(resolveObjectResponse.person);
+    if (
+      resolveObjectResponse.state === "success" &&
+      resolveObjectResponse.data.person
+    ) {
+      users.unshift(resolveObjectResponse.data.person);
     }
 
     return (
@@ -746,74 +851,71 @@ export class Search extends Component<any, SearchState> {
   }
 
   get resultsCount(): number {
-    const { searchResponse: r, resolveObjectResponse: resolveRes } = this.state;
+    const { searchRes: r, resolveObjectRes: resolveRes } = this.state;
 
-    const searchCount = r
-      ? r.posts.length +
-        r.comments.length +
-        r.communities.length +
-        r.users.length
-      : 0;
+    const searchCount =
+      r.state === "success"
+        ? r.data.posts.length +
+          r.data.comments.length +
+          r.data.communities.length +
+          r.data.users.length
+        : 0;
 
-    const resObjCount = resolveRes
-      ? resolveRes.post ||
-        resolveRes.person ||
-        resolveRes.community ||
-        resolveRes.comment
-        ? 1
-        : 0
-      : 0;
+    const resObjCount =
+      resolveRes.state === "success"
+        ? resolveRes.data.post ||
+          resolveRes.data.person ||
+          resolveRes.data.community ||
+          resolveRes.data.comment
+          ? 1
+          : 0
+        : 0;
 
     return resObjCount + searchCount;
   }
 
-  search() {
-    const auth = myAuth(false);
+  async search() {
+    const auth = myAuth();
     const { searchText: q } = this.state;
     const { communityId, creatorId, type, sort, listingType, page } =
       getSearchQueryParams();
 
-    if (q && q !== "") {
-      const form: SearchForm = {
-        q,
-        community_id: communityId ?? undefined,
-        creator_id: creatorId ?? undefined,
-        type_: type,
-        sort,
-        listing_type: listingType,
-        page,
-        limit: fetchLimit,
-        auth,
-      };
+    if (q) {
+      this.setState({ searchRes: { state: "loading" } });
+      this.setState({
+        searchRes: await HttpService.client.search({
+          q,
+          community_id: communityId ?? undefined,
+          creator_id: creatorId ?? undefined,
+          type_: type,
+          sort,
+          listing_type: listingType,
+          page,
+          limit: fetchLimit,
+          auth,
+        }),
+      });
+      window.scrollTo(0, 0);
+      restoreScrollPosition(this.context);
 
       if (auth) {
-        const resolveObjectForm: ResolveObject = {
-          q,
-          auth,
-        };
-        WebSocketService.Instance.send(
-          wsClient.resolveObject(resolveObjectForm)
-        );
+        this.setState({ resolveObjectRes: { state: "loading" } });
+        this.setState({
+          resolveObjectRes: await HttpService.client.resolveObject({
+            q,
+            auth,
+          }),
+        });
       }
-
-      this.setState({
-        searchResponse: undefined,
-        resolveObjectResponse: undefined,
-        searchLoading: true,
-      });
-
-      WebSocketService.Instance.send(wsClient.search(form));
     }
   }
 
   handleCreatorSearch = debounce(async (text: string) => {
     const { creatorId } = getSearchQueryParams();
     const { creatorSearchOptions } = this.state;
-    this.setState({
-      searchCreatorLoading: true,
-    });
-
     const newOptions: Choice[] = [];
+
+    this.setState({ searchCreatorLoading: true });
 
     const selectedChoice = creatorSearchOptions.find(
       choice => getIdFromString(choice.value) === creatorId
@@ -824,7 +926,7 @@ export class Search extends Component<any, SearchState> {
     }
 
     if (text.length > 0) {
-      newOptions.push(...(await fetchUsers(text)).users.map(personToChoice));
+      newOptions.push(...(await fetchUsers(text)).map(personToChoice));
     }
 
     this.setState({
@@ -851,9 +953,7 @@ export class Search extends Component<any, SearchState> {
     }
 
     if (text.length > 0) {
-      newOptions.push(
-        ...(await fetchCommunities(text)).communities.map(communityToChoice)
-      );
+      newOptions.push(...(await fetchCommunities(text)).map(communityToChoice));
     }
 
     this.setState({
@@ -913,7 +1013,7 @@ export class Search extends Component<any, SearchState> {
     i.setState({ searchText: event.target.value });
   }
 
-  updateUrl({
+  async updateUrl({
     q,
     type,
     listingType,
@@ -950,71 +1050,6 @@ export class Search extends Component<any, SearchState> {
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);
 
-    this.search();
-  }
-
-  parseMessage(msg: any) {
-    console.log(msg);
-    const op = wsUserOp(msg);
-    if (msg.error) {
-      if (msg.error === "couldnt_find_object") {
-        this.setState({
-          resolveObjectResponse: {},
-        });
-        this.checkFinishedLoading();
-      } else {
-        toast(i18n.t(msg.error), "danger");
-      }
-    } else {
-      switch (op) {
-        case UserOperation.Search: {
-          const searchResponse = wsJsonToRes<SearchResponse>(msg);
-          this.setState({ searchResponse });
-          window.scrollTo(0, 0);
-          this.checkFinishedLoading();
-          restoreScrollPosition(this.context);
-
-          break;
-        }
-
-        case UserOperation.CreateCommentLike: {
-          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
-          createCommentLikeRes(
-            comment_view,
-            this.state.searchResponse?.comments
-          );
-
-          break;
-        }
-
-        case UserOperation.CreatePostLike: {
-          const { post_view } = wsJsonToRes<PostResponse>(msg);
-          createPostLikeFindRes(post_view, this.state.searchResponse?.posts);
-
-          break;
-        }
-
-        case UserOperation.ListCommunities: {
-          const { communities } = wsJsonToRes<ListCommunitiesResponse>(msg);
-          this.setState({ communities });
-
-          break;
-        }
-
-        case UserOperation.ResolveObject: {
-          const resolveObjectResponse = wsJsonToRes<ResolveObjectResponse>(msg);
-          this.setState({ resolveObjectResponse });
-          this.checkFinishedLoading();
-
-          break;
-        }
-      }
-    }
-  }
-
-  checkFinishedLoading() {
-    if (this.state.searchResponse || this.state.resolveObjectResponse) {
-      this.setState({ searchLoading: false });
-    }
+    await this.search();
   }
 }
