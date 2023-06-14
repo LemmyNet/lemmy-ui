@@ -11,12 +11,14 @@ import { CommunityForm } from "./community-form";
 
 interface CreateCommunityState {
   siteRes: GetSiteResponse;
+  loading: boolean;
 }
 
 export class CreateCommunity extends Component<any, CreateCommunityState> {
   private isoData = setIsoData(this.context);
   state: CreateCommunityState = {
     siteRes: this.isoData.site_res,
+    loading: false,
   };
   constructor(props: any, context: any) {
     super(props, context);
@@ -45,6 +47,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
               allLanguages={this.state.siteRes.all_languages}
               siteLanguages={this.state.siteRes.discussion_languages}
               communityLanguages={this.state.siteRes.discussion_languages}
+              isLoading={this.state.loading}
             />
           </div>
         </div>
@@ -53,10 +56,15 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   }
 
   async handleCommunityCreate(form: CreateCommunityI) {
+    this.setState({ loading: true });
+
     const res = await HttpService.client.createCommunity(form);
+
     if (res.state === "success") {
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);
+    } else {
+      this.setState({ loading: false });
     }
   }
 }
