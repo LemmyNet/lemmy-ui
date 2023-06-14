@@ -14,9 +14,9 @@ body:
       options:
         - label: Did you check to see if this issue already exists?
           required: true
-        - label: Is this only a feature request. Do not put multiple feature requests in one issue.
+        - label: Is this only a feature request? Do not put multiple feature requests in one issue.
           required: true
-        - label: Is this a question or discussion? Don't use this, use https://lemmy.ml/c/lemmy_support
+        - label: Is this a feature request? For questions or discussions, use https://lemmy.ml/c/lemmy_support
           required: true
         - label: Is this a server side (not related to the UI) issue? Use the [Lemmy back end](https://github.com/LemmyNet/lemmy) repo.
           required: true
