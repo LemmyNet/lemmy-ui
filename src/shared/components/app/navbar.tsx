@@ -66,7 +66,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
-      await this.fetchUnreads();
+      this.fetchUnreads();
       this.requestNotificationPermission();
 
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
@@ -408,7 +408,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     return amAdmin() || moderatesS;
   }
 
-  async fetchUnreads() {
+  fetchUnreads() {
     poll(async () => {
       const auth = myAuth();
       if (auth) {

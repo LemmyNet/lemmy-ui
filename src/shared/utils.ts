@@ -1499,6 +1499,8 @@ function sleep<T>(millis: number): Promise<T> {
 /**
  * Polls / repeatedly runs a promise, every X milliseconds
  */
-export function poll(promiseFn: any, millis: number) {
-  promiseFn().then(sleep(millis).then(() => poll(promiseFn, millis)));
+export async function poll(promiseFn: any, millis: number) {
+  await promiseFn();
+  await sleep(millis);
+  return poll(promiseFn, millis);
 }
