@@ -43,7 +43,10 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
               <meta
                 key={n}
                 name={n}
-                content={htmlToText(md.renderInline(desc))}
+                content={htmlToText(md.renderInline(desc), {
+                  wordwrap: false,
+                  preserveNewlines: true,
+                })}
               />
             )
         )}
