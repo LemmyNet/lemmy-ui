@@ -434,3 +434,12 @@ br.big {
 em-emoji-picker {
   width: 100%;
 }
+
+/* Applies to the text-contents of a comment-node. */
+.comment-node > div > div > .md-div p {
+  display:          flex;
+  align-items:    start;
+  flex-direction: column;
+}
+
+
