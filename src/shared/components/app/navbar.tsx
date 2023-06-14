@@ -34,7 +34,9 @@ interface NavbarState {
 }
 
 function handleCollapseClick(i: Navbar) {
-  i.collapseButtonRef.current?.click();
+  if (i.collapseButtonRef.current?.ariaExpanded === "true") {
+    i.collapseButtonRef.current?.click();
+  }
 }
 
 function handleLogOut(i: Navbar) {
@@ -65,12 +67,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       await this.fetchUnreads();
       this.requestNotificationPermission();
 
-      document.addEventListener("click", this.handleOutsideMenuClick);
+      document.addEventListener("mouseup", this.handleOutsideMenuClick);
     }
   }
 
   componentWillUnmount() {
-    document.removeEventListener("click", this.handleOutsideMenuClick);
+    document.removeEventListener("mouseup", this.handleOutsideMenuClick);
   }
 
   render() {
