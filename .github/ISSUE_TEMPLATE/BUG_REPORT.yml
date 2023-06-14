@@ -15,16 +15,11 @@ body:
       description: Before you create a bug report please do the following.
       options:
         - label: Did you check to see if this issue already exists?
-          required: true
-      options:
         - label: Is this only a single bug. Do not put multiple bugs in one issue.
-          required: true
-      options:
         - label: Is this a question or discussion? Don't use this, use https://lemmy.ml/c/lemmy_support
-          required: true
-      options:
         - label: Is this a server side (not related to the UI) issue? Use the [Lemmy back end](https://github.com/LemmyNet/lemmy) repo.
-          required: true
+    validations:
+      required: true
   - type: textarea
     id: summary
     attributes:
