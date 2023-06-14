@@ -7,24 +7,19 @@ import {
   GetCaptchaResponse,
   GetSiteResponse,
   LoginResponse,
-  Register,
   SiteView,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   isBrowser,
   joinLemmyUrl,
   mdToHtml,
+  myAuth,
   setIsoData,
   toast,
   validEmail,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -58,6 +53,8 @@ const passwordStrengthOptions: Options<string> = [
 ];
 
 interface State {
+  registerRes: RequestState<LoginResponse>;
+  captchaRes: RequestState<GetCaptchaResponse>;
   form: {
     username?: string;
     email?: string;
@@ -69,22 +66,20 @@ interface State {
     honeypot?: string;
     answer?: string;
   };
-  registerLoading: boolean;
-  captcha?: GetCaptchaResponse;
   captchaPlaying: boolean;
   siteRes: GetSiteResponse;
 }
 
 export class Signup extends Component<any, State> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   private audio?: HTMLAudioElement;
 
   state: State = {
+    registerRes: { state: "empty" },
+    captchaRes: { state: "empty" },
     form: {
       show_nsfw: false,
     },
-    registerLoading: false,
     captchaPlaying: false,
     siteRes: this.isoData.site_res,
   };
@@ -93,19 +88,26 @@ export class Signup extends Component<any, State> {
     super(props, context);
 
     this.handleAnswerChange = this.handleAnswerChange.bind(this);
+  }
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
-    if (isBrowser()) {
-      WebSocketService.Instance.send(wsClient.getCaptcha({}));
+  async componentDidMount() {
+    if (this.state.siteRes.site_view.local_site.captcha_enabled) {
+      await this.fetchCaptcha();
     }
   }
 
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
-    }
+  async fetchCaptcha() {
+    this.setState({ captchaRes: { state: "loading" } });
+    this.setState({
+      captchaRes: await HttpService.client.getCaptcha({}),
+    });
+
+    this.setState(s => {
+      if (s.captchaRes.state == "success") {
+        s.form.captcha_uuid = s.captchaRes.data.ok?.uuid;
+      }
+      return s;
+    });
   }
 
   get documentTitle(): string {
@@ -285,6 +287,7 @@ export class Signup extends Component<any, State> {
               </label>
               <div className="col-sm-10">
                 <MarkdownTextArea
+                  initialContent=""
                   onContentChange={this.handleAnswerChange}
                   hideNavigationWarnings
                   allLanguages={[]}
@@ -294,36 +297,7 @@ export class Signup extends Component<any, State> {
             </div>
           </>
         )}
-
-        {this.state.captcha && (
-          <div className="form-group row">
-            <label className="col-sm-2" htmlFor="register-captcha">
-              <span className="mr-2">{i18n.t("enter_code")}</span>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={linkEvent(this, this.handleRegenCaptcha)}
-                aria-label={i18n.t("captcha")}
-              >
-                <Icon icon="refresh-cw" classes="icon-refresh-cw" />
-              </button>
-            </label>
-            {this.showCaptcha()}
-            <div className="col-sm-6">
-              <input
-                type="text"
-                className="form-control"
-                id="register-captcha"
-                value={this.state.form.captcha_answer}
-                onInput={linkEvent(
-                  this,
-                  this.handleRegisterCaptchaAnswerChange
-                )}
-                required
-              />
-            </div>
-          </div>
-        )}
+        {this.renderCaptcha()}
         {siteView.local_site.enable_nsfw && (
           <div className="form-group row">
             <div className="col-sm-10">
@@ -358,7 +332,7 @@ export class Signup extends Component<any, State> {
         <div className="form-group row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.registerLoading ? (
+              {this.state.registerRes.state == "loading" ? (
                 <Spinner />
               ) : (
                 this.titleName(siteView)
@@ -370,8 +344,47 @@ export class Signup extends Component<any, State> {
     );
   }
 
-  showCaptcha() {
-    const captchaRes = this.state.captcha?.ok;
+  renderCaptcha() {
+    switch (this.state.captchaRes.state) {
+      case "loading":
+        return <Spinner />;
+      case "success": {
+        const res = this.state.captchaRes.data;
+        return (
+          <div className="form-group row">
+            <label className="col-sm-2" htmlFor="register-captcha">
+              <span className="mr-2">{i18n.t("enter_code")}</span>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={linkEvent(this, this.handleRegenCaptcha)}
+                aria-label={i18n.t("captcha")}
+              >
+                <Icon icon="refresh-cw" classes="icon-refresh-cw" />
+              </button>
+            </label>
+            {this.showCaptcha(res)}
+            <div className="col-sm-6">
+              <input
+                type="text"
+                className="form-control"
+                id="register-captcha"
+                value={this.state.form.captcha_answer}
+                onInput={linkEvent(
+                  this,
+                  this.handleRegisterCaptchaAnswerChange
+                )}
+                required
+              />
+            </div>
+          </div>
+        );
+      }
+    }
+  }
+
+  showCaptcha(res: GetCaptchaResponse) {
+    const captchaRes = res?.ok;
     return captchaRes ? (
       <div className="col-sm-4">
         <>
@@ -419,23 +432,66 @@ export class Signup extends Component<any, State> {
     }
   }
 
-  handleRegisterSubmit(i: Signup, event: any) {
+  async handleRegisterSubmit(i: Signup, event: any) {
     event.preventDefault();
-    i.setState({ registerLoading: true });
-    const cForm = i.state.form;
-    if (cForm.username && cForm.password && cForm.password_verify) {
-      const form: Register = {
-        username: cForm.username,
-        password: cForm.password,
-        password_verify: cForm.password_verify,
-        email: cForm.email,
-        show_nsfw: cForm.show_nsfw,
-        captcha_uuid: cForm.captcha_uuid,
-        captcha_answer: cForm.captcha_answer,
-        honeypot: cForm.honeypot,
-        answer: cForm.answer,
-      };
-      WebSocketService.Instance.send(wsClient.register(form));
+    const {
+      show_nsfw,
+      answer,
+      captcha_answer,
+      captcha_uuid,
+      email,
+      honeypot,
+      password,
+      password_verify,
+      username,
+    } = i.state.form;
+    if (username && password && password_verify) {
+      i.setState({ registerRes: { state: "loading" } });
+
+      const registerRes = await HttpService.client.register({
+        username,
+        password,
+        password_verify,
+        email,
+        show_nsfw,
+        captcha_uuid,
+        captcha_answer,
+        honeypot,
+        answer,
+      });
+      switch (registerRes.state) {
+        case "failed": {
+          toast(registerRes.msg, "danger");
+          i.setState({ registerRes: { state: "empty" } });
+          break;
+        }
+
+        case "success": {
+          const data = registerRes.data;
+
+          // Only log them in if a jwt was set
+          if (data.jwt) {
+            UserService.Instance.login(data);
+
+            const site = await HttpService.client.getSite({ auth: myAuth() });
+
+            if (site.state === "success") {
+              UserService.Instance.myUserInfo = site.data.my_user;
+            }
+
+            i.props.history.replace("/communities");
+          } else {
+            if (data.verify_email_sent) {
+              toast(i18n.t("verify_email_sent"));
+            }
+            if (data.registration_created) {
+              toast(i18n.t("registration_application_sent"));
+            }
+            i.props.history.push("/");
+          }
+          break;
+        }
+      }
     }
   }
 
@@ -481,17 +537,18 @@ export class Signup extends Component<any, State> {
     i.setState(i.state);
   }
 
-  handleRegenCaptcha(i: Signup) {
+  async handleRegenCaptcha(i: Signup) {
     i.audio = undefined;
     i.setState({ captchaPlaying: false });
-    WebSocketService.Instance.send(wsClient.getCaptcha({}));
+    await i.fetchCaptcha();
   }
 
   handleCaptchaPlay(i: Signup) {
     // This was a bad bug, it should only build the new audio on a new file.
     // Replays would stop prematurely if this was rebuilt every time.
-    const captchaRes = i.state.captcha?.ok;
-    if (captchaRes) {
+
+    if (i.state.captchaRes.state == "success" && i.state.captchaRes.data.ok) {
+      const captchaRes = i.state.captchaRes.data.ok;
       if (!i.audio) {
         const base64 = `data:audio/wav;base64,${captchaRes.wav}`;
         i.audio = new Audio(base64);
@@ -511,46 +568,5 @@ export class Signup extends Component<any, State> {
 
   captchaPngSrc(captcha: CaptchaResponse) {
     return `data:image/png;base64,${captcha.png}`;
-  }
-
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.setState(s => ((s.form.captcha_answer = undefined), s));
-      // Refetch another captcha
-      // WebSocketService.Instance.send(wsClient.getCaptcha());
-      return;
-    } else {
-      if (op == UserOperation.Register) {
-        const data = wsJsonToRes<LoginResponse>(msg);
-        // Only log them in if a jwt was set
-        if (data.jwt) {
-          UserService.Instance.login(data);
-          this.props.history.push("/communities");
-          location.reload();
-        } else {
-          if (data.verify_email_sent) {
-            toast(i18n.t("verify_email_sent"));
-          }
-          if (data.registration_created) {
-            toast(i18n.t("registration_application_sent"));
-          }
-          this.props.history.push("/");
-        }
-      } else if (op == UserOperation.GetCaptcha) {
-        const data = wsJsonToRes<GetCaptchaResponse>(msg);
-        if (data.ok) {
-          this.setState({ captcha: data });
-          this.setState(s => ((s.form.captcha_uuid = data.ok?.uuid), s));
-        }
-      } else if (op == UserOperation.PasswordReset) {
-        toast(i18n.t("reset_password_mail_sent"));
-      } else if (op == UserOperation.GetSite) {
-        const data = wsJsonToRes<GetSiteResponse>(msg);
-        this.setState({ siteRes: data });
-      }
-    }
   }
 }

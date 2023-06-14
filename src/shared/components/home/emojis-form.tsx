@@ -1,35 +1,29 @@
 import { Component, linkEvent } from "inferno";
 import {
   CreateCustomEmoji,
-  CustomEmojiResponse,
   DeleteCustomEmoji,
-  DeleteCustomEmojiResponse,
   EditCustomEmoji,
   GetSiteResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
+import { HttpService } from "../../services/HttpService";
 import {
   customEmojisLookup,
-  isBrowser,
-  myAuth,
+  myAuthRequired,
   pictrsDeleteToast,
-  removeFromEmojiDataModel,
   setIsoData,
   toast,
-  updateEmojiDataModel,
-  uploadImage,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { EmojiMart } from "../common/emoji-mart";
 import { HtmlTags } from "../common/html-tags";
 import { Icon } from "../common/icon";
 import { Paginator } from "../common/paginator";
+
+interface EmojiFormProps {
+  onEdit(form: EditCustomEmoji): void;
+  onCreate(form: CreateCustomEmoji): void;
+  onDelete(form: DeleteCustomEmoji): void;
+}
 
 interface EmojiFormState {
   siteRes: GetSiteResponse;
@@ -49,9 +43,8 @@ interface CustomEmojiViewForm {
   page: number;
 }
 
-export class EmojiForm extends Component<any, EmojiFormState> {
+export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   private isoData = setIsoData(this.context);
-  private subscription: Subscription | undefined;
   private itemsPerPage = 15;
   private emptyState: EmojiFormState = {
     loading: false,
@@ -75,18 +68,10 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     this.state = this.emptyState;
 
     this.handlePageChange = this.handlePageChange.bind(this);
-    this.parseMessage = this.parseMessage.bind(this);
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
   }
   get documentTitle(): string {
     return i18n.t("custom_emojis");
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
-    }
   }
 
   render() {
@@ -232,7 +217,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
                               "btn btn-link btn-animate"
                             }
                             onClick={linkEvent(
-                              { form: this, cv: cv },
+                              { i: this, cv: cv },
                               this.handleEditEmojiClick
                             )}
                             data-tippy-content={i18n.t("save")}
@@ -253,7 +238,7 @@ export class EmojiForm extends Component<any, EmojiFormState> {
                         <button
                           className="btn btn-link btn-animate text-muted"
                           onClick={linkEvent(
-                            { form: this, index: index, cv: cv },
+                            { i: this, index: index, cv: cv },
                             this.handleDeleteEmojiClick
                           )}
                           data-tippy-content={i18n.t("delete")}
@@ -401,51 +386,47 @@ export class EmojiForm extends Component<any, EmojiFormState> {
     props.form.setState({ customEmojis: custom_emojis });
   }
 
-  handleDeleteEmojiClick(props: {
-    form: EmojiForm;
+  handleDeleteEmojiClick(d: {
+    i: EmojiForm;
     index: number;
     cv: CustomEmojiViewForm;
   }) {
-    const pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    if (props.cv.id != 0) {
-      const deleteForm: DeleteCustomEmoji = {
-        id: props.cv.id,
-        auth: myAuth() ?? "",
-      };
-      WebSocketService.Instance.send(wsClient.deleteCustomEmoji(deleteForm));
+    const pagedIndex = (d.i.state.page - 1) * d.i.itemsPerPage + d.index;
+    if (d.cv.id != 0) {
+      d.i.props.onDelete({
+        id: d.cv.id,
+        auth: myAuthRequired(),
+      });
     } else {
-      const custom_emojis = [...props.form.state.customEmojis];
+      const custom_emojis = [...d.i.state.customEmojis];
       custom_emojis.splice(Number(pagedIndex), 1);
-      props.form.setState({ customEmojis: custom_emojis });
+      d.i.setState({ customEmojis: custom_emojis });
     }
   }
 
-  handleEditEmojiClick(props: { form: EmojiForm; cv: CustomEmojiViewForm }) {
-    const keywords = props.cv.keywords
+  handleEditEmojiClick(d: { i: EmojiForm; cv: CustomEmojiViewForm }) {
+    const keywords = d.cv.keywords
       .split(" ")
       .filter(x => x.length > 0) as string[];
     const uniqueKeywords = Array.from(new Set(keywords));
-    if (props.cv.id != 0) {
-      const editForm: EditCustomEmoji = {
-        id: props.cv.id,
-        category: props.cv.category,
-        image_url: props.cv.image_url,
-        alt_text: props.cv.alt_text,
+    if (d.cv.id != 0) {
+      d.i.props.onEdit({
+        id: d.cv.id,
+        category: d.cv.category,
+        image_url: d.cv.image_url,
+        alt_text: d.cv.alt_text,
         keywords: uniqueKeywords,
-        auth: myAuth() ?? "",
-      };
-      WebSocketService.Instance.send(wsClient.editCustomEmoji(editForm));
+        auth: myAuthRequired(),
+      });
     } else {
-      const createForm: CreateCustomEmoji = {
-        category: props.cv.category,
-        shortcode: props.cv.shortcode,
-        image_url: props.cv.image_url,
-        alt_text: props.cv.alt_text,
+      d.i.props.onCreate({
+        category: d.cv.category,
+        shortcode: d.cv.shortcode,
+        image_url: d.cv.image_url,
+        alt_text: d.cv.alt_text,
         keywords: uniqueKeywords,
-        auth: myAuth() ?? "",
-      };
-      WebSocketService.Instance.send(wsClient.createCustomEmoji(createForm));
+        auth: myAuthRequired(),
+      });
     }
   }
 
@@ -477,26 +458,26 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       file = event;
     }
 
-    uploadImage(file)
-      .then(res => {
-        console.log("pictrs upload:");
-        console.log(res);
-        if (res.msg === "ok") {
-          pictrsDeleteToast(file.name, res.delete_url as string);
+    HttpService.client.uploadImage({ image: file }).then(res => {
+      console.log("pictrs upload:");
+      console.log(res);
+      if (res.state === "success") {
+        if (res.data.msg === "ok") {
+          pictrsDeleteToast(file.name, res.data.delete_url as string);
         } else {
           toast(JSON.stringify(res), "danger");
-          const hash = res.files?.at(0)?.file;
-          const url = `${res.url}/${hash}`;
+          const hash = res.data.files?.at(0)?.file;
+          const url = `${res.data.url}/${hash}`;
           props.form.handleEmojiImageUrlChange(
             { form: props.form, index: props.index, overrideValue: url },
             event
           );
         }
-      })
-      .catch(error => {
-        console.error(error);
-        toast(error, "danger");
-      });
+      } else if (res.state === "failed") {
+        console.error(res.msg);
+        toast(res.msg, "danger");
+      }
+    });
   }
 
   configurePicker(): any {
@@ -505,52 +486,5 @@ export class EmojiForm extends Component<any, EmojiFormState> {
       maxFrequentRows: 0,
       dynamicWidth: true,
     };
-  }
-
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.context.router.history.push("/");
-      this.setState({ loading: false });
-      return;
-    } else if (op == UserOperation.CreateCustomEmoji) {
-      const data = wsJsonToRes<CustomEmojiResponse>(msg);
-      const custom_emoji_view = data.custom_emoji;
-      updateEmojiDataModel(custom_emoji_view);
-      const currentEmojis = this.state.customEmojis;
-      const newEmojiIndex = currentEmojis.findIndex(
-        x => x.shortcode == custom_emoji_view.custom_emoji.shortcode
-      );
-      currentEmojis[newEmojiIndex].id = custom_emoji_view.custom_emoji.id;
-      currentEmojis[newEmojiIndex].changed = false;
-      this.setState({ customEmojis: currentEmojis });
-      toast(i18n.t("saved_emoji"));
-      this.setState({ loading: false });
-    } else if (op == UserOperation.EditCustomEmoji) {
-      const data = wsJsonToRes<CustomEmojiResponse>(msg);
-      const custom_emoji_view = data.custom_emoji;
-      updateEmojiDataModel(data.custom_emoji);
-      const currentEmojis = this.state.customEmojis;
-      const newEmojiIndex = currentEmojis.findIndex(
-        x => x.shortcode == custom_emoji_view.custom_emoji.shortcode
-      );
-      currentEmojis[newEmojiIndex].changed = false;
-      this.setState({ customEmojis: currentEmojis });
-      toast(i18n.t("saved_emoji"));
-      this.setState({ loading: false });
-    } else if (op == UserOperation.DeleteCustomEmoji) {
-      const data = wsJsonToRes<DeleteCustomEmojiResponse>(msg);
-      if (data.success) {
-        removeFromEmojiDataModel(data.id);
-        const custom_emojis = [
-          ...this.state.customEmojis.filter(x => x.id != data.id),
-        ];
-        this.setState({ customEmojis: custom_emojis });
-        toast(i18n.t("deleted_emoji"));
-      }
-      this.setState({ loading: false });
-    }
   }
 }
