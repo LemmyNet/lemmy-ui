@@ -75,6 +75,11 @@
   font-size: 1.2rem;
 }
 
+.md-div pre {
+  white-space: pre;
+  overflow-x: auto;
+}
+
 .md-div table {
   border-collapse: collapse;
   width: 100%;
