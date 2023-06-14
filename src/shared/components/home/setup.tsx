@@ -1,18 +1,15 @@
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
 import {
+  CreateSite,
   GetSiteResponse,
   LoginResponse,
   Register,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
-import { delay, retryWhen, take } from "rxjs/operators";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
-import { setIsoData, toast, wsClient } from "../../utils";
+import { UserService } from "../../services";
+import { HttpService, RequestState } from "../../services/HttpService";
+import { fetchThemeList, setIsoData } from "../../utils";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
 
@@ -29,37 +26,32 @@ interface State {
     answer?: string;
   };
   doneRegisteringUser: boolean;
-  userLoading: boolean;
+  registerRes: RequestState<LoginResponse>;
+  themeList: string[];
   siteRes: GetSiteResponse;
 }
 
 export class Setup extends Component<any, State> {
-  private subscription: Subscription;
   private isoData = setIsoData(this.context);
 
   state: State = {
+    registerRes: { state: "empty" },
+    themeList: [],
     form: {
       show_nsfw: true,
     },
     doneRegisteringUser: !!UserService.Instance.myUserInfo,
-    userLoading: false,
     siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.subscription = WebSocketService.Instance.subject
-      .pipe(retryWhen(errors => errors.pipe(delay(3000), take(10))))
-      .subscribe(
-        msg => this.parseMessage(msg),
-        err => console.error(err),
-        () => console.log("complete")
-      );
+    this.handleCreateSite = this.handleCreateSite.bind(this);
   }
 
-  componentWillUnmount() {
-    this.subscription.unsubscribe();
+  async componentDidMount() {
+    this.setState({ themeList: await fetchThemeList() });
   }
 
   get documentTitle(): string {
@@ -76,7 +68,12 @@ export class Setup extends Component<any, State> {
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
-              <SiteForm siteRes={this.state.siteRes} showLocal />
+              <SiteForm
+                showLocal
+                onSaveSite={this.handleCreateSite}
+                siteRes={this.state.siteRes}
+                themeList={this.state.themeList}
+              />
             )}
           </div>
         </div>
@@ -161,7 +158,11 @@ export class Setup extends Component<any, State> {
         <div className="form-group row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.userLoading ? <Spinner /> : i18n.t("sign_up")}
+              {this.state.registerRes.state == "loading" ? (
+                <Spinner />
+              ) : (
+                i18n.t("sign_up")
+              )}
             </button>
           </div>
         </div>
@@ -169,24 +170,53 @@ export class Setup extends Component<any, State> {
     );
   }
 
-  handleRegisterSubmit(i: Setup, event: any) {
+  async handleRegisterSubmit(i: Setup, event: any) {
     event.preventDefault();
-    i.setState({ userLoading: true });
-    event.preventDefault();
-    const cForm = i.state.form;
-    if (cForm.username && cForm.password && cForm.password_verify) {
+    i.setState({ registerRes: { state: "loading" } });
+    const {
+      username,
+      password_verify,
+      password,
+      email,
+      show_nsfw,
+      captcha_uuid,
+      captcha_answer,
+      honeypot,
+      answer,
+    } = i.state.form;
+
+    if (username && password && password_verify) {
       const form: Register = {
-        username: cForm.username,
-        password: cForm.password,
-        password_verify: cForm.password_verify,
-        email: cForm.email,
-        show_nsfw: cForm.show_nsfw,
-        captcha_uuid: cForm.captcha_uuid,
-        captcha_answer: cForm.captcha_answer,
-        honeypot: cForm.honeypot,
-        answer: cForm.answer,
+        username,
+        password,
+        password_verify,
+        email,
+        show_nsfw,
+        captcha_uuid,
+        captcha_answer,
+        honeypot,
+        answer,
       };
-      WebSocketService.Instance.send(wsClient.register(form));
+      i.setState({
+        registerRes: await HttpService.client.register(form),
+      });
+
+      if (i.state.registerRes.state == "success") {
+        const data = i.state.registerRes.data;
+
+        UserService.Instance.login(data);
+        if (UserService.Instance.jwtInfo) {
+          i.setState({ doneRegisteringUser: true });
+        }
+      }
+    }
+  }
+
+  async handleCreateSite(form: CreateSite) {
+    const createRes = await HttpService.client.createSite(form);
+    if (createRes.state === "success") {
+      this.props.history.replace("/");
+      location.reload();
     }
   }
 
@@ -208,23 +238,5 @@ export class Setup extends Component<any, State> {
   handleRegisterPasswordVerifyChange(i: Setup, event: any) {
     i.state.form.password_verify = event.target.value;
     i.setState(i.state);
-  }
-
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.setState({ userLoading: false });
-      return;
-    } else if (op == UserOperation.Register) {
-      const data = wsJsonToRes<LoginResponse>(msg);
-      this.setState({ userLoading: false });
-      UserService.Instance.login(data);
-      if (UserService.Instance.jwtInfo) {
-        this.setState({ doneRegisteringUser: true });
-      }
-    } else if (op == UserOperation.CreateSite) {
-      window.location.href = "/";
-    }
   }
 }

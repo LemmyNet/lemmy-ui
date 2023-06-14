@@ -22,10 +22,11 @@ import { Post } from "./components/post/post";
 import { CreatePrivateMessage } from "./components/private_message/create-private-message";
 import { Search } from "./components/search";
 import { InitialFetchRequest } from "./interfaces";
+import { RequestState } from "./services/HttpService";
 
 interface IRoutePropsWithFetch extends IRouteProps {
   // TODO Make sure this one is good.
-  fetchInitialData?(req: InitialFetchRequest): Promise<any>[];
+  fetchInitialData?(req: InitialFetchRequest): Promise<RequestState<any>>[];
 }
 
 export const routes: IRoutePropsWithFetch[] = [

@@ -6,19 +6,20 @@ import { Helmet } from "inferno-helmet";
 import { matchPath, StaticRouter } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
-import { GetSite, GetSiteResponse, LemmyHttp, Site } from "lemmy-js-client";
+import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import path from "path";
 import process from "process";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { App } from "../shared/components/app/app";
-import { getHttpBase, getHttpBaseInternal } from "../shared/env";
+import { getHttpBaseExternal, getHttpBaseInternal } from "../shared/env";
 import {
   ILemmyConfig,
   InitialFetchRequest,
   IsoDataOptionalSite,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
+import { RequestState, wrapClient } from "../shared/services/HttpService";
 import {
   ErrorPageData,
   favIconPngUrl,
@@ -64,7 +65,13 @@ Disallow: /search/
 
 server.get("/service-worker.js", async (_req, res) => {
   res.setHeader("Content-Type", "application/javascript");
-  res.sendFile(path.resolve("./dist/service-worker.js"));
+  res.sendFile(
+    path.resolve(
+      `./dist/service-worker${
+        process.env.NODE_ENV === "development" ? "-development" : ""
+      }.js`
+    )
+  );
 });
 
 server.get("/robots.txt", async (_req, res) => {
@@ -121,7 +128,7 @@ server.get("/*", async (req, res) => {
     const getSiteForm: GetSite = { auth };
 
     const headers = setForwardedHeaders(req.headers);
-    const client = new LemmyHttp(getHttpBaseInternal(), headers);
+    const client = wrapClient(new LemmyHttp(getHttpBaseInternal(), headers));
 
     const { path, url, query } = req;
 
@@ -129,26 +136,29 @@ server.get("/*", async (req, res) => {
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
     let site: GetSiteResponse | undefined = undefined;
-    let routeData: any[] = [];
-    let errorPageData: ErrorPageData | undefined;
-    try {
-      let try_site: any = await client.getSite(getSiteForm);
-      if (try_site.error == "not_logged_in") {
-        console.error(
-          "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
-        );
-        getSiteForm.auth = undefined;
-        auth = undefined;
-        try_site = await client.getSite(getSiteForm);
-      }
+    const routeData: RequestState<any>[] = [];
+    let errorPageData: ErrorPageData | undefined = undefined;
+    let try_site = await client.getSite(getSiteForm);
+    if (try_site.state === "failed" && try_site.msg == "not_logged_in") {
+      console.error(
+        "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
+      );
+      getSiteForm.auth = undefined;
+      auth = undefined;
+      try_site = await client.getSite(getSiteForm);
+    }
 
-      if (!auth && isAuthPath(path)) {
-        res.redirect("/login");
-        return;
-      }
+    if (!auth && isAuthPath(path)) {
+      return res.redirect("/login");
+    }
 
-      site = try_site;
+    if (try_site.state === "success") {
+      site = try_site.data;
       initializeSite(site);
+
+      if (path != "/setup" && !site.site_view.local_site.site_setup) {
+        return res.redirect("/setup");
+      }
 
       if (site) {
         const initialFetchReq: InitialFetchRequest = {
@@ -160,23 +170,25 @@ server.get("/*", async (req, res) => {
         };
 
         if (activeRoute?.fetchInitialData) {
-          routeData = await Promise.all([
-            ...activeRoute.fetchInitialData(initialFetchReq),
-          ]);
+          routeData.push(
+            ...(await Promise.all([
+              ...activeRoute.fetchInitialData(initialFetchReq),
+            ]))
+          );
         }
       }
-    } catch (error) {
-      errorPageData = getErrorPageData(error, site);
+    } else if (try_site.state === "failed") {
+      errorPageData = getErrorPageData(new Error(try_site.msg), site);
     }
 
     // Redirect to the 404 if there's an API error
-    if (routeData[0] && routeData[0].error) {
-      const error = routeData[0].error;
+    if (routeData[0] && routeData[0].state === "failed") {
+      const error = routeData[0].msg;
       console.error(error);
       if (error === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        errorPageData = getErrorPageData(error, site);
+        errorPageData = getErrorPageData(new Error(error), site);
       }
     }
 
@@ -234,7 +246,7 @@ process.on("SIGINT", () => {
   process.exit(0);
 });
 
-const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+const iconSizes = [72, 96, 144, 192, 512];
 const defaultLogoPathDirectory = path.join(
   process.cwd(),
   "dist",
@@ -242,12 +254,15 @@ const defaultLogoPathDirectory = path.join(
   "icons"
 );
 
-export async function generateManifestBase64(site: Site) {
-  const url = (
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:1236/"
-      : getHttpBase()
-  ).replace(/\/$/g, "");
+export async function generateManifestBase64({
+  my_user,
+  site_view: {
+    site,
+    local_site: { community_creation_admin_only },
+  },
+}: GetSiteResponse) {
+  const url = getHttpBaseExternal();
+
   const icon = site.icon ? await fetchIconPng(site.icon) : null;
 
   const manifest = {
@@ -281,15 +296,58 @@ export async function generateManifestBase64(site: Site) {
         };
       })
     ),
+    shortcuts: [
+      {
+        name: "Search",
+        short_name: "Search",
+        description: "Perform a search.",
+        url: "/search",
+      },
+      {
+        name: "Communities",
+        url: "/communities",
+        short_name: "Communities",
+        description: "Browse communities",
+      },
+    ]
+      .concat(
+        my_user
+          ? [
+              {
+                name: "Create Post",
+                url: "/create_post",
+                short_name: "Create Post",
+                description: "Create a post.",
+              },
+            ]
+          : []
+      )
+      .concat(
+        my_user?.local_user_view.person.admin || !community_creation_admin_only
+          ? [
+              {
+                name: "Create Community",
+                url: "/create_community",
+                short_name: "Create Community",
+                description: "Create a community",
+              },
+            ]
+          : []
+      ),
+    related_applications: [
+      {
+        platform: "f-droid",
+        url: "https://f-droid.org/packages/com.jerboa/",
+        id: "com.jerboa",
+      },
+    ],
   };
 
   return Buffer.from(JSON.stringify(manifest)).toString("base64");
 }
 
 async function fetchIconPng(iconUrl: string) {
-  return await fetch(
-    iconUrl.replace(/https?:\/\/[^\/]+/g, getHttpBaseInternal())
-  )
+  return await fetch(iconUrl)
     .then(res => res.blob())
     .then(blob => blob.arrayBuffer());
 }
@@ -376,9 +434,9 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
     site &&
     `<link
         rel="manifest"
-        href={${`data:application/manifest+json;base64,${await generateManifestBase64(
-          site.site_view.site
-        )}`}}
+        href=${`data:application/manifest+json;base64,${await generateManifestBase64(
+          site
+        )}`}
       />`
   }
   <link rel="apple-touch-icon" href=${appleTouchIcon} />
