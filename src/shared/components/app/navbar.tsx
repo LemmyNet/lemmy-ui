@@ -16,8 +16,10 @@ import {
   isBrowser,
   myAuth,
   numToSI,
+  poll,
   showAvatars,
   toast,
+  updateUnreadCountsInterval,
 } from "../../utils";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
@@ -407,34 +409,33 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   async fetchUnreads() {
-    const auth = myAuth();
-    if (auth) {
-      this.setState({ unreadInboxCountRes: { state: "loading" } });
-      this.setState({
-        unreadInboxCountRes: await HttpService.client.getUnreadCount({
-          auth,
-        }),
-      });
-
-      if (this.moderatesSomething) {
-        this.setState({ unreadReportCountRes: { state: "loading" } });
+    poll(async () => {
+      const auth = myAuth();
+      if (auth) {
         this.setState({
-          unreadReportCountRes: await HttpService.client.getReportCount({
+          unreadInboxCountRes: await HttpService.client.getUnreadCount({
             auth,
           }),
         });
-      }
 
-      if (amAdmin()) {
-        this.setState({ unreadApplicationCountRes: { state: "loading" } });
-        this.setState({
-          unreadApplicationCountRes:
-            await HttpService.client.getUnreadRegistrationApplicationCount({
+        if (this.moderatesSomething) {
+          this.setState({
+            unreadReportCountRes: await HttpService.client.getReportCount({
               auth,
             }),
-        });
+          });
+        }
+
+        if (amAdmin()) {
+          this.setState({
+            unreadApplicationCountRes:
+              await HttpService.client.getUnreadRegistrationApplicationCount({
+                auth,
+              }),
+          });
+        }
       }
-    }
+    }, updateUnreadCountsInterval);
   }
 
   get unreadInboxCount(): number {
