@@ -47,7 +47,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
               allLanguages={this.state.siteRes.all_languages}
               siteLanguages={this.state.siteRes.discussion_languages}
               communityLanguages={this.state.siteRes.discussion_languages}
-              isLoading={this.state.loading}
+              loading={this.state.loading}
             />
           </div>
         </div>

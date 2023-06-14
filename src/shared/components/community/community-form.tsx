@@ -21,7 +21,7 @@ interface CommunityFormProps {
   onCancel?(): any;
   onUpsertCommunity(form: CreateCommunity | EditCommunity): void;
   enableNsfw?: boolean;
-  isLoading?: boolean;
+  loading?: boolean;
 }
 
 interface CommunityFormState {
@@ -88,7 +88,7 @@ export class CommunityForm extends Component<
       <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
         <NavigationPrompt
           when={
-            !this.props.isLoading &&
+            !this.props.loading &&
             !!(
               this.state.form.name ||
               this.state.form.title ||
@@ -241,9 +241,9 @@ export class CommunityForm extends Component<
             <button
               type="submit"
               className="btn btn-secondary mr-2"
-              disabled={this.props.isLoading}
+              disabled={this.props.loading}
             >
-              {this.props.isLoading ? (
+              {this.props.loading ? (
                 <Spinner />
               ) : this.props.community_view ? (
                 capitalizeFirstLetter(i18n.t("save"))
