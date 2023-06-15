@@ -77,7 +77,6 @@ export class Setup extends Component<any, State> {
                 onSaveSite={this.handleCreateSite}
                 siteRes={this.state.siteRes}
                 themeList={this.state.themeList}
-                loading={false}
               />
             )}
           </div>
