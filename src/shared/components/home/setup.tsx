@@ -9,7 +9,7 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { amAdmin, fetchThemeList, setIsoData } from "../../utils";
+import { fetchThemeList, setIsoData } from "../../utils";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
 
@@ -51,10 +51,6 @@ export class Setup extends Component<any, State> {
   }
 
   async componentDidMount() {
-    if (!amAdmin()) {
-      return this.props.history.replace("/");
-    }
-
     this.setState({ themeList: await fetchThemeList() });
   }
 

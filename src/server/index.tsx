@@ -161,6 +161,10 @@ server.get("/*", async (req, res) => {
       }
 
       if (site) {
+        if (path === "/setup" && !site.my_user?.local_user_view.person.admin) {
+          return res.redirect("/");
+        }
+
         const initialFetchReq: InitialFetchRequest = {
           client,
           auth,
