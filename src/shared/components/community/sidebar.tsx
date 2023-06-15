@@ -144,10 +144,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {myUSerInfo && this.blockCommunity()}
             {!myUSerInfo && (
               <div className="alert alert-info" role="alert">
-                {i18n.t("community_not_logged_in_alert", {
-                  community: name,
-                  instance: hostname(actor_id),
-                })}
+                {i18n.t("community_not_logged_in_alert")}
+                <code className="user-select-all">
+                  !{name}@{hostname(actor_id)}
+                </code>
               </div>
             )}
           </div>
