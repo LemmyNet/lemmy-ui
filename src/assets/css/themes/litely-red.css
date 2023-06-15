@@ -3711,7 +3711,6 @@ input[type="submit"].btn-block {
   list-style: none;
 }
 .nav-link {
-  display: block;
   padding: 0.5rem 1rem;
   display: flex;
   align-items: center;

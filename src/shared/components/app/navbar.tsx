@@ -60,7 +60,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   };
   collapseButtonRef = createRef<HTMLButtonElement>();
   mobileMenuRef = createRef<HTMLDivElement>();
-  isMobileUA: boolean = isMobile(this.userAgent);
+  isMobileUA = isMobile(this.userAgent);
 
   constructor(props: any, context: any) {
     super(props, context);
