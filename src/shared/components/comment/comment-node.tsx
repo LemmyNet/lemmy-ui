@@ -270,9 +270,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.props.moderators
     );
 
-    const borderColor = this.props.node.depth
-      ? colorList[(this.props.node.depth - 1) % colorList.length]
-      : colorList[0];
     const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
       : colorList[0];
@@ -284,26 +281,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.comment_view.counts.child_count > 0;
 
     return (
-      <div
-        className={`comment ${
-          this.props.node.depth && !this.props.noIndent ? "ml-1" : ""
-        }`}
-      >
+      <li className="comment" role="comment">
         <div
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
             mark: this.isCommentNew || this.commentView.comment.distinguished,
           })}
-          style={
-            !this.props.noIndent && this.props.node.depth
-              ? `border-left: 2px ${borderColor} solid !important`
-              : ""
-          }
         >
           <div
             className={classNames({
-              "ml-2": !this.props.noIndent && this.props.node.depth,
+              "ml-2": !this.props.noIndent,
             })}
           >
             <div className="d-flex flex-wrap align-items-center text-muted small">
@@ -959,9 +947,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         </div>
         {showMoreChildren && (
           <div
-            className={`details ml-1 comment-node py-2 ${
-              !this.props.noBorder ? "border-top border-light" : ""
-            }`}
+            className={classNames("details ml-1 comment-node py-2", {
+              "border-top border-light": !this.props.noBorder,
+            })}
             style={`border-left: 2px ${moreRepliesBorderColor} solid !important`}
           >
             <button
@@ -1169,6 +1157,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
+            isChild={!this.props.noIndent}
+            depth={this.props.node.depth + 1}
             finished={this.props.finished}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
@@ -1192,8 +1182,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           />
         )}
         {/* A collapsed clearfix */}
-        {this.state.collapsed && <div className="row col-12"></div>}
-      </div>
+        {this.state.collapsed && <div className="row col-12" />}
+      </li>
     );
   }
 
@@ -1211,6 +1201,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   linkBtn(small = false) {
     const cv = this.commentView;
+
     const classnames = classNames("btn btn-link btn-animate text-muted", {
       "btn-sm": small,
     });

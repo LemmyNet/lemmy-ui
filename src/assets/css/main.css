@@ -218,6 +218,11 @@ blockquote {
   overflow-y: auto;
 }
 
+.comments {
+  list-style: none;
+  padding: 0;
+}
+
 .thumbnail {
   object-fit: cover;
   min-height: 60px;
