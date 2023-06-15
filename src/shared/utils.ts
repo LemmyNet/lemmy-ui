@@ -75,6 +75,7 @@ export const commentTreeMaxDepth = 8;
 export const markdownFieldCharacterLimit = 50000;
 export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
+export const updateUnreadCountsInterval = 30000;
 
 export const relTags = "noopener nofollow";
 
@@ -1489,4 +1490,19 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   } else {
     return myVote == -1 ? 0 : -1;
   }
+}
+
+function sleep(millis: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, millis));
+}
+
+/**
+ * Polls / repeatedly runs a promise, every X milliseconds
+ */
+export async function poll(promiseFn: any, millis: number) {
+  if (window.document.visibilityState !== "hidden") {
+    await promiseFn();
+  }
+  await sleep(millis);
+  return poll(promiseFn, millis);
 }
