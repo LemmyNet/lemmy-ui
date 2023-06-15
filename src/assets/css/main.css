@@ -75,6 +75,11 @@
   font-size: 1.2rem;
 }
 
+.md-div pre {
+  white-space: pre;
+  overflow-x: auto;
+}
+
 .md-div table {
   border-collapse: collapse;
   width: 100%;
@@ -211,6 +216,11 @@ blockquote {
   max-height: 50vh;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.comments {
+  list-style: none;
+  padding: 0;
 }
 
 .thumbnail {

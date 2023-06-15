@@ -38,12 +38,38 @@ function handleSearch(i: SearchableSelect, e: ChangeEvent<HTMLInputElement>) {
   });
 }
 
+function focusSearch(i: SearchableSelect) {
+  if (i.toggleButtonRef.current?.ariaExpanded !== "true") {
+    i.searchInputRef.current?.focus();
+
+    if (i.props.onSearch) {
+      i.props.onSearch("");
+    }
+
+    i.setState({
+      searchText: "",
+    });
+  }
+}
+
+function handleChange({ option, i }: { option: Choice; i: SearchableSelect }) {
+  const { onChange, value } = i.props;
+
+  if (option.value !== value?.toString()) {
+    if (onChange) {
+      onChange(option);
+    }
+
+    i.setState({ searchText: "" });
+  }
+}
+
 export class SearchableSelect extends Component<
   SearchableSelectProps,
   SearchableSelectState
 > {
-  private searchInputRef: RefObject<HTMLInputElement> = createRef();
-  private toggleButtonRef: RefObject<HTMLButtonElement> = createRef();
+  searchInputRef: RefObject<HTMLInputElement> = createRef();
+  toggleButtonRef: RefObject<HTMLButtonElement> = createRef();
   private loadingEllipsesInterval?: NodeJS.Timer = undefined;
 
   state: SearchableSelectState = {
@@ -54,9 +80,6 @@ export class SearchableSelect extends Component<
 
   constructor(props: SearchableSelectProps, context: any) {
     super(props, context);
-
-    this.handleChange = this.handleChange.bind(this);
-    this.focusSearch = this.focusSearch.bind(this);
 
     if (props.value) {
       let selectedIndex = props.options.findIndex(
@@ -86,7 +109,8 @@ export class SearchableSelect extends Component<
           className="custom-select text-start"
           aria-haspopup="listbox"
           data-bs-toggle="dropdown"
-          onClick={this.focusSearch}
+          onClick={linkEvent(this, focusSearch)}
+          ref={this.toggleButtonRef}
         >
           {loading
             ? `${i18n.t("loading")}${loadingEllipses}`
@@ -127,7 +151,7 @@ export class SearchableSelect extends Component<
                 aria-disabled={option.disabled}
                 disabled={option.disabled}
                 aria-selected={selectedIndex === index}
-                onClick={() => this.handleChange(option)}
+                onClick={linkEvent({ i: this, option }, handleChange)}
                 type="button"
               >
                 {option.label}
@@ -136,20 +160,6 @@ export class SearchableSelect extends Component<
         </div>
       </div>
     );
-  }
-
-  focusSearch() {
-    if (this.toggleButtonRef.current?.ariaExpanded !== "true") {
-      this.searchInputRef.current?.focus();
-
-      if (this.props.onSearch) {
-        this.props.onSearch("");
-      }
-
-      this.setState({
-        searchText: "",
-      });
-    }
   }
 
   static getDerivedStateFromProps({
@@ -187,18 +197,6 @@ export class SearchableSelect extends Component<
   componentWillUnmount() {
     if (this.loadingEllipsesInterval) {
       clearInterval(this.loadingEllipsesInterval);
-    }
-  }
-
-  handleChange(option: Choice) {
-    const { onChange, value } = this.props;
-
-    if (option.value !== value?.toString()) {
-      if (onChange) {
-        onChange(option);
-      }
-
-      this.setState({ searchText: "" });
     }
   }
 }

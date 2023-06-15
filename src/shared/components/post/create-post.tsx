@@ -1,18 +1,19 @@
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
+  CreatePost as CreatePostI,
   GetCommunity,
-  GetCommunityResponse,
   GetSiteResponse,
-  PostView,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
+  ListCommunitiesResponse,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
-import { WebSocketService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
+import {
+  HttpService,
+  RequestState,
+  WrappedLemmyHttp,
+} from "../../services/HttpService";
 import {
   Choice,
   QueryParams,
@@ -20,12 +21,8 @@ import {
   enableNsfw,
   getIdFromString,
   getQueryParams,
-  isBrowser,
   myAuth,
   setIsoData,
-  toast,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -41,10 +38,16 @@ function getCreatePostQueryParams() {
   });
 }
 
+function fetchCommunitiesForOptions(client: WrappedLemmyHttp) {
+  return client.listCommunities({ limit: 30, sort: "TopMonth", type_: "All" });
+}
+
 interface CreatePostState {
   siteRes: GetSiteResponse;
   loading: boolean;
   selectedCommunityChoice?: Choice;
+  initialCommunitiesRes: RequestState<ListCommunitiesResponse>;
+  isIsomorphic: boolean;
 }
 
 export class CreatePost extends Component<
@@ -52,10 +55,11 @@ export class CreatePost extends Component<
   CreatePostState
 > {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
     loading: true,
+    initialCommunitiesRes: { state: "empty" },
+    isIsomorphic: false,
   };
 
   constructor(props: RouteComponentProps<Record<string, never>>, context: any) {
@@ -65,19 +69,14 @@ export class CreatePost extends Component<
     this.handleSelectedCommunityChange =
       this.handleSelectedCommunityChange.bind(this);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
     // Only fetch the data if coming from another route
-    if (this.isoData.path === this.context.router.route.match.url) {
-      const communityRes = this.isoData.routeData[0] as
-        | GetCommunityResponse
-        | undefined;
+    if (FirstLoadService.isFirstLoad) {
+      const [communityRes, listCommunitiesRes] = this.isoData.routeData;
 
-      if (communityRes) {
+      if (communityRes?.state === "success") {
         const communityChoice: Choice = {
-          label: communityRes.community_view.community.title,
-          value: communityRes.community_view.community.id.toString(),
+          label: communityRes.data.community_view.community.title,
+          value: communityRes.data.community_view.community.id.toString(),
         };
 
         this.state = {
@@ -89,42 +88,56 @@ export class CreatePost extends Component<
       this.state = {
         ...this.state,
         loading: false,
+        initialCommunitiesRes: listCommunitiesRes,
+        isIsomorphic: true,
       };
-    } else {
-      this.fetchCommunity();
     }
   }
 
-  fetchCommunity() {
+  async fetchCommunity() {
     const { communityId } = getCreatePostQueryParams();
-    const auth = myAuth(false);
+    const auth = myAuth();
 
     if (communityId) {
-      const form: GetCommunity = {
+      const res = await HttpService.client.getCommunity({
         id: communityId,
         auth,
-      };
-
-      WebSocketService.Instance.send(wsClient.getCommunity(form));
-    }
-  }
-
-  componentDidMount(): void {
-    const { communityId } = getCreatePostQueryParams();
-
-    if (communityId?.toString() !== this.state.selectedCommunityChoice?.value) {
-      this.fetchCommunity();
-    } else if (!communityId) {
-      this.setState({
-        selectedCommunityChoice: undefined,
-        loading: false,
       });
+      if (res.state === "success") {
+        this.setState({
+          selectedCommunityChoice: {
+            label: res.data.community_view.community.name,
+            value: res.data.community_view.community.id.toString(),
+          },
+          loading: false,
+        });
+      }
     }
   }
 
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
+  async componentDidMount() {
+    // TODO test this
+    if (!this.state.isIsomorphic) {
+      const { communityId } = getCreatePostQueryParams();
+
+      const initialCommunitiesRes = await fetchCommunitiesForOptions(
+        HttpService.client
+      );
+
+      this.setState({
+        initialCommunitiesRes,
+      });
+
+      if (
+        communityId?.toString() !== this.state.selectedCommunityChoice?.value
+      ) {
+        await this.fetchCommunity();
+      } else if (!communityId) {
+        this.setState({
+          selectedCommunityChoice: undefined,
+          loading: false,
+        });
+      }
     }
   }
 
@@ -164,6 +177,11 @@ export class CreatePost extends Component<
                 siteLanguages={this.state.siteRes.discussion_languages}
                 selectedCommunityChoice={selectedCommunityChoice}
                 onSelectCommunity={this.handleSelectedCommunityChange}
+                initialCommunities={
+                  this.state.initialCommunitiesRes.state === "success"
+                    ? this.state.initialCommunitiesRes.data.communities
+                    : []
+                }
               />
             </div>
           </div>
@@ -172,7 +190,7 @@ export class CreatePost extends Component<
     );
   }
 
-  updateUrl({ communityId }: Partial<CreatePostProps>) {
+  async updateUrl({ communityId }: Partial<CreatePostProps>) {
     const { communityId: urlCommunityId } = getCreatePostQueryParams();
 
     const locationState = this.props.history.location.state as
@@ -191,7 +209,7 @@ export class CreatePost extends Component<
 
     history.replaceState(locationState, "", url);
 
-    this.fetchCommunity();
+    await this.fetchCommunity();
   }
 
   handleSelectedCommunityChange(choice: Choice) {
@@ -200,16 +218,23 @@ export class CreatePost extends Component<
     });
   }
 
-  handlePostCreate(post_view: PostView) {
-    this.props.history.replace(`/post/${post_view.post.id}`);
+  async handlePostCreate(form: CreatePostI) {
+    const res = await HttpService.client.createPost(form);
+
+    if (res.state === "success") {
+      const postId = res.data.post_view.post.id;
+      this.props.history.replace(`/post/${postId}`);
+    }
   }
 
   static fetchInitialData({
     client,
     query: { communityId },
     auth,
-  }: InitialFetchRequest<QueryParams<CreatePostProps>>): Promise<any>[] {
-    const promises: Promise<any>[] = [];
+  }: InitialFetchRequest<QueryParams<CreatePostProps>>): Promise<
+    RequestState<any>
+  >[] {
+    const promises: Promise<RequestState<any>>[] = [];
 
     if (communityId) {
       const form: GetCommunity = {
@@ -219,31 +244,11 @@ export class CreatePost extends Component<
 
       promises.push(client.getCommunity(form));
     } else {
-      promises.push(Promise.resolve());
+      promises.push(Promise.resolve({ state: "empty" }));
     }
+
+    promises.push(fetchCommunitiesForOptions(client));
 
     return promises;
-  }
-
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      return;
-    }
-
-    if (op === UserOperation.GetCommunity) {
-      const {
-        community_view: {
-          community: { title, id },
-        },
-      } = wsJsonToRes<GetCommunityResponse>(msg);
-
-      this.setState({
-        selectedCommunityChoice: { label: title, value: id.toString() },
-        loading: false,
-      });
-    }
   }
 }

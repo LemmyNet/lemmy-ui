@@ -1,35 +1,25 @@
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import {
-  CommentResponse,
-  GetReportCount,
   GetReportCountResponse,
   GetSiteResponse,
-  GetUnreadCount,
   GetUnreadCountResponse,
-  GetUnreadRegistrationApplicationCount,
   GetUnreadRegistrationApplicationCountResponse,
-  PrivateMessageResponse,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   amAdmin,
   canCreateCommunity,
   donateLemmyUrl,
   isBrowser,
   myAuth,
-  notifyComment,
-  notifyPrivateMessage,
   numToSI,
+  poll,
   showAvatars,
   toast,
-  wsClient,
-  wsSubscribe,
+  updateUnreadCountsInterval,
 } from "../../utils";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
@@ -39,14 +29,16 @@ interface NavbarProps {
 }
 
 interface NavbarState {
-  unreadInboxCount: number;
-  unreadReportCount: number;
-  unreadApplicationCount: number;
+  unreadInboxCountRes: RequestState<GetUnreadCountResponse>;
+  unreadReportCountRes: RequestState<GetReportCountResponse>;
+  unreadApplicationCountRes: RequestState<GetUnreadRegistrationApplicationCountResponse>;
   onSiteBanner?(url: string): any;
 }
 
 function handleCollapseClick(i: Navbar) {
-  i.collapseButtonRef.current?.click();
+  if (i.collapseButtonRef.current?.ariaExpanded === "true") {
+    i.collapseButtonRef.current?.click();
+  }
 }
 
 function handleLogOut(i: Navbar) {
@@ -55,77 +47,42 @@ function handleLogOut(i: Navbar) {
 }
 
 export class Navbar extends Component<NavbarProps, NavbarState> {
-  private wsSub: Subscription;
-  private userSub: Subscription;
-  private unreadInboxCountSub: Subscription;
-  private unreadReportCountSub: Subscription;
-  private unreadApplicationCountSub: Subscription;
   state: NavbarState = {
-    unreadInboxCount: 0,
-    unreadReportCount: 0,
-    unreadApplicationCount: 0,
+    unreadInboxCountRes: { state: "empty" },
+    unreadReportCountRes: { state: "empty" },
+    unreadApplicationCountRes: { state: "empty" },
   };
-  subscription: any;
   collapseButtonRef = createRef<HTMLButtonElement>();
   mobileMenuRef = createRef<HTMLDivElement>();
 
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
     this.handleOutsideMenuClick = this.handleOutsideMenuClick.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads
-      const auth = myAuth(false);
-      if (auth && UserService.Instance.myUserInfo) {
-        this.requestNotificationPermission();
-        WebSocketService.Instance.send(
-          wsClient.userJoin({
-            auth,
-          })
-        );
-
-        this.fetchUnreads();
-      }
-
+      this.requestNotificationPermission();
+      this.fetchUnreads();
       this.requestNotificationPermission();
 
-      // Subscribe to unread count changes
-      this.unreadInboxCountSub =
-        UserService.Instance.unreadInboxCountSub.subscribe(res => {
-          this.setState({ unreadInboxCount: res });
-        });
-      // Subscribe to unread report count changes
-      this.unreadReportCountSub =
-        UserService.Instance.unreadReportCountSub.subscribe(res => {
-          this.setState({ unreadReportCount: res });
-        });
-      // Subscribe to unread application count
-      this.unreadApplicationCountSub =
-        UserService.Instance.unreadApplicationCountSub.subscribe(res => {
-          this.setState({ unreadApplicationCount: res });
-        });
-
-      document.addEventListener("click", this.handleOutsideMenuClick);
+      document.addEventListener("mouseup", this.handleOutsideMenuClick);
     }
   }
 
   componentWillUnmount() {
-    this.wsSub.unsubscribe();
-    this.userSub.unsubscribe();
-    this.unreadInboxCountSub.unsubscribe();
-    this.unreadReportCountSub.unsubscribe();
-    this.unreadApplicationCountSub.unsubscribe();
-    document.removeEventListener("click", this.handleOutsideMenuClick);
+    document.removeEventListener("mouseup", this.handleOutsideMenuClick);
+  }
+
+  render() {
+    return this.navbar();
   }
 
   // TODO class active corresponding to current page
-  render() {
+  navbar() {
     const siteView = this.props.siteRes?.site_view;
     const person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
@@ -148,15 +105,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 to="/inbox"
                 className="p-1 nav-link border-0"
                 title={i18n.t("unread_messages", {
-                  count: Number(this.state.unreadInboxCount),
-                  formattedCount: numToSI(this.state.unreadInboxCount),
+                  count: Number(this.state.unreadApplicationCountRes.state),
+                  formattedCount: numToSI(this.unreadInboxCount),
                 })}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
                 <Icon icon="bell" />
-                {this.state.unreadInboxCount > 0 && (
+                {this.unreadInboxCount > 0 && (
                   <span className="mx-1 badge badge-light">
-                    {numToSI(this.state.unreadInboxCount)}
+                    {numToSI(this.unreadInboxCount)}
                   </span>
                 )}
               </NavLink>
@@ -167,15 +124,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   to="/reports"
                   className="p-1 nav-link border-0"
                   title={i18n.t("unread_reports", {
-                    count: Number(this.state.unreadReportCount),
-                    formattedCount: numToSI(this.state.unreadReportCount),
+                    count: Number(this.unreadReportCount),
+                    formattedCount: numToSI(this.unreadReportCount),
                   })}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="shield" />
-                  {this.state.unreadReportCount > 0 && (
+                  {this.unreadReportCount > 0 && (
                     <span className="mx-1 badge badge-light">
-                      {numToSI(this.state.unreadReportCount)}
+                      {numToSI(this.unreadReportCount)}
                     </span>
                   )}
                 </NavLink>
@@ -187,15 +144,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   to="/registration_applications"
                   className="p-1 nav-link border-0"
                   title={i18n.t("unread_registration_applications", {
-                    count: Number(this.state.unreadApplicationCount),
-                    formattedCount: numToSI(this.state.unreadApplicationCount),
+                    count: Number(this.unreadApplicationCount),
+                    formattedCount: numToSI(this.unreadApplicationCount),
                   })}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="clipboard" />
-                  {this.state.unreadApplicationCount > 0 && (
+                  {this.unreadApplicationCount > 0 && (
                     <span className="mx-1 badge badge-light">
-                      {numToSI(this.state.unreadApplicationCount)}
+                      {numToSI(this.unreadApplicationCount)}
                     </span>
                   )}
                 </NavLink>
@@ -272,20 +229,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             </li>
           </ul>
           <ul className="navbar-nav">
-            {!this.context.router.history.location.pathname.match(
-              /^\/search/
-            ) && (
-              <li className="nav-item">
-                <NavLink
-                  to="/search"
-                  className="nav-link"
-                  title={i18n.t("search")}
-                  onMouseUp={linkEvent(this, handleCollapseClick)}
-                >
-                  <Icon icon="search" />
-                </NavLink>
-              </li>
-            )}
+            <li className="nav-item">
+              <NavLink
+                to="/search"
+                className="nav-link"
+                title={i18n.t("search")}
+                onMouseUp={linkEvent(this, handleCollapseClick)}
+              >
+                <Icon icon="search" />
+              </NavLink>
+            </li>
             {amAdmin() && (
               <li className="nav-item">
                 <NavLink
@@ -305,15 +258,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     className="nav-link"
                     to="/inbox"
                     title={i18n.t("unread_messages", {
-                      count: Number(this.state.unreadInboxCount),
-                      formattedCount: numToSI(this.state.unreadInboxCount),
+                      count: Number(this.unreadInboxCount),
+                      formattedCount: numToSI(this.unreadInboxCount),
                     })}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="bell" />
-                    {this.state.unreadInboxCount > 0 && (
-                      <span className="ml-1 badge badge-light">
-                        {numToSI(this.state.unreadInboxCount)}
+                    {this.unreadInboxCount > 0 && (
+                      <span className="mx-1 badge badge-light">
+                        {numToSI(this.unreadInboxCount)}
                       </span>
                     )}
                   </NavLink>
@@ -324,15 +277,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       className="nav-link"
                       to="/reports"
                       title={i18n.t("unread_reports", {
-                        count: Number(this.state.unreadReportCount),
-                        formattedCount: numToSI(this.state.unreadReportCount),
+                        count: Number(this.unreadReportCount),
+                        formattedCount: numToSI(this.unreadReportCount),
                       })}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="shield" />
-                      {this.state.unreadReportCount > 0 && (
-                        <span className="ml-1 badge badge-light">
-                          {numToSI(this.state.unreadReportCount)}
+                      {this.unreadReportCount > 0 && (
+                        <span className="mx-1 badge badge-light">
+                          {numToSI(this.unreadReportCount)}
                         </span>
                       )}
                     </NavLink>
@@ -344,17 +297,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       to="/registration_applications"
                       className="nav-link"
                       title={i18n.t("unread_registration_applications", {
-                        count: Number(this.state.unreadApplicationCount),
-                        formattedCount: numToSI(
-                          this.state.unreadApplicationCount
-                        ),
+                        count: Number(this.unreadApplicationCount),
+                        formattedCount: numToSI(this.unreadApplicationCount),
                       })}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="clipboard" />
-                      {this.state.unreadApplicationCount > 0 && (
+                      {this.unreadApplicationCount > 0 && (
                         <span className="mx-1 badge badge-light">
-                          {numToSI(this.state.unreadApplicationCount)}
+                          {numToSI(this.unreadApplicationCount)}
                         </span>
                       )}
                     </NavLink>
@@ -457,122 +408,71 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     return amAdmin() || moderatesS;
   }
 
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      if (msg.error == "not_logged_in") {
-        UserService.Instance.logout();
-      }
-      return;
-    } else if (msg.reconnect) {
-      console.log(i18n.t("websocket_reconnected"));
-      const auth = myAuth(false);
-      if (UserService.Instance.myUserInfo && auth) {
-        WebSocketService.Instance.send(
-          wsClient.userJoin({
-            auth,
-          })
-        );
-        this.fetchUnreads();
-      }
-    } else if (op == UserOperation.GetUnreadCount) {
-      const data = wsJsonToRes<GetUnreadCountResponse>(msg);
-      this.setState({
-        unreadInboxCount: data.replies + data.mentions + data.private_messages,
-      });
-      this.sendUnreadCount();
-    } else if (op == UserOperation.GetReportCount) {
-      const data = wsJsonToRes<GetReportCountResponse>(msg);
-      this.setState({
-        unreadReportCount:
-          data.post_reports +
-          data.comment_reports +
-          (data.private_message_reports ?? 0),
-      });
-      this.sendReportUnread();
-    } else if (op == UserOperation.GetUnreadRegistrationApplicationCount) {
-      const data =
-        wsJsonToRes<GetUnreadRegistrationApplicationCountResponse>(msg);
-      this.setState({ unreadApplicationCount: data.registration_applications });
-      this.sendApplicationUnread();
-    } else if (op == UserOperation.CreateComment) {
-      const data = wsJsonToRes<CommentResponse>(msg);
-      const mui = UserService.Instance.myUserInfo;
-      if (
-        mui &&
-        data.recipient_ids.includes(mui.local_user_view.local_user.id)
-      ) {
-        this.setState({
-          unreadInboxCount: this.state.unreadInboxCount + 1,
-        });
-        this.sendUnreadCount();
-        notifyComment(data.comment_view, this.context.router);
-      }
-    } else if (op == UserOperation.CreatePrivateMessage) {
-      const data = wsJsonToRes<PrivateMessageResponse>(msg);
+  fetchUnreads() {
+    poll(async () => {
+      if (window.document.visibilityState !== "hidden") {
+        const auth = myAuth();
+        if (auth) {
+          this.setState({
+            unreadInboxCountRes: await HttpService.client.getUnreadCount({
+              auth,
+            }),
+          });
 
-      if (
-        data.private_message_view.recipient.id ==
-        UserService.Instance.myUserInfo?.local_user_view.person.id
-      ) {
-        this.setState({
-          unreadInboxCount: this.state.unreadInboxCount + 1,
-        });
-        this.sendUnreadCount();
-        notifyPrivateMessage(data.private_message_view, this.context.router);
+          if (this.moderatesSomething) {
+            this.setState({
+              unreadReportCountRes: await HttpService.client.getReportCount({
+                auth,
+              }),
+            });
+          }
+
+          if (amAdmin()) {
+            this.setState({
+              unreadApplicationCountRes:
+                await HttpService.client.getUnreadRegistrationApplicationCount({
+                  auth,
+                }),
+            });
+          }
+        }
       }
+    }, updateUnreadCountsInterval);
+  }
+
+  get unreadInboxCount(): number {
+    if (this.state.unreadInboxCountRes.state == "success") {
+      const data = this.state.unreadInboxCountRes.data;
+      return data.replies + data.mentions + data.private_messages;
+    } else {
+      return 0;
     }
   }
 
-  fetchUnreads() {
-    console.log("Fetching inbox unreads...");
+  get unreadReportCount(): number {
+    if (this.state.unreadReportCountRes.state == "success") {
+      const data = this.state.unreadReportCountRes.data;
+      return (
+        data.post_reports +
+        data.comment_reports +
+        (data.private_message_reports ?? 0)
+      );
+    } else {
+      return 0;
+    }
+  }
 
-    const auth = myAuth();
-    if (auth) {
-      const unreadForm: GetUnreadCount = {
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.getUnreadCount(unreadForm));
-
-      console.log("Fetching reports...");
-
-      const reportCountForm: GetReportCount = {
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.getReportCount(reportCountForm));
-
-      if (amAdmin()) {
-        console.log("Fetching applications...");
-
-        const applicationCountForm: GetUnreadRegistrationApplicationCount = {
-          auth,
-        };
-        WebSocketService.Instance.send(
-          wsClient.getUnreadRegistrationApplicationCount(applicationCountForm)
-        );
-      }
+  get unreadApplicationCount(): number {
+    if (this.state.unreadApplicationCountRes.state == "success") {
+      const data = this.state.unreadApplicationCountRes.data;
+      return data.registration_applications;
+    } else {
+      return 0;
     }
   }
 
   get currentLocation() {
     return this.context.router.history.location.pathname;
-  }
-
-  sendUnreadCount() {
-    UserService.Instance.unreadInboxCountSub.next(this.state.unreadInboxCount);
-  }
-
-  sendReportUnread() {
-    UserService.Instance.unreadReportCountSub.next(
-      this.state.unreadReportCount
-    );
-  }
-
-  sendApplicationUnread() {
-    UserService.Instance.unreadApplicationCountSub.next(
-      this.state.unreadApplicationCount
-    );
   }
 
   requestNotificationPermission() {
