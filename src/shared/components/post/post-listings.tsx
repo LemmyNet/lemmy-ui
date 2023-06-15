@@ -68,7 +68,7 @@ export class PostListings extends Component<PostListingsProps, any> {
     return (
       <div>
         {this.posts.length > 0 ? (
-          this.posts.map((post_view: PostView, idx: number) => (
+          this.posts.map((post_view, idx) => (
             <>
               <PostListing
                 post_view={post_view}
