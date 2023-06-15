@@ -160,38 +160,42 @@ export class Login extends Component<any, State> {
     if (username_or_email && password) {
       i.setState({ loginRes: { state: "loading" } });
 
-      const loginRes = await HttpService.client.login({
-        username_or_email,
-        password,
-        totp_2fa_token,
-      });
-      switch (loginRes.state) {
-        case "failed": {
-          if (loginRes.msg === "missing_totp_token") {
-            i.setState({ showTotp: true });
-            toast(i18n.t("enter_two_factor_code"), "info");
+      try {
+        const loginRes = await HttpService.client.login({
+          username_or_email,
+          password,
+          totp_2fa_token,
+        });
+        switch (loginRes.state) {
+          case "failed": {
+            if (loginRes.msg === "missing_totp_token") {
+              i.setState({ showTotp: true });
+              toast(i18n.t("enter_two_factor_code"), "info");
+            }
+
+            i.setState({ loginRes: { state: "empty" } });
+            break;
           }
 
-          i.setState({ loginRes: { state: "empty" } });
-          break;
-        }
+          case "success": {
+            UserService.Instance.login(loginRes.data);
+            const site = await HttpService.client.getSite({
+              auth: myAuth(),
+            });
 
-        case "success": {
-          UserService.Instance.login(loginRes.data);
-          const site = await HttpService.client.getSite({
-            auth: myAuth(),
-          });
+            if (site.state === "success") {
+              UserService.Instance.myUserInfo = site.data.my_user;
+            }
 
-          if (site.state === "success") {
-            UserService.Instance.myUserInfo = site.data.my_user;
+            i.props.history.action === "PUSH"
+              ? i.props.history.back()
+              : i.props.history.replace("/");
+
+            break;
           }
-
-          i.props.history.action === "PUSH"
-            ? i.props.history.back()
-            : i.props.history.replace("/");
-
-          break;
         }
+      } catch (error) {
+        i.setState({ loginRes: { state: "failed", msg: error.message } });
       }
     }
   }
