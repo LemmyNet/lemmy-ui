@@ -145,10 +145,15 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {myUSerInfo && this.blockCommunity()}
             {!myUSerInfo && (
               <div className="alert alert-info" role="alert">
-                <T i18nKey="community_not_logged_in_alert">#</T>
-                <code className="user-select-all">
-                  !{name}@{hostname(actor_id)}
-                </code>
+                <T
+                  i18nKey="community_not_logged_in_alert"
+                  interpolation={{
+                    community: name,
+                    instance: hostname(actor_id),
+                  }}
+                >
+                  #<code className="user-select-all">#</code>#
+                </T>
               </div>
             )}
           </div>
