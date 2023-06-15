@@ -1128,7 +1128,7 @@ export const colorList: string[] = [
 ];
 
 function hsl(num: number) {
-  return `hsla(${num}, 35%, 50%, 1)`;
+  return `hsla(${num}, 35%, 50%, 0.5)`;
 }
 
 export function hostname(url: string): string {
