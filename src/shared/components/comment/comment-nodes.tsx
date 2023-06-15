@@ -82,55 +82,57 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
       ? colorList[this.props.depth % colorList.length]
       : colorList[0];
 
-    return this.props.nodes.length > 0 ? (
-      <ul
-        className={classNames("comments", {
-          "ms-1": !!this.props.isChild,
-          "border-top border-light": !this.props.noBorder,
-        })}
-        style={`border-left: 2px solid ${borderColor} !important;`}
-      >
-        {this.props.nodes.slice(0, maxComments).map(node => (
-          <CommentNode
-            key={node.comment_view.comment.id}
-            node={node}
-            noBorder={this.props.noBorder}
-            noIndent={this.props.noIndent}
-            viewOnly={this.props.viewOnly}
-            locked={this.props.locked}
-            moderators={this.props.moderators}
-            admins={this.props.admins}
-            markable={this.props.markable}
-            showContext={this.props.showContext}
-            showCommunity={this.props.showCommunity}
-            enableDownvotes={this.props.enableDownvotes}
-            viewType={this.props.viewType}
-            allLanguages={this.props.allLanguages}
-            siteLanguages={this.props.siteLanguages}
-            hideImages={this.props.hideImages}
-            onCommentReplyRead={this.props.onCommentReplyRead}
-            onPersonMentionRead={this.props.onPersonMentionRead}
-            finished={this.props.finished}
-            onCreateComment={this.props.onCreateComment}
-            onEditComment={this.props.onEditComment}
-            onCommentVote={this.props.onCommentVote}
-            onBlockPerson={this.props.onBlockPerson}
-            onSaveComment={this.props.onSaveComment}
-            onDeleteComment={this.props.onDeleteComment}
-            onRemoveComment={this.props.onRemoveComment}
-            onDistinguishComment={this.props.onDistinguishComment}
-            onAddModToCommunity={this.props.onAddModToCommunity}
-            onAddAdmin={this.props.onAddAdmin}
-            onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
-            onBanPerson={this.props.onBanPerson}
-            onTransferCommunity={this.props.onTransferCommunity}
-            onFetchChildren={this.props.onFetchChildren}
-            onCommentReport={this.props.onCommentReport}
-            onPurgePerson={this.props.onPurgePerson}
-            onPurgeComment={this.props.onPurgeComment}
-          />
-        ))}
-      </ul>
-    ) : null;
+    return (
+      this.props.nodes.length > 0 && (
+        <ul
+          className={classNames("comments", {
+            "ms-1": !!this.props.isChild,
+            "border-top border-light": !this.props.noBorder,
+          })}
+          style={`border-left: 2px solid ${borderColor} !important;`}
+        >
+          {this.props.nodes.slice(0, maxComments).map(node => (
+            <CommentNode
+              key={node.comment_view.comment.id}
+              node={node}
+              noBorder={this.props.noBorder}
+              noIndent={this.props.noIndent}
+              viewOnly={this.props.viewOnly}
+              locked={this.props.locked}
+              moderators={this.props.moderators}
+              admins={this.props.admins}
+              markable={this.props.markable}
+              showContext={this.props.showContext}
+              showCommunity={this.props.showCommunity}
+              enableDownvotes={this.props.enableDownvotes}
+              viewType={this.props.viewType}
+              allLanguages={this.props.allLanguages}
+              siteLanguages={this.props.siteLanguages}
+              hideImages={this.props.hideImages}
+              onCommentReplyRead={this.props.onCommentReplyRead}
+              onPersonMentionRead={this.props.onPersonMentionRead}
+              finished={this.props.finished}
+              onCreateComment={this.props.onCreateComment}
+              onEditComment={this.props.onEditComment}
+              onCommentVote={this.props.onCommentVote}
+              onBlockPerson={this.props.onBlockPerson}
+              onSaveComment={this.props.onSaveComment}
+              onDeleteComment={this.props.onDeleteComment}
+              onRemoveComment={this.props.onRemoveComment}
+              onDistinguishComment={this.props.onDistinguishComment}
+              onAddModToCommunity={this.props.onAddModToCommunity}
+              onAddAdmin={this.props.onAddAdmin}
+              onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+              onBanPerson={this.props.onBanPerson}
+              onTransferCommunity={this.props.onTransferCommunity}
+              onFetchChildren={this.props.onFetchChildren}
+              onCommentReport={this.props.onCommentReport}
+              onPurgePerson={this.props.onPurgePerson}
+              onPurgeComment={this.props.onPurgeComment}
+            />
+          ))}
+        </ul>
+      )
+    );
   }
 }
