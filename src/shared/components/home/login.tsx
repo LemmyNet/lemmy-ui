@@ -188,7 +188,7 @@ export class Login extends Component<any, State> {
 
           i.props.history.action === "PUSH"
             ? i.props.history.back()
-            : i.props.history.push("/");
+            : i.props.history.replace("/");
 
           break;
         }
