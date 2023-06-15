@@ -835,6 +835,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           search: "",
         }}
         title={i18n.t("cross_post")}
+        data-tippy-content={i18n.t("cross_post")}
+        aria-label={i18n.t("cross_post")}
       >
         <Icon icon="copy" inline />
       </Link>
