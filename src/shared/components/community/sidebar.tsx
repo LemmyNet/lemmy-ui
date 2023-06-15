@@ -1,4 +1,5 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
+import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
   AddModToCommunity,
@@ -144,7 +145,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {myUSerInfo && this.blockCommunity()}
             {!myUSerInfo && (
               <div className="alert alert-info" role="alert">
-                {i18n.t("community_not_logged_in_alert")}
+                <T i18nKey="community_not_logged_in_alert">#</T>
                 <code className="user-select-all">
                   !{name}@{hostname(actor_id)}
                 </code>
