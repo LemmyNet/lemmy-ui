@@ -1492,7 +1492,7 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   }
 }
 
-function sleep<T>(millis: number): Promise<T> {
+function sleep(millis: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, millis));
 }
 
