@@ -23,12 +23,12 @@ interface EmojiFormProps {
   onEdit(form: EditCustomEmoji): void;
   onCreate(form: CreateCustomEmoji): void;
   onDelete(form: DeleteCustomEmoji): void;
+  loading: boolean;
 }
 
 interface EmojiFormState {
   siteRes: GetSiteResponse;
   customEmojis: CustomEmojiViewForm[];
-  loading: boolean;
   page: number;
 }
 
@@ -47,7 +47,6 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   private isoData = setIsoData(this.context);
   private itemsPerPage = 15;
   private emptyState: EmojiFormState = {
-    loading: false,
     siteRes: this.isoData.site_res,
     customEmojis: this.isoData.site_res.custom_emojis.map((x, index) => ({
       id: x.custom_emoji.id,
@@ -223,7 +222,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                             data-tippy-content={i18n.t("save")}
                             aria-label={i18n.t("save")}
                             disabled={
-                              this.state.loading ||
+                              this.props.loading ||
                               !this.canEdit(cv) ||
                               !cv.changed
                             }
@@ -243,7 +242,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                           )}
                           data-tippy-content={i18n.t("delete")}
                           aria-label={i18n.t("delete")}
-                          disabled={this.state.loading}
+                          disabled={this.props.loading}
                           title={i18n.t("delete")}
                         >
                           <Icon

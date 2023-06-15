@@ -9,17 +9,16 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 interface TaglineFormProps {
   taglines: Array<Tagline>;
   onSaveSite(form: EditSite): void;
+  loading: boolean;
 }
 
 interface TaglineFormState {
   taglines: Array<string>;
-  loading: boolean;
   editingRow?: number;
 }
 
 export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
-    loading: false,
     editingRow: undefined,
     taglines: this.props.taglines.map(x => x.content),
   };
@@ -28,10 +27,6 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   }
   get documentTitle(): string {
     return i18n.t("taglines");
-  }
-
-  componentWillReceiveProps() {
-    this.setState({ loading: false });
   }
 
   render() {
@@ -110,9 +105,9 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               <button
                 onClick={linkEvent(this, this.handleSaveClick)}
                 className="btn btn-secondary mr-2"
-                disabled={this.state.loading}
+                disabled={this.props.loading}
               >
-                {this.state.loading ? (
+                {this.props.loading ? (
                   <Spinner />
                 ) : (
                   capitalizeFirstLetter(i18n.t("save"))
@@ -153,7 +148,6 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   }
 
   async handleSaveClick(i: TaglineForm) {
-    i.setState({ loading: true });
     i.props.onSaveSite({
       taglines: i.state.taglines,
       auth: myAuthRequired(),

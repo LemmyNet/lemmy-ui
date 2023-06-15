@@ -12,7 +12,11 @@ import {
   ListingType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
+import {
+  capitalizeFirstLetter,
+  myAuthRequired,
+  validDomain,
+} from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
@@ -27,11 +31,11 @@ interface SiteFormProps {
   themeList?: string[];
   onSaveSite(form: EditSite): void;
   siteRes: GetSiteResponse;
+  loading: boolean;
 }
 
 interface SiteFormState {
   siteForm: EditSite;
-  loading: boolean;
   instance_select: {
     allowed_instances: string;
     blocked_instances: string;
@@ -44,7 +48,6 @@ type InstanceKey = "allowed_instances" | "blocked_instances";
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   state: SiteFormState = {
     siteForm: this.initSiteForm(),
-    loading: false,
     instance_select: {
       allowed_instances: "",
       blocked_instances: "",
@@ -107,14 +110,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
+
     this.handleAddInstance = this.handleAddInstance.bind(this);
+    this.handleRemoveInstance = this.handleRemoveInstance.bind(this);
+
     this.handleInstanceEnterPress = this.handleInstanceEnterPress.bind(this);
     this.handleInstanceTextChange = this.handleInstanceTextChange.bind(this);
-  }
-
-  // Necessary to stop the loading
-  componentWillReceiveProps() {
-    this.setState({ loading: false });
   }
 
   render() {
@@ -123,7 +124,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       <form onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}>
         <NavigationPrompt
           when={
-            !this.state.loading &&
+            !this.props.loading &&
             !siteSetup &&
             !!(
               this.state.siteForm.name ||
@@ -136,8 +137,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         />
         <h5>{`${
           siteSetup
-            ? capitalizeFirstLetter(i18n.t("save"))
-            : capitalizeFirstLetter(i18n.t("name"))
+            ? capitalizeFirstLetter(i18n.t("edit"))
+            : capitalizeFirstLetter(i18n.t("setup"))
         } ${i18n.t("your_site")}`}</h5>
         <div className="form-group row">
           <label className="col-12 col-form-label" htmlFor="create-site-name">
@@ -157,7 +158,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="form-group">
-          <label>{i18n.t("icon")}</label>
+          <label className="mr-2">{i18n.t("icon")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_icon")}
             imageSrc={this.state.siteForm.icon}
@@ -167,7 +168,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           />
         </div>
         <div className="form-group">
-          <label>{i18n.t("banner")}</label>
+          <label className="mr-2">{i18n.t("banner")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_banner")}
             imageSrc={this.state.siteForm.banner}
@@ -609,9 +610,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <button
               type="submit"
               className="btn btn-secondary mr-2"
-              disabled={this.state.loading}
+              disabled={this.props.loading}
             >
-              {this.state.loading ? (
+              {this.props.loading ? (
                 <Spinner />
               ) : siteSetup ? (
                 capitalizeFirstLetter(i18n.t("save"))
@@ -717,7 +718,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     event.preventDefault();
     const auth = myAuthRequired();
     i.setState(s => ((s.siteForm.auth = auth), s));
-    i.setState({ loading: true, submitted: true });
+    i.setState({ submitted: true });
 
     const stateSiteForm = i.state.siteForm;
 
@@ -780,6 +781,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleAddInstance(key: InstanceKey) {
     const instance = this.state.instance_select[key].trim();
+
+    if (!validDomain(instance)) {
+      return;
+    }
+
     if (!this.state.siteForm[key]?.includes(instance)) {
       this.setState(s => ({
         ...s,

@@ -39,6 +39,7 @@ interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
+  loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
 }
@@ -52,6 +53,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     bannedRes: { state: "empty" },
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
+    loading: false,
     themeList: [],
     isIsomorphic: false,
   };
@@ -81,6 +83,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       bannedRes: { state: "loading" },
       instancesRes: { state: "loading" },
       themeList: [],
+      loading: true,
     });
 
     const auth = myAuthRequired();
@@ -95,6 +98,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       bannedRes,
       instancesRes,
       themeList,
+      loading: false,
     });
   }
 
@@ -156,6 +160,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                       onSaveSite={this.handleEditSite}
                       siteRes={this.state.siteRes}
                       themeList={this.state.themeList}
+                      loading={this.state.loading}
                     />
                   </div>
                   <div className="col-12 col-md-6">
@@ -174,6 +179,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                     this.state.siteRes.site_view.local_site_rate_limit
                   }
                   onSaveSite={this.handleEditSite}
+                  loading={this.state.loading}
                 />
               ),
             },
@@ -185,6 +191,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                   <TaglineForm
                     taglines={this.state.siteRes.taglines}
                     onSaveSite={this.handleEditSite}
+                    loading={this.state.loading}
                   />
                 </div>
               ),
@@ -198,6 +205,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                     onCreate={this.handleCreateEmoji}
                     onDelete={this.handleDeleteEmoji}
                     onEdit={this.handleEditEmoji}
+                    loading={this.state.loading}
                   />
                 </div>
               ),
@@ -266,6 +274,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditSite(form: EditSite) {
+    this.setState({ loading: true });
+
     const editRes = await HttpService.client.editSite(form);
 
     if (editRes.state === "success") {
@@ -277,6 +287,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       });
       toast(i18n.t("site_saved"));
     }
+
+    this.setState({ loading: false });
 
     return editRes;
   }
@@ -300,23 +312,35 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
+    this.setState({ loading: true });
+
     const res = await HttpService.client.editCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
+
+    this.setState({ loading: false });
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
+    this.setState({ loading: true });
+
     const res = await HttpService.client.deleteCustomEmoji(form);
     if (res.state === "success") {
       removeFromEmojiDataModel(res.data.id);
     }
+
+    this.setState({ loading: false });
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
+    this.setState({ loading: true });
+
     const res = await HttpService.client.createCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
+
+    this.setState({ loading: false });
   }
 }
