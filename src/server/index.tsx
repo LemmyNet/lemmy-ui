@@ -156,7 +156,7 @@ server.get("/*", async (req, res) => {
       site = try_site.data;
       initializeSite(site);
 
-      if (path != "/setup" && !site.site_view.local_site.site_setup) {
+      if (path !== "/setup" && !site.site_view.local_site.site_setup) {
         return res.redirect("/setup");
       }
 

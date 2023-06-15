@@ -270,10 +270,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.props.moderators
     );
 
-
-    const borderColor = this.props.node.depth
-      ? colorList[(this.props.node.depth - 1) % colorList.length]
-      : colorList[0];
     const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
       : colorList[0];
@@ -951,9 +947,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         </div>
         {showMoreChildren && (
           <div
-            className={`details ml-1 comment-node py-2 ${
-              !this.props.noBorder ? "border-top border-light" : ""
-            }`}
+            className={classNames("details ml-1 comment-node py-2", {
+              "border-top border-light": !this.props.noBorder,
+            })}
             style={`border-left: 2px ${moreRepliesBorderColor} solid !important`}
           >
             <button
@@ -1205,6 +1201,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   linkBtn(small = false) {
     const cv = this.commentView;
+
     const classnames = classNames("btn btn-link btn-animate text-muted", {
       "btn-sm": small,
     });
