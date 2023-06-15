@@ -20,13 +20,6 @@ export interface ILemmyConfig {
   wsHost?: string;
 }
 
-declare global {
-  interface Window {
-    isoData: IsoData;
-    lemmyConfig?: ILemmyConfig;
-  }
-}
-
 export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
   auth?: string;
   client: WrappedLemmyHttp;

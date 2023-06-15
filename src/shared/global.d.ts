@@ -1,15 +1,15 @@
-import { ILemmyConfig, IsoDataOptionalSite } from "shared/interfaces";
+import { ILemmyConfig, IsoData } from "shared/interfaces";
 import UAParser from "ua-parser-js";
 
 declare global {
   interface Window {
-    isoData: IsoDataOptionalSite;
+    isoData: IsoData;
     lemmyConfig: ILemmyConfig;
     userAgent: UAParser.IResult;
   }
 
   interface RouterContext {
-    isoData: IsoDataOptionalSite;
+    isoData: IsoData;
     userAgent: UAParser.IResult;
   }
 }

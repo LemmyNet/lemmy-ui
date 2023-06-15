@@ -204,7 +204,7 @@ server.get("/*", async (req, res) => {
     const wrapper = (
       <StaticRouter
         location={url}
-        context={{ isoData, userAgent: parsedUserAgent } as RouterContext}
+        context={{ isoData, userAgent: parsedUserAgent }}
       >
         <App />
       </StaticRouter>
