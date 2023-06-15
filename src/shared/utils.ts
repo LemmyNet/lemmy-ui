@@ -314,9 +314,9 @@ export function amTopMod(
   return mods.at(0)?.moderator.id == myUserInfo?.local_user_view.person.id;
 }
 
-const domainRegex = /([a-z0-9]+\.)*[a-z0-9]+\.[a-z]+/;
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
+const tldRegex = /([a-z0-9]+\.)*[a-z0-9]+\.[a-z]+/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);
@@ -330,8 +330,8 @@ export function validURL(str: string) {
   return !!new URL(str);
 }
 
-export function validDomain(str: string) {
-  return domainRegex.test(str);
+export function validInstanceTLD(str: string) {
+  return tldRegex.test(str);
 }
 
 export function communityRSSUrl(actorId: string, sort: string): string {

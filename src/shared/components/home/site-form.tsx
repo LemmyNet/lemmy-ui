@@ -15,7 +15,7 @@ import { i18n } from "../../i18next";
 import {
   capitalizeFirstLetter,
   myAuthRequired,
-  validDomain,
+  validInstanceTLD,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -782,7 +782,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleAddInstance(key: InstanceKey) {
     const instance = this.state.instance_select[key].trim();
 
-    if (!validDomain(instance)) {
+    if (!validInstanceTLD(instance)) {
       return;
     }
 
