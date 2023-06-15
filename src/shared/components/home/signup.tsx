@@ -496,7 +496,7 @@ export class Signup extends Component<any, State> {
   }
 
   handleRegisterUsernameChange(i: Signup, event: any) {
-    i.state.form.username = event.target.value;
+    i.state.form.username = event.target.value.trim();
     i.setState(i.state);
   }
 
