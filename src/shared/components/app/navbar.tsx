@@ -16,8 +16,10 @@ import {
   isBrowser,
   myAuth,
   numToSI,
+  poll,
   showAvatars,
   toast,
+  updateUnreadCountsInterval,
 } from "../../utils";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
@@ -64,7 +66,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
-      await this.fetchUnreads();
+      this.fetchUnreads();
       this.requestNotificationPermission();
 
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
@@ -406,35 +408,36 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     return amAdmin() || moderatesS;
   }
 
-  async fetchUnreads() {
-    const auth = myAuth();
-    if (auth) {
-      this.setState({ unreadInboxCountRes: { state: "loading" } });
-      this.setState({
-        unreadInboxCountRes: await HttpService.client.getUnreadCount({
-          auth,
-        }),
-      });
-
-      if (this.moderatesSomething) {
-        this.setState({ unreadReportCountRes: { state: "loading" } });
-        this.setState({
-          unreadReportCountRes: await HttpService.client.getReportCount({
-            auth,
-          }),
-        });
-      }
-
-      if (amAdmin()) {
-        this.setState({ unreadApplicationCountRes: { state: "loading" } });
-        this.setState({
-          unreadApplicationCountRes:
-            await HttpService.client.getUnreadRegistrationApplicationCount({
+  fetchUnreads() {
+    poll(async () => {
+      if (window.document.visibilityState !== "hidden") {
+        const auth = myAuth();
+        if (auth) {
+          this.setState({
+            unreadInboxCountRes: await HttpService.client.getUnreadCount({
               auth,
             }),
-        });
+          });
+
+          if (this.moderatesSomething) {
+            this.setState({
+              unreadReportCountRes: await HttpService.client.getReportCount({
+                auth,
+              }),
+            });
+          }
+
+          if (amAdmin()) {
+            this.setState({
+              unreadApplicationCountRes:
+                await HttpService.client.getUnreadRegistrationApplicationCount({
+                  auth,
+                }),
+            });
+          }
+        }
       }
-    }
+    }, updateUnreadCountsInterval);
   }
 
   get unreadInboxCount(): number {
