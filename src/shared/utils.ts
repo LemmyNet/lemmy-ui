@@ -41,6 +41,7 @@ import Token from "markdown-it/lib/token";
 import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
+import UAParser from "ua-parser-js";
 import { getHttpBase } from "./env";
 import { i18n, languages } from "./i18next";
 import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
@@ -1166,7 +1167,7 @@ export function setIsoData(context: any): IsoData {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData;
-  } else return context.router.staticContext;
+  } else return context.router.staticContext.isoData;
 }
 
 moment.updateLocale("en", {
@@ -1505,4 +1506,10 @@ export async function poll(promiseFn: any, millis: number) {
   }
   await sleep(millis);
   return poll(promiseFn, millis);
+}
+
+export function isMobile(userAgent: UAParser.IResult): boolean {
+  if (!userAgent) return false;
+
+  return userAgent.device.type === UAParser.DEVICE.MOBILE;
 }

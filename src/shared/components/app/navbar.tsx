@@ -6,6 +6,7 @@ import {
   GetUnreadCountResponse,
   GetUnreadRegistrationApplicationCountResponse,
 } from "lemmy-js-client";
+import UAParser from "ua-parser-js";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
@@ -14,6 +15,7 @@ import {
   canCreateCommunity,
   donateLemmyUrl,
   isBrowser,
+  isMobile,
   myAuth,
   numToSI,
   poll,
@@ -47,6 +49,10 @@ function handleLogOut(i: Navbar) {
 }
 
 export class Navbar extends Component<NavbarProps, NavbarState> {
+  private userAgent: UAParser.IResult = (
+    this.context.router.staticContext as RouterContext
+  ).userAgent;
+
   state: NavbarState = {
     unreadInboxCountRes: { state: "empty" },
     unreadReportCountRes: { state: "empty" },
@@ -54,6 +60,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   };
   collapseButtonRef = createRef<HTMLButtonElement>();
   mobileMenuRef = createRef<HTMLDivElement>();
+  isMobileUA: boolean = isMobile(this.userAgent);
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -225,6 +232,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 href={donateLemmyUrl}
               >
                 <Icon icon="heart" classes="small" />
+                {this.isMobileUA ? (
+                  <span className="nav-link__icon-text">
+                    {i18n.t("support_lemmy")}
+                  </span>
+                ) : null}
               </a>
             </li>
           </ul>
@@ -237,6 +249,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
                 <Icon icon="search" />
+                {this.isMobileUA ? (
+                  <span className="nav-link__icon-text">
+                    {i18n.t("search")}
+                  </span>
+                ) : null}
               </NavLink>
             </li>
             {amAdmin() && (
@@ -248,6 +265,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="settings" />
+                  {this.isMobileUA ? (
+                    <span className="nav-link__icon-text">
+                      {i18n.t("admin_settings")}
+                    </span>
+                  ) : null}
                 </NavLink>
               </li>
             )}
@@ -264,11 +286,17 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="bell" />
-                    {this.unreadInboxCount > 0 && (
-                      <span className="mx-1 badge badge-light">
-                        {numToSI(this.unreadInboxCount)}
-                      </span>
-                    )}
+                    {this.unreadInboxCount > 0 ||
+                      (this.isMobileUA && (
+                        <span className="mx-1 badge badge-light">
+                          {this.isMobileUA
+                            ? i18n.t("unread_messages", {
+                                count: Number(this.unreadInboxCount),
+                                formattedCount: numToSI(this.unreadInboxCount),
+                              })
+                            : numToSI(this.unreadInboxCount)}
+                        </span>
+                      ))}
                   </NavLink>
                 </li>
                 {this.moderatesSomething && (
@@ -283,11 +311,19 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="shield" />
-                      {this.unreadReportCount > 0 && (
-                        <span className="mx-1 badge badge-light">
-                          {numToSI(this.unreadReportCount)}
-                        </span>
-                      )}
+                      {this.unreadReportCount > 0 ||
+                        (this.isMobileUA && (
+                          <span className="mx-1 badge badge-light">
+                            {this.isMobileUA
+                              ? i18n.t("unread_reports", {
+                                  count: Number(this.unreadReportCount),
+                                  formattedCount: numToSI(
+                                    this.unreadReportCount
+                                  ),
+                                })
+                              : numToSI(this.unreadReportCount)}
+                          </span>
+                        ))}
                     </NavLink>
                   </li>
                 )}
@@ -303,11 +339,19 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="clipboard" />
-                      {this.unreadApplicationCount > 0 && (
-                        <span className="mx-1 badge badge-light">
-                          {numToSI(this.unreadApplicationCount)}
-                        </span>
-                      )}
+                      {this.unreadApplicationCount > 0 ||
+                        (this.isMobileUA && (
+                          <span className="mx-1 badge badge-light">
+                            {this.isMobileUA
+                              ? i18n.t("unread_registration_applications", {
+                                  count: Number(this.unreadApplicationCount),
+                                  formattedCount: numToSI(
+                                    this.unreadApplicationCount
+                                  ),
+                                })
+                              : numToSI(this.unreadApplicationCount)}
+                          </span>
+                        ))}
                     </NavLink>
                   </li>
                 )}

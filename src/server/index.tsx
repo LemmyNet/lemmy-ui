@@ -11,6 +11,7 @@ import path from "path";
 import process from "process";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
+import UAParser from "ua-parser-js";
 import { App } from "../shared/components/app/app";
 import { getHttpBaseExternal, getHttpBaseInternal } from "../shared/env";
 import {
@@ -131,6 +132,7 @@ server.get("/*", async (req, res) => {
     const client = wrapClient(new LemmyHttp(getHttpBaseInternal(), headers));
 
     const { path, url, query } = req;
+    const parsedUserAgent = UAParser(req.headers["user-agent"]);
 
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
@@ -200,7 +202,10 @@ server.get("/*", async (req, res) => {
     };
 
     const wrapper = (
-      <StaticRouter location={url} context={isoData}>
+      <StaticRouter
+        location={url}
+        context={{ isoData, userAgent: parsedUserAgent } as RouterContext}
+      >
         <App />
       </StaticRouter>
     );

@@ -3711,6 +3711,8 @@ input[type="submit"].btn-block {
 .nav-link {
   display: block;
   padding: 0.5rem 2rem;
+  display: flex;
+  align-items: center;
 }
 .nav-link:focus,
 .nav-link:hover {
@@ -3720,6 +3722,9 @@ input[type="submit"].btn-block {
   color: #adb5bd;
   pointer-events: none;
   cursor: default;
+}
+.nav-link .nav-link__icon-text {
+  margin-left: 0.25rem;
 }
 .nav-tabs {
   border-bottom: 1px solid #444;
@@ -3935,6 +3940,9 @@ input[type="submit"].btn-block {
   }
   .navbar-expand-md .navbar-toggler {
     display: none;
+  }
+  .nav-link {
+    display: block;
   }
 }
 @media (max-width: 991.98px) {
