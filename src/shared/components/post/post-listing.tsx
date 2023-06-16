@@ -230,7 +230,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   body() {
     const body = this.postView.post.body;
     return body ? (
-      <div className="col-12 card my-2 p-2">
+      <div id="postContent" className="col-12 card my-2 p-2">
         {this.state.viewSource ? (
           <pre>{body}</pre>
         ) : (
@@ -464,7 +464,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </button>
         {showScores() ? (
           <div
-            className={`unselectable pointer font-weight-bold text-muted px-1`}
+            className={`unselectable pointer font-weight-bold text-muted px-1 post-score`}
             data-tippy-content={this.pointsTippy}
           >
             {numToSI(this.postView.counts.score)}
@@ -1398,7 +1398,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         {/* The mobile view*/}
         <div className="d-block d-sm-none">
-          <div className="row">
+          <div className="row post-container">
             <div className="col-12">
               {this.createdLine()}
 
@@ -1418,9 +1418,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         {/* The larger view*/}
         <div className="d-none d-sm-block">
-          <div className="row">
+          <div className="row post-container">
             {!this.props.viewOnly && this.voteBar()}
-            <div className="col-sm-2 pr-0">
+            <div className="col-sm-2 pr-0 post-media">
               <div className="">{this.thumbnail()}</div>
             </div>
             <div className="col-12 col-sm-9">
