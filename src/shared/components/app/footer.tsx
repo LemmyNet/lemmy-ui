@@ -16,10 +16,7 @@ export class Footer extends Component<FooterProps, any> {
 
   render() {
     return (
-      <nav
-        id="footer"
-        className="container-lg navbar navbar-expand-md navbar-light navbar-bg p-3"
-      >
+      <footer className="container-lg navbar navbar-expand-md navbar-light navbar-bg p-3">
         <div className="navbar-collapse">
           <ul className="navbar-nav ml-auto">
             {this.props.site?.version !== VERSION && (
@@ -66,7 +63,7 @@ export class Footer extends Component<FooterProps, any> {
             </li>
           </ul>
         </div>
-      </nav>
+      </footer>
     );
   }
 }
