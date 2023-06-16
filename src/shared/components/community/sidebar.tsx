@@ -1,4 +1,5 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
+import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
   AddModToCommunity,
@@ -38,7 +39,6 @@ interface SidebarProps {
   allLanguages: Language[];
   siteLanguages: number[];
   communityLanguages?: number[];
-  online: number;
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
@@ -63,7 +63,6 @@ interface SidebarState {
   removeCommunityLoading: boolean;
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
-  blockCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
 }
 
@@ -77,7 +76,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     removeCommunityLoading: false,
     leaveModTeamLoading: false,
     followCommunityLoading: false,
-    blockCommunityLoading: false,
     purgeCommunityLoading: false,
   };
 
@@ -104,7 +102,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         removeCommunityLoading: false,
         leaveModTeamLoading: false,
         followCommunityLoading: false,
-        blockCommunityLoading: false,
         purgeCommunityLoading: false,
       });
     }
@@ -144,10 +141,15 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {myUSerInfo && this.blockCommunity()}
             {!myUSerInfo && (
               <div className="alert alert-info" role="alert">
-                {i18n.t("community_not_logged_in_alert", {
-                  community: name,
-                  instance: hostname(actor_id),
-                })}
+                <T
+                  i18nKey="community_not_logged_in_alert"
+                  interpolation={{
+                    community: name,
+                    instance: hostname(actor_id),
+                  }}
+                >
+                  #<code className="user-select-all">#</code>#
+                </T>
               </div>
             )}
           </div>
@@ -234,12 +236,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const counts = community_view.counts;
     return (
       <ul className="my-1 list-inline">
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_online", {
-            count: this.props.online,
-            formattedCount: numToSI(this.props.online),
-          })}
-        </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_day", {
@@ -370,35 +366,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   blockCommunity() {
-    const community_view = this.props.community_view;
-    const blocked = this.props.community_view.blocked;
+    const { subscribed, blocked } = this.props.community_view;
 
     return (
       <div className="mb-2">
-        {community_view.subscribed == "NotSubscribed" &&
-          (blocked ? (
-            <button
-              className="btn btn-danger btn-block"
-              onClick={linkEvent(this, this.handleBlockCommunity)}
-            >
-              {this.state.blockCommunityLoading ? (
-                <Spinner />
-              ) : (
-                i18n.t("unblock_community")
-              )}
-            </button>
-          ) : (
-            <button
-              className="btn btn-danger btn-block"
-              onClick={linkEvent(this, this.handleBlockCommunity)}
-            >
-              {this.state.blockCommunityLoading ? (
-                <Spinner />
-              ) : (
-                i18n.t("block_community")
-              )}
-            </button>
-          ))}
+        {subscribed == "NotSubscribed" && (
+          <button
+            className="btn btn-danger btn-block"
+            onClick={linkEvent(this, this.handleBlockCommunity)}
+          >
+            {i18n.t(blocked ? "unblock_community" : "block_community")}
+          </button>
+        )}
       </div>
     );
   }
@@ -662,10 +641,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    i.setState({ blockCommunityLoading: true });
+    const { community, blocked } = i.props.community_view;
+
     i.props.onBlockCommunity({
-      community_id: 0,
-      block: !i.props.community_view.blocked,
+      community_id: community.id,
+      block: !blocked,
       auth: myAuthRequired(),
     });
   }

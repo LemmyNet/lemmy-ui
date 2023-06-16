@@ -557,7 +557,6 @@ export class Post extends Component<any, PostState> {
             community_view={res.data.community_view}
             moderators={res.data.moderators}
             admins={this.state.siteRes.admins}
-            online={res.data.online}
             enableNsfw={enableNsfw(this.state.siteRes)}
             showIcon
             allLanguages={this.state.siteRes.all_languages}
@@ -734,19 +733,14 @@ export class Post extends Component<any, PostState> {
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
-    // TODO Probably isn't necessary
-    this.setState(s => {
-      if (
-        s.postRes.state == "success" &&
-        blockCommunityRes.state == "success"
-      ) {
-        s.postRes.data.community_view = blockCommunityRes.data.community_view;
-      }
-      return s;
-    });
-
     if (blockCommunityRes.state == "success") {
       updateCommunityBlock(blockCommunityRes.data);
+      this.setState(s => {
+        if (s.postRes.state == "success") {
+          s.postRes.data.community_view.blocked =
+            blockCommunityRes.data.blocked;
+        }
+      });
     }
   }
 
