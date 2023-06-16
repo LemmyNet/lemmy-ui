@@ -40,7 +40,7 @@ import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
-import { i18n, languages } from "./i18next";
+import { i18n } from "./i18next";
 import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
 import { HttpService, UserService } from "./services";
 import { isBrowser } from "./utils/browser/is-browser";
@@ -231,6 +231,7 @@ export function futureDaysToUnixTime(days?: number): number | undefined {
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
+const tldRegex = /([a-z0-9]+\.)*[a-z0-9]+\.[a-z]+/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);
@@ -242,6 +243,10 @@ export function isVideo(url: string) {
 
 export function validURL(str: string) {
   return !!new URL(str);
+}
+
+export function validInstanceTLD(str: string) {
+  return tldRegex.test(str);
 }
 
 export function communityRSSUrl(actorId: string, sort: string): string {
@@ -267,31 +272,6 @@ export async function getSiteMetadata(url: string) {
 
 export function getDataTypeString(dt: DataType) {
   return dt === DataType.Post ? "Post" : "Comment";
-}
-
-export function getLanguages(
-  override?: string,
-  myUserInfo = UserService.Instance.myUserInfo
-): string[] {
-  const myLang = myUserInfo?.local_user_view.local_user.interface_language;
-  const lang = override || myLang || "browser";
-
-  if (lang == "browser" && isBrowser()) {
-    return getBrowserLanguages();
-  } else {
-    return [lang];
-  }
-}
-
-function getBrowserLanguages(): string[] {
-  // Intersect lemmy's langs, with the browser langs
-  const langs = languages ? languages.map(l => l.code) : ["en"];
-
-  // NOTE, mobile browsers seem to be missing this list, so append en
-  const allowedLangs = navigator.languages
-    .concat("en")
-    .filter(v => langs.includes(v));
-  return allowedLangs;
 }
 
 export async function fetchThemeList(): Promise<string[]> {
