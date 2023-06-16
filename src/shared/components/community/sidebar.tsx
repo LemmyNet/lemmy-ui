@@ -131,37 +131,39 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUSerInfo = UserService.Instance.myUserInfo;
     const { name, actor_id } = this.props.community_view.community;
     return (
-      <div>
-        <div className="card border-secondary mb-3">
-          <div className="card-body">
-            {this.communityTitle()}
-            {this.props.editable && this.adminButtons()}
-            {myUSerInfo && this.subscribe()}
-            {this.canPost && this.createPost()}
-            {myUSerInfo && this.blockCommunity()}
-            {!myUSerInfo && (
-              <div className="alert alert-info" role="alert">
-                <T
-                  i18nKey="community_not_logged_in_alert"
-                  interpolation={{
-                    community: name,
-                    instance: hostname(actor_id),
-                  }}
-                >
-                  #<code className="user-select-all">#</code>#
-                </T>
-              </div>
-            )}
-          </div>
+      <aside className="mb-3">
+        <div id="sidebarContainer">
+          <section id="sidebarMain" className="card border-secondary mb-3">
+            <div className="card-body">
+              {this.communityTitle()}
+              {this.props.editable && this.adminButtons()}
+              {myUSerInfo && this.subscribe()}
+              {this.canPost && this.createPost()}
+              {myUSerInfo && this.blockCommunity()}
+              {!myUSerInfo && (
+                <div className="alert alert-info" role="alert">
+                  <T
+                    i18nKey="community_not_logged_in_alert"
+                    interpolation={{
+                      community: name,
+                      instance: hostname(actor_id),
+                    }}
+                  >
+                    #<code className="user-select-all">#</code>#
+                  </T>
+                </div>
+              )}
+            </div>
+          </section>
+          <section id="sidebarInfo" className="card border-secondary mb-3">
+            <div className="card-body">
+              {this.description()}
+              {this.badges()}
+              {this.mods()}
+            </div>
+          </section>
         </div>
-        <div className="card border-secondary mb-3">
-          <div className="card-body">
-            {this.description()}
-            {this.badges()}
-            {this.mods()}
-          </div>
-        </div>
-      </div>
+      </aside>
     );
   }
 

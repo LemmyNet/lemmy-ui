@@ -174,7 +174,10 @@ export class CreatePost extends Component<
           </h5>
         ) : (
           <div className="row">
-            <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+            <div
+              id="createPostForm"
+              className="col-12 col-lg-6 offset-lg-3 mb-4"
+            >
               <h5>{i18n.t("create_post")}</h5>
               <PostForm
                 onCreate={this.handlePostCreate}
