@@ -42,7 +42,7 @@ import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
-import { i18n, languages } from "./i18next";
+import { i18n } from "./i18next";
 import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
 import { HttpService, UserService } from "./services";
 
@@ -399,31 +399,6 @@ export function debounce<T extends any[], R>(
   } as (...e: T) => R;
 }
 
-export function getLanguages(
-  override?: string,
-  myUserInfo = UserService.Instance.myUserInfo
-): string[] {
-  const myLang = myUserInfo?.local_user_view.local_user.interface_language;
-  const lang = override || myLang || "browser";
-
-  if (lang == "browser" && isBrowser()) {
-    return getBrowserLanguages();
-  } else {
-    return [lang];
-  }
-}
-
-function getBrowserLanguages(): string[] {
-  // Intersect lemmy's langs, with the browser langs
-  const langs = languages ? languages.map(l => l.code) : ["en"];
-
-  // NOTE, mobile browsers seem to be missing this list, so append en
-  const allowedLangs = navigator.languages
-    .concat("en")
-    .filter(v => langs.includes(v));
-  return allowedLangs;
-}
-
 export async function fetchThemeList(): Promise<string[]> {
   return fetch("/css/themelist").then(res => res.json());
 }
@@ -739,7 +714,7 @@ function setupMarkdown() {
       defs: emojiDefs,
     })
     .disable("image");
-  var defaultRenderer = md.renderer.rules.image;
+  const defaultRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
     tokens: Token[],
     idx: number,
@@ -757,6 +732,9 @@ function setupMarkdown() {
     }
     const alt_text = item.content;
     return `<img class="icon icon-emoji" src="${src}" title="${title}" alt="${alt_text}"/>`;
+  };
+  md.renderer.rules.table_open = function () {
+    return '<table class="table">';
   };
 }
 
@@ -1273,7 +1251,7 @@ export function personSelectName({
 
 export function initializeSite(site?: GetSiteResponse) {
   UserService.Instance.myUserInfo = site?.my_user;
-  i18n.changeLanguage(getLanguages()[0]);
+  i18n.changeLanguage();
   if (site) {
     setupEmojiDataModel(site.custom_emojis ?? []);
   }
