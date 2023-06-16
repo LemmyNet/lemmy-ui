@@ -235,7 +235,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <li className="nav-item">
               <NavLink
                 to="/search"
-                className="nav-link d-inline-flex align-items-center d-md-inline"
+                className="nav-link d-inline-flex align-items-center d-md-inline-block"
                 title={i18n.t("search")}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
@@ -249,7 +249,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <li className="nav-item">
                 <NavLink
                   to="/admin"
-                  className="nav-link d-inline-flex align-items-center d-md-inline"
+                  className="nav-link d-inline-flex align-items-center d-md-inline-block"
                   title={i18n.t("admin_settings")}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
@@ -264,7 +264,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <>
                 <li className="nav-item">
                   <NavLink
-                    className="nav-link d-inline-flex align-items-center d-md-inline"
+                    className="nav-link d-inline-flex align-items-center d-md-inline-block"
                     to="/inbox"
                     title={i18n.t("unread_messages", {
                       count: Number(this.unreadInboxCount),
@@ -289,7 +289,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 {this.moderatesSomething && (
                   <li className="nav-item">
                     <NavLink
-                      className="nav-link d-inline-flex align-items-center d-md-inline"
+                      className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       to="/reports"
                       title={i18n.t("unread_reports", {
                         count: Number(this.unreadReportCount),
@@ -316,7 +316,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <li className="nav-item">
                     <NavLink
                       to="/registration_applications"
-                      className="nav-link d-inline-flex align-items-center d-md-inline"
+                      className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       title={i18n.t("unread_registration_applications", {
                         count: Number(this.unreadApplicationCount),
                         formattedCount: numToSI(this.unreadApplicationCount),
