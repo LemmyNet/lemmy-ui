@@ -589,7 +589,7 @@ function setupMarkdown() {
       defs: emojiDefs,
     })
     .disable("image");
-  var defaultRenderer = md.renderer.rules.image;
+  const defaultRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
     tokens: Token[],
     idx: number,
@@ -607,6 +607,9 @@ function setupMarkdown() {
     }
     const alt_text = item.content;
     return `<img class="icon icon-emoji" src="${src}" title="${title}" alt="${alt_text}"/>`;
+  };
+  md.renderer.rules.table_open = function () {
+    return '<table class="table">';
   };
 }
 
@@ -1119,7 +1122,7 @@ export function personSelectName({
 
 export function initializeSite(site?: GetSiteResponse) {
   UserService.Instance.myUserInfo = site?.my_user;
-  i18n.changeLanguage(getLanguages()[0]);
+  i18n.changeLanguage();
   if (site) {
     setupEmojiDataModel(site.custom_emojis ?? []);
   }
