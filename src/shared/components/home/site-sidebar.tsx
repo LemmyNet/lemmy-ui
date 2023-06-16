@@ -30,7 +30,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   render() {
     return (
-      <div id="sidebarInfo" className="card border-secondary mb-3">
+      <section id="sidebarInfo" className="card border-secondary mb-3">
         <div className="card-body">
           <div>
             <div className="mb-2">{this.siteName()}</div>
@@ -42,7 +42,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             )}
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 

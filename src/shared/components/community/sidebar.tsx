@@ -133,7 +133,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const { name, actor_id } = this.props.community_view.community;
     return (
       <div id="sidebarContainer">
-        <div id="sidebarMain" className="card border-secondary mb-3">
+        <section id="sidebarMain" className="card border-secondary mb-3">
           <div className="card-body">
             {this.communityTitle()}
             {this.props.editable && this.adminButtons()}
@@ -154,14 +154,14 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               </div>
             )}
           </div>
-        </div>
-        <div id="sidebarInfo" className="card border-secondary mb-3">
+        </section>
+        <section id="sidebarInfo" className="card border-secondary mb-3">
           <div className="card-body">
             {this.description()}
             {this.badges()}
             {this.mods()}
           </div>
-        </div>
+        </section>
       </div>
     );
   }
