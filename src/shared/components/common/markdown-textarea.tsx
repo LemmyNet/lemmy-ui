@@ -1,4 +1,5 @@
 import autosize from "autosize";
+import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
@@ -143,100 +144,123 @@ export class MarkdownTextArea extends Component<
           }
         />
         <div className="form-group row">
-          <div className="col-sm-12 d-flex flex-wrap">
-            {this.getFormatButton("bold", this.handleInsertBold)}
-            {this.getFormatButton("italic", this.handleInsertItalic)}
-            {this.getFormatButton("link", this.handleInsertLink)}
-            <EmojiPicker
-              onEmojiClick={e => this.handleEmoji(this, e)}
-              disabled={this.isDisabled}
-            ></EmojiPicker>
-            <form className="btn btn-sm text-muted font-weight-bold">
-              <label
-                htmlFor={`file-upload-${this.id}`}
-                className={`mb-0 ${
-                  UserService.Instance.myUserInfo && "pointer"
-                }`}
-                data-tippy-content={i18n.t("upload_image")}
-              >
-                {this.state.imageUploadStatus ? (
-                  <Spinner />
-                ) : (
-                  <Icon icon="image" classes="icon-inline" />
-                )}
-              </label>
-              <input
-                id={`file-upload-${this.id}`}
-                type="file"
-                accept="image/*,video/*"
-                name="file"
-                className="d-none"
-                multiple
-                disabled={!UserService.Instance.myUserInfo || this.isDisabled}
-                onChange={linkEvent(this, this.handleImageUpload)}
-              />
-            </form>
-            {this.getFormatButton("header", this.handleInsertHeader)}
-            {this.getFormatButton(
-              "strikethrough",
-              this.handleInsertStrikethrough
-            )}
-            {this.getFormatButton("quote", this.handleInsertQuote)}
-            {this.getFormatButton("list", this.handleInsertList)}
-            {this.getFormatButton("code", this.handleInsertCode)}
-            {this.getFormatButton("subscript", this.handleInsertSubscript)}
-            {this.getFormatButton("superscript", this.handleInsertSuperscript)}
-            {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
-            <a
-              href={markdownHelpUrl}
-              className="btn btn-sm text-muted font-weight-bold"
-              title={i18n.t("formatting_help")}
-              rel={relTags}
+          <div className="col-12">
+            <div
+              className="rounded bg-white"
+              style={{
+                border: "1px solid var(--bs-border-color)",
+              }}
             >
-              <Icon icon="help-circle" classes="icon-inline" />
-            </a>
-          </div>
-
-          <div className="col-sm-12 mt-2">
-            <textarea
-              id={this.id}
-              className={`form-control ${this.state.previewMode && "d-none"}`}
-              value={this.state.content}
-              onInput={linkEvent(this, this.handleContentChange)}
-              onPaste={linkEvent(this, this.handleImageUploadPaste)}
-              onKeyDown={linkEvent(this, this.handleKeyBinds)}
-              required
-              disabled={this.isDisabled}
-              rows={2}
-              maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
-              placeholder={this.props.placeholder}
-            />
-            {this.state.previewMode && this.state.content && (
               <div
-                className="card border-secondary card-body md-div"
-                dangerouslySetInnerHTML={mdToHtml(this.state.content)}
-              />
-            )}
-            {this.state.imageUploadStatus &&
-              this.state.imageUploadStatus.total > 1 && (
-                <ProgressBar
-                  className="mt-2"
-                  striped
-                  animated
-                  value={this.state.imageUploadStatus.uploaded}
-                  max={this.state.imageUploadStatus.total}
-                  text={i18n.t("pictures_uploded_progess", {
-                    uploaded: this.state.imageUploadStatus.uploaded,
-                    total: this.state.imageUploadStatus.total,
-                  })}
-                />
-              )}
-          </div>
-          <label className="sr-only" htmlFor={this.id}>
-            {i18n.t("body")}
-          </label>
+                className="d-flex flex-wrap"
+                style={{
+                  "border-bottom": "1px solid var(--bs-border-color)",
+                }}
+              >
+                {this.getFormatButton("bold", this.handleInsertBold)}
+                {this.getFormatButton("italic", this.handleInsertItalic)}
+                {this.getFormatButton("link", this.handleInsertLink)}
+                <EmojiPicker
+                  onEmojiClick={e => this.handleEmoji(this, e)}
+                  disabled={this.isDisabled}
+                ></EmojiPicker>
+                <form className="btn btn-sm text-muted font-weight-bold">
+                  <label
+                    htmlFor={`file-upload-${this.id}`}
+                    className={`mb-0 ${
+                      UserService.Instance.myUserInfo && "pointer"
+                    }`}
+                    data-tippy-content={i18n.t("upload_image")}
+                  >
+                    {this.state.imageUploadStatus ? (
+                      <Spinner />
+                    ) : (
+                      <Icon icon="image" classes="icon-inline" />
+                    )}
+                  </label>
+                  <input
+                    id={`file-upload-${this.id}`}
+                    type="file"
+                    accept="image/*,video/*"
+                    name="file"
+                    className="d-none"
+                    multiple
+                    disabled={
+                      !UserService.Instance.myUserInfo || this.isDisabled
+                    }
+                    onChange={linkEvent(this, this.handleImageUpload)}
+                  />
+                </form>
+                {this.getFormatButton("header", this.handleInsertHeader)}
+                {this.getFormatButton(
+                  "strikethrough",
+                  this.handleInsertStrikethrough
+                )}
+                {this.getFormatButton("quote", this.handleInsertQuote)}
+                {this.getFormatButton("list", this.handleInsertList)}
+                {this.getFormatButton("code", this.handleInsertCode)}
+                {this.getFormatButton("subscript", this.handleInsertSubscript)}
+                {this.getFormatButton(
+                  "superscript",
+                  this.handleInsertSuperscript
+                )}
+                {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
+                <a
+                  href={markdownHelpUrl}
+                  className="btn btn-sm text-muted font-weight-bold"
+                  title={i18n.t("formatting_help")}
+                  rel={relTags}
+                >
+                  <Icon icon="help-circle" classes="icon-inline" />
+                </a>
+              </div>
 
-          <div className="col-sm-12 d-flex align-items-center flex-wrap mt-2">
+              <div>
+                <textarea
+                  id={this.id}
+                  className={classNames("form-control border-0", {
+                    "d-none": this.state.previewMode,
+                  })}
+                  value={this.state.content}
+                  onInput={linkEvent(this, this.handleContentChange)}
+                  onPaste={linkEvent(this, this.handleImageUploadPaste)}
+                  onKeyDown={linkEvent(this, this.handleKeyBinds)}
+                  required
+                  disabled={this.isDisabled}
+                  rows={2}
+                  maxLength={
+                    this.props.maxLength ?? markdownFieldCharacterLimit
+                  }
+                  placeholder={this.props.placeholder}
+                />
+                {this.state.previewMode && this.state.content && (
+                  <div
+                    className="card border-secondary card-body md-div"
+                    dangerouslySetInnerHTML={mdToHtml(this.state.content)}
+                  />
+                )}
+                {this.state.imageUploadStatus &&
+                  this.state.imageUploadStatus.total > 1 && (
+                    <ProgressBar
+                      className="mt-2"
+                      striped
+                      animated
+                      value={this.state.imageUploadStatus.uploaded}
+                      max={this.state.imageUploadStatus.total}
+                      text={i18n.t("pictures_uploded_progess", {
+                        uploaded: this.state.imageUploadStatus.uploaded,
+                        total: this.state.imageUploadStatus.total,
+                      })}
+                    />
+                  )}
+              </div>
+              <label className="sr-only" htmlFor={this.id}>
+                {i18n.t("body")}
+              </label>
+            </div>
+          </div>
+
+          <div className="col-12 d-flex align-items-center flex-wrap mt-2">
             {this.props.showLanguage && (
               <LanguageSelect
                 iconVersion
