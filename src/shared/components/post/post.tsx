@@ -384,6 +384,7 @@ export class Post extends Component<any, PostState> {
                 disabled={res.post_view.post.locked}
                 allLanguages={this.state.siteRes.all_languages}
                 siteLanguages={this.state.siteRes.discussion_languages}
+                containerClass="post-comment-container"
                 onUpsertComment={this.handleCreateComment}
                 finished={this.state.finished.get(0)}
               />
@@ -547,24 +548,22 @@ export class Post extends Component<any, PostState> {
     const res = this.state.postRes;
     if (res.state === "success") {
       return (
-        <div className="mb-3">
-          <Sidebar
-            community_view={res.data.community_view}
-            moderators={res.data.moderators}
-            admins={this.state.siteRes.admins}
-            enableNsfw={enableNsfw(this.state.siteRes)}
-            showIcon
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
-            onDeleteCommunity={this.handleDeleteCommunityClick}
-            onLeaveModTeam={this.handleAddModToCommunity}
-            onFollowCommunity={this.handleFollow}
-            onRemoveCommunity={this.handleModRemoveCommunity}
-            onPurgeCommunity={this.handlePurgeCommunity}
-            onBlockCommunity={this.handleBlockCommunity}
-            onEditCommunity={this.handleEditCommunity}
-          />
-        </div>
+        <Sidebar
+          community_view={res.data.community_view}
+          moderators={res.data.moderators}
+          admins={this.state.siteRes.admins}
+          enableNsfw={enableNsfw(this.state.siteRes)}
+          showIcon
+          allLanguages={this.state.siteRes.all_languages}
+          siteLanguages={this.state.siteRes.discussion_languages}
+          onDeleteCommunity={this.handleDeleteCommunityClick}
+          onLeaveModTeam={this.handleAddModToCommunity}
+          onFollowCommunity={this.handleFollow}
+          onRemoveCommunity={this.handleModRemoveCommunity}
+          onPurgeCommunity={this.handlePurgeCommunity}
+          onBlockCommunity={this.handleBlockCommunity}
+          onEditCommunity={this.handleEditCommunity}
+        />
       );
     }
   }
