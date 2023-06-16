@@ -72,11 +72,11 @@ interface SearchProps {
 }
 
 type SearchData = RouteDataResponse<{
-  communityResponse?: GetCommunityResponse;
-  listCommunitiesResponse?: ListCommunitiesResponse;
-  creatorDetailsResponse?: GetPersonDetailsResponse;
-  searchResponse?: SearchResponse;
-  resolveObjectResponse?: ResolveObjectResponse;
+  communityResponse: GetCommunityResponse;
+  listCommunitiesResponse: ListCommunitiesResponse;
+  creatorDetailsResponse: GetPersonDetailsResponse;
+  searchResponse: SearchResponse;
+  resolveObjectResponse: ResolveObjectResponse;
 }>;
 
 type FilterType = "creator" | "community";
@@ -365,11 +365,12 @@ export class Search extends Component<any, SearchState> {
     query: { communityId, creatorId, q, type, sort, listingType, page },
   }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<SearchData> {
     const community_id = getIdFromString(communityId);
-    let communityResponse: RequestState<GetCommunityResponse> | undefined =
-      undefined;
-    let listCommunitiesResponse:
-      | RequestState<ListCommunitiesResponse>
-      | undefined = undefined;
+    let communityResponse: RequestState<GetCommunityResponse> = {
+      state: "empty",
+    };
+    let listCommunitiesResponse: RequestState<ListCommunitiesResponse> = {
+      state: "empty",
+    };
     if (community_id) {
       const getCommunityForm: GetCommunity = {
         id: community_id,
@@ -391,9 +392,9 @@ export class Search extends Component<any, SearchState> {
     }
 
     const creator_id = getIdFromString(creatorId);
-    let creatorDetailsResponse:
-      | RequestState<GetPersonDetailsResponse>
-      | undefined = undefined;
+    let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
     if (creator_id) {
       const getCreatorForm: GetPersonDetails = {
         person_id: creator_id,
@@ -405,9 +406,10 @@ export class Search extends Component<any, SearchState> {
 
     const query = getSearchQueryFromQuery(q);
 
-    let searchResponse: RequestState<SearchResponse> | undefined = undefined;
-    let resolveObjectResponse: RequestState<ResolveObjectResponse> | undefined =
-      undefined;
+    let searchResponse: RequestState<SearchResponse> = { state: "empty" };
+    let resolveObjectResponse: RequestState<ResolveObjectResponse> = {
+      state: "empty",
+    };
 
     if (query) {
       const form: SearchForm = {
@@ -429,9 +431,7 @@ export class Search extends Component<any, SearchState> {
             q: query,
             auth,
           };
-          resolveObjectResponse = await client
-            .resolveObject(resolveObjectForm)
-            .catch(() => undefined);
+          resolveObjectResponse = await client.resolveObject(resolveObjectForm);
         }
       }
     }

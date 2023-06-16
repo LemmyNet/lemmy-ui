@@ -102,9 +102,9 @@ import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
 
 type CommunityData = RouteDataResponse<{
-  communityResponse: GetCommunityResponse;
-  postsResponse?: GetPostsResponse;
-  commentsResponse?: GetCommentsResponse;
+  communityRes: GetCommunityResponse;
+  postsRes: GetPostsResponse;
+  commentsRes: GetCommentsResponse;
 }>;
 
 interface State {
@@ -201,37 +201,15 @@ export class Community extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const {
-        communityResponse: communityRes,
-        commentsResponse: commentsRes,
-        postsResponse: postsRes,
-      } = this.isoData.routeData;
+      const { communityRes, commentsRes, postsRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
         isIsomorphic: true,
+        commentsRes,
+        communityRes,
+        postsRes,
       };
-
-      if (communityRes.state === "success") {
-        this.state = {
-          ...this.state,
-          communityRes,
-        };
-      }
-
-      if (postsRes?.state === "success") {
-        this.state = {
-          ...this.state,
-          postsRes,
-        };
-      }
-
-      if (commentsRes?.state === "success") {
-        this.state = {
-          ...this.state,
-          commentsRes,
-        };
-      }
     }
   }
 
@@ -279,9 +257,10 @@ export class Community extends Component<
 
     const page = getPageFromString(urlPage);
 
-    let postsResponse: RequestState<GetPostsResponse> | undefined = undefined;
-    let commentsResponse: RequestState<GetCommentsResponse> | undefined =
-      undefined;
+    let postsResponse: RequestState<GetPostsResponse> = { state: "empty" };
+    let commentsResponse: RequestState<GetCommentsResponse> = {
+      state: "empty",
+    };
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -310,9 +289,9 @@ export class Community extends Component<
     }
 
     return {
-      communityResponse: await client.getCommunity(communityForm),
-      commentsResponse,
-      postsResponse,
+      communityRes: await client.getCommunity(communityForm),
+      commentsRes: commentsResponse,
+      postsRes: postsResponse,
     };
   }
 

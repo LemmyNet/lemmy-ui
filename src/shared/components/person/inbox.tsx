@@ -92,9 +92,9 @@ enum ReplyEnum {
 }
 
 type InboxData = RouteDataResponse<{
-  repliesResponse: GetRepliesResponse;
-  personMentionsResponse: GetPersonMentionsResponse;
-  privateMessagesResponse: PrivateMessagesResponse;
+  repliesRes: GetRepliesResponse;
+  mentionsRes: GetPersonMentionsResponse;
+  messagesRes: PrivateMessagesResponse;
 }>;
 
 type ReplyType = {
@@ -167,11 +167,7 @@ export class Inbox extends Component<any, InboxState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const {
-        personMentionsResponse: mentionsRes,
-        privateMessagesResponse: messagesRes,
-        repliesResponse: repliesRes,
-      } = this.isoData.routeData;
+      const { mentionsRes, messagesRes, repliesRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -702,7 +698,7 @@ export class Inbox extends Component<any, InboxState> {
     const sort: CommentSortType = "New";
 
     return {
-      personMentionsResponse: auth
+      mentionsRes: auth
         ? await client.getPersonMentions({
             sort,
             unread_only: true,
@@ -711,7 +707,7 @@ export class Inbox extends Component<any, InboxState> {
             auth,
           })
         : { state: "empty" },
-      privateMessagesResponse: auth
+      messagesRes: auth
         ? await client.getPrivateMessages({
             unread_only: true,
             page: 1,
@@ -719,7 +715,7 @@ export class Inbox extends Component<any, InboxState> {
             auth,
           })
         : { state: "empty" },
-      repliesResponse: auth
+      repliesRes: auth
         ? await client.getReplies({
             sort,
             unread_only: true,

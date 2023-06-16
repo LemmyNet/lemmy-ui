@@ -34,8 +34,8 @@ import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 
 type AdminSettingsData = RouteDataResponse<{
-  bannedPersonsResponse: BannedPersonsResponse;
-  federatedInstancesResponse: GetFederatedInstancesResponse;
+  bannedRes: BannedPersonsResponse;
+  instancesRes: GetFederatedInstancesResponse;
 }>;
 
 interface AdminSettingsState {
@@ -72,10 +72,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const {
-        bannedPersonsResponse: bannedRes,
-        federatedInstancesResponse: instancesRes,
-      } = this.isoData.routeData;
+      const { bannedRes, instancesRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -91,10 +88,10 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     client,
   }: InitialFetchRequest): Promise<AdminSettingsData> {
     return {
-      bannedPersonsResponse: await client.getBannedPersons({
+      bannedRes: await client.getBannedPersons({
         auth: auth as string,
       }),
-      federatedInstancesResponse: await client.getFederatedInstances({
+      instancesRes: await client.getFederatedInstances({
         auth: auth as string,
       }),
     };

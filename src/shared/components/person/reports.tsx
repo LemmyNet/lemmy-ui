@@ -58,9 +58,9 @@ enum MessageEnum {
 }
 
 type ReportsData = RouteDataResponse<{
-  commentReportsResponse: ListCommentReportsResponse;
-  postReportsResponse: ListPostReportsResponse;
-  privateMessageReportsResponse?: ListPrivateMessageReportsResponse;
+  commentReportsRes: ListCommentReportsResponse;
+  postReportsRes: ListPostReportsResponse;
+  messageReportsRes: ListPrivateMessageReportsResponse;
 }>;
 
 type ItemType = {
@@ -106,11 +106,8 @@ export class Reports extends Component<any, ReportsState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const {
-        commentReportsResponse: commentReportsRes,
-        postReportsResponse: postReportsRes,
-        privateMessageReportsResponse: messageReportsRes,
-      } = this.isoData.routeData;
+      const { commentReportsRes, postReportsRes, messageReportsRes } =
+        this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -122,7 +119,7 @@ export class Reports extends Component<any, ReportsState> {
       if (amAdmin()) {
         this.state = {
           ...this.state,
-          messageReportsRes: messageReportsRes ?? { state: "empty" },
+          messageReportsRes: messageReportsRes,
         };
       }
     }
@@ -515,10 +512,9 @@ export class Reports extends Component<any, ReportsState> {
     };
 
     const data: ReportsData = {
-      commentReportsResponse: await client.listCommentReports(
-        commentReportsForm
-      ),
-      postReportsResponse: await client.listPostReports(postReportsForm),
+      commentReportsRes: await client.listCommentReports(commentReportsForm),
+      postReportsRes: await client.listPostReports(postReportsForm),
+      messageReportsRes: { state: "empty" },
     };
 
     if (amAdmin()) {
@@ -529,8 +525,9 @@ export class Reports extends Component<any, ReportsState> {
         auth: auth as string,
       };
 
-      data.privateMessageReportsResponse =
-        await client.listPrivateMessageReports(privateMessageReportsForm);
+      data.messageReportsRes = await client.listPrivateMessageReports(
+        privateMessageReportsForm
+      );
     }
 
     return data;

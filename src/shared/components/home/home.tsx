@@ -119,9 +119,9 @@ interface HomeProps {
 }
 
 type HomeData = RouteDataResponse<{
-  postsResponse?: GetPostsResponse;
-  commentsResponse?: GetCommentsResponse;
-  trendingResponse: ListCommunitiesResponse;
+  postsRes: GetPostsResponse;
+  commentsRes: GetCommentsResponse;
+  trendingCommunitiesRes: ListCommunitiesResponse;
 }>;
 
 function getDataTypeFromQuery(type?: string): DataType {
@@ -236,37 +236,30 @@ export class Home extends Component<any, HomeState> {
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const {
-        trendingResponse: trendingCommunitiesRes,
-        commentsResponse: commentsRes,
-        postsResponse: postsRes,
+        trendingCommunitiesRes: trendingCommunitiesRes,
+        commentsRes: commentsRes,
+        postsRes: postsRes,
       } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
         trendingCommunitiesRes,
+        commentsRes,
+        postsRes,
         tagline: getRandomFromList(this.state?.siteRes?.taglines ?? [])
           ?.content,
         isIsomorphic: true,
       };
-
-      if (commentsRes?.state === "success") {
-        this.state = {
-          ...this.state,
-          commentsRes,
-        };
-      }
-
-      if (postsRes?.state === "success") {
-        this.state = {
-          ...this.state,
-          postsRes,
-        };
-      }
     }
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic || !this.isoData.routeData.length) {
+    if (
+      !this.state.isIsomorphic ||
+      !Object.values(this.isoData.routeData).some(
+        res => res.state === "success" || res.state === "failed"
+      )
+    ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
 
@@ -290,9 +283,10 @@ export class Home extends Component<any, HomeState> {
 
     const page = urlPage ? Number(urlPage) : 1;
 
-    let postsResponse: RequestState<GetPostsResponse> | undefined = undefined;
-    let commentsResponse: RequestState<GetCommentsResponse> | undefined =
-      undefined;
+    let postsRes: RequestState<GetPostsResponse> = { state: "empty" };
+    let commentsRes: RequestState<GetCommentsResponse> = {
+      state: "empty",
+    };
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -304,7 +298,7 @@ export class Home extends Component<any, HomeState> {
         auth,
       };
 
-      postsResponse = await client.getPosts(getPostsForm);
+      postsRes = await client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         page,
@@ -315,7 +309,7 @@ export class Home extends Component<any, HomeState> {
         auth,
       };
 
-      commentsResponse = await client.getComments(getCommentsForm);
+      commentsRes = await client.getComments(getCommentsForm);
     }
 
     const trendingCommunitiesForm: ListCommunities = {
@@ -326,9 +320,11 @@ export class Home extends Component<any, HomeState> {
     };
 
     return {
-      trendingResponse: await client.listCommunities(trendingCommunitiesForm),
-      commentsResponse,
-      postsResponse,
+      trendingCommunitiesRes: await client.listCommunities(
+        trendingCommunitiesForm
+      ),
+      commentsRes,
+      postsRes,
     };
   }
 

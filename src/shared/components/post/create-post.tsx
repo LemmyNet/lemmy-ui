@@ -81,6 +81,13 @@ export class CreatePost extends Component<
       const { communityResponse: communityRes, initialCommunitiesRes } =
         this.isoData.routeData;
 
+      this.state = {
+        ...this.state,
+        loading: false,
+        initialCommunitiesRes,
+        isIsomorphic: true,
+      };
+
       if (communityRes?.state === "success") {
         const communityChoice: Choice = {
           label: communityRes.data.community_view.community.title,
@@ -92,13 +99,6 @@ export class CreatePost extends Component<
           selectedCommunityChoice: communityChoice,
         };
       }
-
-      this.state = {
-        ...this.state,
-        loading: false,
-        initialCommunitiesRes,
-        isIsomorphic: true,
-      };
     }
   }
 

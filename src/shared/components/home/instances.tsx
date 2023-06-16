@@ -59,11 +59,11 @@ export class Instances extends Component<any, InstancesState> {
     });
   }
 
-  static async fetchInitialData(
-    req: InitialFetchRequest
-  ): Promise<InstancesData> {
+  static async fetchInitialData({
+    client,
+  }: InitialFetchRequest): Promise<InstancesData> {
     return {
-      federatedInstancesResponse: await req.client.getFederatedInstances({}),
+      federatedInstancesResponse: await client.getFederatedInstances({}),
     };
   }
 

@@ -1499,7 +1499,7 @@ export function newVote(voteType: VoteType, myVote?: number): number {
 }
 
 export type RouteDataResponse<T extends Record<string, any>> = {
-  [K in keyof T]: RequestState<Exclude<T[K], undefined>>;
+  [K in keyof T]: RequestState<T[K]>;
 };
 
 function sleep(millis: number): Promise<void> {

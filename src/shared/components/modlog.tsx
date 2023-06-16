@@ -77,10 +77,10 @@ type View =
   | AdminPurgeCommentView;
 
 type ModlogData = RouteDataResponse<{
-  modlogResponse: GetModlogResponse;
-  communityResponse?: GetCommunityResponse;
-  modUserResponse?: GetPersonDetailsResponse;
-  userResponse?: GetPersonDetailsResponse;
+  res: GetModlogResponse;
+  communityRes: GetCommunityResponse;
+  modUserResponse: GetPersonDetailsResponse;
+  userResponse: GetPersonDetailsResponse;
 }>;
 
 interface ModlogType {
@@ -662,33 +662,23 @@ export class Modlog extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const {
-        modlogResponse: res,
-        communityResponse: communityRes,
-        modUserResponse,
-        userResponse,
-      } = this.isoData.routeData;
+      const { res, communityRes, modUserResponse, userResponse } =
+        this.isoData.routeData;
 
       this.state = {
         ...this.state,
         res,
+        communityRes,
       };
 
-      if (communityRes?.state === "success") {
-        this.state = {
-          ...this.state,
-          communityRes,
-        };
-      }
-
-      if (modUserResponse?.state === "success") {
+      if (modUserResponse.state === "success") {
         this.state = {
           ...this.state,
           modSearchOptions: [personToChoice(modUserResponse.data.person_view)],
         };
       }
 
-      if (userResponse?.state === "success") {
+      if (userResponse.state === "success") {
         this.state = {
           ...this.state,
           userSearchOptions: [personToChoice(userResponse.data.person_view)],
@@ -1002,8 +992,9 @@ export class Modlog extends Component<
       auth,
     };
 
-    let communityResponse: RequestState<GetCommunityResponse> | undefined =
-      undefined;
+    let communityResponse: RequestState<GetCommunityResponse> = {
+      state: "empty",
+    };
 
     if (communityId) {
       const communityForm: GetCommunity = {
@@ -1014,8 +1005,9 @@ export class Modlog extends Component<
       communityResponse = await client.getCommunity(communityForm);
     }
 
-    let modUserResponse: RequestState<GetPersonDetailsResponse> | undefined =
-      undefined;
+    let modUserResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
 
     if (modId) {
       const getPersonForm: GetPersonDetails = {
@@ -1026,8 +1018,9 @@ export class Modlog extends Component<
       modUserResponse = await client.getPersonDetails(getPersonForm);
     }
 
-    let userResponse: RequestState<GetPersonDetailsResponse> | undefined =
-      undefined;
+    let userResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
 
     if (userId) {
       const getPersonForm: GetPersonDetails = {
@@ -1039,8 +1032,8 @@ export class Modlog extends Component<
     }
 
     return {
-      modlogResponse: await client.getModlog(modlogForm),
-      communityResponse,
+      res: await client.getModlog(modlogForm),
+      communityRes: communityResponse,
       modUserResponse,
       userResponse,
     };
