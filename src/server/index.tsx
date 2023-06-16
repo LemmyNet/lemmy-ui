@@ -160,7 +160,7 @@ server.get("/*", async (req, res) => {
       site = try_site.data;
       initializeSite(site);
 
-      if (path != "/setup" && !site.site_view.local_site.site_setup) {
+      if (path !== "/setup" && !site.site_view.local_site.site_setup) {
         return res.redirect("/setup");
       }
 
@@ -434,7 +434,7 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
   <!-- Required meta tags -->
   <meta name="Description" content="Lemmy">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
   <link
      id="favicon"
      rel="shortcut icon"

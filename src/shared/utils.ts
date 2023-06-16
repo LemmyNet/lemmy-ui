@@ -76,6 +76,7 @@ export const commentTreeMaxDepth = 8;
 export const markdownFieldCharacterLimit = 50000;
 export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
+export const updateUnreadCountsInterval = 30000;
 
 export const relTags = "noopener nofollow";
 
@@ -739,7 +740,7 @@ function setupMarkdown() {
       defs: emojiDefs,
     })
     .disable("image");
-  var defaultRenderer = md.renderer.rules.image;
+  const defaultRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
     tokens: Token[],
     idx: number,
@@ -757,6 +758,9 @@ function setupMarkdown() {
     }
     const alt_text = item.content;
     return `<img class="icon icon-emoji" src="${src}" title="${title}" alt="${alt_text}"/>`;
+  };
+  md.renderer.rules.table_open = function () {
+    return '<table class="table">';
   };
 }
 
@@ -1128,7 +1132,7 @@ export const colorList: string[] = [
 ];
 
 function hsl(num: number) {
-  return `hsla(${num}, 35%, 50%, 1)`;
+  return `hsla(${num}, 35%, 50%, 0.5)`;
 }
 
 export function hostname(url: string): string {
@@ -1497,3 +1501,18 @@ export function newVote(voteType: VoteType, myVote?: number): number {
 export type RouteDataResponse<T extends Record<string, any>> = {
   [K in keyof T]: RequestState<Exclude<T[K], undefined>>;
 };
+
+function sleep(millis: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, millis));
+}
+
+/**
+ * Polls / repeatedly runs a promise, every X milliseconds
+ */
+export async function poll(promiseFn: any, millis: number) {
+  if (window.document.visibilityState !== "hidden") {
+    await promiseFn();
+  }
+  await sleep(millis);
+  return poll(promiseFn, millis);
+}
