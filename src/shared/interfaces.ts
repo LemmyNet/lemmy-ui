@@ -6,16 +6,16 @@ import { ErrorPageData } from "./utils";
 /**
  * This contains serialized data, it needs to be deserialized before use.
  */
-export interface IsoData<T extends Record<string, RequestState<any>> = any> {
+export interface IsoData<T extends RouteData = any> {
   path: string;
   routeData: T;
   site_res: GetSiteResponse;
   errorPageData?: ErrorPageData;
 }
 
-export type IsoDataOptionalSite<
-  T extends Record<string, RequestState<any>> = any
-> = Partial<IsoData<T>> &
+export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
+  IsoData<T>
+> &
   Pick<IsoData<T>, Exclude<keyof IsoData<T>, "site_res">>;
 
 export interface ILemmyConfig {
@@ -82,3 +82,5 @@ export interface CommentNodeI {
   children: Array<CommentNodeI>;
   depth: number;
 }
+
+export type RouteData = Record<string, RequestState<any>>;

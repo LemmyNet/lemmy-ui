@@ -124,6 +124,39 @@ type HomeData = RouteDataResponse<{
   trendingCommunitiesRes: ListCommunitiesResponse;
 }>;
 
+function getRss(listingType: ListingType) {
+  const { sort } = getHomeQueryParams();
+  const auth = myAuth();
+
+  let rss: string | undefined = undefined;
+
+  switch (listingType) {
+    case "All": {
+      rss = `/feeds/all.xml?sort=${sort}`;
+      break;
+    }
+    case "Local": {
+      rss = `/feeds/local.xml?sort=${sort}`;
+      break;
+    }
+    case "Subscribed": {
+      rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
+      break;
+    }
+  }
+
+  return (
+    rss && (
+      <>
+        <a href={rss} rel={relTags} title="RSS">
+          <Icon icon="rss" classes="text-muted small" />
+        </a>
+        <link rel="alternate" type="application/atom+xml" href={rss} />
+      </>
+    )
+  );
+}
+
 function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
@@ -235,11 +268,8 @@ export class Home extends Component<any, HomeState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const {
-        trendingCommunitiesRes: trendingCommunitiesRes,
-        commentsRes: commentsRes,
-        postsRes: postsRes,
-      } = this.isoData.routeData;
+      const { trendingCommunitiesRes, commentsRes, postsRes } =
+        this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -360,7 +390,7 @@ export class Home extends Component<any, HomeState> {
                 ></div>
               )}
               <div className="d-block d-md-none">{this.mobileView}</div>
-              {this.posts()}
+              {this.posts}
             </main>
             <aside className="d-none d-md-block col-md-4">
               {this.mySidebar}
@@ -575,7 +605,7 @@ export class Home extends Component<any, HomeState> {
     await this.fetchData();
   }
 
-  posts() {
+  get posts() {
     const { page } = getHomeQueryParams();
 
     return (
@@ -594,7 +624,7 @@ export class Home extends Component<any, HomeState> {
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
-      switch (this.state.postsRes?.state) {
+      switch (this.state.postsRes.state) {
         case "loading":
           return (
             <h5>
@@ -700,41 +730,8 @@ export class Home extends Component<any, HomeState> {
         <span className="mr-2">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
-        {this.getRss(listingType)}
+        {getRss(listingType)}
       </div>
-    );
-  }
-
-  getRss(listingType: ListingType) {
-    const { sort } = getHomeQueryParams();
-    const auth = myAuth();
-
-    let rss: string | undefined = undefined;
-
-    switch (listingType) {
-      case "All": {
-        rss = `/feeds/all.xml?sort=${sort}`;
-        break;
-      }
-      case "Local": {
-        rss = `/feeds/local.xml?sort=${sort}`;
-        break;
-      }
-      case "Subscribed": {
-        rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
-        break;
-      }
-    }
-
-    return (
-      rss && (
-        <>
-          <a href={rss} rel={relTags} title="RSS">
-            <Icon icon="rss" classes="text-muted small" />
-          </a>
-          <link rel="alternate" type="application/atom+xml" href={rss} />
-        </>
-      )
     );
   }
 

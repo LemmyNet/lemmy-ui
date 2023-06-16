@@ -17,13 +17,10 @@ import {
   ILemmyConfig,
   InitialFetchRequest,
   IsoDataOptionalSite,
+  RouteData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import {
-  FailedRequestState,
-  RequestState,
-  wrapClient,
-} from "../shared/services/HttpService";
+import { FailedRequestState, wrapClient } from "../shared/services/HttpService";
 import {
   ErrorPageData,
   favIconPngUrl,
@@ -140,7 +137,7 @@ server.get("/*", async (req, res) => {
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
     let site: GetSiteResponse | undefined = undefined;
-    let routeData: Record<string, RequestState<any>> = {};
+    let routeData: RouteData = {};
     let errorPageData: ErrorPageData | undefined = undefined;
     let try_site = await client.getSite(getSiteForm);
     if (try_site.state === "failed" && try_site.msg == "not_logged_in") {
@@ -164,7 +161,7 @@ server.get("/*", async (req, res) => {
         return res.redirect("/setup");
       }
 
-      if (site) {
+      if (site && activeRoute?.fetchInitialData) {
         const initialFetchReq: InitialFetchRequest = {
           client,
           auth,
@@ -173,19 +170,7 @@ server.get("/*", async (req, res) => {
           site,
         };
 
-        if (activeRoute?.fetchInitialData) {
-          const routeDataKeysAndVals = await Promise.all(
-            Object.entries(activeRoute.fetchInitialData(initialFetchReq)).map(
-              async ([key, val]) => [key, await val]
-            )
-          );
-
-          routeData = routeDataKeysAndVals.reduce((acc, [key, val]) => {
-            acc[key] = val;
-
-            return acc;
-          }, {});
-        }
+        routeData = await activeRoute.fetchInitialData(initialFetchReq);
       }
     } else if (try_site.state === "failed") {
       errorPageData = getErrorPageData(new Error(try_site.msg), site);

@@ -35,7 +35,7 @@ export interface CreatePostProps {
 }
 
 type CreatePostData = RouteDataResponse<{
-  communityResponse?: GetCommunityResponse;
+  communityResponse: GetCommunityResponse;
   initialCommunitiesRes: ListCommunitiesResponse;
 }>;
 
@@ -244,6 +244,7 @@ export class CreatePost extends Component<
   >): Promise<CreatePostData> {
     const data: CreatePostData = {
       initialCommunitiesRes: await fetchCommunitiesForOptions(client),
+      communityResponse: { state: "empty" },
     };
 
     if (communityId) {

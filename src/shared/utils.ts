@@ -43,7 +43,13 @@ import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
 import { i18n, languages } from "./i18next";
-import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
+import {
+  CommentNodeI,
+  DataType,
+  IsoData,
+  RouteData,
+  VoteType,
+} from "./interfaces";
 import { HttpService, UserService } from "./services";
 import { RequestState } from "./services/HttpService";
 
@@ -1166,9 +1172,7 @@ export function isBrowser() {
   return typeof window !== "undefined";
 }
 
-export function setIsoData<T extends Record<string, RequestState<any>>>(
-  context: any
-): IsoData<T> {
+export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData;
