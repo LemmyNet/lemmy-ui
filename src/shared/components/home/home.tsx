@@ -423,8 +423,8 @@ export class Home extends Component<any, HomeState> {
 
     return (
       <div>
-        <div>
-          <div className="card border-secondary mb-3">
+        <div id="sidebarContainer">
+          <div id="sidebarMain" className="card border-secondary mb-3">
             <div className="card-body">
               {this.trendingCommunities()}
               {canCreateCommunity(this.state.siteRes) && (
@@ -447,7 +447,7 @@ export class Home extends Component<any, HomeState> {
             showLocal={showLocal(this.isoData)}
           />
           {this.hasFollows && (
-            <div className="card border-secondary mb-3">
+            <div id="sidebarSubscribed" className="card border-secondary mb-3">
               <div className="card-body">{this.subscribedCommunities}</div>
             </div>
           )}

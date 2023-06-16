@@ -135,8 +135,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUSerInfo = UserService.Instance.myUserInfo;
     const { name, actor_id } = this.props.community_view.community;
     return (
-      <div>
-        <div className="card border-secondary mb-3">
+      <div id="sidebarContainer">
+        <div id="sidebarMain" className="card border-secondary mb-3">
           <div className="card-body">
             {this.communityTitle()}
             {this.props.editable && this.adminButtons()}
@@ -158,7 +158,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             )}
           </div>
         </div>
-        <div className="card border-secondary mb-3">
+        <div id="sidebarInfo" className="card border-secondary mb-3">
           <div className="card-body">
             {this.description()}
             {this.badges()}
