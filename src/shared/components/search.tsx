@@ -29,7 +29,6 @@ import {
   capitalizeFirstLetter,
   commentsToFlatNodes,
   communityToChoice,
-  debounce,
   enableDownvotes,
   enableNsfw,
   fetchCommunities,
@@ -46,6 +45,7 @@ import {
   setIsoData,
   showLocal,
 } from "../utils";
+import { debounce } from "../utils/helpers/debounce";
 import { getQueryParams } from "../utils/helpers/get-query-params";
 import { getQueryString } from "../utils/helpers/get-query-string";
 import type { QueryParams } from "../utils/types/query-params";
