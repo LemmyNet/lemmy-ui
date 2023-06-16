@@ -360,7 +360,6 @@ export class Community extends Component<
           community_view={res.community_view}
           moderators={res.moderators}
           admins={site_res.admins}
-          online={res.online}
           enableNsfw={enableNsfw(site_res)}
           editable
           allLanguages={site_res.all_languages}

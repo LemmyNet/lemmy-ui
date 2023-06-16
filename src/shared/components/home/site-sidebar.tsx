@@ -12,7 +12,6 @@ interface SiteSidebarProps {
   showLocal: boolean;
   counts?: SiteAggregates;
   admins?: PersonView[];
-  online?: number;
 }
 
 interface SiteSidebarState {
@@ -99,15 +98,8 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   badges(siteAggregates: SiteAggregates) {
     const counts = siteAggregates;
-    const online = this.props.online ?? 1;
     return (
       <ul className="my-2 list-inline">
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_online", {
-            count: online,
-            formattedCount: numToSI(online),
-          })}
-        </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_day", {
