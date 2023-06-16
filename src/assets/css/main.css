@@ -213,7 +213,8 @@ blockquote {
   overflow-y: auto;
 }
 
-.comment-node > div > div > .md-div p {
+/* Applies to the markdown-text generated HTML inside comments */
+.comment-node .md-div p {
   /* Prevent text in comments from being placed next to images, when in the same <p> block */
   display: flex;
   /* Align items to start (and prevent images from stretching, as align-items default is stretch */
