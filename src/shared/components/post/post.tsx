@@ -548,7 +548,7 @@ export class Post extends Component<any, PostState> {
     const res = this.state.postRes;
     if (res.state === "success") {
       return (
-        <div className="mb-3">
+        <aside className="mb-3">
           <Sidebar
             community_view={res.data.community_view}
             moderators={res.data.moderators}
@@ -566,7 +566,7 @@ export class Post extends Component<any, PostState> {
             onBlockCommunity={this.handleBlockCommunity}
             onEditCommunity={this.handleEditCommunity}
           />
-        </div>
+        </aside>
       );
     }
   }

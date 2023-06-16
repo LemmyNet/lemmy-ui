@@ -282,7 +282,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     return (
       <li className="comment" role="comment">
-        <div
+        <article
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
@@ -945,7 +945,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               </div>
             )}
           </div>
-        </div>
+        </article>
         {showMoreChildren && (
           <div
             className={classNames("details ml-1 comment-node py-2", {

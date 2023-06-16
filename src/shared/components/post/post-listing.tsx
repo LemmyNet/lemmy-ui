@@ -230,13 +230,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   body() {
     const body = this.postView.post.body;
     return body ? (
-      <div id="postContent" className="col-12 card my-2 p-2">
+      <article id="postContent" className="col-12 card my-2 p-2">
         {this.state.viewSource ? (
           <pre>{body}</pre>
         ) : (
           <div className="md-div" dangerouslySetInnerHTML={mdToHtml(body)} />
         )}
-      </div>
+      </article>
     ) : (
       <></>
     );
@@ -1398,7 +1398,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         {/* The mobile view*/}
         <div className="d-block d-sm-none">
-          <div className="row post-container">
+          <article className="row post-container">
             <div className="col-12">
               {this.createdLine()}
 
@@ -1413,12 +1413,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.duplicatesLine()}
               {this.removeAndBanDialogs()}
             </div>
-          </div>
+          </article>
         </div>
 
         {/* The larger view*/}
         <div className="d-none d-sm-block">
-          <div className="row post-container">
+          <article className="row post-container">
             {!this.props.viewOnly && this.voteBar()}
             <div className="col-sm-2 pr-0 post-media">
               <div className="">{this.thumbnail()}</div>
@@ -1435,7 +1435,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 </div>
               </div>
             </div>
-          </div>
+          </article>
         </div>
       </>
     );
