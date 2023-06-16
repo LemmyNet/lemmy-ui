@@ -26,7 +26,6 @@ import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
-  QueryParams,
   capitalizeFirstLetter,
   commentsToFlatNodes,
   communityToChoice,
@@ -38,8 +37,6 @@ import {
   fetchUsers,
   getIdFromString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   getUpdatedSearchId,
   myAuth,
   numToSI,
@@ -49,6 +46,9 @@ import {
   setIsoData,
   showLocal,
 } from "../utils";
+import { getQueryParams } from "../utils/helpers/get-query-params";
+import { getQueryString } from "../utils/helpers/get-query-string";
+import type { QueryParams } from "../utils/types/query-params";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";

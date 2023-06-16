@@ -16,14 +16,14 @@ import {
 } from "../../services/HttpService";
 import {
   Choice,
-  QueryParams,
   enableDownvotes,
   enableNsfw,
   getIdFromString,
-  getQueryParams,
   myAuth,
   setIsoData,
 } from "../../utils";
+import { getQueryParams } from "../../utils/helpers/get-query-params";
+import type { QueryParams } from "../../utils/types/query-params";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";

@@ -67,13 +67,10 @@ import {
   getCommentParentId,
   getDataTypeString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   getRandomFromList,
   mdToHtml,
   myAuth,
   postToCommentSortType,
-  QueryParams,
   relTags,
   restoreScrollPosition,
   saveScrollPosition,
@@ -84,7 +81,10 @@ import {
   trendingFetchLimit,
   updatePersonBlock,
 } from "../../utils";
+import { getQueryParams } from "../../utils/helpers/get-query-params";
+import { getQueryString } from "../../utils/helpers/get-query-string";
 import { canCreateCommunity } from "../../utils/roles/can-create-community";
+import type { QueryParams } from "../../utils/types/query-params";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";

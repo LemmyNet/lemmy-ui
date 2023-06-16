@@ -28,7 +28,6 @@ import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { UserService } from "../../services";
 import {
-  canShare,
   futureDaysToUnixTime,
   hostname,
   isImage,
@@ -41,9 +40,10 @@ import {
   numToSI,
   relTags,
   setupTippy,
-  share,
   showScores,
 } from "../../utils";
+import { canShare } from "../../utils/browser/can-share";
+import { share } from "../../utils/browser/share";
 import { amAdmin } from "../../utils/roles/am-admin";
 import { amCommunityCreator } from "../../utils/roles/am-community-creator";
 import { amMod } from "../../utils/roles/am-mod";

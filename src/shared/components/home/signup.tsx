@@ -13,7 +13,6 @@ import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  isBrowser,
   joinLemmyUrl,
   mdToHtml,
   myAuth,
@@ -21,6 +20,7 @@ import {
   toast,
   validEmail,
 } from "../../utils";
+import { isBrowser } from "../../utils/browser/is-browser";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

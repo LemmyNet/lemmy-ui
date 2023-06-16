@@ -7,7 +7,6 @@ import { HttpService, UserService } from "../../services";
 import {
   concurrentImageUpload,
   customEmojisLookup,
-  isBrowser,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
   maxUploadImages,
@@ -20,12 +19,12 @@ import {
   setupTribute,
   toast,
 } from "../../utils";
+import { isBrowser } from "../../utils/browser/is-browser";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
-
 interface MarkdownTextAreaProps {
   initialContent?: string;
   initialLanguageId?: number;

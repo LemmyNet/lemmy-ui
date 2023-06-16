@@ -43,6 +43,8 @@ import { getHttpBase } from "./env";
 import { i18n, languages } from "./i18next";
 import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
 import { HttpService, UserService } from "./services";
+import { isBrowser } from "./utils/browser/is-browser";
+import { groupBy } from "./utils/helpers/group-by";
 
 let Tribute: any;
 if (isBrowser()) {
@@ -1070,10 +1072,6 @@ export function siteBannerCss(banner: string): string {
     `;
 }
 
-export function isBrowser() {
-  return typeof window !== "undefined";
-}
-
 export function setIsoData(context: any): IsoData {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
@@ -1314,62 +1312,10 @@ interface EmojiMartSkin {
   src: string;
 }
 
-const groupBy = <T>(
-  array: T[],
-  predicate: (value: T, index: number, array: T[]) => string
-) =>
-  array.reduce((acc, value, index, array) => {
-    (acc[predicate(value, index, array)] ||= []).push(value);
-    return acc;
-  }, {} as { [key: string]: T[] });
-
-export type QueryParams<T extends Record<string, any>> = {
-  [key in keyof T]?: string;
-};
-
-export function getQueryParams<T extends Record<string, any>>(processors: {
-  [K in keyof T]: (param: string) => T[K];
-}): T {
-  if (isBrowser()) {
-    const searchParams = new URLSearchParams(window.location.search);
-
-    return Array.from(Object.entries(processors)).reduce(
-      (acc, [key, process]) => ({
-        ...acc,
-        [key]: process(searchParams.get(key)),
-      }),
-      {} as T
-    );
-  }
-
-  return {} as T;
-}
-
-export function getQueryString<T extends Record<string, string | undefined>>(
-  obj: T
-) {
-  return Object.entries(obj)
-    .filter(([, val]) => val !== undefined && val !== null)
-    .reduce(
-      (acc, [key, val], index) => `${acc}${index > 0 ? "&" : ""}${key}=${val}`,
-      "?"
-    );
-}
-
 export function isAuthPath(pathname: string) {
   return /create_.*|inbox|settings|admin|reports|registration_applications/g.test(
     pathname
   );
-}
-
-export function canShare() {
-  return isBrowser() && !!navigator.canShare;
-}
-
-export function share(shareData: ShareData) {
-  if (isBrowser()) {
-    navigator.share(shareData);
-  }
 }
 
 export function newVote(voteType: VoteType, myVote?: number): number {
@@ -1378,19 +1324,4 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   } else {
     return myVote == -1 ? 0 : -1;
   }
-}
-
-function sleep(millis: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, millis));
-}
-
-/**
- * Polls / repeatedly runs a promise, every X milliseconds
- */
-export async function poll(promiseFn: any, millis: number) {
-  if (window.document.visibilityState !== "hidden") {
-    await promiseFn();
-  }
-  await sleep(millis);
-  return poll(promiseFn, millis);
 }

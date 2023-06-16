@@ -62,7 +62,6 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  QueryParams,
   commentsToFlatNodes,
   communityRSSUrl,
   editComment,
@@ -74,8 +73,6 @@ import {
   getCommentParentId,
   getDataTypeString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   myAuth,
   postToCommentSortType,
   relTags,
@@ -88,6 +85,9 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "../../utils";
+import { getQueryParams } from "../../utils/helpers/get-query-params";
+import { getQueryString } from "../../utils/helpers/get-query-string";
+import type { QueryParams } from "../../utils/types/query-params";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";
@@ -99,7 +99,6 @@ import { Sidebar } from "../community/sidebar";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
-
 interface State {
   communityRes: RequestState<GetCommunityResponse>;
   postsRes: RequestState<GetPostsResponse>;
