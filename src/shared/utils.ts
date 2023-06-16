@@ -40,10 +40,11 @@ import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
-import { i18n } from "./i18next";
+import { i18n, languages } from "./i18next";
 import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
 import { HttpService, UserService } from "./services";
 import { isBrowser } from "./utils/browser/is-browser";
+import { debounce } from "./utils/helpers/debounce";
 import { groupBy } from "./utils/helpers/group-by";
 
 let Tribute: any;
@@ -230,7 +231,6 @@ export function futureDaysToUnixTime(days?: number): number | undefined {
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
-const tldRegex = /([a-z0-9]+\.)*[a-z0-9]+\.[a-z]+/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);
@@ -242,10 +242,6 @@ export function isVideo(url: string) {
 
 export function validURL(str: string) {
   return !!new URL(str);
-}
-
-export function validInstanceTLD(str: string) {
-  return tldRegex.test(str);
 }
 
 export function communityRSSUrl(actorId: string, sort: string): string {
@@ -273,49 +269,29 @@ export function getDataTypeString(dt: DataType) {
   return dt === DataType.Post ? "Post" : "Comment";
 }
 
-export function debounce<T extends any[], R>(
-  func: (...e: T) => R,
-  wait = 1000,
-  immediate = false
-) {
-  // 'private' variable for instance
-  // The returned function will be able to reference this due to closure.
-  // Each call to the returned function will share this common timer.
-  let timeout: NodeJS.Timeout | null;
+export function getLanguages(
+  override?: string,
+  myUserInfo = UserService.Instance.myUserInfo
+): string[] {
+  const myLang = myUserInfo?.local_user_view.local_user.interface_language;
+  const lang = override || myLang || "browser";
 
-  // Calling debounce returns a new anonymous function
-  return function () {
-    // reference the context and args for the setTimeout function
-    const args = arguments;
+  if (lang == "browser" && isBrowser()) {
+    return getBrowserLanguages();
+  } else {
+    return [lang];
+  }
+}
 
-    // Should the function be called now? If immediate is true
-    //   and not already in a timeout then the answer is: Yes
-    const callNow = immediate && !timeout;
+function getBrowserLanguages(): string[] {
+  // Intersect lemmy's langs, with the browser langs
+  const langs = languages ? languages.map(l => l.code) : ["en"];
 
-    // This is the basic debounce behavior where you can call this
-    //   function several times, but it will only execute once
-    //   [before or after imposing a delay].
-    //   Each time the returned function is called, the timer starts over.
-    clearTimeout(timeout ?? undefined);
-
-    // Set the new timeout
-    timeout = setTimeout(function () {
-      // Inside the timeout function, clear the timeout variable
-      // which will let the next execution run when in 'immediate' mode
-      timeout = null;
-
-      // Check if the function already ran with the immediate flag
-      if (!immediate) {
-        // Call the original function with apply
-        // apply lets you define the 'this' object as well as the arguments
-        //    (both captured before setTimeout)
-        func.apply(this, args);
-      }
-    }, wait);
-
-    // Immediate mode and no wait timer? Execute the function..
-    if (callNow) func.apply(this, args);
-  } as (...e: T) => R;
+  // NOTE, mobile browsers seem to be missing this list, so append en
+  const allowedLangs = navigator.languages
+    .concat("en")
+    .filter(v => langs.includes(v));
+  return allowedLangs;
 }
 
 export async function fetchThemeList(): Promise<string[]> {
@@ -633,7 +609,7 @@ function setupMarkdown() {
       defs: emojiDefs,
     })
     .disable("image");
-  const defaultRenderer = md.renderer.rules.image;
+  var defaultRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
     tokens: Token[],
     idx: number,
@@ -651,9 +627,6 @@ function setupMarkdown() {
     }
     const alt_text = item.content;
     return `<img class="icon icon-emoji" src="${src}" title="${title}" alt="${alt_text}"/>`;
-  };
-  md.renderer.rules.table_open = function () {
-    return '<table class="table">';
   };
 }
 
@@ -1166,7 +1139,7 @@ export function personSelectName({
 
 export function initializeSite(site?: GetSiteResponse) {
   UserService.Instance.myUserInfo = site?.my_user;
-  i18n.changeLanguage();
+  i18n.changeLanguage(getLanguages()[0]);
   if (site) {
     setupEmojiDataModel(site.custom_emojis ?? []);
   }

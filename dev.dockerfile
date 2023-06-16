@@ -1,4 +1,4 @@
-FROM node:20.2-alpine as builder
+FROM node:alpine as builder
 RUN apk update && apk add curl yarn python3 build-base gcc wget git --no-cache
 
 WORKDIR /usr/src/app

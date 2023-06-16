@@ -64,7 +64,6 @@ import {
   buildCommentsTree,
   commentsToFlatNodes,
   commentTreeMaxDepth,
-  debounce,
   editComment,
   editWith,
   enableDownvotes,
@@ -84,6 +83,7 @@ import {
   updatePersonBlock,
 } from "../../utils";
 import { isBrowser } from "../../utils/browser/is-browser";
+import { debounce } from "../../utils/helpers/debounce";
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
 import { HtmlTags } from "../common/html-tags";

@@ -183,6 +183,53 @@ export class MarkdownTextArea extends Component<
         </div>
         <div className="row">
           <div className="col-sm-12 d-flex flex-wrap">
+            {this.props.buttonTitle && (
+              <button
+                type="submit"
+                className="btn btn-sm btn-secondary mr-2"
+                disabled={this.isDisabled}
+              >
+                {this.state.loading ? (
+                  <Spinner />
+                ) : (
+                  <span>{this.props.buttonTitle}</span>
+                )}
+              </button>
+            )}
+            {this.props.replyType && (
+              <button
+                type="button"
+                className="btn btn-sm btn-secondary mr-2"
+                onClick={linkEvent(this, this.handleReplyCancel)}
+              >
+                {i18n.t("cancel")}
+              </button>
+            )}
+            {this.state.content && (
+              <button
+                className={`btn btn-sm btn-secondary mr-2 ${
+                  this.state.previewMode && "active"
+                }`}
+                onClick={linkEvent(this, this.handlePreviewToggle)}
+              >
+                {this.state.previewMode ? i18n.t("edit") : i18n.t("preview")}
+              </button>
+            )}
+            {/* A flex expander */}
+            <div className="flex-grow-1"></div>
+
+            {this.props.showLanguage && (
+              <LanguageSelect
+                iconVersion
+                allLanguages={this.props.allLanguages}
+                selectedLanguageIds={
+                  languageId ? Array.of(languageId) : undefined
+                }
+                siteLanguages={this.props.siteLanguages}
+                onChange={this.handleLanguageChange}
+                disabled={this.isDisabled}
+              />
+            )}
             {this.getFormatButton("bold", this.handleInsertBold)}
             {this.getFormatButton("italic", this.handleInsertItalic)}
             {this.getFormatButton("link", this.handleInsertLink)}
@@ -234,57 +281,6 @@ export class MarkdownTextArea extends Component<
             >
               <Icon icon="help-circle" classes="icon-inline" />
             </a>
-          </div>
-
-          <div className="col-sm-12 d-flex align-items-center flex-wrap">
-            {this.props.showLanguage && (
-              <LanguageSelect
-                iconVersion
-                allLanguages={this.props.allLanguages}
-                selectedLanguageIds={
-                  languageId ? Array.of(languageId) : undefined
-                }
-                siteLanguages={this.props.siteLanguages}
-                onChange={this.handleLanguageChange}
-                disabled={this.isDisabled}
-              />
-            )}
-
-            {/* A flex expander */}
-            <div className="flex-grow-1"></div>
-
-            {this.props.buttonTitle && (
-              <button
-                type="submit"
-                className="btn btn-sm btn-secondary mr-2"
-                disabled={this.isDisabled}
-              >
-                {this.state.loading ? (
-                  <Spinner />
-                ) : (
-                  <span>{this.props.buttonTitle}</span>
-                )}
-              </button>
-            )}
-            {this.props.replyType && (
-              <button
-                type="button"
-                className="btn btn-sm btn-secondary mr-2"
-                onClick={linkEvent(this, this.handleReplyCancel)}
-              >
-                {i18n.t("cancel")}
-              </button>
-            )}
-            {this.state.content && (
-              <button
-                className={`btn btn-sm btn-secondary mr-2 ${
-                  this.state.previewMode && "active"
-                }`}
-                onClick={linkEvent(this, this.handlePreviewToggle)}
-              >
-                {this.state.previewMode ? i18n.t("edit") : i18n.t("preview")}
-              </button>
-            )}
           </div>
         </div>
       </form>

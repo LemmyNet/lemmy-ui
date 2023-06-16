@@ -21,7 +21,7 @@ body:
         - label: Is this only a single bug? Do not put multiple bugs in one issue.
           required: true
         - label: Is this a server side (not related to the UI) issue? Use the [Lemmy back end](https://github.com/LemmyNet/lemmy) repo.
-          required: false
+          required: true
   - type: textarea
     id: summary
     attributes:

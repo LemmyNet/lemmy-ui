@@ -33,7 +33,6 @@ import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
-  debounce,
   fetchLimit,
   fetchUsers,
   getIdFromString,
@@ -43,6 +42,7 @@ import {
   personToChoice,
   setIsoData,
 } from "../utils";
+import { debounce } from "../utils/helpers/debounce";
 import { getQueryParams } from "../utils/helpers/get-query-params";
 import { getQueryString } from "../utils/helpers/get-query-string";
 import { amAdmin } from "../utils/roles/am-admin";
