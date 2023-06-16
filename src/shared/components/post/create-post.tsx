@@ -224,6 +224,10 @@ export class CreatePost extends Component<
     if (res.state === "success") {
       const postId = res.data.post_view.post.id;
       this.props.history.replace(`/post/${postId}`);
+    } else {
+      this.setState({
+        loading: false,
+      });
     }
   }
 
