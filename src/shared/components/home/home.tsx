@@ -419,35 +419,36 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div>
-        <div>
-          <div className="card border-secondary mb-3">
-            <div className="card-body">
-              {this.trendingCommunities()}
-              {canCreateCommunity(this.state.siteRes) && (
-                <LinkButton
-                  path="/create_community"
-                  translationKey="create_a_community"
-                />
-              )}
+      <div id="sidebarContainer">
+        <section id="sidebarMain" className="card border-secondary mb-3">
+          <div className="card-body">
+            {this.trendingCommunities()}
+            {canCreateCommunity(this.state.siteRes) && (
               <LinkButton
-                path="/communities"
-                translationKey="explore_communities"
+                path="/create_community"
+                translationKey="create_a_community"
               />
-            </div>
+            )}
+            <LinkButton
+              path="/communities"
+              translationKey="explore_communities"
+            />
           </div>
-          <SiteSidebar
-            site={site}
-            admins={admins}
-            counts={counts}
-            showLocal={showLocal(this.isoData)}
-          />
-          {this.hasFollows && (
-            <div className="card border-secondary mb-3">
-              <div className="card-body">{this.subscribedCommunities}</div>
-            </div>
-          )}
-        </div>
+        </section>
+        <SiteSidebar
+          site={site}
+          admins={admins}
+          counts={counts}
+          showLocal={showLocal(this.isoData)}
+        />
+        {this.hasFollows && (
+          <section
+            id="sidebarSubscribed"
+            className="card border-secondary mb-3"
+          >
+            <div className="card-body">{this.subscribedCommunities}</div>
+          </section>
+        )}
       </div>
     );
   }

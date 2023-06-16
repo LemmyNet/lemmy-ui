@@ -282,7 +282,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     return (
       <li className="comment" role="comment">
-        <div
+        <article
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
@@ -400,6 +400,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                containerClass="comment-comment-container"
                 onUpsertComment={this.props.onEditComment}
               />
             )}
@@ -512,7 +513,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       </button>
                       {!this.state.showAdvanced ? (
                         <button
-                          className="btn btn-link btn-animate text-muted"
+                          className="btn btn-link btn-animate text-muted btn-more"
                           onClick={linkEvent(this, this.handleShowAdvanced)}
                           data-tippy-content={i18n.t("more")}
                           aria-label={i18n.t("more")}
@@ -944,7 +945,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               </div>
             )}
           </div>
-        </div>
+        </article>
         {showMoreChildren && (
           <div
             className={classNames("details ml-1 comment-node py-2", {
@@ -1143,6 +1144,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            containerClass="comment-comment-container"
             onUpsertComment={this.props.onCreateComment}
           />
         )}
