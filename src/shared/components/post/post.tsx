@@ -384,6 +384,7 @@ export class Post extends Component<any, PostState> {
                 disabled={res.post_view.post.locked}
                 allLanguages={this.state.siteRes.all_languages}
                 siteLanguages={this.state.siteRes.discussion_languages}
+                containerClass="post-comment-container"
                 onUpsertComment={this.handleCreateComment}
                 finished={this.state.finished.get(0)}
               />

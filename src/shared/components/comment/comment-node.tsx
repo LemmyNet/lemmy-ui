@@ -400,6 +400,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                containerClass="comment-comment-container"
                 onUpsertComment={this.props.onEditComment}
               />
             )}
@@ -1143,6 +1144,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            containerClass="comment-comment-container"
             onUpsertComment={this.props.onCreateComment}
           />
         )}
