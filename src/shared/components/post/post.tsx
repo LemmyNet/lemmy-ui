@@ -548,24 +548,22 @@ export class Post extends Component<any, PostState> {
     const res = this.state.postRes;
     if (res.state === "success") {
       return (
-        <aside className="mb-3">
-          <Sidebar
-            community_view={res.data.community_view}
-            moderators={res.data.moderators}
-            admins={this.state.siteRes.admins}
-            enableNsfw={enableNsfw(this.state.siteRes)}
-            showIcon
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
-            onDeleteCommunity={this.handleDeleteCommunityClick}
-            onLeaveModTeam={this.handleAddModToCommunity}
-            onFollowCommunity={this.handleFollow}
-            onRemoveCommunity={this.handleModRemoveCommunity}
-            onPurgeCommunity={this.handlePurgeCommunity}
-            onBlockCommunity={this.handleBlockCommunity}
-            onEditCommunity={this.handleEditCommunity}
-          />
-        </aside>
+        <Sidebar
+          community_view={res.data.community_view}
+          moderators={res.data.moderators}
+          admins={this.state.siteRes.admins}
+          enableNsfw={enableNsfw(this.state.siteRes)}
+          showIcon
+          allLanguages={this.state.siteRes.all_languages}
+          siteLanguages={this.state.siteRes.discussion_languages}
+          onDeleteCommunity={this.handleDeleteCommunityClick}
+          onLeaveModTeam={this.handleAddModToCommunity}
+          onFollowCommunity={this.handleFollow}
+          onRemoveCommunity={this.handleModRemoveCommunity}
+          onPurgeCommunity={this.handlePurgeCommunity}
+          onBlockCommunity={this.handleBlockCommunity}
+          onEditCommunity={this.handleEditCommunity}
+        />
       );
     }
   }
