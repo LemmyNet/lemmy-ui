@@ -244,9 +244,10 @@ export class Home extends Component<any, HomeState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+    if (!this.state.isIsomorphic || !this.isoData.routeData.length) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
+
     setupTippy();
   }
 
@@ -456,7 +457,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   trendingCommunities(isMobile = false) {
-    switch (this.state.trendingCommunitiesRes.state) {
+    switch (this.state.trendingCommunitiesRes?.state) {
       case "loading":
         return (
           <h5>
@@ -573,7 +574,7 @@ export class Home extends Component<any, HomeState> {
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
-      switch (this.state.postsRes.state) {
+      switch (this.state.postsRes?.state) {
         case "loading":
           return (
             <h5>

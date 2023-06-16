@@ -21,6 +21,7 @@ interface CommunityFormProps {
   onCancel?(): any;
   onUpsertCommunity(form: CreateCommunity | EditCommunity): void;
   enableNsfw?: boolean;
+  loading?: boolean;
 }
 
 interface CommunityFormState {
@@ -34,7 +35,6 @@ interface CommunityFormState {
     posting_restricted_to_mods?: boolean;
     discussion_languages?: number[];
   };
-  loading: boolean;
   submitted: boolean;
 }
 
@@ -46,7 +46,6 @@ export class CommunityForm extends Component<
 
   state: CommunityFormState = {
     form: {},
-    loading: false,
     submitted: false,
   };
 
@@ -80,7 +79,6 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
           discussion_languages: this.props.communityLanguages,
         },
-        loading: false,
       };
     }
   }
@@ -90,7 +88,7 @@ export class CommunityForm extends Component<
       <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
         <NavigationPrompt
           when={
-            !this.state.loading &&
+            !this.props.loading &&
             !!(
               this.state.form.name ||
               this.state.form.title ||
@@ -243,9 +241,9 @@ export class CommunityForm extends Component<
             <button
               type="submit"
               className="btn btn-secondary mr-2"
-              disabled={this.state.loading}
+              disabled={this.props.loading}
             >
-              {this.state.loading ? (
+              {this.props.loading ? (
                 <Spinner />
               ) : this.props.community_view ? (
                 capitalizeFirstLetter(i18n.t("save"))
@@ -270,7 +268,7 @@ export class CommunityForm extends Component<
 
   handleCreateCommunitySubmit(i: CommunityForm, event: any) {
     event.preventDefault();
-    i.setState({ loading: true, submitted: true });
+    i.setState({ submitted: true });
     const cForm = i.state.form;
     const auth = myAuthRequired();
 

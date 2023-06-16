@@ -835,6 +835,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           search: "",
         }}
         title={i18n.t("cross_post")}
+        data-tippy-content={i18n.t("cross_post")}
+        aria-label={i18n.t("cross_post")}
       >
         <Icon icon="copy" inline />
       </Link>
@@ -1380,9 +1382,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   showMobilePreview() {
-    const body = this.postView.post.body;
+    const { body, id } = this.postView.post;
+
     return !this.showBody && body ? (
-      <div className="md-div mb-1 preview-lines">{body}</div>
+      <Link className="text-body" to={`/post/${id}`}>
+        <div className="md-div mb-1 preview-lines">{body}</div>
+      </Link>
     ) : (
       <></>
     );

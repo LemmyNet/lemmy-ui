@@ -1,7 +1,7 @@
 import { Component } from "inferno";
 import moment from "moment";
 import { i18n } from "../../i18next";
-import { capitalizeFirstLetter, getLanguages } from "../../utils";
+import { capitalizeFirstLetter } from "../../utils";
 import { Icon } from "./icon";
 
 interface MomentTimeProps {
@@ -15,9 +15,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    const lang = getLanguages();
-
-    moment.locale(lang);
+    moment.locale([...i18n.languages]);
   }
 
   createdAndModifiedTimes() {
