@@ -24,6 +24,7 @@ interface RateLimitsProps {
 interface RateLimitFormProps {
   rateLimits: LocalSiteRateLimit;
   onSaveSite(form: EditSite): void;
+  loading: boolean;
 }
 
 interface RateLimitFormState {
@@ -41,7 +42,6 @@ interface RateLimitFormState {
     register?: number;
     register_per_second?: number;
   };
-  loading: boolean;
 }
 
 function RateLimits({
@@ -117,7 +117,6 @@ function submitRateLimitForm(i: RateLimitsForm, event: any) {
     }
   );
 
-  i.setState({ loading: true });
   i.props.onSaveSite(form);
 }
 
@@ -126,7 +125,6 @@ export default class RateLimitsForm extends Component<
   RateLimitFormState
 > {
   state: RateLimitFormState = {
-    loading: false,
     form: this.props.rateLimits,
   };
   constructor(props: RateLimitFormProps, context: any) {
@@ -164,9 +162,9 @@ export default class RateLimitsForm extends Component<
             <button
               type="submit"
               className="btn btn-secondary mr-2"
-              disabled={this.state.loading}
+              disabled={this.props.loading}
             >
-              {this.state.loading ? (
+              {this.props.loading ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(i18n.t("save"))
