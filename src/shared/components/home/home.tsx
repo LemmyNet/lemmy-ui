@@ -361,7 +361,6 @@ export class Home extends Component<any, HomeState> {
       siteRes: {
         site_view: { counts, site },
         admins,
-        online,
       },
       showSubscribedMobile,
       showTrendingMobile,
@@ -393,7 +392,6 @@ export class Home extends Component<any, HomeState> {
               site={site}
               admins={admins}
               counts={counts}
-              online={online}
               showLocal={showLocal(this.isoData)}
             />
           )}
@@ -417,7 +415,6 @@ export class Home extends Component<any, HomeState> {
       siteRes: {
         site_view: { counts, site },
         admins,
-        online,
       },
     } = this.state;
 
@@ -443,7 +440,6 @@ export class Home extends Component<any, HomeState> {
             site={site}
             admins={admins}
             counts={counts}
-            online={online}
             showLocal={showLocal(this.isoData)}
           />
           {this.hasFollows && (

@@ -359,7 +359,6 @@ export class Community extends Component<
           community_view={res.community_view}
           moderators={res.moderators}
           admins={site_res.admins}
-          online={res.online}
           enableNsfw={enableNsfw(site_res)}
           editable
           allLanguages={site_res.all_languages}
@@ -646,6 +645,12 @@ export class Community extends Component<
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state == "success") {
       updateCommunityBlock(blockCommunityRes.data);
+      this.setState(s => {
+        if (s.communityRes.state == "success") {
+          s.communityRes.data.community_view.blocked =
+            blockCommunityRes.data.blocked;
+        }
+      });
     }
   }
 
