@@ -25,7 +25,6 @@ import {
   fetchCommunities,
   fetchThemeList,
   fetchUsers,
-  getLanguages,
   myAuth,
   myAuthRequired,
   personToChoice,
@@ -1058,11 +1057,11 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleInterfaceLangChange(i: Settings, event: any) {
+    const newLang = event.target.value ?? "browser";
+    i18n.changeLanguage(newLang === "browser" ? navigator.languages : newLang);
+
     i.setState(
       s => ((s.saveUserSettingsForm.interface_language = event.target.value), s)
-    );
-    i18n.changeLanguage(
-      getLanguages(i.state.saveUserSettingsForm.interface_language).at(0)
     );
   }
 
