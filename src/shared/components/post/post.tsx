@@ -552,7 +552,6 @@ export class Post extends Component<any, PostState> {
             community_view={res.data.community_view}
             moderators={res.data.moderators}
             admins={this.state.siteRes.admins}
-            online={res.data.online}
             enableNsfw={enableNsfw(this.state.siteRes)}
             showIcon
             allLanguages={this.state.siteRes.all_languages}
