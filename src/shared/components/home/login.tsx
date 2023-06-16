@@ -186,7 +186,9 @@ export class Login extends Component<any, State> {
             UserService.Instance.myUserInfo = site.data.my_user;
           }
 
-          i.props.history.replace("/");
+          i.props.history.action === "PUSH"
+            ? i.props.history.back()
+            : i.props.history.replace("/");
 
           break;
         }
