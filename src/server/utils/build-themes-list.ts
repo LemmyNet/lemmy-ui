@@ -4,8 +4,9 @@ import { readdir } from "fs/promises";
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
+const themes = ["darkly", "darkly-red", "litely", "litely-red"];
+
 export async function buildThemeList(): Promise<string[]> {
-  const themes = ["darkly", "darkly-red", "litely", "litely-red"];
   if (existsSync(extraThemesFolder)) {
     const dirThemes = await readdir(extraThemesFolder);
     const cssThemes = dirThemes

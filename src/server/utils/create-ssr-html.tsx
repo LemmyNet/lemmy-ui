@@ -14,6 +14,7 @@ export async function createSsrHtml(
   isoData: IsoDataOptionalSite
 ) {
   const site = isoData.site_res;
+
   const appleTouchIcon = site?.site_view.site.icon
     ? `data:image/png;base64,${sharp(
         await fetchIconPng(site.site_view.site.icon)

@@ -11,6 +11,7 @@ export function getErrorPageData(error: Error, site?: GetSiteResponse) {
   const adminMatrixIds = site?.admins
     .map(({ person: { matrix_user_id } }) => matrix_user_id)
     .filter(id => id) as string[] | undefined;
+
   if (adminMatrixIds && adminMatrixIds.length > 0) {
     errorPageData.adminMatrixIds = adminMatrixIds;
   }
