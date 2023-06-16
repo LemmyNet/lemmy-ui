@@ -513,7 +513,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       </button>
                       {!this.state.showAdvanced ? (
                         <button
-                          className="btn btn-link btn-animate text-muted"
+                          className="btn btn-link btn-animate text-muted btn-more"
                           onClick={linkEvent(this, this.handleShowAdvanced)}
                           data-tippy-content={i18n.t("more")}
                           aria-label={i18n.t("more")}
