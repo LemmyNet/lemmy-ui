@@ -42,7 +42,7 @@ import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
-import { i18n, languages } from "./i18next";
+import { i18n } from "./i18next";
 import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
 import { HttpService, UserService } from "./services";
 
@@ -397,31 +397,6 @@ export function debounce<T extends any[], R>(
     // Immediate mode and no wait timer? Execute the function..
     if (callNow) func.apply(this, args);
   } as (...e: T) => R;
-}
-
-export function getLanguages(
-  override?: string,
-  myUserInfo = UserService.Instance.myUserInfo
-): string[] {
-  const myLang = myUserInfo?.local_user_view.local_user.interface_language;
-  const lang = override || myLang || "browser";
-
-  if (lang == "browser" && isBrowser()) {
-    return getBrowserLanguages();
-  } else {
-    return [lang];
-  }
-}
-
-function getBrowserLanguages(): string[] {
-  // Intersect lemmy's langs, with the browser langs
-  const langs = languages ? languages.map(l => l.code) : ["en"];
-
-  // NOTE, mobile browsers seem to be missing this list, so append en
-  const allowedLangs = navigator.languages
-    .concat("en")
-    .filter(v => langs.includes(v));
-  return allowedLangs;
 }
 
 export async function fetchThemeList(): Promise<string[]> {
@@ -1276,7 +1251,7 @@ export function personSelectName({
 
 export function initializeSite(site?: GetSiteResponse) {
   UserService.Instance.myUserInfo = site?.my_user;
-  i18n.changeLanguage(getLanguages()[0]);
+  i18n.changeLanguage();
   if (site) {
     setupEmojiDataModel(site.custom_emojis ?? []);
   }
