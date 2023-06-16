@@ -143,46 +143,6 @@ export class MarkdownTextArea extends Component<
           }
         />
         <div className="form-group row">
-          <div className={`col-sm-12`}>
-            <textarea
-              id={this.id}
-              className={`form-control ${this.state.previewMode && "d-none"}`}
-              value={this.state.content}
-              onInput={linkEvent(this, this.handleContentChange)}
-              onPaste={linkEvent(this, this.handleImageUploadPaste)}
-              onKeyDown={linkEvent(this, this.handleKeyBinds)}
-              required
-              disabled={this.isDisabled}
-              rows={2}
-              maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
-              placeholder={this.props.placeholder}
-            />
-            {this.state.previewMode && this.state.content && (
-              <div
-                className="card border-secondary card-body md-div"
-                dangerouslySetInnerHTML={mdToHtml(this.state.content)}
-              />
-            )}
-            {this.state.imageUploadStatus &&
-              this.state.imageUploadStatus.total > 1 && (
-                <ProgressBar
-                  className="mt-2"
-                  striped
-                  animated
-                  value={this.state.imageUploadStatus.uploaded}
-                  max={this.state.imageUploadStatus.total}
-                  text={i18n.t("pictures_uploded_progess", {
-                    uploaded: this.state.imageUploadStatus.uploaded,
-                    total: this.state.imageUploadStatus.total,
-                  })}
-                />
-              )}
-          </div>
-          <label className="sr-only" htmlFor={this.id}>
-            {i18n.t("body")}
-          </label>
-        </div>
-        <div className="row">
           <div className="col-sm-12 d-flex flex-wrap">
             {this.getFormatButton("bold", this.handleInsertBold)}
             {this.getFormatButton("italic", this.handleInsertItalic)}
@@ -237,7 +197,46 @@ export class MarkdownTextArea extends Component<
             </a>
           </div>
 
-          <div className="col-sm-12 d-flex align-items-center flex-wrap">
+          <div className="col-sm-12 mt-2">
+            <textarea
+              id={this.id}
+              className={`form-control ${this.state.previewMode && "d-none"}`}
+              value={this.state.content}
+              onInput={linkEvent(this, this.handleContentChange)}
+              onPaste={linkEvent(this, this.handleImageUploadPaste)}
+              onKeyDown={linkEvent(this, this.handleKeyBinds)}
+              required
+              disabled={this.isDisabled}
+              rows={2}
+              maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
+              placeholder={this.props.placeholder}
+            />
+            {this.state.previewMode && this.state.content && (
+              <div
+                className="card border-secondary card-body md-div"
+                dangerouslySetInnerHTML={mdToHtml(this.state.content)}
+              />
+            )}
+            {this.state.imageUploadStatus &&
+              this.state.imageUploadStatus.total > 1 && (
+                <ProgressBar
+                  className="mt-2"
+                  striped
+                  animated
+                  value={this.state.imageUploadStatus.uploaded}
+                  max={this.state.imageUploadStatus.total}
+                  text={i18n.t("pictures_uploded_progess", {
+                    uploaded: this.state.imageUploadStatus.uploaded,
+                    total: this.state.imageUploadStatus.total,
+                  })}
+                />
+              )}
+          </div>
+          <label className="sr-only" htmlFor={this.id}>
+            {i18n.t("body")}
+          </label>
+
+          <div className="col-sm-12 d-flex align-items-center flex-wrap mt-2">
             {this.props.showLanguage && (
               <LanguageSelect
                 iconVersion
@@ -257,7 +256,7 @@ export class MarkdownTextArea extends Component<
             {this.props.buttonTitle && (
               <button
                 type="submit"
-                className="btn btn-sm btn-secondary mr-2"
+                className="btn btn-sm btn-secondary ml-2"
                 disabled={this.isDisabled}
               >
                 {this.state.loading ? (
@@ -270,7 +269,7 @@ export class MarkdownTextArea extends Component<
             {this.props.replyType && (
               <button
                 type="button"
-                className="btn btn-sm btn-secondary mr-2"
+                className="btn btn-sm btn-secondary ml-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
                 {i18n.t("cancel")}
@@ -278,7 +277,7 @@ export class MarkdownTextArea extends Component<
             )}
             {this.state.content && (
               <button
-                className={`btn btn-sm btn-secondary mr-2 ${
+                className={`btn btn-sm btn-secondary ml-2 ${
                   this.state.previewMode && "active"
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}

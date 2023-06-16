@@ -46,7 +46,7 @@
 }
 
 .md-div p:last-child {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .md-div img {
@@ -371,7 +371,7 @@ br.big {
 }
 
 .tribute-container li {
-  padding: 5px 5px;
+  padding: 5px;
   cursor: pointer;
 }
 
@@ -410,13 +410,7 @@ br.big {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
-.lang-select-action {
-  width: 100px;
-}
 
-.lang-select-action:focus {
-  width: auto;
-}
-em-emoji-picker {
+.emoji-picker {
   width: 100%;
 }
