@@ -4,6 +4,7 @@ import { Helmet } from "inferno-helmet";
 import { httpExternalPath } from "../../env";
 import { i18n } from "../../i18next";
 import { md } from "../../utils";
+
 interface HtmlTagsProps {
   title: string;
   path: string;
