@@ -104,7 +104,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         </NavLink>
         {person && (
           <ul className="navbar-nav d-flex flex-row ml-auto d-md-none">
-            <li className="nav-item nav-item-icon">
+            <li id="navMessages" className="nav-item nav-item-icon">
               <NavLink
                 to="/inbox"
                 className="p-1 nav-link border-0 nav-messages"
@@ -233,7 +233,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             </li>
           </ul>
           <ul id="navbarIcons" className="navbar-nav">
-            <li className="nav-item nav-item-search">
+            <li id="navSearch" className="nav-item">
               <NavLink
                 to="/search"
                 className="nav-link"
@@ -244,7 +244,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </NavLink>
             </li>
             {amAdmin() && (
-              <li className="nav-item nav-item-admin">
+              <li id="navAdmin" className="nav-item">
                 <NavLink
                   to="/admin"
                   className="nav-link"
@@ -257,7 +257,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             )}
             {person ? (
               <>
-                <li className="nav-item nav-item-messages">
+                <li id="navMessages" className="nav-item">
                   <NavLink
                     className="nav-link"
                     to="/inbox"
@@ -276,7 +276,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </NavLink>
                 </li>
                 {this.moderatesSomething && (
-                  <li className="nav-item nav-item-moderation">
+                  <li id="navModeration" className="nav-item">
                     <NavLink
                       className="nav-link"
                       to="/reports"
@@ -296,7 +296,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 )}
                 {amAdmin() && (
-                  <li className="nav-item nav-item-applications">
+                  <li id="navApplications" className="nav-item">
                     <NavLink
                       to="/registration_applications"
                       className="nav-link"
