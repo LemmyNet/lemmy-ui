@@ -64,7 +64,6 @@ interface SidebarState {
   removeCommunityLoading: boolean;
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
-  blockCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
 }
 
@@ -78,7 +77,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     removeCommunityLoading: false,
     leaveModTeamLoading: false,
     followCommunityLoading: false,
-    blockCommunityLoading: false,
     purgeCommunityLoading: false,
   };
 
@@ -105,7 +103,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         removeCommunityLoading: false,
         leaveModTeamLoading: false,
         followCommunityLoading: false,
-        blockCommunityLoading: false,
         purgeCommunityLoading: false,
       });
     }
@@ -376,35 +373,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   blockCommunity() {
-    const community_view = this.props.community_view;
-    const blocked = this.props.community_view.blocked;
+    const { subscribed, blocked } = this.props.community_view;
 
     return (
       <div className="mb-2">
-        {community_view.subscribed == "NotSubscribed" &&
-          (blocked ? (
-            <button
-              className="btn btn-danger btn-block"
-              onClick={linkEvent(this, this.handleBlockCommunity)}
-            >
-              {this.state.blockCommunityLoading ? (
-                <Spinner />
-              ) : (
-                i18n.t("unblock_community")
-              )}
-            </button>
-          ) : (
-            <button
-              className="btn btn-danger btn-block"
-              onClick={linkEvent(this, this.handleBlockCommunity)}
-            >
-              {this.state.blockCommunityLoading ? (
-                <Spinner />
-              ) : (
-                i18n.t("block_community")
-              )}
-            </button>
-          ))}
+        {subscribed == "NotSubscribed" && (
+          <button
+            className="btn btn-danger btn-block"
+            onClick={linkEvent(this, this.handleBlockCommunity)}
+          >
+            {i18n.t(blocked ? "unblock_community" : "block_community")}
+          </button>
+        )}
       </div>
     );
   }
@@ -668,10 +648,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    i.setState({ blockCommunityLoading: true });
+    const { community, blocked } = i.props.community_view;
+
     i.props.onBlockCommunity({
-      community_id: 0,
-      block: !i.props.community_view.blocked,
+      community_id: community.id,
+      block: !blocked,
       auth: myAuthRequired(),
     });
   }
