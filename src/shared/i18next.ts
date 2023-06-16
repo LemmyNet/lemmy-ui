@@ -1,4 +1,5 @@
 import i18next, { i18nTyped, Resource } from "i18next";
+import { UserService } from "./services";
 import { ar } from "./translations/ar";
 import { bg } from "./translations/bg";
 import { ca } from "./translations/ca";
@@ -30,7 +31,7 @@ import { sv } from "./translations/sv";
 import { vi } from "./translations/vi";
 import { zh } from "./translations/zh";
 import { zh_Hant } from "./translations/zh_Hant";
-import { getLanguages } from "./utils";
+import { isBrowser } from "./utils/browser/is-browser";
 
 export const languages = [
   { resource: ar, code: "ar", name: "العربية" },
@@ -73,12 +74,31 @@ function format(value: any, format: any): any {
   return format === "uppercase" ? value.toUpperCase() : value;
 }
 
-i18next.init({
+class LanguageDetector {
+  static readonly type = "languageDetector";
+
+  detect() {
+    const langs: string[] = [];
+
+    const myLang =
+      UserService.Instance.myUserInfo?.local_user_view.local_user
+        .interface_language ?? "browser";
+
+    if (myLang !== "browser") langs.push(myLang);
+
+    if (isBrowser()) langs.push(...navigator.languages);
+
+    return langs;
+  }
+}
+
+i18next.use(LanguageDetector).init({
   debug: false,
   compatibilityJSON: "v3",
+  supportedLngs: languages.map(l => l.code),
+  nonExplicitSupportedLngs: true,
   // load: 'languageOnly',
   // initImmediate: false,
-  lng: getLanguages()[0],
   fallbackLng: "en",
   resources,
   interpolation: { format },
