@@ -81,7 +81,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       slur_filter_regex: ls.slur_filter_regex,
       actor_name_max_length: ls.actor_name_max_length,
       federation_enabled: ls.federation_enabled,
-      federation_debug: ls.federation_debug,
       federation_worker_count: ls.federation_worker_count,
       captcha_enabled: ls.captcha_enabled,
       captcha_difficulty: ls.captcha_difficulty,

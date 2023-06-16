@@ -39,7 +39,6 @@ interface SidebarProps {
   allLanguages: Language[];
   siteLanguages: number[];
   communityLanguages?: number[];
-  online: number;
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
@@ -240,12 +239,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const counts = community_view.counts;
     return (
       <ul className="my-1 list-inline">
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_online", {
-            count: this.props.online,
-            formattedCount: numToSI(this.props.online),
-          })}
-        </li>
         <li
           className="list-inline-item badge badge-secondary pointer"
           data-tippy-content={i18n.t("active_users_in_the_last_day", {
