@@ -1,18 +1,21 @@
-import { CommentView, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { CommentView, GetSiteResponse } from "lemmy-js-client";
 import type { ParsedQs } from "qs";
+import { RequestState, WrappedLemmyHttp } from "./services/HttpService";
 import { ErrorPageData } from "./utils";
 
 /**
  * This contains serialized data, it needs to be deserialized before use.
  */
-export interface IsoData<T extends object = any> {
+export interface IsoData<T extends Record<string, RequestState<any>> = any> {
   path: string;
   routeData: T;
   site_res: GetSiteResponse;
   errorPageData?: ErrorPageData;
 }
 
-export type IsoDataOptionalSite<T extends object = any> = Partial<IsoData<T>> &
+export type IsoDataOptionalSite<
+  T extends Record<string, RequestState<any>> = any
+> = Partial<IsoData<T>> &
   Pick<IsoData<T>, Exclude<keyof IsoData<T>, "site_res">>;
 
 export interface ILemmyConfig {
@@ -28,7 +31,7 @@ declare global {
 
 export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
   auth?: string;
-  client: LemmyHttp;
+  client: WrappedLemmyHttp;
   path: string;
   query: T;
   site: GetSiteResponse;
@@ -67,6 +70,11 @@ export enum PurgeType {
   Community,
   Post,
   Comment,
+}
+
+export enum VoteType {
+  Upvote,
+  Downvote,
 }
 
 export interface CommentNodeI {

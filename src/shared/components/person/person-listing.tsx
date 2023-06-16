@@ -20,15 +20,15 @@ export class PersonListing extends Component<PersonListingProps, any> {
   }
 
   render() {
-    let person = this.props.person;
-    let local = person.local;
+    const person = this.props.person;
+    const local = person.local;
     let apubName: string, link: string;
 
     if (local) {
       apubName = `@${person.name}`;
       link = `/u/${person.name}`;
     } else {
-      let domain = hostname(person.actor_id);
+      const domain = hostname(person.actor_id);
       apubName = `@${person.name}@${domain}`;
       link = !this.props.realLink
         ? `/u/${person.name}@${domain}`
@@ -70,7 +70,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
   }
 
   avatarAndName(displayName: string) {
-    let avatar = this.props.person.avatar;
+    const avatar = this.props.person.avatar;
     return (
       <>
         {avatar &&

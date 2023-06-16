@@ -69,10 +69,10 @@ const createServerConfig = (_env, mode) => {
   });
 
   if (mode === "development") {
-    config.cache = {
-      type: "filesystem",
-      name: "server",
-    };
+    // config.cache = {
+    //   type: "filesystem",
+    //   name: "server",
+    // };
 
     config.plugins.push(
       new RunNodeWebpackPlugin({
@@ -94,7 +94,7 @@ const createClientConfig = (_env, mode) => {
     plugins: [
       ...base.plugins,
       new ServiceWorkerPlugin({
-        enableInDevelopment: true,
+        enableInDevelopment: mode !== "development", // this may seem counterintuitive, but it is correct
         workbox: {
           modifyURLPrefix: {
             "/": "/static/",
@@ -149,10 +149,10 @@ const createClientConfig = (_env, mode) => {
   });
 
   if (mode === "development") {
-    config.cache = {
-      type: "filesystem",
-      name: "client",
-    };
+    // config.cache = {
+    //   type: "filesystem",
+    //   name: "client",
+    // };
   }
 
   return config;

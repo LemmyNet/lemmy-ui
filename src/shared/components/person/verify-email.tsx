@@ -1,56 +1,47 @@
 import { Component } from "inferno";
-import {
-  GetSiteResponse,
-  UserOperation,
-  VerifyEmail as VerifyEmailForm,
-  wsJsonToRes,
-  wsUserOp,
-} from "lemmy-js-client";
-import { Subscription } from "rxjs";
+import { GetSiteResponse, VerifyEmailResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
-import {
-  isBrowser,
-  setIsoData,
-  toast,
-  wsClient,
-  wsSubscribe,
-} from "../../utils";
+import { HttpService, RequestState } from "../../services/HttpService";
+import { setIsoData, toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
+import { Spinner } from "../common/icon";
 
 interface State {
-  verifyEmailForm: VerifyEmailForm;
+  verifyRes: RequestState<VerifyEmailResponse>;
   siteRes: GetSiteResponse;
 }
 
 export class VerifyEmail extends Component<any, State> {
   private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
 
   state: State = {
-    verifyEmailForm: {
-      token: this.props.match.params.token,
-    },
+    verifyRes: { state: "empty" },
     siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
   }
 
-  componentDidMount() {
-    WebSocketService.Instance.send(
-      wsClient.verifyEmail(this.state.verifyEmailForm)
-    );
-  }
+  async verify() {
+    this.setState({
+      verifyRes: { state: "loading" },
+    });
 
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
+    this.setState({
+      verifyRes: await HttpService.client.verifyEmail({
+        token: this.props.match.params.token,
+      }),
+    });
+
+    if (this.state.verifyRes.state == "success") {
+      toast(i18n.t("email_verified"));
+      this.props.history.push("/login");
     }
+  }
+
+  async componentDidMount() {
+    await this.verify();
   }
 
   get documentTitle(): string {
@@ -69,26 +60,14 @@ export class VerifyEmail extends Component<any, State> {
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h5>{i18n.t("verify_email")}</h5>
+            {this.state.verifyRes.state == "loading" && (
+              <h5>
+                <Spinner large />
+              </h5>
+            )}
           </div>
         </div>
       </div>
     );
-  }
-
-  parseMessage(msg: any) {
-    let op = wsUserOp(msg);
-    console.log(msg);
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-      this.setState(this.state);
-      this.props.history.push("/");
-      return;
-    } else if (op == UserOperation.VerifyEmail) {
-      let data = wsJsonToRes(msg);
-      if (data) {
-        toast(i18n.t("email_verified"));
-        this.props.history.push("/login");
-      }
-    }
   }
 }

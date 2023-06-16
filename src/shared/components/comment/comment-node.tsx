@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
@@ -7,13 +7,16 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
+  CommentId,
   CommentReplyView,
   CommentView,
   CommunityModeratorView,
+  CreateComment,
   CreateCommentLike,
   CreateCommentReport,
   DeleteComment,
   DistinguishComment,
+  EditComment,
   GetComments,
   Language,
   MarkCommentReplyAsRead,
@@ -33,8 +36,9 @@ import {
   CommentNodeI,
   CommentViewType,
   PurgeType,
+  VoteType,
 } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
 import {
   amCommunityCreator,
   canAdmin,
@@ -49,10 +53,11 @@ import {
   mdToHtml,
   mdToHtmlNoImages,
   myAuth,
+  myAuthRequired,
+  newVote,
   numToSI,
   setupTippy,
   showScores,
-  wsClient,
 } from "../../utils";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -74,7 +79,6 @@ interface CommentNodeState {
   showPurgeDialog: boolean;
   purgeReason?: string;
   purgeType: PurgeType;
-  purgeLoading: boolean;
   showConfirmTransferSite: boolean;
   showConfirmTransferCommunity: boolean;
   showConfirmAppointAsMod: boolean;
@@ -84,12 +88,22 @@ interface CommentNodeState {
   showAdvanced: boolean;
   showReportDialog: boolean;
   reportReason?: string;
-  my_vote?: number;
-  score: number;
-  upvotes: number;
-  downvotes: number;
-  readLoading: boolean;
+  createOrEditCommentLoading: boolean;
+  upvoteLoading: boolean;
+  downvoteLoading: boolean;
   saveLoading: boolean;
+  readLoading: boolean;
+  blockPersonLoading: boolean;
+  deleteLoading: boolean;
+  removeLoading: boolean;
+  distinguishLoading: boolean;
+  banLoading: boolean;
+  addModLoading: boolean;
+  addAdminLoading: boolean;
+  transferCommunityLoading: boolean;
+  fetchChildrenLoading: boolean;
+  reportLoading: boolean;
+  purgeLoading: boolean;
 }
 
 interface CommentNodeProps {
@@ -108,6 +122,26 @@ interface CommentNodeProps {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
+  finished: Map<CommentId, boolean | undefined>;
+  onSaveComment(form: SaveComment): void;
+  onCommentReplyRead(form: MarkCommentReplyAsRead): void;
+  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
+  onCreateComment(form: EditComment | CreateComment): void;
+  onEditComment(form: EditComment | CreateComment): void;
+  onCommentVote(form: CreateCommentLike): void;
+  onBlockPerson(form: BlockPerson): void;
+  onDeleteComment(form: DeleteComment): void;
+  onRemoveComment(form: RemoveComment): void;
+  onDistinguishComment(form: DistinguishComment): void;
+  onAddModToCommunity(form: AddModToCommunity): void;
+  onAddAdmin(form: AddAdmin): void;
+  onBanPersonFromCommunity(form: BanFromCommunity): void;
+  onBanPerson(form: BanPerson): void;
+  onTransferCommunity(form: TransferCommunity): void;
+  onFetchChildren?(form: GetComments): void;
+  onCommentReport(form: CreateCommentReport): void;
+  onPurgePerson(form: PurgePerson): void;
+  onPurgeComment(form: PurgeComment): void;
 }
 
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
@@ -119,7 +153,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     removeData: false,
     banType: BanType.Community,
     showPurgeDialog: false,
-    purgeLoading: false,
     purgeType: PurgeType.Person,
     collapsed: false,
     viewSource: false,
@@ -129,80 +162,122 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showConfirmAppointAsMod: false,
     showConfirmAppointAsAdmin: false,
     showReportDialog: false,
-    my_vote: this.props.node.comment_view.my_vote,
-    score: this.props.node.comment_view.counts.score,
-    upvotes: this.props.node.comment_view.counts.upvotes,
-    downvotes: this.props.node.comment_view.counts.downvotes,
-    readLoading: false,
+    createOrEditCommentLoading: false,
+    upvoteLoading: false,
+    downvoteLoading: false,
     saveLoading: false,
+    readLoading: false,
+    blockPersonLoading: false,
+    deleteLoading: false,
+    removeLoading: false,
+    distinguishLoading: false,
+    banLoading: false,
+    addModLoading: false,
+    addAdminLoading: false,
+    transferCommunityLoading: false,
+    fetchChildrenLoading: false,
+    reportLoading: false,
+    purgeLoading: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
-    this.handleCommentUpvote = this.handleCommentUpvote.bind(this);
-    this.handleCommentDownvote = this.handleCommentDownvote.bind(this);
   }
 
-  // TODO see if there's a better way to do this, and all willReceiveProps
-  componentWillReceiveProps(nextProps: CommentNodeProps) {
-    let cv = nextProps.node.comment_view;
-    this.setState({
-      my_vote: cv.my_vote,
-      upvotes: cv.counts.upvotes,
-      downvotes: cv.counts.downvotes,
-      score: cv.counts.score,
-      readLoading: false,
-      saveLoading: false,
-    });
+  get commentView(): CommentView {
+    return this.props.node.comment_view;
+  }
+
+  get commentId(): CommentId {
+    return this.commentView.comment.id;
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>
+  ): void {
+    if (this.props != nextProps) {
+      this.setState({
+        showReply: false,
+        showEdit: false,
+        showRemoveDialog: false,
+        showBanDialog: false,
+        removeData: false,
+        banType: BanType.Community,
+        showPurgeDialog: false,
+        purgeType: PurgeType.Person,
+        collapsed: false,
+        viewSource: false,
+        showAdvanced: false,
+        showConfirmTransferSite: false,
+        showConfirmTransferCommunity: false,
+        showConfirmAppointAsMod: false,
+        showConfirmAppointAsAdmin: false,
+        showReportDialog: false,
+        createOrEditCommentLoading: false,
+        upvoteLoading: false,
+        downvoteLoading: false,
+        saveLoading: false,
+        readLoading: false,
+        blockPersonLoading: false,
+        deleteLoading: false,
+        removeLoading: false,
+        distinguishLoading: false,
+        banLoading: false,
+        addModLoading: false,
+        addAdminLoading: false,
+        transferCommunityLoading: false,
+        fetchChildrenLoading: false,
+        reportLoading: false,
+        purgeLoading: false,
+      });
+    }
   }
 
   render() {
-    let node = this.props.node;
-    let cv = this.props.node.comment_view;
+    const node = this.props.node;
+    const cv = this.commentView;
 
-    let purgeTypeText =
+    const purgeTypeText =
       this.state.purgeType == PurgeType.Comment
         ? i18n.t("purge_comment")
         : `${i18n.t("purge")} ${cv.creator.name}`;
 
-    let canMod_ =
-      canMod(cv.creator.id, this.props.moderators, this.props.admins) &&
-      cv.community.local;
-    let canModOnSelf =
-      canMod(
-        cv.creator.id,
-        this.props.moderators,
-        this.props.admins,
-        UserService.Instance.myUserInfo,
-        true
-      ) && cv.community.local;
-    let canAdmin_ =
-      canAdmin(cv.creator.id, this.props.admins) && cv.community.local;
-    let canAdminOnSelf =
-      canAdmin(
-        cv.creator.id,
-        this.props.admins,
-        UserService.Instance.myUserInfo,
-        true
-      ) && cv.community.local;
-    let isMod_ = isMod(cv.creator.id, this.props.moderators);
-    let isAdmin_ =
-      isAdmin(cv.creator.id, this.props.admins) && cv.community.local;
-    let amCommunityCreator_ = amCommunityCreator(
+    const canMod_ = canMod(
+      cv.creator.id,
+      this.props.moderators,
+      this.props.admins
+    );
+    const canModOnSelf = canMod(
+      cv.creator.id,
+      this.props.moderators,
+      this.props.admins,
+      UserService.Instance.myUserInfo,
+      true
+    );
+    const canAdmin_ = canAdmin(cv.creator.id, this.props.admins);
+    const canAdminOnSelf = canAdmin(
+      cv.creator.id,
+      this.props.admins,
+      UserService.Instance.myUserInfo,
+      true
+    );
+    const isMod_ = isMod(cv.creator.id, this.props.moderators);
+    const isAdmin_ = isAdmin(cv.creator.id, this.props.admins);
+    const amCommunityCreator_ = amCommunityCreator(
       cv.creator.id,
       this.props.moderators
     );
 
-    let borderColor = this.props.node.depth
+    const borderColor = this.props.node.depth
       ? colorList[(this.props.node.depth - 1) % colorList.length]
       : colorList[0];
-    let moreRepliesBorderColor = this.props.node.depth
+    const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
       : colorList[0];
 
-    let showMoreChildren =
+    const showMoreChildren =
       this.props.viewType == CommentViewType.Tree &&
       !this.state.collapsed &&
       node.children.length == 0 &&
@@ -218,9 +293,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
-            mark:
-              this.isCommentNew ||
-              this.props.node.comment_view.comment.distinguished,
+            mark: this.isCommentNew || this.commentView.comment.distinguished,
           })}
           style={
             !this.props.noIndent && this.props.node.depth
@@ -234,6 +307,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             })}
           >
             <div className="d-flex flex-wrap align-items-center text-muted small">
+              <button
+                className="btn btn-sm text-muted mr-2"
+                onClick={linkEvent(this, this.handleCommentCollapse)}
+                aria-label={this.expandText}
+                data-tippy-content={this.expandText}
+              >
+                <Icon
+                  icon={`${this.state.collapsed ? "plus" : "minus"}-square`}
+                  classes="icon-inline"
+                />
+              </button>
               <span className="mr-2">
                 <PersonListing person={cv.creator} />
               </span>
@@ -270,18 +354,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   </Link>
                 </>
               )}
-              <button
-                className="btn btn-sm text-muted"
-                onClick={linkEvent(this, this.handleCommentCollapse)}
-                aria-label={this.expandText}
-                data-tippy-content={this.expandText}
-              >
-                {this.state.collapsed ? (
-                  <Icon icon="plus-square" classes="icon-inline" />
-                ) : (
-                  <Icon icon="minus-square" classes="icon-inline" />
-                )}
-              </button>
               {this.linkBtn(true)}
               {cv.comment.language_id !== 0 && (
                 <span className="badge d-none d-sm-inline mr-2">
@@ -298,18 +370,24 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 <>
                   <a
                     className={`unselectable pointer ${this.scoreColor}`}
-                    onClick={this.handleCommentUpvote}
+                    onClick={linkEvent(this, this.handleUpvote)}
                     data-tippy-content={this.pointsTippy}
                   >
-                    <span
-                      className="mr-1 font-weight-bold"
-                      aria-label={i18n.t("number_of_points", {
-                        count: Number(this.state.score),
-                        formattedCount: numToSI(this.state.score),
-                      })}
-                    >
-                      {numToSI(this.state.score)}
-                    </span>
+                    {this.state.upvoteLoading ? (
+                      <Spinner />
+                    ) : (
+                      <span
+                        className="mr-1 font-weight-bold"
+                        aria-label={i18n.t("number_of_points", {
+                          count: Number(this.commentView.counts.score),
+                          formattedCount: numToSI(
+                            this.commentView.counts.score
+                          ),
+                        })}
+                      >
+                        {numToSI(this.commentView.counts.score)}
+                      </span>
+                    )}
                   </a>
                   <span className="mr-1">•</span>
                 </>
@@ -328,9 +406,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 edit
                 onReplyCancel={this.handleReplyCancel}
                 disabled={this.props.locked}
+                finished={this.props.finished.get(
+                  this.props.node.comment_view.comment.id
+                )}
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                onUpsertComment={this.props.onEditComment}
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
@@ -352,7 +434,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {this.props.markable && (
                     <button
                       className="btn btn-link btn-animate text-muted"
-                      onClick={linkEvent(this, this.handleMarkRead)}
+                      onClick={linkEvent(this, this.handleMarkAsRead)}
                       data-tippy-content={
                         this.commentReplyOrMentionRead
                           ? i18n.t("mark_as_unread")
@@ -365,7 +447,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       }
                     >
                       {this.state.readLoading ? (
-                        this.loadingIcon
+                        <Spinner />
                       ) : (
                         <Icon
                           icon="check"
@@ -380,38 +462,56 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <>
                       <button
                         className={`btn btn-link btn-animate ${
-                          this.state.my_vote == 1 ? "text-info" : "text-muted"
+                          this.commentView.my_vote === 1
+                            ? "text-info"
+                            : "text-muted"
                         }`}
-                        onClick={this.handleCommentUpvote}
+                        onClick={linkEvent(this, this.handleUpvote)}
                         data-tippy-content={i18n.t("upvote")}
                         aria-label={i18n.t("upvote")}
+                        aria-pressed={this.commentView.my_vote === 1}
                       >
-                        <Icon icon="arrow-up1" classes="icon-inline" />
-                        {showScores() &&
-                          this.state.upvotes !== this.state.score && (
-                            <span className="ml-1">
-                              {numToSI(this.state.upvotes)}
-                            </span>
-                          )}
+                        {this.state.upvoteLoading ? (
+                          <Spinner />
+                        ) : (
+                          <>
+                            <Icon icon="arrow-up1" classes="icon-inline" />
+                            {showScores() &&
+                              this.commentView.counts.upvotes !==
+                                this.commentView.counts.score && (
+                                <span className="ml-1">
+                                  {numToSI(this.commentView.counts.upvotes)}
+                                </span>
+                              )}
+                          </>
+                        )}
                       </button>
                       {this.props.enableDownvotes && (
                         <button
                           className={`btn btn-link btn-animate ${
-                            this.state.my_vote == -1
+                            this.commentView.my_vote === -1
                               ? "text-danger"
                               : "text-muted"
                           }`}
-                          onClick={this.handleCommentDownvote}
+                          onClick={linkEvent(this, this.handleDownvote)}
                           data-tippy-content={i18n.t("downvote")}
                           aria-label={i18n.t("downvote")}
+                          aria-pressed={this.commentView.my_vote === -1}
                         >
-                          <Icon icon="arrow-down1" classes="icon-inline" />
-                          {showScores() &&
-                            this.state.upvotes !== this.state.score && (
-                              <span className="ml-1">
-                                {numToSI(this.state.downvotes)}
-                              </span>
-                            )}
+                          {this.state.downvoteLoading ? (
+                            <Spinner />
+                          ) : (
+                            <>
+                              <Icon icon="arrow-down1" classes="icon-inline" />
+                              {showScores() &&
+                                this.commentView.counts.upvotes !==
+                                  this.commentView.counts.score && (
+                                  <span className="ml-1">
+                                    {numToSI(this.commentView.counts.downvotes)}
+                                  </span>
+                                )}
+                            </>
+                          )}
                         </button>
                       )}
                       <button
@@ -435,15 +535,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <>
                           {!this.myComment && (
                             <>
-                              <button className="btn btn-link btn-animate">
-                                <Link
-                                  className="text-muted"
-                                  to={`/create_private_message/${cv.creator.id}`}
-                                  title={i18n.t("message").toLowerCase()}
-                                >
-                                  <Icon icon="mail" />
-                                </Link>
-                              </button>
+                              <Link
+                                className="btn btn-link btn-animate text-muted"
+                                to={`/create_private_message/${cv.creator.id}`}
+                                title={i18n.t("message").toLowerCase()}
+                              >
+                                <Icon icon="mail" />
+                              </Link>
                               <button
                                 className="btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(
@@ -461,21 +559,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 className="btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(
                                   this,
-                                  this.handleBlockUserClick
+                                  this.handleBlockPerson
                                 )}
                                 data-tippy-content={i18n.t("block_user")}
                                 aria-label={i18n.t("block_user")}
                               >
-                                <Icon icon="slash" />
+                                {this.state.blockPersonLoading ? (
+                                  <Spinner />
+                                ) : (
+                                  <Icon icon="slash" />
+                                )}
                               </button>
                             </>
                           )}
                           <button
                             className="btn btn-link btn-animate text-muted"
-                            onClick={linkEvent(
-                              this,
-                              this.handleSaveCommentClick
-                            )}
+                            onClick={linkEvent(this, this.handleSaveComment)}
                             data-tippy-content={
                               cv.saved ? i18n.t("unsave") : i18n.t("save")
                             }
@@ -484,7 +583,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             }
                           >
                             {this.state.saveLoading ? (
-                              this.loadingIcon
+                              <Spinner />
                             ) : (
                               <Icon
                                 icon="star"
@@ -521,7 +620,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 className="btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(
                                   this,
-                                  this.handleDeleteClick
+                                  this.handleDeleteComment
                                 )}
                                 data-tippy-content={
                                   !cv.comment.deleted
@@ -534,12 +633,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     : i18n.t("restore")
                                 }
                               >
-                                <Icon
-                                  icon="trash"
-                                  classes={`icon-inline ${
-                                    cv.comment.deleted && "text-danger"
-                                  }`}
-                                />
+                                {this.state.deleteLoading ? (
+                                  <Spinner />
+                                ) : (
+                                  <Icon
+                                    icon="trash"
+                                    classes={`icon-inline ${
+                                      cv.comment.deleted && "text-danger"
+                                    }`}
+                                  />
+                                )}
                               </button>
 
                               {(canModOnSelf || canAdminOnSelf) && (
@@ -547,7 +650,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   className="btn btn-link btn-animate text-muted"
                                   onClick={linkEvent(
                                     this,
-                                    this.handleDistinguishClick
+                                    this.handleDistinguishComment
                                   )}
                                   data-tippy-content={
                                     !cv.comment.distinguished
@@ -589,11 +692,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   className="btn btn-link btn-animate text-muted"
                                   onClick={linkEvent(
                                     this,
-                                    this.handleModRemoveSubmit
+                                    this.handleRemoveComment
                                   )}
                                   aria-label={i18n.t("restore")}
                                 >
-                                  {i18n.t("restore")}
+                                  {this.state.removeLoading ? (
+                                    <Spinner />
+                                  ) : (
+                                    i18n.t("restore")
+                                  )}
                                 </button>
                               )}
                             </>
@@ -618,11 +725,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     className="btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
                                       this,
-                                      this.handleModBanFromCommunitySubmit
+                                      this.handleBanPersonFromCommunity
                                     )}
                                     aria-label={i18n.t("unban")}
                                   >
-                                    {i18n.t("unban")}
+                                    {this.state.banLoading ? (
+                                      <Spinner />
+                                    ) : (
+                                      i18n.t("unban")
+                                    )}
                                   </button>
                                 ))}
                               {!cv.creator_banned_from_community &&
@@ -659,7 +770,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       )}
                                       aria-label={i18n.t("yes")}
                                     >
-                                      {i18n.t("yes")}
+                                      {this.state.addModLoading ? (
+                                        <Spinner />
+                                      ) : (
+                                        i18n.t("yes")
+                                      )}
                                     </button>
                                     <button
                                       className="btn btn-link btn-animate text-muted"
@@ -706,7 +821,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   )}
                                   aria-label={i18n.t("yes")}
                                 >
-                                  {i18n.t("yes")}
+                                  {this.state.transferCommunityLoading ? (
+                                    <Spinner />
+                                  ) : (
+                                    i18n.t("yes")
+                                  )}
                                 </button>
                                 <button
                                   className="btn btn-link btn-animate text-muted"
@@ -763,11 +882,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       className="btn btn-link btn-animate text-muted"
                                       onClick={linkEvent(
                                         this,
-                                        this.handleModBanSubmit
+                                        this.handleBanPerson
                                       )}
                                       aria-label={i18n.t("unban_from_site")}
                                     >
-                                      {i18n.t("unban_from_site")}
+                                      {this.state.banLoading ? (
+                                        <Spinner />
+                                      ) : (
+                                        i18n.t("unban_from_site")
+                                      )}
                                     </button>
                                   )}
                                 </>
@@ -804,7 +927,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       )}
                                       aria-label={i18n.t("yes")}
                                     >
-                                      {i18n.t("yes")}
+                                      {this.state.addAdminLoading ? (
+                                        <Spinner />
+                                      ) : (
+                                        i18n.t("yes")
+                                      )}
                                     </button>
                                     <button
                                       className="btn btn-link btn-animate text-muted"
@@ -841,11 +968,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               className="btn btn-link text-muted"
               onClick={linkEvent(this, this.handleFetchChildren)}
             >
-              {i18n.t("x_more_replies", {
-                count: node.comment_view.counts.child_count,
-                formattedCount: numToSI(node.comment_view.counts.child_count),
-              })}{" "}
-              ➔
+              {this.state.fetchChildrenLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  {i18n.t("x_more_replies", {
+                    count: node.comment_view.counts.child_count,
+                    formattedCount: numToSI(
+                      node.comment_view.counts.child_count
+                    ),
+                  })}{" "}
+                  ➔
+                </>
+              )}
             </button>
           </div>
         )}
@@ -853,7 +988,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {this.state.showRemoveDialog && (
           <form
             className="form-inline"
-            onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
+            onSubmit={linkEvent(this, this.handleRemoveComment)}
           >
             <label
               className="sr-only"
@@ -881,7 +1016,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {this.state.showReportDialog && (
           <form
             className="form-inline"
-            onSubmit={linkEvent(this, this.handleReportSubmit)}
+            onSubmit={linkEvent(this, this.handleReportComment)}
           >
             <label
               className="sr-only"
@@ -968,14 +1103,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 className="btn btn-secondary"
                 aria-label={i18n.t("ban")}
               >
-                {i18n.t("ban")} {cv.creator.name}
+                {this.state.banLoading ? (
+                  <Spinner />
+                ) : (
+                  <span>
+                    {i18n.t("ban")} {cv.creator.name}
+                  </span>
+                )}
               </button>
             </div>
           </form>
         )}
 
         {this.state.showPurgeDialog && (
-          <form onSubmit={linkEvent(this, this.handlePurgeSubmit)}>
+          <form onSubmit={linkEvent(this, this.handlePurgeBothSubmit)}>
             <PurgeWarning />
             <label className="sr-only" htmlFor="purge-reason">
               {i18n.t("reason")}
@@ -1008,9 +1149,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             node={node}
             onReplyCancel={this.handleReplyCancel}
             disabled={this.props.locked}
+            finished={this.props.finished.get(
+              this.props.node.comment_view.comment.id
+            )}
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            onUpsertComment={this.props.onCreateComment}
           />
         )}
         {!this.state.collapsed && node.children.length > 0 && (
@@ -1024,6 +1169,26 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
+            finished={this.props.finished}
+            onCommentReplyRead={this.props.onCommentReplyRead}
+            onPersonMentionRead={this.props.onPersonMentionRead}
+            onCreateComment={this.props.onCreateComment}
+            onEditComment={this.props.onEditComment}
+            onCommentVote={this.props.onCommentVote}
+            onBlockPerson={this.props.onBlockPerson}
+            onSaveComment={this.props.onSaveComment}
+            onDeleteComment={this.props.onDeleteComment}
+            onRemoveComment={this.props.onRemoveComment}
+            onDistinguishComment={this.props.onDistinguishComment}
+            onAddModToCommunity={this.props.onAddModToCommunity}
+            onAddAdmin={this.props.onAddAdmin}
+            onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+            onBanPerson={this.props.onBanPerson}
+            onTransferCommunity={this.props.onTransferCommunity}
+            onFetchChildren={this.props.onFetchChildren}
+            onCommentReport={this.props.onCommentReport}
+            onPurgePerson={this.props.onPurgePerson}
+            onPurgeComment={this.props.onPurgeComment}
           />
         )}
         {/* A collapsed clearfix */}
@@ -1033,7 +1198,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentReplyOrMentionRead(): boolean {
-    let cv = this.props.node.comment_view;
+    const cv = this.commentView;
 
     if (this.isPersonMentionType(cv)) {
       return cv.person_mention.read;
@@ -1045,12 +1210,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   linkBtn(small = false) {
-    let cv = this.props.node.comment_view;
-    let classnames = classNames("btn btn-link btn-animate text-muted", {
+    const cv = this.commentView;
+    const classnames = classNames("btn btn-link btn-animate text-muted", {
       "btn-sm": small,
     });
 
-    let title = this.props.showContext
+    const title = this.props.showContext
       ? i18n.t("show_context")
       : i18n.t("link");
 
@@ -1075,26 +1240,52 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     );
   }
 
-  get loadingIcon() {
-    return <Spinner />;
-  }
-
   get myComment(): boolean {
     return (
       UserService.Instance.myUserInfo?.local_user_view.person.id ==
-      this.props.node.comment_view.creator.id
+      this.commentView.creator.id
     );
   }
 
   get isPostCreator(): boolean {
-    return (
-      this.props.node.comment_view.creator.id ==
-      this.props.node.comment_view.post.creator_id
-    );
+    return this.commentView.creator.id == this.commentView.post.creator_id;
+  }
+
+  get scoreColor() {
+    if (this.commentView.my_vote == 1) {
+      return "text-info";
+    } else if (this.commentView.my_vote == -1) {
+      return "text-danger";
+    } else {
+      return "text-muted";
+    }
+  }
+
+  get pointsTippy(): string {
+    const points = i18n.t("number_of_points", {
+      count: Number(this.commentView.counts.score),
+      formattedCount: numToSI(this.commentView.counts.score),
+    });
+
+    const upvotes = i18n.t("number_of_upvotes", {
+      count: Number(this.commentView.counts.upvotes),
+      formattedCount: numToSI(this.commentView.counts.upvotes),
+    });
+
+    const downvotes = i18n.t("number_of_downvotes", {
+      count: Number(this.commentView.counts.downvotes),
+      formattedCount: numToSI(this.commentView.counts.downvotes),
+    });
+
+    return `${points} • ${upvotes} • ${downvotes}`;
+  }
+
+  get expandText(): string {
+    return this.state.collapsed ? i18n.t("expand") : i18n.t("collapse");
   }
 
   get commentUnlessRemoved(): string {
-    let comment = this.props.node.comment_view.comment;
+    const comment = this.commentView.comment;
     return comment.removed
       ? `*${i18n.t("removed")}*`
       : comment.deleted
@@ -1110,125 +1301,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ showEdit: true });
   }
 
-  handleBlockUserClick(i: CommentNode) {
-    let auth = myAuth();
-    if (auth) {
-      let blockUserForm: BlockPerson = {
-        person_id: i.props.node.comment_view.creator.id,
-        block: true,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
-    }
-  }
-
-  handleDeleteClick(i: CommentNode) {
-    let comment = i.props.node.comment_view.comment;
-    let auth = myAuth();
-    if (auth) {
-      let deleteForm: DeleteComment = {
-        comment_id: comment.id,
-        deleted: !comment.deleted,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.deleteComment(deleteForm));
-    }
-  }
-
-  handleSaveCommentClick(i: CommentNode) {
-    let cv = i.props.node.comment_view;
-    let save = cv.saved == undefined ? true : !cv.saved;
-    let auth = myAuth();
-    if (auth) {
-      let form: SaveComment = {
-        comment_id: cv.comment.id,
-        save,
-        auth,
-      };
-
-      WebSocketService.Instance.send(wsClient.saveComment(form));
-
-      i.setState({ saveLoading: true });
-    }
-  }
-
   handleReplyCancel() {
     this.setState({ showReply: false, showEdit: false });
-  }
-
-  handleCommentUpvote(event: any) {
-    event.preventDefault();
-    let myVote = this.state.my_vote;
-    let newVote = myVote == 1 ? 0 : 1;
-
-    if (myVote == 1) {
-      this.setState({
-        score: this.state.score - 1,
-        upvotes: this.state.upvotes - 1,
-      });
-    } else if (myVote == -1) {
-      this.setState({
-        downvotes: this.state.downvotes - 1,
-        upvotes: this.state.upvotes + 1,
-        score: this.state.score + 2,
-      });
-    } else {
-      this.setState({
-        score: this.state.score + 1,
-        upvotes: this.state.upvotes + 1,
-      });
-    }
-
-    this.setState({ my_vote: newVote });
-
-    let auth = myAuth();
-    if (auth) {
-      let form: CreateCommentLike = {
-        comment_id: this.props.node.comment_view.comment.id,
-        score: newVote,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.likeComment(form));
-      setupTippy();
-    }
-  }
-
-  handleCommentDownvote(event: any) {
-    event.preventDefault();
-    let myVote = this.state.my_vote;
-    let newVote = myVote == -1 ? 0 : -1;
-
-    if (myVote == 1) {
-      this.setState({
-        downvotes: this.state.downvotes + 1,
-        upvotes: this.state.upvotes - 1,
-        score: this.state.score - 2,
-      });
-    } else if (myVote == -1) {
-      this.setState({
-        downvotes: this.state.downvotes - 1,
-        score: this.state.score + 1,
-      });
-    } else {
-      this.setState({
-        downvotes: this.state.downvotes + 1,
-        score: this.state.score - 1,
-      });
-    }
-
-    this.setState({ my_vote: newVote });
-
-    let auth = myAuth();
-    if (auth) {
-      let form: CreateCommentLike = {
-        comment_id: this.props.node.comment_view.comment.id,
-        score: newVote,
-        auth,
-      };
-
-      WebSocketService.Instance.send(wsClient.likeComment(form));
-      setupTippy();
-    }
   }
 
   handleShowReportDialog(i: CommentNode) {
@@ -1237,21 +1311,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handleReportReasonChange(i: CommentNode, event: any) {
     i.setState({ reportReason: event.target.value });
-  }
-
-  handleReportSubmit(i: CommentNode) {
-    let comment = i.props.node.comment_view.comment;
-    let reason = i.state.reportReason;
-    let auth = myAuth();
-    if (reason && auth) {
-      let form: CreateCommentReport = {
-        comment_id: comment.id,
-        reason,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.createCommentReport(form));
-      i.setState({ showReportDialog: false });
-    }
   }
 
   handleModRemoveShow(i: CommentNode) {
@@ -1269,36 +1328,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ removeData: event.target.checked });
   }
 
-  handleModRemoveSubmit(i: CommentNode) {
-    let comment = i.props.node.comment_view.comment;
-    let auth = myAuth();
-    if (auth) {
-      let form: RemoveComment = {
-        comment_id: comment.id,
-        removed: !comment.removed,
-        reason: i.state.removeReason,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.removeComment(form));
-
-      i.setState({ showRemoveDialog: false });
-    }
-  }
-
-  handleDistinguishClick(i: CommentNode) {
-    let comment = i.props.node.comment_view.comment;
-    let auth = myAuth();
-    if (auth) {
-      let form: DistinguishComment = {
-        comment_id: comment.id,
-        distinguished: !comment.distinguished,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.editComment(form));
-      i.setState(i.state);
-    }
-  }
-
   isPersonMentionType(
     item: CommentView | PersonMentionView | CommentReplyView
   ): item is PersonMentionView {
@@ -1309,29 +1338,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     item: CommentView | PersonMentionView | CommentReplyView
   ): item is CommentReplyView {
     return (item as CommentReplyView).comment_reply?.id !== undefined;
-  }
-
-  handleMarkRead(i: CommentNode) {
-    let auth = myAuth();
-    if (auth) {
-      if (i.isPersonMentionType(i.props.node.comment_view)) {
-        let form: MarkPersonMentionAsRead = {
-          person_mention_id: i.props.node.comment_view.person_mention.id,
-          read: !i.props.node.comment_view.person_mention.read,
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.markPersonMentionAsRead(form));
-      } else if (i.isCommentReplyType(i.props.node.comment_view)) {
-        let form: MarkCommentReplyAsRead = {
-          comment_reply_id: i.props.node.comment_view.comment_reply.id,
-          read: !i.props.node.comment_view.comment_reply.read,
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.markCommentReplyAsRead(form));
-      }
-
-      i.setState({ readLoading: true });
-    }
   }
 
   handleModBanFromCommunityShow(i: CommentNode) {
@@ -1358,57 +1364,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ banExpireDays: event.target.value });
   }
 
-  handleModBanFromCommunitySubmit(i: CommentNode) {
-    i.setState({ banType: BanType.Community });
-    i.handleModBanBothSubmit(i);
-  }
-
-  handleModBanSubmit(i: CommentNode) {
-    i.setState({ banType: BanType.Site });
-    i.handleModBanBothSubmit(i);
-  }
-
-  handleModBanBothSubmit(i: CommentNode) {
-    let cv = i.props.node.comment_view;
-    let auth = myAuth();
-    if (auth) {
-      if (i.state.banType == BanType.Community) {
-        // If its an unban, restore all their data
-        let ban = !cv.creator_banned_from_community;
-        if (ban == false) {
-          i.setState({ removeData: false });
-        }
-        let form: BanFromCommunity = {
-          person_id: cv.creator.id,
-          community_id: cv.community.id,
-          ban,
-          remove_data: i.state.removeData,
-          reason: i.state.banReason,
-          expires: futureDaysToUnixTime(i.state.banExpireDays),
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.banFromCommunity(form));
-      } else {
-        // If its an unban, restore all their data
-        let ban = !cv.creator.banned;
-        if (ban == false) {
-          i.setState({ removeData: false });
-        }
-        let form: BanPerson = {
-          person_id: cv.creator.id,
-          ban,
-          remove_data: i.state.removeData,
-          reason: i.state.banReason,
-          expires: futureDaysToUnixTime(i.state.banExpireDays),
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.banPerson(form));
-      }
-
-      i.setState({ showBanDialog: false });
-    }
-  }
-
   handlePurgePersonShow(i: CommentNode) {
     i.setState({
       showPurgeDialog: true,
@@ -1429,51 +1384,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ purgeReason: event.target.value });
   }
 
-  handlePurgeSubmit(i: CommentNode, event: any) {
-    event.preventDefault();
-    let auth = myAuth();
-    if (auth) {
-      if (i.state.purgeType == PurgeType.Person) {
-        let form: PurgePerson = {
-          person_id: i.props.node.comment_view.creator.id,
-          reason: i.state.purgeReason,
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.purgePerson(form));
-      } else if (i.state.purgeType == PurgeType.Comment) {
-        let form: PurgeComment = {
-          comment_id: i.props.node.comment_view.comment.id,
-          reason: i.state.purgeReason,
-          auth,
-        };
-        WebSocketService.Instance.send(wsClient.purgeComment(form));
-      }
-
-      i.setState({ purgeLoading: true });
-    }
-  }
-
   handleShowConfirmAppointAsMod(i: CommentNode) {
     i.setState({ showConfirmAppointAsMod: true });
   }
 
   handleCancelConfirmAppointAsMod(i: CommentNode) {
     i.setState({ showConfirmAppointAsMod: false });
-  }
-
-  handleAddModToCommunity(i: CommentNode) {
-    let cv = i.props.node.comment_view;
-    let auth = myAuth();
-    if (auth) {
-      let form: AddModToCommunity = {
-        person_id: cv.creator.id,
-        community_id: cv.community.id,
-        added: !isMod(cv.creator.id, i.props.moderators),
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.addModToCommunity(form));
-      i.setState({ showConfirmAppointAsMod: false });
-    }
   }
 
   handleShowConfirmAppointAsAdmin(i: CommentNode) {
@@ -1484,40 +1400,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ showConfirmAppointAsAdmin: false });
   }
 
-  handleAddAdmin(i: CommentNode) {
-    let auth = myAuth();
-    if (auth) {
-      let creatorId = i.props.node.comment_view.creator.id;
-      let form: AddAdmin = {
-        person_id: creatorId,
-        added: !isAdmin(creatorId, i.props.admins),
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.addAdmin(form));
-      i.setState({ showConfirmAppointAsAdmin: false });
-    }
-  }
-
   handleShowConfirmTransferCommunity(i: CommentNode) {
     i.setState({ showConfirmTransferCommunity: true });
   }
 
   handleCancelShowConfirmTransferCommunity(i: CommentNode) {
     i.setState({ showConfirmTransferCommunity: false });
-  }
-
-  handleTransferCommunity(i: CommentNode) {
-    let cv = i.props.node.comment_view;
-    let auth = myAuth();
-    if (auth) {
-      let form: TransferCommunity = {
-        community_id: cv.community.id,
-        person_id: cv.creator.id,
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.transferCommunity(form));
-      i.setState({ showConfirmTransferCommunity: false });
-    }
   }
 
   handleShowConfirmTransferSite(i: CommentNode) {
@@ -1529,8 +1417,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get isCommentNew(): boolean {
-    let now = moment.utc().subtract(10, "minutes");
-    let then = moment.utc(this.props.node.comment_view.comment.published);
+    const now = moment.utc().subtract(10, "minutes");
+    const then = moment.utc(this.commentView.comment.published);
     return now.isBefore(then);
   }
 
@@ -1548,50 +1436,193 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     setupTippy();
   }
 
+  handleSaveComment(i: CommentNode) {
+    i.setState({ saveLoading: true });
+
+    i.props.onSaveComment({
+      comment_id: i.commentView.comment.id,
+      save: !i.commentView.saved,
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleUpvote(i: CommentNode) {
+    i.setState({ upvoteLoading: true });
+    i.props.onCommentVote({
+      comment_id: i.commentId,
+      score: newVote(VoteType.Upvote, i.commentView.my_vote),
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleDownvote(i: CommentNode) {
+    i.setState({ downvoteLoading: true });
+    i.props.onCommentVote({
+      comment_id: i.commentId,
+      score: newVote(VoteType.Downvote, i.commentView.my_vote),
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleBlockPerson(i: CommentNode) {
+    i.setState({ blockPersonLoading: true });
+    i.props.onBlockPerson({
+      person_id: i.commentView.creator.id,
+      block: true,
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleMarkAsRead(i: CommentNode) {
+    i.setState({ readLoading: true });
+    const cv = i.commentView;
+    if (i.isPersonMentionType(cv)) {
+      i.props.onPersonMentionRead({
+        person_mention_id: cv.person_mention.id,
+        read: !cv.person_mention.read,
+        auth: myAuthRequired(),
+      });
+    } else if (i.isCommentReplyType(cv)) {
+      i.props.onCommentReplyRead({
+        comment_reply_id: cv.comment_reply.id,
+        read: !cv.comment_reply.read,
+        auth: myAuthRequired(),
+      });
+    }
+  }
+
+  handleDeleteComment(i: CommentNode) {
+    i.setState({ deleteLoading: true });
+    i.props.onDeleteComment({
+      comment_id: i.commentId,
+      deleted: !i.commentView.comment.deleted,
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleRemoveComment(i: CommentNode, event: any) {
+    event.preventDefault();
+    i.setState({ removeLoading: true });
+    i.props.onRemoveComment({
+      comment_id: i.commentId,
+      removed: !i.commentView.comment.removed,
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleDistinguishComment(i: CommentNode) {
+    i.setState({ distinguishLoading: true });
+    i.props.onDistinguishComment({
+      comment_id: i.commentId,
+      distinguished: !i.commentView.comment.distinguished,
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleBanPersonFromCommunity(i: CommentNode) {
+    i.setState({ banLoading: true });
+    i.props.onBanPersonFromCommunity({
+      community_id: i.commentView.community.id,
+      person_id: i.commentView.creator.id,
+      ban: !i.commentView.creator_banned_from_community,
+      reason: i.state.banReason,
+      remove_data: i.state.removeData,
+      expires: futureDaysToUnixTime(i.state.banExpireDays),
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleBanPerson(i: CommentNode) {
+    i.setState({ banLoading: true });
+    i.props.onBanPerson({
+      person_id: i.commentView.creator.id,
+      ban: !i.commentView.creator_banned_from_community,
+      reason: i.state.banReason,
+      remove_data: i.state.removeData,
+      expires: futureDaysToUnixTime(i.state.banExpireDays),
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleModBanBothSubmit(i: CommentNode, event: any) {
+    event.preventDefault();
+    if (i.state.banType == BanType.Community) {
+      i.handleBanPersonFromCommunity(i);
+    } else {
+      i.handleBanPerson(i);
+    }
+  }
+
+  handleAddModToCommunity(i: CommentNode) {
+    i.setState({ addModLoading: true });
+
+    const added = !isMod(i.commentView.comment.creator_id, i.props.moderators);
+    i.props.onAddModToCommunity({
+      community_id: i.commentView.community.id,
+      person_id: i.commentView.creator.id,
+      added,
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleAddAdmin(i: CommentNode) {
+    i.setState({ addAdminLoading: true });
+
+    const added = !isAdmin(i.commentView.comment.creator_id, i.props.admins);
+    i.props.onAddAdmin({
+      person_id: i.commentView.creator.id,
+      added,
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleTransferCommunity(i: CommentNode) {
+    i.setState({ transferCommunityLoading: true });
+    i.props.onTransferCommunity({
+      community_id: i.commentView.community.id,
+      person_id: i.commentView.creator.id,
+      auth: myAuthRequired(),
+    });
+  }
+
+  handleReportComment(i: CommentNode, event: any) {
+    event.preventDefault();
+    i.setState({ reportLoading: true });
+    i.props.onCommentReport({
+      comment_id: i.commentId,
+      reason: i.state.reportReason ?? "",
+      auth: myAuthRequired(),
+    });
+  }
+
+  handlePurgeBothSubmit(i: CommentNode, event: any) {
+    event.preventDefault();
+    i.setState({ purgeLoading: true });
+
+    if (i.state.purgeType == PurgeType.Person) {
+      i.props.onPurgePerson({
+        person_id: i.commentView.creator.id,
+        reason: i.state.purgeReason,
+        auth: myAuthRequired(),
+      });
+    } else {
+      i.props.onPurgeComment({
+        comment_id: i.commentId,
+        reason: i.state.purgeReason,
+        auth: myAuthRequired(),
+      });
+    }
+  }
+
   handleFetchChildren(i: CommentNode) {
-    let form: GetComments = {
-      post_id: i.props.node.comment_view.post.id,
-      parent_id: i.props.node.comment_view.comment.id,
+    i.setState({ fetchChildrenLoading: true });
+    i.props.onFetchChildren?.({
+      parent_id: i.commentId,
       max_depth: commentTreeMaxDepth,
       limit: 999, // TODO
       type_: "All",
       saved_only: false,
-      auth: myAuth(false),
-    };
-
-    WebSocketService.Instance.send(wsClient.getComments(form));
-  }
-
-  get scoreColor() {
-    if (this.state.my_vote == 1) {
-      return "text-info";
-    } else if (this.state.my_vote == -1) {
-      return "text-danger";
-    } else {
-      return "text-muted";
-    }
-  }
-
-  get pointsTippy(): string {
-    let points = i18n.t("number_of_points", {
-      count: Number(this.state.score),
-      formattedCount: numToSI(this.state.score),
+      auth: myAuth(),
     });
-
-    let upvotes = i18n.t("number_of_upvotes", {
-      count: Number(this.state.upvotes),
-      formattedCount: numToSI(this.state.upvotes),
-    });
-
-    let downvotes = i18n.t("number_of_downvotes", {
-      count: Number(this.state.downvotes),
-      formattedCount: numToSI(this.state.downvotes),
-    });
-
-    return `${points} • ${upvotes} • ${downvotes}`;
-  }
-
-  get expandText(): string {
-    return this.state.collapsed ? i18n.t("expand") : i18n.t("collapse");
   }
 }

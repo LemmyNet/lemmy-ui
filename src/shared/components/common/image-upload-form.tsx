@@ -1,7 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { i18n } from "../../i18next";
-import { UserService } from "../../services";
-import { randomStr, toast, uploadImage } from "../../utils";
+import { HttpService, UserService } from "../../services";
+import { randomStr, toast } from "../../utils";
 import { Icon } from "./icon";
 
 interface ImageUploadFormProps {
@@ -73,27 +73,26 @@ export class ImageUploadForm extends Component<
 
   handleImageUpload(i: ImageUploadForm, event: any) {
     event.preventDefault();
-    const file = event.target.files[0];
+    const image = event.target.files[0] as File;
 
     i.setState({ loading: true });
 
-    uploadImage(file)
-      .then(res => {
-        console.log("pictrs upload:");
-        console.log(res);
-        if (res.msg === "ok") {
-          i.setState({ loading: false });
-          i.props.onUpload(res.url as string);
+    HttpService.client.uploadImage({ image }).then(res => {
+      console.log("pictrs upload:");
+      console.log(res);
+      if (res.state === "success") {
+        if (res.data.msg === "ok") {
+          i.props.onUpload(res.data.url as string);
         } else {
-          i.setState({ loading: false });
           toast(JSON.stringify(res), "danger");
         }
-      })
-      .catch(error => {
-        i.setState({ loading: false });
-        console.error(error);
-        toast(error, "danger");
-      });
+      } else if (res.state === "failed") {
+        console.error(res.msg);
+        toast(res.msg, "danger");
+      }
+
+      i.setState({ loading: false });
+    });
   }
 
   handleRemoveImage(i: ImageUploadForm, event: any) {

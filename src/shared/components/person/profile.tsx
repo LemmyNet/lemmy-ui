@@ -4,42 +4,67 @@ import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
-  AddAdminResponse,
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanFromCommunityResponse,
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  BlockPersonResponse,
+  CommentId,
+  CommentReplyResponse,
   CommentResponse,
   Community,
   CommunityModeratorView,
+  CreateComment,
+  CreateCommentLike,
+  CreateCommentReport,
+  CreatePostLike,
+  CreatePostReport,
+  DeleteComment,
+  DeletePost,
+  DistinguishComment,
+  EditComment,
+  EditPost,
+  FeaturePost,
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
+  LockPost,
+  MarkCommentReplyAsRead,
+  MarkPersonMentionAsRead,
+  PersonView,
   PostResponse,
+  PurgeComment,
   PurgeItemResponse,
+  PurgePerson,
+  PurgePost,
+  RemoveComment,
+  RemovePost,
+  SaveComment,
+  SavePost,
   SortType,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
+  TransferCommunity,
 } from "lemmy-js-client";
 import moment from "moment";
-import { Subscription } from "rxjs";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
-import { UserService, WebSocketService } from "../../services";
+import { UserService } from "../../services";
+import { FirstLoadService } from "../../services/FirstLoadService";
+import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
-  WithPromiseKeys,
+  RouteDataResponse,
   canMod,
   capitalizeFirstLetter,
-  createCommentLikeRes,
-  createPostLikeFindRes,
-  editCommentRes,
-  editPostFindRes,
+  editComment,
+  editPost,
+  editWith,
   enableDownvotes,
   enableNsfw,
   fetchLimit,
   futureDaysToUnixTime,
+  getCommentParentId,
   getPageFromString,
   getQueryParams,
   getQueryString,
@@ -47,17 +72,15 @@ import {
   isBanned,
   mdToHtml,
   myAuth,
+  myAuthRequired,
   numToSI,
   relTags,
   restoreScrollPosition,
-  saveCommentRes,
   saveScrollPosition,
   setIsoData,
   setupTippy,
   toast,
   updatePersonBlock,
-  wsClient,
-  wsSubscribe,
 } from "../../utils";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
@@ -68,19 +91,20 @@ import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
 
-interface ProfileData {
+type ProfileData = RouteDataResponse<{
   personResponse: GetPersonDetailsResponse;
-}
+}>;
 
 interface ProfileState {
-  personRes?: GetPersonDetailsResponse;
-  loading: boolean;
+  personRes: RequestState<GetPersonDetailsResponse>;
   personBlocked: boolean;
   banReason?: string;
   banExpireDays?: number;
   showBanDialog: boolean;
   removeData: boolean;
   siteRes: GetSiteResponse;
+  finished: Map<CommentId, boolean | undefined>;
+  isIsomorphic: boolean;
 }
 
 interface ProfileProps {
@@ -106,26 +130,6 @@ function getViewFromProps(view?: string): PersonDetailsView {
     ? PersonDetailsView[view] ?? PersonDetailsView.Overview
     : PersonDetailsView.Overview;
 }
-
-function toggleBlockPerson(recipientId: number, block: boolean) {
-  const auth = myAuth();
-
-  if (auth) {
-    const blockUserForm: BlockPerson = {
-      person_id: recipientId,
-      block,
-      auth,
-    };
-
-    WebSocketService.Instance.send(wsClient.blockPerson(blockUserForm));
-  }
-}
-
-const handleUnblockPerson = (personId: number) =>
-  toggleBlockPerson(personId, false);
-
-const handleBlockPerson = (personId: number) =>
-  toggleBlockPerson(personId, true);
 
 const getCommunitiesListing = (
   translationKey: NoOptionI18nKeys,
@@ -158,13 +162,14 @@ export class Profile extends Component<
   ProfileState
 > {
   private isoData = setIsoData<ProfileData>(this.context);
-  private subscription?: Subscription;
   state: ProfileState = {
-    loading: true,
+    personRes: { state: "empty" },
     personBlocked: false,
     siteRes: this.isoData.site_res,
     showBanDialog: false,
     removeData: false,
+    finished: new Map(),
+    isIsomorphic: false,
   };
 
   constructor(props: RouteComponentProps<{ username: string }>, context: any) {
@@ -173,64 +178,106 @@ export class Profile extends Component<
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
+    this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleUnblockPerson = this.handleUnblockPerson.bind(this);
+
+    this.handleCreateComment = this.handleCreateComment.bind(this);
+    this.handleEditComment = this.handleEditComment.bind(this);
+    this.handleSaveComment = this.handleSaveComment.bind(this);
+    this.handleBlockPersonAlt = this.handleBlockPersonAlt.bind(this);
+    this.handleDeleteComment = this.handleDeleteComment.bind(this);
+    this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.handleCommentVote = this.handleCommentVote.bind(this);
+    this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
+    this.handleAddAdmin = this.handleAddAdmin.bind(this);
+    this.handlePurgePerson = this.handlePurgePerson.bind(this);
+    this.handlePurgeComment = this.handlePurgeComment.bind(this);
+    this.handleCommentReport = this.handleCommentReport.bind(this);
+    this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
+    this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
+    this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
+    this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
+    this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
+    this.handleBanPerson = this.handleBanPerson.bind(this);
+    this.handlePostVote = this.handlePostVote.bind(this);
+    this.handlePostEdit = this.handlePostEdit.bind(this);
+    this.handlePostReport = this.handlePostReport.bind(this);
+    this.handleLockPost = this.handleLockPost.bind(this);
+    this.handleDeletePost = this.handleDeletePost.bind(this);
+    this.handleRemovePost = this.handleRemovePost.bind(this);
+    this.handleSavePost = this.handleSavePost.bind(this);
+    this.handlePurgePost = this.handlePurgePost.bind(this);
+    this.handleFeaturePost = this.handleFeaturePost.bind(this);
 
     // Only fetch the data if coming from another route
-    if (this.isoData.path === this.context.router.route.match.url) {
+    if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
         personRes: this.isoData.routeData.personResponse,
-        loading: false,
+        isIsomorphic: true,
       };
-    } else {
-      this.fetchUserData();
     }
   }
 
-  fetchUserData() {
+  async componentDidMount() {
+    if (!this.state.isIsomorphic) {
+      await this.fetchUserData();
+    }
+    setupTippy();
+  }
+
+  componentWillUnmount() {
+    saveScrollPosition(this.context);
+  }
+
+  async fetchUserData() {
     const { page, sort, view } = getProfileQueryParams();
 
-    const form: GetPersonDetails = {
-      username: this.props.match.params.username,
-      sort,
-      saved_only: view === PersonDetailsView.Saved,
-      page,
-      limit: fetchLimit,
-      auth: myAuth(false),
-    };
-
-    WebSocketService.Instance.send(wsClient.getPersonDetails(form));
+    this.setState({ personRes: { state: "empty" } });
+    this.setState({
+      personRes: await HttpService.client.getPersonDetails({
+        username: this.props.match.params.username,
+        sort,
+        saved_only: view === PersonDetailsView.Saved,
+        page,
+        limit: fetchLimit,
+        auth: myAuth(),
+      }),
+    });
+    restoreScrollPosition(this.context);
+    this.setPersonBlock();
   }
 
   get amCurrentUser() {
-    return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ===
-      this.state.personRes?.person_view.person.id
-    );
+    if (this.state.personRes.state === "success") {
+      return (
+        UserService.Instance.myUserInfo?.local_user_view.person.id ===
+        this.state.personRes.data.person_view.person.id
+      );
+    } else {
+      return false;
+    }
   }
 
   setPersonBlock() {
     const mui = UserService.Instance.myUserInfo;
     const res = this.state.personRes;
 
-    if (mui && res) {
+    if (mui && res.state === "success") {
       this.setState({
         personBlocked: mui.person_blocks.some(
-          ({ target: { id } }) => id === res.person_view.person.id
+          ({ target: { id } }) => id === res.data.person_view.person.id
         ),
       });
     }
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     path,
     query: { page, sort, view: urlView },
     auth,
-  }: InitialFetchRequest<
-    QueryParams<ProfileProps>
-  >): WithPromiseKeys<ProfileData> {
+  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<ProfileData> {
     const pathSplit = path.split("/");
 
     const username = pathSplit[2];
@@ -246,78 +293,103 @@ export class Profile extends Component<
     };
 
     return {
-      personResponse: client.getPersonDetails(form),
+      personResponse: await client.getPersonDetails(form),
     };
   }
 
-  componentDidMount() {
-    this.setPersonBlock();
-    setupTippy();
-  }
-
-  componentWillUnmount() {
-    this.subscription?.unsubscribe();
-    saveScrollPosition(this.context);
-  }
-
   get documentTitle(): string {
+    const siteName = this.state.siteRes.site_view.site.name;
     const res = this.state.personRes;
-    return res
-      ? `@${res.person_view.person.name} - ${this.state.siteRes.site_view.site.name}`
-      : "";
+    return res.state == "success"
+      ? `@${res.data.person_view.person.name} - ${siteName}`
+      : siteName;
   }
 
-  render() {
-    const { personRes, loading, siteRes } = this.state;
-    const { page, sort, view } = getProfileQueryParams();
-
-    return (
-      <div className="container-lg">
-        {loading ? (
+  renderPersonRes() {
+    switch (this.state.personRes.state) {
+      case "loading":
+        return (
           <h5>
             <Spinner large />
           </h5>
-        ) : (
-          personRes && (
-            <div className="row">
-              <div className="col-12 col-md-8">
-                <HtmlTags
-                  title={this.documentTitle}
-                  path={this.context.router.route.match.url}
-                  description={personRes.person_view.person.bio}
-                  image={personRes.person_view.person.avatar}
-                />
+        );
+      case "success": {
+        const siteRes = this.state.siteRes;
+        const personRes = this.state.personRes.data;
+        const { page, sort, view } = getProfileQueryParams();
 
-                {this.userInfo}
+        return (
+          <div className="row">
+            <div className="col-12 col-md-8">
+              <HtmlTags
+                title={this.documentTitle}
+                path={this.context.router.route.match.url}
+                description={personRes.person_view.person.bio}
+                image={personRes.person_view.person.avatar}
+              />
 
-                <hr />
+              {this.userInfo(personRes.person_view)}
 
-                {this.selects}
+              <hr />
 
-                <PersonDetails
-                  personRes={personRes}
-                  admins={siteRes.admins}
-                  sort={sort}
-                  page={page}
-                  limit={fetchLimit}
-                  enableDownvotes={enableDownvotes(siteRes)}
-                  enableNsfw={enableNsfw(siteRes)}
-                  view={view}
-                  onPageChange={this.handlePageChange}
-                  allLanguages={siteRes.all_languages}
-                  siteLanguages={siteRes.discussion_languages}
-                />
-              </div>
+              {this.selects}
 
-              <div className="col-12 col-md-4">
-                <Moderates moderates={personRes.moderates} />
-                {this.amCurrentUser && <Follows />}
-              </div>
+              <PersonDetails
+                personRes={personRes}
+                admins={siteRes.admins}
+                sort={sort}
+                page={page}
+                limit={fetchLimit}
+                finished={this.state.finished}
+                enableDownvotes={enableDownvotes(siteRes)}
+                enableNsfw={enableNsfw(siteRes)}
+                view={view}
+                onPageChange={this.handlePageChange}
+                allLanguages={siteRes.all_languages}
+                siteLanguages={siteRes.discussion_languages}
+                // TODO all the forms here
+                onSaveComment={this.handleSaveComment}
+                onBlockPerson={this.handleBlockPersonAlt}
+                onDeleteComment={this.handleDeleteComment}
+                onRemoveComment={this.handleRemoveComment}
+                onCommentVote={this.handleCommentVote}
+                onCommentReport={this.handleCommentReport}
+                onDistinguishComment={this.handleDistinguishComment}
+                onAddModToCommunity={this.handleAddModToCommunity}
+                onAddAdmin={this.handleAddAdmin}
+                onTransferCommunity={this.handleTransferCommunity}
+                onPurgeComment={this.handlePurgeComment}
+                onPurgePerson={this.handlePurgePerson}
+                onCommentReplyRead={this.handleCommentReplyRead}
+                onPersonMentionRead={this.handlePersonMentionRead}
+                onBanPersonFromCommunity={this.handleBanFromCommunity}
+                onBanPerson={this.handleBanPerson}
+                onCreateComment={this.handleCreateComment}
+                onEditComment={this.handleEditComment}
+                onPostEdit={this.handlePostEdit}
+                onPostVote={this.handlePostVote}
+                onPostReport={this.handlePostReport}
+                onLockPost={this.handleLockPost}
+                onDeletePost={this.handleDeletePost}
+                onRemovePost={this.handleRemovePost}
+                onSavePost={this.handleSavePost}
+                onPurgePost={this.handlePurgePost}
+                onFeaturePost={this.handleFeaturePost}
+              />
             </div>
-          )
-        )}
-      </div>
-    );
+
+            <div className="col-12 col-md-4">
+              <Moderates moderates={personRes.moderates} />
+              {this.amCurrentUser && <Follows />}
+            </div>
+          </div>
+        );
+      }
+    }
+  }
+
+  render() {
+    return <div className="container-lg">{this.renderPersonRes()}</div>;
   }
 
   get viewRadios() {
@@ -326,7 +398,7 @@ export class Profile extends Component<
         {this.getRadio(PersonDetailsView.Overview)}
         {this.getRadio(PersonDetailsView.Comments)}
         {this.getRadio(PersonDetailsView.Posts)}
-        {this.getRadio(PersonDetailsView.Saved)}
+        {this.amCurrentUser && this.getRadio(PersonDetailsView.Saved)}
       </div>
     );
   }
@@ -375,8 +447,7 @@ export class Profile extends Component<
     );
   }
 
-  get userInfo() {
-    const pv = this.state.personRes?.person_view;
+  userInfo(pv: PersonView) {
     const {
       personBlocked,
       siteRes: { admins },
@@ -431,7 +502,7 @@ export class Profile extends Component<
                     )}
                   </ul>
                 </div>
-                {this.banDialog}
+                {this.banDialog(pv)}
                 <div className="flex-grow-1 unselectable pointer mx-2"></div>
                 {!this.amCurrentUser && UserService.Instance.myUserInfo && (
                   <>
@@ -457,7 +528,10 @@ export class Profile extends Component<
                         className={
                           "d-flex align-self-start btn btn-secondary mr-2"
                         }
-                        onClick={linkEvent(pv.person.id, handleUnblockPerson)}
+                        onClick={linkEvent(
+                          pv.person.id,
+                          this.handleUnblockPerson
+                        )}
                       >
                         {i18n.t("unblock_user")}
                       </button>
@@ -466,7 +540,10 @@ export class Profile extends Component<
                         className={
                           "d-flex align-self-start btn btn-secondary mr-2"
                         }
-                        onClick={linkEvent(pv.person.id, handleBlockPerson)}
+                        onClick={linkEvent(
+                          pv.person.id,
+                          this.handleBlockPerson
+                        )}
                       >
                         {i18n.t("block_user")}
                       </button>
@@ -553,87 +630,82 @@ export class Profile extends Component<
     );
   }
 
-  get banDialog() {
-    const pv = this.state.personRes?.person_view;
+  banDialog(pv: PersonView) {
     const { showBanDialog } = this.state;
 
     return (
-      pv && (
-        <>
-          {showBanDialog && (
-            <form onSubmit={linkEvent(this, this.handleModBanSubmit)}>
-              <div className="form-group row col-12">
-                <label className="col-form-label" htmlFor="profile-ban-reason">
-                  {i18n.t("reason")}
-                </label>
+      showBanDialog && (
+        <form onSubmit={linkEvent(this, this.handleModBanSubmit)}>
+          <div className="form-group row col-12">
+            <label className="col-form-label" htmlFor="profile-ban-reason">
+              {i18n.t("reason")}
+            </label>
+            <input
+              type="text"
+              id="profile-ban-reason"
+              className="form-control mr-2"
+              placeholder={i18n.t("reason")}
+              value={this.state.banReason}
+              onInput={linkEvent(this, this.handleModBanReasonChange)}
+            />
+            <label className="col-form-label" htmlFor={`mod-ban-expires`}>
+              {i18n.t("expires")}
+            </label>
+            <input
+              type="number"
+              id={`mod-ban-expires`}
+              className="form-control mr-2"
+              placeholder={i18n.t("number_of_days")}
+              value={this.state.banExpireDays}
+              onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
+            />
+            <div className="form-group">
+              <div className="form-check">
                 <input
-                  type="text"
-                  id="profile-ban-reason"
-                  className="form-control mr-2"
-                  placeholder={i18n.t("reason")}
-                  value={this.state.banReason}
-                  onInput={linkEvent(this, this.handleModBanReasonChange)}
+                  className="form-check-input"
+                  id="mod-ban-remove-data"
+                  type="checkbox"
+                  checked={this.state.removeData}
+                  onChange={linkEvent(this, this.handleModRemoveDataChange)}
                 />
-                <label className="col-form-label" htmlFor={`mod-ban-expires`}>
-                  {i18n.t("expires")}
+                <label
+                  className="form-check-label"
+                  htmlFor="mod-ban-remove-data"
+                  title={i18n.t("remove_content_more")}
+                >
+                  {i18n.t("remove_content")}
                 </label>
-                <input
-                  type="number"
-                  id={`mod-ban-expires`}
-                  className="form-control mr-2"
-                  placeholder={i18n.t("number_of_days")}
-                  value={this.state.banExpireDays}
-                  onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
-                />
-                <div className="form-group">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id="mod-ban-remove-data"
-                      type="checkbox"
-                      checked={this.state.removeData}
-                      onChange={linkEvent(this, this.handleModRemoveDataChange)}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="mod-ban-remove-data"
-                      title={i18n.t("remove_content_more")}
-                    >
-                      {i18n.t("remove_content")}
-                    </label>
-                  </div>
-                </div>
               </div>
-              {/* TODO hold off on expires until later */}
-              {/* <div class="form-group row"> */}
-              {/*   <label class="col-form-label">Expires</label> */}
-              {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
-              {/* </div> */}
-              <div className="form-group row">
-                <button
-                  type="reset"
-                  className="btn btn-secondary mr-2"
-                  aria-label={i18n.t("cancel")}
-                  onClick={linkEvent(this, this.handleModBanSubmitCancel)}
-                >
-                  {i18n.t("cancel")}
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-secondary"
-                  aria-label={i18n.t("ban")}
-                >
-                  {i18n.t("ban")} {pv.person.name}
-                </button>
-              </div>
-            </form>
-          )}
-        </>
+            </div>
+          </div>
+          {/* TODO hold off on expires until later */}
+          {/* <div class="form-group row"> */}
+          {/*   <label class="col-form-label">Expires</label> */}
+          {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
+          {/* </div> */}
+          <div className="form-group row">
+            <button
+              type="reset"
+              className="btn btn-secondary mr-2"
+              aria-label={i18n.t("cancel")}
+              onClick={linkEvent(this, this.handleModBanSubmitCancel)}
+            >
+              {i18n.t("cancel")}
+            </button>
+            <button
+              type="submit"
+              className="btn btn-secondary"
+              aria-label={i18n.t("ban")}
+            >
+              {i18n.t("ban")} {pv.person.name}
+            </button>
+          </div>
+        </form>
       )
     );
   }
 
-  updateUrl({ page, sort, view }: Partial<ProfileProps>) {
+  async updateUrl({ page, sort, view }: Partial<ProfileProps>) {
     const {
       page: urlPage,
       sort: urlSort,
@@ -649,9 +721,7 @@ export class Profile extends Component<
     const { username } = this.props.match.params;
 
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
-
-    this.setState({ loading: true });
-    this.fetchUserData();
+    await this.fetchUserData();
   }
 
   handlePageChange(page: number) {
@@ -685,19 +755,18 @@ export class Profile extends Component<
     i.setState({ removeData: event.target.checked });
   }
 
-  handleModBanSubmitCancel(i: Profile, event?: any) {
-    event.preventDefault();
+  handleModBanSubmitCancel(i: Profile) {
     i.setState({ showBanDialog: false });
   }
 
-  handleModBanSubmit(i: Profile, event?: any) {
-    if (event) event.preventDefault();
-    const { personRes, removeData, banReason, banExpireDays } = i.state;
+  async handleModBanSubmit(i: Profile, event: any) {
+    event.preventDefault();
+    const { removeData, banReason, banExpireDays } = i.state;
 
-    const person = personRes?.person_view.person;
-    const auth = myAuth();
+    const personRes = i.state.personRes;
 
-    if (person && auth) {
+    if (personRes.state == "success") {
+      const person = personRes.data.person_view.person;
       const ban = !person.banned;
 
       // If its an unban, restore all their data
@@ -705,154 +774,281 @@ export class Profile extends Component<
         i.setState({ removeData: false });
       }
 
-      const form: BanPerson = {
+      const res = await HttpService.client.banPerson({
         person_id: person.id,
         ban,
         remove_data: removeData,
         reason: banReason,
         expires: futureDaysToUnixTime(banExpireDays),
-        auth,
-      };
-      WebSocketService.Instance.send(wsClient.banPerson(form));
-
+        auth: myAuthRequired(),
+      });
+      // TODO
+      this.updateBan(res);
       i.setState({ showBanDialog: false });
     }
   }
 
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-
-      if (msg.error === "couldnt_find_that_username_or_email") {
-        this.context.router.history.push("/");
-      }
-    } else if (msg.reconnect) {
-      this.fetchUserData();
-    } else {
-      switch (op) {
-        case UserOperation.GetPersonDetails: {
-          // Since the PersonDetails contains posts/comments as well as some general user info we listen here as well
-          // and set the parent state if it is not set or differs
-          // TODO this might need to get abstracted
-          const data = wsJsonToRes<GetPersonDetailsResponse>(msg);
-          this.setState({ personRes: data, loading: false });
-          this.setPersonBlock();
-          restoreScrollPosition(this.context);
-
-          break;
-        }
-
-        case UserOperation.AddAdmin: {
-          const { admins } = wsJsonToRes<AddAdminResponse>(msg);
-          this.setState(s => ((s.siteRes.admins = admins), s));
-
-          break;
-        }
-
-        case UserOperation.CreateCommentLike: {
-          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
-          createCommentLikeRes(comment_view, this.state.personRes?.comments);
-          this.setState(this.state);
-
-          break;
-        }
-
-        case UserOperation.EditComment:
-        case UserOperation.DeleteComment:
-        case UserOperation.RemoveComment: {
-          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
-          editCommentRes(comment_view, this.state.personRes?.comments);
-          this.setState(this.state);
-
-          break;
-        }
-
-        case UserOperation.CreateComment: {
-          const {
-            comment_view: {
-              creator: { id },
-            },
-          } = wsJsonToRes<CommentResponse>(msg);
-          const mui = UserService.Instance.myUserInfo;
-
-          if (id === mui?.local_user_view.person.id) {
-            toast(i18n.t("reply_sent"));
-          }
-
-          break;
-        }
-
-        case UserOperation.SaveComment: {
-          const { comment_view } = wsJsonToRes<CommentResponse>(msg);
-          saveCommentRes(comment_view, this.state.personRes?.comments);
-          this.setState(this.state);
-
-          break;
-        }
-
-        case UserOperation.EditPost:
-        case UserOperation.DeletePost:
-        case UserOperation.RemovePost:
-        case UserOperation.LockPost:
-        case UserOperation.FeaturePost:
-        case UserOperation.SavePost: {
-          const { post_view } = wsJsonToRes<PostResponse>(msg);
-          editPostFindRes(post_view, this.state.personRes?.posts);
-          this.setState(this.state);
-
-          break;
-        }
-
-        case UserOperation.CreatePostLike: {
-          const { post_view } = wsJsonToRes<PostResponse>(msg);
-          createPostLikeFindRes(post_view, this.state.personRes?.posts);
-          this.setState(this.state);
-
-          break;
-        }
-
-        case UserOperation.BanPerson: {
-          const data = wsJsonToRes<BanPersonResponse>(msg);
-          const res = this.state.personRes;
-          res?.comments
-            .filter(c => c.creator.id === data.person_view.person.id)
-            .forEach(c => (c.creator.banned = data.banned));
-          res?.posts
-            .filter(c => c.creator.id === data.person_view.person.id)
-            .forEach(c => (c.creator.banned = data.banned));
-          const pv = res?.person_view;
-
-          if (pv?.person.id === data.person_view.person.id) {
-            pv.person.banned = data.banned;
-          }
-          this.setState(this.state);
-
-          break;
-        }
-
-        case UserOperation.BlockPerson: {
-          const data = wsJsonToRes<BlockPersonResponse>(msg);
-          updatePersonBlock(data);
-          this.setPersonBlock();
-
-          break;
-        }
-
-        case UserOperation.PurgePerson:
-        case UserOperation.PurgePost:
-        case UserOperation.PurgeComment:
-        case UserOperation.PurgeCommunity: {
-          const { success } = wsJsonToRes<PurgeItemResponse>(msg);
-
-          if (success) {
-            toast(i18n.t("purge_success"));
-            this.context.router.history.push(`/`);
-          }
-        }
-      }
+  async toggleBlockPerson(recipientId: number, block: boolean) {
+    const res = await HttpService.client.blockPerson({
+      person_id: recipientId,
+      block,
+      auth: myAuthRequired(),
+    });
+    if (res.state == "success") {
+      updatePersonBlock(res.data);
     }
+  }
+
+  handleUnblockPerson(personId: number) {
+    this.toggleBlockPerson(personId, false);
+  }
+
+  handleBlockPerson(personId: number) {
+    this.toggleBlockPerson(personId, true);
+  }
+
+  async handleAddModToCommunity(form: AddModToCommunity) {
+    // TODO not sure what to do here
+    await HttpService.client.addModToCommunity(form);
+  }
+
+  async handlePurgePerson(form: PurgePerson) {
+    const purgePersonRes = await HttpService.client.purgePerson(form);
+    this.purgeItem(purgePersonRes);
+  }
+
+  async handlePurgeComment(form: PurgeComment) {
+    const purgeCommentRes = await HttpService.client.purgeComment(form);
+    this.purgeItem(purgeCommentRes);
+  }
+
+  async handlePurgePost(form: PurgePost) {
+    const purgeRes = await HttpService.client.purgePost(form);
+    this.purgeItem(purgeRes);
+  }
+
+  async handleBlockPersonAlt(form: BlockPerson) {
+    const blockPersonRes = await HttpService.client.blockPerson(form);
+    if (blockPersonRes.state === "success") {
+      updatePersonBlock(blockPersonRes.data);
+    }
+  }
+
+  async handleCreateComment(form: CreateComment) {
+    const createCommentRes = await HttpService.client.createComment(form);
+    this.createAndUpdateComments(createCommentRes);
+
+    return createCommentRes;
+  }
+
+  async handleEditComment(form: EditComment) {
+    const editCommentRes = await HttpService.client.editComment(form);
+    this.findAndUpdateComment(editCommentRes);
+
+    return editCommentRes;
+  }
+
+  async handleDeleteComment(form: DeleteComment) {
+    const deleteCommentRes = await HttpService.client.deleteComment(form);
+    this.findAndUpdateComment(deleteCommentRes);
+  }
+
+  async handleDeletePost(form: DeletePost) {
+    const deleteRes = await HttpService.client.deletePost(form);
+    this.findAndUpdatePost(deleteRes);
+  }
+
+  async handleRemovePost(form: RemovePost) {
+    const removeRes = await HttpService.client.removePost(form);
+    this.findAndUpdatePost(removeRes);
+  }
+
+  async handleRemoveComment(form: RemoveComment) {
+    const removeCommentRes = await HttpService.client.removeComment(form);
+    this.findAndUpdateComment(removeCommentRes);
+  }
+
+  async handleSaveComment(form: SaveComment) {
+    const saveCommentRes = await HttpService.client.saveComment(form);
+    this.findAndUpdateComment(saveCommentRes);
+  }
+
+  async handleSavePost(form: SavePost) {
+    const saveRes = await HttpService.client.savePost(form);
+    this.findAndUpdatePost(saveRes);
+  }
+
+  async handleFeaturePost(form: FeaturePost) {
+    const featureRes = await HttpService.client.featurePost(form);
+    this.findAndUpdatePost(featureRes);
+  }
+
+  async handleCommentVote(form: CreateCommentLike) {
+    const voteRes = await HttpService.client.likeComment(form);
+    this.findAndUpdateComment(voteRes);
+  }
+
+  async handlePostVote(form: CreatePostLike) {
+    const voteRes = await HttpService.client.likePost(form);
+    this.findAndUpdatePost(voteRes);
+  }
+
+  async handlePostEdit(form: EditPost) {
+    const res = await HttpService.client.editPost(form);
+    this.findAndUpdatePost(res);
+  }
+
+  async handleCommentReport(form: CreateCommentReport) {
+    const reportRes = await HttpService.client.createCommentReport(form);
+    if (reportRes.state === "success") {
+      toast(i18n.t("report_created"));
+    }
+  }
+
+  async handlePostReport(form: CreatePostReport) {
+    const reportRes = await HttpService.client.createPostReport(form);
+    if (reportRes.state === "success") {
+      toast(i18n.t("report_created"));
+    }
+  }
+
+  async handleLockPost(form: LockPost) {
+    const lockRes = await HttpService.client.lockPost(form);
+    this.findAndUpdatePost(lockRes);
+  }
+
+  async handleDistinguishComment(form: DistinguishComment) {
+    const distinguishRes = await HttpService.client.distinguishComment(form);
+    this.findAndUpdateComment(distinguishRes);
+  }
+
+  async handleAddAdmin(form: AddAdmin) {
+    const addAdminRes = await HttpService.client.addAdmin(form);
+
+    if (addAdminRes.state == "success") {
+      this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
+    }
+  }
+
+  async handleTransferCommunity(form: TransferCommunity) {
+    await HttpService.client.transferCommunity(form);
+    toast(i18n.t("transfer_community"));
+  }
+
+  async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
+    const readRes = await HttpService.client.markCommentReplyAsRead(form);
+    this.findAndUpdateCommentReply(readRes);
+  }
+
+  async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
+    // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
+    await HttpService.client.markPersonMentionAsRead(form);
+  }
+
+  async handleBanFromCommunity(form: BanFromCommunity) {
+    const banRes = await HttpService.client.banFromCommunity(form);
+    this.updateBanFromCommunity(banRes);
+  }
+
+  async handleBanPerson(form: BanPerson) {
+    const banRes = await HttpService.client.banPerson(form);
+    this.updateBan(banRes);
+  }
+
+  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+    // Maybe not necessary
+    if (banRes.state === "success") {
+      this.setState(s => {
+        if (s.personRes.state == "success") {
+          s.personRes.data.posts
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
+            .forEach(
+              c => (c.creator_banned_from_community = banRes.data.banned)
+            );
+
+          s.personRes.data.comments
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
+            .forEach(
+              c => (c.creator_banned_from_community = banRes.data.banned)
+            );
+        }
+        return s;
+      });
+    }
+  }
+
+  updateBan(banRes: RequestState<BanPersonResponse>) {
+    // Maybe not necessary
+    if (banRes.state == "success") {
+      this.setState(s => {
+        if (s.personRes.state == "success") {
+          s.personRes.data.posts
+            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .forEach(c => (c.creator.banned = banRes.data.banned));
+          s.personRes.data.comments
+            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .forEach(c => (c.creator.banned = banRes.data.banned));
+        }
+        return s;
+      });
+    }
+  }
+
+  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+    if (purgeRes.state == "success") {
+      toast(i18n.t("purge_success"));
+      this.context.router.history.push(`/`);
+    }
+  }
+
+  findAndUpdateComment(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.personRes.state == "success" && res.state == "success") {
+        s.personRes.data.comments = editComment(
+          res.data.comment_view,
+          s.personRes.data.comments
+        );
+        s.finished.set(res.data.comment_view.comment.id, true);
+      }
+      return s;
+    });
+  }
+
+  createAndUpdateComments(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.personRes.state == "success" && res.state == "success") {
+        s.personRes.data.comments.unshift(res.data.comment_view);
+        // Set finished for the parent
+        s.finished.set(
+          getCommentParentId(res.data.comment_view.comment) ?? 0,
+          true
+        );
+      }
+      return s;
+    });
+  }
+
+  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
+    this.setState(s => {
+      if (s.personRes.state == "success" && res.state == "success") {
+        s.personRes.data.comments = editWith(
+          res.data.comment_reply_view,
+          s.personRes.data.comments
+        );
+      }
+      return s;
+    });
+  }
+
+  findAndUpdatePost(res: RequestState<PostResponse>) {
+    this.setState(s => {
+      if (s.personRes.state == "success" && res.state == "success") {
+        s.personRes.data.posts = editPost(
+          res.data.post_view,
+          s.personRes.data.posts
+        );
+      }
+      return s;
+    });
   }
 }

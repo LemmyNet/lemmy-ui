@@ -1,10 +1,9 @@
 import autosize from "autosize";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { HttpService, UserService } from "../../services";
 import {
   concurrentImageUpload,
   customEmojisLookup,
@@ -20,11 +19,11 @@ import {
   setupTippy,
   setupTribute,
   toast,
-  uploadImage,
 } from "../../utils";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
+import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
@@ -39,9 +38,9 @@ interface MarkdownTextAreaProps {
   finished?: boolean;
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
-  onContentChange?(val: string): any;
-  onReplyCancel?(): any;
-  onSubmit?(msg: { val?: string; formId: string; languageId?: number }): any;
+  onContentChange?(val: string): void;
+  onReplyCancel?(): void;
+  onSubmit?(content: string, formId: string, languageId?: number): void;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
 }
@@ -55,8 +54,9 @@ interface MarkdownTextAreaState {
   content?: string;
   languageId?: number;
   previewMode: boolean;
-  loading: boolean;
   imageUploadStatus?: ImageUploadStatus;
+  loading: boolean;
+  submitted: boolean;
 }
 
 export class MarkdownTextArea extends Component<
@@ -72,6 +72,7 @@ export class MarkdownTextArea extends Component<
     languageId: this.props.initialLanguageId,
     previewMode: false,
     loading: false,
+    submitted: false,
   };
 
   constructor(props: any, context: any) {
@@ -85,7 +86,7 @@ export class MarkdownTextArea extends Component<
   }
 
   componentDidMount() {
-    let textarea: any = document.getElementById(this.id);
+    const textarea: any = document.getElementById(this.id);
     if (textarea) {
       autosize(textarea);
       this.tribute.attach(textarea);
@@ -105,17 +106,14 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  componentDidUpdate() {
-    if (!this.props.hideNavigationWarnings && this.state.content) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-  }
-
   componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
     if (nextProps.finished) {
-      this.setState({ previewMode: false, loading: false, content: undefined });
+      this.setState({
+        previewMode: false,
+        imageUploadStatus: undefined,
+        loading: false,
+        content: undefined,
+      });
       if (this.props.replyType) {
         this.props.onReplyCancel?.();
       }
@@ -127,18 +125,22 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  componentWillUnmount() {
-    window.onbeforeunload = null;
-  }
-
   render() {
-    let languageId = this.state.languageId;
+    const languageId = this.state.languageId;
 
+    // TODO add these prompts back in at some point
+    // <Prompt
+    //   when={!this.props.hideNavigationWarnings && this.state.content}
+    //   message={i18n.t("block_leaving")}
+    // />
     return (
       <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
-        <Prompt
-          when={!this.props.hideNavigationWarnings && this.state.content}
-          message={i18n.t("block_leaving")}
+        <NavigationPrompt
+          when={
+            !this.props.hideNavigationWarnings &&
+            !!this.state.content &&
+            !this.state.submitted
+          }
         />
         <div className="form-group row">
           <div className={`col-sm-12`}>
@@ -148,6 +150,7 @@ export class MarkdownTextArea extends Component<
               value={this.state.content}
               onInput={linkEvent(this, this.handleContentChange)}
               onPaste={linkEvent(this, this.handleImageUploadPaste)}
+              onKeyDown={linkEvent(this, this.handleKeyBinds)}
               required
               disabled={this.isDisabled}
               rows={2}
@@ -210,7 +213,7 @@ export class MarkdownTextArea extends Component<
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}
               >
-                {i18n.t("preview")}
+                {this.state.previewMode ? i18n.t("edit") : i18n.t("preview")}
               </button>
             )}
             {/* A flex expander */}
@@ -321,7 +324,7 @@ export class MarkdownTextArea extends Component<
   handleEmoji(i: MarkdownTextArea, e: any) {
     let value = e.native;
     if (value == null) {
-      let emoji = customEmojisLookup.get(e.id)?.custom_emoji;
+      const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
       if (emoji) {
         value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;
       }
@@ -330,7 +333,7 @@ export class MarkdownTextArea extends Component<
       content: `${i.state.content ?? ""} ${value} `,
     });
     i.contentChange();
-    let textarea: any = document.getElementById(i.id);
+    const textarea: any = document.getElementById(i.id);
     autosize.update(textarea);
   }
 
@@ -392,41 +395,89 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  async uploadSingleImage(i: MarkdownTextArea, file: File) {
-    try {
-      const res = await uploadImage(file);
-      console.log("pictrs upload:");
-      console.log(res);
-      if (res.msg === "ok") {
-        const imageMarkdown = `![](${res.url})`;
+  async uploadSingleImage(i: MarkdownTextArea, image: File) {
+    const res = await HttpService.client.uploadImage({ image });
+    console.log("pictrs upload:");
+    console.log(res);
+    if (res.state === "success") {
+      if (res.data.msg === "ok") {
+        const imageMarkdown = `![](${res.data.url})`;
         i.setState(({ content }) => ({
           content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
         }));
         i.contentChange();
         const textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
-        pictrsDeleteToast(file.name, res.delete_url as string);
+        pictrsDeleteToast(image.name, res.data.delete_url as string);
       } else {
-        throw JSON.stringify(res);
+        throw JSON.stringify(res.data);
       }
-    } catch (error) {
+    } else if (res.state === "failed") {
       i.setState({ imageUploadStatus: undefined });
-      console.error(error);
-      toast(error, "danger");
+      console.error(res.msg);
+      toast(res.msg, "danger");
 
-      throw error;
+      throw res.msg;
     }
   }
 
   contentChange() {
     // Coerces the undefineds to empty strings, for replacing in the DB
-    let content = this.state.content ?? "";
+    const content = this.state.content ?? "";
     this.props.onContentChange?.(content);
   }
 
   handleContentChange(i: MarkdownTextArea, event: any) {
     i.setState({ content: event.target.value });
     i.contentChange();
+  }
+
+  // Keybind handler
+  // Keybinds inspired by github comment area
+  handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
+    if (event.ctrlKey) {
+      switch (event.key) {
+        case "k": {
+          i.handleInsertLink(i, event);
+          break;
+        }
+        case "Enter": {
+          if (!this.isDisabled) {
+            i.handleSubmit(i, event);
+          }
+
+          break;
+        }
+        case "b": {
+          i.handleInsertBold(i, event);
+          break;
+        }
+        case "i": {
+          i.handleInsertItalic(i, event);
+          break;
+        }
+        case "e": {
+          i.handleInsertCode(i, event);
+          break;
+        }
+        case "8": {
+          i.handleInsertList(i, event);
+          break;
+        }
+        case "s": {
+          i.handleInsertSpoiler(i, event);
+          break;
+        }
+        case "p": {
+          if (i.state.content) i.handlePreviewToggle(i, event);
+          break;
+        }
+        case ".": {
+          i.handleInsertQuote(i, event);
+          break;
+        }
+      }
+    }
   }
 
   handlePreviewToggle(i: MarkdownTextArea, event: any) {
@@ -440,13 +491,10 @@ export class MarkdownTextArea extends Component<
 
   handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.setState({ loading: true });
-    let msg = {
-      val: i.state.content,
-      formId: i.formId,
-      languageId: i.state.languageId,
-    };
-    i.props.onSubmit?.(msg);
+    if (i.state.content) {
+      i.setState({ loading: true, submitted: true });
+      i.props.onSubmit?.(i.state.content, i.formId, i.state.languageId);
+    }
   }
 
   handleReplyCancel(i: MarkdownTextArea) {
@@ -565,7 +613,7 @@ export class MarkdownTextArea extends Component<
 
   handleInsertList(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleBeginningofLine("-");
+    i.simpleBeginningofLine(`-${i.getSelectedText() ? " " : ""}`);
   }
 
   handleInsertQuote(i: MarkdownTextArea, event: any) {
@@ -589,7 +637,7 @@ export class MarkdownTextArea extends Component<
   }
 
   simpleInsert(chars: string) {
-    let content = this.state.content;
+    const content = this.state.content;
     if (!content) {
       this.setState({ content: `${chars} ` });
     } else {
@@ -598,7 +646,7 @@ export class MarkdownTextArea extends Component<
       });
     }
 
-    let textarea: any = document.getElementById(this.id);
+    const textarea: any = document.getElementById(this.id);
     textarea.focus();
     setTimeout(() => {
       autosize.update(textarea);
@@ -608,8 +656,8 @@ export class MarkdownTextArea extends Component<
 
   handleInsertSpoiler(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    let beforeChars = `\n::: spoiler ${i18n.t("spoiler")}\n`;
-    let afterChars = "\n:::\n";
+    const beforeChars = `\n::: spoiler ${i18n.t("spoiler")}\n`;
+    const afterChars = "\n:::\n";
     i.simpleSurroundBeforeAfter(beforeChars, afterChars);
   }
 

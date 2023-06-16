@@ -16,6 +16,7 @@ interface LanguageSelectProps {
   showSite?: boolean;
   iconVersion?: boolean;
   disabled?: boolean;
+  showLanguageWarning?: boolean;
 }
 
 export class LanguageSelect extends Component<LanguageSelectProps, any> {
@@ -31,12 +32,12 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
   // Necessary because there is no HTML way to set selected for multiple in value=
   setSelectedValues() {
-    let ids = this.props.selectedLanguageIds?.map(toString);
+    const ids = this.props.selectedLanguageIds?.map(toString);
     if (ids) {
-      let select = (document.getElementById(this.id) as HTMLSelectElement)
+      const select = (document.getElementById(this.id) as HTMLSelectElement)
         .options;
       for (let i = 0; i < select.length; i++) {
-        let o = select[i];
+        const o = select[i];
         if (ids.includes(o.value)) {
           o.selected = true;
         }
@@ -49,7 +50,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
       this.selectBtn
     ) : (
       <div>
-        {this.props.multiple && (
+        {this.props.multiple && this.props.showLanguageWarning && (
           <div className="alert alert-warning" role="alert">
             {i18n.t("undetermined_language_warning")}
           </div>
@@ -107,7 +108,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
         )}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
-        aria-label="action"
+        aria-label={i18n.t("language_select_placeholder")}
         multiple={this.props.multiple}
         disabled={this.props.disabled}
       >
@@ -130,8 +131,8 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
   }
 
   handleLanguageChange(i: LanguageSelect, event: any) {
-    let options: HTMLOptionElement[] = Array.from(event.target.options);
-    let selected: number[] = options
+    const options: HTMLOptionElement[] = Array.from(event.target.options);
+    const selected: number[] = options
       .filter(o => o.selected)
       .map(o => Number(o.value));
 

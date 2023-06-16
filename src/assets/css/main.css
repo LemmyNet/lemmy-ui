@@ -75,6 +75,11 @@
   font-size: 1.2rem;
 }
 
+.md-div pre {
+  white-space: pre;
+  overflow-x: auto;
+}
+
 .md-div table {
   border-collapse: collapse;
   width: 100%;
@@ -268,6 +273,10 @@ hr {
   -moz-filter: blur(10px);
   -o-filter: blur(10px);
   -ms-filter: blur(10px);
+}
+
+.img-cover {
+  object-fit: cover;
 }
 
 .img-expanded {

@@ -6,7 +6,7 @@ import { Icon } from "./icon";
 
 interface SortSelectProps {
   sort: SortType;
-  onChange?(val: SortType): any;
+  onChange(val: SortType): void;
   hideHot?: boolean;
   hideMostComments?: boolean;
 }
@@ -25,7 +25,7 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
     super(props, context);
   }
 
-  static getDerivedStateFromProps(props: any): SortSelectState {
+  static getDerivedStateFromProps(props: SortSelectProps): SortSelectState {
     return {
       sort: props.sort,
     };
@@ -85,6 +85,6 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
   }
 
   handleSortChange(i: SortSelect, event: any) {
-    i.props.onChange?.(event.target.value);
+    i.props.onChange(event.target.value);
   }
 }
