@@ -9,7 +9,6 @@ import {
   CommentReportView,
   CommentSortType,
   CommentView,
-  CommunityModeratorView,
   CommunityView,
   CustomEmojiView,
   GetSiteMetadata,
@@ -17,7 +16,6 @@ import {
   Language,
   LemmyHttp,
   MyUserInfo,
-  Person,
   PersonMentionView,
   PersonView,
   PostReportView,
@@ -226,92 +224,6 @@ export function futureDaysToUnixTime(days?: number): number | undefined {
         new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
       )
     : undefined;
-}
-
-export function canMod(
-  creator_id: number,
-  mods?: CommunityModeratorView[],
-  admins?: PersonView[],
-  myUserInfo = UserService.Instance.myUserInfo,
-  onSelf = false
-): boolean {
-  // You can do moderator actions only on the mods added after you.
-  let adminsThenMods =
-    admins
-      ?.map(a => a.person.id)
-      .concat(mods?.map(m => m.moderator.id) ?? []) ?? [];
-
-  if (myUserInfo) {
-    const myIndex = adminsThenMods.findIndex(
-      id => id == myUserInfo.local_user_view.person.id
-    );
-    if (myIndex == -1) {
-      return false;
-    } else {
-      // onSelf +1 on mod actions not for yourself, IE ban, remove, etc
-      adminsThenMods = adminsThenMods.slice(0, myIndex + (onSelf ? 0 : 1));
-      return !adminsThenMods.includes(creator_id);
-    }
-  } else {
-    return false;
-  }
-}
-
-export function canAdmin(
-  creatorId: number,
-  admins?: PersonView[],
-  myUserInfo = UserService.Instance.myUserInfo,
-  onSelf = false
-): boolean {
-  return canMod(creatorId, undefined, admins, myUserInfo, onSelf);
-}
-
-export function isMod(
-  creatorId: number,
-  mods?: CommunityModeratorView[]
-): boolean {
-  return mods?.map(m => m.moderator.id).includes(creatorId) ?? false;
-}
-
-export function amMod(
-  mods?: CommunityModeratorView[],
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  return myUserInfo ? isMod(myUserInfo.local_user_view.person.id, mods) : false;
-}
-
-export function isAdmin(creatorId: number, admins?: PersonView[]): boolean {
-  return admins?.map(a => a.person.id).includes(creatorId) ?? false;
-}
-
-export function amAdmin(myUserInfo = UserService.Instance.myUserInfo): boolean {
-  return myUserInfo?.local_user_view.person.admin ?? false;
-}
-
-export function amCommunityCreator(
-  creator_id: number,
-  mods?: CommunityModeratorView[],
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  const myId = myUserInfo?.local_user_view.person.id;
-  // Don't allow mod actions on yourself
-  return myId == mods?.at(0)?.moderator.id && myId != creator_id;
-}
-
-export function amSiteCreator(
-  creator_id: number,
-  admins?: PersonView[],
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  const myId = myUserInfo?.local_user_view.person.id;
-  return myId == admins?.at(0)?.person.id && myId != creator_id;
-}
-
-export function amTopMod(
-  mods: CommunityModeratorView[],
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  return mods.at(0)?.moderator.id == myUserInfo?.local_user_view.person.id;
 }
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
@@ -1291,21 +1203,6 @@ export function numToSI(value: number): string {
   return SHORTNUM_SI_FORMAT.format(value);
 }
 
-export function isBanned(ps: Person): boolean {
-  const expires = ps.ban_expires;
-  // Add Z to convert from UTC date
-  // TODO this check probably isn't necessary anymore
-  if (expires) {
-    if (ps.banned && new Date(expires + "Z") > new Date()) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return ps.banned;
-  }
-}
-
 export function myAuth(): string | undefined {
   return UserService.Instance.auth();
 }
@@ -1335,15 +1232,6 @@ export function postToCommentSortType(sort: SortType): CommentSortType {
     default:
       return "Top";
   }
-}
-
-export function canCreateCommunity(
-  siteRes: GetSiteResponse,
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  const adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
-  // TODO: Make this check if user is logged on as well
-  return !adminOnly || amAdmin(myUserInfo);
 }
 
 export function isPostBlocked(

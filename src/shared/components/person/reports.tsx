@@ -23,7 +23,6 @@ import { HttpService, UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { RequestState } from "../../services/HttpService";
 import {
-  amAdmin,
   editCommentReport,
   editPostReport,
   editPrivateMessageReport,
@@ -31,6 +30,7 @@ import {
   myAuthRequired,
   setIsoData,
 } from "../../utils";
+import { amAdmin } from "../../utils/roles/am-admin";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";

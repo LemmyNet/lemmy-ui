@@ -28,18 +28,10 @@ import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { UserService } from "../../services";
 import {
-  amAdmin,
-  amCommunityCreator,
-  amMod,
-  canAdmin,
-  canMod,
   canShare,
   futureDaysToUnixTime,
   hostname,
-  isAdmin,
-  isBanned,
   isImage,
-  isMod,
   isVideo,
   mdNoImages,
   mdToHtml,
@@ -52,6 +44,14 @@ import {
   share,
   showScores,
 } from "../../utils";
+import { amAdmin } from "../../utils/roles/am-admin";
+import { amCommunityCreator } from "../../utils/roles/am-community-creator";
+import { amMod } from "../../utils/roles/am-mod";
+import { canAdmin } from "../../utils/roles/can-admin";
+import { canMod } from "../../utils/roles/can-mod";
+import { isAdmin } from "../../utils/roles/is-admin";
+import { isBanned } from "../../utils/roles/is-banned";
+import { isMod } from "../../utils/roles/is-mod";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";

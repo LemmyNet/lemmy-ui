@@ -57,7 +57,6 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  canCreateCommunity,
   commentsToFlatNodes,
   editComment,
   editPost,
@@ -85,6 +84,7 @@ import {
   trendingFetchLimit,
   updatePersonBlock,
 } from "../../utils";
+import { canCreateCommunity } from "../../utils/roles/can-create-community";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";

@@ -10,8 +10,6 @@ import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  amAdmin,
-  canCreateCommunity,
   donateLemmyUrl,
   isBrowser,
   myAuth,
@@ -21,6 +19,8 @@ import {
   toast,
   updateUnreadCountsInterval,
 } from "../../utils";
+import { amAdmin } from "../../utils/roles/am-admin";
+import { canCreateCommunity } from "../../utils/roles/can-create-community";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 

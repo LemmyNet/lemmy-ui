@@ -34,8 +34,6 @@ import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
   QueryParams,
-  amAdmin,
-  amMod,
   debounce,
   fetchLimit,
   fetchUsers,
@@ -48,6 +46,8 @@ import {
   personToChoice,
   setIsoData,
 } from "../utils";
+import { amAdmin } from "../utils/roles/am-admin";
+import { amMod } from "../utils/roles/am-mod";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";

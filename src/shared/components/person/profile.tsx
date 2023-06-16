@@ -54,7 +54,6 @@ import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
-  canMod,
   capitalizeFirstLetter,
   editComment,
   editPost,
@@ -67,8 +66,6 @@ import {
   getPageFromString,
   getQueryParams,
   getQueryString,
-  isAdmin,
-  isBanned,
   mdToHtml,
   myAuth,
   myAuthRequired,
@@ -81,6 +78,9 @@ import {
   toast,
   updatePersonBlock,
 } from "../../utils";
+import { canMod } from "../../utils/roles/can-mod";
+import { isAdmin } from "../../utils/roles/is-admin";
+import { isBanned } from "../../utils/roles/is-banned";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";

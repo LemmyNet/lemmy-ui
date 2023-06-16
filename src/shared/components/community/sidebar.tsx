@@ -16,15 +16,15 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
-  amAdmin,
-  amMod,
-  amTopMod,
   getUnixTime,
   hostname,
   mdToHtml,
   myAuthRequired,
   numToSI,
 } from "../../utils";
+import { amAdmin } from "../../utils/roles/am-admin";
+import { amMod } from "../../utils/roles/am-mod";
+import { amTopMod } from "../../utils/roles/am-top-mod";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { CommunityForm } from "../community/community-form";
