@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, createRef, linkEvent, RefObject } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
 import { i18n } from "../../i18next";
@@ -15,8 +15,15 @@ import { Theme } from "./theme";
 
 export class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  private readonly mainContentRef: RefObject<HTMLElement>;
   constructor(props: any, context: any) {
     super(props, context);
+    this.mainContentRef = createRef();
+  }
+
+  handleJumpToContent(event) {
+    event.preventDefault();
+    this.mainContentRef.current?.focus();
   }
   render() {
     const siteRes = this.isoData.site_res;
@@ -26,6 +33,12 @@ export class App extends Component<any, any> {
       <>
         <Provider i18next={i18n}>
           <div id="app" className="lemmy-site">
+            <a
+              className="skip-link bg-light text-dark p-2 text-decoration-none position-absolute start-0 z-3"
+              onClick={linkEvent(this, this.handleJumpToContent)}
+            >
+              ${i18n.t("jump_to_content", "Jump to content")}
+            </a>
             {siteView && (
               <Theme defaultTheme={siteView.local_site.default_theme} />
             )}
@@ -39,14 +52,16 @@ export class App extends Component<any, any> {
                     exact
                     component={routeProps => (
                       <ErrorGuard>
-                        {RouteComponent &&
-                          (isAuthPath(path ?? "") ? (
-                            <AuthGuard>
+                        <main tabIndex={-1} ref={this.mainContentRef}>
+                          {RouteComponent &&
+                            (isAuthPath(path ?? "") ? (
+                              <AuthGuard>
+                                <RouteComponent {...routeProps} />
+                              </AuthGuard>
+                            ) : (
                               <RouteComponent {...routeProps} />
-                            </AuthGuard>
-                          ) : (
-                            <RouteComponent {...routeProps} />
-                          ))}
+                            ))}
+                        </main>
                       </ErrorGuard>
                     )}
                   />
