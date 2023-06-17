@@ -34,7 +34,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           id="sidebarInfo"
           className="card border-secondary mb-3 overflow-hidden"
         >
-          <header className="card-header" id="sidebarInfoHeader">
+          <header
+            className="card-header d-flex align-items-center"
+            id="sidebarInfoHeader"
+          >
             {this.siteName()}
             {!this.state.collapsed && (
               <BannerIconHeader banner={this.props.site.banner} />
@@ -55,7 +58,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   siteName() {
     return (
-      <div className="d-flex align-items-center">
+      <>
         <h5 className="mb-0 d-inline">{this.props.site.name}</h5>
         <button
           type="button"
@@ -78,7 +81,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             <Icon icon="minus-square" classes="icon-inline" />
           )}
         </button>
-      </div>
+      </>
     );
   }
 

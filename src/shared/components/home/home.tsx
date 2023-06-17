@@ -492,12 +492,14 @@ export class Home extends Component<any, HomeState> {
           showLocal={showLocal(this.isoData)}
         />
         {this.hasFollows && (
-          <section
-            id="sidebarSubscribed"
-            className="card border-secondary mb-3"
-          >
-            <div className="card-body">{this.subscribedCommunities}</div>
-          </section>
+          <div className="accordion">
+            <section
+              id="sidebarSubscribed"
+              className="card border-secondary mb-3"
+            >
+              {this.subscribedCommunities}
+            </section>
+          </div>
         )}
       </div>
     );
@@ -543,39 +545,59 @@ export class Home extends Component<any, HomeState> {
     const { subscribedCollapsed } = this.state;
 
     return (
-      <div>
-        <h5>
-          <T class="d-inline" i18nKey="subscribed_to_communities">
-            #
-            <Link className="text-body" to="/communities">
+      <>
+        <header
+          className="card-header d-flex align-items-center"
+          id="sidebarSubscribedHeader"
+        >
+          <h5 className="mb-0 d-inline">
+            <T class="d-inline" i18nKey="subscribed_to_communities">
               #
-            </Link>
-          </T>
+              <Link className="text-body" to="/communities">
+                #
+              </Link>
+            </T>
+          </h5>
           <button
+            type="button"
             className="btn btn-sm text-muted"
             onClick={linkEvent(this, this.handleCollapseSubscribe)}
-            aria-label={i18n.t("collapse")}
-            data-tippy-content={i18n.t("collapse")}
+            aria-label={
+              subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+            }
+            data-tippy-content={
+              subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+            }
+            data-bs-toggle="collapse"
+            data-bs-target="#sidebarSubscribedBody"
+            aria-expanded="true"
+            aria-controls="sidebarSubscribedBody"
           >
             <Icon
               icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
               classes="icon-inline"
             />
           </button>
-        </h5>
-        {!subscribedCollapsed && (
-          <ul className="list-inline mb-0">
-            {UserService.Instance.myUserInfo?.follows.map(cfv => (
-              <li
-                key={cfv.community.id}
-                className="list-inline-item d-inline-block"
-              >
-                <CommunityLink community={cfv.community} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+        </header>
+        <div
+          id="sidebarSubscribedBody"
+          className="collapse show"
+          aria-labelledby="sidebarSubscribedHeader"
+        >
+          <div className="card-body">
+            <ul className="list-inline mb-0">
+              {UserService.Instance.myUserInfo?.follows.map(cfv => (
+                <li
+                  key={cfv.community.id}
+                  className="list-inline-item d-inline-block"
+                >
+                  <CommunityLink community={cfv.community} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </>
     );
   }
 
