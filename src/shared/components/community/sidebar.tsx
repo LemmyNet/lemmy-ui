@@ -159,7 +159,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.description()}
               <Badges
-                community_view={this.props.community_view}
+                communityId={this.props.community_view.community.id}
                 counts={this.props.community_view.counts}
               />
               {this.mods()}

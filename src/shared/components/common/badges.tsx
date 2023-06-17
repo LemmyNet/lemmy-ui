@@ -1,7 +1,7 @@
 import { Link } from "inferno-router";
 import {
   CommunityAggregates,
-  CommunityView,
+  CommunityId,
   SiteAggregates,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
@@ -9,7 +9,7 @@ import { numToSI } from "../../utils";
 
 interface BadgesProps {
   counts: CommunityAggregates | SiteAggregates;
-  community_view: CommunityView;
+  communityId?: CommunityId;
 }
 
 const isCommunityAggregates = (
@@ -24,7 +24,7 @@ const isSiteAggregates = (
   return "communities" in counts;
 };
 
-export const Badges = ({ counts, community_view }: BadgesProps) => {
+export const Badges = ({ counts, communityId }: BadgesProps) => {
   return (
     <ul className="my-1 list-inline">
       <li
@@ -118,9 +118,7 @@ export const Badges = ({ counts, community_view }: BadgesProps) => {
       <li className="list-inline-item">
         <Link
           className="badge badge-primary"
-          to={`/modlog${
-            community_view ? `/${community_view.community.id}` : ""
-          }`}
+          to={`/modlog${communityId ? `/${communityId}` : ""}`}
         >
           {i18n.t("modlog")}
         </Link>
