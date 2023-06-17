@@ -582,7 +582,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {post.featured_community && (
             <small
               className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("featured")}
+              aria-label={i18n.t("featured_in_community")}
+              data-tippy-content={i18n.t("featured_in_community")}
             >
               <Icon icon="pin" classes="icon-inline text-primary" />
             </small>
@@ -590,7 +591,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {post.featured_local && (
             <small
               className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("featured")}
+              aria-label={i18n.t("featured_in_local")}
+              data-tippy-content={i18n.t("featured_in_local")}
             >
               <Icon icon="pin" classes="icon-inline text-secondary" />
             </small>
