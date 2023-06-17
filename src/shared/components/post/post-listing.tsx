@@ -900,7 +900,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link text-muted dropdown-item"
         onClick={linkEvent(this, this.handleEditClick)}
-        data-tippy-content={i18n.t("edit")}
         aria-label={i18n.t("edit")}
       >
         <Icon classes="mr-1" icon="edit" inline />
@@ -916,7 +915,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link text-muted dropdown-item"
         onClick={linkEvent(this, this.handleDeleteClick)}
-        data-tippy-content={label}
         aria-label={label}
       >
         {this.state.deleteLoading ? (
@@ -928,7 +926,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               classes={classNames("mr-1", { "text-danger": deleted })}
               inline
             />
-            {i18n.t("delete")}
+            {label}
           </>
         )}
       </button>
@@ -959,7 +957,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link text-muted dropdown-item"
         onClick={linkEvent(this, this.handleModLock)}
-        data-tippy-content={label}
         aria-label={label}
       >
         {this.state.lockLoading ? (
@@ -971,7 +968,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               classes={classNames("mr-1", { "text-danger": locked })}
               inline
             />
-            {i18n.t("lock")}
+            {label}
           </>
         )}
       </button>
