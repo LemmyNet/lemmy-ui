@@ -689,12 +689,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               data-tippy-content={i18n.t("more")}
               data-bs-toggle="dropdown"
               aria-expanded="false"
+              aria-controls="advancedButtonsDropdown"
               aria-label={i18n.t("more")}
             >
               <Icon icon="more-vertical" inline />
             </button>
 
-            <ul className="dropdown-menu">
+            <ul className="dropdown-menu" id="advancedButtonsDropdown">
               {!this.myPost ? (
                 <>
                   <li>{this.reportButton}</li>
