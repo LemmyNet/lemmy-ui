@@ -46,7 +46,7 @@
 }
 
 .md-div p:last-child {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .md-div img {
@@ -371,7 +371,7 @@ br.big {
 }
 
 .tribute-container li {
-  padding: 5px 5px;
+  padding: 5px;
   cursor: pointer;
 }
 
@@ -410,13 +410,22 @@ br.big {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
-.lang-select-action {
-  width: 100px;
+
+.emoji-picker {
+  width: 100%;
 }
 
-.lang-select-action:focus {
-  width: auto;
+.skip-link {
+  top: -40px;
+  transition: top 0.3s ease;
 }
-em-emoji-picker {
-  width: 100%;
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+}
+
+.skip-link:focus {
+  top: 0;
 }
