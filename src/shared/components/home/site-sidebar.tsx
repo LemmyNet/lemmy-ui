@@ -29,25 +29,27 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   render() {
     return (
-      <section
-        id="sidebarInfo"
-        className="card border-secondary mb-3 overflow-hidden"
-      >
-        <header className="card-header" id="sidebarInfoHeader">
-          {this.siteName()}
-          {!this.state.collapsed && (
-            <BannerIconHeader banner={this.props.site.banner} />
-          )}
-        </header>
-
-        <div
-          id="sidebarInfoBody"
-          className="collapse show"
-          aria-labelledby="sidebarInfoHeader"
+      <div className="accordion">
+        <section
+          id="sidebarInfo"
+          className="card border-secondary mb-3 overflow-hidden"
         >
-          <div className="card-body">{this.siteInfo()}</div>
-        </div>
-      </section>
+          <header className="card-header" id="sidebarInfoHeader">
+            {this.siteName()}
+            {!this.state.collapsed && (
+              <BannerIconHeader banner={this.props.site.banner} />
+            )}
+          </header>
+
+          <div
+            id="sidebarInfoBody"
+            className="collapse show"
+            aria-labelledby="sidebarInfoHeader"
+          >
+            <div className="card-body">{this.siteInfo()}</div>
+          </div>
+        </section>
+      </div>
     );
   }
 
