@@ -443,16 +443,17 @@ export class Home extends Component<any, HomeState> {
               admins={admins}
               counts={counts}
               showLocal={showLocal(this.isoData)}
+              isMobile={true}
             />
           )}
           {showTrendingMobile && (
-            <div className="col-12 card border-secondary mb-3">
+            <div className="card border-secondary mb-3">
               <div className="card-body">{this.trendingCommunities(true)}</div>
             </div>
           )}
           {showSubscribedMobile && (
-            <div className="col-12 card border-secondary mb-3">
-              <div className="card-body">{this.subscribedCommunities}</div>
+            <div className="card border-secondary mb-3">
+              {this.subscribedCommunities(true)}
             </div>
           )}
         </div>
@@ -497,7 +498,7 @@ export class Home extends Component<any, HomeState> {
               id="sidebarSubscribed"
               className="card border-secondary mb-3"
             >
-              {this.subscribedCommunities}
+              {this.subscribedCommunities(false)}
             </section>
           </div>
         )}
@@ -541,7 +542,7 @@ export class Home extends Component<any, HomeState> {
     }
   }
 
-  get subscribedCommunities() {
+  subscribedCommunities(isMobile = false) {
     const { subscribedCollapsed } = this.state;
 
     return (
@@ -558,26 +559,28 @@ export class Home extends Component<any, HomeState> {
               </Link>
             </T>
           </h5>
-          <button
-            type="button"
-            className="btn btn-sm text-muted"
-            onClick={linkEvent(this, this.handleCollapseSubscribe)}
-            aria-label={
-              subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
-            }
-            data-tippy-content={
-              subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
-            }
-            data-bs-toggle="collapse"
-            data-bs-target="#sidebarSubscribedBody"
-            aria-expanded="true"
-            aria-controls="sidebarSubscribedBody"
-          >
-            <Icon
-              icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
-              classes="icon-inline"
-            />
-          </button>
+          {!isMobile && (
+            <button
+              type="button"
+              className="btn btn-sm text-muted"
+              onClick={linkEvent(this, this.handleCollapseSubscribe)}
+              aria-label={
+                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+              }
+              data-tippy-content={
+                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+              }
+              data-bs-toggle="collapse"
+              data-bs-target="#sidebarSubscribedBody"
+              aria-expanded="true"
+              aria-controls="sidebarSubscribedBody"
+            >
+              <Icon
+                icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
+                classes="icon-inline"
+              />
+            </button>
+          )}
         </header>
         <div
           id="sidebarSubscribedBody"

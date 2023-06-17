@@ -12,6 +12,7 @@ interface SiteSidebarProps {
   showLocal: boolean;
   counts?: SiteAggregates;
   admins?: PersonView[];
+  isMobile?: boolean;
 }
 
 interface SiteSidebarState {
@@ -60,27 +61,29 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     return (
       <>
         <h5 className="mb-0 d-inline">{this.props.site.name}</h5>
-        <button
-          type="button"
-          className="btn btn-sm"
-          onClick={linkEvent(this, this.handleCollapseSidebar)}
-          aria-label={
-            this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
-          }
-          data-tippy-content={
-            this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
-          }
-          data-bs-toggle="collapse"
-          data-bs-target="#sidebarInfoBody"
-          aria-expanded="true"
-          aria-controls="sidebarInfoBody"
-        >
-          {this.state.collapsed ? (
-            <Icon icon="plus-square" classes="icon-inline" />
-          ) : (
-            <Icon icon="minus-square" classes="icon-inline" />
-          )}
-        </button>
+        {!this.props.isMobile && (
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={linkEvent(this, this.handleCollapseSidebar)}
+            aria-label={
+              this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
+            }
+            data-tippy-content={
+              this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
+            }
+            data-bs-toggle="collapse"
+            data-bs-target="#sidebarInfoBody"
+            aria-expanded="true"
+            aria-controls="sidebarInfoBody"
+          >
+            {this.state.collapsed ? (
+              <Icon icon="plus-square" classes="icon-inline" />
+            ) : (
+              <Icon icon="minus-square" classes="icon-inline" />
+            )}
+          </button>
+        )}
       </>
     );
   }
