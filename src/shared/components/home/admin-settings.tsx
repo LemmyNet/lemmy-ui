@@ -14,6 +14,7 @@ import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
+  RouteDataResponse,
   capitalizeFirstLetter,
   fetchThemeList,
   myAuthRequired,
@@ -32,6 +33,11 @@ import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 
+type AdminSettingsData = RouteDataResponse<{
+  bannedRes: BannedPersonsResponse;
+  instancesRes: GetFederatedInstancesResponse;
+}>;
+
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
   banned: PersonView[];
@@ -46,7 +52,7 @@ interface AdminSettingsState {
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     banned: [],
@@ -70,7 +76,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [bannedRes, instancesRes] = this.isoData.routeData;
+      const { bannedRes, instancesRes } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
         bannedRes,
@@ -80,47 +87,18 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     }
   }
 
-  async fetchData() {
-    this.setState({
-      bannedRes: { state: "loading" },
-      instancesRes: { state: "loading" },
-      themeList: [],
-      loading: true,
-    });
-
-    const auth = myAuthRequired();
-
-    const [bannedRes, instancesRes, themeList] = await Promise.all([
-      HttpService.client.getBannedPersons({ auth }),
-      HttpService.client.getFederatedInstances({ auth }),
-      fetchThemeList(),
-    ]);
-
-    this.setState({
-      bannedRes,
-      instancesRes,
-      themeList,
-      loading: false,
-    });
-  }
-
-  static fetchInitialData({
+  static async fetchInitialData({
     auth,
     client,
-  }: InitialFetchRequest): Promise<any>[] {
-    const promises: Promise<RequestState<any>>[] = [];
-
-    if (auth) {
-      promises.push(client.getBannedPersons({ auth }));
-      promises.push(client.getFederatedInstances({ auth }));
-    } else {
-      promises.push(
-        Promise.resolve({ state: "empty" }),
-        Promise.resolve({ state: "empty" })
-      );
-    }
-
-    return promises;
+  }: InitialFetchRequest): Promise<AdminSettingsData> {
+    return {
+      bannedRes: await client.getBannedPersons({
+        auth: auth as string,
+      }),
+      instancesRes: await client.getFederatedInstances({
+        auth: auth as string,
+      }),
+    };
   }
 
   async componentDidMount() {
@@ -216,6 +194,28 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         />
       </div>
     );
+  }
+
+  async fetchData() {
+    this.setState({
+      bannedRes: { state: "loading" },
+      instancesRes: { state: "loading" },
+      themeList: [],
+    });
+
+    const auth = myAuthRequired();
+
+    const [bannedRes, instancesRes, themeList] = await Promise.all([
+      HttpService.client.getBannedPersons({ auth }),
+      HttpService.client.getFederatedInstances({ auth }),
+      fetchThemeList(),
+    ]);
+
+    this.setState({
+      bannedRes,
+      instancesRes,
+      themeList,
+    });
   }
 
   admins() {

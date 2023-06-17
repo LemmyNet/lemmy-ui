@@ -75,6 +75,7 @@ import {
   isImage,
   myAuth,
   restoreScrollPosition,
+  RouteDataResponse,
   saveScrollPosition,
   setIsoData,
   setupTippy,
@@ -93,6 +94,11 @@ import { PostListing } from "./post-listing";
 
 const commentsShownInterval = 15;
 
+type PostData = RouteDataResponse<{
+  postRes: GetPostResponse;
+  commentsRes: GetCommentsResponse;
+}>;
+
 interface PostState {
   postId?: number;
   commentId?: number;
@@ -110,7 +116,7 @@ interface PostState {
 }
 
 export class Post extends Component<any, PostState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
   state: PostState = {
     postRes: { state: "empty" },
@@ -169,7 +175,7 @@ export class Post extends Component<any, PostState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [postRes, commentsRes] = this.isoData.routeData;
+      const { commentsRes, postRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -220,13 +226,12 @@ export class Post extends Component<any, PostState> {
     }
   }
 
-  static fetchInitialData({
-    auth,
+  static async fetchInitialData({
     client,
     path,
-  }: InitialFetchRequest): Promise<any>[] {
+    auth,
+  }: InitialFetchRequest): Promise<PostData> {
     const pathSplit = path.split("/");
-    const promises: Promise<RequestState<any>>[] = [];
 
     const pathType = pathSplit.at(1);
     const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
@@ -252,10 +257,10 @@ export class Post extends Component<any, PostState> {
       commentsForm.parent_id = id;
     }
 
-    promises.push(client.getPost(postForm));
-    promises.push(client.getComments(commentsForm));
-
-    return promises;
+    return {
+      postRes: await client.getPost(postForm),
+      commentsRes: await client.getComments(commentsForm),
+    };
   }
 
   componentWillUnmount() {

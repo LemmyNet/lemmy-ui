@@ -99,6 +99,13 @@ import { Sidebar } from "../community/sidebar";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
+
+type CommunityData = RouteDataResponse<{
+  communityRes: GetCommunityResponse;
+  postsRes: GetPostsResponse;
+  commentsRes: GetCommentsResponse;
+}>;
+
 interface State {
   communityRes: RequestState<GetCommunityResponse>;
   postsRes: RequestState<GetPostsResponse>;
@@ -139,7 +146,7 @@ export class Community extends Component<
   RouteComponentProps<{ name: string }>,
   State
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<CommunityData>(this.context);
   state: State = {
     communityRes: { state: "empty" },
     postsRes: { state: "empty" },
@@ -193,13 +200,14 @@ export class Community extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [communityRes, postsRes, commentsRes] = this.isoData.routeData;
+      const { communityRes, commentsRes, postsRes } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
+        isIsomorphic: true,
+        commentsRes,
         communityRes,
         postsRes,
-        commentsRes,
-        isIsomorphic: true,
       };
     }
   }
@@ -226,29 +234,32 @@ export class Community extends Component<
     saveScrollPosition(this.context);
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     path,
     query: { dataType: urlDataType, page: urlPage, sort: urlSort },
     auth,
   }: InitialFetchRequest<QueryParams<CommunityProps>>): Promise<
-    RequestState<any>
-  >[] {
+    Promise<CommunityData>
+  > {
     const pathSplit = path.split("/");
-    const promises: Promise<RequestState<any>>[] = [];
 
     const communityName = pathSplit[2];
     const communityForm: GetCommunity = {
       name: communityName,
       auth,
     };
-    promises.push(client.getCommunity(communityForm));
 
     const dataType = getDataTypeFromQuery(urlDataType);
 
     const sort = getSortTypeFromQuery(urlSort);
 
     const page = getPageFromString(urlPage);
+
+    let postsResponse: RequestState<GetPostsResponse> = { state: "empty" };
+    let commentsResponse: RequestState<GetCommentsResponse> = {
+      state: "empty",
+    };
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -260,8 +271,8 @@ export class Community extends Component<
         saved_only: false,
         auth,
       };
-      promises.push(client.getPosts(getPostsForm));
-      promises.push(Promise.resolve({ state: "empty" }));
+
+      postsResponse = await client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         community_name: communityName,
@@ -272,11 +283,15 @@ export class Community extends Component<
         saved_only: false,
         auth,
       };
-      promises.push(Promise.resolve({ state: "empty" }));
-      promises.push(client.getComments(getCommentsForm));
+
+      commentsResponse = await client.getComments(getCommentsForm);
     }
 
-    return promises;
+    return {
+      communityRes: await client.getCommunity(communityForm),
+      commentsRes: commentsResponse,
+      postsRes: postsResponse,
+    };
   }
 
   get documentTitle(): string {

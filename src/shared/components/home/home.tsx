@@ -73,6 +73,7 @@ import {
   postToCommentSortType,
   relTags,
   restoreScrollPosition,
+  RouteDataResponse,
   saveScrollPosition,
   setIsoData,
   setupTippy,
@@ -115,6 +116,45 @@ interface HomeProps {
   dataType: DataType;
   sort: SortType;
   page: number;
+}
+
+type HomeData = RouteDataResponse<{
+  postsRes: GetPostsResponse;
+  commentsRes: GetCommentsResponse;
+  trendingCommunitiesRes: ListCommunitiesResponse;
+}>;
+
+function getRss(listingType: ListingType) {
+  const { sort } = getHomeQueryParams();
+  const auth = myAuth();
+
+  let rss: string | undefined = undefined;
+
+  switch (listingType) {
+    case "All": {
+      rss = `/feeds/all.xml?sort=${sort}`;
+      break;
+    }
+    case "Local": {
+      rss = `/feeds/local.xml?sort=${sort}`;
+      break;
+    }
+    case "Subscribed": {
+      rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
+      break;
+    }
+  }
+
+  return (
+    rss && (
+      <>
+        <a href={rss} rel={relTags} title="RSS">
+          <Icon icon="rss" classes="text-muted small" />
+        </a>
+        <link rel="alternate" type="application/atom+xml" href={rss} />
+      </>
+    )
+  );
 }
 
 function getDataTypeFromQuery(type?: string): DataType {
@@ -176,7 +216,7 @@ const LinkButton = ({
 );
 
 export class Home extends Component<any, HomeState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<HomeData>(this.context);
   state: HomeState = {
     postsRes: { state: "empty" },
     commentsRes: { state: "empty" },
@@ -228,14 +268,14 @@ export class Home extends Component<any, HomeState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [postsRes, commentsRes, trendingCommunitiesRes] =
+      const { trendingCommunitiesRes, commentsRes, postsRes } =
         this.isoData.routeData;
 
       this.state = {
         ...this.state,
-        postsRes,
-        commentsRes,
         trendingCommunitiesRes,
+        commentsRes,
+        postsRes,
         tagline: getRandomFromList(this.state?.siteRes?.taglines ?? [])
           ?.content,
         isIsomorphic: true,
@@ -244,7 +284,12 @@ export class Home extends Component<any, HomeState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic || !this.isoData.routeData.length) {
+    if (
+      !this.state.isIsomorphic ||
+      !Object.values(this.isoData.routeData).some(
+        res => res.state === "success" || res.state === "failed"
+      )
+    ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
 
@@ -255,13 +300,11 @@ export class Home extends Component<any, HomeState> {
     saveScrollPosition(this.context);
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     auth,
     query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
-  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<
-    RequestState<any>
-  >[] {
+  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
     const dataType = getDataTypeFromQuery(urlDataType);
 
     // TODO figure out auth default_listingType, default_sort_type
@@ -270,7 +313,10 @@ export class Home extends Component<any, HomeState> {
 
     const page = urlPage ? Number(urlPage) : 1;
 
-    const promises: Promise<RequestState<any>>[] = [];
+    let postsRes: RequestState<GetPostsResponse> = { state: "empty" };
+    let commentsRes: RequestState<GetCommentsResponse> = {
+      state: "empty",
+    };
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -282,8 +328,7 @@ export class Home extends Component<any, HomeState> {
         auth,
       };
 
-      promises.push(client.getPosts(getPostsForm));
-      promises.push(Promise.resolve({ state: "empty" }));
+      postsRes = await client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         page,
@@ -293,8 +338,8 @@ export class Home extends Component<any, HomeState> {
         saved_only: false,
         auth,
       };
-      promises.push(Promise.resolve({ state: "empty" }));
-      promises.push(client.getComments(getCommentsForm));
+
+      commentsRes = await client.getComments(getCommentsForm);
     }
 
     const trendingCommunitiesForm: ListCommunities = {
@@ -303,9 +348,14 @@ export class Home extends Component<any, HomeState> {
       limit: trendingFetchLimit,
       auth,
     };
-    promises.push(client.listCommunities(trendingCommunitiesForm));
 
-    return promises;
+    return {
+      trendingCommunitiesRes: await client.listCommunities(
+        trendingCommunitiesForm
+      ),
+      commentsRes,
+      postsRes,
+    };
   }
 
   get documentTitle(): string {
@@ -340,7 +390,7 @@ export class Home extends Component<any, HomeState> {
                 ></div>
               )}
               <div className="d-block d-md-none">{this.mobileView}</div>
-              {this.posts()}
+              {this.posts}
             </main>
             <aside className="d-none d-md-block col-md-4">
               {this.mySidebar}
@@ -552,7 +602,7 @@ export class Home extends Component<any, HomeState> {
     await this.fetchData();
   }
 
-  posts() {
+  get posts() {
     const { page } = getHomeQueryParams();
 
     return (
@@ -571,7 +621,7 @@ export class Home extends Component<any, HomeState> {
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
-      switch (this.state.postsRes?.state) {
+      switch (this.state.postsRes.state) {
         case "loading":
           return (
             <h5>
@@ -677,41 +727,8 @@ export class Home extends Component<any, HomeState> {
         <span className="mr-2">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
-        {this.getRss(listingType)}
+        {getRss(listingType)}
       </div>
-    );
-  }
-
-  getRss(listingType: ListingType) {
-    const { sort } = getHomeQueryParams();
-    const auth = myAuth();
-
-    let rss: string | undefined = undefined;
-
-    switch (listingType) {
-      case "All": {
-        rss = `/feeds/all.xml?sort=${sort}`;
-        break;
-      }
-      case "Local": {
-        rss = `/feeds/local.xml?sort=${sort}`;
-        break;
-      }
-      case "Subscribed": {
-        rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
-        break;
-      }
-    }
-
-    return (
-      rss && (
-        <>
-          <a href={rss} rel={relTags} title="RSS">
-            <Icon icon="rss" classes="text-muted small" />
-          </a>
-          <link rel="alternate" type="application/atom+xml" href={rss} />
-        </>
-      )
     );
   }
 

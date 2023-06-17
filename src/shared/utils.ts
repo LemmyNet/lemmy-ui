@@ -41,11 +41,18 @@ import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
 import { i18n } from "./i18next";
-import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
+import {
+  CommentNodeI,
+  DataType,
+  IsoData,
+  RouteData,
+  VoteType,
+} from "./interfaces";
 import { HttpService, UserService } from "./services";
 import { isBrowser } from "./utils/browser/is-browser";
 import { debounce } from "./utils/helpers/debounce";
 import { groupBy } from "./utils/helpers/group-by";
+import { RequestState } from "./services/HttpService";
 
 let Tribute: any;
 if (isBrowser()) {
@@ -242,7 +249,12 @@ export function isVideo(url: string) {
 }
 
 export function validURL(str: string) {
-  return !!new URL(str);
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function validInstanceTLD(str: string) {
@@ -1011,7 +1023,7 @@ export function siteBannerCss(banner: string): string {
     `;
 }
 
-export function setIsoData(context: any): IsoData {
+export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData;
@@ -1264,3 +1276,7 @@ export function newVote(voteType: VoteType, myVote?: number): number {
     return myVote == -1 ? 0 : -1;
   }
 }
+
+export type RouteDataResponse<T extends Record<string, any>> = {
+  [K in keyof T]: RequestState<T[K]>;
+};

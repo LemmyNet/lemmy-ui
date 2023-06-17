@@ -30,6 +30,10 @@ import { CommunityLink } from "./community-link";
 
 const communityLimit = 50;
 
+type CommunitiesData = RouteDataResponse<{
+  listCommunitiesResponse: ListCommunitiesResponse;
+}>;
+
 interface CommunitiesState {
   listCommunitiesResponse: RequestState<ListCommunitiesResponse>;
   siteRes: GetSiteResponse;
@@ -47,7 +51,7 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
 }
 
 export class Communities extends Component<any, CommunitiesState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<CommunitiesData>(this.context);
   state: CommunitiesState = {
     listCommunitiesResponse: { state: "empty" },
     siteRes: this.isoData.site_res,
@@ -62,9 +66,11 @@ export class Communities extends Component<any, CommunitiesState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
+      const { listCommunitiesResponse } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        listCommunitiesResponse: this.isoData.routeData[0],
+        listCommunitiesResponse,
         isIsomorphic: true,
       };
     }
@@ -274,13 +280,13 @@ export class Communities extends Component<any, CommunitiesState> {
     i.context.router.history.push(`/search?q=${searchParamEncoded}`);
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     query: { listingType, page },
     client,
     auth,
-  }: InitialFetchRequest<QueryParams<CommunitiesProps>>): Promise<
-    RequestState<any>
-  >[] {
+  }: InitialFetchRequest<
+    QueryParams<CommunitiesProps>
+  >): Promise<CommunitiesData> {
     const listCommunitiesForm: ListCommunities = {
       type_: getListingTypeFromQuery(listingType),
       sort: "TopMonth",
@@ -289,7 +295,11 @@ export class Communities extends Component<any, CommunitiesState> {
       auth: auth,
     };
 
-    return [client.listCommunities(listCommunitiesForm)];
+    return {
+      listCommunitiesResponse: await client.listCommunities(
+        listCommunitiesForm
+      ),
+    };
   }
 
   getCommunitiesQueryParams() {

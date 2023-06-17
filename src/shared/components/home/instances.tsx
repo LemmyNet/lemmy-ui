@@ -8,9 +8,13 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { relTags, setIsoData } from "../../utils";
+import { RouteDataResponse, relTags, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+
+type InstancesData = RouteDataResponse<{
+  federatedInstancesResponse: GetFederatedInstancesResponse;
+}>;
 
 interface InstancesState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
@@ -19,7 +23,7 @@ interface InstancesState {
 }
 
 export class Instances extends Component<any, InstancesState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<InstancesData>(this.context);
   state: InstancesState = {
     instancesRes: { state: "empty" },
     siteRes: this.isoData.site_res,
@@ -33,7 +37,7 @@ export class Instances extends Component<any, InstancesState> {
     if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
-        instancesRes: this.isoData.routeData[0],
+        instancesRes: this.isoData.routeData.federatedInstancesResponse,
         isIsomorphic: true,
       };
     }
@@ -55,10 +59,12 @@ export class Instances extends Component<any, InstancesState> {
     });
   }
 
-  static fetchInitialData(
-    req: InitialFetchRequest
-  ): Promise<RequestState<any>>[] {
-    return [req.client.getFederatedInstances({})];
+  static async fetchInitialData({
+    client,
+  }: InitialFetchRequest): Promise<InstancesData> {
+    return {
+      federatedInstancesResponse: await client.getFederatedInstances({}),
+    };
   }
 
   get documentTitle(): string {

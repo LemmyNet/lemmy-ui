@@ -1,4 +1,5 @@
 import autosize from "autosize";
+import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
@@ -143,101 +144,116 @@ export class MarkdownTextArea extends Component<
           }
         />
         <div className="form-group row">
-          <div className={`col-sm-12`}>
-            <textarea
-              id={this.id}
-              className={`form-control ${this.state.previewMode && "d-none"}`}
-              value={this.state.content}
-              onInput={linkEvent(this, this.handleContentChange)}
-              onPaste={linkEvent(this, this.handleImageUploadPaste)}
-              onKeyDown={linkEvent(this, this.handleKeyBinds)}
-              required
-              disabled={this.isDisabled}
-              rows={2}
-              maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
-              placeholder={this.props.placeholder}
-            />
-            {this.state.previewMode && this.state.content && (
-              <div
-                className="card border-secondary card-body md-div"
-                dangerouslySetInnerHTML={mdToHtml(this.state.content)}
-              />
-            )}
-            {this.state.imageUploadStatus &&
-              this.state.imageUploadStatus.total > 1 && (
-                <ProgressBar
-                  className="mt-2"
-                  striped
-                  animated
-                  value={this.state.imageUploadStatus.uploaded}
-                  max={this.state.imageUploadStatus.total}
-                  text={i18n.t("pictures_uploded_progess", {
-                    uploaded: this.state.imageUploadStatus.uploaded,
-                    total: this.state.imageUploadStatus.total,
-                  })}
-                />
-              )}
-          </div>
-          <label className="sr-only" htmlFor={this.id}>
-            {i18n.t("body")}
-          </label>
-        </div>
-        <div className="row">
-          <div className="col-sm-12 d-flex flex-wrap">
-            {this.getFormatButton("bold", this.handleInsertBold)}
-            {this.getFormatButton("italic", this.handleInsertItalic)}
-            {this.getFormatButton("link", this.handleInsertLink)}
-            <EmojiPicker
-              onEmojiClick={e => this.handleEmoji(this, e)}
-              disabled={this.isDisabled}
-            ></EmojiPicker>
-            <form className="btn btn-sm text-muted font-weight-bold">
-              <label
-                htmlFor={`file-upload-${this.id}`}
-                className={`mb-0 ${
-                  UserService.Instance.myUserInfo && "pointer"
-                }`}
-                data-tippy-content={i18n.t("upload_image")}
-              >
-                {this.state.imageUploadStatus ? (
-                  <Spinner />
-                ) : (
-                  <Icon icon="image" classes="icon-inline" />
+          <div className="col-12">
+            <div className="rounded bg-light border border-light">
+              <div className="d-flex flex-wrap border-bottom border-light">
+                {this.getFormatButton("bold", this.handleInsertBold)}
+                {this.getFormatButton("italic", this.handleInsertItalic)}
+                {this.getFormatButton("link", this.handleInsertLink)}
+                <EmojiPicker
+                  onEmojiClick={e => this.handleEmoji(this, e)}
+                  disabled={this.isDisabled}
+                ></EmojiPicker>
+                <form className="btn btn-sm text-muted font-weight-bold">
+                  <label
+                    htmlFor={`file-upload-${this.id}`}
+                    className={`mb-0 ${
+                      UserService.Instance.myUserInfo && "pointer"
+                    }`}
+                    data-tippy-content={i18n.t("upload_image")}
+                  >
+                    {this.state.imageUploadStatus ? (
+                      <Spinner />
+                    ) : (
+                      <Icon icon="image" classes="icon-inline" />
+                    )}
+                  </label>
+                  <input
+                    id={`file-upload-${this.id}`}
+                    type="file"
+                    accept="image/*,video/*"
+                    name="file"
+                    className="d-none"
+                    multiple
+                    disabled={
+                      !UserService.Instance.myUserInfo || this.isDisabled
+                    }
+                    onChange={linkEvent(this, this.handleImageUpload)}
+                  />
+                </form>
+                {this.getFormatButton("header", this.handleInsertHeader)}
+                {this.getFormatButton(
+                  "strikethrough",
+                  this.handleInsertStrikethrough
                 )}
+                {this.getFormatButton("quote", this.handleInsertQuote)}
+                {this.getFormatButton("list", this.handleInsertList)}
+                {this.getFormatButton("code", this.handleInsertCode)}
+                {this.getFormatButton("subscript", this.handleInsertSubscript)}
+                {this.getFormatButton(
+                  "superscript",
+                  this.handleInsertSuperscript
+                )}
+                {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
+                <a
+                  href={markdownHelpUrl}
+                  className="btn btn-sm text-muted font-weight-bold"
+                  title={i18n.t("formatting_help")}
+                  rel={relTags}
+                >
+                  <Icon icon="help-circle" classes="icon-inline" />
+                </a>
+              </div>
+
+              <div>
+                <textarea
+                  id={this.id}
+                  className={classNames(
+                    "form-control border-0 rounded-top-0 rounded-bottom",
+                    {
+                      "d-none": this.state.previewMode,
+                    }
+                  )}
+                  value={this.state.content}
+                  onInput={linkEvent(this, this.handleContentChange)}
+                  onPaste={linkEvent(this, this.handleImageUploadPaste)}
+                  onKeyDown={linkEvent(this, this.handleKeyBinds)}
+                  required
+                  disabled={this.isDisabled}
+                  rows={2}
+                  maxLength={
+                    this.props.maxLength ?? markdownFieldCharacterLimit
+                  }
+                  placeholder={this.props.placeholder}
+                />
+                {this.state.previewMode && this.state.content && (
+                  <div
+                    className="card border-secondary card-body md-div"
+                    dangerouslySetInnerHTML={mdToHtml(this.state.content)}
+                  />
+                )}
+                {this.state.imageUploadStatus &&
+                  this.state.imageUploadStatus.total > 1 && (
+                    <ProgressBar
+                      className="mt-2"
+                      striped
+                      animated
+                      value={this.state.imageUploadStatus.uploaded}
+                      max={this.state.imageUploadStatus.total}
+                      text={i18n.t("pictures_uploded_progess", {
+                        uploaded: this.state.imageUploadStatus.uploaded,
+                        total: this.state.imageUploadStatus.total,
+                      })}
+                    />
+                  )}
+              </div>
+              <label className="sr-only" htmlFor={this.id}>
+                {i18n.t("body")}
               </label>
-              <input
-                id={`file-upload-${this.id}`}
-                type="file"
-                accept="image/*,video/*"
-                name="file"
-                className="d-none"
-                multiple
-                disabled={!UserService.Instance.myUserInfo || this.isDisabled}
-                onChange={linkEvent(this, this.handleImageUpload)}
-              />
-            </form>
-            {this.getFormatButton("header", this.handleInsertHeader)}
-            {this.getFormatButton(
-              "strikethrough",
-              this.handleInsertStrikethrough
-            )}
-            {this.getFormatButton("quote", this.handleInsertQuote)}
-            {this.getFormatButton("list", this.handleInsertList)}
-            {this.getFormatButton("code", this.handleInsertCode)}
-            {this.getFormatButton("subscript", this.handleInsertSubscript)}
-            {this.getFormatButton("superscript", this.handleInsertSuperscript)}
-            {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
-            <a
-              href={markdownHelpUrl}
-              className="btn btn-sm text-muted font-weight-bold"
-              title={i18n.t("formatting_help")}
-              rel={relTags}
-            >
-              <Icon icon="help-circle" classes="icon-inline" />
-            </a>
+            </div>
           </div>
 
-          <div className="col-sm-12 d-flex align-items-center flex-wrap">
+          <div className="col-12 d-flex align-items-center flex-wrap mt-2">
             {this.props.showLanguage && (
               <LanguageSelect
                 iconVersion
@@ -257,7 +273,7 @@ export class MarkdownTextArea extends Component<
             {this.props.buttonTitle && (
               <button
                 type="submit"
-                className="btn btn-sm btn-secondary mr-2"
+                className="btn btn-sm btn-secondary ml-2"
                 disabled={this.isDisabled}
               >
                 {this.state.loading ? (
@@ -270,7 +286,7 @@ export class MarkdownTextArea extends Component<
             {this.props.replyType && (
               <button
                 type="button"
-                className="btn btn-sm btn-secondary mr-2"
+                className="btn btn-sm btn-secondary ml-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
                 {i18n.t("cancel")}
@@ -278,7 +294,7 @@ export class MarkdownTextArea extends Component<
             )}
             {this.state.content && (
               <button
-                className={`btn btn-sm btn-secondary mr-2 ${
+                className={`btn btn-sm btn-secondary ml-2 ${
                   this.state.previewMode && "active"
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}

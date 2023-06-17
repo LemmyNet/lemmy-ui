@@ -13,6 +13,7 @@ import {
   GetModlog,
   GetModlogResponse,
   GetPersonDetails,
+  GetPersonDetailsResponse,
   ModAddCommunityView,
   ModAddView,
   ModBanFromCommunityView,
@@ -73,6 +74,13 @@ type View =
   | AdminPurgeCommunityView
   | AdminPurgePostView
   | AdminPurgeCommentView;
+
+type ModlogData = RouteDataResponse<{
+  res: GetModlogResponse;
+  communityRes: GetCommunityResponse;
+  modUserResponse: GetPersonDetailsResponse;
+  userResponse: GetPersonDetailsResponse;
+}>;
 
 interface ModlogType {
   id: number;
@@ -631,7 +639,7 @@ export class Modlog extends Component<
   RouteComponentProps<{ communityId?: string }>,
   ModlogState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<ModlogData>(this.context);
 
   state: ModlogState = {
     res: { state: "empty" },
@@ -653,25 +661,26 @@ export class Modlog extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [res, communityRes, filteredModRes, filteredUserRes] =
+      const { res, communityRes, modUserResponse, userResponse } =
         this.isoData.routeData;
+
       this.state = {
         ...this.state,
         res,
         communityRes,
       };
 
-      if (filteredModRes.state === "success") {
+      if (modUserResponse.state === "success") {
         this.state = {
           ...this.state,
-          modSearchOptions: [personToChoice(filteredModRes.data.person_view)],
+          modSearchOptions: [personToChoice(modUserResponse.data.person_view)],
         };
       }
 
-      if (filteredUserRes.state === "success") {
+      if (userResponse.state === "success") {
         this.state = {
           ...this.state,
-          userSearchOptions: [personToChoice(filteredUserRes.data.person_view)],
+          userSearchOptions: [personToChoice(userResponse.data.person_view)],
         };
       }
     }
@@ -958,17 +967,14 @@ export class Modlog extends Component<
     }
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     path,
     query: { modId: urlModId, page, userId: urlUserId, actionType },
     auth,
     site,
-  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<
-    RequestState<any>
-  >[] {
+  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<ModlogData> {
     const pathSplit = path.split("/");
-    const promises: Promise<RequestState<any>>[] = [];
     const communityId = getIdFromString(pathSplit[2]);
     const modId = !site.site_view.local_site.hide_modlog_mod_names
       ? getIdFromString(urlModId)
@@ -985,17 +991,22 @@ export class Modlog extends Component<
       auth,
     };
 
-    promises.push(client.getModlog(modlogForm));
+    let communityResponse: RequestState<GetCommunityResponse> = {
+      state: "empty",
+    };
 
     if (communityId) {
       const communityForm: GetCommunity = {
         id: communityId,
         auth,
       };
-      promises.push(client.getCommunity(communityForm));
-    } else {
-      promises.push(Promise.resolve({ state: "empty" }));
+
+      communityResponse = await client.getCommunity(communityForm);
     }
+
+    let modUserResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
 
     if (modId) {
       const getPersonForm: GetPersonDetails = {
@@ -1003,10 +1014,12 @@ export class Modlog extends Component<
         auth,
       };
 
-      promises.push(client.getPersonDetails(getPersonForm));
-    } else {
-      promises.push(Promise.resolve({ state: "empty" }));
+      modUserResponse = await client.getPersonDetails(getPersonForm);
     }
+
+    let userResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
 
     if (userId) {
       const getPersonForm: GetPersonDetails = {
@@ -1014,11 +1027,14 @@ export class Modlog extends Component<
         auth,
       };
 
-      promises.push(client.getPersonDetails(getPersonForm));
-    } else {
-      promises.push(Promise.resolve({ state: "empty" }));
+      userResponse = await client.getPersonDetails(getPersonForm);
     }
 
-    return promises;
+    return {
+      res: await client.getModlog(modlogForm),
+      communityRes: communityResponse,
+      modUserResponse,
+      userResponse,
+    };
   }
 }

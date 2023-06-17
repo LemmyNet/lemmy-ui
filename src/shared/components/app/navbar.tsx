@@ -224,11 +224,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             )}
             <li className="nav-item">
               <a
-                className="nav-link"
+                className="nav-link d-inline-flex align-items-center d-md-inline-block"
                 title={i18n.t("support_lemmy")}
                 href={donateLemmyUrl}
               >
                 <Icon icon="heart" classes="small" />
+                <span className="d-inline ml-1 d-md-none ml-md-0">
+                  {i18n.t("support_lemmy")}
+                </span>
               </a>
             </li>
           </ul>
@@ -236,22 +239,28 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <li id="navSearch" className="nav-item">
               <NavLink
                 to="/search"
-                className="nav-link"
+                className="nav-link d-inline-flex align-items-center d-md-inline-block"
                 title={i18n.t("search")}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
                 <Icon icon="search" />
+                <span className="d-inline ml-1 d-md-none ml-md-0">
+                  {i18n.t("search")}
+                </span>
               </NavLink>
             </li>
             {amAdmin() && (
               <li id="navAdmin" className="nav-item">
                 <NavLink
                   to="/admin"
-                  className="nav-link"
+                  className="nav-link d-inline-flex align-items-center d-md-inline-block"
                   title={i18n.t("admin_settings")}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="settings" />
+                  <span className="d-inline ml-1 d-md-none ml-md-0">
+                    {i18n.t("admin_settings")}
+                  </span>
                 </NavLink>
               </li>
             )}
@@ -259,7 +268,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <>
                 <li id="navMessages" className="nav-item">
                   <NavLink
-                    className="nav-link"
+                    className="nav-link d-inline-flex align-items-center d-md-inline-block"
                     to="/inbox"
                     title={i18n.t("unread_messages", {
                       count: Number(this.unreadInboxCount),
@@ -268,6 +277,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="bell" />
+                    <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                      {i18n.t("unread_messages", {
+                        count: Number(this.unreadInboxCount),
+                        formattedCount: numToSI(this.unreadInboxCount),
+                      })}
+                    </span>
                     {this.unreadInboxCount > 0 && (
                       <span className="mx-1 badge badge-light">
                         {numToSI(this.unreadInboxCount)}
@@ -278,7 +293,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 {this.moderatesSomething && (
                   <li id="navModeration" className="nav-item">
                     <NavLink
-                      className="nav-link"
+                      className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       to="/reports"
                       title={i18n.t("unread_reports", {
                         count: Number(this.unreadReportCount),
@@ -287,6 +302,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="shield" />
+                      <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                        {i18n.t("unread_reports", {
+                          count: Number(this.unreadReportCount),
+                          formattedCount: numToSI(this.unreadReportCount),
+                        })}
+                      </span>
                       {this.unreadReportCount > 0 && (
                         <span className="mx-1 badge badge-light">
                           {numToSI(this.unreadReportCount)}
@@ -299,7 +320,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <li id="navApplications" className="nav-item">
                     <NavLink
                       to="/registration_applications"
-                      className="nav-link"
+                      className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       title={i18n.t("unread_registration_applications", {
                         count: Number(this.unreadApplicationCount),
                         formattedCount: numToSI(this.unreadApplicationCount),
@@ -307,6 +328,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="clipboard" />
+                      <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                        {i18n.t("unread_registration_applications", {
+                          count: Number(this.unreadApplicationCount),
+                          formattedCount: numToSI(this.unreadApplicationCount),
+                        })}
+                      </span>
                       {this.unreadApplicationCount > 0 && (
                         <span className="mx-1 badge badge-light">
                           {numToSI(this.unreadApplicationCount)}
