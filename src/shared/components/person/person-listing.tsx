@@ -73,10 +73,14 @@ export class PersonListing extends Component<PersonListingProps, any> {
     const avatar = this.props.person.avatar;
     return (
       <>
-        {avatar &&
-          !this.props.hideAvatar &&
+        {!this.props.hideAvatar &&
           !this.props.person.banned &&
-          showAvatars() && <PictrsImage src={avatar} icon />}
+          showAvatars() && (
+            <PictrsImage
+              src={avatar ?? "/static/assets/icons/icon-96x96.png"}
+              icon
+            />
+          )}
         <span>{displayName}</span>
       </>
     );
