@@ -17,9 +17,10 @@ import {
   ILemmyConfig,
   InitialFetchRequest,
   IsoDataOptionalSite,
+  RouteData,
 } from "../shared/interfaces";
 import { routes } from "../shared/routes";
-import { RequestState, wrapClient } from "../shared/services/HttpService";
+import { FailedRequestState, wrapClient } from "../shared/services/HttpService";
 import {
   ErrorPageData,
   favIconPngUrl,
@@ -136,7 +137,7 @@ server.get("/*", async (req, res) => {
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
     let site: GetSiteResponse | undefined = undefined;
-    const routeData: RequestState<any>[] = [];
+    let routeData: RouteData = {};
     let errorPageData: ErrorPageData | undefined = undefined;
     let try_site = await client.getSite(getSiteForm);
     if (try_site.state === "failed" && try_site.msg == "not_logged_in") {
@@ -156,11 +157,11 @@ server.get("/*", async (req, res) => {
       site = try_site.data;
       initializeSite(site);
 
-      if (path != "/setup" && !site.site_view.local_site.site_setup) {
+      if (path !== "/setup" && !site.site_view.local_site.site_setup) {
         return res.redirect("/setup");
       }
 
-      if (site) {
+      if (site && activeRoute?.fetchInitialData) {
         const initialFetchReq: InitialFetchRequest = {
           client,
           auth,
@@ -169,26 +170,23 @@ server.get("/*", async (req, res) => {
           site,
         };
 
-        if (activeRoute?.fetchInitialData) {
-          routeData.push(
-            ...(await Promise.all([
-              ...activeRoute.fetchInitialData(initialFetchReq),
-            ]))
-          );
-        }
+        routeData = await activeRoute.fetchInitialData(initialFetchReq);
       }
     } else if (try_site.state === "failed") {
       errorPageData = getErrorPageData(new Error(try_site.msg), site);
     }
 
+    const error = Object.values(routeData).find(
+      res => res.state === "failed"
+    ) as FailedRequestState | undefined;
+
     // Redirect to the 404 if there's an API error
-    if (routeData[0] && routeData[0].state === "failed") {
-      const error = routeData[0].msg;
-      console.error(error);
-      if (error === "instance_is_private") {
+    if (error) {
+      console.error(error.msg);
+      if (error.msg === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        errorPageData = getErrorPageData(new Error(error), site);
+        errorPageData = getErrorPageData(new Error(error.msg), site);
       }
     }
 
@@ -421,7 +419,7 @@ async function createSsrHtml(root: string, isoData: IsoDataOptionalSite) {
   <!-- Required meta tags -->
   <meta name="Description" content="Lemmy">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
   <link
      id="favicon"
      rel="shortcut icon"

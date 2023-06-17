@@ -16,8 +16,10 @@ import {
   isBrowser,
   myAuth,
   numToSI,
+  poll,
   showAvatars,
   toast,
+  updateUnreadCountsInterval,
 } from "../../utils";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
@@ -64,7 +66,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
-      await this.fetchUnreads();
+      this.fetchUnreads();
       this.requestNotificationPermission();
 
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
@@ -84,8 +86,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     const siteView = this.props.siteRes?.site_view;
     const person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
-      <nav className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3 container-lg">
+      <nav
+        className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3 container-lg"
+        id="navbar"
+      >
         <NavLink
+          id="navTitle"
           to="/"
           title={siteView?.site.description ?? siteView?.site.name}
           className="d-flex align-items-center navbar-brand mr-md-3"
@@ -98,10 +104,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         </NavLink>
         {person && (
           <ul className="navbar-nav d-flex flex-row ml-auto d-md-none">
-            <li className="nav-item">
+            <li id="navMessages" className="nav-item nav-item-icon">
               <NavLink
                 to="/inbox"
-                className="p-1 nav-link border-0"
+                className="p-1 nav-link border-0 nav-messages"
                 title={i18n.t("unread_messages", {
                   count: Number(this.state.unreadApplicationCountRes.state),
                   formattedCount: numToSI(this.unreadInboxCount),
@@ -117,7 +123,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </NavLink>
             </li>
             {this.moderatesSomething && (
-              <li className="nav-item">
+              <li className="nav-item nav-item-icon">
                 <NavLink
                   to="/reports"
                   className="p-1 nav-link border-0"
@@ -137,7 +143,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </li>
             )}
             {amAdmin() && (
-              <li className="nav-item">
+              <li className="nav-item nav-item-icon">
                 <NavLink
                   to="/registration_applications"
                   className="p-1 nav-link border-0"
@@ -176,7 +182,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           id="navbarDropdown"
           ref={this.mobileMenuRef}
         >
-          <ul className="mr-auto navbar-nav">
+          <ul id="navbarLinks" className="mr-auto navbar-nav">
             <li className="nav-item">
               <NavLink
                 to="/communities"
@@ -226,8 +232,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </a>
             </li>
           </ul>
-          <ul className="navbar-nav">
-            <li className="nav-item">
+          <ul id="navbarIcons" className="navbar-nav">
+            <li id="navSearch" className="nav-item">
               <NavLink
                 to="/search"
                 className="nav-link"
@@ -238,7 +244,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </NavLink>
             </li>
             {amAdmin() && (
-              <li className="nav-item">
+              <li id="navAdmin" className="nav-item">
                 <NavLink
                   to="/admin"
                   className="nav-link"
@@ -251,7 +257,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             )}
             {person ? (
               <>
-                <li className="nav-item">
+                <li id="navMessages" className="nav-item">
                   <NavLink
                     className="nav-link"
                     to="/inbox"
@@ -270,7 +276,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </NavLink>
                 </li>
                 {this.moderatesSomething && (
-                  <li className="nav-item">
+                  <li id="navModeration" className="nav-item">
                     <NavLink
                       className="nav-link"
                       to="/reports"
@@ -290,7 +296,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 )}
                 {amAdmin() && (
-                  <li className="nav-item">
+                  <li id="navApplications" className="nav-item">
                     <NavLink
                       to="/registration_applications"
                       className="nav-link"
@@ -310,7 +316,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 )}
                 {person && (
-                  <div className="dropdown">
+                  <div id="dropdownUser" className="dropdown">
                     <button
                       className="btn dropdown-toggle"
                       role="button"
@@ -406,35 +412,36 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     return amAdmin() || moderatesS;
   }
 
-  async fetchUnreads() {
-    const auth = myAuth();
-    if (auth) {
-      this.setState({ unreadInboxCountRes: { state: "loading" } });
-      this.setState({
-        unreadInboxCountRes: await HttpService.client.getUnreadCount({
-          auth,
-        }),
-      });
-
-      if (this.moderatesSomething) {
-        this.setState({ unreadReportCountRes: { state: "loading" } });
-        this.setState({
-          unreadReportCountRes: await HttpService.client.getReportCount({
-            auth,
-          }),
-        });
-      }
-
-      if (amAdmin()) {
-        this.setState({ unreadApplicationCountRes: { state: "loading" } });
-        this.setState({
-          unreadApplicationCountRes:
-            await HttpService.client.getUnreadRegistrationApplicationCount({
+  fetchUnreads() {
+    poll(async () => {
+      if (window.document.visibilityState !== "hidden") {
+        const auth = myAuth();
+        if (auth) {
+          this.setState({
+            unreadInboxCountRes: await HttpService.client.getUnreadCount({
               auth,
             }),
-        });
+          });
+
+          if (this.moderatesSomething) {
+            this.setState({
+              unreadReportCountRes: await HttpService.client.getReportCount({
+                auth,
+              }),
+            });
+          }
+
+          if (amAdmin()) {
+            this.setState({
+              unreadApplicationCountRes:
+                await HttpService.client.getUnreadRegistrationApplicationCount({
+                  auth,
+                }),
+            });
+          }
+        }
       }
-    }
+    }, updateUnreadCountsInterval);
   }
 
   get unreadInboxCount(): number {

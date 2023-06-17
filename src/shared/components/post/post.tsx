@@ -77,6 +77,7 @@ import {
   isImage,
   myAuth,
   restoreScrollPosition,
+  RouteDataResponse,
   saveScrollPosition,
   setIsoData,
   setupTippy,
@@ -92,6 +93,11 @@ import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 
 const commentsShownInterval = 15;
+
+type PostData = RouteDataResponse<{
+  postRes: GetPostResponse;
+  commentsRes: GetCommentsResponse;
+}>;
 
 interface PostState {
   postId?: number;
@@ -110,7 +116,7 @@ interface PostState {
 }
 
 export class Post extends Component<any, PostState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
   state: PostState = {
     postRes: { state: "empty" },
@@ -169,7 +175,7 @@ export class Post extends Component<any, PostState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [postRes, commentsRes] = this.isoData.routeData;
+      const { commentsRes, postRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -220,13 +226,12 @@ export class Post extends Component<any, PostState> {
     }
   }
 
-  static fetchInitialData({
-    auth,
+  static async fetchInitialData({
     client,
     path,
-  }: InitialFetchRequest): Promise<any>[] {
+    auth,
+  }: InitialFetchRequest): Promise<PostData> {
     const pathSplit = path.split("/");
-    const promises: Promise<RequestState<any>>[] = [];
 
     const pathType = pathSplit.at(1);
     const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
@@ -252,10 +257,10 @@ export class Post extends Component<any, PostState> {
       commentsForm.parent_id = id;
     }
 
-    promises.push(client.getPost(postForm));
-    promises.push(client.getComments(commentsForm));
-
-    return promises;
+    return {
+      postRes: await client.getPost(postForm),
+      commentsRes: await client.getComments(commentsForm),
+    };
   }
 
   componentWillUnmount() {
@@ -384,6 +389,7 @@ export class Post extends Component<any, PostState> {
                 disabled={res.post_view.post.locked}
                 allLanguages={this.state.siteRes.all_languages}
                 siteLanguages={this.state.siteRes.discussion_languages}
+                containerClass="post-comment-container"
                 onUpsertComment={this.handleCreateComment}
                 finished={this.state.finished.get(0)}
               />
@@ -547,25 +553,22 @@ export class Post extends Component<any, PostState> {
     const res = this.state.postRes;
     if (res.state === "success") {
       return (
-        <div className="mb-3">
-          <Sidebar
-            community_view={res.data.community_view}
-            moderators={res.data.moderators}
-            admins={this.state.siteRes.admins}
-            online={res.data.online}
-            enableNsfw={enableNsfw(this.state.siteRes)}
-            showIcon
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
-            onDeleteCommunity={this.handleDeleteCommunityClick}
-            onLeaveModTeam={this.handleAddModToCommunity}
-            onFollowCommunity={this.handleFollow}
-            onRemoveCommunity={this.handleModRemoveCommunity}
-            onPurgeCommunity={this.handlePurgeCommunity}
-            onBlockCommunity={this.handleBlockCommunity}
-            onEditCommunity={this.handleEditCommunity}
-          />
-        </div>
+        <Sidebar
+          community_view={res.data.community_view}
+          moderators={res.data.moderators}
+          admins={this.state.siteRes.admins}
+          enableNsfw={enableNsfw(this.state.siteRes)}
+          showIcon
+          allLanguages={this.state.siteRes.all_languages}
+          siteLanguages={this.state.siteRes.discussion_languages}
+          onDeleteCommunity={this.handleDeleteCommunityClick}
+          onLeaveModTeam={this.handleAddModToCommunity}
+          onFollowCommunity={this.handleFollow}
+          onRemoveCommunity={this.handleModRemoveCommunity}
+          onPurgeCommunity={this.handlePurgeCommunity}
+          onBlockCommunity={this.handleBlockCommunity}
+          onEditCommunity={this.handleEditCommunity}
+        />
       );
     }
   }
@@ -729,19 +732,14 @@ export class Post extends Component<any, PostState> {
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
-    // TODO Probably isn't necessary
-    this.setState(s => {
-      if (
-        s.postRes.state == "success" &&
-        blockCommunityRes.state == "success"
-      ) {
-        s.postRes.data.community_view = blockCommunityRes.data.community_view;
-      }
-      return s;
-    });
-
     if (blockCommunityRes.state == "success") {
       updateCommunityBlock(blockCommunityRes.data);
+      this.setState(s => {
+        if (s.postRes.state == "success") {
+          s.postRes.data.community_view.blocked =
+            blockCommunityRes.data.blocked;
+        }
+      });
     }
   }
 

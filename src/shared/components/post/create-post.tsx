@@ -3,6 +3,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   CreatePost as CreatePostI,
   GetCommunity,
+  GetCommunityResponse,
   GetSiteResponse,
   ListCommunitiesResponse,
 } from "lemmy-js-client";
@@ -17,6 +18,7 @@ import {
 import {
   Choice,
   QueryParams,
+  RouteDataResponse,
   enableDownvotes,
   enableNsfw,
   getIdFromString,
@@ -31,6 +33,11 @@ import { PostForm } from "./post-form";
 export interface CreatePostProps {
   communityId?: number;
 }
+
+type CreatePostData = RouteDataResponse<{
+  communityResponse: GetCommunityResponse;
+  initialCommunitiesRes: ListCommunitiesResponse;
+}>;
 
 function getCreatePostQueryParams() {
   return getQueryParams<CreatePostProps>({
@@ -54,7 +61,7 @@ export class CreatePost extends Component<
   RouteComponentProps<Record<string, never>>,
   CreatePostState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<CreatePostData>(this.context);
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
     loading: true,
@@ -71,7 +78,15 @@ export class CreatePost extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [communityRes, listCommunitiesRes] = this.isoData.routeData;
+      const { communityResponse: communityRes, initialCommunitiesRes } =
+        this.isoData.routeData;
+
+      this.state = {
+        ...this.state,
+        loading: false,
+        initialCommunitiesRes,
+        isIsomorphic: true,
+      };
 
       if (communityRes?.state === "success") {
         const communityChoice: Choice = {
@@ -84,13 +99,6 @@ export class CreatePost extends Component<
           selectedCommunityChoice: communityChoice,
         };
       }
-
-      this.state = {
-        ...this.state,
-        loading: false,
-        initialCommunitiesRes: listCommunitiesRes,
-        isIsomorphic: true,
-      };
     }
   }
 
@@ -166,7 +174,10 @@ export class CreatePost extends Component<
           </h5>
         ) : (
           <div className="row">
-            <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+            <div
+              id="createPostForm"
+              className="col-12 col-lg-6 offset-lg-3 mb-4"
+            >
               <h5>{i18n.t("create_post")}</h5>
               <PostForm
                 onCreate={this.handlePostCreate}
@@ -224,17 +235,24 @@ export class CreatePost extends Component<
     if (res.state === "success") {
       const postId = res.data.post_view.post.id;
       this.props.history.replace(`/post/${postId}`);
+    } else {
+      this.setState({
+        loading: false,
+      });
     }
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     query: { communityId },
     auth,
-  }: InitialFetchRequest<QueryParams<CreatePostProps>>): Promise<
-    RequestState<any>
-  >[] {
-    const promises: Promise<RequestState<any>>[] = [];
+  }: InitialFetchRequest<
+    QueryParams<CreatePostProps>
+  >): Promise<CreatePostData> {
+    const data: CreatePostData = {
+      initialCommunitiesRes: await fetchCommunitiesForOptions(client),
+      communityResponse: { state: "empty" },
+    };
 
     if (communityId) {
       const form: GetCommunity = {
@@ -242,13 +260,9 @@ export class CreatePost extends Component<
         id: getIdFromString(communityId),
       };
 
-      promises.push(client.getCommunity(form));
-    } else {
-      promises.push(Promise.resolve({ state: "empty" }));
+      data.communityResponse = await client.getCommunity(form);
     }
 
-    promises.push(fetchCommunitiesForOptions(client));
-
-    return promises;
+    return data;
   }
 }

@@ -230,13 +230,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   body() {
     const body = this.postView.post.body;
     return body ? (
-      <div className="col-12 card my-2 p-2">
+      <article id="postContent" className="col-12 card my-2 p-2">
         {this.state.viewSource ? (
           <pre>{body}</pre>
         ) : (
           <div className="md-div" dangerouslySetInnerHTML={mdToHtml(body)} />
         )}
-      </div>
+      </article>
     ) : (
       <></>
     );
@@ -464,7 +464,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </button>
         {showScores() ? (
           <div
-            className={`unselectable pointer font-weight-bold text-muted px-1`}
+            className={`unselectable pointer font-weight-bold text-muted px-1 post-score`}
             data-tippy-content={this.pointsTippy}
           >
             {numToSI(this.postView.counts.score)}
@@ -631,7 +631,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
+      <div className="d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
         {canShare() && (
           <button
@@ -835,6 +835,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           search: "",
         }}
         title={i18n.t("cross_post")}
+        data-tippy-content={i18n.t("cross_post")}
+        aria-label={i18n.t("cross_post")}
       >
         <Icon icon="copy" inline />
       </Link>
@@ -1380,9 +1382,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   showMobilePreview() {
-    const body = this.postView.post.body;
+    const { body, id } = this.postView.post;
+
     return !this.showBody && body ? (
-      <div className="md-div mb-1 preview-lines">{body}</div>
+      <Link className="text-body" to={`/post/${id}`}>
+        <div className="md-div mb-1 preview-lines">{body}</div>
+      </Link>
     ) : (
       <></>
     );
@@ -1393,7 +1398,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         {/* The mobile view*/}
         <div className="d-block d-sm-none">
-          <div className="row">
+          <article className="row post-container">
             <div className="col-12">
               {this.createdLine()}
 
@@ -1408,14 +1413,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.duplicatesLine()}
               {this.removeAndBanDialogs()}
             </div>
-          </div>
+          </article>
         </div>
 
         {/* The larger view*/}
         <div className="d-none d-sm-block">
-          <div className="row">
+          <article className="row post-container">
             {!this.props.viewOnly && this.voteBar()}
-            <div className="col-sm-2 pr-0">
+            <div className="col-sm-2 pr-0 post-media">
               <div className="">{this.thumbnail()}</div>
             </div>
             <div className="col-12 col-sm-9">
@@ -1430,7 +1435,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 </div>
               </div>
             </div>
-          </div>
+          </article>
         </div>
       </>
     );

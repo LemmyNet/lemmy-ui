@@ -172,7 +172,7 @@ export class Login extends Component<any, State> {
             toast(i18n.t("enter_two_factor_code"), "info");
           }
 
-          i.setState({ loginRes: { state: "empty" } });
+          i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
           break;
         }
 
@@ -186,7 +186,9 @@ export class Login extends Component<any, State> {
             UserService.Instance.myUserInfo = site.data.my_user;
           }
 
-          i.props.history.replace("/");
+          i.props.history.action === "PUSH"
+            ? i.props.history.back()
+            : i.props.history.replace("/");
 
           break;
         }
@@ -195,7 +197,7 @@ export class Login extends Component<any, State> {
   }
 
   handleLoginUsernameChange(i: Login, event: any) {
-    i.state.form.username_or_email = event.target.value;
+    i.state.form.username_or_email = event.target.value.trim();
     i.setState(i.state);
   }
 

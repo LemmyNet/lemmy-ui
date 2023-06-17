@@ -14,6 +14,7 @@ import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
+  RouteDataResponse,
   capitalizeFirstLetter,
   fetchThemeList,
   myAuthRequired,
@@ -32,6 +33,11 @@ import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 
+type AdminSettingsData = RouteDataResponse<{
+  bannedRes: BannedPersonsResponse;
+  instancesRes: GetFederatedInstancesResponse;
+}>;
+
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
   banned: PersonView[];
@@ -39,12 +45,14 @@ interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
+  emojiLoading: boolean;
+  loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     banned: [],
@@ -52,6 +60,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     bannedRes: { state: "empty" },
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
+    emojiLoading: false,
+    loading: false,
     themeList: [],
     isIsomorphic: false,
   };
@@ -66,7 +76,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [bannedRes, instancesRes] = this.isoData.routeData;
+      const { bannedRes, instancesRes } = this.isoData.routeData;
+
       this.state = {
         ...this.state,
         bannedRes,
@@ -76,45 +87,18 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     }
   }
 
-  async fetchData() {
-    this.setState({
-      bannedRes: { state: "loading" },
-      instancesRes: { state: "loading" },
-      themeList: [],
-    });
-
-    const auth = myAuthRequired();
-
-    const [bannedRes, instancesRes, themeList] = await Promise.all([
-      HttpService.client.getBannedPersons({ auth }),
-      HttpService.client.getFederatedInstances({ auth }),
-      fetchThemeList(),
-    ]);
-
-    this.setState({
-      bannedRes,
-      instancesRes,
-      themeList,
-    });
-  }
-
-  static fetchInitialData({
+  static async fetchInitialData({
     auth,
     client,
-  }: InitialFetchRequest): Promise<any>[] {
-    const promises: Promise<RequestState<any>>[] = [];
-
-    if (auth) {
-      promises.push(client.getBannedPersons({ auth }));
-      promises.push(client.getFederatedInstances({ auth }));
-    } else {
-      promises.push(
-        Promise.resolve({ state: "empty" }),
-        Promise.resolve({ state: "empty" })
-      );
-    }
-
-    return promises;
+  }: InitialFetchRequest): Promise<AdminSettingsData> {
+    return {
+      bannedRes: await client.getBannedPersons({
+        auth: auth as string,
+      }),
+      instancesRes: await client.getFederatedInstances({
+        auth: auth as string,
+      }),
+    };
   }
 
   async componentDidMount() {
@@ -156,6 +140,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                       onSaveSite={this.handleEditSite}
                       siteRes={this.state.siteRes}
                       themeList={this.state.themeList}
+                      loading={this.state.loading}
                     />
                   </div>
                   <div className="col-12 col-md-6">
@@ -174,6 +159,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                     this.state.siteRes.site_view.local_site_rate_limit
                   }
                   onSaveSite={this.handleEditSite}
+                  loading={this.state.loading}
                 />
               ),
             },
@@ -185,6 +171,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                   <TaglineForm
                     taglines={this.state.siteRes.taglines}
                     onSaveSite={this.handleEditSite}
+                    loading={this.state.loading}
                   />
                 </div>
               ),
@@ -198,6 +185,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                     onCreate={this.handleCreateEmoji}
                     onDelete={this.handleDeleteEmoji}
                     onEdit={this.handleEditEmoji}
+                    loading={this.state.emojiLoading}
                   />
                 </div>
               ),
@@ -206,6 +194,28 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         />
       </div>
     );
+  }
+
+  async fetchData() {
+    this.setState({
+      bannedRes: { state: "loading" },
+      instancesRes: { state: "loading" },
+      themeList: [],
+    });
+
+    const auth = myAuthRequired();
+
+    const [bannedRes, instancesRes, themeList] = await Promise.all([
+      HttpService.client.getBannedPersons({ auth }),
+      HttpService.client.getFederatedInstances({ auth }),
+      fetchThemeList(),
+    ]);
+
+    this.setState({
+      bannedRes,
+      instancesRes,
+      themeList,
+    });
   }
 
   admins() {
@@ -266,6 +276,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditSite(form: EditSite) {
+    this.setState({ loading: true });
+
     const editRes = await HttpService.client.editSite(form);
 
     if (editRes.state === "success") {
@@ -277,6 +289,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       });
       toast(i18n.t("site_saved"));
     }
+
+    this.setState({ loading: false });
 
     return editRes;
   }
@@ -300,23 +314,35 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
+    this.setState({ emojiLoading: true });
+
     const res = await HttpService.client.editCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
+
+    this.setState({ emojiLoading: false });
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
+    this.setState({ emojiLoading: true });
+
     const res = await HttpService.client.deleteCustomEmoji(form);
     if (res.state === "success") {
       removeFromEmojiDataModel(res.data.id);
     }
+
+    this.setState({ emojiLoading: false });
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
+    this.setState({ emojiLoading: true });
+
     const res = await HttpService.client.createCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
+
+    this.setState({ emojiLoading: false });
   }
 }

@@ -42,9 +42,16 @@ import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
-import { i18n, languages } from "./i18next";
-import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
+import { i18n } from "./i18next";
+import {
+  CommentNodeI,
+  DataType,
+  IsoData,
+  RouteData,
+  VoteType,
+} from "./interfaces";
 import { HttpService, UserService } from "./services";
+import { RequestState } from "./services/HttpService";
 
 let Tribute: any;
 if (isBrowser()) {
@@ -75,6 +82,7 @@ export const commentTreeMaxDepth = 8;
 export const markdownFieldCharacterLimit = 50000;
 export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
+export const updateUnreadCountsInterval = 30000;
 
 export const relTags = "noopener nofollow";
 
@@ -315,6 +323,7 @@ export function amTopMod(
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
+const tldRegex = /([a-z0-9]+\.)*[a-z0-9]+\.[a-z]+/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);
@@ -325,7 +334,16 @@ export function isVideo(url: string) {
 }
 
 export function validURL(str: string) {
-  return !!new URL(str);
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function validInstanceTLD(str: string) {
+  return tldRegex.test(str);
 }
 
 export function communityRSSUrl(actorId: string, sort: string): string {
@@ -396,31 +414,6 @@ export function debounce<T extends any[], R>(
     // Immediate mode and no wait timer? Execute the function..
     if (callNow) func.apply(this, args);
   } as (...e: T) => R;
-}
-
-export function getLanguages(
-  override?: string,
-  myUserInfo = UserService.Instance.myUserInfo
-): string[] {
-  const myLang = myUserInfo?.local_user_view.local_user.interface_language;
-  const lang = override || myLang || "browser";
-
-  if (lang == "browser" && isBrowser()) {
-    return getBrowserLanguages();
-  } else {
-    return [lang];
-  }
-}
-
-function getBrowserLanguages(): string[] {
-  // Intersect lemmy's langs, with the browser langs
-  const langs = languages ? languages.map(l => l.code) : ["en"];
-
-  // NOTE, mobile browsers seem to be missing this list, so append en
-  const allowedLangs = navigator.languages
-    .concat("en")
-    .filter(v => langs.includes(v));
-  return allowedLangs;
 }
 
 export async function fetchThemeList(): Promise<string[]> {
@@ -738,7 +731,7 @@ function setupMarkdown() {
       defs: emojiDefs,
     })
     .disable("image");
-  var defaultRenderer = md.renderer.rules.image;
+  const defaultRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
     tokens: Token[],
     idx: number,
@@ -756,6 +749,9 @@ function setupMarkdown() {
     }
     const alt_text = item.content;
     return `<img class="icon icon-emoji" src="${src}" title="${title}" alt="${alt_text}"/>`;
+  };
+  md.renderer.rules.table_open = function () {
+    return '<table class="table">';
   };
 }
 
@@ -1127,7 +1123,7 @@ export const colorList: string[] = [
 ];
 
 function hsl(num: number) {
-  return `hsla(${num}, 35%, 50%, 1)`;
+  return `hsla(${num}, 35%, 50%, 0.5)`;
 }
 
 export function hostname(url: string): string {
@@ -1161,7 +1157,7 @@ export function isBrowser() {
   return typeof window !== "undefined";
 }
 
-export function setIsoData(context: any): IsoData {
+export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData;
@@ -1272,7 +1268,7 @@ export function personSelectName({
 
 export function initializeSite(site?: GetSiteResponse) {
   UserService.Instance.myUserInfo = site?.my_user;
-  i18n.changeLanguage(getLanguages()[0]);
+  i18n.changeLanguage();
   if (site) {
     setupEmojiDataModel(site.custom_emojis ?? []);
   }
@@ -1489,4 +1485,23 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   } else {
     return myVote == -1 ? 0 : -1;
   }
+}
+
+export type RouteDataResponse<T extends Record<string, any>> = {
+  [K in keyof T]: RequestState<T[K]>;
+};
+
+function sleep(millis: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, millis));
+}
+
+/**
+ * Polls / repeatedly runs a promise, every X milliseconds
+ */
+export async function poll(promiseFn: any, millis: number) {
+  if (window.document.visibilityState !== "hidden") {
+    await promiseFn();
+  }
+  await sleep(millis);
+  return poll(promiseFn, millis);
 }

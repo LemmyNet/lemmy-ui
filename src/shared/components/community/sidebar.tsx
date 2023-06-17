@@ -1,4 +1,5 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
+import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
   AddModToCommunity,
@@ -23,8 +24,8 @@ import {
   hostname,
   mdToHtml,
   myAuthRequired,
-  numToSI,
 } from "../../utils";
+import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { CommunityForm } from "../community/community-form";
@@ -38,7 +39,6 @@ interface SidebarProps {
   allLanguages: Language[];
   siteLanguages: number[];
   communityLanguages?: number[];
-  online: number;
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
@@ -63,7 +63,6 @@ interface SidebarState {
   removeCommunityLoading: boolean;
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
-  blockCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
 }
 
@@ -77,7 +76,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     removeCommunityLoading: false,
     leaveModTeamLoading: false,
     followCommunityLoading: false,
-    blockCommunityLoading: false,
     purgeCommunityLoading: false,
   };
 
@@ -104,7 +102,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         removeCommunityLoading: false,
         leaveModTeamLoading: false,
         followCommunityLoading: false,
-        blockCommunityLoading: false,
         purgeCommunityLoading: false,
       });
     }
@@ -134,32 +131,42 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUSerInfo = UserService.Instance.myUserInfo;
     const { name, actor_id } = this.props.community_view.community;
     return (
-      <div>
-        <div className="card border-secondary mb-3">
-          <div className="card-body">
-            {this.communityTitle()}
-            {this.props.editable && this.adminButtons()}
-            {myUSerInfo && this.subscribe()}
-            {this.canPost && this.createPost()}
-            {myUSerInfo && this.blockCommunity()}
-            {!myUSerInfo && (
-              <div className="alert alert-info" role="alert">
-                {i18n.t("community_not_logged_in_alert", {
-                  community: name,
-                  instance: hostname(actor_id),
-                })}
-              </div>
-            )}
-          </div>
+      <aside className="mb-3">
+        <div id="sidebarContainer">
+          <section id="sidebarMain" className="card border-secondary mb-3">
+            <div className="card-body">
+              {this.communityTitle()}
+              {this.props.editable && this.adminButtons()}
+              {myUSerInfo && this.subscribe()}
+              {this.canPost && this.createPost()}
+              {myUSerInfo && this.blockCommunity()}
+              {!myUSerInfo && (
+                <div className="alert alert-info" role="alert">
+                  <T
+                    i18nKey="community_not_logged_in_alert"
+                    interpolation={{
+                      community: name,
+                      instance: hostname(actor_id),
+                    }}
+                  >
+                    #<code className="user-select-all">#</code>#
+                  </T>
+                </div>
+              )}
+            </div>
+          </section>
+          <section id="sidebarInfo" className="card border-secondary mb-3">
+            <div className="card-body">
+              {this.description()}
+              <Badges
+                communityId={this.props.community_view.community.id}
+                counts={this.props.community_view.counts}
+              />
+              {this.mods()}
+            </div>
+          </section>
         </div>
-        <div className="card border-secondary mb-3">
-          <div className="card-body">
-            {this.description()}
-            {this.badges()}
-            {this.mods()}
-          </div>
-        </div>
-      </div>
+      </aside>
     );
   }
 
@@ -229,99 +236,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  badges() {
-    const community_view = this.props.community_view;
-    const counts = community_view.counts;
-    return (
-      <ul className="my-1 list-inline">
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_online", {
-            count: this.props.online,
-            formattedCount: numToSI(this.props.online),
-          })}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_day", {
-            count: Number(counts.users_active_day),
-            formattedCount: numToSI(counts.users_active_day),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_day),
-            formattedCount: numToSI(counts.users_active_day),
-          })}{" "}
-          / {i18n.t("day")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_week", {
-            count: Number(counts.users_active_week),
-            formattedCount: numToSI(counts.users_active_week),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_week),
-            formattedCount: numToSI(counts.users_active_week),
-          })}{" "}
-          / {i18n.t("week")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_month", {
-            count: Number(counts.users_active_month),
-            formattedCount: numToSI(counts.users_active_month),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_month),
-            formattedCount: numToSI(counts.users_active_month),
-          })}{" "}
-          / {i18n.t("month")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-            count: Number(counts.users_active_half_year),
-            formattedCount: numToSI(counts.users_active_half_year),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_half_year),
-            formattedCount: numToSI(counts.users_active_half_year),
-          })}{" "}
-          / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_subscribers", {
-            count: Number(counts.subscribers),
-            formattedCount: numToSI(counts.subscribers),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_posts", {
-            count: Number(counts.posts),
-            formattedCount: numToSI(counts.posts),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_comments", {
-            count: Number(counts.comments),
-            formattedCount: numToSI(counts.comments),
-          })}
-        </li>
-        <li className="list-inline-item">
-          <Link
-            className="badge badge-primary"
-            to={`/modlog/${this.props.community_view.community.id}`}
-          >
-            {i18n.t("modlog")}
-          </Link>
-        </li>
-      </ul>
-    );
-  }
-
   mods() {
     return (
       <ul className="list-inline small">
@@ -370,35 +284,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   blockCommunity() {
-    const community_view = this.props.community_view;
-    const blocked = this.props.community_view.blocked;
+    const { subscribed, blocked } = this.props.community_view;
 
     return (
       <div className="mb-2">
-        {community_view.subscribed == "NotSubscribed" &&
-          (blocked ? (
-            <button
-              className="btn btn-danger btn-block"
-              onClick={linkEvent(this, this.handleBlockCommunity)}
-            >
-              {this.state.blockCommunityLoading ? (
-                <Spinner />
-              ) : (
-                i18n.t("unblock_community")
-              )}
-            </button>
-          ) : (
-            <button
-              className="btn btn-danger btn-block"
-              onClick={linkEvent(this, this.handleBlockCommunity)}
-            >
-              {this.state.blockCommunityLoading ? (
-                <Spinner />
-              ) : (
-                i18n.t("block_community")
-              )}
-            </button>
-          ))}
+        {subscribed == "NotSubscribed" && (
+          <button
+            className="btn btn-danger btn-block"
+            onClick={linkEvent(this, this.handleBlockCommunity)}
+          >
+            {i18n.t(blocked ? "unblock_community" : "block_community")}
+          </button>
+        )}
       </div>
     );
   }
@@ -662,10 +559,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    i.setState({ blockCommunityLoading: true });
+    const { community, blocked } = i.props.community_view;
+
     i.props.onBlockCommunity({
-      community_id: 0,
-      block: !i.props.community_view.blocked,
+      community_id: community.id,
+      block: !blocked,
       auth: myAuthRequired(),
     });
   }

@@ -10,6 +10,7 @@ import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
+  RouteDataResponse,
   getRecipientIdFromProps,
   myAuth,
   setIsoData,
@@ -18,6 +19,10 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
+
+type CreatePrivateMessageData = RouteDataResponse<{
+  recipientDetailsResponse: GetPersonDetailsResponse;
+}>;
 
 interface CreatePrivateMessageState {
   siteRes: GetSiteResponse;
@@ -30,7 +35,7 @@ export class CreatePrivateMessage extends Component<
   any,
   CreatePrivateMessageState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<CreatePrivateMessageData>(this.context);
   state: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
     recipientRes: { state: "empty" },
@@ -47,7 +52,7 @@ export class CreatePrivateMessage extends Component<
     if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
-        recipientRes: this.isoData.routeData[0],
+        recipientRes: this.isoData.routeData.recipientDetailsResponse,
         isIsomorphic: true,
       };
     }
@@ -57,6 +62,25 @@ export class CreatePrivateMessage extends Component<
     if (!this.state.isIsomorphic) {
       await this.fetchPersonDetails();
     }
+  }
+
+  static async fetchInitialData({
+    client,
+    path,
+    auth,
+  }: InitialFetchRequest): Promise<CreatePrivateMessageData> {
+    const person_id = Number(path.split("/").pop());
+
+    const form: GetPersonDetails = {
+      person_id,
+      sort: "New",
+      saved_only: false,
+      auth,
+    };
+
+    return {
+      recipientDetailsResponse: await client.getPersonDetails(form),
+    };
   }
 
   async fetchPersonDetails() {
@@ -72,19 +96,6 @@ export class CreatePrivateMessage extends Component<
         auth: myAuth(),
       }),
     });
-  }
-
-  static fetchInitialData(
-    req: InitialFetchRequest
-  ): Promise<RequestState<any>>[] {
-    const person_id = Number(req.path.split("/").pop());
-    const form: GetPersonDetails = {
-      person_id,
-      sort: "New",
-      saved_only: false,
-      auth: req.auth,
-    };
-    return [req.client.getPersonDetails(form)];
   }
 
   get documentTitle(): string {
