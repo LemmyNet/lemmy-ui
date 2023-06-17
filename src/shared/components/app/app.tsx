@@ -32,7 +32,7 @@ export class App extends Component<any, any> {
     return (
       <>
         <Provider i18next={i18n}>
-          <div id="app">
+          <div id="app" className="lemmy-site">
             <a
               className="skip-link bg-light text-dark p-2 text-decoration-none position-absolute start-0 z-3"
               onClick={linkEvent(this, this.handleJumpToContent)}

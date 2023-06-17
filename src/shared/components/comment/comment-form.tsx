@@ -21,6 +21,7 @@ interface CommentFormProps {
   onReplyCancel?(): void;
   allLanguages: Language[];
   siteLanguages: number[];
+  containerClass?: string;
   onUpsertComment(form: EditComment | CreateComment): void;
 }
 
@@ -40,7 +41,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
         : undefined;
 
     return (
-      <div className="mb-3">
+      <div className={["mb-3", this.props.containerClass].join(" ")}>
         {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}
