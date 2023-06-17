@@ -79,19 +79,27 @@ export const Badges = ({ counts, community_view }: BadgesProps) => {
         })}{" "}
         / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
       </li>
+      {isSiteAggregates(counts) && (
+        <>
+          <li className="list-inline-item badge badge-secondary">
+            {i18n.t("number_of_users", {
+              count: Number(counts.users),
+              formattedCount: numToSI(counts.users),
+            })}
+          </li>
+          <li className="list-inline-item badge badge-secondary">
+            {i18n.t("number_of_communities", {
+              count: Number(counts.communities),
+              formattedCount: numToSI(counts.communities),
+            })}
+          </li>
+        </>
+      )}
       {isCommunityAggregates(counts) && (
         <li className="list-inline-item badge badge-secondary">
           {i18n.t("number_of_subscribers", {
             count: Number(counts.subscribers),
             formattedCount: numToSI(counts.subscribers),
-          })}
-        </li>
-      )}
-      {isSiteAggregates(counts) && (
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_communities", {
-            count: Number(counts.communities),
-            formattedCount: numToSI(counts.communities),
           })}
         </li>
       )}
