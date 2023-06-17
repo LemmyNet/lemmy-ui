@@ -631,7 +631,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="d-flex justify-content-start flex-wrap text-muted font-weight-bold mb-1">
+      <div className="d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
         {canShare() && (
           <button
