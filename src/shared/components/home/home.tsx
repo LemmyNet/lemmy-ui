@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent, MouseEventHandler } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -448,7 +449,7 @@ export class Home extends Component<any, HomeState> {
           )}
           {showTrendingMobile && (
             <div className="card border-secondary mb-3">
-              <div className="card-body">{this.trendingCommunities(true)}</div>
+              {this.trendingCommunities(true)}
             </div>
           )}
           {showSubscribedMobile && (
@@ -472,19 +473,7 @@ export class Home extends Component<any, HomeState> {
     return (
       <div id="sidebarContainer">
         <section id="sidebarMain" className="card border-secondary mb-3">
-          <div className="card-body">
-            {this.trendingCommunities()}
-            {canCreateCommunity(this.state.siteRes) && (
-              <LinkButton
-                path="/create_community"
-                translationKey="create_a_community"
-              />
-            )}
-            <LinkButton
-              path="/communities"
-              translationKey="explore_communities"
-            />
-          </div>
+          {this.trendingCommunities()}
         </section>
         <SiteSidebar
           site={site}
@@ -517,25 +506,40 @@ export class Home extends Component<any, HomeState> {
       case "success": {
         const trending = this.state.trendingCommunitiesRes.data.communities;
         return (
-          <div className={!isMobile ? "mb-2" : ""}>
-            <h5>
-              <T i18nKey="trending_communities">
-                #
-                <Link className="text-body" to="/communities">
+          <div
+            className={classNames({
+              "mb-2": !isMobile,
+            })}
+          >
+            <header className="card-header d-flex align-items-center">
+              <h5 className="mb-0">
+                <T i18nKey="trending_communities">
                   #
-                </Link>
-              </T>
-            </h5>
-            <ul className="list-inline mb-0">
-              {trending.map(cv => (
-                <li
-                  key={cv.community.id}
-                  className="list-inline-item d-inline-block"
-                >
-                  <CommunityLink community={cv.community} />
-                </li>
-              ))}
-            </ul>
+                  <Link className="text-body" to="/communities">
+                    #
+                  </Link>
+                </T>
+              </h5>
+            </header>
+            <div className="card-body">
+              <ul className="list-inline">
+                {trending.map(cv => (
+                  <li key={cv.community.id} className="list-inline-item">
+                    <CommunityLink community={cv.community} />
+                  </li>
+                ))}
+              </ul>
+              {canCreateCommunity(this.state.siteRes) && (
+                <LinkButton
+                  path="/create_community"
+                  translationKey="create_a_community"
+                />
+              )}
+              <LinkButton
+                path="/communities"
+                translationKey="explore_communities"
+              />
+            </div>
           </div>
         );
       }
