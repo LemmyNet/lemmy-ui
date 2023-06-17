@@ -656,7 +656,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {mobile && !this.props.viewOnly && this.mobileVotes}
         {UserService.Instance.myUserInfo &&
           !this.props.viewOnly &&
-          this.postActions(mobile)}
+          this.postActions()}
       </div>
     );
   }
@@ -672,7 +672,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  postActions(mobile = false) {
+  postActions() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
     const post_view = this.postView;
