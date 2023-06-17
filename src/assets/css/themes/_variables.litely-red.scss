@@ -1,42 +1,11 @@
 @import "../../../../node_modules/bootstrap-v4/scss/functions";
 @import "../../../../node_modules/bootstrap-v4/scss/variables";
+@import "variables.darkly";
 
-// Colors
-$gray-200: #e9ecef;
-$gray-600: #6c757d;
-$gray-700: #495057;
-$gray-800: #343a40;
-$gray-900: #212529;
-$black: #222;
-$orange: #f1641e;
-$cyan: #02bdc2;
-$green: #00c853;
-$primary: #f1641e;
 $secondary: #c80000;
-$success: $indigo;
-$info: $blue;
 $danger: darken($primary, 24%);
-$body-color: $gray-700;
-$body-bg: #fff;
-$link-color: $primary;
-$red: #d8486a;
 
-$border-radius: 0.5rem;
-$border-radius-lg: 0.5rem;
-$border-radius-sm: 1rem;
-$font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Droid Sans",
-  "Segoe UI", "Helvetica", Arial, sans-serif;
-$headings-color: $gray-700;
-$input-btn-focus-color: rgba($primary, 0.75);
-$form-feedback-valid-color: $info;
-$navbar-light-color: $gray-600;
-$navbar-dark-toggler-border-color: rgba($black, 0.1);
-$navbar-light-active-color: $gray-900;
-$card-color: $gray-700;
-$card-cap-color: $gray-700;
-$navbar-light-hover-color: $gray-900;
-$card-bg: $gray-100;
-$border-color: $gray-700;
-$mark-bg: rgb(255, 252, 239);
-$font-weight-bold: 600;
-$rounded-pill: 0.25rem;
+$theme-colors: (
+  "secondary": $secondary,
+  "danger": $danger,
+);
