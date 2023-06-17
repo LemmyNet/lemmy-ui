@@ -1,47 +1,70 @@
-$white: #fff;
-$gray-100: #f8f9fa;
+@import "../../../../node_modules/bootstrap-v4/scss/functions";
+@import "../../../../node_modules/bootstrap-v4/scss/variables";
+
+// Colors
 $gray-200: #e9ecef;
-$gray-300: #dee2e6;
-$gray-400: #ced4da;
-$gray-500: #adb5bd;
 $gray-600: #6c757d;
 $gray-700: #495057;
 $gray-800: #343a40;
 $gray-900: #212529;
-$black: #000;
-$blue: #007bff;
-$indigo: #6610f2;
-$white: #ffffff;
+
+$grays: (
+  "gray-200": $gray-200,
+  "gray-600": $gray-600,
+  "gray-700": $gray-700,
+  "gray-800": $gray-800,
+  "gray-900": $gray-900,
+);
+
+$black: #222;
+$red: #d8486a;
 $orange: #f1641e;
 $cyan: #02bdc2;
 $green: #00c853;
+
+$colors: (
+  "black": $black,
+  "red": $red,
+  "orange": $orange,
+  "cyan": $cyan,
+  "green": $green,
+);
+
 $primary: $orange;
 $secondary: $green;
-$info: $cyan;
+$success: $indigo;
+$info: $blue;
+$danger: darken($primary, 25%);
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "danger": $danger,
+);
+
 $body-color: $gray-700;
+$body-bg: #fff;
 $link-color: $primary;
-$red: #d8486a;
+$card-color: $gray-700;
+$card-cap-color: $gray-700;
+$card-bg: $gray-100;
+$border-color: $gray-700;
+$mark-bg: rgb(255, 252, 239);
+$headings-color: $gray-700;
+
+$navbar-light-color: $gray-600;
+$navbar-light-hover-color: $gray-900;
+$navbar-light-active-color: $gray-900;
+$navbar-dark-toggler-border-color: rgba($black, 0.1);
+
 $border-radius: 0.5rem;
 $border-radius-lg: 0.5rem;
 $border-radius-sm: 1rem;
 $font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Droid Sans",
   "Segoe UI", "Helvetica", Arial, sans-serif;
-$headings-color: $gray-700;
 $input-btn-focus-color: rgba($primary, 0.75);
 $form-feedback-valid-color: $info;
-$navbar-light-color: $gray-600;
-$black: #222222;
-$navbar-dark-toggler-border-color: rgba($black, 0.1);
-$navbar-light-active-color: $gray-900;
-$card-color: $gray-700;
-$card-cap-color: $gray-700;
-$info: $blue;
-$body-bg: #fff;
-$success: $indigo;
-$danger: darken($primary, 25%);
-$navbar-light-hover-color: $gray-900;
-$card-bg: $gray-100;
-$border-color: $gray-700;
-$mark-bg: rgb(255, 252, 239);
 $font-weight-bold: 600;
 $rounded-pill: 0.25rem;
