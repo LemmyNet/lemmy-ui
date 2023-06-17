@@ -8,9 +8,13 @@ import { getHttpBaseInternal } from "../../shared/env";
 import {
   InitialFetchRequest,
   IsoDataOptionalSite,
+  RouteData,
 } from "../../shared/interfaces";
 import { routes } from "../../shared/routes";
-import { RequestState, wrapClient } from "../../shared/services/HttpService";
+import {
+  FailedRequestState,
+  wrapClient,
+} from "../../shared/services/HttpService";
 import { ErrorPageData, initializeSite, isAuthPath } from "../../shared/utils";
 import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
@@ -32,7 +36,7 @@ export default async (req: Request, res: Response) => {
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
     let site: GetSiteResponse | undefined = undefined;
-    const routeData: RequestState<any>[] = [];
+    let routeData: RouteData = {};
     let errorPageData: ErrorPageData | undefined = undefined;
     let try_site = await client.getSite(getSiteForm);
     if (try_site.state === "failed" && try_site.msg == "not_logged_in") {
@@ -56,7 +60,7 @@ export default async (req: Request, res: Response) => {
         return res.redirect("/setup");
       }
 
-      if (site) {
+      if (site && activeRoute?.fetchInitialData) {
         const initialFetchReq: InitialFetchRequest = {
           client,
           auth,
@@ -65,26 +69,23 @@ export default async (req: Request, res: Response) => {
           site,
         };
 
-        if (activeRoute?.fetchInitialData) {
-          routeData.push(
-            ...(await Promise.all([
-              ...activeRoute.fetchInitialData(initialFetchReq),
-            ]))
-          );
-        }
+        routeData = await activeRoute.fetchInitialData(initialFetchReq);
       }
     } else if (try_site.state === "failed") {
       errorPageData = getErrorPageData(new Error(try_site.msg), site);
     }
 
+    const error = Object.values(routeData).find(
+      res => res.state === "failed"
+    ) as FailedRequestState | undefined;
+
     // Redirect to the 404 if there's an API error
-    if (routeData[0] && routeData[0].state === "failed") {
-      const error = routeData[0].msg;
-      console.error(error);
-      if (error === "instance_is_private") {
+    if (error) {
+      console.error(error.msg);
+      if (error.msg === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
-        errorPageData = getErrorPageData(new Error(error), site);
+        errorPageData = getErrorPageData(new Error(error.msg), site);
       }
     }
 
