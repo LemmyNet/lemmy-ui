@@ -659,6 +659,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  get hasAdvancedButtons() {
+    return (
+      this.myPost ||
+      (this.showBody && this.postView.post.body) ||
+      amMod(this.props.moderators) ||
+      amAdmin() ||
+      this.canMod_ ||
+      this.canAdmin_
+    );
+  }
+
   postActions(mobile = false) {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
@@ -667,37 +678,52 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         {this.saveButton}
         {this.crossPostButton}
-        {mobile && this.showMoreButton}
-        {(!mobile || this.state.showAdvanced) && (
-          <>
-            {!this.myPost && (
-              <>
-                {this.reportButton}
-                {this.blockButton}
-              </>
-            )}
-            {this.myPost && (this.showBody || this.state.showAdvanced) && (
-              <>
-                {this.editButton}
-                {this.deleteButton}
-              </>
-            )}
-          </>
+
+        {this.showBody && post_view.post.body && this.viewSourceButton}
+
+        {this.hasAdvancedButtons && (
+          <div className="dropdown">
+            <button
+              className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
+              onClick={linkEvent(this, this.handleShowAdvanced)}
+              data-tippy-content={i18n.t("more")}
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              aria-label={i18n.t("more")}
+            >
+              <Icon icon="more-vertical" inline />
+            </button>
+
+            <ul className="dropdown-menu">
+              {!this.myPost ? (
+                <>
+                  <li>{this.reportButton}</li>
+                  <li>{this.blockButton}</li>
+                </>
+              ) : (
+                <>
+                  <li>{this.editButton}</li>
+                  <li>{this.deleteButton}</li>
+                </>
+              )}
+
+              {/* Any mod can do these, not limited to hierarchy*/}
+              {(amMod(this.props.moderators) || amAdmin()) && (
+                <>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li>{this.lockButton}</li>
+                  {this.featureButtons}
+                </>
+              )}
+
+              {(this.canMod_ || this.canAdmin_) && (
+                <li>{this.modRemoveButton}</li>
+              )}
+            </ul>
+          </div>
         )}
-        {this.state.showAdvanced && (
-          <>
-            {this.showBody && post_view.post.body && this.viewSourceButton}
-            {/* Any mod can do these, not limited to hierarchy*/}
-            {(amMod(this.props.moderators) || amAdmin()) && (
-              <>
-                {this.lockButton}
-                {this.featureButton}
-              </>
-            )}
-            {(this.canMod_ || this.canAdmin_) && <>{this.modRemoveButton}</>}
-          </>
-        )}
-        {!mobile && this.showMoreButton}
       </>
     );
   }
@@ -846,7 +872,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get reportButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handleShowReportDialog)}
         data-tippy-content={i18n.t("show_report_dialog")}
         aria-label={i18n.t("show_report_dialog")}
@@ -859,7 +885,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get blockButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handleBlockPersonClick)}
         data-tippy-content={i18n.t("block_user")}
         aria-label={i18n.t("block_user")}
@@ -872,12 +898,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get editButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link text-muted dropdown-item"
         onClick={linkEvent(this, this.handleEditClick)}
         data-tippy-content={i18n.t("edit")}
         aria-label={i18n.t("edit")}
       >
-        <Icon icon="edit" inline />
+        <Icon classes="mr-1" icon="edit" inline />
+        {i18n.t("edit")}
       </button>
     );
   }
@@ -887,7 +914,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const label = !deleted ? i18n.t("delete") : i18n.t("restore");
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link text-muted dropdown-item"
         onClick={linkEvent(this, this.handleDeleteClick)}
         data-tippy-content={label}
         aria-label={label}
@@ -895,25 +922,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.state.deleteLoading ? (
           <Spinner />
         ) : (
-          <Icon
-            icon="trash"
-            classes={classNames({ "text-danger": deleted })}
-            inline
-          />
+          <>
+            <Icon
+              icon="trash"
+              classes={classNames("mr-1", { "text-danger": deleted })}
+              inline
+            />
+            {i18n.t("delete")}
+          </>
         )}
-      </button>
-    );
-  }
-
-  get showMoreButton() {
-    return (
-      <button
-        className="btn btn-link btn-animate text-muted py-0"
-        onClick={linkEvent(this, this.handleShowAdvanced)}
-        data-tippy-content={i18n.t("more")}
-        aria-label={i18n.t("more")}
-      >
-        <Icon icon="more-vertical" inline />
       </button>
     );
   }
@@ -940,7 +957,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const label = locked ? i18n.t("unlock") : i18n.t("lock");
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link text-muted dropdown-item"
         onClick={linkEvent(this, this.handleModLock)}
         data-tippy-content={label}
         aria-label={label}
@@ -948,17 +965,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.state.lockLoading ? (
           <Spinner />
         ) : (
-          <Icon
-            icon="lock"
-            classes={classNames({ "text-danger": locked })}
-            inline
-          />
+          <>
+            <Icon
+              icon="lock"
+              classes={classNames("mr-1", { "text-danger": locked })}
+              inline
+            />
+            {i18n.t("lock")}
+          </>
         )}
       </button>
     );
   }
 
-  get featureButton() {
+  get featureButtons() {
     const featuredCommunity = this.postView.post.featured_community;
     const labelCommunity = featuredCommunity
       ? i18n.t("unfeature_from_community")
@@ -969,48 +989,56 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       ? i18n.t("unfeature_from_local")
       : i18n.t("feature_in_local");
     return (
-      <span>
-        <button
-          className="btn btn-link btn-animate text-muted py-0 pl-0"
-          onClick={linkEvent(this, this.handleModFeaturePostCommunity)}
-          data-tippy-content={labelCommunity}
-          aria-label={labelCommunity}
-        >
-          {this.state.featureCommunityLoading ? (
-            <Spinner />
-          ) : (
-            <span>
-              <Icon
-                icon="pin"
-                classes={classNames({ "text-success": featuredCommunity })}
-                inline
-              />
-              {i18n.t("community")}
-            </span>
-          )}
-        </button>
-        {amAdmin() && (
+      <>
+        <li>
           <button
-            className="btn btn-link btn-animate text-muted py-0"
-            onClick={linkEvent(this, this.handleModFeaturePostLocal)}
-            data-tippy-content={labelLocal}
-            aria-label={labelLocal}
+            className="btn btn-link text-muted dropdown-item"
+            onClick={linkEvent(this, this.handleModFeaturePostCommunity)}
+            data-tippy-content={labelCommunity}
+            aria-label={labelCommunity}
           >
-            {this.state.featureLocalLoading ? (
+            {this.state.featureCommunityLoading ? (
               <Spinner />
             ) : (
-              <span>
+              <>
                 <Icon
                   icon="pin"
-                  classes={classNames({ "text-success": featuredLocal })}
+                  classes={classNames("mr-1", {
+                    "text-success": featuredCommunity,
+                  })}
                   inline
                 />
-                {i18n.t("local")}
-              </span>
+                {i18n.t("community")}
+              </>
             )}
           </button>
-        )}
-      </span>
+        </li>
+        <li>
+          {amAdmin() && (
+            <button
+              className="btn btn-link text-muted dropdown-item"
+              onClick={linkEvent(this, this.handleModFeaturePostLocal)}
+              data-tippy-content={labelLocal}
+              aria-label={labelLocal}
+            >
+              {this.state.featureLocalLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  <Icon
+                    icon="pin"
+                    classes={classNames("mr-1", {
+                      "text-success": featuredLocal,
+                    })}
+                    inline
+                  />
+                  {i18n.t("local")}
+                </>
+              )}
+            </button>
+          )}
+        </li>
+      </>
     );
   }
 
@@ -1018,7 +1046,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const removed = this.postView.post.removed;
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link text-muted dropdown-item"
         onClick={linkEvent(
           this,
           !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit
