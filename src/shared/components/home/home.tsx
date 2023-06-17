@@ -448,7 +448,7 @@ export class Home extends Component<any, HomeState> {
           )}
           {showTrendingMobile && (
             <div className="card border-secondary mb-3">
-              {this.trendingCommunities(true)}
+              {this.trendingCommunities}
             </div>
           )}
           {showSubscribedMobile && (
@@ -472,7 +472,7 @@ export class Home extends Component<any, HomeState> {
     return (
       <div id="sidebarContainer">
         <section id="sidebarMain" className="card border-secondary mb-3">
-          {this.trendingCommunities()}
+          {this.trendingCommunities}
         </section>
         <SiteSidebar
           site={site}
@@ -494,7 +494,7 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  trendingCommunities(isMobile = false) {
+  trendingCommunities() {
     switch (this.state.trendingCommunitiesRes?.state) {
       case "loading":
         return (
