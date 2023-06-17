@@ -34,12 +34,14 @@ $primary: $orange;
 $secondary: $green;
 $success: $indigo;
 $info: $blue;
+$danger: darken($primary, 25%);
 
 $theme-colors: (
   "primary": $primary,
   "secondary": $secondary,
   "success": $success,
   "info": $info,
+  "danger": $danger,
 );
 
 $body-color: $gray-700;
@@ -47,7 +49,6 @@ $body-bg: #fff;
 $link-color: $primary;
 $card-color: $gray-700;
 $card-cap-color: $gray-700;
-$danger: darken($primary, 25%);
 $card-bg: $gray-100;
 $border-color: $gray-700;
 $mark-bg: rgb(255, 252, 239);
