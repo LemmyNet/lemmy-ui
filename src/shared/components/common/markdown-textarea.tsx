@@ -146,15 +146,15 @@ export class MarkdownTextArea extends Component<
         <div className="form-group row">
           <div className="col-12">
             <div
-              className="rounded bg-white"
+              className="rounded bg-light"
               style={{
-                border: "1px solid var(--bs-border-color)",
+                border: "1px solid var(--medium-light)",
               }}
             >
               <div
                 className="d-flex flex-wrap"
                 style={{
-                  "border-bottom": "1px solid var(--bs-border-color)",
+                  "border-bottom": "1px solid var(--medium-light)",
                 }}
               >
                 {this.getFormatButton("bold", this.handleInsertBold)}
