@@ -26,6 +26,7 @@ import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
+
 interface MarkdownTextAreaProps {
   initialContent?: string;
   initialLanguageId?: number;
