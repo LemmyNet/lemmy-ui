@@ -24,10 +24,7 @@ import {
   DistinguishComment,
   EditComment,
   EditPrivateMessage,
-  GetPersonMentions,
   GetPersonMentionsResponse,
-  GetPrivateMessages,
-  GetReplies,
   GetRepliesResponse,
   GetSiteResponse,
   MarkCommentReplyAsRead,
@@ -53,6 +50,7 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
+  RouteDataResponse,
   commentsToFlatNodes,
   editCommentReply,
   editMention,
@@ -92,6 +90,13 @@ enum ReplyEnum {
   Mention,
   Message,
 }
+
+type InboxData = RouteDataResponse<{
+  repliesRes: GetRepliesResponse;
+  mentionsRes: GetPersonMentionsResponse;
+  messagesRes: PrivateMessagesResponse;
+}>;
+
 type ReplyType = {
   id: number;
   type_: ReplyEnum;
@@ -114,7 +119,7 @@ interface InboxState {
 }
 
 export class Inbox extends Component<any, InboxState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<InboxData>(this.context);
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
@@ -162,7 +167,7 @@ export class Inbox extends Component<any, InboxState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [repliesRes, mentionsRes, messagesRes] = this.isoData.routeData;
+      const { mentionsRes, messagesRes, repliesRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -686,50 +691,40 @@ export class Inbox extends Component<any, InboxState> {
     await i.refetch();
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     auth,
-  }: InitialFetchRequest): Promise<any>[] {
-    const promises: Promise<RequestState<any>>[] = [];
-
+  }: InitialFetchRequest): Promise<InboxData> {
     const sort: CommentSortType = "New";
 
-    if (auth) {
-      // It can be /u/me, or /username/1
-      const repliesForm: GetReplies = {
-        sort,
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(client.getReplies(repliesForm));
-
-      const personMentionsForm: GetPersonMentions = {
-        sort,
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(client.getPersonMentions(personMentionsForm));
-
-      const privateMessagesForm: GetPrivateMessages = {
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(client.getPrivateMessages(privateMessagesForm));
-    } else {
-      promises.push(
-        Promise.resolve({ state: "empty" }),
-        Promise.resolve({ state: "empty" }),
-        Promise.resolve({ state: "empty" })
-      );
-    }
-
-    return promises;
+    return {
+      mentionsRes: auth
+        ? await client.getPersonMentions({
+            sort,
+            unread_only: true,
+            page: 1,
+            limit: fetchLimit,
+            auth,
+          })
+        : { state: "empty" },
+      messagesRes: auth
+        ? await client.getPrivateMessages({
+            unread_only: true,
+            page: 1,
+            limit: fetchLimit,
+            auth,
+          })
+        : { state: "empty" },
+      repliesRes: auth
+        ? await client.getReplies({
+            sort,
+            unread_only: true,
+            page: 1,
+            limit: fetchLimit,
+            auth,
+          })
+        : { state: "empty" },
+    };
   }
 
   async refetch() {

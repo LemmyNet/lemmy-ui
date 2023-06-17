@@ -54,6 +54,7 @@ import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   QueryParams,
+  RouteDataResponse,
   canMod,
   capitalizeFirstLetter,
   editComment,
@@ -89,6 +90,10 @@ import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
+
+type ProfileData = RouteDataResponse<{
+  personResponse: GetPersonDetailsResponse;
+}>;
 
 interface ProfileState {
   personRes: RequestState<GetPersonDetailsResponse>;
@@ -156,7 +161,7 @@ export class Profile extends Component<
   RouteComponentProps<{ username: string }>,
   ProfileState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<ProfileData>(this.context);
   state: ProfileState = {
     personRes: { state: "empty" },
     personBlocked: false,
@@ -208,7 +213,7 @@ export class Profile extends Component<
     if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
-        personRes: this.isoData.routeData[0],
+        personRes: this.isoData.routeData.personResponse,
         isIsomorphic: true,
       };
     }
@@ -267,14 +272,12 @@ export class Profile extends Component<
     }
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     path,
     query: { page, sort, view: urlView },
     auth,
-  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<
-    RequestState<any>
-  >[] {
+  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<ProfileData> {
     const pathSplit = path.split("/");
 
     const username = pathSplit[2];
@@ -289,7 +292,9 @@ export class Profile extends Component<
       auth,
     };
 
-    return [client.getPersonDetails(form)];
+    return {
+      personResponse: await client.getPersonDetails(form),
+    };
   }
 
   get documentTitle(): string {
