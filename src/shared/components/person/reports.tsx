@@ -23,6 +23,7 @@ import { HttpService, UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { RequestState } from "../../services/HttpService";
 import {
+  RouteDataResponse,
   amAdmin,
   editCommentReport,
   editPostReport,
@@ -56,6 +57,12 @@ enum MessageEnum {
   PrivateMessageReport,
 }
 
+type ReportsData = RouteDataResponse<{
+  commentReportsRes: ListCommentReportsResponse;
+  postReportsRes: ListPostReportsResponse;
+  messageReportsRes: ListPrivateMessageReportsResponse;
+}>;
+
 type ItemType = {
   id: number;
   type_: MessageEnum;
@@ -75,7 +82,7 @@ interface ReportsState {
 }
 
 export class Reports extends Component<any, ReportsState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<ReportsData>(this.context);
   state: ReportsState = {
     commentReportsRes: { state: "empty" },
     postReportsRes: { state: "empty" },
@@ -99,8 +106,9 @@ export class Reports extends Component<any, ReportsState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [commentReportsRes, postReportsRes, messageReportsRes] =
+      const { commentReportsRes, postReportsRes, messageReportsRes } =
         this.isoData.routeData;
+
       this.state = {
         ...this.state,
         commentReportsRes,
@@ -111,7 +119,7 @@ export class Reports extends Component<any, ReportsState> {
       if (amAdmin()) {
         this.state = {
           ...this.state,
-          messageReportsRes,
+          messageReportsRes: messageReportsRes,
         };
       }
     }
@@ -481,55 +489,48 @@ export class Reports extends Component<any, ReportsState> {
     await i.refetch();
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     auth,
     client,
-  }: InitialFetchRequest): Promise<any>[] {
-    const promises: Promise<RequestState<any>>[] = [];
-
+  }: InitialFetchRequest): Promise<ReportsData> {
     const unresolved_only = true;
     const page = 1;
     const limit = fetchLimit;
 
-    if (auth) {
-      const commentReportsForm: ListCommentReports = {
+    const commentReportsForm: ListCommentReports = {
+      unresolved_only,
+      page,
+      limit,
+      auth: auth as string,
+    };
+
+    const postReportsForm: ListPostReports = {
+      unresolved_only,
+      page,
+      limit,
+      auth: auth as string,
+    };
+
+    const data: ReportsData = {
+      commentReportsRes: await client.listCommentReports(commentReportsForm),
+      postReportsRes: await client.listPostReports(postReportsForm),
+      messageReportsRes: { state: "empty" },
+    };
+
+    if (amAdmin()) {
+      const privateMessageReportsForm: ListPrivateMessageReports = {
         unresolved_only,
         page,
         limit,
-        auth,
+        auth: auth as string,
       };
-      promises.push(client.listCommentReports(commentReportsForm));
 
-      const postReportsForm: ListPostReports = {
-        unresolved_only,
-        page,
-        limit,
-        auth,
-      };
-      promises.push(client.listPostReports(postReportsForm));
-
-      if (amAdmin()) {
-        const privateMessageReportsForm: ListPrivateMessageReports = {
-          unresolved_only,
-          page,
-          limit,
-          auth,
-        };
-        promises.push(
-          client.listPrivateMessageReports(privateMessageReportsForm)
-        );
-      } else {
-        promises.push(Promise.resolve({ state: "empty" }));
-      }
-    } else {
-      promises.push(
-        Promise.resolve({ state: "empty" }),
-        Promise.resolve({ state: "empty" }),
-        Promise.resolve({ state: "empty" })
+      data.messageReportsRes = await client.listPrivateMessageReports(
+        privateMessageReportsForm
       );
     }
 
-    return promises;
+    return data;
   }
 
   async refetch() {

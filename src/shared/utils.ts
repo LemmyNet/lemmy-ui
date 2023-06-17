@@ -43,8 +43,15 @@ import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
 import { i18n } from "./i18next";
-import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
+import {
+  CommentNodeI,
+  DataType,
+  IsoData,
+  RouteData,
+  VoteType,
+} from "./interfaces";
 import { HttpService, UserService } from "./services";
+import { RequestState } from "./services/HttpService";
 
 let Tribute: any;
 if (isBrowser()) {
@@ -1150,7 +1157,7 @@ export function isBrowser() {
   return typeof window !== "undefined";
 }
 
-export function setIsoData(context: any): IsoData {
+export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData;
@@ -1479,6 +1486,10 @@ export function newVote(voteType: VoteType, myVote?: number): number {
     return myVote == -1 ? 0 : -1;
   }
 }
+
+export type RouteDataResponse<T extends Record<string, any>> = {
+  [K in keyof T]: RequestState<T[K]>;
+};
 
 function sleep(millis: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, millis));
