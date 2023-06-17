@@ -18,6 +18,12 @@ const isCommunityAggregates = (
   return "subscribers" in counts;
 };
 
+const isSiteAggregates = (
+  counts: CommunityAggregates | SiteAggregates
+): counts is SiteAggregates => {
+  return "communities" in counts;
+};
+
 export const Badges = ({ counts, community_view }: BadgesProps) => {
   return (
     <ul className="my-1 list-inline">
@@ -78,6 +84,14 @@ export const Badges = ({ counts, community_view }: BadgesProps) => {
           {i18n.t("number_of_subscribers", {
             count: Number(counts.subscribers),
             formattedCount: numToSI(counts.subscribers),
+          })}
+        </li>
+      )}
+      {isSiteAggregates(counts) && (
+        <li className="list-inline-item badge badge-secondary">
+          {i18n.t("number_of_communities", {
+            count: Number(counts.communities),
+            formattedCount: numToSI(counts.communities),
           })}
         </li>
       )}
