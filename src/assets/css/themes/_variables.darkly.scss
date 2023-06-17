@@ -1,35 +1,25 @@
-$white: #fff;
-$gray-100: #f8f9fa;
+@import "../../../../node_modules/bootstrap-v4/scss/_functions";
+@import "../../../../node_modules/bootstrap-v4/scss/_variables";
+
+// Colors
 $gray-200: #ebebeb;
-$gray-300: #dee2e6;
-$gray-400: #ced4da;
-$gray-500: #adb5bd;
 $gray-600: #888;
 $gray-700: #444;
 $gray-800: #303030;
 $gray-900: #222;
 $black: #000;
 $blue: #375a7f;
-$indigo: #6610f2;
-$purple: #6f42c1;
-$pink: #e83e8c;
 $red: #e74c3c;
-$orange: #fd7e14;
 $yellow: #f39c12;
 $green: #00bc8c;
-$teal: #20c997;
 $cyan: #3498db;
-$primary: $blue;
-$secondary: $gray-700;
-$success: $green;
-$info: $cyan;
-$warning: $yellow;
-$danger: $red;
+$primary: $green;
 $dark: $gray-300;
-$yiq-contrasted-threshold: 175;
-$body-bg: $gray-900;
 $body-color: $gray-300;
+$body-bg: $gray-900;
 $link-color: $success;
+
+$yiq-contrasted-threshold: 175;
 $font-family-sans-serif: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI",
   Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
   "Segoe UI Emoji", "Segoe UI Symbol";
@@ -66,6 +56,8 @@ $navbar-light-color: rgba($white, 0.6);
 $navbar-light-hover-color: $white;
 $navbar-light-active-color: $white;
 $navbar-light-toggler-border-color: rgba($gray-900, 0.1);
+$navbar-light-brand-color: $white;
+$navbar-light-brand-hover-color: $navbar-light-brand-color;
 $pagination-color: $white;
 $pagination-bg: $success;
 $pagination-border-width: 0;
@@ -103,5 +95,3 @@ $input-bg: $secondary;
 $input-color: $white;
 $input-disabled-bg: darken($secondary, 10%);
 $light: $gray-800;
-$navbar-light-brand-color: $white;
-$navbar-light-brand-hover-color: $navbar-light-brand-color;
