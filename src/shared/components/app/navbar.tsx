@@ -86,8 +86,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     const siteView = this.props.siteRes?.site_view;
     const person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
-      <nav className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3 container-lg">
+      <nav
+        className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3 container-lg"
+        id="navbar"
+      >
         <NavLink
+          id="navTitle"
           to="/"
           title={siteView?.site.description ?? siteView?.site.name}
           className="d-flex align-items-center navbar-brand mr-md-3"
@@ -100,10 +104,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         </NavLink>
         {person && (
           <ul className="navbar-nav d-flex flex-row ml-auto d-md-none">
-            <li className="nav-item">
+            <li id="navMessages" className="nav-item nav-item-icon">
               <NavLink
                 to="/inbox"
-                className="p-1 nav-link border-0"
+                className="p-1 nav-link border-0 nav-messages"
                 title={i18n.t("unread_messages", {
                   count: Number(this.state.unreadApplicationCountRes.state),
                   formattedCount: numToSI(this.unreadInboxCount),
@@ -119,7 +123,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </NavLink>
             </li>
             {this.moderatesSomething && (
-              <li className="nav-item">
+              <li className="nav-item nav-item-icon">
                 <NavLink
                   to="/reports"
                   className="p-1 nav-link border-0"
@@ -139,7 +143,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </li>
             )}
             {amAdmin() && (
-              <li className="nav-item">
+              <li className="nav-item nav-item-icon">
                 <NavLink
                   to="/registration_applications"
                   className="p-1 nav-link border-0"
@@ -178,7 +182,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           id="navbarDropdown"
           ref={this.mobileMenuRef}
         >
-          <ul className="mr-auto navbar-nav">
+          <ul id="navbarLinks" className="mr-auto navbar-nav">
             <li className="nav-item">
               <NavLink
                 to="/communities"
@@ -231,8 +235,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </a>
             </li>
           </ul>
-          <ul className="navbar-nav">
-            <li className="nav-item">
+          <ul id="navbarIcons" className="navbar-nav">
+            <li id="navSearch" className="nav-item">
               <NavLink
                 to="/search"
                 className="nav-link d-inline-flex align-items-center d-md-inline-block"
@@ -246,7 +250,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </NavLink>
             </li>
             {amAdmin() && (
-              <li className="nav-item">
+              <li id="navAdmin" className="nav-item">
                 <NavLink
                   to="/admin"
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"
@@ -262,7 +266,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             )}
             {person ? (
               <>
-                <li className="nav-item">
+                <li id="navMessages" className="nav-item">
                   <NavLink
                     className="nav-link d-inline-flex align-items-center d-md-inline-block"
                     to="/inbox"
@@ -287,7 +291,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </NavLink>
                 </li>
                 {this.moderatesSomething && (
-                  <li className="nav-item">
+                  <li id="navModeration" className="nav-item">
                     <NavLink
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       to="/reports"
@@ -313,7 +317,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 )}
                 {amAdmin() && (
-                  <li className="nav-item">
+                  <li id="navApplications" className="nav-item">
                     <NavLink
                       to="/registration_applications"
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
@@ -339,7 +343,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 )}
                 {person && (
-                  <div className="dropdown">
+                  <div id="dropdownUser" className="dropdown">
                     <button
                       className="btn dropdown-toggle"
                       role="button"
