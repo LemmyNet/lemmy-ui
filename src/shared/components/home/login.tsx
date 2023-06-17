@@ -172,7 +172,7 @@ export class Login extends Component<any, State> {
             toast(i18n.t("enter_two_factor_code"), "info");
           }
 
-          i.setState({ loginRes: { state: "empty" } });
+          i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
           break;
         }
 

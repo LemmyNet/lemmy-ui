@@ -25,7 +25,7 @@ export class App extends Component<any, any> {
     return (
       <>
         <Provider i18next={i18n}>
-          <div id="app">
+          <div id="app" className="lemmy-site">
             {siteView && (
               <Theme defaultTheme={siteView.local_site.default_theme} />
             )}
