@@ -9,7 +9,6 @@ import { numToSI } from "../../utils";
 
 interface BadgesProps {
   counts: CommunityAggregates | SiteAggregates;
-  online: number;
   community_view?: CommunityView;
 }
 
@@ -19,15 +18,9 @@ const isCommunityAggregates = (
   return "subscribers" in counts;
 };
 
-export const Badges = ({ counts, community_view, online }: BadgesProps) => {
+export const Badges = ({ counts, community_view }: BadgesProps) => {
   return (
     <ul className="my-1 list-inline">
-      <li className="list-inline-item badge badge-secondary">
-        {i18n.t("number_online", {
-          count: online,
-          formattedCount: numToSI(online),
-        })}
-      </li>
       <li
         className="list-inline-item badge badge-secondary pointer"
         data-tippy-content={i18n.t("active_users_in_the_last_day", {
@@ -103,7 +96,7 @@ export const Badges = ({ counts, community_view, online }: BadgesProps) => {
       <li className="list-inline-item">
         <Link
           className="badge badge-primary"
-          to={`/modlog/${community_view ?? community_view?.community.id}`}
+          to={`/modlog/${!!community_view ?? community_view?.community.id}`}
         >
           {i18n.t("modlog")}
         </Link>

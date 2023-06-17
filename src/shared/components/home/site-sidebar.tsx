@@ -12,7 +12,6 @@ interface SiteSidebarProps {
   showLocal: boolean;
   counts?: SiteAggregates;
   admins?: PersonView[];
-  online?: number;
 }
 
 interface SiteSidebarState {
@@ -30,7 +29,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   render() {
     return (
-      <div className="card border-secondary mb-3">
+      <section id="sidebarInfo" className="card border-secondary mb-3">
         <div className="card-body">
           <div>
             <div className="mb-2">{this.siteName()}</div>
@@ -42,7 +41,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             )}
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
@@ -72,9 +71,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
       <div>
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
-        {this.props.counts && (
-          <Badges online={this.props.online ?? 1} counts={this.props.counts} />
-        )}
+        {this.props.counts && <Badges counts={this.props.counts} />}
         {this.props.admins && this.admins(this.props.admins)}
       </div>
     );
