@@ -33,10 +33,12 @@ $colors: (
 );
 
 $primary: $green;
+$secondary: $gray-700;
 $dark: $gray-300;
 
 $theme-colors: (
   "primary": $primary,
+  "secondary": $gray-700,
   "dark": $dark,
 );
 
