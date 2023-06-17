@@ -9,6 +9,7 @@ $gray-600: #6c757d;
 $gray-700: #495057;
 $gray-800: #343a40;
 $gray-900: #212529;
+$black: #222;
 
 // Writing these maps is necessary for Bootstrap theming:
 // https://getbootstrap.com/docs/4.6/getting-started/introduction/
@@ -52,7 +53,6 @@ $theme-colors: (
   "danger": $danger,
 );
 
-$black: #222;
 $body-color: $gray-700;
 $body-bg: #fff;
 $link-color: $primary;
