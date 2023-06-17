@@ -24,8 +24,8 @@ import {
   hostname,
   mdToHtml,
   myAuthRequired,
-  numToSI,
 } from "../../utils";
+import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { CommunityForm } from "../community/community-form";
@@ -158,7 +158,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           <section id="sidebarInfo" className="card border-secondary mb-3">
             <div className="card-body">
               {this.description()}
-              {this.badges()}
+              <Badges
+                communityId={this.props.community_view.community.id}
+                counts={this.props.community_view.counts}
+              />
               {this.mods()}
             </div>
           </section>
@@ -230,93 +233,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           hideAvatar
         />
       </div>
-    );
-  }
-
-  badges() {
-    const community_view = this.props.community_view;
-    const counts = community_view.counts;
-    return (
-      <ul className="my-1 list-inline">
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_day", {
-            count: Number(counts.users_active_day),
-            formattedCount: numToSI(counts.users_active_day),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_day),
-            formattedCount: numToSI(counts.users_active_day),
-          })}{" "}
-          / {i18n.t("day")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_week", {
-            count: Number(counts.users_active_week),
-            formattedCount: numToSI(counts.users_active_week),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_week),
-            formattedCount: numToSI(counts.users_active_week),
-          })}{" "}
-          / {i18n.t("week")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_month", {
-            count: Number(counts.users_active_month),
-            formattedCount: numToSI(counts.users_active_month),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_month),
-            formattedCount: numToSI(counts.users_active_month),
-          })}{" "}
-          / {i18n.t("month")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-            count: Number(counts.users_active_half_year),
-            formattedCount: numToSI(counts.users_active_half_year),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_half_year),
-            formattedCount: numToSI(counts.users_active_half_year),
-          })}{" "}
-          / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_subscribers", {
-            count: Number(counts.subscribers),
-            formattedCount: numToSI(counts.subscribers),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_posts", {
-            count: Number(counts.posts),
-            formattedCount: numToSI(counts.posts),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_comments", {
-            count: Number(counts.comments),
-            formattedCount: numToSI(counts.comments),
-          })}
-        </li>
-        <li className="list-inline-item">
-          <Link
-            className="badge badge-primary"
-            to={`/modlog/${this.props.community_view.community.id}`}
-          >
-            {i18n.t("modlog")}
-          </Link>
-        </li>
-      </ul>
     );
   }
 

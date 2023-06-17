@@ -146,18 +146,8 @@ export class MarkdownTextArea extends Component<
         />
         <div className="form-group row">
           <div className="col-12">
-            <div
-              className="rounded bg-light overflow-hidden"
-              style={{
-                border: "1px solid var(--medium-light)",
-              }}
-            >
-              <div
-                className="d-flex flex-wrap"
-                style={{
-                  "border-bottom": "1px solid var(--medium-light)",
-                }}
-              >
+            <div className="rounded bg-light border border-light">
+              <div className="d-flex flex-wrap border-bottom border-light">
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
                 {this.getFormatButton("link", this.handleInsertLink)}
@@ -219,9 +209,12 @@ export class MarkdownTextArea extends Component<
               <div>
                 <textarea
                   id={this.id}
-                  className={classNames("form-control border-0 rounded-0", {
-                    "d-none": this.state.previewMode,
-                  })}
+                  className={classNames(
+                    "form-control border-0 rounded-bottom",
+                    {
+                      "d-none": this.state.previewMode,
+                    }
+                  )}
                   value={this.state.content}
                   onInput={linkEvent(this, this.handleContentChange)}
                   onPaste={linkEvent(this, this.handleImageUploadPaste)}
