@@ -29,17 +29,23 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   render() {
     return (
-      <section id="sidebarInfo" className="card border-secondary mb-3">
-        <div className="card-body">
-          <div>
-            <div className="mb-2">{this.siteName()}</div>
-            {!this.state.collapsed && (
-              <>
-                <BannerIconHeader banner={this.props.site.banner} />
-                {this.siteInfo()}
-              </>
-            )}
-          </div>
+      <section
+        id="sidebarInfo"
+        className="card border-secondary mb-3 overflow-hidden"
+      >
+        <header className="card-header" id="sidebarInfoHeader">
+          {this.siteName()}
+          {!this.state.collapsed && (
+            <BannerIconHeader banner={this.props.site.banner} />
+          )}
+        </header>
+
+        <div
+          id="sidebarInfoBody"
+          className="collapse show"
+          aria-labelledby="sidebarInfoHeader"
+        >
+          <div className="card-body">{this.siteInfo()}</div>
         </div>
       </section>
     );
@@ -47,13 +53,22 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   siteName() {
     return (
-      <h5 className="mb-0 d-inline">
-        {this.props.site.name}
+      <div className="d-flex align-items-center">
+        <h5 className="mb-0 d-inline">{this.props.site.name}</h5>
         <button
-          className="btn btn-sm text-muted"
+          type="button"
+          className="btn btn-sm"
           onClick={linkEvent(this, this.handleCollapseSidebar)}
-          aria-label={i18n.t("collapse")}
-          data-tippy-content={i18n.t("collapse")}
+          aria-label={
+            this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
+          }
+          data-tippy-content={
+            this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
+          }
+          data-bs-toggle="collapse"
+          data-bs-target="#sidebarInfoBody"
+          aria-expanded="true"
+          aria-controls="sidebarInfoBody"
         >
           {this.state.collapsed ? (
             <Icon icon="plus-square" classes="icon-inline" />
@@ -61,7 +76,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             <Icon icon="minus-square" classes="icon-inline" />
           )}
         </button>
-      </h5>
+      </div>
     );
   }
 

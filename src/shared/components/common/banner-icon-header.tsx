@@ -14,7 +14,7 @@ export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
   render() {
     const banner = this.props.banner;
     const icon = this.props.icon;
-    return (
+    return banner || icon ? (
       <div className="position-relative mb-2">
         {banner && <PictrsImage src={banner} banner alt="" />}
         {icon && (
@@ -26,6 +26,6 @@ export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
           />
         )}
       </div>
-    );
+    ) : null;
   }
 }
