@@ -146,7 +146,7 @@ export class MarkdownTextArea extends Component<
         <div className="form-group row">
           <div className="col-12">
             <div
-              className="rounded bg-light"
+              className="rounded bg-light overflow-hidden"
               style={{
                 border: "1px solid var(--medium-light)",
               }}
@@ -218,7 +218,7 @@ export class MarkdownTextArea extends Component<
               <div>
                 <textarea
                   id={this.id}
-                  className={classNames("form-control border-0", {
+                  className={classNames("form-control border-0 rounded-0", {
                     "d-none": this.state.previewMode,
                   })}
                   value={this.state.content}
