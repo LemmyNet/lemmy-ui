@@ -9,7 +9,7 @@ import { numToSI } from "../../utils";
 
 interface BadgesProps {
   counts: CommunityAggregates | SiteAggregates;
-  community_view?: CommunityView;
+  community_view: CommunityView;
 }
 
 const isCommunityAggregates = (
@@ -96,7 +96,9 @@ export const Badges = ({ counts, community_view }: BadgesProps) => {
       <li className="list-inline-item">
         <Link
           className="badge badge-primary"
-          to={`/modlog/${!!community_view ?? community_view?.community.id}`}
+          to={`/modlog${
+            community_view ? `/${community_view.community.id}` : ""
+          }`}
         >
           {i18n.t("modlog")}
         </Link>
