@@ -63,8 +63,9 @@ export class MarkdownTextArea extends Component<
   MarkdownTextAreaProps,
   MarkdownTextAreaState
 > {
-  private id = `comment-textarea-${randomStr()}`;
-  private formId = `comment-form-${randomStr()}`;
+  private id = `markdown-textarea-${randomStr()}`;
+  private formId = `markdown-form-${randomStr()}`;
+
   private tribute: any;
 
   state: MarkdownTextAreaState = {
