@@ -31,10 +31,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   render() {
     return (
       <div className="accordion">
-        <section
-          id="sidebarInfo"
-          className="card border-secondary mb-3 overflow-hidden"
-        >
+        <section id="sidebarInfo" className="card border-secondary mb-3">
           <header
             className="card-header d-flex align-items-center"
             id="sidebarInfoHeader"

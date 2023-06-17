@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent, MouseEventHandler } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -506,11 +505,7 @@ export class Home extends Component<any, HomeState> {
       case "success": {
         const trending = this.state.trendingCommunitiesRes.data.communities;
         return (
-          <div
-            className={classNames({
-              "mb-2": !isMobile,
-            })}
-          >
+          <>
             <header className="card-header d-flex align-items-center">
               <h5 className="mb-0">
                 <T i18nKey="trending_communities">
@@ -522,13 +517,15 @@ export class Home extends Component<any, HomeState> {
               </h5>
             </header>
             <div className="card-body">
-              <ul className="list-inline">
-                {trending.map(cv => (
-                  <li key={cv.community.id} className="list-inline-item">
-                    <CommunityLink community={cv.community} />
-                  </li>
-                ))}
-              </ul>
+              {trending.length > 0 && (
+                <ul className="list-inline">
+                  {trending.map(cv => (
+                    <li key={cv.community.id} className="list-inline-item">
+                      <CommunityLink community={cv.community} />
+                    </li>
+                  ))}
+                </ul>
+              )}
               {canCreateCommunity(this.state.siteRes) && (
                 <LinkButton
                   path="/create_community"
@@ -540,7 +537,7 @@ export class Home extends Component<any, HomeState> {
                 translationKey="explore_communities"
               />
             </div>
-          </div>
+          </>
         );
       }
     }
