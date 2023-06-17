@@ -26,6 +26,7 @@
   --warning: #ffc107;
   --danger: #873208;
   --light: #f8f9fa;
+  --medium-light: var(--bs-gray-300);
   --dark: #343a40;
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
