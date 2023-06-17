@@ -22,7 +22,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
 
   render() {
     return (
-      <picture>
+      <picture className="d-inline-block overflow-hidden">
         <source srcSet={this.src("webp")} type="image/webp" />
         <source srcSet={this.props.src} />
         <source srcSet={this.src("jpg")} type="image/jpeg" />
