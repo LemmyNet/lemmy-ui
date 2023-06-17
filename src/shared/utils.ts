@@ -986,6 +986,9 @@ export function commentsToFlatNodes(comments: CommentView[]): CommentNodeI[] {
 export function convertCommentSortType(sort: SortType): CommentSortType {
   if (
     sort == "TopAll" ||
+    sort ==  "TopHour" ||
+    sort ==  "TopSixHour" ||
+    sort ==  "TopTwelveHour" ||
     sort == "TopDay" ||
     sort == "TopWeek" ||
     sort == "TopMonth" ||
