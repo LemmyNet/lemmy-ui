@@ -414,3 +414,18 @@ br.big {
 .emoji-picker {
   width: 100%;
 }
+
+.skip-link {
+  top: -40px;
+  transition: top 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+}
+
+.skip-link:focus {
+  top: 0;
+}
