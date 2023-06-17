@@ -20,16 +20,17 @@ $green: #00bc8c;
 $teal: #20c997;
 $cyan: #3498db;
 $primary: $blue;
-$secondary: $gray-700;
+$secondary: #444;
 $success: $green;
 $info: $cyan;
 $warning: $yellow;
 $danger: $red;
+$light: $gray-800;
 $dark: $gray-300;
 $yiq-contrasted-threshold: 175;
 $body-bg: $gray-900;
 $body-color: $gray-300;
-$link-color: $success;
+$link-color: $red;
 $font-family-sans-serif: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI",
   Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
   "Segoe UI Emoji", "Segoe UI Symbol";

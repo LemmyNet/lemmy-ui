@@ -100,12 +100,9 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
     return (
       <select
-        className={classNames(
-          "lang-select-action",
-          this.props.iconVersion
-            ? "btn btn-sm text-muted"
-            : "form-control custom-select"
-        )}
+        className={classNames("lang-select-action", {
+          "form-control custom-select": !this.props.iconVersion,
+        })}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
         aria-label={i18n.t("language_select_placeholder")}
