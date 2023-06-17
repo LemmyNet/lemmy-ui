@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { ThemeColor } from "shared/utils";
+import { ThemeColor } from "../../utils";
 
 interface ProgressBarProps {
   className?: string;

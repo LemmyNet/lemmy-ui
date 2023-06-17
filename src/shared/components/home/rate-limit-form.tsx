@@ -1,8 +1,7 @@
 import { Component, FormEventHandler, linkEvent } from "inferno";
 import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { WebSocketService } from "../../services";
-import { capitalizeFirstLetter, myAuth, wsClient } from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 
@@ -23,8 +22,9 @@ interface RateLimitsProps {
 }
 
 interface RateLimitFormProps {
-  localSiteRateLimit: LocalSiteRateLimit;
-  applicationQuestion?: string;
+  rateLimits: LocalSiteRateLimit;
+  onSaveSite(form: EditSite): void;
+  loading: boolean;
 }
 
 interface RateLimitFormState {
@@ -42,7 +42,6 @@ interface RateLimitFormState {
     register?: number;
     register_per_second?: number;
   };
-  loading: boolean;
 }
 
 function RateLimits({
@@ -107,18 +106,18 @@ function handlePerSecondChange(
 
 function submitRateLimitForm(i: RateLimitsForm, event: any) {
   event.preventDefault();
-  const auth = myAuth() ?? "TODO";
+  const auth = myAuthRequired();
   const form: EditSite = Object.entries(i.state.form).reduce(
     (acc, [key, val]) => {
       acc[`rate_limit_${key}`] = val;
       return acc;
     },
-    { auth, application_question: i.props.applicationQuestion }
+    {
+      auth,
+    }
   );
 
-  i.setState({ loading: true });
-
-  WebSocketService.Instance.send(wsClient.editSite(form));
+  i.props.onSaveSite(form);
 }
 
 export default class RateLimitsForm extends Component<
@@ -126,44 +125,10 @@ export default class RateLimitsForm extends Component<
   RateLimitFormState
 > {
   state: RateLimitFormState = {
-    loading: false,
-    form: {},
+    form: this.props.rateLimits,
   };
-  constructor(props: RateLimitFormProps, context) {
+  constructor(props: RateLimitFormProps, context: any) {
     super(props, context);
-
-    const {
-      comment,
-      comment_per_second,
-      image,
-      image_per_second,
-      message,
-      message_per_second,
-      post,
-      post_per_second,
-      register,
-      register_per_second,
-      search,
-      search_per_second,
-    } = props.localSiteRateLimit;
-
-    this.state = {
-      ...this.state,
-      form: {
-        comment,
-        comment_per_second,
-        image,
-        image_per_second,
-        message,
-        message_per_second,
-        post,
-        post_per_second,
-        register,
-        register_per_second,
-        search,
-        search_per_second,
-      },
-    };
   }
 
   render() {
@@ -197,9 +162,9 @@ export default class RateLimitsForm extends Component<
             <button
               type="submit"
               className="btn btn-secondary mr-2"
-              disabled={this.state.loading}
+              disabled={this.props.loading}
             >
-              {this.state.loading ? (
+              {this.props.loading ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(i18n.t("save"))
@@ -209,16 +174,5 @@ export default class RateLimitsForm extends Component<
         </div>
       </form>
     );
-  }
-
-  componentDidUpdate({ localSiteRateLimit }: RateLimitFormProps) {
-    if (
-      this.state.loading &&
-      Object.entries(localSiteRateLimit).some(
-        ([key, val]) => this.state.form[key] !== val
-      )
-    ) {
-      this.setState({ loading: false });
-    }
   }
 }

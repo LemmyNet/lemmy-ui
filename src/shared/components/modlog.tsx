@@ -8,7 +8,6 @@ import {
   AdminPurgeCommunityView,
   AdminPurgePersonView,
   AdminPurgePostView,
-  CommunityModeratorView,
   GetCommunity,
   GetCommunityResponse,
   GetModlog,
@@ -21,26 +20,22 @@ import {
   ModBanView,
   ModFeaturePostView,
   ModLockPostView,
+  ModlogActionType,
   ModRemoveCommentView,
   ModRemoveCommunityView,
   ModRemovePostView,
   ModTransferCommunityView,
-  ModlogActionType,
   Person,
-  UserOperation,
-  wsJsonToRes,
-  wsUserOp,
 } from "lemmy-js-client";
 import moment from "moment";
-import { Subscription } from "rxjs";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
-import { WebSocketService } from "../services";
+import { FirstLoadService } from "../services/FirstLoadService";
+import { HttpService, RequestState } from "../services/HttpService";
 import {
-  Choice,
-  QueryParams,
   amAdmin,
   amMod,
+  Choice,
   debounce,
   fetchLimit,
   fetchUsers,
@@ -49,13 +44,11 @@ import {
   getQueryParams,
   getQueryString,
   getUpdatedSearchId,
-  isBrowser,
   myAuth,
   personToChoice,
+  QueryParams,
+  RouteDataResponse,
   setIsoData,
-  toast,
-  wsClient,
-  wsSubscribe,
 } from "../utils";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
@@ -83,6 +76,13 @@ type View =
   | AdminPurgePostView
   | AdminPurgeCommentView;
 
+type ModlogData = RouteDataResponse<{
+  res: GetModlogResponse;
+  communityRes: GetCommunityResponse;
+  modUserResponse: GetPersonDetailsResponse;
+  userResponse: GetPersonDetailsResponse;
+}>;
+
 interface ModlogType {
   id: number;
   type_: ModlogActionType;
@@ -100,10 +100,8 @@ const getModlogQueryParams = () =>
   });
 
 interface ModlogState {
-  res?: GetModlogResponse;
-  communityMods?: CommunityModeratorView[];
-  communityName?: string;
-  loadingModlog: boolean;
+  res: RequestState<GetModlogResponse>;
+  communityRes: RequestState<GetCommunityResponse>;
   loadingModSearch: boolean;
   loadingUserSearch: boolean;
   modSearchOptions: Choice[];
@@ -629,7 +627,7 @@ async function createNewOptions({
 
   if (text.length > 0) {
     newOptions.push(
-      ...(await fetchUsers(text)).users
+      ...(await fetchUsers(text))
         .slice(0, Number(fetchLimit))
         .map<Choice>(personToChoice)
     );
@@ -642,11 +640,11 @@ export class Modlog extends Component<
   RouteComponentProps<{ communityId?: string }>,
   ModlogState
 > {
-  private isoData = setIsoData(this.context);
-  private subscription?: Subscription;
+  private isoData = setIsoData<ModlogData>(this.context);
 
   state: ModlogState = {
-    loadingModlog: true,
+    res: { state: "empty" },
+    communityRes: { state: "empty" },
     loadingModSearch: false,
     loadingUserSearch: false,
     userSearchOptions: [],
@@ -662,58 +660,36 @@ export class Modlog extends Component<
     this.handleUserChange = this.handleUserChange.bind(this);
     this.handleModChange = this.handleModChange.bind(this);
 
-    this.parseMessage = this.parseMessage.bind(this);
-    this.subscription = wsSubscribe(this.parseMessage);
-
     // Only fetch the data if coming from another route
-    if (this.isoData.path === this.context.router.route.match.url) {
+    if (FirstLoadService.isFirstLoad) {
+      const { res, communityRes, modUserResponse, userResponse } =
+        this.isoData.routeData;
+
       this.state = {
         ...this.state,
-        res: this.isoData.routeData[0] as GetModlogResponse,
+        res,
+        communityRes,
       };
 
-      const communityRes: GetCommunityResponse | undefined =
-        this.isoData.routeData[1];
-
-      // Getting the moderators
-      this.state = {
-        ...this.state,
-        communityMods: communityRes?.moderators,
-      };
-
-      const filteredModRes: GetPersonDetailsResponse | undefined =
-        this.isoData.routeData[2];
-      if (filteredModRes) {
+      if (modUserResponse.state === "success") {
         this.state = {
           ...this.state,
-          modSearchOptions: [personToChoice(filteredModRes.person_view)],
+          modSearchOptions: [personToChoice(modUserResponse.data.person_view)],
         };
       }
 
-      const filteredUserRes: GetPersonDetailsResponse | undefined =
-        this.isoData.routeData[3];
-      if (filteredUserRes) {
+      if (userResponse.state === "success") {
         this.state = {
           ...this.state,
-          userSearchOptions: [personToChoice(filteredUserRes.person_view)],
+          userSearchOptions: [personToChoice(userResponse.data.person_view)],
         };
       }
-
-      this.state = { ...this.state, loadingModlog: false };
-    } else {
-      this.refetch();
-    }
-  }
-
-  componentWillUnmount() {
-    if (isBrowser()) {
-      this.subscription?.unsubscribe();
     }
   }
 
   get combined() {
     const res = this.state.res;
-    const combined = res ? buildCombined(res) : [];
+    const combined = res.state == "success" ? buildCombined(res.data) : [];
 
     return (
       <tbody>
@@ -737,7 +713,10 @@ export class Modlog extends Component<
   }
 
   get amAdminOrMod(): boolean {
-    return amAdmin() || amMod(this.state.communityMods);
+    const amMod_ =
+      this.state.communityRes.state == "success" &&
+      amMod(this.state.communityRes.data.moderators);
+    return amAdmin() || amMod_;
   }
 
   modOrAdminText(person?: Person): string {
@@ -755,14 +734,12 @@ export class Modlog extends Component<
 
   render() {
     const {
-      communityName,
-      loadingModlog,
       loadingModSearch,
       loadingUserSearch,
       userSearchOptions,
       modSearchOptions,
     } = this.state;
-    const { actionType, page, modId, userId } = getModlogQueryParams();
+    const { actionType, modId, userId } = getModlogQueryParams();
 
     return (
       <div className="container-lg">
@@ -784,14 +761,17 @@ export class Modlog extends Component<
               #<strong>#</strong>#
             </T>
           </div>
-          <h5>
-            {communityName && (
-              <Link className="text-body" to={`/c/${communityName}`}>
-                /c/{communityName}{" "}
+          {this.state.communityRes.state === "success" && (
+            <h5>
+              <Link
+                className="text-body"
+                to={`/c/${this.state.communityRes.data.community_view.community.name}`}
+              >
+                /c/{this.state.communityRes.data.community_view.community.name}{" "}
               </Link>
-            )}
-            <span>{i18n.t("modlog")}</span>
-          </h5>
+              <span>{i18n.t("modlog")}</span>
+            </h5>
+          )}
           <div className="form-row">
             <select
               value={actionType}
@@ -840,28 +820,39 @@ export class Modlog extends Component<
               />
             )}
           </div>
-          <div className="table-responsive">
-            {loadingModlog ? (
-              <h5>
-                <Spinner large />
-              </h5>
-            ) : (
-              <table id="modlog_table" className="table table-sm table-hover">
-                <thead className="pointer">
-                  <tr>
-                    <th> {i18n.t("time")}</th>
-                    <th>{i18n.t("mod")}</th>
-                    <th>{i18n.t("action")}</th>
-                  </tr>
-                </thead>
-                {this.combined}
-              </table>
-            )}
-            <Paginator page={page} onChange={this.handlePageChange} />
-          </div>
+          {this.renderModlogTable()}
         </div>
       </div>
     );
+  }
+
+  renderModlogTable() {
+    switch (this.state.res.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const page = getModlogQueryParams().page;
+        return (
+          <div className="table-responsive">
+            <table id="modlog_table" className="table table-sm table-hover">
+              <thead className="pointer">
+                <tr>
+                  <th> {i18n.t("time")}</th>
+                  <th>{i18n.t("mod")}</th>
+                  <th>{i18n.t("action")}</th>
+                </tr>
+              </thead>
+              {this.combined}
+            </table>
+            <Paginator page={page} onChange={this.handlePageChange} />
+          </div>
+        );
+      }
+    }
   }
 
   handleFilterActionChange(i: Modlog, event: any) {
@@ -917,7 +908,7 @@ export class Modlog extends Component<
     });
   });
 
-  updateUrl({ actionType, modId, page, userId }: Partial<ModlogProps>) {
+  async updateUrl({ actionType, modId, page, userId }: Partial<ModlogProps>) {
     const {
       page: urlPage,
       actionType: urlActionType,
@@ -940,54 +931,50 @@ export class Modlog extends Component<
       )}`
     );
 
-    this.setState({
-      loadingModlog: true,
-      res: undefined,
-    });
-
-    this.refetch();
+    await this.refetch();
   }
 
-  refetch() {
-    const auth = myAuth(false);
+  async refetch() {
+    const auth = myAuth();
     const { actionType, page, modId, userId } = getModlogQueryParams();
     const { communityId: urlCommunityId } = this.props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
-    const modlogForm: GetModlog = {
-      community_id: communityId,
-      page,
-      limit: fetchLimit,
-      type_: actionType,
-      other_person_id: userId ?? undefined,
-      mod_person_id: !this.isoData.site_res.site_view.local_site
-        .hide_modlog_mod_names
-        ? modId ?? undefined
-        : undefined,
-      auth,
-    };
-
-    WebSocketService.Instance.send(wsClient.getModlog(modlogForm));
+    this.setState({ res: { state: "loading" } });
+    this.setState({
+      res: await HttpService.client.getModlog({
+        community_id: communityId,
+        page,
+        limit: fetchLimit,
+        type_: actionType,
+        other_person_id: userId ?? undefined,
+        mod_person_id: !this.isoData.site_res.site_view.local_site
+          .hide_modlog_mod_names
+          ? modId ?? undefined
+          : undefined,
+        auth,
+      }),
+    });
 
     if (communityId) {
-      const communityForm: GetCommunity = {
-        id: communityId,
-        auth,
-      };
-
-      WebSocketService.Instance.send(wsClient.getCommunity(communityForm));
+      this.setState({ communityRes: { state: "loading" } });
+      this.setState({
+        communityRes: await HttpService.client.getCommunity({
+          id: communityId,
+          auth,
+        }),
+      });
     }
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     path,
     query: { modId: urlModId, page, userId: urlUserId, actionType },
     auth,
     site,
-  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<any>[] {
+  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<ModlogData> {
     const pathSplit = path.split("/");
-    const promises: Promise<any>[] = [];
     const communityId = getIdFromString(pathSplit[2]);
     const modId = !site.site_view.local_site.hide_modlog_mod_names
       ? getIdFromString(urlModId)
@@ -1004,17 +991,22 @@ export class Modlog extends Component<
       auth,
     };
 
-    promises.push(client.getModlog(modlogForm));
+    let communityResponse: RequestState<GetCommunityResponse> = {
+      state: "empty",
+    };
 
     if (communityId) {
       const communityForm: GetCommunity = {
         id: communityId,
         auth,
       };
-      promises.push(client.getCommunity(communityForm));
-    } else {
-      promises.push(Promise.resolve());
+
+      communityResponse = await client.getCommunity(communityForm);
     }
+
+    let modUserResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
 
     if (modId) {
       const getPersonForm: GetPersonDetails = {
@@ -1022,10 +1014,12 @@ export class Modlog extends Component<
         auth,
       };
 
-      promises.push(client.getPersonDetails(getPersonForm));
-    } else {
-      promises.push(Promise.resolve());
+      modUserResponse = await client.getPersonDetails(getPersonForm);
     }
+
+    let userResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
 
     if (userId) {
       const getPersonForm: GetPersonDetails = {
@@ -1033,45 +1027,14 @@ export class Modlog extends Component<
         auth,
       };
 
-      promises.push(client.getPersonDetails(getPersonForm));
-    } else {
-      promises.push(Promise.resolve());
+      userResponse = await client.getPersonDetails(getPersonForm);
     }
 
-    return promises;
-  }
-
-  parseMessage(msg: any) {
-    const op = wsUserOp(msg);
-    console.log(msg);
-
-    if (msg.error) {
-      toast(i18n.t(msg.error), "danger");
-    } else {
-      switch (op) {
-        case UserOperation.GetModlog: {
-          const res = wsJsonToRes<GetModlogResponse>(msg);
-          window.scrollTo(0, 0);
-          this.setState({ res, loadingModlog: false });
-
-          break;
-        }
-
-        case UserOperation.GetCommunity: {
-          const {
-            moderators,
-            community_view: {
-              community: { name },
-            },
-          } = wsJsonToRes<GetCommunityResponse>(msg);
-          this.setState({
-            communityMods: moderators,
-            communityName: name,
-          });
-
-          break;
-        }
-      }
-    }
+    return {
+      res: await client.getModlog(modlogForm),
+      communityRes: communityResponse,
+      modUserResponse,
+      userResponse,
+    };
   }
 }

@@ -1,7 +1,26 @@
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { Language, PostView } from "lemmy-js-client";
+import {
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanPerson,
+  BlockPerson,
+  CreatePostLike,
+  CreatePostReport,
+  DeletePost,
+  EditPost,
+  FeaturePost,
+  Language,
+  LockPost,
+  PostView,
+  PurgePerson,
+  PurgePost,
+  RemovePost,
+  SavePost,
+  TransferCommunity,
+} from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { PostListing } from "./post-listing";
 
@@ -13,6 +32,23 @@ interface PostListingsProps {
   removeDuplicates?: boolean;
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
+  viewOnly?: boolean;
+  onPostEdit(form: EditPost): void;
+  onPostVote(form: CreatePostLike): void;
+  onPostReport(form: CreatePostReport): void;
+  onBlockPerson(form: BlockPerson): void;
+  onLockPost(form: LockPost): void;
+  onDeletePost(form: DeletePost): void;
+  onRemovePost(form: RemovePost): void;
+  onSavePost(form: SavePost): void;
+  onFeaturePost(form: FeaturePost): void;
+  onPurgePerson(form: PurgePerson): void;
+  onPurgePost(form: PurgePost): void;
+  onBanPersonFromCommunity(form: BanFromCommunity): void;
+  onBanPerson(form: BanPerson): void;
+  onAddModToCommunity(form: AddModToCommunity): void;
+  onAddAdmin(form: AddAdmin): void;
+  onTransferCommunity(form: TransferCommunity): void;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -32,18 +68,37 @@ export class PostListings extends Component<PostListingsProps, any> {
     return (
       <div>
         {this.posts.length > 0 ? (
-          this.posts.map(post_view => (
+          this.posts.map((post_view, idx) => (
             <>
               <PostListing
                 post_view={post_view}
-                duplicates={this.duplicatesMap.get(post_view.post.id)}
+                crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
+                viewOnly={this.props.viewOnly}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                onPostEdit={this.props.onPostEdit}
+                onPostVote={this.props.onPostVote}
+                onPostReport={this.props.onPostReport}
+                onBlockPerson={this.props.onBlockPerson}
+                onLockPost={this.props.onLockPost}
+                onDeletePost={this.props.onDeletePost}
+                onRemovePost={this.props.onRemovePost}
+                onSavePost={this.props.onSavePost}
+                onFeaturePost={this.props.onFeaturePost}
+                onPurgePerson={this.props.onPurgePerson}
+                onPurgePost={this.props.onPurgePost}
+                onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+                onBanPerson={this.props.onBanPerson}
+                onAddModToCommunity={this.props.onAddModToCommunity}
+                onAddAdmin={this.props.onAddAdmin}
+                onTransferCommunity={this.props.onTransferCommunity}
               />
-              <hr className="my-3" />
+              {idx + 1 !== this.posts.length && (
+                <hr className="my-3 border border-primary" />
+              )}
             </>
           ))
         ) : (
@@ -62,7 +117,7 @@ export class PostListings extends Component<PostListingsProps, any> {
 
   removeDuplicates(): PostView[] {
     // Must use a spread to clone the props, because splice will fail below otherwise.
-    const posts = [...this.props.posts];
+    const posts = [...this.props.posts].filter(empty => empty);
 
     // A map from post url to list of posts (dupes)
     const urlMap = new Map<string, PostView[]>();

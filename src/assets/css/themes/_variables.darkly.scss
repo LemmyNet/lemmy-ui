@@ -103,5 +103,5 @@ $input-bg: $secondary;
 $input-color: $white;
 $input-disabled-bg: darken($secondary, 10%);
 $light: $gray-800;
-$navbar-light-brand-color: $navbar-dark-active-color;
-$navbar-light-brand-hover-color: $navbar-dark-active-color;
+$navbar-light-brand-color: $white;
+$navbar-light-brand-hover-color: $navbar-light-brand-color;
