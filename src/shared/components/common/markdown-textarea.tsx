@@ -248,7 +248,7 @@ export class MarkdownTextArea extends Component<
                     />
                   )}
               </div>
-              <label className="sr-only" htmlFor={this.id}>
+              <label className="visually-hidden" htmlFor={this.id}>
                 {i18n.t("body")}
               </label>
             </div>

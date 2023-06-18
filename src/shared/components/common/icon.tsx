@@ -25,7 +25,7 @@ export class Icon extends Component<IconProps, any> {
         <use
           xlinkHref={`/static/assets/symbols.svg#icon-${this.props.icon}`}
         ></use>
-        <div className="sr-only">
+        <div className="visually-hidden">
           <title>{this.props.icon}</title>
         </div>
       </svg>

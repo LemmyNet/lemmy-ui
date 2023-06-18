@@ -36,7 +36,6 @@ $colors: (
 );
 
 $primary: $orange;
-$secondary: $green;
 $success: $indigo;
 $info: $blue;
 $danger: darken($primary, 25%);
@@ -45,7 +44,6 @@ $danger: darken($primary, 25%);
 // https://getbootstrap.com/docs/4.6/getting-started/introduction/
 $theme-colors: (
   "primary": $primary,
-  "secondary": $secondary,
   "success": $success,
   "info": $info,
   "danger": $danger,

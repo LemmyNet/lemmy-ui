@@ -248,7 +248,7 @@ export class PrivateMessage extends Component<
             className="form-inline"
             onSubmit={linkEvent(this, this.handleReportSubmit)}
           >
-            <label className="sr-only" htmlFor="pm-report-reason">
+            <label className="visually-hidden" htmlFor="pm-report-reason">
               {i18n.t("reason")}
             </label>
             <input

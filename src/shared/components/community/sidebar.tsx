@@ -464,7 +464,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               <PurgeWarning />
             </div>
             <div className="form-group">
-              <label className="sr-only" htmlFor="purge-reason">
+              <label className="visually-hidden" htmlFor="purge-reason">
                 {i18n.t("reason")}
               </label>
               <input

@@ -980,7 +980,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onSubmit={linkEvent(this, this.handleRemoveComment)}
           >
             <label
-              className="sr-only"
+              className="visually-hidden"
               htmlFor={`mod-remove-reason-${cv.comment.id}`}
             >
               {i18n.t("reason")}
@@ -1008,7 +1008,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onSubmit={linkEvent(this, this.handleReportComment)}
           >
             <label
-              className="sr-only"
+              className="visually-hidden"
               htmlFor={`report-reason-${cv.comment.id}`}
             >
               {i18n.t("reason")}
@@ -1107,7 +1107,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {this.state.showPurgeDialog && (
           <form onSubmit={linkEvent(this, this.handlePurgeBothSubmit)}>
             <PurgeWarning />
-            <label className="sr-only" htmlFor="purge-reason">
+            <label className="visually-hidden" htmlFor="purge-reason">
               {i18n.t("reason")}
             </label>
             <input

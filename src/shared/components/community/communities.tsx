@@ -236,7 +236,7 @@ export class Communities extends Component<any, CommunitiesState> {
           required
           minLength={3}
         />
-        <label className="sr-only" htmlFor="communities-search">
+        <label className="visually-hidden" htmlFor="communities-search">
           {i18n.t("search")}
         </label>
         <button type="submit" className="btn btn-secondary mr-2 mb-2">

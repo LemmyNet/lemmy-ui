@@ -1233,7 +1233,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className="form-inline"
             onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
           >
-            <label className="sr-only" htmlFor="post-listing-remove-reason">
+            <label
+              className="visually-hidden"
+              htmlFor="post-listing-remove-reason"
+            >
               {i18n.t("reason")}
             </label>
             <input
@@ -1327,7 +1330,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className="form-inline"
             onSubmit={linkEvent(this, this.handleReportSubmit)}
           >
-            <label className="sr-only" htmlFor="post-report-reason">
+            <label className="visually-hidden" htmlFor="post-report-reason">
               {i18n.t("reason")}
             </label>
             <input
@@ -1354,7 +1357,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onSubmit={linkEvent(this, this.handlePurgeSubmit)}
           >
             <PurgeWarning />
-            <label className="sr-only" htmlFor="purge-reason">
+            <label className="visually-hidden" htmlFor="purge-reason">
               {i18n.t("reason")}
             </label>
             <input
