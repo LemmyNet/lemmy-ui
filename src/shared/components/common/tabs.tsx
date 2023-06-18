@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 
 interface TabItem {
   key: string;
@@ -11,21 +11,9 @@ interface TabsProps {
   tabs: TabItem[];
 }
 
-interface TabsState {
-  currentTab: string;
-}
-
-function handleSwitchTab({ ctx, tab }: { ctx: Tabs; tab: string }) {
-  ctx.setState({ currentTab: tab });
-}
-
-export default class Tabs extends Component<TabsProps, TabsState> {
+export default class Tabs extends Component<TabsProps> {
   constructor(props: TabsProps, context) {
     super(props, context);
-
-    this.state = {
-      currentTab: props.tabs.length > 0 ? props.tabs[0].key : "",
-    };
   }
 
   render() {
@@ -48,7 +36,6 @@ export default class Tabs extends Component<TabsProps, TabsState> {
                     "aria-selected": "true",
                   },
                 })}
-                onClick={linkEvent({ ctx: this, tab: key }, handleSwitchTab)}
               >
                 {label}
               </button>
