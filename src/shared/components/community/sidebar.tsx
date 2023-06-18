@@ -109,7 +109,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   render() {
     return (
-      <div>
+      <div className="community-sidebar">
         {!this.state.showEdit ? (
           this.sidebar()
         ) : (
@@ -131,7 +131,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUSerInfo = UserService.Instance.myUserInfo;
     const { name, actor_id } = this.props.community_view.community;
     return (
-      <aside className="community-sidebar__sidebar mb-3">
+      <aside className="community-sidebar__inner mb-3">
         <div id="sidebarContainer">
           <section id="sidebarMain" className="card border-secondary mb-3">
             <div className="card-body">
