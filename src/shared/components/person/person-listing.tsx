@@ -48,7 +48,9 @@ export class PersonListing extends Component<PersonListingProps, any> {
         {!this.props.realLink ? (
           <Link
             title={apubName}
-            className={this.props.muted ? "text-muted" : "text-info"}
+            className={`d-inline-flex align-items-baseline ${
+              this.props.muted ? "text-muted" : "text-info"
+            }`}
             to={link}
           >
             {this.avatarAndName(displayName)}
@@ -56,7 +58,9 @@ export class PersonListing extends Component<PersonListingProps, any> {
         ) : (
           <a
             title={apubName}
-            className={this.props.muted ? "text-muted" : "text-info"}
+            className={`d-inline-flex align-items-baseline ${
+              this.props.muted ? "text-muted" : "text-info"
+            }`}
             href={link}
             rel={relTags}
           >
