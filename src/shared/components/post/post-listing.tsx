@@ -368,7 +368,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   createdLine() {
     const post_view = this.postView;
     return (
-      <ul className="list-inline mb-1 text-muted small">
+      <ul className="list-inline mb-1 text-muted small mt-2">
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
 
@@ -573,7 +573,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
 
     return (
-      <p className="d-flex text-muted align-items-center gap-1 small">
+      <p className="d-flex text-muted align-items-center gap-1 small m-0">
         {url && !(hostname(url) === getExternalHost()) && (
           <a
             className="text-muted font-italic"
