@@ -482,22 +482,22 @@ export class Profile extends Component<
                       />
                     </li>
                     {isBanned(pv.person) && (
-                      <li className="list-inline-item badge badge-danger">
+                      <li className="list-inline-item badge text-bg-danger">
                         {i18n.t("banned")}
                       </li>
                     )}
                     {pv.person.deleted && (
-                      <li className="list-inline-item badge badge-danger">
+                      <li className="list-inline-item badge text-bg-danger">
                         {i18n.t("deleted")}
                       </li>
                     )}
                     {pv.person.admin && (
-                      <li className="list-inline-item badge badge-light">
+                      <li className="list-inline-item badge text-bg-light">
                         {i18n.t("admin")}
                       </li>
                     )}
                     {pv.person.bot_account && (
-                      <li className="list-inline-item badge badge-light">
+                      <li className="list-inline-item badge text-bg-light">
                         {i18n.t("bot_account").toLowerCase()}
                       </li>
                     )}
@@ -587,13 +587,13 @@ export class Profile extends Component<
               )}
               <div>
                 <ul className="list-inline mb-2">
-                  <li className="list-inline-item badge badge-light">
+                  <li className="list-inline-item badge text-bg-light">
                     {i18n.t("number_of_posts", {
                       count: Number(pv.counts.post_count),
                       formattedCount: numToSI(pv.counts.post_count),
                     })}
                   </li>
-                  <li className="list-inline-item badge badge-light">
+                  <li className="list-inline-item badge text-bg-light">
                     {i18n.t("number_of_comments", {
                       count: Number(pv.counts.comment_count),
                       formattedCount: numToSI(pv.counts.comment_count),

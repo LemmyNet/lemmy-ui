@@ -116,7 +116,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               >
                 <Icon icon="bell" />
                 {this.unreadInboxCount > 0 && (
-                  <span className="mx-1 badge badge-light">
+                  <span className="mx-1 badge text-bg-light">
                     {numToSI(this.unreadInboxCount)}
                   </span>
                 )}
@@ -135,7 +135,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 >
                   <Icon icon="shield" />
                   {this.unreadReportCount > 0 && (
-                    <span className="mx-1 badge badge-light">
+                    <span className="mx-1 badge text-bg-light">
                       {numToSI(this.unreadReportCount)}
                     </span>
                   )}
@@ -155,7 +155,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 >
                   <Icon icon="clipboard" />
                   {this.unreadApplicationCount > 0 && (
-                    <span className="mx-1 badge badge-light">
+                    <span className="mx-1 badge text-bg-light">
                       {numToSI(this.unreadApplicationCount)}
                     </span>
                   )}
@@ -277,14 +277,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="bell" />
-                    <span className="badge badge-light d-inline ms-1 d-md-none ml-md-0">
+                    <span className="badge text-bg-light d-inline ms-1 d-md-none ml-md-0">
                       {i18n.t("unread_messages", {
                         count: Number(this.unreadInboxCount),
                         formattedCount: numToSI(this.unreadInboxCount),
                       })}
                     </span>
                     {this.unreadInboxCount > 0 && (
-                      <span className="mx-1 badge badge-light">
+                      <span className="mx-1 badge text-bg-light">
                         {numToSI(this.unreadInboxCount)}
                       </span>
                     )}
@@ -302,14 +302,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="shield" />
-                      <span className="badge badge-light d-inline ms-1 d-md-none ml-md-0">
+                      <span className="badge text-bg-light d-inline ms-1 d-md-none ml-md-0">
                         {i18n.t("unread_reports", {
                           count: Number(this.unreadReportCount),
                           formattedCount: numToSI(this.unreadReportCount),
                         })}
                       </span>
                       {this.unreadReportCount > 0 && (
-                        <span className="mx-1 badge badge-light">
+                        <span className="mx-1 badge text-bg-light">
                           {numToSI(this.unreadReportCount)}
                         </span>
                       )}
@@ -328,14 +328,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="clipboard" />
-                      <span className="badge badge-light d-inline ms-1 d-md-none ml-md-0">
+                      <span className="badge text-bg-light d-inline ms-1 d-md-none ml-md-0">
                         {i18n.t("unread_registration_applications", {
                           count: Number(this.unreadApplicationCount),
                           formattedCount: numToSI(this.unreadApplicationCount),
                         })}
                       </span>
                       {this.unreadApplicationCount > 0 && (
-                        <span className="mx-1 badge badge-light">
+                        <span className="mx-1 badge text-bg-light">
                           {numToSI(this.unreadApplicationCount)}
                         </span>
                       )}

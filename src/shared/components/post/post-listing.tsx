@@ -375,13 +375,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <PersonListing person={post_view.creator} />
 
           {this.creatorIsMod_ && (
-            <span className="mx-1 badge">{i18n.t("mod")}</span>
+            <span className="mx-1 badge text-bg-light">{i18n.t("mod")}</span>
           )}
           {this.creatorIsAdmin_ && (
-            <span className="mx-1 badge">{i18n.t("admin")}</span>
+            <span className="mx-1 badge text-bg-light">{i18n.t("admin")}</span>
           )}
           {post_view.creator.bot_account && (
-            <span className="mx-1 badge">
+            <span className="mx-1 badge text-bg-light">
               {i18n.t("bot_account").toLowerCase()}
             </span>
           )}
@@ -393,7 +393,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
         </li>
         {post_view.post.language_id !== 0 && (
-          <span className="mx-1 badge">
+          <span className="mx-1 badge text-bg-light">
             {
               this.props.allLanguages.find(
                 lang => lang.id === post_view.post.language_id
