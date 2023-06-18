@@ -270,6 +270,14 @@ hr {
   -ms-transform: scale(1.2);
 }
 
+/**
+ * TODO: Fix this in markup rather than this overly specific selector:
+ * https://getbootstrap.com/docs/5.3/components/buttons/#block-buttons
+ */
+.btn.d-block + .btn.d-block {
+  margin-top: 0.5rem;
+}
+
 .mini-overlay {
   position: absolute;
   top: 0;
