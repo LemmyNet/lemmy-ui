@@ -131,21 +131,27 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
               key: "site",
               label: i18n.t("site"),
               getNode: () => (
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <SiteForm
-                      showLocal={showLocal(this.isoData)}
-                      allowedInstances={federationData?.allowed}
-                      blockedInstances={federationData?.blocked}
-                      onSaveSite={this.handleEditSite}
-                      siteRes={this.state.siteRes}
-                      themeList={this.state.themeList}
-                      loading={this.state.loading}
-                    />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    {this.admins()}
-                    {this.bannedUsers()}
+                <div
+                  className="tab-pane show active"
+                  role="tabpanel"
+                  id="site-tab-pane"
+                >
+                  <div className="row">
+                    <div className="col-12 col-md-6">
+                      <SiteForm
+                        showLocal={showLocal(this.isoData)}
+                        allowedInstances={federationData?.allowed}
+                        blockedInstances={federationData?.blocked}
+                        onSaveSite={this.handleEditSite}
+                        siteRes={this.state.siteRes}
+                        themeList={this.state.themeList}
+                        loading={this.state.loading}
+                      />
+                    </div>
+                    <div className="col-12 col-md-6">
+                      {this.admins()}
+                      {this.bannedUsers()}
+                    </div>
                   </div>
                 </div>
               ),
@@ -154,22 +160,15 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
               key: "rate_limiting",
               label: "Rate Limiting",
               getNode: () => (
-                <RateLimitForm
-                  rateLimits={
-                    this.state.siteRes.site_view.local_site_rate_limit
-                  }
-                  onSaveSite={this.handleEditSite}
-                  loading={this.state.loading}
-                />
-              ),
-            },
-            {
-              key: "taglines",
-              label: i18n.t("taglines"),
-              getNode: () => (
-                <div className="row">
-                  <TaglineForm
-                    taglines={this.state.siteRes.taglines}
+                <div
+                  className="tab-pane"
+                  role="tabpanel"
+                  id="rate_limiting-tab-pane"
+                >
+                  <RateLimitForm
+                    rateLimits={
+                      this.state.siteRes.site_view.local_site_rate_limit
+                    }
                     onSaveSite={this.handleEditSite}
                     loading={this.state.loading}
                   />
@@ -177,16 +176,37 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
               ),
             },
             {
+              key: "taglines",
+              label: i18n.t("taglines"),
+              getNode: () => (
+                <div
+                  className="tab-pane"
+                  role="tabpanel"
+                  id="taglines-tab-pane"
+                >
+                  <div className="row">
+                    <TaglineForm
+                      taglines={this.state.siteRes.taglines}
+                      onSaveSite={this.handleEditSite}
+                      loading={this.state.loading}
+                    />
+                  </div>
+                </div>
+              ),
+            },
+            {
               key: "emojis",
               label: i18n.t("emojis"),
               getNode: () => (
-                <div className="row">
-                  <EmojiForm
-                    onCreate={this.handleCreateEmoji}
-                    onDelete={this.handleDeleteEmoji}
-                    onEdit={this.handleEditEmoji}
-                    loading={this.state.emojiLoading}
-                  />
+                <div className="tab-pane" role="tabpanel" id="emojis-tab-pane">
+                  <div className="row">
+                    <EmojiForm
+                      onCreate={this.handleCreateEmoji}
+                      onDelete={this.handleDeleteEmoji}
+                      onEdit={this.handleEditEmoji}
+                      loading={this.state.emojiLoading}
+                    />
+                  </div>
                 </div>
               ),
             },
