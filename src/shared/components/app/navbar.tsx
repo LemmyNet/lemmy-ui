@@ -103,7 +103,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           {siteView?.site.name}
         </NavLink>
         {person && (
-          <ul className="navbar-nav d-flex flex-row ml-auto d-md-none">
+          <ul className="navbar-nav d-flex flex-row ms-auto d-md-none">
             <li id="navMessages" className="nav-item nav-item-icon">
               <NavLink
                 to="/inbox"
@@ -182,7 +182,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           id="navbarDropdown"
           ref={this.mobileMenuRef}
         >
-          <ul id="navbarLinks" className="mr-auto navbar-nav">
+          <ul id="navbarLinks" className="me-auto navbar-nav">
             <li className="nav-item">
               <NavLink
                 to="/communities"
