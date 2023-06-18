@@ -584,7 +584,7 @@ const Filter = ({
   options: Choice[];
   loading: boolean;
 }) => (
-  <div className="col-sm-6 form-group">
+  <div className="col-sm-6 input-group mb-3">
     <label className="col-form-label" htmlFor={`filter-${filterType}`}>
       {i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
     </label>

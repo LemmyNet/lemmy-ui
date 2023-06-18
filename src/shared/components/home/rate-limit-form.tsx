@@ -51,7 +51,7 @@ function RateLimits({
   rateLimitValue,
 }: RateLimitsProps) {
   return (
-    <div className="form-group row">
+    <div className="input-group mb-3 row">
       <label className="col-12 col-form-label" htmlFor="rate-limit">
         {i18n.t("rate_limit")}
       </label>
@@ -157,7 +157,7 @@ export default class RateLimitsForm extends Component<
             ),
           }))}
         />
-        <div className="form-group row">
+        <div className="input-group mb-3 row">
           <div className="col-12">
             <button
               type="submit"

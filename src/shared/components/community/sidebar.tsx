@@ -429,7 +429,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         </ul>
         {this.state.showRemoveDialog && (
           <form onSubmit={linkEvent(this, this.handleRemoveCommunity)}>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <label className="col-form-label" htmlFor="remove-reason">
                 {i18n.t("reason")}
               </label>
@@ -443,11 +443,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               />
             </div>
             {/* TODO hold off on expires for now */}
-            {/* <div class="form-group row"> */}
+            {/* <div class="input-group mb-3 row"> */}
             {/*   <label class="col-form-label">Expires</label> */}
             {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
             {/* </div> */}
-            <div className="form-group">
+            <div className="input-group mb-3">
               <button type="submit" className="btn btn-secondary">
                 {this.state.removeCommunityLoading ? (
                   <Spinner />
@@ -460,10 +460,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         )}
         {this.state.showPurgeDialog && (
           <form onSubmit={linkEvent(this, this.handlePurgeCommunity)}>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <PurgeWarning />
             </div>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <label className="visually-hidden" htmlFor="purge-reason">
                 {i18n.t("reason")}
               </label>
@@ -476,7 +476,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 onInput={linkEvent(this, this.handlePurgeReasonChange)}
               />
             </div>
-            <div className="form-group">
+            <div className="input-group mb-3">
               {this.state.purgeCommunityLoading ? (
                 <Spinner />
               ) : (

@@ -182,7 +182,7 @@ const Filter = ({
   loading: boolean;
 }) => {
   return (
-    <div className="form-group col-sm-6">
+    <div className="input-group mb-3 col-sm-6">
       <label className="col-form-label" htmlFor={`${filterType}-filter`}>
         {capitalizeFirstLetter(i18n.t(filterType))}
       </label>

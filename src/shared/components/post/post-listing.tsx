@@ -1258,7 +1258,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div className="form-group row col-12">
+            <div className="input-group mb-3 row col-12">
               <label
                 className="col-form-label"
                 htmlFor="post-listing-ban-reason"
@@ -1284,7 +1284,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 value={this.state.banExpireDays}
                 onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
               />
-              <div className="form-group">
+              <div className="input-group mb-3">
                 <div className="form-check">
                   <input
                     className="form-check-input"
@@ -1304,11 +1304,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               </div>
             </div>
             {/* TODO hold off on expires until later */}
-            {/* <div class="form-group row"> */}
+            {/* <div class="input-group mb-3 row"> */}
             {/*   <label class="col-form-label">Expires</label> */}
             {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
             {/* </div> */}
-            <div className="form-group row">
+            <div className="input-group mb-3 row">
               <button
                 type="submit"
                 className="btn btn-secondary"

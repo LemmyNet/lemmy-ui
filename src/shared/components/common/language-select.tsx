@@ -55,7 +55,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             {i18n.t("undetermined_language_warning")}
           </div>
         )}
-        <div className="form-group row">
+        <div className="input-group mb-3 row">
           <label
             className={classNames(
               "col-form-label",

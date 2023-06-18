@@ -203,7 +203,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             ) && !this.state.submitted
           }
         />
-        <div className="form-group row">
+        <div className="input-group mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
             {i18n.t("url")}
           </label>
@@ -316,7 +316,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )}
           </div>
         </div>
-        <div className="form-group row">
+        <div className="input-group mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-title">
             {i18n.t("title")}
           </label>
@@ -342,7 +342,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         </div>
 
-        <div className="form-group row">
+        <div className="input-group mb-3 row">
           <label className="col-sm-2 col-form-label">{i18n.t("body")}</label>
           <div className="col-sm-10">
             <MarkdownTextArea
@@ -355,7 +355,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         </div>
         {!this.props.post_view && (
-          <div className="form-group row">
+          <div className="input-group mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
               {i18n.t("community")}
             </label>
@@ -378,7 +378,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
         {this.props.enableNsfw && (
-          <div className="form-group row">
+          <div className="input-group mb-3 row">
             <legend className="col-form-label col-sm-2 pt-0">
               {i18n.t("nsfw")}
             </legend>
@@ -412,7 +412,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           value={this.state.form.honeypot}
           onInput={linkEvent(this, this.handleHoneyPotChange)}
         />
-        <div className="form-group row">
+        <div className="input-group mb-3 row">
           <div className="col-sm-10">
             <button
               disabled={!this.state.form.community_id || this.state.loading}
