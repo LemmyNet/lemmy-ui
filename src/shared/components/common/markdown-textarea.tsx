@@ -210,7 +210,7 @@ export class MarkdownTextArea extends Component<
                 <textarea
                   id={this.id}
                   className={classNames(
-                    "form-control border-0 rounded-bottom",
+                    "form-control border-0 rounded-top-0 rounded-bottom",
                     {
                       "d-none": this.state.previewMode,
                     }
