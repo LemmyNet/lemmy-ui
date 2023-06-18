@@ -29,3 +29,6 @@ src/shared/translations
 
 stats.json
 
+#files generated when using yalc to develop against local changes to http client
+.yalc
+yalc.lock
