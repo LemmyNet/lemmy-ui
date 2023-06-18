@@ -446,7 +446,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   voteBar() {
     return (
-      <div className={`vote-bar col-1 pr-0 small text-center`}>
+      <div className={`vote-bar col-1 pe-0 small text-center`}>
         <button
           className={`btn-animate btn btn-link p-0 ${
             this.postView.my_vote == 1 ? "text-info" : "text-muted"
@@ -725,7 +725,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <Link
-        className="btn btn-link text-muted py-0 pl-0 text-muted"
+        className="btn btn-link text-muted py-0 ps-0 text-muted"
         title={i18n.t("number_of_comments", {
           count: Number(post_view.counts.comments),
           formattedCount: Number(post_view.counts.comments),
@@ -1441,7 +1441,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-none d-sm-block">
           <article className="row post-container">
             {!this.props.viewOnly && this.voteBar()}
-            <div className="col-sm-2 pr-0 post-media">
+            <div className="col-sm-2 pe-0 post-media">
               <div className="">{this.thumbnail()}</div>
             </div>
             <div className="col-12 col-sm-9">

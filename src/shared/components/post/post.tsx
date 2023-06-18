@@ -590,14 +590,14 @@ export class Post extends Component<any, PostState> {
           {!!this.state.commentId && (
             <>
               <button
-                className="pl-0 d-block btn btn-link text-muted"
+                className="ps-0 d-block btn btn-link text-muted"
                 onClick={linkEvent(this, this.handleViewPost)}
               >
                 {i18n.t("view_all_comments")} ➔
               </button>
               {showContextButton && (
                 <button
-                  className="pl-0 d-block btn btn-link text-muted"
+                  className="ps-0 d-block btn btn-link text-muted"
                   onClick={linkEvent(this, this.handleViewContext)}
                 >
                   {i18n.t("show_context")} ➔
