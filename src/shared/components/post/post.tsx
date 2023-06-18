@@ -429,9 +429,7 @@ export class Post extends Component<any, PostState> {
   }
 
   render() {
-    return (
-      <div className="post__root container-lg">{this.renderPostRes()}</div>
-    );
+    return <div className="post container-lg">{this.renderPostRes()}</div>;
   }
 
   sortRadios() {

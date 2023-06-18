@@ -118,7 +118,7 @@ export class RegistrationApplications extends Component<
 
   render() {
     return (
-      <div className="person-registration-app__root container-lg">
+      <div className="person-registration-app container-lg">
         {this.renderApps()}
       </div>
     );

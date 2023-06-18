@@ -51,10 +51,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     ) : (
       <div>
         {this.props.multiple && this.props.showLanguageWarning && (
-          <div
-            className="language-select__root alert alert-warning"
-            role="alert"
-          >
+          <div className="language-select alert alert-warning" role="alert">
             {i18n.t("undetermined_language_warning")}
           </div>
         )}

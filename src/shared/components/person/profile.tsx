@@ -390,7 +390,7 @@ export class Profile extends Component<
 
   render() {
     return (
-      <div className="person-profile__root container-lg">
+      <div className="person-profile container-lg">
         {this.renderPersonRes()}
       </div>
     );
@@ -646,7 +646,7 @@ export class Profile extends Component<
     return (
       showBanDialog && (
         <form
-          className="person-profile__ban-dialog--root"
+          className="person-profile__ban-dialog"
           onSubmit={linkEvent(this, this.handleModBanSubmit)}
         >
           <div className="person-profile__ban-dialog form-group row col-12">

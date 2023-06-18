@@ -212,7 +212,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   render() {
     return (
-      <div className="communities__root container-lg">
+      <div className="communities container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

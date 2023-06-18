@@ -58,7 +58,7 @@ export class RegistrationApplication extends Component<
     const accepted = a.creator_local_user.accepted_application;
 
     return (
-      <div className="app-registration__root">
+      <div className="app-registration">
         <div>
           {i18n.t("applicant")}: <PersonListing person={a.creator} />
         </div>

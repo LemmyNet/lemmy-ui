@@ -32,7 +32,7 @@ export class ImageUploadForm extends Component<
 
   render() {
     return (
-      <form className="img-upload-form__root d-inline">
+      <form className="img-upload-form d-inline">
         <label
           htmlFor={this.id}
           className="pointer text-muted small font-weight-bold"

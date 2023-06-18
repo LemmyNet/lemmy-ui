@@ -40,7 +40,7 @@ export class PasswordChange extends Component<any, State> {
 
   render() {
     return (
-      <div className="password-change__root container-lg">
+      <div className="password-change container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

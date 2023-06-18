@@ -138,7 +138,7 @@ export class MarkdownTextArea extends Component<
     return (
       <form
         id={this.formId}
-        className="markdown-textarea__root"
+        className="markdown-textarea"
         onSubmit={linkEvent(this, this.handleSubmit)}
       >
         <NavigationPrompt

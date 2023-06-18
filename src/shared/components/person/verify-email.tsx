@@ -52,7 +52,7 @@ export class VerifyEmail extends Component<any, State> {
 
   render() {
     return (
-      <div className="person-verify-email__root container-lg">
+      <div className="person-verify-email container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

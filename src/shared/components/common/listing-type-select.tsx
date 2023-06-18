@@ -39,7 +39,7 @@ export class ListingTypeSelect extends Component<
 
   render() {
     return (
-      <div className="listing-type-select__root btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="listing-type-select btn-group btn-group-toggle flex-wrap mb-2">
         {this.props.showSubscribed && (
           <label
             title={i18n.t("subscribed_description")}

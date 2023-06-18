@@ -66,7 +66,7 @@ export class PostListings extends Component<PostListingsProps, any> {
 
   render() {
     return (
-      <div className="post-listings__root">
+      <div className="post-listings">
         {this.posts.length > 0 ? (
           this.posts.map((post_view, idx) => (
             <>

@@ -633,7 +633,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     const value = this.state.instance_select[key];
     const selectedInstances = this.state.siteForm[key];
     return (
-      <div className="site-form__fed-instance-sel--root col-12 col-md-6">
+      <div className="site-form__fed-instance-sel col-12 col-md-6">
         <label className="col-form-label" htmlFor={id}>
           {i18n.t(key)}
         </label>

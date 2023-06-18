@@ -375,7 +375,7 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div className="home__root container-lg">
+      <div className="home container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

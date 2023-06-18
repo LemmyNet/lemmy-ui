@@ -86,7 +86,7 @@ export class CommunityForm extends Component<
   render() {
     return (
       <form
-        className="community-form__root"
+        className="community-form"
         onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}
       >
         <NavigationPrompt

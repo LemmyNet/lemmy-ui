@@ -40,7 +40,7 @@ export class CommentSortSelect extends Component<
           name={this.id}
           value={this.state.sort}
           onChange={linkEvent(this, this.handleSortChange)}
-          className="comment-sort-select__root custom-select w-auto mr-2 mb-2"
+          className="comment-sort-select custom-select w-auto mr-2 mb-2"
           aria-label={i18n.t("sort_type")}
         >
           <option disabled aria-hidden="true">

@@ -16,7 +16,7 @@ export class ErrorPage extends Component<any, any> {
     const { errorPageData } = this.isoData;
 
     return (
-      <div className="app-error__root container-lg text-center">
+      <div className="app-error container-lg text-center">
         <h1>
           {errorPageData
             ? i18n.t("error_page_title")

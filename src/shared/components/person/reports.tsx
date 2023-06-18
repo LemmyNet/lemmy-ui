@@ -142,7 +142,7 @@ export class Reports extends Component<any, ReportsState> {
 
   render() {
     return (
-      <div className="person-reports__root container-lg">
+      <div className="person-reports container-lg">
         <div className="row">
           <div className="col-12">
             <HtmlTags

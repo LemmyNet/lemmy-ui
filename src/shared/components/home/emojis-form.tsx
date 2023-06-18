@@ -75,7 +75,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   render() {
     return (
-      <div className="emojis-form__root col-12">
+      <div className="emojis-form col-12">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -89,7 +89,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
             ></EmojiMart>
           </div>
         )}
-        <div className="emojis-table__root table-responsive">
+        <div className="emojis-table table-responsive">
           <table id="emojis_table" className="table table-sm table-hover">
             <thead className="pointer">
               <tr>

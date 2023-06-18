@@ -88,7 +88,7 @@ export class PrivateMessage extends Component<
       : message_view.creator;
 
     return (
-      <div className="private-message__root border-top border-light">
+      <div className="private-message border-top border-light">
         <div>
           <ul className="private-message__ul list-inline mb-0 text-muted small">
             {/* TODO refactor this */}
@@ -129,7 +129,7 @@ export class PrivateMessage extends Component<
             />
           )}
           {!this.state.showEdit && !this.state.collapsed && (
-            <div className="private-message-edit__root">
+            <div className="private-message-edit">
               {this.state.viewSource ? (
                 <pre>{this.messageUnlessRemoved}</pre>
               ) : (
@@ -247,7 +247,7 @@ export class PrivateMessage extends Component<
         </div>
         {this.state.showReportDialog && (
           <form
-            className="report-dialog__root form-inline"
+            className="report-dialog form-inline"
             onSubmit={linkEvent(this, this.handleReportSubmit)}
           >
             <label className="sr-only" htmlFor="pm-report-reason">

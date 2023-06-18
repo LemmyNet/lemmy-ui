@@ -240,7 +240,7 @@ export class Settings extends Component<any, SettingsState> {
 
   render() {
     return (
-      <div className="person-settings__root container-lg">
+      <div className="person-settings container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

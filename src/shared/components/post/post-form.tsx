@@ -194,7 +194,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     // <Prompt when={promptCheck} message={i18n.t("block_leaving")} />
     return (
       <form
-        className="post-form__root"
+        className="post-form"
         onSubmit={linkEvent(this, this.handlePostSubmit)}
       >
         <NavigationPrompt

@@ -127,7 +127,7 @@ export class Signup extends Component<any, State> {
 
   render() {
     return (
-      <div className="signup__root container-lg">
+      <div className="signup container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

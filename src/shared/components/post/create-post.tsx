@@ -163,7 +163,7 @@ export class CreatePost extends Component<
       | undefined;
 
     return (
-      <div className="post-create__root container-lg">
+      <div className="post-create container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

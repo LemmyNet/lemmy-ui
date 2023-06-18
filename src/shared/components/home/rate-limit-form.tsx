@@ -142,7 +142,7 @@ export default class RateLimitsForm extends Component<
   render() {
     return (
       <form
-        className="rate-limit__root"
+        className="rate-limit"
         onSubmit={linkEvent(this, submitRateLimitForm)}
       >
         <h5>{i18n.t("rate_limit_header")}</h5>
