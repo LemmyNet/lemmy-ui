@@ -539,7 +539,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {(url && isImage(url)) ||
           (post.thumbnail_url && (
             <button
-              className="post-listing__btn post-listing_-btn--expand btn btn-link text-monospace text-muted small d-inline-block"
+              className="post-listing__btn post-listing__btn--expand btn btn-link text-monospace text-muted small d-inline-block"
               data-tippy-content={i18n.t("expand_here")}
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
@@ -600,7 +600,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   duplicatesLine() {
     const dupes = this.props.crossPosts;
     return dupes && dupes.length > 0 ? (
-      <ul className="post-listing__duplicatesline list-inline mb-1 small text-muted">
+      <ul className="post-listing__duplicates-line list-inline mb-1 small text-muted">
         <>
           <li className="list-inline-item mr-2">{i18n.t("cross_posted_to")}</li>
           {dupes.map(pv => (
@@ -623,7 +623,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="post-listing__commentsline d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold mb-1">
+      <div className="post-listing__comments-line d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
         {canShare() && (
           <button

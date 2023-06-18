@@ -471,7 +471,7 @@ export class Profile extends Component<
             />
           )}
           <div className="person-profile__wrap mb-3">
-            <div className="person-profile-">
+            <div>
               <div className="person-profile__overview mb-0 d-flex flex-wrap">
                 <div>
                   {pv.person.display_name && (

@@ -396,7 +396,7 @@ export class Post extends Component<any, PostState> {
                 onUpsertComment={this.handleCreateComment}
                 finished={this.state.finished.get(0)}
               />
-              <div className="post__sidebar-toggle d-block d-md-none">
+              <div className="post__sidebar--toggle d-block d-md-none">
                 <button
                   className="btn btn-secondary d-inline-block mb-2 mr-3"
                   onClick={linkEvent(this, this.handleShowSidebarMobile)}
@@ -515,7 +515,7 @@ export class Post extends Component<any, PostState> {
 
     if (commentsRes.state == "success" && postRes.state == "success") {
       return (
-        <div className="post__comments-flat">
+        <div className="post__comments--flat">
           <CommentNodes
             nodes={commentsToFlatNodes(commentsRes.data.comments)}
             viewType={this.state.commentViewType}
@@ -586,7 +586,7 @@ export class Post extends Component<any, PostState> {
 
     return (
       res.state == "success" && (
-        <div className="post__comments-tree">
+        <div className="post__comments--tree">
           {!!this.state.commentId && (
             <>
               <button

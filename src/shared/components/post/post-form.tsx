@@ -206,7 +206,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             ) && !this.state.submitted
           }
         />
-        <div className="post-form---row-main form-group row">
+        <div className="post-form__row post-form__row--main form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
             {i18n.t("url")}
           </label>
@@ -358,7 +358,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         </div>
         {!this.props.post_view && (
-          <div className="form-group row">
+          <div className="post-form__row post-form__row--post-view form-group row">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
               {i18n.t("community")}
             </label>
@@ -381,7 +381,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
         {this.props.enableNsfw && (
-          <div className="form-group row">
+          <div className="post-form__row post-form__row-nsfw form-group row">
             <legend className="col-form-label col-sm-2 pt-0">
               {i18n.t("nsfw")}
             </legend>
