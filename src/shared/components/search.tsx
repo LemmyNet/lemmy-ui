@@ -538,7 +538,7 @@ export class Search extends Component<any, SearchState> {
         <select
           value={type}
           onChange={linkEvent(this, this.handleTypeChange)}
-          className="custom-select w-auto mb-2"
+          className="form-select d-inline-block w-auto mb-2"
           aria-label={i18n.t("type")}
         >
           <option disabled aria-hidden="true">

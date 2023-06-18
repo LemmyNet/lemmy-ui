@@ -565,7 +565,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-language"
                 value={this.state.saveUserSettingsForm.interface_language}
                 onChange={linkEvent(this, this.handleInterfaceLangChange)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
                   {i18n.t("interface_language")}
@@ -602,7 +602,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-theme"
                 value={this.state.saveUserSettingsForm.theme}
                 onChange={linkEvent(this, this.handleThemeChange)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
                   {i18n.t("theme")}

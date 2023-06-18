@@ -777,7 +777,7 @@ export class Modlog extends Component<
             <select
               value={actionType}
               onChange={linkEvent(this, this.handleFilterActionChange)}
-              className="custom-select col-sm-6"
+              className="form-select d-inline-block col-sm-6"
               aria-label="action"
             >
               <option disabled aria-hidden="true">

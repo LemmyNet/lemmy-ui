@@ -266,7 +266,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               id="create-site-registration-mode"
               value={this.state.siteForm.registration_mode}
               onChange={linkEvent(this, this.handleSiteRegistrationModeChange)}
-              className="custom-select w-auto"
+              className="form-select d-inline-block w-auto"
             >
               <option value={"RequireApplication"}>
                 {i18n.t("require_registration_application")}
@@ -389,7 +389,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               id="create-site-default-theme"
               value={this.state.siteForm.default_theme}
               onChange={linkEvent(this, this.handleSiteDefaultTheme)}
-              className="custom-select w-auto"
+              className="form-select d-inline-block w-auto"
             >
               <option value="browser">{i18n.t("browser_default")}</option>
               {this.props.themeList?.map(theme => (
@@ -595,7 +595,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 id="create-site-captcha-difficulty"
                 value={this.state.siteForm.captcha_difficulty}
                 onChange={linkEvent(this, this.handleSiteCaptchaDifficulty)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option value="easy">{i18n.t("easy")}</option>
                 <option value="medium">{i18n.t("medium")}</option>
