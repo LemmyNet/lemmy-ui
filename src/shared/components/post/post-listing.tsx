@@ -484,7 +484,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postTitleLine() {
     const post = this.postView.post;
     const url = post.url;
-    const body = post.body;
 
     return (
       <>
@@ -564,32 +563,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </small>
           )}
         </div>
-        <p className="d-flex text-muted align-items-center gap-1 small">
-          {url && !(hostname(url) === getExternalHost()) && (
-            <a
-              className="text-muted font-italic"
-              href={url}
-              title={url}
-              rel={relTags}
-            >
-              {hostname(url)}
-            </a>
-          )}
-          {body && (
-            <>
-              <span>•</span>
-              <button
-                className="text-muted btn btn-sm btn-link p-0"
-                data-tippy-content={mdNoImages.render(body)}
-                data-tippy-allowHtml={true}
-                onClick={linkEvent(this, this.handleShowBody)}
-              >
-                <Icon icon="book-open" classes="icon-inline mr-1" />
-              </button>
-            </>
-          )}
-        </p>
+        {url && this.urlLine()}
       </>
+    );
+  }
+
+  urlLine() {
+    const post = this.postView.post;
+    const url = post.url;
+
+    return (
+      <p className="d-flex text-muted align-items-center gap-1 small">
+        {url && !(hostname(url) === getExternalHost()) && (
+          <a
+            className="text-muted font-italic"
+            href={url}
+            title={url}
+            rel={relTags}
+          >
+            {hostname(url)}
+          </a>
+        )}
+      </p>
     );
   }
 
@@ -658,14 +653,44 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  showPreviewButton() {
+    const post_view = this.postView;
+    const body = post_view.post.body;
+
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        data-tippy-content={body && mdNoImages.render(body)}
+        data-tippy-allowHtml={true}
+        onClick={linkEvent(this, this.handleShowBody)}
+      >
+        <Icon
+          icon="book-open"
+          classes={classNames("icon-inline mr-1", {
+            "text-success": this.state.showBody,
+          })}
+        />
+      </button>
+    );
+  }
+
   postActions() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
     const post_view = this.postView;
+    const post = post_view.post;
+
     return (
       <>
         {this.saveButton}
         {this.crossPostButton}
+
+        {/**
+         * If there is a URL, or if the post has a body and we were told not to
+         * show the body, show the MetadataCard/body toggle.
+         */}
+        {(post.url || (post.body && !this.props.showBody)) &&
+          this.showPreviewButton()}
 
         {this.showBody && post_view.post.body && this.viewSourceButton}
 
