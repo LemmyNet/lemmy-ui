@@ -497,7 +497,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
     return (
       <Link
-        className={`d-inline-block ${
+        className={`d-inline ${
           !post.featured_community && !post.featured_local
             ? "text-body"
             : "text-primary"
@@ -505,8 +505,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         to={`/post/${post.id}`}
         title={i18n.t("comments")}
       >
-        <div
-          className="d-inline-block"
+        <span
+          className="d-inline"
           dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
         />
       </Link>
@@ -519,88 +519,80 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     return (
       <div className="post-title overflow-hidden">
-        <h5>
-          {url ? (
-            this.props.showBody ? (
-              <a
-                className={`d-inline-block ${
-                  !post.featured_community && !post.featured_local
-                    ? "text-body"
-                    : "text-primary"
-                }`}
-                href={url}
-                title={url}
-                rel={relTags}
-              >
-                <div
-                  className="d-inline-block"
-                  dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
-                />
-              </a>
-            ) : (
-              this.postLink
-            )
+        <h5 className="d-inline">
+          {url && this.props.showBody ? (
+            <a
+              className={
+                !post.featured_community && !post.featured_local
+                  ? "text-body"
+                  : "text-primary"
+              }
+              href={url}
+              title={url}
+              rel={relTags}
+              dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+            ></a>
           ) : (
             this.postLink
           )}
-          {(url && isImage(url)) ||
-            (post.thumbnail_url && (
-              <button
-                className="btn btn-link text-monospace text-muted small d-inline-block"
-                data-tippy-content={i18n.t("expand_here")}
-                onClick={linkEvent(this, this.handleImageExpandClick)}
-              >
-                <Icon
-                  icon={
-                    !this.state.imageExpanded ? "plus-square" : "minus-square"
-                  }
-                  classes="icon-inline"
-                />
-              </button>
-            ))}
-          {post.removed && (
-            <small className="ml-2 text-muted font-italic">
-              {i18n.t("removed")}
-            </small>
-          )}
-          {post.deleted && (
-            <small
-              className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("deleted")}
-            >
-              <Icon icon="trash" classes="icon-inline text-danger" />
-            </small>
-          )}
-          {post.locked && (
-            <small
-              className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("locked")}
-            >
-              <Icon icon="lock" classes="icon-inline text-danger" />
-            </small>
-          )}
-          {post.featured_community && (
-            <small
-              className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("featured")}
-            >
-              <Icon icon="pin" classes="icon-inline text-primary" />
-            </small>
-          )}
-          {post.featured_local && (
-            <small
-              className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("featured")}
-            >
-              <Icon icon="pin" classes="icon-inline text-secondary" />
-            </small>
-          )}
-          {post.nsfw && (
-            <small className="ml-2 text-muted font-italic">
-              {i18n.t("nsfw")}
-            </small>
-          )}
         </h5>
+        {(url && isImage(url)) ||
+          (post.thumbnail_url && (
+            <button
+              className="btn btn-link text-monospace text-muted small d-inline-block"
+              data-tippy-content={i18n.t("expand_here")}
+              onClick={linkEvent(this, this.handleImageExpandClick)}
+            >
+              <Icon
+                icon={
+                  !this.state.imageExpanded ? "plus-square" : "minus-square"
+                }
+                classes="icon-inline"
+              />
+            </button>
+          ))}
+        {post.removed && (
+          <small className="ml-2 text-muted font-italic">
+            {i18n.t("removed")}
+          </small>
+        )}
+        {post.deleted && (
+          <small
+            className="unselectable pointer ml-2 text-muted font-italic"
+            data-tippy-content={i18n.t("deleted")}
+          >
+            <Icon icon="trash" classes="icon-inline text-danger" />
+          </small>
+        )}
+        {post.locked && (
+          <small
+            className="unselectable pointer ml-2 text-muted font-italic"
+            data-tippy-content={i18n.t("locked")}
+          >
+            <Icon icon="lock" classes="icon-inline text-danger" />
+          </small>
+        )}
+        {post.featured_community && (
+          <small
+            className="unselectable pointer ml-2 text-muted font-italic"
+            data-tippy-content={i18n.t("featured")}
+          >
+            <Icon icon="pin" classes="icon-inline text-primary" />
+          </small>
+        )}
+        {post.featured_local && (
+          <small
+            className="unselectable pointer ml-2 text-muted font-italic"
+            data-tippy-content={i18n.t("featured")}
+          >
+            <Icon icon="pin" classes="icon-inline text-secondary" />
+          </small>
+        )}
+        {post.nsfw && (
+          <small className="ml-2 text-muted font-italic">
+            {i18n.t("nsfw")}
+          </small>
+        )}
       </div>
     );
   }
