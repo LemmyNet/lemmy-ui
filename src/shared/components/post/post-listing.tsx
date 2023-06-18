@@ -873,7 +873,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get reportButton() {
     return (
       <button
-        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleShowReportDialog)}
         data-tippy-content={i18n.t("show_report_dialog")}
         aria-label={i18n.t("show_report_dialog")}
@@ -886,7 +886,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get blockButton() {
     return (
       <button
-        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleBlockPersonClick)}
         data-tippy-content={i18n.t("block_user")}
         aria-label={i18n.t("block_user")}
@@ -899,7 +899,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get editButton() {
     return (
       <button
-        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleEditClick)}
         aria-label={i18n.t("edit")}
       >
@@ -914,7 +914,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const label = !deleted ? i18n.t("delete") : i18n.t("restore");
     return (
       <button
-        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleDeleteClick)}
         aria-label={label}
       >
@@ -956,7 +956,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const label = locked ? i18n.t("unlock") : i18n.t("lock");
     return (
       <button
-        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModLock)}
         aria-label={label}
       >
@@ -990,7 +990,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         <li>
           <button
-            className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+            className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
             onClick={linkEvent(this, this.handleModFeaturePostCommunity)}
             data-tippy-content={labelCommunity}
             aria-label={labelCommunity}
@@ -1014,7 +1014,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <li>
           {amAdmin() && (
             <button
-              className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+              className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
               onClick={linkEvent(this, this.handleModFeaturePostLocal)}
               data-tippy-content={labelLocal}
               aria-label={labelLocal}
@@ -1044,7 +1044,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const removed = this.postView.post.removed;
     return (
       <button
-        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(
           this,
           !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit
