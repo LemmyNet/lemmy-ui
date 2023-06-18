@@ -54,7 +54,7 @@ $theme-colors: (
 $body-color: $gray-700;
 $body-bg: #fff;
 $link-color: $primary;
-$border-color: $gray-700;
+$border-color: rgba($body-color, 0.25);
 $mark-bg: rgb(255, 252, 239);
 $headings-color: $gray-700;
 

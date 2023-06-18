@@ -88,7 +88,7 @@
   --bs-highlight-bg: rgb(255, 252, 239);
   --bs-border-width: 1px;
   --bs-border-style: solid;
-  --bs-border-color: #495057;
+  --bs-border-color: rgba(73, 80, 87, 0.25);
   --bs-border-color-translucent: rgba(34, 34, 34, 0.175);
   --bs-border-radius: 0.5rem;
   --bs-border-radius-sm: 1rem;

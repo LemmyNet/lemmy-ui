@@ -146,8 +146,8 @@ export class MarkdownTextArea extends Component<
         />
         <div className="form-group row">
           <div className="col-12">
-            <div className="rounded bg-light border border-secondary">
-              <div className="d-flex flex-wrap border-bottom border-secondary">
+            <div className="rounded bg-light border">
+              <div className="d-flex flex-wrap border-bottom">
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
                 {this.getFormatButton("link", this.handleInsertLink)}
