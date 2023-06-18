@@ -359,7 +359,10 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="form-group">
-            <button type="submit" className="btn d-block btn-secondary me-4">
+            <button
+              type="submit"
+              className="btn d-block btn-secondary me-4 w-100"
+            >
               {this.state.changePasswordRes.state === "loading" ? (
                 <Spinner />
               ) : (

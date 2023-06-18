@@ -253,7 +253,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const cv = this.props.community_view;
     return (
       <Link
-        className={`btn btn-secondary d-block mb-2 ${
+        className={`btn btn-secondary d-block mb-2 w-100 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
         to={`/create_post?communityId=${cv.community.id}`}
@@ -266,10 +266,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   subscribe() {
     const community_view = this.props.community_view;
     return (
-      <div className="mb-2">
+      <>
         {community_view.subscribed == "NotSubscribed" && (
           <button
-            className="btn btn-secondary d-block"
+            className="btn btn-secondary d-block mb-2 w-100"
             onClick={linkEvent(this, this.handleFollowCommunity)}
           >
             {this.state.followCommunityLoading ? (
@@ -279,7 +279,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             )}
           </button>
         )}
-      </div>
+      </>
     );
   }
 
@@ -287,16 +287,16 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const { subscribed, blocked } = this.props.community_view;
 
     return (
-      <div className="mb-2">
+      <>
         {subscribed == "NotSubscribed" && (
           <button
-            className="btn btn-danger d-block"
+            className="btn btn-danger d-block mb-2 w-100"
             onClick={linkEvent(this, this.handleBlockCommunity)}
           >
             {i18n.t(blocked ? "unblock_community" : "block_community")}
           </button>
         )}
-      </div>
+      </>
     );
   }
 
