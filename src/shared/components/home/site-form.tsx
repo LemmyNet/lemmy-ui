@@ -121,7 +121,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     const siteSetup = this.props.siteRes.site_view.local_site.site_setup;
     return (
       <form
-        className="site-form-root"
+        className="site-form"
         onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}
       >
         <NavigationPrompt
