@@ -1,0 +1,14 @@
+.paginator {
+  margin-block: $spacer;
+}
+
+.paginator__button {
+  @extend .btn;
+  @extend .btn-secondary;
+
+  margin-right: $spacer;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
