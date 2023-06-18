@@ -50,6 +50,7 @@ import {
   isAdmin,
   isBanned,
   isMod,
+  getUserFlair,
   mdToHtml,
   mdToHtmlNoImages,
   myAuth,
@@ -269,6 +270,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       cv.creator.id,
       this.props.moderators
     );
+    const flair = getUserFlair(cv.creator);
 
     const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
@@ -311,6 +313,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               </span>
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes={`text-danger mr-2`} />
+              )}
+              {flair !== null && (
+                <div className="badge badge-light d-inline mr-2 p-1">
+                  {flair}
+                </div>
               )}
               {this.isPostCreator && (
                 <div className="badge badge-light d-none d-sm-inline mr-2">

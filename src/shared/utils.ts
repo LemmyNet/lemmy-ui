@@ -321,6 +321,15 @@ export function amTopMod(
   return mods.at(0)?.moderator.id == myUserInfo?.local_user_view.person.id;
 }
 
+export function getUserFlair(
+  user: Person
+): string | null {
+  //TODO: fetch flair from the backend
+  const flair = "🟥🟦 - AuthCenter";
+
+  return flair;
+}
+
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
 const tldRegex = /([a-z0-9]+\.)*[a-z0-9]+\.[a-z]+/;
