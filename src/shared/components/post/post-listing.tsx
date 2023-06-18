@@ -875,7 +875,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get reportButton() {
     return (
       <button
-        className="btn btn-link btn-animate d-flex align-items-center rounded-0 py-0 dropdown-item"
+        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleShowReportDialog)}
         data-tippy-content={i18n.t("show_report_dialog")}
         aria-label={i18n.t("show_report_dialog")}
@@ -888,7 +888,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get blockButton() {
     return (
       <button
-        className="btn btn-link btn-animate d-flex align-items-center rounded-0 py-0 dropdown-item"
+        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleBlockPersonClick)}
         data-tippy-content={i18n.t("block_user")}
         aria-label={i18n.t("block_user")}
