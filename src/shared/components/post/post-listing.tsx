@@ -497,7 +497,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
     return (
       <Link
-        className={`d-inline-block ${
+        className={`d-inline ${
           !post.featured_community && !post.featured_local
             ? "text-body"
             : "text-primary"
@@ -505,8 +505,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         to={`/post/${post.id}`}
         title={i18n.t("comments")}
       >
-        <div
-          className="d-inline-block"
+        <span
+          className="d-inline"
           dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
         />
       </Link>
