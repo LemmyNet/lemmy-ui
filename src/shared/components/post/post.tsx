@@ -439,6 +439,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("hot")}
             <input
               type="radio"
+              className="btn-check"
               value={"Hot"}
               checked={this.state.commentSort === "Hot"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -452,6 +453,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("top")}
             <input
               type="radio"
+              className="btn-check"
               value={"Top"}
               checked={this.state.commentSort === "Top"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -465,6 +467,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("new")}
             <input
               type="radio"
+              className="btn-check"
               value={"New"}
               checked={this.state.commentSort === "New"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -478,6 +481,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("old")}
             <input
               type="radio"
+              className="btn-check"
               value={"Old"}
               checked={this.state.commentSort === "Old"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -493,6 +497,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("chat")}
             <input
               type="radio"
+              className="btn-check"
               value={CommentViewType.Flat}
               checked={this.state.commentViewType === CommentViewType.Flat}
               onChange={linkEvent(this, this.handleCommentViewTypeChange)}

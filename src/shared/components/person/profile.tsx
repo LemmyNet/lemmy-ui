@@ -415,6 +415,7 @@ export class Profile extends Component<
       >
         <input
           type="radio"
+          className="btn-check"
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}

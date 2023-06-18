@@ -39,6 +39,7 @@ export class DataTypeSelect extends Component<
         >
           <input
             type="radio"
+            className="btn-check"
             value={DataType.Post}
             checked={this.state.type_ == DataType.Post}
             onChange={linkEvent(this, this.handleTypeChange)}
@@ -52,6 +53,7 @@ export class DataTypeSelect extends Component<
         >
           <input
             type="radio"
+            className="btn-check"
             value={DataType.Comment}
             checked={this.state.type_ == DataType.Comment}
             onChange={linkEvent(this, this.handleTypeChange)}

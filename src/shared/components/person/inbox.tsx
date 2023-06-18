@@ -292,6 +292,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.Unread}
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -305,6 +306,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.All}
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -325,6 +327,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.All}
             checked={this.state.messageType == MessageType.All}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -338,6 +341,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Replies}
             checked={this.state.messageType == MessageType.Replies}
             onChange={linkEvent(this, this.handleMessageTypeChange)}

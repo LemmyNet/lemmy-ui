@@ -193,6 +193,7 @@ export class Reports extends Component<any, ReportsState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.Unread}
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -206,6 +207,7 @@ export class Reports extends Component<any, ReportsState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.All}
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -226,6 +228,7 @@ export class Reports extends Component<any, ReportsState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.All}
             checked={this.state.messageType == MessageType.All}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -239,6 +242,7 @@ export class Reports extends Component<any, ReportsState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.CommentReport}
             checked={this.state.messageType == MessageType.CommentReport}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
