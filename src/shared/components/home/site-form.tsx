@@ -120,7 +120,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   render() {
     const siteSetup = this.props.siteRes.site_view.local_site.site_setup;
     return (
-      <form onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}>
+      <form
+        className="site-form-root"
+        onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}
+      >
         <NavigationPrompt
           when={
             !this.props.loading &&
@@ -139,7 +142,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             ? capitalizeFirstLetter(i18n.t("edit"))
             : capitalizeFirstLetter(i18n.t("setup"))
         } ${i18n.t("your_site")}`}</h5>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--name form-group row">
           <label className="col-12 col-form-label" htmlFor="create-site-name">
             {i18n.t("name")}
           </label>
@@ -156,7 +159,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group">
+        <div className="site-form__row site-form__row--icon form-group">
           <label className="mr-2">{i18n.t("icon")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_icon")}
@@ -166,7 +169,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             rounded
           />
         </div>
-        <div className="form-group">
+        <div className="site-form__row site-form__row--banner form-group">
           <label className="mr-2">{i18n.t("banner")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_banner")}
@@ -175,7 +178,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             onRemove={this.handleBannerRemove}
           />
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--desc form-group row">
           <label className="col-12 col-form-label" htmlFor="site-desc">
             {i18n.t("description")}
           </label>
@@ -190,7 +193,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--sidebar form-group row">
           <label className="col-12 col-form-label">{i18n.t("sidebar")}</label>
           <div className="col-12">
             <MarkdownTextArea
@@ -202,7 +205,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--legal form-group row">
           <label className="col-12 col-form-label">
             {i18n.t("legal_information")}
           </label>
@@ -216,7 +219,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--downvotes form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -235,7 +238,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--nsfw form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -254,7 +257,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--regmode form-group row">
           <div className="col-12">
             <label
               className="form-check-label mr-2"
@@ -277,7 +280,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         {this.state.siteForm.registration_mode == "RequireApplication" && (
-          <div className="form-group row">
+          <div className="site-form__row site-form__row--questionnaire form-group row">
             <label className="col-12 col-form-label">
               {i18n.t("application_questionnaire")}
             </label>
@@ -292,7 +295,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         )}
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--creation-mode form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -314,7 +317,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--email-verif form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -336,7 +339,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--app-email-admins form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -358,7 +361,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--reports-email form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -377,7 +380,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--theme form-group row">
           <div className="col-12">
             <label
               className="form-check-label mr-2"
@@ -401,7 +404,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         {this.props.showLocal && (
-          <form className="form-group row">
+          <form className="site-form__row site-form__row--local form-group row">
             <label className="col-sm-3">{i18n.t("listing_type")}</label>
             <div className="col-sm-9">
               <ListingTypeSelect
@@ -413,7 +416,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </form>
         )}
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--private form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -432,7 +435,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--show-modlog form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -451,7 +454,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--slur-filter form-group row">
           <label
             className="col-12 col-form-label"
             htmlFor="create-site-slur-filter-regex"
@@ -478,7 +481,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           onChange={this.handleDiscussionLanguageChange}
           showAll
         />
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--actor-name form-group row">
           <label
             className="col-12 col-form-label"
             htmlFor="create-site-actor-name"
@@ -496,7 +499,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--federation form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -517,7 +520,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
         {this.state.siteForm.federation_enabled && (
           <>
-            <div className="form-group row">
+            <div className="site-form__row site-form__row--federation-debug form-group row">
               {this.federatedInstanceSelect("allowed_instances")}
               {this.federatedInstanceSelect("blocked_instances")}
             </div>
@@ -540,7 +543,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 </div>
               </div>
             </div>
-            <div className="form-group row">
+            <div className="site-form__row site-form__row--federation-workerct form-group row">
               <label
                 className="col-12 col-form-label"
                 htmlFor="create-site-federation-worker-count"
@@ -563,7 +566,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </>
         )}
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--captcha-enabled form-group row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -583,7 +586,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         {this.state.siteForm.captcha_enabled && (
-          <div className="form-group row">
+          <div className="site-form__row site-form__row--captcha-diffic form-group row">
             <div className="col-12">
               <label
                 className="form-check-label mr-2"
@@ -604,7 +607,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         )}
-        <div className="form-group row">
+        <div className="site-form__row site-form__row--btns form-group row">
           <div className="col-12">
             <button
               type="submit"
@@ -630,11 +633,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     const value = this.state.instance_select[key];
     const selectedInstances = this.state.siteForm[key];
     return (
-      <div className="col-12 col-md-6">
+      <div className="site-form__fed-instance-sel--root col-12 col-md-6">
         <label className="col-form-label" htmlFor={id}>
           {i18n.t(key)}
         </label>
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="site-form__fed-instance-add d-flex justify-content-between align-items-center">
           <input
             type="text"
             placeholder="instance.tld"
@@ -660,11 +663,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </button>
         </div>
         {selectedInstances && selectedInstances.length > 0 && (
-          <ul className="mt-3 list-unstyled w-100 d-flex flex-column justify-content-around align-items-center">
+          <ul className="site-form__fed-instance-list mt-3 list-unstyled w-100 d-flex flex-column justify-content-around align-items-center">
             {selectedInstances.map(instance => (
               <li
                 key={instance}
-                className="my-1 w-100 w-md-75 d-flex align-items-center justify-content-between"
+                className="site-form__fed-instance my-1 w-100 w-md-75 d-flex align-items-center justify-content-between"
               >
                 <label className="d-block m-0 w-100 " htmlFor={instance}>
                   <strong>{instance}</strong>

@@ -193,7 +193,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     // !!this.state.form.name || !!this.state.form.url || !!this.state.form.body;
     // <Prompt when={promptCheck} message={i18n.t("block_leaving")} />
     return (
-      <form onSubmit={linkEvent(this, this.handlePostSubmit)}>
+      <form
+        className="post-form__root"
+        onSubmit={linkEvent(this, this.handlePostSubmit)}
+      >
         <NavigationPrompt
           when={
             !!(
@@ -203,7 +206,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             ) && !this.state.submitted
           }
         />
-        <div className="form-group row">
+        <div className="post-form---row-main form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
             {i18n.t("url")}
           </label>
@@ -220,7 +223,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             <form>
               <label
                 htmlFor="file-upload"
-                className={`${
+                className={`post-form__label post-form__label--icon ${
                   UserService.Instance.myUserInfo && "pointer"
                 } d-inline-block float-right text-muted font-weight-bold`}
                 data-tippy-content={i18n.t("upload_image")}
@@ -238,7 +241,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               />
             </form>
             {url && validURL(url) && (
-              <div>
+              <div className="post-form__archives">
                 <a
                   href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
                   className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
@@ -272,7 +275,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )}
             {this.state.imageDeleteUrl && (
               <button
-                className="btn btn-danger btn-sm mt-2"
+                className="post-form__btn post-form__btn--imgdel btn btn-danger btn-sm mt-2"
                 onClick={linkEvent(this, this.handleImageDelete)}
                 aria-label={i18n.t("delete")}
                 data-tippy-content={i18n.t("delete")}
@@ -283,7 +286,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )}
             {this.props.crossPosts && this.props.crossPosts.length > 0 && (
               <>
-                <div className="my-1 text-muted small font-weight-bold">
+                <div className="post-form__cross_posts-wrap my-1 text-muted small font-weight-bold">
                   {i18n.t("cross_posts")}
                 </div>
                 <PostListings
@@ -316,7 +319,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )}
           </div>
         </div>
-        <div className="form-group row">
+        <div className="post-form__row post-form__row--title form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="post-title">
             {i18n.t("title")}
           </label>
@@ -342,7 +345,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         </div>
 
-        <div className="form-group row">
+        <div className="post-form__row post-form__row--body form-group row">
           <label className="col-sm-2 col-form-label">{i18n.t("body")}</label>
           <div className="col-sm-10">
             <MarkdownTextArea
@@ -412,7 +415,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           value={this.state.form.honeypot}
           onInput={linkEvent(this, this.handleHoneyPotChange)}
         />
-        <div className="form-group row">
+        <div className="post-form__row post-form__row--btns form-group row">
           <div className="col-sm-10">
             <button
               disabled={!this.state.form.community_id || this.state.loading}

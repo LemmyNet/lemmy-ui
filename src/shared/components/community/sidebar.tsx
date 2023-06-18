@@ -131,7 +131,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUSerInfo = UserService.Instance.myUserInfo;
     const { name, actor_id } = this.props.community_view.community;
     return (
-      <aside className="mb-3">
+      <aside className="community-sidebar__sidebar mb-3">
         <div id="sidebarContainer">
           <section id="sidebarMain" className="card border-secondary mb-3">
             <div className="card-body">
@@ -174,17 +174,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const community = this.props.community_view.community;
     const subscribed = this.props.community_view.subscribed;
     return (
-      <div>
+      <div className="community-sidebar__title">
         <h5 className="mb-0">
           {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
-          <span className="mr-2">
+          <span className="community-sidebar__title-link mr-2">
             <CommunityLink community={community} hideAvatar />
           </span>
           {subscribed === "Subscribed" && (
             <button
-              className="btn btn-secondary btn-sm mr-2"
+              className="community-sidebar__btn community-sidebar__btn--subscribe btn btn-secondary btn-sm mr-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
               {this.state.followCommunityLoading ? (
@@ -199,7 +199,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           )}
           {subscribed === "Pending" && (
             <button
-              className="btn btn-warning mr-2"
+              className="community-sidebar__btn community-sidebar__btn--subscribe-pending btn btn-warning mr-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
               {this.state.followCommunityLoading ? (
@@ -210,17 +210,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             </button>
           )}
           {community.removed && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="community-sidebar__title-removed mr-2 text-muted font-italic">
               {i18n.t("removed")}
             </small>
           )}
           {community.deleted && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="community-sidebar__title-deleted mr-2 text-muted font-italic">
               {i18n.t("deleted")}
             </small>
           )}
           {community.nsfw && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="community-sidebar__title-nsfw mr-2 text-muted font-italic">
               {i18n.t("nsfw")}
             </small>
           )}
@@ -238,7 +238,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   mods() {
     return (
-      <ul className="list-inline small">
+      <ul className="community-sidebar__mods list-inline small">
         <li className="list-inline-item">{i18n.t("mods")}: </li>
         {this.props.moderators.map(mod => (
           <li key={mod.moderator.id} className="list-inline-item">
@@ -253,7 +253,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const cv = this.props.community_view;
     return (
       <Link
-        className={`btn btn-secondary btn-block mb-2 ${
+        className={`community-sidebar__create-post btn btn-secondary btn-block mb-2 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
         to={`/create_post?communityId=${cv.community.id}`}
@@ -266,7 +266,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   subscribe() {
     const community_view = this.props.community_view;
     return (
-      <div className="mb-2">
+      <div className="community-sidebar__subscribe mb-2">
         {community_view.subscribed == "NotSubscribed" && (
           <button
             className="btn btn-secondary btn-block"
@@ -287,7 +287,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const { subscribed, blocked } = this.props.community_view;
 
     return (
-      <div className="mb-2">
+      <div className="community-sidebar__block mb-2">
         {subscribed == "NotSubscribed" && (
           <button
             className="btn btn-danger btn-block"
@@ -304,7 +304,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const desc = this.props.community_view.community.description;
     return (
       desc && (
-        <div className="md-div" dangerouslySetInnerHTML={mdToHtml(desc)} />
+        <div
+          className="community-sidebar__desc md-div"
+          dangerouslySetInnerHTML={mdToHtml(desc)}
+        />
       )
     );
   }
@@ -313,10 +316,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const community_view = this.props.community_view;
     return (
       <>
-        <ul className="list-inline mb-1 text-muted font-weight-bold">
+        <ul className="community-sidebar__admin-btns list-inline mb-1 text-muted font-weight-bold">
           {amMod(this.props.moderators) && (
             <>
-              <li className="list-inline-item-action">
+              <li className="community-sidebar__li community-sidebar__li--mod-edit list-inline-item-action">
                 <button
                   className="btn btn-link text-muted d-inline-block"
                   onClick={linkEvent(this, this.handleEditClick)}
@@ -328,7 +331,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               </li>
               {!amTopMod(this.props.moderators) &&
                 (!this.state.showConfirmLeaveModTeam ? (
-                  <li className="list-inline-item-action">
+                  <li className="community-sidebar__li community-sidebar__li--leave list-inline-item-action">
                     <button
                       className="btn btn-link text-muted d-inline-block"
                       onClick={linkEvent(
@@ -341,7 +344,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </li>
                 ) : (
                   <>
-                    <li className="list-inline-item-action">
+                    <li className="community-sidebar__li community-sidebar__li--confirm-leave list-inline-item-action">
                       {i18n.t("are_you_sure")}
                     </li>
                     <li className="list-inline-item-action">
@@ -352,7 +355,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         {i18n.t("yes")}
                       </button>
                     </li>
-                    <li className="list-inline-item-action">
+                    <li className="community-sidebar__li community-sidebar__li--cancel-leave list-inline-item-action">
                       <button
                         className="btn btn-link text-muted d-inline-block"
                         onClick={linkEvent(
@@ -366,7 +369,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </>
                 ))}
               {amTopMod(this.props.moderators) && (
-                <li className="list-inline-item-action">
+                <li className="community-sidebar__li community-sidebar__li--delete-community list-inline-item-action">
                   <button
                     className="btn btn-link text-muted d-inline-block"
                     onClick={linkEvent(this, this.handleDeleteCommunity)}
@@ -397,17 +400,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             </>
           )}
           {amAdmin() && (
-            <li className="list-inline-item">
+            <li className="community-sidebar__li community-sidebar__li--manage-mods list-inline-item">
               {!this.props.community_view.community.removed ? (
                 <button
-                  className="btn btn-link text-muted d-inline-block"
+                  className="community-sidebar__btn community-sidebar__btn--mod-remove btn btn-link text-muted d-inline-block"
                   onClick={linkEvent(this, this.handleModRemoveShow)}
                 >
                   {i18n.t("remove")}
                 </button>
               ) : (
                 <button
-                  className="btn btn-link text-muted d-inline-block"
+                  className="community-sidebar__btn community-sidebar__btn--mod-restore btn btn-link text-muted d-inline-block"
                   onClick={linkEvent(this, this.handleRemoveCommunity)}
                 >
                   {this.state.removeCommunityLoading ? (
@@ -418,7 +421,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 </button>
               )}
               <button
-                className="btn btn-link text-muted d-inline-block"
+                className="community-sidebar__btn community-sidebar__btn--purge btn btn-link text-muted d-inline-block"
                 onClick={linkEvent(this, this.handlePurgeCommunityShow)}
                 aria-label={i18n.t("purge_community")}
               >
@@ -428,15 +431,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           )}
         </ul>
         {this.state.showRemoveDialog && (
-          <form onSubmit={linkEvent(this, this.handleRemoveCommunity)}>
-            <div className="form-group">
+          <form
+            className="community-sidebar__remove-community-form"
+            onSubmit={linkEvent(this, this.handleRemoveCommunity)}
+          >
+            <div className="community-sidebar__remove-community-wrap form-group">
               <label className="col-form-label" htmlFor="remove-reason">
                 {i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id="remove-reason"
-                className="form-control mr-2"
+                className="community-sidebar__remove-community-reason form-control mr-2"
                 placeholder={i18n.t("optional")}
                 value={this.state.removeReason}
                 onInput={linkEvent(this, this.handleModRemoveReasonChange)}
@@ -447,7 +453,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {/*   <label class="col-form-label">Expires</label> */}
             {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
             {/* </div> */}
-            <div className="form-group">
+            <div className="community-sidebar__remove-community-submit-wrap form-group">
               <button type="submit" className="btn btn-secondary">
                 {this.state.removeCommunityLoading ? (
                   <Spinner />
@@ -460,10 +466,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         )}
         {this.state.showPurgeDialog && (
           <form onSubmit={linkEvent(this, this.handlePurgeCommunity)}>
-            <div className="form-group">
+            <div className="community-sidebar__purge-dialog-warning-wrap form-group">
               <PurgeWarning />
             </div>
-            <div className="form-group">
+            <div className="community-sidebar__purge-dialog-reason-wrap form-group">
               <label className="sr-only" htmlFor="purge-reason">
                 {i18n.t("reason")}
               </label>
@@ -476,7 +482,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 onInput={linkEvent(this, this.handlePurgeReasonChange)}
               />
             </div>
-            <div className="form-group">
+            <div className="community-sidebar__purge-dialog-btn-wrap form-group">
               {this.state.purgeCommunityLoading ? (
                 <Spinner />
               ) : (

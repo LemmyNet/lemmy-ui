@@ -88,17 +88,17 @@ export class PrivateMessage extends Component<
       : message_view.creator;
 
     return (
-      <div className="border-top border-light">
+      <div className="private-message__root border-top border-light">
         <div>
-          <ul className="list-inline mb-0 text-muted small">
+          <ul className="private-message__ul list-inline mb-0 text-muted small">
             {/* TODO refactor this */}
-            <li className="list-inline-item">
+            <li className="private-message__li private-message__li--me list-inline-item">
               {this.mine ? i18n.t("to") : i18n.t("from")}
             </li>
-            <li className="list-inline-item">
+            <li className="private-message__li private-message__li--other list-inline-item">
               <PersonListing person={otherPerson} />
             </li>
-            <li className="list-inline-item">
+            <li className="private-message__li private-message__li--when list-inline-item">
               <span>
                 <MomentTime
                   published={message_view.private_message.published}
@@ -106,7 +106,7 @@ export class PrivateMessage extends Component<
                 />
               </span>
             </li>
-            <li className="list-inline-item">
+            <li className="private-message__li private-message__li--exp list-inline-item">
               <div
                 role="button"
                 className="pointer text-monospace"
@@ -129,7 +129,7 @@ export class PrivateMessage extends Component<
             />
           )}
           {!this.state.showEdit && !this.state.collapsed && (
-            <div>
+            <div className="private-message-edit__root">
               {this.state.viewSource ? (
                 <pre>{this.messageUnlessRemoved}</pre>
               ) : (
@@ -141,7 +141,7 @@ export class PrivateMessage extends Component<
               <ul className="list-inline mb-0 text-muted font-weight-bold">
                 {!this.mine && (
                   <>
-                    <li className="list-inline-item">
+                    <li className="private-message-edit__li private-message-edit__li--btns list-inline-item">
                       <button
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleMarkRead)}
@@ -169,8 +169,10 @@ export class PrivateMessage extends Component<
                         )}
                       </button>
                     </li>
-                    <li className="list-inline-item">{this.reportButton}</li>
-                    <li className="list-inline-item">
+                    <li className="private-message-edit__li private-message-edit__li--report list-inline-item">
+                      {this.reportButton}
+                    </li>
+                    <li className="private-message-edit__li private-message-edit__li--btns list-inline-item">
                       <button
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
@@ -184,7 +186,7 @@ export class PrivateMessage extends Component<
                 )}
                 {this.mine && (
                   <>
-                    <li className="list-inline-item">
+                    <li className="private-message-edit__li private-message-edit__li--edit list-inline-item">
                       <button
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleEditClick)}
@@ -194,7 +196,7 @@ export class PrivateMessage extends Component<
                         <Icon icon="edit" classes="icon-inline" />
                       </button>
                     </li>
-                    <li className="list-inline-item">
+                    <li className="private-message-edit__li private-message-edit__li--delete-restore list-inline-item">
                       <button
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleDeleteClick)}
@@ -224,7 +226,7 @@ export class PrivateMessage extends Component<
                     </li>
                   </>
                 )}
-                <li className="list-inline-item">
+                <li className="private-message-edit__li private-message-edit__li--view-source list-inline-item">
                   <button
                     className="btn btn-link btn-animate text-muted"
                     onClick={linkEvent(this, this.handleViewSource)}
@@ -245,7 +247,7 @@ export class PrivateMessage extends Component<
         </div>
         {this.state.showReportDialog && (
           <form
-            className="form-inline"
+            className="report-dialog__root form-inline"
             onSubmit={linkEvent(this, this.handleReportSubmit)}
           >
             <label className="sr-only" htmlFor="pm-report-reason">

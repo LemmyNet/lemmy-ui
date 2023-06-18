@@ -127,7 +127,7 @@ export class Signup extends Component<any, State> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="signup__root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -144,11 +144,14 @@ export class Signup extends Component<any, State> {
   registerForm() {
     const siteView = this.state.siteRes.site_view;
     return (
-      <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
+      <form
+        className="signup__form"
+        onSubmit={linkEvent(this, this.handleRegisterSubmit)}
+      >
         <h5>{this.titleName(siteView)}</h5>
 
         {this.isLemmyMl && (
-          <div className="form-group row">
+          <div className="signup__form-row signup__form-row---joinurl form-group row">
             <div className="mt-2 mb-0 alert alert-warning" role="alert">
               <T i18nKey="lemmy_ml_registration_message">
                 #<a href={joinLemmyUrl}>#</a>
@@ -157,7 +160,7 @@ export class Signup extends Component<any, State> {
           </div>
         )}
 
-        <div className="form-group row">
+        <div className="signup__form-row signup__form-row---username form-group row">
           <label
             className="col-sm-2 col-form-label"
             htmlFor="register-username"
@@ -180,7 +183,7 @@ export class Signup extends Component<any, State> {
           </div>
         </div>
 
-        <div className="form-group row">
+        <div className="signup__form-row signup__form-row---email form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="register-email">
             {i18n.t("email")}
           </label>
@@ -211,7 +214,7 @@ export class Signup extends Component<any, State> {
           </div>
         </div>
 
-        <div className="form-group row">
+        <div className="signup__form-row signup__form-row---password form-group row">
           <label
             className="col-sm-2 col-form-label"
             htmlFor="register-password"
@@ -238,7 +241,7 @@ export class Signup extends Component<any, State> {
           </div>
         </div>
 
-        <div className="form-group row">
+        <div className="signup__form-row signup__form-row---verifypass form-group row">
           <label
             className="col-sm-2 col-form-label"
             htmlFor="register-verify-password"
@@ -261,7 +264,7 @@ export class Signup extends Component<any, State> {
 
         {siteView.local_site.registration_mode == "RequireApplication" && (
           <>
-            <div className="form-group row">
+            <div className="signup__form-row signup__form-row--application form-group row">
               <div className="offset-sm-2 col-sm-10">
                 <div className="mt-2 alert alert-warning" role="alert">
                   <Icon icon="alert-triangle" classes="icon-inline mr-2" />
@@ -298,7 +301,7 @@ export class Signup extends Component<any, State> {
           </>
         )}
         {this.renderCaptcha()}
-        <div className="form-group row">
+        <div className="signup__form-row signup__form-row--nsfw form-group row">
           <div className="col-sm-10">
             <div className="form-check">
               <input
@@ -324,7 +327,7 @@ export class Signup extends Component<any, State> {
           value={this.state.form.honeypot}
           onInput={linkEvent(this, this.handleHoneyPotChange)}
         />
-        <div className="form-group row">
+        <div className="signup__form-row-btns form-group row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
               {this.state.registerRes.state == "loading" ? (
@@ -346,7 +349,7 @@ export class Signup extends Component<any, State> {
       case "success": {
         const res = this.state.captchaRes.data;
         return (
-          <div className="form-group row">
+          <div className="signup__form-captcha form-group row">
             <label className="col-sm-2" htmlFor="register-captcha">
               <span className="mr-2">{i18n.t("enter_code")}</span>
               <button

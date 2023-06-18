@@ -109,7 +109,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   render() {
     return (
-      <div>
+      <div className="person-details__root">
         {this.viewSelector(this.props.view)}
 
         <Paginator page={this.props.page} onChange={this.handlePageChange} />
@@ -235,7 +235,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     }
 
     return (
-      <div>
+      <div className="person-details__overview">
         {combined.map(i => [
           this.renderItemType(i),
           <hr key={i.type_} className="my-3" />,
@@ -246,7 +246,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   comments() {
     return (
-      <div>
+      <div className="person-details__comments">
         <CommentNodes
           nodes={commentsToFlatNodes(this.props.personRes.comments)}
           viewType={CommentViewType.Flat}
@@ -284,7 +284,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   posts() {
     return (
-      <div>
+      <div className="person-details__posts">
         {this.props.personRes.posts.map(post => (
           <>
             <PostListing

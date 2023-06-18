@@ -66,7 +66,7 @@ export class PostListings extends Component<PostListingsProps, any> {
 
   render() {
     return (
-      <div>
+      <div className="post-listings__root">
         {this.posts.length > 0 ? (
           this.posts.map((post_view, idx) => (
             <>
@@ -103,7 +103,9 @@ export class PostListings extends Component<PostListingsProps, any> {
           ))
         ) : (
           <>
-            <div>{i18n.t("no_posts")}</div>
+            <div className="post-listings__no-posts-title">
+              {i18n.t("no_posts")}
+            </div>
             {this.props.showCommunity && (
               <T i18nKey="subscribe_to_communities">
                 #<Link to="/communities">#</Link>

@@ -375,7 +375,7 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div className="container-lg">
+      <div className="home__root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -418,7 +418,7 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div className="row">
+      <div className="home__mobile-view row">
         <div className="col-12">
           {this.hasFollows && (
             <MobileButton
@@ -506,7 +506,7 @@ export class Home extends Component<any, HomeState> {
         const trending = this.state.trendingCommunitiesRes.data.communities;
         return (
           <>
-            <header className="card-header d-flex align-items-center">
+            <header className="home__trending-communities-wrap card-header d-flex align-items-center">
               <h5 className="mb-0">
                 <T i18nKey="trending_communities">
                   #
@@ -549,7 +549,7 @@ export class Home extends Component<any, HomeState> {
     return (
       <>
         <header
-          className="card-header d-flex align-items-center"
+          className="home__subscribed-communities card-header d-flex align-items-center"
           id="sidebarSubscribedHeader"
         >
           <h5 className="mb-0 d-inline">
@@ -563,7 +563,7 @@ export class Home extends Component<any, HomeState> {
           {!isMobile && (
             <button
               type="button"
-              className="btn btn-sm text-muted"
+              className="home__subscribed-communities-btn home__subscribed-communities-btn--collapse btn btn-sm text-muted"
               onClick={linkEvent(this, this.handleCollapseSubscribe)}
               aria-label={
                 subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
@@ -589,7 +589,7 @@ export class Home extends Component<any, HomeState> {
           aria-labelledby="sidebarSubscribedHeader"
         >
           <div className="card-body">
-            <ul className="list-inline mb-0">
+            <ul className="home__subscribed-communities-links list-inline mb-0">
               {UserService.Instance.myUserInfo?.follows.map(cfv => (
                 <li
                   key={cfv.community.id}

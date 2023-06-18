@@ -51,13 +51,17 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     ) : (
       <div>
         {this.props.multiple && this.props.showLanguageWarning && (
-          <div className="alert alert-warning" role="alert">
+          <div
+            className="language-select__root alert alert-warning"
+            role="alert"
+          >
             {i18n.t("undetermined_language_warning")}
           </div>
         )}
         <div className="form-group row">
           <label
             className={classNames(
+              "language-select__plural",
               "col-form-label",
               `col-sm-${this.props.multiple ? 3 : 2}`
             )}
@@ -67,6 +71,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
           </label>
           <div
             className={classNames(
+              "language-select__deselect",
               "input-group",
               `col-sm-${this.props.multiple ? 9 : 10}`
             )}
@@ -100,7 +105,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
     return (
       <select
-        className={classNames("lang-select-action", {
+        className={classNames("language-select-action", {
           "form-control custom-select": !this.props.iconVersion,
         })}
         id={this.id}

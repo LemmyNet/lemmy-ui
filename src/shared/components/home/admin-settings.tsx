@@ -120,7 +120,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         : undefined;
 
     return (
-      <div className="container-lg">
+      <div className="admin-settings__root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

@@ -33,13 +33,13 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="create-community__root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+        <div className="create-comunity__form-w-row row">
+          <div className="create-community__form-wrap col-12 col-lg-6 offset-lg-3 mb-4">
             <h5>{i18n.t("create_community")}</h5>
             <CommunityForm
               onUpsertCommunity={this.handleCommunityCreate}

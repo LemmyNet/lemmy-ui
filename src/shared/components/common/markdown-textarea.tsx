@@ -136,7 +136,11 @@ export class MarkdownTextArea extends Component<
     //   message={i18n.t("block_leaving")}
     // />
     return (
-      <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
+      <form
+        id={this.formId}
+        className="markdown-textarea__root"
+        onSubmit={linkEvent(this, this.handleSubmit)}
+      >
         <NavigationPrompt
           when={
             !this.props.hideNavigationWarnings &&
@@ -144,10 +148,10 @@ export class MarkdownTextArea extends Component<
             !this.state.submitted
           }
         />
-        <div className="form-group row">
-          <div className="col-12">
-            <div className="rounded bg-light border border-light">
-              <div className="d-flex flex-wrap border-bottom border-light">
+        <div className="markdown-textarea__outer form-group row">
+          <div className="markdown-textarea__col1 col-12">
+            <div className="markdown-textarea__inner rounded bg-light border border-light">
+              <div className="markdown-textarea__btns d-flex flex-wrap border-bottom border-light">
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
                 {this.getFormatButton("link", this.handleInsertLink)}
@@ -210,7 +214,7 @@ export class MarkdownTextArea extends Component<
                 <textarea
                   id={this.id}
                   className={classNames(
-                    "form-control border-0 rounded-top-0 rounded-bottom",
+                    "markdown-textarea__main form-control border-0 rounded-top-0 rounded-bottom",
                     {
                       "d-none": this.state.previewMode,
                     }
@@ -254,7 +258,7 @@ export class MarkdownTextArea extends Component<
             </div>
           </div>
 
-          <div className="col-12 d-flex align-items-center flex-wrap mt-2">
+          <div className="markdown-textarea__language-select-wrap col-12 d-flex align-items-center flex-wrap mt-2">
             {this.props.showLanguage && (
               <LanguageSelect
                 iconVersion
@@ -274,7 +278,7 @@ export class MarkdownTextArea extends Component<
             {this.props.buttonTitle && (
               <button
                 type="submit"
-                className="btn btn-sm btn-secondary ml-2"
+                className="markdown-textarea__btn markdown-textarea__btn--submit btn btn-sm btn-secondary ml-2"
                 disabled={this.isDisabled}
               >
                 {this.state.loading ? (
@@ -287,7 +291,7 @@ export class MarkdownTextArea extends Component<
             {this.props.replyType && (
               <button
                 type="button"
-                className="btn btn-sm btn-secondary ml-2"
+                className="markdown-textarea__btn markdown-textarea__btn--cancel btn btn-sm btn-secondary ml-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
                 {i18n.t("cancel")}
@@ -295,7 +299,7 @@ export class MarkdownTextArea extends Component<
             )}
             {this.state.content && (
               <button
-                className={`btn btn-sm btn-secondary ml-2 ${
+                className={`markdown-textarea__btn markdown-textarea__btn--switchmode btn btn-sm btn-secondary ml-2 ${
                   this.state.previewMode && "active"
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}
@@ -331,7 +335,7 @@ export class MarkdownTextArea extends Component<
 
     return (
       <button
-        className="btn btn-sm text-muted"
+        className="markdown-textarea__btn markdown-textarea__btn--format btn btn-sm text-muted"
         data-tippy-content={i18n.t(type)}
         aria-label={i18n.t(type)}
         onClick={linkEvent(this, handleClick)}

@@ -118,7 +118,7 @@ export class CreatePrivateMessage extends Component<
       case "success": {
         const res = this.state.recipientRes.data;
         return (
-          <div className="row">
+          <div className="private-message-create__recipient row">
             <div className="col-12 col-lg-6 offset-lg-3 mb-4">
               <h5>{i18n.t("create_private_message")}</h5>
               <PrivateMessageForm
@@ -134,7 +134,7 @@ export class CreatePrivateMessage extends Component<
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="private-message-create__root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

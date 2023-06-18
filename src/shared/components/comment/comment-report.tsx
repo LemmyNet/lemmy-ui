@@ -70,7 +70,7 @@ export class CommentReport extends Component<
     };
 
     return (
-      <div>
+      <div className="comment-report__root">
         <CommentNode
           node={node}
           viewType={CommentViewType.Flat}
@@ -101,14 +101,14 @@ export class CommentReport extends Component<
           onCreateComment={() => Promise.resolve({ state: "empty" })}
           onEditComment={() => Promise.resolve({ state: "empty" })}
         />
-        <div>
+        <div className="comment-report__person">
           {i18n.t("reporter")}: <PersonListing person={r.creator} />
         </div>
-        <div>
+        <div className="comment-report__reason">
           {i18n.t("reason")}: {r.comment_report.reason}
         </div>
         {r.resolver && (
-          <div>
+          <div className="comment-report__resolverwrap">
             {r.comment_report.resolved ? (
               <T i18nKey="resolved_by">
                 #

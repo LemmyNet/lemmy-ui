@@ -30,7 +30,7 @@ export default class Tabs extends Component<TabsProps, TabsState> {
   render() {
     return (
       <div>
-        <ul className="nav nav-tabs mb-2">
+        <ul className="tabs__root nav nav-tabs mb-2">
           {this.props.tabs.map(({ key, label }) => (
             <li key={key} className="nav-item">
               <button

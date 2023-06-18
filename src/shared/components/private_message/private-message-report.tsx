@@ -43,26 +43,26 @@ export class PrivateMessageReport extends Component<Props, State> {
     );
 
     return (
-      <div>
-        <div>
+      <div className="private-message-report__root">
+        <div className="private-message-report__row private-message-report__row--creator">
           {i18n.t("creator")}:{" "}
           <PersonListing person={r.private_message_creator} />
         </div>
-        <div>
+        <div className="private-message-report__row private-message-report__row--message">
           {i18n.t("message")}:
           <div
             className="md-div"
             dangerouslySetInnerHTML={mdToHtml(pmr.original_pm_text)}
           />
         </div>
-        <div>
+        <div className="private-message-report__row private-message-report__row--reporter">
           {i18n.t("reporter")}: <PersonListing person={r.creator} />
         </div>
-        <div>
+        <div className="private-message-report__row private-message-report__row--reason">
           {i18n.t("reason")}: {pmr.reason}
         </div>
         {r.resolver && (
-          <div>
+          <div className="private-message-report__row private-message-report__row--resolver">
             {pmr.resolved ? (
               <T i18nKey="resolved_by">
                 #
@@ -77,7 +77,7 @@ export class PrivateMessageReport extends Component<Props, State> {
           </div>
         )}
         <button
-          className="btn btn-link btn-animate text-muted py-0"
+          className="private-message__report-btn btn btn-link btn-animate text-muted py-0"
           onClick={linkEvent(this, this.handleResolveReport)}
           data-tippy-content={tippyContent}
           aria-label={tippyContent}

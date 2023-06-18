@@ -60,7 +60,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     };
 
     return (
-      <div>
+      <div className="report-post__root">
         <PostListing
           post_view={pv}
           showCommunity={true}
@@ -88,14 +88,14 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onAddAdmin={() => {}}
           onTransferCommunity={() => {}}
         />
-        <div>
+        <div className="report-post__reporter">
           {i18n.t("reporter")}: <PersonListing person={r.creator} />
         </div>
-        <div>
+        <div className="report-post__reason">
           {i18n.t("reason")}: {r.post_report.reason}
         </div>
         {resolver && (
-          <div>
+          <div className="report-post__resolver">
             {r.post_report.resolved ? (
               <T i18nKey="resolved_by">
                 #
@@ -110,7 +110,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           </div>
         )}
         <button
-          className="btn btn-link btn-animate text-muted py-0"
+          className="report-post__btn btn btn-link btn-animate text-muted py-0"
           onClick={linkEvent(this, this.handleResolveReport)}
           data-tippy-content={tippyContent}
           aria-label={tippyContent}

@@ -85,7 +85,10 @@ export class CommunityForm extends Component<
 
   render() {
     return (
-      <form onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}>
+      <form
+        className="community-form__root"
+        onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}
+      >
         <NavigationPrompt
           when={
             !this.props.loading &&
@@ -98,7 +101,7 @@ export class CommunityForm extends Component<
           }
         />
         {!this.props.community_view && (
-          <div className="form-group row">
+          <div className="community-form__row community-form__row--name form-group row">
             <label
               className="col-12 col-sm-2 col-form-label"
               htmlFor="community-name"
@@ -126,7 +129,7 @@ export class CommunityForm extends Component<
             </div>
           </div>
         )}
-        <div className="form-group row">
+        <div className="community-form__row community-form__row--display_name form-group row">
           <label
             className="col-12 col-sm-2 col-form-label"
             htmlFor="community-title"
@@ -152,7 +155,7 @@ export class CommunityForm extends Component<
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="community-form__row community-form__row--icon form-group row">
           <label className="col-12 col-sm-2">{i18n.t("icon")}</label>
           <div className="col-12 col-sm-10">
             <ImageUploadForm
@@ -164,7 +167,7 @@ export class CommunityForm extends Component<
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="community-form__row community-form__row--banner form-group row">
           <label className="col-12 col-sm-2">{i18n.t("banner")}</label>
           <div className="col-12 col-sm-10">
             <ImageUploadForm
@@ -175,7 +178,7 @@ export class CommunityForm extends Component<
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="community-form__row community-form__row--description form-group row">
           <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
             {i18n.t("sidebar")}
           </label>
@@ -192,7 +195,7 @@ export class CommunityForm extends Component<
         </div>
 
         {this.props.enableNsfw && (
-          <div className="form-group row">
+          <div className="community-form__row community-form__row--nsfw form-group row">
             <legend className="col-form-label col-sm-2 pt-0">
               {i18n.t("nsfw")}
             </legend>
@@ -209,7 +212,7 @@ export class CommunityForm extends Component<
             </div>
           </div>
         )}
-        <div className="form-group row">
+        <div className="community-form__row community-form__row--restricted form-group row">
           <legend className="col-form-label col-6 pt-0">
             {i18n.t("only_mods_can_post_in_community")}
           </legend>
@@ -236,11 +239,11 @@ export class CommunityForm extends Component<
           multiple={true}
           onChange={this.handleDiscussionLanguageChange}
         />
-        <div className="form-group row">
+        <div className="community-form__row community-form__row--submit form-group row">
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary mr-2"
+              className="community-form__btn community-form__btn--submit btn btn-secondary mr-2"
               disabled={this.props.loading}
             >
               {this.props.loading ? (
@@ -254,7 +257,7 @@ export class CommunityForm extends Component<
             {this.props.community_view && (
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="community-form__btn community-form__btn--cancel btn btn-secondary"
                 onClick={linkEvent(this, this.handleCancel)}
               >
                 {i18n.t("cancel")}

@@ -281,7 +281,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.comment_view.counts.child_count > 0;
 
     return (
-      <li className="comment" role="comment">
+      <li className="comment comment__root" role="comment">
         <article
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
@@ -294,9 +294,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               "ml-2": !this.props.noIndent,
             })}
           >
-            <div className="d-flex flex-wrap align-items-center text-muted small">
+            <div className="comment__top d-flex flex-wrap align-items-center text-muted small">
               <button
-                className="btn btn-sm text-muted mr-2"
+                className="comment__btn--expand btn btn-sm text-muted mr-2"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
                 aria-label={this.expandText}
                 data-tippy-content={this.expandText}
@@ -306,45 +306,50 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   classes="icon-inline"
                 />
               </button>
-              <span className="mr-2">
+              <span className="comment__commenter-name mr-2">
                 <PersonListing person={cv.creator} />
               </span>
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes={`text-danger mr-2`} />
               )}
               {this.isPostCreator && (
-                <div className="badge badge-light d-none d-sm-inline mr-2">
+                <div className="comment__badge comment__badge--creator badge badge-light d-none d-sm-inline mr-2">
                   {i18n.t("creator")}
                 </div>
               )}
               {isMod_ && (
-                <div className="badge d-none d-sm-inline mr-2">
+                <div className="comment__badge comment__badge--mod badge d-none d-sm-inline mr-2">
                   {i18n.t("mod")}
                 </div>
               )}
               {isAdmin_ && (
-                <div className="badge d-none d-sm-inline mr-2">
+                <div className="comment__badge comment__badge-admin badge d-none d-sm-inline mr-2">
                   {i18n.t("admin")}
                 </div>
               )}
               {cv.creator.bot_account && (
-                <div className="badge d-none d-sm-inline mr-2">
+                <div className="comment__badge comment__badge-bot badge d-none d-sm-inline mr-2">
                   {i18n.t("bot_account").toLowerCase()}
                 </div>
               )}
               {this.props.showCommunity && (
                 <>
-                  <span className="mx-1">{i18n.t("to")}</span>
+                  <span className="comment__community-to mx-1">
+                    {i18n.t("to")}
+                  </span>
                   <CommunityLink community={cv.community} />
-                  <span className="mx-2">•</span>
-                  <Link className="mr-2" to={`/post/${cv.post.id}`}>
+                  <span className="comment__community-dot mx-2">•</span>
+                  <Link
+                    className="comment__community-post-name mr-2"
+                    to={`/post/${cv.post.id}`}
+                  >
                     {cv.post.name}
                   </Link>
                 </>
               )}
               {this.linkBtn(true)}
               {cv.comment.language_id !== 0 && (
-                <span className="badge d-none d-sm-inline mr-2">
+                <span className="comment__language badge d-none d-sm-inline mr-2">
                   {
                     this.props.allLanguages.find(
                       lang => lang.id === cv.comment.language_id
@@ -353,11 +358,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 </span>
               )}
               {/* This is an expanding spacer for mobile */}
-              <div className="mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
+              <div className="comment__mobile-spacer mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
               {showScores() && (
                 <>
                   <a
-                    className={`unselectable pointer ${this.scoreColor}`}
+                    className={`comment__scores unselectable pointer ${this.scoreColor}`}
                     onClick={linkEvent(this, this.handleUpvote)}
                     data-tippy-content={this.pointsTippy}
                   >
@@ -377,7 +382,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       </span>
                     )}
                   </a>
-                  <span className="mr-1">•</span>
+                  <span className="comment__scores-dot mr-1">•</span>
                 </>
               )}
               <span>
@@ -405,12 +410,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
-              <div>
+              <div className="comment__content">
                 {this.state.viewSource ? (
                   <pre>{this.commentUnlessRemoved}</pre>
                 ) : (
                   <div
-                    className="md-div"
+                    className="comment__content-markdown md-div"
                     dangerouslySetInnerHTML={
                       this.props.hideImages
                         ? mdToHtmlNoImages(this.commentUnlessRemoved)
@@ -418,11 +423,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     }
                   />
                 )}
-                <div className="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold">
+                <div className="comment__bottom-row d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold">
                   {this.props.showContext && this.linkBtn()}
                   {this.props.markable && (
                     <button
-                      className="btn btn-link btn-animate text-muted"
+                      className="comment__bottom-btn comment__bottom-btn--mark-read btn btn-link btn-animate text-muted"
                       onClick={linkEvent(this, this.handleMarkAsRead)}
                       data-tippy-content={
                         this.commentReplyOrMentionRead
@@ -450,7 +455,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {UserService.Instance.myUserInfo && !this.props.viewOnly && (
                     <>
                       <button
-                        className={`btn btn-link btn-animate ${
+                        className={`comment__bottom-btn comment__bottom-btn--upvote btn btn-link btn-animate ${
                           this.commentView.my_vote === 1
                             ? "text-info"
                             : "text-muted"
@@ -477,7 +482,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       </button>
                       {this.props.enableDownvotes && (
                         <button
-                          className={`btn btn-link btn-animate ${
+                          className={`comment__bottom-btn comment__bottom-btn--downvote btn btn-link btn-animate ${
                             this.commentView.my_vote === -1
                               ? "text-danger"
                               : "text-muted"
@@ -504,7 +509,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         </button>
                       )}
                       <button
-                        className="btn btn-link btn-animate text-muted"
+                        className="comment__bottom-btn comment__bottom-btn--reply btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
                         data-tippy-content={i18n.t("reply")}
                         aria-label={i18n.t("reply")}
@@ -513,7 +518,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       </button>
                       {!this.state.showAdvanced ? (
                         <button
-                          className="btn btn-link btn-animate text-muted btn-more"
+                          className="comment__bottom-btn comment__bottom-btn--more btn btn-link btn-animate text-muted btn-more"
                           onClick={linkEvent(this, this.handleShowAdvanced)}
                           data-tippy-content={i18n.t("more")}
                           aria-label={i18n.t("more")}
@@ -525,14 +530,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {!this.myComment && (
                             <>
                               <Link
-                                className="btn btn-link btn-animate text-muted"
+                                className="comment__bottom-btn comment__bottom-btn--privmsg btn btn-link btn-animate text-muted"
                                 to={`/create_private_message/${cv.creator.id}`}
                                 title={i18n.t("message").toLowerCase()}
                               >
                                 <Icon icon="mail" />
                               </Link>
                               <button
-                                className="btn btn-link btn-animate text-muted"
+                                className="comment__bottom-btn comment__bottom-btn--report btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(
                                   this,
                                   this.handleShowReportDialog
@@ -545,7 +550,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 <Icon icon="flag" />
                               </button>
                               <button
-                                className="btn btn-link btn-animate text-muted"
+                                className="comment__bottom-btn comment__bottom-btn--block-user btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(
                                   this,
                                   this.handleBlockPerson
@@ -562,7 +567,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             </>
                           )}
                           <button
-                            className="btn btn-link btn-animate text-muted"
+                            className="comment__bottom-btn comment__bottom-btn--save btn btn-link btn-animate text-muted"
                             onClick={linkEvent(this, this.handleSaveComment)}
                             data-tippy-content={
                               cv.saved ? i18n.t("unsave") : i18n.t("save")
@@ -583,7 +588,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             )}
                           </button>
                           <button
-                            className="btn btn-link btn-animate text-muted"
+                            className="comment__bottom-btn comment__bottom-btn--view-source btn btn-link btn-animate text-muted"
                             onClick={linkEvent(this, this.handleViewSource)}
                             data-tippy-content={i18n.t("view_source")}
                             aria-label={i18n.t("view_source")}
@@ -598,7 +603,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           {this.myComment && (
                             <>
                               <button
-                                className="btn btn-link btn-animate text-muted"
+                                className="comment__bottom-btn comment__bottom-btn--edit btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(this, this.handleEditClick)}
                                 data-tippy-content={i18n.t("edit")}
                                 aria-label={i18n.t("edit")}
@@ -636,7 +641,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
                               {(canModOnSelf || canAdminOnSelf) && (
                                 <button
-                                  className="btn btn-link btn-animate text-muted"
+                                  className="comment__bottom-btn comment__bottom-btn--distinguish btn btn-link btn-animate text-muted"
                                   onClick={linkEvent(
                                     this,
                                     this.handleDistinguishComment
@@ -667,7 +672,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             <>
                               {!cv.comment.removed ? (
                                 <button
-                                  className="btn btn-link btn-animate text-muted"
+                                  className="comment__bottom-btn comment__bottom-btn--mod-remove btn btn-link btn-animate text-muted"
                                   onClick={linkEvent(
                                     this,
                                     this.handleModRemoveShow
@@ -678,7 +683,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 </button>
                               ) : (
                                 <button
-                                  className="btn btn-link btn-animate text-muted"
+                                  className="comment__bottom-btn comment__bottom-btn--mod-restore btn btn-link btn-animate text-muted"
                                   onClick={linkEvent(
                                     this,
                                     this.handleRemoveComment
@@ -700,7 +705,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               {!isMod_ &&
                                 (!cv.creator_banned_from_community ? (
                                   <button
-                                    className="btn btn-link btn-animate text-muted"
+                                    className="comment__bottom-btn comment__bottom-btn--mod-banfs btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
                                       this,
                                       this.handleModBanFromCommunityShow
@@ -711,7 +716,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   </button>
                                 ) : (
                                   <button
-                                    className="btn btn-link btn-animate text-muted"
+                                    className="comment__bottom-btn comment__bottom-btn--mod-unbanfs btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
                                       this,
                                       this.handleBanPersonFromCommunity
@@ -728,7 +733,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               {!cv.creator_banned_from_community &&
                                 (!this.state.showConfirmAppointAsMod ? (
                                   <button
-                                    className="btn btn-link btn-animate text-muted"
+                                    className="comment__bottom-btn comment__bottom-btn--mod-banfc btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
                                       this,
                                       this.handleShowConfirmAppointAsMod
@@ -746,13 +751,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 ) : (
                                   <>
                                     <button
-                                      className="btn btn-link btn-animate text-muted"
+                                      className="comment__bottom-btn comment__bottom-btn--mod-banfc btn btn-link btn-animate text-muted"
                                       aria-label={i18n.t("are_you_sure")}
                                     >
                                       {i18n.t("are_you_sure")}
                                     </button>
                                     <button
-                                      className="btn btn-link btn-animate text-muted"
+                                      className="comment__bottom-btn comment__bottom-btn--mod-banfc-yes btn btn-link btn-animate text-muted"
                                       onClick={linkEvent(
                                         this,
                                         this.handleAddModToCommunity
@@ -766,7 +771,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       )}
                                     </button>
                                     <button
-                                      className="btn btn-link btn-animate text-muted"
+                                      className="comment__bottom-btn comment__bottom-btn--mod-banfc-no btn btn-link btn-animate text-muted"
                                       onClick={linkEvent(
                                         this,
                                         this.handleCancelConfirmAppointAsMod
@@ -785,7 +790,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             cv.creator.local &&
                             (!this.state.showConfirmTransferCommunity ? (
                               <button
-                                className="btn btn-link btn-animate text-muted"
+                                className="comment__bottom-btn comment__bottom-btn--admin-transferc btn btn-link btn-animate text-muted"
                                 onClick={linkEvent(
                                   this,
                                   this.handleShowConfirmTransferCommunity
@@ -797,7 +802,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             ) : (
                               <>
                                 <button
-                                  className="btn btn-link btn-animate text-muted"
+                                  className="comment__bottom-btn comment__bottom-btn--admin-transferc-yes btn btn-link btn-animate text-muted"
                                   aria-label={i18n.t("are_you_sure")}
                                 >
                                   {i18n.t("are_you_sure")}
@@ -817,7 +822,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                   )}
                                 </button>
                                 <button
-                                  className="btn btn-link btn-animate text-muted"
+                                  className="comment__bottom-btn comment__bottom-btn--admin-transferc-no btn btn-link btn-animate text-muted"
                                   onClick={linkEvent(
                                     this,
                                     this
@@ -835,7 +840,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                               {!isAdmin_ && (
                                 <>
                                   <button
-                                    className="btn btn-link btn-animate text-muted"
+                                    className="comment__bottom-btn comment__bottom-btn--purge-user btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
                                       this,
                                       this.handlePurgePersonShow
@@ -845,7 +850,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     {i18n.t("purge_user")}
                                   </button>
                                   <button
-                                    className="btn btn-link btn-animate text-muted"
+                                    className="comment__bottom-btn comment__bottom-btn--purge-comment btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
                                       this,
                                       this.handlePurgeCommentShow
@@ -857,7 +862,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
                                   {!isBanned(cv.creator) ? (
                                     <button
-                                      className="btn btn-link btn-animate text-muted"
+                                      className="comment__bottom-btn comment__bottom-btn--admin-banfs btn btn-link btn-animate text-muted"
                                       onClick={linkEvent(
                                         this,
                                         this.handleModBanShow
@@ -868,7 +873,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     </button>
                                   ) : (
                                     <button
-                                      className="btn btn-link btn-animate text-muted"
+                                      className="comment__bottom-btn comment__bottom-btn--admin-unbanfs btn btn-link btn-animate text-muted"
                                       onClick={linkEvent(
                                         this,
                                         this.handleBanPerson
@@ -888,7 +893,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 cv.creator.local &&
                                 (!this.state.showConfirmAppointAsAdmin ? (
                                   <button
-                                    className="btn btn-link btn-animate text-muted"
+                                    className="comment__bottom-btn comment__bottom-btn--mod-admin-status btn btn-link btn-animate text-muted"
                                     onClick={linkEvent(
                                       this,
                                       this.handleShowConfirmAppointAsAdmin
@@ -909,7 +914,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       {i18n.t("are_you_sure")}
                                     </button>
                                     <button
-                                      className="btn btn-link btn-animate text-muted"
+                                      className="comment__bottom-btn comment__bottom-btn--mod-admin-status-yes btn btn-link btn-animate text-muted"
                                       onClick={linkEvent(
                                         this,
                                         this.handleAddAdmin
@@ -923,7 +928,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       )}
                                     </button>
                                     <button
-                                      className="btn btn-link btn-animate text-muted"
+                                      className="comment__bottom-btn comment__bottom-btn--mod-admin-status-no btn btn-link btn-animate text-muted"
                                       onClick={linkEvent(
                                         this,
                                         this.handleCancelConfirmAppointAsAdmin
@@ -954,7 +959,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             style={`border-left: 2px ${moreRepliesBorderColor} solid !important`}
           >
             <button
-              className="btn btn-link text-muted"
+              className="comment__showmore-btn comment__showmore-btn--mod-admin-status btn btn-link text-muted"
               onClick={linkEvent(this, this.handleFetchChildren)}
             >
               {this.state.fetchChildrenLoading ? (
@@ -976,7 +981,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {/* end of details */}
         {this.state.showRemoveDialog && (
           <form
-            className="form-inline"
+            className="comment__remove-dialog form-inline"
             onSubmit={linkEvent(this, this.handleRemoveComment)}
           >
             <label
@@ -1004,7 +1009,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         )}
         {this.state.showReportDialog && (
           <form
-            className="form-inline"
+            className="comment__report-dialog form-inline"
             onSubmit={linkEvent(this, this.handleReportComment)}
           >
             <label
@@ -1033,7 +1038,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div className="form-group row col-12">
+            <div className="comment__ban-dialog form-group row col-12">
               <label
                 className="col-form-label"
                 htmlFor={`mod-ban-reason-${cv.comment.id}`}
@@ -1105,7 +1110,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         )}
 
         {this.state.showPurgeDialog && (
-          <form onSubmit={linkEvent(this, this.handlePurgeBothSubmit)}>
+          <form
+            className="comment__purge-dialog"
+            onSubmit={linkEvent(this, this.handlePurgeBothSubmit)}
+          >
             <PurgeWarning />
             <label className="sr-only" htmlFor="purge-reason">
               {i18n.t("reason")}

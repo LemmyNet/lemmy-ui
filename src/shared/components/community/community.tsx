@@ -323,10 +323,10 @@ export class Community extends Component<
               image={res.community_view.community.icon}
             />
 
-            <div className="row">
+            <div className="community__row community__row- row">
               <div className="col-12 col-md-8">
                 {this.communityInfo(res)}
-                <div className="d-block d-md-none">
+                <div className="community__show-sidebar d-block d-md-none">
                   <button
                     className="btn btn-secondary d-inline-block mb-2 mr-3"
                     onClick={linkEvent(this, this.handleShowSidebarMobile)}
@@ -358,7 +358,11 @@ export class Community extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderCommunity()}</div>;
+    return (
+      <div className="community__root container-lg">
+        {this.renderCommunity()}
+      </div>
+    );
   }
 
   sidebar(res: GetCommunityResponse) {
@@ -485,9 +489,11 @@ export class Community extends Component<
 
     return (
       community && (
-        <div className="mb-2">
+        <div className="community__info mb-2">
           <BannerIconHeader banner={community.banner} icon={community.icon} />
-          <h5 className="mb-0 overflow-wrap-anywhere">{community.title}</h5>
+          <h5 className="community__title mb-0 overflow-wrap-anywhere">
+            {community.title}
+          </h5>
           <CommunityLink
             community={community}
             realLink
@@ -510,14 +516,14 @@ export class Community extends Component<
       : undefined;
 
     return (
-      <div className="mb-3">
+      <div className="community__selects mb-3">
         <span className="mr-3">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
         </span>
-        <span className="mr-2">
+        <span className="community__sort-select-wrap mr-2">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
         {communityRss && (

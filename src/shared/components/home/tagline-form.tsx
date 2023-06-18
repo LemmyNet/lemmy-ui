@@ -31,13 +31,13 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   render() {
     return (
-      <div className="col-12">
+      <div className="tagline-form__root col-12">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
         <h5 className="col-12">{i18n.t("taglines")}</h5>
-        <div className="table-responsive col-12">
+        <div className="tagline-form__wrap table-responsive col-12">
           <table id="taglines_table" className="table table-sm table-hover">
             <thead className="pointer">
               <th></th>
@@ -46,7 +46,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             <tbody>
               {this.state.taglines.map((cv, index) => (
                 <tr key={index}>
-                  <td>
+                  <td className="tagline-form__td-editor">
                     {this.state.editingRow == index && (
                       <MarkdownTextArea
                         initialContent={cv}
@@ -60,7 +60,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                     )}
                     {this.state.editingRow != index && <div>{cv}</div>}
                   </td>
-                  <td className="text-right">
+                  <td className="tagline-form__td-btns text-right">
                     <button
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(
@@ -89,7 +89,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               ))}
             </tbody>
           </table>
-          <div className="form-group row">
+          <div className="tagline-form__row tagline-form__row--add-tagline form-group row">
             <div className="col-12">
               <button
                 className="btn btn-sm btn-secondary mr-2"
@@ -100,7 +100,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             </div>
           </div>
 
-          <div className="form-group row">
+          <div className="tagline-form__row tagline-form__row--btns form-group row">
             <div className="col-12">
               <button
                 onClick={linkEvent(this, this.handleSaveClick)}

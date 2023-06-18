@@ -75,7 +75,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   render() {
     return (
-      <div className="col-12">
+      <div className="emojis-form__root col-12">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -89,7 +89,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
             ></EmojiMart>
           </div>
         )}
-        <div className="table-responsive">
+        <div className="emojis-table__root table-responsive">
           <table id="emojis_table" className="table table-sm table-hover">
             <thead className="pointer">
               <tr>
@@ -117,7 +117,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                 )
                 .map((cv, index) => (
                   <tr key={index} ref={e => (this.scrollRef[cv.shortcode] = e)}>
-                    <td style="text-align:center;">
+                    <td
+                      className="emojis-table__td-imguploadw"
+                      style="text-align:center;"
+                    >
                       <label
                         htmlFor={index.toString()}
                         className="pointer text-muted small font-weight-bold"
@@ -146,7 +149,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="text-right">
+                    <td className="emojis-table__td-shortcode text-right">
                       <input
                         type="text"
                         placeholder="ShortCode"
@@ -159,7 +162,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="text-right">
+                    <td className="emojis-table__td-category text-right">
                       <input
                         type="text"
                         placeholder="Category"
@@ -171,7 +174,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="text-right d-lg-table-cell d-none">
+                    <td className="emojis-table__td-url text-right d-lg-table-cell d-none">
                       <input
                         type="text"
                         placeholder="Url"
@@ -183,7 +186,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="text-right">
+                    <td className="emojis-table__td-alttext text-right">
                       <input
                         type="text"
                         placeholder="Alt Text"
@@ -195,7 +198,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="text-right d-lg-table-cell">
+                    <td className="emojis-table__td--keywords text-right d-lg-table-cell">
                       <input
                         type="text"
                         placeholder="Keywords"
@@ -207,13 +210,13 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td>
+                    <td className="emojis-table__td-btns">
                       <div>
                         <span title={this.getEditTooltip(cv)}>
                           <button
                             className={
                               (cv.changed ? "text-success " : "text-muted ") +
-                              "btn btn-link btn-animate"
+                              "emojis-table__btn emojis-table__btn--save btn btn-link btn-animate"
                             }
                             onClick={linkEvent(
                               { i: this, cv: cv },
@@ -235,7 +238,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                           </button>
                         </span>
                         <button
-                          className="btn btn-link btn-animate text-muted"
+                          className="emojis-table__btn emojis-table__btn--delete btn btn-link btn-animate text-muted"
                           onClick={linkEvent(
                             { i: this, index: index, cv: cv },
                             this.handleDeleteEmojiClick

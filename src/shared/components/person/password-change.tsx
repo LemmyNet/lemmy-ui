@@ -40,12 +40,12 @@ export class PasswordChange extends Component<any, State> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="password-change__root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
+        <div className="password-form__wrap row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h5>{i18n.t("password_change")}</h5>
             {this.passwordChangeForm()}
@@ -58,7 +58,7 @@ export class PasswordChange extends Component<any, State> {
   passwordChangeForm() {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
-        <div className="form-group row">
+        <div className="password-form__row password-form__row--password form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="new-password">
             {i18n.t("new_password")}
           </label>
@@ -74,7 +74,7 @@ export class PasswordChange extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="password-form__row password-form__row--verifypass form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="verify-password">
             {i18n.t("verify_password")}
           </label>
@@ -90,7 +90,7 @@ export class PasswordChange extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="password-form__row password-form__row--btns form-group row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
               {this.state.passwordChangeRes.state == "loading" ? (

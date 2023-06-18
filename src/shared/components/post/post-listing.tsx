@@ -245,12 +245,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get img() {
     return this.imageSrc ? (
       <>
-        <div className="offset-sm-3 my-2 d-none d-sm-block">
+        <div className="post-listing__img-top offset-sm-3 my-2 d-none d-sm-block">
           <a href={this.imageSrc} className="d-inline-block">
             <PictrsImage src={this.imageSrc} />
           </a>
         </div>
-        <div className="my-2 d-block d-sm-none">
+        <div className="post-listing__img-bottom my-2 d-block d-sm-none">
           <a
             className="d-inline-block"
             onClick={linkEvent(this, this.handleImageExpandClick)}
@@ -370,7 +370,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post_view.post.url;
     const body = post_view.post.body;
     return (
-      <ul className="list-inline mb-1 text-muted small">
+      <ul className="post-listing__created-line list-inline mb-1 text-muted small">
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
 
@@ -448,7 +448,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <div className={`vote-bar col-1 pr-0 small text-center`}>
         <button
-          className={`btn-animate btn btn-link p-0 ${
+          className={`post-listing__btn--upvote btn-animate btn btn-link p-0 ${
             this.postView.my_vote == 1 ? "text-info" : "text-muted"
           }`}
           onClick={linkEvent(this, this.handleUpvote)}
@@ -474,7 +474,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.props.enableDownvotes && (
           <button
-            className={`btn-animate btn btn-link p-0 ${
+            className={`post-listing__btn--downvote btn-animate btn btn-link p-0 ${
               this.postView.my_vote == -1 ? "text-danger" : "text-muted"
             }`}
             onClick={linkEvent(this, this.handleDownvote)}
@@ -497,7 +497,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
     return (
       <Link
-        className={`d-inline ${
+        className={`post-listing__postlink d-inline ${
           !post.featured_community && !post.featured_local
             ? "text-body"
             : "text-primary"
@@ -539,7 +539,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {(url && isImage(url)) ||
           (post.thumbnail_url && (
             <button
-              className="btn btn-link text-monospace text-muted small d-inline-block"
+              className="post-listing__btn post-listing_-btn--expand btn btn-link text-monospace text-muted small d-inline-block"
               data-tippy-content={i18n.t("expand_here")}
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
@@ -600,7 +600,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   duplicatesLine() {
     const dupes = this.props.crossPosts;
     return dupes && dupes.length > 0 ? (
-      <ul className="list-inline mb-1 small text-muted">
+      <ul className="post-listing__duplicatesline list-inline mb-1 small text-muted">
         <>
           <li className="list-inline-item mr-2">{i18n.t("cross_posted_to")}</li>
           {dupes.map(pv => (
@@ -623,11 +623,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold mb-1">
+      <div className="post-listing__commentsline d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold mb-1">
         {this.commentsButton}
         {canShare() && (
           <button
-            className="btn btn-link"
+            className="post-listing-btn-share btn btn-link"
             onClick={linkEvent(this, this.handleShare)}
             type="button"
           >
@@ -636,7 +636,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {!post.local && (
           <a
-            className="btn btn-link btn-animate text-muted py-0"
+            className="post-listing__btn post-listing__btn--link btn btn-link btn-animate text-muted py-0"
             title={i18n.t("link")}
             href={post.ap_id}
           >
@@ -676,7 +676,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.hasAdvancedButtons && (
           <div className="dropdown">
             <button
-              className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
+              className="post-listing__btn post-listing__btn--showmore btn btn-link btn-animate text-muted py-0 dropdown-toggle"
               onClick={linkEvent(this, this.handleShowAdvanced)}
               data-tippy-content={i18n.t("more")}
               data-bs-toggle="dropdown"
@@ -725,7 +725,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <Link
-        className="btn btn-link text-muted py-0 pl-0 text-muted"
+        className="post-listing__btn post-listing__btn--comments btn btn-link text-muted py-0 pl-0 text-muted"
         title={i18n.t("number_of_comments", {
           count: Number(post_view.counts.comments),
           formattedCount: Number(post_view.counts.comments),
@@ -762,7 +762,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       : {};
     return (
       <>
-        <div>
+        <div className="post-listing__mobile-votes">
           <button
             className={`btn-animate btn py-0 px-1 ${
               this.postView.my_vote === 1 ? "text-info" : "text-muted"
@@ -823,7 +823,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const label = saved ? i18n.t("unsave") : i18n.t("save");
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="post-listing__btn post-listing__btn--save btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleSavePostClick)}
         data-tippy-content={label}
         aria-label={label}
@@ -844,7 +844,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get crossPostButton() {
     return (
       <Link
-        className="btn btn-link btn-animate text-muted py-0"
+        className="post-listing__btn post-listing__btn--xpost btn btn-link btn-animate text-muted py-0"
         to={{
           /* Empty string properties are required to satisfy type*/
           pathname: "/create_post",
@@ -865,7 +865,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get reportButton() {
     return (
       <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+        className="post-listing__btn post-listing__btn--report btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleShowReportDialog)}
         data-tippy-content={i18n.t("show_report_dialog")}
         aria-label={i18n.t("show_report_dialog")}
@@ -878,7 +878,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get blockButton() {
     return (
       <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+        className="post-listing__btn post-listing__btn--block btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleBlockPersonClick)}
         data-tippy-content={i18n.t("block_user")}
         aria-label={i18n.t("block_user")}
@@ -891,7 +891,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get editButton() {
     return (
       <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+        className="post-listing__btn post-listing__btn--edit btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleEditClick)}
         aria-label={i18n.t("edit")}
       >
@@ -906,7 +906,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const label = !deleted ? i18n.t("delete") : i18n.t("restore");
     return (
       <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+        className="post-listing__btn post-listing__btn--delete btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleDeleteClick)}
         aria-label={label}
       >
@@ -929,7 +929,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get viewSourceButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="post-listing__btn post-listing__btn--viewsrc btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleViewSource)}
         data-tippy-content={i18n.t("view_source")}
         aria-label={i18n.t("view_source")}
@@ -948,7 +948,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const label = locked ? i18n.t("unlock") : i18n.t("lock");
     return (
       <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+        className="post-listing__btn post-listing__btn--lock btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModLock)}
         aria-label={label}
       >
@@ -982,7 +982,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         <li>
           <button
-            className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+            className="post-listing__btn post-listing__btn--feature btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
             onClick={linkEvent(this, this.handleModFeaturePostCommunity)}
             data-tippy-content={labelCommunity}
             aria-label={labelCommunity}
@@ -1006,7 +1006,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <li>
           {amAdmin() && (
             <button
-              className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+              className="post-listing__btn post-listing__btn--pin btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
               onClick={linkEvent(this, this.handleModFeaturePostLocal)}
               data-tippy-content={labelLocal}
               aria-label={labelLocal}
@@ -1036,7 +1036,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const removed = this.postView.post.removed;
     return (
       <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+        className="post-listing__btn post-listing__btn--modremove btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(
           this,
           !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit
@@ -1068,7 +1068,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {!this.creatorIsMod_ &&
                 (!post_view.creator_banned_from_community ? (
                   <button
-                    className="btn btn-link btn-animate text-muted py-0"
+                    className="post-listing__btn post-listing__btn--banfc btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(
                       this,
                       this.handleModBanFromCommunityShow
@@ -1079,7 +1079,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   </button>
                 ) : (
                   <button
-                    className="btn btn-link btn-animate text-muted py-0"
+                    className="post-listing__btn post-listing__btn--unban-fc btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(
                       this,
                       this.handleModBanFromCommunitySubmit
@@ -1091,7 +1091,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 ))}
               {!post_view.creator_banned_from_community && (
                 <button
-                  className="btn btn-link btn-animate text-muted py-0"
+                  className="post-listing__btn post-listing__btn--modappt btn btn-link btn-animate text-muted py-0"
                   onClick={linkEvent(this, this.handleAddModToCommunity)}
                   aria-label={
                     this.creatorIsMod_
@@ -1116,7 +1116,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             this.creatorIsMod_ &&
             (!this.state.showConfirmTransferCommunity ? (
               <button
-                className="btn btn-link btn-animate text-muted py-0"
+                className="post-listing__btn post-listing__btn--transf btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(
                   this,
                   this.handleShowConfirmTransferCommunity
@@ -1128,20 +1128,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <>
                 <button
-                  className="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
+                  className="post-listing__btn post-listing__btn--transfc-confirm d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
                   aria-label={i18n.t("are_you_sure")}
                 >
                   {i18n.t("are_you_sure")}
                 </button>
                 <button
-                  className="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                  className="post-listing__btn post-listing__btn--htransfc btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
                   aria-label={i18n.t("yes")}
                   onClick={linkEvent(this, this.handleTransferCommunity)}
                 >
                   {this.state.transferLoading ? <Spinner /> : i18n.t("yes")}
                 </button>
                 <button
-                  className="btn btn-link btn-animate text-muted py-0 d-inline-block"
+                  className="post-listing__btn post-listing__btn--cshtransfc btn btn-link btn-animate text-muted py-0 d-inline-block"
                   onClick={linkEvent(
                     this,
                     this.handleCancelShowConfirmTransferCommunity
@@ -1159,7 +1159,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <>
                   {!isBanned(post_view.creator) ? (
                     <button
-                      className="btn btn-link btn-animate text-muted py-0"
+                      className="post-listing__btn post-listing__btn--banfs btn btn-link btn-animate text-muted py-0"
                       onClick={linkEvent(this, this.handleModBanShow)}
                       aria-label={i18n.t("ban_from_site")}
                     >
@@ -1167,7 +1167,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     </button>
                   ) : (
                     <button
-                      className="btn btn-link btn-animate text-muted py-0"
+                      className="post-listing__btn post-listing__btn--unbanfs btn btn-link btn-animate text-muted py-0"
                       onClick={linkEvent(this, this.handleModBanSubmit)}
                       aria-label={i18n.t("unban_from_site")}
                     >
@@ -1179,14 +1179,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     </button>
                   )}
                   <button
-                    className="btn btn-link btn-animate text-muted py-0"
+                    className="post-listing__btn post-listing__btn--purge-user btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handlePurgePersonShow)}
                     aria-label={i18n.t("purge_user")}
                   >
                     {i18n.t("purge_user")}
                   </button>
                   <button
-                    className="btn btn-link btn-animate text-muted py-0"
+                    className="post-listing__purge-purge-post btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handlePurgePostShow)}
                     aria-label={i18n.t("purge_post")}
                   >
@@ -1196,7 +1196,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               )}
               {!isBanned(post_view.creator) && post_view.creator.local && (
                 <button
-                  className="btn btn-link btn-animate text-muted py-0"
+                  className="post-listing__btn post-listing__btn--handle-admin btn btn-link btn-animate text-muted py-0"
                   onClick={linkEvent(this, this.handleAddAdmin)}
                   aria-label={
                     this.creatorIsAdmin_

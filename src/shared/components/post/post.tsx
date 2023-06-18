@@ -347,7 +347,7 @@ export class Post extends Component<any, PostState> {
       case "success": {
         const res = this.state.postRes.data;
         return (
-          <div className="row">
+          <div className="post__item row">
             <div className="col-12 col-md-8 mb-3">
               <HtmlTags
                 title={this.documentTitle}
@@ -383,7 +383,10 @@ export class Post extends Component<any, PostState> {
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
               />
-              <div ref={this.state.commentSectionRef} className="mb-2" />
+              <div
+                ref={this.state.commentSectionRef}
+                className="post__comment-section mb-2"
+              />
               <CommentForm
                 node={res.post_view.post.id}
                 disabled={res.post_view.post.locked}
@@ -393,7 +396,7 @@ export class Post extends Component<any, PostState> {
                 onUpsertComment={this.handleCreateComment}
                 finished={this.state.finished.get(0)}
               />
-              <div className="d-block d-md-none">
+              <div className="post__sidebar-toggle d-block d-md-none">
                 <button
                   className="btn btn-secondary d-inline-block mb-2 mr-3"
                   onClick={linkEvent(this, this.handleShowSidebarMobile)}
@@ -416,7 +419,9 @@ export class Post extends Component<any, PostState> {
               {this.state.commentViewType == CommentViewType.Flat &&
                 this.commentsFlat()}
             </div>
-            <div className="d-none d-md-block col-md-4">{this.sidebar()}</div>
+            <div className="post__sidebar d-none d-md-block col-md-4">
+              {this.sidebar()}
+            </div>
           </div>
         );
       }
@@ -424,13 +429,15 @@ export class Post extends Component<any, PostState> {
   }
 
   render() {
-    return <div className="container-lg">{this.renderPostRes()}</div>;
+    return (
+      <div className="post__root container-lg">{this.renderPostRes()}</div>
+    );
   }
 
   sortRadios() {
     return (
       <>
-        <div className="btn-group btn-group-toggle flex-wrap mr-3 mb-2">
+        <div className="post__sort btn-group btn-group-toggle flex-wrap mr-3 mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
               this.state.commentSort === "Hot" && "active"
@@ -510,7 +517,7 @@ export class Post extends Component<any, PostState> {
 
     if (commentsRes.state == "success" && postRes.state == "success") {
       return (
-        <div>
+        <div className="post__comments-flat">
           <CommentNodes
             nodes={commentsToFlatNodes(commentsRes.data.comments)}
             viewType={this.state.commentViewType}
@@ -581,7 +588,7 @@ export class Post extends Component<any, PostState> {
 
     return (
       res.state == "success" && (
-        <div>
+        <div className="post__comments-tree">
           {!!this.state.commentId && (
             <>
               <button

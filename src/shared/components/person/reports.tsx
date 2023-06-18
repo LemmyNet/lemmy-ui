@@ -142,7 +142,7 @@ export class Reports extends Component<any, ReportsState> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="person-reports__root container-lg">
         <div className="row">
           <div className="col-12">
             <HtmlTags
@@ -185,7 +185,7 @@ export class Reports extends Component<any, ReportsState> {
 
   unreadOrAllRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="person-reports__unread-or-all btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
             ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
@@ -218,7 +218,7 @@ export class Reports extends Component<any, ReportsState> {
 
   messageTypeRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="person-reports__message-type btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.All && "active"}

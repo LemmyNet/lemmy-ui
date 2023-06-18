@@ -82,7 +82,7 @@ export class Instances extends Component<any, InstancesState> {
       case "success": {
         const instances = this.state.instancesRes.data.federated_instances;
         return instances ? (
-          <div className="row">
+          <div className="home-instances__list-wrap row">
             <div className="col-md-6">
               <h5>{i18n.t("linked_instances")}</h5>
               {this.itemList(instances.linked)}
@@ -109,7 +109,7 @@ export class Instances extends Component<any, InstancesState> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="home-instances---root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -121,25 +121,29 @@ export class Instances extends Component<any, InstancesState> {
 
   itemList(items: Instance[]) {
     return items.length > 0 ? (
-      <div className="table-responsive">
+      <div className="home-instances__item-list table-responsive">
         <table id="instances_table" className="table table-sm table-hover">
           <thead className="pointer">
             <tr>
-              <th>{i18n.t("name")}</th>
-              <th>{i18n.t("software")}</th>
-              <th>{i18n.t("version")}</th>
+              <th className="home-instances__th-name">{i18n.t("name")}</th>
+              <th className="home-instances__th-software">
+                {i18n.t("software")}
+              </th>
+              <th className="home-instances__th-version">
+                {i18n.t("version")}
+              </th>
             </tr>
           </thead>
           <tbody>
             {items.map(i => (
               <tr key={i.domain}>
-                <td>
+                <td className="home-instances__td-name">
                   <a href={`https://${i.domain}`} rel={relTags}>
                     {i.domain}
                   </a>
                 </td>
-                <td>{i.software}</td>
-                <td>{i.version}</td>
+                <td className="home-instances__td-software">{i.software}</td>
+                <td className="home-instances__td-version">{i.version}</td>
               </tr>
             ))}
           </tbody>

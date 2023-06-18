@@ -101,7 +101,7 @@ export class Communities extends Component<any, CommunitiesState> {
         const { listingType, page } = this.getCommunitiesQueryParams();
         return (
           <div>
-            <div className="row">
+            <div className="communities__top row">
               <div className="col-md-6">
                 <h4>{i18n.t("list_of_communities")}</h4>
                 <span className="mb-2">
@@ -118,22 +118,24 @@ export class Communities extends Component<any, CommunitiesState> {
               </div>
             </div>
 
-            <div className="table-responsive">
+            <div className="communities__table-wrap table-responsive">
               <table
                 id="community_table"
                 className="table table-sm table-hover"
               >
                 <thead className="pointer">
                   <tr>
-                    <th>{i18n.t("name")}</th>
-                    <th className="text-right">{i18n.t("subscribers")}</th>
-                    <th className="text-right">
+                    <th className="communities__th-name">{i18n.t("name")}</th>
+                    <th className="communities__th-subscribers text-right">
+                      {i18n.t("subscribers")}
+                    </th>
+                    <th className="communities__th-users text-right">
                       {i18n.t("users")} / {i18n.t("month")}
                     </th>
-                    <th className="text-right d-none d-lg-table-cell">
+                    <th className="communities__th-posts text-right d-none d-lg-table-cell">
                       {i18n.t("posts")}
                     </th>
-                    <th className="text-right d-none d-lg-table-cell">
+                    <th className="communities__th-comments text-right d-none d-lg-table-cell">
                       {i18n.t("comments")}
                     </th>
                     <th></th>
@@ -143,25 +145,25 @@ export class Communities extends Component<any, CommunitiesState> {
                   {this.state.listCommunitiesResponse.data.communities.map(
                     cv => (
                       <tr key={cv.community.id}>
-                        <td>
+                        <td className="communities__td-link">
                           <CommunityLink community={cv.community} />
                         </td>
-                        <td className="text-right">
+                        <td className="communities__td-subscribers text-right">
                           {numToSI(cv.counts.subscribers)}
                         </td>
-                        <td className="text-right">
+                        <td className="communities__td-users text-right">
                           {numToSI(cv.counts.users_active_month)}
                         </td>
-                        <td className="text-right d-none d-lg-table-cell">
+                        <td className="communities__td-posts text-right d-none d-lg-table-cell">
                           {numToSI(cv.counts.posts)}
                         </td>
-                        <td className="text-right d-none d-lg-table-cell">
+                        <td className="communities__td-comments text-right d-none d-lg-table-cell">
                           {numToSI(cv.counts.comments)}
                         </td>
-                        <td className="text-right">
+                        <td className="communities__td-subscribed text-right">
                           {cv.subscribed == "Subscribed" && (
                             <button
-                              className="btn btn-link d-inline-block"
+                              className="communities__btn communities__btn--unsubscribe btn btn-link d-inline-block"
                               onClick={linkEvent(
                                 {
                                   i: this,
@@ -176,7 +178,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           )}
                           {cv.subscribed === "NotSubscribed" && (
                             <button
-                              className="btn btn-link d-inline-block"
+                              className="communities__btn communities__btn--subscribe btn btn-link d-inline-block"
                               onClick={linkEvent(
                                 {
                                   i: this,
@@ -190,7 +192,7 @@ export class Communities extends Component<any, CommunitiesState> {
                             </button>
                           )}
                           {cv.subscribed === "Pending" && (
-                            <div className="text-warning d-inline-block">
+                            <div className="communities__subscription-pending text-warning d-inline-block">
                               {i18n.t("subscribe_pending")}
                             </div>
                           )}
@@ -210,7 +212,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="communities__root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

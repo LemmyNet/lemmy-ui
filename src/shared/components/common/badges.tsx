@@ -26,7 +26,7 @@ const isSiteAggregates = (
 
 export const Badges = ({ counts, communityId }: BadgesProps) => {
   return (
-    <ul className="my-1 list-inline">
+    <ul className="badges__root my-1 list-inline">
       <li
         className="list-inline-item badge badge-secondary pointer"
         data-tippy-content={i18n.t("active_users_in_the_last_day", {

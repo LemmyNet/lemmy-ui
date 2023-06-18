@@ -49,7 +49,7 @@ export class Login extends Component<any, State> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="home-login__root container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -63,10 +63,10 @@ export class Login extends Component<any, State> {
 
   loginForm() {
     return (
-      <div>
+      <div className="home-login__form">
         <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
           <h5>{i18n.t("login")}</h5>
-          <div className="form-group row">
+          <div className="home-login__row home-login__row--email-or-username form-group row">
             <label
               className="col-sm-2 col-form-label"
               htmlFor="login-email-or-username"
@@ -86,7 +86,7 @@ export class Login extends Component<any, State> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="home-login__row home-login__row--password form-group row">
             <label className="col-sm-2 col-form-label" htmlFor="login-password">
               {i18n.t("password")}
             </label>
@@ -116,7 +116,7 @@ export class Login extends Component<any, State> {
             </div>
           </div>
           {this.state.showTotp && (
-            <div className="form-group row">
+            <div className="home-login__row home-login__row--totp form-group row">
               <label
                 className="col-sm-6 col-form-label"
                 htmlFor="login-totp-token"
@@ -137,7 +137,7 @@ export class Login extends Component<any, State> {
               </div>
             </div>
           )}
-          <div className="form-group row">
+          <div className="home-login__row home-login__row--btns form-group row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-secondary">
                 {this.state.loginRes.state == "loading" ? (

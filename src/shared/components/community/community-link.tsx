@@ -37,7 +37,10 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     return !this.props.realLink ? (
       <Link
         title={apubName}
-        className={`${this.props.muted ? "text-muted" : ""}`}
+        className={[
+          "community-link__root",
+          `${this.props.muted ? "text-muted" : ""}`,
+        ].join(" ")}
         to={link}
       >
         {this.avatarAndName(displayName)}
@@ -45,7 +48,10 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     ) : (
       <a
         title={apubName}
-        className={`${this.props.muted ? "text-muted" : ""}`}
+        className={[
+          "community-link__root",
+          `${this.props.muted ? "text-muted" : ""}`,
+        ].join(" ")}
         href={link}
         rel={relTags}
       >

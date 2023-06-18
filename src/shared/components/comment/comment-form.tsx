@@ -41,7 +41,13 @@ export class CommentForm extends Component<CommentFormProps, any> {
         : undefined;
 
     return (
-      <div className={["mb-3", this.props.containerClass].join(" ")}>
+      <div
+        className={[
+          "comment-form__root",
+          "mb-3",
+          this.props.containerClass,
+        ].join(" ")}
+      >
         {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}

@@ -60,7 +60,7 @@ export class Setup extends Component<any, State> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="setup__root container-lg">
         <Helmet title={this.documentTitle} />
         <div className="row">
           <div className="col-12 offset-lg-3 col-lg-6">
@@ -84,9 +84,12 @@ export class Setup extends Component<any, State> {
 
   registerUser() {
     return (
-      <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
+      <form
+        className="setup__form"
+        onSubmit={linkEvent(this, this.handleRegisterSubmit)}
+      >
         <h5>{i18n.t("setup_admin")}</h5>
-        <div className="form-group row">
+        <div className="setup__form-row-username form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="username">
             {i18n.t("username")}
           </label>
@@ -103,7 +106,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="setup__form-row-email form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="email">
             {i18n.t("email")}
           </label>
@@ -120,7 +123,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="setup__form-row-password form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="password">
             {i18n.t("password")}
           </label>
@@ -138,7 +141,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="setup__form-row-verifypass form-group row">
           <label className="col-sm-2 col-form-label" htmlFor="verify-password">
             {i18n.t("verify_password")}
           </label>
@@ -156,7 +159,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="setup__form-row-btns form-group row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
               {this.state.registerRes.state == "loading" ? (

@@ -39,11 +39,11 @@ export class ListingTypeSelect extends Component<
 
   render() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="listing-type-select__root btn-group btn-group-toggle flex-wrap mb-2">
         {this.props.showSubscribed && (
           <label
             title={i18n.t("subscribed_description")}
-            className={`btn btn-outline-secondary 
+            className={`listing-type-select__label listing-type-select__label listing-type-select__label----subscribed btn btn-outline-secondary
             ${this.state.type_ == "Subscribed" && "active"}
             ${!UserService.Instance.myUserInfo ? "disabled" : "pointer"}
           `}
@@ -62,7 +62,7 @@ export class ListingTypeSelect extends Component<
         {this.props.showLocal && (
           <label
             title={i18n.t("local_description")}
-            className={`pointer btn btn-outline-secondary ${
+            className={`listing-type-select__label listing-type-select__label listing-type-select__label----local pointer btn btn-outline-secondary ${
               this.state.type_ == "Local" && "active"
             }`}
           >
@@ -78,7 +78,7 @@ export class ListingTypeSelect extends Component<
         )}
         <label
           title={i18n.t("all_description")}
-          className={`pointer btn btn-outline-secondary ${
+          className={`listing-type-select__label listing-type-select__label listing-type-select__label----show-all pointer btn btn-outline-secondary ${
             (this.state.type_ == "All" && "active") ||
             (!this.props.showLocal && this.state.type_ == "Local" && "active")
           }`}

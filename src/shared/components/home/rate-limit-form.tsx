@@ -51,8 +51,11 @@ function RateLimits({
   rateLimitValue,
 }: RateLimitsProps) {
   return (
-    <div className="form-group row">
-      <label className="col-12 col-form-label" htmlFor="rate-limit">
+    <div className="rate-limit__row rate-limit__row- form-group row">
+      <label
+        className="rate-limit__label rate-limit__label--title col-12 col-form-label"
+        htmlFor="rate-limit"
+      >
         {i18n.t("rate_limit")}
       </label>
       <input
@@ -63,7 +66,12 @@ function RateLimits({
         value={rateLimitValue}
         onInput={handleRateLimit}
       />
-      <label className="col-12 col-form-label" htmlFor="rate-limit-per-second">
+
+      <label
+        id="rate-limit__label rate-limit__label--per-sec"
+        className="col-12 col-form-label"
+        htmlFor="rate-limit__per-second"
+      >
         {i18n.t("per_second")}
       </label>
       <input
@@ -133,7 +141,10 @@ export default class RateLimitsForm extends Component<
 
   render() {
     return (
-      <form onSubmit={linkEvent(this, submitRateLimitForm)}>
+      <form
+        className="rate-limit__root"
+        onSubmit={linkEvent(this, submitRateLimitForm)}
+      >
         <h5>{i18n.t("rate_limit_header")}</h5>
         <Tabs
           tabs={rateLimitTypes.map(rateLimitType => ({
@@ -157,7 +168,7 @@ export default class RateLimitsForm extends Component<
             ),
           }))}
         />
-        <div className="form-group row">
+        <div className="rate-limit__row rate-limit__row--btns form-group row">
           <div className="col-12">
             <button
               type="submit"

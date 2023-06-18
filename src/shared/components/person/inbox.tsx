@@ -216,7 +216,7 @@ export class Inbox extends Component<any, InboxState> {
     const auth = myAuth();
     const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
     return (
-      <div className="container-lg">
+      <div className="inbox__root container-lg">
         <div className="row">
           <div className="col-12">
             <HtmlTags
@@ -284,7 +284,7 @@ export class Inbox extends Component<any, InboxState> {
 
   unreadOrAllRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="inbox__unread-radios btn-group btn-group-toggle flex-wrap mb-2">
         <label
           className={`btn btn-outline-secondary pointer
             ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
@@ -317,9 +317,9 @@ export class Inbox extends Component<any, InboxState> {
 
   messageTypeRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="inbox__msg-type-radios btn-group btn-group-toggle flex-wrap mb-2">
         <label
-          className={`btn btn-outline-secondary pointer
+          className={`inbox__msg-type-label-all btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.All && "active"}
           `}
         >
@@ -332,7 +332,7 @@ export class Inbox extends Component<any, InboxState> {
           {i18n.t("all")}
         </label>
         <label
-          className={`btn btn-outline-secondary pointer
+          className={`inbox__msg-type-label-replies btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.Replies && "active"}
           `}
         >
@@ -345,7 +345,7 @@ export class Inbox extends Component<any, InboxState> {
           {i18n.t("replies")}
         </label>
         <label
-          className={`btn btn-outline-secondary pointer
+          className={`inbox__msg-type-label-mentions btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.Mentions && "active"}
           `}
         >
@@ -358,7 +358,7 @@ export class Inbox extends Component<any, InboxState> {
           {i18n.t("mentions")}
         </label>
         <label
-          className={`btn btn-outline-secondary pointer
+          className={`inbox__msg-type-label-msgs btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.Messages && "active"}
           `}
         >
@@ -376,7 +376,7 @@ export class Inbox extends Component<any, InboxState> {
 
   selects() {
     return (
-      <div className="mb-2">
+      <div className="inbox__selects mb-2">
         <span className="mr-3">{this.unreadOrAllRadios()}</span>
         <span className="mr-3">{this.messageTypeRadios()}</span>
         <CommentSortSelect
@@ -543,7 +543,9 @@ export class Inbox extends Component<any, InboxState> {
       );
     } else {
       return (
-        <div>{this.buildCombined().map(r => this.renderReplyType(r))}</div>
+        <div className="inbox__all">
+          {this.buildCombined().map(r => this.renderReplyType(r))}
+        </div>
       );
     }
   }
@@ -559,7 +561,7 @@ export class Inbox extends Component<any, InboxState> {
       case "success": {
         const replies = this.state.repliesRes.data.replies;
         return (
-          <div>
+          <div className="inbox__replies">
             <CommentNodes
               nodes={commentsToFlatNodes(replies)}
               viewType={CommentViewType.Flat}
@@ -607,7 +609,7 @@ export class Inbox extends Component<any, InboxState> {
       case "success": {
         const mentions = this.state.mentionsRes.data.mentions;
         return (
-          <div>
+          <div className="inbox__mentions">
             {mentions.map(umv => (
               <CommentNodes
                 key={umv.person_mention.id}
@@ -658,7 +660,7 @@ export class Inbox extends Component<any, InboxState> {
       case "success": {
         const messages = this.state.messagesRes.data.private_messages;
         return (
-          <div>
+          <div className="inbox__messages">
             {messages.map(pmv => (
               <PrivateMessage
                 key={pmv.private_message.id}

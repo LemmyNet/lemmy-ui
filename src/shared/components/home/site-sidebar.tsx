@@ -57,7 +57,9 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   siteName() {
     return (
       <>
-        <h5 className="mb-0 d-inline">{this.props.site.name}</h5>
+        <h5 className="site-sidebar__name mb-0 d-inline">
+          {this.props.site.name}
+        </h5>
         {!this.props.isMobile && (
           <button
             type="button"
@@ -88,7 +90,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   siteInfo() {
     const site = this.props.site;
     return (
-      <div>
+      <div className="site-sidebar__info">
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
         {this.props.counts && <Badges counts={this.props.counts} />}
@@ -105,10 +107,13 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   admins(admins: PersonView[]) {
     return (
-      <ul className="mt-1 list-inline small mb-0">
+      <ul className="site-sidebar__info-admins mt-1 list-inline small mb-0">
         <li className="list-inline-item">{i18n.t("admins")}:</li>
         {admins.map(av => (
-          <li key={av.person.id} className="list-inline-item">
+          <li
+            key={av.person.id}
+            className="site-sidebar__info-admin list-inline-item"
+          >
             <PersonListing person={av.person} />
           </li>
         ))}

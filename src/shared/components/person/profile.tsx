@@ -389,12 +389,16 @@ export class Profile extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderPersonRes()}</div>;
+    return (
+      <div className="person-profile__root container-lg">
+        {this.renderPersonRes()}
+      </div>
+    );
   }
 
   get viewRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="person-profile__radios btn-group btn-group-toggle flex-wrap mb-2">
         {this.getRadio(PersonDetailsView.Overview)}
         {this.getRadio(PersonDetailsView.Comments)}
         {this.getRadio(PersonDetailsView.Posts)}
@@ -409,9 +413,12 @@ export class Profile extends Component<
 
     return (
       <label
-        className={classNames("btn btn-outline-secondary pointer", {
-          active,
-        })}
+        className={classNames(
+          "person-profile__radio btn btn-outline-secondary pointer",
+          {
+            active,
+          }
+        )}
       >
         <input
           type="radio"
@@ -456,22 +463,22 @@ export class Profile extends Component<
 
     return (
       pv && (
-        <div>
+        <div className="person-profile__user-info">
           {!isBanned(pv.person) && (
             <BannerIconHeader
               banner={pv.person.banner}
               icon={pv.person.avatar}
             />
           )}
-          <div className="mb-3">
-            <div className="">
-              <div className="mb-0 d-flex flex-wrap">
+          <div className="person-profile__wrap mb-3">
+            <div className="person-profile-">
+              <div className="person-profile__overview mb-0 d-flex flex-wrap">
                 <div>
                   {pv.person.display_name && (
                     <h5 className="mb-0">{pv.person.display_name}</h5>
                   )}
                   <ul className="list-inline mb-2">
-                    <li className="list-inline-item">
+                    <li className="person-profile__li person-profile__li--listing list-inline-item">
                       <PersonListing
                         person={pv.person}
                         realLink
@@ -481,22 +488,22 @@ export class Profile extends Component<
                       />
                     </li>
                     {isBanned(pv.person) && (
-                      <li className="list-inline-item badge badge-danger">
+                      <li className="person-profile__li person-profile__li--banned list-inline-item badge badge-danger">
                         {i18n.t("banned")}
                       </li>
                     )}
                     {pv.person.deleted && (
-                      <li className="list-inline-item badge badge-danger">
+                      <li className="person-profile__li person-profile__li--deleted list-inline-item badge badge-danger">
                         {i18n.t("deleted")}
                       </li>
                     )}
                     {pv.person.admin && (
-                      <li className="list-inline-item badge badge-light">
+                      <li className="person-profile__li person-profile__li--admin list-inline-item badge badge-light">
                         {i18n.t("admin")}
                       </li>
                     )}
                     {pv.person.bot_account && (
-                      <li className="list-inline-item badge badge-light">
+                      <li className="person-profile__li person-profile__li--bot-acct list-inline-item badge badge-light">
                         {i18n.t("bot_account").toLowerCase()}
                       </li>
                     )}
@@ -507,7 +514,7 @@ export class Profile extends Component<
                 {!this.amCurrentUser && UserService.Instance.myUserInfo && (
                   <>
                     <a
-                      className={`d-flex align-self-start btn btn-secondary mr-2 ${
+                      className={`prod-user-matrix d-flex align-self-start btn btn-secondary mr-2 ${
                         !pv.person.matrix_user_id && "invisible"
                       }`}
                       rel={relTags}
@@ -517,7 +524,7 @@ export class Profile extends Component<
                     </a>
                     <Link
                       className={
-                        "d-flex align-self-start btn btn-secondary mr-2"
+                        "person-profile__send-msg d-flex align-self-start btn btn-secondary mr-2"
                       }
                       to={`/create_private_message/${pv.person.id}`}
                     >
@@ -526,7 +533,7 @@ export class Profile extends Component<
                     {personBlocked ? (
                       <button
                         className={
-                          "d-flex align-self-start btn btn-secondary mr-2"
+                          "person-profile__btn person-profile__btn--unblock d-flex align-self-start btn btn-secondary mr-2"
                         }
                         onClick={linkEvent(
                           pv.person.id,
@@ -538,7 +545,7 @@ export class Profile extends Component<
                     ) : (
                       <button
                         className={
-                          "d-flex align-self-start btn btn-secondary mr-2"
+                          "person-profile__btn person-profile__btn--block d-flex align-self-start btn btn-secondary mr-2"
                         }
                         onClick={linkEvent(
                           pv.person.id,
@@ -557,7 +564,7 @@ export class Profile extends Component<
                   (!isBanned(pv.person) ? (
                     <button
                       className={
-                        "d-flex align-self-start btn btn-secondary mr-2"
+                        "person-profile__btn person-profile__btn--ban d-flex align-self-start btn btn-secondary mr-2"
                       }
                       onClick={linkEvent(this, this.handleModBanShow)}
                       aria-label={i18n.t("ban")}
@@ -567,7 +574,7 @@ export class Profile extends Component<
                   ) : (
                     <button
                       className={
-                        "d-flex align-self-start btn btn-secondary mr-2"
+                        "person-profile__btn person-profile__btn--unban d-flex align-self-start btn btn-secondary mr-2"
                       }
                       onClick={linkEvent(this, this.handleModBanSubmit)}
                       aria-label={i18n.t("unban")}
@@ -577,22 +584,22 @@ export class Profile extends Component<
                   ))}
               </div>
               {pv.person.bio && (
-                <div className="d-flex align-items-center mb-2">
+                <div className="person-profile__bio-mdn d-flex align-items-center mb-2">
                   <div
                     className="md-div"
                     dangerouslySetInnerHTML={mdToHtml(pv.person.bio)}
                   />
                 </div>
               )}
-              <div>
-                <ul className="list-inline mb-2">
-                  <li className="list-inline-item badge badge-light">
+              <div className="person-profile__site-info">
+                <ul className="person-profile__counts list-inline mb-2">
+                  <li className="person-profile__li person-profile__li--post_count list-inline-item badge badge-light">
                     {i18n.t("number_of_posts", {
                       count: Number(pv.counts.post_count),
                       formattedCount: numToSI(pv.counts.post_count),
                     })}
                   </li>
-                  <li className="list-inline-item badge badge-light">
+                  <li className="person-profile__li person-profile__li--comment_count list-inline-item badge badge-light">
                     {i18n.t("number_of_comments", {
                       count: Number(pv.counts.comment_count),
                       formattedCount: numToSI(pv.counts.comment_count),
@@ -600,7 +607,7 @@ export class Profile extends Component<
                   </li>
                 </ul>
               </div>
-              <div className="text-muted">
+              <div className="person-profile__published text-muted">
                 {i18n.t("joined")}{" "}
                 <MomentTime
                   published={pv.person.published}
@@ -608,7 +615,7 @@ export class Profile extends Component<
                   ignoreUpdated
                 />
               </div>
-              <div className="d-flex align-items-center text-muted mb-2">
+              <div className="person-profile__cakeday-wrap d-flex align-items-center text-muted mb-2">
                 <Icon icon="cake" />
                 <span className="ml-2">
                   {i18n.t("cake_day_title")}{" "}
@@ -619,7 +626,10 @@ export class Profile extends Component<
                 </span>
               </div>
               {!UserService.Instance.myUserInfo && (
-                <div className="alert alert-info" role="alert">
+                <div
+                  className="person-profile__li person-profile__li--alert alert alert-info"
+                  role="alert"
+                >
                   {i18n.t("profile_not_logged_in_alert")}
                 </div>
               )}
@@ -635,8 +645,11 @@ export class Profile extends Component<
 
     return (
       showBanDialog && (
-        <form onSubmit={linkEvent(this, this.handleModBanSubmit)}>
-          <div className="form-group row col-12">
+        <form
+          className="person-profile__ban-dialog--root"
+          onSubmit={linkEvent(this, this.handleModBanSubmit)}
+        >
+          <div className="person-profile__ban-dialog form-group row col-12">
             <label className="col-form-label" htmlFor="profile-ban-reason">
               {i18n.t("reason")}
             </label>
