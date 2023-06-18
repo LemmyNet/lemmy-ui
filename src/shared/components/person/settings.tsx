@@ -267,15 +267,21 @@ export class Settings extends Component<any, SettingsState> {
 
   userSettings() {
     return (
-      <div className="row">
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
+      <div
+        className="tab-pane show active"
+        role="tabpanel"
+        id="settings-tab-pane"
+      >
+        <div className="row">
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
+            </div>
           </div>
-        </div>
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.changePasswordHtmlForm()}</div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.changePasswordHtmlForm()}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -284,15 +290,17 @@ export class Settings extends Component<any, SettingsState> {
 
   blockCards() {
     return (
-      <div className="row">
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.blockUserCard()}</div>
+      <div className="tab-pane" role="tabpanel" id="blocks-tab-pane">
+        <div className="row">
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockUserCard()}</div>
+            </div>
           </div>
-        </div>
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.blockCommunityCard()}</div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockCommunityCard()}</div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 
 interface TabItem {
@@ -30,14 +31,23 @@ export default class Tabs extends Component<TabsProps, TabsState> {
   render() {
     return (
       <div>
-        <ul className="nav nav-tabs mb-2">
-          {this.props.tabs.map(({ key, label }) => (
+        <ul className="nav nav-tabs mb-2" role="tablist">
+          {this.props.tabs.map(({ key, label }, index) => (
             <li key={key} className="nav-item">
               <button
                 type="button"
-                className={`nav-link btn${
-                  this.state?.currentTab === key ? " active" : ""
-                }`}
+                data-bs-toggle="tab"
+                data-bs-target={`#${key}-tab-pane`}
+                aria-controls={`${key}-tab-pane`}
+                className={classNames("nav-link", {
+                  active: index === 0,
+                })}
+                {...(index === 0 && {
+                  ...{
+                    "aria-current": "page",
+                    "aria-selected": "true",
+                  },
+                })}
                 onClick={linkEvent({ ctx: this, tab: key }, handleSwitchTab)}
               >
                 {label}
@@ -45,9 +55,11 @@ export default class Tabs extends Component<TabsProps, TabsState> {
             </li>
           ))}
         </ul>
-        {this.props.tabs
-          .find(tab => tab.key === this.state?.currentTab)
-          ?.getNode()}
+        <div className="tab-content">
+          {this.props.tabs.map(tab => {
+            return tab.getNode();
+          })}
+        </div>
       </div>
     );
   }

@@ -5,6 +5,7 @@ import { initializeSite } from "../shared/utils";
 
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
+import "bootstrap/js/dist/tab";
 import { HistoryService } from "../shared/services/HistoryService";
 
 const site = window.isoData.site_res;
