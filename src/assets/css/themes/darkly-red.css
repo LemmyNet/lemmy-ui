@@ -3170,7 +3170,7 @@ fieldset:disabled .btn {
   --bs-btn-disabled-color: #888;
   --bs-btn-disabled-border-color: transparent;
   --bs-btn-box-shadow: 0 0 0 #000;
-  --bs-btn-focus-shadow-rgb: 196, 65, 51;
+  --bs-btn-focus-shadow-rgb: 235, 103, 89;
   text-decoration: none;
 }
 .btn-link:focus-visible {

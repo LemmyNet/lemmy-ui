@@ -23,7 +23,7 @@ $blue: #007bff;
 $indigo: #6610f2;
 $red: #d8486a;
 $orange: #f1641e;
-$green: #00c853;
+$green: #00a846;
 $cyan: #02bdc2;
 
 // Writing these maps is necessary for Bootstrap theming:
@@ -36,6 +36,7 @@ $colors: (
 );
 
 $primary: $orange;
+$secondary: $green;
 $success: $indigo;
 $info: $blue;
 $danger: darken($primary, 25%);
@@ -44,6 +45,7 @@ $danger: darken($primary, 25%);
 // https://getbootstrap.com/docs/4.6/getting-started/introduction/
 $theme-colors: (
   "primary": $primary,
+  "secondary": $secondary,
   "success": $success,
   "info": $info,
   "danger": $danger,
