@@ -195,7 +195,7 @@ const MobileButton = ({
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
-    className="btn btn-secondary d-inline-block mb-2 mr-3"
+    className="btn btn-secondary d-inline-block mb-2 me-3"
     onClick={onClick}
   >
     {i18n.t(textKey)}{" "}
@@ -736,13 +736,13 @@ export class Home extends Component<any, HomeState> {
 
     return (
       <div className="mb-3">
-        <span className="mr-3">
+        <span className="me-3">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
         </span>
-        <span className="mr-3">
+        <span className="me-3">
           <ListingTypeSelect
             type_={listingType}
             showLocal={showLocal(this.isoData)}
@@ -750,7 +750,7 @@ export class Home extends Component<any, HomeState> {
             onChange={this.handleListingTypeChange}
           />
         </span>
-        <span className="mr-2">
+        <span className="me-2">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
         {getRss(listingType)}

@@ -161,7 +161,7 @@ export default class RateLimitsForm extends Component<
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary mr-2"
+              className="btn btn-secondary me-2"
               disabled={this.props.loading}
             >
               {this.props.loading ? (

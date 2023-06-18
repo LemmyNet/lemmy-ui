@@ -228,7 +228,7 @@ export class Inbox extends Component<any, InboxState> {
               {inboxRss && (
                 <small>
                   <a href={inboxRss} title="RSS" rel={relTags}>
-                    <Icon icon="rss" classes="ml-2 text-muted small" />
+                    <Icon icon="rss" classes="ms-2 text-muted small" />
                   </a>
                   <link
                     rel="alternate"
@@ -381,8 +381,8 @@ export class Inbox extends Component<any, InboxState> {
   selects() {
     return (
       <div className="mb-2">
-        <span className="mr-3">{this.unreadOrAllRadios()}</span>
-        <span className="mr-3">{this.messageTypeRadios()}</span>
+        <span className="me-3">{this.unreadOrAllRadios()}</span>
+        <span className="me-3">{this.messageTypeRadios()}</span>
         <CommentSortSelect
           sort={this.state.sort}
           onChange={this.handleSortChange}

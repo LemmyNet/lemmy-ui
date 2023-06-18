@@ -229,7 +229,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 href={donateLemmyUrl}
               >
                 <Icon icon="heart" classes="small" />
-                <span className="d-inline ml-1 d-md-none ml-md-0">
+                <span className="d-inline ms-1 d-md-none ml-md-0">
                   {i18n.t("support_lemmy")}
                 </span>
               </a>
@@ -244,7 +244,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
                 <Icon icon="search" />
-                <span className="d-inline ml-1 d-md-none ml-md-0">
+                <span className="d-inline ms-1 d-md-none ml-md-0">
                   {i18n.t("search")}
                 </span>
               </NavLink>
@@ -258,7 +258,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="settings" />
-                  <span className="d-inline ml-1 d-md-none ml-md-0">
+                  <span className="d-inline ms-1 d-md-none ml-md-0">
                     {i18n.t("admin_settings")}
                   </span>
                 </NavLink>
@@ -277,7 +277,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="bell" />
-                    <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                    <span className="badge badge-light d-inline ms-1 d-md-none ml-md-0">
                       {i18n.t("unread_messages", {
                         count: Number(this.unreadInboxCount),
                         formattedCount: numToSI(this.unreadInboxCount),
@@ -302,7 +302,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="shield" />
-                      <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                      <span className="badge badge-light d-inline ms-1 d-md-none ml-md-0">
                         {i18n.t("unread_reports", {
                           count: Number(this.unreadReportCount),
                           formattedCount: numToSI(this.unreadReportCount),
@@ -328,7 +328,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="clipboard" />
-                      <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                      <span className="badge badge-light d-inline ms-1 d-md-none ml-md-0">
                         {i18n.t("unread_registration_applications", {
                           count: Number(this.unreadApplicationCount),
                           formattedCount: numToSI(this.unreadApplicationCount),
@@ -366,7 +366,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           title={i18n.t("profile")}
                           onMouseUp={linkEvent(this, handleCollapseClick)}
                         >
-                          <Icon icon="user" classes="mr-1" />
+                          <Icon icon="user" classes="me-1" />
                           {i18n.t("profile")}
                         </NavLink>
                       </li>
@@ -377,7 +377,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           title={i18n.t("settings")}
                           onMouseUp={linkEvent(this, handleCollapseClick)}
                         >
-                          <Icon icon="settings" classes="mr-1" />
+                          <Icon icon="settings" classes="me-1" />
                           {i18n.t("settings")}
                         </NavLink>
                       </li>
@@ -389,7 +389,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           className="dropdown-item btn btn-link px-2"
                           onClick={linkEvent(this, handleLogOut)}
                         >
-                          <Icon icon="log-out" classes="mr-1" />
+                          <Icon icon="log-out" classes="me-1" />
                           {i18n.t("logout")}
                         </button>
                       </li>

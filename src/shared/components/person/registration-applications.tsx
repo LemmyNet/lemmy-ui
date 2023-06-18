@@ -158,7 +158,7 @@ export class RegistrationApplications extends Component<
   selects() {
     return (
       <div className="mb-2">
-        <span className="mr-3">{this.unreadOrAllRadios()}</span>
+        <span className="me-3">{this.unreadOrAllRadios()}</span>
       </div>
     );
   }

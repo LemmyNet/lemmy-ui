@@ -113,7 +113,7 @@ export class RegistrationApplication extends Component<
         )}
         {(!ra.admin_id || (ra.admin_id && !accepted)) && (
           <button
-            className="btn btn-secondary mr-2 my-2"
+            className="btn btn-secondary me-2 my-2"
             onClick={linkEvent(this, this.handleApprove)}
             aria-label={i18n.t("approve")}
           >
@@ -122,7 +122,7 @@ export class RegistrationApplication extends Component<
         )}
         {(!ra.admin_id || (ra.admin_id && accepted)) && (
           <button
-            className="btn btn-secondary mr-2"
+            className="btn btn-secondary me-2"
             onClick={linkEvent(this, this.handleDeny)}
             aria-label={i18n.t("deny")}
           >

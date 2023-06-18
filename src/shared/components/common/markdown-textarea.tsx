@@ -146,8 +146,8 @@ export class MarkdownTextArea extends Component<
         />
         <div className="form-group row">
           <div className="col-12">
-            <div className="rounded bg-light border border-light">
-              <div className="d-flex flex-wrap border-bottom border-light">
+            <div className="rounded bg-light border border-secondary">
+              <div className="d-flex flex-wrap border-bottom border-secondary">
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
                 {this.getFormatButton("link", this.handleInsertLink)}
@@ -274,7 +274,7 @@ export class MarkdownTextArea extends Component<
             {this.props.buttonTitle && (
               <button
                 type="submit"
-                className="btn btn-sm btn-secondary ml-2"
+                className="btn btn-sm btn-secondary ms-2"
                 disabled={this.isDisabled}
               >
                 {this.state.loading ? (
@@ -287,7 +287,7 @@ export class MarkdownTextArea extends Component<
             {this.props.replyType && (
               <button
                 type="button"
-                className="btn btn-sm btn-secondary ml-2"
+                className="btn btn-sm btn-secondary ms-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
                 {i18n.t("cancel")}
@@ -295,7 +295,7 @@ export class MarkdownTextArea extends Component<
             )}
             {this.state.content && (
               <button
-                className={`btn btn-sm btn-secondary ml-2 ${
+                className={`btn btn-sm btn-secondary ms-2 ${
                   this.state.previewMode && "active"
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}

@@ -179,19 +179,19 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
-          <span className="mr-2">
+          <span className="me-2">
             <CommunityLink community={community} hideAvatar />
           </span>
           {subscribed === "Subscribed" && (
             <button
-              className="btn btn-secondary btn-sm mr-2"
+              className="btn btn-secondary btn-sm me-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
               {this.state.followCommunityLoading ? (
                 <Spinner />
               ) : (
                 <>
-                  <Icon icon="check" classes="icon-inline text-success mr-1" />
+                  <Icon icon="check" classes="icon-inline text-success me-1" />
                   {i18n.t("joined")}
                 </>
               )}
@@ -199,7 +199,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           )}
           {subscribed === "Pending" && (
             <button
-              className="btn btn-warning mr-2"
+              className="btn btn-warning me-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
               {this.state.followCommunityLoading ? (
@@ -210,17 +210,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             </button>
           )}
           {community.removed && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="me-2 text-muted font-italic">
               {i18n.t("removed")}
             </small>
           )}
           {community.deleted && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="me-2 text-muted font-italic">
               {i18n.t("deleted")}
             </small>
           )}
           {community.nsfw && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="me-2 text-muted font-italic">
               {i18n.t("nsfw")}
             </small>
           )}
@@ -436,7 +436,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               <input
                 type="text"
                 id="remove-reason"
-                className="form-control mr-2"
+                className="form-control me-2"
                 placeholder={i18n.t("optional")}
                 value={this.state.removeReason}
                 onInput={linkEvent(this, this.handleModRemoveReasonChange)}
@@ -445,7 +445,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {/* TODO hold off on expires for now */}
             {/* <div class="form-group row"> */}
             {/*   <label class="col-form-label">Expires</label> */}
-            {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
+            {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
             {/* </div> */}
             <div className="form-group">
               <button type="submit" className="btn btn-secondary">
@@ -470,7 +470,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               <input
                 type="text"
                 id="purge-reason"
-                className="form-control mr-2"
+                className="form-control me-2"
                 placeholder={i18n.t("reason")}
                 value={this.state.purgeReason}
                 onInput={linkEvent(this, this.handlePurgeReasonChange)}

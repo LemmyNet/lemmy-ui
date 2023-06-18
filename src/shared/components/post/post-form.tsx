@@ -241,7 +241,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <div>
                 <a
                   href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
-                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
                   archive.org {i18n.t("archive_link")}
@@ -250,7 +250,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
                     url
                   )}`}
-                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
                   ghostarchive.org {i18n.t("archive_link")}
@@ -259,7 +259,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
                     url
                   )}`}
-                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
                   archive.today {i18n.t("archive_link")}
@@ -277,7 +277,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 aria-label={i18n.t("delete")}
                 data-tippy-content={i18n.t("delete")}
               >
-                <Icon icon="x" classes="icon-inline mr-1" />
+                <Icon icon="x" classes="icon-inline me-1" />
                 {capitalizeFirstLetter(i18n.t("delete"))}
               </button>
             )}
@@ -417,7 +417,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             <button
               disabled={!this.state.form.community_id || this.state.loading}
               type="submit"
-              className="btn btn-secondary mr-2"
+              className="btn btn-secondary me-2"
             >
               {this.state.loading ? (
                 <Spinner />

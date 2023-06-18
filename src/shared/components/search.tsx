@@ -499,7 +499,7 @@ export class Search extends Component<any, SearchState> {
       >
         <input
           type="text"
-          className="form-control mr-2 mb-2"
+          className="form-control me-2 mb-2"
           value={this.state.searchText}
           placeholder={`${i18n.t("search")}...`}
           aria-label={i18n.t("search")}
@@ -507,7 +507,7 @@ export class Search extends Component<any, SearchState> {
           required
           minLength={1}
         />
-        <button type="submit" className="btn btn-secondary mr-2 mb-2">
+        <button type="submit" className="btn btn-secondary me-2 mb-2">
           {this.state.searchRes.state === "loading" ? (
             <Spinner />
           ) : (
@@ -550,7 +550,7 @@ export class Search extends Component<any, SearchState> {
             </option>
           ))}
         </select>
-        <span className="ml-2">
+        <span className="ms-2">
           <ListingTypeSelect
             type_={listingType}
             showLocal={showLocal(this.isoData)}
@@ -558,7 +558,7 @@ export class Search extends Component<any, SearchState> {
             onChange={this.handleListingTypeChange}
           />
         </span>
-        <span className="ml-2">
+        <span className="ms-2">
           <SortSelect
             sort={sort}
             onChange={this.handleSortChange}

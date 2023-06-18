@@ -105,7 +105,7 @@ export class CommunityForm extends Component<
             >
               {i18n.t("name")}
               <span
-                className="position-absolute pointer unselectable ml-2 text-muted"
+                className="position-absolute pointer unselectable ms-2 text-muted"
                 data-tippy-content={i18n.t("name_explain")}
               >
                 <Icon icon="help-circle" classes="icon-inline" />
@@ -133,7 +133,7 @@ export class CommunityForm extends Component<
           >
             {i18n.t("display_name")}
             <span
-              className="position-absolute pointer unselectable ml-2 text-muted"
+              className="position-absolute pointer unselectable ms-2 text-muted"
               data-tippy-content={i18n.t("display_name_explain")}
             >
               <Icon icon="help-circle" classes="icon-inline" />
@@ -240,7 +240,7 @@ export class CommunityForm extends Component<
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary mr-2"
+              className="btn btn-secondary me-2"
               disabled={this.props.loading}
             >
               {this.props.loading ? (

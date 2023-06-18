@@ -157,7 +157,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="form-group">
-          <label className="mr-2">{i18n.t("icon")}</label>
+          <label className="me-2">{i18n.t("icon")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_icon")}
             imageSrc={this.state.siteForm.icon}
@@ -167,7 +167,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           />
         </div>
         <div className="form-group">
-          <label className="mr-2">{i18n.t("banner")}</label>
+          <label className="me-2">{i18n.t("banner")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_banner")}
             imageSrc={this.state.siteForm.banner}
@@ -257,7 +257,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="form-group row">
           <div className="col-12">
             <label
-              className="form-check-label mr-2"
+              className="form-check-label me-2"
               htmlFor="create-site-registration-mode"
             >
               {i18n.t("registration_mode")}
@@ -380,7 +380,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="form-group row">
           <div className="col-12">
             <label
-              className="form-check-label mr-2"
+              className="form-check-label me-2"
               htmlFor="create-site-default-theme"
             >
               {i18n.t("theme")}
@@ -586,7 +586,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="form-group row">
             <div className="col-12">
               <label
-                className="form-check-label mr-2"
+                className="form-check-label me-2"
                 htmlFor="create-site-captcha-difficulty"
               >
                 {i18n.t("captcha_difficulty")}
@@ -608,7 +608,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary mr-2"
+              className="btn btn-secondary me-2"
               disabled={this.props.loading}
             >
               {this.props.loading ? (
@@ -646,7 +646,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           />
           <button
             type="button"
-            className="btn btn-sm bg-success ml-2"
+            className="btn btn-sm bg-success ms-2"
             onClick={linkEvent(key, this.handleAddInstance)}
             style={"width: 2rem; height: 2rem;"}
             tabIndex={

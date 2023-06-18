@@ -289,8 +289,8 @@ export class Reports extends Component<any, ReportsState> {
   selects() {
     return (
       <div className="mb-2">
-        <span className="mr-3">{this.unreadOrAllRadios()}</span>
-        <span className="mr-3">{this.messageTypeRadios()}</span>
+        <span className="me-3">{this.unreadOrAllRadios()}</span>
+        <span className="me-3">{this.messageTypeRadios()}</span>
       </div>
     );
   }

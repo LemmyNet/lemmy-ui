@@ -204,7 +204,7 @@ export class Signup extends Component<any, State> {
               this.state.form.email &&
               !validEmail(this.state.form.email) && (
                 <div className="mt-2 mb-0 alert alert-warning" role="alert">
-                  <Icon icon="alert-triangle" classes="icon-inline mr-2" />
+                  <Icon icon="alert-triangle" classes="icon-inline me-2" />
                   {i18n.t("no_password_reset")}
                 </div>
               )}
@@ -264,7 +264,7 @@ export class Signup extends Component<any, State> {
             <div className="form-group row">
               <div className="offset-sm-2 col-sm-10">
                 <div className="mt-2 alert alert-warning" role="alert">
-                  <Icon icon="alert-triangle" classes="icon-inline mr-2" />
+                  <Icon icon="alert-triangle" classes="icon-inline me-2" />
                   {i18n.t("fill_out_application")}
                 </div>
                 {siteView.local_site.application_question && (
@@ -348,7 +348,7 @@ export class Signup extends Component<any, State> {
         return (
           <div className="form-group row">
             <label className="col-sm-2" htmlFor="register-captcha">
-              <span className="mr-2">{i18n.t("enter_code")}</span>
+              <span className="me-2">{i18n.t("enter_code")}</span>
               <button
                 type="button"
                 className="btn btn-secondary"

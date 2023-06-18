@@ -254,7 +254,7 @@ export class PrivateMessage extends Component<
             <input
               type="text"
               id="pm-report-reason"
-              className="form-control mr-2"
+              className="form-control me-2"
               placeholder={i18n.t("reason")}
               required
               value={this.state.reportReason}

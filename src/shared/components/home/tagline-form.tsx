@@ -92,7 +92,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
           <div className="form-group row">
             <div className="col-12">
               <button
-                className="btn btn-sm btn-secondary mr-2"
+                className="btn btn-sm btn-secondary me-2"
                 onClick={linkEvent(this, this.handleAddTaglineClick)}
               >
                 {i18n.t("add_tagline")}
@@ -104,7 +104,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             <div className="col-12">
               <button
                 onClick={linkEvent(this, this.handleSaveClick)}
-                className="btn btn-secondary mr-2"
+                className="btn btn-secondary me-2"
                 disabled={this.props.loading}
               >
                 {this.props.loading ? (
