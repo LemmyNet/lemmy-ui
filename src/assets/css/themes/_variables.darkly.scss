@@ -10,44 +10,16 @@ $gray-700: #444;
 $gray-800: #303030;
 $gray-900: #222;
 
-// Writing these maps is necessary for Bootstrap theming:
-// https://getbootstrap.com/docs/4.6/getting-started/introduction/
-$grays: (
-  "gray-200": $gray-200,
-  "gray-600": $gray-600,
-  "gray-700": $gray-700,
-  "gray-800": $gray-800,
-  "gray-900": $gray-900,
-);
-
 $blue: #375a7f;
 $red: #e74c3c;
 $yellow: #f39c12;
 $green: #00bc8c;
 $cyan: #3498db;
 
-// Writing these maps is necessary for Bootstrap theming:
-// https://getbootstrap.com/docs/4.6/getting-started/introduction/
-$colors: (
-  "blue": $blue,
-  "red": $red,
-  "yellow": $yellow,
-  "green": $green,
-  "cyan": $cyan,
-);
-
 $primary: $green;
 $secondary: $gray-700;
 $success: $green;
 $dark: $gray-300;
-
-// Writing these maps is necessary for Bootstrap theming:
-// https://getbootstrap.com/docs/4.6/getting-started/introduction/
-$theme-colors: (
-  "primary": $primary,
-  "secondary": $secondary,
-  "dark": $dark,
-);
 
 $body-color: $gray-300;
 $body-bg: $gray-900;

@@ -7,15 +7,28 @@
 :root,
 [data-bs-theme="light"] {
   --bs-blue: #375a7f;
+  --bs-indigo: #6610f2;
+  --bs-purple: #6f42c1;
+  --bs-pink: #d63384;
   --bs-red: #e74c3c;
+  --bs-orange: #fd7e14;
   --bs-yellow: #f39c12;
   --bs-green: #00bc8c;
+  --bs-teal: #20c997;
   --bs-cyan: #3498db;
-  --bs-gray-gray-200: #ebebeb;
-  --bs-gray-gray-600: #888;
-  --bs-gray-gray-700: #444;
-  --bs-gray-gray-800: #303030;
-  --bs-gray-gray-900: #222;
+  --bs-black: #000;
+  --bs-white: #fff;
+  --bs-gray: #888;
+  --bs-gray-dark: #303030;
+  --bs-gray-100: #f8f9fa;
+  --bs-gray-200: #ebebeb;
+  --bs-gray-300: #dee2e6;
+  --bs-gray-400: #ced4da;
+  --bs-gray-500: #adb5bd;
+  --bs-gray-600: #888;
+  --bs-gray-700: #444;
+  --bs-gray-800: #303030;
+  --bs-gray-900: #222;
   --bs-secondary: #c80000;
   --bs-danger: #004231;
   --bs-secondary-rgb: 200, 0, 0;
