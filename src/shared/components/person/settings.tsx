@@ -359,7 +359,7 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="form-group">
-            <button type="submit" className="btn btn-block btn-secondary me-4">
+            <button type="submit" className="btn d-block btn-secondary me-4">
               {this.state.changePasswordRes.state === "loading" ? (
                 <Spinner />
               ) : (
@@ -773,7 +773,7 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           {this.totpSection()}
           <div className="form-group">
-            <button type="submit" className="btn btn-block btn-secondary me-4">
+            <button type="submit" className="btn d-block btn-secondary me-4">
               {this.state.saveRes.state === "loading" ? (
                 <Spinner />
               ) : (
@@ -784,7 +784,7 @@ export class Settings extends Component<any, SettingsState> {
           <hr />
           <div className="form-group">
             <button
-              className="btn btn-block btn-danger"
+              className="btn d-block btn-danger"
               onClick={linkEvent(
                 this,
                 this.handleDeleteAccountShowConfirmToggle

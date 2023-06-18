@@ -210,7 +210,7 @@ const LinkButton = ({
   path: string;
   translationKey: NoOptionI18nKeys;
 }) => (
-  <Link className="btn btn-secondary btn-block" to={path}>
+  <Link className="btn btn-secondary d-block" to={path}>
     {i18n.t(translationKey)}
   </Link>
 );

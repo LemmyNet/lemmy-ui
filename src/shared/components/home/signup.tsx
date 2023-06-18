@@ -391,7 +391,7 @@ export class Signup extends Component<any, State> {
           />
           {captchaRes.wav && (
             <button
-              className="rounded-bottom btn btn-sm btn-secondary btn-block"
+              className="rounded-bottom btn btn-sm btn-secondary d-block"
               style="border-top-right-radius: 0; border-top-left-radius: 0;"
               title={i18n.t("play_captcha_audio")}
               onClick={linkEvent(this, this.handleCaptchaPlay)}

@@ -253,7 +253,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const cv = this.props.community_view;
     return (
       <Link
-        className={`btn btn-secondary btn-block mb-2 ${
+        className={`btn btn-secondary d-block mb-2 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
         to={`/create_post?communityId=${cv.community.id}`}
@@ -269,7 +269,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       <div className="mb-2">
         {community_view.subscribed == "NotSubscribed" && (
           <button
-            className="btn btn-secondary btn-block"
+            className="btn btn-secondary d-block"
             onClick={linkEvent(this, this.handleFollowCommunity)}
           >
             {this.state.followCommunityLoading ? (
@@ -290,7 +290,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       <div className="mb-2">
         {subscribed == "NotSubscribed" && (
           <button
-            className="btn btn-danger btn-block"
+            className="btn btn-danger d-block"
             onClick={linkEvent(this, this.handleBlockCommunity)}
           >
             {i18n.t(blocked ? "unblock_community" : "block_community")}
