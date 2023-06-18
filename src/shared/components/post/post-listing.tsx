@@ -367,8 +367,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   createdLine() {
     const post_view = this.postView;
-    const url = post_view.post.url;
-    const body = post_view.post.body;
     return (
       <ul className="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
@@ -402,21 +400,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </span>
         )}
         <li className="list-inline-item">•</li>
-        {url && !(hostname(url) === getExternalHost()) && (
-          <>
-            <li className="list-inline-item">
-              <a
-                className="text-muted font-italic"
-                href={url}
-                title={url}
-                rel={relTags}
-              >
-                {hostname(url)}
-              </a>
-            </li>
-            <li className="list-inline-item">•</li>
-          </>
-        )}
         <li className="list-inline-item">
           <span>
             <MomentTime
@@ -425,21 +408,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             />
           </span>
         </li>
-        {body && (
-          <>
-            <li className="list-inline-item">•</li>
-            <li className="list-inline-item">
-              <button
-                className="text-muted btn btn-sm btn-link p-0"
-                data-tippy-content={mdNoImages.render(body)}
-                data-tippy-allowHtml={true}
-                onClick={linkEvent(this, this.handleShowBody)}
-              >
-                <Icon icon="book-open" classes="icon-inline mr-1" />
-              </button>
-            </li>
-          </>
-        )}
       </ul>
     );
   }
@@ -516,10 +484,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postTitleLine() {
     const post = this.postView.post;
     const url = post.url;
+    const body = post.body;
 
     return (
-      <div className="post-title overflow-hidden">
-        <h5>
+      <div className="lh-1 overflow-hidden">
+        <h5 className="post-title m-0">
           {url ? (
             this.props.showBody ? (
               <a
@@ -601,6 +570,31 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </small>
           )}
         </h5>
+        <p className="d-flex text-muted align-items-center gap-1 small">
+          {url && !(hostname(url) === getExternalHost()) && (
+            <a
+              className="text-muted font-italic"
+              href={url}
+              title={url}
+              rel={relTags}
+            >
+              {hostname(url)}
+            </a>
+          )}
+          {body && (
+            <>
+              <span>•</span>
+              <button
+                className="text-muted btn btn-sm btn-link p-0"
+                data-tippy-content={mdNoImages.render(body)}
+                data-tippy-allowHtml={true}
+                onClick={linkEvent(this, this.handleShowBody)}
+              >
+                <Icon icon="book-open" classes="icon-inline mr-1" />
+              </button>
+            </>
+          )}
+        </p>
       </div>
     );
   }
