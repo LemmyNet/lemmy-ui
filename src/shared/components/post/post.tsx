@@ -294,7 +294,9 @@ export class Post extends Component<any, PostState> {
   }
 
   scrollIntoCommentSection() {
-    this.state.commentSectionRef?.current?.scrollIntoView();
+    setTimeout(() => {
+      this.state.commentSectionRef?.current?.scrollIntoView();
+    });
   }
 
   isBottom(el: Element): boolean {
