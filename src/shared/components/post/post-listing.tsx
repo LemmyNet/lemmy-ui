@@ -521,7 +521,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               </button>
             ))}
           {post.removed && (
-            <small className="ml-2 text-muted font-italic">
+            <small className="ml-2 badge text-bg-secondary">
               {i18n.t("removed")}
             </small>
           )}
@@ -558,7 +558,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </small>
           )}
           {post.nsfw && (
-            <small className="ml-2 text-muted font-italic">
+            <small className="ml-2 badge text-bg-danger">
               {i18n.t("nsfw")}
             </small>
           )}
@@ -888,10 +888,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleShowReportDialog)}
-        data-tippy-content={i18n.t("show_report_dialog")}
         aria-label={i18n.t("show_report_dialog")}
       >
-        <Icon icon="flag" inline />
+        <Icon classes="mr-1" icon="flag" inline />
+        {i18n.t("create_report")}
       </button>
     );
   }
@@ -901,10 +901,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleBlockPersonClick)}
-        data-tippy-content={i18n.t("block_user")}
         aria-label={i18n.t("block_user")}
       >
-        {this.state.blockLoading ? <Spinner /> : <Icon icon="slash" inline />}
+        {this.state.blockLoading ? (
+          <Spinner />
+        ) : (
+          <Icon classes="mr-1" icon="slash" inline />
+        )}
+        {i18n.t("block_user")}
       </button>
     );
   }
