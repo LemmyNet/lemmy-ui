@@ -355,10 +355,6 @@ br.big {
   height: 1.25rem;
 }
 
-.small {
-  font-size: 0.8rem !important;
-}
-
 .tribute-container ul {
   margin: 0;
   margin-top: 2px;
