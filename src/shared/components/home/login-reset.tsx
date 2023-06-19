@@ -138,7 +138,7 @@ export class LoginReset extends Component<any, State> {
 
       if (res.state == "success") {
         toast(i18n.t("reset_password_mail_sent"));
-        this.context.router.history.push(`/login`);
+        this.context.router.history.push("/login");
       }
 
       i.setState({ loading: false });
