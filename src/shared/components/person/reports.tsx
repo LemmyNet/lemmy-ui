@@ -256,6 +256,7 @@ export class Reports extends Component<any, ReportsState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.PostReport}
             checked={this.state.messageType == MessageType.PostReport}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -273,6 +274,7 @@ export class Reports extends Component<any, ReportsState> {
           >
             <input
               type="radio"
+              className="btn-check"
               value={MessageType.PrivateMessageReport}
               checked={
                 this.state.messageType == MessageType.PrivateMessageReport

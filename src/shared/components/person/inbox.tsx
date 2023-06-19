@@ -355,6 +355,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Mentions}
             checked={this.state.messageType == MessageType.Mentions}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -368,6 +369,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Messages}
             checked={this.state.messageType == MessageType.Messages}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
