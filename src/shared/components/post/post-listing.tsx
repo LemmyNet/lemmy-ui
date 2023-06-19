@@ -1211,7 +1211,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     {i18n.t("purge_user")}
                   </button>
                   <button
-                    className="post-listing__purge-purge-post btn btn-link btn-animate text-muted py-0"
+                    className="post-listing__btn post-listing__btn--purge-post btn btn-link btn-animate text-muted py-0"
                     onClick={linkEvent(this, this.handlePurgePostShow)}
                     aria-label={i18n.t("purge_post")}
                   >

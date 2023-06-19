@@ -125,11 +125,13 @@ export class Instances extends Component<any, InstancesState> {
         <table id="instances_table" className="table table-sm table-hover">
           <thead className="pointer">
             <tr>
-              <th className="home-instances__th-name">{i18n.t("name")}</th>
-              <th className="home-instances__th-software">
+              <th className="home-instances__th home-instances__th--name">
+                {i18n.t("name")}
+              </th>
+              <th className="home-instances__th home-instances__th--software">
                 {i18n.t("software")}
               </th>
-              <th className="home-instances__th-version">
+              <th className="home-instances__th home-instances__th--version">
                 {i18n.t("version")}
               </th>
             </tr>
@@ -137,13 +139,17 @@ export class Instances extends Component<any, InstancesState> {
           <tbody>
             {items.map(i => (
               <tr key={i.domain}>
-                <td className="home-instances__td-name">
+                <td className="home-instances__td home-instances__td--name">
                   <a href={`https://${i.domain}`} rel={relTags}>
                     {i.domain}
                   </a>
                 </td>
-                <td className="home-instances__td-software">{i.software}</td>
-                <td className="home-instances__td-version">{i.version}</td>
+                <td className="home-instances__td home-instances__td--software">
+                  {i.software}
+                </td>
+                <td className="home-instances__td home-instances__td--version">
+                  {i.version}
+                </td>
               </tr>
             ))}
           </tbody>

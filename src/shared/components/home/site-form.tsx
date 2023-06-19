@@ -543,7 +543,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 </div>
               </div>
             </div>
-            <div className="site-form__row site-form__row--federation-workerct form-group row">
+            <div className="site-form__row site-form__row--federation-worker-count form-group row">
               <label
                 className="col-12 col-form-label"
                 htmlFor="create-site-federation-worker-count"

@@ -319,7 +319,7 @@ export class Inbox extends Component<any, InboxState> {
     return (
       <div className="inbox__msg-type-radios btn-group btn-group-toggle flex-wrap mb-2">
         <label
-          className={`inbox__msg-type-label-all btn btn-outline-secondary pointer
+          className={`inbox__msg-type-label inbox__msg-type-label--all btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.All && "active"}
           `}
         >
@@ -332,7 +332,7 @@ export class Inbox extends Component<any, InboxState> {
           {i18n.t("all")}
         </label>
         <label
-          className={`inbox__msg-type-label-replies btn btn-outline-secondary pointer
+          className={`inbox__msg-type-label inbox__msg-type-label--replies btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.Replies && "active"}
           `}
         >
@@ -345,7 +345,7 @@ export class Inbox extends Component<any, InboxState> {
           {i18n.t("replies")}
         </label>
         <label
-          className={`inbox__msg-type-label-mentions btn btn-outline-secondary pointer
+          className={`inbox__msg-type-label inbox__msg-type-label--mentions btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.Mentions && "active"}
           `}
         >
@@ -358,7 +358,7 @@ export class Inbox extends Component<any, InboxState> {
           {i18n.t("mentions")}
         </label>
         <label
-          className={`inbox__msg-type-label-msgs btn btn-outline-secondary pointer
+          className={`inbox__msg-type-label inbox__msg-type-label--msgs btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.Messages && "active"}
           `}
         >

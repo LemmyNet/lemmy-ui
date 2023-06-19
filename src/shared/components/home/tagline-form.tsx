@@ -46,7 +46,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             <tbody>
               {this.state.taglines.map((cv, index) => (
                 <tr key={index}>
-                  <td className="tagline-form__td-editor">
+                  <td className="tagline-form__td tagline-form__td--editor">
                     {this.state.editingRow == index && (
                       <MarkdownTextArea
                         initialContent={cv}
@@ -60,7 +60,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                     )}
                     {this.state.editingRow != index && <div>{cv}</div>}
                   </td>
-                  <td className="tagline-form__td-btns text-right">
+                  <td className="tagline-form__td tagline-form__td--btns text-right">
                     <button
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(

@@ -126,16 +126,16 @@ export class Communities extends Component<any, CommunitiesState> {
                 <thead className="pointer">
                   <tr>
                     <th className="communities__th-name">{i18n.t("name")}</th>
-                    <th className="communities__th-subscribers text-right">
+                    <th className="communities__th communities__th--subscribers text-right">
                       {i18n.t("subscribers")}
                     </th>
-                    <th className="communities__th-users text-right">
+                    <th className="communities__th communities__th--users text-right">
                       {i18n.t("users")} / {i18n.t("month")}
                     </th>
-                    <th className="communities__th-posts text-right d-none d-lg-table-cell">
+                    <th className="communities__th communities__th--posts text-right d-none d-lg-table-cell">
                       {i18n.t("posts")}
                     </th>
-                    <th className="communities__th-comments text-right d-none d-lg-table-cell">
+                    <th className="communities__th communities__th--comments text-right d-none d-lg-table-cell">
                       {i18n.t("comments")}
                     </th>
                     <th></th>
@@ -148,19 +148,19 @@ export class Communities extends Component<any, CommunitiesState> {
                         <td className="communities__td-link">
                           <CommunityLink community={cv.community} />
                         </td>
-                        <td className="communities__td-subscribers text-right">
+                        <td className="communities__td communities__td--subscribers text-right">
                           {numToSI(cv.counts.subscribers)}
                         </td>
-                        <td className="communities__td-users text-right">
+                        <td className="communities__td communities__td--users text-right">
                           {numToSI(cv.counts.users_active_month)}
                         </td>
-                        <td className="communities__td-posts text-right d-none d-lg-table-cell">
+                        <td className="communities__td communities__td--posts text-right d-none d-lg-table-cell">
                           {numToSI(cv.counts.posts)}
                         </td>
-                        <td className="communities__td-comments text-right d-none d-lg-table-cell">
+                        <td className="communities__td communities__td--comments text-right d-none d-lg-table-cell">
                           {numToSI(cv.counts.comments)}
                         </td>
-                        <td className="communities__td-subscribed text-right">
+                        <td className="communities__td communities__td--subscribed text-right">
                           {cv.subscribed == "Subscribed" && (
                             <button
                               className="communities__btn communities__btn--unsubscribe btn btn-link d-inline-block"

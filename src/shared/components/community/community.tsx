@@ -323,7 +323,7 @@ export class Community extends Component<
               image={res.community_view.community.icon}
             />
 
-            <div className="community__row community__row- row">
+            <div className="community__row row">
               <div className="col-12 col-md-8">
                 {this.communityInfo(res)}
                 <div className="community__show-sidebar d-block d-md-none">

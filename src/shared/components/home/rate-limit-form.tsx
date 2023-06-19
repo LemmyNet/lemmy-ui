@@ -51,7 +51,7 @@ function RateLimits({
   rateLimitValue,
 }: RateLimitsProps) {
   return (
-    <div className="rate-limit__row rate-limit__row- form-group row">
+    <div className="rate-limit__row rate-limit__row--top form-group row">
       <label
         className="rate-limit__label rate-limit__label--title col-12 col-form-label"
         htmlFor="rate-limit"

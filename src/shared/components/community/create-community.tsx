@@ -38,7 +38,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="create-comunity__form-w-row row">
+        <div className="create-comunity__form-wrap-row row">
           <div className="create-community__form-wrap col-12 col-lg-6 offset-lg-3 mb-4">
             <h5>{i18n.t("create_community")}</h5>
             <CommunityForm

@@ -646,7 +646,7 @@ export class Profile extends Component<
     return (
       showBanDialog && (
         <form
-          className="person-profile__ban-dialog"
+          className="person-profile__ban-dialog-wrap"
           onSubmit={linkEvent(this, this.handleModBanSubmit)}
         >
           <div className="person-profile__ban-dialog form-group row col-12">

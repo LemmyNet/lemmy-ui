@@ -149,7 +149,7 @@ export class MarkdownTextArea extends Component<
           }
         />
         <div className="markdown-textarea__outer form-group row">
-          <div className="markdown-textarea__col1 col-12">
+          <div className="markdown-textarea__col-1 col-12">
             <div className="markdown-textarea__inner rounded bg-light border border-light">
               <div className="markdown-textarea__btns d-flex flex-wrap border-bottom border-light">
                 {this.getFormatButton("bold", this.handleInsertBold)}

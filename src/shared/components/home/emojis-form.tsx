@@ -118,7 +118,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                 .map((cv, index) => (
                   <tr key={index} ref={e => (this.scrollRef[cv.shortcode] = e)}>
                     <td
-                      className="emojis-table__td-imguploadw"
+                      className="emojis-table__td emojis-table__td--imguploadw"
                       style="text-align:center;"
                     >
                       <label
@@ -149,7 +149,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="emojis-table__td-shortcode text-right">
+                    <td className="emojis-table__td emojis-table__td--shortcode text-right">
                       <input
                         type="text"
                         placeholder="ShortCode"
@@ -162,7 +162,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="emojis-table__td-category text-right">
+                    <td className="emojis-table__td emojis-table__td--category text-right">
                       <input
                         type="text"
                         placeholder="Category"
@@ -174,7 +174,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="emojis-table__td-url text-right d-lg-table-cell d-none">
+                    <td className="emojis-table__td emojis-table__td--url text-right d-lg-table-cell d-none">
                       <input
                         type="text"
                         placeholder="Url"
@@ -186,7 +186,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="emojis-table__td-alttext text-right">
+                    <td className="emojis-table__td emojis-table__td--alttext text-right">
                       <input
                         type="text"
                         placeholder="Alt Text"
@@ -198,7 +198,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="emojis-table__td--keywords text-right d-lg-table-cell">
+                    <td className="emojis-table__td emojis-table__td---keywords text-right d-lg-table-cell">
                       <input
                         type="text"
                         placeholder="Keywords"
@@ -210,7 +210,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         )}
                       />
                     </td>
-                    <td className="emojis-table__td-btns">
+                    <td className="emojis-table__td emojis-table__td--btns">
                       <div>
                         <span title={this.getEditTooltip(cv)}>
                           <button
