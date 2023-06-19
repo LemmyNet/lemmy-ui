@@ -108,7 +108,7 @@ export class CommentReport extends Component<
           {i18n.t("reason")}: {r.comment_report.reason}
         </div>
         {r.resolver && (
-          <div className="comment-report__resolverwrap">
+          <div className="comment-report__resolver">
             {r.comment_report.resolved ? (
               <T i18nKey="resolved_by">
                 #

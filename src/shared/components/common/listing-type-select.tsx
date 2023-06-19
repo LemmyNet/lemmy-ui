@@ -43,7 +43,7 @@ export class ListingTypeSelect extends Component<
         {this.props.showSubscribed && (
           <label
             title={i18n.t("subscribed_description")}
-            className={`listing-type-select__label listing-type-select__label----subscribed btn btn-outline-secondary
+            className={`listing-type-select__label listing-type-select__label--subscribed btn btn-outline-secondary
             ${this.state.type_ == "Subscribed" && "active"}
             ${!UserService.Instance.myUserInfo ? "disabled" : "pointer"}
           `}

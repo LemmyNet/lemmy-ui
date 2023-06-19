@@ -1159,14 +1159,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   {i18n.t("are_you_sure")}
                 </button>
                 <button
-                  className="post-listing__btn post-listing__btn--htransfc btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                  className="post-listing__btn post-listing__btn--transfc-yes btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
                   aria-label={i18n.t("yes")}
                   onClick={linkEvent(this, this.handleTransferCommunity)}
                 >
                   {this.state.transferLoading ? <Spinner /> : i18n.t("yes")}
                 </button>
                 <button
-                  className="post-listing__btn post-listing__btn--cshtransfc btn btn-link btn-animate text-muted py-0 d-inline-block"
+                  className="post-listing__btn post-listing__btn--transfc-no btn btn-link btn-animate text-muted py-0 d-inline-block"
                   onClick={linkEvent(
                     this,
                     this.handleCancelShowConfirmTransferCommunity

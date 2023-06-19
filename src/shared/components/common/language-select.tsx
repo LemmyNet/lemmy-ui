@@ -49,9 +49,9 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     return this.props.iconVersion ? (
       this.selectBtn
     ) : (
-      <div>
+      <div className="language-select">
         {this.props.multiple && this.props.showLanguageWarning && (
-          <div className="language-select alert alert-warning" role="alert">
+          <div className="alert alert-warning" role="alert">
             {i18n.t("undetermined_language_warning")}
           </div>
         )}
