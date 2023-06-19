@@ -53,6 +53,7 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
               {i18n.t("active")}
             </option>,
           ]}
+          <option value={"Controversial"}>{i18n.t("controversial")}</option>
           <option value={"New"}>{i18n.t("new")}</option>
           <option value={"Old"}>{i18n.t("old")}</option>
           {!this.props.hideMostComments && [

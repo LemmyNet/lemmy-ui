@@ -446,6 +446,19 @@ export class Post extends Component<any, PostState> {
           </label>
           <label
             className={`btn btn-outline-secondary pointer ${
+              this.state.commentSort === "Controversial" && "active"
+            }`}
+          >
+            {i18n.t("controversial")}
+            <input
+              type="radio"
+              value={"Controversial"}
+              checked={this.state.commentSort === "Controversial"}
+              onChange={linkEvent(this, this.handleCommentSortChange)}
+            />
+          </label>
+          <label
+            className={`btn btn-outline-secondary pointer ${
               this.state.commentSort === "Top" && "active"
             }`}
           >

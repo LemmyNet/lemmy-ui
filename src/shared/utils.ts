@@ -996,6 +996,8 @@ export function convertCommentSortType(sort: SortType): CommentSortType {
     return "New";
   } else if (sort == "Hot" || sort == "Active") {
     return "Hot";
+  } else if (sort == "Controversial") {
+    return "Controversial";
   } else {
     return "Hot";
   }
@@ -1322,6 +1324,8 @@ export function postToCommentSortType(sort: SortType): CommentSortType {
     case "Active":
     case "Hot":
       return "Hot";
+    case "Controversial":
+      return "Controversial";
     case "New":
     case "NewComments":
       return "New";
