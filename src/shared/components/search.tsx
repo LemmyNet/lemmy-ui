@@ -183,7 +183,7 @@ const Filter = ({
 }) => {
   return (
     <div className="input-group mb-3 col-sm-6">
-      <label className="col-form-label" htmlFor={`${filterType}-filter`}>
+      <label className="col-form-label me-2" htmlFor={`${filterType}-filter`}>
         {capitalizeFirstLetter(i18n.t(filterType))}
       </label>
       <SearchableSelect
