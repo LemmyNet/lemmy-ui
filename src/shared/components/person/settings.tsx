@@ -519,12 +519,12 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="input-group mb-3 row">
-            <label className="col-sm-5 col-form-label" htmlFor="matrix-user-id">
+            <label className="col-sm-3 col-form-label" htmlFor="matrix-user-id">
               <a href={elementUrl} rel={relTags}>
                 {i18n.t("matrix_user_id")}
               </a>
             </label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <input
                 id="matrix-user-id"
                 type="text"
@@ -537,7 +537,9 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="input-group mb-3 row">
-            <label className="col-sm-3 col-form-label">{i18n.t("avatar")}</label>
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("avatar")}
+            </label>
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_avatar")}
@@ -549,7 +551,9 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="input-group mb-3 row">
-            <label className="col-sm-3 col-form-label">{i18n.t("banner")}</label>
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("banner")}
+            </label>
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_banner")}
@@ -634,7 +638,9 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </form>
           <form className="input-group mb-3 row">
-            <label className="col-sm-3 col-form-label">{i18n.t("sort_type")}</label>
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("sort_type")}
+            </label>
             <div className="col-sm-9">
               <SortSelect
                 sort={
