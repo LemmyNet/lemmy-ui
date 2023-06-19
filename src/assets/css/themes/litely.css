@@ -207,7 +207,7 @@ hr {
   margin: 1rem 0;
   color: inherit;
   border: 0;
-  border-top: var(--bs-border-width) solid;
+  border-top: var(--bs-border-width) solid rgba(73, 80, 87, 0.25);
   opacity: 0.25;
 }
 
