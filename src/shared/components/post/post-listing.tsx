@@ -1454,7 +1454,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-none d-sm-block">
           <article className="row post-container ">
             {!this.props.viewOnly && this.voteBar()}
-            <div className="col-sm-2 pr-0 post-media ">{this.thumbnail()}</div>
+            <div className="col-sm-2 pr-0 post-media">{this.thumbnail()}</div>
             <div className="col-12 col-sm-9">
               <div className="row">
                 <div className="col-12">
