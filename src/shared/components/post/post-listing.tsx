@@ -552,7 +552,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </button>
           ))}
         {post.removed && (
-          <small className="ml-2 text-muted font-italic">
+          <small className="ml-2 badge text-bg-secondary">
             {i18n.t("removed")}
           </small>
         )}
@@ -589,9 +589,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </small>
         )}
         {post.nsfw && (
-          <small className="ml-2 text-muted font-italic">
-            {i18n.t("nsfw")}
-          </small>
+          <small className="ml-2 badge text-bg-danger">{i18n.t("nsfw")}</small>
         )}
       </div>
     );
