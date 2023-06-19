@@ -450,7 +450,7 @@ hr {
   margin-top: 1rem;
   margin-bottom: 1rem;
   border: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(222, 226, 230, 0.25);
 }
 
 small,
@@ -3245,7 +3245,7 @@ input[type="button"].btn-block {
 .dropdown-item:focus {
   color: #fff;
   text-decoration: none;
-  background-color: #375a7f;
+  background-color: #00bc8c;
 }
 .dropdown-item.active,
 .dropdown-item:active {

@@ -20,7 +20,6 @@ import {
   communityToChoice,
   elementUrl,
   emDash,
-  enableNsfw,
   fetchCommunities,
   fetchThemeList,
   fetchUsers,
@@ -642,22 +641,20 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </form>
-          {enableNsfw(this.state.siteRes) && (
-            <div className="form-group">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="user-show-nsfw"
-                  type="checkbox"
-                  checked={this.state.saveUserSettingsForm.show_nsfw}
-                  onChange={linkEvent(this, this.handleShowNsfwChange)}
-                />
-                <label className="form-check-label" htmlFor="user-show-nsfw">
-                  {i18n.t("show_nsfw")}
-                </label>
-              </div>
+          <div className="form-group">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-show-nsfw"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_nsfw}
+                onChange={linkEvent(this, this.handleShowNsfwChange)}
+              />
+              <label className="form-check-label" htmlFor="user-show-nsfw">
+                {i18n.t("show_nsfw")}
+              </label>
             </div>
-          )}
+          </div>
           <div className="form-group">
             <div className="form-check">
               <input
