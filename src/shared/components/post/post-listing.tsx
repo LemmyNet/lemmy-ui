@@ -386,10 +386,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </span>
           )}
           {this.props.showCommunity && (
-            <span>
-              <span className="mx-1"> {i18n.t("to")} </span>
-              <CommunityLink community={post_view.community} />
-            </span>
+            <>
+              {" "}
+              {i18n.t("to")} <CommunityLink community={post_view.community} />
+            </>
           )}
         </li>
         {post_view.post.language_id !== 0 && (
