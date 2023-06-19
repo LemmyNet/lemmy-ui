@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Have a suggestion about Lemmy's UI?
-        For backend issues, use [lemmy](https://github.com/LemmyNet/lemmy)
+        For backend issues, use [lemmy](https://github.com/LemmyNet/lemmy/issues/new/choose)
   - type: checkboxes
     attributes:
       label: Requirements
