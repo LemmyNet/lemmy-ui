@@ -131,7 +131,7 @@ export class LoginReset extends Component<any, State> {
 
     const email = i.state.form.email;
 
-    if (email) {
+    if (email && validEmail(email)) {
       i.setState({ loading: true });
 
       const res = await HttpService.client.passwordReset({ email });
