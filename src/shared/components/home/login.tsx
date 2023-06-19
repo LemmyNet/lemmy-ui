@@ -1,9 +1,10 @@
 import { Component, linkEvent } from "inferno";
+import { NavLink } from "inferno-router";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { isBrowser, myAuth, setIsoData, toast, validEmail } from "../../utils";
+import { isBrowser, myAuth, setIsoData, toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -101,18 +102,12 @@ export class Login extends Component<any, State> {
                 required
                 maxLength={60}
               />
-              <button
-                type="button"
-                onClick={linkEvent(this, this.handlePasswordReset)}
+              <NavLink
                 className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
-                disabled={
-                  !!this.state.form.username_or_email &&
-                  !validEmail(this.state.form.username_or_email)
-                }
-                title={i18n.t("no_password_reset")}
+                to="/login_reset"
               >
                 {i18n.t("forgot_password")}
-              </button>
+              </NavLink>
             </div>
           </div>
           {this.state.showTotp && (
@@ -209,16 +204,5 @@ export class Login extends Component<any, State> {
   handleLoginPasswordChange(i: Login, event: any) {
     i.state.form.password = event.target.value;
     i.setState(i.state);
-  }
-
-  async handlePasswordReset(i: Login, event: any) {
-    event.preventDefault();
-    const email = i.state.form.username_or_email;
-    if (email) {
-      const res = await HttpService.client.passwordReset({ email });
-      if (res.state == "success") {
-        toast(i18n.t("reset_password_mail_sent"));
-      }
-    }
   }
 }
