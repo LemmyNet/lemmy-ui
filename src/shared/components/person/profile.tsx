@@ -53,6 +53,7 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
+  RouteDataResponse,
   capitalizeFirstLetter,
   editComment,
   editPost,
