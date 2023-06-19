@@ -8,7 +8,7 @@ body:
       value: |
         Found a bug? Please fill out the sections below. 👍
         Thanks for taking the time to fill out this bug report!
-        For backend issues, use [lemmy](https://github.com/LemmyNet/lemmy)
+        For backend issues, use [lemmy](https://github.com/LemmyNet/lemmy/issues/new/choose)
   - type: checkboxes
     attributes:
       label: Requirements

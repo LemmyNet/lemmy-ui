@@ -201,7 +201,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="post-listing">
+      <div className="post-listing mt-2">
         {!this.state.showEdit ? (
           <>
             {this.listing()}
@@ -367,10 +367,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   createdLine() {
     const post_view = this.postView;
-    const url = post_view.post.url;
-    const body = post_view.post.body;
     return (
-      <ul className="post-listing__created-line list-inline mb-1 text-muted small">
+      <ul className="post-listing__created-line list-inline mb-1 text-muted small mt-2">
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
 
@@ -386,10 +384,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </span>
           )}
           {this.props.showCommunity && (
-            <span>
-              <span className="mx-1"> {i18n.t("to")} </span>
-              <CommunityLink community={post_view.community} />
-            </span>
+            <>
+              {" "}
+              {i18n.t("to")} <CommunityLink community={post_view.community} />
+            </>
           )}
         </li>
         {post_view.post.language_id !== 0 && (
@@ -402,21 +400,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </span>
         )}
         <li className="list-inline-item">•</li>
-        {url && !(hostname(url) === getExternalHost()) && (
-          <>
-            <li className="list-inline-item">
-              <a
-                className="text-muted font-italic"
-                href={url}
-                title={url}
-                rel={relTags}
-              >
-                {hostname(url)}
-              </a>
-            </li>
-            <li className="list-inline-item">•</li>
-          </>
-        )}
         <li className="list-inline-item">
           <span>
             <MomentTime
@@ -425,21 +408,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             />
           </span>
         </li>
-        {body && (
-          <>
-            <li className="list-inline-item">•</li>
-            <li className="list-inline-item">
-              <button
-                className="text-muted btn btn-sm btn-link p-0"
-                data-tippy-content={mdNoImages.render(body)}
-                data-tippy-allowHtml={true}
-                onClick={linkEvent(this, this.handleShowBody)}
-              >
-                <Icon icon="book-open" classes="icon-inline mr-1" />
-              </button>
-            </li>
-          </>
-        )}
       </ul>
     );
   }
@@ -518,82 +486,105 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
 
     return (
-      <div className="post-title overflow-hidden">
-        <h5 className="d-inline">
-          {url && this.props.showBody ? (
-            <a
-              className={
-                !post.featured_community && !post.featured_local
-                  ? "text-body"
-                  : "text-primary"
-              }
-              href={url}
-              title={url}
-              rel={relTags}
-              dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
-            ></a>
-          ) : (
-            this.postLink
-          )}
-        </h5>
-        {(url && isImage(url)) ||
-          (post.thumbnail_url && (
-            <button
-              className="post-listing__btn post-listing__btn--expand btn btn-link text-monospace text-muted small d-inline-block"
-              data-tippy-content={i18n.t("expand_here")}
-              onClick={linkEvent(this, this.handleImageExpandClick)}
-            >
-              <Icon
-                icon={
-                  !this.state.imageExpanded ? "plus-square" : "minus-square"
+      <>
+        <div className="post-title overflow-hidden">
+          <h5 className="d-inline">
+            {url && this.props.showBody ? (
+              <a
+                className={
+                  !post.featured_community && !post.featured_local
+                    ? "text-body"
+                    : "text-primary"
                 }
-                classes="icon-inline"
-              />
-            </button>
-          ))}
-        {post.removed && (
-          <small className="ml-2 text-muted font-italic">
-            {i18n.t("removed")}
-          </small>
-        )}
-        {post.deleted && (
-          <small
-            className="unselectable pointer ml-2 text-muted font-italic"
-            data-tippy-content={i18n.t("deleted")}
+                href={url}
+                title={url}
+                rel={relTags}
+                dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+              ></a>
+            ) : (
+              this.postLink
+            )}
+          </h5>
+          {(url && isImage(url)) ||
+            (post.thumbnail_url && (
+              <button
+                className="btn btn-link text-monospace text-muted small d-inline-block"
+                data-tippy-content={i18n.t("expand_here")}
+                onClick={linkEvent(this, this.handleImageExpandClick)}
+              >
+                <Icon
+                  icon={
+                    !this.state.imageExpanded ? "plus-square" : "minus-square"
+                  }
+                  classes="icon-inline"
+                />
+              </button>
+            ))}
+          {post.removed && (
+            <small className="ml-2 badge text-bg-secondary">
+              {i18n.t("removed")}
+            </small>
+          )}
+          {post.deleted && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("deleted")}
+            >
+              <Icon icon="trash" classes="icon-inline text-danger" />
+            </small>
+          )}
+          {post.locked && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("locked")}
+            >
+              <Icon icon="lock" classes="icon-inline text-danger" />
+            </small>
+          )}
+          {post.featured_community && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("featured")}
+            >
+              <Icon icon="pin" classes="icon-inline text-primary" />
+            </small>
+          )}
+          {post.featured_local && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("featured")}
+            >
+              <Icon icon="pin" classes="icon-inline text-secondary" />
+            </small>
+          )}
+          {post.nsfw && (
+            <small className="ml-2 badge text-bg-danger">
+              {i18n.t("nsfw")}
+            </small>
+          )}
+        </div>
+        {url && this.urlLine()}
+      </>
+    );
+  }
+
+  urlLine() {
+    const post = this.postView.post;
+    const url = post.url;
+
+    return (
+      <p className="d-flex text-muted align-items-center gap-1 small m-0">
+        {url && !(hostname(url) === getExternalHost()) && (
+          <a
+            className="text-muted font-italic"
+            href={url}
+            title={url}
+            rel={relTags}
           >
-            <Icon icon="trash" classes="icon-inline text-danger" />
-          </small>
+            {hostname(url)}
+          </a>
         )}
-        {post.locked && (
-          <small
-            className="unselectable pointer ml-2 text-muted font-italic"
-            data-tippy-content={i18n.t("locked")}
-          >
-            <Icon icon="lock" classes="icon-inline text-danger" />
-          </small>
-        )}
-        {post.featured_community && (
-          <small
-            className="unselectable pointer ml-2 text-muted font-italic"
-            data-tippy-content={i18n.t("featured")}
-          >
-            <Icon icon="pin" classes="icon-inline text-primary" />
-          </small>
-        )}
-        {post.featured_local && (
-          <small
-            className="unselectable pointer ml-2 text-muted font-italic"
-            data-tippy-content={i18n.t("featured")}
-          >
-            <Icon icon="pin" classes="icon-inline text-secondary" />
-          </small>
-        )}
-        {post.nsfw && (
-          <small className="ml-2 text-muted font-italic">
-            {i18n.t("nsfw")}
-          </small>
-        )}
-      </div>
+      </p>
     );
   }
 
@@ -623,11 +614,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="post-listing__comments-line d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold mb-1">
+      <div className="post-listing__comments-line d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold">
         {this.commentsButton}
         {canShare() && (
           <button
-            className="post-listing-btn-share btn btn-link"
+            className="post-listing__btn post-listing__btn---share btn btn-sm btn-link"
             onClick={linkEvent(this, this.handleShare)}
             type="button"
           >
@@ -662,14 +653,44 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  showPreviewButton() {
+    const post_view = this.postView;
+    const body = post_view.post.body;
+
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        data-tippy-content={body && mdNoImages.render(body)}
+        data-tippy-allowHtml={true}
+        onClick={linkEvent(this, this.handleShowBody)}
+      >
+        <Icon
+          icon="book-open"
+          classes={classNames("icon-inline mr-1", {
+            "text-success": this.state.showBody,
+          })}
+        />
+      </button>
+    );
+  }
+
   postActions() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
     const post_view = this.postView;
+    const post = post_view.post;
+
     return (
       <>
         {this.saveButton}
         {this.crossPostButton}
+
+        {/**
+         * If there is a URL, or if the post has a body and we were told not to
+         * show the body, show the MetadataCard/body toggle.
+         */}
+        {(post.url || (post.body && !this.props.showBody)) &&
+          this.showPreviewButton()}
 
         {this.showBody && post_view.post.body && this.viewSourceButton}
 
@@ -725,7 +746,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <Link
-        className="post-listing__btn post-listing__btn--comments btn btn-link text-muted py-0 pl-0 text-muted"
+        className="post-listing__btn btn btn-link text-muted pl-0 text-muted"
         title={i18n.t("number_of_comments", {
           count: Number(post_view.counts.comments),
           formattedCount: Number(post_view.counts.comments),
@@ -867,10 +888,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="post-listing__btn post-listing__btn--report btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleShowReportDialog)}
-        data-tippy-content={i18n.t("show_report_dialog")}
         aria-label={i18n.t("show_report_dialog")}
       >
-        <Icon icon="flag" inline />
+        <Icon classes="mr-1" icon="flag" inline />
+        {i18n.t("create_report")}
       </button>
     );
   }
@@ -880,10 +901,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="post-listing__btn post-listing__btn--block btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleBlockPersonClick)}
-        data-tippy-content={i18n.t("block_user")}
         aria-label={i18n.t("block_user")}
       >
-        {this.state.blockLoading ? <Spinner /> : <Icon icon="slash" inline />}
+        {this.state.blockLoading ? (
+          <Spinner />
+        ) : (
+          <Icon classes="mr-1" icon="slash" inline />
+        )}
+        {i18n.t("block_user")}
       </button>
     );
   }
