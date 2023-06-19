@@ -15,8 +15,8 @@
     "lint": "node generate_translations.js && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx \"src/**\" && prettier --check \"src/**/*.{ts,tsx,js,css,scss}\"",
     "prepare": "husky install",
     "start": "yarn build:dev --watch",
-    "themes:build": "sass src/assets/css/themes/:src/assets/css/themes",
-    "themes:watch": "sass --watch src/assets/css/themes/:src/assets/css/themes"
+    "themes:build": "sass src/assets/scss/themes/:src/assets/css/themes",
+    "themes:watch": "sass --watch src/assets/scss/themes/:src/assets/css/themes"
   },
   "lint-staged": {
     "*.{ts,tsx,js}": [
