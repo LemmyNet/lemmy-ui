@@ -73,14 +73,12 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
           >
             {this.selectBtn}
             {this.props.multiple && (
-              <div className="input-group-append">
-                <button
-                  className="input-group-text"
-                  onClick={linkEvent(this, this.handleDeselectAll)}
-                >
-                  <Icon icon="x" />
-                </button>
-              </div>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={linkEvent(this, this.handleDeselectAll)}
+              >
+                <Icon icon="x" />
+              </button>
             )}
           </div>
         </div>
