@@ -414,9 +414,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   voteBar() {
     return (
-      <div
-        className={`vote-bar col-1 pr-0 small text-center d-flex align-items-center`}
-      >
+      <div className="vote-bar col-1 pr-0 small text-center d-flex align-items-center">
         <div>
           <button
             className={`btn-animate btn btn-link p-0 ${
@@ -435,7 +433,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </button>
           {showScores() ? (
             <div
-              className={`unselectable pointer font-weight-bold text-muted px-1 post-score`}
+              className="unselectable pointer font-weight-bold text-muted px-1 post-score"
               data-tippy-content={this.pointsTippy}
             >
               {numToSI(this.postView.counts.score)}
