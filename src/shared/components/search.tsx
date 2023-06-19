@@ -493,27 +493,28 @@ export class Search extends Component<any, SearchState> {
 
   get searchForm() {
     return (
-      <form
-        className="form-inline"
-        onSubmit={linkEvent(this, this.handleSearchSubmit)}
-      >
-        <input
-          type="text"
-          className="form-control me-2 mb-2"
-          value={this.state.searchText}
-          placeholder={`${i18n.t("search")}...`}
-          aria-label={i18n.t("search")}
-          onInput={linkEvent(this, this.handleQChange)}
-          required
-          minLength={1}
-        />
-        <button type="submit" className="btn btn-secondary me-2 mb-2">
-          {this.state.searchRes.state === "loading" ? (
-            <Spinner />
-          ) : (
-            <span>{i18n.t("search")}</span>
-          )}
-        </button>
+      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
+        <div className="col-auto">
+          <input
+            type="text"
+            className="form-control me-2 mb-2 col-sm-8"
+            value={this.state.searchText}
+            placeholder={`${i18n.t("search")}...`}
+            aria-label={i18n.t("search")}
+            onInput={linkEvent(this, this.handleQChange)}
+            required
+            minLength={1}
+          />
+        </div>
+        <div className="col-auto">
+          <button type="submit" className="btn btn-secondary mb-2">
+            {this.state.searchRes.state === "loading" ? (
+              <Spinner />
+            ) : (
+              <span>{i18n.t("search")}</span>
+            )}
+          </button>
+        </div>
       </form>
     );
   }
