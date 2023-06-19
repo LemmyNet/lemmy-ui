@@ -471,10 +471,10 @@ export class Settings extends Component<any, SettingsState> {
         <h5>{i18n.t("settings")}</h5>
         <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
           <div className="input-group mb-3 row">
-            <label className="col-sm-5 col-form-label" htmlFor="display-name">
+            <label className="col-sm-3 col-form-label" htmlFor="display-name">
               {i18n.t("display_name")}
             </label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <input
                 id="display-name"
                 type="text"
@@ -537,7 +537,7 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="input-group mb-3 row">
-            <label className="col-sm-3">{i18n.t("avatar")}</label>
+            <label className="col-sm-3 col-form-label">{i18n.t("avatar")}</label>
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_avatar")}
@@ -549,7 +549,7 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="input-group mb-3 row">
-            <label className="col-sm-3">{i18n.t("banner")}</label>
+            <label className="col-sm-3 col-form-label">{i18n.t("banner")}</label>
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_banner")}
@@ -560,7 +560,7 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="input-group mb-3 row">
-            <label className="col-sm-3" htmlFor="user-language">
+            <label className="col-sm-3 form-label" htmlFor="user-language">
               {i18n.t("interface_language")}
             </label>
             <div className="col-sm-9">
@@ -597,7 +597,7 @@ export class Settings extends Component<any, SettingsState> {
             onChange={this.handleDiscussionLanguageChange}
           />
           <div className="input-group mb-3 row">
-            <label className="col-sm-3" htmlFor="user-theme">
+            <label className="col-sm-3 col-form-label" htmlFor="user-theme">
               {i18n.t("theme")}
             </label>
             <div className="col-sm-9">
@@ -620,7 +620,7 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <form className="input-group mb-3 row">
-            <label className="col-sm-3">{i18n.t("type")}</label>
+            <label className="col-sm-3 col-form-label">{i18n.t("type")}</label>
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={
@@ -634,7 +634,7 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </form>
           <form className="input-group mb-3 row">
-            <label className="col-sm-3">{i18n.t("sort_type")}</label>
+            <label className="col-sm-3 col-form-label">{i18n.t("sort_type")}</label>
             <div className="col-sm-9">
               <SortSelect
                 sort={

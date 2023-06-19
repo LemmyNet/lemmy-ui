@@ -153,7 +153,9 @@ export class CommunityForm extends Component<
           </div>
         </div>
         <div className="input-group mb-3 row">
-          <label className="col-12 col-sm-2">{i18n.t("icon")}</label>
+          <label className="col-12 col-sm-2 col-form-label">
+            {i18n.t("icon")}
+          </label>
           <div className="col-12 col-sm-10">
             <ImageUploadForm
               uploadTitle={i18n.t("upload_icon")}
@@ -165,7 +167,9 @@ export class CommunityForm extends Component<
           </div>
         </div>
         <div className="input-group mb-3 row">
-          <label className="col-12 col-sm-2">{i18n.t("banner")}</label>
+          <label className="col-12 col-sm-2 col-form-label">
+            {i18n.t("banner")}
+          </label>
           <div className="col-12 col-sm-10">
             <ImageUploadForm
               uploadTitle={i18n.t("upload_banner")}

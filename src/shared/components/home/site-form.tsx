@@ -157,7 +157,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="input-group mb-3">
-          <label className="me-2">{i18n.t("icon")}</label>
+          <label className="me-2 col-form-label">{i18n.t("icon")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_icon")}
             imageSrc={this.state.siteForm.icon}
@@ -167,7 +167,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           />
         </div>
         <div className="input-group mb-3">
-          <label className="me-2">{i18n.t("banner")}</label>
+          <label className="me-2 col-form-label">{i18n.t("banner")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_banner")}
             imageSrc={this.state.siteForm.banner}
@@ -402,7 +402,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
         {this.props.showLocal && (
           <form className="input-group mb-3 row">
-            <label className="col-sm-3">{i18n.t("listing_type")}</label>
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("listing_type")}
+            </label>
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={this.state.siteForm.default_post_listing_type ?? "Local"}
