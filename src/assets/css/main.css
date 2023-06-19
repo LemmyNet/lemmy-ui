@@ -84,10 +84,6 @@
   margin-top: -6.5px;
 }
 
-.post-title {
-  line-height: 1;
-}
-
 .post-title a:visited {
   color: var(--gray) !important;
 }
