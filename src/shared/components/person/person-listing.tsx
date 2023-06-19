@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { Person } from "lemmy-js-client";
@@ -48,9 +49,10 @@ export class PersonListing extends Component<PersonListingProps, any> {
         {!this.props.realLink ? (
           <Link
             title={apubName}
-            className={`d-inline-flex align-items-baseline ${
-              this.props.muted ? "text-muted" : "text-info"
-            }`}
+            className={classNames("d-inline-flex align-items-baseline", {
+              "text-muted": this.props.muted,
+              "text-info": !this.props.muted,
+            })}
             to={link}
           >
             {this.avatarAndName(displayName)}
