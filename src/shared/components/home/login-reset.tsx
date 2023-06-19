@@ -15,7 +15,7 @@ import { Spinner } from "../common/icon";
 
 interface State {
   form: {
-    username_or_email: string;
+    email: string;
   };
   loading: boolean;
   siteRes: GetSiteResponse;
@@ -26,7 +26,7 @@ export class LoginReset extends Component<any, State> {
 
   state: State = {
     form: {
-      username_or_email: "",
+      email: "",
     },
     loading: false,
     siteRes: this.isoData.site_res,
@@ -93,8 +93,8 @@ export class LoginReset extends Component<any, State> {
                 type="text"
                 className="form-control"
                 id="login-email-or-username"
-                value={this.state.form.username_or_email}
-                onInput={linkEvent(this, this.handleLoginUsernameChange)}
+                value={this.state.form.email}
+                onInput={linkEvent(this, this.handleEmailInputChange)}
                 autoComplete="email"
                 required
                 minLength={3}
@@ -109,8 +109,7 @@ export class LoginReset extends Component<any, State> {
                 onClick={linkEvent(this, this.handlePasswordReset)}
                 className="btn btn-secondary"
                 disabled={
-                  !validEmail(this.state.form.username_or_email) ||
-                  this.state.loading
+                  !validEmail(this.state.form.email) || this.state.loading
                 }
               >
                 {this.state.loading ? <Spinner /> : i18n.t("reset_password")}
@@ -122,15 +121,15 @@ export class LoginReset extends Component<any, State> {
     );
   }
 
-  handleLoginUsernameChange(i: LoginReset, event: any) {
-    i.state.form.username_or_email = event.target.value.trim();
+  handleEmailInputChange(i: LoginReset, event: any) {
+    i.state.form.email = event.target.value.trim();
     i.setState(i.state);
   }
 
   async handlePasswordReset(i: LoginReset, event: any) {
     event.preventDefault();
 
-    const email = i.state.form.username_or_email;
+    const email = i.state.form.email;
 
     if (email) {
       i.setState({ loading: true });
@@ -139,6 +138,7 @@ export class LoginReset extends Component<any, State> {
 
       if (res.state == "success") {
         toast(i18n.t("reset_password_mail_sent"));
+        this.context.router.history.push(`/login`);
       }
 
       i.setState({ loading: false });
