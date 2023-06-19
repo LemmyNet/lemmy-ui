@@ -111,7 +111,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     return (
       <div>
         {this.viewSelector(this.props.view)}
-
         <Paginator page={this.props.page} onChange={this.handlePageChange} />
       </div>
     );
@@ -238,7 +237,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       <div>
         {combined.map(i => [
           this.renderItemType(i),
-          <hr key={i.type_} className="my-3" />,
+          <hr key={i.type_} className="my-2" />,
         ])}
       </div>
     );

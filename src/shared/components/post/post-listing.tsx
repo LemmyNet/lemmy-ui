@@ -368,7 +368,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   createdLine() {
     const post_view = this.postView;
     return (
-      <ul className="list-inline mb-1 text-muted small mt-2">
+      <ul className="list-inline text-muted small my-0">
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
 
@@ -414,49 +414,53 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   voteBar() {
     return (
-      <div className={`vote-bar col-1 pr-0 small text-center`}>
-        <button
-          className={`btn-animate btn btn-link p-0 ${
-            this.postView.my_vote == 1 ? "text-info" : "text-muted"
-          }`}
-          onClick={linkEvent(this, this.handleUpvote)}
-          data-tippy-content={i18n.t("upvote")}
-          aria-label={i18n.t("upvote")}
-          aria-pressed={this.postView.my_vote === 1}
-        >
-          {this.state.upvoteLoading ? (
-            <Spinner />
-          ) : (
-            <Icon icon="arrow-up1" classes="upvote" />
-          )}
-        </button>
-        {showScores() ? (
-          <div
-            className={`unselectable pointer font-weight-bold text-muted px-1 post-score`}
-            data-tippy-content={this.pointsTippy}
-          >
-            {numToSI(this.postView.counts.score)}
-          </div>
-        ) : (
-          <div className="p-1"></div>
-        )}
-        {this.props.enableDownvotes && (
+      <div
+        className={`vote-bar col-1 pr-0 small text-center d-flex align-items-center`}
+      >
+        <div>
           <button
             className={`btn-animate btn btn-link p-0 ${
-              this.postView.my_vote == -1 ? "text-danger" : "text-muted"
+              this.postView.my_vote == 1 ? "text-info" : "text-muted"
             }`}
-            onClick={linkEvent(this, this.handleDownvote)}
-            data-tippy-content={i18n.t("downvote")}
-            aria-label={i18n.t("downvote")}
-            aria-pressed={this.postView.my_vote === -1}
+            onClick={linkEvent(this, this.handleUpvote)}
+            data-tippy-content={i18n.t("upvote")}
+            aria-label={i18n.t("upvote")}
+            aria-pressed={this.postView.my_vote === 1}
           >
-            {this.state.downvoteLoading ? (
+            {this.state.upvoteLoading ? (
               <Spinner />
             ) : (
-              <Icon icon="arrow-down1" classes="downvote" />
+              <Icon icon="arrow-up1" classes="upvote" />
             )}
           </button>
-        )}
+          {showScores() ? (
+            <div
+              className={`unselectable pointer font-weight-bold text-muted px-1 post-score`}
+              data-tippy-content={this.pointsTippy}
+            >
+              {numToSI(this.postView.counts.score)}
+            </div>
+          ) : (
+            <div className="p-1"></div>
+          )}
+          {this.props.enableDownvotes && (
+            <button
+              className={`btn-animate btn btn-link p-0 ${
+                this.postView.my_vote == -1 ? "text-danger" : "text-muted"
+              }`}
+              onClick={linkEvent(this, this.handleDownvote)}
+              data-tippy-content={i18n.t("downvote")}
+              aria-label={i18n.t("downvote")}
+              aria-pressed={this.postView.my_vote === -1}
+            >
+              {this.state.downvoteLoading ? (
+                <Spinner />
+              ) : (
+                <Icon icon="arrow-down1" classes="downvote" />
+              )}
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -488,7 +492,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         <div className="post-title overflow-hidden">
-          <h5 className="d-inline">
+          <div className="d-inline fw-bolder fs-4 lh-1 ">
             {url && this.props.showBody ? (
               <a
                 className={
@@ -504,7 +508,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               this.postLink
             )}
-          </h5>
+          </div>
           {(url && isImage(url)) ||
             (post.thumbnail_url && (
               <button
@@ -746,7 +750,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <Link
-        className="btn btn-link text-muted pl-0 text-muted"
+        className="btn btn-link text-muted pl-0 py-0 text-muted small fw-bolder"
         title={i18n.t("number_of_comments", {
           count: Number(post_view.counts.comments),
           formattedCount: Number(post_view.counts.comments),
@@ -1461,11 +1465,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         {/* The larger view*/}
         <div className="d-none d-sm-block">
-          <article className="row post-container">
+          <article className="row post-container ">
             {!this.props.viewOnly && this.voteBar()}
-            <div className="col-sm-2 pr-0 post-media">
-              <div className="">{this.thumbnail()}</div>
-            </div>
+            <div className="col-sm-2 pr-0 post-media ">{this.thumbnail()}</div>
             <div className="col-12 col-sm-9">
               <div className="row">
                 <div className="col-12">

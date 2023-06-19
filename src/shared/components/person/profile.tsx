@@ -327,13 +327,9 @@ export class Profile extends Component<
                 description={personRes.person_view.person.bio}
                 image={personRes.person_view.person.avatar}
               />
-
               {this.userInfo(personRes.person_view)}
-
               <hr />
-
               {this.selects}
-
               <PersonDetails
                 personRes={personRes}
                 admins={siteRes.admins}

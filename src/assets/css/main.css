@@ -80,10 +80,6 @@
   overflow-x: auto;
 }
 
-.vote-bar {
-  margin-top: -6.5px;
-}
-
 .post-title a:visited {
   color: var(--gray) !important;
 }
@@ -200,6 +196,7 @@ blockquote {
   min-height: 60px;
   max-height: 80px;
   width: 100%;
+  height: 100%;
 }
 
 .thumbnail svg {
@@ -354,8 +351,12 @@ br.big {
 }
 
 .img-icon {
-  width: 2rem;
-  height: 2rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.small {
+  font-size: 0.8rem !important;
 }
 
 .tribute-container ul {
