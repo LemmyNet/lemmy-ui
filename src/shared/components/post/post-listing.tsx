@@ -367,10 +367,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   createdLine() {
     const post_view = this.postView;
-    const url = post_view.post.url;
-    const body = post_view.post.body;
     return (
-      <ul className="list-inline mb-1 text-muted small">
+      <ul className="list-inline mb-1 text-muted small mt-2">
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
 
@@ -402,21 +400,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </span>
         )}
         <li className="list-inline-item">•</li>
-        {url && !(hostname(url) === getExternalHost()) && (
-          <>
-            <li className="list-inline-item">
-              <a
-                className="text-muted font-italic"
-                href={url}
-                title={url}
-                rel={relTags}
-              >
-                {hostname(url)}
-              </a>
-            </li>
-            <li className="list-inline-item">•</li>
-          </>
-        )}
         <li className="list-inline-item">
           <span>
             <MomentTime
@@ -425,21 +408,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             />
           </span>
         </li>
-        {body && (
-          <>
-            <li className="list-inline-item">•</li>
-            <li className="list-inline-item">
-              <button
-                className="text-muted btn btn-sm btn-link p-0"
-                data-tippy-content={mdNoImages.render(body)}
-                data-tippy-allowHtml={true}
-                onClick={linkEvent(this, this.handleShowBody)}
-              >
-                <Icon icon="book-open" classes="icon-inline mr-1" />
-              </button>
-            </li>
-          </>
-        )}
       </ul>
     );
   }
@@ -518,80 +486,105 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
 
     return (
-      <div className="post-title overflow-hidden">
-        <h5 className="d-inline">
-          {url && this.props.showBody ? (
-            <a
-              className={
-                !post.featured_community && !post.featured_local
-                  ? "text-body"
-                  : "text-primary"
-              }
-              href={url}
-              title={url}
-              rel={relTags}
-              dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
-            ></a>
-          ) : (
-            this.postLink
-          )}
-        </h5>
-        {(url && isImage(url)) ||
-          (post.thumbnail_url && (
-            <button
-              className="btn btn-link text-monospace text-muted small d-inline-block"
-              data-tippy-content={i18n.t("expand_here")}
-              onClick={linkEvent(this, this.handleImageExpandClick)}
-            >
-              <Icon
-                icon={
-                  !this.state.imageExpanded ? "plus-square" : "minus-square"
+      <>
+        <div className="post-title overflow-hidden">
+          <h5 className="d-inline">
+            {url && this.props.showBody ? (
+              <a
+                className={
+                  !post.featured_community && !post.featured_local
+                    ? "text-body"
+                    : "text-primary"
                 }
-                classes="icon-inline"
-              />
-            </button>
-          ))}
-        {post.removed && (
-          <small className="ml-2 badge text-bg-secondary">
-            {i18n.t("removed")}
-          </small>
-        )}
-        {post.deleted && (
-          <small
-            className="unselectable pointer ml-2 text-muted font-italic"
-            data-tippy-content={i18n.t("deleted")}
+                href={url}
+                title={url}
+                rel={relTags}
+                dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+              ></a>
+            ) : (
+              this.postLink
+            )}
+          </h5>
+          {(url && isImage(url)) ||
+            (post.thumbnail_url && (
+              <button
+                className="btn btn-link text-monospace text-muted small d-inline-block"
+                data-tippy-content={i18n.t("expand_here")}
+                onClick={linkEvent(this, this.handleImageExpandClick)}
+              >
+                <Icon
+                  icon={
+                    !this.state.imageExpanded ? "plus-square" : "minus-square"
+                  }
+                  classes="icon-inline"
+                />
+              </button>
+            ))}
+          {post.removed && (
+            <small className="ml-2 badge text-bg-secondary">
+              {i18n.t("removed")}
+            </small>
+          )}
+          {post.deleted && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("deleted")}
+            >
+              <Icon icon="trash" classes="icon-inline text-danger" />
+            </small>
+          )}
+          {post.locked && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("locked")}
+            >
+              <Icon icon="lock" classes="icon-inline text-danger" />
+            </small>
+          )}
+          {post.featured_community && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("featured")}
+            >
+              <Icon icon="pin" classes="icon-inline text-primary" />
+            </small>
+          )}
+          {post.featured_local && (
+            <small
+              className="unselectable pointer ml-2 text-muted font-italic"
+              data-tippy-content={i18n.t("featured")}
+            >
+              <Icon icon="pin" classes="icon-inline text-secondary" />
+            </small>
+          )}
+          {post.nsfw && (
+            <small className="ml-2 badge text-bg-danger">
+              {i18n.t("nsfw")}
+            </small>
+          )}
+        </div>
+        {url && this.urlLine()}
+      </>
+    );
+  }
+
+  urlLine() {
+    const post = this.postView.post;
+    const url = post.url;
+
+    return (
+      <p className="d-flex text-muted align-items-center gap-1 small m-0">
+        {url && !(hostname(url) === getExternalHost()) && (
+          <a
+            className="text-muted font-italic"
+            href={url}
+            title={url}
+            rel={relTags}
           >
-            <Icon icon="trash" classes="icon-inline text-danger" />
-          </small>
+            {hostname(url)}
+          </a>
         )}
-        {post.locked && (
-          <small
-            className="unselectable pointer ml-2 text-muted font-italic"
-            data-tippy-content={i18n.t("locked")}
-          >
-            <Icon icon="lock" classes="icon-inline text-danger" />
-          </small>
-        )}
-        {post.featured_community && (
-          <small
-            className="unselectable pointer ml-2 text-muted font-italic"
-            data-tippy-content={i18n.t("featured")}
-          >
-            <Icon icon="pin" classes="icon-inline text-primary" />
-          </small>
-        )}
-        {post.featured_local && (
-          <small
-            className="unselectable pointer ml-2 text-muted font-italic"
-            data-tippy-content={i18n.t("featured")}
-          >
-            <Icon icon="pin" classes="icon-inline text-secondary" />
-          </small>
-        )}
-        {post.nsfw && (
-          <small className="ml-2 badge text-bg-danger">{i18n.t("nsfw")}</small>
-        )}
-      </div>
+      </p>
     );
   }
 
@@ -649,14 +642,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get hasAdvancedButtons() {
+  showPreviewButton() {
+    const post_view = this.postView;
+    const body = post_view.post.body;
+
     return (
-      this.myPost ||
-      (this.showBody && this.postView.post.body) ||
-      amMod(this.props.moderators) ||
-      amAdmin() ||
-      this.canMod_ ||
-      this.canAdmin_
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        data-tippy-content={body && mdNoImages.render(body)}
+        data-tippy-allowHtml={true}
+        onClick={linkEvent(this, this.handleShowBody)}
+      >
+        <Icon
+          icon="book-open"
+          classes={classNames("icon-inline mr-1", {
+            "text-success": this.state.showBody,
+          })}
+        />
+      </button>
     );
   }
 
@@ -664,57 +667,64 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
     const post_view = this.postView;
+    const post = post_view.post;
+
     return (
       <>
         {this.saveButton}
         {this.crossPostButton}
 
+        {/**
+         * If there is a URL, or if the post has a body and we were told not to
+         * show the body, show the MetadataCard/body toggle.
+         */}
+        {(post.url || (post.body && !this.props.showBody)) &&
+          this.showPreviewButton()}
+
         {this.showBody && post_view.post.body && this.viewSourceButton}
 
-        {this.hasAdvancedButtons && (
-          <div className="dropdown">
-            <button
-              className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
-              onClick={linkEvent(this, this.handleShowAdvanced)}
-              data-tippy-content={i18n.t("more")}
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              aria-controls="advancedButtonsDropdown"
-              aria-label={i18n.t("more")}
-            >
-              <Icon icon="more-vertical" inline />
-            </button>
+        <div className="dropdown">
+          <button
+            className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
+            onClick={linkEvent(this, this.handleShowAdvanced)}
+            data-tippy-content={i18n.t("more")}
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            aria-controls="advancedButtonsDropdown"
+            aria-label={i18n.t("more")}
+          >
+            <Icon icon="more-vertical" inline />
+          </button>
 
-            <ul className="dropdown-menu" id="advancedButtonsDropdown">
-              {!this.myPost ? (
-                <>
-                  <li>{this.reportButton}</li>
-                  <li>{this.blockButton}</li>
-                </>
-              ) : (
-                <>
-                  <li>{this.editButton}</li>
-                  <li>{this.deleteButton}</li>
-                </>
-              )}
+          <ul className="dropdown-menu" id="advancedButtonsDropdown">
+            {!this.myPost ? (
+              <>
+                <li>{this.reportButton}</li>
+                <li>{this.blockButton}</li>
+              </>
+            ) : (
+              <>
+                <li>{this.editButton}</li>
+                <li>{this.deleteButton}</li>
+              </>
+            )}
 
-              {/* Any mod can do these, not limited to hierarchy*/}
-              {(amMod(this.props.moderators) || amAdmin()) && (
-                <>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>{this.lockButton}</li>
-                  {this.featureButtons}
-                </>
-              )}
+            {/* Any mod can do these, not limited to hierarchy*/}
+            {(amMod(this.props.moderators) || amAdmin()) && (
+              <>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>{this.lockButton}</li>
+                {this.featureButtons}
+              </>
+            )}
 
-              {(this.canMod_ || this.canAdmin_) && (
-                <li>{this.modRemoveButton}</li>
-              )}
-            </ul>
-          </div>
-        )}
+            {(this.canMod_ || this.canAdmin_) && (
+              <li>{this.modRemoveButton}</li>
+            )}
+          </ul>
+        </div>
       </>
     );
   }
