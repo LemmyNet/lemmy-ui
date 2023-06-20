@@ -5,6 +5,7 @@ import {
   validURL,
 } from "@utils/helpers";
 import { isImage } from "@utils/media";
+import { Choice } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -21,7 +22,6 @@ import { PostFormParams } from "../../interfaces";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  Choice,
   archiveTodayUrl,
   communityToChoice,
   fetchCommunities,

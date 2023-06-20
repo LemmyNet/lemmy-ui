@@ -24,6 +24,7 @@
       "@utils/browser": ["./shared/utils/browser/index"],
       "@utils/helpers": ["./shared/utils/helpers/index"],
       "@utils/media": ["./shared/utils/media/index"],
+      "@utils/app": ["./shared/utils/app/index"],
       "@utils/types": ["./shared/utils/types/index"],
     }
   },

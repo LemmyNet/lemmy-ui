@@ -1,3 +1,4 @@
+import { communityRSSUrl } from "@utils/app";
 import {
   getPageFromString,
   getQueryParams,
@@ -70,7 +71,6 @@ import { HttpService, RequestState } from "../../services/HttpService";
 import {
   RouteDataResponse,
   commentsToFlatNodes,
-  communityRSSUrl,
   editComment,
   editPost,
   editWith,

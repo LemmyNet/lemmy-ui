@@ -1,5 +1,6 @@
 import { isBrowser } from "@utils/browser";
 import { debounce, groupBy } from "@utils/helpers";
+import type { Choice } from "@utils/types";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
@@ -13,10 +14,8 @@ import {
   CommentView,
   CommunityView,
   CustomEmojiView,
-  GetSiteMetadata,
   GetSiteResponse,
   Language,
-  LemmyHttp,
   MyUserInfo,
   PersonMentionView,
   PersonView,
@@ -25,8 +24,6 @@ import {
   PrivateMessageReportView,
   PrivateMessageView,
   RegistrationApplicationView,
-  Search,
-  SearchType,
   SortType,
 } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
@@ -41,18 +38,10 @@ import Token from "markdown-it/lib/token";
 import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
-import { getHttpBase } from "./env";
 import { i18n } from "./i18next";
-import {
-  CommentNodeI,
-  DataType,
-  IsoData,
-  RouteData,
-  VoteType,
-} from "./interfaces";
-import { HttpService, UserService } from "./services";
+import { CommentNodeI, IsoData, RouteData, VoteType } from "./interfaces";
+import { UserService } from "./services";
 import { RequestState } from "./services/HttpService";
-
 let Tribute: any;
 if (isBrowser()) {
   Tribute = require("tributejs");
@@ -75,7 +64,6 @@ export const webArchiveUrl = "https://web.archive.org";
 export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
-export const fetchLimit = 40;
 export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
@@ -110,11 +98,6 @@ export type ThemeColor =
   | "white"
   | "gray"
   | "gray-dark";
-
-export interface ErrorPageData {
-  error?: string;
-  adminMatrixIds?: string[];
-}
 
 const customEmojis: EmojiMartCategory[] = [];
 export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
@@ -154,33 +137,6 @@ export let md: MarkdownIt = new MarkdownIt();
 
 export let mdNoImages: MarkdownIt = new MarkdownIt();
 
-export function hotRankComment(comment_view: CommentView): number {
-  return hotRank(comment_view.counts.score, comment_view.comment.published);
-}
-
-export function hotRankActivePost(post_view: PostView): number {
-  return hotRank(post_view.counts.score, post_view.counts.newest_comment_time);
-}
-
-export function hotRankPost(post_view: PostView): number {
-  return hotRank(post_view.counts.score, post_view.post.published);
-}
-
-export function hotRank(score: number, timeStr: string): number {
-  // Rank = ScaleFactor * sign(Score) * log(1 + abs(Score)) / (Time + 2)^Gravity
-  const date: Date = new Date(timeStr + "Z"); // Add Z to convert from UTC date
-  const now: Date = new Date();
-  const hoursElapsed: number = (now.getTime() - date.getTime()) / 36e5;
-
-  const rank =
-    (10000 * Math.log10(Math.max(1, 3 + Number(score)))) /
-    Math.pow(hoursElapsed + 2, 1.8);
-
-  // console.log(`Comment: ${comment.content}\nRank: ${rank}\nScore: ${comment.score}\nHours: ${hoursElapsed}`);
-
-  return rank;
-}
-
 export function mdToHtml(text: string) {
   return { __html: md.render(text) };
 }
@@ -191,105 +147,6 @@ export function mdToHtmlNoImages(text: string) {
 
 export function mdToHtmlInline(text: string) {
   return { __html: md.renderInline(text) };
-}
-
-export function communityRSSUrl(actorId: string, sort: string): string {
-  const url = new URL(actorId);
-  return `${url.origin}/feeds${url.pathname}.xml?sort=${sort}`;
-}
-
-export async function getSiteMetadata(url: string) {
-  const form: GetSiteMetadata = { url };
-  const client = new LemmyHttp(getHttpBase());
-  return client.getSiteMetadata(form);
-}
-
-export function getDataTypeString(dt: DataType) {
-  return dt === DataType.Post ? "Post" : "Comment";
-}
-
-export async function fetchThemeList(): Promise<string[]> {
-  return fetch("/css/themelist").then(res => res.json());
-}
-
-export async function setTheme(theme: string, forceReload = false) {
-  if (!isBrowser()) {
-    return;
-  }
-  if (theme === "browser" && !forceReload) {
-    return;
-  }
-  // This is only run on a force reload
-  if (theme == "browser") {
-    theme = "darkly";
-  }
-
-  const themeList = await fetchThemeList();
-
-  // Unload all the other themes
-  for (var i = 0; i < themeList.length; i++) {
-    const styleSheet = document.getElementById(themeList[i]);
-    if (styleSheet) {
-      styleSheet.setAttribute("disabled", "disabled");
-    }
-  }
-
-  document
-    .getElementById("default-light")
-    ?.setAttribute("disabled", "disabled");
-  document.getElementById("default-dark")?.setAttribute("disabled", "disabled");
-
-  // Load the theme dynamically
-  const cssLoc = `/css/themes/${theme}.css`;
-
-  loadCss(theme, cssLoc);
-  document.getElementById(theme)?.removeAttribute("disabled");
-}
-
-export function loadCss(id: string, loc: string) {
-  if (!document.getElementById(id)) {
-    var head = document.getElementsByTagName("head")[0];
-    var link = document.createElement("link");
-    link.id = id;
-    link.rel = "stylesheet";
-    link.type = "text/css";
-    link.href = loc;
-    link.media = "all";
-    head.appendChild(link);
-  }
-}
-
-export function objectFlip(obj: any) {
-  const ret = {};
-  Object.keys(obj).forEach(key => {
-    ret[obj[key]] = key;
-  });
-  return ret;
-}
-
-export function showAvatars(
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  return myUserInfo?.local_user_view.local_user.show_avatars ?? true;
-}
-
-export function showScores(
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  return myUserInfo?.local_user_view.local_user.show_scores ?? true;
-}
-
-export function isCakeDay(published: string): boolean {
-  // moment(undefined) or moment.utc(undefined) returns the current date/time
-  // moment(null) or moment.utc(null) returns null
-  const createDate = moment.utc(published).local();
-  const currentDate = moment(new Date());
-
-  return (
-    createDate.date() === currentDate.date() &&
-    createDate.month() === currentDate.month() &&
-    createDate.year() !== currentDate.year()
-  );
 }
 
 export function toast(text: string, background: ThemeColor = "success") {
@@ -573,34 +430,6 @@ export function setupTippy() {
       touch: ["hold", 500],
     });
   }
-}
-
-interface PersonTribute {
-  key: string;
-  view: PersonView;
-}
-
-async function personSearch(text: string): Promise<PersonTribute[]> {
-  const usersResponse = await fetchUsers(text);
-
-  return usersResponse.map(pv => ({
-    key: `@${pv.person.name}@${hostname(pv.person.actor_id)}`,
-    view: pv,
-  }));
-}
-
-interface CommunityTribute {
-  key: string;
-  view: CommunityView;
-}
-
-async function communitySearch(text: string): Promise<CommunityTribute[]> {
-  const communitiesResponse = await fetchCommunities(text);
-
-  return communitiesResponse.map(cv => ({
-    key: `!${cv.community.name}@${hostname(cv.community.actor_id)}`,
-    view: cv,
-  }));
 }
 
 export function getRecipientIdFromProps(props: any): number {
@@ -918,11 +747,6 @@ function hsl(num: number) {
   return `hsla(${num}, 35%, 50%, 0.5)`;
 }
 
-export function hostname(url: string): string {
-  const cUrl = new URL(url);
-  return cUrl.port ? `${cUrl.hostname}:${cUrl.port}` : `${cUrl.hostname}`;
-}
-
 export function validTitle(title?: string): boolean {
   // Initial title is null, minimum length is taken care of by textarea's minLength={3}
   if (!title || title.length < 3) return true;
@@ -989,12 +813,6 @@ export function showLocal(isoData: IsoData): boolean {
   return isoData.site_res.site_view.local_site.federation_enabled;
 }
 
-export interface Choice {
-  value: string;
-  label: string;
-  disabled?: boolean;
-}
-
 export function getUpdatedSearchId(id?: number | null, urlId?: number | null) {
   return id === null
     ? undefined
@@ -1013,32 +831,6 @@ export function personToChoice(pvs: PersonView): Choice {
     value: pvs.person.id.toString(),
     label: personSelectName(pvs),
   };
-}
-
-function fetchSearchResults(q: string, type_: SearchType) {
-  const form: Search = {
-    q,
-    type_,
-    sort: "TopAll",
-    listing_type: "All",
-    page: 1,
-    limit: fetchLimit,
-    auth: myAuth(),
-  };
-
-  return HttpService.client.search(form);
-}
-
-export async function fetchCommunities(q: string) {
-  const res = await fetchSearchResults(q, "Communities");
-
-  return res.state === "success" ? res.data.communities : [];
-}
-
-export async function fetchUsers(q: string) {
-  const res = await fetchSearchResults(q, "Users");
-
-  return res.state === "success" ? res.data.users : [];
 }
 
 export function communitySelectName(cv: CommunityView): string {
@@ -1061,10 +853,6 @@ export function initializeSite(site?: GetSiteResponse) {
     setupEmojiDataModel(site.custom_emojis ?? []);
   }
   setupMarkdown();
-}
-
-export function myAuth(): string | undefined {
-  return UserService.Instance.auth();
 }
 
 export function myAuthRequired(): string {

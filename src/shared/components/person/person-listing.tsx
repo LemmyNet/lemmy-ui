@@ -1,8 +1,9 @@
+import { isCakeDay } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { Person } from "lemmy-js-client";
-import { hostname, isCakeDay, relTags, showAvatars } from "../../utils";
+import { hostname, relTags, showAvatars } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
 
