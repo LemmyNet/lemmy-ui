@@ -98,7 +98,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
     return (
       <select
-        className={classNames("lang-select-action form-select w-auto", {
+        className={classNames("form-select w-auto", {
           "d-inline-block": !this.props.iconVersion,
         })}
         id={this.id}
