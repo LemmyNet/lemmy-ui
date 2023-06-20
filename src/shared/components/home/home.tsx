@@ -735,7 +735,7 @@ export class Home extends Component<any, HomeState> {
     const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
-      <div className="row align-items-center mb-3">
+      <div className="row align-items-center mb-3 g-3">
         <div className="col-auto">
           <DataTypeSelect
             type_={dataType}
