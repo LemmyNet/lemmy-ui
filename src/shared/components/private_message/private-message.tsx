@@ -88,7 +88,7 @@ export class PrivateMessage extends Component<
       : message_view.creator;
 
     return (
-      <div className="border-top border-light">
+      <div className="private-message border-top border-light">
         <div>
           <ul className="list-inline mb-0 text-muted small">
             {/* TODO refactor this */}
@@ -248,13 +248,13 @@ export class PrivateMessage extends Component<
             className="form-inline"
             onSubmit={linkEvent(this, this.handleReportSubmit)}
           >
-            <label className="sr-only" htmlFor="pm-report-reason">
+            <label className="visually-hidden" htmlFor="pm-report-reason">
               {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="pm-report-reason"
-              className="form-control mr-2"
+              className="form-control me-2"
               placeholder={i18n.t("reason")}
               required
               value={this.state.reportReason}

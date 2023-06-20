@@ -39,7 +39,7 @@ export class ListingTypeSelect extends Component<
 
   render() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="listing-type-select btn-group btn-group-toggle flex-wrap">
         {this.props.showSubscribed && (
           <label
             title={i18n.t("subscribed_description")}
@@ -51,6 +51,7 @@ export class ListingTypeSelect extends Component<
             <input
               id={`${this.id}-subscribed`}
               type="radio"
+              className="btn-check"
               value={"Subscribed"}
               checked={this.state.type_ == "Subscribed"}
               onChange={linkEvent(this, this.handleTypeChange)}
@@ -69,6 +70,7 @@ export class ListingTypeSelect extends Component<
             <input
               id={`${this.id}-local`}
               type="radio"
+              className="btn-check"
               value={"Local"}
               checked={this.state.type_ == "Local"}
               onChange={linkEvent(this, this.handleTypeChange)}
@@ -86,6 +88,7 @@ export class ListingTypeSelect extends Component<
           <input
             id={`${this.id}-all`}
             type="radio"
+            className="btn-check"
             value={"All"}
             checked={this.state.type_ == "All"}
             onChange={linkEvent(this, this.handleTypeChange)}

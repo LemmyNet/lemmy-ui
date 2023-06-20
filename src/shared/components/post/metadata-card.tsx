@@ -30,7 +30,7 @@ export class MetadataCard extends Component<
     return (
       <>
         {!this.state.expanded && post.embed_title && post.url && (
-          <div className="card border-secondary mt-3 mb-2">
+          <div className="post-metadata-card card border-secondary mt-3 mb-2">
             <div className="row">
               <div className="col-12">
                 <div className="card-body">
@@ -41,14 +41,14 @@ export class MetadataCard extends Component<
                           {post.embed_title}
                         </a>
                       </h5>
-                      <span className="d-inline-block ml-2 mb-2 small text-muted">
+                      <span className="d-inline-block ms-2 mb-2 small text-muted">
                         <a
                           className="text-muted font-italic"
                           href={post.url}
                           rel={relTags}
                         >
                           {new URL(post.url).hostname}
-                          <Icon icon="external-link" classes="ml-1" />
+                          <Icon icon="external-link" classes="ms-1" />
                         </a>
                       </span>
                     </>
@@ -75,7 +75,10 @@ export class MetadataCard extends Component<
           </div>
         )}
         {this.state.expanded && post.embed_video_url && (
-          <iframe src={post.embed_video_url}></iframe>
+          <iframe
+            className="post-metadata-iframe"
+            src={post.embed_video_url}
+          ></iframe>
         )}
       </>
     );

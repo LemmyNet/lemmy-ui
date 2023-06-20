@@ -1,3 +1,5 @@
+import { getQueryParams, getQueryString } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -62,7 +64,6 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  QueryParams,
   RouteDataResponse,
   commentsToFlatNodes,
   communityRSSUrl,
@@ -75,8 +76,6 @@ import {
   getCommentParentId,
   getDataTypeString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   myAuth,
   postToCommentSortType,
   relTags,
@@ -328,7 +327,7 @@ export class Community extends Component<
                 {this.communityInfo(res)}
                 <div className="d-block d-md-none">
                   <button
-                    className="btn btn-secondary d-inline-block mb-2 mr-3"
+                    className="btn btn-secondary d-inline-block mb-2 me-3"
                     onClick={linkEvent(this, this.handleShowSidebarMobile)}
                   >
                     {i18n.t("sidebar")}{" "}
@@ -358,7 +357,9 @@ export class Community extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderCommunity()}</div>;
+    return (
+      <div className="community container-lg">{this.renderCommunity()}</div>
+    );
   }
 
   sidebar(res: GetCommunityResponse) {
@@ -511,13 +512,13 @@ export class Community extends Component<
 
     return (
       <div className="mb-3">
-        <span className="mr-3">
+        <span className="me-3">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
         </span>
-        <span className="mr-2">
+        <span className="me-2">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
         {communityRss && (

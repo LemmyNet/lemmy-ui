@@ -18,7 +18,13 @@
     "noImplicitReturns": true,
     "experimentalDecorators": true,
     "strictNullChecks": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@utils/roles": ["./shared/utils/roles/index"],
+      "@utils/browser": ["./shared/utils/browser/index"],
+      "@utils/helpers": ["./shared/utils/helpers/index"],
+      "@utils/types": ["./shared/utils/types/index"],
+    }
   },
   "include": [
     "src/**/*.ts",

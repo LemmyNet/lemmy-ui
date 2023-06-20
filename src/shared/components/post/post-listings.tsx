@@ -66,7 +66,7 @@ export class PostListings extends Component<PostListingsProps, any> {
 
   render() {
     return (
-      <div>
+      <div className="post-listings">
         {this.posts.length > 0 ? (
           this.posts.map((post_view, idx) => (
             <>
@@ -96,9 +96,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
               />
-              {idx + 1 !== this.posts.length && (
-                <hr className="my-3 border border-primary" />
-              )}
+              {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>
           ))
         ) : (
