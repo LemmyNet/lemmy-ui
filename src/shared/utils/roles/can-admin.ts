@@ -1,8 +1,8 @@
 import { PersonView } from "lemmy-js-client";
 import { UserService } from "../../services";
-import { canMod } from "./can-mod";
+import canMod from "./can-mod";
 
-export function canAdmin(
+export default function canAdmin(
   creatorId: number,
   admins?: PersonView[],
   myUserInfo = UserService.Instance.myUserInfo,

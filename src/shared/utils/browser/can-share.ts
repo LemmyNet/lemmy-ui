@@ -1,5 +1,5 @@
-import { isBrowser } from "./is-browser";
+import isBrowser from "./is-browser";
 
-export function canShare() {
+export default function canShare() {
   return isBrowser() && !!navigator.canShare;
 }

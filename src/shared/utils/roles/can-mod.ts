@@ -1,7 +1,7 @@
 import { CommunityModeratorView, PersonView } from "lemmy-js-client";
 import { UserService } from "../../services";
 
-export function canMod(
+export default function canMod(
   creator_id: number,
   mods?: CommunityModeratorView[],
   admins?: PersonView[],

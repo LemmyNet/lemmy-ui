@@ -1,8 +1,8 @@
 import { GetSiteResponse } from "lemmy-js-client";
 import { UserService } from "../../services";
-import { amAdmin } from "./am-admin";
+import amAdmin from "./am-admin";
 
-export function canCreateCommunity(
+export default function canCreateCommunity(
   siteRes: GetSiteResponse,
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {

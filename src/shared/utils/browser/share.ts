@@ -1,6 +1,6 @@
-import { isBrowser } from "./is-browser";
+import isBrowser from "./is-browser";
 
-export function share(shareData: ShareData) {
+export default function share(shareData: ShareData) {
   if (isBrowser()) {
     navigator.share(shareData);
   }

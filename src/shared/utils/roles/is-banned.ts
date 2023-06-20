@@ -1,6 +1,6 @@
 import { Person } from "lemmy-js-client";
 
-export function isBanned(ps: Person): boolean {
+export default function isBanned(ps: Person): boolean {
   const expires = ps.ban_expires;
   // Add Z to convert from UTC date
   // TODO this check probably isn't necessary anymore

@@ -1,6 +1,8 @@
-import { isBrowser } from "../browser/is-browser";
+import isBrowser from "../browser/is-browser";
 
-export function getQueryParams<T extends Record<string, any>>(processors: {
+export default function getQueryParams<
+  T extends Record<string, any>
+>(processors: {
   [K in keyof T]: (param: string) => T[K];
 }): T {
   if (isBrowser()) {

@@ -1,7 +1,7 @@
 import { PersonView } from "lemmy-js-client";
 import { UserService } from "../../services";
 
-export function amSiteCreator(
+export default function amSiteCreator(
   creator_id: number,
   admins?: PersonView[],
   myUserInfo = UserService.Instance.myUserInfo

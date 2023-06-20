@@ -53,12 +53,12 @@ import {
   setupTippy,
   showScores,
 } from "../../utils";
-import { amCommunityCreator } from "../../utils/roles/am-community-creator";
-import { canAdmin } from "../../utils/roles/can-admin";
-import { canMod } from "../../utils/roles/can-mod";
-import { isAdmin } from "../../utils/roles/is-admin";
-import { isBanned } from "../../utils/roles/is-banned";
-import { isMod } from "../../utils/roles/is-mod";
+import amCommunityCreator from "../../utils/roles/am-community-creator";
+import canAdmin from "../../utils/roles/can-admin";
+import canMod from "../../utils/roles/can-mod";
+import isAdmin from "../../utils/roles/is-admin";
+import isBanned from "../../utils/roles/is-banned";
+import isMod from "../../utils/roles/is-mod";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { CommunityLink } from "../community/community-link";

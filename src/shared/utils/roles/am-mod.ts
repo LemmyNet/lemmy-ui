@@ -1,8 +1,8 @@
 import { CommunityModeratorView } from "lemmy-js-client";
 import { UserService } from "../../services";
-import { isMod } from "./is-mod";
+import isMod from "./is-mod";
 
-export function amMod(
+export default function amMod(
   mods?: CommunityModeratorView[],
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {

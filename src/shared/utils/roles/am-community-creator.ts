@@ -1,7 +1,7 @@
 import { CommunityModeratorView } from "lemmy-js-client";
 import { UserService } from "../../services";
 
-export function amCommunityCreator(
+export default function amCommunityCreator(
   creator_id: number,
   mods?: CommunityModeratorView[],
   myUserInfo = UserService.Instance.myUserInfo

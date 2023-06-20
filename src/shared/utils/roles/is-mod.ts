@@ -1,6 +1,6 @@
 import { CommunityModeratorView } from "lemmy-js-client";
 
-export function isMod(
+export default function isMod(
   creatorId: number,
   mods?: CommunityModeratorView[]
 ): boolean {
