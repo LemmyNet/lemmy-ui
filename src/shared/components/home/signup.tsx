@@ -1,3 +1,4 @@
+import { isBrowser } from "@utils/browser";
 import { Options, passwordStrength } from "check-password-strength";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -20,7 +21,6 @@ import {
   toast,
   validEmail,
 } from "../../utils";
-import isBrowser from "../../utils/browser/is-browser";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

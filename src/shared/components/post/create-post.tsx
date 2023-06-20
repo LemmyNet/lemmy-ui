@@ -1,3 +1,5 @@
+import { getQueryParams } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -24,8 +26,6 @@ import {
   myAuth,
   setIsoData,
 } from "../../utils";
-import getQueryParams from "../../utils/helpers/get-query-params";
-import type { QueryParams } from "../../utils/types/query-params";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";

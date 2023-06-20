@@ -1,3 +1,6 @@
+import { debounce, getQueryParams, getQueryString } from "@utils/helpers";
+import { amAdmin, amMod } from "@utils/roles";
+import type { QueryParams } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -44,12 +47,6 @@ import {
   personToChoice,
   setIsoData,
 } from "../utils";
-import debounce from "../utils/helpers/debounce";
-import getQueryParams from "../utils/helpers/get-query-params";
-import getQueryString from "../utils/helpers/get-query-string";
-import amAdmin from "../utils/roles/am-admin";
-import amMod from "../utils/roles/am-mod";
-import type { QueryParams } from "../utils/types/query-params";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";

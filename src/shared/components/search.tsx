@@ -1,3 +1,5 @@
+import { debounce, getQueryParams, getQueryString } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -46,10 +48,6 @@ import {
   setIsoData,
   showLocal,
 } from "../utils";
-import debounce from "../utils/helpers/debounce";
-import getQueryParams from "../utils/helpers/get-query-params";
-import getQueryString from "../utils/helpers/get-query-string";
-import type { QueryParams } from "../utils/types/query-params";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";

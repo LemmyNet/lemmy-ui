@@ -1,6 +1,6 @@
+import { canMod } from "@utils/roles";
 import { PersonView } from "lemmy-js-client";
 import { UserService } from "../../services";
-import canMod from "./can-mod";
 
 export default function canAdmin(
   creatorId: number,

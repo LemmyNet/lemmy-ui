@@ -1,3 +1,5 @@
+import { getQueryParams, getQueryString } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -86,9 +88,6 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "../../utils";
-import getQueryParams from "../../utils/helpers/get-query-params";
-import getQueryString from "../../utils/helpers/get-query-string";
-import type { QueryParams } from "../../utils/types/query-params";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";

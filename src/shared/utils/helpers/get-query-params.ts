@@ -1,4 +1,4 @@
-import isBrowser from "../browser/is-browser";
+import { isBrowser } from "@utils/browser";
 
 export default function getQueryParams<
   T extends Record<string, any>

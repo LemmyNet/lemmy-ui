@@ -1,3 +1,4 @@
+import { debounce } from "@utils/helpers";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -35,7 +36,6 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "../../utils";
-import debounce from "../../utils/helpers/debounce";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";

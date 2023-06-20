@@ -1,6 +1,6 @@
+import { isMod } from "@utils/roles";
 import { CommunityModeratorView } from "lemmy-js-client";
 import { UserService } from "../../services";
-import isMod from "./is-mod";
 
 export default function amMod(
   mods?: CommunityModeratorView[],
