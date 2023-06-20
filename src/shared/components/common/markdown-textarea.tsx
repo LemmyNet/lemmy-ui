@@ -136,7 +136,11 @@ export class MarkdownTextArea extends Component<
     //   message={i18n.t("block_leaving")}
     // />
     return (
-      <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
+      <form
+        className="markdown-textarea"
+        id={this.formId}
+        onSubmit={linkEvent(this, this.handleSubmit)}
+      >
         <NavigationPrompt
           when={
             !this.props.hideNavigationWarnings &&

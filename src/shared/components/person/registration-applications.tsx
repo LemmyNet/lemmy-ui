@@ -117,7 +117,11 @@ export class RegistrationApplications extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderApps()}</div>;
+    return (
+      <div className="registration-applications container-lg">
+        {this.renderApps()}
+      </div>
+    );
   }
 
   unreadOrAllRadios() {

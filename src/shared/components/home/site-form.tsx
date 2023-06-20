@@ -120,7 +120,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   render() {
     const siteSetup = this.props.siteRes.site_view.local_site.site_setup;
     return (
-      <form onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}>
+      <form
+        className="site-form"
+        onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}
+      >
         <NavigationPrompt
           when={
             !this.props.loading &&

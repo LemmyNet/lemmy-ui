@@ -73,7 +73,10 @@ export class PrivateMessageForm extends Component<
 
   render() {
     return (
-      <form onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}>
+      <form
+        className="private-message-form"
+        onSubmit={linkEvent(this, this.handlePrivateMessageSubmit)}
+      >
         <NavigationPrompt
           when={
             !this.state.loading && !!this.state.content && !this.state.submitted

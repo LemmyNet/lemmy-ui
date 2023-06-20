@@ -415,7 +415,7 @@ br.big {
   -webkit-box-orient: vertical;
 }
 
-.emoji-picker {
+#emoji-picker {
   width: 100%;
 }
 
