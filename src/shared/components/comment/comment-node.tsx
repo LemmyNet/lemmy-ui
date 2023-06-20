@@ -1,3 +1,4 @@
+import { numToSI } from "@utils/helpers";
 import {
   amCommunityCreator,
   canAdmin,
@@ -57,7 +58,6 @@ import {
   myAuth,
   myAuthRequired,
   newVote,
-  numToSI,
   setupTippy,
   showScores,
 } from "../../utils";

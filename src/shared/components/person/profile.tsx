@@ -1,4 +1,4 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import { getQueryParams, getQueryString, numToSI } from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import classNames from "classnames";
@@ -70,7 +70,6 @@ import {
   mdToHtml,
   myAuth,
   myAuthRequired,
-  numToSI,
   relTags,
   restoreScrollPosition,
   saveScrollPosition,

@@ -1,5 +1,5 @@
 import { isBrowser } from "@utils/browser";
-import { debounce, groupBy } from "@utils/helpers";
+import { debounce, getRandomCharFromAlphabet, groupBy } from "@utils/helpers";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
@@ -124,14 +124,6 @@ export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
 
 const DEFAULT_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-function getRandomCharFromAlphabet(alphabet: string): string {
-  return alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-}
-
-export function getIdFromString(id?: string): number | undefined {
-  return id && id !== "0" && !Number.isNaN(Number(id)) ? Number(id) : undefined;
-}
 
 export function getPageFromString(page?: string): number {
   return page && !Number.isNaN(Number(page)) ? Number(page) : 1;
@@ -1138,17 +1130,6 @@ export function initializeSite(site?: GetSiteResponse) {
     setupEmojiDataModel(site.custom_emojis ?? []);
   }
   setupMarkdown();
-}
-
-const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
-  maximumSignificantDigits: 3,
-  //@ts-ignore
-  notation: "compact",
-  compactDisplay: "short",
-});
-
-export function numToSI(value: number): string {
-  return SHORTNUM_SI_FORMAT.format(value);
 }
 
 export function myAuth(): string | undefined {

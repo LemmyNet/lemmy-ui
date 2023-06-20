@@ -1,4 +1,5 @@
 import { isBrowser } from "@utils/browser";
+import { numToSI } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
@@ -13,7 +14,6 @@ import {
   markdownHelpUrl,
   maxUploadImages,
   mdToHtml,
-  numToSI,
   pictrsDeleteToast,
   randomStr,
   relTags,

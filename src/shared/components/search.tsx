@@ -1,4 +1,10 @@
-import { debounce, getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  debounce,
+  getIdFromString,
+  getQueryParams,
+  getQueryString,
+  numToSI,
+} from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -37,11 +43,9 @@ import {
   fetchCommunities,
   fetchLimit,
   fetchUsers,
-  getIdFromString,
   getPageFromString,
   getUpdatedSearchId,
   myAuth,
-  numToSI,
   personToChoice,
   restoreScrollPosition,
   saveScrollPosition,

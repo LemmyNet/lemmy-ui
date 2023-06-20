@@ -1,4 +1,4 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import { getQueryParams, getQueryString, numToSI } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
@@ -18,7 +18,6 @@ import {
   getPageFromString,
   myAuth,
   myAuthRequired,
-  numToSI,
   setIsoData,
   showLocal,
 } from "../../utils";

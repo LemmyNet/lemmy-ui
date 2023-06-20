@@ -1,4 +1,5 @@
 import { canShare, share } from "@utils/browser";
+import { numToSI } from "@utils/helpers";
 import {
   amAdmin,
   amCommunityCreator,
@@ -48,7 +49,6 @@ import {
   mdToHtmlInline,
   myAuthRequired,
   newVote,
-  numToSI,
   relTags,
   setupTippy,
   showScores,
