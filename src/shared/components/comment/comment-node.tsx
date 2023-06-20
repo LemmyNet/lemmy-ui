@@ -353,7 +353,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 </span>
               )}
               {/* This is an expanding spacer for mobile */}
-              <div className="mr-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
+              <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
               {showScores() && (
                 <>
                   <a

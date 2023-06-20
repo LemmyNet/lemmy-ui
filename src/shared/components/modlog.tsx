@@ -756,7 +756,7 @@ export class Modlog extends Component<
             <Icon
               icon="alert-triangle"
               inline
-              classes="mr-sm-2 mx-auto d-sm-inline d-block"
+              classes="me-sm-2 mx-auto d-sm-inline d-block"
             />
             <T i18nKey="modlog_content_warning" class="d-inline">
               #<strong>#</strong>#
