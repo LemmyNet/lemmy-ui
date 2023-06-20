@@ -1,4 +1,10 @@
-import { debounce, getIdFromString } from "@utils/helpers";
+import {
+  capitalizeFirstLetter,
+  debounce,
+  getIdFromString,
+  validURL,
+} from "@utils/helpers";
+import { isImage } from "@utils/media";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -17,11 +23,9 @@ import { HttpService, RequestState } from "../../services/HttpService";
 import {
   Choice,
   archiveTodayUrl,
-  capitalizeFirstLetter,
   communityToChoice,
   fetchCommunities,
   ghostArchiveUrl,
-  isImage,
   myAuth,
   myAuthRequired,
   relTags,
@@ -29,7 +33,6 @@ import {
   toast,
   trendingFetchLimit,
   validTitle,
-  validURL,
   webArchiveUrl,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";

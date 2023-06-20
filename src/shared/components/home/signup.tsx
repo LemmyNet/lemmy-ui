@@ -1,4 +1,5 @@
 import { isBrowser } from "@utils/browser";
+import { validEmail } from "@utils/helpers";
 import { Options, passwordStrength } from "check-password-strength";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -13,14 +14,7 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  joinLemmyUrl,
-  mdToHtml,
-  myAuth,
-  setIsoData,
-  toast,
-  validEmail,
-} from "../../utils";
+import { joinLemmyUrl, mdToHtml, myAuth, setIsoData, toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

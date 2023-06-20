@@ -1,4 +1,5 @@
 import {
+  capitalizeFirstLetter,
   futureDaysToUnixTime,
   getPageFromString,
   getQueryParams,
@@ -63,7 +64,6 @@ import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   RouteDataResponse,
-  capitalizeFirstLetter,
   editComment,
   editPost,
   editWith,

@@ -1,5 +1,6 @@
 import { isBrowser } from "@utils/browser";
 import { debounce } from "@utils/helpers";
+import { isImage } from "@utils/media";
 import autosize from "autosize";
 import { Component, createRef, linkEvent, RefObject } from "inferno";
 import {
@@ -74,7 +75,6 @@ import {
   getCommentParentId,
   getDepthFromComment,
   getIdFromProps,
-  isImage,
   myAuth,
   restoreScrollPosition,
   RouteDataResponse,

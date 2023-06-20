@@ -1,3 +1,4 @@
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
@@ -15,7 +16,6 @@ import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   RouteDataResponse,
-  capitalizeFirstLetter,
   fetchThemeList,
   myAuthRequired,
   removeFromEmojiDataModel,

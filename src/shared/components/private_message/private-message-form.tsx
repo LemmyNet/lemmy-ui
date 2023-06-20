@@ -1,3 +1,4 @@
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -7,12 +8,7 @@ import {
   PrivateMessageView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import {
-  capitalizeFirstLetter,
-  myAuthRequired,
-  relTags,
-  setupTippy,
-} from "../../utils";
+import { myAuthRequired, relTags, setupTippy } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import NavigationPrompt from "../common/navigation-prompt";

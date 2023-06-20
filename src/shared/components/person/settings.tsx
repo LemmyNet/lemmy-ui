@@ -1,4 +1,4 @@
-import { debounce } from "@utils/helpers";
+import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -17,7 +17,6 @@ import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   Choice,
-  capitalizeFirstLetter,
   communityToChoice,
   elementUrl,
   emDash,

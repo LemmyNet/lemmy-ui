@@ -1,5 +1,6 @@
 import { canShare, share } from "@utils/browser";
-import { numToSI } from "@utils/helpers";
+import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
+import { isImage, isVideo } from "@utils/media";
 import {
   amAdmin,
   amCommunityCreator,
@@ -40,10 +41,7 @@ import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { UserService } from "../../services";
 import {
-  futureDaysToUnixTime,
   hostname,
-  isImage,
-  isVideo,
   mdNoImages,
   mdToHtml,
   mdToHtmlInline,

@@ -1,3 +1,4 @@
+import { capitalizeFirstLetter, validInstanceTLD } from "@utils/helpers";
 import {
   Component,
   InfernoKeyboardEvent,
@@ -12,11 +13,7 @@ import {
   ListingType,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import {
-  capitalizeFirstLetter,
-  myAuthRequired,
-  validInstanceTLD,
-} from "../../utils";
+import { myAuthRequired } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";

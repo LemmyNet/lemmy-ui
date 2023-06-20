@@ -193,44 +193,9 @@ export function mdToHtmlInline(text: string) {
   return { __html: md.renderInline(text) };
 }
 
-const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
-const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
-const tldRegex = /([a-z0-9]+\.)*[a-z0-9]+\.[a-z]+/;
-
-export function isImage(url: string) {
-  return imageRegex.test(url);
-}
-
-export function isVideo(url: string) {
-  return videoRegex.test(url);
-}
-
-export function validURL(str: string) {
-  try {
-    new URL(str);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function validInstanceTLD(str: string) {
-  return tldRegex.test(str);
-}
-
 export function communityRSSUrl(actorId: string, sort: string): string {
   const url = new URL(actorId);
   return `${url.origin}/feeds${url.pathname}.xml?sort=${sort}`;
-}
-
-export function validEmail(email: string) {
-  const re =
-    /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z\-]+\.)+[A-Za-z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
-}
-
-export function capitalizeFirstLetter(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export async function getSiteMetadata(url: string) {

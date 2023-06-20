@@ -1,4 +1,5 @@
 import {
+  capitalizeFirstLetter,
   debounce,
   getIdFromString,
   getPageFromString,
@@ -36,7 +37,6 @@ import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
   RouteDataResponse,
-  capitalizeFirstLetter,
   commentsToFlatNodes,
   communityToChoice,
   enableDownvotes,
