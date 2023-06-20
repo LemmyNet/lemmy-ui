@@ -110,7 +110,7 @@ const Filter = ({
   onChange: (choice: Choice) => void;
   loading: boolean;
 }) => (
-  <div className="person-settings__filter form-group row">
+  <div className="person-settings__filter mb-3 row">
     <label
       className="col-md-4 col-form-label"
       htmlFor={`block-${filterType}-filter`}
@@ -307,7 +307,7 @@ export class Settings extends Component<any, SettingsState> {
           className="person-settings__changepw-form"
           onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}
         >
-          <div className="person-settings__changepw-form-row-password form-group row">
+          <div className="person-settings__changepw-form-row-password mb-3 row">
             <label className="col-sm-5 col-form-label" htmlFor="user-password">
               {i18n.t("new_password")}
             </label>
@@ -323,7 +323,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__changepw-form-row-verifypass form-group row">
+          <div className="person-settings__changepw-form-row-verifypass mb-3 row">
             <label
               className="col-sm-5 col-form-label"
               htmlFor="user-verify-password"
@@ -342,7 +342,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__changepw-form-row-oldpass form-group row">
+          <div className="person-settings__changepw-form-row-oldpass mb-3 row">
             <label
               className="col-sm-5 col-form-label"
               htmlFor="user-old-password"
@@ -361,8 +361,11 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__changepw-form-row-btns form-group">
-            <button type="submit" className="btn btn-block btn-secondary mr-4">
+          <div className="person-settings__changepw-form-row-btns input-group mb-3">
+            <button 
+              type="submit" 
+              className="btn d-block btn-secondary me-4 w-100"
+            >
               {this.state.changePasswordRes.state === "loading" ? (
                 <Spinner />
               ) : (
@@ -473,11 +476,11 @@ export class Settings extends Component<any, SettingsState> {
           className="person-settings__save-user-settings-html-form"
           onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}
         >
-          <div className="person-settings__form-row person-settings__form-row--display-name form-group row">
+          <div className="person-settings__form-row person-settings__form-row--display-name mb-3 row">
             <label className="col-sm-5 col-form-label" htmlFor="display-name">
               {i18n.t("display_name")}
             </label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <input
                 id="display-name"
                 type="text"
@@ -490,7 +493,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--langs form-group row">
+          <div className="person-settings__form-row person-settings__form-row--langs mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-bio">
               {i18n.t("bio")}
             </label>
@@ -505,7 +508,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--email form-group row">
+          <div className="person-settings__form-row person-settings__form-row--email mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-email">
               {i18n.t("email")}
             </label>
@@ -521,13 +524,13 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--matrix form-group row">
+          <div className="person-settings__form-row person-settings__form-row--matrix mb-3 row">
             <label className="col-sm-5 col-form-label" htmlFor="matrix-user-id">
               <a href={elementUrl} rel={relTags}>
                 {i18n.t("matrix_user_id")}
               </a>
             </label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <input
                 id="matrix-user-id"
                 type="text"
@@ -539,8 +542,10 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--avatar form-group row">
-            <label className="col-sm-3">{i18n.t("avatar")}</label>
+          <div className="person-settings__form-row person-settings__form-row--avatar mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("avatar")}
+            </label>
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_avatar")}
@@ -551,8 +556,10 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--banner form-group row">
-            <label className="col-sm-3">{i18n.t("banner")}</label>
+          <div className="person-settings__form-row person-settings__form-row--banner mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("banner")}
+            </label>
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_banner")}
@@ -562,8 +569,8 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--lang form-group row">
-            <label className="col-sm-3" htmlFor="user-language">
+          <div className="person-settings__form-row person-settings__form-row--lang mb-3 row">
+            <label className="col-sm-3 form-label" htmlFor="user-language">
               {i18n.t("interface_language")}
             </label>
             <div className="col-sm-9">
@@ -571,7 +578,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-language"
                 value={this.state.saveUserSettingsForm.interface_language}
                 onChange={linkEvent(this, this.handleInterfaceLangChange)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
                   {i18n.t("interface_language")}
@@ -599,8 +606,8 @@ export class Settings extends Component<any, SettingsState> {
             showSite
             onChange={this.handleDiscussionLanguageChange}
           />
-          <div className="person-settings__form-row person-settings__form-row--theme form-group row">
-            <label className="col-sm-3" htmlFor="user-theme">
+          <div className="person-settings__form-row person-settings__form-row--theme mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="user-theme">
               {i18n.t("theme")}
             </label>
             <div className="col-sm-9">
@@ -608,7 +615,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-theme"
                 value={this.state.saveUserSettingsForm.theme}
                 onChange={linkEvent(this, this.handleThemeChange)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
                   {i18n.t("theme")}
@@ -622,8 +629,8 @@ export class Settings extends Component<any, SettingsState> {
               </select>
             </div>
           </div>
-          <form className="person-settings__form-row person-settings__form-row--listing-type form-group row">
-            <label className="col-sm-3">{i18n.t("type")}</label>
+          <form className="person-settings__form-row person-settings__form-row--listing-type mb-3 row">
+            <label className="col-sm-3 col-form-label">{i18n.t("type")}</label>
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={
@@ -636,8 +643,10 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </form>
-          <form className="person-settings__form-row person-settings__form-row--sort-type form-group row">
-            <label className="col-sm-3">{i18n.t("sort_type")}</label>
+          <form className="person-settings__form-row person-settings__form-row--sort-type mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("sort_type")}
+            </label>
             <div className="col-sm-9">
               <SortSelect
                 sort={
@@ -647,7 +656,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </form>
-          <div className="person-settings__form-row person-settings__form-row--nsfw form-group">
+          <div className="person-settings__form-row person-settings__form-row--nsfw input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -661,7 +670,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -675,7 +684,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--show-avatars form-group">
+          <div className="person-settings__form-row person-settings__form-row--show-avatars input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -689,7 +698,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--bot-acct form-group">
+          <div className="person-settings__form-row person-settings__form-row--bot-acct input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -703,7 +712,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--show-bot-accts form-group">
+          <div className="person-settings__form-row person-settings__form-row--show-bot-accts input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -720,7 +729,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--show-read-posts form-group">
+          <div className="person-settings__form-row person-settings__form-row--show-read-posts input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -737,7 +746,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--show-new-post-notif form-group">
+          <div className="person-settings__form-row person-settings__form-row--show-new-post-notif input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -754,7 +763,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="person-settings__form-row person-settings__form-row--send-notif form-group">
+          <div className="person-settings__form-row person-settings__form-row--send-notif input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -778,8 +787,8 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           {this.totpSection()}
-          <div className="person-settings__form-row person-settings__form-row--save form-group">
-            <button type="submit" className="btn btn-block btn-secondary mr-4">
+          <div className="person-settings__form-row person-settings__form-row--save input-group mb-3">
+            <button type="submit" className="btn d-block btn-secondary me-4">
               {this.state.saveRes.state === "loading" ? (
                 <Spinner />
               ) : (
@@ -788,9 +797,9 @@ export class Settings extends Component<any, SettingsState> {
             </button>
           </div>
           <hr />
-          <div className="person-settings__form-row person-settings__form-row--delete-acct form-group">
+          <div className="person-settings__form-row person-settings__form-row--delete-acct input-group mb-3">
             <button
-              className="btn btn-block btn-danger"
+              className="btn d-block btn-danger"
               onClick={linkEvent(
                 this,
                 this.handleDeleteAccountShowConfirmToggle
@@ -815,7 +824,7 @@ export class Settings extends Component<any, SettingsState> {
                   className="form-control my-2"
                 />
                 <button
-                  className="btn btn-danger mr-4"
+                  className="btn btn-danger me-4"
                   disabled={!this.state.deleteAccountForm.password}
                   onClick={linkEvent(this, this.handleDeleteAccount)}
                 >
@@ -849,7 +858,7 @@ export class Settings extends Component<any, SettingsState> {
     return (
       <>
         {!totpUrl && (
-          <div className="person-settings__totp-section-setup form-group">
+          <div className="person-settings__totp-section-setup input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -872,7 +881,7 @@ export class Settings extends Component<any, SettingsState> {
                 {i18n.t("two_factor_link")}
               </a>
             </div>
-            <div className="person-settings__totp-section-remove form-group">
+            <div className="person-settings__totp-section-remove input-group mb-3">
               <div className="form-check">
                 <input
                   className="form-check-input"

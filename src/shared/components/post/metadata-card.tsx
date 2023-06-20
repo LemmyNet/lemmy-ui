@@ -41,14 +41,14 @@ export class MetadataCard extends Component<
                           {post.embed_title}
                         </a>
                       </h5>
-                      <span className="d-inline-block ml-2 mb-2 small text-muted">
+                      <span className="d-inline-block ms-2 mb-2 small text-muted">
                         <a
                           className="text-muted font-italic"
                           href={post.url}
                           rel={relTags}
                         >
                           {new URL(post.url).hostname}
-                          <Icon icon="external-link" classes="ml-1" />
+                          <Icon icon="external-link" classes="ms-1" />
                         </a>
                       </span>
                     </>

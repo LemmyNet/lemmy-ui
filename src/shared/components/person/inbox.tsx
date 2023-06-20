@@ -228,7 +228,7 @@ export class Inbox extends Component<any, InboxState> {
               {inboxRss && (
                 <small>
                   <a href={inboxRss} title="RSS" rel={relTags}>
-                    <Icon icon="rss" classes="ml-2 text-muted small" />
+                    <Icon icon="rss" classes="ms-2 text-muted small" />
                   </a>
                   <link
                     rel="alternate"
@@ -292,6 +292,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.Unread}
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -305,6 +306,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.All}
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -325,6 +327,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.All}
             checked={this.state.messageType == MessageType.All}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -338,6 +341,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Replies}
             checked={this.state.messageType == MessageType.Replies}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -351,6 +355,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Mentions}
             checked={this.state.messageType == MessageType.Mentions}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -364,6 +369,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Messages}
             checked={this.state.messageType == MessageType.Messages}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -377,8 +383,8 @@ export class Inbox extends Component<any, InboxState> {
   selects() {
     return (
       <div className="inbox__selects mb-2">
-        <span className="mr-3">{this.unreadOrAllRadios()}</span>
-        <span className="mr-3">{this.messageTypeRadios()}</span>
+        <span className="me-3">{this.unreadOrAllRadios()}</span>
+        <span className="me-3">{this.messageTypeRadios()}</span>
         <CommentSortSelect
           sort={this.state.sort}
           onChange={this.handleSortChange}

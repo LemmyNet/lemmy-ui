@@ -89,7 +89,7 @@ export class Setup extends Component<any, State> {
         onSubmit={linkEvent(this, this.handleRegisterSubmit)}
       >
         <h5>{i18n.t("setup_admin")}</h5>
-        <div className="setup__form-row setup__form-row---username form-group row">
+        <div className="setup__form-row setup__form-row---username mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="username">
             {i18n.t("username")}
           </label>
@@ -106,7 +106,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="setup__form-row setup__form-row---email form-group row">
+        <div className="setup__form-row setup__form-row---email mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="email">
             {i18n.t("email")}
           </label>
@@ -123,7 +123,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="setup__form-row setup__form-row---password form-group row">
+        <div className="setup__form-row setup__form-row---password mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="password">
             {i18n.t("password")}
           </label>
@@ -141,7 +141,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="setup__form-row setup__form-row---verifypass form-group row">
+        <div className="setup__form-row setup__form-row---verifypass mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="verify-password">
             {i18n.t("verify_password")}
           </label>
@@ -159,7 +159,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="setup__form-row setup__form-row---btns form-group row">
+        <div className="setup__form-row setup__form-row---btns mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
               {this.state.registerRes.state == "loading" ? (

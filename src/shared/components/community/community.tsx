@@ -328,7 +328,7 @@ export class Community extends Component<
                 {this.communityInfo(res)}
                 <div className="community__show-sidebar d-block d-md-none">
                   <button
-                    className="btn btn-secondary d-inline-block mb-2 mr-3"
+                    className="btn btn-secondary d-inline-block mb-2 me-3"
                     onClick={linkEvent(this, this.handleShowSidebarMobile)}
                   >
                     {i18n.t("sidebar")}{" "}
@@ -515,13 +515,13 @@ export class Community extends Component<
 
     return (
       <div className="community__selects mb-3">
-        <span className="mr-3">
+        <span className="me-3">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
         </span>
-        <span className="community__sort-select-wrap mr-2">
+        <span className="community__sort-select-wrap me-2">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
         {communityRss && (

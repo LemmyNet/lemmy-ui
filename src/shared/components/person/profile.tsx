@@ -422,6 +422,7 @@ export class Profile extends Component<
       >
         <input
           type="radio"
+          className="btn-check"
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
@@ -439,7 +440,7 @@ export class Profile extends Component<
 
     return (
       <div className="mb-2">
-        <span className="mr-3">{this.viewRadios}</span>
+        <span className="me-3">{this.viewRadios}</span>
         <SortSelect
           sort={sort}
           onChange={this.handleSortChange}
@@ -488,22 +489,22 @@ export class Profile extends Component<
                       />
                     </li>
                     {isBanned(pv.person) && (
-                      <li className="person-profile__li person-profile__li--banned list-inline-item badge badge-danger">
+                      <li className="person-profile__li person-profile__li--banned list-inline-item badge text-bg-danger">
                         {i18n.t("banned")}
                       </li>
                     )}
                     {pv.person.deleted && (
-                      <li className="person-profile__li person-profile__li--deleted list-inline-item badge badge-danger">
+                      <li className="person-profile__li person-profile__li--deleted list-inline-item badge text-bg-danger">
                         {i18n.t("deleted")}
                       </li>
                     )}
                     {pv.person.admin && (
-                      <li className="person-profile__li person-profile__li--admin list-inline-item badge badge-light">
+                      <li className="person-profile__li person-profile__li--admin list-inline-item badge text-bg-light">
                         {i18n.t("admin")}
                       </li>
                     )}
                     {pv.person.bot_account && (
-                      <li className="person-profile__li person-profile__li--bot-acct list-inline-item badge badge-light">
+                      <li className="person-profile__li person-profile__li--bot-acct list-inline-item badge text-bg-light">
                         {i18n.t("bot_account").toLowerCase()}
                       </li>
                     )}
@@ -514,7 +515,7 @@ export class Profile extends Component<
                 {!this.amCurrentUser && UserService.Instance.myUserInfo && (
                   <>
                     <a
-                      className={`prod-user-matrix d-flex align-self-start btn btn-secondary mr-2 ${
+                      className={`prod-user-matrix d-flex align-self-start btn btn-secondary me-2 ${
                         !pv.person.matrix_user_id && "invisible"
                       }`}
                       rel={relTags}
@@ -524,7 +525,7 @@ export class Profile extends Component<
                     </a>
                     <Link
                       className={
-                        "person-profile__send-msg d-flex align-self-start btn btn-secondary mr-2"
+                        "person-profile__send-msg d-flex align-self-start btn btn-secondary me-2"
                       }
                       to={`/create_private_message/${pv.person.id}`}
                     >
@@ -533,7 +534,7 @@ export class Profile extends Component<
                     {personBlocked ? (
                       <button
                         className={
-                          "person-profile__btn person-profile__btn--unblock d-flex align-self-start btn btn-secondary mr-2"
+                          "person-profile__btn person-profile__btn--unblock d-flex align-self-start btn btn-secondary me-2"
                         }
                         onClick={linkEvent(
                           pv.person.id,
@@ -545,7 +546,7 @@ export class Profile extends Component<
                     ) : (
                       <button
                         className={
-                          "person-profile__btn person-profile__btn--block d-flex align-self-start btn btn-secondary mr-2"
+                          "person-profile__btn person-profile__btn--block d-flex align-self-start btn btn-secondary me-2"
                         }
                         onClick={linkEvent(
                           pv.person.id,
@@ -564,7 +565,7 @@ export class Profile extends Component<
                   (!isBanned(pv.person) ? (
                     <button
                       className={
-                        "person-profile__btn person-profile__btn--ban d-flex align-self-start btn btn-secondary mr-2"
+                        "person-profile__btn person-profile__btn--ban d-flex align-self-start btn btn-secondary me-2"
                       }
                       onClick={linkEvent(this, this.handleModBanShow)}
                       aria-label={i18n.t("ban")}
@@ -574,7 +575,7 @@ export class Profile extends Component<
                   ) : (
                     <button
                       className={
-                        "person-profile__btn person-profile__btn--unban d-flex align-self-start btn btn-secondary mr-2"
+                        "person-profile__btn person-profile__btn--unban d-flex align-self-start btn btn-secondary me-2"
                       }
                       onClick={linkEvent(this, this.handleModBanSubmit)}
                       aria-label={i18n.t("unban")}
@@ -591,15 +592,15 @@ export class Profile extends Component<
                   />
                 </div>
               )}
-              <div className="person-profile__site-info">
+              <div className="person-profile__site-info>
                 <ul className="person-profile__counts list-inline mb-2">
-                  <li className="person-profile__li person-profile__li--post_count list-inline-item badge badge-light">
+                  <li className="person-profile__counts-item list-inline-item badge text-bg-light">
                     {i18n.t("number_of_posts", {
                       count: Number(pv.counts.post_count),
                       formattedCount: numToSI(pv.counts.post_count),
                     })}
                   </li>
-                  <li className="person-profile__li person-profile__li--comment_count list-inline-item badge badge-light">
+                  <li className="person-profile__li person-profile__li--comment_count list-inline-item badge text-bg-light">
                     {i18n.t("number_of_comments", {
                       count: Number(pv.counts.comment_count),
                       formattedCount: numToSI(pv.counts.comment_count),
@@ -617,7 +618,7 @@ export class Profile extends Component<
               </div>
               <div className="person-profile__cakeday-wrap d-flex align-items-center text-muted mb-2">
                 <Icon icon="cake" />
-                <span className="ml-2">
+                <span className="ms-2">
                   {i18n.t("cake_day_title")}{" "}
                   {moment
                     .utc(pv.person.published)
@@ -649,14 +650,14 @@ export class Profile extends Component<
           className="person-profile__ban-dialog-wrap"
           onSubmit={linkEvent(this, this.handleModBanSubmit)}
         >
-          <div className="person-profile__ban-dialog form-group row col-12">
+          <div className="person-profile__ban-dialog mb-3 row col-12">
             <label className="col-form-label" htmlFor="profile-ban-reason">
               {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="profile-ban-reason"
-              className="form-control mr-2"
+              className="form-control me-2"
               placeholder={i18n.t("reason")}
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
@@ -667,12 +668,12 @@ export class Profile extends Component<
             <input
               type="number"
               id={`mod-ban-expires`}
-              className="form-control mr-2"
+              className="form-control me-2"
               placeholder={i18n.t("number_of_days")}
               value={this.state.banExpireDays}
               onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
             />
-            <div className="form-group">
+            <div className="input-group mb-3">
               <div className="form-check">
                 <input
                   className="form-check-input"
@@ -692,14 +693,14 @@ export class Profile extends Component<
             </div>
           </div>
           {/* TODO hold off on expires until later */}
-          {/* <div class="form-group row"> */}
+          {/* <div class="mb-3 row"> */}
           {/*   <label class="col-form-label">Expires</label> */}
-          {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
+          {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
           {/* </div> */}
-          <div className="form-group row">
+          <div className="mb-3 row">
             <button
               type="reset"
-              className="btn btn-secondary mr-2"
+              className="btn btn-secondary me-2"
               aria-label={i18n.t("cancel")}
               onClick={linkEvent(this, this.handleModBanSubmitCancel)}
             >

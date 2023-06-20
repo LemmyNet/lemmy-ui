@@ -58,7 +58,7 @@ export class PasswordChange extends Component<any, State> {
   passwordChangeForm() {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
-        <div className="password-form__row password-form__row--password form-group row">
+        <div className="password-form__row password-form__row--password mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="new-password">
             {i18n.t("new_password")}
           </label>
@@ -74,7 +74,7 @@ export class PasswordChange extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="password-form__row password-form__row--verifypass form-group row">
+        <div className="password-form__row password-form__row--verifypass mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="verify-password">
             {i18n.t("verify_password")}
           </label>
@@ -90,7 +90,7 @@ export class PasswordChange extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="password-form__row password-form__row--btns form-group row">
+        <div className="password-form__row password-form__row--btns mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
               {this.state.passwordChangeRes.state == "loading" ? (
@@ -140,7 +140,7 @@ export class PasswordChange extends Component<any, State> {
           UserService.Instance.myUserInfo = site.data.my_user;
         }
 
-        this.props.history.replace("/");
+        i.props.history.replace("/");
       }
     }
   }

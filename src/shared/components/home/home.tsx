@@ -195,7 +195,7 @@ const MobileButton = ({
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
-    className="btn btn-secondary d-inline-block mb-2 mr-3"
+    className="btn btn-secondary d-inline-block mb-2 me-3"
     onClick={onClick}
   >
     {i18n.t(textKey)}{" "}
@@ -210,7 +210,7 @@ const LinkButton = ({
   path: string;
   translationKey: NoOptionI18nKeys;
 }) => (
-  <Link className="btn btn-secondary btn-block" to={path}>
+  <Link className="btn btn-secondary d-block" to={path}>
     {i18n.t(translationKey)}
   </Link>
 );
@@ -735,25 +735,25 @@ export class Home extends Component<any, HomeState> {
     const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
-      <div className="mb-3">
-        <span className="mr-3">
+      <div className="row align-items-center mb-3 g-3">
+        <div className="col-auto">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
-        </span>
-        <span className="mr-3">
+        </div>
+        <div className="col-auto">
           <ListingTypeSelect
             type_={listingType}
             showLocal={showLocal(this.isoData)}
             showSubscribed
             onChange={this.handleListingTypeChange}
           />
-        </span>
-        <span className="mr-2">
+        </div>
+        <div className="col-auto">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
-        </span>
-        {getRss(listingType)}
+        </div>
+        <div className="col-auto ps-0">{getRss(listingType)}</div>
       </div>
     );
   }

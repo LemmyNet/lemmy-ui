@@ -261,7 +261,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           </table>
           <br />
           <button
-            className="btn btn-sm btn-secondary mr-2"
+            className="btn btn-sm btn-secondary me-2"
             onClick={linkEvent(this, this.handleAddEmojiClick)}
           >
             {i18n.t("add_custom_emoji")}

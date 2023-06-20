@@ -51,37 +51,34 @@ function RateLimits({
   rateLimitValue,
 }: RateLimitsProps) {
   return (
-    <div className="rate-limit__row rate-limit__row--top form-group row">
-      <label
-        className="rate-limit__label rate-limit__label--title col-12 col-form-label"
-        htmlFor="rate-limit"
-      >
-        {i18n.t("rate_limit")}
-      </label>
-      <input
-        type="number"
-        id="rate-limit"
-        className="form-control col-12"
-        min={0}
-        value={rateLimitValue}
-        onInput={handleRateLimit}
-      />
-
-      <label
-        id="rate-limit__label rate-limit__label--per-sec"
-        className="col-12 col-form-label"
-        htmlFor="rate-limit__per-second"
-      >
-        {i18n.t("per_second")}
-      </label>
-      <input
-        type="number"
-        id="rate-limit-per-second"
-        className="form-control col-12"
-        min={0}
-        value={rateLimitPerSecondValue}
-        onInput={handleRateLimitPerSecond}
-      />
+    <div className="rate-limit__row rate-limit__row--top mb-3 row">
+      <div className="col-md-6">
+        <label 
+          className="rate-limit__label rate-limit__label--title"
+          htmlFor="rate-limit"
+          >
+          {i18n.t("rate_limit")}
+        </label>
+        <input
+          type="number"
+          id="rate-limit"
+          className="form-control"
+          min={0}
+          value={rateLimitValue}
+          onInput={handleRateLimit}
+        />
+      </div>
+      <div className="col-md-6">
+        <label htmlFor="rate-limit-per-second">{i18n.t("per_second")}</label>
+        <input
+          type="number"
+          id="rate-limit-per-second"
+          className="rate-limit__label rate-limit__label--per-sec form-control"
+          min={0}
+          value={rateLimitPerSecondValue}
+          onInput={handleRateLimitPerSecond}
+        />
+      </div>
     </div>
   );
 }
@@ -168,20 +165,18 @@ export default class RateLimitsForm extends Component<
             ),
           }))}
         />
-        <div className="rate-limit__row rate-limit__row--btns form-group row">
-          <div className="col-12">
-            <button
-              type="submit"
-              className="btn btn-secondary mr-2"
-              disabled={this.props.loading}
-            >
-              {this.props.loading ? (
-                <Spinner />
-              ) : (
-                capitalizeFirstLetter(i18n.t("save"))
-              )}
-            </button>
-          </div>
+        <div className="rate-limit__row rate-limit__row--btns col-12 mb-3">
+          <button
+            type="submit"
+            className="btn btn-secondary me-2"
+            disabled={this.props.loading}
+          >
+            {this.props.loading ? (
+              <Spinner />
+            ) : (
+              capitalizeFirstLetter(i18n.t("save"))
+            )}
+          </button>
         </div>
       </form>
     );

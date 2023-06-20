@@ -96,7 +96,8 @@ export class RegistrationApplication extends Component<
         )}
 
         {this.state.denyExpanded && (
-          <div className="app-registration__approval-wrap form-group row">
+          <div className="app-registration__approval-wrap mb-3 row">
+
             <label className="col-sm-2 col-form-label">
               {i18n.t("deny_reason")}
             </label>
@@ -113,7 +114,7 @@ export class RegistrationApplication extends Component<
         )}
         {(!ra.admin_id || (ra.admin_id && !accepted)) && (
           <button
-            className="app-registration__btn app-registration__btn--approve btn btn-secondary mr-2 my-2"
+            className="app-registration__btn app-registration__btn--approve btn btn-secondary me-2 my-2"
             onClick={linkEvent(this, this.handleApprove)}
             aria-label={i18n.t("approve")}
           >
@@ -122,7 +123,7 @@ export class RegistrationApplication extends Component<
         )}
         {(!ra.admin_id || (ra.admin_id && accepted)) && (
           <button
-            className="app-registration__btn app-registration__btn--deny btn btn-secondary mr-2"
+            className="app-registration__btn app-registration__btn--deny btn btn-secondary me-2"
             onClick={linkEvent(this, this.handleDeny)}
             aria-label={i18n.t("deny")}
           >
