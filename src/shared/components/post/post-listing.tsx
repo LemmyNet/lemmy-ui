@@ -544,7 +544,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {post.featured_community && (
             <small
               className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("featured")}
+              data-tippy-content={i18n.t("featured_in_community")}
+              aria-label={i18n.t("featured_in_community")}
             >
               <Icon icon="pin" classes="icon-inline text-primary" />
             </small>
@@ -552,7 +553,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {post.featured_local && (
             <small
               className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("featured")}
+              data-tippy-content={i18n.t("featured_in_local")}
+              aria-label={i18n.t("featured_in_local")}
             >
               <Icon icon="pin" classes="icon-inline text-secondary" />
             </small>
@@ -642,17 +644,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get hasAdvancedButtons() {
-    return (
-      this.myPost ||
-      (this.showBody && this.postView.post.body) ||
-      amMod(this.props.moderators) ||
-      amAdmin() ||
-      this.canMod_ ||
-      this.canAdmin_
-    );
-  }
-
   showPreviewButton() {
     const post_view = this.postView;
     const body = post_view.post.body;
@@ -694,50 +685,48 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         {this.showBody && post_view.post.body && this.viewSourceButton}
 
-        {this.hasAdvancedButtons && (
-          <div className="dropdown">
-            <button
-              className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
-              onClick={linkEvent(this, this.handleShowAdvanced)}
-              data-tippy-content={i18n.t("more")}
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              aria-controls="advancedButtonsDropdown"
-              aria-label={i18n.t("more")}
-            >
-              <Icon icon="more-vertical" inline />
-            </button>
+        <div className="dropdown">
+          <button
+            className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
+            onClick={linkEvent(this, this.handleShowAdvanced)}
+            data-tippy-content={i18n.t("more")}
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            aria-controls="advancedButtonsDropdown"
+            aria-label={i18n.t("more")}
+          >
+            <Icon icon="more-vertical" inline />
+          </button>
 
-            <ul className="dropdown-menu" id="advancedButtonsDropdown">
-              {!this.myPost ? (
-                <>
-                  <li>{this.reportButton}</li>
-                  <li>{this.blockButton}</li>
-                </>
-              ) : (
-                <>
-                  <li>{this.editButton}</li>
-                  <li>{this.deleteButton}</li>
-                </>
-              )}
+          <ul className="dropdown-menu" id="advancedButtonsDropdown">
+            {!this.myPost ? (
+              <>
+                <li>{this.reportButton}</li>
+                <li>{this.blockButton}</li>
+              </>
+            ) : (
+              <>
+                <li>{this.editButton}</li>
+                <li>{this.deleteButton}</li>
+              </>
+            )}
 
-              {/* Any mod can do these, not limited to hierarchy*/}
-              {(amMod(this.props.moderators) || amAdmin()) && (
-                <>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>{this.lockButton}</li>
-                  {this.featureButtons}
-                </>
-              )}
+            {/* Any mod can do these, not limited to hierarchy*/}
+            {(amMod(this.props.moderators) || amAdmin()) && (
+              <>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>{this.lockButton}</li>
+                {this.featureButtons}
+              </>
+            )}
 
-              {(this.canMod_ || this.canAdmin_) && (
-                <li>{this.modRemoveButton}</li>
-              )}
-            </ul>
-          </div>
-        )}
+            {(this.canMod_ || this.canAdmin_) && (
+              <li>{this.modRemoveButton}</li>
+            )}
+          </ul>
+        </div>
       </>
     );
   }
