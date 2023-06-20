@@ -21,7 +21,7 @@
 }
 
 .upvote:hover {
-  color: var(--info);
+  color: var(--bs-info);
 }
 
 .upvote {
@@ -29,7 +29,7 @@
 }
 
 .downvote:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .downvote {
@@ -85,7 +85,7 @@
 }
 
 .post-title a:visited {
-  color: var(--gray) !important;
+  color: var(--bs-gray) !important;
 }
 
 .icon {
@@ -175,7 +175,7 @@
 }
 
 blockquote {
-  border-left: 2px solid var(--secondary);
+  border-left: 2px solid var(--bs-secondary);
   margin: 0.5em 5px;
   padding: 0.1em 5px;
 }
@@ -214,7 +214,7 @@ blockquote {
 }
 
 hr {
-  border-top: 1px solid var(--light);
+  border-top: 1px solid var(--bs-light);
 }
 
 .emoji {
@@ -371,7 +371,7 @@ br.big {
   margin-top: 2px;
   padding: 0;
   list-style: none;
-  background: var(--light);
+  background: var(--bs-light);
 }
 
 .tribute-container li {
@@ -380,7 +380,7 @@ br.big {
 }
 
 .tribute-container li.highlight {
-  background: var(--primary);
+  background: var(--bs-primary);
 }
 
 .tribute-container li span {
