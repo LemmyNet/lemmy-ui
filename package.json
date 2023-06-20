@@ -121,6 +121,7 @@
     "sortpack": "^2.3.4",
     "style-loader": "^3.3.2",
     "terser": "^5.17.3",
+    "tsconfig-paths-webpack-plugin": "^4.0.1",
     "typescript": "^5.0.4",
     "webpack-dev-server": "4.15.0"
   },
