@@ -1829,7 +1829,7 @@ progress {
   --bs-table-color: var(--bs-body-color);
   --bs-table-bg: var(--bs-body-bg);
   --bs-table-border-color: #444;
-  --bs-table-accent-bg: #303030;
+  --bs-table-accent-bg: transparent;
   --bs-table-striped-color: var(--bs-body-color);
   --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
   --bs-table-active-color: var(--bs-body-color);
