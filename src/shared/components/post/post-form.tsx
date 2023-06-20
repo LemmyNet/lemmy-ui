@@ -32,7 +32,7 @@ import {
   validURL,
   webArchiveUrl,
 } from "../../utils";
-import { debounce } from "../../utils/helpers/debounce";
+import debounce from "../../utils/helpers/debounce";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";

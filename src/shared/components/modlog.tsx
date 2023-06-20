@@ -44,11 +44,11 @@ import {
   personToChoice,
   setIsoData,
 } from "../utils";
-import { debounce } from "../utils/helpers/debounce";
-import { getQueryParams } from "../utils/helpers/get-query-params";
-import { getQueryString } from "../utils/helpers/get-query-string";
-import { amAdmin } from "../utils/roles/am-admin";
-import { amMod } from "../utils/roles/am-mod";
+import debounce from "../utils/helpers/debounce";
+import getQueryParams from "../utils/helpers/get-query-params";
+import getQueryString from "../utils/helpers/get-query-string";
+import amAdmin from "../utils/roles/am-admin";
+import amMod from "../utils/roles/am-mod";
 import type { QueryParams } from "../utils/types/query-params";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";

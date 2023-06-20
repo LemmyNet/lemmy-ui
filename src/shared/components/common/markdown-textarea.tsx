@@ -20,7 +20,7 @@ import {
   setupTribute,
   toast,
 } from "../../utils";
-import { isBrowser } from "../../utils/browser/is-browser";
+import isBrowser from "../../utils/browser/is-browser";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";

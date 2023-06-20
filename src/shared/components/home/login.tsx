@@ -4,7 +4,7 @@ import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { myAuth, setIsoData, toast, validEmail } from "../../utils";
-import { isBrowser } from "../../utils/browser/is-browser";
+import isBrowser from "../../utils/browser/is-browser";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 

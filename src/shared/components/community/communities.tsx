@@ -20,8 +20,8 @@ import {
   setIsoData,
   showLocal,
 } from "../../utils";
-import { getQueryParams } from "../../utils/helpers/get-query-params";
-import { getQueryString } from "../../utils/helpers/get-query-string";
+import getQueryParams from "../../utils/helpers/get-query-params";
+import getQueryString from "../../utils/helpers/get-query-string";
 import type { QueryParams } from "../../utils/types/query-params";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";

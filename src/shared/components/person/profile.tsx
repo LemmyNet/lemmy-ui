@@ -76,11 +76,11 @@ import {
   toast,
   updatePersonBlock,
 } from "../../utils";
-import { getQueryParams } from "../../utils/helpers/get-query-params";
-import { getQueryString } from "../../utils/helpers/get-query-string";
-import { canMod } from "../../utils/roles/can-mod";
-import { isAdmin } from "../../utils/roles/is-admin";
-import { isBanned } from "../../utils/roles/is-banned";
+import getQueryParams from "../../utils/helpers/get-query-params";
+import getQueryString from "../../utils/helpers/get-query-string";
+import canMod from "../../utils/roles/can-mod";
+import isAdmin from "../../utils/roles/is-admin";
+import isBanned from "../../utils/roles/is-banned";
 import type { QueryParams } from "../../utils/types/query-params";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";

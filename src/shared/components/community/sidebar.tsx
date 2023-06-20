@@ -16,15 +16,10 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import {
-  getUnixTime,
-  hostname,
-  mdToHtml,
-  myAuthRequired,
-} from "../../utils";
-import { amAdmin } from "../../utils/roles/am-admin";
-import { amMod } from "../../utils/roles/am-mod";
-import { amTopMod } from "../../utils/roles/am-top-mod";
+import { getUnixTime, hostname, mdToHtml, myAuthRequired } from "../../utils";
+import amAdmin from "../../utils/roles/am-admin";
+import amMod from "../../utils/roles/am-mod";
+import amTopMod from "../../utils/roles/am-top-mod";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";

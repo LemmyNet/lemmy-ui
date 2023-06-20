@@ -1,4 +1,4 @@
-import { isBrowser } from "./utils/browser/is-browser";
+import isBrowser from "./utils/browser/is-browser";
 
 const testHost = "0.0.0.0:8536";
 

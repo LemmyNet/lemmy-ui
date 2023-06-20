@@ -24,7 +24,7 @@ import {
   myAuth,
   setIsoData,
 } from "../../utils";
-import { getQueryParams } from "../../utils/helpers/get-query-params";
+import getQueryParams from "../../utils/helpers/get-query-params";
 import type { QueryParams } from "../../utils/types/query-params";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";

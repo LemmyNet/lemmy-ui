@@ -17,10 +17,10 @@ import {
   toast,
   updateUnreadCountsInterval,
 } from "../../utils";
-import { isBrowser } from "../../utils/browser/is-browser";
-import { poll } from "../../utils/helpers/poll";
-import { amAdmin } from "../../utils/roles/am-admin";
-import { canCreateCommunity } from "../../utils/roles/can-create-community";
+import isBrowser from "../../utils/browser/is-browser";
+import poll from "../../utils/helpers/poll";
+import amAdmin from "../../utils/roles/am-admin";
+import canCreateCommunity from "../../utils/roles/can-create-community";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 

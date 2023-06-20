@@ -86,8 +86,8 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "../../utils";
-import { getQueryParams } from "../../utils/helpers/get-query-params";
-import { getQueryString } from "../../utils/helpers/get-query-string";
+import getQueryParams from "../../utils/helpers/get-query-params";
+import getQueryString from "../../utils/helpers/get-query-string";
 import type { QueryParams } from "../../utils/types/query-params";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";

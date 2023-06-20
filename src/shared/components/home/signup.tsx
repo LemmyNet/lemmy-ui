@@ -20,7 +20,7 @@ import {
   toast,
   validEmail,
 } from "../../utils";
-import { isBrowser } from "../../utils/browser/is-browser";
+import isBrowser from "../../utils/browser/is-browser";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

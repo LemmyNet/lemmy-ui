@@ -31,7 +31,7 @@ import {
   myAuthRequired,
   setIsoData,
 } from "../../utils";
-import { amAdmin } from "../../utils/roles/am-admin";
+import amAdmin from "../../utils/roles/am-admin";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";

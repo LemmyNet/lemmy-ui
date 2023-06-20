@@ -49,10 +49,10 @@ import {
   VoteType,
 } from "./interfaces";
 import { HttpService, UserService } from "./services";
-import { isBrowser } from "./utils/browser/is-browser";
-import { debounce } from "./utils/helpers/debounce";
-import { groupBy } from "./utils/helpers/group-by";
 import { RequestState } from "./services/HttpService";
+import isBrowser from "./utils/browser/is-browser";
+import debounce from "./utils/helpers/debounce";
+import { groupBy } from "./utils/helpers/group-by";
 
 let Tribute: any;
 if (isBrowser()) {
