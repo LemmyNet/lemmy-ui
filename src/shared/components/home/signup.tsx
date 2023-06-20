@@ -148,7 +148,7 @@ export class Signup extends Component<any, State> {
         <h5>{this.titleName(siteView)}</h5>
 
         {this.isLemmyMl && (
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <div className="mt-2 mb-0 alert alert-warning" role="alert">
               <T i18nKey="lemmy_ml_registration_message">
                 #<a href={joinLemmyUrl}>#</a>
@@ -157,7 +157,7 @@ export class Signup extends Component<any, State> {
           </div>
         )}
 
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <label
             className="col-sm-2 col-form-label"
             htmlFor="register-username"
@@ -180,7 +180,7 @@ export class Signup extends Component<any, State> {
           </div>
         </div>
 
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="register-email">
             {i18n.t("email")}
           </label>
@@ -211,7 +211,7 @@ export class Signup extends Component<any, State> {
           </div>
         </div>
 
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <label
             className="col-sm-2 col-form-label"
             htmlFor="register-password"
@@ -238,7 +238,7 @@ export class Signup extends Component<any, State> {
           </div>
         </div>
 
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <label
             className="col-sm-2 col-form-label"
             htmlFor="register-verify-password"
@@ -261,7 +261,7 @@ export class Signup extends Component<any, State> {
 
         {siteView.local_site.registration_mode == "RequireApplication" && (
           <>
-            <div className="input-group mb-3 row">
+            <div className="mb-3 row">
               <div className="offset-sm-2 col-sm-10">
                 <div className="mt-2 alert alert-warning" role="alert">
                   <Icon icon="alert-triangle" classes="icon-inline me-2" />
@@ -278,7 +278,7 @@ export class Signup extends Component<any, State> {
               </div>
             </div>
 
-            <div className="input-group mb-3 row">
+            <div className="mb-3 row">
               <label
                 className="col-sm-2 col-form-label"
                 htmlFor="application_answer"
@@ -298,7 +298,7 @@ export class Signup extends Component<any, State> {
           </>
         )}
         {this.renderCaptcha()}
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <div className="col-sm-10">
             <div className="form-check">
               <input
@@ -324,7 +324,7 @@ export class Signup extends Component<any, State> {
           value={this.state.form.honeypot}
           onInput={linkEvent(this, this.handleHoneyPotChange)}
         />
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
               {this.state.registerRes.state == "loading" ? (
@@ -346,7 +346,7 @@ export class Signup extends Component<any, State> {
       case "success": {
         const res = this.state.captchaRes.data;
         return (
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-2" htmlFor="register-captcha">
               <span className="me-2">{i18n.t("enter_code")}</span>
               <button

@@ -144,7 +144,7 @@ export class MarkdownTextArea extends Component<
             !this.state.submitted
           }
         />
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="rounded bg-light border">
               <div className="d-flex flex-wrap border-bottom">

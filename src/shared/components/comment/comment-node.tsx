@@ -1033,7 +1033,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div className="input-group mb-3 row col-12">
+            <div className="mb-3 row col-12">
               <label
                 className="col-form-label"
                 htmlFor={`mod-ban-reason-${cv.comment.id}`}
@@ -1082,11 +1082,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               </div>
             </div>
             {/* TODO hold off on expires until later */}
-            {/* <div class="input-group mb-3 row"> */}
+            {/* <div class="mb-3 row"> */}
             {/*   <label class="col-form-label">Expires</label> */}
             {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
             {/* </div> */}
-            <div className="input-group mb-3 row">
+            <div className="mb-3 row">
               <button
                 type="submit"
                 className="btn btn-secondary"
@@ -1118,7 +1118,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               value={this.state.purgeReason}
               onInput={linkEvent(this, this.handlePurgeReasonChange)}
             />
-            <div className="input-group mb-3 row col-12">
+            <div className="mb-3 row col-12">
               {this.state.purgeLoading ? (
                 <Spinner />
               ) : (

@@ -110,7 +110,7 @@ const Filter = ({
   onChange: (choice: Choice) => void;
   loading: boolean;
 }) => (
-  <div className="input-group mb-3 row">
+  <div className="mb-3 row">
     <label
       className="col-md-4 col-form-label"
       htmlFor={`block-${filterType}-filter`}
@@ -304,7 +304,7 @@ export class Settings extends Component<any, SettingsState> {
       <>
         <h5>{i18n.t("change_password")}</h5>
         <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-5 col-form-label" htmlFor="user-password">
               {i18n.t("new_password")}
             </label>
@@ -320,7 +320,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label
               className="col-sm-5 col-form-label"
               htmlFor="user-verify-password"
@@ -339,7 +339,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label
               className="col-sm-5 col-form-label"
               htmlFor="user-old-password"
@@ -470,7 +470,7 @@ export class Settings extends Component<any, SettingsState> {
       <>
         <h5>{i18n.t("settings")}</h5>
         <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="display-name">
               {i18n.t("display_name")}
             </label>
@@ -487,7 +487,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-bio">
               {i18n.t("bio")}
             </label>
@@ -502,7 +502,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-email">
               {i18n.t("email")}
             </label>
@@ -518,7 +518,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="matrix-user-id">
               <a href={elementUrl} rel={relTags}>
                 {i18n.t("matrix_user_id")}
@@ -536,7 +536,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {i18n.t("avatar")}
             </label>
@@ -550,7 +550,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {i18n.t("banner")}
             </label>
@@ -563,7 +563,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 form-label" htmlFor="user-language">
               {i18n.t("interface_language")}
             </label>
@@ -600,7 +600,7 @@ export class Settings extends Component<any, SettingsState> {
             showSite
             onChange={this.handleDiscussionLanguageChange}
           />
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-theme">
               {i18n.t("theme")}
             </label>
@@ -623,7 +623,7 @@ export class Settings extends Component<any, SettingsState> {
               </select>
             </div>
           </div>
-          <form className="input-group mb-3 row">
+          <form className="mb-3 row">
             <label className="col-sm-3 col-form-label">{i18n.t("type")}</label>
             <div className="col-sm-9">
               <ListingTypeSelect
@@ -637,7 +637,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </form>
-          <form className="input-group mb-3 row">
+          <form className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {i18n.t("sort_type")}
             </label>

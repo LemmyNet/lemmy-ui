@@ -637,7 +637,7 @@ export class Profile extends Component<
     return (
       showBanDialog && (
         <form onSubmit={linkEvent(this, this.handleModBanSubmit)}>
-          <div className="input-group mb-3 row col-12">
+          <div className="mb-3 row col-12">
             <label className="col-form-label" htmlFor="profile-ban-reason">
               {i18n.t("reason")}
             </label>
@@ -680,11 +680,11 @@ export class Profile extends Component<
             </div>
           </div>
           {/* TODO hold off on expires until later */}
-          {/* <div class="input-group mb-3 row"> */}
+          {/* <div class="mb-3 row"> */}
           {/*   <label class="col-form-label">Expires</label> */}
           {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
           {/* </div> */}
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <button
               type="reset"
               className="btn btn-secondary me-2"

@@ -98,7 +98,7 @@ export class CommunityForm extends Component<
           }
         />
         {!this.props.community_view && (
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label
               className="col-12 col-sm-2 col-form-label"
               htmlFor="community-name"
@@ -126,7 +126,7 @@ export class CommunityForm extends Component<
             </div>
           </div>
         )}
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <label
             className="col-12 col-sm-2 col-form-label"
             htmlFor="community-title"
@@ -152,7 +152,7 @@ export class CommunityForm extends Component<
             />
           </div>
         </div>
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label">
             {i18n.t("icon")}
           </label>
@@ -166,7 +166,7 @@ export class CommunityForm extends Component<
             />
           </div>
         </div>
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label">
             {i18n.t("banner")}
           </label>
@@ -179,7 +179,7 @@ export class CommunityForm extends Component<
             />
           </div>
         </div>
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
             {i18n.t("sidebar")}
           </label>
@@ -196,7 +196,7 @@ export class CommunityForm extends Component<
         </div>
 
         {this.props.enableNsfw && (
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <legend className="col-form-label col-sm-2 pt-0">
               {i18n.t("nsfw")}
             </legend>
@@ -213,7 +213,7 @@ export class CommunityForm extends Component<
             </div>
           </div>
         )}
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <legend className="col-form-label col-6 pt-0">
             {i18n.t("only_mods_can_post_in_community")}
           </legend>
@@ -240,7 +240,7 @@ export class CommunityForm extends Component<
           multiple={true}
           onChange={this.handleDiscussionLanguageChange}
         />
-        <div className="input-group mb-3 row">
+        <div className="mb-3 row">
           <div className="col-12">
             <button
               type="submit"

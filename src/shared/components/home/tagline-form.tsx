@@ -89,7 +89,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               ))}
             </tbody>
           </table>
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <div className="col-12">
               <button
                 className="btn btn-sm btn-secondary me-2"
@@ -100,7 +100,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             </div>
           </div>
 
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <div className="col-12">
               <button
                 onClick={linkEvent(this, this.handleSaveClick)}

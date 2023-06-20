@@ -443,7 +443,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               />
             </div>
             {/* TODO hold off on expires for now */}
-            {/* <div class="input-group mb-3 row"> */}
+            {/* <div class="mb-3 row"> */}
             {/*   <label class="col-form-label">Expires</label> */}
             {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
             {/* </div> */}

@@ -96,7 +96,7 @@ export class RegistrationApplication extends Component<
         )}
 
         {this.state.denyExpanded && (
-          <div className="input-group mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-2 col-form-label">
               {i18n.t("deny_reason")}
             </label>
