@@ -102,7 +102,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   render() {
     return (
-      <div>
+      <div className="community-sidebar">
         {!this.state.showEdit ? (
           this.sidebar()
         ) : (

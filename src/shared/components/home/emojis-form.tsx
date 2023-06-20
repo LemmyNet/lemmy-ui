@@ -75,7 +75,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   render() {
     return (
-      <div className="col-12">
+      <div className="home-emojis-form col-12">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

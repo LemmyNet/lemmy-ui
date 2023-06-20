@@ -70,7 +70,7 @@ export class CommentReport extends Component<
     };
 
     return (
-      <div>
+      <div className="comment-report">
         <CommentNode
           node={node}
           viewType={CommentViewType.Flat}

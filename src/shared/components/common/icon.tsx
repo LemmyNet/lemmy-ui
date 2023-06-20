@@ -59,7 +59,7 @@ export class PurgeWarning extends Component<any, any> {
 
   render() {
     return (
-      <div className="mt-2 alert alert-danger" role="alert">
+      <div className="purge-warning mt-2 alert alert-danger" role="alert">
         <Icon icon="alert-triangle" classes="icon-inline me-2" />
         {i18n.t("purge_warning")}
       </div>

@@ -31,7 +31,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   render() {
     return (
-      <div className="col-12">
+      <div className="tagline-form col-12">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
