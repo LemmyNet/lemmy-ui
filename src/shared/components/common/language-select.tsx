@@ -100,8 +100,8 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
     return (
       <select
-        className={classNames("lang-select-action", {
-          "form-control custom-select": !this.props.iconVersion,
+        className={classNames("lang-select-action custom-select w-auto", {
+          "form-control": !this.props.iconVersion,
         })}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
