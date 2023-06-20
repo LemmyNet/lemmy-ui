@@ -1,33 +1,52 @@
-$white: #ffffff;
-$orange: #f1641e;
-$cyan: #02bdc2;
-$green: #00c853;
-$secondary: $green;
-$body-color: $gray-700;
-$link-color: theme-color("primary");
-$primary: $orange;
+@import "./variables";
+
+// Colors
+$gray-100: #f8f9fa;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+$black: #222;
+
+$blue: #007bff;
+$indigo: #6610f2;
 $red: #d8486a;
+$orange: #f1641e;
+$green: #00a846;
+$cyan: #02bdc2;
+
+$primary: $orange;
+$secondary: $green;
+$success: $indigo;
+$info: $blue;
+$danger: darken($primary, 25%);
+
+$body-color: $gray-700;
+$body-bg: #fff;
+$link-color: $primary;
+$border-color: rgba($body-color, 0.25);
+$mark-bg: rgb(255, 252, 239);
+$headings-color: $gray-700;
+
+$font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Droid Sans",
+  "Segoe UI", "Helvetica", Arial, sans-serif;
+$font-weight-bold: 600;
+
+$card-color: $gray-700;
+$card-cap-color: $gray-700;
+$card-bg: $gray-100;
+
+$navbar-dark-toggler-border-color: rgba($black, 0.1);
+$navbar-light-color: $gray-600;
+$navbar-light-hover-color: $gray-900;
+$navbar-light-active-color: $gray-900;
+
+$form-feedback-valid-color: $info;
+$input-btn-focus-color: rgba($primary, 0.75);
+
 $border-radius: 0.5rem;
 $border-radius-lg: 0.5rem;
 $border-radius-sm: 1rem;
-$font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Droid Sans",
-  "Segoe UI", "Helvetica", Arial, sans-serif;
-$headings-color: $gray-700;
-$input-btn-focus-color: rgba($component-active-bg, 0.75);
-$form-feedback-valid-color: theme-color("info");
-$navbar-light-color: $gray-600;
-$black: #222222;
-$navbar-dark-toggler-border-color: rgba($black, 0.1);
-$navbar-light-active-color: $gray-900;
-$card-color: $gray-700;
-$card-cap-color: $gray-700;
-$info: $blue;
-$body-bg: #fff;
-$success: $indigo;
-$danger: darken($primary, 25%);
-$navbar-light-hover-color: $gray-900;
-$card-bg: $gray-100;
-$border-color: $gray-700;
-$mark-bg: rgb(255, 252, 239);
-$font-weight-bold: 600;
 $rounded-pill: 0.25rem;
+
+$hr-border-color: rgba($body-color, 0.25);

@@ -21,6 +21,7 @@ interface CommentFormProps {
   onReplyCancel?(): void;
   allLanguages: Language[];
   siteLanguages: number[];
+  containerClass?: string;
   onUpsertComment(form: EditComment | CreateComment): void;
 }
 
@@ -40,7 +41,11 @@ export class CommentForm extends Component<CommentFormProps, any> {
         : undefined;
 
     return (
-      <div className="mb-3">
+      <div
+        className={["comment-form", "mb-3", this.props.containerClass].join(
+          " "
+        )}
+      >
         {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}
@@ -58,7 +63,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
           />
         ) : (
           <div className="alert alert-warning" role="alert">
-            <Icon icon="alert-triangle" classes="icon-inline mr-2" />
+            <Icon icon="alert-triangle" classes="icon-inline me-2" />
             <T i18nKey="must_login" class="d-inline">
               #
               <Link className="alert-link" to="/login">

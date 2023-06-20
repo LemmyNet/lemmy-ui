@@ -24,10 +24,7 @@ import {
   DistinguishComment,
   EditComment,
   EditPrivateMessage,
-  GetPersonMentions,
   GetPersonMentionsResponse,
-  GetPrivateMessages,
-  GetReplies,
   GetRepliesResponse,
   GetSiteResponse,
   MarkCommentReplyAsRead,
@@ -53,6 +50,7 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
+  RouteDataResponse,
   commentsToFlatNodes,
   editCommentReply,
   editMention,
@@ -92,6 +90,13 @@ enum ReplyEnum {
   Mention,
   Message,
 }
+
+type InboxData = RouteDataResponse<{
+  repliesRes: GetRepliesResponse;
+  mentionsRes: GetPersonMentionsResponse;
+  messagesRes: PrivateMessagesResponse;
+}>;
+
 type ReplyType = {
   id: number;
   type_: ReplyEnum;
@@ -114,7 +119,7 @@ interface InboxState {
 }
 
 export class Inbox extends Component<any, InboxState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<InboxData>(this.context);
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
@@ -162,7 +167,7 @@ export class Inbox extends Component<any, InboxState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [repliesRes, mentionsRes, messagesRes] = this.isoData.routeData;
+      const { mentionsRes, messagesRes, repliesRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -211,7 +216,7 @@ export class Inbox extends Component<any, InboxState> {
     const auth = myAuth();
     const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
     return (
-      <div className="container-lg">
+      <div className="inbox container-lg">
         <div className="row">
           <div className="col-12">
             <HtmlTags
@@ -223,7 +228,7 @@ export class Inbox extends Component<any, InboxState> {
               {inboxRss && (
                 <small>
                   <a href={inboxRss} title="RSS" rel={relTags}>
-                    <Icon icon="rss" classes="ml-2 text-muted small" />
+                    <Icon icon="rss" classes="ms-2 text-muted small" />
                   </a>
                   <link
                     rel="alternate"
@@ -287,6 +292,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.Unread}
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -300,6 +306,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.All}
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -320,6 +327,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.All}
             checked={this.state.messageType == MessageType.All}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -333,6 +341,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Replies}
             checked={this.state.messageType == MessageType.Replies}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -346,6 +355,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Mentions}
             checked={this.state.messageType == MessageType.Mentions}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -359,6 +369,7 @@ export class Inbox extends Component<any, InboxState> {
         >
           <input
             type="radio"
+            className="btn-check"
             value={MessageType.Messages}
             checked={this.state.messageType == MessageType.Messages}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
@@ -372,8 +383,8 @@ export class Inbox extends Component<any, InboxState> {
   selects() {
     return (
       <div className="mb-2">
-        <span className="mr-3">{this.unreadOrAllRadios()}</span>
-        <span className="mr-3">{this.messageTypeRadios()}</span>
+        <span className="me-3">{this.unreadOrAllRadios()}</span>
+        <span className="me-3">{this.messageTypeRadios()}</span>
         <CommentSortSelect
           sort={this.state.sort}
           onChange={this.handleSortChange}
@@ -686,50 +697,40 @@ export class Inbox extends Component<any, InboxState> {
     await i.refetch();
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     auth,
-  }: InitialFetchRequest): Promise<any>[] {
-    const promises: Promise<RequestState<any>>[] = [];
-
+  }: InitialFetchRequest): Promise<InboxData> {
     const sort: CommentSortType = "New";
 
-    if (auth) {
-      // It can be /u/me, or /username/1
-      const repliesForm: GetReplies = {
-        sort,
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(client.getReplies(repliesForm));
-
-      const personMentionsForm: GetPersonMentions = {
-        sort,
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(client.getPersonMentions(personMentionsForm));
-
-      const privateMessagesForm: GetPrivateMessages = {
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(client.getPrivateMessages(privateMessagesForm));
-    } else {
-      promises.push(
-        Promise.resolve({ state: "empty" }),
-        Promise.resolve({ state: "empty" }),
-        Promise.resolve({ state: "empty" })
-      );
-    }
-
-    return promises;
+    return {
+      mentionsRes: auth
+        ? await client.getPersonMentions({
+            sort,
+            unread_only: true,
+            page: 1,
+            limit: fetchLimit,
+            auth,
+          })
+        : { state: "empty" },
+      messagesRes: auth
+        ? await client.getPrivateMessages({
+            unread_only: true,
+            page: 1,
+            limit: fetchLimit,
+            auth,
+          })
+        : { state: "empty" },
+      repliesRes: auth
+        ? await client.getReplies({
+            sort,
+            unread_only: true,
+            page: 1,
+            limit: fetchLimit,
+            auth,
+          })
+        : { state: "empty" },
+    };
   }
 
   async refetch() {

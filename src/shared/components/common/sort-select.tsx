@@ -39,7 +39,7 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
           name={this.id}
           value={this.state.sort}
           onChange={linkEvent(this, this.handleSortChange)}
-          className="custom-select w-auto mr-2 mb-2"
+          className="sort-select form-select d-inline-block w-auto me-2"
           aria-label={i18n.t("sort_type")}
         >
           <option disabled aria-hidden="true">
@@ -73,7 +73,7 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
           <option value={"TopAll"}>{i18n.t("top_all")}</option>
         </select>
         <a
-          className="text-muted"
+          className="sort-select-icon text-muted"
           href={sortingHelpUrl}
           rel={relTags}
           title={i18n.t("sorting_help")}

@@ -2,7 +2,6 @@ import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
   GetSiteResponse,
-  ListRegistrationApplications,
   ListRegistrationApplicationsResponse,
   RegistrationApplicationView,
 } from "lemmy-js-client";
@@ -12,6 +11,7 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
+  RouteDataResponse,
   editRegistrationApplication,
   fetchLimit,
   myAuthRequired,
@@ -28,6 +28,10 @@ enum UnreadOrAll {
   All,
 }
 
+type RegistrationApplicationsData = RouteDataResponse<{
+  listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
+}>;
+
 interface RegistrationApplicationsState {
   appsRes: RequestState<ListRegistrationApplicationsResponse>;
   siteRes: GetSiteResponse;
@@ -40,7 +44,7 @@ export class RegistrationApplications extends Component<
   any,
   RegistrationApplicationsState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<RegistrationApplicationsData>(this.context);
   state: RegistrationApplicationsState = {
     appsRes: { state: "empty" },
     siteRes: this.isoData.site_res,
@@ -59,7 +63,7 @@ export class RegistrationApplications extends Component<
     if (FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
-        appsRes: this.isoData.routeData[0],
+        appsRes: this.isoData.routeData.listRegistrationApplicationsResponse,
         isIsomorphic: true,
       };
     }
@@ -113,7 +117,11 @@ export class RegistrationApplications extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderApps()}</div>;
+    return (
+      <div className="registration-applications container-lg">
+        {this.renderApps()}
+      </div>
+    );
   }
 
   unreadOrAllRadios() {
@@ -126,6 +134,7 @@ export class RegistrationApplications extends Component<
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.Unread}
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -139,6 +148,7 @@ export class RegistrationApplications extends Component<
         >
           <input
             type="radio"
+            className="btn-check"
             value={UnreadOrAll.All}
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
@@ -152,7 +162,7 @@ export class RegistrationApplications extends Component<
   selects() {
     return (
       <div className="mb-2">
-        <span className="mr-3">{this.unreadOrAllRadios()}</span>
+        <span className="me-3">{this.unreadOrAllRadios()}</span>
       </div>
     );
   }
@@ -184,25 +194,20 @@ export class RegistrationApplications extends Component<
     this.refetch();
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     auth,
     client,
-  }: InitialFetchRequest): Promise<any>[] {
-    const promises: Promise<RequestState<any>>[] = [];
-
-    if (auth) {
-      const form: ListRegistrationApplications = {
-        unread_only: true,
-        page: 1,
-        limit: fetchLimit,
-        auth,
-      };
-      promises.push(client.listRegistrationApplications(form));
-    } else {
-      promises.push(Promise.resolve({ state: "empty" }));
-    }
-
-    return promises;
+  }: InitialFetchRequest): Promise<RegistrationApplicationsData> {
+    return {
+      listRegistrationApplicationsResponse: auth
+        ? await client.listRegistrationApplications({
+            unread_only: true,
+            page: 1,
+            limit: fetchLimit,
+            auth: auth as string,
+          })
+        : { state: "empty" },
+    };
   }
 
   async refetch() {

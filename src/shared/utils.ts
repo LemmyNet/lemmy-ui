@@ -1,3 +1,5 @@
+import { isBrowser } from "@utils/browser";
+import { debounce, groupBy } from "@utils/helpers";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
@@ -9,7 +11,6 @@ import {
   CommentReportView,
   CommentSortType,
   CommentView,
-  CommunityModeratorView,
   CommunityView,
   CustomEmojiView,
   GetSiteMetadata,
@@ -17,7 +18,6 @@ import {
   Language,
   LemmyHttp,
   MyUserInfo,
-  Person,
   PersonMentionView,
   PersonView,
   PostReportView,
@@ -43,8 +43,15 @@ import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { getHttpBase } from "./env";
 import { i18n } from "./i18next";
-import { CommentNodeI, DataType, IsoData, VoteType } from "./interfaces";
+import {
+  CommentNodeI,
+  DataType,
+  IsoData,
+  RouteData,
+  VoteType,
+} from "./interfaces";
 import { HttpService, UserService } from "./services";
+import { RequestState } from "./services/HttpService";
 
 let Tribute: any;
 if (isBrowser()) {
@@ -228,92 +235,6 @@ export function futureDaysToUnixTime(days?: number): number | undefined {
     : undefined;
 }
 
-export function canMod(
-  creator_id: number,
-  mods?: CommunityModeratorView[],
-  admins?: PersonView[],
-  myUserInfo = UserService.Instance.myUserInfo,
-  onSelf = false
-): boolean {
-  // You can do moderator actions only on the mods added after you.
-  let adminsThenMods =
-    admins
-      ?.map(a => a.person.id)
-      .concat(mods?.map(m => m.moderator.id) ?? []) ?? [];
-
-  if (myUserInfo) {
-    const myIndex = adminsThenMods.findIndex(
-      id => id == myUserInfo.local_user_view.person.id
-    );
-    if (myIndex == -1) {
-      return false;
-    } else {
-      // onSelf +1 on mod actions not for yourself, IE ban, remove, etc
-      adminsThenMods = adminsThenMods.slice(0, myIndex + (onSelf ? 0 : 1));
-      return !adminsThenMods.includes(creator_id);
-    }
-  } else {
-    return false;
-  }
-}
-
-export function canAdmin(
-  creatorId: number,
-  admins?: PersonView[],
-  myUserInfo = UserService.Instance.myUserInfo,
-  onSelf = false
-): boolean {
-  return canMod(creatorId, undefined, admins, myUserInfo, onSelf);
-}
-
-export function isMod(
-  creatorId: number,
-  mods?: CommunityModeratorView[]
-): boolean {
-  return mods?.map(m => m.moderator.id).includes(creatorId) ?? false;
-}
-
-export function amMod(
-  mods?: CommunityModeratorView[],
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  return myUserInfo ? isMod(myUserInfo.local_user_view.person.id, mods) : false;
-}
-
-export function isAdmin(creatorId: number, admins?: PersonView[]): boolean {
-  return admins?.map(a => a.person.id).includes(creatorId) ?? false;
-}
-
-export function amAdmin(myUserInfo = UserService.Instance.myUserInfo): boolean {
-  return myUserInfo?.local_user_view.person.admin ?? false;
-}
-
-export function amCommunityCreator(
-  creator_id: number,
-  mods?: CommunityModeratorView[],
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  const myId = myUserInfo?.local_user_view.person.id;
-  // Don't allow mod actions on yourself
-  return myId == mods?.at(0)?.moderator.id && myId != creator_id;
-}
-
-export function amSiteCreator(
-  creator_id: number,
-  admins?: PersonView[],
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  const myId = myUserInfo?.local_user_view.person.id;
-  return myId == admins?.at(0)?.person.id && myId != creator_id;
-}
-
-export function amTopMod(
-  mods: CommunityModeratorView[],
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  return mods.at(0)?.moderator.id == myUserInfo?.local_user_view.person.id;
-}
-
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
 const tldRegex = /([a-z0-9]+\.)*[a-z0-9]+\.[a-z]+/;
@@ -327,7 +248,12 @@ export function isVideo(url: string) {
 }
 
 export function validURL(str: string) {
-  return !!new URL(str);
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function validInstanceTLD(str: string) {
@@ -357,51 +283,6 @@ export async function getSiteMetadata(url: string) {
 
 export function getDataTypeString(dt: DataType) {
   return dt === DataType.Post ? "Post" : "Comment";
-}
-
-export function debounce<T extends any[], R>(
-  func: (...e: T) => R,
-  wait = 1000,
-  immediate = false
-) {
-  // 'private' variable for instance
-  // The returned function will be able to reference this due to closure.
-  // Each call to the returned function will share this common timer.
-  let timeout: NodeJS.Timeout | null;
-
-  // Calling debounce returns a new anonymous function
-  return function () {
-    // reference the context and args for the setTimeout function
-    const args = arguments;
-
-    // Should the function be called now? If immediate is true
-    //   and not already in a timeout then the answer is: Yes
-    const callNow = immediate && !timeout;
-
-    // This is the basic debounce behavior where you can call this
-    //   function several times, but it will only execute once
-    //   [before or after imposing a delay].
-    //   Each time the returned function is called, the timer starts over.
-    clearTimeout(timeout ?? undefined);
-
-    // Set the new timeout
-    timeout = setTimeout(function () {
-      // Inside the timeout function, clear the timeout variable
-      // which will let the next execution run when in 'immediate' mode
-      timeout = null;
-
-      // Check if the function already ran with the immediate flag
-      if (!immediate) {
-        // Call the original function with apply
-        // apply lets you define the 'this' object as well as the arguments
-        //    (both captured before setTimeout)
-        func.apply(this, args);
-      }
-    }, wait);
-
-    // Immediate mode and no wait timer? Execute the function..
-    if (callNow) func.apply(this, args);
-  } as (...e: T) => R;
 }
 
 export async function fetchThemeList(): Promise<string[]> {
@@ -490,7 +371,7 @@ export function isCakeDay(published: string): boolean {
 
 export function toast(text: string, background: ThemeColor = "success") {
   if (isBrowser()) {
-    const backgroundColor = `var(--${background})`;
+    const backgroundColor = `var(--bs-${background})`;
     Toastify({
       text: text,
       backgroundColor: backgroundColor,
@@ -511,7 +392,7 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
       filename,
     });
 
-    const backgroundColor = `var(--light)`;
+    const backgroundColor = `var(--bs-light)`;
 
     const toast = Toastify({
       text: clickToDeleteText,
@@ -1141,11 +1022,7 @@ export function siteBannerCss(banner: string): string {
     `;
 }
 
-export function isBrowser() {
-  return typeof window !== "undefined";
-}
-
-export function setIsoData(context: any): IsoData {
+export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData;
@@ -1274,21 +1151,6 @@ export function numToSI(value: number): string {
   return SHORTNUM_SI_FORMAT.format(value);
 }
 
-export function isBanned(ps: Person): boolean {
-  const expires = ps.ban_expires;
-  // Add Z to convert from UTC date
-  // TODO this check probably isn't necessary anymore
-  if (expires) {
-    if (ps.banned && new Date(expires + "Z") > new Date()) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return ps.banned;
-  }
-}
-
 export function myAuth(): string | undefined {
   return UserService.Instance.auth();
 }
@@ -1318,15 +1180,6 @@ export function postToCommentSortType(sort: SortType): CommentSortType {
     default:
       return "Top";
   }
-}
-
-export function canCreateCommunity(
-  siteRes: GetSiteResponse,
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  const adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
-  // TODO: Make this check if user is logged on as well
-  return !adminOnly || amAdmin(myUserInfo);
 }
 
 export function isPostBlocked(
@@ -1409,62 +1262,10 @@ interface EmojiMartSkin {
   src: string;
 }
 
-const groupBy = <T>(
-  array: T[],
-  predicate: (value: T, index: number, array: T[]) => string
-) =>
-  array.reduce((acc, value, index, array) => {
-    (acc[predicate(value, index, array)] ||= []).push(value);
-    return acc;
-  }, {} as { [key: string]: T[] });
-
-export type QueryParams<T extends Record<string, any>> = {
-  [key in keyof T]?: string;
-};
-
-export function getQueryParams<T extends Record<string, any>>(processors: {
-  [K in keyof T]: (param: string) => T[K];
-}): T {
-  if (isBrowser()) {
-    const searchParams = new URLSearchParams(window.location.search);
-
-    return Array.from(Object.entries(processors)).reduce(
-      (acc, [key, process]) => ({
-        ...acc,
-        [key]: process(searchParams.get(key)),
-      }),
-      {} as T
-    );
-  }
-
-  return {} as T;
-}
-
-export function getQueryString<T extends Record<string, string | undefined>>(
-  obj: T
-) {
-  return Object.entries(obj)
-    .filter(([, val]) => val !== undefined && val !== null)
-    .reduce(
-      (acc, [key, val], index) => `${acc}${index > 0 ? "&" : ""}${key}=${val}`,
-      "?"
-    );
-}
-
 export function isAuthPath(pathname: string) {
   return /create_.*|inbox|settings|admin|reports|registration_applications/g.test(
     pathname
   );
-}
-
-export function canShare() {
-  return isBrowser() && !!navigator.canShare;
-}
-
-export function share(shareData: ShareData) {
-  if (isBrowser()) {
-    navigator.share(shareData);
-  }
 }
 
 export function newVote(voteType: VoteType, myVote?: number): number {
@@ -1475,17 +1276,6 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   }
 }
 
-function sleep(millis: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, millis));
-}
-
-/**
- * Polls / repeatedly runs a promise, every X milliseconds
- */
-export async function poll(promiseFn: any, millis: number) {
-  if (window.document.visibilityState !== "hidden") {
-    await promiseFn();
-  }
-  await sleep(millis);
-  return poll(promiseFn, millis);
-}
+export type RouteDataResponse<T extends Record<string, any>> = {
+  [K in keyof T]: RequestState<T[K]>;
+};

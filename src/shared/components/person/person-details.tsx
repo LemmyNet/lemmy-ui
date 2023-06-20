@@ -107,19 +107,9 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     setupTippy();
   }
 
-  // TODO wut?
-  // componentDidUpdate(lastProps: UserDetailsProps) {
-  //   for (const key of Object.keys(lastProps)) {
-  //     if (lastProps[key] !== this.props[key]) {
-  //       this.fetchUserData();
-  //       break;
-  //     }
-  //   }
-  // }
-
   render() {
     return (
-      <div>
+      <div className="person-details">
         {this.viewSelector(this.props.view)}
 
         <Paginator page={this.props.page} onChange={this.handlePageChange} />

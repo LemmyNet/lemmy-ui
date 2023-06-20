@@ -60,7 +60,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     };
 
     return (
-      <div>
+      <div className="post-report">
         <PostListing
           post_view={pv}
           showCommunity={true}

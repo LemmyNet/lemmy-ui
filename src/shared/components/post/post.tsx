@@ -1,3 +1,5 @@
+import { isBrowser } from "@utils/browser";
+import { debounce } from "@utils/helpers";
 import autosize from "autosize";
 import { Component, createRef, linkEvent, RefObject } from "inferno";
 import {
@@ -64,7 +66,6 @@ import {
   buildCommentsTree,
   commentsToFlatNodes,
   commentTreeMaxDepth,
-  debounce,
   editComment,
   editWith,
   enableDownvotes,
@@ -73,10 +74,10 @@ import {
   getCommentParentId,
   getDepthFromComment,
   getIdFromProps,
-  isBrowser,
   isImage,
   myAuth,
   restoreScrollPosition,
+  RouteDataResponse,
   saveScrollPosition,
   setIsoData,
   setupTippy,
@@ -92,6 +93,11 @@ import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 
 const commentsShownInterval = 15;
+
+type PostData = RouteDataResponse<{
+  postRes: GetPostResponse;
+  commentsRes: GetCommentsResponse;
+}>;
 
 interface PostState {
   postId?: number;
@@ -110,7 +116,7 @@ interface PostState {
 }
 
 export class Post extends Component<any, PostState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
   state: PostState = {
     postRes: { state: "empty" },
@@ -169,7 +175,7 @@ export class Post extends Component<any, PostState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [postRes, commentsRes] = this.isoData.routeData;
+      const { commentsRes, postRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
@@ -220,13 +226,12 @@ export class Post extends Component<any, PostState> {
     }
   }
 
-  static fetchInitialData({
-    auth,
+  static async fetchInitialData({
     client,
     path,
-  }: InitialFetchRequest): Promise<any>[] {
+    auth,
+  }: InitialFetchRequest): Promise<PostData> {
     const pathSplit = path.split("/");
-    const promises: Promise<RequestState<any>>[] = [];
 
     const pathType = pathSplit.at(1);
     const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
@@ -252,10 +257,10 @@ export class Post extends Component<any, PostState> {
       commentsForm.parent_id = id;
     }
 
-    promises.push(client.getPost(postForm));
-    promises.push(client.getComments(commentsForm));
-
-    return promises;
+    return {
+      postRes: await client.getPost(postForm),
+      commentsRes: await client.getComments(commentsForm),
+    };
   }
 
   componentWillUnmount() {
@@ -384,12 +389,13 @@ export class Post extends Component<any, PostState> {
                 disabled={res.post_view.post.locked}
                 allLanguages={this.state.siteRes.all_languages}
                 siteLanguages={this.state.siteRes.discussion_languages}
+                containerClass="post-comment-container"
                 onUpsertComment={this.handleCreateComment}
                 finished={this.state.finished.get(0)}
               />
               <div className="d-block d-md-none">
                 <button
-                  className="btn btn-secondary d-inline-block mb-2 mr-3"
+                  className="btn btn-secondary d-inline-block mb-2 me-3"
                   onClick={linkEvent(this, this.handleShowSidebarMobile)}
                 >
                   {i18n.t("sidebar")}{" "}
@@ -418,13 +424,13 @@ export class Post extends Component<any, PostState> {
   }
 
   render() {
-    return <div className="container-lg">{this.renderPostRes()}</div>;
+    return <div className="post container-lg">{this.renderPostRes()}</div>;
   }
 
   sortRadios() {
     return (
       <>
-        <div className="btn-group btn-group-toggle flex-wrap mr-3 mb-2">
+        <div className="btn-group btn-group-toggle flex-wrap me-3 mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
               this.state.commentSort === "Hot" && "active"
@@ -433,6 +439,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("hot")}
             <input
               type="radio"
+              className="btn-check"
               value={"Hot"}
               checked={this.state.commentSort === "Hot"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -446,6 +453,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("top")}
             <input
               type="radio"
+              className="btn-check"
               value={"Top"}
               checked={this.state.commentSort === "Top"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -459,6 +467,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("new")}
             <input
               type="radio"
+              className="btn-check"
               value={"New"}
               checked={this.state.commentSort === "New"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -472,6 +481,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("old")}
             <input
               type="radio"
+              className="btn-check"
               value={"Old"}
               checked={this.state.commentSort === "Old"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -487,6 +497,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("chat")}
             <input
               type="radio"
+              className="btn-check"
               value={CommentViewType.Flat}
               checked={this.state.commentViewType === CommentViewType.Flat}
               onChange={linkEvent(this, this.handleCommentViewTypeChange)}
@@ -547,25 +558,22 @@ export class Post extends Component<any, PostState> {
     const res = this.state.postRes;
     if (res.state === "success") {
       return (
-        <div className="mb-3">
-          <Sidebar
-            community_view={res.data.community_view}
-            moderators={res.data.moderators}
-            admins={this.state.siteRes.admins}
-            online={res.data.online}
-            enableNsfw={enableNsfw(this.state.siteRes)}
-            showIcon
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
-            onDeleteCommunity={this.handleDeleteCommunityClick}
-            onLeaveModTeam={this.handleAddModToCommunity}
-            onFollowCommunity={this.handleFollow}
-            onRemoveCommunity={this.handleModRemoveCommunity}
-            onPurgeCommunity={this.handlePurgeCommunity}
-            onBlockCommunity={this.handleBlockCommunity}
-            onEditCommunity={this.handleEditCommunity}
-          />
-        </div>
+        <Sidebar
+          community_view={res.data.community_view}
+          moderators={res.data.moderators}
+          admins={this.state.siteRes.admins}
+          enableNsfw={enableNsfw(this.state.siteRes)}
+          showIcon
+          allLanguages={this.state.siteRes.all_languages}
+          siteLanguages={this.state.siteRes.discussion_languages}
+          onDeleteCommunity={this.handleDeleteCommunityClick}
+          onLeaveModTeam={this.handleAddModToCommunity}
+          onFollowCommunity={this.handleFollow}
+          onRemoveCommunity={this.handleModRemoveCommunity}
+          onPurgeCommunity={this.handlePurgeCommunity}
+          onBlockCommunity={this.handleBlockCommunity}
+          onEditCommunity={this.handleEditCommunity}
+        />
       );
     }
   }
@@ -582,14 +590,14 @@ export class Post extends Component<any, PostState> {
           {!!this.state.commentId && (
             <>
               <button
-                className="pl-0 d-block btn btn-link text-muted"
+                className="ps-0 d-block btn btn-link text-muted"
                 onClick={linkEvent(this, this.handleViewPost)}
               >
                 {i18n.t("view_all_comments")} ➔
               </button>
               {showContextButton && (
                 <button
-                  className="pl-0 d-block btn btn-link text-muted"
+                  className="ps-0 d-block btn btn-link text-muted"
                   onClick={linkEvent(this, this.handleViewContext)}
                 >
                   {i18n.t("show_context")} ➔
@@ -729,19 +737,14 @@ export class Post extends Component<any, PostState> {
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
-    // TODO Probably isn't necessary
-    this.setState(s => {
-      if (
-        s.postRes.state == "success" &&
-        blockCommunityRes.state == "success"
-      ) {
-        s.postRes.data.community_view = blockCommunityRes.data.community_view;
-      }
-      return s;
-    });
-
     if (blockCommunityRes.state == "success") {
       updateCommunityBlock(blockCommunityRes.data);
+      this.setState(s => {
+        if (s.postRes.state == "success") {
+          s.postRes.data.community_view.blocked =
+            blockCommunityRes.data.blocked;
+        }
+      });
     }
   }
 

@@ -1,5 +1,8 @@
+import { getQueryParams, getQueryString } from "@utils/helpers";
+import { canCreateCommunity } from "@utils/roles";
+import type { QueryParams } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent, MouseEventHandler } from "inferno";
+import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -57,7 +60,7 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  canCreateCommunity,
+  RouteDataResponse,
   commentsToFlatNodes,
   editComment,
   editPost,
@@ -68,13 +71,10 @@ import {
   getCommentParentId,
   getDataTypeString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   getRandomFromList,
   mdToHtml,
   myAuth,
   postToCommentSortType,
-  QueryParams,
   relTags,
   restoreScrollPosition,
   saveScrollPosition,
@@ -117,6 +117,45 @@ interface HomeProps {
   page: number;
 }
 
+type HomeData = RouteDataResponse<{
+  postsRes: GetPostsResponse;
+  commentsRes: GetCommentsResponse;
+  trendingCommunitiesRes: ListCommunitiesResponse;
+}>;
+
+function getRss(listingType: ListingType) {
+  const { sort } = getHomeQueryParams();
+  const auth = myAuth();
+
+  let rss: string | undefined = undefined;
+
+  switch (listingType) {
+    case "All": {
+      rss = `/feeds/all.xml?sort=${sort}`;
+      break;
+    }
+    case "Local": {
+      rss = `/feeds/local.xml?sort=${sort}`;
+      break;
+    }
+    case "Subscribed": {
+      rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
+      break;
+    }
+  }
+
+  return (
+    rss && (
+      <>
+        <a href={rss} rel={relTags} title="RSS">
+          <Icon icon="rss" classes="text-muted small" />
+        </a>
+        <link rel="alternate" type="application/atom+xml" href={rss} />
+      </>
+    )
+  );
+}
+
 function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
@@ -155,7 +194,7 @@ const MobileButton = ({
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
-    className="btn btn-secondary d-inline-block mb-2 mr-3"
+    className="btn btn-secondary d-inline-block mb-2 me-3"
     onClick={onClick}
   >
     {i18n.t(textKey)}{" "}
@@ -170,13 +209,13 @@ const LinkButton = ({
   path: string;
   translationKey: NoOptionI18nKeys;
 }) => (
-  <Link className="btn btn-secondary btn-block" to={path}>
+  <Link className="btn btn-secondary d-block" to={path}>
     {i18n.t(translationKey)}
   </Link>
 );
 
 export class Home extends Component<any, HomeState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<HomeData>(this.context);
   state: HomeState = {
     postsRes: { state: "empty" },
     commentsRes: { state: "empty" },
@@ -228,14 +267,14 @@ export class Home extends Component<any, HomeState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [postsRes, commentsRes, trendingCommunitiesRes] =
+      const { trendingCommunitiesRes, commentsRes, postsRes } =
         this.isoData.routeData;
 
       this.state = {
         ...this.state,
-        postsRes,
-        commentsRes,
         trendingCommunitiesRes,
+        commentsRes,
+        postsRes,
         tagline: getRandomFromList(this.state?.siteRes?.taglines ?? [])
           ?.content,
         isIsomorphic: true,
@@ -244,7 +283,12 @@ export class Home extends Component<any, HomeState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic || !this.isoData.routeData.length) {
+    if (
+      !this.state.isIsomorphic ||
+      !Object.values(this.isoData.routeData).some(
+        res => res.state === "success" || res.state === "failed"
+      )
+    ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
 
@@ -255,13 +299,11 @@ export class Home extends Component<any, HomeState> {
     saveScrollPosition(this.context);
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     auth,
     query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
-  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<
-    RequestState<any>
-  >[] {
+  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
     const dataType = getDataTypeFromQuery(urlDataType);
 
     // TODO figure out auth default_listingType, default_sort_type
@@ -270,7 +312,10 @@ export class Home extends Component<any, HomeState> {
 
     const page = urlPage ? Number(urlPage) : 1;
 
-    const promises: Promise<RequestState<any>>[] = [];
+    let postsRes: RequestState<GetPostsResponse> = { state: "empty" };
+    let commentsRes: RequestState<GetCommentsResponse> = {
+      state: "empty",
+    };
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -282,8 +327,7 @@ export class Home extends Component<any, HomeState> {
         auth,
       };
 
-      promises.push(client.getPosts(getPostsForm));
-      promises.push(Promise.resolve({ state: "empty" }));
+      postsRes = await client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         page,
@@ -293,8 +337,8 @@ export class Home extends Component<any, HomeState> {
         saved_only: false,
         auth,
       };
-      promises.push(Promise.resolve({ state: "empty" }));
-      promises.push(client.getComments(getCommentsForm));
+
+      commentsRes = await client.getComments(getCommentsForm);
     }
 
     const trendingCommunitiesForm: ListCommunities = {
@@ -303,9 +347,14 @@ export class Home extends Component<any, HomeState> {
       limit: trendingFetchLimit,
       auth,
     };
-    promises.push(client.listCommunities(trendingCommunitiesForm));
 
-    return promises;
+    return {
+      trendingCommunitiesRes: await client.listCommunities(
+        trendingCommunitiesForm
+      ),
+      commentsRes,
+      postsRes,
+    };
   }
 
   get documentTitle(): string {
@@ -325,7 +374,7 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div className="container-lg">
+      <div className="home container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -340,7 +389,7 @@ export class Home extends Component<any, HomeState> {
                 ></div>
               )}
               <div className="d-block d-md-none">{this.mobileView}</div>
-              {this.posts()}
+              {this.posts}
             </main>
             <aside className="d-none d-md-block col-md-4">
               {this.mySidebar}
@@ -361,7 +410,6 @@ export class Home extends Component<any, HomeState> {
       siteRes: {
         site_view: { counts, site },
         admins,
-        online,
       },
       showSubscribedMobile,
       showTrendingMobile,
@@ -393,18 +441,18 @@ export class Home extends Component<any, HomeState> {
               site={site}
               admins={admins}
               counts={counts}
-              online={online}
               showLocal={showLocal(this.isoData)}
+              isMobile={true}
             />
           )}
           {showTrendingMobile && (
-            <div className="col-12 card border-secondary mb-3">
-              <div className="card-body">{this.trendingCommunities(true)}</div>
+            <div className="card border-secondary mb-3">
+              {this.trendingCommunities()}
             </div>
           )}
           {showSubscribedMobile && (
-            <div className="col-12 card border-secondary mb-3">
-              <div className="card-body">{this.subscribedCommunities}</div>
+            <div className="card border-secondary mb-3">
+              {this.subscribedCommunities(true)}
             </div>
           )}
         </div>
@@ -417,16 +465,66 @@ export class Home extends Component<any, HomeState> {
       siteRes: {
         site_view: { counts, site },
         admins,
-        online,
       },
     } = this.state;
 
     return (
-      <div>
-        <div>
-          <div className="card border-secondary mb-3">
+      <div id="sidebarContainer">
+        <section id="sidebarMain" className="card border-secondary mb-3">
+          {this.trendingCommunities()}
+        </section>
+        <SiteSidebar
+          site={site}
+          admins={admins}
+          counts={counts}
+          showLocal={showLocal(this.isoData)}
+        />
+        {this.hasFollows && (
+          <div className="accordion">
+            <section
+              id="sidebarSubscribed"
+              className="card border-secondary mb-3"
+            >
+              {this.subscribedCommunities(false)}
+            </section>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  trendingCommunities() {
+    switch (this.state.trendingCommunitiesRes?.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const trending = this.state.trendingCommunitiesRes.data.communities;
+        return (
+          <>
+            <header className="card-header d-flex align-items-center">
+              <h5 className="mb-0">
+                <T i18nKey="trending_communities">
+                  #
+                  <Link className="text-body" to="/communities">
+                    #
+                  </Link>
+                </T>
+              </h5>
+            </header>
             <div className="card-body">
-              {this.trendingCommunities()}
+              {trending.length > 0 && (
+                <ul className="list-inline">
+                  {trending.map(cv => (
+                    <li key={cv.community.id} className="list-inline-item">
+                      <CommunityLink community={cv.community} />
+                    </li>
+                  ))}
+                </ul>
+              )}
               {canCreateCommunity(this.state.siteRes) && (
                 <LinkButton
                   path="/create_community"
@@ -438,97 +536,71 @@ export class Home extends Component<any, HomeState> {
                 translationKey="explore_communities"
               />
             </div>
-          </div>
-          <SiteSidebar
-            site={site}
-            admins={admins}
-            counts={counts}
-            online={online}
-            showLocal={showLocal(this.isoData)}
-          />
-          {this.hasFollows && (
-            <div className="card border-secondary mb-3">
-              <div className="card-body">{this.subscribedCommunities}</div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  trendingCommunities(isMobile = false) {
-    switch (this.state.trendingCommunitiesRes?.state) {
-      case "loading":
-        return (
-          <h5>
-            <Spinner large />
-          </h5>
-        );
-      case "success": {
-        const trending = this.state.trendingCommunitiesRes.data.communities;
-        return (
-          <div className={!isMobile ? "mb-2" : ""}>
-            <h5>
-              <T i18nKey="trending_communities">
-                #
-                <Link className="text-body" to="/communities">
-                  #
-                </Link>
-              </T>
-            </h5>
-            <ul className="list-inline mb-0">
-              {trending.map(cv => (
-                <li
-                  key={cv.community.id}
-                  className="list-inline-item d-inline-block"
-                >
-                  <CommunityLink community={cv.community} />
-                </li>
-              ))}
-            </ul>
-          </div>
+          </>
         );
       }
     }
   }
 
-  get subscribedCommunities() {
+  subscribedCommunities(isMobile = false) {
     const { subscribedCollapsed } = this.state;
 
     return (
-      <div>
-        <h5>
-          <T class="d-inline" i18nKey="subscribed_to_communities">
-            #
-            <Link className="text-body" to="/communities">
+      <>
+        <header
+          className="card-header d-flex align-items-center"
+          id="sidebarSubscribedHeader"
+        >
+          <h5 className="mb-0 d-inline">
+            <T class="d-inline" i18nKey="subscribed_to_communities">
               #
-            </Link>
-          </T>
-          <button
-            className="btn btn-sm text-muted"
-            onClick={linkEvent(this, this.handleCollapseSubscribe)}
-            aria-label={i18n.t("collapse")}
-            data-tippy-content={i18n.t("collapse")}
-          >
-            <Icon
-              icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
-              classes="icon-inline"
-            />
-          </button>
-        </h5>
-        {!subscribedCollapsed && (
-          <ul className="list-inline mb-0">
-            {UserService.Instance.myUserInfo?.follows.map(cfv => (
-              <li
-                key={cfv.community.id}
-                className="list-inline-item d-inline-block"
-              >
-                <CommunityLink community={cfv.community} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+              <Link className="text-body" to="/communities">
+                #
+              </Link>
+            </T>
+          </h5>
+          {!isMobile && (
+            <button
+              type="button"
+              className="btn btn-sm text-muted"
+              onClick={linkEvent(this, this.handleCollapseSubscribe)}
+              aria-label={
+                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+              }
+              data-tippy-content={
+                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+              }
+              data-bs-toggle="collapse"
+              data-bs-target="#sidebarSubscribedBody"
+              aria-expanded="true"
+              aria-controls="sidebarSubscribedBody"
+            >
+              <Icon
+                icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
+                classes="icon-inline"
+              />
+            </button>
+          )}
+        </header>
+        <div
+          id="sidebarSubscribedBody"
+          className="collapse show"
+          aria-labelledby="sidebarSubscribedHeader"
+        >
+          <div className="card-body">
+            <ul className="list-inline mb-0">
+              {UserService.Instance.myUserInfo?.follows.map(cfv => (
+                <li
+                  key={cfv.community.id}
+                  className="list-inline-item d-inline-block"
+                >
+                  <CommunityLink community={cfv.community} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -555,7 +627,7 @@ export class Home extends Component<any, HomeState> {
     await this.fetchData();
   }
 
-  posts() {
+  get posts() {
     const { page } = getHomeQueryParams();
 
     return (
@@ -574,7 +646,7 @@ export class Home extends Component<any, HomeState> {
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
-      switch (this.state.postsRes?.state) {
+      switch (this.state.postsRes.state) {
         case "loading":
           return (
             <h5>
@@ -662,59 +734,26 @@ export class Home extends Component<any, HomeState> {
     const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
-      <div className="mb-3">
-        <span className="mr-3">
+      <div className="row align-items-center mb-3 g-3">
+        <div className="col-auto">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
-        </span>
-        <span className="mr-3">
+        </div>
+        <div className="col-auto">
           <ListingTypeSelect
             type_={listingType}
             showLocal={showLocal(this.isoData)}
             showSubscribed
             onChange={this.handleListingTypeChange}
           />
-        </span>
-        <span className="mr-2">
+        </div>
+        <div className="col-auto">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
-        </span>
-        {this.getRss(listingType)}
+        </div>
+        <div className="col-auto ps-0">{getRss(listingType)}</div>
       </div>
-    );
-  }
-
-  getRss(listingType: ListingType) {
-    const { sort } = getHomeQueryParams();
-    const auth = myAuth();
-
-    let rss: string | undefined = undefined;
-
-    switch (listingType) {
-      case "All": {
-        rss = `/feeds/all.xml?sort=${sort}`;
-        break;
-      }
-      case "Local": {
-        rss = `/feeds/local.xml?sort=${sort}`;
-        break;
-      }
-      case "Subscribed": {
-        rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
-        break;
-      }
-    }
-
-    return (
-      rss && (
-        <>
-          <a href={rss} rel={relTags} title="RSS">
-            <Icon icon="rss" classes="text-muted small" />
-          </a>
-          <link rel="alternate" type="application/atom+xml" href={rss} />
-        </>
-      )
     );
   }
 

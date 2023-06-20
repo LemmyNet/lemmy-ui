@@ -49,13 +49,13 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     return this.props.iconVersion ? (
       this.selectBtn
     ) : (
-      <div>
+      <div className="language-select">
         {this.props.multiple && this.props.showLanguageWarning && (
           <div className="alert alert-warning" role="alert">
             {i18n.t("undetermined_language_warning")}
           </div>
         )}
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label
             className={classNames(
               "col-form-label",
@@ -73,14 +73,12 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
           >
             {this.selectBtn}
             {this.props.multiple && (
-              <div className="input-group-append">
-                <button
-                  className="input-group-text"
-                  onClick={linkEvent(this, this.handleDeselectAll)}
-                >
-                  <Icon icon="x" />
-                </button>
-              </div>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={linkEvent(this, this.handleDeselectAll)}
+              >
+                <Icon icon="x" />
+              </button>
             )}
           </div>
         </div>
@@ -100,12 +98,9 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
     return (
       <select
-        className={classNames(
-          "lang-select-action",
-          this.props.iconVersion
-            ? "btn btn-sm text-muted"
-            : "form-control custom-select"
-        )}
+        className={classNames("form-select w-auto", {
+          "d-inline-block": !this.props.iconVersion,
+        })}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
         aria-label={i18n.t("language_select_placeholder")}

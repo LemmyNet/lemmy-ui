@@ -11,7 +11,7 @@ type LoadingRequestState = {
   state: "loading";
 };
 
-type FailedRequestState = {
+export type FailedRequestState = {
   state: "failed";
   msg: string;
 };
@@ -58,7 +58,7 @@ class WrappedLemmyHttpClient {
 
             return {
               data: res,
-              state: "success",
+              state: !(res === undefined || res === null) ? "success" : "empty",
             };
           } catch (error) {
             console.error(`API error: ${error}`);

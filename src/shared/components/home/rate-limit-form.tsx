@@ -51,29 +51,29 @@ function RateLimits({
   rateLimitValue,
 }: RateLimitsProps) {
   return (
-    <div className="form-group row">
-      <label className="col-12 col-form-label" htmlFor="rate-limit">
-        {i18n.t("rate_limit")}
-      </label>
-      <input
-        type="number"
-        id="rate-limit"
-        className="form-control col-12"
-        min={0}
-        value={rateLimitValue}
-        onInput={handleRateLimit}
-      />
-      <label className="col-12 col-form-label" htmlFor="rate-limit-per-second">
-        {i18n.t("per_second")}
-      </label>
-      <input
-        type="number"
-        id="rate-limit-per-second"
-        className="form-control col-12"
-        min={0}
-        value={rateLimitPerSecondValue}
-        onInput={handleRateLimitPerSecond}
-      />
+    <div className="mb-3 row">
+      <div className="col-md-6">
+        <label htmlFor="rate-limit">{i18n.t("rate_limit")}</label>
+        <input
+          type="number"
+          id="rate-limit"
+          className="form-control"
+          min={0}
+          value={rateLimitValue}
+          onInput={handleRateLimit}
+        />
+      </div>
+      <div className="col-md-6">
+        <label htmlFor="rate-limit-per-second">{i18n.t("per_second")}</label>
+        <input
+          type="number"
+          id="rate-limit-per-second"
+          className="form-control"
+          min={0}
+          value={rateLimitPerSecondValue}
+          onInput={handleRateLimitPerSecond}
+        />
+      </div>
     </div>
   );
 }
@@ -133,7 +133,10 @@ export default class RateLimitsForm extends Component<
 
   render() {
     return (
-      <form onSubmit={linkEvent(this, submitRateLimitForm)}>
+      <form
+        className="rate-limit-form"
+        onSubmit={linkEvent(this, submitRateLimitForm)}
+      >
         <h5>{i18n.t("rate_limit_header")}</h5>
         <Tabs
           tabs={rateLimitTypes.map(rateLimitType => ({
@@ -157,20 +160,18 @@ export default class RateLimitsForm extends Component<
             ),
           }))}
         />
-        <div className="form-group row">
-          <div className="col-12">
-            <button
-              type="submit"
-              className="btn btn-secondary mr-2"
-              disabled={this.props.loading}
-            >
-              {this.props.loading ? (
-                <Spinner />
-              ) : (
-                capitalizeFirstLetter(i18n.t("save"))
-              )}
-            </button>
-          </div>
+        <div className="col-12 mb-3">
+          <button
+            type="submit"
+            className="btn btn-secondary me-2"
+            disabled={this.props.loading}
+          >
+            {this.props.loading ? (
+              <Spinner />
+            ) : (
+              capitalizeFirstLetter(i18n.t("save"))
+            )}
+          </button>
         </div>
       </form>
     );

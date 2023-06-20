@@ -1,3 +1,6 @@
+import { debounce, getQueryParams, getQueryString } from "@utils/helpers";
+import { amAdmin, amMod } from "@utils/roles";
+import type { QueryParams } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -13,6 +16,7 @@ import {
   GetModlog,
   GetModlogResponse,
   GetPersonDetails,
+  GetPersonDetailsResponse,
   ModAddCommunityView,
   ModAddView,
   ModBanFromCommunityView,
@@ -33,16 +37,11 @@ import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
 import {
   Choice,
-  QueryParams,
-  amAdmin,
-  amMod,
-  debounce,
+  RouteDataResponse,
   fetchLimit,
   fetchUsers,
   getIdFromString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   getUpdatedSearchId,
   myAuth,
   personToChoice,
@@ -73,6 +72,13 @@ type View =
   | AdminPurgeCommunityView
   | AdminPurgePostView
   | AdminPurgeCommentView;
+
+type ModlogData = RouteDataResponse<{
+  res: GetModlogResponse;
+  communityRes: GetCommunityResponse;
+  modUserResponse: GetPersonDetailsResponse;
+  userResponse: GetPersonDetailsResponse;
+}>;
 
 interface ModlogType {
   id: number;
@@ -575,8 +581,8 @@ const Filter = ({
   options: Choice[];
   loading: boolean;
 }) => (
-  <div className="col-sm-6 form-group">
-    <label className="col-form-label" htmlFor={`filter-${filterType}`}>
+  <div className="col-sm-6 mb-3">
+    <label className="mb-2" htmlFor={`filter-${filterType}`}>
       {i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
     </label>
     <SearchableSelect
@@ -631,7 +637,7 @@ export class Modlog extends Component<
   RouteComponentProps<{ communityId?: string }>,
   ModlogState
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<ModlogData>(this.context);
 
   state: ModlogState = {
     res: { state: "empty" },
@@ -653,25 +659,26 @@ export class Modlog extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const [res, communityRes, filteredModRes, filteredUserRes] =
+      const { res, communityRes, modUserResponse, userResponse } =
         this.isoData.routeData;
+
       this.state = {
         ...this.state,
         res,
         communityRes,
       };
 
-      if (filteredModRes.state === "success") {
+      if (modUserResponse.state === "success") {
         this.state = {
           ...this.state,
-          modSearchOptions: [personToChoice(filteredModRes.data.person_view)],
+          modSearchOptions: [personToChoice(modUserResponse.data.person_view)],
         };
       }
 
-      if (filteredUserRes.state === "success") {
+      if (userResponse.state === "success") {
         this.state = {
           ...this.state,
-          userSearchOptions: [personToChoice(filteredUserRes.data.person_view)],
+          userSearchOptions: [personToChoice(userResponse.data.person_view)],
         };
       }
     }
@@ -732,7 +739,7 @@ export class Modlog extends Component<
     const { actionType, modId, userId } = getModlogQueryParams();
 
     return (
-      <div className="container-lg">
+      <div className="modlog container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -746,7 +753,7 @@ export class Modlog extends Component<
             <Icon
               icon="alert-triangle"
               inline
-              classes="mr-sm-2 mx-auto d-sm-inline d-block"
+              classes="me-sm-2 mx-auto d-sm-inline d-block"
             />
             <T i18nKey="modlog_content_warning" class="d-inline">
               #<strong>#</strong>#
@@ -763,34 +770,40 @@ export class Modlog extends Component<
               <span>{i18n.t("modlog")}</span>
             </h5>
           )}
-          <div className="form-row">
-            <select
-              value={actionType}
-              onChange={linkEvent(this, this.handleFilterActionChange)}
-              className="custom-select col-sm-6"
-              aria-label="action"
-            >
-              <option disabled aria-hidden="true">
-                {i18n.t("filter_by_action")}
-              </option>
-              <option value={"All"}>{i18n.t("all")}</option>
-              <option value={"ModRemovePost"}>Removing Posts</option>
-              <option value={"ModLockPost"}>Locking Posts</option>
-              <option value={"ModFeaturePost"}>Featuring Posts</option>
-              <option value={"ModRemoveComment"}>Removing Comments</option>
-              <option value={"ModRemoveCommunity"}>Removing Communities</option>
-              <option value={"ModBanFromCommunity"}>
-                Banning From Communities
-              </option>
-              <option value={"ModAddCommunity"}>Adding Mod to Community</option>
-              <option value={"ModTransferCommunity"}>
-                Transferring Communities
-              </option>
-              <option value={"ModAdd"}>Adding Mod to Site</option>
-              <option value={"ModBan"}>Banning From Site</option>
-            </select>
+          <div className="row mb-2">
+            <div className="col-sm-6">
+              <select
+                value={actionType}
+                onChange={linkEvent(this, this.handleFilterActionChange)}
+                className="form-select"
+                aria-label="action"
+              >
+                <option disabled aria-hidden="true">
+                  {i18n.t("filter_by_action")}
+                </option>
+                <option value={"All"}>{i18n.t("all")}</option>
+                <option value={"ModRemovePost"}>Removing Posts</option>
+                <option value={"ModLockPost"}>Locking Posts</option>
+                <option value={"ModFeaturePost"}>Featuring Posts</option>
+                <option value={"ModRemoveComment"}>Removing Comments</option>
+                <option value={"ModRemoveCommunity"}>
+                  Removing Communities
+                </option>
+                <option value={"ModBanFromCommunity"}>
+                  Banning From Communities
+                </option>
+                <option value={"ModAddCommunity"}>
+                  Adding Mod to Community
+                </option>
+                <option value={"ModTransferCommunity"}>
+                  Transferring Communities
+                </option>
+                <option value={"ModAdd"}>Adding Mod to Site</option>
+                <option value={"ModBan"}>Banning From Site</option>
+              </select>
+            </div>
           </div>
-          <div className="form-row mb-2">
+          <div className="row mb-2">
             <Filter
               filterType="user"
               onChange={this.handleUserChange}
@@ -958,17 +971,14 @@ export class Modlog extends Component<
     }
   }
 
-  static fetchInitialData({
+  static async fetchInitialData({
     client,
     path,
     query: { modId: urlModId, page, userId: urlUserId, actionType },
     auth,
     site,
-  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<
-    RequestState<any>
-  >[] {
+  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<ModlogData> {
     const pathSplit = path.split("/");
-    const promises: Promise<RequestState<any>>[] = [];
     const communityId = getIdFromString(pathSplit[2]);
     const modId = !site.site_view.local_site.hide_modlog_mod_names
       ? getIdFromString(urlModId)
@@ -985,17 +995,22 @@ export class Modlog extends Component<
       auth,
     };
 
-    promises.push(client.getModlog(modlogForm));
+    let communityResponse: RequestState<GetCommunityResponse> = {
+      state: "empty",
+    };
 
     if (communityId) {
       const communityForm: GetCommunity = {
         id: communityId,
         auth,
       };
-      promises.push(client.getCommunity(communityForm));
-    } else {
-      promises.push(Promise.resolve({ state: "empty" }));
+
+      communityResponse = await client.getCommunity(communityForm);
     }
+
+    let modUserResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
 
     if (modId) {
       const getPersonForm: GetPersonDetails = {
@@ -1003,10 +1018,12 @@ export class Modlog extends Component<
         auth,
       };
 
-      promises.push(client.getPersonDetails(getPersonForm));
-    } else {
-      promises.push(Promise.resolve({ state: "empty" }));
+      modUserResponse = await client.getPersonDetails(getPersonForm);
     }
+
+    let userResponse: RequestState<GetPersonDetailsResponse> = {
+      state: "empty",
+    };
 
     if (userId) {
       const getPersonForm: GetPersonDetails = {
@@ -1014,11 +1031,14 @@ export class Modlog extends Component<
         auth,
       };
 
-      promises.push(client.getPersonDetails(getPersonForm));
-    } else {
-      promises.push(Promise.resolve({ state: "empty" }));
+      userResponse = await client.getPersonDetails(getPersonForm);
     }
 
-    return promises;
+    return {
+      res: await client.getModlog(modlogForm),
+      communityRes: communityResponse,
+      modUserResponse,
+      userResponse,
+    };
   }
 }

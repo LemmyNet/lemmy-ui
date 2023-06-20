@@ -1,3 +1,4 @@
+import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -16,16 +17,8 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import {
-  amAdmin,
-  amMod,
-  amTopMod,
-  getUnixTime,
-  hostname,
-  mdToHtml,
-  myAuthRequired,
-  numToSI,
-} from "../../utils";
+import { getUnixTime, hostname, mdToHtml, myAuthRequired } from "../../utils";
+import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { CommunityForm } from "../community/community-form";
@@ -39,7 +32,6 @@ interface SidebarProps {
   allLanguages: Language[];
   siteLanguages: number[];
   communityLanguages?: number[];
-  online: number;
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
@@ -64,7 +56,6 @@ interface SidebarState {
   removeCommunityLoading: boolean;
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
-  blockCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
 }
 
@@ -78,7 +69,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     removeCommunityLoading: false,
     leaveModTeamLoading: false,
     followCommunityLoading: false,
-    blockCommunityLoading: false,
     purgeCommunityLoading: false,
   };
 
@@ -105,7 +95,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         removeCommunityLoading: false,
         leaveModTeamLoading: false,
         followCommunityLoading: false,
-        blockCommunityLoading: false,
         purgeCommunityLoading: false,
       });
     }
@@ -113,7 +102,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   render() {
     return (
-      <div>
+      <div className="community-sidebar">
         {!this.state.showEdit ? (
           this.sidebar()
         ) : (
@@ -135,37 +124,42 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUSerInfo = UserService.Instance.myUserInfo;
     const { name, actor_id } = this.props.community_view.community;
     return (
-      <div>
-        <div className="card border-secondary mb-3">
-          <div className="card-body">
-            {this.communityTitle()}
-            {this.props.editable && this.adminButtons()}
-            {myUSerInfo && this.subscribe()}
-            {this.canPost && this.createPost()}
-            {myUSerInfo && this.blockCommunity()}
-            {!myUSerInfo && (
-              <div className="alert alert-info" role="alert">
-                <T
-                  i18nKey="community_not_logged_in_alert"
-                  interpolation={{
-                    community: name,
-                    instance: hostname(actor_id),
-                  }}
-                >
-                  #<code className="user-select-all">#</code>#
-                </T>
-              </div>
-            )}
-          </div>
+      <aside className="mb-3">
+        <div id="sidebarContainer">
+          <section id="sidebarMain" className="card border-secondary mb-3">
+            <div className="card-body">
+              {this.communityTitle()}
+              {this.props.editable && this.adminButtons()}
+              {myUSerInfo && this.subscribe()}
+              {this.canPost && this.createPost()}
+              {myUSerInfo && this.blockCommunity()}
+              {!myUSerInfo && (
+                <div className="alert alert-info" role="alert">
+                  <T
+                    i18nKey="community_not_logged_in_alert"
+                    interpolation={{
+                      community: name,
+                      instance: hostname(actor_id),
+                    }}
+                  >
+                    #<code className="user-select-all">#</code>#
+                  </T>
+                </div>
+              )}
+            </div>
+          </section>
+          <section id="sidebarInfo" className="card border-secondary mb-3">
+            <div className="card-body">
+              {this.description()}
+              <Badges
+                communityId={this.props.community_view.community.id}
+                counts={this.props.community_view.counts}
+              />
+              {this.mods()}
+            </div>
+          </section>
         </div>
-        <div className="card border-secondary mb-3">
-          <div className="card-body">
-            {this.description()}
-            {this.badges()}
-            {this.mods()}
-          </div>
-        </div>
-      </div>
+      </aside>
     );
   }
 
@@ -178,19 +172,19 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
-          <span className="mr-2">
+          <span className="me-2">
             <CommunityLink community={community} hideAvatar />
           </span>
           {subscribed === "Subscribed" && (
             <button
-              className="btn btn-secondary btn-sm mr-2"
+              className="btn btn-secondary btn-sm me-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
               {this.state.followCommunityLoading ? (
                 <Spinner />
               ) : (
                 <>
-                  <Icon icon="check" classes="icon-inline text-success mr-1" />
+                  <Icon icon="check" classes="icon-inline text-success me-1" />
                   {i18n.t("joined")}
                 </>
               )}
@@ -198,7 +192,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           )}
           {subscribed === "Pending" && (
             <button
-              className="btn btn-warning mr-2"
+              className="btn btn-warning me-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
               {this.state.followCommunityLoading ? (
@@ -209,17 +203,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             </button>
           )}
           {community.removed && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="me-2 text-muted font-italic">
               {i18n.t("removed")}
             </small>
           )}
           {community.deleted && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="me-2 text-muted font-italic">
               {i18n.t("deleted")}
             </small>
           )}
           {community.nsfw && (
-            <small className="mr-2 text-muted font-italic">
+            <small className="me-2 text-muted font-italic">
               {i18n.t("nsfw")}
             </small>
           )}
@@ -232,99 +226,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           hideAvatar
         />
       </div>
-    );
-  }
-
-  badges() {
-    const community_view = this.props.community_view;
-    const counts = community_view.counts;
-    return (
-      <ul className="my-1 list-inline">
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_online", {
-            count: this.props.online,
-            formattedCount: numToSI(this.props.online),
-          })}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_day", {
-            count: Number(counts.users_active_day),
-            formattedCount: numToSI(counts.users_active_day),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_day),
-            formattedCount: numToSI(counts.users_active_day),
-          })}{" "}
-          / {i18n.t("day")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_week", {
-            count: Number(counts.users_active_week),
-            formattedCount: numToSI(counts.users_active_week),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_week),
-            formattedCount: numToSI(counts.users_active_week),
-          })}{" "}
-          / {i18n.t("week")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_month", {
-            count: Number(counts.users_active_month),
-            formattedCount: numToSI(counts.users_active_month),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_month),
-            formattedCount: numToSI(counts.users_active_month),
-          })}{" "}
-          / {i18n.t("month")}
-        </li>
-        <li
-          className="list-inline-item badge badge-secondary pointer"
-          data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-            count: Number(counts.users_active_half_year),
-            formattedCount: numToSI(counts.users_active_half_year),
-          })}
-        >
-          {i18n.t("number_of_users", {
-            count: Number(counts.users_active_half_year),
-            formattedCount: numToSI(counts.users_active_half_year),
-          })}{" "}
-          / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_subscribers", {
-            count: Number(counts.subscribers),
-            formattedCount: numToSI(counts.subscribers),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_posts", {
-            count: Number(counts.posts),
-            formattedCount: numToSI(counts.posts),
-          })}
-        </li>
-        <li className="list-inline-item badge badge-secondary">
-          {i18n.t("number_of_comments", {
-            count: Number(counts.comments),
-            formattedCount: numToSI(counts.comments),
-          })}
-        </li>
-        <li className="list-inline-item">
-          <Link
-            className="badge badge-primary"
-            to={`/modlog/${this.props.community_view.community.id}`}
-          >
-            {i18n.t("modlog")}
-          </Link>
-        </li>
-      </ul>
     );
   }
 
@@ -345,7 +246,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const cv = this.props.community_view;
     return (
       <Link
-        className={`btn btn-secondary btn-block mb-2 ${
+        className={`btn btn-secondary d-block mb-2 w-100 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
         to={`/create_post?communityId=${cv.community.id}`}
@@ -358,10 +259,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   subscribe() {
     const community_view = this.props.community_view;
     return (
-      <div className="mb-2">
+      <>
         {community_view.subscribed == "NotSubscribed" && (
           <button
-            className="btn btn-secondary btn-block"
+            className="btn btn-secondary d-block mb-2 w-100"
             onClick={linkEvent(this, this.handleFollowCommunity)}
           >
             {this.state.followCommunityLoading ? (
@@ -371,41 +272,24 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             )}
           </button>
         )}
-      </div>
+      </>
     );
   }
 
   blockCommunity() {
-    const community_view = this.props.community_view;
-    const blocked = this.props.community_view.blocked;
+    const { subscribed, blocked } = this.props.community_view;
 
     return (
-      <div className="mb-2">
-        {community_view.subscribed == "NotSubscribed" &&
-          (blocked ? (
-            <button
-              className="btn btn-danger btn-block"
-              onClick={linkEvent(this, this.handleBlockCommunity)}
-            >
-              {this.state.blockCommunityLoading ? (
-                <Spinner />
-              ) : (
-                i18n.t("unblock_community")
-              )}
-            </button>
-          ) : (
-            <button
-              className="btn btn-danger btn-block"
-              onClick={linkEvent(this, this.handleBlockCommunity)}
-            >
-              {this.state.blockCommunityLoading ? (
-                <Spinner />
-              ) : (
-                i18n.t("block_community")
-              )}
-            </button>
-          ))}
-      </div>
+      <>
+        {subscribed == "NotSubscribed" && (
+          <button
+            className="btn btn-danger d-block mb-2 w-100"
+            onClick={linkEvent(this, this.handleBlockCommunity)}
+          >
+            {i18n.t(blocked ? "unblock_community" : "block_community")}
+          </button>
+        )}
+      </>
     );
   }
 
@@ -538,25 +422,25 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         </ul>
         {this.state.showRemoveDialog && (
           <form onSubmit={linkEvent(this, this.handleRemoveCommunity)}>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <label className="col-form-label" htmlFor="remove-reason">
                 {i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id="remove-reason"
-                className="form-control mr-2"
+                className="form-control me-2"
                 placeholder={i18n.t("optional")}
                 value={this.state.removeReason}
                 onInput={linkEvent(this, this.handleModRemoveReasonChange)}
               />
             </div>
             {/* TODO hold off on expires for now */}
-            {/* <div class="form-group row"> */}
+            {/* <div class="mb-3 row"> */}
             {/*   <label class="col-form-label">Expires</label> */}
-            {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
+            {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
             {/* </div> */}
-            <div className="form-group">
+            <div className="input-group mb-3">
               <button type="submit" className="btn btn-secondary">
                 {this.state.removeCommunityLoading ? (
                   <Spinner />
@@ -569,23 +453,23 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         )}
         {this.state.showPurgeDialog && (
           <form onSubmit={linkEvent(this, this.handlePurgeCommunity)}>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <PurgeWarning />
             </div>
-            <div className="form-group">
-              <label className="sr-only" htmlFor="purge-reason">
+            <div className="input-group mb-3">
+              <label className="visually-hidden" htmlFor="purge-reason">
                 {i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id="purge-reason"
-                className="form-control mr-2"
+                className="form-control me-2"
                 placeholder={i18n.t("reason")}
                 value={this.state.purgeReason}
                 onInput={linkEvent(this, this.handlePurgeReasonChange)}
               />
             </div>
-            <div className="form-group">
+            <div className="input-group mb-3">
               {this.state.purgeCommunityLoading ? (
                 <Spinner />
               ) : (
@@ -668,10 +552,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    i.setState({ blockCommunityLoading: true });
+    const { community, blocked } = i.props.community_view;
+
     i.props.onBlockCommunity({
-      community_id: 0,
-      block: !i.props.community_view.blocked,
+      community_id: community.id,
+      block: !blocked,
       auth: myAuthRequired(),
     });
   }
