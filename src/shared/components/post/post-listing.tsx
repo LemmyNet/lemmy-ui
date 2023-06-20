@@ -735,7 +735,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <Link
-        className="btn btn-link text-muted pl-0 text-muted"
+        className="btn btn-link text-muted ps-0 text-muted"
         title={i18n.t("number_of_comments", {
           count: Number(post_view.counts.comments),
           formattedCount: Number(post_view.counts.comments),
