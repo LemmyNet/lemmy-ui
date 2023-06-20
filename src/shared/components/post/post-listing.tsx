@@ -591,7 +591,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   duplicatesLine() {
-    const dupes = this.props.crossPosts;
+    const dupes = this.props.crossPosts?.filter(
+      pv => pv.community.id !== this.postView.community.id
+    );
+
     return dupes && dupes.length > 0 ? (
       <ul className="list-inline mb-1 small text-muted">
         <>
