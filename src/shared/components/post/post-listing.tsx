@@ -373,13 +373,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <PersonListing person={post_view.creator} />
 
           {this.creatorIsMod_ && (
-            <span className="mx-1 badge">{i18n.t("mod")}</span>
+            <span className="mx-1 badge text-bg-light">{i18n.t("mod")}</span>
           )}
           {this.creatorIsAdmin_ && (
-            <span className="mx-1 badge">{i18n.t("admin")}</span>
+            <span className="mx-1 badge text-bg-light">{i18n.t("admin")}</span>
           )}
           {post_view.creator.bot_account && (
-            <span className="mx-1 badge">
+            <span className="mx-1 badge text-bg-light">
               {i18n.t("bot_account").toLowerCase()}
             </span>
           )}
@@ -391,7 +391,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
         </li>
         {post_view.post.language_id !== 0 && (
-          <span className="mx-1 badge">
+          <span className="mx-1 badge text-bg-light">
             {
               this.props.allLanguages.find(
                 lang => lang.id === post_view.post.language_id
@@ -414,7 +414,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   voteBar() {
     return (
-      <div className={`vote-bar col-1 pr-0 small text-center`}>
+      <div className={`vote-bar col-1 pe-0 small text-center`}>
         <button
           className={`btn-animate btn btn-link p-0 ${
             this.postView.my_vote == 1 ? "text-info" : "text-muted"
@@ -432,7 +432,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </button>
         {showScores() ? (
           <div
-            className={`unselectable pointer font-weight-bold text-muted px-1 post-score`}
+            className={`unselectable pointer text-muted px-1 post-score`}
             data-tippy-content={this.pointsTippy}
           >
             {numToSI(this.postView.counts.score)}
@@ -508,7 +508,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {(url && isImage(url)) ||
             (post.thumbnail_url && (
               <button
-                className="btn btn-link text-monospace text-muted small d-inline-block"
+                className="btn btn-sm text-monospace text-muted d-inline-block"
                 data-tippy-content={i18n.t("expand_here")}
                 onClick={linkEvent(this, this.handleImageExpandClick)}
               >
@@ -521,13 +521,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               </button>
             ))}
           {post.removed && (
-            <small className="ml-2 badge text-bg-secondary">
+            <small className="ms-2 badge text-bg-secondary">
               {i18n.t("removed")}
             </small>
           )}
           {post.deleted && (
             <small
-              className="unselectable pointer ml-2 text-muted font-italic"
+              className="unselectable pointer ms-2 text-muted font-italic"
               data-tippy-content={i18n.t("deleted")}
             >
               <Icon icon="trash" classes="icon-inline text-danger" />
@@ -535,7 +535,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
           {post.locked && (
             <small
-              className="unselectable pointer ml-2 text-muted font-italic"
+              className="unselectable pointer ms-2 text-muted font-italic"
               data-tippy-content={i18n.t("locked")}
             >
               <Icon icon="lock" classes="icon-inline text-danger" />
@@ -543,22 +543,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
           {post.featured_community && (
             <small
-              className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("featured")}
+              className="unselectable pointer ms-2 text-muted font-italic"
+              data-tippy-content={i18n.t("featured_in_community")}
+              aria-label={i18n.t("featured_in_community")}
             >
               <Icon icon="pin" classes="icon-inline text-primary" />
             </small>
           )}
           {post.featured_local && (
             <small
-              className="unselectable pointer ml-2 text-muted font-italic"
-              data-tippy-content={i18n.t("featured")}
+              className="unselectable pointer ms-2 text-muted font-italic"
+              data-tippy-content={i18n.t("featured_in_local")}
+              aria-label={i18n.t("featured_in_local")}
             >
               <Icon icon="pin" classes="icon-inline text-secondary" />
             </small>
           )}
           {post.nsfw && (
-            <small className="ml-2 badge text-bg-danger">
+            <small className="ms-2 badge text-bg-danger">
               {i18n.t("nsfw")}
             </small>
           )}
@@ -593,9 +595,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return dupes && dupes.length > 0 ? (
       <ul className="list-inline mb-1 small text-muted">
         <>
-          <li className="list-inline-item mr-2">{i18n.t("cross_posted_to")}</li>
+          <li className="list-inline-item me-2">{i18n.t("cross_posted_to")}</li>
           {dupes.map(pv => (
-            <li key={pv.post.id} className="list-inline-item mr-2">
+            <li key={pv.post.id} className="list-inline-item me-2">
               <Link to={`/post/${pv.post.id}`}>
                 {pv.community.local
                   ? pv.community.name
@@ -614,11 +616,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="d-flex align-items-center justify-content-start flex-wrap text-muted font-weight-bold">
+      <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
         {this.commentsButton}
         {canShare() && (
           <button
-            className="btn btn-sm btn-link"
+            className="btn btn-sm btn-animate text-muted py-0"
             onClick={linkEvent(this, this.handleShare)}
             type="button"
           >
@@ -627,7 +629,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {!post.local && (
           <a
-            className="btn btn-link btn-animate text-muted py-0"
+            className="btn btn-sm btn-animate text-muted py-0"
             title={i18n.t("link")}
             href={post.ap_id}
           >
@@ -642,31 +644,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get hasAdvancedButtons() {
-    return (
-      this.myPost ||
-      (this.showBody && this.postView.post.body) ||
-      amMod(this.props.moderators) ||
-      amAdmin() ||
-      this.canMod_ ||
-      this.canAdmin_
-    );
-  }
-
   showPreviewButton() {
     const post_view = this.postView;
     const body = post_view.post.body;
 
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-sm btn-animate text-muted py-0"
         data-tippy-content={body && mdNoImages.render(body)}
         data-tippy-allowHtml={true}
         onClick={linkEvent(this, this.handleShowBody)}
       >
         <Icon
           icon="book-open"
-          classes={classNames("icon-inline mr-1", {
+          classes={classNames("icon-inline me-1", {
             "text-success": this.state.showBody,
           })}
         />
@@ -694,50 +685,48 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         {this.showBody && post_view.post.body && this.viewSourceButton}
 
-        {this.hasAdvancedButtons && (
-          <div className="dropdown">
-            <button
-              className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
-              onClick={linkEvent(this, this.handleShowAdvanced)}
-              data-tippy-content={i18n.t("more")}
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              aria-controls="advancedButtonsDropdown"
-              aria-label={i18n.t("more")}
-            >
-              <Icon icon="more-vertical" inline />
-            </button>
+        <div className="dropdown">
+          <button
+            className="btn btn-sm btn-animate text-muted py-0 dropdown-toggle"
+            onClick={linkEvent(this, this.handleShowAdvanced)}
+            data-tippy-content={i18n.t("more")}
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            aria-controls="advancedButtonsDropdown"
+            aria-label={i18n.t("more")}
+          >
+            <Icon icon="more-vertical" inline />
+          </button>
 
-            <ul className="dropdown-menu" id="advancedButtonsDropdown">
-              {!this.myPost ? (
-                <>
-                  <li>{this.reportButton}</li>
-                  <li>{this.blockButton}</li>
-                </>
-              ) : (
-                <>
-                  <li>{this.editButton}</li>
-                  <li>{this.deleteButton}</li>
-                </>
-              )}
+          <ul className="dropdown-menu" id="advancedButtonsDropdown">
+            {!this.myPost ? (
+              <>
+                <li>{this.reportButton}</li>
+                <li>{this.blockButton}</li>
+              </>
+            ) : (
+              <>
+                <li>{this.editButton}</li>
+                <li>{this.deleteButton}</li>
+              </>
+            )}
 
-              {/* Any mod can do these, not limited to hierarchy*/}
-              {(amMod(this.props.moderators) || amAdmin()) && (
-                <>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>{this.lockButton}</li>
-                  {this.featureButtons}
-                </>
-              )}
+            {/* Any mod can do these, not limited to hierarchy*/}
+            {(amMod(this.props.moderators) || amAdmin()) && (
+              <>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>{this.lockButton}</li>
+                {this.featureButtons}
+              </>
+            )}
 
-              {(this.canMod_ || this.canAdmin_) && (
-                <li>{this.modRemoveButton}</li>
-              )}
-            </ul>
-          </div>
-        )}
+            {(this.canMod_ || this.canAdmin_) && (
+              <li>{this.modRemoveButton}</li>
+            )}
+          </ul>
+        </div>
       </>
     );
   }
@@ -746,15 +735,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <Link
-        className="btn btn-link text-muted pl-0 text-muted"
+        className="btn btn-link text-muted ps-0 text-muted"
         title={i18n.t("number_of_comments", {
           count: Number(post_view.counts.comments),
           formattedCount: Number(post_view.counts.comments),
         })}
         to={`/post/${post_view.post.id}?scrollToComments=true`}
       >
-        <Icon icon="message-square" classes="mr-1" inline />
-        <span className="mr-2">
+        <Icon icon="message-square" classes="me-1" inline />
+        <span className="me-2">
           {i18n.t("number_of_comments", {
             count: Number(post_view.counts.comments),
             formattedCount: numToSI(post_view.counts.comments),
@@ -799,7 +788,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <>
                 <Icon icon="arrow-up1" classes="icon-inline small" />
                 {showScores() && (
-                  <span className="ml-2">
+                  <span className="ms-2">
                     {numToSI(this.postView.counts.upvotes)}
                   </span>
                 )}
@@ -808,7 +797,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </button>
           {this.props.enableDownvotes && (
             <button
-              className={`ml-2 btn-animate btn py-0 px-1 ${
+              className={`ms-2 btn-animate btn py-0 px-1 ${
                 this.postView.my_vote === -1 ? "text-danger" : "text-muted"
               }`}
               onClick={linkEvent(this, this.handleDownvote)}
@@ -823,7 +812,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <Icon icon="arrow-down1" classes="icon-inline small" />
                   {showScores() && (
                     <span
-                      className={classNames("ml-2", {
+                      className={classNames("ms-2", {
                         invisible: this.postView.counts.downvotes === 0,
                       })}
                     >
@@ -844,7 +833,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const label = saved ? i18n.t("unsave") : i18n.t("save");
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-sm btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleSavePostClick)}
         data-tippy-content={label}
         aria-label={label}
@@ -865,7 +854,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get crossPostButton() {
     return (
       <Link
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-sm btn-animate text-muted py-0"
         to={{
           /* Empty string properties are required to satisfy type*/
           pathname: "/create_post",
@@ -890,7 +879,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         onClick={linkEvent(this, this.handleShowReportDialog)}
         aria-label={i18n.t("show_report_dialog")}
       >
-        <Icon classes="mr-1" icon="flag" inline />
+        <Icon classes="me-1" icon="flag" inline />
         {i18n.t("create_report")}
       </button>
     );
@@ -906,7 +895,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.state.blockLoading ? (
           <Spinner />
         ) : (
-          <Icon classes="mr-1" icon="slash" inline />
+          <Icon classes="me-1" icon="slash" inline />
         )}
         {i18n.t("block_user")}
       </button>
@@ -920,7 +909,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         onClick={linkEvent(this, this.handleEditClick)}
         aria-label={i18n.t("edit")}
       >
-        <Icon classes="mr-1" icon="edit" inline />
+        <Icon classes="me-1" icon="edit" inline />
         {i18n.t("edit")}
       </button>
     );
@@ -941,7 +930,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             <Icon
               icon="trash"
-              classes={classNames("mr-1", { "text-danger": deleted })}
+              classes={classNames("me-1", { "text-danger": deleted })}
               inline
             />
             {label}
@@ -954,7 +943,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get viewSourceButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-sm btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleViewSource)}
         data-tippy-content={i18n.t("view_source")}
         aria-label={i18n.t("view_source")}
@@ -983,7 +972,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             <Icon
               icon="lock"
-              classes={classNames("mr-1", { "text-danger": locked })}
+              classes={classNames("me-1", { "text-danger": locked })}
               inline
             />
             {label}
@@ -1018,7 +1007,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <>
                 <Icon
                   icon="pin"
-                  classes={classNames("mr-1", {
+                  classes={classNames("me-1", {
                     "text-success": featuredCommunity,
                   })}
                   inline
@@ -1042,7 +1031,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <>
                   <Icon
                     icon="pin"
-                    classes={classNames("mr-1", {
+                    classes={classNames("me-1", {
                       "text-success": featuredLocal,
                     })}
                     inline
@@ -1153,13 +1142,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <>
                 <button
-                  className="d-inline-block mr-1 btn btn-link btn-animate text-muted py-0"
+                  className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0"
                   aria-label={i18n.t("are_you_sure")}
                 >
                   {i18n.t("are_you_sure")}
                 </button>
                 <button
-                  className="btn btn-link btn-animate text-muted py-0 d-inline-block mr-1"
+                  className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
                   aria-label={i18n.t("yes")}
                   onClick={linkEvent(this, this.handleTransferCommunity)}
                 >
@@ -1258,13 +1247,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className="form-inline"
             onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
           >
-            <label className="sr-only" htmlFor="post-listing-remove-reason">
+            <label
+              className="visually-hidden"
+              htmlFor="post-listing-remove-reason"
+            >
               {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="post-listing-remove-reason"
-              className="form-control mr-2"
+              className="form-control me-2"
               placeholder={i18n.t("reason")}
               value={this.state.removeReason}
               onInput={linkEvent(this, this.handleModRemoveReasonChange)}
@@ -1280,7 +1272,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div className="form-group row col-12">
+            <div className="mb-3 row col-12">
               <label
                 className="col-form-label"
                 htmlFor="post-listing-ban-reason"
@@ -1290,7 +1282,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <input
                 type="text"
                 id="post-listing-ban-reason"
-                className="form-control mr-2"
+                className="form-control me-2"
                 placeholder={i18n.t("reason")}
                 value={this.state.banReason}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
@@ -1301,12 +1293,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <input
                 type="number"
                 id={`mod-ban-expires`}
-                className="form-control mr-2"
+                className="form-control me-2"
                 placeholder={i18n.t("number_of_days")}
                 value={this.state.banExpireDays}
                 onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
               />
-              <div className="form-group">
+              <div className="input-group mb-3">
                 <div className="form-check">
                   <input
                     className="form-check-input"
@@ -1326,11 +1318,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               </div>
             </div>
             {/* TODO hold off on expires until later */}
-            {/* <div class="form-group row"> */}
+            {/* <div class="mb-3 row"> */}
             {/*   <label class="col-form-label">Expires</label> */}
-            {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
+            {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
             {/* </div> */}
-            <div className="form-group row">
+            <div className="mb-3 row">
               <button
                 type="submit"
                 className="btn btn-secondary"
@@ -1352,13 +1344,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className="form-inline"
             onSubmit={linkEvent(this, this.handleReportSubmit)}
           >
-            <label className="sr-only" htmlFor="post-report-reason">
+            <label className="visually-hidden" htmlFor="post-report-reason">
               {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="post-report-reason"
-              className="form-control mr-2"
+              className="form-control me-2"
               placeholder={i18n.t("reason")}
               required
               value={this.state.reportReason}
@@ -1379,13 +1371,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onSubmit={linkEvent(this, this.handlePurgeSubmit)}
           >
             <PurgeWarning />
-            <label className="sr-only" htmlFor="purge-reason">
+            <label className="visually-hidden" htmlFor="purge-reason">
               {i18n.t("reason")}
             </label>
             <input
               type="text"
               id="purge-reason"
-              className="form-control mr-2"
+              className="form-control me-2"
               placeholder={i18n.t("reason")}
               value={this.state.purgeReason}
               onInput={linkEvent(this, this.handlePurgeReasonChange)}
@@ -1463,7 +1455,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-none d-sm-block">
           <article className="row post-container">
             {!this.props.viewOnly && this.voteBar()}
-            <div className="col-sm-2 pr-0 post-media">
+            <div className="col-sm-2 pe-0 post-media">
               <div className="">{this.thumbnail()}</div>
             </div>
             <div className="col-12 col-sm-9">

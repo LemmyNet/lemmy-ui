@@ -203,7 +203,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             ) && !this.state.submitted
           }
         />
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
             {i18n.t("url")}
           </label>
@@ -241,7 +241,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <div>
                 <a
                   href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
-                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
                   archive.org {i18n.t("archive_link")}
@@ -250,7 +250,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
                     url
                   )}`}
-                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
                   ghostarchive.org {i18n.t("archive_link")}
@@ -259,7 +259,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
                     url
                   )}`}
-                  className="mr-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
                   archive.today {i18n.t("archive_link")}
@@ -277,7 +277,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 aria-label={i18n.t("delete")}
                 data-tippy-content={i18n.t("delete")}
               >
-                <Icon icon="x" classes="icon-inline mr-1" />
+                <Icon icon="x" classes="icon-inline me-1" />
                 {capitalizeFirstLetter(i18n.t("delete"))}
               </button>
             )}
@@ -316,7 +316,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )}
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-title">
             {i18n.t("title")}
           </label>
@@ -342,7 +342,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         </div>
 
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label">{i18n.t("body")}</label>
           <div className="col-sm-10">
             <MarkdownTextArea
@@ -355,7 +355,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         </div>
         {!this.props.post_view && (
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
               {i18n.t("community")}
             </label>
@@ -378,7 +378,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
         {this.props.enableNsfw && (
-          <div className="form-group row">
+          <div className="mb-3 row">
             <legend className="col-form-label col-sm-2 pt-0">
               {i18n.t("nsfw")}
             </legend>
@@ -412,12 +412,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           value={this.state.form.honeypot}
           onInput={linkEvent(this, this.handleHoneyPotChange)}
         />
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-sm-10">
             <button
               disabled={!this.state.form.community_id || this.state.loading}
               type="submit"
-              className="btn btn-secondary mr-2"
+              className="btn btn-secondary me-2"
             >
               {this.state.loading ? (
                 <Spinner />
