@@ -7,7 +7,7 @@ import ServiceWorkerHandler from "./handlers/service-worker-handler";
 import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
 import setDefaultCsp from "./middleware/set-default-csp";
-
+console.log('I am a server!')
 const server = express();
 
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
