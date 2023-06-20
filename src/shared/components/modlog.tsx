@@ -1,6 +1,7 @@
 import {
   debounce,
   getIdFromString,
+  getPageFromString,
   getQueryParams,
   getQueryString,
 } from "@utils/helpers";
@@ -45,7 +46,6 @@ import {
   RouteDataResponse,
   fetchLimit,
   fetchUsers,
-  getPageFromString,
   getUpdatedSearchId,
   myAuth,
   personToChoice,

@@ -1,4 +1,4 @@
-import { numToSI } from "@utils/helpers";
+import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import {
   amCommunityCreator,
   canAdmin,
@@ -51,7 +51,6 @@ import { UserService } from "../../services";
 import {
   colorList,
   commentTreeMaxDepth,
-  futureDaysToUnixTime,
   getCommentParentId,
   mdToHtml,
   mdToHtmlNoImages,

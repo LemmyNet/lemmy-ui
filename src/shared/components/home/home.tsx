@@ -1,4 +1,8 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+} from "@utils/helpers";
 import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
@@ -70,7 +74,6 @@ import {
   fetchLimit,
   getCommentParentId,
   getDataTypeString,
-  getPageFromString,
   getRandomFromList,
   mdToHtml,
   myAuth,

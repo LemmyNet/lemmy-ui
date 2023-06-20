@@ -1,8 +1,8 @@
+import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { ListingType } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import { randomStr } from "../../utils";
 
 interface ListingTypeSelectProps {
   type_: ListingType;

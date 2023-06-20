@@ -1,3 +1,4 @@
+import { getUnixTime } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -17,7 +18,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
-import { getUnixTime, hostname, mdToHtml, myAuthRequired } from "../../utils";
+import { hostname, mdToHtml, myAuthRequired } from "../../utils";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";

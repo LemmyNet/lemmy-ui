@@ -1,3 +1,4 @@
+import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityView,
@@ -6,7 +7,7 @@ import {
   Language,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { capitalizeFirstLetter, myAuthRequired, randomStr } from "../../utils";
+import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";

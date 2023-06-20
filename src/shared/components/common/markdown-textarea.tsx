@@ -1,5 +1,5 @@
 import { isBrowser } from "@utils/browser";
-import { numToSI } from "@utils/helpers";
+import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
@@ -15,7 +15,6 @@ import {
   maxUploadImages,
   mdToHtml,
   pictrsDeleteToast,
-  randomStr,
   relTags,
   setupTippy,
   setupTribute,

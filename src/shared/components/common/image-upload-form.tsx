@@ -1,7 +1,8 @@
+import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { i18n } from "../../i18next";
 import { HttpService, UserService } from "../../services";
-import { randomStr, toast } from "../../utils";
+import { toast } from "../../utils";
 import { Icon } from "./icon";
 
 interface ImageUploadFormProps {

@@ -1,7 +1,8 @@
+import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { CommentSortType } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { randomStr, relTags, sortingHelpUrl } from "../../utils";
+import { relTags, sortingHelpUrl } from "../../utils";
 import { Icon } from "./icon";
 
 interface CommentSortSelectProps {

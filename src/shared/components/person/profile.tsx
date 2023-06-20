@@ -1,4 +1,10 @@
-import { getQueryParams, getQueryString, numToSI } from "@utils/helpers";
+import {
+  futureDaysToUnixTime,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  numToSI,
+} from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import classNames from "classnames";
@@ -64,9 +70,7 @@ import {
   enableDownvotes,
   enableNsfw,
   fetchLimit,
-  futureDaysToUnixTime,
   getCommentParentId,
-  getPageFromString,
   mdToHtml,
   myAuth,
   myAuthRequired,

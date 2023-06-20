@@ -1,4 +1,9 @@
-import { getQueryParams, getQueryString, numToSI } from "@utils/helpers";
+import {
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  numToSI,
+} from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
@@ -15,7 +20,6 @@ import { HttpService, RequestState } from "../../services/HttpService";
 import {
   RouteDataResponse,
   editCommunity,
-  getPageFromString,
   myAuth,
   myAuthRequired,
   setIsoData,

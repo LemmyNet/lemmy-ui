@@ -1,6 +1,7 @@
 import {
   debounce,
   getIdFromString,
+  getPageFromString,
   getQueryParams,
   getQueryString,
   numToSI,
@@ -43,7 +44,6 @@ import {
   fetchCommunities,
   fetchLimit,
   fetchUsers,
-  getPageFromString,
   getUpdatedSearchId,
   myAuth,
   personToChoice,

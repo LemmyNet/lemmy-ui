@@ -1,5 +1,5 @@
 import { isBrowser } from "@utils/browser";
-import { debounce, getRandomCharFromAlphabet, groupBy } from "@utils/helpers";
+import { debounce, groupBy } from "@utils/helpers";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
@@ -122,28 +122,6 @@ export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
   CustomEmojiView
 >();
 
-const DEFAULT_ALPHABET =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-export function getPageFromString(page?: string): number {
-  return page && !Number.isNaN(Number(page)) ? Number(page) : 1;
-}
-
-export function randomStr(
-  idDesiredLength = 20,
-  alphabet = DEFAULT_ALPHABET
-): string {
-  /**
-   * Create n-long array and map it to random chars from given alphabet.
-   * Then join individual chars as string
-   */
-  return Array.from({ length: idDesiredLength })
-    .map(() => {
-      return getRandomCharFromAlphabet(alphabet);
-    })
-    .join("");
-}
-
 const html5EmbedConfig = {
   html5embed: {
     useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
@@ -213,18 +191,6 @@ export function mdToHtmlNoImages(text: string) {
 
 export function mdToHtmlInline(text: string) {
   return { __html: md.renderInline(text) };
-}
-
-export function getUnixTime(text?: string): number | undefined {
-  return text ? new Date(text).getTime() / 1000 : undefined;
-}
-
-export function futureDaysToUnixTime(days?: number): number | undefined {
-  return days
-    ? Math.trunc(
-        new Date(Date.now() + 1000 * 60 * 60 * 24 * days).getTime() / 1000
-      )
-    : undefined;
 }
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;

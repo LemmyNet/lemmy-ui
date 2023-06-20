@@ -1,4 +1,8 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+} from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -75,7 +79,6 @@ import {
   fetchLimit,
   getCommentParentId,
   getDataTypeString,
-  getPageFromString,
   myAuth,
   postToCommentSortType,
   relTags,
