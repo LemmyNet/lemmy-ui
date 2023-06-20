@@ -59,65 +59,59 @@ export class LoginReset extends Component<any, State> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3">
-            {this.loginResetForm()}
-          </div>
-        </div>
+        <div className="col-12 col-lg-6 m-auto">{this.loginResetForm()}</div>
       </div>
     );
   }
 
   loginResetForm() {
     return (
-      <div>
-        <form onSubmit={linkEvent(this, this.handlePasswordReset)}>
-          <h5>{capitalizeFirstLetter(i18n.t("forgot_password"))}</h5>
+      <form onSubmit={linkEvent(this, this.handlePasswordReset)}>
+        <h5>{capitalizeFirstLetter(i18n.t("forgot_password"))}</h5>
 
-          <div className="form-group row">
-            <label className="col-form-label col-sm-10">
-              {i18n.t("no_password_reset")}
-            </label>
+        <div className="form-group row">
+          <label className="col-form-label col-sm-10">
+            {i18n.t("no_password_reset")}
+          </label>
+        </div>
+
+        <div className="form-group row">
+          <label
+            className="col-sm-2 col-form-label"
+            htmlFor="login-email-or-username"
+          >
+            {i18n.t("email")}
+          </label>
+
+          <div className="col-sm-10">
+            <input
+              type="text"
+              className="form-control"
+              id="login-email-or-username"
+              value={this.state.form.email}
+              onInput={linkEvent(this, this.handleEmailInputChange)}
+              autoComplete="email"
+              required
+              minLength={3}
+            />
           </div>
+        </div>
 
-          <div className="form-group row">
-            <label
-              className="col-sm-2 col-form-label"
-              htmlFor="login-email-or-username"
+        <div className="form-group row">
+          <div className="col-sm-10">
+            <button
+              type="button"
+              onClick={linkEvent(this, this.handlePasswordReset)}
+              className="btn btn-secondary"
+              disabled={
+                !validEmail(this.state.form.email) || this.state.loading
+              }
             >
-              {i18n.t("email")}
-            </label>
-
-            <div className="col-sm-10">
-              <input
-                type="text"
-                className="form-control"
-                id="login-email-or-username"
-                value={this.state.form.email}
-                onInput={linkEvent(this, this.handleEmailInputChange)}
-                autoComplete="email"
-                required
-                minLength={3}
-              />
-            </div>
+              {this.state.loading ? <Spinner /> : i18n.t("reset_password")}
+            </button>
           </div>
-
-          <div className="form-group row">
-            <div className="col-sm-10">
-              <button
-                type="button"
-                onClick={linkEvent(this, this.handlePasswordReset)}
-                className="btn btn-secondary"
-                disabled={
-                  !validEmail(this.state.form.email) || this.state.loading
-                }
-              >
-                {this.state.loading ? <Spinner /> : i18n.t("reset_password")}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     );
   }
 
