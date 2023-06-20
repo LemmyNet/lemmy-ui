@@ -140,7 +140,7 @@ export class PasswordChange extends Component<any, State> {
           UserService.Instance.myUserInfo = site.data.my_user;
         }
 
-        this.props.history.replace("/");
+        i.props.history.replace("/");
       }
     }
   }
