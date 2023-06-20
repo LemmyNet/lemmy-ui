@@ -1,3 +1,4 @@
+import { isBrowser } from "@utils/browser";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
@@ -8,7 +9,6 @@ import { HttpService, UserService } from "../../services";
 import {
   concurrentImageUpload,
   customEmojisLookup,
-  isBrowser,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
   maxUploadImages,

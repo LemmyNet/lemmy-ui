@@ -1,3 +1,6 @@
+import { isBrowser } from "@utils/browser";
+import { poll } from "@utils/helpers";
+import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import {
@@ -10,13 +13,9 @@ import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  amAdmin,
-  canCreateCommunity,
   donateLemmyUrl,
-  isBrowser,
   myAuth,
   numToSI,
-  poll,
   showAvatars,
   toast,
   updateUnreadCountsInterval,

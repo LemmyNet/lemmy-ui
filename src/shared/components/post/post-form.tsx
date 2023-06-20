@@ -1,3 +1,4 @@
+import { debounce } from "@utils/helpers";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -18,7 +19,6 @@ import {
   archiveTodayUrl,
   capitalizeFirstLetter,
   communityToChoice,
-  debounce,
   fetchCommunities,
   getIdFromString,
   ghostArchiveUrl,

@@ -1,3 +1,5 @@
+import { getQueryParams } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -17,12 +19,10 @@ import {
 } from "../../services/HttpService";
 import {
   Choice,
-  QueryParams,
   RouteDataResponse,
   enableDownvotes,
   enableNsfw,
   getIdFromString,
-  getQueryParams,
   myAuth,
   setIsoData,
 } from "../../utils";

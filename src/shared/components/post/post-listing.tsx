@@ -1,3 +1,14 @@
+import { canShare, share } from "@utils/browser";
+import {
+  amAdmin,
+  amCommunityCreator,
+  amMod,
+  canAdmin,
+  canMod,
+  isAdmin,
+  isBanned,
+  isMod,
+} from "@utils/roles";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -28,18 +39,9 @@ import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { UserService } from "../../services";
 import {
-  amAdmin,
-  amCommunityCreator,
-  amMod,
-  canAdmin,
-  canMod,
-  canShare,
   futureDaysToUnixTime,
   hostname,
-  isAdmin,
-  isBanned,
   isImage,
-  isMod,
   isVideo,
   mdNoImages,
   mdToHtml,
@@ -49,7 +51,6 @@ import {
   numToSI,
   relTags,
   setupTippy,
-  share,
   showScores,
 } from "../../utils";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";

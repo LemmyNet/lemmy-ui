@@ -1,3 +1,5 @@
+import { isBrowser } from "@utils/browser";
+import { debounce } from "@utils/helpers";
 import autosize from "autosize";
 import { Component, createRef, linkEvent, RefObject } from "inferno";
 import {
@@ -64,7 +66,6 @@ import {
   buildCommentsTree,
   commentsToFlatNodes,
   commentTreeMaxDepth,
-  debounce,
   editComment,
   editWith,
   enableDownvotes,
@@ -73,7 +74,6 @@ import {
   getCommentParentId,
   getDepthFromComment,
   getIdFromProps,
-  isBrowser,
   isImage,
   myAuth,
   restoreScrollPosition,

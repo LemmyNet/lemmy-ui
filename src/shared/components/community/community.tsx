@@ -1,3 +1,5 @@
+import { getQueryParams, getQueryString } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -62,7 +64,6 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  QueryParams,
   RouteDataResponse,
   commentsToFlatNodes,
   communityRSSUrl,
@@ -75,8 +76,6 @@ import {
   getCommentParentId,
   getDataTypeString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   myAuth,
   postToCommentSortType,
   relTags,

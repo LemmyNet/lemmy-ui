@@ -1,3 +1,5 @@
+import { getQueryParams, getQueryString } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
@@ -11,12 +13,9 @@ import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  QueryParams,
   RouteDataResponse,
   editCommunity,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   myAuth,
   myAuthRequired,
   numToSI,

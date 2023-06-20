@@ -5,6 +5,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
 const merge = require("lodash/merge");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
   Source code: https://github.com/LemmyNet/lemmy-ui
@@ -19,6 +20,7 @@ const base = {
     hashFunction: "xxhash64",
   },
   resolve: {
+    plugins: [new TsconfigPathsPlugin()],
     extensions: [".js", ".jsx", ".ts", ".tsx"],
   },
   performance: {

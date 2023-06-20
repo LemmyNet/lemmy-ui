@@ -1,3 +1,11 @@
+import {
+  amCommunityCreator,
+  canAdmin,
+  canMod,
+  isAdmin,
+  isBanned,
+  isMod,
+} from "@utils/roles";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -40,16 +48,10 @@ import {
 } from "../../interfaces";
 import { UserService } from "../../services";
 import {
-  amCommunityCreator,
-  canAdmin,
-  canMod,
   colorList,
   commentTreeMaxDepth,
   futureDaysToUnixTime,
   getCommentParentId,
-  isAdmin,
-  isBanned,
-  isMod,
   mdToHtml,
   mdToHtmlNoImages,
   myAuth,

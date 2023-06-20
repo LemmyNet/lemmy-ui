@@ -1,5 +1,8 @@
+import { getQueryParams, getQueryString } from "@utils/helpers";
+import { canCreateCommunity } from "@utils/roles";
+import type { QueryParams } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent, MouseEventHandler } from "inferno";
+import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -57,7 +60,7 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  canCreateCommunity,
+  RouteDataResponse,
   commentsToFlatNodes,
   editComment,
   editPost,
@@ -68,16 +71,12 @@ import {
   getCommentParentId,
   getDataTypeString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   getRandomFromList,
   mdToHtml,
   myAuth,
   postToCommentSortType,
-  QueryParams,
   relTags,
   restoreScrollPosition,
-  RouteDataResponse,
   saveScrollPosition,
   setIsoData,
   setupTippy,

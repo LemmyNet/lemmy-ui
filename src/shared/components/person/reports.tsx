@@ -1,3 +1,4 @@
+import { amAdmin } from "@utils/roles";
 import { Component, linkEvent } from "inferno";
 import {
   CommentReportResponse,
@@ -24,7 +25,6 @@ import { FirstLoadService } from "../../services/FirstLoadService";
 import { RequestState } from "../../services/HttpService";
 import {
   RouteDataResponse,
-  amAdmin,
   editCommentReport,
   editPostReport,
   editPrivateMessageReport,

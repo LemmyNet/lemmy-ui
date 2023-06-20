@@ -1,3 +1,4 @@
+import { debounce } from "@utils/helpers";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -18,7 +19,6 @@ import {
   Choice,
   capitalizeFirstLetter,
   communityToChoice,
-  debounce,
   elementUrl,
   emDash,
   fetchCommunities,
