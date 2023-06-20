@@ -180,8 +180,8 @@ const Filter = ({
   loading: boolean;
 }) => {
   return (
-    <div className="form-group col-sm-6">
-      <label className="col-form-label" htmlFor={`${filterType}-filter`}>
+    <div className="mb-3 col-sm-6">
+      <label className="col-form-label me-2" htmlFor={`${filterType}-filter`}>
         {capitalizeFirstLetter(i18n.t(filterType))}
       </label>
       <SearchableSelect
@@ -491,27 +491,28 @@ export class Search extends Component<any, SearchState> {
 
   get searchForm() {
     return (
-      <form
-        className="form-inline"
-        onSubmit={linkEvent(this, this.handleSearchSubmit)}
-      >
-        <input
-          type="text"
-          className="form-control mr-2 mb-2"
-          value={this.state.searchText}
-          placeholder={`${i18n.t("search")}...`}
-          aria-label={i18n.t("search")}
-          onInput={linkEvent(this, this.handleQChange)}
-          required
-          minLength={1}
-        />
-        <button type="submit" className="btn btn-secondary mr-2 mb-2">
-          {this.state.searchRes.state === "loading" ? (
-            <Spinner />
-          ) : (
-            <span>{i18n.t("search")}</span>
-          )}
-        </button>
+      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
+        <div className="col-auto">
+          <input
+            type="text"
+            className="form-control me-2 mb-2 col-sm-8"
+            value={this.state.searchText}
+            placeholder={`${i18n.t("search")}...`}
+            aria-label={i18n.t("search")}
+            onInput={linkEvent(this, this.handleQChange)}
+            required
+            minLength={1}
+          />
+        </div>
+        <div className="col-auto">
+          <button type="submit" className="btn btn-secondary mb-2">
+            {this.state.searchRes.state === "loading" ? (
+              <Spinner />
+            ) : (
+              <span>{i18n.t("search")}</span>
+            )}
+          </button>
+        </div>
       </form>
     );
   }
@@ -536,7 +537,7 @@ export class Search extends Component<any, SearchState> {
         <select
           value={type}
           onChange={linkEvent(this, this.handleTypeChange)}
-          className="custom-select w-auto mb-2"
+          className="form-select d-inline-block w-auto mb-2"
           aria-label={i18n.t("type")}
         >
           <option disabled aria-hidden="true">
@@ -548,7 +549,7 @@ export class Search extends Component<any, SearchState> {
             </option>
           ))}
         </select>
-        <span className="ml-2">
+        <span className="ms-2">
           <ListingTypeSelect
             type_={listingType}
             showLocal={showLocal(this.isoData)}
@@ -556,7 +557,7 @@ export class Search extends Component<any, SearchState> {
             onChange={this.handleListingTypeChange}
           />
         </span>
-        <span className="ml-2">
+        <span className="ms-2">
           <SortSelect
             sort={sort}
             onChange={this.handleSortChange}
@@ -564,7 +565,7 @@ export class Search extends Component<any, SearchState> {
             hideMostComments
           />
         </span>
-        <div className="form-row">
+        <div className="row">
           {hasCommunities && (
             <Filter
               filterType="community"

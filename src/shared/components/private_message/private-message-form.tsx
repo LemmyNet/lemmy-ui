@@ -80,7 +80,7 @@ export class PrivateMessageForm extends Component<
           }
         />
         {!this.props.privateMessageView && (
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-2 col-form-label">
               {capitalizeFirstLetter(i18n.t("to"))}
             </label>
@@ -90,7 +90,7 @@ export class PrivateMessageForm extends Component<
             </div>
           </div>
         )}
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label">
             {i18n.t("message")}
             <button
@@ -114,7 +114,7 @@ export class PrivateMessageForm extends Component<
         </div>
 
         {this.state.showDisclaimer && (
-          <div className="form-group row">
+          <div className="mb-3 row">
             <div className="offset-sm-2 col-sm-10">
               <div className="alert alert-danger" role="alert">
                 <T i18nKey="private_message_disclaimer">
@@ -131,11 +131,11 @@ export class PrivateMessageForm extends Component<
             </div>
           </div>
         )}
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="offset-sm-2 col-sm-10">
             <button
               type="submit"
-              className="btn btn-secondary mr-2"
+              className="btn btn-secondary me-2"
               disabled={this.state.loading}
             >
               {this.state.loading ? (

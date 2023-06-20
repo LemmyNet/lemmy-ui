@@ -86,7 +86,7 @@ export class Setup extends Component<any, State> {
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
         <h5>{i18n.t("setup_admin")}</h5>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="username">
             {i18n.t("username")}
           </label>
@@ -103,7 +103,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="email">
             {i18n.t("email")}
           </label>
@@ -120,7 +120,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="password">
             {i18n.t("password")}
           </label>
@@ -138,7 +138,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="verify-password">
             {i18n.t("verify_password")}
           </label>
@@ -156,7 +156,7 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
               {this.state.registerRes.state == "loading" ? (

@@ -371,7 +371,7 @@ export function isCakeDay(published: string): boolean {
 
 export function toast(text: string, background: ThemeColor = "success") {
   if (isBrowser()) {
-    const backgroundColor = `var(--${background})`;
+    const backgroundColor = `var(--bs-${background})`;
     Toastify({
       text: text,
       backgroundColor: backgroundColor,
@@ -392,7 +392,7 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
       filename,
     });
 
-    const backgroundColor = `var(--light)`;
+    const backgroundColor = `var(--bs-light)`;
 
     const toast = Toastify({
       text: clickToDeleteText,

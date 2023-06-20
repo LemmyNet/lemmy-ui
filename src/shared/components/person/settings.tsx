@@ -110,7 +110,7 @@ const Filter = ({
   onChange: (choice: Choice) => void;
   loading: boolean;
 }) => (
-  <div className="form-group row">
+  <div className="mb-3 row">
     <label
       className="col-md-4 col-form-label"
       htmlFor={`block-${filterType}-filter`}
@@ -304,7 +304,7 @@ export class Settings extends Component<any, SettingsState> {
       <>
         <h5>{i18n.t("change_password")}</h5>
         <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-5 col-form-label" htmlFor="user-password">
               {i18n.t("new_password")}
             </label>
@@ -320,7 +320,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label
               className="col-sm-5 col-form-label"
               htmlFor="user-verify-password"
@@ -339,7 +339,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label
               className="col-sm-5 col-form-label"
               htmlFor="user-old-password"
@@ -358,8 +358,11 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group">
-            <button type="submit" className="btn btn-block btn-secondary mr-4">
+          <div className="input-group mb-3">
+            <button
+              type="submit"
+              className="btn d-block btn-secondary me-4 w-100"
+            >
               {this.state.changePasswordRes.state === "loading" ? (
                 <Spinner />
               ) : (
@@ -467,11 +470,11 @@ export class Settings extends Component<any, SettingsState> {
       <>
         <h5>{i18n.t("settings")}</h5>
         <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
-          <div className="form-group row">
-            <label className="col-sm-5 col-form-label" htmlFor="display-name">
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="display-name">
               {i18n.t("display_name")}
             </label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <input
                 id="display-name"
                 type="text"
@@ -484,7 +487,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-bio">
               {i18n.t("bio")}
             </label>
@@ -499,7 +502,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-email">
               {i18n.t("email")}
             </label>
@@ -515,13 +518,13 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-5 col-form-label" htmlFor="matrix-user-id">
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="matrix-user-id">
               <a href={elementUrl} rel={relTags}>
                 {i18n.t("matrix_user_id")}
               </a>
             </label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <input
                 id="matrix-user-id"
                 type="text"
@@ -533,8 +536,10 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3">{i18n.t("avatar")}</label>
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("avatar")}
+            </label>
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_avatar")}
@@ -545,8 +550,10 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3">{i18n.t("banner")}</label>
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("banner")}
+            </label>
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={i18n.t("upload_banner")}
@@ -556,8 +563,8 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3" htmlFor="user-language">
+          <div className="mb-3 row">
+            <label className="col-sm-3 form-label" htmlFor="user-language">
               {i18n.t("interface_language")}
             </label>
             <div className="col-sm-9">
@@ -565,7 +572,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-language"
                 value={this.state.saveUserSettingsForm.interface_language}
                 onChange={linkEvent(this, this.handleInterfaceLangChange)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
                   {i18n.t("interface_language")}
@@ -593,8 +600,8 @@ export class Settings extends Component<any, SettingsState> {
             showSite
             onChange={this.handleDiscussionLanguageChange}
           />
-          <div className="form-group row">
-            <label className="col-sm-3" htmlFor="user-theme">
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="user-theme">
               {i18n.t("theme")}
             </label>
             <div className="col-sm-9">
@@ -602,7 +609,7 @@ export class Settings extends Component<any, SettingsState> {
                 id="user-theme"
                 value={this.state.saveUserSettingsForm.theme}
                 onChange={linkEvent(this, this.handleThemeChange)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
                   {i18n.t("theme")}
@@ -616,8 +623,8 @@ export class Settings extends Component<any, SettingsState> {
               </select>
             </div>
           </div>
-          <form className="form-group row">
-            <label className="col-sm-3">{i18n.t("type")}</label>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">{i18n.t("type")}</label>
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={
@@ -630,8 +637,10 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </form>
-          <form className="form-group row">
-            <label className="col-sm-3">{i18n.t("sort_type")}</label>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("sort_type")}
+            </label>
             <div className="col-sm-9">
               <SortSelect
                 sort={
@@ -641,7 +650,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </form>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -655,7 +664,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -669,7 +678,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -683,7 +692,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -697,7 +706,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -714,7 +723,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -731,7 +740,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -748,7 +757,7 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -772,8 +781,8 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           {this.totpSection()}
-          <div className="form-group">
-            <button type="submit" className="btn btn-block btn-secondary mr-4">
+          <div className="input-group mb-3">
+            <button type="submit" className="btn d-block btn-secondary me-4">
               {this.state.saveRes.state === "loading" ? (
                 <Spinner />
               ) : (
@@ -782,9 +791,9 @@ export class Settings extends Component<any, SettingsState> {
             </button>
           </div>
           <hr />
-          <div className="form-group">
+          <div className="input-group mb-3">
             <button
-              className="btn btn-block btn-danger"
+              className="btn d-block btn-danger"
               onClick={linkEvent(
                 this,
                 this.handleDeleteAccountShowConfirmToggle
@@ -809,7 +818,7 @@ export class Settings extends Component<any, SettingsState> {
                   className="form-control my-2"
                 />
                 <button
-                  className="btn btn-danger mr-4"
+                  className="btn btn-danger me-4"
                   disabled={!this.state.deleteAccountForm.password}
                   onClick={linkEvent(this, this.handleDeleteAccount)}
                 >
@@ -843,7 +852,7 @@ export class Settings extends Component<any, SettingsState> {
     return (
       <>
         {!totpUrl && (
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -866,7 +875,7 @@ export class Settings extends Component<any, SettingsState> {
                 {i18n.t("two_factor_link")}
               </a>
             </div>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <div className="form-check">
                 <input
                   className="form-check-input"
