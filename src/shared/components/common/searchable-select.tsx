@@ -106,7 +106,7 @@ export class SearchableSelect extends Component<
         <button
           id={id}
           type="button"
-          className="custom-select text-start"
+          className="form-select d-inline-block text-start"
           aria-haspopup="listbox"
           data-bs-toggle="dropdown"
           onClick={linkEvent(this, focusSearch)}

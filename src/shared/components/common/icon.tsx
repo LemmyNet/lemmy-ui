@@ -25,7 +25,7 @@ export class Icon extends Component<IconProps, any> {
         <use
           xlinkHref={`/static/assets/symbols.svg#icon-${this.props.icon}`}
         ></use>
-        <div className="sr-only">
+        <div className="visually-hidden">
           <title>{this.props.icon}</title>
         </div>
       </svg>
@@ -60,7 +60,7 @@ export class PurgeWarning extends Component<any, any> {
   render() {
     return (
       <div className="mt-2 alert alert-danger" role="alert">
-        <Icon icon="alert-triangle" classes="icon-inline mr-2" />
+        <Icon icon="alert-triangle" classes="icon-inline me-2" />
         {i18n.t("purge_warning")}
       </div>
     );

@@ -112,9 +112,7 @@ export class Communities extends Component<any, CommunitiesState> {
                   />
                 </span>
               </div>
-              <div className="col-md-6">
-                <div className="float-md-right">{this.searchForm()}</div>
-              </div>
+              <div className="col-md-6">{this.searchForm()}</div>
             </div>
 
             <div className="table-responsive">
@@ -222,25 +220,29 @@ export class Communities extends Component<any, CommunitiesState> {
   searchForm() {
     return (
       <form
-        className="form-inline"
+        className="row justify-content-end"
         onSubmit={linkEvent(this, this.handleSearchSubmit)}
       >
-        <input
-          type="text"
-          id="communities-search"
-          className="form-control mr-2 mb-2"
-          value={this.state.searchText}
-          placeholder={`${i18n.t("search")}...`}
-          onInput={linkEvent(this, this.handleSearchChange)}
-          required
-          minLength={3}
-        />
-        <label className="sr-only" htmlFor="communities-search">
-          {i18n.t("search")}
-        </label>
-        <button type="submit" className="btn btn-secondary mr-2 mb-2">
-          <span>{i18n.t("search")}</span>
-        </button>
+        <div className="col-auto">
+          <input
+            type="text"
+            id="communities-search"
+            className="form-control me-2 mb-2"
+            value={this.state.searchText}
+            placeholder={`${i18n.t("search")}...`}
+            onInput={linkEvent(this, this.handleSearchChange)}
+            required
+            minLength={3}
+          />
+        </div>
+        <div className="col-auto">
+          <label className="visually-hidden" htmlFor="communities-search">
+            {i18n.t("search")}
+          </label>
+          <button type="submit" className="btn btn-secondary mb-2">
+            <span>{i18n.t("search")}</span>
+          </button>
+        </div>
       </form>
     );
   }

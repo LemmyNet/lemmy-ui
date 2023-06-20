@@ -395,7 +395,7 @@ export class Post extends Component<any, PostState> {
               />
               <div className="d-block d-md-none">
                 <button
-                  className="btn btn-secondary d-inline-block mb-2 mr-3"
+                  className="btn btn-secondary d-inline-block mb-2 me-3"
                   onClick={linkEvent(this, this.handleShowSidebarMobile)}
                 >
                   {i18n.t("sidebar")}{" "}
@@ -430,7 +430,7 @@ export class Post extends Component<any, PostState> {
   sortRadios() {
     return (
       <>
-        <div className="btn-group btn-group-toggle flex-wrap mr-3 mb-2">
+        <div className="btn-group btn-group-toggle flex-wrap me-3 mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
               this.state.commentSort === "Hot" && "active"
@@ -439,6 +439,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("hot")}
             <input
               type="radio"
+              className="btn-check"
               value={"Hot"}
               checked={this.state.commentSort === "Hot"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -452,6 +453,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("top")}
             <input
               type="radio"
+              className="btn-check"
               value={"Top"}
               checked={this.state.commentSort === "Top"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -465,6 +467,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("new")}
             <input
               type="radio"
+              className="btn-check"
               value={"New"}
               checked={this.state.commentSort === "New"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -478,6 +481,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("old")}
             <input
               type="radio"
+              className="btn-check"
               value={"Old"}
               checked={this.state.commentSort === "Old"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -493,6 +497,7 @@ export class Post extends Component<any, PostState> {
             {i18n.t("chat")}
             <input
               type="radio"
+              className="btn-check"
               value={CommentViewType.Flat}
               checked={this.state.commentViewType === CommentViewType.Flat}
               onChange={linkEvent(this, this.handleCommentViewTypeChange)}
@@ -585,14 +590,14 @@ export class Post extends Component<any, PostState> {
           {!!this.state.commentId && (
             <>
               <button
-                className="pl-0 d-block btn btn-link text-muted"
+                className="ps-0 d-block btn btn-link text-muted"
                 onClick={linkEvent(this, this.handleViewPost)}
               >
                 {i18n.t("view_all_comments")} ➔
               </button>
               {showContextButton && (
                 <button
-                  className="pl-0 d-block btn btn-link text-muted"
+                  className="ps-0 d-block btn btn-link text-muted"
                   onClick={linkEvent(this, this.handleViewContext)}
                 >
                   {i18n.t("show_context")} ➔

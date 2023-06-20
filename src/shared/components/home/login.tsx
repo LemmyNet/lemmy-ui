@@ -67,7 +67,7 @@ export class Login extends Component<any, State> {
       <div>
         <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
           <h5>{i18n.t("login")}</h5>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label
               className="col-sm-2 col-form-label"
               htmlFor="login-email-or-username"
@@ -87,7 +87,7 @@ export class Login extends Component<any, State> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="login-password">
               {i18n.t("password")}
             </label>
@@ -117,7 +117,7 @@ export class Login extends Component<any, State> {
             </div>
           </div>
           {this.state.showTotp && (
-            <div className="form-group row">
+            <div className="mb-3 row">
               <label
                 className="col-sm-6 col-form-label"
                 htmlFor="login-totp-token"
@@ -138,7 +138,7 @@ export class Login extends Component<any, State> {
               </div>
             </div>
           )}
-          <div className="form-group row">
+          <div className="mb-3 row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-secondary">
                 {this.state.loginRes.state == "loading" ? (

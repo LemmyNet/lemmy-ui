@@ -139,7 +139,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             ? capitalizeFirstLetter(i18n.t("edit"))
             : capitalizeFirstLetter(i18n.t("setup"))
         } ${i18n.t("your_site")}`}</h5>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="create-site-name">
             {i18n.t("name")}
           </label>
@@ -156,8 +156,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group">
-          <label className="mr-2">{i18n.t("icon")}</label>
+        <div className="input-group mb-3">
+          <label className="me-2 col-form-label">{i18n.t("icon")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_icon")}
             imageSrc={this.state.siteForm.icon}
@@ -166,8 +166,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             rounded
           />
         </div>
-        <div className="form-group">
-          <label className="mr-2">{i18n.t("banner")}</label>
+        <div className="input-group mb-3">
+          <label className="me-2 col-form-label">{i18n.t("banner")}</label>
           <ImageUploadForm
             uploadTitle={i18n.t("upload_banner")}
             imageSrc={this.state.siteForm.banner}
@@ -175,7 +175,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             onRemove={this.handleBannerRemove}
           />
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="site-desc">
             {i18n.t("description")}
           </label>
@@ -190,7 +190,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-12 col-form-label">{i18n.t("sidebar")}</label>
           <div className="col-12">
             <MarkdownTextArea
@@ -202,7 +202,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label className="col-12 col-form-label">
             {i18n.t("legal_information")}
           </label>
@@ -216,7 +216,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -235,7 +235,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -254,10 +254,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <label
-              className="form-check-label mr-2"
+              className="form-check-label me-2"
               htmlFor="create-site-registration-mode"
             >
               {i18n.t("registration_mode")}
@@ -266,7 +266,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               id="create-site-registration-mode"
               value={this.state.siteForm.registration_mode}
               onChange={linkEvent(this, this.handleSiteRegistrationModeChange)}
-              className="custom-select w-auto"
+              className="form-select d-inline-block w-auto"
             >
               <option value={"RequireApplication"}>
                 {i18n.t("require_registration_application")}
@@ -277,7 +277,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         {this.state.siteForm.registration_mode == "RequireApplication" && (
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-12 col-form-label">
               {i18n.t("application_questionnaire")}
             </label>
@@ -292,7 +292,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         )}
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -314,7 +314,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -336,7 +336,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -358,7 +358,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -377,10 +377,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <label
-              className="form-check-label mr-2"
+              className="form-check-label me-2"
               htmlFor="create-site-default-theme"
             >
               {i18n.t("theme")}
@@ -389,7 +389,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               id="create-site-default-theme"
               value={this.state.siteForm.default_theme}
               onChange={linkEvent(this, this.handleSiteDefaultTheme)}
-              className="custom-select w-auto"
+              className="form-select d-inline-block w-auto"
             >
               <option value="browser">{i18n.t("browser_default")}</option>
               {this.props.themeList?.map(theme => (
@@ -401,8 +401,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         {this.props.showLocal && (
-          <form className="form-group row">
-            <label className="col-sm-3">{i18n.t("listing_type")}</label>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {i18n.t("listing_type")}
+            </label>
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={this.state.siteForm.default_post_listing_type ?? "Local"}
@@ -413,7 +415,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </form>
         )}
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -432,7 +434,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -451,7 +453,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label
             className="col-12 col-form-label"
             htmlFor="create-site-slur-filter-regex"
@@ -478,7 +480,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           onChange={this.handleDiscussionLanguageChange}
           showAll
         />
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label
             className="col-12 col-form-label"
             htmlFor="create-site-actor-name"
@@ -496,7 +498,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -517,11 +519,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
         {this.state.siteForm.federation_enabled && (
           <>
-            <div className="form-group row">
+            <div className="mb-3 row">
               {this.federatedInstanceSelect("allowed_instances")}
               {this.federatedInstanceSelect("blocked_instances")}
             </div>
-            <div className="form-group row">
+            <div className="mb-3 row">
               <div className="col-12">
                 <div className="form-check">
                   <input
@@ -540,7 +542,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 </div>
               </div>
             </div>
-            <div className="form-group row">
+            <div className="mb-3 row">
               <label
                 className="col-12 col-form-label"
                 htmlFor="create-site-federation-worker-count"
@@ -563,7 +565,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </>
         )}
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
               <input
@@ -583,10 +585,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         {this.state.siteForm.captcha_enabled && (
-          <div className="form-group row">
+          <div className="mb-3 row">
             <div className="col-12">
               <label
-                className="form-check-label mr-2"
+                className="form-check-label me-2"
                 htmlFor="create-site-captcha-difficulty"
               >
                 {i18n.t("captcha_difficulty")}
@@ -595,7 +597,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 id="create-site-captcha-difficulty"
                 value={this.state.siteForm.captcha_difficulty}
                 onChange={linkEvent(this, this.handleSiteCaptchaDifficulty)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option value="easy">{i18n.t("easy")}</option>
                 <option value="medium">{i18n.t("medium")}</option>
@@ -604,11 +606,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         )}
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary mr-2"
+              className="btn btn-secondary me-2"
               disabled={this.props.loading}
             >
               {this.props.loading ? (
@@ -646,7 +648,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           />
           <button
             type="button"
-            className="btn btn-sm bg-success ml-2"
+            className="btn btn-sm bg-success ms-2"
             onClick={linkEvent(key, this.handleAddInstance)}
             style={"width: 2rem; height: 2rem;"}
             tabIndex={

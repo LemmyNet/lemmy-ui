@@ -93,7 +93,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           id="navTitle"
           to="/"
           title={siteView?.site.description ?? siteView?.site.name}
-          className="d-flex align-items-center navbar-brand mr-md-3"
+          className="d-flex align-items-center navbar-brand me-md-3"
           onMouseUp={linkEvent(this, handleCollapseClick)}
         >
           {siteView?.site.icon && showAvatars() && (
@@ -102,7 +102,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           {siteView?.site.name}
         </NavLink>
         {person && (
-          <ul className="navbar-nav d-flex flex-row ml-auto d-md-none">
+          <ul className="navbar-nav d-flex flex-row ms-auto d-md-none">
             <li id="navMessages" className="nav-item nav-item-icon">
               <NavLink
                 to="/inbox"
@@ -115,7 +115,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               >
                 <Icon icon="bell" />
                 {this.unreadInboxCount > 0 && (
-                  <span className="mx-1 badge badge-light">
+                  <span className="mx-1 badge text-bg-light">
                     {numToSI(this.unreadInboxCount)}
                   </span>
                 )}
@@ -134,7 +134,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 >
                   <Icon icon="shield" />
                   {this.unreadReportCount > 0 && (
-                    <span className="mx-1 badge badge-light">
+                    <span className="mx-1 badge text-bg-light">
                       {numToSI(this.unreadReportCount)}
                     </span>
                   )}
@@ -154,7 +154,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 >
                   <Icon icon="clipboard" />
                   {this.unreadApplicationCount > 0 && (
-                    <span className="mx-1 badge badge-light">
+                    <span className="mx-1 badge text-bg-light">
                       {numToSI(this.unreadApplicationCount)}
                     </span>
                   )}
@@ -181,7 +181,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           id="navbarDropdown"
           ref={this.mobileMenuRef}
         >
-          <ul id="navbarLinks" className="mr-auto navbar-nav">
+          <ul id="navbarLinks" className="me-auto navbar-nav">
             <li className="nav-item">
               <NavLink
                 to="/communities"
@@ -228,7 +228,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 href={donateLemmyUrl}
               >
                 <Icon icon="heart" classes="small" />
-                <span className="d-inline ml-1 d-md-none ml-md-0">
+                <span className="d-inline ms-1 d-md-none ms-md-0">
                   {i18n.t("support_lemmy")}
                 </span>
               </a>
@@ -243,7 +243,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
                 <Icon icon="search" />
-                <span className="d-inline ml-1 d-md-none ml-md-0">
+                <span className="d-inline ms-1 d-md-none ms-md-0">
                   {i18n.t("search")}
                 </span>
               </NavLink>
@@ -257,7 +257,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="settings" />
-                  <span className="d-inline ml-1 d-md-none ml-md-0">
+                  <span className="d-inline ms-1 d-md-none ms-md-0">
                     {i18n.t("admin_settings")}
                   </span>
                 </NavLink>
@@ -276,14 +276,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="bell" />
-                    <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                    <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                       {i18n.t("unread_messages", {
                         count: Number(this.unreadInboxCount),
                         formattedCount: numToSI(this.unreadInboxCount),
                       })}
                     </span>
                     {this.unreadInboxCount > 0 && (
-                      <span className="mx-1 badge badge-light">
+                      <span className="mx-1 badge text-bg-light">
                         {numToSI(this.unreadInboxCount)}
                       </span>
                     )}
@@ -301,14 +301,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="shield" />
-                      <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                      <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                         {i18n.t("unread_reports", {
                           count: Number(this.unreadReportCount),
                           formattedCount: numToSI(this.unreadReportCount),
                         })}
                       </span>
                       {this.unreadReportCount > 0 && (
-                        <span className="mx-1 badge badge-light">
+                        <span className="mx-1 badge text-bg-light">
                           {numToSI(this.unreadReportCount)}
                         </span>
                       )}
@@ -327,14 +327,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="clipboard" />
-                      <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
+                      <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                         {i18n.t("unread_registration_applications", {
                           count: Number(this.unreadApplicationCount),
                           formattedCount: numToSI(this.unreadApplicationCount),
                         })}
                       </span>
                       {this.unreadApplicationCount > 0 && (
-                        <span className="mx-1 badge badge-light">
+                        <span className="mx-1 badge text-bg-light">
                           {numToSI(this.unreadApplicationCount)}
                         </span>
                       )}
@@ -365,7 +365,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           title={i18n.t("profile")}
                           onMouseUp={linkEvent(this, handleCollapseClick)}
                         >
-                          <Icon icon="user" classes="mr-1" />
+                          <Icon icon="user" classes="me-1" />
                           {i18n.t("profile")}
                         </NavLink>
                       </li>
@@ -376,7 +376,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           title={i18n.t("settings")}
                           onMouseUp={linkEvent(this, handleCollapseClick)}
                         >
-                          <Icon icon="settings" classes="mr-1" />
+                          <Icon icon="settings" classes="me-1" />
                           {i18n.t("settings")}
                         </NavLink>
                       </li>
@@ -388,7 +388,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           className="dropdown-item btn btn-link px-2"
                           onClick={linkEvent(this, handleLogOut)}
                         >
-                          <Icon icon="log-out" classes="mr-1" />
+                          <Icon icon="log-out" classes="me-1" />
                           {i18n.t("logout")}
                         </button>
                       </li>
