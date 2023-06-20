@@ -97,7 +97,6 @@ export class RegistrationApplication extends Component<
 
         {this.state.denyExpanded && (
           <div className="app-registration__approval-wrap mb-3 row">
-
             <label className="col-sm-2 col-form-label">
               {i18n.t("deny_reason")}
             </label>

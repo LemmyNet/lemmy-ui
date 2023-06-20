@@ -53,10 +53,10 @@ function RateLimits({
   return (
     <div className="rate-limit__row rate-limit__row--top mb-3 row">
       <div className="col-md-6">
-        <label 
+        <label
           className="rate-limit__label rate-limit__label--title"
           htmlFor="rate-limit"
-          >
+        >
           {i18n.t("rate_limit")}
         </label>
         <input

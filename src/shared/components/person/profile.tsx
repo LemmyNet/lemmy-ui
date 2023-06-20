@@ -592,7 +592,7 @@ export class Profile extends Component<
                   />
                 </div>
               )}
-              <div className="person-profile__site-info>
+              <div className="person-profile__site-info">
                 <ul className="person-profile__counts list-inline mb-2">
                   <li className="person-profile__counts-item list-inline-item badge text-bg-light">
                     {i18n.t("number_of_posts", {

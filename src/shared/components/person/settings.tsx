@@ -362,8 +362,8 @@ export class Settings extends Component<any, SettingsState> {
             </div>
           </div>
           <div className="person-settings__changepw-form-row-btns input-group mb-3">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="btn d-block btn-secondary me-4 w-100"
             >
               {this.state.changePasswordRes.state === "loading" ? (

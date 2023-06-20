@@ -451,7 +451,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
             {/* </div> */}
             <div className="community-sidebar__remove-community-submit-wrap input-group mb-3">
-            <div className="input-group mb-3">
               <button type="submit" className="btn btn-secondary">
                 {this.state.removeCommunityLoading ? (
                   <Spinner />

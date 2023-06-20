@@ -216,7 +216,7 @@ export class CommunityForm extends Component<
             </div>
           </div>
         )}
-        
+
         <div className="community-form__row community-form__row--restricted mb-3 row">
           <legend className="col-form-label col-6 pt-0">
             {i18n.t("only_mods_can_post_in_community")}

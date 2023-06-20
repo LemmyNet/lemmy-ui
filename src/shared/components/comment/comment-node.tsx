@@ -296,7 +296,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           >
             <div className="comment__top d-flex flex-wrap align-items-center text-muted small">
               <button
-
                 className="comment__btn--expand btn btn-sm text-muted me-2"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
                 aria-label={this.expandText}

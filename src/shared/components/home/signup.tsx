@@ -349,7 +349,7 @@ export class Signup extends Component<any, State> {
       case "success": {
         const res = this.state.captchaRes.data;
         return (
-          <div className="signup__form-captcha mb-3
+          <div className="signup__form-captcha mb-3 row">
             <label className="col-sm-2" htmlFor="register-captcha">
               <span className="me-2">{i18n.t("enter_code")}</span>
               <button
