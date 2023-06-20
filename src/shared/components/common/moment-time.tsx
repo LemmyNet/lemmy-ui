@@ -36,7 +36,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       return (
         <span
           data-tippy-content={this.createdAndModifiedTimes()}
-          className="font-italics pointer unselectable"
+          className="moment-time font-italics pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
           {moment.utc(this.props.updated).fromNow(!this.props.showAgo)}
@@ -46,7 +46,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       const published = this.props.published;
       return (
         <span
-          className="pointer unselectable"
+          className="moment-time pointer unselectable"
           data-tippy-content={this.format(published)}
         >
           {moment.utc(published).fromNow(!this.props.showAgo)}

@@ -88,7 +88,7 @@ export class PrivateMessage extends Component<
       : message_view.creator;
 
     return (
-      <div className="border-top border-light">
+      <div className="private-message border-top border-light">
         <div>
           <ul className="list-inline mb-0 text-muted small">
             {/* TODO refactor this */}

@@ -358,7 +358,9 @@ export class Community extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderCommunity()}</div>;
+    return (
+      <div className="community container-lg">{this.renderCommunity()}</div>
+    );
   }
 
   sidebar(res: GetCommunityResponse) {

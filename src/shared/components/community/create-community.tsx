@@ -33,7 +33,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="create-community container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

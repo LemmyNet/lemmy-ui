@@ -102,7 +102,7 @@ export class SearchableSelect extends Component<
     const { searchText, selectedIndex, loadingEllipses } = this.state;
 
     return (
-      <div className="dropdown">
+      <div className="searchable-select dropdown">
         <button
           id={id}
           type="button"

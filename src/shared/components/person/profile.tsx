@@ -389,7 +389,11 @@ export class Profile extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderPersonRes()}</div>;
+    return (
+      <div className="person-profile container-lg">
+        {this.renderPersonRes()}
+      </div>
+    );
   }
 
   get viewRadios() {

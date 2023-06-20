@@ -30,7 +30,7 @@ export class MetadataCard extends Component<
     return (
       <>
         {!this.state.expanded && post.embed_title && post.url && (
-          <div className="card border-secondary mt-3 mb-2">
+          <div className="post-metadata-card card border-secondary mt-3 mb-2">
             <div className="row">
               <div className="col-12">
                 <div className="card-body">
@@ -75,7 +75,10 @@ export class MetadataCard extends Component<
           </div>
         )}
         {this.state.expanded && post.embed_video_url && (
-          <iframe src={post.embed_video_url}></iframe>
+          <iframe
+            className="post-metadata-iframe"
+            src={post.embed_video_url}
+          ></iframe>
         )}
       </>
     );
