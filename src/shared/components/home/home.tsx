@@ -735,25 +735,25 @@ export class Home extends Component<any, HomeState> {
     const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
-      <div className="mb-3">
-        <span className="me-3">
+      <div className="row align-items-center mb-3">
+        <div className="col-auto">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
-        </span>
-        <span className="me-3">
+        </div>
+        <div className="col-auto">
           <ListingTypeSelect
             type_={listingType}
             showLocal={showLocal(this.isoData)}
             showSubscribed
             onChange={this.handleListingTypeChange}
           />
-        </span>
-        <span className="me-2">
+        </div>
+        <div className="col-auto">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
-        </span>
-        {getRss(listingType)}
+        </div>
+        <div className="col-auto ps-0">{getRss(listingType)}</div>
       </div>
     );
   }

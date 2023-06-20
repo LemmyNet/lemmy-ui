@@ -39,7 +39,7 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
           name={this.id}
           value={this.state.sort}
           onChange={linkEvent(this, this.handleSortChange)}
-          className="form-select d-inline-block w-auto me-2 mb-2"
+          className="form-select d-inline-block w-auto me-2"
           aria-label={i18n.t("sort_type")}
         >
           <option disabled aria-hidden="true">
