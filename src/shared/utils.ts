@@ -1,3 +1,5 @@
+import { isBrowser } from "@utils/browser";
+import { debounce, groupBy } from "@utils/helpers";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
@@ -50,9 +52,6 @@ import {
 } from "./interfaces";
 import { HttpService, UserService } from "./services";
 import { RequestState } from "./services/HttpService";
-import isBrowser from "./utils/browser/is-browser";
-import debounce from "./utils/helpers/debounce";
-import { groupBy } from "./utils/helpers/group-by";
 
 let Tribute: any;
 if (isBrowser()) {

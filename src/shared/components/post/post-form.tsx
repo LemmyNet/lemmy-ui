@@ -1,3 +1,4 @@
+import { debounce } from "@utils/helpers";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -32,7 +33,6 @@ import {
   validURL,
   webArchiveUrl,
 } from "../../utils";
-import debounce from "../../utils/helpers/debounce";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";

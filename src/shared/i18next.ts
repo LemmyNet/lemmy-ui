@@ -1,3 +1,4 @@
+import { isBrowser } from "@utils/browser";
 import i18next, { i18nTyped, Resource } from "i18next";
 import { UserService } from "./services";
 import { ar } from "./translations/ar";
@@ -31,7 +32,6 @@ import { sv } from "./translations/sv";
 import { vi } from "./translations/vi";
 import { zh } from "./translations/zh";
 import { zh_Hant } from "./translations/zh_Hant";
-import isBrowser from "./utils/browser/is-browser";
 
 export const languages = [
   { resource: ar, code: "ar", name: "العربية" },
