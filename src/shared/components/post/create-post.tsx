@@ -114,7 +114,7 @@ export class CreatePost extends Component<
       if (res.state === "success") {
         this.setState({
           selectedCommunityChoice: {
-            label: res.data.community_view.community.name,
+            label: res.data.community_view.community.title,
             value: res.data.community_view.community.id.toString(),
           },
           loading: false,
@@ -178,7 +178,7 @@ export class CreatePost extends Component<
               id="createPostForm"
               className="col-12 col-lg-6 offset-lg-3 mb-4"
             >
-              <h5>{i18n.t("create_post")}</h5>
+              <h1 className="h4">{i18n.t("create_post")}</h1>
               <PostForm
                 onCreate={this.handlePostCreate}
                 params={locationState}
