@@ -1,20 +1,13 @@
 import { isBrowser } from "@utils/browser";
 import { debounce, groupBy } from "@utils/helpers";
-import type { Choice } from "@utils/types";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
-  CommentSortType,
-  CommunityView,
   CustomEmojiView,
   GetSiteResponse,
-  Language,
   MyUserInfo,
-  PersonView,
-  PostView,
-  SortType,
 } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
@@ -29,9 +22,7 @@ import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { i18n } from "./i18next";
-import { VoteType } from "./interfaces";
 import { UserService } from "./services";
-import { RequestState } from "./services/HttpService";
 let Tribute: any;
 if (isBrowser()) {
   Tribute = require("tributejs");
@@ -483,39 +474,6 @@ moment.updateLocale("en", {
   },
 });
 
-export function getUpdatedSearchId(id?: number | null, urlId?: number | null) {
-  return id === null
-    ? undefined
-    : ((id ?? urlId) === 0 ? undefined : id ?? urlId)?.toString();
-}
-
-export function communityToChoice(cv: CommunityView): Choice {
-  return {
-    value: cv.community.id.toString(),
-    label: communitySelectName(cv),
-  };
-}
-
-export function personToChoice(pvs: PersonView): Choice {
-  return {
-    value: pvs.person.id.toString(),
-    label: personSelectName(pvs),
-  };
-}
-
-export function communitySelectName(cv: CommunityView): string {
-  return cv.community.local
-    ? cv.community.title
-    : `${hostname(cv.community.actor_id)}/${cv.community.title}`;
-}
-
-export function personSelectName({
-  person: { display_name, name, local, actor_id },
-}: PersonView): string {
-  const pName = display_name ?? name;
-  return local ? pName : `${hostname(actor_id)}/${pName}`;
-}
-
 export function initializeSite(site?: GetSiteResponse) {
   UserService.Instance.myUserInfo = site?.my_user;
   i18n.changeLanguage();
@@ -523,96 +481,6 @@ export function initializeSite(site?: GetSiteResponse) {
     setupEmojiDataModel(site.custom_emojis ?? []);
   }
   setupMarkdown();
-}
-
-export function myAuthRequired(): string {
-  return UserService.Instance.auth(true) ?? "";
-}
-
-export function enableDownvotes(siteRes: GetSiteResponse): boolean {
-  return siteRes.site_view.local_site.enable_downvotes;
-}
-
-export function enableNsfw(siteRes: GetSiteResponse): boolean {
-  return siteRes.site_view.local_site.enable_nsfw;
-}
-
-export function postToCommentSortType(sort: SortType): CommentSortType {
-  switch (sort) {
-    case "Active":
-    case "Hot":
-      return "Hot";
-    case "New":
-    case "NewComments":
-      return "New";
-    case "Old":
-      return "Old";
-    default:
-      return "Top";
-  }
-}
-
-export function isPostBlocked(
-  pv: PostView,
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
-): boolean {
-  return (
-    (myUserInfo?.community_blocks
-      .map(c => c.community.id)
-      .includes(pv.community.id) ||
-      myUserInfo?.person_blocks
-        .map(p => p.target.id)
-        .includes(pv.creator.id)) ??
-    false
-  );
-}
-
-/// Checks to make sure you can view NSFW posts. Returns true if you can.
-export function nsfwCheck(
-  pv: PostView,
-  myUserInfo = UserService.Instance.myUserInfo
-): boolean {
-  const nsfw = pv.post.nsfw || pv.community.nsfw;
-  const myShowNsfw = myUserInfo?.local_user_view.local_user.show_nsfw ?? false;
-  return !nsfw || (nsfw && myShowNsfw);
-}
-
-export function getRandomFromList<T>(list: T[]): T | undefined {
-  return list.length == 0
-    ? undefined
-    : list.at(Math.floor(Math.random() * list.length));
-}
-
-/**
- * This shows what language you can select
- *
- * Use showAll for the site form
- * Use showSite for the profile and community forms
- * Use false for both those to filter on your profile and site ones
- */
-export function selectableLanguages(
-  allLanguages: Language[],
-  siteLanguages: number[],
-  showAll?: boolean,
-  showSite?: boolean,
-  myUserInfo = UserService.Instance.myUserInfo
-): Language[] {
-  const allLangIds = allLanguages.map(l => l.id);
-  let myLangs = myUserInfo?.discussion_languages ?? allLangIds;
-  myLangs = myLangs.length == 0 ? allLangIds : myLangs;
-  const siteLangs = siteLanguages.length == 0 ? allLangIds : siteLanguages;
-
-  if (showAll) {
-    return allLanguages;
-  } else {
-    if (showSite) {
-      return allLanguages.filter(x => siteLangs.includes(x.id));
-    } else {
-      return allLanguages
-        .filter(x => siteLangs.includes(x.id))
-        .filter(x => myLangs.includes(x.id));
-    }
-  }
 }
 
 interface EmojiMartCategory {
@@ -631,21 +499,3 @@ interface EmojiMartCustomEmoji {
 interface EmojiMartSkin {
   src: string;
 }
-
-export function isAuthPath(pathname: string) {
-  return /create_.*|inbox|settings|admin|reports|registration_applications/g.test(
-    pathname
-  );
-}
-
-export function newVote(voteType: VoteType, myVote?: number): number {
-  if (voteType == VoteType.Upvote) {
-    return myVote == 1 ? 0 : 1;
-  } else {
-    return myVote == -1 ? 0 : -1;
-  }
-}
-
-export type RouteDataResponse<T extends Record<string, any>> = {
-  [K in keyof T]: RequestState<T[K]>;
-};
