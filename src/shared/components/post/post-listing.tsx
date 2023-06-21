@@ -737,10 +737,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         to={`/post/${post_view.post.id}?scrollToComments=true`}
         data-tippy-content={title}
       >
-        <Icon icon="message-square" classes="me-1" inline />
-        {post_view.counts.comments}
+        <span className="me-1">
+          <Icon icon="message-square" classes="me-1" inline />
+          {post_view.counts.comments}
+        </span>
         {this.unreadCount && (
-          <span className="badge text-bg-warning">
+          <span className="text-muted fst-italic">
             ({this.unreadCount} {i18n.t("new")})
           </span>
         )}
