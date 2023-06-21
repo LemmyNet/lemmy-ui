@@ -10,6 +10,7 @@ const themes = [
   "darkly-compact",
   "litely",
   "litely-red",
+  "litely-compact",
 ];
 
 export async function buildThemeList(): Promise<string[]> {
