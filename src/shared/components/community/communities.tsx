@@ -100,19 +100,17 @@ export class Communities extends Component<any, CommunitiesState> {
         const { listingType, page } = this.getCommunitiesQueryParams();
         return (
           <div>
-            <div className="row">
-              <div className="col-md-6">
-                <h4>{i18n.t("list_of_communities")}</h4>
-                <span className="mb-2">
-                  <ListingTypeSelect
-                    type_={listingType}
-                    showLocal={showLocal(this.isoData)}
-                    showSubscribed
-                    onChange={this.handleListingTypeChange}
-                  />
-                </span>
+            <h1 className="h4">{i18n.t("list_of_communities")}</h1>
+            <div className="row g-2 justify-content-between">
+              <div className="col-auto">
+                <ListingTypeSelect
+                  type_={listingType}
+                  showLocal={showLocal(this.isoData)}
+                  showSubscribed
+                  onChange={this.handleListingTypeChange}
+                />
               </div>
-              <div className="col-md-6">{this.searchForm()}</div>
+              <div className="col-auto">{this.searchForm()}</div>
             </div>
 
             <div className="table-responsive">
@@ -220,14 +218,14 @@ export class Communities extends Component<any, CommunitiesState> {
   searchForm() {
     return (
       <form
-        className="row justify-content-end"
+        className="row mb-2"
         onSubmit={linkEvent(this, this.handleSearchSubmit)}
       >
         <div className="col-auto">
           <input
             type="text"
             id="communities-search"
-            className="form-control me-2 mb-2"
+            className="form-control"
             value={this.state.searchText}
             placeholder={`${i18n.t("search")}...`}
             onInput={linkEvent(this, this.handleSearchChange)}
@@ -239,7 +237,7 @@ export class Communities extends Component<any, CommunitiesState> {
           <label className="visually-hidden" htmlFor="communities-search">
             {i18n.t("search")}
           </label>
-          <button type="submit" className="btn btn-secondary mb-2">
+          <button type="submit" className="btn btn-secondary">
             <span>{i18n.t("search")}</span>
           </button>
         </div>
