@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
@@ -130,9 +131,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             {
               key: "site",
               label: i18n.t("site"),
-              getNode: () => (
+              getNode: isSelected => (
                 <div
-                  className="tab-pane show active"
+                  className={classNames("tab-pane show", {
+                    active: isSelected,
+                  })}
                   role="tabpanel"
                   id="site-tab-pane"
                 >
@@ -159,9 +162,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             {
               key: "rate_limiting",
               label: "Rate Limiting",
-              getNode: () => (
+              getNode: isSelected => (
                 <div
-                  className="tab-pane"
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
                   role="tabpanel"
                   id="rate_limiting-tab-pane"
                 >
@@ -178,9 +183,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             {
               key: "taglines",
               label: i18n.t("taglines"),
-              getNode: () => (
+              getNode: isSelected => (
                 <div
-                  className="tab-pane"
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
                   role="tabpanel"
                   id="taglines-tab-pane"
                 >
@@ -197,8 +204,14 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             {
               key: "emojis",
               label: i18n.t("emojis"),
-              getNode: () => (
-                <div className="tab-pane" role="tabpanel" id="emojis-tab-pane">
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="emojis-tab-pane"
+                >
                   <div className="row">
                     <EmojiForm
                       onCreate={this.handleCreateEmoji}

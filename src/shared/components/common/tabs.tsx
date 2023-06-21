@@ -1,9 +1,8 @@
-import classNames from "classnames";
-import { Component, InfernoNode } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 
 interface TabItem {
   key: string;
-  getNode: () => InfernoNode;
+  getNode: (isSelected: boolean) => InfernoNode;
   label: string;
 }
 
@@ -11,26 +10,37 @@ interface TabsProps {
   tabs: TabItem[];
 }
 
-export default class Tabs extends Component<TabsProps> {
+interface TabsState {
+  currentTab: string;
+}
+
+function handleSwitchTab({ ctx, tab }: { ctx: Tabs; tab: string }) {
+  ctx.setState({ currentTab: tab });
+}
+
+export default class Tabs extends Component<TabsProps, TabsState> {
   constructor(props: TabsProps, context) {
     super(props, context);
+
+    this.state = {
+      currentTab: props.tabs.length > 0 ? props.tabs[0].key : "",
+    };
   }
 
   render() {
     return (
       <div>
         <ul className="nav nav-tabs mb-2" role="tablist">
-          {this.props.tabs.map(({ key, label }, index) => (
+          {this.props.tabs.map(({ key, label }) => (
             <li key={key} className="nav-item">
               <button
                 type="button"
-                data-bs-toggle="tab"
-                data-bs-target={`#${key}-tab-pane`}
+                className={`nav-link btn${
+                  this.state?.currentTab === key ? " active" : ""
+                }`}
+                onClick={linkEvent({ ctx: this, tab: key }, handleSwitchTab)}
                 aria-controls={`${key}-tab-pane`}
-                className={classNames("nav-link", {
-                  active: index === 0,
-                })}
-                {...(index === 0 && {
+                {...(this.state?.currentTab === key && {
                   ...{
                     "aria-current": "page",
                     "aria-selected": "true",
@@ -43,8 +53,8 @@ export default class Tabs extends Component<TabsProps> {
           ))}
         </ul>
         <div className="tab-content">
-          {this.props.tabs.map(tab => {
-            return tab.getNode();
+          {this.props.tabs.map(({ key, getNode }) => {
+            return getNode(this.state?.currentTab === key);
           })}
         </div>
       </div>

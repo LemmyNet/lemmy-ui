@@ -1,4 +1,5 @@
 import { debounce } from "@utils/helpers";
+import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -265,10 +266,12 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  userSettings() {
+  userSettings(isSelected) {
     return (
       <div
-        className="tab-pane show active"
+        className={classNames("tab-pane show", {
+          active: isSelected,
+        })}
         role="tabpanel"
         id="settings-tab-pane"
       >
@@ -288,9 +291,15 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  blockCards() {
+  blockCards(isSelected) {
     return (
-      <div className="tab-pane" role="tabpanel" id="blocks-tab-pane">
+      <div
+        className={classNames("tab-pane", {
+          active: isSelected,
+        })}
+        role="tabpanel"
+        id="blocks-tab-pane"
+      >
         <div className="row">
           <div className="col-12 col-md-6">
             <div className="card border-secondary mb-3">
