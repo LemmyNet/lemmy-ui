@@ -75,10 +75,14 @@ export class MetadataCard extends Component<
           </div>
         )}
         {this.state.expanded && post.embed_video_url && (
-          <iframe
-            className="post-metadata-iframe"
-            src={post.embed_video_url}
-          ></iframe>
+          <div className="ratio ratio-16x9">
+            <iframe
+              allowFullScreen
+              className="post-metadata-iframe"
+              src={post.embed_video_url}
+              title={post.embed_title}
+            ></iframe>
+          </div>
         )}
       </>
     );
