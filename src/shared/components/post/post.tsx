@@ -11,6 +11,8 @@ import {
   getIdFromProps,
   myAuth,
   setIsoData,
+  updateCommunityBlock,
+  updatePersonBlock,
 } from "@utils/app";
 import {
   isBrowser,
@@ -73,6 +75,7 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
+import { commentTreeMaxDepth } from "../../config";
 import { i18n } from "../../i18next";
 import {
   CommentNodeI,
@@ -82,13 +85,8 @@ import {
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  commentTreeMaxDepth,
-  setupTippy,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
 import { HtmlTags } from "../common/html-tags";

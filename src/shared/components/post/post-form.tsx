@@ -24,19 +24,19 @@ import {
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { PostFormParams } from "../../interfaces";
-import { UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
 import {
   archiveTodayUrl,
   ghostArchiveUrl,
   relTags,
-  setupTippy,
-  toast,
   trendingFetchLimit,
   webArchiveUrl,
-} from "../../utils";
+} from "../../config";
+import { i18n } from "../../i18next";
+import { PostFormParams } from "../../interfaces";
+import { UserService } from "../../services";
+import { HttpService, RequestState } from "../../services/HttpService";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";

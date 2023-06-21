@@ -1,7 +1,7 @@
 import { myAuth } from "@utils/app";
 import { Search, SearchType } from "lemmy-js-client";
+import { fetchLimit } from "../../config";
 import { HttpService } from "../../services";
-import { fetchLimit } from "../../utils";
 
 export default function fetchSearchResults(q: string, type_: SearchType) {
   const form: Search = {

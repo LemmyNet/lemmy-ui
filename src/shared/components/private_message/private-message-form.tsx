@@ -8,8 +8,9 @@ import {
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
+import { relTags } from "../../config";
 import { i18n } from "../../i18next";
-import { relTags, setupTippy } from "../../utils";
+import { setupTippy } from "../../tippy";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import NavigationPrompt from "../common/navigation-prompt";

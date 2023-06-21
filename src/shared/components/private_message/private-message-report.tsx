@@ -6,7 +6,7 @@ import {
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { mdToHtml } from "../../utils";
+import { mdToHtml } from "../../markdown";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 
