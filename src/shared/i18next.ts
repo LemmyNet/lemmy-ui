@@ -1,6 +1,6 @@
 import { isBrowser } from "@utils/browser";
 import i18next, { i18nTyped, Resource } from "i18next";
-import { UserService } from "./services";
+import { UserService } from "./services/UserService";
 import { ar } from "./translations/ar";
 import { bg } from "./translations/bg";
 import { ca } from "./translations/ca";
