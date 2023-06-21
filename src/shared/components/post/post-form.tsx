@@ -79,6 +79,148 @@ interface PostFormState {
   submitted: boolean;
 }
 
+function handlePostSubmit(i: PostForm, event: any) {
+  event.preventDefault();
+  // Coerce empty url string to undefined
+  if ((i.state.form.url ?? "") === "") {
+    i.setState(s => ((s.form.url = undefined), s));
+  }
+  i.setState({ loading: true, submitted: true });
+  const auth = myAuthRequired();
+
+  const pForm = i.state.form;
+  const pv = i.props.post_view;
+
+  if (pv) {
+    i.props.onEdit?.({
+      name: pForm.name,
+      url: pForm.url,
+      body: pForm.body,
+      nsfw: pForm.nsfw,
+      post_id: pv.post.id,
+      language_id: pForm.language_id,
+      auth,
+    });
+  } else if (pForm.name && pForm.community_id) {
+    i.props.onCreate?.({
+      name: pForm.name,
+      community_id: pForm.community_id,
+      url: pForm.url,
+      body: pForm.body,
+      nsfw: pForm.nsfw,
+      language_id: pForm.language_id,
+      honeypot: pForm.honeypot,
+      auth,
+    });
+  }
+}
+
+function copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
+  const sTitle = d.suggestedTitle;
+  if (sTitle) {
+    d.i.setState(
+      s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
+    );
+    d.i.setState({ suggestedPostsRes: { state: "empty" } });
+    setTimeout(() => {
+      const textarea: any = document.getElementById("post-title");
+      autosize.update(textarea);
+    }, 10);
+  }
+}
+
+function handlePostUrlChange(i: PostForm, event: any) {
+  const url = event.target.value;
+
+  i.setState(prev => ({
+    ...prev,
+    form: {
+      ...prev.form,
+      url,
+    },
+    imageDeleteUrl: "",
+  }));
+
+  i.fetchPageTitle();
+}
+
+function handlePostNsfwChange(i: PostForm, event: any) {
+  i.setState(s => ((s.form.nsfw = event.target.checked), s));
+}
+
+function handleHoneyPotChange(i: PostForm, event: any) {
+  i.setState(s => ((s.form.honeypot = event.target.value), s));
+}
+
+function handleCancel(i: PostForm) {
+  i.props.onCancel?.();
+}
+
+function handlePreviewToggle(i: PostForm, event: any) {
+  event.preventDefault();
+  i.setState({ previewMode: !i.state.previewMode });
+}
+
+function handleImageUploadPaste(i: PostForm, event: any) {
+  const image = event.clipboardData.files[0];
+  if (image) {
+    handleImageUpload(i, image);
+  }
+}
+
+function handleImageUpload(i: PostForm, event: any) {
+  let file: any;
+  if (event.target) {
+    event.preventDefault();
+    file = event.target.files[0];
+  } else {
+    file = event;
+  }
+
+  i.setState({ imageLoading: true });
+
+  HttpService.client.uploadImage({ image: file }).then(res => {
+    console.log("pictrs upload:");
+    console.log(res);
+    if (res.state === "success") {
+      if (res.data.msg === "ok") {
+        i.state.form.url = res.data.url;
+        i.setState({
+          imageLoading: false,
+          imageDeleteUrl: res.data.delete_url as string,
+        });
+      } else {
+        toast(JSON.stringify(res), "danger");
+      }
+    } else if (res.state === "failed") {
+      console.error(res.msg);
+      toast(res.msg, "danger");
+      i.setState({ imageLoading: false });
+    }
+  });
+}
+
+function handlePostNameChange(i: PostForm, event: any) {
+  i.setState(s => ((s.form.name = event.target.value), s));
+  i.fetchSimilarPosts();
+}
+
+function handleImageDelete(i: PostForm) {
+  const { imageDeleteUrl } = i.state;
+
+  fetch(imageDeleteUrl);
+
+  i.setState(prev => ({
+    ...prev,
+    imageDeleteUrl: "",
+    imageLoading: false,
+    form: {
+      ...prev.form,
+      url: "",
+    },
+  }));
+}
+
 export class PostForm extends Component<PostFormProps, PostFormState> {
   state: PostFormState = {
     suggestedPostsRes: { state: "empty" },
@@ -188,15 +330,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     const url = this.state.form.url;
 
-    // TODO
-    // const promptCheck =
-    // !!this.state.form.name || !!this.state.form.url || !!this.state.form.body;
-    // <Prompt when={promptCheck} message={i18n.t("block_leaving")} />
     return (
-      <form
-        className="post-form"
-        onSubmit={linkEvent(this, this.handlePostSubmit)}
-      >
+      <form className="post-form" onSubmit={linkEvent(this, handlePostSubmit)}>
         <NavigationPrompt
           when={
             !!(
@@ -215,9 +350,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               type="url"
               id="post-url"
               className="form-control"
-              value={this.state.form.url}
-              onInput={linkEvent(this, this.handlePostUrlChange)}
-              onPaste={linkEvent(this, this.handleImageUploadPaste)}
+              value={url}
+              onInput={linkEvent(this, handlePostUrlChange)}
+              onPaste={linkEvent(this, handleImageUploadPaste)}
             />
             {this.renderSuggestedTitleCopy()}
             <form>
@@ -237,7 +372,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 name="file"
                 className="d-none"
                 disabled={!UserService.Instance.myUserInfo}
-                onChange={linkEvent(this, this.handleImageUpload)}
+                onChange={linkEvent(this, handleImageUpload)}
               />
             </form>
             {url && validURL(url) && (
@@ -276,7 +411,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.state.imageDeleteUrl && (
               <button
                 className="btn btn-danger btn-sm mt-2"
-                onClick={linkEvent(this, this.handleImageDelete)}
+                onClick={linkEvent(this, handleImageDelete)}
                 aria-label={i18n.t("delete")}
                 data-tippy-content={i18n.t("delete")}
               >
@@ -327,7 +462,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             <textarea
               value={this.state.form.name}
               id="post-title"
-              onInput={linkEvent(this, this.handlePostNameChange)}
+              onInput={linkEvent(this, handlePostNameChange)}
               className={`form-control ${
                 !validTitle(this.state.form.name) && "is-invalid"
               }`}
@@ -392,7 +527,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   id="post-nsfw"
                   type="checkbox"
                   checked={this.state.form.nsfw}
-                  onChange={linkEvent(this, this.handlePostNsfwChange)}
+                  onChange={linkEvent(this, handlePostNsfwChange)}
                 />
               </div>
             </div>
@@ -413,7 +548,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           className="form-control honeypot"
           id="register-honey"
           value={this.state.form.honeypot}
-          onInput={linkEvent(this, this.handleHoneyPotChange)}
+          onInput={linkEvent(this, handleHoneyPotChange)}
         />
         <div className="mb-3 row">
           <div className="col-sm-10">
@@ -434,7 +569,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={linkEvent(this, this.handleCancel)}
+                onClick={linkEvent(this, handleCancel)}
               >
                 {i18n.t("cancel")}
               </button>
@@ -459,7 +594,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               role="button"
               onClick={linkEvent(
                 { i: this, suggestedTitle },
-                this.copySuggestedTitle
+                copySuggestedTitle
               )}
             >
               {i18n.t("copy_suggested_title", { title: "" })} {suggestedTitle}
@@ -517,69 +652,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  handlePostSubmit(i: PostForm, event: any) {
-    event.preventDefault();
-    // Coerce empty url string to undefined
-    if ((i.state.form.url ?? "") === "") {
-      i.setState(s => ((s.form.url = undefined), s));
-    }
-    i.setState({ loading: true, submitted: true });
-    const auth = myAuthRequired();
-
-    const pForm = i.state.form;
-    const pv = i.props.post_view;
-
-    if (pv) {
-      i.props.onEdit?.({
-        name: pForm.name,
-        url: pForm.url,
-        body: pForm.body,
-        nsfw: pForm.nsfw,
-        post_id: pv.post.id,
-        language_id: pForm.language_id,
-        auth,
-      });
-    } else if (pForm.name && pForm.community_id) {
-      i.props.onCreate?.({
-        name: pForm.name,
-        community_id: pForm.community_id,
-        url: pForm.url,
-        body: pForm.body,
-        nsfw: pForm.nsfw,
-        language_id: pForm.language_id,
-        honeypot: pForm.honeypot,
-        auth,
-      });
-    }
-  }
-
-  copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
-    const sTitle = d.suggestedTitle;
-    if (sTitle) {
-      d.i.setState(
-        s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
-      );
-      d.i.setState({ suggestedPostsRes: { state: "empty" } });
-      setTimeout(() => {
-        const textarea: any = document.getElementById("post-title");
-        autosize.update(textarea);
-      }, 10);
-    }
-  }
-
-  handlePostUrlChange(i: PostForm, event: any) {
-    const url = event.target.value;
-
-    i.setState({
-      form: {
-        url,
-      },
-      imageDeleteUrl: "",
-    });
-
-    i.fetchPageTitle();
-  }
-
   async fetchPageTitle() {
     const url = this.state.form.url;
     if (url && validURL(url)) {
@@ -588,11 +660,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         metadataRes: await HttpService.client.getSiteMetadata({ url }),
       });
     }
-  }
-
-  handlePostNameChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.name = event.target.value), s));
-    i.fetchSimilarPosts();
   }
 
   async fetchSimilarPosts() {
@@ -618,82 +685,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.setState(s => ((s.form.body = val), s));
   }
 
-  handlePostCommunityChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.community_id = Number(event.target.value)), s));
-  }
-
-  handlePostNsfwChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.nsfw = event.target.checked), s));
-  }
-
   handleLanguageChange(val: number[]) {
     this.setState(s => ((s.form.language_id = val.at(0)), s));
-  }
-
-  handleHoneyPotChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.honeypot = event.target.value), s));
-  }
-
-  handleCancel(i: PostForm) {
-    i.props.onCancel?.();
-  }
-
-  handlePreviewToggle(i: PostForm, event: any) {
-    event.preventDefault();
-    i.setState({ previewMode: !i.state.previewMode });
-  }
-
-  handleImageUploadPaste(i: PostForm, event: any) {
-    const image = event.clipboardData.files[0];
-    if (image) {
-      i.handleImageUpload(i, image);
-    }
-  }
-
-  handleImageUpload(i: PostForm, event: any) {
-    let file: any;
-    if (event.target) {
-      event.preventDefault();
-      file = event.target.files[0];
-    } else {
-      file = event;
-    }
-
-    i.setState({ imageLoading: true });
-
-    HttpService.client.uploadImage({ image: file }).then(res => {
-      console.log("pictrs upload:");
-      console.log(res);
-      if (res.state === "success") {
-        if (res.data.msg === "ok") {
-          i.state.form.url = res.data.url;
-          i.setState({
-            imageLoading: false,
-            imageDeleteUrl: res.data.delete_url as string,
-          });
-        } else {
-          toast(JSON.stringify(res), "danger");
-        }
-      } else if (res.state === "failed") {
-        console.error(res.msg);
-        toast(res.msg, "danger");
-        i.setState({ imageLoading: false });
-      }
-    });
-  }
-
-  handleImageDelete(i: PostForm) {
-    const { imageDeleteUrl } = i.state;
-
-    fetch(imageDeleteUrl);
-
-    i.setState({
-      imageDeleteUrl: "",
-      imageLoading: false,
-      form: {
-        url: "",
-      },
-    });
   }
 
   handleCommunitySearch = debounce(async (text: string) => {
