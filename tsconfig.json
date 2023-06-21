@@ -21,7 +21,7 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["/*"],
-      "@utils/*": ["shared/utils/*"],
+      "@utils/*": ["shared/utils/*"]
     }
   },
   "include": [
