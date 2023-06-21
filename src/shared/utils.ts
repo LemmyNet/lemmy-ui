@@ -1,5 +1,7 @@
+import { communitySearch, personSearch } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { debounce, groupBy } from "@utils/helpers";
+import { CommunityTribute, PersonTribute } from "@utils/types";
 import { Picker } from "emoji-mart";
 import emojiShortName from "emoji-short-name";
 import {
@@ -23,6 +25,7 @@ import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { i18n } from "./i18next";
 import { UserService } from "./services";
+
 let Tribute: any;
 if (isBrowser()) {
   Tribute = require("tributejs");
