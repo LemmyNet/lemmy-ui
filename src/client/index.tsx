@@ -1,15 +1,13 @@
 import { hydrate } from "inferno-hydrate";
 import { Router } from "inferno-router";
 import { App } from "../shared/components/app/app";
+import { HistoryService } from "../shared/services/HistoryService";
 import { initializeSite } from "../shared/utils";
 
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
-import "bootstrap/js/dist/tab";
-import { HistoryService } from "../shared/services/HistoryService";
 
-const site = window.isoData.site_res;
-initializeSite(site);
+initializeSite(window.isoData.site_res);
 
 const wrapper = (
   <Router history={HistoryService.history}>
@@ -18,6 +16,7 @@ const wrapper = (
 );
 
 const root = document.getElementById("root");
+
 if (root) {
   hydrate(wrapper, root);
 }

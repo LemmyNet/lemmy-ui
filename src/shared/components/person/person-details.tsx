@@ -109,7 +109,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   render() {
     return (
-      <div>
+      <div className="person-details">
         {this.viewSelector(this.props.view)}
 
         <Paginator page={this.props.page} onChange={this.handlePageChange} />

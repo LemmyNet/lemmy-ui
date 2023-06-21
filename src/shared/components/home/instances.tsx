@@ -109,7 +109,7 @@ export class Instances extends Component<any, InstancesState> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="home-instances container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

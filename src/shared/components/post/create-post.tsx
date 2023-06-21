@@ -1,3 +1,5 @@
+import { getQueryParams } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -17,12 +19,10 @@ import {
 } from "../../services/HttpService";
 import {
   Choice,
-  QueryParams,
   RouteDataResponse,
   enableDownvotes,
   enableNsfw,
   getIdFromString,
-  getQueryParams,
   myAuth,
   setIsoData,
 } from "../../utils";
@@ -163,7 +163,7 @@ export class CreatePost extends Component<
       | undefined;
 
     return (
-      <div className="container-lg">
+      <div className="create-post container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

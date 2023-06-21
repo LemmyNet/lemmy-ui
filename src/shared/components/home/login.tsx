@@ -1,9 +1,10 @@
+import { isBrowser } from "@utils/browser";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { isBrowser, myAuth, setIsoData, toast, validEmail } from "../../utils";
+import { myAuth, setIsoData, toast, validEmail } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -49,7 +50,7 @@ export class Login extends Component<any, State> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="login container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -66,7 +67,7 @@ export class Login extends Component<any, State> {
       <div>
         <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
           <h5>{i18n.t("login")}</h5>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label
               className="col-sm-2 col-form-label"
               htmlFor="login-email-or-username"
@@ -86,7 +87,7 @@ export class Login extends Component<any, State> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="login-password">
               {i18n.t("password")}
             </label>
@@ -116,7 +117,7 @@ export class Login extends Component<any, State> {
             </div>
           </div>
           {this.state.showTotp && (
-            <div className="form-group row">
+            <div className="mb-3 row">
               <label
                 className="col-sm-6 col-form-label"
                 htmlFor="login-totp-token"
@@ -137,7 +138,7 @@ export class Login extends Component<any, State> {
               </div>
             </div>
           )}
-          <div className="form-group row">
+          <div className="mb-3 row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-secondary">
                 {this.state.loginRes.state == "loading" ? (

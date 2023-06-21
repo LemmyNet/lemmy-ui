@@ -1,3 +1,4 @@
+import { isBrowser } from "@utils/browser";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
@@ -8,7 +9,6 @@ import { HttpService, UserService } from "../../services";
 import {
   concurrentImageUpload,
   customEmojisLookup,
-  isBrowser,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
   maxUploadImages,
@@ -136,7 +136,11 @@ export class MarkdownTextArea extends Component<
     //   message={i18n.t("block_leaving")}
     // />
     return (
-      <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
+      <form
+        className="markdown-textarea"
+        id={this.formId}
+        onSubmit={linkEvent(this, this.handleSubmit)}
+      >
         <NavigationPrompt
           when={
             !this.props.hideNavigationWarnings &&
@@ -144,10 +148,10 @@ export class MarkdownTextArea extends Component<
             !this.state.submitted
           }
         />
-        <div className="form-group row">
+        <div className="mb-3 row">
           <div className="col-12">
-            <div className="rounded bg-light border border-light">
-              <div className="d-flex flex-wrap border-bottom border-light">
+            <div className="rounded bg-light border">
+              <div className="d-flex flex-wrap border-bottom">
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
                 {this.getFormatButton("link", this.handleInsertLink)}
@@ -248,7 +252,7 @@ export class MarkdownTextArea extends Component<
                     />
                   )}
               </div>
-              <label className="sr-only" htmlFor={this.id}>
+              <label className="visually-hidden" htmlFor={this.id}>
                 {i18n.t("body")}
               </label>
             </div>
@@ -274,7 +278,7 @@ export class MarkdownTextArea extends Component<
             {this.props.buttonTitle && (
               <button
                 type="submit"
-                className="btn btn-sm btn-secondary ml-2"
+                className="btn btn-sm btn-secondary ms-2"
                 disabled={this.isDisabled}
               >
                 {this.state.loading ? (
@@ -287,7 +291,7 @@ export class MarkdownTextArea extends Component<
             {this.props.replyType && (
               <button
                 type="button"
-                className="btn btn-sm btn-secondary ml-2"
+                className="btn btn-sm btn-secondary ms-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
                 {i18n.t("cancel")}
@@ -295,7 +299,7 @@ export class MarkdownTextArea extends Component<
             )}
             {this.state.content && (
               <button
-                className={`btn btn-sm btn-secondary ml-2 ${
+                className={`btn btn-sm btn-secondary ms-2 ${
                   this.state.previewMode && "active"
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}
