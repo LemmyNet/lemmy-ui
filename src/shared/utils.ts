@@ -853,24 +853,28 @@ export function commentsToFlatNodes(comments: CommentView[]): CommentNodeI[] {
 }
 
 export function convertCommentSortType(sort: SortType): CommentSortType {
-  if (
-    sort == "TopAll" ||
-    sort == "TopHour" ||
-    sort == "TopSixHour" ||
-    sort == "TopTwelveHour" ||
-    sort == "TopDay" ||
-    sort == "TopWeek" ||
-    sort == "TopMonth" ||
-    sort == "TopYear"
-  ) {
-    return "Top";
-  } else if (sort == "New") {
-    return "New";
-  } else if (sort == "Hot" || sort == "Active") {
-    return "Hot";
-  } else {
-    return "Hot";
-  }
+    switch(sort) {
+        case "TopAll":
+        case "TopHour":
+        case "TopSixHour":
+        case "TopTwelveHour":
+        case "TopDay":
+        case "TopWeek":
+        case "TopMonth":
+        case "TopYear": {
+            return "Top";
+        }
+        case "New": {
+            return "New";
+        }
+        case "Hot":
+        case "Active": {
+            return "Hot";
+        }
+        default: {
+            return "Hot";
+        }
+    }
 }
 
 export function buildCommentsTree(
