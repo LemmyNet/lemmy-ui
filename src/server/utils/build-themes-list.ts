@@ -10,6 +10,7 @@ const themes = ReadonlyArray<string>[
   "darkly-compact",
   "litely",
   "litely-red",
+  "litely-compact",
 ];
 
 export async function buildThemeList(): Promise<ReadonlyArray<string>> {
