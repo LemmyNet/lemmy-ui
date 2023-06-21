@@ -35,6 +35,7 @@ import {
   canMod,
   canShare,
   futureDaysToUnixTime,
+  getUserFlair,
   hostname,
   isAdmin,
   isBanned,
@@ -369,11 +370,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     const url = post_view.post.url;
     const body = post_view.post.body;
+    const userFlair = getUserFlair(post_view.creator);
+
     return (
       <ul className="list-inline mb-1 text-muted small">
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
-
+          {userFlair !== null && (
+            <div className="badge badge-dark d-inline ml-2">
+              {userFlair}
+            </div>
+          )}
           {this.creatorIsMod_ && (
             <span className="mx-1 badge">{i18n.t("mod")}</span>
           )}
