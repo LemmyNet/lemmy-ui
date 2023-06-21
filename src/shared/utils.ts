@@ -324,10 +324,9 @@ export function amTopMod(
 export function getUserFlair(
   user: Person
 ): string | null {
-  //TODO: fetch flair from the backend
-  const flair = "🟥🟦 - AuthCenter";
+  if(user.name === 'Nerd02') return "🟥🟦 - AuthCenter";
 
-  return flair;
+  return "🟩 - LibLeft";
 }
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;

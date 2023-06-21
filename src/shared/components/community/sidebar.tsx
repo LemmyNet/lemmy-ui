@@ -21,6 +21,7 @@ import {
   amMod,
   amTopMod,
   getUnixTime,
+  getUserFlair,
   hostname,
   mdToHtml,
   myAuthRequired,
@@ -83,7 +84,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     super(props, context);
     this.handleEditCancel = this.handleEditCancel.bind(this);
   }
-
+  
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>
   ): void {
@@ -155,6 +156,16 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               )}
             </div>
           </section>
+          {myUSerInfo && (
+            <section id="userFlairPicker" className="card border-secondary mb-3">
+              <div className="card-body">
+                {/* TODO basedcount: style this */}
+                Pick your user flair here
+                <br/>
+                Current flair: {getUserFlair(myUSerInfo?.local_user_view.person)}
+              </div>    
+            </section>
+          )}
           <section id="sidebarInfo" className="card border-secondary mb-3">
             <div className="card-body">
               {this.description()}
