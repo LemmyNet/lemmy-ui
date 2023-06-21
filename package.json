@@ -1,6 +1,6 @@
 {
   "name": "lemmy-ui",
-  "version": "0.18.0-rc.3",
+  "version": "0.18.0-rc.4",
   "description": "An isomorphic UI for lemmy",
   "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
@@ -121,7 +121,6 @@
     "sortpack": "^2.3.4",
     "style-loader": "^3.3.2",
     "terser": "^5.17.3",
-    "tsconfig-paths-webpack-plugin": "^4.0.1",
     "typescript": "^5.0.4",
     "webpack-dev-server": "4.15.0"
   },

@@ -573,8 +573,6 @@ export class Home extends Component<any, HomeState> {
               data-tippy-content={
                 subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
               }
-              data-bs-toggle="collapse"
-              data-bs-target="#sidebarSubscribedBody"
               aria-expanded="true"
               aria-controls="sidebarSubscribedBody"
             >
@@ -585,24 +583,25 @@ export class Home extends Component<any, HomeState> {
             </button>
           )}
         </header>
-        <div
-          id="sidebarSubscribedBody"
-          className="collapse show"
-          aria-labelledby="sidebarSubscribedHeader"
-        >
-          <div className="card-body">
-            <ul className="list-inline mb-0">
-              {UserService.Instance.myUserInfo?.follows.map(cfv => (
-                <li
-                  key={cfv.community.id}
-                  className="list-inline-item d-inline-block"
-                >
-                  <CommunityLink community={cfv.community} />
-                </li>
-              ))}
-            </ul>
+        {!subscribedCollapsed && (
+          <div
+            id="sidebarSubscribedBody"
+            aria-labelledby="sidebarSubscribedHeader"
+          >
+            <div className="card-body">
+              <ul className="list-inline mb-0">
+                {UserService.Instance.myUserInfo?.follows.map(cfv => (
+                  <li
+                    key={cfv.community.id}
+                    className="list-inline-item d-inline-block"
+                  >
+                    <CommunityLink community={cfv.community} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        )}
       </>
     );
   }

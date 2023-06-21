@@ -732,24 +732,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get commentsButton() {
     const post_view = this.postView;
+    const title = i18n.t("number_of_comments", {
+      count: Number(post_view.counts.comments),
+      formattedCount: Number(post_view.counts.comments),
+    });
+
     return (
       <Link
-        className="btn btn-link text-muted ps-0 text-muted"
-        title={i18n.t("number_of_comments", {
-          count: Number(post_view.counts.comments),
-          formattedCount: Number(post_view.counts.comments),
-        })}
+        className="btn btn-link btn-sm text-muted ps-0"
+        title={title}
         to={`/post/${post_view.post.id}?scrollToComments=true`}
+        data-tippy-content={title}
       >
         <Icon icon="message-square" classes="me-1" inline />
-        <span className="me-2">
-          {i18n.t("number_of_comments", {
-            count: Number(post_view.counts.comments),
-            formattedCount: numToSI(post_view.counts.comments),
-          })}
-        </span>
+        {post_view.counts.comments}
         {this.unreadCount && (
-          <span className="small text-warning">
+          <span className="badge text-bg-warning">
             ({this.unreadCount} {i18n.t("new")})
           </span>
         )}

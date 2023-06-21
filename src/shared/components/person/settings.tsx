@@ -1,4 +1,13 @@
+import {
+  fetchCommunities,
+  fetchThemeList,
+  fetchUsers,
+  myAuth,
+  setTheme,
+} from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
+import { Choice } from "@utils/types";
+import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -16,19 +25,13 @@ import { i18n, languages } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  Choice,
   communityToChoice,
   elementUrl,
   emDash,
-  fetchCommunities,
-  fetchThemeList,
-  fetchUsers,
-  myAuth,
   myAuthRequired,
   personToChoice,
   relTags,
   setIsoData,
-  setTheme,
   setupTippy,
   showLocal,
   toast,
@@ -264,34 +267,50 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  userSettings() {
+  userSettings(isSelected) {
     return (
-      <div className="row">
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
+      <div
+        className={classNames("tab-pane show", {
+          active: isSelected,
+        })}
+        role="tabpanel"
+        id="settings-tab-pane"
+      >
+        <div className="row">
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
+            </div>
           </div>
-        </div>
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.changePasswordHtmlForm()}</div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.changePasswordHtmlForm()}</div>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  blockCards() {
+  blockCards(isSelected) {
     return (
-      <div className="row">
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.blockUserCard()}</div>
+      <div
+        className={classNames("tab-pane", {
+          active: isSelected,
+        })}
+        role="tabpanel"
+        id="blocks-tab-pane"
+      >
+        <div className="row">
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockUserCard()}</div>
+            </div>
           </div>
-        </div>
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.blockCommunityCard()}</div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockCommunityCard()}</div>
+            </div>
           </div>
         </div>
       </div>

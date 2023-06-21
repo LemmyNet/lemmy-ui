@@ -34,7 +34,11 @@ interface NavbarState {
 }
 
 function handleCollapseClick(i: Navbar) {
-  if (i.collapseButtonRef.current?.ariaExpanded === "true") {
+  if (
+    i.collapseButtonRef.current?.attributes &&
+    i.collapseButtonRef.current?.attributes.getNamedItem("aria-expanded")
+      ?.value === "true"
+  ) {
     i.collapseButtonRef.current?.click();
   }
 }
@@ -75,12 +79,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     document.removeEventListener("mouseup", this.handleOutsideMenuClick);
   }
 
+  // TODO class active corresponding to current pages
   render() {
-    return this.navbar();
-  }
-
-  // TODO class active corresponding to current page
-  navbar() {
     const siteView = this.props.siteRes?.site_view;
     const person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
