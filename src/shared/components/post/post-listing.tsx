@@ -1,4 +1,7 @@
+import { myAuthRequired, newVote, showScores } from "@utils/app";
 import { canShare, share } from "@utils/browser";
+import { futureDaysToUnixTime, hostname, numToSI } from "@utils/helpers";
+import { isImage, isVideo } from "@utils/media";
 import {
   amAdmin,
   amCommunityCreator,
@@ -34,25 +37,13 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
+import { relTags } from "../../config";
 import { getExternalHost, getHttpBase } from "../../env";
 import { i18n } from "../../i18next";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
+import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
 import { UserService } from "../../services";
-import {
-  futureDaysToUnixTime,
-  hostname,
-  isImage,
-  isVideo,
-  mdNoImages,
-  mdToHtml,
-  mdToHtmlInline,
-  myAuthRequired,
-  newVote,
-  numToSI,
-  relTags,
-  setupTippy,
-  showScores,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";

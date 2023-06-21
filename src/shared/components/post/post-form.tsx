@@ -1,4 +1,18 @@
-import { debounce } from "@utils/helpers";
+import {
+  communityToChoice,
+  fetchCommunities,
+  myAuth,
+  myAuthRequired,
+} from "@utils/app";
+import {
+  capitalizeFirstLetter,
+  debounce,
+  getIdFromString,
+  validTitle,
+  validURL,
+} from "@utils/helpers";
+import { isImage } from "@utils/media";
+import { Choice } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -10,29 +24,19 @@ import {
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
+import {
+  archiveTodayUrl,
+  ghostArchiveUrl,
+  relTags,
+  trendingFetchLimit,
+  webArchiveUrl,
+} from "../../config";
 import { i18n } from "../../i18next";
 import { PostFormParams } from "../../interfaces";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  Choice,
-  archiveTodayUrl,
-  capitalizeFirstLetter,
-  communityToChoice,
-  fetchCommunities,
-  getIdFromString,
-  ghostArchiveUrl,
-  isImage,
-  myAuth,
-  myAuthRequired,
-  relTags,
-  setupTippy,
-  toast,
-  trendingFetchLimit,
-  validTitle,
-  validURL,
-  webArchiveUrl,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";

@@ -1,3 +1,11 @@
+import {
+  fetchThemeList,
+  myAuthRequired,
+  setIsoData,
+  showLocal,
+} from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
@@ -12,19 +20,10 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
+import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  capitalizeFirstLetter,
-  fetchThemeList,
-  myAuthRequired,
-  removeFromEmojiDataModel,
-  setIsoData,
-  showLocal,
-  toast,
-  updateEmojiDataModel,
-} from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";

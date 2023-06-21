@@ -1,4 +1,12 @@
+import {
+  editCommentReport,
+  editPostReport,
+  editPrivateMessageReport,
+  myAuthRequired,
+  setIsoData,
+} from "@utils/app";
 import { amAdmin } from "@utils/roles";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommentReportResponse,
@@ -18,20 +26,12 @@ import {
   ResolvePostReport,
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
+import { fetchLimit } from "../../config";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  editCommentReport,
-  editPostReport,
-  editPrivateMessageReport,
-  fetchLimit,
-  myAuthRequired,
-  setIsoData,
-} from "../../utils";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";

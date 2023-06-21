@@ -1,9 +1,10 @@
+import { myAuth, setIsoData } from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { HttpService, UserService } from "../../services";
 import { RequestState } from "../../services/HttpService";
-import { capitalizeFirstLetter, myAuth, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
