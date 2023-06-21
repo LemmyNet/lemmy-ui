@@ -1,5 +1,6 @@
 import capitalizeFirstLetter from "./capitalize-first-letter";
 import debounce from "./debounce";
+import editListImmutable from "./edit-list-immutable";
 import futureDaysToUnixTime from "./future-days-to-unix-time";
 import getIdFromString from "./get-id-from-string";
 import getPageFromString from "./get-page-from-string";
@@ -9,6 +10,7 @@ import getRandomCharFromAlphabet from "./get-random-char-from-alphabet";
 import getUnixTime from "./get-unix-time";
 import { groupBy } from "./group-by";
 import hostname from "./hostname";
+import hsl from "./hsl";
 import isCakeDay from "./is-cake-day";
 import numToSI from "./num-to-si";
 import poll from "./poll";
@@ -16,11 +18,13 @@ import randomStr from "./random-str";
 import sleep from "./sleep";
 import validEmail from "./valid-email";
 import validInstanceTLD from "./valid-instance-tld";
+import validTitle from "./valid-title";
 import validURL from "./valid-url";
 
 export {
   capitalizeFirstLetter,
   debounce,
+  editListImmutable,
   futureDaysToUnixTime,
   getIdFromString,
   getPageFromString,
@@ -30,6 +34,7 @@ export {
   getUnixTime,
   groupBy,
   hostname,
+  hsl,
   isCakeDay,
   numToSI,
   poll,
@@ -37,5 +42,6 @@ export {
   sleep,
   validEmail,
   validInstanceTLD,
+  validTitle,
   validURL,
 };

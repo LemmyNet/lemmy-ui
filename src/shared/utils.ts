@@ -6,24 +6,14 @@ import emojiShortName from "emoji-short-name";
 import {
   BlockCommunityResponse,
   BlockPersonResponse,
-  CommentAggregates,
-  Comment as CommentI,
-  CommentReplyView,
-  CommentReportView,
   CommentSortType,
-  CommentView,
   CommunityView,
   CustomEmojiView,
   GetSiteResponse,
   Language,
   MyUserInfo,
-  PersonMentionView,
   PersonView,
-  PostReportView,
   PostView,
-  PrivateMessageReportView,
-  PrivateMessageView,
-  RegistrationApplicationView,
   SortType,
 } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
@@ -39,7 +29,7 @@ import moment from "moment";
 import tippy from "tippy.js";
 import Toastify from "toastify-js";
 import { i18n } from "./i18next";
-import { CommentNodeI, IsoData, RouteData, VoteType } from "./interfaces";
+import { VoteType } from "./interfaces";
 import { UserService } from "./services";
 import { RequestState } from "./services/HttpService";
 let Tribute: any;
@@ -432,130 +422,6 @@ export function setupTippy() {
   }
 }
 
-export function getRecipientIdFromProps(props: any): number {
-  return props.match.params.recipient_id
-    ? Number(props.match.params.recipient_id)
-    : 1;
-}
-
-export function getIdFromProps(props: any): number | undefined {
-  const id = props.match.params.post_id;
-  return id ? Number(id) : undefined;
-}
-
-export function getCommentIdFromProps(props: any): number | undefined {
-  const id = props.match.params.comment_id;
-  return id ? Number(id) : undefined;
-}
-
-type ImmutableListKey =
-  | "comment"
-  | "comment_reply"
-  | "person_mention"
-  | "community"
-  | "private_message"
-  | "post"
-  | "post_report"
-  | "comment_report"
-  | "private_message_report"
-  | "registration_application";
-
-function editListImmutable<
-  T extends { [key in F]: { id: number } },
-  F extends ImmutableListKey
->(fieldName: F, data: T, list: T[]): T[] {
-  return [
-    ...list.map(c => (c[fieldName].id === data[fieldName].id ? data : c)),
-  ];
-}
-
-export function editComment(
-  data: CommentView,
-  comments: CommentView[]
-): CommentView[] {
-  return editListImmutable("comment", data, comments);
-}
-
-export function editCommentReply(
-  data: CommentReplyView,
-  replies: CommentReplyView[]
-): CommentReplyView[] {
-  return editListImmutable("comment_reply", data, replies);
-}
-
-interface WithComment {
-  comment: CommentI;
-  counts: CommentAggregates;
-  my_vote?: number;
-  saved: boolean;
-}
-
-export function editMention(
-  data: PersonMentionView,
-  comments: PersonMentionView[]
-): PersonMentionView[] {
-  return editListImmutable("person_mention", data, comments);
-}
-
-export function editCommunity(
-  data: CommunityView,
-  communities: CommunityView[]
-): CommunityView[] {
-  return editListImmutable("community", data, communities);
-}
-
-export function editPrivateMessage(
-  data: PrivateMessageView,
-  messages: PrivateMessageView[]
-): PrivateMessageView[] {
-  return editListImmutable("private_message", data, messages);
-}
-
-export function editPost(data: PostView, posts: PostView[]): PostView[] {
-  return editListImmutable("post", data, posts);
-}
-
-export function editPostReport(
-  data: PostReportView,
-  reports: PostReportView[]
-) {
-  return editListImmutable("post_report", data, reports);
-}
-
-export function editCommentReport(
-  data: CommentReportView,
-  reports: CommentReportView[]
-): CommentReportView[] {
-  return editListImmutable("comment_report", data, reports);
-}
-
-export function editPrivateMessageReport(
-  data: PrivateMessageReportView,
-  reports: PrivateMessageReportView[]
-): PrivateMessageReportView[] {
-  return editListImmutable("private_message_report", data, reports);
-}
-
-export function editRegistrationApplication(
-  data: RegistrationApplicationView,
-  apps: RegistrationApplicationView[]
-): RegistrationApplicationView[] {
-  return editListImmutable("registration_application", data, apps);
-}
-
-export function editWith<D extends WithComment, L extends WithComment>(
-  { comment, counts, saved, my_vote }: D,
-  list: L[]
-) {
-  return [
-    ...list.map(c =>
-      c.comment.id === comment.id
-        ? { ...c, comment, counts, saved, my_vote }
-        : c
-    ),
-  ];
-}
-
 export function updatePersonBlock(
   data: BlockPersonResponse,
   myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
@@ -596,186 +462,6 @@ export function updateCommunityBlock(
   }
 }
 
-export function commentsToFlatNodes(comments: CommentView[]): CommentNodeI[] {
-  const nodes: CommentNodeI[] = [];
-  for (const comment of comments) {
-    nodes.push({ comment_view: comment, children: [], depth: 0 });
-  }
-  return nodes;
-}
-
-export function convertCommentSortType(sort: SortType): CommentSortType {
-  if (
-    sort == "TopAll" ||
-    sort == "TopDay" ||
-    sort == "TopWeek" ||
-    sort == "TopMonth" ||
-    sort == "TopYear"
-  ) {
-    return "Top";
-  } else if (sort == "New") {
-    return "New";
-  } else if (sort == "Hot" || sort == "Active") {
-    return "Hot";
-  } else {
-    return "Hot";
-  }
-}
-
-export function buildCommentsTree(
-  comments: CommentView[],
-  parentComment: boolean
-): CommentNodeI[] {
-  const map = new Map<number, CommentNodeI>();
-  const depthOffset = !parentComment
-    ? 0
-    : getDepthFromComment(comments[0].comment) ?? 0;
-
-  for (const comment_view of comments) {
-    const depthI = getDepthFromComment(comment_view.comment) ?? 0;
-    const depth = depthI ? depthI - depthOffset : 0;
-    const node: CommentNodeI = {
-      comment_view,
-      children: [],
-      depth,
-    };
-    map.set(comment_view.comment.id, { ...node });
-  }
-
-  const tree: CommentNodeI[] = [];
-
-  // if its a parent comment fetch, then push the first comment to the top node.
-  if (parentComment) {
-    const cNode = map.get(comments[0].comment.id);
-    if (cNode) {
-      tree.push(cNode);
-    }
-  }
-
-  for (const comment_view of comments) {
-    const child = map.get(comment_view.comment.id);
-    if (child) {
-      const parent_id = getCommentParentId(comment_view.comment);
-      if (parent_id) {
-        const parent = map.get(parent_id);
-        // Necessary because blocked comment might not exist
-        if (parent) {
-          parent.children.push(child);
-        }
-      } else {
-        if (!parentComment) {
-          tree.push(child);
-        }
-      }
-    }
-  }
-
-  return tree;
-}
-
-export function getCommentParentId(comment?: CommentI): number | undefined {
-  const split = comment?.path.split(".");
-  // remove the 0
-  split?.shift();
-
-  return split && split.length > 1
-    ? Number(split.at(split.length - 2))
-    : undefined;
-}
-
-export function getDepthFromComment(comment?: CommentI): number | undefined {
-  const len = comment?.path.split(".").length;
-  return len ? len - 2 : undefined;
-}
-
-// TODO make immutable
-export function insertCommentIntoTree(
-  tree: CommentNodeI[],
-  cv: CommentView,
-  parentComment: boolean
-) {
-  // Building a fake node to be used for later
-  const node: CommentNodeI = {
-    comment_view: cv,
-    children: [],
-    depth: 0,
-  };
-
-  const parentId = getCommentParentId(cv.comment);
-  if (parentId) {
-    const parent_comment = searchCommentTree(tree, parentId);
-    if (parent_comment) {
-      node.depth = parent_comment.depth + 1;
-      parent_comment.children.unshift(node);
-    }
-  } else if (!parentComment) {
-    tree.unshift(node);
-  }
-}
-
-export function searchCommentTree(
-  tree: CommentNodeI[],
-  id: number
-): CommentNodeI | undefined {
-  for (const node of tree) {
-    if (node.comment_view.comment.id === id) {
-      return node;
-    }
-
-    for (const child of node.children) {
-      const res = searchCommentTree([child], id);
-
-      if (res) {
-        return res;
-      }
-    }
-  }
-  return undefined;
-}
-
-export const colorList: string[] = [
-  hsl(0),
-  hsl(50),
-  hsl(100),
-  hsl(150),
-  hsl(200),
-  hsl(250),
-  hsl(300),
-];
-
-function hsl(num: number) {
-  return `hsla(${num}, 35%, 50%, 0.5)`;
-}
-
-export function validTitle(title?: string): boolean {
-  // Initial title is null, minimum length is taken care of by textarea's minLength={3}
-  if (!title || title.length < 3) return true;
-
-  const regex = new RegExp(/.*\S.*/, "g");
-
-  return regex.test(title);
-}
-
-export function siteBannerCss(banner: string): string {
-  return ` \
-    background-image: linear-gradient( rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8) ) ,url("${banner}"); \
-    background-attachment: fixed; \
-    background-position: top; \
-    background-repeat: no-repeat; \
-    background-size: 100% cover; \
-
-    width: 100%; \
-    max-height: 100vh; \
-    `;
-}
-
-export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
-  // If its the browser, you need to deserialize the data from the window
-  if (isBrowser()) {
-    return window.isoData;
-  } else return context.router.staticContext;
-}
-
 moment.updateLocale("en", {
   relativeTime: {
     future: "in %s",
@@ -796,22 +482,6 @@ moment.updateLocale("en", {
     yy: "%dY",
   },
 });
-
-export function saveScrollPosition(context: any) {
-  const path: string = context.router.route.location.pathname;
-  const y = window.scrollY;
-  sessionStorage.setItem(`scrollPosition_${path}`, y.toString());
-}
-
-export function restoreScrollPosition(context: any) {
-  const path: string = context.router.route.location.pathname;
-  const y = Number(sessionStorage.getItem(`scrollPosition_${path}`));
-  window.scrollTo(0, y);
-}
-
-export function showLocal(isoData: IsoData): boolean {
-  return isoData.site_res.site_view.local_site.federation_enabled;
-}
 
 export function getUpdatedSearchId(id?: number | null, urlId?: number | null) {
   return id === null

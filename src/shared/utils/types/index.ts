@@ -3,5 +3,13 @@ import CommunityTribute from "./community-tribute";
 import ErrorPageData from "./error-page-data";
 import PersonTribute from "./person-tribute";
 import { QueryParams } from "./query-params";
+import WithComment from "./with-comment";
 
-export { Choice, CommunityTribute, ErrorPageData, PersonTribute, QueryParams };
+export {
+  Choice,
+  CommunityTribute,
+  ErrorPageData,
+  PersonTribute,
+  QueryParams,
+  WithComment,
+};
