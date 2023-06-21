@@ -5,9 +5,10 @@ import sharp from "sharp";
 import { ILemmyConfig, IsoDataOptionalSite } from "../../shared/interfaces";
 import { favIconPngUrl, favIconUrl } from "../../shared/utils";
 import { fetchIconPng } from "./fetch-icon-png";
-import { generateManifestBase64 } from "./generate-manifest-base64";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
+
+let appleTouchIcon: string | undefined = undefined;
 
 export async function createSsrHtml(
   root: string,
@@ -15,22 +16,24 @@ export async function createSsrHtml(
 ) {
   const site = isoData.site_res;
 
-  const appleTouchIcon = site?.site_view.site.icon
-    ? `data:image/png;base64,${sharp(
-        await fetchIconPng(site.site_view.site.icon)
-      )
-        .resize(180, 180)
-        .extend({
-          bottom: 20,
-          top: 20,
-          left: 20,
-          right: 20,
-          background: "#222222",
-        })
-        .png()
-        .toBuffer()
-        .then(buf => buf.toString("base64"))}`
-    : favIconPngUrl;
+  if (!appleTouchIcon) {
+    appleTouchIcon = site?.site_view.site.icon
+      ? `data:image/png;base64,${sharp(
+          await fetchIconPng(site.site_view.site.icon)
+        )
+          .resize(180, 180)
+          .extend({
+            bottom: 20,
+            top: 20,
+            left: 20,
+            right: 20,
+            background: "#222222",
+          })
+          .png()
+          .toBuffer()
+          .then(buf => buf.toString("base64"))}`
+      : favIconPngUrl;
+  }
 
   const erudaStr =
     process.env["LEMMY_UI_DEBUG"] === "true"
@@ -74,15 +77,7 @@ export async function createSsrHtml(
      />
   
     <!-- Web app manifest -->
-    ${
-      site &&
-      `<link
-          rel="manifest"
-          href=${`data:application/manifest+json;base64,${await generateManifestBase64(
-            site
-          )}`}
-        />`
-    }
+    <link rel="manifest" href="/manifest" />
     <link rel="apple-touch-icon" href=${appleTouchIcon} />
     <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
   
