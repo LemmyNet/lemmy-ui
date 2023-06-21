@@ -357,6 +357,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             />
           </div>
         </div>
+        <LanguageSelect
+          allLanguages={this.props.allLanguages}
+          siteLanguages={this.props.siteLanguages}
+          selectedLanguageIds={selectedLangs}
+          multiple={false}
+          onChange={this.handleLanguageChange}
+        />
         {!this.props.post_view && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
@@ -381,30 +388,17 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
         {this.props.enableNsfw && (
-          <div className="mb-3 row">
-            <legend className="col-form-label col-sm-2 pt-0">
-              {i18n.t("nsfw")}
-            </legend>
-            <div className="col-sm-10">
-              <div className="form-check">
-                <input
-                  className="form-check-input position-static"
-                  id="post-nsfw"
-                  type="checkbox"
-                  checked={this.state.form.nsfw}
-                  onChange={linkEvent(this, this.handlePostNsfwChange)}
-                />
-              </div>
-            </div>
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              id="post-nsfw"
+              type="checkbox"
+              checked={this.state.form.nsfw}
+              onChange={linkEvent(this, this.handlePostNsfwChange)}
+            />
+            <label className="form-check-label">{i18n.t("nsfw")}</label>
           </div>
         )}
-        <LanguageSelect
-          allLanguages={this.props.allLanguages}
-          siteLanguages={this.props.siteLanguages}
-          selectedLanguageIds={selectedLangs}
-          multiple={false}
-          onChange={this.handleLanguageChange}
-        />
         <input
           tabIndex={-1}
           autoComplete="false"
