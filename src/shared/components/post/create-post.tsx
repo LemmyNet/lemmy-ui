@@ -114,7 +114,7 @@ export class CreatePost extends Component<
       if (res.state === "success") {
         this.setState({
           selectedCommunityChoice: {
-            label: res.data.community_view.community.name,
+            label: res.data.community_view.community.title,
             value: res.data.community_view.community.id.toString(),
           },
           loading: false,

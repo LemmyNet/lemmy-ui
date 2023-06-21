@@ -42,13 +42,11 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             )}
           </header>
 
-          <div
-            id="sidebarInfoBody"
-            className="collapse show"
-            aria-labelledby="sidebarInfoHeader"
-          >
-            <div className="card-body">{this.siteInfo()}</div>
-          </div>
+          {!this.state.collapsed && (
+            <div id="sidebarInfoBody" aria-labelledby="sidebarInfoHeader">
+              <div className="card-body">{this.siteInfo()}</div>
+            </div>
+          )}
         </section>
       </div>
     );
