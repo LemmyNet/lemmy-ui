@@ -38,16 +38,18 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
 
         {this.state.showPicker && (
           <>
-            <div className="emoji-picker-container">
-              <EmojiMart
-                onEmojiClick={this.handleEmojiClick}
-                pickerOptions={{}}
-              ></EmojiMart>
+            <div className="position-relative">
+              <div className="emoji-picker-container position-absolute w-100">
+                <EmojiMart
+                  onEmojiClick={this.handleEmojiClick}
+                  pickerOptions={{}}
+                ></EmojiMart>
+              </div>
+              <div
+                onClick={linkEvent(this, this.togglePicker)}
+                className="click-away-container"
+              />
             </div>
-            <div
-              onClick={linkEvent(this, this.togglePicker)}
-              className="click-away-container"
-            />
           </>
         )}
       </span>
