@@ -134,7 +134,7 @@ export class CreatePrivateMessage extends Component<
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="create-private-message container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

@@ -10,7 +10,7 @@ export class CakeDay extends Component<CakeDayProps, any> {
   render() {
     return (
       <div
-        className={`mx-2 d-inline-block unselectable pointer`}
+        className={`cake-day mx-2 d-inline-block unselectable pointer`}
         data-tippy-content={this.cakeDayTippy()}
       >
         <Icon icon="cake" classes="icon-inline" />

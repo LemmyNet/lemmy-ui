@@ -43,7 +43,7 @@ export class PrivateMessageReport extends Component<Props, State> {
     );
 
     return (
-      <div>
+      <div className="private-message-report">
         <div>
           {i18n.t("creator")}:{" "}
           <PersonListing person={r.private_message_creator} />

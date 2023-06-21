@@ -75,7 +75,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   render() {
     return (
-      <div className="col-12">
+      <div className="home-emojis-form col-12">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -258,7 +258,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           </table>
           <br />
           <button
-            className="btn btn-sm btn-secondary mr-2"
+            className="btn btn-sm btn-secondary me-2"
             onClick={linkEvent(this, this.handleAddEmojiClick)}
           >
             {i18n.t("add_custom_emoji")}

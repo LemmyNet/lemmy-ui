@@ -1,5 +1,8 @@
+import { getQueryParams, getQueryString } from "@utils/helpers";
+import { canCreateCommunity } from "@utils/roles";
+import type { QueryParams } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent, MouseEventHandler } from "inferno";
+import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -57,7 +60,7 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  canCreateCommunity,
+  RouteDataResponse,
   commentsToFlatNodes,
   editComment,
   editPost,
@@ -68,16 +71,12 @@ import {
   getCommentParentId,
   getDataTypeString,
   getPageFromString,
-  getQueryParams,
-  getQueryString,
   getRandomFromList,
   mdToHtml,
   myAuth,
   postToCommentSortType,
-  QueryParams,
   relTags,
   restoreScrollPosition,
-  RouteDataResponse,
   saveScrollPosition,
   setIsoData,
   setupTippy,
@@ -195,7 +194,7 @@ const MobileButton = ({
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
-    className="btn btn-secondary d-inline-block mb-2 mr-3"
+    className="btn btn-secondary d-inline-block mb-2 me-3"
     onClick={onClick}
   >
     {i18n.t(textKey)}{" "}
@@ -210,7 +209,7 @@ const LinkButton = ({
   path: string;
   translationKey: NoOptionI18nKeys;
 }) => (
-  <Link className="btn btn-secondary btn-block" to={path}>
+  <Link className="btn btn-secondary d-block" to={path}>
     {i18n.t(translationKey)}
   </Link>
 );
@@ -375,7 +374,7 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div className="container-lg">
+      <div className="home container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -443,16 +442,17 @@ export class Home extends Component<any, HomeState> {
               admins={admins}
               counts={counts}
               showLocal={showLocal(this.isoData)}
+              isMobile={true}
             />
           )}
           {showTrendingMobile && (
-            <div className="col-12 card border-secondary mb-3">
-              <div className="card-body">{this.trendingCommunities(true)}</div>
+            <div className="card border-secondary mb-3">
+              {this.trendingCommunities()}
             </div>
           )}
           {showSubscribedMobile && (
-            <div className="col-12 card border-secondary mb-3">
-              <div className="card-body">{this.subscribedCommunities}</div>
+            <div className="card border-secondary mb-3">
+              {this.subscribedCommunities(true)}
             </div>
           )}
         </div>
@@ -471,19 +471,7 @@ export class Home extends Component<any, HomeState> {
     return (
       <div id="sidebarContainer">
         <section id="sidebarMain" className="card border-secondary mb-3">
-          <div className="card-body">
-            {this.trendingCommunities()}
-            {canCreateCommunity(this.state.siteRes) && (
-              <LinkButton
-                path="/create_community"
-                translationKey="create_a_community"
-              />
-            )}
-            <LinkButton
-              path="/communities"
-              translationKey="explore_communities"
-            />
-          </div>
+          {this.trendingCommunities()}
         </section>
         <SiteSidebar
           site={site}
@@ -492,18 +480,20 @@ export class Home extends Component<any, HomeState> {
           showLocal={showLocal(this.isoData)}
         />
         {this.hasFollows && (
-          <section
-            id="sidebarSubscribed"
-            className="card border-secondary mb-3"
-          >
-            <div className="card-body">{this.subscribedCommunities}</div>
-          </section>
+          <div className="accordion">
+            <section
+              id="sidebarSubscribed"
+              className="card border-secondary mb-3"
+            >
+              {this.subscribedCommunities(false)}
+            </section>
+          </div>
         )}
       </div>
     );
   }
 
-  trendingCommunities(isMobile = false) {
+  trendingCommunities() {
     switch (this.state.trendingCommunitiesRes?.state) {
       case "loading":
         return (
@@ -514,68 +504,103 @@ export class Home extends Component<any, HomeState> {
       case "success": {
         const trending = this.state.trendingCommunitiesRes.data.communities;
         return (
-          <div className={!isMobile ? "mb-2" : ""}>
-            <h5>
-              <T i18nKey="trending_communities">
-                #
-                <Link className="text-body" to="/communities">
+          <>
+            <header className="card-header d-flex align-items-center">
+              <h5 className="mb-0">
+                <T i18nKey="trending_communities">
                   #
-                </Link>
-              </T>
-            </h5>
-            <ul className="list-inline mb-0">
-              {trending.map(cv => (
-                <li
-                  key={cv.community.id}
-                  className="list-inline-item d-inline-block"
-                >
-                  <CommunityLink community={cv.community} />
-                </li>
-              ))}
-            </ul>
-          </div>
+                  <Link className="text-body" to="/communities">
+                    #
+                  </Link>
+                </T>
+              </h5>
+            </header>
+            <div className="card-body">
+              {trending.length > 0 && (
+                <ul className="list-inline">
+                  {trending.map(cv => (
+                    <li key={cv.community.id} className="list-inline-item">
+                      <CommunityLink community={cv.community} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {canCreateCommunity(this.state.siteRes) && (
+                <LinkButton
+                  path="/create_community"
+                  translationKey="create_a_community"
+                />
+              )}
+              <LinkButton
+                path="/communities"
+                translationKey="explore_communities"
+              />
+            </div>
+          </>
         );
       }
     }
   }
 
-  get subscribedCommunities() {
+  subscribedCommunities(isMobile = false) {
     const { subscribedCollapsed } = this.state;
 
     return (
-      <div>
-        <h5>
-          <T class="d-inline" i18nKey="subscribed_to_communities">
-            #
-            <Link className="text-body" to="/communities">
+      <>
+        <header
+          className="card-header d-flex align-items-center"
+          id="sidebarSubscribedHeader"
+        >
+          <h5 className="mb-0 d-inline">
+            <T class="d-inline" i18nKey="subscribed_to_communities">
               #
-            </Link>
-          </T>
-          <button
-            className="btn btn-sm text-muted"
-            onClick={linkEvent(this, this.handleCollapseSubscribe)}
-            aria-label={i18n.t("collapse")}
-            data-tippy-content={i18n.t("collapse")}
-          >
-            <Icon
-              icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
-              classes="icon-inline"
-            />
-          </button>
-        </h5>
-        {!subscribedCollapsed && (
-          <ul className="list-inline mb-0">
-            {UserService.Instance.myUserInfo?.follows.map(cfv => (
-              <li
-                key={cfv.community.id}
-                className="list-inline-item d-inline-block"
-              >
-                <CommunityLink community={cfv.community} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+              <Link className="text-body" to="/communities">
+                #
+              </Link>
+            </T>
+          </h5>
+          {!isMobile && (
+            <button
+              type="button"
+              className="btn btn-sm text-muted"
+              onClick={linkEvent(this, this.handleCollapseSubscribe)}
+              aria-label={
+                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+              }
+              data-tippy-content={
+                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+              }
+              data-bs-toggle="collapse"
+              data-bs-target="#sidebarSubscribedBody"
+              aria-expanded="true"
+              aria-controls="sidebarSubscribedBody"
+            >
+              <Icon
+                icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
+                classes="icon-inline"
+              />
+            </button>
+          )}
+        </header>
+        <div
+          id="sidebarSubscribedBody"
+          className="collapse show"
+          aria-labelledby="sidebarSubscribedHeader"
+        >
+          <div className="card-body">
+            <ul className="list-inline mb-0">
+              {UserService.Instance.myUserInfo?.follows.map(cfv => (
+                <li
+                  key={cfv.community.id}
+                  className="list-inline-item d-inline-block"
+                >
+                  <CommunityLink community={cfv.community} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -709,25 +734,25 @@ export class Home extends Component<any, HomeState> {
     const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
-      <div className="mb-3">
-        <span className="mr-3">
+      <div className="row align-items-center mb-3 g-3">
+        <div className="col-auto">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
-        </span>
-        <span className="mr-3">
+        </div>
+        <div className="col-auto">
           <ListingTypeSelect
             type_={listingType}
             showLocal={showLocal(this.isoData)}
             showSubscribed
             onChange={this.handleListingTypeChange}
           />
-        </span>
-        <span className="mr-2">
+        </div>
+        <div className="col-auto">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
-        </span>
-        {getRss(listingType)}
+        </div>
+        <div className="col-auto ps-0">{getRss(listingType)}</div>
       </div>
     );
   }
