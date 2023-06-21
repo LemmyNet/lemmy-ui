@@ -66,10 +66,9 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             {i18n.t(this.props.multiple ? "language_plural" : "language")}
           </label>
           <div
-            className={classNames(
-              "input-group",
-              `col-sm-${this.props.multiple ? 9 : 10}`
-            )}
+            className={classNames(`col-sm-${this.props.multiple ? 9 : 10}`, {
+              "input-group": this.props.multiple,
+            })}
           >
             {this.selectBtn}
             {this.props.multiple && (
