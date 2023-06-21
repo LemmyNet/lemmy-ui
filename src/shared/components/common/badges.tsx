@@ -1,3 +1,4 @@
+import { numToSI } from "@utils/helpers";
 import { Link } from "inferno-router";
 import {
   CommunityAggregates,
@@ -5,7 +6,6 @@ import {
   SiteAggregates,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { numToSI } from "../../utils";
 
 interface BadgesProps {
   counts: CommunityAggregates | SiteAggregates;

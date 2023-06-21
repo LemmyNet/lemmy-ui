@@ -1,3 +1,4 @@
+import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
   CreatePrivateMessage,
@@ -9,8 +10,8 @@ import {
   PrivateMessageView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
+import { mdToHtml } from "../../markdown";
 import { UserService } from "../../services";
-import { mdToHtml, myAuthRequired } from "../../utils";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";

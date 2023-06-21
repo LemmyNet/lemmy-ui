@@ -1,6 +1,27 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  myAuth,
+  myAuthRequired,
+  setIsoData,
+  updatePersonBlock,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  capitalizeFirstLetter,
+  futureDaysToUnixTime,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  numToSI,
+} from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -50,35 +71,15 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import moment from "moment";
+import { fetchLimit, relTags } from "../../config";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
+import { mdToHtml } from "../../markdown";
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  capitalizeFirstLetter,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  fetchLimit,
-  futureDaysToUnixTime,
-  getCommentParentId,
-  getPageFromString,
-  mdToHtml,
-  myAuth,
-  myAuthRequired,
-  numToSI,
-  relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  toast,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";

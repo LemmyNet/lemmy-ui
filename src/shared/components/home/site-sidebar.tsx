@@ -1,7 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { mdToHtml } from "../../utils";
+import { mdToHtml } from "../../markdown";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";

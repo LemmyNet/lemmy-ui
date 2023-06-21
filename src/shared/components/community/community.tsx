@@ -1,5 +1,28 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  commentsToFlatNodes,
+  communityRSSUrl,
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  getDataTypeString,
+  myAuth,
+  postToCommentSortType,
+  setIsoData,
+  showLocal,
+  updateCommunityBlock,
+  updatePersonBlock,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+} from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -54,6 +77,7 @@ import {
   SortType,
   TransferCommunity,
 } from "lemmy-js-client";
+import { fetchLimit, relTags } from "../../config";
 import { i18n } from "../../i18next";
 import {
   CommentViewType,
@@ -63,31 +87,8 @@ import {
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  commentsToFlatNodes,
-  communityRSSUrl,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  fetchLimit,
-  getCommentParentId,
-  getDataTypeString,
-  getPageFromString,
-  myAuth,
-  postToCommentSortType,
-  relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  showLocal,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";

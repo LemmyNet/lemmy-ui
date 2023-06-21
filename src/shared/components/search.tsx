@@ -1,5 +1,28 @@
-import { debounce, getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  commentsToFlatNodes,
+  communityToChoice,
+  enableDownvotes,
+  enableNsfw,
+  fetchCommunities,
+  fetchUsers,
+  getUpdatedSearchId,
+  myAuth,
+  personToChoice,
+  setIsoData,
+  showLocal,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  capitalizeFirstLetter,
+  debounce,
+  getIdFromString,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  numToSI,
+} from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -22,32 +45,11 @@ import {
   SearchType,
   SortType,
 } from "lemmy-js-client";
+import { fetchLimit } from "../config";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
-import {
-  Choice,
-  RouteDataResponse,
-  capitalizeFirstLetter,
-  commentsToFlatNodes,
-  communityToChoice,
-  enableDownvotes,
-  enableNsfw,
-  fetchCommunities,
-  fetchLimit,
-  fetchUsers,
-  getIdFromString,
-  getPageFromString,
-  getUpdatedSearchId,
-  myAuth,
-  numToSI,
-  personToChoice,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  showLocal,
-} from "../utils";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
