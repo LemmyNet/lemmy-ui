@@ -315,7 +315,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 <Icon icon="shield" inline classes={`text-danger mr-2`} />
               )}
               {userFlair !== null && (
-                <div className="badge badge-dark d-inline mr-2 p-1">
+                <div className="badge badge-light d-inline mr-2 p-1">
                   {userFlair}
                 </div>
               )}

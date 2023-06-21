@@ -377,7 +377,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <li className="list-inline-item">
           <PersonListing person={post_view.creator} />
           {userFlair !== null && (
-            <div className="badge badge-dark d-inline ml-2">
+            <div className="badge badge-light d-inline ml-2">
               {userFlair}
             </div>
           )}
