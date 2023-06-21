@@ -7,7 +7,7 @@ import emojiShortName from "emoji-short-name";
 import { CustomEmojiView } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
-import markdown_it_emoji from "markdown-it-emoji/bare";
+// import markdown_it_emoji from "markdown-it-emoji/bare";
 import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_sub from "markdown-it-sub";
@@ -79,19 +79,19 @@ export function setupMarkdown() {
     typographer: true,
   };
 
-  const emojiDefs = Array.from(customEmojisLookup.entries()).reduce(
-    (main, [key, value]) => ({ ...main, [key]: value }),
-    {}
-  );
+  // const emojiDefs = Array.from(customEmojisLookup.entries()).reduce(
+  //   (main, [key, value]) => ({ ...main, [key]: value }),
+  //   {}
+  // );
   md = new MarkdownIt(markdownItConfig)
     .use(markdown_it_sub)
     .use(markdown_it_sup)
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
-    .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_emoji, {
-      defs: emojiDefs,
-    });
+    .use(markdown_it_container, "spoiler", spoilerConfig);
+  // .use(markdown_it_emoji, {
+  //   defs: emojiDefs,
+  // });
 
   mdNoImages = new MarkdownIt(markdownItConfig)
     .use(markdown_it_sub)
@@ -99,9 +99,9 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_emoji, {
-      defs: emojiDefs,
-    })
+    // .use(markdown_it_emoji, {
+    //   defs: emojiDefs,
+    // })
     .disable("image");
   const defaultRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
