@@ -524,7 +524,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               id="post-nsfw"
               type="checkbox"
               checked={this.state.form.nsfw}
-              onChange={linkEvent(this, this.handlePostNsfwChange)}
+              onChange={linkEvent(this, handlePostNsfwChange)}
             />
             <label className="form-check-label">{i18n.t("nsfw")}</label>
           </div>
