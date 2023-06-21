@@ -18,8 +18,8 @@ import {
   RemoveCommunity,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
+import { mdToHtml } from "../../markdown";
 import { UserService } from "../../services";
-import { mdToHtml } from "../../utils";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";

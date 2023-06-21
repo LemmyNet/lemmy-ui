@@ -26,12 +26,12 @@ import {
   ResolvePostReport,
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
+import { fetchLimit } from "../../config";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { HttpService, UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { RequestState } from "../../services/HttpService";
-import { fetchLimit } from "../../utils";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";

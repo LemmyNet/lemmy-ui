@@ -5,21 +5,18 @@ import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { HttpService, UserService } from "../../services";
 import {
   concurrentImageUpload,
-  customEmojisLookup,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
   maxUploadImages,
-  mdToHtml,
-  pictrsDeleteToast,
   relTags,
-  setupTippy,
-  setupTribute,
-  toast,
-} from "../../utils";
+} from "../../config";
+import { i18n } from "../../i18next";
+import { customEmojisLookup, mdToHtml, setupTribute } from "../../markdown";
+import { HttpService, UserService } from "../../services";
+import { setupTippy } from "../../tippy";
+import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";

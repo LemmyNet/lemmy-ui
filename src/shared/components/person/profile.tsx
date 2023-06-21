@@ -8,6 +8,7 @@ import {
   myAuth,
   myAuthRequired,
   setIsoData,
+  updatePersonBlock,
 } from "@utils/app";
 import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
@@ -70,19 +71,15 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import moment from "moment";
+import { fetchLimit, relTags } from "../../config";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
+import { mdToHtml } from "../../markdown";
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  fetchLimit,
-  mdToHtml,
-  relTags,
-  setupTippy,
-  toast,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";

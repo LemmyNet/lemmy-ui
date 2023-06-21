@@ -2,7 +2,7 @@ import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { mdToHtml } from "../../utils";
+import { mdToHtml } from "../../markdown";
 import { HtmlTags } from "../common/html-tags";
 
 interface LegalState {

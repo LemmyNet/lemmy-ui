@@ -9,6 +9,8 @@ import {
   setIsoData,
   setTheme,
   showLocal,
+  updateCommunityBlock,
+  updatePersonBlock,
 } from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice } from "@utils/types";
@@ -26,18 +28,12 @@ import {
   PersonBlockView,
   SortType,
 } from "lemmy-js-client";
+import { elementUrl, emDash, relTags } from "../../config";
 import { i18n, languages } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  elementUrl,
-  emDash,
-  relTags,
-  setupTippy,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";

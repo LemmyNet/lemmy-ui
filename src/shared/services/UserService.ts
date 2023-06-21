@@ -6,7 +6,7 @@ import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";
-import { toast } from "../utils";
+import { toast } from "../toast";
 
 interface Claims {
   sub: number;

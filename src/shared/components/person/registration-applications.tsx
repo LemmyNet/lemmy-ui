@@ -11,12 +11,13 @@ import {
   ListRegistrationApplicationsResponse,
   RegistrationApplicationView,
 } from "lemmy-js-client";
+import { fetchLimit } from "../../config";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { fetchLimit, setupTippy } from "../../utils";
+import { setupTippy } from "../../tippy";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";

@@ -12,6 +12,8 @@ import {
   postToCommentSortType,
   setIsoData,
   showLocal,
+  updateCommunityBlock,
+  updatePersonBlock,
 } from "@utils/app";
 import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
@@ -75,6 +77,7 @@ import {
   SortType,
   TransferCommunity,
 } from "lemmy-js-client";
+import { fetchLimit, relTags } from "../../config";
 import { i18n } from "../../i18next";
 import {
   CommentViewType,
@@ -84,14 +87,8 @@ import {
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  fetchLimit,
-  relTags,
-  setupTippy,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";

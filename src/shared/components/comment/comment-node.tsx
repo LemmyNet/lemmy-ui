@@ -47,6 +47,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import moment from "moment";
+import { commentTreeMaxDepth } from "../../config";
 import { i18n } from "../../i18next";
 import {
   BanType,
@@ -55,13 +56,9 @@ import {
   PurgeType,
   VoteType,
 } from "../../interfaces";
+import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
 import { UserService } from "../../services";
-import {
-  commentTreeMaxDepth,
-  mdToHtml,
-  mdToHtmlNoImages,
-  setupTippy,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { CommunityLink } from "../community/community-link";

@@ -6,11 +6,11 @@ import {
   GetSiteResponse,
   Instance,
 } from "lemmy-js-client";
+import { relTags } from "../../config";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { relTags } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 

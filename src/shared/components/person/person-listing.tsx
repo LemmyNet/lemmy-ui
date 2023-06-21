@@ -4,7 +4,7 @@ import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { Person } from "lemmy-js-client";
-import { relTags } from "../../utils";
+import { relTags } from "../../config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
 

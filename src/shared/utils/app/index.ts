@@ -30,6 +30,7 @@ import getDepthFromComment from "./get-depth-from-comment";
 import getIdFromProps from "./get-id-from-props";
 import getRecipientIdFromProps from "./get-recipient-id-from-props";
 import getUpdatedSearchId from "./get-updated-search-id";
+import initializeSite from "./initialize-site";
 import insertCommentIntoTree from "./insert-comment-into-tree";
 import isAuthPath from "./is-auth-path";
 import isPostBlocked from "./is-post-blocked";
@@ -49,6 +50,8 @@ import showAvatars from "./show-avatars";
 import showLocal from "./show-local";
 import showScores from "./show-scores";
 import siteBannerCss from "./site-banner-css";
+import updateCommunityBlock from "./update-community-block";
+import updatePersonBlock from "./update-person-block";
 
 export {
   buildCommentsTree,
@@ -83,6 +86,7 @@ export {
   getIdFromProps,
   getRecipientIdFromProps,
   getUpdatedSearchId,
+  initializeSite,
   insertCommentIntoTree,
   isAuthPath,
   isPostBlocked,
@@ -102,4 +106,6 @@ export {
   showLocal,
   showScores,
   siteBannerCss,
+  updateCommunityBlock,
+  updatePersonBlock,
 };

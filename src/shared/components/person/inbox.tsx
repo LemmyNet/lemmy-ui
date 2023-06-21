@@ -9,6 +9,7 @@ import {
   myAuth,
   myAuthRequired,
   setIsoData,
+  updatePersonBlock,
 } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
@@ -57,12 +58,13 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
+import { fetchLimit, relTags } from "../../config";
 import { i18n } from "../../i18next";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { fetchLimit, relTags, toast, updatePersonBlock } from "../../utils";
+import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
 import { HtmlTags } from "../common/html-tags";

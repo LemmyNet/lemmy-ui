@@ -12,10 +12,12 @@ import {
   LoginResponse,
   SiteView,
 } from "lemmy-js-client";
+import { joinLemmyUrl } from "../../config";
 import { i18n } from "../../i18next";
+import { mdToHtml } from "../../markdown";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { joinLemmyUrl, mdToHtml, toast } from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

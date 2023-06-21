@@ -6,7 +6,7 @@ import {
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { mdToHtml } from "../../utils";
+import { mdToHtml } from "../../markdown";
 import { PersonListing } from "../person/person-listing";
 import { Spinner } from "./icon";
 import { MarkdownTextArea } from "./markdown-textarea";

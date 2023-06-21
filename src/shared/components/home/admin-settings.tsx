@@ -20,13 +20,10 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
+import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  removeFromEmojiDataModel,
-  toast,
-  updateEmojiDataModel,
-} from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";

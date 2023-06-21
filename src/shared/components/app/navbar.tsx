@@ -10,10 +10,11 @@ import {
   GetUnreadCountResponse,
   GetUnreadRegistrationApplicationCountResponse,
 } from "lemmy-js-client";
+import { donateLemmyUrl, updateUnreadCountsInterval } from "../../config";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { donateLemmyUrl, toast, updateUnreadCountsInterval } from "../../utils";
+import { toast } from "../../toast";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 

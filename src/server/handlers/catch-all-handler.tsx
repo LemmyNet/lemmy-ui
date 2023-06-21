@@ -1,4 +1,4 @@
-import { isAuthPath } from "@utils/app";
+import { initializeSite, isAuthPath } from "@utils/app";
 import { ErrorPageData } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
@@ -17,7 +17,6 @@ import {
   FailedRequestState,
   wrapClient,
 } from "../../shared/services/HttpService";
-import { initializeSite } from "../../shared/utils";
 import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";

@@ -6,7 +6,7 @@ import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { toast } from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 

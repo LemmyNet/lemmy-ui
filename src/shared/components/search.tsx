@@ -45,11 +45,11 @@ import {
   SearchType,
   SortType,
 } from "lemmy-js-client";
+import { fetchLimit } from "../config";
 import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
-import { fetchLimit } from "../utils";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
