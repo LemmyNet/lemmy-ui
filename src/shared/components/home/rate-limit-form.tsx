@@ -54,7 +54,7 @@ function RateLimits({
   className,
 }: RateLimitsProps) {
   return (
-    <div className={classNames("mb-3 row", className)}>
+    <div role="tabpanel" className={classNames("mb-3 row", className)}>
       <div className="col-md-6">
         <label htmlFor="rate-limit">{i18n.t("rate_limit")}</label>
         <input
