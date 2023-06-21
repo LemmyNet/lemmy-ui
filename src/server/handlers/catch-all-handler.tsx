@@ -29,7 +29,9 @@ export default async (req: Request, res: Response) => {
     const getSiteForm: GetSite = { auth };
 
     const headers = setForwardedHeaders(req.headers);
-    const client = wrapClient(new LemmyHttp(getHttpBaseInternal(), headers));
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers })
+    );
 
     const { path, url, query } = req;
 
