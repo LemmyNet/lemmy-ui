@@ -1,3 +1,4 @@
+import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -5,7 +6,7 @@ import {
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { mdToHtml, myAuthRequired } from "../../utils";
+import { mdToHtml } from "../../utils";
 import { PersonListing } from "../person/person-listing";
 import { Spinner } from "./icon";
 import { MarkdownTextArea } from "./markdown-textarea";

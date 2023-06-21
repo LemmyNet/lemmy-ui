@@ -1,3 +1,4 @@
+import { commentsToFlatNodes } from "@utils/app";
 import { Component } from "inferno";
 import {
   AddAdmin,
@@ -37,7 +38,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
-import { commentsToFlatNodes, setupTippy } from "../../utils";
+import { setupTippy } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";

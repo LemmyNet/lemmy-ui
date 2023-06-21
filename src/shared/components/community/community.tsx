@@ -1,10 +1,26 @@
-import { communityRSSUrl } from "@utils/app";
+import {
+  commentsToFlatNodes,
+  communityRSSUrl,
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  getDataTypeString,
+  myAuth,
+  postToCommentSortType,
+  setIsoData,
+  showLocal,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
   getPageFromString,
   getQueryParams,
   getQueryString,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -69,24 +85,9 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  RouteDataResponse,
-  commentsToFlatNodes,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
   fetchLimit,
-  getCommentParentId,
-  getDataTypeString,
-  myAuth,
-  postToCommentSortType,
   relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
   setupTippy,
-  showLocal,
   toast,
   updateCommunityBlock,
   updatePersonBlock,

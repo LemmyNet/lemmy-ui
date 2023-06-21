@@ -1,3 +1,11 @@
+import {
+  colorList,
+  getCommentParentId,
+  myAuth,
+  myAuthRequired,
+  newVote,
+  showScores,
+} from "@utils/app";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import {
   amCommunityCreator,
@@ -49,16 +57,10 @@ import {
 } from "../../interfaces";
 import { UserService } from "../../services";
 import {
-  colorList,
   commentTreeMaxDepth,
-  getCommentParentId,
   mdToHtml,
   mdToHtmlNoImages,
-  myAuth,
-  myAuthRequired,
-  newVote,
   setupTippy,
-  showScores,
 } from "../../utils";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";

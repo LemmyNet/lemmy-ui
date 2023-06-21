@@ -1,4 +1,16 @@
 import {
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  myAuth,
+  myAuthRequired,
+  setIsoData,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
   getPageFromString,
@@ -8,6 +20,7 @@ import {
 } from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -63,21 +76,9 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  RouteDataResponse,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
   fetchLimit,
-  getCommentParentId,
   mdToHtml,
-  myAuth,
-  myAuthRequired,
   relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
   setupTippy,
   toast,
   updatePersonBlock,

@@ -1,3 +1,5 @@
+import { setIsoData } from "@utils/app";
+import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   GetFederatedInstancesResponse,
@@ -8,7 +10,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { RouteDataResponse, relTags, setIsoData } from "../../utils";
+import { relTags } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 

@@ -1,5 +1,7 @@
+import { enableDownvotes, enableNsfw, myAuth, setIsoData } from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -17,14 +19,6 @@ import {
   RequestState,
   WrappedLemmyHttp,
 } from "../../services/HttpService";
-import {
-  Choice,
-  RouteDataResponse,
-  enableDownvotes,
-  enableNsfw,
-  myAuth,
-  setIsoData,
-} from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";

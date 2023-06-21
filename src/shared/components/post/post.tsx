@@ -1,8 +1,27 @@
-import { isBrowser } from "@utils/browser";
+import {
+  buildCommentsTree,
+  commentsToFlatNodes,
+  editComment,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentIdFromProps,
+  getCommentParentId,
+  getDepthFromComment,
+  getIdFromProps,
+  myAuth,
+  setIsoData,
+} from "@utils/app";
+import {
+  isBrowser,
+  restoreScrollPosition,
+  saveScrollPosition,
+} from "@utils/browser";
 import { debounce } from "@utils/helpers";
 import { isImage } from "@utils/media";
+import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
-import { Component, createRef, linkEvent, RefObject } from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -64,22 +83,7 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  buildCommentsTree,
-  commentsToFlatNodes,
   commentTreeMaxDepth,
-  editComment,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  getCommentIdFromProps,
-  getCommentParentId,
-  getDepthFromComment,
-  getIdFromProps,
-  myAuth,
-  restoreScrollPosition,
-  RouteDataResponse,
-  saveScrollPosition,
-  setIsoData,
   setupTippy,
   toast,
   updateCommunityBlock,

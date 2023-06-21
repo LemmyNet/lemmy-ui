@@ -1,10 +1,27 @@
 import {
+  commentsToFlatNodes,
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  getDataTypeString,
+  myAuth,
+  postToCommentSortType,
+  setIsoData,
+  showLocal,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
   getPageFromString,
   getQueryParams,
   getQueryString,
+  getRandomFromList,
 } from "@utils/helpers";
 import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -64,26 +81,10 @@ import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  RouteDataResponse,
-  commentsToFlatNodes,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
   fetchLimit,
-  getCommentParentId,
-  getDataTypeString,
-  getRandomFromList,
   mdToHtml,
-  myAuth,
-  postToCommentSortType,
   relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
   setupTippy,
-  showLocal,
   toast,
   trendingFetchLimit,
   updatePersonBlock,

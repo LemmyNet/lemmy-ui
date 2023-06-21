@@ -1,3 +1,16 @@
+import {
+  commentsToFlatNodes,
+  editCommentReply,
+  editMention,
+  editPrivateMessage,
+  editWith,
+  enableDownvotes,
+  getCommentParentId,
+  myAuth,
+  myAuthRequired,
+  setIsoData,
+} from "@utils/app";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   AddAdmin,
@@ -49,23 +62,7 @@ import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  commentsToFlatNodes,
-  editCommentReply,
-  editMention,
-  editPrivateMessage,
-  editWith,
-  enableDownvotes,
-  fetchLimit,
-  getCommentParentId,
-  myAuth,
-  myAuthRequired,
-  relTags,
-  setIsoData,
-  toast,
-  updatePersonBlock,
-} from "../../utils";
+import { fetchLimit, relTags, toast, updatePersonBlock } from "../../utils";
 import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
 import { HtmlTags } from "../common/html-tags";

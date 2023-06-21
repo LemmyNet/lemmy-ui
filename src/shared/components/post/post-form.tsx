@@ -1,7 +1,14 @@
 import {
+  communityToChoice,
+  fetchCommunities,
+  myAuth,
+  myAuthRequired,
+} from "@utils/app";
+import {
   capitalizeFirstLetter,
   debounce,
   getIdFromString,
+  validTitle,
   validURL,
 } from "@utils/helpers";
 import { isImage } from "@utils/media";
@@ -23,16 +30,11 @@ import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
   archiveTodayUrl,
-  communityToChoice,
-  fetchCommunities,
   ghostArchiveUrl,
-  myAuth,
-  myAuthRequired,
   relTags,
   setupTippy,
   toast,
   trendingFetchLimit,
-  validTitle,
   webArchiveUrl,
 } from "../../utils";
 import { Icon, Spinner } from "../common/icon";

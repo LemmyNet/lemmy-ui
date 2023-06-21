@@ -1,8 +1,8 @@
+import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { EditSite, Tagline } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { myAuthRequired } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

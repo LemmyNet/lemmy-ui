@@ -1,3 +1,4 @@
+import { myAuthRequired, setIsoData } from "@utils/app";
 import { Component, linkEvent } from "inferno";
 import {
   CreateCustomEmoji,
@@ -7,13 +8,7 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { HttpService } from "../../services/HttpService";
-import {
-  customEmojisLookup,
-  myAuthRequired,
-  pictrsDeleteToast,
-  setIsoData,
-  toast,
-} from "../../utils";
+import { customEmojisLookup, pictrsDeleteToast, toast } from "../../utils";
 import { EmojiMart } from "../common/emoji-mart";
 import { HtmlTags } from "../common/html-tags";
 import { Icon } from "../common/icon";

@@ -1,9 +1,14 @@
 import {
+  communityToChoice,
   fetchCommunities,
   fetchThemeList,
   fetchUsers,
   myAuth,
+  myAuthRequired,
+  personToChoice,
+  setIsoData,
   setTheme,
+  showLocal,
 } from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice } from "@utils/types";
@@ -25,15 +30,10 @@ import { i18n, languages } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  communityToChoice,
   elementUrl,
   emDash,
-  myAuthRequired,
-  personToChoice,
   relTags,
-  setIsoData,
   setupTippy,
-  showLocal,
   toast,
   updateCommunityBlock,
   updatePersonBlock,

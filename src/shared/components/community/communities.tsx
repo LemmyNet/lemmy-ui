@@ -1,10 +1,18 @@
 import {
+  editCommunity,
+  myAuth,
+  myAuthRequired,
+  setIsoData,
+  showLocal,
+} from "@utils/app";
+import {
   getPageFromString,
   getQueryParams,
   getQueryString,
   numToSI,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
@@ -17,14 +25,6 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  editCommunity,
-  myAuth,
-  myAuthRequired,
-  setIsoData,
-  showLocal,
-} from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";

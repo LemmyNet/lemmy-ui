@@ -1,3 +1,4 @@
+import { myAuth, setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { validEmail } from "@utils/helpers";
 import { Options, passwordStrength } from "check-password-strength";
@@ -14,7 +15,7 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { joinLemmyUrl, mdToHtml, myAuth, setIsoData, toast } from "../../utils";
+import { joinLemmyUrl, mdToHtml, toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

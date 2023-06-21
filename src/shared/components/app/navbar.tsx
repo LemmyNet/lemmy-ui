@@ -1,3 +1,4 @@
+import { myAuth, showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI, poll } from "@utils/helpers";
 import { amAdmin, canCreateCommunity } from "@utils/roles";
@@ -12,13 +13,7 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  donateLemmyUrl,
-  myAuth,
-  showAvatars,
-  toast,
-  updateUnreadCountsInterval,
-} from "../../utils";
+import { donateLemmyUrl, toast, updateUnreadCountsInterval } from "../../utils";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 

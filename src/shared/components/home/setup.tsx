@@ -1,3 +1,4 @@
+import { fetchThemeList, setIsoData } from "@utils/app";
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
 import {
@@ -9,7 +10,6 @@ import {
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { fetchThemeList, setIsoData } from "../../utils";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
 

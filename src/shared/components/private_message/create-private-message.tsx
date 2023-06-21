@@ -1,3 +1,5 @@
+import { getRecipientIdFromProps, myAuth, setIsoData } from "@utils/app";
+import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   CreatePrivateMessage as CreatePrivateMessageI,
@@ -9,13 +11,7 @@ import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  getRecipientIdFromProps,
-  myAuth,
-  setIsoData,
-  toast,
-} from "../../utils";
+import { toast } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";

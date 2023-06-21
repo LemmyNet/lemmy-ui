@@ -1,3 +1,9 @@
+import {
+  editRegistrationApplication,
+  myAuthRequired,
+  setIsoData,
+} from "@utils/app";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
@@ -10,14 +16,7 @@ import { InitialFetchRequest } from "../../interfaces";
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  editRegistrationApplication,
-  fetchLimit,
-  myAuthRequired,
-  setIsoData,
-  setupTippy,
-} from "../../utils";
+import { fetchLimit, setupTippy } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";

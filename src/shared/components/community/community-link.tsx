@@ -1,7 +1,9 @@
+import { showAvatars } from "@utils/app";
+import { hostname } from "@utils/helpers";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { Community } from "lemmy-js-client";
-import { hostname, relTags, showAvatars } from "../../utils";
+import { relTags } from "../../utils";
 import { PictrsImage } from "../common/pictrs-image";
 
 interface CommunityLinkProps {
