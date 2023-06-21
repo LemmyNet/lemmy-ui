@@ -1,2 +1,59 @@
 @import "variables.darkly-compact";
+
+/*
+    GENERAL
+*/
+
+// Desktop Breakpoint
+$container-max-widths: (
+  lg: 1920px,
+);
+
+// Reduce hr height
+hr.my-3 {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/*
+    POST-LISTING
+*/
+
+.post-listing {
+  line-height: 1;
+
+  .post-title h5 {
+    margin: 0;
+  }
+
+  .post-title + p {
+    padding-top: 0.125rem !important;
+    padding-bottom: 0.125rem !important;
+  }
+
+  .community-link {
+    padding-left: 0.125rem;
+  }
+
+  .person-listing {
+    padding-right: 0.125rem;
+  }
+
+  ul.list-inline {
+    &.mt-2 {
+      margin-top: 0.125rem !important;
+    }
+    &.mb-1 {
+      margin-bottom: 0.125rem !important;
+    }
+  }
+
+  .btn-sm {
+    --bs-btn-padding-y: 0;
+  }
+  .img-icon {
+    display: none;
+  }
+}
+
 @import "../../../../node_modules/bootstrap/scss/bootstrap";
