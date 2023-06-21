@@ -3,23 +3,23 @@ import { CommentSortType, SortType } from "lemmy-js-client";
 export default function convertCommentSortType(
   sort: SortType
 ): CommentSortType {
-switch(sort) {
+  switch (sort) {
     case "TopAll":
     case "TopDay":
     case "TopWeek":
     case "TopMonth":
     case "TopYear": {
-        return "Top";
+      return "Top";
     }
     case "New": {
-         return "New";
+      return "New";
     }
     case "Hot":
     case "Active": {
-        return "Hot";
+      return "Hot";
     }
     default: {
-        return "Hot";
+      return "Hot";
     }
-}
+  }
 }
