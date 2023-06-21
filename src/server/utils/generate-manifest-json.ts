@@ -5,7 +5,7 @@ import sharp from "sharp";
 import { getHttpBaseExternal } from "../../shared/env";
 import { fetchIconPng } from "./fetch-icon-png";
 
-const iconSizes = [72, 96, 144, 192, 512];
+const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
 const defaultLogoPathDirectory = path.join(
   process.cwd(),
@@ -14,7 +14,7 @@ const defaultLogoPathDirectory = path.join(
   "icons"
 );
 
-export async function generateManifestBase64({
+export default async function ({
   my_user,
   site_view: {
     site,
@@ -25,7 +25,7 @@ export async function generateManifestBase64({
 
   const icon = site.icon ? await fetchIconPng(site.icon) : null;
 
-  const manifest = {
+  return {
     name: site.name,
     description: site.description ?? "A link aggregator for the fediverse",
     start_url: url,
@@ -69,31 +69,24 @@ export async function generateManifestBase64({
         short_name: "Communities",
         description: "Browse communities",
       },
-    ]
-      .concat(
-        my_user
-          ? [
-              {
-                name: "Create Post",
-                url: "/create_post",
-                short_name: "Create Post",
-                description: "Create a post.",
-              },
-            ]
-          : []
-      )
-      .concat(
-        my_user?.local_user_view.person.admin || !community_creation_admin_only
-          ? [
-              {
-                name: "Create Community",
-                url: "/create_community",
-                short_name: "Create Community",
-                description: "Create a community",
-              },
-            ]
-          : []
-      ),
+      {
+        name: "Create Post",
+        url: "/create_post",
+        short_name: "Create Post",
+        description: "Create a post.",
+      },
+    ].concat(
+      my_user?.local_user_view.person.admin || !community_creation_admin_only
+        ? [
+            {
+              name: "Create Community",
+              url: "/create_community",
+              short_name: "Create Community",
+              description: "Create a community",
+            },
+          ]
+        : []
+    ),
     related_applications: [
       {
         platform: "f-droid",
@@ -102,6 +95,4 @@ export async function generateManifestBase64({
       },
     ],
   };
-
-  return Buffer.from(JSON.stringify(manifest)).toString("base64");
 }
