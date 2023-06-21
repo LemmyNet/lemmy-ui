@@ -80,9 +80,10 @@ class LanguageDetector {
   detect() {
     const langs: string[] = [];
 
-    const myLang =
-      UserService.Instance.myUserInfo?.local_user_view.local_user
-        .interface_language ?? "browser";
+    const myLang = isBrowser()
+      ? UserService.Instance.myUserInfo?.local_user_view.local_user
+          .interface_language ?? "browser"
+      : "browser";
 
     if (myLang !== "browser") langs.push(myLang);
 
