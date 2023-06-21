@@ -1,9 +1,10 @@
+import { selectableLanguages } from "@utils/app";
+import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services/UserService";
-import { randomStr, selectableLanguages } from "../../utils";
 import { Icon } from "./icon";
 
 interface LanguageSelectProps {

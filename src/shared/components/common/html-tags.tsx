@@ -3,7 +3,7 @@ import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { httpExternalPath } from "../../env";
 import { i18n } from "../../i18next";
-import { md } from "../../utils";
+import { md } from "../../markdown";
 
 interface HtmlTagsProps {
   title: string;

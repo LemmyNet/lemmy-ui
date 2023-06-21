@@ -1,7 +1,29 @@
-import { isBrowser } from "@utils/browser";
+import {
+  buildCommentsTree,
+  commentsToFlatNodes,
+  editComment,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentIdFromProps,
+  getCommentParentId,
+  getDepthFromComment,
+  getIdFromProps,
+  myAuth,
+  setIsoData,
+  updateCommunityBlock,
+  updatePersonBlock,
+} from "@utils/app";
+import {
+  isBrowser,
+  restoreScrollPosition,
+  saveScrollPosition,
+} from "@utils/browser";
 import { debounce } from "@utils/helpers";
+import { isImage } from "@utils/media";
+import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
-import { Component, createRef, linkEvent, RefObject } from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -53,6 +75,7 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
+import { commentTreeMaxDepth } from "../../config";
 import { i18n } from "../../i18next";
 import {
   CommentNodeI,
@@ -62,29 +85,8 @@ import {
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  buildCommentsTree,
-  commentsToFlatNodes,
-  commentTreeMaxDepth,
-  editComment,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  getCommentIdFromProps,
-  getCommentParentId,
-  getDepthFromComment,
-  getIdFromProps,
-  isImage,
-  myAuth,
-  restoreScrollPosition,
-  RouteDataResponse,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
 import { HtmlTags } from "../common/html-tags";

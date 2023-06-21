@@ -1,8 +1,9 @@
+import { myAuthRequired } from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, FormEventHandler, linkEvent } from "inferno";
 import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
 import { i18n } from "../../i18next";
-import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 

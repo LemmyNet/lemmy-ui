@@ -1,3 +1,4 @@
+import { Choice } from "@utils/types";
 import classNames from "classnames";
 import {
   ChangeEvent,
@@ -7,7 +8,6 @@ import {
   RefObject,
 } from "inferno";
 import { i18n } from "../../i18next";
-import { Choice } from "../../utils";
 import { Icon, Spinner } from "./icon";
 
 interface SearchableSelectProps {

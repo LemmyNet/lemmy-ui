@@ -1,6 +1,20 @@
-import { debounce, getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  fetchUsers,
+  getUpdatedSearchId,
+  myAuth,
+  personToChoice,
+  setIsoData,
+} from "@utils/app";
+import {
+  debounce,
+  getIdFromString,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+} from "@utils/helpers";
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -31,22 +45,11 @@ import {
   Person,
 } from "lemmy-js-client";
 import moment from "moment";
+import { fetchLimit } from "../config";
 import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
 import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
-import {
-  Choice,
-  RouteDataResponse,
-  fetchLimit,
-  fetchUsers,
-  getIdFromString,
-  getPageFromString,
-  getUpdatedSearchId,
-  myAuth,
-  personToChoice,
-  setIsoData,
-} from "../utils";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";

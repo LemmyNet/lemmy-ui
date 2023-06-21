@@ -1,4 +1,19 @@
-import { debounce } from "@utils/helpers";
+import {
+  communityToChoice,
+  fetchCommunities,
+  fetchThemeList,
+  fetchUsers,
+  myAuth,
+  myAuthRequired,
+  personToChoice,
+  setIsoData,
+  setTheme,
+  showLocal,
+  updateCommunityBlock,
+  updatePersonBlock,
+} from "@utils/app";
+import { capitalizeFirstLetter, debounce } from "@utils/helpers";
+import { Choice } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -13,30 +28,12 @@ import {
   PersonBlockView,
   SortType,
 } from "lemmy-js-client";
+import { elementUrl, emDash, relTags } from "../../config";
 import { i18n, languages } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  Choice,
-  capitalizeFirstLetter,
-  communityToChoice,
-  elementUrl,
-  emDash,
-  fetchCommunities,
-  fetchThemeList,
-  fetchUsers,
-  myAuth,
-  myAuthRequired,
-  personToChoice,
-  relTags,
-  setIsoData,
-  setTheme,
-  setupTippy,
-  showLocal,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";

@@ -1,7 +1,7 @@
+import { ErrorPageData } from "@utils/types";
 import { CommentView, GetSiteResponse } from "lemmy-js-client";
 import type { ParsedQs } from "qs";
 import { RequestState, WrappedLemmyHttp } from "./services/HttpService";
-import { ErrorPageData } from "./utils";
 
 /**
  * This contains serialized data, it needs to be deserialized before use.

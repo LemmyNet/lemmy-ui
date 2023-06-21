@@ -1,7 +1,7 @@
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "inferno";
 import moment from "moment";
 import { i18n } from "../../i18next";
-import { capitalizeFirstLetter } from "../../utils";
 import { Icon } from "./icon";
 
 interface MomentTimeProps {

@@ -1,14 +1,16 @@
+import { setIsoData } from "@utils/app";
+import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
 } from "lemmy-js-client";
+import { relTags } from "../../config";
 import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { RouteDataResponse, relTags, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 

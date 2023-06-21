@@ -1,9 +1,9 @@
+import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { i18n } from "../../i18next";
 import { IsoDataOptionalSite } from "../../interfaces";
-import { setIsoData } from "../../utils";
 
 export class ErrorPage extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);

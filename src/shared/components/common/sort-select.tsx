@@ -1,7 +1,8 @@
+import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { SortType } from "lemmy-js-client";
+import { relTags, sortingHelpUrl } from "../../config";
 import { i18n } from "../../i18next";
-import { randomStr, relTags, sortingHelpUrl } from "../../utils";
 import { Icon } from "./icon";
 
 interface SortSelectProps {
