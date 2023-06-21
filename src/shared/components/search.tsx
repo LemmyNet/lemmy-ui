@@ -1,4 +1,18 @@
 import {
+  commentsToFlatNodes,
+  communityToChoice,
+  enableDownvotes,
+  enableNsfw,
+  fetchCommunities,
+  fetchUsers,
+  getUpdatedSearchId,
+  myAuth,
+  personToChoice,
+  setIsoData,
+  showLocal,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
   capitalizeFirstLetter,
   debounce,
   getIdFromString,
@@ -8,6 +22,7 @@ import {
   numToSI,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -34,24 +49,7 @@ import { i18n } from "../i18next";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { FirstLoadService } from "../services/FirstLoadService";
 import { HttpService, RequestState } from "../services/HttpService";
-import {
-  Choice,
-  RouteDataResponse,
-  commentsToFlatNodes,
-  communityToChoice,
-  enableDownvotes,
-  enableNsfw,
-  fetchCommunities,
-  fetchLimit,
-  fetchUsers,
-  getUpdatedSearchId,
-  myAuth,
-  personToChoice,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  showLocal,
-} from "../utils";
+import { fetchLimit } from "../utils";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";

@@ -1,11 +1,12 @@
 // import Cookies from 'js-cookie';
+import { isAuthPath } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { isHttps } from "../env";
 import { i18n } from "../i18next";
-import { isAuthPath, toast } from "../utils";
+import { toast } from "../utils";
 
 interface Claims {
   sub: number;
