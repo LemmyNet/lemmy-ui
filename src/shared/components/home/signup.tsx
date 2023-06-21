@@ -144,7 +144,7 @@ export class Signup extends Component<any, State> {
   registerForm() {
     const siteView = this.state.siteRes.site_view;
     return (
-      <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
+      <form class="was-validated" onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
         <h5>{this.titleName(siteView)}</h5>
 
         {this.isLemmyMl && (
