@@ -156,11 +156,6 @@ function handleCancel(i: PostForm) {
   i.props.onCancel?.();
 }
 
-function handlePreviewToggle(i: PostForm, event: any) {
-  event.preventDefault();
-  i.setState({ previewMode: !i.state.previewMode });
-}
-
 function handleImageUploadPaste(i: PostForm, event: any) {
   const image = event.clipboardData.files[0];
   if (image) {
