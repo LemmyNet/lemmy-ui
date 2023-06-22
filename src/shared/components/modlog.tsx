@@ -686,6 +686,10 @@ export class Modlog extends Component<
     }
   }
 
+  async componentDidMount() {
+    await this.refetch();
+  }
+
   get combined() {
     const res = this.state.res;
     const combined = res.state == "success" ? buildCombined(res.data) : [];
