@@ -77,7 +77,7 @@ export async function createSsrHtml(
      />
   
     <!-- Web app manifest -->
-    <link rel="manifest" href="/manifest" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href=${appleTouchIcon} />
     <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
   
