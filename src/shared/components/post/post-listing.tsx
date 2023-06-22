@@ -656,6 +656,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         {this.saveButton}
+        {this.crossPostButton}
 
         {/**
          * If there is a URL, or if the post has a body and we were told not to
@@ -680,11 +681,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </button>
 
           <ul className="dropdown-menu" id="advancedButtonsDropdown">
-            <li>{this.crossPostButton}</li>
-            <li>
-              <hr className="dropdown-divider" />
-            </li>
-
             {!this.myPost ? (
               <>
                 <li>{this.reportButton}</li>
@@ -779,7 +775,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get crossPostButton() {
     return (
       <Link
-        className="btn-animate text-muted py-0"
+        className="btn btn-sm btn-animate text-muted py-0"
         to={{
           /* Empty string properties are required to satisfy type*/
           pathname: "/create_post",
