@@ -4,11 +4,10 @@ import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "../../shared/config";
 import { ILemmyConfig, IsoDataOptionalSite } from "../../shared/interfaces";
+import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
-
-const fallbackStyleTag = `<link rel="stylesheet" type="text/css" href="/css/themes/darkly.css" />`;
 
 let appleTouchIcon: string | undefined = undefined;
 
@@ -17,6 +16,10 @@ export async function createSsrHtml(
   isoData: IsoDataOptionalSite
 ) {
   const site = isoData.site_res;
+
+  const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
+    (await buildThemeList())[0]
+  }.css" />`;
 
   if (!appleTouchIcon) {
     appleTouchIcon = site?.site_view.site.icon
@@ -87,7 +90,7 @@ export async function createSsrHtml(
     <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
   
     <!-- Current theme and more -->
-    ${helmet.link.toString() || fallbackStyleTag}
+    ${helmet.link.toString() || fallbackTheme}
     
     </head>
   
