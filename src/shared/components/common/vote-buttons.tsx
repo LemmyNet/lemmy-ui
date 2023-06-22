@@ -1,5 +1,6 @@
 import { showScores } from "@utils/app";
 import { numToSI } from "@utils/helpers";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { CommentAggregates, PostAggregates } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -60,68 +61,67 @@ export class VoteButtonsCompact extends Component<
 
   render() {
     return (
-      <>
-        <div className="input-group input-group-sm w-auto">
+      <div>
+        <button
+          className={`btn-animate btn py-0 px-1 ${
+            this.props.my_vote === 1 ? "text-info" : "text-muted"
+          }`}
+          {...this.tippy}
+          onClick={linkEvent(this.props.postListing, this.props.handleUpvote)}
+          aria-label={I18NextService.i18n.t("upvote")}
+          aria-pressed={this.props.my_vote === 1}
+        >
+          {this.state.upvoteLoading ? (
+            <Spinner />
+          ) : (
+            <>
+              <Icon icon="arrow-up1" classes="icon-inline small" />
+              {showScores() && (
+                <span className="ms-2">
+                  {numToSI(this.props.counts.upvotes)}
+                </span>
+              )}
+            </>
+          )}
+        </button>
+        {this.props.enableDownvotes && (
           <button
-            className={`btn btn-sm btn-animate btn-outline-primary rounded-start py-0 ${
-              this.props.my_vote === 1 ? "text-info" : "text-muted"
+            className={`ms-2 btn-animate btn py-0 px-1 ${
+              this.props.my_vote === -1 ? "text-danger" : "text-muted"
             }`}
+            onClick={linkEvent(
+              this.props.postListing,
+              this.props.handleDownvote
+            )}
             {...this.tippy}
-            onClick={linkEvent(this.props.postListing, this.props.handleUpvote)}
-            aria-label={I18NextService.i18n.t("upvote")}
-            aria-pressed={this.props.my_vote === 1}
+            aria-label={I18NextService.i18n.t("downvote")}
+            aria-pressed={this.props.my_vote === -1}
           >
-            {this.state.upvoteLoading ? (
+            {this.state.downvoteLoading ? (
               <Spinner />
             ) : (
               <>
-                <Icon icon="arrow-up1" classes="icon-inline small" />
+                <Icon icon="arrow-down1" classes="icon-inline small" />
                 {showScores() && (
-                  <span className="ms-2">
-                    {numToSI(this.props.counts.upvotes)}
+                  <span
+                    className={classNames("ms-2", {
+                      invisible: this.props.counts.downvotes === 0,
+                    })}
+                  >
+                    {numToSI(this.props.counts.downvotes)}
                   </span>
                 )}
               </>
             )}
           </button>
-          <span className="input-group-text small py-0">
-            {numToSI(this.props.counts.score)}
-          </span>
-          {this.props.enableDownvotes && (
-            <button
-              className={`btn btn-sm btn-animate btn-outline-primary rounded-end py-0 ${
-                this.props.my_vote === -1 ? "text-danger" : "text-muted"
-              }`}
-              onClick={linkEvent(
-                this.props.postListing,
-                this.props.handleDownvote
-              )}
-              {...this.tippy}
-              aria-label={I18NextService.i18n.t("downvote")}
-              aria-pressed={this.props.my_vote === -1}
-            >
-              {this.state.downvoteLoading ? (
-                <Spinner />
-              ) : (
-                <>
-                  <Icon icon="arrow-down1" classes="icon-inline small" />
-                  {showScores() && (
-                    <span className="ms-2">
-                      {numToSI(this.props.counts.downvotes)}
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
-          )}
-        </div>
-      </>
+        )}
+      </div>
     );
   }
 }
 
-export class VoteButtons extends Component<VotesProps, VotesState> {
-  state: VotesState = {
+export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
+  state: VoteButtonsState = {
     upvoteLoading: false,
     downvoteLoading: false,
   };
