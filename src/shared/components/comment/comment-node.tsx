@@ -464,13 +464,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         ) : (
                           <>
                             <Icon icon="arrow-up1" classes="icon-inline" />
-                            {showScores() &&
-                              this.commentView.counts.upvotes !==
-                                this.commentView.counts.score && (
-                                <span className="ms-1">
-                                  {numToSI(this.commentView.counts.upvotes)}
-                                </span>
-                              )}
+                            {showScores() && (
+                              <span className="ms-1">
+                                {numToSI(this.commentView.counts.upvotes)}
+                              </span>
+                            )}
                           </>
                         )}
                       </button>
@@ -491,13 +489,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           ) : (
                             <>
                               <Icon icon="arrow-down1" classes="icon-inline" />
-                              {showScores() &&
-                                this.commentView.counts.upvotes !==
-                                  this.commentView.counts.score && (
-                                  <span className="ms-1">
-                                    {numToSI(this.commentView.counts.downvotes)}
-                                  </span>
-                                )}
+                              {showScores() && (
+                                <span className="ms-1">
+                                  {numToSI(this.commentView.counts.downvotes)}
+                                </span>
+                              )}
                             </>
                           )}
                         </button>
