@@ -12,7 +12,7 @@ body:
       label: Requirements
       description: Before you create a bug report, please carefully check the following –
       options:
-        - label: This is a bug report, and if not, I'd post to https://lemmy.ml/c/lemmy_support instead.
+        - label: This is a bug report, and if not, I will post to https://lemmy.ml/c/lemmy_support instead.
           required: true
         - label: I've [checked](https://github.com/LemmyNet/lemmy-ui/issues) to see if this issue already exists.
           required: true
