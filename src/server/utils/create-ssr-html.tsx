@@ -4,6 +4,7 @@ import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "../../shared/config";
 import { ILemmyConfig, IsoDataOptionalSite } from "../../shared/interfaces";
+import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
@@ -15,6 +16,10 @@ export async function createSsrHtml(
   isoData: IsoDataOptionalSite
 ) {
   const site = isoData.site_res;
+
+  const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
+    (await buildThemeList())[0]
+  }.css" />`;
 
   if (!appleTouchIcon) {
     appleTouchIcon = site?.site_view.site.icon
@@ -68,7 +73,7 @@ export async function createSsrHtml(
     <!-- Required meta tags -->
     <meta name="Description" content="Lemmy">
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link
        id="favicon"
        rel="shortcut icon"
@@ -85,7 +90,7 @@ export async function createSsrHtml(
     <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
   
     <!-- Current theme and more -->
-    ${helmet.link.toString()}
+    ${helmet.link.toString() || fallbackTheme}
     
     </head>
   
