@@ -14,6 +14,7 @@ import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
+import { instanceLinkRegex } from "./config";
 
 export let Tribute: any;
 
@@ -72,6 +73,75 @@ const html5EmbedConfig = {
   },
 };
 
+function localInstanceLinkParser(md: MarkdownIt) {
+  md.core.ruler.push("replace-text", state => {
+    for (let i = 0; i < state.tokens.length; i++) {
+      if (state.tokens[i].type !== "inline") {
+        continue;
+      }
+      const inlineTokens: Token[] = state.tokens[i].children || [];
+      for (let j = inlineTokens.length - 1; j >= 0; j--) {
+        if (
+          inlineTokens[j].type === "text" &&
+          new RegExp(instanceLinkRegex).test(inlineTokens[j].content)
+        ) {
+          const text = inlineTokens[j].content;
+          const matches = Array.from(text.matchAll(instanceLinkRegex));
+
+          let lastIndex = 0;
+          const newTokens: Token[] = [];
+
+          let linkClass = "community-link";
+
+          for (const match of matches) {
+            // If there is plain text before the match, add it as a separate token
+            if (match.index !== undefined && match.index > lastIndex) {
+              const textToken = new state.Token("text", "", 0);
+              textToken.content = text.slice(lastIndex, match.index);
+              newTokens.push(textToken);
+            }
+
+            let href;
+            if (match[0].startsWith("!")) {
+              href = "/c/" + match[0].substring(1);
+            } else if (match[0].startsWith("/m/")) {
+              href = "/c/" + match[0].substring(3);
+            } else {
+              href = match[0];
+              if (match[0].startsWith("/u/")) {
+                linkClass = "user-link";
+              }
+            }
+
+            const linkOpenToken = new state.Token("link_open", "a", 1);
+            linkOpenToken.attrs = [
+              ["href", href],
+              ["class", linkClass],
+            ];
+            const textToken = new state.Token("text", "", 0);
+            textToken.content = match[0];
+            const linkCloseToken = new state.Token("link_close", "a", -1);
+
+            newTokens.push(linkOpenToken, textToken, linkCloseToken);
+
+            lastIndex =
+              (match.index !== undefined ? match.index : 0) + match[0].length;
+          }
+
+          // If there is plain text after the last match, add it as a separate token
+          if (lastIndex < text.length) {
+            const textToken = new state.Token("text", "", 0);
+            textToken.content = text.slice(lastIndex);
+            newTokens.push(textToken);
+          }
+
+          inlineTokens.splice(j, 1, ...newTokens);
+        }
+      }
+    }
+  });
+}
+
 export function setupMarkdown() {
   const markdownItConfig: MarkdownIt.Options = {
     html: false,
@@ -88,7 +158,8 @@ export function setupMarkdown() {
     .use(markdown_it_sup)
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
-    .use(markdown_it_container, "spoiler", spoilerConfig);
+    .use(markdown_it_container, "spoiler", spoilerConfig)
+    .use(localInstanceLinkParser);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });
@@ -99,6 +170,7 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
+    .use(localInstanceLinkParser)
     // .use(markdown_it_emoji, {
     //   defs: emojiDefs,
     // })
