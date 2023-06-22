@@ -13,7 +13,6 @@ import {
   showLocal,
   updatePersonBlock,
 } from "@utils/app";
-import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
   getPageFromString,
   getQueryParams,
@@ -291,10 +290,6 @@ export class Home extends Component<any, HomeState> {
     }
 
     setupTippy();
-  }
-
-  componentWillUnmount() {
-    saveScrollPosition(this.context);
   }
 
   static async fetchInitialData({
@@ -800,7 +795,6 @@ export class Home extends Component<any, HomeState> {
       });
     }
 
-    restoreScrollPosition(this.context);
     setupTippy();
   }
 
