@@ -73,7 +73,7 @@ const html5EmbedConfig = {
   },
 };
 
-function localCommunityLinkParser(md: MarkdownIt) {
+function localInstanceLinkParser(md: MarkdownIt) {
   md.core.ruler.push("replace-text", state => {
     for (let i = 0; i < state.tokens.length; i++) {
       if (state.tokens[i].type !== "inline") {
