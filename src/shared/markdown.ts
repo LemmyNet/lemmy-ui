@@ -111,7 +111,10 @@ function localCommunityLinkParser(md) {
             beforeToken.content = beforeContent;
 
             const linkOpenToken = new state.Token("link_open", "a", 1);
-            linkOpenToken.attrs = [["href", url]];
+            linkOpenToken.attrs = [
+              ["href", url],
+              ["class", "community-link"],
+            ];
 
             const textToken = new state.Token("text", "", 0);
             textToken.content = match;
