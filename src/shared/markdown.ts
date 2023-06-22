@@ -14,6 +14,7 @@ import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
+import { getHttpBase } from "./env";
 
 export let Tribute: any;
 
@@ -72,6 +73,76 @@ const html5EmbedConfig = {
   },
 };
 
+function localCommunityLinkParser(md) {
+  const pattern =
+    /(!\b[^@\s]+@[^@\s]+\.[^.\s]+\b)|\/c\/([^@\s]+)(@[^@\s]+\.[^.\s]+\b)?/g;
+
+  md.core.ruler.push("replace-text", state => {
+    const tokens = state.tokens;
+
+    for (let i = 0; i < tokens.length; i++) {
+      if (tokens[i].type === "inline") {
+        const token = tokens[i];
+
+        const originalContent = token.content;
+
+        let lastIndex = 0;
+        originalContent.replace(
+          pattern,
+          (match, fullDomainMatch, name, domainTld, index) => {
+            let url;
+            // ex: !Testing@example.com
+            if (fullDomainMatch) {
+              const [name, domain, tld] = fullDomainMatch
+                .slice(1)
+                .split("@")
+                .join(".")
+                .split(".");
+              url = `${getHttpBase()}/c/${name}@${domain}.${tld}`;
+            } else {
+              // ex: /c/Testing or /c/Testing@example.com
+              url = `${getHttpBase()}/c/${name}${domainTld || ""}`;
+            }
+
+            const beforeContent = originalContent.slice(lastIndex, index);
+            lastIndex = index + match.length;
+
+            const beforeToken = new state.Token("text", "", 0);
+            beforeToken.content = beforeContent;
+
+            const linkOpenToken = new state.Token("link_open", "a", 1);
+            linkOpenToken.attrs = [["href", url]];
+
+            const textToken = new state.Token("text", "", 0);
+            textToken.content = match;
+
+            const linkCloseToken = new state.Token("link_close", "a", -1);
+
+            const afterContent = originalContent.slice(lastIndex);
+            const afterToken = new state.Token("text", "", 0);
+            afterToken.content = afterContent;
+
+            tokens.splice(i, 1);
+
+            tokens.splice(
+              i,
+              0,
+              beforeToken,
+              linkOpenToken,
+              textToken,
+              linkCloseToken,
+              afterToken
+            );
+
+            // Update i to skip the newly added tokens
+            i += 4;
+          }
+        );
+      }
+    }
+  });
+}
+
 export function setupMarkdown() {
   const markdownItConfig: MarkdownIt.Options = {
     html: false,
@@ -88,7 +159,8 @@ export function setupMarkdown() {
     .use(markdown_it_sup)
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
-    .use(markdown_it_container, "spoiler", spoilerConfig);
+    .use(markdown_it_container, "spoiler", spoilerConfig)
+    .use(localCommunityLinkParser);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });
@@ -99,6 +171,7 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
+    .use(localCommunityLinkParser)
     // .use(markdown_it_emoji, {
     //   defs: emojiDefs,
     // })
