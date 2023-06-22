@@ -1,5 +1,5 @@
 import { Component, linkEvent } from "inferno";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { EmojiMart } from "./emoji-mart";
 import { Icon } from "./icon";
 
@@ -28,8 +28,8 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
       <span className="emoji-picker">
         <button
           className="btn btn-sm text-muted"
-          data-tippy-content={i18n.t("emoji")}
-          aria-label={i18n.t("emoji")}
+          data-tippy-content={I18NextService.i18n.t("emoji")}
+          aria-label={I18NextService.i18n.t("emoji")}
           disabled={this.props.disabled}
           onClick={linkEvent(this, this.togglePicker)}
         >

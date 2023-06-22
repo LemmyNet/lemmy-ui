@@ -2,7 +2,7 @@ import { Component, linkEvent } from "inferno";
 import { Post } from "lemmy-js-client";
 import * as sanitizeHtml from "sanitize-html";
 import { relTags } from "../../config";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 
 interface MetadataCardProps {
@@ -66,7 +66,7 @@ export class MetadataCard extends Component<
                       className="mt-2 btn btn-secondary text-monospace"
                       onClick={linkEvent(this, this.handleIframeExpand)}
                     >
-                      {i18n.t("expand_here")}
+                      {I18NextService.i18n.t("expand_here")}
                     </button>
                   )}
                 </div>
@@ -75,10 +75,14 @@ export class MetadataCard extends Component<
           </div>
         )}
         {this.state.expanded && post.embed_video_url && (
-          <iframe
-            className="post-metadata-iframe"
-            src={post.embed_video_url}
-          ></iframe>
+          <div className="ratio ratio-16x9">
+            <iframe
+              allowFullScreen
+              className="post-metadata-iframe"
+              src={post.embed_video_url}
+              title={post.embed_title}
+            ></iframe>
+          </div>
         )}
       </>
     );

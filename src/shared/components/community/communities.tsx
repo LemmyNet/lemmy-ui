@@ -21,9 +21,8 @@ import {
   ListCommunitiesResponse,
   ListingType,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -86,7 +85,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("communities")} - ${
+    return `${I18NextService.i18n.t("communities")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
@@ -103,7 +102,9 @@ export class Communities extends Component<any, CommunitiesState> {
         const { listingType, page } = this.getCommunitiesQueryParams();
         return (
           <div>
-            <h1 className="h4">{i18n.t("list_of_communities")}</h1>
+            <h1 className="h4">
+              {I18NextService.i18n.t("list_of_communities")}
+            </h1>
             <div className="row g-2 justify-content-between">
               <div className="col-auto">
                 <ListingTypeSelect
@@ -123,16 +124,19 @@ export class Communities extends Component<any, CommunitiesState> {
               >
                 <thead className="pointer">
                   <tr>
-                    <th>{i18n.t("name")}</th>
-                    <th className="text-right">{i18n.t("subscribers")}</th>
+                    <th>{I18NextService.i18n.t("name")}</th>
                     <th className="text-right">
-                      {i18n.t("users")} / {i18n.t("month")}
+                      {I18NextService.i18n.t("subscribers")}
+                    </th>
+                    <th className="text-right">
+                      {I18NextService.i18n.t("users")} /{" "}
+                      {I18NextService.i18n.t("month")}
                     </th>
                     <th className="text-right d-none d-lg-table-cell">
-                      {i18n.t("posts")}
+                      {I18NextService.i18n.t("posts")}
                     </th>
                     <th className="text-right d-none d-lg-table-cell">
-                      {i18n.t("comments")}
+                      {I18NextService.i18n.t("comments")}
                     </th>
                     <th></th>
                   </tr>
@@ -169,7 +173,7 @@ export class Communities extends Component<any, CommunitiesState> {
                                 this.handleFollow
                               )}
                             >
-                              {i18n.t("unsubscribe")}
+                              {I18NextService.i18n.t("unsubscribe")}
                             </button>
                           )}
                           {cv.subscribed === "NotSubscribed" && (
@@ -184,12 +188,12 @@ export class Communities extends Component<any, CommunitiesState> {
                                 this.handleFollow
                               )}
                             >
-                              {i18n.t("subscribe")}
+                              {I18NextService.i18n.t("subscribe")}
                             </button>
                           )}
                           {cv.subscribed === "Pending" && (
                             <div className="text-warning d-inline-block">
-                              {i18n.t("subscribe_pending")}
+                              {I18NextService.i18n.t("subscribe_pending")}
                             </div>
                           )}
                         </td>
@@ -230,7 +234,7 @@ export class Communities extends Component<any, CommunitiesState> {
             id="communities-search"
             className="form-control"
             value={this.state.searchText}
-            placeholder={`${i18n.t("search")}...`}
+            placeholder={`${I18NextService.i18n.t("search")}...`}
             onInput={linkEvent(this, this.handleSearchChange)}
             required
             minLength={3}
@@ -238,10 +242,10 @@ export class Communities extends Component<any, CommunitiesState> {
         </div>
         <div className="col-auto">
           <label className="visually-hidden" htmlFor="communities-search">
-            {i18n.t("search")}
+            {I18NextService.i18n.t("search")}
           </label>
           <button type="submit" className="btn btn-secondary">
-            <span>{i18n.t("search")}</span>
+            <span>{I18NextService.i18n.t("search")}</span>
           </button>
         </div>
       </form>

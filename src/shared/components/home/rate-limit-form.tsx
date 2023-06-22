@@ -3,7 +3,7 @@ import { capitalizeFirstLetter } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, FormEventHandler, linkEvent } from "inferno";
 import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 
@@ -57,7 +57,9 @@ function RateLimits({
   return (
     <div role="tabpanel" className={classNames("mb-3 row", className)}>
       <div className="col-md-6">
-        <label htmlFor="rate-limit">{i18n.t("rate_limit")}</label>
+        <label htmlFor="rate-limit">
+          {I18NextService.i18n.t("rate_limit")}
+        </label>
         <input
           type="number"
           id="rate-limit"
@@ -68,7 +70,9 @@ function RateLimits({
         />
       </div>
       <div className="col-md-6">
-        <label htmlFor="rate-limit-per-second">{i18n.t("per_second")}</label>
+        <label htmlFor="rate-limit-per-second">
+          {I18NextService.i18n.t("per_second")}
+        </label>
         <input
           type="number"
           id="rate-limit-per-second"
@@ -141,11 +145,11 @@ export default class RateLimitsForm extends Component<
         className="rate-limit-form"
         onSubmit={linkEvent(this, submitRateLimitForm)}
       >
-        <h5>{i18n.t("rate_limit_header")}</h5>
+        <h5>{I18NextService.i18n.t("rate_limit_header")}</h5>
         <Tabs
           tabs={rateLimitTypes.map(rateLimitType => ({
             key: rateLimitType,
-            label: i18n.t(`rate_limit_${rateLimitType}`),
+            label: I18NextService.i18n.t(`rate_limit_${rateLimitType}`),
             getNode: isSelected => (
               <RateLimits
                 className={classNames("tab-pane show", {
@@ -176,7 +180,7 @@ export default class RateLimitsForm extends Component<
             {this.props.loading ? (
               <Spinner />
             ) : (
-              capitalizeFirstLetter(i18n.t("save"))
+              capitalizeFirstLetter(I18NextService.i18n.t("save"))
             )}
           </button>
         </div>

@@ -27,10 +27,13 @@ import {
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
 import { fetchLimit } from "../../config";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { HttpService, UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import {
+  FirstLoadService,
+  HttpService,
+  I18NextService,
+  UserService,
+} from "../../services";
 import { RequestState } from "../../services/HttpService";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
@@ -134,9 +137,9 @@ export class Reports extends Component<any, ReportsState> {
   get documentTitle(): string {
     const mui = UserService.Instance.myUserInfo;
     return mui
-      ? `@${mui.local_user_view.person.name} ${i18n.t("reports")} - ${
-          this.state.siteRes.site_view.site.name
-        }`
+      ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
+          "reports"
+        )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
 
@@ -149,7 +152,7 @@ export class Reports extends Component<any, ReportsState> {
               title={this.documentTitle}
               path={this.context.router.route.match.url}
             />
-            <h5 className="mb-2">{i18n.t("reports")}</h5>
+            <h5 className="mb-2">{I18NextService.i18n.t("reports")}</h5>
             {this.selects()}
             {this.section}
             <Paginator
@@ -198,7 +201,7 @@ export class Reports extends Component<any, ReportsState> {
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t("unread")}
+          {I18NextService.i18n.t("unread")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -212,7 +215,7 @@ export class Reports extends Component<any, ReportsState> {
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t("all")}
+          {I18NextService.i18n.t("all")}
         </label>
       </div>
     );
@@ -233,7 +236,7 @@ export class Reports extends Component<any, ReportsState> {
             checked={this.state.messageType == MessageType.All}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t("all")}
+          {I18NextService.i18n.t("all")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -247,7 +250,7 @@ export class Reports extends Component<any, ReportsState> {
             checked={this.state.messageType == MessageType.CommentReport}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t("comments")}
+          {I18NextService.i18n.t("comments")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -261,7 +264,7 @@ export class Reports extends Component<any, ReportsState> {
             checked={this.state.messageType == MessageType.PostReport}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t("posts")}
+          {I18NextService.i18n.t("posts")}
         </label>
         {amAdmin() && (
           <label
@@ -281,7 +284,7 @@ export class Reports extends Component<any, ReportsState> {
               }
               onChange={linkEvent(this, this.handleMessageTypeChange)}
             />
-            {i18n.t("messages")}
+            {I18NextService.i18n.t("messages")}
           </label>
         )}
       </div>

@@ -18,10 +18,9 @@ import {
   GetSiteResponse,
   PersonView,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
 import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
@@ -108,7 +107,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("admin_settings")} - ${
+    return `${I18NextService.i18n.t("admin_settings")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
@@ -129,7 +128,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
           tabs={[
             {
               key: "site",
-              label: i18n.t("site"),
+              label: I18NextService.i18n.t("site"),
               getNode: isSelected => (
                 <div
                   className={classNames("tab-pane show", {
@@ -181,7 +180,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             },
             {
               key: "taglines",
-              label: i18n.t("taglines"),
+              label: I18NextService.i18n.t("taglines"),
               getNode: isSelected => (
                 <div
                   className={classNames("tab-pane", {
@@ -202,7 +201,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             },
             {
               key: "emojis",
-              label: i18n.t("emojis"),
+              label: I18NextService.i18n.t("emojis"),
               getNode: isSelected => (
                 <div
                   className={classNames("tab-pane", {
@@ -253,7 +252,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   admins() {
     return (
       <>
-        <h5>{capitalizeFirstLetter(i18n.t("admins"))}</h5>
+        <h5>{capitalizeFirstLetter(I18NextService.i18n.t("admins"))}</h5>
         <ul className="list-unstyled">
           {this.state.siteRes.admins.map(admin => (
             <li key={admin.person.id} className="list-inline-item">
@@ -275,7 +274,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         {this.state.leaveAdminTeamRes.state == "loading" ? (
           <Spinner />
         ) : (
-          i18n.t("leave_admin_team")
+          I18NextService.i18n.t("leave_admin_team")
         )}
       </button>
     );
@@ -293,7 +292,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         const bans = this.state.bannedRes.data.banned;
         return (
           <>
-            <h5>{i18n.t("banned_users")}</h5>
+            <h5>{I18NextService.i18n.t("banned_users")}</h5>
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">
@@ -319,7 +318,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         s.siteRes.taglines = editRes.data.taglines;
         return s;
       });
-      toast(i18n.t("site_saved"));
+      toast(I18NextService.i18n.t("site_saved"));
     }
 
     this.setState({ loading: false });
@@ -340,7 +339,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     });
 
     if (this.state.leaveAdminTeamRes.state === "success") {
-      toast(i18n.t("left_admin_team"));
+      toast(I18NextService.i18n.t("left_admin_team"));
       this.context.router.history.replace("/");
     }
   }
