@@ -5,8 +5,8 @@ import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { isHttps } from "../env";
-import { i18n } from "../i18next";
 import { toast } from "../toast";
+import { I18NextService } from "./I18NextService";
 
 interface Claims {
   sub: number;
@@ -32,7 +32,7 @@ export class UserService {
     const expires = new Date();
     expires.setDate(expires.getDate() + 365);
     if (res.jwt) {
-      toast(i18n.t("logged_in"));
+      toast(I18NextService.i18n.t("logged_in"));
       IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps() });
       this.#setJwtInfo();
     }
@@ -58,7 +58,7 @@ export class UserService {
       const msg = "No JWT cookie found";
       if (throwErr && isBrowser()) {
         console.error(msg);
-        toast(i18n.t("not_logged_in"), "danger");
+        toast(I18NextService.i18n.t("not_logged_in"), "danger");
       }
       return undefined;
       // throw msg;
