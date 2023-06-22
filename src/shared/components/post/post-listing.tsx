@@ -239,25 +239,40 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get img() {
-    return this.imageSrc ? (
-      <>
-        <div className="offset-sm-3 my-2 d-none d-sm-block">
-          <a href={this.imageSrc} className="d-inline-block">
-            <PictrsImage src={this.imageSrc} />
-          </a>
+    if (this.imageSrc) {
+      return (
+        <>
+          <div className="offset-sm-3 my-2 d-none d-sm-block">
+            <a href={this.imageSrc} className="d-inline-block">
+              <PictrsImage src={this.imageSrc} />
+            </a>
+          </div>
+          <div className="my-2 d-block d-sm-none">
+            <a
+              className="d-inline-block"
+              onClick={linkEvent(this, this.handleImageExpandClick)}
+            >
+              <PictrsImage src={this.imageSrc} />
+            </a>
+          </div>
+        </>
+      );
+    }
+
+    const { post } = this.postView;
+    const { url } = post;
+
+    if (url && isVideo(url)) {
+      return (
+        <div className="embed-responsive mt-3">
+          <video muted controls className="embed-responsive-item col-12">
+            <source src={url} type="video/mp4" />
+          </video>
         </div>
-        <div className="my-2 d-block d-sm-none">
-          <a
-            className="d-inline-block"
-            onClick={linkEvent(this, this.handleImageExpandClick)}
-          >
-            <PictrsImage src={this.imageSrc} />
-          </a>
-        </div>
-      </>
-    ) : (
-      <></>
-    );
+      );
+    }
+
+    return <></>;
   }
 
   imgThumb(src: string) {
@@ -325,17 +340,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     } else if (url) {
       if (!this.props.hideImage && isVideo(url)) {
         return (
-          <div className="embed-responsive embed-responsive-16by9">
-            <video
-              playsInline
-              muted
-              loop
-              controls
-              className="embed-responsive-item"
-            >
-              <source src={url} type="video/mp4" />
-            </video>
-          </div>
+          <a
+            className="text-body"
+            href={url}
+            title={url}
+            rel={relTags}
+            data-tippy-content={I18NextService.i18n.t("expand_here")}
+            onClick={linkEvent(this, this.handleImageExpandClick)}
+            aria-label={I18NextService.i18n.t("expand_here")}
+          >
+            <div className="thumbnail rounded bg-light d-flex justify-content-center">
+              <Icon icon="play" classes="d-flex align-items-center" />
+            </div>
+          </a>
         );
       } else {
         return (
