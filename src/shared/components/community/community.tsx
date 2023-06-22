@@ -15,7 +15,6 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
-import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
   getPageFromString,
   getQueryParams,
@@ -227,10 +226,6 @@ export class Community extends Component<
     }
 
     setupTippy();
-  }
-
-  componentWillUnmount() {
-    saveScrollPosition(this.context);
   }
 
   static async fetchInitialData({
@@ -609,7 +604,6 @@ export class Community extends Component<
       });
     }
 
-    restoreScrollPosition(this.context);
     setupTippy();
   }
 
