@@ -7,8 +7,7 @@ import {
   LoginResponse,
   Register,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
@@ -55,7 +54,7 @@ export class Setup extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("setup")} - Lemmy`;
+    return `${I18NextService.i18n.t("setup")} - Lemmy`;
   }
 
   render() {
@@ -64,7 +63,7 @@ export class Setup extends Component<any, State> {
         <Helmet title={this.documentTitle} />
         <div className="row">
           <div className="col-12 offset-lg-3 col-lg-6">
-            <h3>{i18n.t("lemmy_instance_setup")}</h3>
+            <h3>{I18NextService.i18n.t("lemmy_instance_setup")}</h3>
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
@@ -85,10 +84,10 @@ export class Setup extends Component<any, State> {
   registerUser() {
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
-        <h5>{i18n.t("setup_admin")}</h5>
+        <h5>{I18NextService.i18n.t("setup_admin")}</h5>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="username">
-            {i18n.t("username")}
+            {I18NextService.i18n.t("username")}
           </label>
           <div className="col-sm-10">
             <input
@@ -105,7 +104,7 @@ export class Setup extends Component<any, State> {
         </div>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="email">
-            {i18n.t("email")}
+            {I18NextService.i18n.t("email")}
           </label>
 
           <div className="col-sm-10">
@@ -113,7 +112,7 @@ export class Setup extends Component<any, State> {
               type="email"
               id="email"
               className="form-control"
-              placeholder={i18n.t("optional")}
+              placeholder={I18NextService.i18n.t("optional")}
               value={this.state.form.email}
               onInput={linkEvent(this, this.handleRegisterEmailChange)}
               minLength={3}
@@ -122,7 +121,7 @@ export class Setup extends Component<any, State> {
         </div>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="password">
-            {i18n.t("password")}
+            {I18NextService.i18n.t("password")}
           </label>
           <div className="col-sm-10">
             <input
@@ -140,7 +139,7 @@ export class Setup extends Component<any, State> {
         </div>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="verify-password">
-            {i18n.t("verify_password")}
+            {I18NextService.i18n.t("verify_password")}
           </label>
           <div className="col-sm-10">
             <input
@@ -162,7 +161,7 @@ export class Setup extends Component<any, State> {
               {this.state.registerRes.state == "loading" ? (
                 <Spinner />
               ) : (
-                i18n.t("sign_up")
+                I18NextService.i18n.t("sign_up")
               )}
             </button>
           </div>

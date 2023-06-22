@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 
 interface CakeDayProps {
@@ -19,6 +19,8 @@ export class CakeDay extends Component<CakeDayProps, any> {
   }
 
   cakeDayTippy(): string {
-    return i18n.t("cake_day_info", { creator_name: this.props.creatorName });
+    return I18NextService.i18n.t("cake_day_info", {
+      creator_name: this.props.creatorName,
+    });
   }
 }

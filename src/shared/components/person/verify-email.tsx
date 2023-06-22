@@ -1,7 +1,7 @@
 import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { GetSiteResponse, VerifyEmailResponse } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
@@ -36,7 +36,7 @@ export class VerifyEmail extends Component<any, State> {
     });
 
     if (this.state.verifyRes.state == "success") {
-      toast(i18n.t("email_verified"));
+      toast(I18NextService.i18n.t("email_verified"));
       this.props.history.push("/login");
     }
   }
@@ -46,7 +46,7 @@ export class VerifyEmail extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("verify_email")} - ${
+    return `${I18NextService.i18n.t("verify_email")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
@@ -60,7 +60,7 @@ export class VerifyEmail extends Component<any, State> {
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{i18n.t("verify_email")}</h5>
+            <h5>{I18NextService.i18n.t("verify_email")}</h5>
             {this.state.verifyRes.state == "loading" && (
               <h5>
                 <Spinner large />

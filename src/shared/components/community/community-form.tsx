@@ -7,7 +7,7 @@ import {
   EditCommunity,
   Language,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
@@ -107,10 +107,10 @@ export class CommunityForm extends Component<
               className="col-12 col-sm-2 col-form-label"
               htmlFor="community-name"
             >
-              {i18n.t("name")}
+              {I18NextService.i18n.t("name")}
               <span
                 className="position-absolute pointer unselectable ms-2 text-muted"
-                data-tippy-content={i18n.t("name_explain")}
+                data-tippy-content={I18NextService.i18n.t("name_explain")}
               >
                 <Icon icon="help-circle" classes="icon-inline" />
               </span>
@@ -125,7 +125,7 @@ export class CommunityForm extends Component<
                 required
                 minLength={3}
                 pattern="[a-z0-9_]+"
-                title={i18n.t("community_reqs")}
+                title={I18NextService.i18n.t("community_reqs")}
               />
             </div>
           </div>
@@ -135,10 +135,10 @@ export class CommunityForm extends Component<
             className="col-12 col-sm-2 col-form-label"
             htmlFor="community-title"
           >
-            {i18n.t("display_name")}
+            {I18NextService.i18n.t("display_name")}
             <span
               className="position-absolute pointer unselectable ms-2 text-muted"
-              data-tippy-content={i18n.t("display_name_explain")}
+              data-tippy-content={I18NextService.i18n.t("display_name_explain")}
             >
               <Icon icon="help-circle" classes="icon-inline" />
             </span>
@@ -158,11 +158,11 @@ export class CommunityForm extends Component<
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label">
-            {i18n.t("icon")}
+            {I18NextService.i18n.t("icon")}
           </label>
           <div className="col-12 col-sm-10">
             <ImageUploadForm
-              uploadTitle={i18n.t("upload_icon")}
+              uploadTitle={I18NextService.i18n.t("upload_icon")}
               imageSrc={this.state.form.icon}
               onUpload={this.handleIconUpload}
               onRemove={this.handleIconRemove}
@@ -172,11 +172,11 @@ export class CommunityForm extends Component<
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label">
-            {i18n.t("banner")}
+            {I18NextService.i18n.t("banner")}
           </label>
           <div className="col-12 col-sm-10">
             <ImageUploadForm
-              uploadTitle={i18n.t("upload_banner")}
+              uploadTitle={I18NextService.i18n.t("upload_banner")}
               imageSrc={this.state.form.banner}
               onUpload={this.handleBannerUpload}
               onRemove={this.handleBannerRemove}
@@ -185,12 +185,12 @@ export class CommunityForm extends Component<
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
-            {i18n.t("sidebar")}
+            {I18NextService.i18n.t("sidebar")}
           </label>
           <div className="col-12 col-sm-10">
             <MarkdownTextArea
               initialContent={this.state.form.description}
-              placeholder={i18n.t("description")}
+              placeholder={I18NextService.i18n.t("description") ?? undefined}
               onContentChange={this.handleCommunityDescriptionChange}
               hideNavigationWarnings
               allLanguages={[]}
@@ -202,7 +202,7 @@ export class CommunityForm extends Component<
         {this.props.enableNsfw && (
           <div className="mb-3 row">
             <legend className="col-form-label col-sm-2 pt-0">
-              {i18n.t("nsfw")}
+              {I18NextService.i18n.t("nsfw")}
             </legend>
             <div className="col-10">
               <div className="form-check">
@@ -219,7 +219,7 @@ export class CommunityForm extends Component<
         )}
         <div className="mb-3 row">
           <legend className="col-form-label col-6 pt-0">
-            {i18n.t("only_mods_can_post_in_community")}
+            {I18NextService.i18n.t("only_mods_can_post_in_community")}
           </legend>
           <div className="col-6">
             <div className="form-check">
@@ -254,9 +254,9 @@ export class CommunityForm extends Component<
               {this.props.loading ? (
                 <Spinner />
               ) : this.props.community_view ? (
-                capitalizeFirstLetter(i18n.t("save"))
+                capitalizeFirstLetter(I18NextService.i18n.t("save"))
               ) : (
-                capitalizeFirstLetter(i18n.t("create"))
+                capitalizeFirstLetter(I18NextService.i18n.t("create"))
               )}
             </button>
             {this.props.community_view && (
@@ -265,7 +265,7 @@ export class CommunityForm extends Component<
                 className="btn btn-secondary"
                 onClick={linkEvent(this, this.handleCancel)}
               >
-                {i18n.t("cancel")}
+                {I18NextService.i18n.t("cancel")}
               </button>
             )}
           </div>

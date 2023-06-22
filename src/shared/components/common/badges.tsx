@@ -5,7 +5,7 @@ import {
   CommunityId,
   SiteAggregates,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 
 interface BadgesProps {
   counts: CommunityAggregates | SiteAggregates;
@@ -29,66 +29,82 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
     <ul className="badges my-1 list-inline">
       <li
         className="list-inline-item badge text-bg-secondary pointer"
-        data-tippy-content={i18n.t("active_users_in_the_last_day", {
+        data-tippy-content={I18NextService.i18n.t(
+          "active_users_in_the_last_day",
+          {
+            count: Number(counts.users_active_day),
+            formattedCount: numToSI(counts.users_active_day),
+          }
+        )}
+      >
+        {I18NextService.i18n.t("number_of_users", {
           count: Number(counts.users_active_day),
           formattedCount: numToSI(counts.users_active_day),
-        })}
-      >
-        {i18n.t("number_of_users", {
-          count: Number(counts.users_active_day),
-          formattedCount: numToSI(counts.users_active_day),
         })}{" "}
-        / {i18n.t("day")}
+        / {I18NextService.i18n.t("day")}
       </li>
       <li
         className="list-inline-item badge text-bg-secondary pointer"
-        data-tippy-content={i18n.t("active_users_in_the_last_week", {
+        data-tippy-content={I18NextService.i18n.t(
+          "active_users_in_the_last_week",
+          {
+            count: Number(counts.users_active_week),
+            formattedCount: numToSI(counts.users_active_week),
+          }
+        )}
+      >
+        {I18NextService.i18n.t("number_of_users", {
           count: Number(counts.users_active_week),
           formattedCount: numToSI(counts.users_active_week),
-        })}
-      >
-        {i18n.t("number_of_users", {
-          count: Number(counts.users_active_week),
-          formattedCount: numToSI(counts.users_active_week),
         })}{" "}
-        / {i18n.t("week")}
+        / {I18NextService.i18n.t("week")}
       </li>
       <li
         className="list-inline-item badge text-bg-secondary pointer"
-        data-tippy-content={i18n.t("active_users_in_the_last_month", {
-          count: Number(counts.users_active_month),
-          formattedCount: numToSI(counts.users_active_month),
-        })}
+        data-tippy-content={I18NextService.i18n.t(
+          "active_users_in_the_last_month",
+          {
+            count: Number(counts.users_active_month),
+            formattedCount: numToSI(counts.users_active_month),
+          }
+        )}
       >
-        {i18n.t("number_of_users", {
+        {I18NextService.i18n.t("number_of_users", {
           count: Number(counts.users_active_month),
           formattedCount: numToSI(counts.users_active_month),
         })}{" "}
-        / {i18n.t("month")}
+        / {I18NextService.i18n.t("month")}
       </li>
       <li
         className="list-inline-item badge text-bg-secondary pointer"
-        data-tippy-content={i18n.t("active_users_in_the_last_six_months", {
-          count: Number(counts.users_active_half_year),
-          formattedCount: numToSI(counts.users_active_half_year),
-        })}
+        data-tippy-content={I18NextService.i18n.t(
+          "active_users_in_the_last_six_months",
+          {
+            count: Number(counts.users_active_half_year),
+            formattedCount: numToSI(counts.users_active_half_year),
+          }
+        )}
       >
-        {i18n.t("number_of_users", {
+        {I18NextService.i18n.t("number_of_users", {
           count: Number(counts.users_active_half_year),
           formattedCount: numToSI(counts.users_active_half_year),
         })}{" "}
-        / {i18n.t("number_of_months", { count: 6, formattedCount: 6 })}
+        /{" "}
+        {I18NextService.i18n.t("number_of_months", {
+          count: 6,
+          formattedCount: 6,
+        })}
       </li>
       {isSiteAggregates(counts) && (
         <>
           <li className="list-inline-item badge text-bg-secondary">
-            {i18n.t("number_of_users", {
+            {I18NextService.i18n.t("number_of_users", {
               count: Number(counts.users),
               formattedCount: numToSI(counts.users),
             })}
           </li>
           <li className="list-inline-item badge text-bg-secondary">
-            {i18n.t("number_of_communities", {
+            {I18NextService.i18n.t("number_of_communities", {
               count: Number(counts.communities),
               formattedCount: numToSI(counts.communities),
             })}
@@ -97,20 +113,20 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
       )}
       {isCommunityAggregates(counts) && (
         <li className="list-inline-item badge text-bg-secondary">
-          {i18n.t("number_of_subscribers", {
+          {I18NextService.i18n.t("number_of_subscribers", {
             count: Number(counts.subscribers),
             formattedCount: numToSI(counts.subscribers),
           })}
         </li>
       )}
       <li className="list-inline-item badge text-bg-secondary">
-        {i18n.t("number_of_posts", {
+        {I18NextService.i18n.t("number_of_posts", {
           count: Number(counts.posts),
           formattedCount: numToSI(counts.posts),
         })}
       </li>
       <li className="list-inline-item badge text-bg-secondary">
-        {i18n.t("number_of_comments", {
+        {I18NextService.i18n.t("number_of_comments", {
           count: Number(counts.comments),
           formattedCount: numToSI(counts.comments),
         })}
@@ -120,7 +136,7 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
           className="badge text-bg-primary"
           to={`/modlog${communityId ? `/${communityId}` : ""}`}
         >
-          {i18n.t("modlog")}
+          {I18NextService.i18n.t("modlog")}
         </Link>
       </li>
     </ul>

@@ -76,14 +76,12 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "../../config";
-import { i18n } from "../../i18next";
 import {
   CommentNodeI,
   CommentViewType,
   InitialFetchRequest,
 } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -400,7 +398,7 @@ export class Post extends Component<any, PostState> {
                   className="btn btn-secondary d-inline-block mb-2 me-3"
                   onClick={linkEvent(this, this.handleShowSidebarMobile)}
                 >
-                  {i18n.t("sidebar")}{" "}
+                  {I18NextService.i18n.t("sidebar")}{" "}
                   <Icon
                     icon={
                       this.state.showSidebarMobile
@@ -438,7 +436,7 @@ export class Post extends Component<any, PostState> {
               this.state.commentSort === "Hot" && "active"
             }`}
           >
-            {i18n.t("hot")}
+            {I18NextService.i18n.t("hot")}
             <input
               type="radio"
               className="btn-check"
@@ -452,7 +450,7 @@ export class Post extends Component<any, PostState> {
               this.state.commentSort === "Top" && "active"
             }`}
           >
-            {i18n.t("top")}
+            {I18NextService.i18n.t("top")}
             <input
               type="radio"
               className="btn-check"
@@ -466,7 +464,7 @@ export class Post extends Component<any, PostState> {
               this.state.commentSort === "New" && "active"
             }`}
           >
-            {i18n.t("new")}
+            {I18NextService.i18n.t("new")}
             <input
               type="radio"
               className="btn-check"
@@ -480,7 +478,7 @@ export class Post extends Component<any, PostState> {
               this.state.commentSort === "Old" && "active"
             }`}
           >
-            {i18n.t("old")}
+            {I18NextService.i18n.t("old")}
             <input
               type="radio"
               className="btn-check"
@@ -496,7 +494,7 @@ export class Post extends Component<any, PostState> {
               this.state.commentViewType === CommentViewType.Flat && "active"
             }`}
           >
-            {i18n.t("chat")}
+            {I18NextService.i18n.t("chat")}
             <input
               type="radio"
               className="btn-check"
@@ -595,14 +593,14 @@ export class Post extends Component<any, PostState> {
                 className="ps-0 d-block btn btn-link text-muted"
                 onClick={linkEvent(this, this.handleViewPost)}
               >
-                {i18n.t("view_all_comments")} ➔
+                {I18NextService.i18n.t("view_all_comments")} ➔
               </button>
               {showContextButton && (
                 <button
                   className="ps-0 d-block btn btn-link text-muted"
                   onClick={linkEvent(this, this.handleViewContext)}
                 >
-                  {i18n.t("show_context")} ➔
+                  {I18NextService.i18n.t("show_context")} ➔
                 </button>
               )}
             </>
@@ -836,14 +834,14 @@ export class Post extends Component<any, PostState> {
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
@@ -982,7 +980,7 @@ export class Post extends Component<any, PostState> {
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }

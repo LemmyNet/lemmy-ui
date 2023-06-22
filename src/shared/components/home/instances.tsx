@@ -7,9 +7,8 @@ import {
   Instance,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -70,7 +69,9 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("instances")} - ${this.state.siteRes.site_view.site.name}`;
+    return `${I18NextService.i18n.t("instances")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   renderInstances() {
@@ -86,18 +87,18 @@ export class Instances extends Component<any, InstancesState> {
         return instances ? (
           <div className="row">
             <div className="col-md-6">
-              <h5>{i18n.t("linked_instances")}</h5>
+              <h5>{I18NextService.i18n.t("linked_instances")}</h5>
               {this.itemList(instances.linked)}
             </div>
             {instances.allowed && instances.allowed.length > 0 && (
               <div className="col-md-6">
-                <h5>{i18n.t("allowed_instances")}</h5>
+                <h5>{I18NextService.i18n.t("allowed_instances")}</h5>
                 {this.itemList(instances.allowed)}
               </div>
             )}
             {instances.blocked && instances.blocked.length > 0 && (
               <div className="col-md-6">
-                <h5>{i18n.t("blocked_instances")}</h5>
+                <h5>{I18NextService.i18n.t("blocked_instances")}</h5>
                 {this.itemList(instances.blocked)}
               </div>
             )}
@@ -127,9 +128,9 @@ export class Instances extends Component<any, InstancesState> {
         <table id="instances_table" className="table table-sm table-hover">
           <thead className="pointer">
             <tr>
-              <th>{i18n.t("name")}</th>
-              <th>{i18n.t("software")}</th>
-              <th>{i18n.t("version")}</th>
+              <th>{I18NextService.i18n.t("name")}</th>
+              <th>{I18NextService.i18n.t("software")}</th>
+              <th>{I18NextService.i18n.t("version")}</th>
             </tr>
           </thead>
           <tbody>
@@ -148,7 +149,7 @@ export class Instances extends Component<any, InstancesState> {
         </table>
       </div>
     ) : (
-      <div>{i18n.t("none_found")}</div>
+      <div>{I18NextService.i18n.t("none_found")}</div>
     );
   }
 }

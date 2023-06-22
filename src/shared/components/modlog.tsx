@@ -46,9 +46,8 @@ import {
 } from "lemmy-js-client";
 import moment from "moment";
 import { fetchLimit } from "../config";
-import { i18n } from "../i18next";
 import { InitialFetchRequest } from "../interfaces";
-import { FirstLoadService } from "../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../services";
 import { HttpService, RequestState } from "../services/HttpService";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
@@ -586,14 +585,14 @@ const Filter = ({
 }) => (
   <div className="col-sm-6 mb-3">
     <label className="mb-2" htmlFor={`filter-${filterType}`}>
-      {i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
+      {I18NextService.i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
     </label>
     <SearchableSelect
       id={`filter-${filterType}`}
       value={value ?? 0}
       options={[
         {
-          label: i18n.t("all"),
+          label: I18NextService.i18n.t("all"),
           value: "0",
         },
       ].concat(options)}
@@ -724,8 +723,8 @@ export class Modlog extends Component<
       this.isoData.site_res.admins.some(
         ({ person: { id } }) => id === person.id
       )
-      ? i18n.t("admin")
-      : i18n.t("mod");
+      ? I18NextService.i18n.t("admin")
+      : I18NextService.i18n.t("mod");
   }
 
   get documentTitle(): string {
@@ -770,7 +769,7 @@ export class Modlog extends Component<
               >
                 /c/{this.state.communityRes.data.community_view.community.name}{" "}
               </Link>
-              <span>{i18n.t("modlog")}</span>
+              <span>{I18NextService.i18n.t("modlog")}</span>
             </h5>
           )}
           <div className="row mb-2">
@@ -782,9 +781,9 @@ export class Modlog extends Component<
                 aria-label="action"
               >
                 <option disabled aria-hidden="true">
-                  {i18n.t("filter_by_action")}
+                  {I18NextService.i18n.t("filter_by_action")}
                 </option>
-                <option value={"All"}>{i18n.t("all")}</option>
+                <option value={"All"}>{I18NextService.i18n.t("all")}</option>
                 <option value={"ModRemovePost"}>Removing Posts</option>
                 <option value={"ModLockPost"}>Locking Posts</option>
                 <option value={"ModFeaturePost"}>Featuring Posts</option>
@@ -848,9 +847,9 @@ export class Modlog extends Component<
             <table id="modlog_table" className="table table-sm table-hover">
               <thead className="pointer">
                 <tr>
-                  <th> {i18n.t("time")}</th>
-                  <th>{i18n.t("mod")}</th>
-                  <th>{i18n.t("action")}</th>
+                  <th> {I18NextService.i18n.t("time")}</th>
+                  <th>{I18NextService.i18n.t("mod")}</th>
+                  <th>{I18NextService.i18n.t("action")}</th>
                 </tr>
               </thead>
               {this.combined}
