@@ -23,6 +23,25 @@ interface VoteButtonsState {
   downvoteLoading: boolean;
 }
 
+const tippy = (counts: CommentAggregates | PostAggregates): string => {
+  const points = I18NextService.i18n.t("number_of_points", {
+    count: Number(counts.score),
+    formattedCount: Number(counts.score),
+  });
+
+  const upvotes = I18NextService.i18n.t("number_of_upvotes", {
+    count: Number(counts.upvotes),
+    formattedCount: Number(counts.upvotes),
+  });
+
+  const downvotes = I18NextService.i18n.t("number_of_downvotes", {
+    count: Number(counts.downvotes),
+    formattedCount: Number(counts.downvotes),
+  });
+
+  return `${points} • ${upvotes} • ${downvotes}`;
+};
+
 export class VoteButtonsCompact extends Component<
   VoteButtonsProps,
   VoteButtonsState
@@ -36,29 +55,6 @@ export class VoteButtonsCompact extends Component<
     super(props, context);
   }
 
-  get pointsTippy(): string {
-    const points = I18NextService.i18n.t("number_of_points", {
-      count: Number(this.props.counts.score),
-      formattedCount: Number(this.props.counts.score),
-    });
-
-    const upvotes = I18NextService.i18n.t("number_of_upvotes", {
-      count: Number(this.props.counts.upvotes),
-      formattedCount: Number(this.props.counts.upvotes),
-    });
-
-    const downvotes = I18NextService.i18n.t("number_of_downvotes", {
-      count: Number(this.props.counts.downvotes),
-      formattedCount: Number(this.props.counts.downvotes),
-    });
-
-    return `${points} • ${upvotes} • ${downvotes}`;
-  }
-
-  get tippy() {
-    return showScores() ? { "data-tippy-content": this.pointsTippy } : {};
-  }
-
   render() {
     return (
       <div>
@@ -66,7 +62,7 @@ export class VoteButtonsCompact extends Component<
           className={`btn-animate btn py-0 px-1 ${
             this.props.my_vote === 1 ? "text-info" : "text-muted"
           }`}
-          {...this.tippy}
+          data-tippy-content={tippy(this.props.counts)}
           onClick={linkEvent(this.props.postListing, this.props.handleUpvote)}
           aria-label={I18NextService.i18n.t("upvote")}
           aria-pressed={this.props.my_vote === 1}
@@ -93,7 +89,7 @@ export class VoteButtonsCompact extends Component<
               this.props.postListing,
               this.props.handleDownvote
             )}
-            {...this.tippy}
+            data-tippy-content={tippy(this.props.counts)}
             aria-label={I18NextService.i18n.t("downvote")}
             aria-pressed={this.props.my_vote === -1}
           >
@@ -130,29 +126,6 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
     super(props, context);
   }
 
-  get pointsTippy(): string {
-    const points = I18NextService.i18n.t("number_of_points", {
-      count: Number(this.props.counts.score),
-      formattedCount: Number(this.props.counts.score),
-    });
-
-    const upvotes = I18NextService.i18n.t("number_of_upvotes", {
-      count: Number(this.props.counts.upvotes),
-      formattedCount: Number(this.props.counts.upvotes),
-    });
-
-    const downvotes = I18NextService.i18n.t("number_of_downvotes", {
-      count: Number(this.props.counts.downvotes),
-      formattedCount: Number(this.props.counts.downvotes),
-    });
-
-    return `${points} • ${upvotes} • ${downvotes}`;
-  }
-
-  get tippy() {
-    return showScores() ? { "data-tippy-content": this.pointsTippy } : {};
-  }
-
   render() {
     return (
       <div className={`vote-bar col-1 pe-0 small text-center`}>
@@ -174,7 +147,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
         {showScores() ? (
           <div
             className={`unselectable pointer text-muted px-1 post-score`}
-            data-tippy-content={this.pointsTippy}
+            data-tippy-content={tippy(this.props.counts)}
           >
             {numToSI(this.props.counts.score)}
           </div>
