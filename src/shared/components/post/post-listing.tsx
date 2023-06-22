@@ -779,7 +779,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get crossPostButton() {
     return (
       <Link
-        className="btn btn-sm d-flex align-items-center rounded-0 dropdown-item"
+        className="btn-animate text-muted py-0"
         to={{
           /* Empty string properties are required to satisfy type*/
           pathname: "/create_post",
@@ -792,8 +792,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         data-tippy-content={I18NextService.i18n.t("cross_post")}
         aria-label={I18NextService.i18n.t("cross_post")}
       >
-        <Icon classes="me-1" icon="copy" inline />
-        {I18NextService.i18n.t("cross_post")}
+        <Icon icon="copy" inline />
       </Link>
     );
   }
@@ -1361,7 +1360,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  bodyPreview() {
+  showMobilePreview() {
     const { body, id } = this.postView.post;
 
     return !this.showBody && body ? (
@@ -1385,10 +1384,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
 
-              <div className="mt-2">
-                {this.bodyPreview()}
-                {this.commentsLine(true)}
-              </div>
+              {/* Show a preview of the post body */}
+              {this.showMobilePreview()}
+
+              {this.commentsLine(true)}
               {this.userActionsLine()}
               {this.duplicatesLine()}
               {this.removeAndBanDialogs()}
@@ -1417,7 +1416,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <div className="col-12">
                   {this.postTitleLine()}
                   {this.createdLine()}
-                  {this.bodyPreview()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
                   {this.userActionsLine()}
