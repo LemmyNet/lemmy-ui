@@ -1,5 +1,5 @@
+import { getHttpBase } from "@utils/env";
 import { LemmyHttp } from "lemmy-js-client";
-import { getHttpBase } from "../../shared/env";
 import { toast } from "../../shared/toast";
 import { I18NextService } from "./I18NextService";
 

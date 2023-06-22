@@ -24,3 +24,5 @@ export const updateUnreadCountsInterval = 30000;
 export const fetchLimit = 40;
 export const relTags = "noopener nofollow";
 export const emDash = "\u2014";
+
+export const testHost = "0.0.0.0:8536";
