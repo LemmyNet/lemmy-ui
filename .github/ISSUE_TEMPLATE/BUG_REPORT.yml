@@ -1,6 +1,5 @@
 name: "\U0001F41E Bug report"
 description: Report a bug to help us improve Lemmy-UI.
-title: ""
 labels: ["bug", "triage"]
 body:
   - type: markdown
