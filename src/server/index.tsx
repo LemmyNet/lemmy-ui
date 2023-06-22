@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import process from "process";
 import CatchAllHandler from "./handlers/catch-all-handler";
+import ManifestHandler from "./handlers/manifest-handler";
 import SecurityHandler from "./handlers/security-handler";
 import RobotsHandler from "./handlers/robots-handler";
 import ServiceWorkerHandler from "./handlers/service-worker-handler";
