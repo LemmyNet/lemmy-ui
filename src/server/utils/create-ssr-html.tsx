@@ -8,6 +8,8 @@ import { fetchIconPng } from "./fetch-icon-png";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
+const fallbackStyleTag = `<link rel="stylesheet" type="text/css" href="/css/themes/darkly.css" />`;
+
 let appleTouchIcon: string | undefined = undefined;
 
 export async function createSsrHtml(
@@ -85,7 +87,7 @@ export async function createSsrHtml(
     <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
   
     <!-- Current theme and more -->
-    ${helmet.link.toString()}
+    ${helmet.link.toString() || fallbackStyleTag}
     
     </head>
   
