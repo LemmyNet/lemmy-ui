@@ -1,32 +1,30 @@
-name: "\U0001F41E Bug Report"
-description: Create a report to help us improve lemmy-ui
-title: "[Bug]: "
+name: "Bug report"
+description: Create a bug report to help us improve Lemmy-UI!
+title: ""
 labels: ["bug", "triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Found a bug? Please fill out the sections below. 👍
-        Thanks for taking the time to fill out this bug report!
-        For backend issues, use [lemmy](https://github.com/LemmyNet/lemmy/issues/new/choose)
+        Thanks for taking the time to help improve Lemmy-UI by reporting a bug!
   - type: checkboxes
     attributes:
       label: Requirements
-      description: Before you create a bug report please do the following.
+      description: Before you create a bug report, please carefully check the following –
       options:
-        - label: Is this a bug report? For questions or discussions use https://lemmy.ml/c/lemmy_support
+        - label: This is a bug report, and if not, I'd post to https://lemmy.ml/c/lemmy_support instead.
           required: true
-        - label: Did you check to see if this issue already exists?
+        - label: I've [checked](https://github.com/LemmyNet/lemmy-ui/issues) to see if this issue already exists.
           required: true
-        - label: Is this only a single bug? Do not put multiple bugs in one issue.
+        - label: It's a single bug. I'm not reporting multiple bugs in one issue.
           required: true
-        - label: Is this a server side (not related to the UI) issue? Use the [Lemmy back end](https://github.com/LemmyNet/lemmy) repo.
-          required: false
+        - label: It's a frontend issue, not a backend issue; I'd report that to the [backend repo](https://github.com/LemmyNet/lemmy) instead.
+          required: true
   - type: textarea
     id: summary
     attributes:
       label: Summary
-      description: A summary of the bug.
+      description: Explain the bug and upload images, screenshots or videos if possible.
     validations:
       required: true
   - type: textarea
@@ -34,12 +32,14 @@ body:
     attributes:
       label: Steps to Reproduce
       description: |
-        Describe the steps to reproduce the bug.
-        The better your description is _(go 'here', click 'there'...)_ the fastest you'll get an _(accurate)_ resolution.
+        In a numbered list, walk us through the steps needed to reproduce the bug.
+        The better your description is _(go 'here', click 'there'...)_, the quicker we can fix it.
       value: |
         1.
         2.
         3.
+        4.
+        5.
     validations:
       required: true
   - type: textarea
@@ -47,20 +47,21 @@ body:
     attributes:
       label: Technical Details
       description: |
-        - Any browser console errors?
+        - Describe your environment (OS, browser, model of smartphone, etc)
+        - If relevant, also share any console errors and/or screenshots here.
     validations:
       required: true
   - type: input
     id: lemmy-ui-version
     attributes:
-      label: Version
-      description: Which Lemmy UI version do you use? Displayed in the footer.
-      placeholder: ex. 0.17.4-rc.4
+      label: Lemmy Instance Version
+      description: What's the version of the Lemmy instance where the bug can be reproduced?
+      placeholder: ex. 0.18-rc.6
     validations:
       required: true
   - type: input
     id: lemmy-instance
     attributes:
       label: Lemmy Instance URL
-      description: Which Lemmy instance do you use? The address
-      placeholder: lemmy.ml, lemmy.world, etc
+      description: The URL of the Lemmy instance where the bug can be reproduced.
+      placeholder: https://lemmy.ml
