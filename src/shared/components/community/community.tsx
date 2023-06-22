@@ -78,14 +78,12 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
-import { i18n } from "../../i18next";
 import {
   CommentViewType,
   DataType,
   InitialFetchRequest,
 } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -331,7 +329,7 @@ export class Community extends Component<
                     className="btn btn-secondary d-inline-block mb-2 me-3"
                     onClick={linkEvent(this, this.handleShowSidebarMobile)}
                   >
-                    {i18n.t("sidebar")}{" "}
+                    {I18NextService.i18n.t("sidebar")}{" "}
                     <Icon
                       icon={
                         this.state.showSidebarMobile
@@ -758,14 +756,14 @@ export class Community extends Component<
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
@@ -791,7 +789,7 @@ export class Community extends Component<
     const transferCommunityRes = await HttpService.client.transferCommunity(
       form
     );
-    toast(i18n.t("transfer_community"));
+    toast(I18NextService.i18n.t("transfer_community"));
     this.updateCommunityFull(transferCommunityRes);
   }
 
@@ -880,7 +878,7 @@ export class Community extends Component<
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }

@@ -73,15 +73,13 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags, trendingFetchLimit } from "../../config";
-import { i18n } from "../../i18next";
 import {
   CommentViewType,
   DataType,
   InitialFetchRequest,
 } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -197,7 +195,7 @@ const MobileButton = ({
     className="btn btn-secondary d-inline-block mb-2 me-3"
     onClick={onClick}
   >
-    {i18n.t(textKey)}{" "}
+    {I18NextService.i18n.t(textKey)}{" "}
     <Icon icon={show ? `minus-square` : `plus-square`} classes="icon-inline" />
   </button>
 );
@@ -210,7 +208,7 @@ const LinkButton = ({
   translationKey: NoOptionI18nKeys;
 }) => (
   <Link className="btn btn-secondary d-block" to={path}>
-    {i18n.t(translationKey)}
+    {I18NextService.i18n.t(translationKey)}
   </Link>
 );
 
@@ -565,10 +563,14 @@ export class Home extends Component<any, HomeState> {
               className="btn btn-sm text-muted"
               onClick={linkEvent(this, this.handleCollapseSubscribe)}
               aria-label={
-                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+                subscribedCollapsed
+                  ? I18NextService.i18n.t("expand")
+                  : I18NextService.i18n.t("collapse")
               }
               data-tippy-content={
-                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+                subscribedCollapsed
+                  ? I18NextService.i18n.t("expand")
+                  : I18NextService.i18n.t("collapse")
               }
               aria-expanded="true"
               aria-controls="sidebarSubscribedBody"
@@ -932,14 +934,14 @@ export class Home extends Component<any, HomeState> {
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
@@ -963,7 +965,7 @@ export class Home extends Component<any, HomeState> {
 
   async handleTransferCommunity(form: TransferCommunity) {
     await HttpService.client.transferCommunity(form);
-    toast(i18n.t("transfer_community"));
+    toast(I18NextService.i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
@@ -1030,7 +1032,7 @@ export class Home extends Component<any, HomeState> {
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }

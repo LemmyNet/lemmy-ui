@@ -13,7 +13,7 @@ import {
   Instance,
   ListingType,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
@@ -136,12 +136,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         />
         <h5>{`${
           siteSetup
-            ? capitalizeFirstLetter(i18n.t("edit"))
-            : capitalizeFirstLetter(i18n.t("setup"))
-        } ${i18n.t("your_site")}`}</h5>
+            ? capitalizeFirstLetter(I18NextService.i18n.t("edit"))
+            : capitalizeFirstLetter(I18NextService.i18n.t("setup"))
+        } ${I18NextService.i18n.t("your_site")}`}</h5>
         <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="create-site-name">
-            {i18n.t("name")}
+            {I18NextService.i18n.t("name")}
           </label>
           <div className="col-12">
             <input
@@ -157,9 +157,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="input-group mb-3">
-          <label className="me-2 col-form-label">{i18n.t("icon")}</label>
+          <label className="me-2 col-form-label">
+            {I18NextService.i18n.t("icon")}
+          </label>
           <ImageUploadForm
-            uploadTitle={i18n.t("upload_icon")}
+            uploadTitle={I18NextService.i18n.t("upload_icon")}
             imageSrc={this.state.siteForm.icon}
             onUpload={this.handleIconUpload}
             onRemove={this.handleIconRemove}
@@ -167,9 +169,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           />
         </div>
         <div className="input-group mb-3">
-          <label className="me-2 col-form-label">{i18n.t("banner")}</label>
+          <label className="me-2 col-form-label">
+            {I18NextService.i18n.t("banner")}
+          </label>
           <ImageUploadForm
-            uploadTitle={i18n.t("upload_banner")}
+            uploadTitle={I18NextService.i18n.t("upload_banner")}
             imageSrc={this.state.siteForm.banner}
             onUpload={this.handleBannerUpload}
             onRemove={this.handleBannerRemove}
@@ -177,7 +181,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="site-desc">
-            {i18n.t("description")}
+            {I18NextService.i18n.t("description")}
           </label>
           <div className="col-12">
             <input
@@ -191,7 +195,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="mb-3 row">
-          <label className="col-12 col-form-label">{i18n.t("sidebar")}</label>
+          <label className="col-12 col-form-label">
+            {I18NextService.i18n.t("sidebar")}
+          </label>
           <div className="col-12">
             <MarkdownTextArea
               initialContent={this.state.siteForm.sidebar}
@@ -204,7 +210,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-form-label">
-            {i18n.t("legal_information")}
+            {I18NextService.i18n.t("legal_information")}
           </label>
           <div className="col-12">
             <MarkdownTextArea
@@ -230,7 +236,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-downvotes"
               >
-                {i18n.t("enable_downvotes")}
+                {I18NextService.i18n.t("enable_downvotes")}
               </label>
             </div>
           </div>
@@ -249,7 +255,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-enable-nsfw"
               >
-                {i18n.t("enable_nsfw")}
+                {I18NextService.i18n.t("enable_nsfw")}
               </label>
             </div>
           </div>
@@ -260,7 +266,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               className="form-check-label me-2"
               htmlFor="create-site-registration-mode"
             >
-              {i18n.t("registration_mode")}
+              {I18NextService.i18n.t("registration_mode")}
             </label>
             <select
               id="create-site-registration-mode"
@@ -269,17 +275,21 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               className="form-select d-inline-block w-auto"
             >
               <option value={"RequireApplication"}>
-                {i18n.t("require_registration_application")}
+                {I18NextService.i18n.t("require_registration_application")}
               </option>
-              <option value={"Open"}>{i18n.t("open_registration")}</option>
-              <option value={"Closed"}>{i18n.t("close_registration")}</option>
+              <option value={"Open"}>
+                {I18NextService.i18n.t("open_registration")}
+              </option>
+              <option value={"Closed"}>
+                {I18NextService.i18n.t("close_registration")}
+              </option>
             </select>
           </div>
         </div>
         {this.state.siteForm.registration_mode == "RequireApplication" && (
           <div className="mb-3 row">
             <label className="col-12 col-form-label">
-              {i18n.t("application_questionnaire")}
+              {I18NextService.i18n.t("application_questionnaire")}
             </label>
             <div className="col-12">
               <MarkdownTextArea
@@ -309,7 +319,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-community-creation-admin-only"
               >
-                {i18n.t("community_creation_admin_only")}
+                {I18NextService.i18n.t("community_creation_admin_only")}
               </label>
             </div>
           </div>
@@ -331,7 +341,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-require-email-verification"
               >
-                {i18n.t("require_email_verification")}
+                {I18NextService.i18n.t("require_email_verification")}
               </label>
             </div>
           </div>
@@ -353,7 +363,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-email-admins"
               >
-                {i18n.t("application_email_admins")}
+                {I18NextService.i18n.t("application_email_admins")}
               </label>
             </div>
           </div>
@@ -372,7 +382,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-reports-email-admins"
               >
-                {i18n.t("reports_email_admins")}
+                {I18NextService.i18n.t("reports_email_admins")}
               </label>
             </div>
           </div>
@@ -383,7 +393,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               className="form-check-label me-2"
               htmlFor="create-site-default-theme"
             >
-              {i18n.t("theme")}
+              {I18NextService.i18n.t("theme")}
             </label>
             <select
               id="create-site-default-theme"
@@ -391,7 +401,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onChange={linkEvent(this, this.handleSiteDefaultTheme)}
               className="form-select d-inline-block w-auto"
             >
-              <option value="browser">{i18n.t("browser_default")}</option>
+              <option value="browser">
+                {I18NextService.i18n.t("browser_default")}
+              </option>
               {this.props.themeList?.map(theme => (
                 <option key={theme} value={theme}>
                   {theme}
@@ -403,7 +415,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         {this.props.showLocal && (
           <form className="mb-3 row">
             <label className="col-sm-3 col-form-label">
-              {i18n.t("listing_type")}
+              {I18NextService.i18n.t("listing_type")}
             </label>
             <div className="col-sm-9">
               <ListingTypeSelect
@@ -429,7 +441,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-private-instance"
               >
-                {i18n.t("private_instance")}
+                {I18NextService.i18n.t("private_instance")}
               </label>
             </div>
           </div>
@@ -448,7 +460,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-hide-modlog-mod-names"
               >
-                {i18n.t("hide_modlog_mod_names")}
+                {I18NextService.i18n.t("hide_modlog_mod_names")}
               </label>
             </div>
           </div>
@@ -458,7 +470,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             className="col-12 col-form-label"
             htmlFor="create-site-slur-filter-regex"
           >
-            {i18n.t("slur_filter_regex")}
+            {I18NextService.i18n.t("slur_filter_regex")}
           </label>
           <div className="col-12">
             <input
@@ -485,7 +497,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             className="col-12 col-form-label"
             htmlFor="create-site-actor-name"
           >
-            {i18n.t("actor_name_max_length")}
+            {I18NextService.i18n.t("actor_name_max_length")}
           </label>
           <div className="col-12">
             <input
@@ -512,7 +524,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-federation-enabled"
               >
-                {i18n.t("federation_enabled")}
+                {I18NextService.i18n.t("federation_enabled")}
               </label>
             </div>
           </div>
@@ -537,7 +549,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                     className="form-check-label"
                     htmlFor="create-site-federation-debug"
                   >
-                    {i18n.t("federation_debug")}
+                    {I18NextService.i18n.t("federation_debug")}
                   </label>
                 </div>
               </div>
@@ -547,7 +559,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="col-12 col-form-label"
                 htmlFor="create-site-federation-worker-count"
               >
-                {i18n.t("federation_worker_count")}
+                {I18NextService.i18n.t("federation_worker_count")}
               </label>
               <div className="col-12">
                 <input
@@ -579,7 +591,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-captcha-enabled"
               >
-                {i18n.t("captcha_enabled")}
+                {I18NextService.i18n.t("captcha_enabled")}
               </label>
             </div>
           </div>
@@ -591,7 +603,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label me-2"
                 htmlFor="create-site-captcha-difficulty"
               >
-                {i18n.t("captcha_difficulty")}
+                {I18NextService.i18n.t("captcha_difficulty")}
               </label>
               <select
                 id="create-site-captcha-difficulty"
@@ -599,9 +611,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 onChange={linkEvent(this, this.handleSiteCaptchaDifficulty)}
                 className="form-select d-inline-block w-auto"
               >
-                <option value="easy">{i18n.t("easy")}</option>
-                <option value="medium">{i18n.t("medium")}</option>
-                <option value="hard">{i18n.t("hard")}</option>
+                <option value="easy">{I18NextService.i18n.t("easy")}</option>
+                <option value="medium">
+                  {I18NextService.i18n.t("medium")}
+                </option>
+                <option value="hard">{I18NextService.i18n.t("hard")}</option>
               </select>
             </div>
           </div>
@@ -616,9 +630,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               {this.props.loading ? (
                 <Spinner />
               ) : siteSetup ? (
-                capitalizeFirstLetter(i18n.t("save"))
+                capitalizeFirstLetter(I18NextService.i18n.t("save"))
               ) : (
-                capitalizeFirstLetter(i18n.t("create"))
+                capitalizeFirstLetter(I18NextService.i18n.t("create"))
               )}
             </button>
           </div>
@@ -634,7 +648,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     return (
       <div className="col-12 col-md-6">
         <label className="col-form-label" htmlFor={id}>
-          {i18n.t(key)}
+          {I18NextService.i18n.t(key)}
         </label>
         <div className="d-flex justify-content-between align-items-center">
           <input

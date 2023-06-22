@@ -1,7 +1,7 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "inferno";
 import moment from "moment";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 
 interface MomentTimeProps {
@@ -15,18 +15,18 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    moment.locale([...i18n.languages]);
+    moment.locale([...I18NextService.i18n.languages]);
   }
 
   createdAndModifiedTimes() {
     const updated = this.props.updated;
-    let line = `${capitalizeFirstLetter(i18n.t("created"))}: ${this.format(
-      this.props.published
-    )}`;
+    let line = `${capitalizeFirstLetter(
+      I18NextService.i18n.t("created")
+    )}: ${this.format(this.props.published)}`;
     if (updated) {
-      line += `\n\n\n${capitalizeFirstLetter(i18n.t("modified"))} ${this.format(
-        updated
-      )}`;
+      line += `\n\n\n${capitalizeFirstLetter(
+        I18NextService.i18n.t("modified")
+      )} ${this.format(updated)}`;
     }
     return line;
   }
