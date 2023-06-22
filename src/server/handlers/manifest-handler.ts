@@ -1,3 +1,4 @@
+import fetch from "cross-fetch";
 import type { Request, Response } from "express";
 import { LemmyHttp } from "lemmy-js-client";
 import { getHttpBaseExternal, getHttpBaseInternal } from "../../shared/env";
