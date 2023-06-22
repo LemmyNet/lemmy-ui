@@ -1,6 +1,6 @@
+import { getHttpBaseExternal, getHttpBaseInternal } from "@utils/env";
 import type { Request, Response } from "express";
 import { LemmyHttp } from "lemmy-js-client";
-import { getHttpBaseExternal, getHttpBaseInternal } from "../../shared/env";
 import { wrapClient } from "../../shared/services/HttpService";
 import generateManifestJson from "../utils/generate-manifest-json";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";

@@ -1,4 +1,5 @@
 import { initializeSite, isAuthPath } from "@utils/app";
+import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
@@ -6,7 +7,6 @@ import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import { App } from "../../shared/components/app/app";
-import { getHttpBaseInternal } from "../../shared/env";
 import {
   InitialFetchRequest,
   IsoDataOptionalSite,
