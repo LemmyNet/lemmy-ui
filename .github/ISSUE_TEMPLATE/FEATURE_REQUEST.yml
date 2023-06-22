@@ -11,7 +11,7 @@ body:
       label: Requirements
       description: Before you create a bug report, please carefully check the following –
       options:
-        - label: This is a feature request and not a bug report. Otherwise, I'd create a new [bug report](https://github.com/LemmyNet/lemmy-ui/issues/new?assignees=&labels=bug%2Ctriage&projects=&template=BUG_REPORT.yml&title=%5BBug%5D%3A+) instead.
+        - label: This is a feature request and not a bug report. Otherwise, I will create a new [bug report](https://github.com/LemmyNet/lemmy-ui/issues/new?assignees=&labels=bug%2Ctriage&projects=&template=BUG_REPORT.yml&title=%5BBug%5D%3A+) instead.
           required: true
         - label: I've [checked](https://github.com/LemmyNet/lemmy-ui/issues) to see if this request (or a similar one) already exists.
           required: true

@@ -18,7 +18,7 @@ body:
           required: true
         - label: It's a single bug. I'm not reporting multiple bugs in one issue.
           required: true
-        - label: It's a frontend issue, not a backend issue; I'd report that to the [backend repo](https://github.com/LemmyNet/lemmy) instead.
+        - label: It's a frontend issue, not a backend issue; Otherwise I will create an issue on the [backend repo](https://github.com/LemmyNet/lemmy) instead.
           required: true
   - type: textarea
     id: summary
