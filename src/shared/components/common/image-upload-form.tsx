@@ -1,7 +1,7 @@
+import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
-import { i18n } from "../../i18next";
-import { HttpService, UserService } from "../../services";
-import { randomStr, toast } from "../../utils";
+import { HttpService, I18NextService, UserService } from "../../services";
+import { toast } from "../../toast";
 import { Icon } from "./icon";
 
 interface ImageUploadFormProps {
@@ -49,7 +49,7 @@ export class ImageUploadForm extends Component<
               />
               <a
                 onClick={linkEvent(this, this.handleRemoveImage)}
-                aria-label={i18n.t("remove")}
+                aria-label={I18NextService.i18n.t("remove")}
               >
                 <Icon icon="x" classes="mini-overlay" />
               </a>

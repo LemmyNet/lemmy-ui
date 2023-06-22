@@ -1,7 +1,8 @@
+import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { mdToHtml, setIsoData } from "../../utils";
+import { mdToHtml } from "../../markdown";
+import { I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 
 interface LegalState {
@@ -19,7 +20,7 @@ export class Legal extends Component<any, LegalState> {
   }
 
   get documentTitle(): string {
-    return i18n.t("legal_information");
+    return I18NextService.i18n.t("legal_information");
   }
 
   render() {

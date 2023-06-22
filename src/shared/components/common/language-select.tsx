@@ -1,9 +1,9 @@
+import { selectableLanguages } from "@utils/app";
+import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services/UserService";
-import { randomStr, selectableLanguages } from "../../utils";
+import { I18NextService, UserService } from "../../services";
 import { Icon } from "./icon";
 
 interface LanguageSelectProps {
@@ -52,7 +52,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
       <div className="language-select">
         {this.props.multiple && this.props.showLanguageWarning && (
           <div className="alert alert-warning" role="alert">
-            {i18n.t("undetermined_language_warning")}
+            {I18NextService.i18n.t("undetermined_language_warning")}
           </div>
         )}
         <div className="mb-3 row">
@@ -63,7 +63,9 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             )}
             htmlFor={this.id}
           >
-            {i18n.t(this.props.multiple ? "language_plural" : "language")}
+            {I18NextService.i18n.t(
+              this.props.multiple ? "language_plural" : "language"
+            )}
           </label>
           <div
             className={classNames(`col-sm-${this.props.multiple ? 9 : 10}`, {
@@ -102,13 +104,13 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
         })}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
-        aria-label={i18n.t("language_select_placeholder")}
+        aria-label={I18NextService.i18n.t("language_select_placeholder")}
         multiple={this.props.multiple}
         disabled={this.props.disabled}
       >
         {!this.props.multiple && (
           <option selected disabled hidden>
-            {i18n.t("language_select_placeholder")}
+            {I18NextService.i18n.t("language_select_placeholder")}
           </option>
         )}
         {filteredLangs.map(l => (

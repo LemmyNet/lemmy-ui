@@ -2,8 +2,8 @@ import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
+import { favIconPngUrl, favIconUrl } from "../../shared/config";
 import { ILemmyConfig, IsoDataOptionalSite } from "../../shared/interfaces";
-import { favIconPngUrl, favIconUrl } from "../../shared/utils";
 import { fetchIconPng } from "./fetch-icon-png";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
@@ -77,7 +77,7 @@ export async function createSsrHtml(
      />
   
     <!-- Web app manifest -->
-    <link rel="manifest" href="/manifest" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href=${appleTouchIcon} />
     <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
   

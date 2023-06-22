@@ -1,5 +1,28 @@
-import { debounce, getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  commentsToFlatNodes,
+  communityToChoice,
+  enableDownvotes,
+  enableNsfw,
+  fetchCommunities,
+  fetchUsers,
+  getUpdatedSearchId,
+  myAuth,
+  personToChoice,
+  setIsoData,
+  showLocal,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  capitalizeFirstLetter,
+  debounce,
+  getIdFromString,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  numToSI,
+} from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -22,32 +45,10 @@ import {
   SearchType,
   SortType,
 } from "lemmy-js-client";
-import { i18n } from "../i18next";
+import { fetchLimit } from "../config";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
-import { FirstLoadService } from "../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../services";
 import { HttpService, RequestState } from "../services/HttpService";
-import {
-  Choice,
-  RouteDataResponse,
-  capitalizeFirstLetter,
-  commentsToFlatNodes,
-  communityToChoice,
-  enableDownvotes,
-  enableNsfw,
-  fetchCommunities,
-  fetchLimit,
-  fetchUsers,
-  getIdFromString,
-  getPageFromString,
-  getUpdatedSearchId,
-  myAuth,
-  numToSI,
-  personToChoice,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  showLocal,
-} from "../utils";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
@@ -182,13 +183,13 @@ const Filter = ({
   return (
     <div className="mb-3 col-sm-6">
       <label className="col-form-label me-2" htmlFor={`${filterType}-filter`}>
-        {capitalizeFirstLetter(i18n.t(filterType))}
+        {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
       </label>
       <SearchableSelect
         id={`${filterType}-filter`}
         options={[
           {
-            label: i18n.t("all"),
+            label: I18NextService.i18n.t("all"),
             value: "0",
           },
         ].concat(options)}
@@ -226,7 +227,7 @@ function getListing(
   return (
     <>
       <span>{listing}</span>
-      <span>{` - ${i18n.t(translationKey, {
+      <span>{` - ${I18NextService.i18n.t(translationKey, {
         count: Number(count),
         formattedCount: numToSI(count),
       })}`}</span>
@@ -446,7 +447,7 @@ export class Search extends Component<any, SearchState> {
   get documentTitle(): string {
     const { q } = getSearchQueryParams();
     const name = this.state.siteRes.site_view.site.name;
-    return `${i18n.t("search")} - ${q ? `${q} - ` : ""}${name}`;
+    return `${I18NextService.i18n.t("search")} - ${q ? `${q} - ` : ""}${name}`;
   }
 
   render() {
@@ -458,13 +459,13 @@ export class Search extends Component<any, SearchState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5>{i18n.t("search")}</h5>
+        <h5>{I18NextService.i18n.t("search")}</h5>
         {this.selects}
         {this.searchForm}
         {this.displayResults(type)}
         {this.resultsCount === 0 &&
           this.state.searchRes.state === "success" && (
-            <span>{i18n.t("no_results")}</span>
+            <span>{I18NextService.i18n.t("no_results")}</span>
           )}
         <Paginator page={page} onChange={this.handlePageChange} />
       </div>
@@ -497,8 +498,8 @@ export class Search extends Component<any, SearchState> {
             type="text"
             className="form-control me-2 mb-2 col-sm-8"
             value={this.state.searchText}
-            placeholder={`${i18n.t("search")}...`}
-            aria-label={i18n.t("search")}
+            placeholder={`${I18NextService.i18n.t("search")}...`}
+            aria-label={I18NextService.i18n.t("search")}
             onInput={linkEvent(this, this.handleQChange)}
             required
             minLength={1}
@@ -509,7 +510,7 @@ export class Search extends Component<any, SearchState> {
             {this.state.searchRes.state === "loading" ? (
               <Spinner />
             ) : (
-              <span>{i18n.t("search")}</span>
+              <span>{I18NextService.i18n.t("search")}</span>
             )}
           </button>
         </div>
@@ -538,14 +539,16 @@ export class Search extends Component<any, SearchState> {
           value={type}
           onChange={linkEvent(this, this.handleTypeChange)}
           className="form-select d-inline-block w-auto mb-2"
-          aria-label={i18n.t("type")}
+          aria-label={I18NextService.i18n.t("type")}
         >
           <option disabled aria-hidden="true">
-            {i18n.t("type")}
+            {I18NextService.i18n.t("type")}
           </option>
           {searchTypes.map(option => (
             <option value={option} key={option}>
-              {i18n.t(option.toString().toLowerCase() as NoOptionI18nKeys)}
+              {I18NextService.i18n.t(
+                option.toString().toLowerCase() as NoOptionI18nKeys
+              )}
             </option>
           ))}
         </select>

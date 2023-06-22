@@ -1,5 +1,28 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  commentsToFlatNodes,
+  communityRSSUrl,
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  getDataTypeString,
+  myAuth,
+  postToCommentSortType,
+  setIsoData,
+  showLocal,
+  updateCommunityBlock,
+  updatePersonBlock,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+} from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -54,40 +77,16 @@ import {
   SortType,
   TransferCommunity,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { fetchLimit, relTags } from "../../config";
 import {
   CommentViewType,
   DataType,
   InitialFetchRequest,
 } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  commentsToFlatNodes,
-  communityRSSUrl,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  fetchLimit,
-  getCommentParentId,
-  getDataTypeString,
-  getPageFromString,
-  myAuth,
-  postToCommentSortType,
-  relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  showLocal,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";
@@ -330,7 +329,7 @@ export class Community extends Component<
                     className="btn btn-secondary d-inline-block mb-2 me-3"
                     onClick={linkEvent(this, this.handleShowSidebarMobile)}
                   >
-                    {i18n.t("sidebar")}{" "}
+                    {I18NextService.i18n.t("sidebar")}{" "}
                     <Icon
                       icon={
                         this.state.showSidebarMobile
@@ -757,14 +756,14 @@ export class Community extends Component<
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
@@ -790,7 +789,7 @@ export class Community extends Component<
     const transferCommunityRes = await HttpService.client.transferCommunity(
       form
     );
-    toast(i18n.t("transfer_community"));
+    toast(I18NextService.i18n.t("transfer_community"));
     this.updateCommunityFull(transferCommunityRes);
   }
 
@@ -879,7 +878,7 @@ export class Community extends Component<
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }

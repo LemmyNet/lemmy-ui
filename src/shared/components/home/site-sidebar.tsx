@@ -1,7 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { mdToHtml } from "../../utils";
+import { mdToHtml } from "../../markdown";
+import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
@@ -62,10 +62,14 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             className="btn btn-sm"
             onClick={linkEvent(this, this.handleCollapseSidebar)}
             aria-label={
-              this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
+              this.state.collapsed
+                ? I18NextService.i18n.t("expand")
+                : I18NextService.i18n.t("collapse")
             }
             data-tippy-content={
-              this.state.collapsed ? i18n.t("expand") : i18n.t("collapse")
+              this.state.collapsed
+                ? I18NextService.i18n.t("expand")
+                : I18NextService.i18n.t("collapse")
             }
             data-bs-toggle="collapse"
             data-bs-target="#sidebarInfoBody"
@@ -104,7 +108,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   admins(admins: PersonView[]) {
     return (
       <ul className="mt-1 list-inline small mb-0">
-        <li className="list-inline-item">{i18n.t("admins")}:</li>
+        <li className="list-inline-item">{I18NextService.i18n.t("admins")}:</li>
         {admins.map(av => (
           <li key={av.person.id} className="list-inline-item">
             <PersonListing person={av.person} />

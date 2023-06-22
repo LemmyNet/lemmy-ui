@@ -1,6 +1,27 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  myAuth,
+  myAuthRequired,
+  setIsoData,
+  updatePersonBlock,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  capitalizeFirstLetter,
+  futureDaysToUnixTime,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  numToSI,
+} from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -50,35 +71,13 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import moment from "moment";
-import { i18n } from "../../i18next";
+import { fetchLimit, relTags } from "../../config";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { mdToHtml } from "../../markdown";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  capitalizeFirstLetter,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  fetchLimit,
-  futureDaysToUnixTime,
-  getCommentParentId,
-  getPageFromString,
-  mdToHtml,
-  myAuth,
-  myAuthRequired,
-  numToSI,
-  relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  toast,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -136,7 +135,7 @@ const getCommunitiesListing = (
   communityViews.length > 0 && (
     <div className="card border-secondary mb-3">
       <div className="card-body">
-        <h5>{i18n.t(translationKey)}</h5>
+        <h5>{I18NextService.i18n.t(translationKey)}</h5>
         <ul className="list-unstyled mb-0">
           {communityViews.map(({ community }) => (
             <li key={community.id}>
@@ -421,7 +420,7 @@ export class Profile extends Component<
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
         />
-        {i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+        {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
       </label>
     );
   }
@@ -484,22 +483,22 @@ export class Profile extends Component<
                     </li>
                     {isBanned(pv.person) && (
                       <li className="list-inline-item badge text-bg-danger">
-                        {i18n.t("banned")}
+                        {I18NextService.i18n.t("banned")}
                       </li>
                     )}
                     {pv.person.deleted && (
                       <li className="list-inline-item badge text-bg-danger">
-                        {i18n.t("deleted")}
+                        {I18NextService.i18n.t("deleted")}
                       </li>
                     )}
                     {pv.person.admin && (
                       <li className="list-inline-item badge text-bg-light">
-                        {i18n.t("admin")}
+                        {I18NextService.i18n.t("admin")}
                       </li>
                     )}
                     {pv.person.bot_account && (
                       <li className="list-inline-item badge text-bg-light">
-                        {i18n.t("bot_account").toLowerCase()}
+                        {I18NextService.i18n.t("bot_account").toLowerCase()}
                       </li>
                     )}
                   </ul>
@@ -515,7 +514,7 @@ export class Profile extends Component<
                       rel={relTags}
                       href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
                     >
-                      {i18n.t("send_secure_message")}
+                      {I18NextService.i18n.t("send_secure_message")}
                     </a>
                     <Link
                       className={
@@ -523,7 +522,7 @@ export class Profile extends Component<
                       }
                       to={`/create_private_message/${pv.person.id}`}
                     >
-                      {i18n.t("send_message")}
+                      {I18NextService.i18n.t("send_message")}
                     </Link>
                     {personBlocked ? (
                       <button
@@ -535,7 +534,7 @@ export class Profile extends Component<
                           this.handleUnblockPerson
                         )}
                       >
-                        {i18n.t("unblock_user")}
+                        {I18NextService.i18n.t("unblock_user")}
                       </button>
                     ) : (
                       <button
@@ -547,7 +546,7 @@ export class Profile extends Component<
                           this.handleBlockPerson
                         )}
                       >
-                        {i18n.t("block_user")}
+                        {I18NextService.i18n.t("block_user")}
                       </button>
                     )}
                   </>
@@ -562,9 +561,9 @@ export class Profile extends Component<
                         "d-flex align-self-start btn btn-secondary me-2"
                       }
                       onClick={linkEvent(this, this.handleModBanShow)}
-                      aria-label={i18n.t("ban")}
+                      aria-label={I18NextService.i18n.t("ban")}
                     >
-                      {capitalizeFirstLetter(i18n.t("ban"))}
+                      {capitalizeFirstLetter(I18NextService.i18n.t("ban"))}
                     </button>
                   ) : (
                     <button
@@ -572,9 +571,9 @@ export class Profile extends Component<
                         "d-flex align-self-start btn btn-secondary me-2"
                       }
                       onClick={linkEvent(this, this.handleModBanSubmit)}
-                      aria-label={i18n.t("unban")}
+                      aria-label={I18NextService.i18n.t("unban")}
                     >
-                      {capitalizeFirstLetter(i18n.t("unban"))}
+                      {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
               </div>
@@ -589,13 +588,13 @@ export class Profile extends Component<
               <div>
                 <ul className="list-inline mb-2">
                   <li className="list-inline-item badge text-bg-light">
-                    {i18n.t("number_of_posts", {
+                    {I18NextService.i18n.t("number_of_posts", {
                       count: Number(pv.counts.post_count),
                       formattedCount: numToSI(pv.counts.post_count),
                     })}
                   </li>
                   <li className="list-inline-item badge text-bg-light">
-                    {i18n.t("number_of_comments", {
+                    {I18NextService.i18n.t("number_of_comments", {
                       count: Number(pv.counts.comment_count),
                       formattedCount: numToSI(pv.counts.comment_count),
                     })}
@@ -603,7 +602,7 @@ export class Profile extends Component<
                 </ul>
               </div>
               <div className="text-muted">
-                {i18n.t("joined")}{" "}
+                {I18NextService.i18n.t("joined")}{" "}
                 <MomentTime
                   published={pv.person.published}
                   showAgo
@@ -613,7 +612,7 @@ export class Profile extends Component<
               <div className="d-flex align-items-center text-muted mb-2">
                 <Icon icon="cake" />
                 <span className="ms-2">
-                  {i18n.t("cake_day_title")}{" "}
+                  {I18NextService.i18n.t("cake_day_title")}{" "}
                   {moment
                     .utc(pv.person.published)
                     .local()
@@ -622,7 +621,7 @@ export class Profile extends Component<
               </div>
               {!UserService.Instance.myUserInfo && (
                 <div className="alert alert-info" role="alert">
-                  {i18n.t("profile_not_logged_in_alert")}
+                  {I18NextService.i18n.t("profile_not_logged_in_alert")}
                 </div>
               )}
             </div>
@@ -640,24 +639,24 @@ export class Profile extends Component<
         <form onSubmit={linkEvent(this, this.handleModBanSubmit)}>
           <div className="mb-3 row col-12">
             <label className="col-form-label" htmlFor="profile-ban-reason">
-              {i18n.t("reason")}
+              {I18NextService.i18n.t("reason")}
             </label>
             <input
               type="text"
               id="profile-ban-reason"
               className="form-control me-2"
-              placeholder={i18n.t("reason")}
+              placeholder={I18NextService.i18n.t("reason")}
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
             />
             <label className="col-form-label" htmlFor={`mod-ban-expires`}>
-              {i18n.t("expires")}
+              {I18NextService.i18n.t("expires")}
             </label>
             <input
               type="number"
               id={`mod-ban-expires`}
               className="form-control me-2"
-              placeholder={i18n.t("number_of_days")}
+              placeholder={I18NextService.i18n.t("number_of_days")}
               value={this.state.banExpireDays}
               onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
             />
@@ -673,9 +672,9 @@ export class Profile extends Component<
                 <label
                   className="form-check-label"
                   htmlFor="mod-ban-remove-data"
-                  title={i18n.t("remove_content_more")}
+                  title={I18NextService.i18n.t("remove_content_more")}
                 >
-                  {i18n.t("remove_content")}
+                  {I18NextService.i18n.t("remove_content")}
                 </label>
               </div>
             </div>
@@ -683,23 +682,23 @@ export class Profile extends Component<
           {/* TODO hold off on expires until later */}
           {/* <div class="mb-3 row"> */}
           {/*   <label class="col-form-label">Expires</label> */}
-          {/*   <input type="date" class="form-control me-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
+          {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
           {/* </div> */}
           <div className="mb-3 row">
             <button
               type="reset"
               className="btn btn-secondary me-2"
-              aria-label={i18n.t("cancel")}
+              aria-label={I18NextService.i18n.t("cancel")}
               onClick={linkEvent(this, this.handleModBanSubmitCancel)}
             >
-              {i18n.t("cancel")}
+              {I18NextService.i18n.t("cancel")}
             </button>
             <button
               type="submit"
               className="btn btn-secondary"
-              aria-label={i18n.t("ban")}
+              aria-label={I18NextService.i18n.t("ban")}
             >
-              {i18n.t("ban")} {pv.person.name}
+              {I18NextService.i18n.t("ban")} {pv.person.name}
             </button>
           </div>
         </form>
@@ -903,14 +902,14 @@ export class Profile extends Component<
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state === "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state === "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
@@ -934,7 +933,7 @@ export class Profile extends Component<
 
   async handleTransferCommunity(form: TransferCommunity) {
     await HttpService.client.transferCommunity(form);
-    toast(i18n.t("transfer_community"));
+    toast(I18NextService.i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
@@ -998,7 +997,7 @@ export class Profile extends Component<
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }

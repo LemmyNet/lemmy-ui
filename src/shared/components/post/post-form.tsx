@@ -1,4 +1,18 @@
-import { debounce } from "@utils/helpers";
+import {
+  communityToChoice,
+  fetchCommunities,
+  myAuth,
+  myAuthRequired,
+} from "@utils/app";
+import {
+  capitalizeFirstLetter,
+  debounce,
+  getIdFromString,
+  validTitle,
+  validURL,
+} from "@utils/helpers";
+import { isImage } from "@utils/media";
+import { Choice } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -10,29 +24,18 @@ import {
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { PostFormParams } from "../../interfaces";
-import { UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  Choice,
   archiveTodayUrl,
-  capitalizeFirstLetter,
-  communityToChoice,
-  fetchCommunities,
-  getIdFromString,
   ghostArchiveUrl,
-  isImage,
-  myAuth,
-  myAuthRequired,
   relTags,
-  setupTippy,
-  toast,
   trendingFetchLimit,
-  validTitle,
-  validURL,
   webArchiveUrl,
-} from "../../utils";
+} from "../../config";
+import { PostFormParams } from "../../interfaces";
+import { I18NextService, UserService } from "../../services";
+import { HttpService, RequestState } from "../../services/HttpService";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -338,7 +341,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         />
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
-            {i18n.t("url")}
+            {I18NextService.i18n.t("url")}
           </label>
           <div className="col-sm-10">
             <input
@@ -356,7 +359,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className={`${
                   UserService.Instance.myUserInfo && "pointer"
                 } d-inline-block float-right text-muted font-weight-bold`}
-                data-tippy-content={i18n.t("upload_image")}
+                data-tippy-content={I18NextService.i18n.t("upload_image")}
               >
                 <Icon icon="image" classes="icon-inline" />
               </label>
@@ -377,7 +380,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
-                  archive.org {i18n.t("archive_link")}
+                  archive.org {I18NextService.i18n.t("archive_link")}
                 </a>
                 <a
                   href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
@@ -386,7 +389,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
-                  ghostarchive.org {i18n.t("archive_link")}
+                  ghostarchive.org {I18NextService.i18n.t("archive_link")}
                 </a>
                 <a
                   href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
@@ -395,7 +398,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
-                  archive.today {i18n.t("archive_link")}
+                  archive.today {I18NextService.i18n.t("archive_link")}
                 </a>
               </div>
             )}
@@ -407,17 +410,17 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <button
                 className="btn btn-danger btn-sm mt-2"
                 onClick={linkEvent(this, handleImageDelete)}
-                aria-label={i18n.t("delete")}
-                data-tippy-content={i18n.t("delete")}
+                aria-label={I18NextService.i18n.t("delete")}
+                data-tippy-content={I18NextService.i18n.t("delete")}
               >
                 <Icon icon="x" classes="icon-inline me-1" />
-                {capitalizeFirstLetter(i18n.t("delete"))}
+                {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
               </button>
             )}
             {this.props.crossPosts && this.props.crossPosts.length > 0 && (
               <>
                 <div className="my-1 text-muted small font-weight-bold">
-                  {i18n.t("cross_posts")}
+                  {I18NextService.i18n.t("cross_posts")}
                 </div>
                 <PostListings
                   showCommunity
@@ -451,7 +454,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         </div>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-title">
-            {i18n.t("title")}
+            {I18NextService.i18n.t("title")}
           </label>
           <div className="col-sm-10">
             <textarea
@@ -468,7 +471,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             />
             {!validTitle(this.state.form.name) && (
               <div className="invalid-feedback">
-                {i18n.t("invalid_post_title")}
+                {I18NextService.i18n.t("invalid_post_title")}
               </div>
             )}
             {this.renderSuggestedPosts()}
@@ -476,7 +479,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         </div>
 
         <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label">{i18n.t("body")}</label>
+          <label className="col-sm-2 col-form-label">
+            {I18NextService.i18n.t("body")}
+          </label>
           <div className="col-sm-10">
             <MarkdownTextArea
               initialContent={this.state.form.body}
@@ -497,7 +502,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         {!this.props.post_view && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
-              {i18n.t("community")}
+              {I18NextService.i18n.t("community")}
             </label>
             <div className="col-sm-10">
               <SearchableSelect
@@ -505,7 +510,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 value={this.state.form.community_id}
                 options={[
                   {
-                    label: i18n.t("select_a_community"),
+                    label: I18NextService.i18n.t("select_a_community"),
                     value: "",
                     disabled: true,
                   } as Choice,
@@ -526,7 +531,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               checked={this.state.form.nsfw}
               onChange={linkEvent(this, handlePostNsfwChange)}
             />
-            <label className="form-check-label">{i18n.t("nsfw")}</label>
+            <label className="form-check-label">
+              {I18NextService.i18n.t("nsfw")}
+            </label>
           </div>
         )}
         <input
@@ -549,9 +556,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               {this.state.loading ? (
                 <Spinner />
               ) : this.props.post_view ? (
-                capitalizeFirstLetter(i18n.t("save"))
+                capitalizeFirstLetter(I18NextService.i18n.t("save"))
               ) : (
-                capitalizeFirstLetter(i18n.t("create"))
+                capitalizeFirstLetter(I18NextService.i18n.t("create"))
               )}
             </button>
             {this.props.post_view && (
@@ -560,7 +567,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className="btn btn-secondary"
                 onClick={linkEvent(this, handleCancel)}
               >
-                {i18n.t("cancel")}
+                {I18NextService.i18n.t("cancel")}
               </button>
             )}
           </div>
@@ -586,7 +593,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 copySuggestedTitle
               )}
             >
-              {i18n.t("copy_suggested_title", { title: "" })} {suggestedTitle}
+              {I18NextService.i18n.t("copy_suggested_title", { title: "" })}{" "}
+              {suggestedTitle}
             </div>
           )
         );
@@ -606,7 +614,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           suggestedPosts.length > 0 && (
             <>
               <div className="my-1 text-muted small font-weight-bold">
-                {i18n.t("related_posts")}
+                {I18NextService.i18n.t("related_posts")}
               </div>
               <PostListings
                 showCommunity

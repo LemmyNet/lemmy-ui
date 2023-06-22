@@ -1,3 +1,17 @@
+import {
+  commentsToFlatNodes,
+  editCommentReply,
+  editMention,
+  editPrivateMessage,
+  editWith,
+  enableDownvotes,
+  getCommentParentId,
+  myAuth,
+  myAuthRequired,
+  setIsoData,
+  updatePersonBlock,
+} from "@utils/app";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   AddAdmin,
@@ -44,28 +58,11 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { fetchLimit, relTags } from "../../config";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  commentsToFlatNodes,
-  editCommentReply,
-  editMention,
-  editPrivateMessage,
-  editWith,
-  enableDownvotes,
-  fetchLimit,
-  getCommentParentId,
-  myAuth,
-  myAuthRequired,
-  relTags,
-  setIsoData,
-  toast,
-  updatePersonBlock,
-} from "../../utils";
+import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
 import { HtmlTags } from "../common/html-tags";
@@ -188,9 +185,9 @@ export class Inbox extends Component<any, InboxState> {
   get documentTitle(): string {
     const mui = UserService.Instance.myUserInfo;
     return mui
-      ? `@${mui.local_user_view.person.name} ${i18n.t("inbox")} - ${
-          this.state.siteRes.site_view.site.name
-        }`
+      ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
+          "inbox"
+        )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
 
@@ -224,7 +221,7 @@ export class Inbox extends Component<any, InboxState> {
               path={this.context.router.route.match.url}
             />
             <h5 className="mb-2">
-              {i18n.t("inbox")}
+              {I18NextService.i18n.t("inbox")}
               {inboxRss && (
                 <small>
                   <a href={inboxRss} title="RSS" rel={relTags}>
@@ -246,7 +243,7 @@ export class Inbox extends Component<any, InboxState> {
                 {this.state.markAllAsReadRes.state == "loading" ? (
                   <Spinner />
                 ) : (
-                  i18n.t("mark_all_as_read")
+                  I18NextService.i18n.t("mark_all_as_read")
                 )}
               </button>
             )}
@@ -297,7 +294,7 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t("unread")}
+          {I18NextService.i18n.t("unread")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -311,7 +308,7 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t("all")}
+          {I18NextService.i18n.t("all")}
         </label>
       </div>
     );
@@ -332,7 +329,7 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.messageType == MessageType.All}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t("all")}
+          {I18NextService.i18n.t("all")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -346,7 +343,7 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.messageType == MessageType.Replies}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t("replies")}
+          {I18NextService.i18n.t("replies")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -360,7 +357,7 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.messageType == MessageType.Mentions}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t("mentions")}
+          {I18NextService.i18n.t("mentions")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -374,7 +371,7 @@ export class Inbox extends Component<any, InboxState> {
             checked={this.state.messageType == MessageType.Messages}
             onChange={linkEvent(this, this.handleMessageTypeChange)}
           />
-          {i18n.t("messages")}
+          {I18NextService.i18n.t("messages")}
         </label>
       </div>
     );
@@ -827,7 +824,7 @@ export class Inbox extends Component<any, InboxState> {
     const res = await HttpService.client.createComment(form);
 
     if (res.state === "success") {
-      toast(i18n.t("reply_sent"));
+      toast(I18NextService.i18n.t("reply_sent"));
       this.findAndUpdateComment(res);
     }
 
@@ -838,7 +835,7 @@ export class Inbox extends Component<any, InboxState> {
     const res = await HttpService.client.editComment(form);
 
     if (res.state === "success") {
-      toast(i18n.t("edit"));
+      toast(I18NextService.i18n.t("edit"));
       this.findAndUpdateComment(res);
     } else if (res.state === "failed") {
       toast(res.msg, "danger");
@@ -850,7 +847,7 @@ export class Inbox extends Component<any, InboxState> {
   async handleDeleteComment(form: DeleteComment) {
     const res = await HttpService.client.deleteComment(form);
     if (res.state == "success") {
-      toast(i18n.t("deleted"));
+      toast(I18NextService.i18n.t("deleted"));
       this.findAndUpdateComment(res);
     }
   }
@@ -858,7 +855,7 @@ export class Inbox extends Component<any, InboxState> {
   async handleRemoveComment(form: RemoveComment) {
     const res = await HttpService.client.removeComment(form);
     if (res.state == "success") {
-      toast(i18n.t("remove_comment"));
+      toast(I18NextService.i18n.t("remove_comment"));
       this.findAndUpdateComment(res);
     }
   }
@@ -893,7 +890,7 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleTransferCommunity(form: TransferCommunity) {
     await HttpService.client.transferCommunity(form);
-    toast(i18n.t("transfer_community"));
+    toast(I18NextService.i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
@@ -1005,7 +1002,7 @@ export class Inbox extends Component<any, InboxState> {
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }
@@ -1014,7 +1011,7 @@ export class Inbox extends Component<any, InboxState> {
     res: RequestState<PrivateMessageReportResponse | CommentReportResponse>
   ) {
     if (res.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 

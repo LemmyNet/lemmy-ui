@@ -1,11 +1,12 @@
+import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   ApproveRegistrationApplication,
   RegistrationApplicationView,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { mdToHtml, myAuthRequired } from "../../utils";
+import { mdToHtml } from "../../markdown";
+import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { Spinner } from "./icon";
 import { MarkdownTextArea } from "./markdown-textarea";
@@ -60,12 +61,14 @@ export class RegistrationApplication extends Component<
     return (
       <div className="registration-application">
         <div>
-          {i18n.t("applicant")}: <PersonListing person={a.creator} />
+          {I18NextService.i18n.t("applicant")}:{" "}
+          <PersonListing person={a.creator} />
         </div>
         <div>
-          {i18n.t("created")}: <MomentTime showAgo published={ra.published} />
+          {I18NextService.i18n.t("created")}:{" "}
+          <MomentTime showAgo published={ra.published} />
         </div>
-        <div>{i18n.t("answer")}:</div>
+        <div>{I18NextService.i18n.t("answer")}:</div>
         <div className="md-div" dangerouslySetInnerHTML={mdToHtml(ra.answer)} />
 
         {a.admin && (
@@ -83,7 +86,7 @@ export class RegistrationApplication extends Component<
                 </T>
                 {ra.deny_reason && (
                   <div>
-                    {i18n.t("deny_reason")}:{" "}
+                    {I18NextService.i18n.t("deny_reason")}:{" "}
                     <div
                       className="md-div d-inline-flex"
                       dangerouslySetInnerHTML={mdToHtml(ra.deny_reason)}
@@ -98,7 +101,7 @@ export class RegistrationApplication extends Component<
         {this.state.denyExpanded && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label">
-              {i18n.t("deny_reason")}
+              {I18NextService.i18n.t("deny_reason")}
             </label>
             <div className="col-sm-10">
               <MarkdownTextArea
@@ -115,18 +118,26 @@ export class RegistrationApplication extends Component<
           <button
             className="btn btn-secondary me-2 my-2"
             onClick={linkEvent(this, this.handleApprove)}
-            aria-label={i18n.t("approve")}
+            aria-label={I18NextService.i18n.t("approve")}
           >
-            {this.state.approveLoading ? <Spinner /> : i18n.t("approve")}
+            {this.state.approveLoading ? (
+              <Spinner />
+            ) : (
+              I18NextService.i18n.t("approve")
+            )}
           </button>
         )}
         {(!ra.admin_id || (ra.admin_id && accepted)) && (
           <button
             className="btn btn-secondary me-2"
             onClick={linkEvent(this, this.handleDeny)}
-            aria-label={i18n.t("deny")}
+            aria-label={I18NextService.i18n.t("deny")}
           >
-            {this.state.denyLoading ? <Spinner /> : i18n.t("deny")}
+            {this.state.denyLoading ? (
+              <Spinner />
+            ) : (
+              I18NextService.i18n.t("deny")
+            )}
           </button>
         )}
       </div>

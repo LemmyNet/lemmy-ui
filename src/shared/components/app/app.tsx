@@ -1,10 +1,10 @@
-import { Component, createRef, linkEvent, RefObject } from "inferno";
+import { isAuthPath, setIsoData } from "@utils/app";
+import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
-import { i18n } from "../../i18next";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { routes } from "../../routes";
-import { isAuthPath, setIsoData } from "../../utils";
+import { I18NextService } from "../../services";
 import AuthGuard from "../common/auth-guard";
 import ErrorGuard from "../common/error-guard";
 import { ErrorPage } from "./error-page";
@@ -31,13 +31,13 @@ export class App extends Component<any, any> {
 
     return (
       <>
-        <Provider i18next={i18n}>
+        <Provider i18next={I18NextService.i18n}>
           <div id="app" className="lemmy-site">
             <a
               className="skip-link bg-light text-dark p-2 text-decoration-none position-absolute start-0 z-3"
               onClick={linkEvent(this, this.handleJumpToContent)}
             >
-              ${i18n.t("jump_to_content", "Jump to content")}
+              ${I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </a>
             {siteView && (
               <Theme defaultTheme={siteView.local_site.default_theme} />
