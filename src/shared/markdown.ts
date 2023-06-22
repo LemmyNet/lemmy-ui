@@ -14,6 +14,7 @@ import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
+import { instanceLinkRegex } from "./config";
 
 export let Tribute: any;
 
@@ -74,16 +75,6 @@ const html5EmbedConfig = {
 
 function localCommunityLinkParser(md) {
   md.core.ruler.push("replace-text", state => {
-    /**
-     * Accepted formats:
-     * !community@server.com
-     * /c/community@server.com
-     * /m/community@server.com
-     * /u/username@server.com
-     */
-    const pattern =
-      /(\/[c|m|u]\/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|![a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
-
     for (let i = 0; i < state.tokens.length; i++) {
       if (state.tokens[i].type !== "inline") {
         continue;
@@ -92,14 +83,14 @@ function localCommunityLinkParser(md) {
       for (let j = inlineTokens.length - 1; j >= 0; j--) {
         if (
           inlineTokens[j].type === "text" &&
-          pattern.test(inlineTokens[j].content)
+          instanceLinkRegex.test(inlineTokens[j].content)
         ) {
-          const textParts = inlineTokens[j].content.split(pattern);
+          const textParts = inlineTokens[j].content.split(instanceLinkRegex);
           const newTokens: Token[] = [];
 
           for (const part of textParts) {
             let linkClass = "community-link";
-            if (pattern.test(part)) {
+            if (instanceLinkRegex.test(part)) {
               // Rewrite !community@server.com and KBin /m/community@server.com to local urls
               let href;
               if (part.startsWith("!")) {
