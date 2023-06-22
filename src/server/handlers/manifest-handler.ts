@@ -1,4 +1,5 @@
 import { getHttpBaseExternal, getHttpBaseInternal } from "@utils/env";
+import fetch from "cross-fetch";
 import type { Request, Response } from "express";
 import { LemmyHttp } from "lemmy-js-client";
 import { wrapClient } from "../../shared/services/HttpService";

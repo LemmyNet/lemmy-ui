@@ -1,7 +1,12 @@
 import { myAuthRequired, newVote, showScores } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import { futureDaysToUnixTime, hostname, numToSI } from "@utils/helpers";
+import {
+  capitalizeFirstLetter,
+  futureDaysToUnixTime,
+  hostname,
+  numToSI,
+} from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import {
   amAdmin,
@@ -981,7 +986,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               classes={classNames("me-1", { "text-danger": locked })}
               inline
             />
-            {label}
+            {capitalizeFirstLetter(label)}
           </>
         )}
       </button>

@@ -1,6 +1,7 @@
 import { initializeSite, isAuthPath } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
+import fetch from "cross-fetch";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { renderToString } from "inferno-server";
