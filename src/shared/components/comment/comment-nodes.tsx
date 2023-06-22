@@ -1,4 +1,5 @@
 import { colorList } from "@utils/app";
+import { CommentNodeI, CommentViewType } from "@utils/types";
 import classNames from "classnames";
 import { Component } from "inferno";
 import {
@@ -26,7 +27,6 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {

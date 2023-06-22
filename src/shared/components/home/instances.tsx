@@ -1,5 +1,5 @@
 import { setIsoData } from "@utils/app";
-import { RouteDataResponse } from "@utils/types";
+import { InitialFetchRequest, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   GetFederatedInstancesResponse,
@@ -7,7 +7,6 @@ import {
   Instance,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";

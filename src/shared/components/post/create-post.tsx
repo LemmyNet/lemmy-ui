@@ -1,7 +1,12 @@
 import { enableDownvotes, enableNsfw, myAuth, setIsoData } from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
-import { Choice, RouteDataResponse } from "@utils/types";
+import {
+  Choice,
+  InitialFetchRequest,
+  PostFormParams,
+  RouteDataResponse,
+} from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -11,7 +16,6 @@ import {
   GetSiteResponse,
   ListCommunitiesResponse,
 } from "lemmy-js-client";
-import { InitialFetchRequest, PostFormParams } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   HttpService,

@@ -12,7 +12,7 @@ import {
   validURL,
 } from "@utils/helpers";
 import { isImage } from "@utils/media";
-import { Choice } from "@utils/types";
+import { Choice, PostFormParams } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -31,7 +31,6 @@ import {
   trendingFetchLimit,
   webArchiveUrl,
 } from "../../config";
-import { PostFormParams } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";

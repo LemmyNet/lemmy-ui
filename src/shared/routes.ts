@@ -1,3 +1,4 @@
+import { InitialFetchRequest, RouteData } from "@utils/types";
 import { IRouteProps } from "inferno-router/dist/Route";
 import { Communities } from "./components/community/communities";
 import { Community } from "./components/community/community";
@@ -21,7 +22,6 @@ import { CreatePost } from "./components/post/create-post";
 import { Post } from "./components/post/post";
 import { CreatePrivateMessage } from "./components/private_message/create-private-message";
 import { Search } from "./components/search";
-import { InitialFetchRequest, RouteData } from "./interfaces";
 
 interface IRoutePropsWithFetch<T extends RouteData> extends IRouteProps {
   fetchInitialData?(req: InitialFetchRequest): Promise<T>;

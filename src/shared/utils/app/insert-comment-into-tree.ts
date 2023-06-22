@@ -1,6 +1,6 @@
 import { getCommentParentId, searchCommentTree } from "@utils/app";
+import { CommentNodeI } from "@utils/types";
 import { CommentView } from "lemmy-js-client";
-import { CommentNodeI } from "../../interfaces";
 
 export default function insertCommentIntoTree(
   tree: CommentNodeI[],

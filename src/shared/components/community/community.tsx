@@ -22,7 +22,12 @@ import {
   getQueryString,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import {
+  CommentViewType,
+  DataType,
+  InitialFetchRequest,
+  RouteDataResponse,
+} from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -78,11 +83,6 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
-import {
-  CommentViewType,
-  DataType,
-  InitialFetchRequest,
-} from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";

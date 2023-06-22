@@ -21,7 +21,11 @@ import {
 } from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import {
+  InitialFetchRequest,
+  PersonDetailsView,
+  RouteDataResponse,
+} from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -72,7 +76,6 @@ import {
 } from "lemmy-js-client";
 import moment from "moment";
 import { fetchLimit, relTags } from "../../config";
-import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";

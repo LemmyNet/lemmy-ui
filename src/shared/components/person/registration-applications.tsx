@@ -3,7 +3,7 @@ import {
   myAuthRequired,
   setIsoData,
 } from "@utils/app";
-import { RouteDataResponse } from "@utils/types";
+import { InitialFetchRequest, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
@@ -12,7 +12,6 @@ import {
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { fetchLimit } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";

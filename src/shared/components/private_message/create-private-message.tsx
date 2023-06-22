@@ -1,5 +1,5 @@
 import { getRecipientIdFromProps, myAuth, setIsoData } from "@utils/app";
-import { RouteDataResponse } from "@utils/types";
+import { InitialFetchRequest, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   CreatePrivateMessage as CreatePrivateMessageI,
@@ -7,7 +7,6 @@ import {
   GetPersonDetailsResponse,
   GetSiteResponse,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";

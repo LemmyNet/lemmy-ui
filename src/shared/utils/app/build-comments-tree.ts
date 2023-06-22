@@ -1,6 +1,6 @@
 import { getCommentParentId, getDepthFromComment } from "@utils/app";
+import type { CommentNodeI } from "@utils/types";
 import { CommentView } from "lemmy-js-client";
-import { CommentNodeI } from "../../interfaces";
 
 export default function buildCommentsTree(
   comments: CommentView[],

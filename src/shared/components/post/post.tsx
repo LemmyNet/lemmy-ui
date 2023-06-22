@@ -21,7 +21,12 @@ import {
 } from "@utils/browser";
 import { debounce } from "@utils/helpers";
 import { isImage } from "@utils/media";
-import { RouteDataResponse } from "@utils/types";
+import {
+  CommentNodeI,
+  CommentViewType,
+  InitialFetchRequest,
+  RouteDataResponse,
+} from "@utils/types";
 import autosize from "autosize";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import {
@@ -76,11 +81,6 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "../../config";
-import {
-  CommentNodeI,
-  CommentViewType,
-  InitialFetchRequest,
-} from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";

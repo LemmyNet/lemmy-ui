@@ -14,7 +14,7 @@ import {
 } from "@utils/helpers";
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
-import { Choice, RouteDataResponse } from "@utils/types";
+import { Choice, InitialFetchRequest, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -46,7 +46,6 @@ import {
 } from "lemmy-js-client";
 import moment from "moment";
 import { fetchLimit } from "../config";
-import { InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
 import { HttpService, RequestState } from "../services/HttpService";
 import { HtmlTags } from "./common/html-tags";

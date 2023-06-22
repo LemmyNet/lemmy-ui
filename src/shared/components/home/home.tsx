@@ -22,7 +22,12 @@ import {
 } from "@utils/helpers";
 import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import {
+  CommentViewType,
+  DataType,
+  InitialFetchRequest,
+  RouteDataResponse,
+} from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -73,11 +78,6 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags, trendingFetchLimit } from "../../config";
-import {
-  CommentViewType,
-  DataType,
-  InitialFetchRequest,
-} from "../../interfaces";
 import { mdToHtml } from "../../markdown";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";

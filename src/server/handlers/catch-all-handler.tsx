@@ -1,6 +1,11 @@
 import { initializeSite, isAuthPath } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
-import { ErrorPageData } from "@utils/types";
+import {
+  ErrorPageData,
+  InitialFetchRequest,
+  IsoDataOptionalSite,
+  RouteData,
+} from "@utils/types";
 import fetch from "cross-fetch";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
@@ -8,11 +13,6 @@ import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import { App } from "../../shared/components/app/app";
-import {
-  InitialFetchRequest,
-  IsoDataOptionalSite,
-  RouteData,
-} from "../../shared/interfaces";
 import { routes } from "../../shared/routes";
 import {
   FailedRequestState,

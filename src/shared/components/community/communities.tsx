@@ -12,7 +12,7 @@ import {
   numToSI,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import { InitialFetchRequest, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
@@ -21,7 +21,6 @@ import {
   ListCommunitiesResponse,
   ListingType,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";

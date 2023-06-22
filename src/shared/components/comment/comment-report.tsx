@@ -1,4 +1,5 @@
 import { myAuthRequired } from "@utils/app";
+import { CommentNodeI, CommentViewType } from "@utils/types";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -6,7 +7,6 @@ import {
   CommentView,
   ResolveCommentReport,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";

@@ -11,7 +11,11 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
-import { RouteDataResponse } from "@utils/types";
+import {
+  CommentViewType,
+  InitialFetchRequest,
+  RouteDataResponse,
+} from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   AddAdmin,
@@ -59,7 +63,6 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
-import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";

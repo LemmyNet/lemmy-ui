@@ -6,7 +6,7 @@ import {
   setIsoData,
 } from "@utils/app";
 import { amAdmin } from "@utils/roles";
-import { RouteDataResponse } from "@utils/types";
+import { InitialFetchRequest, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommentReportResponse,
@@ -27,7 +27,6 @@ import {
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
 import { fetchLimit } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
 import {
   FirstLoadService,
   HttpService,

@@ -22,7 +22,12 @@ import {
   numToSI,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
-import { Choice, RouteDataResponse } from "@utils/types";
+import {
+  Choice,
+  CommentViewType,
+  InitialFetchRequest,
+  RouteDataResponse,
+} from "@utils/types";
 import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -46,7 +51,6 @@ import {
   SortType,
 } from "lemmy-js-client";
 import { fetchLimit } from "../config";
-import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
 import { HttpService, RequestState } from "../services/HttpService";
 import { CommentNodes } from "./comment/comment-nodes";

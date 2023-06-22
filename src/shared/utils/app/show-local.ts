@@ -1,4 +1,4 @@
-import { IsoData } from "../../interfaces";
+import { IsoData } from "@utils/types";
 
 export default function showLocal(isoData: IsoData): boolean {
   return isoData.site_res.site_view.local_site.federation_enabled;

@@ -1,4 +1,4 @@
-import { VoteType } from "../../interfaces";
+import { VoteType } from "@utils/types";
 
 export default function newVote(voteType: VoteType, myVote?: number): number {
   if (voteType == VoteType.Upvote) {

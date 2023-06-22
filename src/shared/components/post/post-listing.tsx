@@ -18,6 +18,7 @@ import {
   isBanned,
   isMod,
 } from "@utils/roles";
+import { BanType, PostFormParams, PurgeType, VoteType } from "@utils/types";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -44,7 +45,6 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";

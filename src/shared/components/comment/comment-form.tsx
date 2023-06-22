@@ -1,10 +1,10 @@
 import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
+import { CommentNodeI } from "@utils/types";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { CreateComment, EditComment, Language } from "lemmy-js-client";
-import { CommentNodeI } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

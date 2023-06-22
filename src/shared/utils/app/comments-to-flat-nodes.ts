@@ -1,5 +1,5 @@
+import type { CommentNodeI } from "@utils/types";
 import { CommentView } from "lemmy-js-client";
-import { CommentNodeI } from "../../interfaces";
 
 export default function commentsToFlatNodes(
   comments: CommentView[]

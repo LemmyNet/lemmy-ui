@@ -1,9 +1,9 @@
+import { ILemmyConfig, IsoDataOptionalSite } from "@utils/types";
 import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "../../shared/config";
-import { ILemmyConfig, IsoDataOptionalSite } from "../../shared/interfaces";
 import { fetchIconPng } from "./fetch-icon-png";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";

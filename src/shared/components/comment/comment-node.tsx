@@ -15,6 +15,13 @@ import {
   isBanned,
   isMod,
 } from "@utils/roles";
+import {
+  BanType,
+  CommentNodeI,
+  CommentViewType,
+  PurgeType,
+  VoteType,
+} from "@utils/types";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -48,13 +55,6 @@ import {
 } from "lemmy-js-client";
 import moment from "moment";
 import { commentTreeMaxDepth } from "../../config";
-import {
-  BanType,
-  CommentNodeI,
-  CommentViewType,
-  PurgeType,
-  VoteType,
-} from "../../interfaces";
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";

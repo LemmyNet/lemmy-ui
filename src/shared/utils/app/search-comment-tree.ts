@@ -1,4 +1,4 @@
-import { CommentNodeI } from "../../interfaces";
+import { CommentNodeI } from "@utils/types";
 
 export default function searchCommentTree(
   tree: CommentNodeI[],

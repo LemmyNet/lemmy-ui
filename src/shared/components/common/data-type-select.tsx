@@ -1,5 +1,5 @@
+import { DataType } from "@utils/types";
 import { Component, linkEvent } from "inferno";
-import { DataType } from "../../interfaces";
 import { I18NextService } from "../../services";
 
 interface DataTypeSelectProps {

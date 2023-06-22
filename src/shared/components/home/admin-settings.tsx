@@ -5,7 +5,7 @@ import {
   showLocal,
 } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { RouteDataResponse } from "@utils/types";
+import { InitialFetchRequest, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
@@ -18,7 +18,6 @@ import {
   GetSiteResponse,
   PersonView,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
 import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
 import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
