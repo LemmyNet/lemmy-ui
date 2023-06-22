@@ -73,7 +73,7 @@ const html5EmbedConfig = {
   },
 };
 
-function localCommunityLinkParser(md) {
+function localCommunityLinkParser(md: MarkdownIt) {
   md.core.ruler.push("replace-text", state => {
     for (let i = 0; i < state.tokens.length; i++) {
       if (state.tokens[i].type !== "inline") {
@@ -83,42 +83,49 @@ function localCommunityLinkParser(md) {
       for (let j = inlineTokens.length - 1; j >= 0; j--) {
         if (
           inlineTokens[j].type === "text" &&
-          instanceLinkRegex.test(inlineTokens[j].content)
+          new RegExp(instanceLinkRegex).test(inlineTokens[j].content)
         ) {
-          const textParts = inlineTokens[j].content.split(instanceLinkRegex);
+          const text = inlineTokens[j].content;
+          const matches = Array.from(text.matchAll(instanceLinkRegex));
+
+          let lastIndex = 0;
           const newTokens: Token[] = [];
 
-          for (const part of textParts) {
-            let linkClass = "community-link";
-            if (instanceLinkRegex.test(part)) {
-              // Rewrite !community@server.com and KBin /m/community@server.com to local urls
-              let href;
-              if (part.startsWith("!")) {
-                href = "/c/" + part.substring(1);
-              } else if (part.startsWith("/m/")) {
-                href = "/c/" + part.substring(3);
-              } else {
-                href = part;
-                if (part.startsWith("/u/")) {
-                  linkClass = "user-link";
-                }
-              }
-
-              const linkOpenToken = new state.Token("link_open", "a", 1);
-              linkOpenToken.attrs = [
-                ["href", href],
-                ["class", linkClass],
-              ];
+          for (const match: RegExpMatchArray of matches) {
+            // If there is plain text before the match, add it as a separate token
+            if (match.index !== undefined && match.index > lastIndex) {
               const textToken = new state.Token("text", "", 0);
-              textToken.content = part;
-              const linkCloseToken = new state.Token("link_close", "a", -1);
-
-              newTokens.push(linkOpenToken, textToken, linkCloseToken);
-            } else {
-              const textToken = new state.Token("text", "", 0);
-              textToken.content = part;
+              textToken.content = text.slice(lastIndex, match.index);
               newTokens.push(textToken);
             }
+
+            // Determine the new href
+            let href;
+            if (match[0].startsWith("!")) {
+              href = "/c/" + match[0].substring(1);
+            } else if (match[0].startsWith("/m/")) {
+              href = "/c/" + match[0].substring(3);
+            } else {
+              href = match[0];
+            }
+
+            const linkOpenToken = new state.Token("link_open", "a", 1);
+            linkOpenToken.attrs = [["href", href]];
+            const textToken = new state.Token("text", "", 0);
+            textToken.content = match[0];
+            const linkCloseToken = new state.Token("link_close", "a", -1);
+
+            newTokens.push(linkOpenToken, textToken, linkCloseToken);
+
+            lastIndex =
+              (match.index !== undefined ? match.index : 0) + match[0].length;
+          }
+
+          // If there is plain text after the last match, add it as a separate token
+          if (lastIndex < text.length) {
+            const textToken = new state.Token("text", "", 0);
+            textToken.content = text.slice(lastIndex);
+            newTokens.push(textToken);
           }
 
           // Replace the original token with the new tokens

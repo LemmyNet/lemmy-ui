@@ -33,6 +33,6 @@ export const emDash = "\u2014";
  * /u/username@server.com
  */
 export const instanceLinkRegex =
-  /(\/[c|m|u]\/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|![a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+  /(\/[c|m|u]\/|!)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 
 export const testHost = "0.0.0.0:8536";
