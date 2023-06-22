@@ -79,7 +79,7 @@ function localCommunityLinkParser(md: MarkdownIt) {
       if (state.tokens[i].type !== "inline") {
         continue;
       }
-      const inlineTokens = state.tokens[i].children;
+      const inlineTokens: Token[] = state.tokens[i].children || [];
       for (let j = inlineTokens.length - 1; j >= 0; j--) {
         if (
           inlineTokens[j].type === "text" &&
@@ -93,7 +93,7 @@ function localCommunityLinkParser(md: MarkdownIt) {
 
           let linkClass = "community-link";
 
-          for (const match: RegExpMatchArray of matches) {
+          for (const match of matches) {
             // If there is plain text before the match, add it as a separate token
             if (match.index !== undefined && match.index > lastIndex) {
               const textToken = new state.Token("text", "", 0);
