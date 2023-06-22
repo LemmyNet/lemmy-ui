@@ -8,7 +8,6 @@ import { CustomEmojiView } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
 // import markdown_it_emoji from "markdown-it-emoji/bare";
-import { getHttpBase } from "@utils/env";
 import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_sub from "markdown-it-sub";
@@ -74,73 +73,66 @@ const html5EmbedConfig = {
 };
 
 function localCommunityLinkParser(md) {
-  const pattern =
-    /(!\b[^@\s]+@[^@\s]+\.[^.\s]+\b)|\/c\/([^@\s]+)(@[^@\s]+\.[^.\s]+\b)?/g;
-
   md.core.ruler.push("replace-text", state => {
-    const tokens = state.tokens;
+    /**
+     * Accepted formats:
+     * !community@server.com
+     * /c/community@server.com
+     * /m/community@server.com
+     * /u/username@server.com
+     */
+    const pattern =
+      /(\/[c|m|u]\/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|![a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
 
-    for (let i = 0; i < tokens.length; i++) {
-      if (tokens[i].type === "inline") {
-        const token = tokens[i];
+    for (let i = 0; i < state.tokens.length; i++) {
+      if (state.tokens[i].type !== "inline") {
+        continue;
+      }
+      const inlineTokens = state.tokens[i].children;
+      for (let j = inlineTokens.length - 1; j >= 0; j--) {
+        if (
+          inlineTokens[j].type === "text" &&
+          pattern.test(inlineTokens[j].content)
+        ) {
+          const textParts = inlineTokens[j].content.split(pattern);
+          const newTokens: Token[] = [];
 
-        const originalContent = token.content;
+          for (const part of textParts) {
+            let linkClass = "community-link";
+            if (pattern.test(part)) {
+              // Rewrite !community@server.com and KBin /m/community@server.com to local urls
+              let href;
+              if (part.startsWith("!")) {
+                href = "/c/" + part.substring(1);
+              } else if (part.startsWith("/m/")) {
+                href = "/c/" + part.substring(3);
+              } else {
+                href = part;
+                if (part.startsWith("/u/")) {
+                  linkClass = "user-link";
+                }
+              }
 
-        let lastIndex = 0;
-        originalContent.replace(
-          pattern,
-          (match, fullDomainMatch, name, domainTld, index) => {
-            let url;
-            // ex: !Testing@example.com
-            if (fullDomainMatch) {
-              const [name, domain, tld] = fullDomainMatch
-                .slice(1)
-                .split("@")
-                .join(".")
-                .split(".");
-              url = `${getHttpBase()}/c/${name}@${domain}.${tld}`;
+              const linkOpenToken = new state.Token("link_open", "a", 1);
+              linkOpenToken.attrs = [
+                ["href", href],
+                ["class", linkClass],
+              ];
+              const textToken = new state.Token("text", "", 0);
+              textToken.content = part;
+              const linkCloseToken = new state.Token("link_close", "a", -1);
+
+              newTokens.push(linkOpenToken, textToken, linkCloseToken);
             } else {
-              // ex: /c/Testing or /c/Testing@example.com
-              url = `${getHttpBase()}/c/${name}${domainTld || ""}`;
+              const textToken = new state.Token("text", "", 0);
+              textToken.content = part;
+              newTokens.push(textToken);
             }
-
-            const beforeContent = originalContent.slice(lastIndex, index);
-            lastIndex = index + match.length;
-
-            const beforeToken = new state.Token("text", "", 0);
-            beforeToken.content = beforeContent;
-
-            const linkOpenToken = new state.Token("link_open", "a", 1);
-            linkOpenToken.attrs = [
-              ["href", url],
-              ["class", "community-link"],
-            ];
-
-            const textToken = new state.Token("text", "", 0);
-            textToken.content = match;
-
-            const linkCloseToken = new state.Token("link_close", "a", -1);
-
-            const afterContent = originalContent.slice(lastIndex);
-            const afterToken = new state.Token("text", "", 0);
-            afterToken.content = afterContent;
-
-            tokens.splice(i, 1);
-
-            tokens.splice(
-              i,
-              0,
-              beforeToken,
-              linkOpenToken,
-              textToken,
-              linkCloseToken,
-              afterToken
-            );
-
-            // Update i to skip the newly added tokens
-            i += 4;
           }
-        );
+
+          // Replace the original token with the new tokens
+          inlineTokens.splice(j, 1, ...newTokens);
+        }
       }
     }
   });
