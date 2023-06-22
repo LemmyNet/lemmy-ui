@@ -1,3 +1,4 @@
+import { RequestState } from "../../services/HttpService";
 import { BanType } from "./ban-type";
 import Choice from "./choice";
 import CommentNodeI from "./comment-node-i";
@@ -8,15 +9,10 @@ import ErrorPageData from "./error-page-data";
 import ILemmyConfig from "./i-lemmy-config";
 import InitialFetchRequest from "./initial-fetch-request";
 import IsoData from "./iso-data";
-import { IsoDataOptionalSite } from "./iso-data-optional-site";
 import { PersonDetailsView } from "./person-details-view";
 import PersonTribute from "./person-tribute";
 import PostFormParams from "./post-form-params";
 import { PurgeType } from "./purge-type";
-import { QueryParams } from "./query-params";
-import { RouteData } from "./route-data";
-import { RouteDataResponse } from "./route-data-response";
-import { ThemeColor } from "./theme-color";
 import { VoteType } from "./vote-type";
 import WithComment from "./with-comment";
 
@@ -26,6 +22,46 @@ declare global {
     lemmyConfig?: ILemmyConfig;
   }
 }
+
+// for some reason, this is needed for these specific types to be exported. if
+// imported from a separate .ts file, it throws 'module not found' warning. 🤷‍♂️
+export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
+  IsoData<T>
+> &
+  Pick<IsoData<T>, Exclude<keyof IsoData<T>, "site_res">>;
+
+export type RouteData = Record<string, RequestState<any>>;
+
+export type RouteDataResponse<T extends Record<string, any>> = {
+  [K in keyof T]: RequestState<T[K]>;
+};
+
+export type QueryParams<T extends Record<string, any>> = {
+  [key in keyof T]?: string;
+};
+
+export type ThemeColor =
+  | "primary"
+  | "secondary"
+  | "light"
+  | "dark"
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "blue"
+  | "indigo"
+  | "purple"
+  | "pink"
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "teal"
+  | "cyan"
+  | "white"
+  | "gray"
+  | "gray-dark";
 
 export {
   BanType,
@@ -38,15 +74,10 @@ export {
   ILemmyConfig,
   InitialFetchRequest,
   IsoData,
-  IsoDataOptionalSite,
   PersonDetailsView,
   PersonTribute,
   PostFormParams,
   PurgeType,
-  QueryParams,
-  RouteData,
-  RouteDataResponse,
-  ThemeColor,
   VoteType,
   WithComment,
 };
