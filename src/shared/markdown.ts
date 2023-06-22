@@ -101,7 +101,6 @@ function localInstanceLinkParser(md: MarkdownIt) {
               newTokens.push(textToken);
             }
 
-            // Determine the new href
             let href;
             if (match[0].startsWith("!")) {
               href = "/c/" + match[0].substring(1);
@@ -109,10 +108,9 @@ function localInstanceLinkParser(md: MarkdownIt) {
               href = "/c/" + match[0].substring(3);
             } else {
               href = match[0];
-            }
-
-            if (match[0].startsWith("/u/")) {
-              linkClass = "user-link";
+              if (match[0].startsWith("/u/")) {
+                linkClass = "user-link";
+              }
             }
 
             const linkOpenToken = new state.Token("link_open", "a", 1);
@@ -137,7 +135,6 @@ function localInstanceLinkParser(md: MarkdownIt) {
             newTokens.push(textToken);
           }
 
-          // Replace the original token with the new tokens
           inlineTokens.splice(j, 1, ...newTokens);
         }
       }
@@ -162,7 +159,7 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(localCommunityLinkParser);
+    .use(localInstanceLinkParser);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });
@@ -173,7 +170,7 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(localCommunityLinkParser)
+    .use(localInstanceLinkParser)
     // .use(markdown_it_emoji, {
     //   defs: emojiDefs,
     // })
