@@ -1,10 +1,10 @@
 // import Cookies from 'js-cookie';
 import { isAuthPath } from "@utils/app";
 import { isBrowser } from "@utils/browser";
+import { isHttps } from "@utils/env";
 import IsomorphicCookie from "isomorphic-cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
-import { isHttps } from "../env";
 import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
 
