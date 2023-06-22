@@ -80,7 +80,7 @@ export class MetadataCard extends Component<
               allowFullScreen
               className="post-metadata-iframe"
               src={post.embed_video_url}
-              title={"Embedded Video: " + post.embed_title}
+              title={post.embed_title}
             ></iframe>
           </div>
         )}
