@@ -11,9 +11,8 @@ import {
   GetSiteResponse,
   ListCommunitiesResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   HttpService,
   RequestState,
@@ -143,7 +142,7 @@ export class CreatePost extends Component<
   }
 
   get documentTitle(): string {
-    return `${i18n.t("create_post")} - ${
+    return `${I18NextService.i18n.t("create_post")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
@@ -171,7 +170,7 @@ export class CreatePost extends Component<
               id="createPostForm"
               className="col-12 col-lg-6 offset-lg-3 mb-4"
             >
-              <h1 className="h4">{i18n.t("create_post")}</h1>
+              <h1 className="h4">{I18NextService.i18n.t("create_post")}</h1>
               <PostForm
                 onCreate={this.handlePostCreate}
                 params={locationState}

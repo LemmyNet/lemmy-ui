@@ -12,9 +12,8 @@ import {
   maxUploadImages,
   relTags,
 } from "../../config";
-import { i18n } from "../../i18next";
 import { customEmojisLookup, mdToHtml, setupTribute } from "../../markdown";
-import { HttpService, UserService } from "../../services";
+import { HttpService, I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiPicker } from "./emoji-picker";
@@ -129,7 +128,7 @@ export class MarkdownTextArea extends Component<
     // TODO add these prompts back in at some point
     // <Prompt
     //   when={!this.props.hideNavigationWarnings && this.state.content}
-    //   message={i18n.t("block_leaving")}
+    //   message={I18NextService.i18n.t("block_leaving")}
     // />
     return (
       <form
@@ -161,7 +160,7 @@ export class MarkdownTextArea extends Component<
                     className={`mb-0 ${
                       UserService.Instance.myUserInfo && "pointer"
                     }`}
-                    data-tippy-content={i18n.t("upload_image")}
+                    data-tippy-content={I18NextService.i18n.t("upload_image")}
                   >
                     {this.state.imageUploadStatus ? (
                       <Spinner />
@@ -199,7 +198,7 @@ export class MarkdownTextArea extends Component<
                 <a
                   href={markdownHelpUrl}
                   className="btn btn-sm text-muted font-weight-bold"
-                  title={i18n.t("formatting_help")}
+                  title={I18NextService.i18n.t("formatting_help")}
                   rel={relTags}
                 >
                   <Icon icon="help-circle" classes="icon-inline" />
@@ -241,15 +240,17 @@ export class MarkdownTextArea extends Component<
                       animated
                       value={this.state.imageUploadStatus.uploaded}
                       max={this.state.imageUploadStatus.total}
-                      text={i18n.t("pictures_uploded_progess", {
-                        uploaded: this.state.imageUploadStatus.uploaded,
-                        total: this.state.imageUploadStatus.total,
-                      })}
+                      text={
+                        I18NextService.i18n.t("pictures_uploded_progess", {
+                          uploaded: this.state.imageUploadStatus.uploaded,
+                          total: this.state.imageUploadStatus.total,
+                        }) ?? undefined
+                      }
                     />
                   )}
               </div>
               <label className="visually-hidden" htmlFor={this.id}>
-                {i18n.t("body")}
+                {I18NextService.i18n.t("body")}
               </label>
             </div>
           </div>
@@ -290,7 +291,7 @@ export class MarkdownTextArea extends Component<
                 className="btn btn-sm btn-secondary ms-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
-                {i18n.t("cancel")}
+                {I18NextService.i18n.t("cancel")}
               </button>
             )}
             {this.state.content && (
@@ -300,7 +301,9 @@ export class MarkdownTextArea extends Component<
                 }`}
                 onClick={linkEvent(this, this.handlePreviewToggle)}
               >
-                {this.state.previewMode ? i18n.t("edit") : i18n.t("preview")}
+                {this.state.previewMode
+                  ? I18NextService.i18n.t("edit")
+                  : I18NextService.i18n.t("preview")}
               </button>
             )}
           </div>
@@ -332,8 +335,8 @@ export class MarkdownTextArea extends Component<
     return (
       <button
         className="btn btn-sm text-muted"
-        data-tippy-content={i18n.t(type)}
-        aria-label={i18n.t(type)}
+        data-tippy-content={I18NextService.i18n.t(type)}
+        aria-label={I18NextService.i18n.t(type)}
         onClick={linkEvent(this, handleClick)}
         disabled={this.isDisabled}
       >
@@ -376,7 +379,7 @@ export class MarkdownTextArea extends Component<
 
     if (files.length > maxUploadImages) {
       toast(
-        i18n.t("too_many_images_upload", {
+        I18NextService.i18n.t("too_many_images_upload", {
           count: Number(maxUploadImages),
           formattedCount: numToSI(maxUploadImages),
         }),
@@ -677,7 +680,7 @@ export class MarkdownTextArea extends Component<
 
   handleInsertSpoiler(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    const beforeChars = `\n::: spoiler ${i18n.t("spoiler")}\n`;
+    const beforeChars = `\n::: spoiler ${I18NextService.i18n.t("spoiler")}\n`;
     const afterChars = "\n:::\n";
     i.simpleSurroundBeforeAfter(beforeChars, afterChars);
   }

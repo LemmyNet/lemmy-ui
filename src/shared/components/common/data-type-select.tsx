@@ -1,6 +1,6 @@
 import { Component, linkEvent } from "inferno";
-import { i18n } from "../../i18next";
 import { DataType } from "../../interfaces";
+import { I18NextService } from "../../services";
 
 interface DataTypeSelectProps {
   type_: DataType;
@@ -44,7 +44,7 @@ export class DataTypeSelect extends Component<
             checked={this.state.type_ == DataType.Post}
             onChange={linkEvent(this, this.handleTypeChange)}
           />
-          {i18n.t("posts")}
+          {I18NextService.i18n.t("posts")}
         </label>
         <label
           className={`pointer btn btn-outline-secondary ${
@@ -58,7 +58,7 @@ export class DataTypeSelect extends Component<
             checked={this.state.type_ == DataType.Comment}
             onChange={linkEvent(this, this.handleTypeChange)}
           />
-          {i18n.t("comments")}
+          {I18NextService.i18n.t("comments")}
         </label>
       </div>
     );

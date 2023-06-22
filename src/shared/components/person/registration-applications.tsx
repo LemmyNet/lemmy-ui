@@ -12,10 +12,8 @@ import {
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { fetchLimit } from "../../config";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { HtmlTags } from "../common/html-tags";
@@ -79,7 +77,7 @@ export class RegistrationApplications extends Component<
   get documentTitle(): string {
     const mui = UserService.Instance.myUserInfo;
     return mui
-      ? `@${mui.local_user_view.person.name} ${i18n.t(
+      ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "registration_applications"
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
@@ -102,7 +100,9 @@ export class RegistrationApplications extends Component<
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
               />
-              <h5 className="mb-2">{i18n.t("registration_applications")}</h5>
+              <h5 className="mb-2">
+                {I18NextService.i18n.t("registration_applications")}
+              </h5>
               {this.selects()}
               {this.applicationList(apps)}
               <Paginator
@@ -139,7 +139,7 @@ export class RegistrationApplications extends Component<
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t("unread")}
+          {I18NextService.i18n.t("unread")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -153,7 +153,7 @@ export class RegistrationApplications extends Component<
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t("all")}
+          {I18NextService.i18n.t("all")}
         </label>
       </div>
     );

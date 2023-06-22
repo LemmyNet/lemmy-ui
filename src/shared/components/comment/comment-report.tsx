@@ -6,8 +6,8 @@ import {
   CommentView,
   ResolveCommentReport,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
@@ -43,7 +43,7 @@ export class CommentReport extends Component<
   render() {
     const r = this.props.report;
     const comment = r.comment;
-    const tippyContent = i18n.t(
+    const tippyContent = I18NextService.i18n.t(
       r.comment_report.resolved ? "unresolve_report" : "resolve_report"
     );
 
@@ -102,10 +102,11 @@ export class CommentReport extends Component<
           onEditComment={() => Promise.resolve({ state: "empty" })}
         />
         <div>
-          {i18n.t("reporter")}: <PersonListing person={r.creator} />
+          {I18NextService.i18n.t("reporter")}:{" "}
+          <PersonListing person={r.creator} />
         </div>
         <div>
-          {i18n.t("reason")}: {r.comment_report.reason}
+          {I18NextService.i18n.t("reason")}: {r.comment_report.reason}
         </div>
         {r.resolver && (
           <div>

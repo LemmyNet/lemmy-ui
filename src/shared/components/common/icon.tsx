@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Component } from "inferno";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 
 interface IconProps {
   icon: string;
@@ -61,7 +61,7 @@ export class PurgeWarning extends Component<any, any> {
     return (
       <div className="purge-warning mt-2 alert alert-danger" role="alert">
         <Icon icon="alert-triangle" classes="icon-inline me-2" />
-        {i18n.t("purge_warning")}
+        {I18NextService.i18n.t("purge_warning")}
       </div>
     );
   }
