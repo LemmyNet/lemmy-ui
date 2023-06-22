@@ -2,8 +2,8 @@ import { htmlToText } from "html-to-text";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { httpExternalPath } from "../../env";
-import { i18n } from "../../i18next";
-import { md } from "../../utils";
+import { md } from "../../markdown";
+import { I18NextService } from "../../services";
 
 interface HtmlTagsProps {
   title: string;
@@ -21,7 +21,7 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
 
     return (
       <Helmet title={this.props.title}>
-        <html lang={i18n.resolvedLanguage} />
+        <html lang={I18NextService.i18n.resolvedLanguage} />
 
         {["title", "og:title", "twitter:title"].map(t => (
           <meta key={t} property={t} content={this.props.title} />

@@ -1,11 +1,12 @@
+import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   PrivateMessageReportView,
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { mdToHtml, myAuthRequired } from "../../utils";
+import { mdToHtml } from "../../markdown";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 
@@ -38,28 +39,29 @@ export class PrivateMessageReport extends Component<Props, State> {
   render() {
     const r = this.props.report;
     const pmr = r.private_message_report;
-    const tippyContent = i18n.t(
+    const tippyContent = I18NextService.i18n.t(
       r.private_message_report.resolved ? "unresolve_report" : "resolve_report"
     );
 
     return (
       <div className="private-message-report">
         <div>
-          {i18n.t("creator")}:{" "}
+          {I18NextService.i18n.t("creator")}:{" "}
           <PersonListing person={r.private_message_creator} />
         </div>
         <div>
-          {i18n.t("message")}:
+          {I18NextService.i18n.t("message")}:
           <div
             className="md-div"
             dangerouslySetInnerHTML={mdToHtml(pmr.original_pm_text)}
           />
         </div>
         <div>
-          {i18n.t("reporter")}: <PersonListing person={r.creator} />
+          {I18NextService.i18n.t("reporter")}:{" "}
+          <PersonListing person={r.creator} />
         </div>
         <div>
-          {i18n.t("reason")}: {pmr.reason}
+          {I18NextService.i18n.t("reason")}: {pmr.reason}
         </div>
         {r.resolver && (
           <div>

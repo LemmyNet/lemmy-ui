@@ -1,7 +1,8 @@
+import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { CommentSortType } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { randomStr, relTags, sortingHelpUrl } from "../../utils";
+import { relTags, sortingHelpUrl } from "../../config";
+import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 
 interface CommentSortSelectProps {
@@ -41,21 +42,21 @@ export class CommentSortSelect extends Component<
           value={this.state.sort}
           onChange={linkEvent(this, this.handleSortChange)}
           className="sort-select form-select d-inline-block w-auto me-2 mb-2"
-          aria-label={i18n.t("sort_type")}
+          aria-label={I18NextService.i18n.t("sort_type")}
         >
           <option disabled aria-hidden="true">
-            {i18n.t("sort_type")}
+            {I18NextService.i18n.t("sort_type")}
           </option>
-          <option value={"Hot"}>{i18n.t("hot")}</option>,
-          <option value={"Top"}>{i18n.t("top")}</option>,
-          <option value={"New"}>{i18n.t("new")}</option>
-          <option value={"Old"}>{i18n.t("old")}</option>
+          <option value={"Hot"}>{I18NextService.i18n.t("hot")}</option>,
+          <option value={"Top"}>{I18NextService.i18n.t("top")}</option>,
+          <option value={"New"}>{I18NextService.i18n.t("new")}</option>
+          <option value={"Old"}>{I18NextService.i18n.t("old")}</option>
         </select>
         <a
           className="sort-select-help text-muted"
           href={sortingHelpUrl}
           rel={relTags}
-          title={i18n.t("sorting_help")}
+          title={I18NextService.i18n.t("sorting_help")}
         >
           <Icon icon="help-circle" classes="icon-inline" />
         </a>

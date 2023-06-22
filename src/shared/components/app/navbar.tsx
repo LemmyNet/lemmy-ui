@@ -1,5 +1,6 @@
+import { myAuth, showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { poll } from "@utils/helpers";
+import { numToSI, poll } from "@utils/helpers";
 import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
@@ -9,17 +10,10 @@ import {
   GetUnreadCountResponse,
   GetUnreadRegistrationApplicationCountResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { donateLemmyUrl, updateUnreadCountsInterval } from "../../config";
+import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  donateLemmyUrl,
-  myAuth,
-  numToSI,
-  showAvatars,
-  toast,
-  updateUnreadCountsInterval,
-} from "../../utils";
+import { toast } from "../../toast";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 
@@ -107,7 +101,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <NavLink
                 to="/inbox"
                 className="p-1 nav-link border-0 nav-messages"
-                title={i18n.t("unread_messages", {
+                title={I18NextService.i18n.t("unread_messages", {
                   count: Number(this.state.unreadApplicationCountRes.state),
                   formattedCount: numToSI(this.unreadInboxCount),
                 })}
@@ -126,7 +120,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/reports"
                   className="p-1 nav-link border-0"
-                  title={i18n.t("unread_reports", {
+                  title={I18NextService.i18n.t("unread_reports", {
                     count: Number(this.unreadReportCount),
                     formattedCount: numToSI(this.unreadReportCount),
                   })}
@@ -146,10 +140,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/registration_applications"
                   className="p-1 nav-link border-0"
-                  title={i18n.t("unread_registration_applications", {
-                    count: Number(this.unreadApplicationCount),
-                    formattedCount: numToSI(this.unreadApplicationCount),
-                  })}
+                  title={I18NextService.i18n.t(
+                    "unread_registration_applications",
+                    {
+                      count: Number(this.unreadApplicationCount),
+                      formattedCount: numToSI(this.unreadApplicationCount),
+                    }
+                  )}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="clipboard" />
@@ -167,7 +164,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           className="navbar-toggler border-0 p-1"
           type="button"
           aria-label="menu"
-          data-tippy-content={i18n.t("expand_here")}
+          data-tippy-content={I18NextService.i18n.t("expand_here")}
           data-bs-toggle="collapse"
           data-bs-target="#navbarDropdown"
           aria-controls="navbarDropdown"
@@ -186,10 +183,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <NavLink
                 to="/communities"
                 className="nav-link"
-                title={i18n.t("communities")}
+                title={I18NextService.i18n.t("communities")}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
-                {i18n.t("communities")}
+                {I18NextService.i18n.t("communities")}
               </NavLink>
             </li>
             <li className="nav-item">
@@ -203,10 +200,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   state: { prevPath: this.currentLocation },
                 }}
                 className="nav-link"
-                title={i18n.t("create_post")}
+                title={I18NextService.i18n.t("create_post")}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
-                {i18n.t("create_post")}
+                {I18NextService.i18n.t("create_post")}
               </NavLink>
             </li>
             {this.props.siteRes && canCreateCommunity(this.props.siteRes) && (
@@ -214,22 +211,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/create_community"
                   className="nav-link"
-                  title={i18n.t("create_community")}
+                  title={I18NextService.i18n.t("create_community")}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
-                  {i18n.t("create_community")}
+                  {I18NextService.i18n.t("create_community")}
                 </NavLink>
               </li>
             )}
             <li className="nav-item">
               <a
                 className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                title={i18n.t("support_lemmy")}
+                title={I18NextService.i18n.t("support_lemmy")}
                 href={donateLemmyUrl}
               >
                 <Icon icon="heart" classes="small" />
                 <span className="d-inline ms-1 d-md-none ms-md-0">
-                  {i18n.t("support_lemmy")}
+                  {I18NextService.i18n.t("support_lemmy")}
                 </span>
               </a>
             </li>
@@ -239,12 +236,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <NavLink
                 to="/search"
                 className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                title={i18n.t("search")}
+                title={I18NextService.i18n.t("search")}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
                 <Icon icon="search" />
                 <span className="d-inline ms-1 d-md-none ms-md-0">
-                  {i18n.t("search")}
+                  {I18NextService.i18n.t("search")}
                 </span>
               </NavLink>
             </li>
@@ -253,12 +250,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/admin"
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                  title={i18n.t("admin_settings")}
+                  title={I18NextService.i18n.t("admin_settings")}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="settings" />
                   <span className="d-inline ms-1 d-md-none ms-md-0">
-                    {i18n.t("admin_settings")}
+                    {I18NextService.i18n.t("admin_settings")}
                   </span>
                 </NavLink>
               </li>
@@ -269,7 +266,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <NavLink
                     className="nav-link d-inline-flex align-items-center d-md-inline-block"
                     to="/inbox"
-                    title={i18n.t("unread_messages", {
+                    title={I18NextService.i18n.t("unread_messages", {
                       count: Number(this.unreadInboxCount),
                       formattedCount: numToSI(this.unreadInboxCount),
                     })}
@@ -277,7 +274,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   >
                     <Icon icon="bell" />
                     <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
-                      {i18n.t("unread_messages", {
+                      {I18NextService.i18n.t("unread_messages", {
                         count: Number(this.unreadInboxCount),
                         formattedCount: numToSI(this.unreadInboxCount),
                       })}
@@ -294,7 +291,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <NavLink
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       to="/reports"
-                      title={i18n.t("unread_reports", {
+                      title={I18NextService.i18n.t("unread_reports", {
                         count: Number(this.unreadReportCount),
                         formattedCount: numToSI(this.unreadReportCount),
                       })}
@@ -302,7 +299,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     >
                       <Icon icon="shield" />
                       <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
-                        {i18n.t("unread_reports", {
+                        {I18NextService.i18n.t("unread_reports", {
                           count: Number(this.unreadReportCount),
                           formattedCount: numToSI(this.unreadReportCount),
                         })}
@@ -320,18 +317,26 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <NavLink
                       to="/registration_applications"
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                      title={i18n.t("unread_registration_applications", {
-                        count: Number(this.unreadApplicationCount),
-                        formattedCount: numToSI(this.unreadApplicationCount),
-                      })}
+                      title={I18NextService.i18n.t(
+                        "unread_registration_applications",
+                        {
+                          count: Number(this.unreadApplicationCount),
+                          formattedCount: numToSI(this.unreadApplicationCount),
+                        }
+                      )}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="clipboard" />
                       <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
-                        {i18n.t("unread_registration_applications", {
-                          count: Number(this.unreadApplicationCount),
-                          formattedCount: numToSI(this.unreadApplicationCount),
-                        })}
+                        {I18NextService.i18n.t(
+                          "unread_registration_applications",
+                          {
+                            count: Number(this.unreadApplicationCount),
+                            formattedCount: numToSI(
+                              this.unreadApplicationCount
+                            ),
+                          }
+                        )}
                       </span>
                       {this.unreadApplicationCount > 0 && (
                         <span className="mx-1 badge text-bg-light">
@@ -362,22 +367,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         <NavLink
                           to={`/u/${person.name}`}
                           className="dropdown-item px-2"
-                          title={i18n.t("profile")}
+                          title={I18NextService.i18n.t("profile")}
                           onMouseUp={linkEvent(this, handleCollapseClick)}
                         >
                           <Icon icon="user" classes="me-1" />
-                          {i18n.t("profile")}
+                          {I18NextService.i18n.t("profile")}
                         </NavLink>
                       </li>
                       <li>
                         <NavLink
                           to="/settings"
                           className="dropdown-item px-2"
-                          title={i18n.t("settings")}
+                          title={I18NextService.i18n.t("settings")}
                           onMouseUp={linkEvent(this, handleCollapseClick)}
                         >
                           <Icon icon="settings" classes="me-1" />
-                          {i18n.t("settings")}
+                          {I18NextService.i18n.t("settings")}
                         </NavLink>
                       </li>
                       <li>
@@ -389,7 +394,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           onClick={linkEvent(this, handleLogOut)}
                         >
                           <Icon icon="log-out" classes="me-1" />
-                          {i18n.t("logout")}
+                          {I18NextService.i18n.t("logout")}
                         </button>
                       </li>
                     </ul>
@@ -402,20 +407,20 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <NavLink
                     to="/login"
                     className="nav-link"
-                    title={i18n.t("login")}
+                    title={I18NextService.i18n.t("login")}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
-                    {i18n.t("login")}
+                    {I18NextService.i18n.t("login")}
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink
                     to="/signup"
                     className="nav-link"
-                    title={i18n.t("sign_up")}
+                    title={I18NextService.i18n.t("sign_up")}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
-                    {i18n.t("sign_up")}
+                    {I18NextService.i18n.t("sign_up")}
                   </NavLink>
                 </li>
               </>
@@ -509,7 +514,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (UserService.Instance.myUserInfo) {
       document.addEventListener("DOMContentLoaded", function () {
         if (!Notification) {
-          toast(i18n.t("notifications_error"), "danger");
+          toast(I18NextService.i18n.t("notifications_error"), "danger");
           return;
         }
 
