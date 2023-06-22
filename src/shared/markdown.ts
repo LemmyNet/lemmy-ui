@@ -91,6 +91,8 @@ function localCommunityLinkParser(md: MarkdownIt) {
           let lastIndex = 0;
           const newTokens: Token[] = [];
 
+          let linkClass = "community-link";
+
           for (const match: RegExpMatchArray of matches) {
             // If there is plain text before the match, add it as a separate token
             if (match.index !== undefined && match.index > lastIndex) {
@@ -109,8 +111,15 @@ function localCommunityLinkParser(md: MarkdownIt) {
               href = match[0];
             }
 
+            if (match[0].startsWith("/u/")) {
+              linkClass = "user-link";
+            }
+
             const linkOpenToken = new state.Token("link_open", "a", 1);
-            linkOpenToken.attrs = [["href", href]];
+            linkOpenToken.attrs = [
+              ["href", href],
+              ["class", linkClass],
+            ];
             const textToken = new state.Token("text", "", 0);
             textToken.content = match[0];
             const linkCloseToken = new state.Token("link_close", "a", -1);
