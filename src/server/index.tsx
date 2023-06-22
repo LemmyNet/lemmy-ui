@@ -26,6 +26,7 @@ if (!process.env["LEMMY_UI_DISABLE_CSP"] && !process.env["LEMMY_UI_DEBUG"]) {
 server.get("/.well-known/security.txt", SecurityHandler);
 server.get("/robots.txt", RobotsHandler);
 server.get("/service-worker.js", ServiceWorkerHandler);
+server.get("/manifest.webmanifest", ManifestHandler);
 server.get("/css/themes/:name", ThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);

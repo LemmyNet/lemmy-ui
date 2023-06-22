@@ -1,3 +1,20 @@
+import {
+  fetchUsers,
+  getUpdatedSearchId,
+  myAuth,
+  personToChoice,
+  setIsoData,
+} from "@utils/app";
+import {
+  debounce,
+  getIdFromString,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+} from "@utils/helpers";
+import { amAdmin, amMod } from "@utils/roles";
+import type { QueryParams } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -28,28 +45,10 @@ import {
   Person,
 } from "lemmy-js-client";
 import moment from "moment";
-import { i18n } from "../i18next";
+import { fetchLimit } from "../config";
 import { InitialFetchRequest } from "../interfaces";
-import { FirstLoadService } from "../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../services";
 import { HttpService, RequestState } from "../services/HttpService";
-import {
-  Choice,
-  QueryParams,
-  RouteDataResponse,
-  amAdmin,
-  amMod,
-  debounce,
-  fetchLimit,
-  fetchUsers,
-  getIdFromString,
-  getPageFromString,
-  getQueryParams,
-  getQueryString,
-  getUpdatedSearchId,
-  myAuth,
-  personToChoice,
-  setIsoData,
-} from "../utils";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
@@ -584,16 +583,16 @@ const Filter = ({
   options: Choice[];
   loading: boolean;
 }) => (
-  <div className="col-sm-6 form-group">
-    <label className="col-form-label" htmlFor={`filter-${filterType}`}>
-      {i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
+  <div className="col-sm-6 mb-3">
+    <label className="mb-2" htmlFor={`filter-${filterType}`}>
+      {I18NextService.i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
     </label>
     <SearchableSelect
       id={`filter-${filterType}`}
       value={value ?? 0}
       options={[
         {
-          label: i18n.t("all"),
+          label: I18NextService.i18n.t("all"),
           value: "0",
         },
       ].concat(options)}
@@ -724,8 +723,8 @@ export class Modlog extends Component<
       this.isoData.site_res.admins.some(
         ({ person: { id } }) => id === person.id
       )
-      ? i18n.t("admin")
-      : i18n.t("mod");
+      ? I18NextService.i18n.t("admin")
+      : I18NextService.i18n.t("mod");
   }
 
   get documentTitle(): string {
@@ -742,7 +741,7 @@ export class Modlog extends Component<
     const { actionType, modId, userId } = getModlogQueryParams();
 
     return (
-      <div className="container-lg">
+      <div className="modlog container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -756,7 +755,7 @@ export class Modlog extends Component<
             <Icon
               icon="alert-triangle"
               inline
-              classes="mr-sm-2 mx-auto d-sm-inline d-block"
+              classes="me-sm-2 mx-auto d-sm-inline d-block"
             />
             <T i18nKey="modlog_content_warning" class="d-inline">
               #<strong>#</strong>#
@@ -770,37 +769,43 @@ export class Modlog extends Component<
               >
                 /c/{this.state.communityRes.data.community_view.community.name}{" "}
               </Link>
-              <span>{i18n.t("modlog")}</span>
+              <span>{I18NextService.i18n.t("modlog")}</span>
             </h5>
           )}
-          <div className="form-row">
-            <select
-              value={actionType}
-              onChange={linkEvent(this, this.handleFilterActionChange)}
-              className="custom-select col-sm-6"
-              aria-label="action"
-            >
-              <option disabled aria-hidden="true">
-                {i18n.t("filter_by_action")}
-              </option>
-              <option value={"All"}>{i18n.t("all")}</option>
-              <option value={"ModRemovePost"}>Removing Posts</option>
-              <option value={"ModLockPost"}>Locking Posts</option>
-              <option value={"ModFeaturePost"}>Featuring Posts</option>
-              <option value={"ModRemoveComment"}>Removing Comments</option>
-              <option value={"ModRemoveCommunity"}>Removing Communities</option>
-              <option value={"ModBanFromCommunity"}>
-                Banning From Communities
-              </option>
-              <option value={"ModAddCommunity"}>Adding Mod to Community</option>
-              <option value={"ModTransferCommunity"}>
-                Transferring Communities
-              </option>
-              <option value={"ModAdd"}>Adding Mod to Site</option>
-              <option value={"ModBan"}>Banning From Site</option>
-            </select>
+          <div className="row mb-2">
+            <div className="col-sm-6">
+              <select
+                value={actionType}
+                onChange={linkEvent(this, this.handleFilterActionChange)}
+                className="form-select"
+                aria-label="action"
+              >
+                <option disabled aria-hidden="true">
+                  {I18NextService.i18n.t("filter_by_action")}
+                </option>
+                <option value={"All"}>{I18NextService.i18n.t("all")}</option>
+                <option value={"ModRemovePost"}>Removing Posts</option>
+                <option value={"ModLockPost"}>Locking Posts</option>
+                <option value={"ModFeaturePost"}>Featuring Posts</option>
+                <option value={"ModRemoveComment"}>Removing Comments</option>
+                <option value={"ModRemoveCommunity"}>
+                  Removing Communities
+                </option>
+                <option value={"ModBanFromCommunity"}>
+                  Banning From Communities
+                </option>
+                <option value={"ModAddCommunity"}>
+                  Adding Mod to Community
+                </option>
+                <option value={"ModTransferCommunity"}>
+                  Transferring Communities
+                </option>
+                <option value={"ModAdd"}>Adding Mod to Site</option>
+                <option value={"ModBan"}>Banning From Site</option>
+              </select>
+            </div>
           </div>
-          <div className="form-row mb-2">
+          <div className="row mb-2">
             <Filter
               filterType="user"
               onChange={this.handleUserChange}
@@ -842,9 +847,9 @@ export class Modlog extends Component<
             <table id="modlog_table" className="table table-sm table-hover">
               <thead className="pointer">
                 <tr>
-                  <th> {i18n.t("time")}</th>
-                  <th>{i18n.t("mod")}</th>
-                  <th>{i18n.t("action")}</th>
+                  <th> {I18NextService.i18n.t("time")}</th>
+                  <th>{I18NextService.i18n.t("mod")}</th>
+                  <th>{I18NextService.i18n.t("action")}</th>
                 </tr>
               </thead>
               {this.combined}

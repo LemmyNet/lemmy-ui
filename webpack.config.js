@@ -1,4 +1,5 @@
 const webpack = require("webpack");
+const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
@@ -20,6 +21,10 @@ const base = {
   },
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
+    alias: {
+      "@": path.resolve(__dirname, "src/"),
+      "@utils": path.resolve(__dirname, "src/shared/utils/"),
+    },
   },
   performance: {
     hints: false,

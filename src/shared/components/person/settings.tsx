@@ -1,3 +1,20 @@
+import {
+  communityToChoice,
+  fetchCommunities,
+  fetchThemeList,
+  fetchUsers,
+  myAuth,
+  myAuthRequired,
+  personToChoice,
+  setIsoData,
+  setTheme,
+  showLocal,
+  updateCommunityBlock,
+  updatePersonBlock,
+} from "@utils/app";
+import { capitalizeFirstLetter, debounce } from "@utils/helpers";
+import { Choice } from "@utils/types";
+import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
@@ -11,31 +28,12 @@ import {
   PersonBlockView,
   SortType,
 } from "lemmy-js-client";
-import { i18n, languages } from "../../i18next";
+import { elementUrl, emDash, relTags } from "../../config";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  Choice,
-  capitalizeFirstLetter,
-  communityToChoice,
-  debounce,
-  elementUrl,
-  emDash,
-  fetchCommunities,
-  fetchThemeList,
-  fetchUsers,
-  myAuth,
-  myAuthRequired,
-  personToChoice,
-  relTags,
-  setIsoData,
-  setTheme,
-  setupTippy,
-  showLocal,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { I18NextService, languages } from "../../services/I18NextService";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -110,12 +108,12 @@ const Filter = ({
   onChange: (choice: Choice) => void;
   loading: boolean;
 }) => (
-  <div className="form-group row">
+  <div className="mb-3 row">
     <label
       className="col-md-4 col-form-label"
       htmlFor={`block-${filterType}-filter`}
     >
-      {i18n.t(`block_${filterType}` as NoOptionI18nKeys)}
+      {I18NextService.i18n.t(`block_${filterType}` as NoOptionI18nKeys)}
     </label>
     <div className="col-md-8">
       <SearchableSelect
@@ -235,12 +233,12 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   get documentTitle(): string {
-    return i18n.t("settings");
+    return I18NextService.i18n.t("settings");
   }
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="person-settings container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -251,12 +249,12 @@ export class Settings extends Component<any, SettingsState> {
           tabs={[
             {
               key: "settings",
-              label: i18n.t("settings"),
+              label: I18NextService.i18n.t("settings"),
               getNode: this.userSettings,
             },
             {
               key: "blocks",
-              label: i18n.t("blocks"),
+              label: I18NextService.i18n.t("blocks"),
               getNode: this.blockCards,
             },
           ]}
@@ -265,34 +263,50 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  userSettings() {
+  userSettings(isSelected) {
     return (
-      <div className="row">
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
+      <div
+        className={classNames("tab-pane show", {
+          active: isSelected,
+        })}
+        role="tabpanel"
+        id="settings-tab-pane"
+      >
+        <div className="row">
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
+            </div>
           </div>
-        </div>
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.changePasswordHtmlForm()}</div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.changePasswordHtmlForm()}</div>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  blockCards() {
+  blockCards(isSelected) {
     return (
-      <div className="row">
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.blockUserCard()}</div>
+      <div
+        className={classNames("tab-pane", {
+          active: isSelected,
+        })}
+        role="tabpanel"
+        id="blocks-tab-pane"
+      >
+        <div className="row">
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockUserCard()}</div>
+            </div>
           </div>
-        </div>
-        <div className="col-12 col-md-6">
-          <div className="card border-secondary mb-3">
-            <div className="card-body">{this.blockCommunityCard()}</div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockCommunityCard()}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -302,11 +316,11 @@ export class Settings extends Component<any, SettingsState> {
   changePasswordHtmlForm() {
     return (
       <>
-        <h5>{i18n.t("change_password")}</h5>
+        <h5>{I18NextService.i18n.t("change_password")}</h5>
         <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-5 col-form-label" htmlFor="user-password">
-              {i18n.t("new_password")}
+              {I18NextService.i18n.t("new_password")}
             </label>
             <div className="col-sm-7">
               <input
@@ -320,12 +334,12 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label
               className="col-sm-5 col-form-label"
               htmlFor="user-verify-password"
             >
-              {i18n.t("verify_password")}
+              {I18NextService.i18n.t("verify_password")}
             </label>
             <div className="col-sm-7">
               <input
@@ -339,12 +353,12 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label
               className="col-sm-5 col-form-label"
               htmlFor="user-old-password"
             >
-              {i18n.t("old_password")}
+              {I18NextService.i18n.t("old_password")}
             </label>
             <div className="col-sm-7">
               <input
@@ -358,12 +372,15 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group">
-            <button type="submit" className="btn btn-block btn-secondary mr-4">
+          <div className="input-group mb-3">
+            <button
+              type="submit"
+              className="btn d-block btn-secondary me-4 w-100"
+            >
               {this.state.changePasswordRes.state === "loading" ? (
                 <Spinner />
               ) : (
-                capitalizeFirstLetter(i18n.t("save"))
+                capitalizeFirstLetter(I18NextService.i18n.t("save"))
               )}
             </button>
           </div>
@@ -392,7 +409,7 @@ export class Settings extends Component<any, SettingsState> {
   blockedUsersList() {
     return (
       <>
-        <h5>{i18n.t("blocked_users")}</h5>
+        <h5>{I18NextService.i18n.t("blocked_users")}</h5>
         <ul className="list-unstyled mb-0">
           {this.state.personBlocks.map(pb => (
             <li key={pb.target.id}>
@@ -404,7 +421,7 @@ export class Settings extends Component<any, SettingsState> {
                     { ctx: this, recipientId: pb.target.id },
                     this.handleUnblockPerson
                   )}
-                  data-tippy-content={i18n.t("unblock_user")}
+                  data-tippy-content={I18NextService.i18n.t("unblock_user")}
                 >
                   <Icon icon="x" classes="icon-inline" />
                 </button>
@@ -436,7 +453,7 @@ export class Settings extends Component<any, SettingsState> {
   blockedCommunitiesList() {
     return (
       <>
-        <h5>{i18n.t("blocked_communities")}</h5>
+        <h5>{I18NextService.i18n.t("blocked_communities")}</h5>
         <ul className="list-unstyled mb-0">
           {this.state.communityBlocks.map(cb => (
             <li key={cb.community.id}>
@@ -448,7 +465,9 @@ export class Settings extends Component<any, SettingsState> {
                     { ctx: this, communityId: cb.community.id },
                     this.handleUnblockCommunity
                   )}
-                  data-tippy-content={i18n.t("unblock_community")}
+                  data-tippy-content={I18NextService.i18n.t(
+                    "unblock_community"
+                  )}
                 >
                   <Icon icon="x" classes="icon-inline" />
                 </button>
@@ -465,18 +484,18 @@ export class Settings extends Component<any, SettingsState> {
 
     return (
       <>
-        <h5>{i18n.t("settings")}</h5>
+        <h5>{I18NextService.i18n.t("settings")}</h5>
         <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
-          <div className="form-group row">
-            <label className="col-sm-5 col-form-label" htmlFor="display-name">
-              {i18n.t("display_name")}
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="display-name">
+              {I18NextService.i18n.t("display_name")}
             </label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <input
                 id="display-name"
                 type="text"
                 className="form-control"
-                placeholder={i18n.t("optional")}
+                placeholder={I18NextService.i18n.t("optional")}
                 value={this.state.saveUserSettingsForm.display_name}
                 onInput={linkEvent(this, this.handleDisplayNameChange)}
                 pattern="^(?!@)(.+)$"
@@ -484,9 +503,9 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-bio">
-              {i18n.t("bio")}
+              {I18NextService.i18n.t("bio")}
             </label>
             <div className="col-sm-9">
               <MarkdownTextArea
@@ -499,29 +518,29 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-email">
-              {i18n.t("email")}
+              {I18NextService.i18n.t("email")}
             </label>
             <div className="col-sm-9">
               <input
                 type="email"
                 id="user-email"
                 className="form-control"
-                placeholder={i18n.t("optional")}
+                placeholder={I18NextService.i18n.t("optional")}
                 value={this.state.saveUserSettingsForm.email}
                 onInput={linkEvent(this, this.handleEmailChange)}
                 minLength={3}
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-5 col-form-label" htmlFor="matrix-user-id">
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="matrix-user-id">
               <a href={elementUrl} rel={relTags}>
-                {i18n.t("matrix_user_id")}
+                {I18NextService.i18n.t("matrix_user_id")}
               </a>
             </label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <input
                 id="matrix-user-id"
                 type="text"
@@ -533,11 +552,13 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3">{i18n.t("avatar")}</label>
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("avatar")}
+            </label>
             <div className="col-sm-9">
               <ImageUploadForm
-                uploadTitle={i18n.t("upload_avatar")}
+                uploadTitle={I18NextService.i18n.t("upload_avatar")}
                 imageSrc={this.state.saveUserSettingsForm.avatar}
                 onUpload={this.handleAvatarUpload}
                 onRemove={this.handleAvatarRemove}
@@ -545,32 +566,36 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3">{i18n.t("banner")}</label>
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("banner")}
+            </label>
             <div className="col-sm-9">
               <ImageUploadForm
-                uploadTitle={i18n.t("upload_banner")}
+                uploadTitle={I18NextService.i18n.t("upload_banner")}
                 imageSrc={this.state.saveUserSettingsForm.banner}
                 onUpload={this.handleBannerUpload}
                 onRemove={this.handleBannerRemove}
               />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3" htmlFor="user-language">
-              {i18n.t("interface_language")}
+          <div className="mb-3 row">
+            <label className="col-sm-3 form-label" htmlFor="user-language">
+              {I18NextService.i18n.t("interface_language")}
             </label>
             <div className="col-sm-9">
               <select
                 id="user-language"
                 value={this.state.saveUserSettingsForm.interface_language}
                 onChange={linkEvent(this, this.handleInterfaceLangChange)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
-                  {i18n.t("interface_language")}
+                  {I18NextService.i18n.t("interface_language")}
                 </option>
-                <option value="browser">{i18n.t("browser_default")}</option>
+                <option value="browser">
+                  {I18NextService.i18n.t("browser_default")}
+                </option>
                 <option disabled aria-hidden="true">
                   ──
                 </option>
@@ -593,21 +618,23 @@ export class Settings extends Component<any, SettingsState> {
             showSite
             onChange={this.handleDiscussionLanguageChange}
           />
-          <div className="form-group row">
-            <label className="col-sm-3" htmlFor="user-theme">
-              {i18n.t("theme")}
+          <div className="mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="user-theme">
+              {I18NextService.i18n.t("theme")}
             </label>
             <div className="col-sm-9">
               <select
                 id="user-theme"
                 value={this.state.saveUserSettingsForm.theme}
                 onChange={linkEvent(this, this.handleThemeChange)}
-                className="custom-select w-auto"
+                className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
-                  {i18n.t("theme")}
+                  {I18NextService.i18n.t("theme")}
                 </option>
-                <option value="browser">{i18n.t("browser_default")}</option>
+                <option value="browser">
+                  {I18NextService.i18n.t("browser_default")}
+                </option>
                 {this.state.themeList.map(theme => (
                   <option key={theme} value={theme}>
                     {theme}
@@ -616,8 +643,10 @@ export class Settings extends Component<any, SettingsState> {
               </select>
             </div>
           </div>
-          <form className="form-group row">
-            <label className="col-sm-3">{i18n.t("type")}</label>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("type")}
+            </label>
             <div className="col-sm-9">
               <ListingTypeSelect
                 type_={
@@ -630,8 +659,10 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </form>
-          <form className="form-group row">
-            <label className="col-sm-3">{i18n.t("sort_type")}</label>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("sort_type")}
+            </label>
             <div className="col-sm-9">
               <SortSelect
                 sort={
@@ -641,7 +672,7 @@ export class Settings extends Component<any, SettingsState> {
               />
             </div>
           </form>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -651,11 +682,11 @@ export class Settings extends Component<any, SettingsState> {
                 onChange={linkEvent(this, this.handleShowNsfwChange)}
               />
               <label className="form-check-label" htmlFor="user-show-nsfw">
-                {i18n.t("show_nsfw")}
+                {I18NextService.i18n.t("show_nsfw")}
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -665,11 +696,11 @@ export class Settings extends Component<any, SettingsState> {
                 onChange={linkEvent(this, this.handleShowScoresChange)}
               />
               <label className="form-check-label" htmlFor="user-show-scores">
-                {i18n.t("show_scores")}
+                {I18NextService.i18n.t("show_scores")}
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -679,11 +710,11 @@ export class Settings extends Component<any, SettingsState> {
                 onChange={linkEvent(this, this.handleShowAvatarsChange)}
               />
               <label className="form-check-label" htmlFor="user-show-avatars">
-                {i18n.t("show_avatars")}
+                {I18NextService.i18n.t("show_avatars")}
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -693,11 +724,11 @@ export class Settings extends Component<any, SettingsState> {
                 onChange={linkEvent(this, this.handleBotAccount)}
               />
               <label className="form-check-label" htmlFor="user-bot-account">
-                {i18n.t("bot_account")}
+                {I18NextService.i18n.t("bot_account")}
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -710,11 +741,11 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-label"
                 htmlFor="user-show-bot-accounts"
               >
-                {i18n.t("show_bot_accounts")}
+                {I18NextService.i18n.t("show_bot_accounts")}
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -727,11 +758,11 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-label"
                 htmlFor="user-show-read-posts"
               >
-                {i18n.t("show_read_posts")}
+                {I18NextService.i18n.t("show_read_posts")}
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -744,11 +775,11 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-label"
                 htmlFor="user-show-new-post-notifs"
               >
-                {i18n.t("show_new_post_notifs")}
+                {I18NextService.i18n.t("show_new_post_notifs")}
               </label>
             </div>
           </div>
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -767,35 +798,35 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-label"
                 htmlFor="user-send-notifications-to-email"
               >
-                {i18n.t("send_notifications_to_email")}
+                {I18NextService.i18n.t("send_notifications_to_email")}
               </label>
             </div>
           </div>
           {this.totpSection()}
-          <div className="form-group">
-            <button type="submit" className="btn btn-block btn-secondary mr-4">
+          <div className="input-group mb-3">
+            <button type="submit" className="btn d-block btn-secondary me-4">
               {this.state.saveRes.state === "loading" ? (
                 <Spinner />
               ) : (
-                capitalizeFirstLetter(i18n.t("save"))
+                capitalizeFirstLetter(I18NextService.i18n.t("save"))
               )}
             </button>
           </div>
           <hr />
-          <div className="form-group">
+          <div className="input-group mb-3">
             <button
-              className="btn btn-block btn-danger"
+              className="btn d-block btn-danger"
               onClick={linkEvent(
                 this,
                 this.handleDeleteAccountShowConfirmToggle
               )}
             >
-              {i18n.t("delete_account")}
+              {I18NextService.i18n.t("delete_account")}
             </button>
             {this.state.deleteAccountShowConfirm && (
               <>
                 <div className="my-2 alert alert-danger" role="alert">
-                  {i18n.t("delete_account_confirm")}
+                  {I18NextService.i18n.t("delete_account_confirm")}
                 </div>
                 <input
                   type="password"
@@ -809,14 +840,14 @@ export class Settings extends Component<any, SettingsState> {
                   className="form-control my-2"
                 />
                 <button
-                  className="btn btn-danger mr-4"
+                  className="btn btn-danger me-4"
                   disabled={!this.state.deleteAccountForm.password}
                   onClick={linkEvent(this, this.handleDeleteAccount)}
                 >
                   {this.state.deleteAccountRes.state === "loading" ? (
                     <Spinner />
                   ) : (
-                    capitalizeFirstLetter(i18n.t("delete"))
+                    capitalizeFirstLetter(I18NextService.i18n.t("delete"))
                   )}
                 </button>
                 <button
@@ -826,7 +857,7 @@ export class Settings extends Component<any, SettingsState> {
                     this.handleDeleteAccountShowConfirmToggle
                   )}
                 >
-                  {i18n.t("cancel")}
+                  {I18NextService.i18n.t("cancel")}
                 </button>
               </>
             )}
@@ -843,7 +874,7 @@ export class Settings extends Component<any, SettingsState> {
     return (
       <>
         {!totpUrl && (
-          <div className="form-group">
+          <div className="input-group mb-3">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -853,7 +884,7 @@ export class Settings extends Component<any, SettingsState> {
                 onChange={linkEvent(this, this.handleGenerateTotp)}
               />
               <label className="form-check-label" htmlFor="user-generate-totp">
-                {i18n.t("set_up_two_factor")}
+                {I18NextService.i18n.t("set_up_two_factor")}
               </label>
             </div>
           </div>
@@ -863,10 +894,10 @@ export class Settings extends Component<any, SettingsState> {
           <>
             <div>
               <a className="btn btn-secondary mb-2" href={totpUrl}>
-                {i18n.t("two_factor_link")}
+                {I18NextService.i18n.t("two_factor_link")}
               </a>
             </div>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <div className="form-check">
                 <input
                   className="form-check-input"
@@ -878,7 +909,7 @@ export class Settings extends Component<any, SettingsState> {
                   onChange={linkEvent(this, this.handleRemoveTotp)}
                 />
                 <label className="form-check-label" htmlFor="user-remove-totp">
-                  {i18n.t("remove_two_factor")}
+                  {I18NextService.i18n.t("remove_two_factor")}
                 </label>
               </div>
             </div>
@@ -1027,7 +1058,7 @@ export class Settings extends Component<any, SettingsState> {
     // Coerce false to undefined here, so it won't generate it.
     const checked: boolean | undefined = event.target.checked || undefined;
     if (checked) {
-      toast(i18n.t("two_factor_setup_instructions"));
+      toast(I18NextService.i18n.t("two_factor_setup_instructions"));
     }
     i.setState(s => ((s.saveUserSettingsForm.generate_totp_2fa = checked), s));
   }
@@ -1055,7 +1086,9 @@ export class Settings extends Component<any, SettingsState> {
 
   handleInterfaceLangChange(i: Settings, event: any) {
     const newLang = event.target.value ?? "browser";
-    i18n.changeLanguage(newLang === "browser" ? navigator.languages : newLang);
+    I18NextService.i18n.changeLanguage(
+      newLang === "browser" ? navigator.languages : newLang
+    );
 
     i.setState(
       s => ((s.saveUserSettingsForm.interface_language = event.target.value), s)
@@ -1145,7 +1178,7 @@ export class Settings extends Component<any, SettingsState> {
     if (saveRes.state === "success") {
       UserService.Instance.login(saveRes.data);
       location.reload();
-      toast(i18n.t("saved"));
+      toast(I18NextService.i18n.t("saved"));
       window.scrollTo(0, 0);
     }
 
@@ -1168,7 +1201,7 @@ export class Settings extends Component<any, SettingsState> {
       if (changePasswordRes.state === "success") {
         UserService.Instance.login(changePasswordRes.data);
         window.scrollTo(0, 0);
-        toast(i18n.t("password_changed"));
+        toast(I18NextService.i18n.t("password_changed"));
       }
 
       i.setState({ changePasswordRes });

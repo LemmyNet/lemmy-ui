@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { getEmojiMart } from "../../utils";
+import { getEmojiMart } from "../../markdown";
 
 interface EmojiMartProps {
   onEmojiClick?(val: any): any;

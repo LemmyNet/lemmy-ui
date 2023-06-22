@@ -1,3 +1,12 @@
+import {
+  fetchThemeList,
+  myAuthRequired,
+  setIsoData,
+  showLocal,
+} from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
+import { RouteDataResponse } from "@utils/types";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
@@ -9,21 +18,11 @@ import {
   GetSiteResponse,
   PersonView,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
+import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  capitalizeFirstLetter,
-  fetchThemeList,
-  myAuthRequired,
-  removeFromEmojiDataModel,
-  setIsoData,
-  showLocal,
-  toast,
-  updateEmojiDataModel,
-} from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
@@ -108,7 +107,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("admin_settings")} - ${
+    return `${I18NextService.i18n.t("admin_settings")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
@@ -120,7 +119,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         : undefined;
 
     return (
-      <div className="container-lg">
+      <div className="admin-settings container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -129,23 +128,31 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
           tabs={[
             {
               key: "site",
-              label: i18n.t("site"),
-              getNode: () => (
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <SiteForm
-                      showLocal={showLocal(this.isoData)}
-                      allowedInstances={federationData?.allowed}
-                      blockedInstances={federationData?.blocked}
-                      onSaveSite={this.handleEditSite}
-                      siteRes={this.state.siteRes}
-                      themeList={this.state.themeList}
-                      loading={this.state.loading}
-                    />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    {this.admins()}
-                    {this.bannedUsers()}
+              label: I18NextService.i18n.t("site"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane show", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="site-tab-pane"
+                >
+                  <div className="row">
+                    <div className="col-12 col-md-6">
+                      <SiteForm
+                        showLocal={showLocal(this.isoData)}
+                        allowedInstances={federationData?.allowed}
+                        blockedInstances={federationData?.blocked}
+                        onSaveSite={this.handleEditSite}
+                        siteRes={this.state.siteRes}
+                        themeList={this.state.themeList}
+                        loading={this.state.loading}
+                      />
+                    </div>
+                    <div className="col-12 col-md-6">
+                      {this.admins()}
+                      {this.bannedUsers()}
+                    </div>
                   </div>
                 </div>
               ),
@@ -153,23 +160,18 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             {
               key: "rate_limiting",
               label: "Rate Limiting",
-              getNode: () => (
-                <RateLimitForm
-                  rateLimits={
-                    this.state.siteRes.site_view.local_site_rate_limit
-                  }
-                  onSaveSite={this.handleEditSite}
-                  loading={this.state.loading}
-                />
-              ),
-            },
-            {
-              key: "taglines",
-              label: i18n.t("taglines"),
-              getNode: () => (
-                <div className="row">
-                  <TaglineForm
-                    taglines={this.state.siteRes.taglines}
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="rate_limiting-tab-pane"
+                >
+                  <RateLimitForm
+                    rateLimits={
+                      this.state.siteRes.site_view.local_site_rate_limit
+                    }
                     onSaveSite={this.handleEditSite}
                     loading={this.state.loading}
                   />
@@ -177,16 +179,45 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
               ),
             },
             {
+              key: "taglines",
+              label: I18NextService.i18n.t("taglines"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="taglines-tab-pane"
+                >
+                  <div className="row">
+                    <TaglineForm
+                      taglines={this.state.siteRes.taglines}
+                      onSaveSite={this.handleEditSite}
+                      loading={this.state.loading}
+                    />
+                  </div>
+                </div>
+              ),
+            },
+            {
               key: "emojis",
-              label: i18n.t("emojis"),
-              getNode: () => (
-                <div className="row">
-                  <EmojiForm
-                    onCreate={this.handleCreateEmoji}
-                    onDelete={this.handleDeleteEmoji}
-                    onEdit={this.handleEditEmoji}
-                    loading={this.state.emojiLoading}
-                  />
+              label: I18NextService.i18n.t("emojis"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="emojis-tab-pane"
+                >
+                  <div className="row">
+                    <EmojiForm
+                      onCreate={this.handleCreateEmoji}
+                      onDelete={this.handleDeleteEmoji}
+                      onEdit={this.handleEditEmoji}
+                      loading={this.state.emojiLoading}
+                    />
+                  </div>
                 </div>
               ),
             },
@@ -221,7 +252,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   admins() {
     return (
       <>
-        <h5>{capitalizeFirstLetter(i18n.t("admins"))}</h5>
+        <h5>{capitalizeFirstLetter(I18NextService.i18n.t("admins"))}</h5>
         <ul className="list-unstyled">
           {this.state.siteRes.admins.map(admin => (
             <li key={admin.person.id} className="list-inline-item">
@@ -243,7 +274,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         {this.state.leaveAdminTeamRes.state == "loading" ? (
           <Spinner />
         ) : (
-          i18n.t("leave_admin_team")
+          I18NextService.i18n.t("leave_admin_team")
         )}
       </button>
     );
@@ -261,7 +292,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         const bans = this.state.bannedRes.data.banned;
         return (
           <>
-            <h5>{i18n.t("banned_users")}</h5>
+            <h5>{I18NextService.i18n.t("banned_users")}</h5>
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">
@@ -287,7 +318,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         s.siteRes.taglines = editRes.data.taglines;
         return s;
       });
-      toast(i18n.t("site_saved"));
+      toast(I18NextService.i18n.t("site_saved"));
     }
 
     this.setState({ loading: false });
@@ -308,7 +339,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     });
 
     if (this.state.leaveAdminTeamRes.state === "success") {
-      toast(i18n.t("left_admin_team"));
+      toast(I18NextService.i18n.t("left_admin_team"));
       this.context.router.history.replace("/");
     }
   }

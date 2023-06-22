@@ -1,9 +1,9 @@
+import { selectableLanguages } from "@utils/app";
+import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services/UserService";
-import { randomStr, selectableLanguages } from "../../utils";
+import { I18NextService, UserService } from "../../services";
 import { Icon } from "./icon";
 
 interface LanguageSelectProps {
@@ -49,13 +49,13 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     return this.props.iconVersion ? (
       this.selectBtn
     ) : (
-      <div>
+      <div className="language-select">
         {this.props.multiple && this.props.showLanguageWarning && (
           <div className="alert alert-warning" role="alert">
-            {i18n.t("undetermined_language_warning")}
+            {I18NextService.i18n.t("undetermined_language_warning")}
           </div>
         )}
-        <div className="form-group row">
+        <div className="mb-3 row">
           <label
             className={classNames(
               "col-form-label",
@@ -63,24 +63,23 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             )}
             htmlFor={this.id}
           >
-            {i18n.t(this.props.multiple ? "language_plural" : "language")}
+            {I18NextService.i18n.t(
+              this.props.multiple ? "language_plural" : "language"
+            )}
           </label>
           <div
-            className={classNames(
-              "input-group",
-              `col-sm-${this.props.multiple ? 9 : 10}`
-            )}
+            className={classNames(`col-sm-${this.props.multiple ? 9 : 10}`, {
+              "input-group": this.props.multiple,
+            })}
           >
             {this.selectBtn}
             {this.props.multiple && (
-              <div className="input-group-append">
-                <button
-                  className="input-group-text"
-                  onClick={linkEvent(this, this.handleDeselectAll)}
-                >
-                  <Icon icon="x" />
-                </button>
-              </div>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={linkEvent(this, this.handleDeselectAll)}
+              >
+                <Icon icon="x" />
+              </button>
             )}
           </div>
         </div>
@@ -100,18 +99,18 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
 
     return (
       <select
-        className={classNames("lang-select-action custom-select w-auto", {
-          "form-control": !this.props.iconVersion,
+        className={classNames("form-select w-auto", {
+          "d-inline-block": !this.props.iconVersion,
         })}
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
-        aria-label={i18n.t("language_select_placeholder")}
+        aria-label={I18NextService.i18n.t("language_select_placeholder")}
         multiple={this.props.multiple}
         disabled={this.props.disabled}
       >
         {!this.props.multiple && (
           <option selected disabled hidden>
-            {i18n.t("language_select_placeholder")}
+            {I18NextService.i18n.t("language_select_placeholder")}
           </option>
         )}
         {filteredLangs.map(l => (

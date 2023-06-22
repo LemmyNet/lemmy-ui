@@ -21,7 +21,7 @@
 }
 
 .upvote:hover {
-  color: var(--info);
+  color: var(--bs-info);
 }
 
 .upvote {
@@ -29,14 +29,14 @@
 }
 
 .downvote:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .downvote {
   margin-top: -10px;
 }
 
-.custom-select {
+.form-select {
   -moz-appearance: none;
 }
 
@@ -85,7 +85,7 @@
 }
 
 .post-title a:visited {
-  color: var(--gray) !important;
+  color: var(--bs-gray) !important;
 }
 
 .icon {
@@ -175,7 +175,7 @@
 }
 
 blockquote {
-  border-left: 2px solid var(--secondary);
+  border-left: 2px solid var(--bs-secondary);
   margin: 0.5em 5px;
   padding: 0.1em 5px;
 }
@@ -214,7 +214,7 @@ blockquote {
 }
 
 hr {
-  border-top: 1px solid var(--light);
+  border-top: 1px solid var(--bs-light);
 }
 
 .emoji {
@@ -264,6 +264,14 @@ hr {
   transform: scale(1.2);
   -webkit-transform: scale(1.2);
   -ms-transform: scale(1.2);
+}
+
+/**
+ * TODO: Fix this in markup rather than this overly specific selector:
+ * https://getbootstrap.com/docs/5.3/components/buttons/#block-buttons
+ */
+.btn.d-block + .btn.d-block {
+  margin-top: 0.5rem;
 }
 
 .mini-overlay {
@@ -363,7 +371,7 @@ br.big {
   margin-top: 2px;
   padding: 0;
   list-style: none;
-  background: var(--light);
+  background: var(--bs-light);
 }
 
 .tribute-container li {
@@ -372,7 +380,7 @@ br.big {
 }
 
 .tribute-container li.highlight {
-  background: var(--primary);
+  background: var(--bs-primary);
 }
 
 .tribute-container li span {
@@ -407,7 +415,7 @@ br.big {
   -webkit-box-orient: vertical;
 }
 
-.emoji-picker {
+#emoji-picker {
   width: 100%;
 }
 

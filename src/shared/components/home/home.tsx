@@ -1,5 +1,29 @@
+import {
+  commentsToFlatNodes,
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  getDataTypeString,
+  myAuth,
+  postToCommentSortType,
+  setIsoData,
+  showLocal,
+  updatePersonBlock,
+} from "@utils/app";
+import {
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  getRandomFromList,
+} from "@utils/helpers";
+import { canCreateCommunity } from "@utils/roles";
+import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent, MouseEventHandler } from "inferno";
+import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -47,45 +71,17 @@ import {
   SortType,
   TransferCommunity,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { fetchLimit, relTags, trendingFetchLimit } from "../../config";
 import {
   CommentViewType,
   DataType,
   InitialFetchRequest,
 } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { mdToHtml } from "../../markdown";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  canCreateCommunity,
-  commentsToFlatNodes,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  fetchLimit,
-  getCommentParentId,
-  getDataTypeString,
-  getPageFromString,
-  getQueryParams,
-  getQueryString,
-  getRandomFromList,
-  mdToHtml,
-  myAuth,
-  postToCommentSortType,
-  QueryParams,
-  relTags,
-  restoreScrollPosition,
-  RouteDataResponse,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  showLocal,
-  toast,
-  trendingFetchLimit,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
@@ -195,10 +191,10 @@ const MobileButton = ({
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
-    className="btn btn-secondary d-inline-block mb-2 mr-3"
+    className="btn btn-secondary d-inline-block mb-2 me-3"
     onClick={onClick}
   >
-    {i18n.t(textKey)}{" "}
+    {I18NextService.i18n.t(textKey)}{" "}
     <Icon icon={show ? `minus-square` : `plus-square`} classes="icon-inline" />
   </button>
 );
@@ -210,8 +206,8 @@ const LinkButton = ({
   path: string;
   translationKey: NoOptionI18nKeys;
 }) => (
-  <Link className="btn btn-secondary btn-block" to={path}>
-    {i18n.t(translationKey)}
+  <Link className="btn btn-secondary d-block" to={path}>
+    {I18NextService.i18n.t(translationKey)}
   </Link>
 );
 
@@ -296,10 +292,6 @@ export class Home extends Component<any, HomeState> {
     setupTippy();
   }
 
-  componentWillUnmount() {
-    saveScrollPosition(this.context);
-  }
-
   static async fetchInitialData({
     client,
     auth,
@@ -375,7 +367,7 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div className="container-lg">
+      <div className="home container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -566,13 +558,15 @@ export class Home extends Component<any, HomeState> {
               className="btn btn-sm text-muted"
               onClick={linkEvent(this, this.handleCollapseSubscribe)}
               aria-label={
-                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+                subscribedCollapsed
+                  ? I18NextService.i18n.t("expand")
+                  : I18NextService.i18n.t("collapse")
               }
               data-tippy-content={
-                subscribedCollapsed ? i18n.t("expand") : i18n.t("collapse")
+                subscribedCollapsed
+                  ? I18NextService.i18n.t("expand")
+                  : I18NextService.i18n.t("collapse")
               }
-              data-bs-toggle="collapse"
-              data-bs-target="#sidebarSubscribedBody"
               aria-expanded="true"
               aria-controls="sidebarSubscribedBody"
             >
@@ -583,24 +577,25 @@ export class Home extends Component<any, HomeState> {
             </button>
           )}
         </header>
-        <div
-          id="sidebarSubscribedBody"
-          className="collapse show"
-          aria-labelledby="sidebarSubscribedHeader"
-        >
-          <div className="card-body">
-            <ul className="list-inline mb-0">
-              {UserService.Instance.myUserInfo?.follows.map(cfv => (
-                <li
-                  key={cfv.community.id}
-                  className="list-inline-item d-inline-block"
-                >
-                  <CommunityLink community={cfv.community} />
-                </li>
-              ))}
-            </ul>
+        {!subscribedCollapsed && (
+          <div
+            id="sidebarSubscribedBody"
+            aria-labelledby="sidebarSubscribedHeader"
+          >
+            <div className="card-body">
+              <ul className="list-inline mb-0">
+                {UserService.Instance.myUserInfo?.follows.map(cfv => (
+                  <li
+                    key={cfv.community.id}
+                    className="list-inline-item d-inline-block"
+                  >
+                    <CommunityLink community={cfv.community} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        )}
       </>
     );
   }
@@ -735,25 +730,25 @@ export class Home extends Component<any, HomeState> {
     const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
-      <div className="mb-3">
-        <span className="mr-3">
+      <div className="row align-items-center mb-3 g-3">
+        <div className="col-auto">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
-        </span>
-        <span className="mr-3">
+        </div>
+        <div className="col-auto">
           <ListingTypeSelect
             type_={listingType}
             showLocal={showLocal(this.isoData)}
             showSubscribed
             onChange={this.handleListingTypeChange}
           />
-        </span>
-        <span className="mr-2">
+        </div>
+        <div className="col-auto">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
-        </span>
-        {getRss(listingType)}
+        </div>
+        <div className="col-auto ps-0">{getRss(listingType)}</div>
       </div>
     );
   }
@@ -800,7 +795,6 @@ export class Home extends Component<any, HomeState> {
       });
     }
 
-    restoreScrollPosition(this.context);
     setupTippy();
   }
 
@@ -934,14 +928,14 @@ export class Home extends Component<any, HomeState> {
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
@@ -965,7 +959,7 @@ export class Home extends Component<any, HomeState> {
 
   async handleTransferCommunity(form: TransferCommunity) {
     await HttpService.client.transferCommunity(form);
-    toast(i18n.t("transfer_community"));
+    toast(I18NextService.i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
@@ -1032,7 +1026,7 @@ export class Home extends Component<any, HomeState> {
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }
