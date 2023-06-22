@@ -1,6 +1,12 @@
 import { myAuthRequired, newVote, showScores } from "@utils/app";
 import { canShare, share } from "@utils/browser";
-import { futureDaysToUnixTime, hostname, numToSI } from "@utils/helpers";
+import { getExternalHost, getHttpBase } from "@utils/env";
+import {
+  capitalizeFirstLetter,
+  futureDaysToUnixTime,
+  hostname,
+  numToSI,
+} from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import {
   amAdmin,
@@ -38,7 +44,6 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { getExternalHost, getHttpBase } from "../../env";
 import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
@@ -981,7 +986,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               classes={classNames("me-1", { "text-danger": locked })}
               inline
             />
-            {label}
+            {capitalizeFirstLetter(label)}
           </>
         )}
       </button>

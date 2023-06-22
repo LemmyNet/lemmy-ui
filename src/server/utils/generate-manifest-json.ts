@@ -1,8 +1,8 @@
+import { getHttpBaseExternal } from "@utils/env";
 import { readFile } from "fs/promises";
 import { GetSiteResponse } from "lemmy-js-client";
 import path from "path";
 import sharp from "sharp";
-import { getHttpBaseExternal } from "../../shared/env";
 import { fetchIconPng } from "./fetch-icon-png";
 
 const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
