@@ -73,7 +73,7 @@ export async function createSsrHtml(
     <!-- Required meta tags -->
     <meta name="Description" content="Lemmy">
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=yes">
     <link
        id="favicon"
        rel="shortcut icon"
