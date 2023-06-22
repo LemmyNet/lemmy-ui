@@ -1,4 +1,5 @@
 import { myAuthRequired } from "@utils/app";
+import getUserPrimaryLanguage from "@utils/app/user-primary-language";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -40,6 +41,10 @@ export class CommentForm extends Component<CommentFormProps, any> {
           : undefined
         : undefined;
 
+    const userPrimaryLanguage = getUserPrimaryLanguage(
+      UserService?.Instance?.myUserInfo
+    );
+
     return (
       <div
         className={["comment-form", "mb-3", this.props.containerClass].join(
@@ -49,6 +54,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
         {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}
+            initialLanguageId={userPrimaryLanguage}
             showLanguage
             buttonTitle={this.buttonTitle}
             finished={this.props.finished}
