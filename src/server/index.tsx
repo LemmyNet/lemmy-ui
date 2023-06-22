@@ -1,6 +1,8 @@
+import setDefaultOptions from "date-fns/setDefaultOptions";
 import express from "express";
 import path from "path";
 import process from "process";
+import { I18NextService } from "../shared/services";
 import CatchAllHandler from "./handlers/catch-all-handler";
 import ManifestHandler from "./handlers/manifest-handler";
 import RobotsHandler from "./handlers/robots-handler";
@@ -34,7 +36,17 @@ server.listen(Number(port), hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });
 
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
+  const lang = I18NextService.i18n.language;
+  const locale = (
+    await import(
+      /* webpackExclude: /\.js\.flow$/ */
+      `date-fns/locale/${lang}`
+    )
+  ).default;
+  setDefaultOptions({
+    locale,
+  });
   console.info("Interrupted");
   process.exit(0);
 });

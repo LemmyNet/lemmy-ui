@@ -15,6 +15,8 @@ import {
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
+import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
+import parseISO from "date-fns/parseISO";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -44,7 +46,6 @@ import {
   ModlogActionType,
   Person,
 } from "lemmy-js-client";
-import moment from "moment";
 import { fetchLimit } from "../config";
 import { InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
@@ -116,6 +117,10 @@ interface ModlogProps {
 
 function getActionFromString(action?: string): ModlogActionType {
   return action !== undefined ? (action as ModlogActionType) : "All";
+}
+
+function getExpires(expires: string) {
+  return formatDistanceToNowStrict(parseISO(expires));
 }
 
 const getModlogActionMapper =
@@ -371,7 +376,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {moment.utc(expires).fromNow()}</div>
+              <div>expires: {getExpires(expires)}</div>
             </span>
           )}
         </>
@@ -403,7 +408,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {moment.utc(expires).fromNow()}</div>
+              <div>expires: {getExpires(expires)}</div>
             </span>
           )}
         </>
@@ -467,7 +472,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {moment.utc(expires).fromNow()}</div>
+              <div>expires: {getExpires(expires)}</div>
             </span>
           )}
         </>
