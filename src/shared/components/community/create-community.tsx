@@ -1,3 +1,4 @@
+import { enableNsfw, setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import {
   CreateCommunity as CreateCommunityI,
@@ -5,7 +6,6 @@ import {
 } from "lemmy-js-client";
 import { i18n } from "../../i18next";
 import { HttpService } from "../../services/HttpService";
-import { enableNsfw, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
 

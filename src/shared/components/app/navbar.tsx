@@ -1,5 +1,6 @@
+import { myAuth, showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { poll } from "@utils/helpers";
+import { numToSI, poll } from "@utils/helpers";
 import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
@@ -9,17 +10,11 @@ import {
   GetUnreadCountResponse,
   GetUnreadRegistrationApplicationCountResponse,
 } from "lemmy-js-client";
+import { donateLemmyUrl, updateUnreadCountsInterval } from "../../config";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  donateLemmyUrl,
-  myAuth,
-  numToSI,
-  showAvatars,
-  toast,
-  updateUnreadCountsInterval,
-} from "../../utils";
+import { toast } from "../../toast";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 

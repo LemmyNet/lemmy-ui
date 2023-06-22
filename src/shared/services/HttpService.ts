@@ -1,7 +1,7 @@
 import { LemmyHttp } from "lemmy-js-client";
 import { getHttpBase } from "../../shared/env";
 import { i18n } from "../../shared/i18next";
-import { toast } from "../../shared/utils";
+import { toast } from "../../shared/toast";
 
 type EmptyRequestState = {
   state: "empty";

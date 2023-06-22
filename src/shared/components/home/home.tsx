@@ -1,6 +1,28 @@
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  commentsToFlatNodes,
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  getDataTypeString,
+  myAuth,
+  postToCommentSortType,
+  setIsoData,
+  showLocal,
+  updatePersonBlock,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  getRandomFromList,
+} from "@utils/helpers";
 import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -50,41 +72,19 @@ import {
   SortType,
   TransferCommunity,
 } from "lemmy-js-client";
+import { fetchLimit, relTags, trendingFetchLimit } from "../../config";
 import { i18n } from "../../i18next";
 import {
   CommentViewType,
   DataType,
   InitialFetchRequest,
 } from "../../interfaces";
+import { mdToHtml } from "../../markdown";
 import { UserService } from "../../services";
 import { FirstLoadService } from "../../services/FirstLoadService";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  commentsToFlatNodes,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  fetchLimit,
-  getCommentParentId,
-  getDataTypeString,
-  getPageFromString,
-  getRandomFromList,
-  mdToHtml,
-  myAuth,
-  postToCommentSortType,
-  relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  showLocal,
-  toast,
-  trendingFetchLimit,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";

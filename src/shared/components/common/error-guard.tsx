@@ -1,5 +1,5 @@
+import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
-import { setIsoData } from "../../utils";
 import { ErrorPage } from "../app/error-page";
 
 class ErrorGuard extends Component<any, any> {
