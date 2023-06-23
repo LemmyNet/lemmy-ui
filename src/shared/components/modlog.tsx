@@ -7,6 +7,7 @@ import {
 } from "@utils/app";
 import {
   debounce,
+  formatPastDate,
   getIdFromString,
   getPageFromString,
   getQueryParams,
@@ -15,8 +16,6 @@ import {
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
-import parseISO from "date-fns/parseISO";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -117,10 +116,6 @@ interface ModlogProps {
 
 function getActionFromString(action?: string): ModlogActionType {
   return action !== undefined ? (action as ModlogActionType) : "All";
-}
-
-function getExpires(expires: string) {
-  return formatDistanceToNowStrict(parseISO(expires));
 }
 
 const getModlogActionMapper =
@@ -376,7 +371,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {getExpires(expires)}</div>
+              <div>expires: {formatPastDate(expires)}</div>
             </span>
           )}
         </>
@@ -408,7 +403,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {getExpires(expires)}</div>
+              <div>expires: {formatPastDate(expires)}</div>
             </span>
           )}
         </>
@@ -472,7 +467,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {getExpires(expires)}</div>
+              <div>expires: {formatPastDate(expires)}</div>
             </span>
           )}
         </>

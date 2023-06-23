@@ -1,6 +1,5 @@
-import { capitalizeFirstLetter } from "@utils/helpers";
+import { capitalizeFirstLetter, formatPastDate } from "@utils/helpers";
 import format from "date-fns/format";
-import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import parseISO from "date-fns/parseISO";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
@@ -43,7 +42,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
           className="moment-time font-italics pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
-          {formatDistanceToNow(parseISO(this.props.updated))}
+          {formatPastDate(this.props.updated)}
         </span>
       );
     } else {
@@ -53,7 +52,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
           className="moment-time pointer unselectable"
           data-tippy-content={momentFormat(published)}
         >
-          {formatDistanceToNow(parseISO(published))}
+          {formatPastDate(published)}
         </span>
       );
     }
