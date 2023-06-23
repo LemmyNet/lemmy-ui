@@ -12,7 +12,7 @@ interface MomentTimeProps {
   ignoreUpdated?: boolean;
 }
 
-function momentFormat(input: string) {
+function formatDate(input: string) {
   return format(parseISO(input), "PPPPpppp");
 }
 
@@ -25,11 +25,11 @@ export class MomentTime extends Component<MomentTimeProps, any> {
     const updated = this.props.updated;
     let line = `${capitalizeFirstLetter(
       I18NextService.i18n.t("created")
-    )}: ${momentFormat(this.props.published)}`;
+    )}: ${formatDate(this.props.published)}`;
     if (updated) {
       line += `\n\n\n${capitalizeFirstLetter(
         I18NextService.i18n.t("modified")
-      )} ${momentFormat(updated)}`;
+      )} ${formatDate(updated)}`;
     }
     return line;
   }
@@ -50,7 +50,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       return (
         <span
           className="moment-time pointer unselectable"
-          data-tippy-content={momentFormat(published)}
+          data-tippy-content={formatDate(published)}
         >
           {formatPastDate(published)}
         </span>
