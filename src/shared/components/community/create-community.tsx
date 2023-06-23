@@ -4,7 +4,7 @@ import {
   CreateCommunity as CreateCommunityI,
   GetSiteResponse,
 } from "lemmy-js-client";
-import { HttpService, I18NextService } from "../../services";
+import { FirstLoadService, HttpService, I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
 
@@ -22,6 +22,8 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   constructor(props: any, context: any) {
     super(props, context);
     this.handleCommunityCreate = this.handleCommunityCreate.bind(this);
+
+    FirstLoadService.isFirstLoad;
   }
 
   get documentTitle(): string {
