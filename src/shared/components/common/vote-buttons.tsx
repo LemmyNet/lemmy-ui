@@ -14,7 +14,7 @@ import { Icon, Spinner } from "../common/icon";
 
 interface VoteButtonsProps {
   id: number;
-  onVote: (i: CreatePostLike | CreateCommentLike) => void;
+  onVote: (i: CreateCommentLike | CreatePostLike) => void;
   enableDownvotes?: boolean;
   counts: CommentAggregates | PostAggregates;
   my_vote?: number;
@@ -47,7 +47,7 @@ const tippy = (counts: CommentAggregates | PostAggregates): string => {
 const handleUpvote = (i: VoteButtons) => {
   i.setState({ upvoteLoading: true });
   i.props.onVote({
-    post_id: i.props.id,
+    id: i.props.id,
     score: newVote(VoteType.Upvote, i.props.my_vote),
     auth: myAuthRequired(),
   });
@@ -57,7 +57,7 @@ const handleUpvote = (i: VoteButtons) => {
 const handleDownvote = (i: VoteButtons) => {
   i.setState({ downvoteLoading: true });
   i.props.onVote({
-    post_id: i.props.id,
+    id: i.props.id,
     score: newVote(VoteType.Downvote, i.props.my_vote),
     auth: myAuthRequired(),
   });
