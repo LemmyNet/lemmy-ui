@@ -6,6 +6,8 @@ const CopyPlugin = require("copy-webpack-plugin");
 const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
 const merge = require("lodash/merge");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
   Source code: https://github.com/LemmyNet/lemmy-ui
@@ -153,11 +155,8 @@ const createClientConfig = (_env, mode) => {
     ],
   });
 
-  if (mode === "development") {
-    // config.cache = {
-    //   type: "filesystem",
-    //   name: "client",
-    // };
+  if (mode === "none") {
+    config.plugins.push(new BundleAnalyzerPlugin());
   }
 
   return config;

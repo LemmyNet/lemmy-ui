@@ -7,7 +7,7 @@ import {
   LoginResponse,
   Register,
 } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { Spinner } from "../common/icon";
 import { SiteForm } from "./site-form";
@@ -47,6 +47,8 @@ export class Setup extends Component<any, State> {
     super(props, context);
 
     this.handleCreateSite = this.handleCreateSite.bind(this);
+
+    FirstLoadService.isFirstLoad;
   }
 
   async componentDidMount() {

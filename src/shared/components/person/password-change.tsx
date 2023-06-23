@@ -2,7 +2,12 @@ import { myAuth, setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
-import { HttpService, I18NextService, UserService } from "../../services";
+import {
+  FirstLoadService,
+  HttpService,
+  I18NextService,
+  UserService,
+} from "../../services";
 import { RequestState } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -30,6 +35,8 @@ export class PasswordChange extends Component<any, State> {
 
   constructor(props: any, context: any) {
     super(props, context);
+
+    FirstLoadService.isFirstLoad;
   }
 
   get documentTitle(): string {
