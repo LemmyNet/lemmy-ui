@@ -59,9 +59,8 @@ export class UserFlairModal extends Component {
         userFlairDialog.showModal();
     }
 
-    render() {
-    document.addEventListener("DOMContentLoaded", () => {
-        const userFlairDialog = document.getElementById("userFlairDialog") as HTMLDialogElement;
+    async componentDidMount() {
+      const userFlairDialog = document.getElementById("userFlairDialog") as HTMLDialogElement;
         const removeFlairBtn = userFlairDialog.querySelector("#removeFlairBtn") as HTMLInputElement ;
         const confirmFlairBtn = userFlairDialog.querySelector("#confirmFlairBtn") as HTMLInputElement ;
 
@@ -90,8 +89,9 @@ export class UserFlairModal extends Component {
     
             console.log('Flair removed');
         });
-    });
+    }
 
+    render() {
     return (
         <dialog id="userFlairDialog" class="bg-light text-dark rounded" style="border-width: 1px;">
             <form>

@@ -48,33 +48,6 @@ import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
 import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
-import { UserService } from "../../services";
-import {
-  amAdmin,
-  amCommunityCreator,
-  amMod,
-  canAdmin,
-  canMod,
-  canShare,
-  futureDaysToUnixTime,
-  getUserFlair,
-  hostname,
-  isAdmin,
-  isBanned,
-  isImage,
-  isMod,
-  isVideo,
-  mdNoImages,
-  mdToHtml,
-  mdToHtmlInline,
-  myAuthRequired,
-  newVote,
-  numToSI,
-  relTags,
-  setupTippy,
-  share,
-  showScores,
-} from "../../utils";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
@@ -82,6 +55,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
+import { getUserFlair } from "@utils/helpers/getUserFlair";
 
 interface PostListingState {
   showEdit: boolean;

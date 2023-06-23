@@ -19,18 +19,6 @@ import {
 } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services";
-import {
-  amAdmin,
-  amMod,
-  amTopMod,
-  getUnixTime,
-  getUserFlair,
-  hostname,
-  mdToHtml,
-  myAuthRequired,
-} from "../../utils";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -38,6 +26,7 @@ import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { UserFlairModal } from "./user-flair-modal";
+import { getUserFlair } from "@utils/helpers/getUserFlair";
 
 interface SidebarProps {
   community_view: CommunityView;
