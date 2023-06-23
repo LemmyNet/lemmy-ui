@@ -1,5 +1,4 @@
 import { enableDownvotes, enableNsfw, myAuth, setIsoData } from "@utils/app";
-import { isBrowser } from "@utils/browser";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -70,7 +69,7 @@ export class CreatePost extends Component<
       this.handleSelectedCommunityChange.bind(this);
 
     // Only fetch the data if coming from another route
-    if (!isBrowser() || FirstLoadService.isFirstLoad) {
+    if (FirstLoadService.isFirstLoad) {
       const { communityResponse: communityRes, initialCommunitiesRes } =
         this.isoData.routeData;
 

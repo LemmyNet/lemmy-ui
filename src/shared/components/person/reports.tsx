@@ -5,7 +5,6 @@ import {
   myAuthRequired,
   setIsoData,
 } from "@utils/app";
-import { isBrowser } from "@utils/browser";
 import { amAdmin } from "@utils/roles";
 import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
@@ -109,7 +108,7 @@ export class Reports extends Component<any, ReportsState> {
       this.handleResolvePrivateMessageReport.bind(this);
 
     // Only fetch the data if coming from another route
-    if (!isBrowser() || FirstLoadService.isFirstLoad) {
+    if (FirstLoadService.isFirstLoad) {
       const { commentReportsRes, postReportsRes, messageReportsRes } =
         this.isoData.routeData;
 
