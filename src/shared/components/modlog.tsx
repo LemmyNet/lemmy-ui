@@ -5,6 +5,7 @@ import {
   personToChoice,
   setIsoData,
 } from "@utils/app";
+import { isBrowser } from "@utils/browser";
 import {
   debounce,
   getIdFromString,
@@ -660,7 +661,7 @@ export class Modlog extends Component<
     this.handleModChange = this.handleModChange.bind(this);
 
     // Only fetch the data if coming from another route
-    if (FirstLoadService.isFirstLoad) {
+    if (!isBrowser() || FirstLoadService.isFirstLoad) {
       const { res, communityRes, modUserResponse, userResponse } =
         this.isoData.routeData;
 

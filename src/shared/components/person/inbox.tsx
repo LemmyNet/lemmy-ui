@@ -11,6 +11,7 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
+import { isBrowser } from "@utils/browser";
 import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
@@ -163,7 +164,7 @@ export class Inbox extends Component<any, InboxState> {
     this.handleEditMessage = this.handleEditMessage.bind(this);
 
     // Only fetch the data if coming from another route
-    if (FirstLoadService.isFirstLoad) {
+    if (!isBrowser() || FirstLoadService.isFirstLoad) {
       const { mentionsRes, messagesRes, repliesRes } = this.isoData.routeData;
 
       this.state = {

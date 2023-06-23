@@ -5,6 +5,7 @@ import {
   setIsoData,
   showLocal,
 } from "@utils/app";
+import { isBrowser } from "@utils/browser";
 import {
   getPageFromString,
   getQueryParams,
@@ -67,7 +68,7 @@ export class Communities extends Component<any, CommunitiesState> {
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
     // Only fetch the data if coming from another route
-    if (FirstLoadService.isFirstLoad) {
+    if (!isBrowser() || FirstLoadService.isFirstLoad) {
       const { listCommunitiesResponse } = this.isoData.routeData;
 
       this.state = {
