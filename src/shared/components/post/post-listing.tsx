@@ -381,33 +381,30 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   createdLine() {
     const post_view = this.postView;
     return (
-      <ul className="list-inline mb-1 text-muted small mt-2">
-        <li className="list-inline-item">
-          <PersonListing person={post_view.creator} />
-
-          {this.creatorIsMod_ && (
-            <span className="mx-1 badge text-bg-light">
-              {I18NextService.i18n.t("mod")}
-            </span>
-          )}
-          {this.creatorIsAdmin_ && (
-            <span className="mx-1 badge text-bg-light">
-              {I18NextService.i18n.t("admin")}
-            </span>
-          )}
-          {post_view.creator.bot_account && (
-            <span className="mx-1 badge text-bg-light">
-              {I18NextService.i18n.t("bot_account").toLowerCase()}
-            </span>
-          )}
-          {this.props.showCommunity && (
-            <>
-              {" "}
-              {I18NextService.i18n.t("to")}{" "}
-              <CommunityLink community={post_view.community} />
-            </>
-          )}
-        </li>
+      <span className="small">
+        <PersonListing person={post_view.creator} />
+        {this.creatorIsMod_ && (
+          <span className="mx-1 badge text-bg-light">
+            {I18NextService.i18n.t("mod")}
+          </span>
+        )}
+        {this.creatorIsAdmin_ && (
+          <span className="mx-1 badge text-bg-light">
+            {I18NextService.i18n.t("admin")}
+          </span>
+        )}
+        {post_view.creator.bot_account && (
+          <span className="mx-1 badge text-bg-light">
+            {I18NextService.i18n.t("bot_account").toLowerCase()}
+          </span>
+        )}
+        {this.props.showCommunity && (
+          <>
+            {" "}
+            {I18NextService.i18n.t("to")}{" "}
+            <CommunityLink community={post_view.community} />
+          </>
+        )}
         {post_view.post.language_id !== 0 && (
           <span className="mx-1 badge text-bg-light">
             {
@@ -416,17 +413,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               )?.name
             }
           </span>
-        )}
-        <li className="list-inline-item">•</li>
-        <li className="list-inline-item">
-          <span>
-            <MomentTime
-              published={post_view.post.published}
-              updated={post_view.post.updated}
-            />
-          </span>
-        </li>
-      </ul>
+        )}{" "}
+        •{" "}
+        <MomentTime
+          published={post_view.post.published}
+          updated={post_view.post.updated}
+        />
+      </span>
     );
   }
 
@@ -767,10 +760,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         to={`/post/${post_view.post.id}?scrollToComments=true`}
         data-tippy-content={title}
       >
-        <span className="me-1">
-          <Icon icon="message-square" classes="me-1" inline />
-          {post_view.counts.comments}
-        </span>
+        <Icon icon="message-square" classes="me-1" inline />
+        {post_view.counts.comments}
         {this.unreadCount && (
           <span className="text-muted fst-italic">
             ({this.unreadCount} {I18NextService.i18n.t("new")})
@@ -1104,7 +1095,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       this.state.showAdvanced && (
-        <>
+        <div className="mt-3">
           {this.canMod_ && (
             <>
               {!this.creatorIsMod_ &&
@@ -1265,7 +1256,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               )}
             </>
           )}
-        </>
+        </div>
       )
     );
   }
@@ -1460,11 +1451,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  showMobilePreview() {
+  showBodyPreview() {
     const { body, id } = this.postView.post;
 
     return !this.showBody && body ? (
-      <Link className="text-body" to={`/post/${id}`}>
+      <Link className="text-body mt-2 d-block" to={`/post/${id}`}>
         <div className="md-div mb-1 preview-lines">{body}</div>
       </Link>
     ) : (
@@ -1485,7 +1476,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.mobileThumbnail()}
 
               {/* Show a preview of the post body */}
-              {this.showMobilePreview()}
+              {this.showBodyPreview()}
 
               {this.commentsLine(true)}
               {this.userActionsLine()}
@@ -1507,6 +1498,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <div className="col-12">
                   {this.postTitleLine()}
                   {this.createdLine()}
+                  {this.showBodyPreview()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
                   {this.userActionsLine()}

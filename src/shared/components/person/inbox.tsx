@@ -449,7 +449,6 @@ export class Inbox extends Component<any, InboxState> {
             ]}
             viewType={CommentViewType.Flat}
             finished={this.state.finished}
-            noIndent
             markable
             showCommunity
             showContext
@@ -489,7 +488,6 @@ export class Inbox extends Component<any, InboxState> {
             ]}
             finished={this.state.finished}
             viewType={CommentViewType.Flat}
-            noIndent
             markable
             showCommunity
             showContext
@@ -567,7 +565,6 @@ export class Inbox extends Component<any, InboxState> {
               nodes={commentsToFlatNodes(replies)}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
-              noIndent
               markable
               showCommunity
               showContext
@@ -617,7 +614,6 @@ export class Inbox extends Component<any, InboxState> {
                 nodes={[{ comment_view: umv, children: [], depth: 0 }]}
                 viewType={CommentViewType.Flat}
                 finished={this.state.finished}
-                noIndent
                 markable
                 showCommunity
                 showContext

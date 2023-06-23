@@ -101,6 +101,7 @@ interface HomeState {
   showTrendingMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
+  scrolled: boolean;
   tagline?: string;
   siteRes: GetSiteResponse;
   finished: Map<CommentId, boolean | undefined>;
@@ -217,6 +218,7 @@ export class Home extends Component<any, HomeState> {
     postsRes: { state: "empty" },
     commentsRes: { state: "empty" },
     trendingCommunitiesRes: { state: "empty" },
+    scrolled: true,
     siteRes: this.isoData.site_res,
     showSubscribedMobile: false,
     showTrendingMobile: false,
@@ -620,6 +622,11 @@ export class Home extends Component<any, HomeState> {
       search: getQueryString(queryParams),
     });
 
+    if (!this.state.scrolled) {
+      this.setState({ scrolled: true });
+      setTimeout(() => window.scrollTo(0, 0), 0);
+    }
+
     await this.fetchData();
   }
 
@@ -642,7 +649,7 @@ export class Home extends Component<any, HomeState> {
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
-      switch (this.state.postsRes.state) {
+      switch (this.state.postsRes?.state) {
         case "loading":
           return (
             <h5>
@@ -815,23 +822,23 @@ export class Home extends Component<any, HomeState> {
   }
 
   handlePageChange(page: number) {
+    this.setState({ scrolled: false });
     this.updateUrl({ page });
-    window.scrollTo(0, 0);
   }
 
   handleSortChange(val: SortType) {
+    this.setState({ scrolled: false });
     this.updateUrl({ sort: val, page: 1 });
-    window.scrollTo(0, 0);
   }
 
   handleListingTypeChange(val: ListingType) {
+    this.setState({ scrolled: false });
     this.updateUrl({ listingType: val, page: 1 });
-    window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(val: DataType) {
+    this.setState({ scrolled: false });
     this.updateUrl({ dataType: val, page: 1 });
-    window.scrollTo(0, 0);
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
