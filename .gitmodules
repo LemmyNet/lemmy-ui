@@ -2,3 +2,6 @@
 	path = lemmy-translations
 	url = https://github.com/lemmynet/lemmy-translations
 	branch = main
+[submodule "extra_themes"]
+	path = extra_themes
+	url = https://github.com/ornato-t/lemmy-ui-themes
