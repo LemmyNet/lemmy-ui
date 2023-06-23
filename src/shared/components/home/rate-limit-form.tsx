@@ -1,7 +1,9 @@
+import { myAuthRequired } from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
+import classNames from "classnames";
 import { Component, FormEventHandler, linkEvent } from "inferno";
 import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
+import { I18NextService } from "../../services";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 
@@ -19,6 +21,7 @@ interface RateLimitsProps {
   handleRateLimitPerSecond: FormEventHandler<HTMLInputElement>;
   rateLimitValue?: number;
   rateLimitPerSecondValue?: number;
+  className?: string;
 }
 
 interface RateLimitFormProps {
@@ -49,31 +52,36 @@ function RateLimits({
   handleRateLimitPerSecond,
   rateLimitPerSecondValue,
   rateLimitValue,
+  className,
 }: RateLimitsProps) {
   return (
-    <div className="form-group row">
-      <label className="col-12 col-form-label" htmlFor="rate-limit">
-        {i18n.t("rate_limit")}
-      </label>
-      <input
-        type="number"
-        id="rate-limit"
-        className="form-control col-12"
-        min={0}
-        value={rateLimitValue}
-        onInput={handleRateLimit}
-      />
-      <label className="col-12 col-form-label" htmlFor="rate-limit-per-second">
-        {i18n.t("per_second")}
-      </label>
-      <input
-        type="number"
-        id="rate-limit-per-second"
-        className="form-control col-12"
-        min={0}
-        value={rateLimitPerSecondValue}
-        onInput={handleRateLimitPerSecond}
-      />
+    <div role="tabpanel" className={classNames("mb-3 row", className)}>
+      <div className="col-md-6">
+        <label htmlFor="rate-limit">
+          {I18NextService.i18n.t("rate_limit")}
+        </label>
+        <input
+          type="number"
+          id="rate-limit"
+          className="form-control"
+          min={0}
+          value={rateLimitValue}
+          onInput={handleRateLimit}
+        />
+      </div>
+      <div className="col-md-6">
+        <label htmlFor="rate-limit-per-second">
+          {I18NextService.i18n.t("per_second")}
+        </label>
+        <input
+          type="number"
+          id="rate-limit-per-second"
+          className="form-control"
+          min={0}
+          value={rateLimitPerSecondValue}
+          onInput={handleRateLimitPerSecond}
+        />
+      </div>
     </div>
   );
 }
@@ -133,14 +141,20 @@ export default class RateLimitsForm extends Component<
 
   render() {
     return (
-      <form onSubmit={linkEvent(this, submitRateLimitForm)}>
-        <h5>{i18n.t("rate_limit_header")}</h5>
+      <form
+        className="rate-limit-form"
+        onSubmit={linkEvent(this, submitRateLimitForm)}
+      >
+        <h5>{I18NextService.i18n.t("rate_limit_header")}</h5>
         <Tabs
           tabs={rateLimitTypes.map(rateLimitType => ({
             key: rateLimitType,
-            label: i18n.t(`rate_limit_${rateLimitType}`),
-            getNode: () => (
+            label: I18NextService.i18n.t(`rate_limit_${rateLimitType}`),
+            getNode: isSelected => (
               <RateLimits
+                className={classNames("tab-pane show", {
+                  active: isSelected,
+                })}
                 handleRateLimit={linkEvent(
                   { rateLimitType, ctx: this },
                   handleRateLimitChange
@@ -157,20 +171,18 @@ export default class RateLimitsForm extends Component<
             ),
           }))}
         />
-        <div className="form-group row">
-          <div className="col-12">
-            <button
-              type="submit"
-              className="btn btn-secondary mr-2"
-              disabled={this.props.loading}
-            >
-              {this.props.loading ? (
-                <Spinner />
-              ) : (
-                capitalizeFirstLetter(i18n.t("save"))
-              )}
-            </button>
-          </div>
+        <div className="col-12 mb-3">
+          <button
+            type="submit"
+            className="btn btn-secondary me-2"
+            disabled={this.props.loading}
+          >
+            {this.props.loading ? (
+              <Spinner />
+            ) : (
+              capitalizeFirstLetter(I18NextService.i18n.t("save"))
+            )}
+          </button>
         </div>
       </form>
     );

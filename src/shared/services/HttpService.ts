@@ -1,7 +1,7 @@
+import { getHttpBase } from "@utils/env";
 import { LemmyHttp } from "lemmy-js-client";
-import { getHttpBase } from "../../shared/env";
-import { i18n } from "../../shared/i18next";
-import { toast } from "../../shared/utils";
+import { toast } from "../../shared/toast";
+import { I18NextService } from "./I18NextService";
 
 type EmptyRequestState = {
   state: "empty";
@@ -62,7 +62,7 @@ class WrappedLemmyHttpClient {
             };
           } catch (error) {
             console.error(`API error: ${error}`);
-            toast(i18n.t(error), "danger");
+            toast(I18NextService.i18n.t(error), "danger");
             return {
               state: "failed",
               msg: error,

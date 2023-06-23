@@ -1,3 +1,6 @@
+import { myAuthRequired } from "@utils/app";
+import { getUnixTime, hostname } from "@utils/helpers";
+import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -14,6 +17,8 @@ import {
   PurgeCommunity,
   RemoveCommunity,
 } from "lemmy-js-client";
+import { mdToHtml } from "../../markdown";
+import { I18NextService, UserService } from "../../services";
 import { i18n } from "../../i18next";
 import { UserService } from "../../services";
 import {
@@ -116,7 +121,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   render() {
     return (
-      <div>
+      <div className="community-sidebar">
         <UserFlairModal ref={el => this.userFlairModalRef = el}/>
         {!this.state.showEdit ? (
           this.sidebar()
@@ -216,49 +221,49 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
-          <span className="mr-2">
+          <span className="me-2">
             <CommunityLink community={community} hideAvatar />
           </span>
           {subscribed === "Subscribed" && (
             <button
-              className="btn btn-secondary btn-sm mr-2"
+              className="btn btn-secondary btn-sm me-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
               {this.state.followCommunityLoading ? (
                 <Spinner />
               ) : (
                 <>
-                  <Icon icon="check" classes="icon-inline text-success mr-1" />
-                  {i18n.t("joined")}
+                  <Icon icon="check" classes="icon-inline text-success me-1" />
+                  {I18NextService.i18n.t("joined")}
                 </>
               )}
             </button>
           )}
           {subscribed === "Pending" && (
             <button
-              className="btn btn-warning mr-2"
+              className="btn btn-warning me-2"
               onClick={linkEvent(this, this.handleUnfollowCommunity)}
             >
               {this.state.followCommunityLoading ? (
                 <Spinner />
               ) : (
-                i18n.t("subscribe_pending")
+                I18NextService.i18n.t("subscribe_pending")
               )}
             </button>
           )}
           {community.removed && (
-            <small className="mr-2 text-muted font-italic">
-              {i18n.t("removed")}
+            <small className="me-2 text-muted font-italic">
+              {I18NextService.i18n.t("removed")}
             </small>
           )}
           {community.deleted && (
-            <small className="mr-2 text-muted font-italic">
-              {i18n.t("deleted")}
+            <small className="me-2 text-muted font-italic">
+              {I18NextService.i18n.t("deleted")}
             </small>
           )}
           {community.nsfw && (
-            <small className="mr-2 text-muted font-italic">
-              {i18n.t("nsfw")}
+            <small className="me-2 text-muted font-italic">
+              {I18NextService.i18n.t("nsfw")}
             </small>
           )}
         </h5>
@@ -276,7 +281,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   mods() {
     return (
       <ul className="list-inline small">
-        <li className="list-inline-item">{i18n.t("mods")}: </li>
+        <li className="list-inline-item">{I18NextService.i18n.t("mods")}: </li>
         {this.props.moderators.map(mod => (
           <li key={mod.moderator.id} className="list-inline-item">
             <PersonListing person={mod.moderator} />
@@ -290,12 +295,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const cv = this.props.community_view;
     return (
       <Link
-        className={`btn btn-secondary btn-block mb-2 ${
+        className={`btn btn-secondary d-block mb-2 w-100 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
         to={`/create_post?communityId=${cv.community.id}`}
       >
-        {i18n.t("create_a_post")}
+        {I18NextService.i18n.t("create_a_post")}
       </Link>
     );
   }
@@ -303,20 +308,20 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   subscribe() {
     const community_view = this.props.community_view;
     return (
-      <div className="mb-2">
+      <>
         {community_view.subscribed == "NotSubscribed" && (
           <button
-            className="btn btn-secondary btn-block"
+            className="btn btn-secondary d-block mb-2 w-100"
             onClick={linkEvent(this, this.handleFollowCommunity)}
           >
             {this.state.followCommunityLoading ? (
               <Spinner />
             ) : (
-              i18n.t("subscribe")
+              I18NextService.i18n.t("subscribe")
             )}
           </button>
         )}
-      </div>
+      </>
     );
   }
 
@@ -324,16 +329,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const { subscribed, blocked } = this.props.community_view;
 
     return (
-      <div className="mb-2">
+      <>
         {subscribed == "NotSubscribed" && (
           <button
-            className="btn btn-danger btn-block"
+            className="btn btn-danger d-block mb-2 w-100"
             onClick={linkEvent(this, this.handleBlockCommunity)}
           >
-            {i18n.t(blocked ? "unblock_community" : "block_community")}
+            {I18NextService.i18n.t(
+              blocked ? "unblock_community" : "block_community"
+            )}
           </button>
         )}
-      </div>
+      </>
     );
   }
 
@@ -357,8 +364,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 <button
                   className="btn btn-link text-muted d-inline-block"
                   onClick={linkEvent(this, this.handleEditClick)}
-                  data-tippy-content={i18n.t("edit")}
-                  aria-label={i18n.t("edit")}
+                  data-tippy-content={I18NextService.i18n.t("edit")}
+                  aria-label={I18NextService.i18n.t("edit")}
                 >
                   <Icon icon="edit" classes="icon-inline" />
                 </button>
@@ -373,20 +380,20 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         this.handleShowConfirmLeaveModTeamClick
                       )}
                     >
-                      {i18n.t("leave_mod_team")}
+                      {I18NextService.i18n.t("leave_mod_team")}
                     </button>
                   </li>
                 ) : (
                   <>
                     <li className="list-inline-item-action">
-                      {i18n.t("are_you_sure")}
+                      {I18NextService.i18n.t("are_you_sure")}
                     </li>
                     <li className="list-inline-item-action">
                       <button
                         className="btn btn-link text-muted d-inline-block"
                         onClick={linkEvent(this, this.handleLeaveModTeam)}
                       >
-                        {i18n.t("yes")}
+                        {I18NextService.i18n.t("yes")}
                       </button>
                     </li>
                     <li className="list-inline-item-action">
@@ -397,7 +404,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                           this.handleCancelLeaveModTeamClick
                         )}
                       >
-                        {i18n.t("no")}
+                        {I18NextService.i18n.t("no")}
                       </button>
                     </li>
                   </>
@@ -409,13 +416,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     onClick={linkEvent(this, this.handleDeleteCommunity)}
                     data-tippy-content={
                       !community_view.community.deleted
-                        ? i18n.t("delete")
-                        : i18n.t("restore")
+                        ? I18NextService.i18n.t("delete")
+                        : I18NextService.i18n.t("restore")
                     }
                     aria-label={
                       !community_view.community.deleted
-                        ? i18n.t("delete")
-                        : i18n.t("restore")
+                        ? I18NextService.i18n.t("delete")
+                        : I18NextService.i18n.t("restore")
                     }
                   >
                     {this.state.deleteCommunityLoading ? (
@@ -440,7 +447,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   className="btn btn-link text-muted d-inline-block"
                   onClick={linkEvent(this, this.handleModRemoveShow)}
                 >
-                  {i18n.t("remove")}
+                  {I18NextService.i18n.t("remove")}
                 </button>
               ) : (
                 <button
@@ -450,46 +457,46 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   {this.state.removeCommunityLoading ? (
                     <Spinner />
                   ) : (
-                    i18n.t("restore")
+                    I18NextService.i18n.t("restore")
                   )}
                 </button>
               )}
               <button
                 className="btn btn-link text-muted d-inline-block"
                 onClick={linkEvent(this, this.handlePurgeCommunityShow)}
-                aria-label={i18n.t("purge_community")}
+                aria-label={I18NextService.i18n.t("purge_community")}
               >
-                {i18n.t("purge_community")}
+                {I18NextService.i18n.t("purge_community")}
               </button>
             </li>
           )}
         </ul>
         {this.state.showRemoveDialog && (
           <form onSubmit={linkEvent(this, this.handleRemoveCommunity)}>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <label className="col-form-label" htmlFor="remove-reason">
-                {i18n.t("reason")}
+                {I18NextService.i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id="remove-reason"
-                className="form-control mr-2"
-                placeholder={i18n.t("optional")}
+                className="form-control me-2"
+                placeholder={I18NextService.i18n.t("optional")}
                 value={this.state.removeReason}
                 onInput={linkEvent(this, this.handleModRemoveReasonChange)}
               />
             </div>
             {/* TODO hold off on expires for now */}
-            {/* <div class="form-group row"> */}
+            {/* <div class="mb-3 row"> */}
             {/*   <label class="col-form-label">Expires</label> */}
-            {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
+            {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
             {/* </div> */}
-            <div className="form-group">
+            <div className="input-group mb-3">
               <button type="submit" className="btn btn-secondary">
                 {this.state.removeCommunityLoading ? (
                   <Spinner />
                 ) : (
-                  i18n.t("remove_community")
+                  I18NextService.i18n.t("remove_community")
                 )}
               </button>
             </div>
@@ -497,32 +504,32 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         )}
         {this.state.showPurgeDialog && (
           <form onSubmit={linkEvent(this, this.handlePurgeCommunity)}>
-            <div className="form-group">
+            <div className="input-group mb-3">
               <PurgeWarning />
             </div>
-            <div className="form-group">
-              <label className="sr-only" htmlFor="purge-reason">
-                {i18n.t("reason")}
+            <div className="input-group mb-3">
+              <label className="visually-hidden" htmlFor="purge-reason">
+                {I18NextService.i18n.t("reason")}
               </label>
               <input
                 type="text"
                 id="purge-reason"
-                className="form-control mr-2"
-                placeholder={i18n.t("reason")}
+                className="form-control me-2"
+                placeholder={I18NextService.i18n.t("reason")}
                 value={this.state.purgeReason}
                 onInput={linkEvent(this, this.handlePurgeReasonChange)}
               />
             </div>
-            <div className="form-group">
+            <div className="input-group mb-3">
               {this.state.purgeCommunityLoading ? (
                 <Spinner />
               ) : (
                 <button
                   type="submit"
                   className="btn btn-secondary"
-                  aria-label={i18n.t("purge_community")}
+                  aria-label={I18NextService.i18n.t("purge_community")}
                 >
-                  {i18n.t("purge_community")}
+                  {I18NextService.i18n.t("purge_community")}
                 </button>
               )}
             </div>

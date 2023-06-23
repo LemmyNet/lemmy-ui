@@ -1,11 +1,10 @@
+import { enableNsfw, setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import {
   CreateCommunity as CreateCommunityI,
   GetSiteResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { HttpService } from "../../services/HttpService";
-import { enableNsfw, setIsoData } from "../../utils";
+import { HttpService, I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
 
@@ -26,21 +25,21 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("create_community")} - ${
+    return `${I18NextService.i18n.t("create_community")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="create-community container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{i18n.t("create_community")}</h5>
+            <h5>{I18NextService.i18n.t("create_community")}</h5>
             <CommunityForm
               onUpsertCommunity={this.handleCommunityCreate}
               enableNsfw={enableNsfw(this.state.siteRes)}
