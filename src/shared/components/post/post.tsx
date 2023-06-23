@@ -1,5 +1,29 @@
+import {
+  buildCommentsTree,
+  commentsToFlatNodes,
+  editComment,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentIdFromProps,
+  getCommentParentId,
+  getDepthFromComment,
+  getIdFromProps,
+  myAuth,
+  setIsoData,
+  updateCommunityBlock,
+  updatePersonBlock,
+} from "@utils/app";
+import {
+  isBrowser,
+  restoreScrollPosition,
+  saveScrollPosition,
+} from "@utils/browser";
+import { debounce } from "@utils/helpers";
+import { isImage } from "@utils/media";
+import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
-import { Component, createRef, linkEvent, RefObject } from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -51,40 +75,16 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { commentTreeMaxDepth } from "../../config";
 import {
   CommentNodeI,
   CommentViewType,
   InitialFetchRequest,
 } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  buildCommentsTree,
-  commentsToFlatNodes,
-  commentTreeMaxDepth,
-  debounce,
-  editComment,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  getCommentIdFromProps,
-  getCommentParentId,
-  getDepthFromComment,
-  getIdFromProps,
-  isBrowser,
-  isImage,
-  myAuth,
-  restoreScrollPosition,
-  RouteDataResponse,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  toast,
-  updateCommunityBlock,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
 import { HtmlTags } from "../common/html-tags";
@@ -395,10 +395,10 @@ export class Post extends Component<any, PostState> {
               />
               <div className="d-block d-md-none">
                 <button
-                  className="btn btn-secondary d-inline-block mb-2 mr-3"
+                  className="btn btn-secondary d-inline-block mb-2 me-3"
                   onClick={linkEvent(this, this.handleShowSidebarMobile)}
                 >
-                  {i18n.t("sidebar")}{" "}
+                  {I18NextService.i18n.t("sidebar")}{" "}
                   <Icon
                     icon={
                       this.state.showSidebarMobile
@@ -424,21 +424,22 @@ export class Post extends Component<any, PostState> {
   }
 
   render() {
-    return <div className="container-lg">{this.renderPostRes()}</div>;
+    return <div className="post container-lg">{this.renderPostRes()}</div>;
   }
 
   sortRadios() {
     return (
       <>
-        <div className="btn-group btn-group-toggle flex-wrap mr-3 mb-2">
+        <div className="btn-group btn-group-toggle flex-wrap me-3 mb-2">
           <label
             className={`btn btn-outline-secondary pointer ${
               this.state.commentSort === "Hot" && "active"
             }`}
           >
-            {i18n.t("hot")}
+            {I18NextService.i18n.t("hot")}
             <input
               type="radio"
+              className="btn-check"
               value={"Hot"}
               checked={this.state.commentSort === "Hot"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -449,9 +450,10 @@ export class Post extends Component<any, PostState> {
               this.state.commentSort === "Top" && "active"
             }`}
           >
-            {i18n.t("top")}
+            {I18NextService.i18n.t("top")}
             <input
               type="radio"
+              className="btn-check"
               value={"Top"}
               checked={this.state.commentSort === "Top"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -462,9 +464,10 @@ export class Post extends Component<any, PostState> {
               this.state.commentSort === "New" && "active"
             }`}
           >
-            {i18n.t("new")}
+            {I18NextService.i18n.t("new")}
             <input
               type="radio"
+              className="btn-check"
               value={"New"}
               checked={this.state.commentSort === "New"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -475,9 +478,10 @@ export class Post extends Component<any, PostState> {
               this.state.commentSort === "Old" && "active"
             }`}
           >
-            {i18n.t("old")}
+            {I18NextService.i18n.t("old")}
             <input
               type="radio"
+              className="btn-check"
               value={"Old"}
               checked={this.state.commentSort === "Old"}
               onChange={linkEvent(this, this.handleCommentSortChange)}
@@ -490,9 +494,10 @@ export class Post extends Component<any, PostState> {
               this.state.commentViewType === CommentViewType.Flat && "active"
             }`}
           >
-            {i18n.t("chat")}
+            {I18NextService.i18n.t("chat")}
             <input
               type="radio"
+              className="btn-check"
               value={CommentViewType.Flat}
               checked={this.state.commentViewType === CommentViewType.Flat}
               onChange={linkEvent(this, this.handleCommentViewTypeChange)}
@@ -585,17 +590,17 @@ export class Post extends Component<any, PostState> {
           {!!this.state.commentId && (
             <>
               <button
-                className="pl-0 d-block btn btn-link text-muted"
+                className="ps-0 d-block btn btn-link text-muted"
                 onClick={linkEvent(this, this.handleViewPost)}
               >
-                {i18n.t("view_all_comments")} ➔
+                {I18NextService.i18n.t("view_all_comments")} ➔
               </button>
               {showContextButton && (
                 <button
-                  className="pl-0 d-block btn btn-link text-muted"
+                  className="ps-0 d-block btn btn-link text-muted"
                   onClick={linkEvent(this, this.handleViewContext)}
                 >
-                  {i18n.t("show_context")} ➔
+                  {I18NextService.i18n.t("show_context")} ➔
                 </button>
               )}
             </>
@@ -829,14 +834,14 @@ export class Post extends Component<any, PostState> {
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state == "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
@@ -975,7 +980,7 @@ export class Post extends Component<any, PostState> {
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }

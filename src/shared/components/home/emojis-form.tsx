@@ -1,3 +1,4 @@
+import { myAuthRequired, setIsoData } from "@utils/app";
 import { Component, linkEvent } from "inferno";
 import {
   CreateCustomEmoji,
@@ -5,15 +6,9 @@ import {
   EditCustomEmoji,
   GetSiteResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { HttpService } from "../../services/HttpService";
-import {
-  customEmojisLookup,
-  myAuthRequired,
-  pictrsDeleteToast,
-  setIsoData,
-  toast,
-} from "../../utils";
+import { customEmojisLookup } from "../../markdown";
+import { HttpService, I18NextService } from "../../services";
+import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiMart } from "../common/emoji-mart";
 import { HtmlTags } from "../common/html-tags";
 import { Icon } from "../common/icon";
@@ -70,17 +65,17 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
   get documentTitle(): string {
-    return i18n.t("custom_emojis");
+    return I18NextService.i18n.t("custom_emojis");
   }
 
   render() {
     return (
-      <div className="col-12">
+      <div className="home-emojis-form col-12">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5 className="col-12">{i18n.t("custom_emojis")}</h5>
+        <h5 className="col-12">{I18NextService.i18n.t("custom_emojis")}</h5>
         {customEmojisLookup.size > 0 && (
           <div>
             <EmojiMart
@@ -93,15 +88,21 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           <table id="emojis_table" className="table table-sm table-hover">
             <thead className="pointer">
               <tr>
-                <th>{i18n.t("column_emoji")}</th>
-                <th className="text-right">{i18n.t("column_shortcode")}</th>
-                <th className="text-right">{i18n.t("column_category")}</th>
-                <th className="text-right d-lg-table-cell d-none">
-                  {i18n.t("column_imageurl")}
+                <th>{I18NextService.i18n.t("column_emoji")}</th>
+                <th className="text-right">
+                  {I18NextService.i18n.t("column_shortcode")}
                 </th>
-                <th className="text-right">{i18n.t("column_alttext")}</th>
+                <th className="text-right">
+                  {I18NextService.i18n.t("column_category")}
+                </th>
+                <th className="text-right d-lg-table-cell d-none">
+                  {I18NextService.i18n.t("column_imageurl")}
+                </th>
+                <th className="text-right">
+                  {I18NextService.i18n.t("column_alttext")}
+                </th>
                 <th className="text-right d-lg-table-cell">
-                  {i18n.t("column_keywords")}
+                  {I18NextService.i18n.t("column_keywords")}
                 </th>
                 <th style="width:121px"></th>
               </tr>
@@ -219,8 +220,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                               { i: this, cv: cv },
                               this.handleEditEmojiClick
                             )}
-                            data-tippy-content={i18n.t("save")}
-                            aria-label={i18n.t("save")}
+                            data-tippy-content={I18NextService.i18n.t("save")}
+                            aria-label={I18NextService.i18n.t("save")}
                             disabled={
                               this.props.loading ||
                               !this.canEdit(cv) ||
@@ -240,10 +241,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                             { i: this, index: index, cv: cv },
                             this.handleDeleteEmojiClick
                           )}
-                          data-tippy-content={i18n.t("delete")}
-                          aria-label={i18n.t("delete")}
+                          data-tippy-content={I18NextService.i18n.t("delete")}
+                          aria-label={I18NextService.i18n.t("delete")}
                           disabled={this.props.loading}
-                          title={i18n.t("delete")}
+                          title={I18NextService.i18n.t("delete")}
                         >
                           <Icon
                             icon="trash"
@@ -258,10 +259,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           </table>
           <br />
           <button
-            className="btn btn-sm btn-secondary mr-2"
+            className="btn btn-sm btn-secondary me-2"
             onClick={linkEvent(this, this.handleAddEmojiClick)}
           >
-            {i18n.t("add_custom_emoji")}
+            {I18NextService.i18n.t("add_custom_emoji")}
           </button>
 
           <Paginator page={this.state.page} onChange={this.handlePageChange} />
@@ -284,8 +285,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   }
 
   getEditTooltip(cv: CustomEmojiViewForm) {
-    if (this.canEdit(cv)) return i18n.t("save");
-    else return i18n.t("custom_emoji_save_validation");
+    if (this.canEdit(cv)) return I18NextService.i18n.t("save");
+    else return I18NextService.i18n.t("custom_emoji_save_validation");
   }
 
   handlePageChange(page: number) {

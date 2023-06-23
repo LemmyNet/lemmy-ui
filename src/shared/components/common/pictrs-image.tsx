@@ -22,7 +22,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
 
   render() {
     return (
-      <picture className="d-inline-block overflow-hidden">
+      <picture>
         <source srcSet={this.src("webp")} type="image/webp" />
         <source srcSet={this.props.src} />
         <source srcSet={this.src("jpg")} type="image/jpeg" />
@@ -31,7 +31,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
           alt={this.alt()}
           title={this.alt()}
           loading="lazy"
-          className={classNames({
+          className={classNames("overflow-hidden pictrs-image", {
             "img-fluid": !this.props.icon && !this.props.iconOverlay,
             banner: this.props.banner,
             "thumbnail rounded":
@@ -39,8 +39,8 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
             "img-expanded slight-radius":
               !this.props.thumbnail && !this.props.icon,
             "img-blur": this.props.thumbnail && this.props.nsfw,
-            "rounded-circle img-cover img-icon mr-2": this.props.icon,
-            "ml-2 mb-0 rounded-circle img-cover avatar-overlay":
+            "rounded-circle img-cover img-icon me-2": this.props.icon,
+            "ms-2 mb-0 rounded-circle img-cover avatar-overlay":
               this.props.iconOverlay,
             "avatar-pushup": this.props.pushup,
           })}

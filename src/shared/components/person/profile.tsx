@@ -1,4 +1,30 @@
+import {
+  editComment,
+  editPost,
+  editWith,
+  enableDownvotes,
+  enableNsfw,
+  getCommentParentId,
+  myAuth,
+  myAuthRequired,
+  setIsoData,
+  updatePersonBlock,
+} from "@utils/app";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  capitalizeFirstLetter,
+  futureDaysToUnixTime,
+  getPageFromString,
+  getQueryParams,
+  getQueryString,
+  numToSI,
+} from "@utils/helpers";
+import { canMod, isAdmin, isBanned } from "@utils/roles";
+import type { QueryParams } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
+import format from "date-fns/format";
+import parseISO from "date-fns/parseISO";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -46,42 +72,13 @@ import {
   SortType,
   TransferCommunity,
 } from "lemmy-js-client";
-import moment from "moment";
-import { i18n } from "../../i18next";
+import { fetchLimit, relTags } from "../../config";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { mdToHtml } from "../../markdown";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  QueryParams,
-  RouteDataResponse,
-  canMod,
-  capitalizeFirstLetter,
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
-  enableNsfw,
-  fetchLimit,
-  futureDaysToUnixTime,
-  getCommentParentId,
-  getPageFromString,
-  getQueryParams,
-  getQueryString,
-  isAdmin,
-  isBanned,
-  mdToHtml,
-  myAuth,
-  myAuthRequired,
-  numToSI,
-  relTags,
-  restoreScrollPosition,
-  saveScrollPosition,
-  setIsoData,
-  setupTippy,
-  toast,
-  updatePersonBlock,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -139,7 +136,7 @@ const getCommunitiesListing = (
   communityViews.length > 0 && (
     <div className="card border-secondary mb-3">
       <div className="card-body">
-        <h5>{i18n.t(translationKey)}</h5>
+        <h5>{I18NextService.i18n.t(translationKey)}</h5>
         <ul className="list-unstyled mb-0">
           {communityViews.map(({ community }) => (
             <li key={community.id}>
@@ -389,7 +386,11 @@ export class Profile extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderPersonRes()}</div>;
+    return (
+      <div className="person-profile container-lg">
+        {this.renderPersonRes()}
+      </div>
+    );
   }
 
   get viewRadios() {
@@ -415,11 +416,12 @@ export class Profile extends Component<
       >
         <input
           type="radio"
+          className="btn-check"
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
         />
-        {i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+        {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
       </label>
     );
   }
@@ -432,7 +434,7 @@ export class Profile extends Component<
 
     return (
       <div className="mb-2">
-        <span className="mr-3">{this.viewRadios}</span>
+        <span className="me-3">{this.viewRadios}</span>
         <SortSelect
           sort={sort}
           onChange={this.handleSortChange}
@@ -481,23 +483,23 @@ export class Profile extends Component<
                       />
                     </li>
                     {isBanned(pv.person) && (
-                      <li className="list-inline-item badge badge-danger">
-                        {i18n.t("banned")}
+                      <li className="list-inline-item badge text-bg-danger">
+                        {I18NextService.i18n.t("banned")}
                       </li>
                     )}
                     {pv.person.deleted && (
-                      <li className="list-inline-item badge badge-danger">
-                        {i18n.t("deleted")}
+                      <li className="list-inline-item badge text-bg-danger">
+                        {I18NextService.i18n.t("deleted")}
                       </li>
                     )}
                     {pv.person.admin && (
-                      <li className="list-inline-item badge badge-light">
-                        {i18n.t("admin")}
+                      <li className="list-inline-item badge text-bg-light">
+                        {I18NextService.i18n.t("admin")}
                       </li>
                     )}
                     {pv.person.bot_account && (
-                      <li className="list-inline-item badge badge-light">
-                        {i18n.t("bot_account").toLowerCase()}
+                      <li className="list-inline-item badge text-bg-light">
+                        {I18NextService.i18n.t("bot_account").toLowerCase()}
                       </li>
                     )}
                   </ul>
@@ -507,45 +509,45 @@ export class Profile extends Component<
                 {!this.amCurrentUser && UserService.Instance.myUserInfo && (
                   <>
                     <a
-                      className={`d-flex align-self-start btn btn-secondary mr-2 ${
+                      className={`d-flex align-self-start btn btn-secondary me-2 ${
                         !pv.person.matrix_user_id && "invisible"
                       }`}
                       rel={relTags}
                       href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
                     >
-                      {i18n.t("send_secure_message")}
+                      {I18NextService.i18n.t("send_secure_message")}
                     </a>
                     <Link
                       className={
-                        "d-flex align-self-start btn btn-secondary mr-2"
+                        "d-flex align-self-start btn btn-secondary me-2"
                       }
                       to={`/create_private_message/${pv.person.id}`}
                     >
-                      {i18n.t("send_message")}
+                      {I18NextService.i18n.t("send_message")}
                     </Link>
                     {personBlocked ? (
                       <button
                         className={
-                          "d-flex align-self-start btn btn-secondary mr-2"
+                          "d-flex align-self-start btn btn-secondary me-2"
                         }
                         onClick={linkEvent(
                           pv.person.id,
                           this.handleUnblockPerson
                         )}
                       >
-                        {i18n.t("unblock_user")}
+                        {I18NextService.i18n.t("unblock_user")}
                       </button>
                     ) : (
                       <button
                         className={
-                          "d-flex align-self-start btn btn-secondary mr-2"
+                          "d-flex align-self-start btn btn-secondary me-2"
                         }
                         onClick={linkEvent(
                           pv.person.id,
                           this.handleBlockPerson
                         )}
                       >
-                        {i18n.t("block_user")}
+                        {I18NextService.i18n.t("block_user")}
                       </button>
                     )}
                   </>
@@ -557,22 +559,22 @@ export class Profile extends Component<
                   (!isBanned(pv.person) ? (
                     <button
                       className={
-                        "d-flex align-self-start btn btn-secondary mr-2"
+                        "d-flex align-self-start btn btn-secondary me-2"
                       }
                       onClick={linkEvent(this, this.handleModBanShow)}
-                      aria-label={i18n.t("ban")}
+                      aria-label={I18NextService.i18n.t("ban")}
                     >
-                      {capitalizeFirstLetter(i18n.t("ban"))}
+                      {capitalizeFirstLetter(I18NextService.i18n.t("ban"))}
                     </button>
                   ) : (
                     <button
                       className={
-                        "d-flex align-self-start btn btn-secondary mr-2"
+                        "d-flex align-self-start btn btn-secondary me-2"
                       }
                       onClick={linkEvent(this, this.handleModBanSubmit)}
-                      aria-label={i18n.t("unban")}
+                      aria-label={I18NextService.i18n.t("unban")}
                     >
-                      {capitalizeFirstLetter(i18n.t("unban"))}
+                      {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
               </div>
@@ -586,14 +588,14 @@ export class Profile extends Component<
               )}
               <div>
                 <ul className="list-inline mb-2">
-                  <li className="list-inline-item badge badge-light">
-                    {i18n.t("number_of_posts", {
+                  <li className="list-inline-item badge text-bg-light">
+                    {I18NextService.i18n.t("number_of_posts", {
                       count: Number(pv.counts.post_count),
                       formattedCount: numToSI(pv.counts.post_count),
                     })}
                   </li>
-                  <li className="list-inline-item badge badge-light">
-                    {i18n.t("number_of_comments", {
+                  <li className="list-inline-item badge text-bg-light">
+                    {I18NextService.i18n.t("number_of_comments", {
                       count: Number(pv.counts.comment_count),
                       formattedCount: numToSI(pv.counts.comment_count),
                     })}
@@ -601,7 +603,7 @@ export class Profile extends Component<
                 </ul>
               </div>
               <div className="text-muted">
-                {i18n.t("joined")}{" "}
+                {I18NextService.i18n.t("joined")}{" "}
                 <MomentTime
                   published={pv.person.published}
                   showAgo
@@ -610,17 +612,14 @@ export class Profile extends Component<
               </div>
               <div className="d-flex align-items-center text-muted mb-2">
                 <Icon icon="cake" />
-                <span className="ml-2">
-                  {i18n.t("cake_day_title")}{" "}
-                  {moment
-                    .utc(pv.person.published)
-                    .local()
-                    .format("MMM DD, YYYY")}
+                <span className="ms-2">
+                  {I18NextService.i18n.t("cake_day_title")}{" "}
+                  {format(parseISO(pv.person.published), "PPP")}
                 </span>
               </div>
               {!UserService.Instance.myUserInfo && (
                 <div className="alert alert-info" role="alert">
-                  {i18n.t("profile_not_logged_in_alert")}
+                  {I18NextService.i18n.t("profile_not_logged_in_alert")}
                 </div>
               )}
             </div>
@@ -636,30 +635,30 @@ export class Profile extends Component<
     return (
       showBanDialog && (
         <form onSubmit={linkEvent(this, this.handleModBanSubmit)}>
-          <div className="form-group row col-12">
+          <div className="mb-3 row col-12">
             <label className="col-form-label" htmlFor="profile-ban-reason">
-              {i18n.t("reason")}
+              {I18NextService.i18n.t("reason")}
             </label>
             <input
               type="text"
               id="profile-ban-reason"
-              className="form-control mr-2"
-              placeholder={i18n.t("reason")}
+              className="form-control me-2"
+              placeholder={I18NextService.i18n.t("reason")}
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
             />
             <label className="col-form-label" htmlFor={`mod-ban-expires`}>
-              {i18n.t("expires")}
+              {I18NextService.i18n.t("expires")}
             </label>
             <input
               type="number"
               id={`mod-ban-expires`}
-              className="form-control mr-2"
-              placeholder={i18n.t("number_of_days")}
+              className="form-control me-2"
+              placeholder={I18NextService.i18n.t("number_of_days")}
               value={this.state.banExpireDays}
               onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
             />
-            <div className="form-group">
+            <div className="input-group mb-3">
               <div className="form-check">
                 <input
                   className="form-check-input"
@@ -671,33 +670,33 @@ export class Profile extends Component<
                 <label
                   className="form-check-label"
                   htmlFor="mod-ban-remove-data"
-                  title={i18n.t("remove_content_more")}
+                  title={I18NextService.i18n.t("remove_content_more")}
                 >
-                  {i18n.t("remove_content")}
+                  {I18NextService.i18n.t("remove_content")}
                 </label>
               </div>
             </div>
           </div>
           {/* TODO hold off on expires until later */}
-          {/* <div class="form-group row"> */}
+          {/* <div class="mb-3 row"> */}
           {/*   <label class="col-form-label">Expires</label> */}
-          {/*   <input type="date" class="form-control mr-2" placeholder={i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
+          {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
           {/* </div> */}
-          <div className="form-group row">
+          <div className="mb-3 row">
             <button
               type="reset"
-              className="btn btn-secondary mr-2"
-              aria-label={i18n.t("cancel")}
+              className="btn btn-secondary me-2"
+              aria-label={I18NextService.i18n.t("cancel")}
               onClick={linkEvent(this, this.handleModBanSubmitCancel)}
             >
-              {i18n.t("cancel")}
+              {I18NextService.i18n.t("cancel")}
             </button>
             <button
               type="submit"
               className="btn btn-secondary"
-              aria-label={i18n.t("ban")}
+              aria-label={I18NextService.i18n.t("ban")}
             >
-              {i18n.t("ban")} {pv.person.name}
+              {I18NextService.i18n.t("ban")} {pv.person.name}
             </button>
           </div>
         </form>
@@ -901,14 +900,14 @@ export class Profile extends Component<
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
     if (reportRes.state === "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
     if (reportRes.state === "success") {
-      toast(i18n.t("report_created"));
+      toast(I18NextService.i18n.t("report_created"));
     }
   }
 
@@ -932,7 +931,7 @@ export class Profile extends Component<
 
   async handleTransferCommunity(form: TransferCommunity) {
     await HttpService.client.transferCommunity(form);
-    toast(i18n.t("transfer_community"));
+    toast(I18NextService.i18n.t("transfer_community"));
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
@@ -996,7 +995,7 @@ export class Profile extends Component<
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
     if (purgeRes.state == "success") {
-      toast(i18n.t("purge_success"));
+      toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }

@@ -1,3 +1,7 @@
+import { myAuth, showAvatars } from "@utils/app";
+import { isBrowser } from "@utils/browser";
+import { numToSI, poll } from "@utils/helpers";
+import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import {
@@ -6,21 +10,10 @@ import {
   GetUnreadCountResponse,
   GetUnreadRegistrationApplicationCountResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { donateLemmyUrl, updateUnreadCountsInterval } from "../../config";
+import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  amAdmin,
-  canCreateCommunity,
-  donateLemmyUrl,
-  isBrowser,
-  myAuth,
-  numToSI,
-  poll,
-  showAvatars,
-  toast,
-  updateUnreadCountsInterval,
-} from "../../utils";
+import { toast } from "../../toast";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 
@@ -36,7 +29,11 @@ interface NavbarState {
 }
 
 function handleCollapseClick(i: Navbar) {
-  if (i.collapseButtonRef.current?.ariaExpanded === "true") {
+  if (
+    i.collapseButtonRef.current?.attributes &&
+    i.collapseButtonRef.current?.attributes.getNamedItem("aria-expanded")
+      ?.value === "true"
+  ) {
     i.collapseButtonRef.current?.click();
   }
 }
@@ -77,12 +74,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     document.removeEventListener("mouseup", this.handleOutsideMenuClick);
   }
 
+  // TODO class active corresponding to current pages
   render() {
-    return this.navbar();
-  }
-
-  // TODO class active corresponding to current page
-  navbar() {
     const siteView = this.props.siteRes?.site_view;
     const person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
@@ -94,7 +87,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           id="navTitle"
           to="/"
           title={siteView?.site.description ?? siteView?.site.name}
-          className="d-flex align-items-center navbar-brand mr-md-3"
+          className="d-flex align-items-center navbar-brand me-md-3"
           onMouseUp={linkEvent(this, handleCollapseClick)}
         >
           {siteView?.site.icon && showAvatars() && (
@@ -103,12 +96,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           {siteView?.site.name}
         </NavLink>
         {person && (
-          <ul className="navbar-nav d-flex flex-row ml-auto d-md-none">
+          <ul className="navbar-nav d-flex flex-row ms-auto d-md-none">
             <li id="navMessages" className="nav-item nav-item-icon">
               <NavLink
                 to="/inbox"
                 className="p-1 nav-link border-0 nav-messages"
-                title={i18n.t("unread_messages", {
+                title={I18NextService.i18n.t("unread_messages", {
                   count: Number(this.state.unreadApplicationCountRes.state),
                   formattedCount: numToSI(this.unreadInboxCount),
                 })}
@@ -116,7 +109,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               >
                 <Icon icon="bell" />
                 {this.unreadInboxCount > 0 && (
-                  <span className="mx-1 badge badge-light">
+                  <span className="mx-1 badge text-bg-light">
                     {numToSI(this.unreadInboxCount)}
                   </span>
                 )}
@@ -127,7 +120,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/reports"
                   className="p-1 nav-link border-0"
-                  title={i18n.t("unread_reports", {
+                  title={I18NextService.i18n.t("unread_reports", {
                     count: Number(this.unreadReportCount),
                     formattedCount: numToSI(this.unreadReportCount),
                   })}
@@ -135,7 +128,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 >
                   <Icon icon="shield" />
                   {this.unreadReportCount > 0 && (
-                    <span className="mx-1 badge badge-light">
+                    <span className="mx-1 badge text-bg-light">
                       {numToSI(this.unreadReportCount)}
                     </span>
                   )}
@@ -147,15 +140,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/registration_applications"
                   className="p-1 nav-link border-0"
-                  title={i18n.t("unread_registration_applications", {
-                    count: Number(this.unreadApplicationCount),
-                    formattedCount: numToSI(this.unreadApplicationCount),
-                  })}
+                  title={I18NextService.i18n.t(
+                    "unread_registration_applications",
+                    {
+                      count: Number(this.unreadApplicationCount),
+                      formattedCount: numToSI(this.unreadApplicationCount),
+                    }
+                  )}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="clipboard" />
                   {this.unreadApplicationCount > 0 && (
-                    <span className="mx-1 badge badge-light">
+                    <span className="mx-1 badge text-bg-light">
                       {numToSI(this.unreadApplicationCount)}
                     </span>
                   )}
@@ -168,7 +164,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           className="navbar-toggler border-0 p-1"
           type="button"
           aria-label="menu"
-          data-tippy-content={i18n.t("expand_here")}
+          data-tippy-content={I18NextService.i18n.t("expand_here")}
           data-bs-toggle="collapse"
           data-bs-target="#navbarDropdown"
           aria-controls="navbarDropdown"
@@ -182,15 +178,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           id="navbarDropdown"
           ref={this.mobileMenuRef}
         >
-          <ul id="navbarLinks" className="mr-auto navbar-nav">
+          <ul id="navbarLinks" className="me-auto navbar-nav">
             <li className="nav-item">
               <NavLink
                 to="/communities"
                 className="nav-link"
-                title={i18n.t("communities")}
+                title={I18NextService.i18n.t("communities")}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
-                {i18n.t("communities")}
+                {I18NextService.i18n.t("communities")}
               </NavLink>
             </li>
             <li className="nav-item">
@@ -204,10 +200,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   state: { prevPath: this.currentLocation },
                 }}
                 className="nav-link"
-                title={i18n.t("create_post")}
+                title={I18NextService.i18n.t("create_post")}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
-                {i18n.t("create_post")}
+                {I18NextService.i18n.t("create_post")}
               </NavLink>
             </li>
             {this.props.siteRes && canCreateCommunity(this.props.siteRes) && (
@@ -215,22 +211,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/create_community"
                   className="nav-link"
-                  title={i18n.t("create_community")}
+                  title={I18NextService.i18n.t("create_community")}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
-                  {i18n.t("create_community")}
+                  {I18NextService.i18n.t("create_community")}
                 </NavLink>
               </li>
             )}
             <li className="nav-item">
               <a
                 className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                title={i18n.t("support_lemmy")}
+                title={I18NextService.i18n.t("support_lemmy")}
                 href={donateLemmyUrl}
               >
                 <Icon icon="heart" classes="small" />
-                <span className="d-inline ml-1 d-md-none ml-md-0">
-                  {i18n.t("support_lemmy")}
+                <span className="d-inline ms-1 d-md-none ms-md-0">
+                  {I18NextService.i18n.t("support_lemmy")}
                 </span>
               </a>
             </li>
@@ -240,12 +236,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <NavLink
                 to="/search"
                 className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                title={i18n.t("search")}
+                title={I18NextService.i18n.t("search")}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
                 <Icon icon="search" />
-                <span className="d-inline ml-1 d-md-none ml-md-0">
-                  {i18n.t("search")}
+                <span className="d-inline ms-1 d-md-none ms-md-0">
+                  {I18NextService.i18n.t("search")}
                 </span>
               </NavLink>
             </li>
@@ -254,12 +250,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/admin"
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                  title={i18n.t("admin_settings")}
+                  title={I18NextService.i18n.t("admin_settings")}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="settings" />
-                  <span className="d-inline ml-1 d-md-none ml-md-0">
-                    {i18n.t("admin_settings")}
+                  <span className="d-inline ms-1 d-md-none ms-md-0">
+                    {I18NextService.i18n.t("admin_settings")}
                   </span>
                 </NavLink>
               </li>
@@ -270,21 +266,21 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <NavLink
                     className="nav-link d-inline-flex align-items-center d-md-inline-block"
                     to="/inbox"
-                    title={i18n.t("unread_messages", {
+                    title={I18NextService.i18n.t("unread_messages", {
                       count: Number(this.unreadInboxCount),
                       formattedCount: numToSI(this.unreadInboxCount),
                     })}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="bell" />
-                    <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
-                      {i18n.t("unread_messages", {
+                    <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
+                      {I18NextService.i18n.t("unread_messages", {
                         count: Number(this.unreadInboxCount),
                         formattedCount: numToSI(this.unreadInboxCount),
                       })}
                     </span>
                     {this.unreadInboxCount > 0 && (
-                      <span className="mx-1 badge badge-light">
+                      <span className="mx-1 badge text-bg-light">
                         {numToSI(this.unreadInboxCount)}
                       </span>
                     )}
@@ -295,21 +291,21 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <NavLink
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       to="/reports"
-                      title={i18n.t("unread_reports", {
+                      title={I18NextService.i18n.t("unread_reports", {
                         count: Number(this.unreadReportCount),
                         formattedCount: numToSI(this.unreadReportCount),
                       })}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="shield" />
-                      <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
-                        {i18n.t("unread_reports", {
+                      <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
+                        {I18NextService.i18n.t("unread_reports", {
                           count: Number(this.unreadReportCount),
                           formattedCount: numToSI(this.unreadReportCount),
                         })}
                       </span>
                       {this.unreadReportCount > 0 && (
-                        <span className="mx-1 badge badge-light">
+                        <span className="mx-1 badge text-bg-light">
                           {numToSI(this.unreadReportCount)}
                         </span>
                       )}
@@ -321,21 +317,29 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <NavLink
                       to="/registration_applications"
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                      title={i18n.t("unread_registration_applications", {
-                        count: Number(this.unreadApplicationCount),
-                        formattedCount: numToSI(this.unreadApplicationCount),
-                      })}
+                      title={I18NextService.i18n.t(
+                        "unread_registration_applications",
+                        {
+                          count: Number(this.unreadApplicationCount),
+                          formattedCount: numToSI(this.unreadApplicationCount),
+                        }
+                      )}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="clipboard" />
-                      <span className="badge badge-light d-inline ml-1 d-md-none ml-md-0">
-                        {i18n.t("unread_registration_applications", {
-                          count: Number(this.unreadApplicationCount),
-                          formattedCount: numToSI(this.unreadApplicationCount),
-                        })}
+                      <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
+                        {I18NextService.i18n.t(
+                          "unread_registration_applications",
+                          {
+                            count: Number(this.unreadApplicationCount),
+                            formattedCount: numToSI(
+                              this.unreadApplicationCount
+                            ),
+                          }
+                        )}
                       </span>
                       {this.unreadApplicationCount > 0 && (
-                        <span className="mx-1 badge badge-light">
+                        <span className="mx-1 badge text-bg-light">
                           {numToSI(this.unreadApplicationCount)}
                         </span>
                       )}
@@ -363,22 +367,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         <NavLink
                           to={`/u/${person.name}`}
                           className="dropdown-item px-2"
-                          title={i18n.t("profile")}
+                          title={I18NextService.i18n.t("profile")}
                           onMouseUp={linkEvent(this, handleCollapseClick)}
                         >
-                          <Icon icon="user" classes="mr-1" />
-                          {i18n.t("profile")}
+                          <Icon icon="user" classes="me-1" />
+                          {I18NextService.i18n.t("profile")}
                         </NavLink>
                       </li>
                       <li>
                         <NavLink
                           to="/settings"
                           className="dropdown-item px-2"
-                          title={i18n.t("settings")}
+                          title={I18NextService.i18n.t("settings")}
                           onMouseUp={linkEvent(this, handleCollapseClick)}
                         >
-                          <Icon icon="settings" classes="mr-1" />
-                          {i18n.t("settings")}
+                          <Icon icon="settings" classes="me-1" />
+                          {I18NextService.i18n.t("settings")}
                         </NavLink>
                       </li>
                       <li>
@@ -389,8 +393,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           className="dropdown-item btn btn-link px-2"
                           onClick={linkEvent(this, handleLogOut)}
                         >
-                          <Icon icon="log-out" classes="mr-1" />
-                          {i18n.t("logout")}
+                          <Icon icon="log-out" classes="me-1" />
+                          {I18NextService.i18n.t("logout")}
                         </button>
                       </li>
                     </ul>
@@ -403,20 +407,20 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <NavLink
                     to="/login"
                     className="nav-link"
-                    title={i18n.t("login")}
+                    title={I18NextService.i18n.t("login")}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
-                    {i18n.t("login")}
+                    {I18NextService.i18n.t("login")}
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink
                     to="/signup"
                     className="nav-link"
-                    title={i18n.t("sign_up")}
+                    title={I18NextService.i18n.t("sign_up")}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
-                    {i18n.t("sign_up")}
+                    {I18NextService.i18n.t("sign_up")}
                   </NavLink>
                 </li>
               </>
@@ -510,7 +514,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (UserService.Instance.myUserInfo) {
       document.addEventListener("DOMContentLoaded", function () {
         if (!Notification) {
-          toast(i18n.t("notifications_error"), "danger");
+          toast(I18NextService.i18n.t("notifications_error"), "danger");
           return;
         }
 

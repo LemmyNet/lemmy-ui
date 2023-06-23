@@ -1,9 +1,11 @@
+import { myAuth, setIsoData } from "@utils/app";
+import { isBrowser } from "@utils/browser";
+import { validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { isBrowser, myAuth, setIsoData, toast, validEmail } from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -40,7 +42,9 @@ export class Login extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("login")} - ${this.state.siteRes.site_view.site.name}`;
+    return `${I18NextService.i18n.t("login")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   get isLemmyMl(): boolean {
@@ -49,7 +53,7 @@ export class Login extends Component<any, State> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="login container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -65,13 +69,13 @@ export class Login extends Component<any, State> {
     return (
       <div>
         <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
-          <h5>{i18n.t("login")}</h5>
-          <div className="form-group row">
+          <h5>{I18NextService.i18n.t("login")}</h5>
+          <div className="mb-3 row">
             <label
               className="col-sm-2 col-form-label"
               htmlFor="login-email-or-username"
             >
-              {i18n.t("email_or_username")}
+              {I18NextService.i18n.t("email_or_username")}
             </label>
             <div className="col-sm-10">
               <input
@@ -86,9 +90,9 @@ export class Login extends Component<any, State> {
               />
             </div>
           </div>
-          <div className="form-group row">
+          <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="login-password">
-              {i18n.t("password")}
+              {I18NextService.i18n.t("password")}
             </label>
             <div className="col-sm-10">
               <input
@@ -109,19 +113,19 @@ export class Login extends Component<any, State> {
                   !!this.state.form.username_or_email &&
                   !validEmail(this.state.form.username_or_email)
                 }
-                title={i18n.t("no_password_reset")}
+                title={I18NextService.i18n.t("no_password_reset")}
               >
-                {i18n.t("forgot_password")}
+                {I18NextService.i18n.t("forgot_password")}
               </button>
             </div>
           </div>
           {this.state.showTotp && (
-            <div className="form-group row">
+            <div className="mb-3 row">
               <label
                 className="col-sm-6 col-form-label"
                 htmlFor="login-totp-token"
               >
-                {i18n.t("two_factor_token")}
+                {I18NextService.i18n.t("two_factor_token")}
               </label>
               <div className="col-sm-6">
                 <input
@@ -137,13 +141,13 @@ export class Login extends Component<any, State> {
               </div>
             </div>
           )}
-          <div className="form-group row">
+          <div className="mb-3 row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-secondary">
                 {this.state.loginRes.state == "loading" ? (
                   <Spinner />
                 ) : (
-                  i18n.t("login")
+                  I18NextService.i18n.t("login")
                 )}
               </button>
             </div>
@@ -169,7 +173,7 @@ export class Login extends Component<any, State> {
         case "failed": {
           if (loginRes.msg === "missing_totp_token") {
             i.setState({ showTotp: true });
-            toast(i18n.t("enter_two_factor_code"), "info");
+            toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
           }
 
           i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
@@ -217,7 +221,7 @@ export class Login extends Component<any, State> {
     if (email) {
       const res = await HttpService.client.passwordReset({ email });
       if (res.state == "success") {
-        toast(i18n.t("reset_password_mail_sent"));
+        toast(I18NextService.i18n.t("reset_password_mail_sent"));
       }
     }
   }

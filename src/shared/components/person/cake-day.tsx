@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 
 interface CakeDayProps {
@@ -10,7 +10,7 @@ export class CakeDay extends Component<CakeDayProps, any> {
   render() {
     return (
       <div
-        className={`mx-2 d-inline-block unselectable pointer`}
+        className={`cake-day mx-2 d-inline-block unselectable pointer`}
         data-tippy-content={this.cakeDayTippy()}
       >
         <Icon icon="cake" classes="icon-inline" />
@@ -19,6 +19,8 @@ export class CakeDay extends Component<CakeDayProps, any> {
   }
 
   cakeDayTippy(): string {
-    return i18n.t("cake_day_info", { creator_name: this.props.creatorName });
+    return I18NextService.i18n.t("cake_day_info", {
+      creator_name: this.props.creatorName,
+    });
   }
 }
