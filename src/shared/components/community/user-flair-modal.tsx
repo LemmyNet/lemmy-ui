@@ -1,61 +1,124 @@
 import { Component } from 'inferno';
 import { Icon } from "../common/icon";
 
+interface UserFlair {
+    id: number;
+    name: string;
+    image: string;
+}
+
+const flairs = [{
+    "id": 0,
+    "name": "AuthLeft",
+    "image": "https://emoji.redditmedia.com/tusmt4eqnar31_t5_3ipa1/authleft"
+  },{
+    "id": 1,
+    "name": "AuthCenter",
+    "image": "https://emoji.redditmedia.com/16q94zxonar31_t5_3ipa1/auth"
+  },{
+    "id": 2,
+    "name": "AuthRight",
+    "image": "https://emoji.redditmedia.com/4ak3jtrrnar31_t5_3ipa1/authright"
+  },{
+    "id": 3,
+    "name": "Left",
+    "image": "https://emoji.redditmedia.com/w977vwiynar31_t5_3ipa1/left"
+  },{
+    "id": 4,
+    "name": "Centrist",
+    "image": "https://emoji.redditmedia.com/6zhv8hgvoar31_t5_3ipa1/centrist"
+  },{
+    "id": 5,
+    "name": "Right",
+    "image": "https://emoji.redditmedia.com/x5otkjy5oar31_t5_3ipa1/right"
+  },{
+    "id": 6,
+    "name": "LibLeft",
+    "image": "https://emoji.redditmedia.com/d4hfiki0oar31_t5_3ipa1/libleft"
+  },{
+    "id": 7,
+    "name": "LibCenter",
+    "image": "https://emoji.redditmedia.com/s03ozdmznar31_t5_3ipa1/lib"
+  },{
+    "id": 8,
+    "name": "LibRight",
+    "image": "https://emoji.redditmedia.com/hts92712oar31_t5_3ipa1/libright"
+  },{
+    "id": 9,
+    "name": "Centrist",
+    "image": "https://emoji.redditmedia.com/bxv3jzc85q851_t5_3ipa1/CENTG"
+  },{
+    "id": 10,
+    "name": "LibRight",
+    "image": "https://emoji.redditmedia.com/9usjafiot7t31_t5_3ipa1/libright2"
+}] satisfies UserFlair[];
+
 export class UserFlairModal extends Component {
     showDialog = () => {
         const userFlairDialog = document.getElementById("userFlairDialog") as HTMLDialogElement;
         userFlairDialog.showModal();
     }
 
-  render() {
+    render() {
     document.addEventListener("DOMContentLoaded", () => {
         const userFlairDialog = document.getElementById("userFlairDialog") as HTMLDialogElement;
-        const selectEl = userFlairDialog.querySelector("select") as HTMLSelectElement ; //TODO change
+        const removeFlairBtn = userFlairDialog.querySelector("#removeFlairBtn") as HTMLInputElement ;
         const confirmFlairBtn = userFlairDialog.querySelector("#confirmFlairBtn") as HTMLInputElement ;
 
-        selectEl.focus();
-
-        // "Favorite animal" input sets the value of the submit button
-        selectEl.addEventListener("change", () => {
-            confirmFlairBtn.value = selectEl.value;
-        });
-
-        // Prevent the "confirm" button from the default behavior of submitting the form, and close the dialog with the `close()` method, which triggers the "close" event.
         confirmFlairBtn.addEventListener("click", (event) => {
             event.preventDefault(); // We don't want to submit this fake form
-            userFlairDialog.close(selectEl.value); // Have to send the select box value here.
 
+            // Get the value of the selected radio button
+            const selectedValue = (userFlairDialog.querySelector('input[name="userFlair"]:checked') as HTMLInputElement)?.value;
+    
+            userFlairDialog.close(selectedValue); // Send the selected value here.
+    
             const val = userFlairDialog.returnValue;
-            if(val !== 'cancel' && val !== 'default') console.log('Flair picked: ', val);
+            if (val !== 'cancel' && val !== 'default') console.log('Flair picked: ', val);
+        });
+        
+        removeFlairBtn.addEventListener("click", (event) => {
+            event.preventDefault(); // We don't want to submit this fake form
+            
+            // Uncheck the checked radio button
+            const checkedRadioButton = userFlairDialog.querySelector('input[name="userFlair"]:checked') as HTMLInputElement;
+            if (checkedRadioButton) {
+                checkedRadioButton.checked = false;
+            }
 
+            userFlairDialog.close(); // Send the selected value here.
+    
+            console.log('Flair removed');
         });
     });
 
     return (
         <dialog id="userFlairDialog" class="bg-light text-dark rounded" style="border-width: 1px;">
             <form>
-                <div class="row justify-content-end mx-0">
-                    <button class="btn btn-outline-dark btn-sm rounded-circle" value="cancel" formMethod="dialog">                  
-                        <Icon icon="x" classes="icon-inline fs-6" />
-                    </button>
-                </div>
-            <p>
-                <label>
-                Pick your flair:
-                <br></br>
-                <select>
-                    <option value="default">Choose…</option>
-                    <option>🟦 - AuthRight</option>
-                    <option>🟥 - AuthLeft</option>
-                    <option>🟩 - LibLeft</option>
-                </select>
-                </label>
-            </p>
-            <div style="display:grid;grid-template-columns: repeat(4, minmax(0, 1fr));">
+
+            <div class="d-flex justify-content-between mb-4">
+            <h5>Pick your flair:</h5>
+            <button class="btn btn-outline-dark btn-sm rounded-circle" value="cancel" formMethod="dialog">
+                <Icon icon="x" classes="icon-inline fs-6" />
+            </button>
+            </div>
+         
+            <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));column-gap: 1rem;row-gap: 0.25rem;" class="w-100">
+                {flairs.map(flair => (
+                    <span>
+                        <input type="radio" name="userFlair" value={flair.id} class="mr-2" id={"userFlair"+flair.id}/>
+                        <label htmlFor={"userFlair"+flair.id}>
+                            <img src={flair.image} style="height:1rem;" class="mr-2"></img>
+                            <span>{flair.name}</span>
+                        </label>
+                    </span>
+                ))}
+            </div>
+               
+            <div style="display:grid;grid-template-columns: repeat(3, minmax(0, 1fr));column-gap: 1rem;">
+                <button class="btn btn-outline-dark" id="removeFlairBtn" value="default">Remove flair</button>
                 <div/>
-                <div/>
-                <div/>
-                <button class="btn btn-dark" id="confirmFlairBtn" value="default">Confirm</button>
+                <button class="btn btn-dark" id="confirmFlairBtn" value="cancel" formMethod="dialog">Confirm</button>
             </div>
             </form>
         </dialog>
