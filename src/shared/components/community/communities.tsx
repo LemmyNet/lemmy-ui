@@ -11,8 +11,8 @@ import {
   getQueryString,
   numToSI,
 } from "@utils/helpers";
-import type { CommunityAggregateKeys, QueryParams } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import type { QueryParams } from "@utils/types";
+import { CommunityAggregateKeys, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
