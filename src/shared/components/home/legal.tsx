@@ -2,7 +2,7 @@ import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
-import { FirstLoadService, I18NextService } from "../../services";
+import { I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 
 interface LegalState {
@@ -17,8 +17,6 @@ export class Legal extends Component<any, LegalState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    FirstLoadService.isFirstLoad;
   }
 
   get documentTitle(): string {
