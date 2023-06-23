@@ -11,7 +11,7 @@ import {
   getQueryString,
   numToSI,
 } from "@utils/helpers";
-import type { QueryParams } from "@utils/types";
+import type { CommunityAggregateKeys, QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
@@ -41,6 +41,8 @@ interface CommunitiesState {
   siteRes: GetSiteResponse;
   searchText: string;
   isIsomorphic: boolean;
+  sortField: CommunityAggregateKeys;
+  sortOrder: SortOrders;
 }
 
 interface CommunitiesProps {
@@ -52,6 +54,11 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : "Local";
 }
 
+enum SortOrders {
+  ASC,
+  DESC,
+}
+
 export class Communities extends Component<any, CommunitiesState> {
   private isoData = setIsoData<CommunitiesData>(this.context);
   state: CommunitiesState = {
@@ -59,6 +66,8 @@ export class Communities extends Component<any, CommunitiesState> {
     siteRes: this.isoData.site_res,
     searchText: "",
     isIsomorphic: false,
+    sortField: CommunityAggregateKeys.COMMUNITY_ID,
+    sortOrder: SortOrders.ASC,
   };
 
   constructor(props: any, context: any) {
@@ -78,6 +87,24 @@ export class Communities extends Component<any, CommunitiesState> {
     }
   }
 
+  sortFunction(i: this) {
+    return function (a, b) {
+      switch (i.state.sortOrder) {
+        case SortOrders.ASC:
+          return (
+            (b.counts[i.state.sortField] as number) -
+            (a.counts[i.state.sortField] as number)
+          );
+        case SortOrders.DESC:
+        default:
+          return (
+            (a.counts[i.state.sortField] as number) -
+            (b.counts[i.state.sortField] as number)
+          );
+      }
+    };
+  }
+
   async componentDidMount() {
     if (!this.state.isIsomorphic) {
       await this.refetch();
@@ -88,6 +115,16 @@ export class Communities extends Component<any, CommunitiesState> {
     return `${I18NextService.i18n.t("communities")} - ${
       this.state.siteRes.site_view.site.name
     }`;
+  }
+
+  handleClickHeader(data: { i: Communities; field: CommunityAggregateKeys }) {
+    data.i.setState({ sortField: data.field });
+    data.i.setState({
+      sortOrder:
+        data.i.state.sortOrder === SortOrders.ASC
+          ? SortOrders.DESC
+          : SortOrders.ASC,
+    });
   }
 
   renderListings() {
@@ -124,26 +161,83 @@ export class Communities extends Component<any, CommunitiesState> {
               >
                 <thead className="pointer">
                   <tr>
-                    <th>{I18NextService.i18n.t("name")}</th>
-                    <th className="text-right">
-                      {I18NextService.i18n.t("subscribers")}
+                    <th>
+                      <button
+                        className="btn btn-link p-0"
+                        type="button"
+                        onClick={linkEvent(
+                          {
+                            i: this,
+                            field: CommunityAggregateKeys.SUBSCRIBERS,
+                          },
+                          this.handleClickHeader
+                        )}
+                      >
+                        {I18NextService.i18n.t("name")}
+                      </button>
                     </th>
                     <th className="text-right">
-                      {I18NextService.i18n.t("users")} /{" "}
-                      {I18NextService.i18n.t("month")}
+                      <button
+                        className="btn btn-link p-0"
+                        type="button"
+                        onClick={linkEvent(
+                          {
+                            i: this,
+                            field: CommunityAggregateKeys.SUBSCRIBERS,
+                          },
+                          this.handleClickHeader
+                        )}
+                      >
+                        {I18NextService.i18n.t("subscribers")}
+                      </button>
+                    </th>
+                    <th className="text-right">
+                      <button
+                        className="btn btn-link p-0"
+                        type="button"
+                        onClick={linkEvent(
+                          {
+                            i: this,
+                            field: CommunityAggregateKeys.USERS_ACTIVE_MONTH,
+                          },
+                          this.handleClickHeader
+                        )}
+                      >
+                        {I18NextService.i18n.t("users")} /{" "}
+                        {I18NextService.i18n.t("month")}
+                      </button>
                     </th>
                     <th className="text-right d-none d-lg-table-cell">
-                      {I18NextService.i18n.t("posts")}
+                      <button
+                        className="btn btn-link p-0"
+                        type="button"
+                        onClick={linkEvent(
+                          { i: this, field: CommunityAggregateKeys.POSTS },
+                          this.handleClickHeader
+                        )}
+                      >
+                        {I18NextService.i18n.t("posts")}
+                      </button>
                     </th>
                     <th className="text-right d-none d-lg-table-cell">
-                      {I18NextService.i18n.t("comments")}
+                      <button
+                        className="btn btn-link p-0"
+                        type="button"
+                        onClick={linkEvent(
+                          { i: this, field: CommunityAggregateKeys.COMMENTS },
+                          this.handleClickHeader
+                        )}
+                      >
+                        {I18NextService.i18n.t("comments")}
+                      </button>
                     </th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.listCommunitiesResponse.data.communities.map(
-                    cv => (
+                  {this.state.listCommunitiesResponse.data.communities
+                    .sort(this.sortFunction(this))
+                    .map(cv => (
                       <tr key={cv.community.id}>
                         <td>
                           <CommunityLink community={cv.community} />
@@ -198,8 +292,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           )}
                         </td>
                       </tr>
-                    )
-                  )}
+                    ))}
                 </tbody>
               </table>
             </div>

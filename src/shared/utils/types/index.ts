@@ -1,4 +1,5 @@
 import Choice from "./choice";
+import { CommunityAggregateKeys } from "./community";
 import CommunityTribute from "./community-tribute";
 import ErrorPageData from "./error-page-data";
 import PersonTribute from "./person-tribute";
@@ -9,6 +10,7 @@ import WithComment from "./with-comment";
 
 export {
   Choice,
+  CommunityAggregateKeys,
   CommunityTribute,
   ErrorPageData,
   PersonTribute,
