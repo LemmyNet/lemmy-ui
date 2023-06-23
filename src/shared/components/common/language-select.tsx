@@ -49,39 +49,41 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     return this.props.iconVersion ? (
       this.selectBtn
     ) : (
-      <div className="language-select">
+      <div className="language-select mb-3">
+        <label
+          className={classNames(
+            "col-form-label",
+            `col-sm-${this.props.multiple ? 3 : 2}`
+          )}
+          htmlFor={this.id}
+        >
+          {I18NextService.i18n.t(
+            this.props.multiple ? "language_plural" : "language"
+          )}
+        </label>
         {this.props.multiple && this.props.showLanguageWarning && (
-          <div className="alert alert-warning" role="alert">
+          <div
+            id="lang-warning"
+            className="alert small alert-warning"
+            role="alert"
+          >
             {I18NextService.i18n.t("undetermined_language_warning")}
           </div>
         )}
-        <div className="mb-3 row">
-          <label
-            className={classNames(
-              "col-form-label",
-              `col-sm-${this.props.multiple ? 3 : 2}`
-            )}
-            htmlFor={this.id}
-          >
-            {I18NextService.i18n.t(
-              this.props.multiple ? "language_plural" : "language"
-            )}
-          </label>
-          <div
-            className={classNames(`col-sm-${this.props.multiple ? 9 : 10}`, {
-              "input-group": this.props.multiple,
-            })}
-          >
-            {this.selectBtn}
-            {this.props.multiple && (
-              <button
-                className="btn btn-outline-secondary"
-                onClick={linkEvent(this, this.handleDeselectAll)}
-              >
-                <Icon icon="x" />
-              </button>
-            )}
-          </div>
+        <div
+          className={classNames(`col-sm-${this.props.multiple ? 9 : 10}`, {
+            "input-group": this.props.multiple,
+          })}
+        >
+          {this.selectBtn}
+          {this.props.multiple && (
+            <button
+              className="btn btn-outline-secondary"
+              onClick={linkEvent(this, this.handleDeselectAll)}
+            >
+              <Icon icon="x" />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -105,6 +107,11 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
         id={this.id}
         onChange={linkEvent(this, this.handleLanguageChange)}
         aria-label={I18NextService.i18n.t("language_select_placeholder")}
+        aria-describedby={
+          this.props.multiple && this.props.showLanguageWarning
+            ? "lang-warning"
+            : ""
+        }
         multiple={this.props.multiple}
         disabled={this.props.disabled}
       >
