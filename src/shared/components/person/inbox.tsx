@@ -177,9 +177,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.refetch();
-    }
+    await this.refetch();
   }
 
   get documentTitle(): string {
@@ -195,11 +193,11 @@ export class Inbox extends Component<any, InboxState> {
     if (this.state.unreadOrAll == UnreadOrAll.Unread) {
       const { repliesRes, mentionsRes, messagesRes } = this.state;
       const replyCount =
-        repliesRes.state == "success" ? repliesRes.data.replies.length : 0;
+        repliesRes?.state == "success" ? repliesRes.data.replies.length : 0;
       const mentionCount =
-        mentionsRes.state == "success" ? mentionsRes.data.mentions.length : 0;
+        mentionsRes?.state == "success" ? mentionsRes.data.mentions.length : 0;
       const messageCount =
-        messagesRes.state == "success"
+        messagesRes?.state == "success"
           ? messagesRes.data.private_messages.length
           : 0;
 

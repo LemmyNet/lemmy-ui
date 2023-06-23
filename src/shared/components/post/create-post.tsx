@@ -103,7 +103,7 @@ export class CreatePost extends Component<
         id: communityId,
         auth,
       });
-      if (res.state === "success") {
+      if (res?.state === "success") {
         this.setState({
           selectedCommunityChoice: {
             label: res.data.community_view.community.title,
@@ -116,28 +116,23 @@ export class CreatePost extends Component<
   }
 
   async componentDidMount() {
-    // TODO test this
-    if (!this.state.isIsomorphic) {
-      const { communityId } = getCreatePostQueryParams();
+    const { communityId } = getCreatePostQueryParams();
 
-      const initialCommunitiesRes = await fetchCommunitiesForOptions(
-        HttpService.client
-      );
+    const initialCommunitiesRes = await fetchCommunitiesForOptions(
+      HttpService.client
+    );
 
+    this.setState({
+      initialCommunitiesRes,
+    });
+
+    if (communityId?.toString() !== this.state.selectedCommunityChoice?.value) {
+      await this.fetchCommunity();
+    } else if (!communityId) {
       this.setState({
-        initialCommunitiesRes,
+        selectedCommunityChoice: undefined,
+        loading: false,
       });
-
-      if (
-        communityId?.toString() !== this.state.selectedCommunityChoice?.value
-      ) {
-        await this.fetchCommunity();
-      } else if (!communityId) {
-        this.setState({
-          selectedCommunityChoice: undefined,
-          loading: false,
-        });
-      }
     }
   }
 
@@ -181,8 +176,8 @@ export class CreatePost extends Component<
                 selectedCommunityChoice={selectedCommunityChoice}
                 onSelectCommunity={this.handleSelectedCommunityChange}
                 initialCommunities={
-                  this.state.initialCommunitiesRes.state === "success"
-                    ? this.state.initialCommunitiesRes.data.communities
+                  this.state.initialCommunitiesRes?.state === "success"
+                    ? this.state.initialCommunitiesRes?.data.communities
                     : []
                 }
               />
@@ -224,7 +219,7 @@ export class CreatePost extends Component<
   async handlePostCreate(form: CreatePostI) {
     const res = await HttpService.client.createPost(form);
 
-    if (res.state === "success") {
+    if (res?.state === "success") {
       const postId = res.data.post_view.post.id;
       this.props.history.replace(`/post/${postId}`);
     } else {

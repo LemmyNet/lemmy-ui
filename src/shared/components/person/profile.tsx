@@ -10,7 +10,6 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
-import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
@@ -216,14 +215,8 @@ export class Profile extends Component<
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchUserData();
-    }
+    await this.fetchUserData();
     setupTippy();
-  }
-
-  componentWillUnmount() {
-    saveScrollPosition(this.context);
   }
 
   async fetchUserData() {
@@ -240,12 +233,12 @@ export class Profile extends Component<
         auth: myAuth(),
       }),
     });
-    restoreScrollPosition(this.context);
+
     this.setPersonBlock();
   }
 
   get amCurrentUser() {
-    if (this.state.personRes.state === "success") {
+    if (this.state.personRes?.state === "success") {
       return (
         UserService.Instance.myUserInfo?.local_user_view.person.id ===
         this.state.personRes.data.person_view.person.id
@@ -302,7 +295,7 @@ export class Profile extends Component<
   }
 
   renderPersonRes() {
-    switch (this.state.personRes.state) {
+    switch (this.state.personRes?.state) {
       case "loading":
         return (
           <h5>

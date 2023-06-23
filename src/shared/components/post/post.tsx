@@ -270,9 +270,7 @@ export class Post extends Component<any, PostState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchPost();
-    }
+    await this.fetchPost();
 
     autosize(document.querySelectorAll("textarea"));
 

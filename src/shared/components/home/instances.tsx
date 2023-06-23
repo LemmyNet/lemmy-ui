@@ -45,9 +45,7 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchInstances();
-    }
+    await this.fetchInstances();
   }
 
   async fetchInstances() {

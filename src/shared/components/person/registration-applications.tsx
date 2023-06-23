@@ -68,9 +68,7 @@ export class RegistrationApplications extends Component<
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.refetch();
-    }
+    await this.refetch();
     setupTippy();
   }
 
@@ -84,7 +82,7 @@ export class RegistrationApplications extends Component<
   }
 
   renderApps() {
-    switch (this.state.appsRes.state) {
+    switch (this.state.appsRes?.state) {
       case "loading":
         return (
           <h5>
@@ -92,7 +90,7 @@ export class RegistrationApplications extends Component<
           </h5>
         );
       case "success": {
-        const apps = this.state.appsRes.data.registration_applications;
+        const apps = this.state.appsRes?.data.registration_applications;
         return (
           <div className="row">
             <div className="col-12">

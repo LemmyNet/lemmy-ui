@@ -221,9 +221,7 @@ export class Community extends Component<
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await Promise.all([this.fetchCommunity(), this.fetchData()]);
-    }
+    await Promise.all([this.fetchCommunity(), this.fetchData()]);
 
     setupTippy();
   }

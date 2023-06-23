@@ -129,9 +129,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.refetch();
-    }
+    await this.refetch();
   }
 
   get documentTitle(): string {
@@ -329,6 +327,11 @@ export class Reports extends Component<any, ReportsState> {
 
   get buildCombined(): ItemType[] {
     const commentRes = this.state.commentReportsRes;
+
+    if (!commentRes) {
+      return [];
+    }
+
     const comments =
       commentRes.state == "success"
         ? commentRes.data.comment_reports.map(this.commentReportToItemType)

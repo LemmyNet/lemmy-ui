@@ -332,14 +332,12 @@ export class Search extends Component<any, SearchState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      const promises = [this.fetchCommunities()];
-      if (this.state.searchText) {
-        promises.push(this.search());
-      }
-
-      await Promise.all(promises);
+    const promises = [this.fetchCommunities()];
+    if (this.state.searchText) {
+      promises.push(this.search());
     }
+
+    await Promise.all(promises);
   }
 
   async fetchCommunities() {

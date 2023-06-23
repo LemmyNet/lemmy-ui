@@ -101,9 +101,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchData();
-    }
+    await this.fetchData();
   }
 
   get documentTitle(): string {
@@ -114,7 +112,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
   render() {
     const federationData =
-      this.state.instancesRes.state === "success"
+      this.state.instancesRes?.state === "success"
         ? this.state.instancesRes.data.federated_instances
         : undefined;
 
@@ -281,7 +279,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   bannedUsers() {
-    switch (this.state.bannedRes.state) {
+    switch (this.state.bannedRes?.state) {
       case "loading":
         return (
           <h5>
@@ -289,7 +287,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
           </h5>
         );
       case "success": {
-        const bans = this.state.bannedRes.data.banned;
+        const bans = this.state.bannedRes?.data.banned;
         return (
           <>
             <h5>{I18NextService.i18n.t("banned_users")}</h5>

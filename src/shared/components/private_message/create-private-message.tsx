@@ -54,9 +54,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchPersonDetails();
-    }
+    await this.fetchPersonDetails();
   }
 
   static async fetchInitialData({

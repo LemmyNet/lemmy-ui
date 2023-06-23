@@ -837,7 +837,7 @@ export class Modlog extends Component<
   }
 
   renderModlogTable() {
-    switch (this.state.res.state) {
+    switch (this.state.res?.state) {
       case "loading":
         return (
           <h5>

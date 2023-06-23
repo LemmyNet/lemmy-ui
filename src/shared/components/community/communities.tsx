@@ -79,9 +79,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.refetch();
-    }
+    await this.refetch();
   }
 
   get documentTitle(): string {
@@ -91,7 +89,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   renderListings() {
-    switch (this.state.listCommunitiesResponse.state) {
+    switch (this.state.listCommunitiesResponse?.state) {
       case "loading":
         return (
           <h5>
