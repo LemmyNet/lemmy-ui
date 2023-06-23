@@ -46,7 +46,7 @@ import searchCommentTree from "./search-comment-tree";
 import selectableLanguages from "./selectable-languages";
 import setIsoData from "./set-iso-data";
 import setTheme from "./set-theme";
-import setupI18Next from "./setup-date-fns";
+import setupDateFns from "./setup-date-fns";
 import showAvatars from "./show-avatars";
 import showLocal from "./show-local";
 import showScores from "./show-scores";
@@ -103,7 +103,7 @@ export {
   selectableLanguages,
   setIsoData,
   setTheme,
-  setupI18Next,
+  setupDateFns,
   showAvatars,
   showLocal,
   showScores,
