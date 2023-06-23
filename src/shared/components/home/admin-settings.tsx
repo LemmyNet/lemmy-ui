@@ -4,6 +4,7 @@ import {
   setIsoData,
   showLocal,
 } from "@utils/app";
+import { isBrowser } from "@utils/browser";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -74,7 +75,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
 
     // Only fetch the data if coming from another route
-    if (FirstLoadService.isFirstLoad) {
+    if (!isBrowser() || FirstLoadService.isFirstLoad) {
       const { bannedRes, instancesRes } = this.isoData.routeData;
 
       this.state = {

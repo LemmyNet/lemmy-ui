@@ -10,7 +10,11 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
-import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import {
+  isBrowser,
+  restoreScrollPosition,
+  saveScrollPosition,
+} from "@utils/browser";
 import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
@@ -206,7 +210,7 @@ export class Profile extends Component<
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
 
     // Only fetch the data if coming from another route
-    if (FirstLoadService.isFirstLoad) {
+    if (!isBrowser() || FirstLoadService.isFirstLoad) {
       this.state = {
         ...this.state,
         personRes: this.isoData.routeData.personResponse,
