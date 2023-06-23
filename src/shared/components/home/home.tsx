@@ -13,7 +13,6 @@ import {
   showLocal,
   updatePersonBlock,
 } from "@utils/app";
-import { isBrowser } from "@utils/browser";
 import {
   getPageFromString,
   getQueryParams,
@@ -264,7 +263,7 @@ export class Home extends Component<any, HomeState> {
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
 
     // Only fetch the data if coming from another route
-    if (!isBrowser() || FirstLoadService.isFirstLoad) {
+    if (FirstLoadService.isFirstLoad) {
       const { trendingCommunitiesRes, commentsRes, postsRes } =
         this.isoData.routeData;
 
