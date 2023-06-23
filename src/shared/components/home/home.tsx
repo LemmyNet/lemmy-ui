@@ -642,7 +642,7 @@ export class Home extends Component<any, HomeState> {
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
-      switch (this.state.postsRes.state) {
+      switch (this.state.postsRes?.state) {
         case "loading":
           return (
             <h5>
