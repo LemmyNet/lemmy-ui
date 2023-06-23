@@ -1,6 +1,7 @@
 import capitalizeFirstLetter from "./capitalize-first-letter";
 import debounce from "./debounce";
 import editListImmutable from "./edit-list-immutable";
+import formatPastDate from "./format-past-date";
 import futureDaysToUnixTime from "./future-days-to-unix-time";
 import getIdFromString from "./get-id-from-string";
 import getPageFromString from "./get-page-from-string";
@@ -26,6 +27,7 @@ export {
   capitalizeFirstLetter,
   debounce,
   editListImmutable,
+  formatPastDate,
   futureDaysToUnixTime,
   getIdFromString,
   getPageFromString,
