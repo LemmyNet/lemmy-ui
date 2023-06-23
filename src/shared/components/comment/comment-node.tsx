@@ -317,17 +317,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 </div>
               )}
               {isMod_ && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
+                <div className="badge d-none d-sm-inline me-2">
                   {I18NextService.i18n.t("mod")}
                 </div>
               )}
               {isAdmin_ && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
+                <div className="badge d-none d-sm-inline me-2">
                   {I18NextService.i18n.t("admin")}
                 </div>
               )}
               {cv.creator.bot_account && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
+                <div className="badge d-none d-sm-inline me-2">
                   {I18NextService.i18n.t("bot_account").toLowerCase()}
                 </div>
               )}
@@ -343,7 +343,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               )}
               {this.linkBtn(true)}
               {cv.comment.language_id !== 0 && (
-                <span className="badge text-bg-light d-none d-sm-inline me-2">
+                <span className="badge d-none d-sm-inline me-2">
                   {
                     this.props.allLanguages.find(
                       lang => lang.id === cv.comment.language_id
