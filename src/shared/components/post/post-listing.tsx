@@ -600,7 +600,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <VoteButtonsCompact
             id={this.postView.post.id}
             onVote={this.props.onPostVote}
-            postListing={this}
             enableDownvotes={this.props.enableDownvotes}
             counts={this.postView.counts}
             my_vote={this.postView.my_vote}
@@ -1383,7 +1382,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <VoteButtons
                 id={this.postView.post.id}
                 onVote={this.props.onPostVote}
-                postListing={this}
                 enableDownvotes={this.props.enableDownvotes}
                 counts={this.postView.counts}
                 my_vote={this.postView.my_vote}
