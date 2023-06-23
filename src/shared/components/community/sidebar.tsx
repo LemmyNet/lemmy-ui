@@ -159,10 +159,29 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           {myUSerInfo && (
             <section id="userFlairPicker" className="card border-secondary mb-3">
               <div className="card-body">
-                {/* TODO basedcount: style this */}
-                Pick your user flair here
-                <br/>
-                Current flair: {getUserFlair(myUSerInfo?.local_user_view.person)}
+              <h5 class="card-title">User Flair</h5>
+              {getUserFlair(myUSerInfo?.local_user_view.person) != null ? (
+              <span>
+                <h6 class="card-subtitle text-muted">This is your flair for {this.props.community_view.community.title}:</h6>
+                <div class="my-2">
+                  <div class="badge badge-dark my-auto" style="height: min-content; width: min-content;">
+                    {getUserFlair(myUSerInfo?.local_user_view.person)}
+                  </div>
+                </div>
+                <div class="mt-3 w-100 d-flex align-items-center justify-content-center">
+                  <button class="btn btn-secondary btn-block mb-2">Change your flair</button>
+                </div>
+              </span>
+              
+              ) : (
+                <span>
+                  <h6 class="card-subtitle text-muted">You don't have a flair on {this.props.community_view.community.title}</h6>
+                  <div class="mt-4 w-100 d-flex align-items-center justify-content-center">
+                    <button class="btn btn-secondary btn-block mb-2">Pick your flair</button>
+                  </div>
+                </span>
+              )}
+
               </div>    
             </section>
           )}

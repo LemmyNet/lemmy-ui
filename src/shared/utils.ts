@@ -326,7 +326,8 @@ export function getUserFlair(
 ): string | null {
   if(user.name === 'Nerd02') return "🟥🟦 - AuthCenter";
 
-  return "🟩 - LibLeft";
+  // return "🟩 - LibLeft";
+  return null;
 }
 
 const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
