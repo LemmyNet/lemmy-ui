@@ -47,8 +47,8 @@ body:
     attributes:
       label: Technical Details
       description: |
-        - Describe your environment (OS, browser, model of smartphone, etc)
-        - If relevant, also share any console errors and/or screenshots here.
+        Describe your environment (OS, browser, model of smartphone, etc)
+        If relevant, also share any console errors and/or screenshots here.
     validations:
       required: true
   - type: input
