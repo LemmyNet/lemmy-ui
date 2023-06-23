@@ -17,6 +17,6 @@ export default function getUserInterfaceLanguageId({
     return i18nLang.indexOf(lang.code) === 0;
   });
 
-  // Return the ID of that language object
+  // Return the ID of that language object, or "0" for Undetermined
   return userLang.id || 0;
 }

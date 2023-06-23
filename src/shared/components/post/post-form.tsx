@@ -326,10 +326,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   render() {
     const url = this.state.form.url;
 
-    const userInterfaceLangId = getUserInterfaceLangId({
-      myUserInfo: UserService.Instance.myUserInfo,
-      allLanguages: this.props.allLanguages,
-    });
+    const userInterfaceLangId = !UserService.Instance.myUserInfo
+      ? 0
+      : getUserInterfaceLangId({
+          myUserInfo: UserService.Instance.myUserInfo,
+          allLanguages: this.props.allLanguages,
+        });
 
     return (
       <form className="post-form" onSubmit={linkEvent(this, handlePostSubmit)}>
