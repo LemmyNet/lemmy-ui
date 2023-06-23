@@ -1,6 +1,5 @@
 name: "\U0001F41E Bug report"
-description: Create a bug report to help us improve Lemmy-UI!
-title: ""
+description: Report a bug to help us improve Lemmy-UI.
 labels: ["bug", "triage"]
 body:
   - type: markdown
@@ -39,7 +38,6 @@ body:
         2.
         3.
         4.
-        5.
     validations:
       required: true
   - type: textarea
@@ -63,5 +61,5 @@ body:
     id: lemmy-instance
     attributes:
       label: Lemmy Instance URL
-      description: The URL of the Lemmy instance where the bug can be reproduced.
+      description: What's the URL of the Lemmy instance where the bug can be reproduced?
       placeholder: https://lemmy.ml
