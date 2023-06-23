@@ -67,6 +67,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             className="alert small alert-warning"
             role="alert"
           >
+            <Icon icon="alert-triangle" classes="icon-inline me-2" />
             {I18NextService.i18n.t("undetermined_language_warning")}
           </div>
         )}
