@@ -1,4 +1,4 @@
-import { myAuthRequired, newVote } from "@utils/app";
+import { myAuthRequired } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -43,7 +43,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
+import { BanType, PostFormParams, PurgeType } from "../../interfaces";
 import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
@@ -78,8 +78,6 @@ interface PostListingState {
   showBody: boolean;
   showReportDialog: boolean;
   reportReason?: string;
-  upvoteLoading: boolean;
-  downvoteLoading: boolean;
   reportLoading: boolean;
   blockLoading: boolean;
   lockLoading: boolean;
@@ -142,8 +140,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showMoreMobile: false,
     showBody: false,
     showReportDialog: false,
-    upvoteLoading: false,
-    downvoteLoading: false,
     purgeLoading: false,
     reportLoading: false,
     blockLoading: false,
@@ -169,8 +165,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   componentWillReceiveProps(nextProps: PostListingProps) {
     if (this.props !== nextProps) {
       this.setState({
-        upvoteLoading: false,
-        downvoteLoading: false,
         purgeLoading: false,
         reportLoading: false,
         blockLoading: false,
@@ -604,10 +598,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {mobile && !this.props.viewOnly && (
           <VoteButtonsCompact
+            id={this.postView.post.id}
+            onVote={this.props.onPostVote}
             postListing={this}
             enableDownvotes={this.props.enableDownvotes}
-            handleUpvote={this.handleUpvote}
-            handleDownvote={this.handleDownvote}
             counts={this.postView.counts}
             my_vote={this.postView.my_vote}
           />
@@ -1387,10 +1381,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <article className="row post-container">
             {!this.props.viewOnly && (
               <VoteButtons
+                id={this.postView.post.id}
+                onVote={this.props.onPostVote}
                 postListing={this}
                 enableDownvotes={this.props.enableDownvotes}
-                handleUpvote={this.handleUpvote}
-                handleDownvote={this.handleDownvote}
                 counts={this.postView.counts}
                 my_vote={this.postView.my_vote}
               />
@@ -1757,24 +1751,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
     setupTippy();
-  }
-
-  handleUpvote(i: PostListing) {
-    i.setState({ upvoteLoading: true });
-    i.props.onPostVote({
-      post_id: i.postView.post.id,
-      score: newVote(VoteType.Upvote, i.props.post_view.my_vote),
-      auth: myAuthRequired(),
-    });
-  }
-
-  handleDownvote(i: PostListing) {
-    i.setState({ downvoteLoading: true });
-    i.props.onPostVote({
-      post_id: i.postView.post.id,
-      score: newVote(VoteType.Downvote, i.props.post_view.my_vote),
-      auth: myAuthRequired(),
-    });
   }
 
   get pointsTippy(): string {
