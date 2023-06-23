@@ -108,7 +108,7 @@ export class UserFlairModal extends Component {
                     <span>
                         <input type="radio" name="userFlair" value={flair.id} class="mr-2" id={"userFlair"+flair.id}/>
                         <label htmlFor={"userFlair"+flair.id}>
-                            <img src={flair.image} style="height:1rem;" class="mr-2"></img>
+                            {flair.image.length > 0 && (<img src={flair.image} style="height:1rem;" class="mr-2"/>)}
                             <span>{flair.name}</span>
                         </label>
                     </span>
@@ -116,8 +116,8 @@ export class UserFlairModal extends Component {
             </div>
                
             <div style="display:grid;grid-template-columns: repeat(3, minmax(0, 1fr));column-gap: 1rem;">
-                <button class="btn btn-outline-dark" id="removeFlairBtn" value="default">Remove flair</button>
                 <div/>
+                <button class="btn btn-outline-dark" id="removeFlairBtn" value="default">Remove flair</button>
                 <button class="btn btn-dark" id="confirmFlairBtn" value="cancel" formMethod="dialog">Confirm</button>
             </div>
             </form>
