@@ -176,7 +176,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         {I18NextService.i18n.t("name")}
                       </button>
                     </th>
-                    <th className="text-right">
+                    <th className="text-end">
                       <button
                         className="btn btn-link p-0"
                         type="button"
@@ -191,7 +191,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         {I18NextService.i18n.t("subscribers")}
                       </button>
                     </th>
-                    <th className="text-right">
+                    <th className="text-end">
                       <button
                         className="btn btn-link p-0"
                         type="button"
@@ -207,7 +207,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         {I18NextService.i18n.t("month")}
                       </button>
                     </th>
-                    <th className="text-right d-none d-lg-table-cell">
+                    <th className="text-end d-none d-lg-table-cell">
                       <button
                         className="btn btn-link p-0"
                         type="button"
@@ -219,7 +219,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         {I18NextService.i18n.t("posts")}
                       </button>
                     </th>
-                    <th className="text-right d-none d-lg-table-cell">
+                    <th className="text-end d-none d-lg-table-cell">
                       <button
                         className="btn btn-link p-0"
                         type="button"
@@ -239,25 +239,25 @@ export class Communities extends Component<any, CommunitiesState> {
                     .sort(this.sortFunction(this))
                     .map(cv => (
                       <tr key={cv.community.id}>
-                        <td>
+                        <td className="py-2">
                           <CommunityLink community={cv.community} />
                         </td>
-                        <td className="text-right">
+                        <td className="text-end py-2">
                           {numToSI(cv.counts.subscribers)}
                         </td>
-                        <td className="text-right">
+                        <td className="text-end py-2">
                           {numToSI(cv.counts.users_active_month)}
                         </td>
-                        <td className="text-right d-none d-lg-table-cell">
+                        <td className="text-end d-none d-lg-table-cell py-2">
                           {numToSI(cv.counts.posts)}
                         </td>
-                        <td className="text-right d-none d-lg-table-cell">
+                        <td className="text-end d-none d-lg-table-cell py-2">
                           {numToSI(cv.counts.comments)}
                         </td>
-                        <td className="text-right">
+                        <td className="text-center py-2">
                           {cv.subscribed == "Subscribed" && (
                             <button
-                              className="btn btn-link d-inline-block"
+                              className="btn btn-link d-inline-block p-0"
                               onClick={linkEvent(
                                 {
                                   i: this,
@@ -272,7 +272,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           )}
                           {cv.subscribed === "NotSubscribed" && (
                             <button
-                              className="btn btn-link d-inline-block"
+                              className="btn btn-link d-inline-block p-0"
                               onClick={linkEvent(
                                 {
                                   i: this,
