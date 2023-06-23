@@ -29,7 +29,7 @@ import {
   SortType,
 } from "lemmy-js-client";
 import { elementUrl, emDash, relTags } from "../../config";
-import { UserService } from "../../services";
+import { FirstLoadService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { I18NextService, languages } from "../../services/I18NextService";
 import { setupTippy } from "../../tippy";
@@ -169,6 +169,8 @@ export class Settings extends Component<any, SettingsState> {
 
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
+
+    FirstLoadService.isFirstLoad;
 
     const mui = UserService.Instance.myUserInfo;
     if (mui) {
@@ -1177,7 +1179,6 @@ export class Settings extends Component<any, SettingsState> {
     });
     if (saveRes.state === "success") {
       UserService.Instance.login(saveRes.data);
-      location.reload();
       toast(I18NextService.i18n.t("saved"));
       window.scrollTo(0, 0);
     }

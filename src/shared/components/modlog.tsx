@@ -7,6 +7,7 @@ import {
 } from "@utils/app";
 import {
   debounce,
+  formatPastDate,
   getIdFromString,
   getPageFromString,
   getQueryParams,
@@ -44,7 +45,6 @@ import {
   ModlogActionType,
   Person,
 } from "lemmy-js-client";
-import moment from "moment";
 import { fetchLimit } from "../config";
 import { InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
@@ -371,7 +371,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {moment.utc(expires).fromNow()}</div>
+              <div>expires: {formatPastDate(expires)}</div>
             </span>
           )}
         </>
@@ -403,7 +403,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {moment.utc(expires).fromNow()}</div>
+              <div>expires: {formatPastDate(expires)}</div>
             </span>
           )}
         </>
@@ -467,7 +467,7 @@ function renderModlogType({ type_, view }: ModlogType) {
           )}
           {expires && (
             <span>
-              <div>expires: {moment.utc(expires).fromNow()}</div>
+              <div>expires: {formatPastDate(expires)}</div>
             </span>
           )}
         </>
@@ -684,6 +684,10 @@ export class Modlog extends Component<
         };
       }
     }
+  }
+
+  async componentDidMount() {
+    await this.refetch();
   }
 
   get combined() {

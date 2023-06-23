@@ -145,7 +145,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             finished={this.props.finished}
             admins={this.props.admins}
             noBorder
-            noIndent
             showCommunity
             showContext
             enableDownvotes={this.props.enableDownvotes}

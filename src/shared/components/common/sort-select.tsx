@@ -67,6 +67,13 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
           <option disabled aria-hidden="true">
             ─────
           </option>
+          <option value={"TopHour"}>{I18NextService.i18n.t("top_hour")}</option>
+          <option value={"TopSixHour"}>
+            {I18NextService.i18n.t("top_six_hours")}
+          </option>
+          <option value={"TopTwelveHour"}>
+            {I18NextService.i18n.t("top_twelve_hours")}
+          </option>
           <option value={"TopDay"}>{I18NextService.i18n.t("top_day")}</option>
           <option value={"TopWeek"}>{I18NextService.i18n.t("top_week")}</option>
           <option value={"TopMonth"}>

@@ -13,7 +13,6 @@ import {
   showLocal,
   updatePersonBlock,
 } from "@utils/app";
-import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
   getPageFromString,
   getQueryParams,
@@ -79,7 +78,12 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import {
+  FirstLoadService,
+  HomeCacheService,
+  I18NextService,
+  UserService,
+} from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -102,6 +106,7 @@ interface HomeState {
   showTrendingMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
+  scrolled: boolean;
   tagline?: string;
   siteRes: GetSiteResponse;
   finished: Map<CommentId, boolean | undefined>;
@@ -218,6 +223,7 @@ export class Home extends Component<any, HomeState> {
     postsRes: { state: "empty" },
     commentsRes: { state: "empty" },
     trendingCommunitiesRes: { state: "empty" },
+    scrolled: true,
     siteRes: this.isoData.site_res,
     showSubscribedMobile: false,
     showTrendingMobile: false,
@@ -277,7 +283,13 @@ export class Home extends Component<any, HomeState> {
           ?.content,
         isIsomorphic: true,
       };
+
+      HomeCacheService.postsRes = postsRes;
     }
+  }
+
+  componentWillUnmount() {
+    HomeCacheService.activate();
   }
 
   async componentDidMount() {
@@ -291,10 +303,6 @@ export class Home extends Component<any, HomeState> {
     }
 
     setupTippy();
-  }
-
-  componentWillUnmount() {
-    saveScrollPosition(this.context);
   }
 
   static async fetchInitialData({
@@ -625,6 +633,11 @@ export class Home extends Component<any, HomeState> {
       search: getQueryString(queryParams),
     });
 
+    if (!this.state.scrolled) {
+      this.setState({ scrolled: true });
+      setTimeout(() => window.scrollTo(0, 0), 0);
+    }
+
     await this.fetchData();
   }
 
@@ -647,7 +660,9 @@ export class Home extends Component<any, HomeState> {
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
-      switch (this.state.postsRes.state) {
+      switch (this.state.postsRes?.state) {
+        case "empty":
+          return <div style="min-height: 20000px;"></div>;
         case "loading":
           return (
             <h5>
@@ -775,17 +790,30 @@ export class Home extends Component<any, HomeState> {
     const { dataType, page, listingType, sort } = getHomeQueryParams();
 
     if (dataType === DataType.Post) {
-      this.setState({ postsRes: { state: "loading" } });
-      this.setState({
-        postsRes: await HttpService.client.getPosts({
-          page,
-          limit: fetchLimit,
-          sort,
-          saved_only: false,
-          type_: listingType,
-          auth,
-        }),
-      });
+      if (HomeCacheService.active) {
+        const { postsRes, scrollY } = HomeCacheService;
+        HomeCacheService.deactivate();
+        this.setState({ postsRes });
+        window.scrollTo({
+          left: 0,
+          top: scrollY,
+          behavior: "instant",
+        });
+      } else {
+        this.setState({ postsRes: { state: "loading" } });
+        this.setState({
+          postsRes: await HttpService.client.getPosts({
+            page,
+            limit: fetchLimit,
+            sort,
+            saved_only: false,
+            type_: listingType,
+            auth,
+          }),
+        });
+
+        HomeCacheService.postsRes = this.state.postsRes;
+      }
     } else {
       this.setState({ commentsRes: { state: "loading" } });
       this.setState({
@@ -800,7 +828,6 @@ export class Home extends Component<any, HomeState> {
       });
     }
 
-    restoreScrollPosition(this.context);
     setupTippy();
   }
 
@@ -821,23 +848,23 @@ export class Home extends Component<any, HomeState> {
   }
 
   handlePageChange(page: number) {
+    this.setState({ scrolled: false });
     this.updateUrl({ page });
-    window.scrollTo(0, 0);
   }
 
   handleSortChange(val: SortType) {
+    this.setState({ scrolled: false });
     this.updateUrl({ sort: val, page: 1 });
-    window.scrollTo(0, 0);
   }
 
   handleListingTypeChange(val: ListingType) {
+    this.setState({ scrolled: false });
     this.updateUrl({ listingType: val, page: 1 });
-    window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(val: DataType) {
+    this.setState({ scrolled: false });
     this.updateUrl({ dataType: val, page: 1 });
-    window.scrollTo(0, 0);
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {

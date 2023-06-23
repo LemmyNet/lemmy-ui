@@ -5,6 +5,9 @@ export default function convertCommentSortType(
 ): CommentSortType {
   switch (sort) {
     case "TopAll":
+    case "TopHour":
+    case "TopSixHour":
+    case "TopTwelveHour":
     case "TopDay":
     case "TopWeek":
     case "TopMonth":
