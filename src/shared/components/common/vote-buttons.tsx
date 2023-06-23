@@ -8,11 +8,12 @@ import {
   CreatePostLike,
   PostAggregates,
 } from "lemmy-js-client";
-import { VoteType } from "../../interfaces";
+import { VoteContentType, VoteType } from "../../interfaces";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 
 interface VoteButtonsProps {
+  voteContentType: VoteContentType;
   id: number;
   onVote: (i: CreateCommentLike | CreatePostLike) => void;
   enableDownvotes?: boolean;
@@ -46,21 +47,45 @@ const tippy = (counts: CommentAggregates | PostAggregates): string => {
 
 const handleUpvote = (i: VoteButtons) => {
   i.setState({ upvoteLoading: true });
-  i.props.onVote({
-    id: i.props.id,
-    score: newVote(VoteType.Upvote, i.props.my_vote),
-    auth: myAuthRequired(),
-  });
+
+  switch (i.props.voteContentType) {
+    case VoteContentType.Comment:
+      i.props.onVote({
+        comment_id: i.props.id,
+        score: newVote(VoteType.Upvote, i.props.my_vote),
+        auth: myAuthRequired(),
+      });
+      break;
+    case VoteContentType.Post:
+    default:
+      i.props.onVote({
+        post_id: i.props.id,
+        score: newVote(VoteType.Upvote, i.props.my_vote),
+        auth: myAuthRequired(),
+      });
+  }
+
   i.setState({ upvoteLoading: false });
 };
 
 const handleDownvote = (i: VoteButtons) => {
   i.setState({ downvoteLoading: true });
-  i.props.onVote({
-    id: i.props.id,
-    score: newVote(VoteType.Downvote, i.props.my_vote),
-    auth: myAuthRequired(),
-  });
+  switch (i.props.voteContentType) {
+    case VoteContentType.Comment:
+      i.props.onVote({
+        comment_id: i.props.id,
+        score: newVote(VoteType.Downvote, i.props.my_vote),
+        auth: myAuthRequired(),
+      });
+      break;
+    case VoteContentType.Post:
+    default:
+      i.props.onVote({
+        post_id: i.props.id,
+        score: newVote(VoteType.Downvote, i.props.my_vote),
+        auth: myAuthRequired(),
+      });
+  }
   i.setState({ downvoteLoading: false });
 };
 

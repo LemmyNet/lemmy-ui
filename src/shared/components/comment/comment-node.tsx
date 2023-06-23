@@ -52,6 +52,7 @@ import {
   CommentNodeI,
   CommentViewType,
   PurgeType,
+  VoteContentType,
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
@@ -437,6 +438,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {UserService.Instance.myUserInfo && !this.props.viewOnly && (
                     <>
                       <VoteButtonsCompact
+                        voteContentType={VoteContentType.Comment}
                         id={this.commentView.comment.id}
                         onVote={this.props.onCommentVote}
                         enableDownvotes={this.props.enableDownvotes}

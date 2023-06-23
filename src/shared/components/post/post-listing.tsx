@@ -43,7 +43,12 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { BanType, PostFormParams, PurgeType } from "../../interfaces";
+import {
+  BanType,
+  PostFormParams,
+  PurgeType,
+  VoteContentType,
+} from "../../interfaces";
 import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
@@ -598,6 +603,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {mobile && !this.props.viewOnly && (
           <VoteButtonsCompact
+            voteContentType={VoteContentType.Post}
             id={this.postView.post.id}
             onVote={this.props.onPostVote}
             enableDownvotes={this.props.enableDownvotes}
@@ -1380,6 +1386,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <article className="row post-container">
             {!this.props.viewOnly && (
               <VoteButtons
+                voteContentType={VoteContentType.Post}
                 id={this.postView.post.id}
                 onVote={this.props.onPostVote}
                 enableDownvotes={this.props.enableDownvotes}
