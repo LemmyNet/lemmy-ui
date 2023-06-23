@@ -1,8 +1,10 @@
+import { showAvatars } from "@utils/app";
+import { hostname, isCakeDay } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { Person } from "lemmy-js-client";
-import { hostname, isCakeDay, relTags, showAvatars } from "../../utils";
+import { relTags } from "../../config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
 
@@ -49,10 +51,13 @@ export class PersonListing extends Component<PersonListingProps, any> {
         {!this.props.realLink ? (
           <Link
             title={apubName}
-            className={classNames("d-inline-flex align-items-baseline", {
-              "text-muted": this.props.muted,
-              "text-info": !this.props.muted,
-            })}
+            className={classNames(
+              "person-listing d-inline-flex align-items-baseline",
+              {
+                "text-muted": this.props.muted,
+                "text-info": !this.props.muted,
+              }
+            )}
             to={link}
           >
             {this.avatarAndName(displayName)}
@@ -60,7 +65,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
         ) : (
           <a
             title={apubName}
-            className={`d-inline-flex align-items-baseline ${
+            className={`person-listing d-inline-flex align-items-baseline ${
               this.props.muted ? "text-muted" : "text-info"
             }`}
             href={link}

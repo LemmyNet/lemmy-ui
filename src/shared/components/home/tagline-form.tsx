@@ -1,7 +1,8 @@
+import { myAuthRequired } from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { EditSite, Tagline } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
+import { I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -26,17 +27,17 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     super(props, context);
   }
   get documentTitle(): string {
-    return i18n.t("taglines");
+    return I18NextService.i18n.t("taglines");
   }
 
   render() {
     return (
-      <div className="col-12">
+      <div className="tagline-form col-12">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5 className="col-12">{i18n.t("taglines")}</h5>
+        <h5 className="col-12">{I18NextService.i18n.t("taglines")}</h5>
         <div className="table-responsive col-12">
           <table id="taglines_table" className="table table-sm table-hover">
             <thead className="pointer">
@@ -67,8 +68,8 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                         { i: this, index: index },
                         this.handleEditTaglineClick
                       )}
-                      data-tippy-content={i18n.t("edit")}
-                      aria-label={i18n.t("edit")}
+                      data-tippy-content={I18NextService.i18n.t("edit")}
+                      aria-label={I18NextService.i18n.t("edit")}
                     >
                       <Icon icon="edit" classes={`icon-inline`} />
                     </button>
@@ -79,8 +80,8 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                         { i: this, index: index },
                         this.handleDeleteTaglineClick
                       )}
-                      data-tippy-content={i18n.t("delete")}
-                      aria-label={i18n.t("delete")}
+                      data-tippy-content={I18NextService.i18n.t("delete")}
+                      aria-label={I18NextService.i18n.t("delete")}
                     >
                       <Icon icon="trash" classes={`icon-inline text-danger`} />
                     </button>
@@ -95,7 +96,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                 className="btn btn-sm btn-secondary me-2"
                 onClick={linkEvent(this, this.handleAddTaglineClick)}
               >
-                {i18n.t("add_tagline")}
+                {I18NextService.i18n.t("add_tagline")}
               </button>
             </div>
           </div>
@@ -110,7 +111,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                 {this.props.loading ? (
                   <Spinner />
                 ) : (
-                  capitalizeFirstLetter(i18n.t("save"))
+                  capitalizeFirstLetter(I18NextService.i18n.t("save"))
                 )}
               </button>
             </div>

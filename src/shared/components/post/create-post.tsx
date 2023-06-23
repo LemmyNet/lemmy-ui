@@ -1,3 +1,7 @@
+import { enableDownvotes, enableNsfw, myAuth, setIsoData } from "@utils/app";
+import { getIdFromString, getQueryParams } from "@utils/helpers";
+import type { QueryParams } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -7,25 +11,13 @@ import {
   GetSiteResponse,
   ListCommunitiesResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   HttpService,
   RequestState,
   WrappedLemmyHttp,
 } from "../../services/HttpService";
-import {
-  Choice,
-  QueryParams,
-  RouteDataResponse,
-  enableDownvotes,
-  enableNsfw,
-  getIdFromString,
-  getQueryParams,
-  myAuth,
-  setIsoData,
-} from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";
@@ -114,7 +106,7 @@ export class CreatePost extends Component<
       if (res.state === "success") {
         this.setState({
           selectedCommunityChoice: {
-            label: res.data.community_view.community.name,
+            label: res.data.community_view.community.title,
             value: res.data.community_view.community.id.toString(),
           },
           loading: false,
@@ -150,7 +142,7 @@ export class CreatePost extends Component<
   }
 
   get documentTitle(): string {
-    return `${i18n.t("create_post")} - ${
+    return `${I18NextService.i18n.t("create_post")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
@@ -163,7 +155,7 @@ export class CreatePost extends Component<
       | undefined;
 
     return (
-      <div className="container-lg">
+      <div className="create-post container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -178,7 +170,7 @@ export class CreatePost extends Component<
               id="createPostForm"
               className="col-12 col-lg-6 offset-lg-3 mb-4"
             >
-              <h5>{i18n.t("create_post")}</h5>
+              <h1 className="h4">{I18NextService.i18n.t("create_post")}</h1>
               <PostForm
                 onCreate={this.handlePostCreate}
                 params={locationState}

@@ -1,3 +1,6 @@
+import { myAuth, setIsoData } from "@utils/app";
+import { isBrowser } from "@utils/browser";
+import { validEmail } from "@utils/helpers";
 import { Options, passwordStrength } from "check-password-strength";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -9,18 +12,11 @@ import {
   LoginResponse,
   SiteView,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { joinLemmyUrl } from "../../config";
+import { mdToHtml } from "../../markdown";
+import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  isBrowser,
-  joinLemmyUrl,
-  mdToHtml,
-  myAuth,
-  setIsoData,
-  toast,
-  validEmail,
-} from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -116,7 +112,7 @@ export class Signup extends Component<any, State> {
   }
 
   titleName(siteView: SiteView): string {
-    return i18n.t(
+    return I18NextService.i18n.t(
       siteView.local_site.private_instance ? "apply_to_join" : "sign_up"
     );
   }
@@ -127,7 +123,7 @@ export class Signup extends Component<any, State> {
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="home-signup container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -162,7 +158,7 @@ export class Signup extends Component<any, State> {
             className="col-sm-2 col-form-label"
             htmlFor="register-username"
           >
-            {i18n.t("username")}
+            {I18NextService.i18n.t("username")}
           </label>
 
           <div className="col-sm-10">
@@ -175,14 +171,14 @@ export class Signup extends Component<any, State> {
               required
               minLength={3}
               pattern="[a-zA-Z0-9_]+"
-              title={i18n.t("community_reqs")}
+              title={I18NextService.i18n.t("community_reqs")}
             />
           </div>
         </div>
 
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="register-email">
-            {i18n.t("email")}
+            {I18NextService.i18n.t("email")}
           </label>
           <div className="col-sm-10">
             <input
@@ -191,8 +187,8 @@ export class Signup extends Component<any, State> {
               className="form-control"
               placeholder={
                 siteView.local_site.require_email_verification
-                  ? i18n.t("required")
-                  : i18n.t("optional")
+                  ? I18NextService.i18n.t("required")
+                  : I18NextService.i18n.t("optional")
               }
               value={this.state.form.email}
               autoComplete="email"
@@ -205,7 +201,7 @@ export class Signup extends Component<any, State> {
               !validEmail(this.state.form.email) && (
                 <div className="mt-2 mb-0 alert alert-warning" role="alert">
                   <Icon icon="alert-triangle" classes="icon-inline me-2" />
-                  {i18n.t("no_password_reset")}
+                  {I18NextService.i18n.t("no_password_reset")}
                 </div>
               )}
           </div>
@@ -216,7 +212,7 @@ export class Signup extends Component<any, State> {
             className="col-sm-2 col-form-label"
             htmlFor="register-password"
           >
-            {i18n.t("password")}
+            {I18NextService.i18n.t("password")}
           </label>
           <div className="col-sm-10">
             <input
@@ -232,7 +228,9 @@ export class Signup extends Component<any, State> {
             />
             {this.state.form.password && (
               <div className={this.passwordColorClass}>
-                {i18n.t(this.passwordStrength as NoOptionI18nKeys)}
+                {I18NextService.i18n.t(
+                  this.passwordStrength as NoOptionI18nKeys
+                )}
               </div>
             )}
           </div>
@@ -243,7 +241,7 @@ export class Signup extends Component<any, State> {
             className="col-sm-2 col-form-label"
             htmlFor="register-verify-password"
           >
-            {i18n.t("verify_password")}
+            {I18NextService.i18n.t("verify_password")}
           </label>
           <div className="col-sm-10">
             <input
@@ -265,7 +263,7 @@ export class Signup extends Component<any, State> {
               <div className="offset-sm-2 col-sm-10">
                 <div className="mt-2 alert alert-warning" role="alert">
                   <Icon icon="alert-triangle" classes="icon-inline me-2" />
-                  {i18n.t("fill_out_application")}
+                  {I18NextService.i18n.t("fill_out_application")}
                 </div>
                 {siteView.local_site.application_question && (
                   <div
@@ -283,7 +281,7 @@ export class Signup extends Component<any, State> {
                 className="col-sm-2 col-form-label"
                 htmlFor="application_answer"
               >
-                {i18n.t("answer")}
+                {I18NextService.i18n.t("answer")}
               </label>
               <div className="col-sm-10">
                 <MarkdownTextArea
@@ -309,7 +307,7 @@ export class Signup extends Component<any, State> {
                 onChange={linkEvent(this, this.handleRegisterShowNsfwChange)}
               />
               <label className="form-check-label" htmlFor="register-show-nsfw">
-                {i18n.t("show_nsfw")}
+                {I18NextService.i18n.t("show_nsfw")}
               </label>
             </div>
           </div>
@@ -348,12 +346,14 @@ export class Signup extends Component<any, State> {
         return (
           <div className="mb-3 row">
             <label className="col-sm-2" htmlFor="register-captcha">
-              <span className="me-2">{i18n.t("enter_code")}</span>
+              <span className="me-2">
+                {I18NextService.i18n.t("enter_code")}
+              </span>
               <button
                 type="button"
                 className="btn btn-secondary"
                 onClick={linkEvent(this, this.handleRegenCaptcha)}
-                aria-label={i18n.t("captcha")}
+                aria-label={I18NextService.i18n.t("captcha")}
               >
                 <Icon icon="refresh-cw" classes="icon-refresh-cw" />
               </button>
@@ -387,13 +387,13 @@ export class Signup extends Component<any, State> {
             className="rounded-top img-fluid"
             src={this.captchaPngSrc(captchaRes)}
             style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
-            alt={i18n.t("captcha")}
+            alt={I18NextService.i18n.t("captcha")}
           />
           {captchaRes.wav && (
             <button
               className="rounded-bottom btn btn-sm btn-secondary d-block"
               style="border-top-right-radius: 0; border-top-left-radius: 0;"
-              title={i18n.t("play_captcha_audio")}
+              title={I18NextService.i18n.t("play_captcha_audio")}
               onClick={linkEvent(this, this.handleCaptchaPlay)}
               type="button"
               disabled={this.state.captchaPlaying}
@@ -477,10 +477,10 @@ export class Signup extends Component<any, State> {
             i.props.history.replace("/communities");
           } else {
             if (data.verify_email_sent) {
-              toast(i18n.t("verify_email_sent"));
+              toast(I18NextService.i18n.t("verify_email_sent"));
             }
             if (data.registration_created) {
-              toast(i18n.t("registration_application_sent"));
+              toast(I18NextService.i18n.t("registration_application_sent"));
             }
             i.props.history.push("/");
           }

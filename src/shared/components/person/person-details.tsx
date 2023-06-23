@@ -1,3 +1,4 @@
+import { commentsToFlatNodes } from "@utils/app";
 import { Component } from "inferno";
 import {
   AddAdmin,
@@ -37,7 +38,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
-import { commentsToFlatNodes, setupTippy } from "../../utils";
+import { setupTippy } from "../../tippy";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";
@@ -109,7 +110,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   render() {
     return (
-      <div>
+      <div className="person-details">
         {this.viewSelector(this.props.view)}
 
         <Paginator page={this.props.page} onChange={this.handlePageChange} />
@@ -144,7 +145,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             finished={this.props.finished}
             admins={this.props.admins}
             noBorder
-            noIndent
             showCommunity
             showContext
             enableDownvotes={this.props.enableDownvotes}

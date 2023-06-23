@@ -1,9 +1,9 @@
+import { myAuth, setIsoData } from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { HttpService, UserService } from "../../services";
+import { HttpService, I18NextService, UserService } from "../../services";
 import { RequestState } from "../../services/HttpService";
-import { capitalizeFirstLetter, myAuth, setIsoData } from "../../utils";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -33,21 +33,21 @@ export class PasswordChange extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${i18n.t("password_change")} - ${
+    return `${I18NextService.i18n.t("password_change")} - ${
       this.state.siteRes.site_view.site.name
     }`;
   }
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="password-change container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{i18n.t("password_change")}</h5>
+            <h5>{I18NextService.i18n.t("password_change")}</h5>
             {this.passwordChangeForm()}
           </div>
         </div>
@@ -60,7 +60,7 @@ export class PasswordChange extends Component<any, State> {
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="new-password">
-            {i18n.t("new_password")}
+            {I18NextService.i18n.t("new_password")}
           </label>
           <div className="col-sm-10">
             <input
@@ -76,7 +76,7 @@ export class PasswordChange extends Component<any, State> {
         </div>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="verify-password">
-            {i18n.t("verify_password")}
+            {I18NextService.i18n.t("verify_password")}
           </label>
           <div className="col-sm-10">
             <input
@@ -96,7 +96,7 @@ export class PasswordChange extends Component<any, State> {
               {this.state.passwordChangeRes.state == "loading" ? (
                 <Spinner />
               ) : (
-                capitalizeFirstLetter(i18n.t("save"))
+                capitalizeFirstLetter(I18NextService.i18n.t("save"))
               )}
             </button>
           </div>

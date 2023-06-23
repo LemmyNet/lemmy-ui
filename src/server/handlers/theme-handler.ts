@@ -15,7 +15,7 @@ export default async (req: Request, res: Response) => {
     res.send("Theme must be a css file");
   }
 
-  const customTheme = path.resolve(`./${extraThemesFolder}/${theme}`);
+  const customTheme = path.resolve(extraThemesFolder, theme);
 
   if (existsSync(customTheme)) {
     res.sendFile(customTheme);

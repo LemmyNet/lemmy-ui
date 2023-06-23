@@ -1,11 +1,11 @@
+import { myAuthRequired } from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { CreateComment, EditComment, Language } from "lemmy-js-client";
-import { i18n } from "../../i18next";
 import { CommentNodeI } from "../../interfaces";
-import { UserService } from "../../services";
-import { capitalizeFirstLetter, myAuthRequired } from "../../utils";
+import { I18NextService, UserService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
@@ -41,7 +41,11 @@ export class CommentForm extends Component<CommentFormProps, any> {
         : undefined;
 
     return (
-      <div className={["mb-3", this.props.containerClass].join(" ")}>
+      <div
+        className={["comment-form", "mb-3", this.props.containerClass].join(
+          " "
+        )}
+      >
         {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}
@@ -53,7 +57,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             disabled={this.props.disabled}
             onSubmit={this.handleCommentSubmit}
             onReplyCancel={this.props.onReplyCancel}
-            placeholder={i18n.t("comment_here")}
+            placeholder={I18NextService.i18n.t("comment_here") ?? undefined}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
           />
@@ -74,10 +78,10 @@ export class CommentForm extends Component<CommentFormProps, any> {
 
   get buttonTitle(): string {
     return typeof this.props.node === "number"
-      ? capitalizeFirstLetter(i18n.t("post"))
+      ? capitalizeFirstLetter(I18NextService.i18n.t("post"))
       : this.props.edit
-      ? capitalizeFirstLetter(i18n.t("save"))
-      : capitalizeFirstLetter(i18n.t("reply"));
+      ? capitalizeFirstLetter(I18NextService.i18n.t("save"))
+      : capitalizeFirstLetter(I18NextService.i18n.t("reply"));
   }
 
   handleCommentSubmit(content: string, form_id: string, language_id?: number) {

@@ -1,3 +1,9 @@
+import {
+  editRegistrationApplication,
+  myAuthRequired,
+  setIsoData,
+} from "@utils/app";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
@@ -5,19 +11,11 @@ import {
   ListRegistrationApplicationsResponse,
   RegistrationApplicationView,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
+import { fetchLimit } from "../../config";
 import { InitialFetchRequest } from "../../interfaces";
-import { UserService } from "../../services";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  editRegistrationApplication,
-  fetchLimit,
-  myAuthRequired,
-  setIsoData,
-  setupTippy,
-} from "../../utils";
+import { setupTippy } from "../../tippy";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
@@ -79,7 +77,7 @@ export class RegistrationApplications extends Component<
   get documentTitle(): string {
     const mui = UserService.Instance.myUserInfo;
     return mui
-      ? `@${mui.local_user_view.person.name} ${i18n.t(
+      ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "registration_applications"
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
@@ -102,7 +100,9 @@ export class RegistrationApplications extends Component<
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
               />
-              <h5 className="mb-2">{i18n.t("registration_applications")}</h5>
+              <h5 className="mb-2">
+                {I18NextService.i18n.t("registration_applications")}
+              </h5>
               {this.selects()}
               {this.applicationList(apps)}
               <Paginator
@@ -117,7 +117,11 @@ export class RegistrationApplications extends Component<
   }
 
   render() {
-    return <div className="container-lg">{this.renderApps()}</div>;
+    return (
+      <div className="registration-applications container-lg">
+        {this.renderApps()}
+      </div>
+    );
   }
 
   unreadOrAllRadios() {
@@ -135,7 +139,7 @@ export class RegistrationApplications extends Component<
             checked={this.state.unreadOrAll == UnreadOrAll.Unread}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t("unread")}
+          {I18NextService.i18n.t("unread")}
         </label>
         <label
           className={`btn btn-outline-secondary pointer
@@ -149,7 +153,7 @@ export class RegistrationApplications extends Component<
             checked={this.state.unreadOrAll == UnreadOrAll.All}
             onChange={linkEvent(this, this.handleUnreadOrAllChange)}
           />
-          {i18n.t("all")}
+          {I18NextService.i18n.t("all")}
         </label>
       </div>
     );

@@ -1,9 +1,9 @@
+import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { i18n } from "../../i18next";
 import { IsoDataOptionalSite } from "../../interfaces";
-import { setIsoData } from "../../utils";
+import { I18NextService } from "../../services";
 
 export class ErrorPage extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
@@ -16,11 +16,11 @@ export class ErrorPage extends Component<any, any> {
     const { errorPageData } = this.isoData;
 
     return (
-      <div className="container-lg text-center">
+      <div className="error-page container-lg text-center">
         <h1>
           {errorPageData
-            ? i18n.t("error_page_title")
-            : i18n.t("not_found_page_title")}
+            ? I18NextService.i18n.t("error_page_title")
+            : I18NextService.i18n.t("not_found_page_title")}
         </h1>
         {errorPageData ? (
           <T i18nKey="error_page_paragraph" className="p-4" parent="p">
@@ -28,18 +28,18 @@ export class ErrorPage extends Component<any, any> {
             <a href="https://matrix.to/#/#lemmy-space:matrix.org">#</a>#
           </T>
         ) : (
-          <p>{i18n.t("not_found_page_message")}</p>
+          <p>{I18NextService.i18n.t("not_found_page_message")}</p>
         )}
         {!errorPageData && (
           <Link to="/" replace>
-            {i18n.t("not_found_return_home_button")}
+            {I18NextService.i18n.t("not_found_return_home_button")}
           </Link>
         )}
         {errorPageData?.adminMatrixIds &&
           errorPageData.adminMatrixIds.length > 0 && (
             <>
               <div>
-                {i18n.t("error_page_admin_matrix", {
+                {I18NextService.i18n.t("error_page_admin_matrix", {
                   instance:
                     this.isoData.site_res?.site_view.site.name ??
                     "this instance",

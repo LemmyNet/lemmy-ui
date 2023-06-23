@@ -1,3 +1,4 @@
+import { Choice } from "@utils/types";
 import classNames from "classnames";
 import {
   ChangeEvent,
@@ -6,8 +7,7 @@ import {
   linkEvent,
   RefObject,
 } from "inferno";
-import { i18n } from "../../i18next";
-import { Choice } from "../../utils";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "./icon";
 
 interface SearchableSelectProps {
@@ -102,7 +102,7 @@ export class SearchableSelect extends Component<
     const { searchText, selectedIndex, loadingEllipses } = this.state;
 
     return (
-      <div className="dropdown">
+      <div className="searchable-select dropdown">
         <button
           id={id}
           type="button"
@@ -113,7 +113,7 @@ export class SearchableSelect extends Component<
           ref={this.toggleButtonRef}
         >
           {loading
-            ? `${i18n.t("loading")}${loadingEllipses}`
+            ? `${I18NextService.i18n.t("loading")}${loadingEllipses}`
             : options[selectedIndex].label}
         </button>
         <div
@@ -131,7 +131,7 @@ export class SearchableSelect extends Component<
               ref={this.searchInputRef}
               onInput={linkEvent(this, handleSearch)}
               value={searchText}
-              placeholder={`${i18n.t("search")}...`}
+              placeholder={`${I18NextService.i18n.t("search")}...`}
             />
           </div>
           {!loading &&

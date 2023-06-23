@@ -1,3 +1,18 @@
+import {
+  communityToChoice,
+  fetchCommunities,
+  myAuth,
+  myAuthRequired,
+} from "@utils/app";
+import {
+  capitalizeFirstLetter,
+  debounce,
+  getIdFromString,
+  validTitle,
+  validURL,
+} from "@utils/helpers";
+import { isImage } from "@utils/media";
+import { Choice } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -9,30 +24,18 @@ import {
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { PostFormParams } from "../../interfaces";
-import { UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
 import {
-  Choice,
   archiveTodayUrl,
-  capitalizeFirstLetter,
-  communityToChoice,
-  debounce,
-  fetchCommunities,
-  getIdFromString,
   ghostArchiveUrl,
-  isImage,
-  myAuth,
-  myAuthRequired,
   relTags,
-  setupTippy,
-  toast,
   trendingFetchLimit,
-  validTitle,
-  validURL,
   webArchiveUrl,
-} from "../../utils";
+} from "../../config";
+import { PostFormParams } from "../../interfaces";
+import { I18NextService, UserService } from "../../services";
+import { HttpService, RequestState } from "../../services/HttpService";
+import { setupTippy } from "../../tippy";
+import { toast } from "../../toast";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -79,6 +82,143 @@ interface PostFormState {
   submitted: boolean;
 }
 
+function handlePostSubmit(i: PostForm, event: any) {
+  event.preventDefault();
+  // Coerce empty url string to undefined
+  if ((i.state.form.url ?? "") === "") {
+    i.setState(s => ((s.form.url = undefined), s));
+  }
+  i.setState({ loading: true, submitted: true });
+  const auth = myAuthRequired();
+
+  const pForm = i.state.form;
+  const pv = i.props.post_view;
+
+  if (pv) {
+    i.props.onEdit?.({
+      name: pForm.name,
+      url: pForm.url,
+      body: pForm.body,
+      nsfw: pForm.nsfw,
+      post_id: pv.post.id,
+      language_id: pForm.language_id,
+      auth,
+    });
+  } else if (pForm.name && pForm.community_id) {
+    i.props.onCreate?.({
+      name: pForm.name,
+      community_id: pForm.community_id,
+      url: pForm.url,
+      body: pForm.body,
+      nsfw: pForm.nsfw,
+      language_id: pForm.language_id,
+      honeypot: pForm.honeypot,
+      auth,
+    });
+  }
+}
+
+function copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
+  const sTitle = d.suggestedTitle;
+  if (sTitle) {
+    d.i.setState(
+      s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
+    );
+    d.i.setState({ suggestedPostsRes: { state: "empty" } });
+    setTimeout(() => {
+      const textarea: any = document.getElementById("post-title");
+      autosize.update(textarea);
+    }, 10);
+  }
+}
+
+function handlePostUrlChange(i: PostForm, event: any) {
+  const url = event.target.value;
+
+  i.setState(prev => ({
+    ...prev,
+    form: {
+      ...prev.form,
+      url,
+    },
+    imageDeleteUrl: "",
+  }));
+
+  i.fetchPageTitle();
+}
+
+function handlePostNsfwChange(i: PostForm, event: any) {
+  i.setState(s => ((s.form.nsfw = event.target.checked), s));
+}
+
+function handleHoneyPotChange(i: PostForm, event: any) {
+  i.setState(s => ((s.form.honeypot = event.target.value), s));
+}
+
+function handleCancel(i: PostForm) {
+  i.props.onCancel?.();
+}
+
+function handleImageUploadPaste(i: PostForm, event: any) {
+  const image = event.clipboardData.files[0];
+  if (image) {
+    handleImageUpload(i, image);
+  }
+}
+
+function handleImageUpload(i: PostForm, event: any) {
+  let file: any;
+  if (event.target) {
+    event.preventDefault();
+    file = event.target.files[0];
+  } else {
+    file = event;
+  }
+
+  i.setState({ imageLoading: true });
+
+  HttpService.client.uploadImage({ image: file }).then(res => {
+    console.log("pictrs upload:");
+    console.log(res);
+    if (res.state === "success") {
+      if (res.data.msg === "ok") {
+        i.state.form.url = res.data.url;
+        i.setState({
+          imageLoading: false,
+          imageDeleteUrl: res.data.delete_url as string,
+        });
+      } else {
+        toast(JSON.stringify(res), "danger");
+      }
+    } else if (res.state === "failed") {
+      console.error(res.msg);
+      toast(res.msg, "danger");
+      i.setState({ imageLoading: false });
+    }
+  });
+}
+
+function handlePostNameChange(i: PostForm, event: any) {
+  i.setState(s => ((s.form.name = event.target.value), s));
+  i.fetchSimilarPosts();
+}
+
+function handleImageDelete(i: PostForm) {
+  const { imageDeleteUrl } = i.state;
+
+  fetch(imageDeleteUrl);
+
+  i.setState(prev => ({
+    ...prev,
+    imageDeleteUrl: "",
+    imageLoading: false,
+    form: {
+      ...prev.form,
+      url: "",
+    },
+  }));
+}
+
 export class PostForm extends Component<PostFormProps, PostFormState> {
   state: PostFormState = {
     suggestedPostsRes: { state: "empty" },
@@ -123,16 +263,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           ...this.state.form,
           community_id: getIdFromString(selectedCommunityChoice.value),
         },
-        communitySearchOptions: [selectedCommunityChoice]
-          .concat(
+        communitySearchOptions: [selectedCommunityChoice].concat(
+          (
             this.props.initialCommunities?.map(
               ({ community: { id, title } }) => ({
                 label: title,
                 value: id.toString(),
               })
             ) ?? []
-          )
-          .filter(option => option.value !== selectedCommunityChoice.value),
+          ).filter(option => option.value !== selectedCommunityChoice.value)
+        ),
       };
     } else {
       this.state = {
@@ -188,12 +328,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     const url = this.state.form.url;
 
-    // TODO
-    // const promptCheck =
-    // !!this.state.form.name || !!this.state.form.url || !!this.state.form.body;
-    // <Prompt when={promptCheck} message={i18n.t("block_leaving")} />
     return (
-      <form onSubmit={linkEvent(this, this.handlePostSubmit)}>
+      <form className="post-form" onSubmit={linkEvent(this, handlePostSubmit)}>
         <NavigationPrompt
           when={
             !!(
@@ -205,16 +341,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         />
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
-            {i18n.t("url")}
+            {I18NextService.i18n.t("url")}
           </label>
           <div className="col-sm-10">
             <input
               type="url"
               id="post-url"
               className="form-control"
-              value={this.state.form.url}
-              onInput={linkEvent(this, this.handlePostUrlChange)}
-              onPaste={linkEvent(this, this.handleImageUploadPaste)}
+              value={url}
+              onInput={linkEvent(this, handlePostUrlChange)}
+              onPaste={linkEvent(this, handleImageUploadPaste)}
             />
             {this.renderSuggestedTitleCopy()}
             <form>
@@ -223,7 +359,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className={`${
                   UserService.Instance.myUserInfo && "pointer"
                 } d-inline-block float-right text-muted font-weight-bold`}
-                data-tippy-content={i18n.t("upload_image")}
+                data-tippy-content={I18NextService.i18n.t("upload_image")}
               >
                 <Icon icon="image" classes="icon-inline" />
               </label>
@@ -234,7 +370,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 name="file"
                 className="d-none"
                 disabled={!UserService.Instance.myUserInfo}
-                onChange={linkEvent(this, this.handleImageUpload)}
+                onChange={linkEvent(this, handleImageUpload)}
               />
             </form>
             {url && validURL(url) && (
@@ -244,7 +380,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
-                  archive.org {i18n.t("archive_link")}
+                  archive.org {I18NextService.i18n.t("archive_link")}
                 </a>
                 <a
                   href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
@@ -253,7 +389,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
-                  ghostarchive.org {i18n.t("archive_link")}
+                  ghostarchive.org {I18NextService.i18n.t("archive_link")}
                 </a>
                 <a
                   href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
@@ -262,7 +398,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   className="me-2 d-inline-block float-right text-muted small font-weight-bold"
                   rel={relTags}
                 >
-                  archive.today {i18n.t("archive_link")}
+                  archive.today {I18NextService.i18n.t("archive_link")}
                 </a>
               </div>
             )}
@@ -273,18 +409,18 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.state.imageDeleteUrl && (
               <button
                 className="btn btn-danger btn-sm mt-2"
-                onClick={linkEvent(this, this.handleImageDelete)}
-                aria-label={i18n.t("delete")}
-                data-tippy-content={i18n.t("delete")}
+                onClick={linkEvent(this, handleImageDelete)}
+                aria-label={I18NextService.i18n.t("delete")}
+                data-tippy-content={I18NextService.i18n.t("delete")}
               >
                 <Icon icon="x" classes="icon-inline me-1" />
-                {capitalizeFirstLetter(i18n.t("delete"))}
+                {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
               </button>
             )}
             {this.props.crossPosts && this.props.crossPosts.length > 0 && (
               <>
                 <div className="my-1 text-muted small font-weight-bold">
-                  {i18n.t("cross_posts")}
+                  {I18NextService.i18n.t("cross_posts")}
                 </div>
                 <PostListings
                   showCommunity
@@ -318,13 +454,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         </div>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-title">
-            {i18n.t("title")}
+            {I18NextService.i18n.t("title")}
           </label>
           <div className="col-sm-10">
             <textarea
               value={this.state.form.name}
               id="post-title"
-              onInput={linkEvent(this, this.handlePostNameChange)}
+              onInput={linkEvent(this, handlePostNameChange)}
               className={`form-control ${
                 !validTitle(this.state.form.name) && "is-invalid"
               }`}
@@ -335,7 +471,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             />
             {!validTitle(this.state.form.name) && (
               <div className="invalid-feedback">
-                {i18n.t("invalid_post_title")}
+                {I18NextService.i18n.t("invalid_post_title")}
               </div>
             )}
             {this.renderSuggestedPosts()}
@@ -343,7 +479,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         </div>
 
         <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label">{i18n.t("body")}</label>
+          <label className="col-sm-2 col-form-label">
+            {I18NextService.i18n.t("body")}
+          </label>
           <div className="col-sm-10">
             <MarkdownTextArea
               initialContent={this.state.form.body}
@@ -354,10 +492,17 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             />
           </div>
         </div>
+        <LanguageSelect
+          allLanguages={this.props.allLanguages}
+          siteLanguages={this.props.siteLanguages}
+          selectedLanguageIds={selectedLangs}
+          multiple={false}
+          onChange={this.handleLanguageChange}
+        />
         {!this.props.post_view && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
-              {i18n.t("community")}
+              {I18NextService.i18n.t("community")}
             </label>
             <div className="col-sm-10">
               <SearchableSelect
@@ -365,7 +510,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 value={this.state.form.community_id}
                 options={[
                   {
-                    label: i18n.t("select_a_community"),
+                    label: I18NextService.i18n.t("select_a_community"),
                     value: "",
                     disabled: true,
                   } as Choice,
@@ -378,30 +523,19 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
         {this.props.enableNsfw && (
-          <div className="mb-3 row">
-            <legend className="col-form-label col-sm-2 pt-0">
-              {i18n.t("nsfw")}
-            </legend>
-            <div className="col-sm-10">
-              <div className="form-check">
-                <input
-                  className="form-check-input position-static"
-                  id="post-nsfw"
-                  type="checkbox"
-                  checked={this.state.form.nsfw}
-                  onChange={linkEvent(this, this.handlePostNsfwChange)}
-                />
-              </div>
-            </div>
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              id="post-nsfw"
+              type="checkbox"
+              checked={this.state.form.nsfw}
+              onChange={linkEvent(this, handlePostNsfwChange)}
+            />
+            <label className="form-check-label">
+              {I18NextService.i18n.t("nsfw")}
+            </label>
           </div>
         )}
-        <LanguageSelect
-          allLanguages={this.props.allLanguages}
-          siteLanguages={this.props.siteLanguages}
-          selectedLanguageIds={selectedLangs}
-          multiple={false}
-          onChange={this.handleLanguageChange}
-        />
         <input
           tabIndex={-1}
           autoComplete="false"
@@ -410,7 +544,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           className="form-control honeypot"
           id="register-honey"
           value={this.state.form.honeypot}
-          onInput={linkEvent(this, this.handleHoneyPotChange)}
+          onInput={linkEvent(this, handleHoneyPotChange)}
         />
         <div className="mb-3 row">
           <div className="col-sm-10">
@@ -422,18 +556,18 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               {this.state.loading ? (
                 <Spinner />
               ) : this.props.post_view ? (
-                capitalizeFirstLetter(i18n.t("save"))
+                capitalizeFirstLetter(I18NextService.i18n.t("save"))
               ) : (
-                capitalizeFirstLetter(i18n.t("create"))
+                capitalizeFirstLetter(I18NextService.i18n.t("create"))
               )}
             </button>
             {this.props.post_view && (
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={linkEvent(this, this.handleCancel)}
+                onClick={linkEvent(this, handleCancel)}
               >
-                {i18n.t("cancel")}
+                {I18NextService.i18n.t("cancel")}
               </button>
             )}
           </div>
@@ -456,10 +590,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               role="button"
               onClick={linkEvent(
                 { i: this, suggestedTitle },
-                this.copySuggestedTitle
+                copySuggestedTitle
               )}
             >
-              {i18n.t("copy_suggested_title", { title: "" })} {suggestedTitle}
+              {I18NextService.i18n.t("copy_suggested_title", { title: "" })}{" "}
+              {suggestedTitle}
             </div>
           )
         );
@@ -479,7 +614,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           suggestedPosts.length > 0 && (
             <>
               <div className="my-1 text-muted small font-weight-bold">
-                {i18n.t("related_posts")}
+                {I18NextService.i18n.t("related_posts")}
               </div>
               <PostListings
                 showCommunity
@@ -514,69 +649,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  handlePostSubmit(i: PostForm, event: any) {
-    event.preventDefault();
-    // Coerce empty url string to undefined
-    if ((i.state.form.url ?? "") === "") {
-      i.setState(s => ((s.form.url = undefined), s));
-    }
-    i.setState({ loading: true, submitted: true });
-    const auth = myAuthRequired();
-
-    const pForm = i.state.form;
-    const pv = i.props.post_view;
-
-    if (pv) {
-      i.props.onEdit?.({
-        name: pForm.name,
-        url: pForm.url,
-        body: pForm.body,
-        nsfw: pForm.nsfw,
-        post_id: pv.post.id,
-        language_id: pForm.language_id,
-        auth,
-      });
-    } else if (pForm.name && pForm.community_id) {
-      i.props.onCreate?.({
-        name: pForm.name,
-        community_id: pForm.community_id,
-        url: pForm.url,
-        body: pForm.body,
-        nsfw: pForm.nsfw,
-        language_id: pForm.language_id,
-        honeypot: pForm.honeypot,
-        auth,
-      });
-    }
-  }
-
-  copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
-    const sTitle = d.suggestedTitle;
-    if (sTitle) {
-      d.i.setState(
-        s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
-      );
-      d.i.setState({ suggestedPostsRes: { state: "empty" } });
-      setTimeout(() => {
-        const textarea: any = document.getElementById("post-title");
-        autosize.update(textarea);
-      }, 10);
-    }
-  }
-
-  handlePostUrlChange(i: PostForm, event: any) {
-    const url = event.target.value;
-
-    i.setState({
-      form: {
-        url,
-      },
-      imageDeleteUrl: "",
-    });
-
-    i.fetchPageTitle();
-  }
-
   async fetchPageTitle() {
     const url = this.state.form.url;
     if (url && validURL(url)) {
@@ -585,11 +657,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         metadataRes: await HttpService.client.getSiteMetadata({ url }),
       });
     }
-  }
-
-  handlePostNameChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.name = event.target.value), s));
-    i.fetchSimilarPosts();
   }
 
   async fetchSimilarPosts() {
@@ -615,82 +682,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.setState(s => ((s.form.body = val), s));
   }
 
-  handlePostCommunityChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.community_id = Number(event.target.value)), s));
-  }
-
-  handlePostNsfwChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.nsfw = event.target.checked), s));
-  }
-
   handleLanguageChange(val: number[]) {
     this.setState(s => ((s.form.language_id = val.at(0)), s));
-  }
-
-  handleHoneyPotChange(i: PostForm, event: any) {
-    i.setState(s => ((s.form.honeypot = event.target.value), s));
-  }
-
-  handleCancel(i: PostForm) {
-    i.props.onCancel?.();
-  }
-
-  handlePreviewToggle(i: PostForm, event: any) {
-    event.preventDefault();
-    i.setState({ previewMode: !i.state.previewMode });
-  }
-
-  handleImageUploadPaste(i: PostForm, event: any) {
-    const image = event.clipboardData.files[0];
-    if (image) {
-      i.handleImageUpload(i, image);
-    }
-  }
-
-  handleImageUpload(i: PostForm, event: any) {
-    let file: any;
-    if (event.target) {
-      event.preventDefault();
-      file = event.target.files[0];
-    } else {
-      file = event;
-    }
-
-    i.setState({ imageLoading: true });
-
-    HttpService.client.uploadImage({ image: file }).then(res => {
-      console.log("pictrs upload:");
-      console.log(res);
-      if (res.state === "success") {
-        if (res.data.msg === "ok") {
-          i.state.form.url = res.data.url;
-          i.setState({
-            imageLoading: false,
-            imageDeleteUrl: res.data.delete_url as string,
-          });
-        } else {
-          toast(JSON.stringify(res), "danger");
-        }
-      } else if (res.state === "failed") {
-        console.error(res.msg);
-        toast(res.msg, "danger");
-        i.setState({ imageLoading: false });
-      }
-    });
-  }
-
-  handleImageDelete(i: PostForm) {
-    const { imageDeleteUrl } = i.state;
-
-    fetch(imageDeleteUrl);
-
-    i.setState({
-      imageDeleteUrl: "",
-      imageLoading: false,
-      form: {
-        url: "",
-      },
-    });
   }
 
   handleCommunitySearch = debounce(async (text: string) => {
