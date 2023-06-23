@@ -1,8 +1,7 @@
-import setDefaultOptions from "date-fns/setDefaultOptions";
+import { setupI18Next as setupDateFns } from "@utils/app";
 import express from "express";
 import path from "path";
 import process from "process";
-import { I18NextService } from "../shared/services";
 import CatchAllHandler from "./handlers/catch-all-handler";
 import ManifestHandler from "./handlers/manifest-handler";
 import RobotsHandler from "./handlers/robots-handler";
@@ -33,20 +32,11 @@ server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);
 
 server.listen(Number(port), hostname, () => {
+  setupDateFns();
   console.log(`http://${hostname}:${port}`);
 });
 
-process.on("SIGINT", async () => {
-  const lang = I18NextService.i18n.language;
-  const locale = (
-    await import(
-      /* webpackExclude: /\.js\.flow$/ */
-      `date-fns/locale/${lang}`
-    )
-  ).default;
-  setDefaultOptions({
-    locale,
-  });
+process.on("SIGINT", () => {
   console.info("Interrupted");
   process.exit(0);
 });
