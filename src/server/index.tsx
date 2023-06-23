@@ -1,4 +1,4 @@
-import { setupI18Next as setupDateFns } from "@utils/app";
+import { setupDateFns } from "@utils/app";
 import express from "express";
 import path from "path";
 import process from "process";

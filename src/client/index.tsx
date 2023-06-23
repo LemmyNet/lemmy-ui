@@ -1,4 +1,4 @@
-import { initializeSite, setupI18Next as setupDateFns } from "@utils/app";
+import { initializeSite, setupDateFns } from "@utils/app";
 import { hydrate } from "inferno-hydrate";
 import { Router } from "inferno-router";
 import { App } from "../shared/components/app/app";
