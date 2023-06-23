@@ -11,11 +11,7 @@ import {
   setIsoData,
   showLocal,
 } from "@utils/app";
-import {
-  isBrowser,
-  restoreScrollPosition,
-  saveScrollPosition,
-} from "@utils/browser";
+import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
   capitalizeFirstLetter,
   debounce,
@@ -274,7 +270,7 @@ export class Search extends Component<any, SearchState> {
     };
 
     // Only fetch the data if coming from another route
-    if (!isBrowser() || FirstLoadService.isFirstLoad) {
+    if (FirstLoadService.isFirstLoad) {
       const {
         communityResponse: communityRes,
         creatorDetailsResponse: creatorDetailsRes,

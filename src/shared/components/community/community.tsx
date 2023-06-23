@@ -15,7 +15,6 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
-import { isBrowser } from "@utils/browser";
 import {
   getPageFromString,
   getQueryParams,
@@ -198,7 +197,7 @@ export class Community extends Component<
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
 
     // Only fetch the data if coming from another route
-    if (!isBrowser() || FirstLoadService.isFirstLoad) {
+    if (FirstLoadService.isFirstLoad) {
       const { communityRes, commentsRes, postsRes } = this.isoData.routeData;
 
       this.state = {
