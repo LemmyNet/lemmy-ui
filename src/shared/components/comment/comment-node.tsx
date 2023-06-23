@@ -49,7 +49,7 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import { commentTreeMaxDepth } from "../../config";
+import { commentTreeMaxDepth, fetchLimit } from "../../config";
 import {
   BanType,
   CommentNodeI,
@@ -1655,7 +1655,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.props.onFetchChildren?.({
       parent_id: i.commentId,
       max_depth: commentTreeMaxDepth,
-      limit: 999, // TODO
+      limit: fetchLimit,
       type_: "All",
       saved_only: false,
       auth: myAuth(),

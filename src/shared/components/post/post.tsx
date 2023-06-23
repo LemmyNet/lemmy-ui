@@ -75,7 +75,7 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
-import { commentTreeMaxDepth } from "../../config";
+import { commentTreeMaxDepth, fetchLimit } from "../../config";
 import {
   CommentNodeI,
   CommentViewType,
@@ -213,6 +213,7 @@ export class Post extends Component<any, PostState> {
         sort: this.state.commentSort,
         type_: "All",
         saved_only: false,
+        limit: fetchLimit,
         auth,
       }),
     });
@@ -245,6 +246,7 @@ export class Post extends Component<any, PostState> {
       sort: "Hot",
       type_: "All",
       saved_only: false,
+      limit: fetchLimit,
       auth,
     };
 
