@@ -174,7 +174,7 @@ export class Post extends Component<any, PostState> {
     this.state = { ...this.state, commentSectionRef: createRef() };
 
     // Only fetch the data if coming from another route
-    if (FirstLoadService.isFirstLoad) {
+    if (!isBrowser() || FirstLoadService.isFirstLoad) {
       const { commentsRes, postRes } = this.isoData.routeData;
 
       this.state = {
