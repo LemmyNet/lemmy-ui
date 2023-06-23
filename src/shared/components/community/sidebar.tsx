@@ -32,6 +32,7 @@ import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
+import { UserFlairModal } from "./user-flair-modal";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -108,9 +109,15 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     }
   }
 
+  userFlairModalRef:UserFlairModal | null  = null;
+  onPickUserFlairClick = () => {
+    this.userFlairModalRef?.showDialog();
+  }
+
   render() {
     return (
       <div>
+        <UserFlairModal ref={el => this.userFlairModalRef = el}/>
         {!this.state.showEdit ? (
           this.sidebar()
         ) : (
@@ -169,7 +176,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </div>
                 </div>
                 <div class="mt-3 w-100 d-flex align-items-center justify-content-center">
-                  <button class="btn btn-secondary btn-block mb-2">Change your flair</button>
+                  <button class="btn btn-secondary btn-block" onClick={this.onPickUserFlairClick}>Change your flair</button>
                 </div>
               </span>
               
@@ -177,7 +184,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 <span>
                   <h6 class="card-subtitle text-muted">You don't have a flair on {this.props.community_view.community.title}</h6>
                   <div class="mt-4 w-100 d-flex align-items-center justify-content-center">
-                    <button class="btn btn-secondary btn-block mb-2">Pick your flair</button>
+                    <button class="btn btn-secondary btn-block" onClick={this.onPickUserFlairClick}>Pick your flair</button>
                   </div>
                 </span>
               )}

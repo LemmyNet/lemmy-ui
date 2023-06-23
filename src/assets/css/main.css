@@ -429,3 +429,7 @@ br.big {
 .skip-link:focus {
   top: 0;
 }
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
