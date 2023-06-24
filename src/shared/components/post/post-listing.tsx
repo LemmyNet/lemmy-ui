@@ -55,7 +55,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
-import { getUserFlair } from "@utils/helpers/getUserFlair";
+import { getUserFlair } from "@utils/helpers/user-flairs";
 
 interface PostListingState {
   showEdit: boolean;
@@ -387,8 +387,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <span className="small">
         <PersonListing person={post_view.creator} />
           {userFlair !== null && (
-            <div className="badge badge-light d-inline ml-2">
-              {userFlair}
+            <div class="badge text-bg-light my-auto d-inline mx-2 p-1">
+              {userFlair.image.length > 0 && (<img src={userFlair.image} style="height:1rem;" class="me-2"/>)}
+              <span>{userFlair.name}</span>
             </div>
           )}        {this.creatorIsMod_ && (
           <span className="mx-1 badge text-bg-light">

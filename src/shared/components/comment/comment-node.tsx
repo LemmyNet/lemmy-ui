@@ -67,7 +67,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
-import { getUserFlair } from "@utils/helpers/getUserFlair";
+import { getUserFlair } from "@utils/helpers/user-flairs";
 
 interface CommentNodeState {
   showReply: boolean;
@@ -317,14 +317,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes={`text-danger me-2`} />
               )}
+              {userFlair !== null && (
+                <div class="badge text-bg-light my-auto d-inline me-2 p-1">
+                  {userFlair.image.length > 0 && (<img src={userFlair.image} style="height:1rem;" class="me-2"/>)}
+                  <span>{userFlair.name}</span>
+                </div>
+              )}
               {this.isPostCreator && (
                 <div className="badge text-bg-light d-none d-sm-inline me-2">
                   {I18NextService.i18n.t("creator")}
-                </div>
-              )}
-              {userFlair !== null && (
-                <div className="badge badge-light d-inline mr-2 p-1">
-                  {userFlair}
                 </div>
               )}
               {isMod_ && (

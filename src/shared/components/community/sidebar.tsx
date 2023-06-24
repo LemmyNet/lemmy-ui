@@ -26,7 +26,7 @@ import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { UserFlairModal } from "./user-flair-modal";
-import { getUserFlair } from "@utils/helpers/getUserFlair";
+import { UserFlair, getUserFlair } from "@utils/helpers/user-flairs";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -60,6 +60,7 @@ interface SidebarState {
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
+  userFlair: UserFlair | null;
 }
 
 export class Sidebar extends Component<SidebarProps, SidebarState> {
@@ -73,11 +74,16 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     leaveModTeamLoading: false,
     followCommunityLoading: false,
     purgeCommunityLoading: false,
+    userFlair: getUserFlair(UserService.Instance.myUserInfo?.local_user_view.person ?? null)
   };
 
   constructor(props: any, context: any) {
     super(props, context);
     this.handleEditCancel = this.handleEditCancel.bind(this);
+  }
+
+  handleUserFlairUpdate = (newUserFlair: UserFlair | null) => {
+    this.setState({ userFlair: newUserFlair });
   }
   
   componentWillReceiveProps(
@@ -111,7 +117,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   render() {
     return (
       <div className="community-sidebar">
-        <UserFlairModal ref={el => this.userFlairModalRef = el}/>
+        <UserFlairModal ref={el => this.userFlairModalRef = el} userFlair={this.state.userFlair} onUserFlairUpdate={this.handleUserFlairUpdate}/>
         {!this.state.showEdit ? (
           this.sidebar()
         ) : (
@@ -161,16 +167,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <section id="userFlairPicker" className="card border-secondary mb-3">
               <div className="card-body">
               <h5 class="card-title">User Flair</h5>
-              {getUserFlair(myUSerInfo?.local_user_view.person) != null ? (
+              {this.state.userFlair != null ? (
               <span>
                 <h6 class="card-subtitle text-muted">This is your flair for {this.props.community_view.community.title}:</h6>
                 <div class="my-2">
-                  <div class="badge badge-dark my-auto" style="height: min-content; width: min-content;">
-                    {getUserFlair(myUSerInfo?.local_user_view.person)}
+                  <div class="badge text-bg-dark my-auto d-inline me-2 p-1" style="height: min-content; width: min-content;">
+                    {this.state.userFlair.image.length > 0 && (<img src={this.state.userFlair.image} style="height:1rem;" class="me-2"/>)}
+                    <span>{this.state.userFlair.name}</span>
                   </div>
                 </div>
                 <div class="mt-3 w-100 d-flex align-items-center justify-content-center">
-                  <button class="btn btn-secondary btn-block" onClick={this.onPickUserFlairClick}>Change your flair</button>
+                  <button class="btn btn-secondary btn-block d-block mb-2 w-100" onClick={this.onPickUserFlairClick}>Change your flair</button>
                 </div>
               </span>
               
@@ -178,7 +185,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 <span>
                   <h6 class="card-subtitle text-muted">You don't have a flair on {this.props.community_view.community.title}</h6>
                   <div class="mt-4 w-100 d-flex align-items-center justify-content-center">
-                    <button class="btn btn-secondary btn-block" onClick={this.onPickUserFlairClick}>Pick your flair</button>
+                    <button class="btn btn-secondary btn-block d-block mb-2 w-100" onClick={this.onPickUserFlairClick}>Pick your flair</button>
                   </div>
                 </span>
               )}

@@ -1,59 +1,59 @@
 import { Component } from 'inferno';
 import { Icon } from "../common/icon";
-
-interface UserFlair {
-    id: number;
-    name: string;
-    image: string;
-}
+import { UserFlair, clearUserFlair, setUserFlair } from '@utils/helpers/user-flairs';
 
 const flairs = [{
-    "id": 0,
+    "id": "0",
     "name": "AuthLeft",
     "image": "https://emoji.redditmedia.com/tusmt4eqnar31_t5_3ipa1/authleft"
   },{
-    "id": 1,
+    "id": "1",
     "name": "AuthCenter",
     "image": "https://emoji.redditmedia.com/16q94zxonar31_t5_3ipa1/auth"
   },{
-    "id": 2,
+    "id": "2",
     "name": "AuthRight",
     "image": "https://emoji.redditmedia.com/4ak3jtrrnar31_t5_3ipa1/authright"
   },{
-    "id": 3,
+    "id": "3",
     "name": "Left",
     "image": "https://emoji.redditmedia.com/w977vwiynar31_t5_3ipa1/left"
   },{
-    "id": 4,
+    "id": "4",
     "name": "Centrist",
     "image": "https://emoji.redditmedia.com/6zhv8hgvoar31_t5_3ipa1/centrist"
   },{
-    "id": 5,
+    "id": "5",
     "name": "Right",
     "image": "https://emoji.redditmedia.com/x5otkjy5oar31_t5_3ipa1/right"
   },{
-    "id": 6,
+    "id": "6",
     "name": "LibLeft",
     "image": "https://emoji.redditmedia.com/d4hfiki0oar31_t5_3ipa1/libleft"
   },{
-    "id": 7,
+    "id": "7",
     "name": "LibCenter",
     "image": "https://emoji.redditmedia.com/s03ozdmznar31_t5_3ipa1/lib"
   },{
-    "id": 8,
+    "id": "8",
     "name": "LibRight",
     "image": "https://emoji.redditmedia.com/hts92712oar31_t5_3ipa1/libright"
   },{
-    "id": 9,
+    "id": "9",
     "name": "Centrist",
     "image": "https://emoji.redditmedia.com/bxv3jzc85q851_t5_3ipa1/CENTG"
   },{
-    "id": 10,
+    "id": "10",
     "name": "LibRight",
     "image": "https://emoji.redditmedia.com/9usjafiot7t31_t5_3ipa1/libright2"
 }] satisfies UserFlair[];
 
-export class UserFlairModal extends Component {
+interface UserFlairModalProp {
+  userFlair: UserFlair | null;
+  onUserFlairUpdate: (newFlair: UserFlair | null) => void;
+}
+
+export class UserFlairModal extends Component<UserFlairModalProp> {
     showDialog = () => {
         const userFlairDialog = document.getElementById("userFlairDialog") as HTMLDialogElement;
         userFlairDialog.showModal();
@@ -72,8 +72,13 @@ export class UserFlairModal extends Component {
     
             userFlairDialog.close(selectedValue); // Send the selected value here.
     
-            const val = userFlairDialog.returnValue;
-            if (val !== 'cancel' && val !== 'default') console.log('Flair picked: ', val);
+            const flair = userFlairDialog.returnValue;
+            if (flair !== 'cancel' && flair !== 'default') {
+              const pickedFlair = flairs.find(f => f.id === flair) as unknown as UserFlair;
+              
+              this.props.onUserFlairUpdate(pickedFlair)
+              setUserFlair(pickedFlair);
+            }
         });
         
         removeFlairBtn.addEventListener("click", (event) => {
@@ -87,7 +92,8 @@ export class UserFlairModal extends Component {
 
             userFlairDialog.close(); // Send the selected value here.
     
-            console.log('Flair removed');
+            this.props.onUserFlairUpdate(null)
+            clearUserFlair();
         });
     }
 
@@ -106,9 +112,9 @@ export class UserFlairModal extends Component {
             <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));column-gap: 1rem;row-gap: 0.25rem;" class="w-100">
                 {flairs.map(flair => (
                     <span>
-                        <input type="radio" name="userFlair" value={flair.id} class="mr-2" id={"userFlair"+flair.id}/>
+                        <input type="radio" name="userFlair" value={flair.id} class="me-2" id={"userFlair"+flair.id}/>
                         <label htmlFor={"userFlair"+flair.id}>
-                            {flair.image.length > 0 && (<img src={flair.image} style="height:1rem;" class="mr-2"/>)}
+                            {flair.image.length > 0 && (<img src={flair.image} style="height:1rem;" class="me-2"/>)}
                             <span>{flair.name}</span>
                         </label>
                     </span>
