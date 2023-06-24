@@ -39,7 +39,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       return (
         <span
           data-tippy-content={this.createdAndModifiedTimes()}
-          className="moment-time fst-italics pointer unselectable"
+          className="moment-time fst-italic pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
           {formatPastDate(this.props.updated)}
