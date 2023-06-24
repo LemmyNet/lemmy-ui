@@ -761,7 +761,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         data-tippy-content={title}
         target={
           UserService.Instance.myUserInfo?.local_user_view.local_user
-            .open_links_in_new_tab ?? false
+            .open_links_in_new_tab
             ? "_blank"
             : "_self"
         }

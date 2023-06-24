@@ -814,7 +814,7 @@ export class Settings extends Component<any, SettingsState> {
               />
               <label
                 className="form-check-label"
-                htmlFor="user-show-new-post-notifs"
+                htmlFor="user-open-links-in-new-tab"
               >
                 {I18NextService.i18n.t("open_links_in_new_tab")}
               </label>
