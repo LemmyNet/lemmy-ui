@@ -49,6 +49,7 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
+import deepEqual from "lodash.isequal";
 import { commentTreeMaxDepth } from "../../config";
 import {
   BanType,
@@ -199,7 +200,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>
   ): void {
-    if (this.props != nextProps) {
+    if (!deepEqual(this.props, nextProps)) {
       this.setState({
         showReply: false,
         showEdit: false,
