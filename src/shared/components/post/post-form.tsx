@@ -4,6 +4,7 @@ import {
   myAuth,
   myAuthRequired,
 } from "@utils/app";
+import getUserInterfaceLangId from "@utils/app/user-interface-language";
 import {
   capitalizeFirstLetter,
   debounce,
@@ -323,10 +324,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   render() {
-    const firstLang = this.state.form.language_id;
-    const selectedLangs = firstLang ? Array.of(firstLang) : undefined;
-
     const url = this.state.form.url;
+
+    const userInterfaceLangId = getUserInterfaceLangId(this.props.allLanguages);
 
     return (
       <form className="post-form" onSubmit={linkEvent(this, handlePostSubmit)}>
@@ -494,8 +494,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         </div>
         <LanguageSelect
           allLanguages={this.props.allLanguages}
+          selectedLanguageIds={[userInterfaceLangId]}
           siteLanguages={this.props.siteLanguages}
-          selectedLanguageIds={selectedLangs}
           multiple={false}
           onChange={this.handleLanguageChange}
         />
