@@ -380,14 +380,14 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div className="home container-lg">
+      <div className="home container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
         {site_setup && (
-          <div className="row">
-            <main role="main" className="col-12 col-md-8">
+          <>
+            <main role="main" className="col-12 col-md-8 col-xl-10">
               {tagline && (
                 <div
                   id="tagline"
@@ -397,10 +397,10 @@ export class Home extends Component<any, HomeState> {
               <div className="d-block d-md-none">{this.mobileView}</div>
               {this.posts}
             </main>
-            <aside className="d-none d-md-block col-md-4">
+            <aside className="d-none d-md-block col-md-4 col-xl-2">
               {this.mySidebar}
             </aside>
-          </div>
+          </>
         )}
       </div>
     );

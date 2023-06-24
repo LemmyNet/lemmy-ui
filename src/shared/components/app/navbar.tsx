@@ -80,7 +80,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     const person = UserService.Instance.myUserInfo?.local_user_view.person;
     return (
       <nav
-        className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3 container-lg"
+        className="navbar navbar-expand-md navbar-light shadow-sm p-0 px-3 container-flex"
         id="navbar"
       >
         <NavLink

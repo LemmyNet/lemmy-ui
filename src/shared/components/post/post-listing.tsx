@@ -94,6 +94,9 @@ interface PostListingState {
   transferLoading: boolean;
 }
 
+const thumbnailClasses =
+  "thumbnail rounded bg-light d-block text-body d-flex align-items-center justify-content-center";
+
 interface PostListingProps {
   post_view: PostView;
   crossPosts?: PostView[];
@@ -197,7 +200,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="post-listing mt-2">
+      <div className="post-listing mt-2 container-flex">
         {!this.state.showEdit ? (
           <>
             {this.listing()}
@@ -242,19 +245,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (this.imageSrc) {
       return (
         <>
-          <div className="offset-sm-3 my-2 d-none d-sm-block">
-            <a href={this.imageSrc} className="d-inline-block">
-              <PictrsImage src={this.imageSrc} />
-            </a>
-          </div>
-          <div className="my-2 d-block d-sm-none">
-            <a
-              className="d-inline-block"
-              onClick={linkEvent(this, this.handleImageExpandClick)}
-            >
-              <PictrsImage src={this.imageSrc} />
-            </a>
-          </div>
+          <a href={this.imageSrc} className="my-2 d-none d-sm-block card p-4">
+            <PictrsImage src={this.imageSrc} center />
+          </a>
+          <button
+            type="button"
+            className="my-2 d-block d-sm-none"
+            onClick={linkEvent(this, this.handleImageExpandClick)}
+          >
+            <PictrsImage src={this.imageSrc} />
+          </button>
         </>
       );
     }
@@ -334,14 +334,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           title={url}
         >
           {this.imgThumb(this.imageSrc)}
-          <Icon icon="external-link" classes="mini-overlay" />
+          <Icon
+            icon="external-link"
+            classes="mini-overlay d-flex align-items-center"
+          />
         </a>
       );
     } else if (url) {
       if (!this.props.hideImage && isVideo(url)) {
         return (
           <a
-            className="text-body"
+            className={thumbnailClasses}
             href={url}
             title={url}
             rel={relTags}
@@ -349,30 +352,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onClick={linkEvent(this, this.handleImageExpandClick)}
             aria-label={I18NextService.i18n.t("expand_here")}
           >
-            <div className="thumbnail rounded bg-light d-flex justify-content-center">
-              <Icon icon="play" classes="d-flex align-items-center" />
-            </div>
+            <Icon icon="play" />
           </a>
         );
       } else {
         return (
-          <a className="text-body" href={url} title={url} rel={relTags}>
-            <div className="thumbnail rounded bg-light d-flex justify-content-center">
-              <Icon icon="external-link" classes="d-flex align-items-center" />
-            </div>
+          <a className={thumbnailClasses} href={url} title={url} rel={relTags}>
+            <Icon icon="external-link" />
           </a>
         );
       }
     } else {
       return (
         <Link
-          className="text-body"
+          className={thumbnailClasses}
           to={`/post/${post.id}`}
           title={I18NextService.i18n.t("comments")}
         >
-          <div className="thumbnail rounded bg-light d-flex justify-content-center">
-            <Icon icon="message-square" classes="d-flex align-items-center" />
-          </div>
+          <Icon icon="message-square" />
         </Link>
       );
     }
@@ -1441,10 +1438,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
           {this.postTitleLine()}
         </div>
-        <div className="col-4">
-          {/* Post body prev or thumbnail */}
-          {!this.state.imageExpanded && this.thumbnail()}
-        </div>
+        {!this.state.imageExpanded && (
+          <div className="col-4 ">
+            {/* Post body prev or thumbnail */}
+            {this.thumbnail()}
+          </div>
+        )}
       </div>
     ) : (
       this.postTitleLine()
@@ -1467,47 +1466,37 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         {/* The mobile view*/}
-        <div className="d-block d-sm-none">
-          <article className="row post-container">
-            <div className="col-12">
-              {this.createdLine()}
+        <article className="d-block d-sm-none post-container">
+          {this.createdLine()}
 
-              {/* If it has a thumbnail, do a right aligned thumbnail */}
-              {this.mobileThumbnail()}
+          {/* If it has a thumbnail, do a right aligned thumbnail */}
+          {this.mobileThumbnail()}
 
-              {/* Show a preview of the post body */}
-              {this.showBodyPreview()}
+          {/* Show a preview of the post body */}
+          {this.showBodyPreview()}
 
-              {this.commentsLine(true)}
-              {this.userActionsLine()}
-              {this.duplicatesLine()}
-              {this.removeAndBanDialogs()}
-            </div>
-          </article>
-        </div>
+          {this.commentsLine(true)}
+          {this.userActionsLine()}
+          {this.duplicatesLine()}
+          {this.removeAndBanDialogs()}
+        </article>
 
         {/* The larger view*/}
-        <div className="d-none d-sm-block">
-          <article className="row post-container">
-            {!this.props.viewOnly && this.voteBar()}
-            <div className="col-sm-2 pe-0 post-media">
-              <div className="">{this.thumbnail()}</div>
-            </div>
-            <div className="col-12 col-sm-9">
-              <div className="row">
-                <div className="col-12">
-                  {this.postTitleLine()}
-                  {this.createdLine()}
-                  {this.showBodyPreview()}
-                  {this.commentsLine()}
-                  {this.duplicatesLine()}
-                  {this.userActionsLine()}
-                  {this.removeAndBanDialogs()}
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
+        <article className="d-none d-sm-flex row post-container">
+          {!this.props.viewOnly && this.voteBar()}
+          <div className="col-2 col-xl-1 pe-0 post-media d-flex align-items-center justify-content-center">
+            {this.thumbnail()}
+          </div>
+          <div className="col-9 col-xl-10">
+            {this.postTitleLine()}
+            {this.createdLine()}
+            {this.showBodyPreview()}
+            {this.commentsLine()}
+            {this.duplicatesLine()}
+            {this.userActionsLine()}
+            {this.removeAndBanDialogs()}
+          </div>
+        </article>
       </>
     );
   }

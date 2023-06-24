@@ -13,6 +13,7 @@ interface PictrsImageProps {
   nsfw?: boolean;
   iconOverlay?: boolean;
   pushup?: boolean;
+  center?: boolean;
 }
 
 export class PictrsImage extends Component<PictrsImageProps, any> {
@@ -22,7 +23,11 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
 
   render() {
     return (
-      <picture>
+      <picture
+        className={classNames({
+          "w-100 d-block text-center": this.props.center,
+        })}
+      >
         <source srcSet={this.src("webp")} type="image/webp" />
         <source srcSet={this.props.src} />
         <source srcSet={this.src("jpg")} type="image/jpeg" />
