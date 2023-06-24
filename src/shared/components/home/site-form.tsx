@@ -78,7 +78,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       slur_filter_regex: ls.slur_filter_regex,
       actor_name_max_length: ls.actor_name_max_length,
       federation_enabled: ls.federation_enabled,
-      federation_worker_count: ls.federation_worker_count,
       captcha_enabled: ls.captcha_enabled,
       captcha_difficulty: ls.captcha_difficulty,
       allowed_instances: this.props.allowedInstances?.map(i => i.domain),
@@ -554,27 +553,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 </div>
               </div>
             </div>
-            <div className="mb-3 row">
-              <label
-                className="col-12 col-form-label"
-                htmlFor="create-site-federation-worker-count"
-              >
-                {I18NextService.i18n.t("federation_worker_count")}
-              </label>
-              <div className="col-12">
-                <input
-                  type="number"
-                  id="create-site-federation-worker-count"
-                  className="form-control"
-                  min={0}
-                  value={this.state.siteForm.federation_worker_count}
-                  onInput={linkEvent(
-                    this,
-                    this.handleSiteFederationWorkerCount
-                  )}
-                />
-              </div>
-            </div>
           </>
         )}
         <div className="mb-3 row">
@@ -781,7 +759,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           stateSiteForm.rate_limit_search_per_second,
         federation_enabled: stateSiteForm.federation_enabled,
         federation_debug: stateSiteForm.federation_debug,
-        federation_worker_count: stateSiteForm.federation_worker_count,
         captcha_enabled: stateSiteForm.captcha_enabled,
         captcha_difficulty: stateSiteForm.captcha_difficulty,
         allowed_instances: stateSiteForm.allowed_instances,
@@ -980,14 +957,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleSiteFederationDebug(i: SiteForm, event: any) {
     i.state.siteForm.federation_debug = event.target.checked;
     i.setState(i.state);
-  }
-
-  handleSiteFederationWorkerCount(i: SiteForm, event: any) {
-    i.setState(
-      s => (
-        (s.siteForm.federation_worker_count = Number(event.target.value)), s
-      )
-    );
   }
 
   handleSiteCaptchaEnabled(i: SiteForm, event: any) {
