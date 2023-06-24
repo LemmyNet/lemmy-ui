@@ -41,12 +41,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
           : undefined
         : undefined;
 
-    const userInterfaceLangId = !UserService.Instance.myUserInfo
-      ? 0
-      : getUserInterfaceLangId({
-          myUserInfo: UserService.Instance.myUserInfo,
-          allLanguages: this.props.allLanguages,
-        });
+    const userInterfaceLangId = getUserInterfaceLangId(this.props.allLanguages);
 
     return (
       <div

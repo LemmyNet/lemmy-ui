@@ -1,13 +1,9 @@
-import { Language, MyUserInfo } from "lemmy-js-client";
+import { Language } from "lemmy-js-client";
 import { I18NextService } from "../../services/I18NextService";
 
-export default function getUserInterfaceLanguageId({
-  myUserInfo,
-  allLanguages,
-}: {
-  myUserInfo: MyUserInfo;
-  allLanguages: Language[];
-}): number {
+export default function getUserInterfaceLangId(
+  allLanguages: Language[]
+): number {
   // Get the string of the browser- or user-defined language, like en-US
   const i18nLang = I18NextService.i18n.language;
 
@@ -18,5 +14,5 @@ export default function getUserInterfaceLanguageId({
   });
 
   // Return the ID of that language object, or "0" for Undetermined
-  return userLang.id || 0;
+  return userLang?.id || 0;
 }
