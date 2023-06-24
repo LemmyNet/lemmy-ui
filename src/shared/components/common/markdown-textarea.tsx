@@ -295,7 +295,7 @@ export class MarkdownTextArea extends Component<
             )}
             <button
               type="button"
-              disabled={!this.state.content ? true : false}
+              disabled={!this.state.content}
               className={`btn btn-sm btn-secondary ms-2 ${
                 this.state.previewMode && "active"
               }`}
