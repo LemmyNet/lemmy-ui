@@ -35,7 +35,8 @@ interface MarkdownTextAreaProps {
   buttonTitle?: string;
   maxLength?: number;
   /**
-   * Whether this form is for a reply to a Private Message
+   * Whether this form is for a reply to a Private Message.
+   * If true, a "Cancel" button is shown that will close the reply.
    */
   replyType?: boolean;
   focus?: boolean;
@@ -297,7 +298,7 @@ export class MarkdownTextArea extends Component<
               type="button"
               disabled={!this.state.content}
               className={classNames("btn btn-sm btn-secondary ms-2", {
-                  active: this.state.previewMode
+                active: this.state.previewMode,
               })}
               onClick={linkEvent(this, this.handlePreviewToggle)}
             >
