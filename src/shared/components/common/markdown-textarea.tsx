@@ -264,7 +264,7 @@ export class MarkdownTextArea extends Component<
                 // in the dropdown; otherwise, set it to 0 (Undetermined)
                 selectedLanguageIds={
                   languageId && this.props.siteLanguages.includes(languageId)
-                    ? Array.of(languageId)
+                    ? [languageId]
                     : [0]
                 }
                 siteLanguages={this.props.siteLanguages}
