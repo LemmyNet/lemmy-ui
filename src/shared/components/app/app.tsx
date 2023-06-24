@@ -35,7 +35,6 @@ export class App extends Component<any, any> {
           <div id="app" className="lemmy-site">
             <button
               type="button"
-              tabIndex="0"
               className="btn btn-text skip-link bg-light position-absolute start-0 z-3"
               onClick={linkEvent(this, this.handleJumpToContent)}
             >
