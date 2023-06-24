@@ -4,7 +4,7 @@ import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { routes } from "../../routes";
-import { I18NextService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import AuthGuard from "../common/auth-guard";
 import ErrorGuard from "../common/error-guard";
 import { ErrorPage } from "./error-page";
@@ -45,27 +45,35 @@ export class App extends Component<any, any> {
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
               <Switch>
-                {routes.map(({ path, component: RouteComponent }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    exact
-                    component={routeProps => (
-                      <ErrorGuard>
-                        <main tabIndex={-1} ref={this.mainContentRef}>
-                          {RouteComponent &&
-                            (isAuthPath(path ?? "") ? (
-                              <AuthGuard>
-                                <RouteComponent {...routeProps} />
-                              </AuthGuard>
-                            ) : (
-                              <RouteComponent {...routeProps} />
-                            ))}
-                        </main>
-                      </ErrorGuard>
-                    )}
-                  />
-                ))}
+                {routes.map(
+                  ({ path, component: RouteComponent, fetchInitialData }) => (
+                    <Route
+                      key={path}
+                      path={path}
+                      exact
+                      component={routeProps => {
+                        if (!fetchInitialData) {
+                          FirstLoadService.falsify();
+                        }
+
+                        return (
+                          <ErrorGuard>
+                            <main tabIndex={-1} ref={this.mainContentRef}>
+                              {RouteComponent &&
+                                (isAuthPath(path ?? "") ? (
+                                  <AuthGuard>
+                                    <RouteComponent {...routeProps} />
+                                  </AuthGuard>
+                                ) : (
+                                  <RouteComponent {...routeProps} />
+                                ))}
+                            </main>
+                          </ErrorGuard>
+                        );
+                      }}
+                    />
+                  )
+                )}
                 <Route component={ErrorPage} />
               </Switch>
             </div>
