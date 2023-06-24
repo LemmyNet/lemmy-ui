@@ -50,7 +50,7 @@ export class ImageUploadForm extends Component<
                 }`}
               />
               <button
-                className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent"
+                className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
                 type="button"
                 onClick={linkEvent(this, this.handleRemoveImage)}
                 aria-label={I18NextService.i18n.t("remove")}
