@@ -23,6 +23,11 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
     this.state = this.emptyState;
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
+
+  closeEmojiMartOnEsc(i, event) {
+    event.key === "Escape" && i.setState({ showPicker: false });
+  }
+
   render() {
     return (
       <span className="emoji-picker">
@@ -38,8 +43,8 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
 
         {this.state.showPicker && (
           <>
-            <div className="position-relative">
-              <div className="emoji-picker-container position-absolute w-100">
+            <div className="position-relative" role="dialog">
+              <div className="emoji-picker-container z-3">
                 <EmojiMart
                   onEmojiClick={this.handleEmojiClick}
                   pickerOptions={{}}
@@ -59,6 +64,10 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
   togglePicker(i: EmojiPicker, e: any) {
     e.preventDefault();
     i.setState({ showPicker: !i.state.showPicker });
+
+    i.state.showPicker
+      ? document.addEventListener("keyup", e => i.closeEmojiMartOnEsc(i, e))
+      : document.removeEventListener("keyup", e => i.closeEmojiMartOnEsc(i, e));
   }
 
   handleEmojiClick(e: any) {
