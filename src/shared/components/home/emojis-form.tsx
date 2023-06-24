@@ -121,7 +121,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                     <td style="text-align:center;">
                       <label
                         htmlFor={index.toString()}
-                        className="pointer text-muted small font-weight-bold"
+                        className="pointer text-muted small fw-bold"
                       >
                         {cv.image_url.length > 0 && (
                           <img

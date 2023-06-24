@@ -358,7 +358,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 htmlFor="file-upload"
                 className={`${
                   UserService.Instance.myUserInfo && "pointer"
-                } d-inline-block float-right text-muted font-weight-bold`}
+                } d-inline-block float-right text-muted fw-bold`}
                 data-tippy-content={I18NextService.i18n.t("upload_image")}
               >
                 <Icon icon="image" classes="icon-inline" />
@@ -377,7 +377,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <div>
                 <a
                   href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
-                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
                 >
                   archive.org {I18NextService.i18n.t("archive_link")}
@@ -386,7 +386,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
                     url
                   )}`}
-                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
                 >
                   ghostarchive.org {I18NextService.i18n.t("archive_link")}
@@ -395,7 +395,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
                     url
                   )}`}
-                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
                 >
                   archive.today {I18NextService.i18n.t("archive_link")}
@@ -419,7 +419,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )}
             {this.props.crossPosts && this.props.crossPosts.length > 0 && (
               <>
-                <div className="my-1 text-muted small font-weight-bold">
+                <div className="my-1 text-muted small fw-bold">
                   {I18NextService.i18n.t("cross_posts")}
                 </div>
                 <PostListings
@@ -586,7 +586,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         return (
           suggestedTitle && (
             <div
-              className="mt-1 text-muted small font-weight-bold pointer"
+              className="mt-1 text-muted small fw-bold pointer"
               role="button"
               onClick={linkEvent(
                 { i: this, suggestedTitle },
@@ -613,7 +613,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           suggestedPosts &&
           suggestedPosts.length > 0 && (
             <>
-              <div className="my-1 text-muted small font-weight-bold">
+              <div className="my-1 text-muted small fw-bold">
                 {I18NextService.i18n.t("related_posts")}
               </div>
               <PostListings

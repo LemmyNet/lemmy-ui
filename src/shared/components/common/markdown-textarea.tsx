@@ -154,7 +154,7 @@ export class MarkdownTextArea extends Component<
                   onEmojiClick={e => this.handleEmoji(this, e)}
                   disabled={this.isDisabled}
                 ></EmojiPicker>
-                <form className="btn btn-sm text-muted font-weight-bold">
+                <form className="btn btn-sm text-muted fw-bold">
                   <label
                     htmlFor={`file-upload-${this.id}`}
                     className={`mb-0 ${
@@ -197,7 +197,7 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
                 <a
                   href={markdownHelpUrl}
-                  className="btn btn-sm text-muted font-weight-bold"
+                  className="btn btn-sm text-muted fw-bold"
                   title={I18NextService.i18n.t("formatting_help")}
                   rel={relTags}
                 >

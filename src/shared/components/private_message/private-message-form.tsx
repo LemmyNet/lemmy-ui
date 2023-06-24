@@ -158,7 +158,7 @@ export class PrivateMessageForm extends Component<
                 {I18NextService.i18n.t("cancel")}
               </button>
             )}
-            <ul className="d-inline-block float-right list-inline mb-1 text-muted font-weight-bold">
+            <ul className="d-inline-block float-right list-inline mb-1 text-muted fw-bold">
               <li className="list-inline-item"></li>
             </ul>
           </div>
