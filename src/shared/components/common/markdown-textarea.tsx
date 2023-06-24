@@ -296,9 +296,9 @@ export class MarkdownTextArea extends Component<
             <button
               type="button"
               disabled={!this.state.content}
-              className={`btn btn-sm btn-secondary ms-2 ${
-                this.state.previewMode && "active"
-              }`}
+              className={classNames("btn btn-sm btn-secondary ms-2", {
+                  active: this.state.previewMode
+              })}
               onClick={linkEvent(this, this.handlePreviewToggle)}
             >
               {this.state.previewMode
