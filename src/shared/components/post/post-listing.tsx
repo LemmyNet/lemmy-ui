@@ -759,6 +759,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         title={title}
         to={`/post/${post_view.post.id}?scrollToComments=true`}
         data-tippy-content={title}
+        target={
+          UserService.Instance.myUserInfo?.local_user_view.local_user
+            .open_links_in_new_tab ?? false
+            ? "_blank"
+            : "_self"
+        }
       >
         <Icon icon="message-square" classes="me-1" inline />
         {post_view.counts.comments}
