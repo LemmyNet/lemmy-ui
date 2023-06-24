@@ -1,7 +1,7 @@
 import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { GetSiteResponse, VerifyEmailResponse } from "lemmy-js-client";
-import { FirstLoadService, I18NextService } from "../../services";
+import { I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
@@ -22,8 +22,6 @@ export class VerifyEmail extends Component<any, State> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    FirstLoadService.isFirstLoad;
   }
 
   async verify() {

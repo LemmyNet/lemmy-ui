@@ -14,7 +14,7 @@ import {
 } from "lemmy-js-client";
 import { joinLemmyUrl } from "../../config";
 import { mdToHtml } from "../../markdown";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
@@ -84,8 +84,6 @@ export class Signup extends Component<any, State> {
     super(props, context);
 
     this.handleAnswerChange = this.handleAnswerChange.bind(this);
-
-    FirstLoadService.isFirstLoad;
   }
 
   async componentDidMount() {

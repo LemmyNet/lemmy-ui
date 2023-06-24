@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
 const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
-const merge = require("lodash/merge");
+const merge = require("lodash.merge");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
