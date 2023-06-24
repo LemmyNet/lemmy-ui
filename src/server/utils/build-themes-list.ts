@@ -4,7 +4,7 @@ import { readdir } from "fs/promises";
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
-const themes = ReadonlyArray<string>[
+const themes: ReadonlyArray<string> = [
   "darkly",
   "darkly-red",
   "darkly-compact",
