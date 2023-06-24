@@ -114,7 +114,7 @@ export class PrivateMessageForm extends Component<
               allLanguages={[]}
               siteLanguages={[]}
               hideNavigationWarnings
-              onReplyCancel={() => handleCancel()}
+              onReplyCancel={() => this.handleCancel(this)}
               replyType={this.props.replyType}
               buttonTitle={
                 this.props.privateMessageView
