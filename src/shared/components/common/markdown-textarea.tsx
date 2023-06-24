@@ -309,7 +309,7 @@ export class MarkdownTextArea extends Component<
               <button
                 type="submit"
                 className="btn btn-sm btn-secondary ms-2"
-                disabled={this.isDisabled}
+                disabled={this.isDisabled || !this.state.content}
               >
                 {this.state.loading && <Spinner className="me-1" />}
                 {this.props.buttonTitle}
