@@ -23,15 +23,27 @@ import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
+  /**
+   * Initial content inside the textarea
+   */
   initialContent?: string;
+  /**
+   * Numerical ID of the language to select in dropdown
+   */
   initialLanguageId?: number;
   placeholder?: string;
   buttonTitle?: string;
   maxLength?: number;
+  /**
+   * Whether this form is for a reply to a Private Message
+   */
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
   finished?: boolean;
+  /**
+   * Whether to show the language selector
+   */
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;

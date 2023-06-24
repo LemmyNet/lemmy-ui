@@ -1,6 +1,6 @@
 import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   CreatePrivateMessage,
@@ -19,6 +19,7 @@ import { PersonListing } from "../person/person-listing";
 interface PrivateMessageFormProps {
   recipient: Person;
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
+  replyType?: boolean;
   onCancel?(): any;
   onCreate?(form: CreatePrivateMessage): void;
   onEdit?(form: EditPrivateMessage): void;
@@ -113,6 +114,8 @@ export class PrivateMessageForm extends Component<
               allLanguages={[]}
               siteLanguages={[]}
               hideNavigationWarnings
+              onReplyCancel={() => handleCancel()}
+              replyType={this.props.replyType}
               buttonTitle={
                 this.props.privateMessageView
                   ? capitalizeFirstLetter(I18NextService.i18n.t("save"))
@@ -120,18 +123,6 @@ export class PrivateMessageForm extends Component<
               }
             />
           </div>
-        </div>
-
-        <div className="mb-3 d-flex justify-content-end">
-          {this.props.privateMessageView && (
-            <button
-              type="button"
-              className="btn btn-secondary w-auto"
-              onClick={linkEvent(this, this.handleCancel)}
-            >
-              {I18NextService.i18n.t("cancel")}
-            </button>
-          )}
         </div>
       </form>
     );
