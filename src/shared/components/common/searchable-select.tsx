@@ -106,8 +106,11 @@ export class SearchableSelect extends Component<
         <button
           id={id}
           type="button"
+          role="combobox"
           className="form-select d-inline-block text-start"
           aria-haspopup="listbox"
+          aria-controls="searchable-select-input"
+          aria-expanded={false}
           data-bs-toggle="dropdown"
           onClick={linkEvent(this, focusSearch)}
           ref={this.toggleButtonRef}
@@ -116,17 +119,14 @@ export class SearchableSelect extends Component<
             ? `${I18NextService.i18n.t("loading")}${loadingEllipses}`
             : options[selectedIndex].label}
         </button>
-        <div
-          role="combobox"
-          aria-activedescendant={options[selectedIndex].label}
-          className="modlog-choices-font-size dropdown-menu w-100 p-2"
-        >
+        <div className="modlog-choices-font-size dropdown-menu w-100 p-2">
           <div className="input-group">
             <span className="input-group-text">
               {loading ? <Spinner /> : <Icon icon="search" />}
             </span>
             <input
               type="text"
+              id="searchable-select-input"
               className="form-control"
               ref={this.searchInputRef}
               onInput={linkEvent(this, handleSearch)}
