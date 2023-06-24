@@ -3,7 +3,7 @@ import { isBrowser } from "@utils/browser";
 import { validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
@@ -32,8 +32,6 @@ export class Login extends Component<any, State> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    FirstLoadService.isFirstLoad;
   }
 
   componentDidMount() {
