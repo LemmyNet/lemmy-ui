@@ -125,6 +125,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                       >
                         {cv.image_url.length > 0 && (
                           <img
+                            alt={cv.alt_text}
                             className="icon-emoji-admin"
                             src={cv.image_url}
                           />
