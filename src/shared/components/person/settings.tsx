@@ -1177,7 +1177,6 @@ export class Settings extends Component<any, SettingsState> {
     });
     if (saveRes.state === "success") {
       UserService.Instance.login(saveRes.data);
-      location.reload();
       toast(I18NextService.i18n.t("saved"));
       window.scrollTo(0, 0);
     }

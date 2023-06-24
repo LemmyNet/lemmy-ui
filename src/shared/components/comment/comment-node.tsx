@@ -15,6 +15,9 @@ import {
   isMod,
 } from "@utils/roles";
 import classNames from "classnames";
+import isBefore from "date-fns/isBefore";
+import parseISO from "date-fns/parseISO";
+import subMinutes from "date-fns/subMinutes";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
@@ -45,7 +48,7 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import moment from "moment";
+import deepEqual from "lodash.isequal";
 import { commentTreeMaxDepth } from "../../config";
 import {
   BanType,
@@ -196,7 +199,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>
   ): void {
-    if (this.props != nextProps) {
+    if (!deepEqual(this.props, nextProps)) {
       this.setState({
         showReply: false,
         showEdit: false,
@@ -1394,9 +1397,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get isCommentNew(): boolean {
-    const now = moment.utc().subtract(10, "minutes");
-    const then = moment.utc(this.commentView.comment.published);
-    return now.isBefore(then);
+    const now = subMinutes(new Date(), 10);
+    const then = parseISO(this.commentView.comment.published);
+    return isBefore(now, then);
   }
 
   handleCommentCollapse(i: CommentNode) {
