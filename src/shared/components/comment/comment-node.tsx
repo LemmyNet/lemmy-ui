@@ -367,7 +367,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       <Spinner />
                     ) : (
                       <span
-                        className="me-1 font-weight-bold"
+                        className="me-1 fw-bold"
                         aria-label={I18NextService.i18n.t("number_of_points", {
                           count: Number(this.commentView.counts.score),
                           formattedCount: numToSI(
@@ -420,7 +420,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     }
                   />
                 )}
-                <div className="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted font-weight-bold">
+                <div className="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold">
                   {this.props.showContext && this.linkBtn()}
                   {this.props.markable && (
                     <button
