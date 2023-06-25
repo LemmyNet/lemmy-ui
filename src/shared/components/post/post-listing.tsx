@@ -1226,12 +1226,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 value={this.state.banReason}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
               />
-              <label className="col-form-label" htmlFor={`mod-ban-expires`}>
+              <label className="col-form-label" htmlFor="mod-ban-expires">
                 {I18NextService.i18n.t("expires")}
               </label>
               <input
                 type="number"
-                id={`mod-ban-expires`}
+                id="mod-ban-expires"
                 className="form-control me-2"
                 placeholder={I18NextService.i18n.t("number_of_days")}
                 value={this.state.banExpireDays}
