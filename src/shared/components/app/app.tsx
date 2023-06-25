@@ -44,7 +44,11 @@ export class App extends Component<any, any> {
               <Theme defaultTheme={siteView.local_site.default_theme} />
             )}
             <Navbar siteRes={siteRes} />
-            <div className="mt-4 p-0 fl-1">
+            <div
+              tabIndex={-1}
+              ref={this.mainContentRef}
+              className="mt-4 p-0 fl-1"
+            >
               <Switch>
                 {routes.map(
                   ({ path, component: RouteComponent, fetchInitialData }) => (
@@ -59,16 +63,14 @@ export class App extends Component<any, any> {
 
                         return (
                           <ErrorGuard>
-                            <div tabIndex={-1} ref={this.mainContentRef}>
-                              {RouteComponent &&
-                                (isAuthPath(path ?? "") ? (
-                                  <AuthGuard>
-                                    <RouteComponent {...routeProps} />
-                                  </AuthGuard>
-                                ) : (
+                            {RouteComponent &&
+                              (isAuthPath(path ?? "") ? (
+                                <AuthGuard>
                                   <RouteComponent {...routeProps} />
-                                ))}
-                            </div>
+                                </AuthGuard>
+                              ) : (
+                                <RouteComponent {...routeProps} />
+                              ))}
                           </ErrorGuard>
                         );
                       }}

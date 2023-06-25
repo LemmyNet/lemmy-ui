@@ -101,7 +101,7 @@ export class Communities extends Component<any, CommunitiesState> {
       case "success": {
         const { listingType, page } = this.getCommunitiesQueryParams();
         return (
-          <div>
+          <>
             <h1 className="h4">
               {I18NextService.i18n.t("list_of_communities")}
             </h1>
@@ -114,28 +114,28 @@ export class Communities extends Component<any, CommunitiesState> {
                   onChange={this.handleListingTypeChange}
                 />
               </div>
-              <div className="col-auto">{this.searchForm()}</div>
+              {this.searchForm()}
             </div>
 
             <div className="table-responsive">
               <table
                 id="community_table"
-                className="table table-sm table-hover"
+                className="table table-sm table-hover align-middle text-center"
               >
                 <thead className="pointer">
                   <tr>
-                    <th>{I18NextService.i18n.t("name")}</th>
-                    <th className="text-right">
-                      {I18NextService.i18n.t("subscribers")}
+                    <th className="text-start">
+                      {I18NextService.i18n.t("name")}
                     </th>
-                    <th className="text-right">
+                    <th>{I18NextService.i18n.t("subscribers")}</th>
+                    <th>
                       {I18NextService.i18n.t("users")} /{" "}
                       {I18NextService.i18n.t("month")}
                     </th>
-                    <th className="text-right d-none d-lg-table-cell">
+                    <th className="d-none d-lg-table-cell">
                       {I18NextService.i18n.t("posts")}
                     </th>
-                    <th className="text-right d-none d-lg-table-cell">
+                    <th className="d-none d-lg-table-cell">
                       {I18NextService.i18n.t("comments")}
                     </th>
                     <th></th>
@@ -145,56 +145,40 @@ export class Communities extends Component<any, CommunitiesState> {
                   {this.state.listCommunitiesResponse.data.communities.map(
                     cv => (
                       <tr key={cv.community.id}>
-                        <td>
+                        <td className="text-start">
                           <CommunityLink community={cv.community} />
                         </td>
-                        <td className="text-right">
-                          {numToSI(cv.counts.subscribers)}
-                        </td>
-                        <td className="text-right">
-                          {numToSI(cv.counts.users_active_month)}
-                        </td>
-                        <td className="text-right d-none d-lg-table-cell">
+                        <td>{numToSI(cv.counts.subscribers)}</td>
+                        <td>{numToSI(cv.counts.users_active_month)}</td>
+                        <td className="d-none d-lg-table-cell">
                           {numToSI(cv.counts.posts)}
                         </td>
-                        <td className="text-right d-none d-lg-table-cell">
+                        <td className="d-none d-lg-table-cell">
                           {numToSI(cv.counts.comments)}
                         </td>
-                        <td className="text-right">
-                          {cv.subscribed == "Subscribed" && (
-                            <button
-                              className="btn btn-link d-inline-block"
-                              onClick={linkEvent(
-                                {
-                                  i: this,
-                                  communityId: cv.community.id,
-                                  follow: false,
-                                },
-                                this.handleFollow
-                              )}
-                            >
-                              {I18NextService.i18n.t("unsubscribe")}
-                            </button>
-                          )}
-                          {cv.subscribed === "NotSubscribed" && (
-                            <button
-                              className="btn btn-link d-inline-block"
-                              onClick={linkEvent(
-                                {
-                                  i: this,
-                                  communityId: cv.community.id,
-                                  follow: true,
-                                },
-                                this.handleFollow
-                              )}
-                            >
-                              {I18NextService.i18n.t("subscribe")}
-                            </button>
-                          )}
-                          {cv.subscribed === "Pending" && (
+                        <td className="text-end">
+                          {cv.subscribed === "Pending" ? (
                             <div className="text-warning d-inline-block">
                               {I18NextService.i18n.t("subscribe_pending")}
                             </div>
+                          ) : (
+                            <button
+                              className="btn btn-link d-inline-block"
+                              onClick={linkEvent(
+                                {
+                                  i: this,
+                                  communityId: cv.community.id,
+                                  follow: cv.subscribed !== "Subscribed",
+                                },
+                                this.handleFollow
+                              )}
+                            >
+                              {I18NextService.i18n.t(
+                                `${
+                                  cv.subscribed === "NotSubscribed" ? "un" : ""
+                                }subscribe`
+                              )}
+                            </button>
                           )}
                         </td>
                       </tr>
@@ -204,7 +188,7 @@ export class Communities extends Component<any, CommunitiesState> {
               </table>
             </div>
             <Paginator page={page} onChange={this.handlePageChange} />
-          </div>
+          </>
         );
       }
     }
@@ -212,42 +196,38 @@ export class Communities extends Component<any, CommunitiesState> {
 
   render() {
     return (
-      <div className="communities container-lg">
+      <main className="communities container-flex mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
         {this.renderListings()}
-      </div>
+      </main>
     );
   }
 
   searchForm() {
     return (
       <form
-        className="row mb-2"
+        className="d-flex mb-2 col-auto flex-nowrap"
         onSubmit={linkEvent(this, this.handleSearchSubmit)}
       >
-        <div className="col-auto">
-          <input
-            type="text"
-            id="communities-search"
-            className="form-control"
-            value={this.state.searchText}
-            placeholder={`${I18NextService.i18n.t("search")}...`}
-            onInput={linkEvent(this, this.handleSearchChange)}
-            required
-            minLength={3}
-          />
-        </div>
-        <div className="col-auto">
-          <label className="visually-hidden" htmlFor="communities-search">
-            {I18NextService.i18n.t("search")}
-          </label>
-          <button type="submit" className="btn btn-secondary">
-            <span>{I18NextService.i18n.t("search")}</span>
-          </button>
-        </div>
+        <label className="visually-hidden" htmlFor="communities-search">
+          {I18NextService.i18n.t("search")}
+        </label>
+        <input
+          type="text"
+          id="communities-search"
+          className="form-control me-1"
+          value={this.state.searchText}
+          placeholder={`${I18NextService.i18n.t("search")}...`}
+          onInput={linkEvent(this, this.handleSearchChange)}
+          required
+          minLength={3}
+        />
+        <button type="submit" className="btn btn-secondary">
+          {I18NextService.i18n.t("search")}
+        </button>
       </form>
     );
   }
