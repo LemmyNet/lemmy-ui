@@ -110,6 +110,7 @@ export class SearchableSelect extends Component<
           className="form-select d-inline-block text-start"
           aria-haspopup="listbox"
           aria-controls="searchable-select-input"
+          aria-activedescendant={options[selectedIndex].label}
           aria-expanded={false}
           data-bs-toggle="dropdown"
           onClick={linkEvent(this, focusSearch)}
