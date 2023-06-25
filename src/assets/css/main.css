@@ -198,8 +198,7 @@ blockquote {
 
 .thumbnail {
   object-fit: cover;
-  min-height: 60px;
-  max-height: 80px;
+  aspect-ratio: 4/3;
   width: 100%;
 }
 
