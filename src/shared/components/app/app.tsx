@@ -35,7 +35,7 @@ export class App extends Component<any, any> {
           <div id="app" className="lemmy-site">
             <button
               type="button"
-              className="btn btn-text skip-link bg-light position-absolute start-0 z-3"
+              className="btn skip-link bg-light position-absolute start-0 z-3"
               onClick={linkEvent(this, this.handleJumpToContent)}
             >
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}

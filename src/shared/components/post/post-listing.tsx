@@ -247,12 +247,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </a>
           </div>
           <div className="my-2 d-block d-sm-none">
-            <a
-              className="d-inline-block"
+            <button
+              type="button"
+              className="p-0 border-0 bg-transparent d-inline-block"
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
               <PictrsImage src={this.imageSrc} />
-            </a>
+            </button>
           </div>
         </>
       );
