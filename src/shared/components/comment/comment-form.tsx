@@ -1,6 +1,7 @@
 import { myAuthRequired } from "@utils/app";
 import getUserInterfaceLangId from "@utils/app/user-interface-language";
 import { capitalizeFirstLetter } from "@utils/helpers";
+import classNames from "classnames";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -45,9 +46,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
 
     return (
       <div
-        className={["comment-form", "mb-3", this.props.containerClass].join(
-          " "
-        )}
+        className={classNames("comment-form mb-3", this.props.containerClass)}
       >
         {UserService.Instance.myUserInfo ? (
           <MarkdownTextArea

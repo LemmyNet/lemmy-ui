@@ -432,3 +432,8 @@ br.big {
 .skip-link:focus {
   top: 0;
 }
+
+.comment,
+.markdown-textarea {
+  max-width: 50rem;
+}

@@ -156,171 +156,160 @@ export class MarkdownTextArea extends Component<
             !this.state.submitted
           }
         />
-        <div className="mb-3 row">
-          <div className="col-12">
-            <div className="rounded bg-light border">
-              <div className="d-flex flex-wrap border-bottom">
-                {this.getFormatButton("bold", this.handleInsertBold)}
-                {this.getFormatButton("italic", this.handleInsertItalic)}
-                {this.getFormatButton("link", this.handleInsertLink)}
-                <EmojiPicker
-                  onEmojiClick={e => this.handleEmoji(this, e)}
-                  disabled={this.isDisabled}
-                ></EmojiPicker>
-                <form className="btn btn-sm text-muted fw-bold">
-                  <label
-                    htmlFor={`file-upload-${this.id}`}
-                    className={`mb-0 ${
-                      UserService.Instance.myUserInfo && "pointer"
-                    }`}
-                    data-tippy-content={I18NextService.i18n.t("upload_image")}
-                  >
-                    {this.state.imageUploadStatus ? (
-                      <Spinner />
-                    ) : (
-                      <Icon icon="image" classes="icon-inline" />
-                    )}
-                  </label>
-                  <input
-                    id={`file-upload-${this.id}`}
-                    type="file"
-                    accept="image/*,video/*"
-                    name="file"
-                    className="d-none"
-                    multiple
-                    disabled={
-                      !UserService.Instance.myUserInfo || this.isDisabled
-                    }
-                    onChange={linkEvent(this, this.handleImageUpload)}
-                  />
-                </form>
-                {this.getFormatButton("header", this.handleInsertHeader)}
-                {this.getFormatButton(
-                  "strikethrough",
-                  this.handleInsertStrikethrough
+        <div className="rounded bg-light border mb-3">
+          <div className="d-flex flex-wrap border-bottom">
+            {this.getFormatButton("bold", this.handleInsertBold)}
+            {this.getFormatButton("italic", this.handleInsertItalic)}
+            {this.getFormatButton("link", this.handleInsertLink)}
+            <EmojiPicker
+              onEmojiClick={e => this.handleEmoji(this, e)}
+              disabled={this.isDisabled}
+            ></EmojiPicker>
+            <form className="btn btn-sm text-muted fw-bold">
+              <label
+                htmlFor={`file-upload-${this.id}`}
+                className={`mb-0 ${
+                  UserService.Instance.myUserInfo && "pointer"
+                }`}
+                data-tippy-content={I18NextService.i18n.t("upload_image")}
+              >
+                {this.state.imageUploadStatus ? (
+                  <Spinner />
+                ) : (
+                  <Icon icon="image" classes="icon-inline" />
                 )}
-                {this.getFormatButton("quote", this.handleInsertQuote)}
-                {this.getFormatButton("list", this.handleInsertList)}
-                {this.getFormatButton("code", this.handleInsertCode)}
-                {this.getFormatButton("subscript", this.handleInsertSubscript)}
-                {this.getFormatButton(
-                  "superscript",
-                  this.handleInsertSuperscript
-                )}
-                {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
-                <a
-                  href={markdownHelpUrl}
-                  className="btn btn-sm text-muted fw-bold"
-                  title={I18NextService.i18n.t("formatting_help")}
-                  rel={relTags}
-                >
-                  <Icon icon="help-circle" classes="icon-inline" />
-                </a>
-              </div>
-
-              <div>
-                <textarea
-                  id={this.id}
-                  className={classNames(
-                    "form-control border-0 rounded-top-0 rounded-bottom",
-                    {
-                      "d-none": this.state.previewMode,
-                    }
-                  )}
-                  value={this.state.content}
-                  onInput={linkEvent(this, this.handleContentChange)}
-                  onPaste={linkEvent(this, this.handleImageUploadPaste)}
-                  onKeyDown={linkEvent(this, this.handleKeyBinds)}
-                  required
-                  disabled={this.isDisabled}
-                  rows={2}
-                  maxLength={
-                    this.props.maxLength ?? markdownFieldCharacterLimit
-                  }
-                  placeholder={this.props.placeholder}
-                />
-                {this.state.previewMode && this.state.content && (
-                  <div
-                    className="card border-secondary card-body md-div"
-                    dangerouslySetInnerHTML={mdToHtml(this.state.content)}
-                  />
-                )}
-                {this.state.imageUploadStatus &&
-                  this.state.imageUploadStatus.total > 1 && (
-                    <ProgressBar
-                      className="mt-2"
-                      striped
-                      animated
-                      value={this.state.imageUploadStatus.uploaded}
-                      max={this.state.imageUploadStatus.total}
-                      text={
-                        I18NextService.i18n.t("pictures_uploded_progess", {
-                          uploaded: this.state.imageUploadStatus.uploaded,
-                          total: this.state.imageUploadStatus.total,
-                        }) ?? undefined
-                      }
-                    />
-                  )}
-              </div>
-              <label className="visually-hidden" htmlFor={this.id}>
-                {I18NextService.i18n.t("body")}
               </label>
-            </div>
+              <input
+                id={`file-upload-${this.id}`}
+                type="file"
+                accept="image/*,video/*"
+                name="file"
+                className="d-none"
+                multiple
+                disabled={!UserService.Instance.myUserInfo || this.isDisabled}
+                onChange={linkEvent(this, this.handleImageUpload)}
+              />
+            </form>
+            {this.getFormatButton("header", this.handleInsertHeader)}
+            {this.getFormatButton(
+              "strikethrough",
+              this.handleInsertStrikethrough
+            )}
+            {this.getFormatButton("quote", this.handleInsertQuote)}
+            {this.getFormatButton("list", this.handleInsertList)}
+            {this.getFormatButton("code", this.handleInsertCode)}
+            {this.getFormatButton("subscript", this.handleInsertSubscript)}
+            {this.getFormatButton("superscript", this.handleInsertSuperscript)}
+            {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
+            <a
+              href={markdownHelpUrl}
+              className="btn btn-sm text-muted fw-bold"
+              title={I18NextService.i18n.t("formatting_help")}
+              rel={relTags}
+            >
+              <Icon icon="help-circle" classes="icon-inline" />
+            </a>
           </div>
 
-          <div className="col-12 d-flex align-items-center flex-wrap mt-2">
-            {this.props.showLanguage && (
-              <LanguageSelect
-                iconVersion
-                allLanguages={this.props.allLanguages}
-                // Only set the selected language ID if it exists as an option
-                // in the dropdown; otherwise, set it to 0 (Undetermined)
-                selectedLanguageIds={
-                  languageId && this.props.siteLanguages.includes(languageId)
-                    ? [languageId]
-                    : [0]
+          <div>
+            <textarea
+              id={this.id}
+              className={classNames(
+                "form-control border-0 rounded-top-0 rounded-bottom",
+                {
+                  "d-none": this.state.previewMode,
                 }
-                siteLanguages={this.props.siteLanguages}
-                onChange={this.handleLanguageChange}
-                disabled={this.isDisabled}
+              )}
+              value={this.state.content}
+              onInput={linkEvent(this, this.handleContentChange)}
+              onPaste={linkEvent(this, this.handleImageUploadPaste)}
+              onKeyDown={linkEvent(this, this.handleKeyBinds)}
+              required
+              disabled={this.isDisabled}
+              rows={2}
+              maxLength={this.props.maxLength ?? markdownFieldCharacterLimit}
+              placeholder={this.props.placeholder}
+            />
+            {this.state.previewMode && this.state.content && (
+              <div
+                className="card border-secondary card-body md-div"
+                dangerouslySetInnerHTML={mdToHtml(this.state.content)}
               />
             )}
+            {this.state.imageUploadStatus &&
+              this.state.imageUploadStatus.total > 1 && (
+                <ProgressBar
+                  className="mt-2"
+                  striped
+                  animated
+                  value={this.state.imageUploadStatus.uploaded}
+                  max={this.state.imageUploadStatus.total}
+                  text={
+                    I18NextService.i18n.t("pictures_uploded_progess", {
+                      uploaded: this.state.imageUploadStatus.uploaded,
+                      total: this.state.imageUploadStatus.total,
+                    }) ?? undefined
+                  }
+                />
+              )}
+          </div>
+          <label className="visually-hidden" htmlFor={this.id}>
+            {I18NextService.i18n.t("body")}
+          </label>
+        </div>
 
-            {/* A flex expander */}
-            <div className="flex-grow-1"></div>
+        <div className="d-flex align-items-center flex-wrap mt-2">
+          {this.props.showLanguage && (
+            <LanguageSelect
+              iconVersion
+              allLanguages={this.props.allLanguages}
+              // Only set the selected language ID if it exists as an option
+              // in the dropdown; otherwise, set it to 0 (Undetermined)
+              selectedLanguageIds={
+                languageId && this.props.siteLanguages.includes(languageId)
+                  ? [languageId]
+                  : [0]
+              }
+              siteLanguages={this.props.siteLanguages}
+              onChange={this.handleLanguageChange}
+              disabled={this.isDisabled}
+            />
+          )}
 
-            {this.props.replyType && (
-              <button
-                type="button"
-                className="btn btn-sm btn-secondary ms-2"
-                onClick={linkEvent(this, this.handleReplyCancel)}
-              >
-                {I18NextService.i18n.t("cancel")}
-              </button>
-            )}
+          {/* A flex expander */}
+          <div className="flex-grow-1"></div>
+
+          {this.props.replyType && (
             <button
               type="button"
-              disabled={!this.state.content}
-              className={classNames("btn btn-sm btn-secondary ms-2", {
-                active: this.state.previewMode,
-              })}
-              onClick={linkEvent(this, this.handlePreviewToggle)}
+              className="btn btn-sm btn-secondary ms-2"
+              onClick={linkEvent(this, this.handleReplyCancel)}
             >
-              {this.state.previewMode
-                ? I18NextService.i18n.t("edit")
-                : I18NextService.i18n.t("preview")}
+              {I18NextService.i18n.t("cancel")}
             </button>
-            {this.props.buttonTitle && (
-              <button
-                type="submit"
-                className="btn btn-sm btn-secondary ms-2"
-                disabled={this.isDisabled || !this.state.content}
-              >
-                {this.state.loading && <Spinner className="me-1" />}
-                {this.props.buttonTitle}
-              </button>
-            )}
-          </div>
+          )}
+          <button
+            type="button"
+            disabled={!this.state.content}
+            className={classNames("btn btn-sm btn-secondary ms-2", {
+              active: this.state.previewMode,
+            })}
+            onClick={linkEvent(this, this.handlePreviewToggle)}
+          >
+            {this.state.previewMode
+              ? I18NextService.i18n.t("edit")
+              : I18NextService.i18n.t("preview")}
+          </button>
+          {this.props.buttonTitle && (
+            <button
+              type="submit"
+              className="btn btn-sm btn-secondary ms-2"
+              disabled={this.isDisabled || !this.state.content}
+            >
+              {this.state.loading && <Spinner className="me-1" />}
+              {this.props.buttonTitle}
+            </button>
+          )}
         </div>
       </form>
     );

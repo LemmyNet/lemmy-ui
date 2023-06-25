@@ -347,8 +347,8 @@ export class Post extends Component<any, PostState> {
       case "success": {
         const res = this.state.postRes.data;
         return (
-          <div className="row">
-            <div className="col-12 col-md-8 mb-3">
+          <>
+            <main className="col-12 col-md-8 col-xl-10 mb-3">
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
@@ -411,20 +411,26 @@ export class Post extends Component<any, PostState> {
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
               {this.sortRadios()}
-              {this.state.commentViewType == CommentViewType.Tree &&
+              {this.state.commentViewType === CommentViewType.Tree &&
                 this.commentsTree()}
-              {this.state.commentViewType == CommentViewType.Flat &&
+              {this.state.commentViewType === CommentViewType.Flat &&
                 this.commentsFlat()}
+            </main>
+            <div className="d-none d-md-block col-md-4 col-xl-2">
+              {this.sidebar()}
             </div>
-            <div className="d-none d-md-block col-md-4">{this.sidebar()}</div>
-          </div>
+          </>
         );
       }
     }
   }
 
   render() {
-    return <div className="post container-lg">{this.renderPostRes()}</div>;
+    return (
+      <div className="post container-flex row mx-1 mx-md-4">
+        {this.renderPostRes()}
+      </div>
+    );
   }
 
   sortRadios() {
@@ -586,7 +592,7 @@ export class Post extends Component<any, PostState> {
 
     return (
       res.state == "success" && (
-        <div>
+        <>
           {!!this.state.commentId && (
             <>
               <button
@@ -636,7 +642,7 @@ export class Post extends Component<any, PostState> {
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
           />
-        </div>
+        </>
       )
     );
   }
