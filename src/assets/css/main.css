@@ -124,7 +124,8 @@
 
 .emoji-picker-container {
   position: absolute;
-  top: 30px;
+  top: 0;
+  left: 50%;
   z-index: 1000;
   transform: translateX(-50%);
 }
