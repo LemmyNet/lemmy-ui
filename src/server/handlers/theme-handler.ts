@@ -11,8 +11,7 @@ export default async (req: Request, res: Response) => {
   const theme = req.params.name;
 
   if (!theme.endsWith(".css")) {
-    res.statusCode = 400;
-    res.send("Theme must be a css file");
+    return res.status(400).send("Theme must be a css file");
   }
 
   const customTheme = path.resolve(extraThemesFolder, theme);
