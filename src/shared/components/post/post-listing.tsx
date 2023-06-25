@@ -1127,7 +1127,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       this.state.showAdvanced && (
-        <div className="mt-3 user-actions-line">
+        <div className="mt-3">
           {this.canMod_ && (
             <>
               {!this.creatorIsMod_ &&
