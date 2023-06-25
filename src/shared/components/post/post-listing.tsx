@@ -1,11 +1,10 @@
-import { myAuthRequired, newVote, showScores } from "@utils/app";
+import { myAuthRequired } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
   hostname,
-  numToSI,
 } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import {
@@ -44,13 +43,19 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { BanType, PostFormParams, PurgeType, VoteType } from "../../interfaces";
+import {
+  BanType,
+  PostFormParams,
+  PurgeType,
+  VoteContentType,
+} from "../../interfaces";
 import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
+import { VoteButtons, VoteButtonsCompact } from "../common/vote-buttons";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
@@ -78,8 +83,6 @@ interface PostListingState {
   showBody: boolean;
   showReportDialog: boolean;
   reportReason?: string;
-  upvoteLoading: boolean;
-  downvoteLoading: boolean;
   reportLoading: boolean;
   blockLoading: boolean;
   lockLoading: boolean;
@@ -145,8 +148,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showMoreMobile: false,
     showBody: false,
     showReportDialog: false,
-    upvoteLoading: false,
-    downvoteLoading: false,
     purgeLoading: false,
     reportLoading: false,
     blockLoading: false,
@@ -172,8 +173,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   componentWillReceiveProps(nextProps: PostListingProps) {
     if (this.props !== nextProps) {
       this.setState({
-        upvoteLoading: false,
-        downvoteLoading: false,
         purgeLoading: false,
         reportLoading: false,
         blockLoading: false,
@@ -426,55 +425,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  voteBar() {
-    return (
-      <div className={`vote-bar col-1 pe-0 small text-center`}>
-        <button
-          className={`btn-animate btn btn-link p-0 ${
-            this.postView.my_vote == 1 ? "text-info" : "text-muted"
-          }`}
-          onClick={linkEvent(this, this.handleUpvote)}
-          data-tippy-content={I18NextService.i18n.t("upvote")}
-          aria-label={I18NextService.i18n.t("upvote")}
-          aria-pressed={this.postView.my_vote === 1}
-        >
-          {this.state.upvoteLoading ? (
-            <Spinner />
-          ) : (
-            <Icon icon="arrow-up1" classes="upvote" />
-          )}
-        </button>
-        {showScores() ? (
-          <div
-            className={`unselectable pointer text-muted px-1 post-score`}
-            data-tippy-content={this.pointsTippy}
-          >
-            {numToSI(this.postView.counts.score)}
-          </div>
-        ) : (
-          <div className="p-1"></div>
-        )}
-        {this.props.enableDownvotes && (
-          <button
-            className={`btn-animate btn btn-link p-0 ${
-              this.postView.my_vote == -1 ? "text-danger" : "text-muted"
-            }`}
-            onClick={linkEvent(this, this.handleDownvote)}
-            data-tippy-content={I18NextService.i18n.t("downvote")}
-            aria-label={I18NextService.i18n.t("downvote")}
-            aria-pressed={this.postView.my_vote === -1}
-          >
-            {this.state.downvoteLoading ? (
-              <Spinner />
-            ) : (
-              <Icon icon="arrow-down1" classes="downvote" />
-            )}
-          </button>
-        )}
-      </div>
-    );
-  }
-
   get postLink() {
     const post = this.postView.post;
     return (
@@ -654,7 +604,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <Icon icon="fedilink" inline />
           </a>
         )}
-        {mobile && !this.props.viewOnly && this.mobileVotes}
+        {mobile && !this.props.viewOnly && (
+          <VoteButtonsCompact
+            voteContentType={VoteContentType.Post}
+            id={this.postView.post.id}
+            onVote={this.props.onPostVote}
+            enableDownvotes={this.props.enableDownvotes}
+            counts={this.postView.counts}
+            my_vote={this.postView.my_vote}
+          />
+        )}
         {UserService.Instance.myUserInfo &&
           !this.props.viewOnly &&
           this.postActions()}
@@ -784,69 +743,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       : pv.unread_comments;
   }
 
-  get mobileVotes() {
-    // TODO: make nicer
-    const tippy = showScores()
-      ? { "data-tippy-content": this.pointsTippy }
-      : {};
-    return (
-      <>
-        <div>
-          <button
-            className={`btn-animate btn py-0 px-1 ${
-              this.postView.my_vote === 1 ? "text-info" : "text-muted"
-            }`}
-            {...tippy}
-            onClick={linkEvent(this, this.handleUpvote)}
-            aria-label={I18NextService.i18n.t("upvote")}
-            aria-pressed={this.postView.my_vote === 1}
-          >
-            {this.state.upvoteLoading ? (
-              <Spinner />
-            ) : (
-              <>
-                <Icon icon="arrow-up1" classes="icon-inline small" />
-                {showScores() && (
-                  <span className="ms-2">
-                    {numToSI(this.postView.counts.upvotes)}
-                  </span>
-                )}
-              </>
-            )}
-          </button>
-          {this.props.enableDownvotes && (
-            <button
-              className={`ms-2 btn-animate btn py-0 px-1 ${
-                this.postView.my_vote === -1 ? "text-danger" : "text-muted"
-              }`}
-              onClick={linkEvent(this, this.handleDownvote)}
-              {...tippy}
-              aria-label={I18NextService.i18n.t("downvote")}
-              aria-pressed={this.postView.my_vote === -1}
-            >
-              {this.state.downvoteLoading ? (
-                <Spinner />
-              ) : (
-                <>
-                  <Icon icon="arrow-down1" classes="icon-inline small" />
-                  {showScores() && (
-                    <span
-                      className={classNames("ms-2", {
-                        invisible: this.postView.counts.downvotes === 0,
-                      })}
-                    >
-                      {numToSI(this.postView.counts.downvotes)}
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
-          )}
-        </div>
-      </>
-    );
-  }
-
   get saveButton() {
     const saved = this.postView.saved;
     const label = saved
@@ -945,7 +841,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleDeleteClick)}
-        aria-label={label}
       >
         {this.state.deleteLoading ? (
           <Spinner />
@@ -1492,7 +1387,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         {/* The larger view*/}
         <article className="d-none d-sm-flex row post-container">
-          {!this.props.viewOnly && this.voteBar()}
+          {!this.props.viewOnly && (
+            <VoteButtons
+              voteContentType={VoteContentType.Post}
+              id={this.postView.post.id}
+              onVote={this.props.onPostVote}
+              enableDownvotes={this.props.enableDownvotes}
+              counts={this.postView.counts}
+              my_vote={this.postView.my_vote}
+            />
+          )}
           <div className="col-2 col-xl-1 pe-0 post-media d-flex align-items-center justify-content-center">
             {this.thumbnail()}
           </div>
@@ -1850,24 +1754,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
     setupTippy();
-  }
-
-  handleUpvote(i: PostListing) {
-    i.setState({ upvoteLoading: true });
-    i.props.onPostVote({
-      post_id: i.postView.post.id,
-      score: newVote(VoteType.Upvote, i.props.post_view.my_vote),
-      auth: myAuthRequired(),
-    });
-  }
-
-  handleDownvote(i: PostListing) {
-    i.setState({ downvoteLoading: true });
-    i.props.onPostVote({
-      post_id: i.postView.post.id,
-      score: newVote(VoteType.Downvote, i.props.post_view.my_vote),
-      auth: myAuthRequired(),
-    });
   }
 
   get pointsTippy(): string {

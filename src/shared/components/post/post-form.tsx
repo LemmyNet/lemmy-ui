@@ -585,9 +585,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
         return (
           suggestedTitle && (
-            <div
-              className="mt-1 text-muted small fw-bold pointer"
-              role="button"
+            <button
+              type="button"
+              className="mt-1 small border-0 bg-transparent p-0 d-block text-muted fw-bold pointer"
               onClick={linkEvent(
                 { i: this, suggestedTitle },
                 copySuggestedTitle
@@ -595,7 +595,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             >
               {I18NextService.i18n.t("copy_suggested_title", { title: "" })}{" "}
               {suggestedTitle}
-            </div>
+            </button>
           )
         );
       }
