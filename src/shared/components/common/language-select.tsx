@@ -49,7 +49,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     return this.props.iconVersion ? (
       this.selectBtn
     ) : (
-      <div className="language-select mb-3">
+      <div className="language-select row mb-3">
         <label
           className={classNames(
             "col-form-label",
