@@ -17,15 +17,15 @@ export default async (req: Request, res: Response) => {
   const customTheme = path.resolve(extraThemesFolder, theme);
 
   if (existsSync(customTheme)) {
-    res.sendFile(customTheme);
+    return res.sendFile(customTheme);
   } else {
     const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
 
     // If the theme doesn't exist, just send litely
     if (existsSync(internalTheme)) {
-      res.sendFile(internalTheme);
+      return res.sendFile(internalTheme);
     } else {
-      res.sendFile(path.resolve("./dist/assets/css/themes/litely.css"));
+      return res.sendFile(path.resolve("./dist/assets/css/themes/litely.css"));
     }
   }
 };
