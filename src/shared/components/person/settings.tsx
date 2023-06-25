@@ -238,7 +238,7 @@ export class Settings extends Component<any, SettingsState> {
 
   render() {
     return (
-      <main className="person-settings container-flex mx-1 mx-md-4">
+      <main className="person-settings container-lg mx-1 mx-md-auto">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

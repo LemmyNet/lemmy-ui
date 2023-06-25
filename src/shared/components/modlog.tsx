@@ -745,7 +745,7 @@ export class Modlog extends Component<
     const { actionType, modId, userId } = getModlogQueryParams();
 
     return (
-      <main className="modlog container-flex row mx-1 mx-md-4">
+      <main className="modlog container-lg row mx-1 mx-md-auto">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

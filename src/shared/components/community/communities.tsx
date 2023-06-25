@@ -120,7 +120,7 @@ export class Communities extends Component<any, CommunitiesState> {
             <div className="table-responsive">
               <table
                 id="community_table"
-                className="table table-sm table-hover align-middle text-center"
+                className="table table-sm table-hover align-middle text-end"
               >
                 <thead className="pointer">
                   <tr>
@@ -156,7 +156,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         <td className="d-none d-lg-table-cell">
                           {numToSI(cv.counts.comments)}
                         </td>
-                        <td className="text-end">
+                        <td>
                           {cv.subscribed === "Pending" ? (
                             <div className="text-warning d-inline-block">
                               {I18NextService.i18n.t("subscribe_pending")}
@@ -196,7 +196,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   render() {
     return (
-      <main className="communities container-flex mx-1 mx-md-4">
+      <main className="communities container-lg mx-1 mx-md-auto">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

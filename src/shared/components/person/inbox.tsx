@@ -213,7 +213,7 @@ export class Inbox extends Component<any, InboxState> {
     const auth = myAuth();
     const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
     return (
-      <main className="inbox container-flex row mx-1 mx-md-4">
+      <main className="inbox container-lg row mx-1 mx-md-auto">
         <div className="col-12">
           <HtmlTags
             title={this.documentTitle}

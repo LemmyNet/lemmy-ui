@@ -427,7 +427,7 @@ export class Post extends Component<any, PostState> {
 
   render() {
     return (
-      <div className="post container-flex row mx-1 mx-md-4">
+      <div className="post container-lg row mx-1 mx-md-auto">
         {this.renderPostRes()}
       </div>
     );

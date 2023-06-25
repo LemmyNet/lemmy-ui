@@ -40,7 +40,7 @@ export class PasswordChange extends Component<any, State> {
 
   render() {
     return (
-      <main className="password-change container-flex row mx-1 mx-md-4">
+      <main className="password-change container-lg row mx-1 mx-md-auto">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

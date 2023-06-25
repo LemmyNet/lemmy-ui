@@ -145,7 +145,7 @@ export class Reports extends Component<any, ReportsState> {
 
   render() {
     return (
-      <main className="person-reports container-flex row mx-1 mx-md-4">
+      <main className="person-reports container-lg row mx-1 mx-md-auto">
         <div className="col-12">
           <HtmlTags
             title={this.documentTitle}

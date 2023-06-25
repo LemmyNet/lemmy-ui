@@ -454,7 +454,7 @@ export class Search extends Component<any, SearchState> {
     const { type, page } = getSearchQueryParams();
 
     return (
-      <main className="search container-flex mx-1 mx-md-4">
+      <main className="search container-lg mx-1 mx-md-auto">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

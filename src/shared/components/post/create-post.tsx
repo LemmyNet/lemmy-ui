@@ -155,7 +155,7 @@ export class CreatePost extends Component<
       | undefined;
 
     return (
-      <main className="create-post container-flex row mx-1 mx-md-4">
+      <main className="create-post container-lg row mx-1 mx-md-auto">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

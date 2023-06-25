@@ -79,7 +79,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
     const maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
 
     const borderColor = this.props.depth
-      ? colorList[(this.props.depth - 1) % colorList.length]
+      ? colorList[this.props.depth % colorList.length]
       : colorList[0];
 
     return (
@@ -89,11 +89,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             "ms-1": !!this.props.isChild,
             "border-top border-light": !this.props.noBorder,
           })}
-          style={
-            this.props.isChild
-              ? `border-left: 2px solid ${borderColor} !important;`
-              : undefined
-          }
+          style={`border-left: 2px solid ${borderColor} !important;`}
         >
           {this.props.nodes.slice(0, maxComments).map(node => (
             <CommentNode

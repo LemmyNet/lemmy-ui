@@ -112,7 +112,7 @@ export class Instances extends Component<any, InstancesState> {
 
   render() {
     return (
-      <main className="home-instances container-flex row mx-1 mx-md-4">
+      <main className="home-instances container-lg row mx-1 mx-md-auto">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}

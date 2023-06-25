@@ -387,7 +387,7 @@ export class Profile extends Component<
 
   render() {
     return (
-      <main className="person-profile container-flex row mx-1 mx-md-4">
+      <main className="person-profile container-lg row mx-1 mx-md-auto">
         {this.renderPersonRes()}
       </main>
     );

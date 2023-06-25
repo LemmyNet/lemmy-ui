@@ -199,7 +199,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
 
     return (
-      <div className="post-listing mt-2 container-flex">
+      <div className="post-listing mt-2 container-lg">
         {!this.state.showEdit ? (
           <>
             {this.listing()}
@@ -319,16 +319,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (!this.props.hideImage && url && isImage(url) && this.imageSrc) {
       return (
-        <a
-          href={this.imageSrc}
-          className="text-body d-inline-block position-relative mb-2"
+        <button
+          type="button"
+          className="text-body d-inline-block position-relative mb-2 border-0 bg-transparent text-white p-0"
           data-tippy-content={I18NextService.i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={I18NextService.i18n.t("expand_here")}
         >
           {this.imgThumb(this.imageSrc)}
-          <Icon icon="image" classes="mini-overlay" />
-        </a>
+          <Icon
+            icon="image"
+            classes="mini-overlay position-absolute top-0 right-0"
+          />
+        </button>
       );
     } else if (!this.props.hideImage && url && thumbnail && this.imageSrc) {
       return (
@@ -341,7 +344,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.imgThumb(this.imageSrc)}
           <Icon
             icon="external-link"
-            classes="mini-overlay d-flex align-items-center"
+            classes="mini-overlay position-absolute top-0 right-0"
           />
         </a>
       );

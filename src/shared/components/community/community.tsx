@@ -316,7 +316,7 @@ export class Community extends Component<
               image={res.community_view.community.icon}
             />
 
-            <main className="col-12 col-md-8 col-xl-10">
+            <main className="col-12 col-md-8 col-lg-9">
               {this.communityInfo(res)}
               <div className="d-block d-md-none">
                 <button
@@ -339,7 +339,7 @@ export class Community extends Component<
               {this.listings(res)}
               <Paginator page={page} onChange={this.handlePageChange} />
             </main>
-            <div className="d-none d-md-block col-md-4 col-xl-2">
+            <div className="d-none d-md-block col-md-4 col-lg-3">
               {this.sidebar(res)}
             </div>
           </>
@@ -350,7 +350,7 @@ export class Community extends Component<
 
   render() {
     return (
-      <div className="community container-flex mx-1 mx-md-4 row">
+      <div className="community container-lg mx-1 mx-md-auto row">
         {this.renderCommunity()}
       </div>
     );

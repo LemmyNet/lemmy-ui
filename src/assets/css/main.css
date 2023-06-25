@@ -277,10 +277,7 @@ hr {
 }
 
 .mini-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 2px;
+  display: block;
   height: 1.5em;
   width: 1.5em;
   background: rgba(0, 0, 0, 0.4);
@@ -439,11 +436,4 @@ br.big {
 .comment,
 .markdown-textarea {
   max-width: 50rem;
-}
-
-input[type="checkbox"],
-.form-check label,
-select,
-option {
-  cursor: pointer;
 }

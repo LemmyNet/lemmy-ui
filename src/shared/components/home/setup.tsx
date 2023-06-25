@@ -59,7 +59,7 @@ export class Setup extends Component<any, State> {
 
   render() {
     return (
-      <main className="home-setup container-flex row mx-1 mx-md-4">
+      <main className="home-setup container-lg row mx-1 mx-md-auto">
         <Helmet title={this.documentTitle} />
         <div className="col-12 offset-lg-3 col-lg-6">
           <h3>{I18NextService.i18n.t("lemmy_instance_setup")}</h3>

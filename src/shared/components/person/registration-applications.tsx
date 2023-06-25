@@ -116,7 +116,7 @@ export class RegistrationApplications extends Component<
 
   render() {
     return (
-      <main className="registration-applications container-flex row mx-1 mx-md-4">
+      <main className="registration-applications container-lg row mx-1 mx-md-auto">
         {this.renderApps()}
       </main>
     );
