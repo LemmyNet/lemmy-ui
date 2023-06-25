@@ -228,10 +228,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   body() {
     const body = this.postView.post.body;
     return body ? (
-      <article
-        id="postContent"
-        className="col-12 col-xl-10 col-xxl-8 card my-2 p-2"
-      >
+      <article id="postContent" className="col-12 card my-2 p-2">
         {this.state.viewSource ? (
           <pre>{body}</pre>
         ) : (
@@ -251,7 +248,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             href={this.imageSrc}
             className="my-2 d-none d-sm-block card p-4 col-12 col-xl-10 col-xxl-8"
           >
-            <PictrsImage src={this.imageSrc} center />
+            <PictrsImage src={this.imageSrc} />
           </a>
           <button
             type="button"

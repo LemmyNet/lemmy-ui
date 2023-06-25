@@ -528,6 +528,10 @@ export class Search extends Component<any, SearchState> {
       searchCreatorLoading,
     } = this.state;
 
+    const hasCommunities =
+      communitiesRes.state == "success" &&
+      communitiesRes.data.communities.length > 0;
+
     return (
       <div className="mb-2">
         <select
@@ -564,14 +568,16 @@ export class Search extends Component<any, SearchState> {
           />
         </span>
         <div className="row">
-          <Filter
-            filterType="community"
-            onChange={this.handleCommunityFilterChange}
-            onSearch={this.handleCommunitySearch}
-            options={communitySearchOptions}
-            value={communityId}
-            loading={searchCommunitiesLoading}
-          />
+          {hasCommunities && (
+            <Filter
+              filterType="community"
+              onChange={this.handleCommunityFilterChange}
+              onSearch={this.handleCommunitySearch}
+              options={communitySearchOptions}
+              value={communityId}
+              loading={searchCommunitiesLoading}
+            />
+          )}
           <Filter
             filterType="creator"
             onChange={this.handleCreatorFilterChange}
