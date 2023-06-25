@@ -53,20 +53,18 @@ export class VerifyEmail extends Component<any, State> {
 
   render() {
     return (
-      <div className="verfy-email container-lg">
+      <div className="verfy-email container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{I18NextService.i18n.t("verify_email")}</h5>
-            {this.state.verifyRes.state == "loading" && (
-              <h5>
-                <Spinner large />
-              </h5>
-            )}
-          </div>
+        <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+          <h5>{I18NextService.i18n.t("verify_email")}</h5>
+          {this.state.verifyRes.state === "loading" && (
+            <h5>
+              <Spinner large />
+            </h5>
+          )}
         </div>
       </div>
     );

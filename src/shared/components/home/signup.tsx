@@ -123,17 +123,13 @@ export class Signup extends Component<any, State> {
 
   render() {
     return (
-      <div className="home-signup container-lg">
+      <main className="home-signup container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3">
-            {this.registerForm()}
-          </div>
-        </div>
-      </div>
+        <div className="col-12 col-lg-6 offset-lg-3">{this.registerForm()}</div>
+      </main>
     );
   }
 

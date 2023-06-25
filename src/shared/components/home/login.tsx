@@ -53,107 +53,103 @@ export class Login extends Component<any, State> {
 
   render() {
     return (
-      <div className="login container-lg">
+      <main className="login container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
-        </div>
-      </div>
+        <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
+      </main>
     );
   }
 
   loginForm() {
     return (
-      <div>
-        <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
-          <h5>{I18NextService.i18n.t("login")}</h5>
+      <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
+        <h5>{I18NextService.i18n.t("login")}</h5>
+        <div className="mb-3 row">
+          <label
+            className="col-sm-2 col-form-label"
+            htmlFor="login-email-or-username"
+          >
+            {I18NextService.i18n.t("email_or_username")}
+          </label>
+          <div className="col-sm-10">
+            <input
+              type="text"
+              className="form-control"
+              id="login-email-or-username"
+              value={this.state.form.username_or_email}
+              onInput={linkEvent(this, this.handleLoginUsernameChange)}
+              autoComplete="email"
+              required
+              minLength={3}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label className="col-sm-2 col-form-label" htmlFor="login-password">
+            {I18NextService.i18n.t("password")}
+          </label>
+          <div className="col-sm-10">
+            <input
+              type="password"
+              id="login-password"
+              value={this.state.form.password}
+              onInput={linkEvent(this, this.handleLoginPasswordChange)}
+              className="form-control"
+              autoComplete="current-password"
+              required
+              maxLength={60}
+            />
+            <button
+              type="button"
+              onClick={linkEvent(this, this.handlePasswordReset)}
+              className="btn p-0 btn-link d-inline-block float-right text-muted small fw-bold pointer-events not-allowed"
+              disabled={
+                !!this.state.form.username_or_email &&
+                !validEmail(this.state.form.username_or_email)
+              }
+              title={I18NextService.i18n.t("no_password_reset")}
+            >
+              {I18NextService.i18n.t("forgot_password")}
+            </button>
+          </div>
+        </div>
+        {this.state.showTotp && (
           <div className="mb-3 row">
             <label
-              className="col-sm-2 col-form-label"
-              htmlFor="login-email-or-username"
+              className="col-sm-6 col-form-label"
+              htmlFor="login-totp-token"
             >
-              {I18NextService.i18n.t("email_or_username")}
+              {I18NextService.i18n.t("two_factor_token")}
             </label>
-            <div className="col-sm-10">
+            <div className="col-sm-6">
               <input
-                type="text"
+                type="number"
+                inputMode="numeric"
                 className="form-control"
-                id="login-email-or-username"
-                value={this.state.form.username_or_email}
-                onInput={linkEvent(this, this.handleLoginUsernameChange)}
-                autoComplete="email"
-                required
-                minLength={3}
+                id="login-totp-token"
+                pattern="[0-9]*"
+                autoComplete="one-time-code"
+                value={this.state.form.totp_2fa_token}
+                onInput={linkEvent(this, this.handleLoginTotpChange)}
               />
             </div>
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-2 col-form-label" htmlFor="login-password">
-              {I18NextService.i18n.t("password")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                type="password"
-                id="login-password"
-                value={this.state.form.password}
-                onInput={linkEvent(this, this.handleLoginPasswordChange)}
-                className="form-control"
-                autoComplete="current-password"
-                required
-                maxLength={60}
-              />
-              <button
-                type="button"
-                onClick={linkEvent(this, this.handlePasswordReset)}
-                className="btn p-0 btn-link d-inline-block float-right text-muted small fw-bold pointer-events not-allowed"
-                disabled={
-                  !!this.state.form.username_or_email &&
-                  !validEmail(this.state.form.username_or_email)
-                }
-                title={I18NextService.i18n.t("no_password_reset")}
-              >
-                {I18NextService.i18n.t("forgot_password")}
-              </button>
-            </div>
+        )}
+        <div className="mb-3 row">
+          <div className="col-sm-10">
+            <button type="submit" className="btn btn-secondary">
+              {this.state.loginRes.state == "loading" ? (
+                <Spinner />
+              ) : (
+                I18NextService.i18n.t("login")
+              )}
+            </button>
           </div>
-          {this.state.showTotp && (
-            <div className="mb-3 row">
-              <label
-                className="col-sm-6 col-form-label"
-                htmlFor="login-totp-token"
-              >
-                {I18NextService.i18n.t("two_factor_token")}
-              </label>
-              <div className="col-sm-6">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  className="form-control"
-                  id="login-totp-token"
-                  pattern="[0-9]*"
-                  autoComplete="one-time-code"
-                  value={this.state.form.totp_2fa_token}
-                  onInput={linkEvent(this, this.handleLoginTotpChange)}
-                />
-              </div>
-            </div>
-          )}
-          <div className="mb-3 row">
-            <div className="col-sm-10">
-              <button type="submit" className="btn btn-secondary">
-                {this.state.loginRes.state == "loading" ? (
-                  <Spinner />
-                ) : (
-                  I18NextService.i18n.t("login")
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     );
   }
 

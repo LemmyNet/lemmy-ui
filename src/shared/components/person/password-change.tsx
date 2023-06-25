@@ -40,16 +40,14 @@ export class PasswordChange extends Component<any, State> {
 
   render() {
     return (
-      <div className="password-change container-lg">
+      <div className="password-change container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{I18NextService.i18n.t("password_change")}</h5>
-            {this.passwordChangeForm()}
-          </div>
+        <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+          <h5>{I18NextService.i18n.t("password_change")}</h5>
+          {this.passwordChangeForm()}
         </div>
       </div>
     );

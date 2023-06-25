@@ -59,25 +59,23 @@ export class Setup extends Component<any, State> {
 
   render() {
     return (
-      <div className="home-setup container-lg">
+      <main className="home-setup container-flex row mx-1 mx-md-4">
         <Helmet title={this.documentTitle} />
-        <div className="row">
-          <div className="col-12 offset-lg-3 col-lg-6">
-            <h3>{I18NextService.i18n.t("lemmy_instance_setup")}</h3>
-            {!this.state.doneRegisteringUser ? (
-              this.registerUser()
-            ) : (
-              <SiteForm
-                showLocal
-                onSaveSite={this.handleCreateSite}
-                siteRes={this.state.siteRes}
-                themeList={this.state.themeList}
-                loading={false}
-              />
-            )}
-          </div>
+        <div className="col-12 offset-lg-3 col-lg-6">
+          <h3>{I18NextService.i18n.t("lemmy_instance_setup")}</h3>
+          {!this.state.doneRegisteringUser ? (
+            this.registerUser()
+          ) : (
+            <SiteForm
+              showLocal
+              onSaveSite={this.handleCreateSite}
+              siteRes={this.state.siteRes}
+              themeList={this.state.themeList}
+              loading={false}
+            />
+          )}
         </div>
-      </div>
+      </main>
     );
   }
 
