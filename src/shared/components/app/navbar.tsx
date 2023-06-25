@@ -349,8 +349,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 {person && (
                   <div id="dropdownUser" className="dropdown">
                     <button
+                      type="button"
                       className="btn dropdown-toggle"
-                      role="button"
                       aria-expanded="false"
                       data-bs-toggle="dropdown"
                     >
