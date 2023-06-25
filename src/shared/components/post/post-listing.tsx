@@ -741,9 +741,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <Icon icon="message-square" classes="me-1" inline />
         {post_view.counts.comments}
         {this.unreadCount && (
-          <span className="text-muted fst-italic">
-            ({this.unreadCount} {I18NextService.i18n.t("new")})
-          </span>
+          <>
+            {" "}
+            <span className="fst-italic">
+              ({this.unreadCount} {I18NextService.i18n.t("new")})
+            </span>
+          </>
         )}
       </Link>
     );
