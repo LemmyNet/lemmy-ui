@@ -174,7 +174,9 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
 
   render() {
     return (
-      <div className={`vote-bar col-1 pe-0 small text-center`}>
+      <div
+        className={`vote-bar col-1 pe-0 small text-center d-flex flex-column justify-content-center`}
+      >
         <button
           type="button"
           className={`btn-animate btn btn-link p-0 ${
