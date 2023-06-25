@@ -113,16 +113,14 @@ export class CreatePrivateMessage extends Component<
       case "success": {
         const res = this.state.recipientRes.data;
         return (
-          <div className="row">
-            <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-              <h1 className="h4">
-                {I18NextService.i18n.t("create_private_message")}
-              </h1>
-              <PrivateMessageForm
-                onCreate={this.handlePrivateMessageCreate}
-                recipient={res.person_view.person}
-              />
-            </div>
+          <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+            <h1 className="h4">
+              {I18NextService.i18n.t("create_private_message")}
+            </h1>
+            <PrivateMessageForm
+              onCreate={this.handlePrivateMessageCreate}
+              recipient={res.person_view.person}
+            />
           </div>
         );
       }
@@ -131,13 +129,13 @@ export class CreatePrivateMessage extends Component<
 
   render() {
     return (
-      <div className="create-private-message container-lg">
+      <main className="create-private-message container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
         {this.renderRecipientRes()}
-      </div>
+      </main>
     );
   }
 
