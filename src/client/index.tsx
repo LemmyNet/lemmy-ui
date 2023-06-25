@@ -1,4 +1,4 @@
-import { initializeSite, setupDateFns } from "@utils/app";
+import { initializeSite } from "@utils/app";
 import { hydrate } from "inferno-hydrate";
 import { Router } from "inferno-router";
 import { App } from "../shared/components/app/app";
@@ -9,8 +9,6 @@ import "bootstrap/js/dist/dropdown";
 
 async function startClient() {
   initializeSite(window.isoData.site_res);
-
-  await setupDateFns();
 
   const wrapper = (
     <Router history={HistoryService.history}>

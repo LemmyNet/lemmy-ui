@@ -1,4 +1,3 @@
-import { setupDateFns } from "@utils/app";
 import express from "express";
 import path from "path";
 import process from "process";
@@ -32,7 +31,6 @@ server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);
 
 server.listen(Number(port), hostname, () => {
-  setupDateFns();
   console.log(`http://${hostname}:${port}`);
 });
 
