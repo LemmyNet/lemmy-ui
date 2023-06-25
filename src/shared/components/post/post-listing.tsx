@@ -1115,7 +1115,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             this.creatorIsMod_ &&
             (!this.state.showConfirmTransferCommunity ? (
               <button
-                className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                className="btn btn-link btn-animate text-muted py-0"
                 onClick={linkEvent(
                   this,
                   this.handleShowConfirmTransferCommunity
@@ -1127,13 +1127,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <>
                 <button
-                  className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0 dropdown-item"
+                  className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0"
                   aria-label={I18NextService.i18n.t("are_you_sure")}
                 >
                   {I18NextService.i18n.t("are_you_sure")}
                 </button>
                 <button
-                  className="btn btn-link btn-animate text-muted py-0 dropdown-item d-inline-block me-1"
+                  className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
                   aria-label={I18NextService.i18n.t("yes")}
                   onClick={linkEvent(this, this.handleTransferCommunity)}
                 >
@@ -1144,7 +1144,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   )}
                 </button>
                 <button
-                  className="btn btn-link btn-animate text-muted py-0 dropdown-item d-inline-block"
+                  className="btn btn-link btn-animate text-muted py-0 d-inline-block"
                   onClick={linkEvent(
                     this,
                     this.handleCancelShowConfirmTransferCommunity
