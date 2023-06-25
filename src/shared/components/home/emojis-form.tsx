@@ -87,7 +87,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           </div>
         )}
         <div className="table-responsive">
-          <table id="emojis_table" className="table table-sm table-hover">
+          <table
+            id="emojis_table"
+            className="table table-sm table-hover align-middle"
+          >
             <thead className="pointer">
               <tr>
                 <th>{I18NextService.i18n.t("column_emoji")}</th>
@@ -129,30 +132,30 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         />
                       )}
                       {cv.image_url.length === 0 && (
-                        <form>
-                          <label
-                            className="btn btn-sm btn-secondary pointer"
-                            htmlFor={`file-uploader-${index}`}
-                            data-tippy-content={I18NextService.i18n.t(
-                              "upload_image"
+                        <label
+                          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                          tabIndex={0}
+                          className="btn btn-sm btn-secondary pointer"
+                          htmlFor={`file-uploader-${index}`}
+                          data-tippy-content={I18NextService.i18n.t(
+                            "upload_image"
+                          )}
+                        >
+                          {capitalizeFirstLetter(
+                            I18NextService.i18n.t("upload")
+                          )}
+                          <input
+                            name={`file-uploader-${index}`}
+                            id={`file-uploader-${index}`}
+                            type="file"
+                            accept="image/*"
+                            className="d-none"
+                            onChange={linkEvent(
+                              { form: this, index: index },
+                              this.handleImageUpload
                             )}
-                          >
-                            {capitalizeFirstLetter(
-                              I18NextService.i18n.t("upload")
-                            )}
-                            <input
-                              name={`file-uploader-${index}`}
-                              id={`file-uploader-${index}`}
-                              type="file"
-                              accept="image/*"
-                              className="d-none"
-                              onChange={linkEvent(
-                                { form: this, index: index },
-                                this.handleImageUpload
-                              )}
-                            />
-                          </label>
-                        </form>
+                          />
+                        </label>
                       )}
                     </td>
                     <td className="text-right">

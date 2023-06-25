@@ -347,32 +347,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             <input
               type="url"
               id="post-url"
-              className="form-control"
+              className="form-control mb-3"
               value={url}
               onInput={linkEvent(this, handlePostUrlChange)}
               onPaste={linkEvent(this, handleImageUploadPaste)}
             />
             {this.renderSuggestedTitleCopy()}
-            <form>
-              <label
-                htmlFor="file-upload"
-                className={`${
-                  UserService.Instance.myUserInfo && "pointer"
-                } d-inline-block float-right text-muted fw-bold`}
-                data-tippy-content={I18NextService.i18n.t("upload_image")}
-              >
-                <Icon icon="image" classes="icon-inline" />
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept="image/*,video/*"
-                name="file"
-                className="d-none"
-                disabled={!UserService.Instance.myUserInfo}
-                onChange={linkEvent(this, handleImageUpload)}
-              />
-            </form>
             {url && validURL(url) && (
               <div>
                 <a
@@ -402,56 +382,73 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 </a>
               </div>
             )}
-            {this.state.imageLoading && <Spinner />}
-            {url && isImage(url) && (
-              <img src={url} className="img-fluid" alt="" />
-            )}
-            {this.state.imageDeleteUrl && (
-              <button
-                className="btn btn-danger btn-sm mt-2"
-                onClick={linkEvent(this, handleImageDelete)}
-                aria-label={I18NextService.i18n.t("delete")}
-                data-tippy-content={I18NextService.i18n.t("delete")}
-              >
-                <Icon icon="x" classes="icon-inline me-1" />
-                {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
-              </button>
-            )}
-            {this.props.crossPosts && this.props.crossPosts.length > 0 && (
-              <>
-                <div className="my-1 text-muted small fw-bold">
-                  {I18NextService.i18n.t("cross_posts")}
-                </div>
-                <PostListings
-                  showCommunity
-                  posts={this.props.crossPosts}
-                  enableDownvotes={this.props.enableDownvotes}
-                  enableNsfw={this.props.enableNsfw}
-                  allLanguages={this.props.allLanguages}
-                  siteLanguages={this.props.siteLanguages}
-                  viewOnly
-                  // All of these are unused, since its view only
-                  onPostEdit={() => {}}
-                  onPostVote={() => {}}
-                  onPostReport={() => {}}
-                  onBlockPerson={() => {}}
-                  onLockPost={() => {}}
-                  onDeletePost={() => {}}
-                  onRemovePost={() => {}}
-                  onSavePost={() => {}}
-                  onFeaturePost={() => {}}
-                  onPurgePerson={() => {}}
-                  onPurgePost={() => {}}
-                  onBanPersonFromCommunity={() => {}}
-                  onBanPerson={() => {}}
-                  onAddModToCommunity={() => {}}
-                  onAddAdmin={() => {}}
-                  onTransferCommunity={() => {}}
-                />
-              </>
-            )}
           </div>
         </div>
+
+        <div className="mb-3 row">
+          <label htmlFor="file-upload" className={"col-sm-2 col-form-label"}>
+            {capitalizeFirstLetter(I18NextService.i18n.t("image"))}
+            <Icon icon="image" classes="icon-inline ms-1" />
+          </label>
+          <input
+            id="file-upload"
+            type="file"
+            accept="image/*,video/*"
+            name="file"
+            className="small col-sm-10"
+            disabled={!UserService.Instance.myUserInfo}
+            onChange={linkEvent(this, handleImageUpload)}
+          />
+          {this.state.imageLoading && <Spinner />}
+          {url && isImage(url) && (
+            <img src={url} className="img-fluid" alt="" />
+          )}
+          {this.state.imageDeleteUrl && (
+            <button
+              className="btn btn-danger btn-sm mt-2"
+              onClick={linkEvent(this, handleImageDelete)}
+              aria-label={I18NextService.i18n.t("delete")}
+              data-tippy-content={I18NextService.i18n.t("delete")}
+            >
+              <Icon icon="x" classes="icon-inline me-1" />
+              {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
+            </button>
+          )}
+          {this.props.crossPosts && this.props.crossPosts.length > 0 && (
+            <>
+              <div className="my-1 text-muted small fw-bold">
+                {I18NextService.i18n.t("cross_posts")}
+              </div>
+              <PostListings
+                showCommunity
+                posts={this.props.crossPosts}
+                enableDownvotes={this.props.enableDownvotes}
+                enableNsfw={this.props.enableNsfw}
+                allLanguages={this.props.allLanguages}
+                siteLanguages={this.props.siteLanguages}
+                viewOnly
+                // All of these are unused, since its view only
+                onPostEdit={() => {}}
+                onPostVote={() => {}}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+              />
+            </>
+          )}
+        </div>
+
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-title">
             {I18NextService.i18n.t("title")}
