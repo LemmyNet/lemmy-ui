@@ -526,6 +526,7 @@ export class Search extends Component<any, SearchState> {
       creatorSearchOptions,
       searchCommunitiesLoading,
       searchCreatorLoading,
+      communitiesRes,
     } = this.state;
 
     const hasCommunities =
