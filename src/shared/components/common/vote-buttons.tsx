@@ -106,6 +106,7 @@ export class VoteButtonsCompact extends Component<
     return (
       <div>
         <button
+          type="button"
           className={`btn-animate btn py-0 px-1 ${
             this.props.my_vote === 1 ? "text-info" : "text-muted"
           }`}
@@ -129,6 +130,7 @@ export class VoteButtonsCompact extends Component<
         </button>
         {this.props.enableDownvotes && (
           <button
+            type="button"
             className={`ms-2 btn-animate btn py-0 px-1 ${
               this.props.my_vote === -1 ? "text-danger" : "text-muted"
             }`}
@@ -174,6 +176,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
     return (
       <div className={`vote-bar col-1 pe-0 small text-center`}>
         <button
+          type="button"
           className={`btn-animate btn btn-link p-0 ${
             this.props.my_vote == 1 ? "text-info" : "text-muted"
           }`}
@@ -200,6 +203,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
         )}
         {this.props.enableDownvotes && (
           <button
+            type="button"
             className={`btn-animate btn btn-link p-0 ${
               this.props.my_vote == -1 ? "text-danger" : "text-muted"
             }`}
