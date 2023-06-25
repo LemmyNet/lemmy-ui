@@ -1418,10 +1418,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 />
               </div>
             )}
-            <div className="col-sm-1 col-md-2 pe-0 post-media">
+            <div className="col-sm-2 pe-0 post-media">
               <div className="">{this.thumbnail()}</div>
             </div>
-            <div className="col-12 col-sm-8 col-md-9 ">
+            <div className="col-12 col-sm-9">
               {this.postTitleLine()}
               {this.createdLine()}
               {this.showBodyPreview()}
