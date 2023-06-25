@@ -255,7 +255,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         >
                           <Icon
                             icon="trash"
-                            classes={`icon-inline text-danger`}
+                            classes="icon-inline text-danger"
                           />
                         </button>
                       </div>
