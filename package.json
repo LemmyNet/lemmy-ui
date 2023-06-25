@@ -22,11 +22,11 @@
     "translations:update": "git submodule update --remote --recursive"
   },
   "lint-staged": {
-    "*.{ts,tsx,js}": [
+    "src/**/*.{ts,tsx,js}": [
       "prettier --write",
       "eslint --fix"
     ],
-    "*.{css, scss}": [
+    "src/**/*.{css, scss}": [
       "prettier --write"
     ],
     "package.json": [
@@ -123,6 +123,7 @@
     "rimraf": "^5.0.0",
     "sortpack": "^2.3.4",
     "style-loader": "^3.3.2",
+    "tailwindcss": "^3.3.2",
     "terser": "^5.17.3",
     "typescript": "^5.0.4",
     "webpack-bundle-analyzer": "^4.9.0",
