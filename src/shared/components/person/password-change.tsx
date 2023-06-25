@@ -40,7 +40,7 @@ export class PasswordChange extends Component<any, State> {
 
   render() {
     return (
-      <div className="password-change container-flex row mx-1 mx-md-4">
+      <main className="password-change container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -49,7 +49,7 @@ export class PasswordChange extends Component<any, State> {
           <h5>{I18NextService.i18n.t("password_change")}</h5>
           {this.passwordChangeForm()}
         </div>
-      </div>
+      </main>
     );
   }
 

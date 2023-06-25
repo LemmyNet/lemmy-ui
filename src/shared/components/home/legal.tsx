@@ -26,7 +26,7 @@ export class Legal extends Component<any, LegalState> {
   render() {
     const legal = this.state.siteRes.site_view.local_site.legal_information;
     return (
-      <div className="legal container-flex mx-1 mx-md-4">
+      <main className="legal container-flex mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -34,7 +34,7 @@ export class Legal extends Component<any, LegalState> {
         {legal && (
           <div className="md-div" dangerouslySetInnerHTML={mdToHtml(legal)} />
         )}
-      </div>
+      </main>
     );
   }
 }
