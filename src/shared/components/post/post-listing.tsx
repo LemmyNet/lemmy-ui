@@ -497,6 +497,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 />
               </button>
             ))}
+
+          {/**
+           * If there is a URL, or if the post has a body and we were told not to
+           * show the body, show the MetadataCard/body toggle.
+           */}
+          {(post.url || (post.body && !this.props.showBody)) && (
+            <button
+              className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
+              data-tippy-content={post.body && mdNoImages.render(post.body)}
+              data-tippy-allowHtml={true}
+              onClick={linkEvent(this, this.handleShowBody)}
+            >
+              <Icon
+                icon={!this.state.showBody ? "plus-square" : "minus-square"}
+                classes="icon-inline"
+              />
+            </button>
+          )}
+
           {post.removed && (
             <small className="ms-2 badge text-bg-secondary">
               {I18NextService.i18n.t("removed")}
@@ -634,27 +653,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  showPreviewButton() {
-    const post_view = this.postView;
-    const body = post_view.post.body;
-
-    return (
-      <button
-        className="btn btn-sm btn-animate text-muted py-0"
-        data-tippy-content={body && mdNoImages.render(body)}
-        data-tippy-allowHtml={true}
-        onClick={linkEvent(this, this.handleShowBody)}
-      >
-        <Icon
-          icon="book-open"
-          classes={classNames("icon-inline me-1", {
-            "text-success": this.state.showBody,
-          })}
-        />
-      </button>
-    );
-  }
-
   postActions() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
@@ -666,14 +664,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.saveButton}
         {this.crossPostButton}
 
-        {/**
-         * If there is a URL, or if the post has a body and we were told not to
-         * show the body, show the MetadataCard/body toggle.
-         */}
-        {(post.url || (post.body && !this.props.showBody)) &&
-          this.showPreviewButton()}
-
-        {this.showBody && post_view.post.body && this.viewSourceButton}
+        {this.props.showBody && post_view.post.body && this.viewSourceButton}
 
         <div className="dropdown">
           <button
@@ -1763,6 +1754,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ showBody: !i.state.showBody });
     setupTippy();
   }
+
+  // handleShowPreview(i: PostListing) {
+  //   return null;
+  // }
 
   get pointsTippy(): string {
     const points = I18NextService.i18n.t("number_of_points", {
