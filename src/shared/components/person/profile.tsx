@@ -316,7 +316,7 @@ export class Profile extends Component<
         const { page, sort, view } = getProfileQueryParams();
 
         return (
-          <div className="row">
+          <>
             <div className="col-12 col-md-8">
               <HtmlTags
                 title={this.documentTitle}
@@ -379,7 +379,7 @@ export class Profile extends Component<
               <Moderates moderates={personRes.moderates} />
               {this.amCurrentUser && <Follows />}
             </div>
-          </div>
+          </>
         );
       }
     }
@@ -387,9 +387,9 @@ export class Profile extends Component<
 
   render() {
     return (
-      <div className="person-profile container-lg">
+      <main className="person-profile container-flex row mx-1 mx-md-4">
         {this.renderPersonRes()}
-      </div>
+      </main>
     );
   }
 
@@ -466,163 +466,150 @@ export class Profile extends Component<
             />
           )}
           <div className="mb-3">
-            <div className="">
-              <div className="mb-0 d-flex flex-wrap">
-                <div>
-                  {pv.person.display_name && (
-                    <h5 className="mb-0">{pv.person.display_name}</h5>
-                  )}
-                  <ul className="list-inline mb-2">
-                    <li className="list-inline-item">
-                      <PersonListing
-                        person={pv.person}
-                        realLink
-                        useApubName
-                        muted
-                        hideAvatar
-                      />
-                    </li>
-                    {isBanned(pv.person) && (
-                      <li className="list-inline-item badge text-bg-danger">
-                        {I18NextService.i18n.t("banned")}
-                      </li>
-                    )}
-                    {pv.person.deleted && (
-                      <li className="list-inline-item badge text-bg-danger">
-                        {I18NextService.i18n.t("deleted")}
-                      </li>
-                    )}
-                    {pv.person.admin && (
-                      <li className="list-inline-item badge text-bg-light">
-                        {I18NextService.i18n.t("admin")}
-                      </li>
-                    )}
-                    {pv.person.bot_account && (
-                      <li className="list-inline-item badge text-bg-light">
-                        {I18NextService.i18n.t("bot_account").toLowerCase()}
-                      </li>
-                    )}
-                  </ul>
-                </div>
-                {this.banDialog(pv)}
-                <div className="flex-grow-1 unselectable pointer mx-2"></div>
-                {!this.amCurrentUser && UserService.Instance.myUserInfo && (
-                  <>
-                    <a
-                      className={`d-flex align-self-start btn btn-secondary me-2 ${
-                        !pv.person.matrix_user_id && "invisible"
-                      }`}
-                      rel={relTags}
-                      href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
-                    >
-                      {I18NextService.i18n.t("send_secure_message")}
-                    </a>
-                    <Link
-                      className={
-                        "d-flex align-self-start btn btn-secondary me-2"
-                      }
-                      to={`/create_private_message/${pv.person.id}`}
-                    >
-                      {I18NextService.i18n.t("send_message")}
-                    </Link>
-                    {personBlocked ? (
-                      <button
-                        className={
-                          "d-flex align-self-start btn btn-secondary me-2"
-                        }
-                        onClick={linkEvent(
-                          pv.person.id,
-                          this.handleUnblockPerson
-                        )}
-                      >
-                        {I18NextService.i18n.t("unblock_user")}
-                      </button>
-                    ) : (
-                      <button
-                        className={
-                          "d-flex align-self-start btn btn-secondary me-2"
-                        }
-                        onClick={linkEvent(
-                          pv.person.id,
-                          this.handleBlockPerson
-                        )}
-                      >
-                        {I18NextService.i18n.t("block_user")}
-                      </button>
-                    )}
-                  </>
+            <div className="mb-0 d-flex flex-wrap">
+              <div>
+                {pv.person.display_name && (
+                  <h5 className="mb-0">{pv.person.display_name}</h5>
                 )}
-
-                {canMod(pv.person.id, undefined, admins) &&
-                  !isAdmin(pv.person.id, admins) &&
-                  !showBanDialog &&
-                  (!isBanned(pv.person) ? (
+                <ul className="list-inline mb-2">
+                  <li className="list-inline-item">
+                    <PersonListing
+                      person={pv.person}
+                      realLink
+                      useApubName
+                      muted
+                      hideAvatar
+                    />
+                  </li>
+                  {isBanned(pv.person) && (
+                    <li className="list-inline-item badge text-bg-danger">
+                      {I18NextService.i18n.t("banned")}
+                    </li>
+                  )}
+                  {pv.person.deleted && (
+                    <li className="list-inline-item badge text-bg-danger">
+                      {I18NextService.i18n.t("deleted")}
+                    </li>
+                  )}
+                  {pv.person.admin && (
+                    <li className="list-inline-item badge text-bg-light">
+                      {I18NextService.i18n.t("admin")}
+                    </li>
+                  )}
+                  {pv.person.bot_account && (
+                    <li className="list-inline-item badge text-bg-light">
+                      {I18NextService.i18n.t("bot_account").toLowerCase()}
+                    </li>
+                  )}
+                </ul>
+              </div>
+              {this.banDialog(pv)}
+              <div className="flex-grow-1 unselectable pointer mx-2"></div>
+              {!this.amCurrentUser && UserService.Instance.myUserInfo && (
+                <>
+                  <a
+                    className={`d-flex align-self-start btn btn-secondary me-2 ${
+                      !pv.person.matrix_user_id && "invisible"
+                    }`}
+                    rel={relTags}
+                    href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
+                  >
+                    {I18NextService.i18n.t("send_secure_message")}
+                  </a>
+                  <Link
+                    className={"d-flex align-self-start btn btn-secondary me-2"}
+                    to={`/create_private_message/${pv.person.id}`}
+                  >
+                    {I18NextService.i18n.t("send_message")}
+                  </Link>
+                  {personBlocked ? (
                     <button
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
                       }
-                      onClick={linkEvent(this, this.handleModBanShow)}
-                      aria-label={I18NextService.i18n.t("ban")}
+                      onClick={linkEvent(
+                        pv.person.id,
+                        this.handleUnblockPerson
+                      )}
                     >
-                      {capitalizeFirstLetter(I18NextService.i18n.t("ban"))}
+                      {I18NextService.i18n.t("unblock_user")}
                     </button>
                   ) : (
                     <button
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
                       }
-                      onClick={linkEvent(this, this.handleModBanSubmit)}
-                      aria-label={I18NextService.i18n.t("unban")}
+                      onClick={linkEvent(pv.person.id, this.handleBlockPerson)}
                     >
-                      {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
+                      {I18NextService.i18n.t("block_user")}
                     </button>
-                  ))}
-              </div>
-              {pv.person.bio && (
-                <div className="d-flex align-items-center mb-2">
-                  <div
-                    className="md-div"
-                    dangerouslySetInnerHTML={mdToHtml(pv.person.bio)}
-                  />
-                </div>
+                  )}
+                </>
               )}
-              <div>
-                <ul className="list-inline mb-2">
-                  <li className="list-inline-item badge text-bg-light">
-                    {I18NextService.i18n.t("number_of_posts", {
-                      count: Number(pv.counts.post_count),
-                      formattedCount: numToSI(pv.counts.post_count),
-                    })}
-                  </li>
-                  <li className="list-inline-item badge text-bg-light">
-                    {I18NextService.i18n.t("number_of_comments", {
-                      count: Number(pv.counts.comment_count),
-                      formattedCount: numToSI(pv.counts.comment_count),
-                    })}
-                  </li>
-                </ul>
-              </div>
-              <div className="text-muted">
-                {I18NextService.i18n.t("joined")}{" "}
-                <MomentTime
-                  published={pv.person.published}
-                  showAgo
-                  ignoreUpdated
+
+              {canMod(pv.person.id, undefined, admins) &&
+                !isAdmin(pv.person.id, admins) &&
+                !showBanDialog &&
+                (!isBanned(pv.person) ? (
+                  <button
+                    className={"d-flex align-self-start btn btn-secondary me-2"}
+                    onClick={linkEvent(this, this.handleModBanShow)}
+                    aria-label={I18NextService.i18n.t("ban")}
+                  >
+                    {capitalizeFirstLetter(I18NextService.i18n.t("ban"))}
+                  </button>
+                ) : (
+                  <button
+                    className={"d-flex align-self-start btn btn-secondary me-2"}
+                    onClick={linkEvent(this, this.handleModBanSubmit)}
+                    aria-label={I18NextService.i18n.t("unban")}
+                  >
+                    {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
+                  </button>
+                ))}
+            </div>
+            {pv.person.bio && (
+              <div className="d-flex align-items-center mb-2">
+                <div
+                  className="md-div"
+                  dangerouslySetInnerHTML={mdToHtml(pv.person.bio)}
                 />
               </div>
-              <div className="d-flex align-items-center text-muted mb-2">
-                <Icon icon="cake" />
-                <span className="ms-2">
-                  {I18NextService.i18n.t("cake_day_title")}{" "}
-                  {format(parseISO(pv.person.published), "PPP")}
-                </span>
-              </div>
-              {!UserService.Instance.myUserInfo && (
-                <div className="alert alert-info" role="alert">
-                  {I18NextService.i18n.t("profile_not_logged_in_alert")}
-                </div>
-              )}
+            )}
+            <ul className="list-inline mb-2">
+              <li className="list-inline-item badge text-bg-light">
+                {I18NextService.i18n.t("number_of_posts", {
+                  count: Number(pv.counts.post_count),
+                  formattedCount: numToSI(pv.counts.post_count),
+                })}
+              </li>
+              <li className="list-inline-item badge text-bg-light">
+                {I18NextService.i18n.t("number_of_comments", {
+                  count: Number(pv.counts.comment_count),
+                  formattedCount: numToSI(pv.counts.comment_count),
+                })}
+              </li>
+            </ul>
+            <div className="text-muted">
+              {I18NextService.i18n.t("joined")}{" "}
+              <MomentTime
+                published={pv.person.published}
+                showAgo
+                ignoreUpdated
+              />
             </div>
+            <div className="d-flex align-items-center text-muted mb-2">
+              <Icon icon="cake" />
+              <span className="ms-2">
+                {I18NextService.i18n.t("cake_day_title")}{" "}
+                {format(parseISO(pv.person.published), "PPP")}
+              </span>
+            </div>
+            {!UserService.Instance.myUserInfo && (
+              <div className="alert alert-info" role="alert">
+                {I18NextService.i18n.t("profile_not_logged_in_alert")}
+              </div>
+            )}
           </div>
         </div>
       )
