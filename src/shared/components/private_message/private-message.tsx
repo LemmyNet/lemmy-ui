@@ -140,7 +140,7 @@ export class PrivateMessage extends Component<
                   dangerouslySetInnerHTML={mdToHtml(this.messageUnlessRemoved)}
                 />
               )}
-              <ul className="list-inline mb-0 text-muted font-weight-bold">
+              <ul className="list-inline mb-0 text-muted fw-bold">
                 {!this.mine && (
                   <>
                     <li className="list-inline-item">

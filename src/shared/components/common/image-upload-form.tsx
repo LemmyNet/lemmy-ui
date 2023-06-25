@@ -33,10 +33,7 @@ export class ImageUploadForm extends Component<
   render() {
     return (
       <form className="image-upload-form d-inline">
-        <label
-          htmlFor={this.id}
-          className="pointer text-muted small font-weight-bold"
-        >
+        <label htmlFor={this.id} className="pointer text-muted small fw-bold">
           {this.props.imageSrc ? (
             <span className="d-inline-block position-relative">
               <img
