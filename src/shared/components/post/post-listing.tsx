@@ -1131,14 +1131,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.canMod_ && (
             <>
               {!this.creatorIsMod_ &&
-                (!post_view.creator_banned_from_community ? (
-                  <li>{this.modBanFromCommunityButton}</li>
-                ) : (
-                  <li>{this.modUnbanFromCommunityButton}</li>
-                ))}
-              {!post_view.creator_banned_from_community && (
-                <li>{this.addModToCommunityButton}</li>
-              )}
+                (!post_view.creator_banned_from_community
+                  ? this.modBanFromCommunityButton
+                  : this.modUnbanFromCommunityButton)}
+              {!post_view.creator_banned_from_community &&
+                this.addModToCommunityButton}
             </>
           )}
 
@@ -1160,13 +1157,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <>
                 <button
-                  className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                  className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0 dropdown-item"
                   aria-label={I18NextService.i18n.t("are_you_sure")}
                 >
                   {I18NextService.i18n.t("are_you_sure")}
                 </button>
                 <button
-                  className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                  className="btn btn-link btn-animate text-muted py-0 dropdown-item d-inline-block me-1"
                   aria-label={I18NextService.i18n.t("yes")}
                   onClick={linkEvent(this, this.handleTransferCommunity)}
                 >
@@ -1177,7 +1174,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   )}
                 </button>
                 <button
-                  className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                  className="btn btn-link btn-animate text-muted py-0 dropdown-item d-inline-block"
                   onClick={linkEvent(
                     this,
                     this.handleCancelShowConfirmTransferCommunity
