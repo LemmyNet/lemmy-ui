@@ -347,10 +347,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                 )}
                 {person && (
-                  <div id="dropdownUser" className="dropdown">
+                  <li id="dropdownUser" className="dropdown">
                     <button
+                      type="button"
                       className="btn dropdown-toggle"
-                      role="button"
                       aria-expanded="false"
                       data-bs-toggle="dropdown"
                     >
@@ -398,7 +398,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         </button>
                       </li>
                     </ul>
-                  </div>
+                  </li>
                 )}
               </>
             ) : (
