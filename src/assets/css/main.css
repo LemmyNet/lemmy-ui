@@ -200,6 +200,7 @@ blockquote {
   object-fit: cover;
   aspect-ratio: 4/3;
   width: 100%;
+  max-height: 6rem;
 }
 
 .thumbnail svg {
