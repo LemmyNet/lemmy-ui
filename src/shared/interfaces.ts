@@ -77,6 +77,11 @@ export enum VoteType {
   Downvote,
 }
 
+export enum VoteContentType {
+  Post,
+  Comment,
+}
+
 export interface CommentNodeI {
   comment_view: CommentView;
   children: Array<CommentNodeI>;
