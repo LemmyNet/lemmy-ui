@@ -109,17 +109,17 @@ export class PrivateMessage extends Component<
               </span>
             </li>
             <li className="list-inline-item">
-              <div
-                role="button"
-                className="pointer text-monospace"
+              <button
+                type="button"
+                className="pointer text-monospace p-0 bg-transparent border-0 d-block"
                 onClick={linkEvent(this, this.handleMessageCollapse)}
               >
                 {this.state.collapsed ? (
-                  <Icon icon="plus-square" classes="icon-inline" />
+                  <Icon icon="plus-square" />
                 ) : (
-                  <Icon icon="minus-square" classes="icon-inline" />
+                  <Icon icon="minus-square" />
                 )}
-              </div>
+              </button>
             </li>
           </ul>
           {this.state.showEdit && (
