@@ -155,7 +155,7 @@ export class CreatePost extends Component<
       | undefined;
 
     return (
-      <div className="create-post container-lg">
+      <main className="create-post container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -165,31 +165,26 @@ export class CreatePost extends Component<
             <Spinner large />
           </h5>
         ) : (
-          <div className="row">
-            <div
-              id="createPostForm"
-              className="col-12 col-lg-6 offset-lg-3 mb-4"
-            >
-              <h1 className="h4">{I18NextService.i18n.t("create_post")}</h1>
-              <PostForm
-                onCreate={this.handlePostCreate}
-                params={locationState}
-                enableDownvotes={enableDownvotes(this.state.siteRes)}
-                enableNsfw={enableNsfw(this.state.siteRes)}
-                allLanguages={this.state.siteRes.all_languages}
-                siteLanguages={this.state.siteRes.discussion_languages}
-                selectedCommunityChoice={selectedCommunityChoice}
-                onSelectCommunity={this.handleSelectedCommunityChange}
-                initialCommunities={
-                  this.state.initialCommunitiesRes.state === "success"
-                    ? this.state.initialCommunitiesRes.data.communities
-                    : []
-                }
-              />
-            </div>
+          <div id="createPostForm" className="col-12 col-lg-6 offset-lg-3 mb-4">
+            <h1 className="h4">{I18NextService.i18n.t("create_post")}</h1>
+            <PostForm
+              onCreate={this.handlePostCreate}
+              params={locationState}
+              enableDownvotes={enableDownvotes(this.state.siteRes)}
+              enableNsfw={enableNsfw(this.state.siteRes)}
+              allLanguages={this.state.siteRes.all_languages}
+              siteLanguages={this.state.siteRes.discussion_languages}
+              selectedCommunityChoice={selectedCommunityChoice}
+              onSelectCommunity={this.handleSelectedCommunityChange}
+              initialCommunities={
+                this.state.initialCommunitiesRes.state === "success"
+                  ? this.state.initialCommunitiesRes.data.communities
+                  : []
+              }
+            />
           </div>
         )}
-      </div>
+      </main>
     );
   }
 

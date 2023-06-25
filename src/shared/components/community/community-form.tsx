@@ -200,41 +200,36 @@ export class CommunityForm extends Component<
         </div>
 
         {this.props.enableNsfw && (
-          <div className="mb-3 row">
-            <legend className="col-form-label col-sm-2 pt-0">
+          <div className="form-check mb-3">
+            <label className="form-check-label pt-0" htmlFor="community-nsfw">
               {I18NextService.i18n.t("nsfw")}
-            </legend>
-            <div className="col-10">
-              <div className="form-check">
-                <input
-                  className="form-check-input position-static"
-                  id="community-nsfw"
-                  type="checkbox"
-                  checked={this.state.form.nsfw}
-                  onChange={linkEvent(this, this.handleCommunityNsfwChange)}
-                />
-              </div>
-            </div>
+            </label>
+            <input
+              className="form-check-input"
+              id="community-nsfw"
+              type="checkbox"
+              checked={this.state.form.nsfw}
+              onChange={linkEvent(this, this.handleCommunityNsfwChange)}
+            />
           </div>
         )}
-        <div className="mb-3 row">
-          <legend className="col-form-label col-6 pt-0">
+        <div className="form-check mb-3">
+          <label
+            className="form-check-label pt-0"
+            htmlFor="community-only-mods-can-post"
+          >
             {I18NextService.i18n.t("only_mods_can_post_in_community")}
-          </legend>
-          <div className="col-6">
-            <div className="form-check">
-              <input
-                className="form-check-input position-static"
-                id="community-only-mods-can-post"
-                type="checkbox"
-                checked={this.state.form.posting_restricted_to_mods}
-                onChange={linkEvent(
-                  this,
-                  this.handleCommunityPostingRestrictedToMods
-                )}
-              />
-            </div>
-          </div>
+          </label>
+          <input
+            className="form-check-input"
+            id="community-only-mods-can-post"
+            type="checkbox"
+            checked={this.state.form.posting_restricted_to_mods}
+            onChange={linkEvent(
+              this,
+              this.handleCommunityPostingRestrictedToMods
+            )}
+          />
         </div>
         <LanguageSelect
           allLanguages={this.props.allLanguages}

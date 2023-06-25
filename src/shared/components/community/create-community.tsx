@@ -32,25 +32,23 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
 
   render() {
     return (
-      <div className="create-community container-lg">
+      <main className="create-community container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{I18NextService.i18n.t("create_community")}</h5>
-            <CommunityForm
-              onUpsertCommunity={this.handleCommunityCreate}
-              enableNsfw={enableNsfw(this.state.siteRes)}
-              allLanguages={this.state.siteRes.all_languages}
-              siteLanguages={this.state.siteRes.discussion_languages}
-              communityLanguages={this.state.siteRes.discussion_languages}
-              loading={this.state.loading}
-            />
-          </div>
+        <div className="col-12 col-lg-6 offset-lg-3 mb-4">
+          <h5>{I18NextService.i18n.t("create_community")}</h5>
+          <CommunityForm
+            onUpsertCommunity={this.handleCommunityCreate}
+            enableNsfw={enableNsfw(this.state.siteRes)}
+            allLanguages={this.state.siteRes.all_languages}
+            siteLanguages={this.state.siteRes.discussion_languages}
+            communityLanguages={this.state.siteRes.discussion_languages}
+            loading={this.state.loading}
+          />
         </div>
-      </div>
+      </main>
     );
   }
 

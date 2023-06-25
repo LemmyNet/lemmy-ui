@@ -437,3 +437,8 @@ br.big {
 .markdown-textarea {
   max-width: 50rem;
 }
+
+input[type="checkbox"],
+.form-check label {
+  cursor: pointer;
+}
