@@ -15,7 +15,7 @@ import { Theme } from "./theme";
 
 export class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
-  private readonly mainContentRef: RefObject<HTMLElement>;
+  private readonly mainContentRef: RefObject<HTMLDivElement>;
   constructor(props: any, context: any) {
     super(props, context);
     this.mainContentRef = createRef();
@@ -59,7 +59,7 @@ export class App extends Component<any, any> {
 
                         return (
                           <ErrorGuard>
-                            <main tabIndex={-1} ref={this.mainContentRef}>
+                            <div tabIndex={-1} ref={this.mainContentRef}>
                               {RouteComponent &&
                                 (isAuthPath(path ?? "") ? (
                                   <AuthGuard>
@@ -68,7 +68,7 @@ export class App extends Component<any, any> {
                                 ) : (
                                   <RouteComponent {...routeProps} />
                                 ))}
-                            </main>
+                            </div>
                           </ErrorGuard>
                         );
                       }}

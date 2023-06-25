@@ -316,33 +316,31 @@ export class Community extends Component<
               image={res.community_view.community.icon}
             />
 
-            <div className="row">
-              <div className="col-12 col-md-8">
-                {this.communityInfo(res)}
-                <div className="d-block d-md-none">
-                  <button
-                    className="btn btn-secondary d-inline-block mb-2 me-3"
-                    onClick={linkEvent(this, this.handleShowSidebarMobile)}
-                  >
-                    {I18NextService.i18n.t("sidebar")}{" "}
-                    <Icon
-                      icon={
-                        this.state.showSidebarMobile
-                          ? `minus-square`
-                          : `plus-square`
-                      }
-                      classes="icon-inline"
-                    />
-                  </button>
-                  {this.state.showSidebarMobile && this.sidebar(res)}
-                </div>
-                {this.selects(res)}
-                {this.listings(res)}
-                <Paginator page={page} onChange={this.handlePageChange} />
+            <main className="col-12 col-md-8 col-xl-10">
+              {this.communityInfo(res)}
+              <div className="d-block d-md-none">
+                <button
+                  className="btn btn-secondary d-inline-block mb-2 me-3"
+                  onClick={linkEvent(this, this.handleShowSidebarMobile)}
+                >
+                  {I18NextService.i18n.t("sidebar")}{" "}
+                  <Icon
+                    icon={
+                      this.state.showSidebarMobile
+                        ? `minus-square`
+                        : `plus-square`
+                    }
+                    classes="icon-inline"
+                  />
+                </button>
+                {this.state.showSidebarMobile && this.sidebar(res)}
               </div>
-              <div className="d-none d-md-block col-md-4">
-                {this.sidebar(res)}
-              </div>
+              {this.selects(res)}
+              {this.listings(res)}
+              <Paginator page={page} onChange={this.handlePageChange} />
+            </main>
+            <div className="d-none d-md-block col-md-4 col-xl-2">
+              {this.sidebar(res)}
             </div>
           </>
         );
@@ -352,7 +350,9 @@ export class Community extends Component<
 
   render() {
     return (
-      <div className="community container-lg">{this.renderCommunity()}</div>
+      <div className="community container-flex mx-1 mx-md-4 row">
+        {this.renderCommunity()}
+      </div>
     );
   }
 

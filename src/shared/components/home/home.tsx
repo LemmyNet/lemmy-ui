@@ -394,10 +394,13 @@ export class Home extends Component<any, HomeState> {
                   dangerouslySetInnerHTML={mdToHtml(tagline)}
                 ></div>
               )}
-              <div className="d-block d-md-none">{this.mobileView}</div>
+              <div className="d-block d-md-none row">{this.mobileView}</div>
               {this.posts}
             </main>
-            <aside className="d-none d-md-block col-md-4 col-xl-2">
+            <aside
+              id="sidebarContainer"
+              className="d-none d-md-block col-md-4 col-xl-2"
+            >
               {this.mySidebar}
             </aside>
           </>
@@ -423,45 +426,43 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div className="row">
-        <div className="col-12">
-          {this.hasFollows && (
-            <MobileButton
-              textKey="subscribed"
-              show={showSubscribedMobile}
-              onClick={linkEvent(this, this.handleShowSubscribedMobile)}
-            />
-          )}
+      <div className="col-12">
+        {this.hasFollows && (
           <MobileButton
-            textKey="trending"
-            show={showTrendingMobile}
-            onClick={linkEvent(this, this.handleShowTrendingMobile)}
+            textKey="subscribed"
+            show={showSubscribedMobile}
+            onClick={linkEvent(this, this.handleShowSubscribedMobile)}
           />
-          <MobileButton
-            textKey="sidebar"
-            show={showSidebarMobile}
-            onClick={linkEvent(this, this.handleShowSidebarMobile)}
+        )}
+        <MobileButton
+          textKey="trending"
+          show={showTrendingMobile}
+          onClick={linkEvent(this, this.handleShowTrendingMobile)}
+        />
+        <MobileButton
+          textKey="sidebar"
+          show={showSidebarMobile}
+          onClick={linkEvent(this, this.handleShowSidebarMobile)}
+        />
+        {showSidebarMobile && (
+          <SiteSidebar
+            site={site}
+            admins={admins}
+            counts={counts}
+            showLocal={showLocal(this.isoData)}
+            isMobile={true}
           />
-          {showSidebarMobile && (
-            <SiteSidebar
-              site={site}
-              admins={admins}
-              counts={counts}
-              showLocal={showLocal(this.isoData)}
-              isMobile={true}
-            />
-          )}
-          {showTrendingMobile && (
-            <div className="card border-secondary mb-3">
-              {this.trendingCommunities()}
-            </div>
-          )}
-          {showSubscribedMobile && (
-            <div className="card border-secondary mb-3">
-              {this.subscribedCommunities(true)}
-            </div>
-          )}
-        </div>
+        )}
+        {showTrendingMobile && (
+          <div className="card border-secondary mb-3">
+            {this.trendingCommunities()}
+          </div>
+        )}
+        {showSubscribedMobile && (
+          <div className="card border-secondary mb-3">
+            {this.subscribedCommunities(true)}
+          </div>
+        )}
       </div>
     );
   }
@@ -475,7 +476,7 @@ export class Home extends Component<any, HomeState> {
     } = this.state;
 
     return (
-      <div id="sidebarContainer">
+      <>
         <section id="sidebarMain" className="card border-secondary mb-3">
           {this.trendingCommunities()}
         </section>
@@ -495,7 +496,7 @@ export class Home extends Component<any, HomeState> {
             </section>
           </div>
         )}
-      </div>
+      </>
     );
   }
 
@@ -646,11 +647,9 @@ export class Home extends Component<any, HomeState> {
 
     return (
       <div className="main-content-wrapper">
-        <div>
-          {this.selects}
-          {this.listings}
-          <Paginator page={page} onChange={this.handlePageChange} />
-        </div>
+        {this.selects}
+        {this.listings}
+        <Paginator page={page} onChange={this.handlePageChange} />
       </div>
     );
   }

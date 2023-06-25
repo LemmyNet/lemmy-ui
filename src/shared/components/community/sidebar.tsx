@@ -103,7 +103,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   render() {
     return (
-      <div className="community-sidebar">
+      <aside className="community-sidebar">
         {!this.state.showEdit ? (
           this.sidebar()
         ) : (
@@ -117,7 +117,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             enableNsfw={this.props.enableNsfw}
           />
         )}
-      </div>
+      </aside>
     );
   }
 
@@ -125,42 +125,40 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUSerInfo = UserService.Instance.myUserInfo;
     const { name, actor_id } = this.props.community_view.community;
     return (
-      <aside className="mb-3">
-        <div id="sidebarContainer">
-          <section id="sidebarMain" className="card border-secondary mb-3">
-            <div className="card-body">
-              {this.communityTitle()}
-              {this.props.editable && this.adminButtons()}
-              {myUSerInfo && this.subscribe()}
-              {this.canPost && this.createPost()}
-              {myUSerInfo && this.blockCommunity()}
-              {!myUSerInfo && (
-                <div className="alert alert-info" role="alert">
-                  <T
-                    i18nKey="community_not_logged_in_alert"
-                    interpolation={{
-                      community: name,
-                      instance: hostname(actor_id),
-                    }}
-                  >
-                    #<code className="user-select-all">#</code>#
-                  </T>
-                </div>
-              )}
-            </div>
-          </section>
-          <section id="sidebarInfo" className="card border-secondary mb-3">
-            <div className="card-body">
-              {this.description()}
-              <Badges
-                communityId={this.props.community_view.community.id}
-                counts={this.props.community_view.counts}
-              />
-              {this.mods()}
-            </div>
-          </section>
-        </div>
-      </aside>
+      <div id="sidebarContainer" className="mb-3">
+        <section id="sidebarMain" className="card border-secondary mb-3">
+          <div className="card-body">
+            {this.communityTitle()}
+            {this.props.editable && this.adminButtons()}
+            {myUSerInfo && this.subscribe()}
+            {this.canPost && this.createPost()}
+            {myUSerInfo && this.blockCommunity()}
+            {!myUSerInfo && (
+              <div className="alert alert-info" role="alert">
+                <T
+                  i18nKey="community_not_logged_in_alert"
+                  interpolation={{
+                    community: name,
+                    instance: hostname(actor_id),
+                  }}
+                >
+                  #<code className="user-select-all">#</code>#
+                </T>
+              </div>
+            )}
+          </div>
+        </section>
+        <section id="sidebarInfo" className="card border-secondary mb-3">
+          <div className="card-body">
+            {this.description()}
+            <Badges
+              communityId={this.props.community_view.community.id}
+              counts={this.props.community_view.counts}
+            />
+            {this.mods()}
+          </div>
+        </section>
+      </div>
     );
   }
 
