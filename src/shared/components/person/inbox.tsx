@@ -213,49 +213,44 @@ export class Inbox extends Component<any, InboxState> {
     const auth = myAuth();
     const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
     return (
-      <div className="inbox container-lg">
-        <div className="row">
-          <div className="col-12">
-            <HtmlTags
-              title={this.documentTitle}
-              path={this.context.router.route.match.url}
-            />
-            <h5 className="mb-2">
-              {I18NextService.i18n.t("inbox")}
-              {inboxRss && (
-                <small>
-                  <a href={inboxRss} title="RSS" rel={relTags}>
-                    <Icon icon="rss" classes="ms-2 text-muted small" />
-                  </a>
-                  <link
-                    rel="alternate"
-                    type="application/atom+xml"
-                    href={inboxRss}
-                  />
-                </small>
-              )}
-            </h5>
-            {this.hasUnreads && (
-              <button
-                className="btn btn-secondary mb-2"
-                onClick={linkEvent(this, this.handleMarkAllAsRead)}
-              >
-                {this.state.markAllAsReadRes.state == "loading" ? (
-                  <Spinner />
-                ) : (
-                  I18NextService.i18n.t("mark_all_as_read")
-                )}
-              </button>
+      <main className="inbox container-flex row mx-1 mx-md-4">
+        <div className="col-12">
+          <HtmlTags
+            title={this.documentTitle}
+            path={this.context.router.route.match.url}
+          />
+          <h5 className="mb-2">
+            {I18NextService.i18n.t("inbox")}
+            {inboxRss && (
+              <small>
+                <a href={inboxRss} title="RSS" rel={relTags}>
+                  <Icon icon="rss" classes="ms-2 text-muted small" />
+                </a>
+                <link
+                  rel="alternate"
+                  type="application/atom+xml"
+                  href={inboxRss}
+                />
+              </small>
             )}
-            {this.selects()}
-            {this.section}
-            <Paginator
-              page={this.state.page}
-              onChange={this.handlePageChange}
-            />
-          </div>
+          </h5>
+          {this.hasUnreads && (
+            <button
+              className="btn btn-secondary mb-2"
+              onClick={linkEvent(this, this.handleMarkAllAsRead)}
+            >
+              {this.state.markAllAsReadRes.state === "loading" ? (
+                <Spinner />
+              ) : (
+                I18NextService.i18n.t("mark_all_as_read")
+              )}
+            </button>
+          )}
+          {this.selects()}
+          {this.section}
+          <Paginator page={this.state.page} onChange={this.handlePageChange} />
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -533,9 +528,9 @@ export class Inbox extends Component<any, InboxState> {
 
   all() {
     if (
-      this.state.repliesRes.state == "loading" ||
-      this.state.mentionsRes.state == "loading" ||
-      this.state.messagesRes.state == "loading"
+      this.state.repliesRes.state === "loading" ||
+      this.state.mentionsRes.state === "loading" ||
+      this.state.messagesRes.state === "loading"
     ) {
       return (
         <h5>
@@ -543,9 +538,7 @@ export class Inbox extends Component<any, InboxState> {
         </h5>
       );
     } else {
-      return (
-        <div>{this.buildCombined().map(r => this.renderReplyType(r))}</div>
-      );
+      return <>{this.buildCombined().map(r => this.renderReplyType(r))}</>;
     }
   }
 
@@ -560,37 +553,35 @@ export class Inbox extends Component<any, InboxState> {
       case "success": {
         const replies = this.state.repliesRes.data.replies;
         return (
-          <div>
-            <CommentNodes
-              nodes={commentsToFlatNodes(replies)}
-              viewType={CommentViewType.Flat}
-              finished={this.state.finished}
-              markable
-              showCommunity
-              showContext
-              enableDownvotes={enableDownvotes(this.state.siteRes)}
-              allLanguages={this.state.siteRes.all_languages}
-              siteLanguages={this.state.siteRes.discussion_languages}
-              onSaveComment={this.handleSaveComment}
-              onBlockPerson={this.handleBlockPerson}
-              onDeleteComment={this.handleDeleteComment}
-              onRemoveComment={this.handleRemoveComment}
-              onCommentVote={this.handleCommentVote}
-              onCommentReport={this.handleCommentReport}
-              onDistinguishComment={this.handleDistinguishComment}
-              onAddModToCommunity={this.handleAddModToCommunity}
-              onAddAdmin={this.handleAddAdmin}
-              onTransferCommunity={this.handleTransferCommunity}
-              onPurgeComment={this.handlePurgeComment}
-              onPurgePerson={this.handlePurgePerson}
-              onCommentReplyRead={this.handleCommentReplyRead}
-              onPersonMentionRead={this.handlePersonMentionRead}
-              onBanPersonFromCommunity={this.handleBanFromCommunity}
-              onBanPerson={this.handleBanPerson}
-              onCreateComment={this.handleCreateComment}
-              onEditComment={this.handleEditComment}
-            />
-          </div>
+          <CommentNodes
+            nodes={commentsToFlatNodes(replies)}
+            viewType={CommentViewType.Flat}
+            finished={this.state.finished}
+            markable
+            showCommunity
+            showContext
+            enableDownvotes={enableDownvotes(this.state.siteRes)}
+            allLanguages={this.state.siteRes.all_languages}
+            siteLanguages={this.state.siteRes.discussion_languages}
+            onSaveComment={this.handleSaveComment}
+            onBlockPerson={this.handleBlockPerson}
+            onDeleteComment={this.handleDeleteComment}
+            onRemoveComment={this.handleRemoveComment}
+            onCommentVote={this.handleCommentVote}
+            onCommentReport={this.handleCommentReport}
+            onDistinguishComment={this.handleDistinguishComment}
+            onAddModToCommunity={this.handleAddModToCommunity}
+            onAddAdmin={this.handleAddAdmin}
+            onTransferCommunity={this.handleTransferCommunity}
+            onPurgeComment={this.handlePurgeComment}
+            onPurgePerson={this.handlePurgePerson}
+            onCommentReplyRead={this.handleCommentReplyRead}
+            onPersonMentionRead={this.handlePersonMentionRead}
+            onBanPersonFromCommunity={this.handleBanFromCommunity}
+            onBanPerson={this.handleBanPerson}
+            onCreateComment={this.handleCreateComment}
+            onEditComment={this.handleEditComment}
+          />
         );
       }
     }
@@ -607,7 +598,7 @@ export class Inbox extends Component<any, InboxState> {
       case "success": {
         const mentions = this.state.mentionsRes.data.mentions;
         return (
-          <div>
+          <>
             {mentions.map(umv => (
               <CommentNodes
                 key={umv.person_mention.id}
@@ -640,7 +631,7 @@ export class Inbox extends Component<any, InboxState> {
                 onEditComment={this.handleEditComment}
               />
             ))}
-          </div>
+          </>
         );
       }
     }
@@ -657,7 +648,7 @@ export class Inbox extends Component<any, InboxState> {
       case "success": {
         const messages = this.state.messagesRes.data.private_messages;
         return (
-          <div>
+          <>
             {messages.map(pmv => (
               <PrivateMessage
                 key={pmv.private_message.id}
@@ -669,7 +660,7 @@ export class Inbox extends Component<any, InboxState> {
                 onEdit={this.handleEditMessage}
               />
             ))}
-          </div>
+          </>
         );
       }
     }

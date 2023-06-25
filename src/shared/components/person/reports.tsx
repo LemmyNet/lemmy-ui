@@ -145,23 +145,18 @@ export class Reports extends Component<any, ReportsState> {
 
   render() {
     return (
-      <div className="person-reports container-lg">
-        <div className="row">
-          <div className="col-12">
-            <HtmlTags
-              title={this.documentTitle}
-              path={this.context.router.route.match.url}
-            />
-            <h5 className="mb-2">{I18NextService.i18n.t("reports")}</h5>
-            {this.selects()}
-            {this.section}
-            <Paginator
-              page={this.state.page}
-              onChange={this.handlePageChange}
-            />
-          </div>
+      <main className="person-reports container-flex row mx-1 mx-md-4">
+        <div className="col-12">
+          <HtmlTags
+            title={this.documentTitle}
+            path={this.context.router.route.match.url}
+          />
+          <h5 className="mb-2">{I18NextService.i18n.t("reports")}</h5>
+          {this.selects()}
+          {this.section}
+          <Paginator page={this.state.page} onChange={this.handlePageChange} />
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -385,14 +380,14 @@ export class Reports extends Component<any, ReportsState> {
 
   all() {
     return (
-      <div>
+      <>
         {this.buildCombined.map(i => (
           <>
             <hr />
             {this.renderItemType(i)}
           </>
         ))}
-      </div>
+      </>
     );
   }
 
@@ -408,7 +403,7 @@ export class Reports extends Component<any, ReportsState> {
       case "success": {
         const reports = res.data.comment_reports;
         return (
-          <div>
+          <>
             {reports.map(cr => (
               <>
                 <hr />
@@ -419,7 +414,7 @@ export class Reports extends Component<any, ReportsState> {
                 />
               </>
             ))}
-          </div>
+          </>
         );
       }
     }
@@ -437,7 +432,7 @@ export class Reports extends Component<any, ReportsState> {
       case "success": {
         const reports = res.data.post_reports;
         return (
-          <div>
+          <>
             {reports.map(pr => (
               <>
                 <hr />
@@ -448,7 +443,7 @@ export class Reports extends Component<any, ReportsState> {
                 />
               </>
             ))}
-          </div>
+          </>
         );
       }
     }
@@ -466,7 +461,7 @@ export class Reports extends Component<any, ReportsState> {
       case "success": {
         const reports = res.data.private_message_reports;
         return (
-          <div>
+          <>
             {reports.map(pmr => (
               <>
                 <hr />
@@ -477,7 +472,7 @@ export class Reports extends Component<any, ReportsState> {
                 />
               </>
             ))}
-          </div>
+          </>
         );
       }
     }

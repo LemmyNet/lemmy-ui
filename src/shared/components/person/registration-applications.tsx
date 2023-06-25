@@ -94,22 +94,20 @@ export class RegistrationApplications extends Component<
       case "success": {
         const apps = this.state.appsRes.data.registration_applications;
         return (
-          <div className="row">
-            <div className="col-12">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-              />
-              <h5 className="mb-2">
-                {I18NextService.i18n.t("registration_applications")}
-              </h5>
-              {this.selects()}
-              {this.applicationList(apps)}
-              <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
-              />
-            </div>
+          <div className="col-12">
+            <HtmlTags
+              title={this.documentTitle}
+              path={this.context.router.route.match.url}
+            />
+            <h5 className="mb-2">
+              {I18NextService.i18n.t("registration_applications")}
+            </h5>
+            {this.selects()}
+            {this.applicationList(apps)}
+            <Paginator
+              page={this.state.page}
+              onChange={this.handlePageChange}
+            />
           </div>
         );
       }
@@ -118,9 +116,9 @@ export class RegistrationApplications extends Component<
 
   render() {
     return (
-      <div className="registration-applications container-lg">
+      <main className="registration-applications container-flex row mx-1 mx-md-4">
         {this.renderApps()}
-      </div>
+      </main>
     );
   }
 
@@ -169,7 +167,7 @@ export class RegistrationApplications extends Component<
 
   applicationList(apps: RegistrationApplicationView[]) {
     return (
-      <div>
+      <>
         {apps.map(ra => (
           <>
             <hr />
@@ -180,7 +178,7 @@ export class RegistrationApplications extends Component<
             />
           </>
         ))}
-      </div>
+      </>
     );
   }
 

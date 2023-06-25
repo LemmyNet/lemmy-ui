@@ -117,7 +117,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         : undefined;
 
     return (
-      <div className="admin-settings container-lg">
+      <main className="admin-settings container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -220,7 +220,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
             },
           ]}
         />
-      </div>
+      </main>
     );
   }
 
