@@ -1147,53 +1147,45 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             this.canAdmin_) &&
             this.creatorIsMod_ &&
             (!this.state.showConfirmTransferCommunity ? (
-              <li>
+              <button
+                className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                onClick={linkEvent(
+                  this,
+                  this.handleShowConfirmTransferCommunity
+                )}
+                aria-label={I18NextService.i18n.t("transfer_community")}
+              >
+                {I18NextService.i18n.t("transfer_community")}
+              </button>
+            ) : (
+              <>
+                <button
+                  className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                  aria-label={I18NextService.i18n.t("are_you_sure")}
+                >
+                  {I18NextService.i18n.t("are_you_sure")}
+                </button>
+                <button
+                  className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                  aria-label={I18NextService.i18n.t("yes")}
+                  onClick={linkEvent(this, this.handleTransferCommunity)}
+                >
+                  {this.state.transferLoading ? (
+                    <Spinner />
+                  ) : (
+                    I18NextService.i18n.t("yes")
+                  )}
+                </button>
                 <button
                   className="btn btn-link btn-animate text-muted py-0 dropdown-item"
                   onClick={linkEvent(
                     this,
-                    this.handleShowConfirmTransferCommunity
+                    this.handleCancelShowConfirmTransferCommunity
                   )}
-                  aria-label={I18NextService.i18n.t("transfer_community")}
+                  aria-label={I18NextService.i18n.t("no")}
                 >
-                  {I18NextService.i18n.t("transfer_community")}
+                  {I18NextService.i18n.t("no")}
                 </button>
-              </li>
-            ) : (
-              <>
-                <li>
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0 dropdown-item"
-                    aria-label={I18NextService.i18n.t("are_you_sure")}
-                  >
-                    {I18NextService.i18n.t("are_you_sure")}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0 dropdown-item"
-                    aria-label={I18NextService.i18n.t("yes")}
-                    onClick={linkEvent(this, this.handleTransferCommunity)}
-                  >
-                    {this.state.transferLoading ? (
-                      <Spinner />
-                    ) : (
-                      I18NextService.i18n.t("yes")
-                    )}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0 dropdown-item"
-                    onClick={linkEvent(
-                      this,
-                      this.handleCancelShowConfirmTransferCommunity
-                    )}
-                    aria-label={I18NextService.i18n.t("no")}
-                  >
-                    {I18NextService.i18n.t("no")}
-                  </button>
-                </li>
               </>
             ))}
           {/* Admins can ban from all, and appoint other admins */}
@@ -1201,18 +1193,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <>
               {!this.creatorIsAdmin_ && (
                 <>
-                  {!isBanned(post_view.creator) ? (
-                    <li>{this.modBanButton}</li>
-                  ) : (
-                    <li>{this.modUnbanButton}</li>
-                  )}
-                  <li>{this.purgePersonButton}</li>
-                  <li>{this.purgePostButton}</li>
+                  {!isBanned(post_view.creator)
+                    ? this.modBanButton
+                    : this.modUnbanButton}
+                  {this.purgePersonButton}
+                  {this.purgePostButton}
                 </>
               )}
-              {!isBanned(post_view.creator) && post_view.creator.local && (
-                <li>{this.toggleAdminButton}</li>
-              )}
+              {!isBanned(post_view.creator) &&
+                post_view.creator.local &&
+                this.toggleAdminButton}
             </>
           )}
         </div>
