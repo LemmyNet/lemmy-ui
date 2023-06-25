@@ -743,7 +743,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.unreadCount && (
           <>
             {" "}
-            <span className="text-muted fst-italic">
+            <span className="fst-italic">
               ({this.unreadCount} {I18NextService.i18n.t("new")})
             </span>
           </>
