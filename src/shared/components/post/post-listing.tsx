@@ -262,12 +262,27 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const { post } = this.postView;
     const { url } = post;
 
+    // if direct video link
     if (url && isVideo(url)) {
       return (
         <div className="embed-responsive mt-3">
           <video muted controls className="embed-responsive-item col-12">
             <source src={url} type="video/mp4" />
           </video>
+        </div>
+      );
+    }
+
+    // if embedded video link
+    if (url && post.embed_video_url) {
+      return (
+        <div className="ratio ratio-16x9">
+          <iframe
+            allowFullScreen
+            className="post-metadata-iframe"
+            src={post.embed_video_url}
+            title={post.embed_title}
+          ></iframe>
         </div>
       );
     }
@@ -338,7 +353,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </a>
       );
     } else if (url) {
-      if (!this.props.hideImage && isVideo(url)) {
+      if ((!this.props.hideImage && isVideo(url)) || post.embed_video_url) {
         return (
           <a
             className="text-body"
