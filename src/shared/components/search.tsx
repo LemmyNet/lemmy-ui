@@ -181,7 +181,7 @@ const Filter = ({
   loading: boolean;
 }) => {
   return (
-    <div className="mb-3 col-sm-6">
+    <div className="mb-3 col-sm-6 col-xl-4 col-xxl-3">
       <label className="col-form-label me-2" htmlFor={`${filterType}-filter`}>
         {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
       </label>
@@ -454,7 +454,7 @@ export class Search extends Component<any, SearchState> {
     const { type, page } = getSearchQueryParams();
 
     return (
-      <div className="search container-lg">
+      <main className="search container-flex mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -468,7 +468,7 @@ export class Search extends Component<any, SearchState> {
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
         <Paginator page={page} onChange={this.handlePageChange} />
-      </div>
+      </main>
     );
   }
 
@@ -526,12 +526,7 @@ export class Search extends Component<any, SearchState> {
       creatorSearchOptions,
       searchCommunitiesLoading,
       searchCreatorLoading,
-      communitiesRes,
     } = this.state;
-
-    const hasCommunities =
-      communitiesRes.state == "success" &&
-      communitiesRes.data.communities.length > 0;
 
     return (
       <div className="mb-2">
@@ -569,16 +564,14 @@ export class Search extends Component<any, SearchState> {
           />
         </span>
         <div className="row">
-          {hasCommunities && (
-            <Filter
-              filterType="community"
-              onChange={this.handleCommunityFilterChange}
-              onSearch={this.handleCommunitySearch}
-              options={communitySearchOptions}
-              value={communityId}
-              loading={searchCommunitiesLoading}
-            />
-          )}
+          <Filter
+            filterType="community"
+            onChange={this.handleCommunityFilterChange}
+            onSearch={this.handleCommunitySearch}
+            options={communitySearchOptions}
+            value={communityId}
+            loading={searchCommunitiesLoading}
+          />
           <Filter
             filterType="creator"
             onChange={this.handleCreatorFilterChange}
@@ -656,7 +649,7 @@ export class Search extends Component<any, SearchState> {
     const combined = this.buildCombined();
 
     return (
-      <div>
+      <>
         {combined.map(i => (
           <div key={i.published} className="row">
             <div className="col-12">
@@ -737,7 +730,7 @@ export class Search extends Component<any, SearchState> {
             </div>
           </div>
         ))}
-      </div>
+      </>
     );
   }
 

@@ -439,6 +439,8 @@ br.big {
 }
 
 input[type="checkbox"],
-.form-check label {
+.form-check label,
+select,
+option {
   cursor: pointer;
 }
