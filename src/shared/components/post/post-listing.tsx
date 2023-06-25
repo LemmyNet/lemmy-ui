@@ -718,6 +718,94 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {(this.canMod_ || this.canAdmin_) && (
               <li>{this.modRemoveButton}</li>
             )}
+
+            {this.canMod_ && (
+              <>
+                {!this.creatorIsMod_ &&
+                  (!post_view.creator_banned_from_community ? (
+                    <li>{this.modBanFromCommunityButton}</li>
+                  ) : (
+                    <li>{this.modUnbanFromCommunityButton}</li>
+                  ))}
+                {!post_view.creator_banned_from_community && (
+                  <li>{this.addModToCommunityButton}</li>
+                )}
+              </>
+            )}
+
+            {/* Community creators and admins can transfer community to another mod */}
+            {(amCommunityCreator(post_view.creator.id, this.props.moderators) ||
+              this.canAdmin_) &&
+              this.creatorIsMod_ &&
+              (!this.state.showConfirmTransferCommunity ? (
+                <li>
+                  <button
+                    className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                    onClick={linkEvent(
+                      this,
+                      this.handleShowConfirmTransferCommunity
+                    )}
+                    aria-label={I18NextService.i18n.t("transfer_community")}
+                  >
+                    {I18NextService.i18n.t("transfer_community")}
+                  </button>
+                </li>
+              ) : (
+                <>
+                  <li>
+                    <button
+                      className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                      aria-label={I18NextService.i18n.t("are_you_sure")}
+                    >
+                      {I18NextService.i18n.t("are_you_sure")}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                      aria-label={I18NextService.i18n.t("yes")}
+                      onClick={linkEvent(this, this.handleTransferCommunity)}
+                    >
+                      {this.state.transferLoading ? (
+                        <Spinner />
+                      ) : (
+                        I18NextService.i18n.t("yes")
+                      )}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+                      onClick={linkEvent(
+                        this,
+                        this.handleCancelShowConfirmTransferCommunity
+                      )}
+                      aria-label={I18NextService.i18n.t("no")}
+                    >
+                      {I18NextService.i18n.t("no")}
+                    </button>
+                  </li>
+                </>
+              ))}
+            {/* Admins can ban from all, and appoint other admins */}
+            {this.canAdmin_ && (
+              <>
+                {!this.creatorIsAdmin_ && (
+                  <>
+                    {!isBanned(post_view.creator) ? (
+                      <li>{modBanButton}</li>
+                    ) : (
+                      <li>{modUnbanButton}</li>
+                    )}
+                    <li>{purgePersonButton}</li>
+                    <li>{purgePostButton}</li>
+                  </>
+                )}
+                {!isBanned(post_view.creator) && post_view.creator.local && (
+                  <li>{toggleAdminButton}</li>
+                )}
+              </>
+            )}
           </ul>
         </div>
       </>
@@ -982,6 +1070,121 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  get modBanFromCommunityButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        onClick={linkEvent(this, this.handleModBanFromCommunityShow)}
+        aria-label={I18NextService.i18n.t("ban_from_community")}
+      >
+        {I18NextService.i18n.t("ban_from_community")}
+      </button>
+    );
+  }
+
+  get modUnbanFromCommunityButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        onClick={linkEvent(this, this.handleModBanFromCommunitySubmit)}
+        aria-label={I18NextService.i18n.t("unban")}
+      >
+        {this.state.banLoading ? <Spinner /> : I18NextService.i18n.t("unban")}
+      </button>
+    );
+  }
+
+  get addModToCommunityButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        onClick={linkEvent(this, this.handleAddModToCommunity)}
+        aria-label={
+          this.creatorIsMod_
+            ? I18NextService.i18n.t("remove_as_mod")
+            : I18NextService.i18n.t("appoint_as_mod")
+        }
+      >
+        {this.state.addModLoading ? (
+          <Spinner />
+        ) : this.creatorIsMod_ ? (
+          I18NextService.i18n.t("remove_as_mod")
+        ) : (
+          I18NextService.i18n.t("appoint_as_mod")
+        )}
+      </button>
+    );
+  }
+
+  get modBanButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        onClick={linkEvent(this, this.handleModBanShow)}
+        aria-label={I18NextService.i18n.t("ban_from_site")}
+      >
+        {I18NextService.i18n.t("ban_from_site")}
+      </button>
+    );
+  }
+
+  get modUnbanButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        onClick={linkEvent(this, this.handleModBanSubmit)}
+        aria-label={I18NextService.i18n.t("unban_from_site")}
+      >
+        {this.state.banLoading ? (
+          <Spinner />
+        ) : (
+          I18NextService.i18n.t("unban_from_site")
+        )}
+      </button>
+    );
+  }
+
+  get purgePersonButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        onClick={linkEvent(this, this.handlePurgePersonShow)}
+        aria-label={I18NextService.i18n.t("purge_user")}
+      >
+        {I18NextService.i18n.t("purge_user")}
+      </button>
+    );
+  }
+
+  get purgePostButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        onClick={linkEvent(this, this.handlePurgePostShow)}
+        aria-label={I18NextService.i18n.t("purge_post")}
+      >
+        {I18NextService.i18n.t("purge_post")}
+      </button>
+    );
+  }
+
+  get toggleAdminButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        onClick={linkEvent(this, this.handleAddAdmin)}
+      >
+        {this.state.addAdminLoading ? (
+          <Spinner />
+        ) : this.creatorIsAdmin_ ? (
+          I18NextService.i18n.t("remove_as_admin")
+        ) : (
+          I18NextService.i18n.t("appoint_as_admin")
+        )}
+      </button>
+    );
+  }
+
   get modRemoveButton() {
     const removed = this.postView.post.removed;
     return (
@@ -1011,170 +1214,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     // TODO: make nicer
     const post_view = this.postView;
     return (
-      this.state.showAdvanced && (
-        <div className="mt-3">
-          {this.canMod_ && (
-            <>
-              {!this.creatorIsMod_ &&
-                (!post_view.creator_banned_from_community ? (
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(
-                      this,
-                      this.handleModBanFromCommunityShow
-                    )}
-                    aria-label={I18NextService.i18n.t("ban_from_community")}
-                  >
-                    {I18NextService.i18n.t("ban_from_community")}
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(
-                      this,
-                      this.handleModBanFromCommunitySubmit
-                    )}
-                    aria-label={I18NextService.i18n.t("unban")}
-                  >
-                    {this.state.banLoading ? (
-                      <Spinner />
-                    ) : (
-                      I18NextService.i18n.t("unban")
-                    )}
-                  </button>
-                ))}
-              {!post_view.creator_banned_from_community && (
-                <button
-                  className="btn btn-link btn-animate text-muted py-0"
-                  onClick={linkEvent(this, this.handleAddModToCommunity)}
-                  aria-label={
-                    this.creatorIsMod_
-                      ? I18NextService.i18n.t("remove_as_mod")
-                      : I18NextService.i18n.t("appoint_as_mod")
-                  }
-                >
-                  {this.state.addModLoading ? (
-                    <Spinner />
-                  ) : this.creatorIsMod_ ? (
-                    I18NextService.i18n.t("remove_as_mod")
-                  ) : (
-                    I18NextService.i18n.t("appoint_as_mod")
-                  )}
-                </button>
-              )}
-            </>
-          )}
-          {/* Community creators and admins can transfer community to another mod */}
-          {(amCommunityCreator(post_view.creator.id, this.props.moderators) ||
-            this.canAdmin_) &&
-            this.creatorIsMod_ &&
-            (!this.state.showConfirmTransferCommunity ? (
-              <button
-                className="btn btn-link btn-animate text-muted py-0"
-                onClick={linkEvent(
-                  this,
-                  this.handleShowConfirmTransferCommunity
-                )}
-                aria-label={I18NextService.i18n.t("transfer_community")}
-              >
-                {I18NextService.i18n.t("transfer_community")}
-              </button>
-            ) : (
-              <>
-                <button
-                  className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0"
-                  aria-label={I18NextService.i18n.t("are_you_sure")}
-                >
-                  {I18NextService.i18n.t("are_you_sure")}
-                </button>
-                <button
-                  className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
-                  aria-label={I18NextService.i18n.t("yes")}
-                  onClick={linkEvent(this, this.handleTransferCommunity)}
-                >
-                  {this.state.transferLoading ? (
-                    <Spinner />
-                  ) : (
-                    I18NextService.i18n.t("yes")
-                  )}
-                </button>
-                <button
-                  className="btn btn-link btn-animate text-muted py-0 d-inline-block"
-                  onClick={linkEvent(
-                    this,
-                    this.handleCancelShowConfirmTransferCommunity
-                  )}
-                  aria-label={I18NextService.i18n.t("no")}
-                >
-                  {I18NextService.i18n.t("no")}
-                </button>
-              </>
-            ))}
-          {/* Admins can ban from all, and appoint other admins */}
-          {this.canAdmin_ && (
-            <>
-              {!this.creatorIsAdmin_ && (
-                <>
-                  {!isBanned(post_view.creator) ? (
-                    <button
-                      className="btn btn-link btn-animate text-muted py-0"
-                      onClick={linkEvent(this, this.handleModBanShow)}
-                      aria-label={I18NextService.i18n.t("ban_from_site")}
-                    >
-                      {I18NextService.i18n.t("ban_from_site")}
-                    </button>
-                  ) : (
-                    <button
-                      className="btn btn-link btn-animate text-muted py-0"
-                      onClick={linkEvent(this, this.handleModBanSubmit)}
-                      aria-label={I18NextService.i18n.t("unban_from_site")}
-                    >
-                      {this.state.banLoading ? (
-                        <Spinner />
-                      ) : (
-                        I18NextService.i18n.t("unban_from_site")
-                      )}
-                    </button>
-                  )}
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handlePurgePersonShow)}
-                    aria-label={I18NextService.i18n.t("purge_user")}
-                  >
-                    {I18NextService.i18n.t("purge_user")}
-                  </button>
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handlePurgePostShow)}
-                    aria-label={I18NextService.i18n.t("purge_post")}
-                  >
-                    {I18NextService.i18n.t("purge_post")}
-                  </button>
-                </>
-              )}
-              {!isBanned(post_view.creator) && post_view.creator.local && (
-                <button
-                  className="btn btn-link btn-animate text-muted py-0"
-                  onClick={linkEvent(this, this.handleAddAdmin)}
-                  aria-label={
-                    this.creatorIsAdmin_
-                      ? I18NextService.i18n.t("remove_as_admin")
-                      : I18NextService.i18n.t("appoint_as_admin")
-                  }
-                >
-                  {this.state.addAdminLoading ? (
-                    <Spinner />
-                  ) : this.creatorIsAdmin_ ? (
-                    I18NextService.i18n.t("remove_as_admin")
-                  ) : (
-                    I18NextService.i18n.t("appoint_as_admin")
-                  )}
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      )
+      this.state.showAdvanced && <div className="mt-3 user-actions-line"></div>
     );
   }
 
