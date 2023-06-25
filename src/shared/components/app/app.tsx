@@ -33,12 +33,13 @@ export class App extends Component<any, any> {
       <>
         <Provider i18next={I18NextService.i18n}>
           <div id="app" className="lemmy-site">
-            <a
-              className="skip-link bg-light text-dark p-2 text-decoration-none position-absolute start-0 z-3"
+            <button
+              type="button"
+              className="btn skip-link bg-light position-absolute start-0 z-3"
               onClick={linkEvent(this, this.handleJumpToContent)}
             >
-              ${I18NextService.i18n.t("jump_to_content", "Jump to content")}
-            </a>
+              {I18NextService.i18n.t("jump_to_content", "Jump to content")}
+            </button>
             {siteView && (
               <Theme defaultTheme={siteView.local_site.default_theme} />
             )}

@@ -23,15 +23,28 @@ import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
+  /**
+   * Initial content inside the textarea
+   */
   initialContent?: string;
+  /**
+   * Numerical ID of the language to select in dropdown
+   */
   initialLanguageId?: number;
   placeholder?: string;
   buttonTitle?: string;
   maxLength?: number;
+  /**
+   * Whether this form is for a reply to a Private Message.
+   * If true, a "Cancel" button is shown that will close the reply.
+   */
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
   finished?: boolean;
+  /**
+   * Whether to show the language selector
+   */
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
@@ -154,7 +167,7 @@ export class MarkdownTextArea extends Component<
                   onEmojiClick={e => this.handleEmoji(this, e)}
                   disabled={this.isDisabled}
                 ></EmojiPicker>
-                <form className="btn btn-sm text-muted font-weight-bold">
+                <form className="btn btn-sm text-muted fw-bold">
                   <label
                     htmlFor={`file-upload-${this.id}`}
                     className={`mb-0 ${
@@ -197,7 +210,7 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
                 <a
                   href={markdownHelpUrl}
-                  className="btn btn-sm text-muted font-weight-bold"
+                  className="btn btn-sm text-muted fw-bold"
                   title={I18NextService.i18n.t("formatting_help")}
                   rel={relTags}
                 >
@@ -276,19 +289,6 @@ export class MarkdownTextArea extends Component<
             {/* A flex expander */}
             <div className="flex-grow-1"></div>
 
-            {this.props.buttonTitle && (
-              <button
-                type="submit"
-                className="btn btn-sm btn-secondary ms-2"
-                disabled={this.isDisabled}
-              >
-                {this.state.loading ? (
-                  <Spinner />
-                ) : (
-                  <span>{this.props.buttonTitle}</span>
-                )}
-              </button>
-            )}
             {this.props.replyType && (
               <button
                 type="button"
@@ -298,16 +298,26 @@ export class MarkdownTextArea extends Component<
                 {I18NextService.i18n.t("cancel")}
               </button>
             )}
-            {this.state.content && (
+            <button
+              type="button"
+              disabled={!this.state.content}
+              className={classNames("btn btn-sm btn-secondary ms-2", {
+                active: this.state.previewMode,
+              })}
+              onClick={linkEvent(this, this.handlePreviewToggle)}
+            >
+              {this.state.previewMode
+                ? I18NextService.i18n.t("edit")
+                : I18NextService.i18n.t("preview")}
+            </button>
+            {this.props.buttonTitle && (
               <button
-                className={`btn btn-sm btn-secondary ms-2 ${
-                  this.state.previewMode && "active"
-                }`}
-                onClick={linkEvent(this, this.handlePreviewToggle)}
+                type="submit"
+                className="btn btn-sm btn-secondary ms-2"
+                disabled={this.isDisabled || !this.state.content}
               >
-                {this.state.previewMode
-                  ? I18NextService.i18n.t("edit")
-                  : I18NextService.i18n.t("preview")}
+                {this.state.loading && <Spinner className="me-1" />}
+                {this.props.buttonTitle}
               </button>
             )}
           </div>
