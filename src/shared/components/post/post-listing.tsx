@@ -547,7 +547,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
           {post.deleted && (
             <small
-              className="unselectable pointer ms-2 text-muted font-italic"
+              className="unselectable pointer ms-2 text-muted fst-italic"
               data-tippy-content={I18NextService.i18n.t("deleted")}
             >
               <Icon icon="trash" classes="icon-inline text-danger" />
@@ -555,7 +555,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
           {post.locked && (
             <small
-              className="unselectable pointer ms-2 text-muted font-italic"
+              className="unselectable pointer ms-2 text-muted fst-italic"
               data-tippy-content={I18NextService.i18n.t("locked")}
             >
               <Icon icon="lock" classes="icon-inline text-danger" />
@@ -563,7 +563,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
           {post.featured_community && (
             <small
-              className="unselectable pointer ms-2 text-muted font-italic"
+              className="unselectable pointer ms-2 text-muted fst-italic"
               data-tippy-content={I18NextService.i18n.t(
                 "featured_in_community"
               )}
@@ -574,7 +574,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           )}
           {post.featured_local && (
             <small
-              className="unselectable pointer ms-2 text-muted font-italic"
+              className="unselectable pointer ms-2 text-muted fst-italic"
               data-tippy-content={I18NextService.i18n.t("featured_in_local")}
               aria-label={I18NextService.i18n.t("featured_in_local")}
             >
@@ -600,7 +600,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <p className="d-flex text-muted align-items-center gap-1 small m-0">
         {url && !(hostname(url) === getExternalHost()) && (
           <a
-            className="text-muted font-italic"
+            className="text-muted fst-italic"
             href={url}
             title={url}
             rel={relTags}

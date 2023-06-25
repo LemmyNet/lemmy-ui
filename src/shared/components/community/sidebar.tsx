@@ -204,17 +204,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             </button>
           )}
           {community.removed && (
-            <small className="me-2 text-muted font-italic">
+            <small className="me-2 text-muted fst-italic">
               {I18NextService.i18n.t("removed")}
             </small>
           )}
           {community.deleted && (
-            <small className="me-2 text-muted font-italic">
+            <small className="me-2 text-muted fst-italic">
               {I18NextService.i18n.t("deleted")}
             </small>
           )}
           {community.nsfw && (
-            <small className="me-2 text-muted font-italic">
+            <small className="me-2 text-muted fst-italic">
               {I18NextService.i18n.t("nsfw")}
             </small>
           )}
@@ -309,7 +309,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const community_view = this.props.community_view;
     return (
       <>
-        <ul className="list-inline mb-1 text-muted font-weight-bold">
+        <ul className="list-inline mb-1 text-muted fw-bold">
           {amMod(this.props.moderators) && (
             <>
               <li className="list-inline-item-action">
