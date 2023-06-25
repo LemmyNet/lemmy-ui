@@ -145,6 +145,7 @@ export class PrivateMessage extends Component<
                   <>
                     <li className="list-inline-item">
                       <button
+                        type="button"
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleMarkRead)}
                         data-tippy-content={
@@ -174,6 +175,7 @@ export class PrivateMessage extends Component<
                     <li className="list-inline-item">{this.reportButton}</li>
                     <li className="list-inline-item">
                       <button
+                        type="button"
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
                         data-tippy-content={I18NextService.i18n.t("reply")}
@@ -188,6 +190,7 @@ export class PrivateMessage extends Component<
                   <>
                     <li className="list-inline-item">
                       <button
+                        type="button"
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleEditClick)}
                         data-tippy-content={I18NextService.i18n.t("edit")}
@@ -198,6 +201,7 @@ export class PrivateMessage extends Component<
                     </li>
                     <li className="list-inline-item">
                       <button
+                        type="button"
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleDeleteClick)}
                         data-tippy-content={
@@ -228,6 +232,7 @@ export class PrivateMessage extends Component<
                 )}
                 <li className="list-inline-item">
                   <button
+                    type="button"
                     className="btn btn-link btn-animate text-muted"
                     onClick={linkEvent(this, this.handleViewSource)}
                     data-tippy-content={I18NextService.i18n.t("view_source")}
@@ -276,10 +281,17 @@ export class PrivateMessage extends Component<
           </form>
         )}
         {this.state.showReply && (
-          <PrivateMessageForm
-            recipient={otherPerson}
-            onCreate={this.props.onCreate}
-          />
+          <div className="row">
+            <div className="col-sm-6">
+              <PrivateMessageForm
+                privateMessageView={message_view}
+                replyType={true}
+                recipient={otherPerson}
+                onCreate={this.props.onCreate}
+                onCancel={this.handleReplyCancel}
+              />
+            </div>
+          </div>
         )}
         {/* A collapsed clearfix */}
         {this.state.collapsed && <div className="row col-12"></div>}
@@ -290,6 +302,7 @@ export class PrivateMessage extends Component<
   get reportButton() {
     return (
       <button
+        type="button"
         className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleShowReportDialog)}
         data-tippy-content={I18NextService.i18n.t("show_report_dialog")}

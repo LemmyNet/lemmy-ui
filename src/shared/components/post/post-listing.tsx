@@ -716,13 +716,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             data-tippy-content={I18NextService.i18n.t("more")}
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            aria-controls="advancedButtonsDropdown"
+            aria-controls={`advancedButtonsDropdown${post.id}`}
             aria-label={I18NextService.i18n.t("more")}
           >
             <Icon icon="more-vertical" inline />
           </button>
 
-          <ul className="dropdown-menu" id="advancedButtonsDropdown">
+          <ul
+            className="dropdown-menu"
+            id={`advancedButtonsDropdown${post.id}`}
+          >
             {!this.myPost ? (
               <>
                 <li>{this.reportButton}</li>
