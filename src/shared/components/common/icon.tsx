@@ -35,6 +35,7 @@ export class Icon extends Component<IconProps, any> {
 
 interface SpinnerProps {
   large?: boolean;
+  className?: string;
 }
 
 export class Spinner extends Component<SpinnerProps, any> {
@@ -46,7 +47,9 @@ export class Spinner extends Component<SpinnerProps, any> {
     return (
       <Icon
         icon="spinner"
-        classes={`spin ${this.props.large && "spinner-large"}`}
+        classes={classNames("spin", this.props.className, {
+          "spinner-large": this.props.large,
+        })}
       />
     );
   }
