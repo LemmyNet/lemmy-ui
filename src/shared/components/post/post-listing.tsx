@@ -985,7 +985,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modBanFromCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleModBanFromCommunityShow)}
         aria-label={I18NextService.i18n.t("ban_from_community")}
       >
@@ -997,7 +997,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modUnbanFromCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleModBanFromCommunitySubmit)}
         aria-label={I18NextService.i18n.t("unban")}
       >
@@ -1009,7 +1009,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get addModToCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleAddModToCommunity)}
         aria-label={
           this.creatorIsMod_
@@ -1031,7 +1031,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modBanButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleModBanShow)}
         aria-label={I18NextService.i18n.t("ban_from_site")}
       >
@@ -1043,7 +1043,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modUnbanButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleModBanSubmit)}
         aria-label={I18NextService.i18n.t("unban_from_site")}
       >
@@ -1059,7 +1059,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get purgePersonButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handlePurgePersonShow)}
         aria-label={I18NextService.i18n.t("purge_user")}
       >
@@ -1071,7 +1071,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get purgePostButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handlePurgePostShow)}
         aria-label={I18NextService.i18n.t("purge_post")}
       >
@@ -1083,7 +1083,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get toggleAdminButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleAddAdmin)}
       >
         {this.state.addAdminLoading ? (
