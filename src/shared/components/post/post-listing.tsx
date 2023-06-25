@@ -1368,18 +1368,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  showBodyPreview() {
-    const { body, id } = this.postView.post;
-
-    return !this.showBody && body ? (
-      <Link className="text-body mt-2 d-block" to={`/post/${id}`}>
-        <div className="md-div mb-1 preview-lines">{body}</div>
-      </Link>
-    ) : (
-      <></>
-    );
-  }
-
   listing() {
     return (
       <>
@@ -1391,9 +1379,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
-
-              {/* Show a preview of the post body */}
-              {this.showBodyPreview()}
 
               {this.commentsLine(true)}
               {this.userActionsLine()}
@@ -1424,7 +1409,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <div className="col-12">
                   {this.postTitleLine()}
                   {this.createdLine()}
-                  {this.showBodyPreview()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
                   {this.userActionsLine()}
