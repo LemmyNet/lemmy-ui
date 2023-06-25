@@ -43,7 +43,7 @@ export class MetadataCard extends Component<
                       </h5>
                       <span className="d-inline-block ms-2 mb-2 small text-muted">
                         <a
-                          className="text-muted font-italic"
+                          className="text-muted fst-italic"
                           href={post.url}
                           rel={relTags}
                         >

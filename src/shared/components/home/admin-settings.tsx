@@ -44,7 +44,6 @@ interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
-  emojiLoading: boolean;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -59,7 +58,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     bannedRes: { state: "empty" },
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
-    emojiLoading: false,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -215,7 +213,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                       onCreate={this.handleCreateEmoji}
                       onDelete={this.handleDeleteEmoji}
                       onEdit={this.handleEditEmoji}
-                      loading={this.state.emojiLoading}
                     />
                   </div>
                 </div>
@@ -345,35 +342,23 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
-    this.setState({ emojiLoading: true });
-
     const res = await HttpService.client.editCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
-
-    this.setState({ emojiLoading: false });
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
-    this.setState({ emojiLoading: true });
-
     const res = await HttpService.client.deleteCustomEmoji(form);
     if (res.state === "success") {
       removeFromEmojiDataModel(res.data.id);
     }
-
-    this.setState({ emojiLoading: false });
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
-    this.setState({ emojiLoading: true });
-
     const res = await HttpService.client.createCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
-
-    this.setState({ emojiLoading: false });
   }
 }
