@@ -111,7 +111,7 @@ export class PrivateMessage extends Component<
             <li className="list-inline-item">
               <button
                 type="button"
-                className="pointer text-monospace btn p-0 d-block"
+                className="pointer text-monospace p-0 bg-transparent border-0 d-block"
                 onClick={linkEvent(this, this.handleMessageCollapse)}
               >
                 {this.state.collapsed ? (
