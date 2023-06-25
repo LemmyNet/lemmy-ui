@@ -397,7 +397,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <span className="small">
-        <PersonListing person={post_view.creator} />
+        <PersonListing person={post_view.creator} muted={true} />
         {this.creatorIsMod_ && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("mod")}
@@ -444,8 +444,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <Link
         className={`d-inline ${
           !post.featured_community && !post.featured_local
-            ? "text-body"
-            : "text-primary"
+            ? "link-dark"
+            : "link-primary"
         }`}
         to={`/post/${post.id}`}
         title={I18NextService.i18n.t("comments")}
@@ -470,8 +470,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <a
                 className={
                   !post.featured_community && !post.featured_local
-                    ? "text-body"
-                    : "text-primary"
+                    ? "link-dark"
+                    : "link-primary"
                 }
                 href={url}
                 title={url}
@@ -554,10 +554,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
 
     return (
-      <p className="d-flex text-muted align-items-center gap-1 small m-0">
+      <p className="small m-0">
         {url && !(hostname(url) === getExternalHost()) && (
           <a
-            className="text-muted fst-italic"
+            className="fst-italic link-dark link-opacity-75 link-opacity-100-hover"
             href={url}
             title={url}
             rel={relTags}

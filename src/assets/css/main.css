@@ -84,7 +84,7 @@
   margin-top: -6.5px;
 }
 
-.post-title a:visited {
+.post-title a:visited:not(:hover) {
   color: var(--bs-gray) !important;
 }
 
