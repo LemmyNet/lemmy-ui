@@ -85,24 +85,24 @@ export class Instances extends Component<any, InstancesState> {
       case "success": {
         const instances = this.state.instancesRes.data.federated_instances;
         return instances ? (
-          <div className="row">
-            <div className="col-md-6">
+          <>
+            <div className="col-md-6 col-xl-4">
               <h5>{I18NextService.i18n.t("linked_instances")}</h5>
               {this.itemList(instances.linked)}
             </div>
             {instances.allowed && instances.allowed.length > 0 && (
-              <div className="col-md-6">
+              <div className="col-md-6 col-xl-4">
                 <h5>{I18NextService.i18n.t("allowed_instances")}</h5>
                 {this.itemList(instances.allowed)}
               </div>
             )}
             {instances.blocked && instances.blocked.length > 0 && (
-              <div className="col-md-6">
+              <div className="col-md-6 col-xl-4">
                 <h5>{I18NextService.i18n.t("blocked_instances")}</h5>
                 {this.itemList(instances.blocked)}
               </div>
             )}
-          </div>
+          </>
         ) : (
           <></>
         );
@@ -112,7 +112,7 @@ export class Instances extends Component<any, InstancesState> {
 
   render() {
     return (
-      <div className="home-instances container-lg">
+      <div className="home-instances container-flex row mx-1 mx-md-4">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
