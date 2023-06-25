@@ -1,0 +1,10 @@
+.paginator {
+  @apply my-2;
+}
+
+.paginator__button {
+  @apply bg-green-500
+    me-2
+    py-2
+    px-3;
+}

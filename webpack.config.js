@@ -35,7 +35,7 @@ const base = {
     rules: [
       {
         test: /\.(scss|css)$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader", "postcss-loader"],
       },
       {
         test: /\.(js|jsx|tsx|ts)$/, // All ts and tsx files will be process by

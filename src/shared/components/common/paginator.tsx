@@ -1,5 +1,6 @@
 import { Component, linkEvent } from "inferno";
 import { I18NextService } from "../../services";
+import styles from "./paginator.module.scss";
 
 interface PaginatorProps {
   page: number;
@@ -12,16 +13,16 @@ export class Paginator extends Component<PaginatorProps, any> {
   }
   render() {
     return (
-      <div className="paginator my-2">
+      <div className={styles.paginator}>
         <button
-          className="btn btn-secondary me-2"
+          className={styles.paginator__button}
           disabled={this.props.page == 1}
           onClick={linkEvent(this, this.handlePrev)}
         >
           {I18NextService.i18n.t("prev")}
         </button>
         <button
-          className="btn btn-secondary"
+          className={styles.paginator__button}
           onClick={linkEvent(this, this.handleNext)}
         >
           {I18NextService.i18n.t("next")}
