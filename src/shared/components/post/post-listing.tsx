@@ -262,12 +262,27 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const { post } = this.postView;
     const { url } = post;
 
+    // if direct video link
     if (url && isVideo(url)) {
       return (
         <div className="embed-responsive mt-3">
           <video muted controls className="embed-responsive-item col-12">
             <source src={url} type="video/mp4" />
           </video>
+        </div>
+      );
+    }
+
+    // if embedded video link
+    if (url && post.embed_video_url) {
+      return (
+        <div className="ratio ratio-16x9">
+          <iframe
+            allowFullScreen
+            className="post-metadata-iframe"
+            src={post.embed_video_url}
+            title={post.embed_title}
+          ></iframe>
         </div>
       );
     }
@@ -338,7 +353,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </a>
       );
     } else if (url) {
-      if (!this.props.hideImage && isVideo(url)) {
+      if ((!this.props.hideImage && isVideo(url)) || post.embed_video_url) {
         return (
           <a
             className="text-body"
@@ -382,7 +397,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <span className="small">
-        <PersonListing person={post_view.creator} />
+        <PersonListing person={post_view.creator} muted={true} />
         {this.creatorIsMod_ && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("mod")}
@@ -429,8 +444,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <Link
         className={`d-inline ${
           !post.featured_community && !post.featured_local
-            ? "text-body"
-            : "text-primary"
+            ? "link-dark"
+            : "link-primary"
         }`}
         to={`/post/${post.id}`}
         title={I18NextService.i18n.t("comments")}
@@ -455,8 +470,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <a
                 className={
                   !post.featured_community && !post.featured_local
-                    ? "text-body"
-                    : "text-primary"
+                    ? "link-dark"
+                    : "link-primary"
                 }
                 href={url}
                 title={url}
@@ -539,10 +554,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
 
     return (
-      <p className="d-flex text-muted align-items-center gap-1 small m-0">
+      <p className="small m-0">
         {url && !(hostname(url) === getExternalHost()) && (
           <a
-            className="text-muted fst-italic"
+            className="fst-italic link-dark link-opacity-75 link-opacity-100-hover"
             href={url}
             title={url}
             rel={relTags}
@@ -726,9 +741,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <Icon icon="message-square" classes="me-1" inline />
         {post_view.counts.comments}
         {this.unreadCount && (
-          <span className="text-muted fst-italic">
-            ({this.unreadCount} {I18NextService.i18n.t("new")})
-          </span>
+          <>
+            {" "}
+            <span className="fst-italic">
+              ({this.unreadCount} {I18NextService.i18n.t("new")})
+            </span>
+          </>
         )}
       </Link>
     );
