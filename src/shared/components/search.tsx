@@ -332,7 +332,9 @@ export class Search extends Component<any, SearchState> {
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+    if (
+      !(this.state.isIsomorphic || this.props.history.location.state?.searched)
+    ) {
       const promises = [this.fetchCommunities()];
       if (this.state.searchText) {
         promises.push(this.search());
@@ -1095,7 +1097,9 @@ export class Search extends Component<any, SearchState> {
       sort: sort ?? urlSort,
     };
 
-    this.props.history.push(`/search${getQueryString(queryParams)}`);
+    this.props.history.push(`/search${getQueryString(queryParams)}`, {
+      searched: true,
+    });
 
     await this.search();
   }
