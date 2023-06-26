@@ -7,7 +7,6 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
-  CreatePostLike,
   CreatePostReport,
   DeletePost,
   EditPost,
@@ -34,7 +33,6 @@ interface PostListingsProps {
   enableNsfw?: boolean;
   viewOnly?: boolean;
   onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
   onBlockPerson(form: BlockPerson): void;
   onLockPost(form: LockPost): void;
@@ -80,7 +78,6 @@ export class PostListings extends Component<PostListingsProps, any> {
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 onPostEdit={this.props.onPostEdit}
-                onPostVote={this.props.onPostVote}
                 onPostReport={this.props.onPostReport}
                 onBlockPerson={this.props.onBlockPerson}
                 onLockPost={this.props.onLockPost}

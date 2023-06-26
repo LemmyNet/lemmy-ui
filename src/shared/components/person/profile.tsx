@@ -43,7 +43,6 @@ import {
   Community,
   CommunityModeratorView,
   CreateComment,
-  CreateCommentLike,
   CreateCommentReport,
   CreatePostLike,
   CreatePostReport,
@@ -184,7 +183,6 @@ export class Profile extends Component<
     this.handleBlockPersonAlt = this.handleBlockPersonAlt.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.handleCommentVote = this.handleCommentVote.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
@@ -349,7 +347,6 @@ export class Profile extends Component<
                 onBlockPerson={this.handleBlockPersonAlt}
                 onDeleteComment={this.handleDeleteComment}
                 onRemoveComment={this.handleRemoveComment}
-                onCommentVote={this.handleCommentVote}
                 onCommentReport={this.handleCommentReport}
                 onDistinguishComment={this.handleDistinguishComment}
                 onAddModToCommunity={this.handleAddModToCommunity}
@@ -880,11 +877,6 @@ export class Profile extends Component<
   async handleFeaturePost(form: FeaturePost) {
     const featureRes = await HttpService.client.featurePost(form);
     this.findAndUpdatePost(featureRes);
-  }
-
-  async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = await HttpService.client.likeComment(form);
-    this.findAndUpdateComment(voteRes);
   }
 
   async handlePostVote(form: CreatePostLike) {

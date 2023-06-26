@@ -58,7 +58,7 @@ import {
   VoteContentType,
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { HttpService, I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -106,6 +106,7 @@ interface CommentNodeState {
   fetchChildrenLoading: boolean;
   reportLoading: boolean;
   purgeLoading: boolean;
+  commentView?: CommentView;
 }
 
 interface CommentNodeProps {
@@ -130,7 +131,6 @@ interface CommentNodeProps {
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
   onCreateComment(form: EditComment | CreateComment): void;
   onEditComment(form: EditComment | CreateComment): void;
-  onCommentVote(form: CreateCommentLike): void;
   onBlockPerson(form: BlockPerson): void;
   onDeleteComment(form: DeleteComment): void;
   onRemoveComment(form: RemoveComment): void;
@@ -185,11 +185,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   constructor(props: any, context: any) {
     super(props, context);
 
+    this.state.commentView = this.props.node.comment_view;
+
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
+    this.onVote = this.onVote.bind(this);
   }
 
   get commentView(): CommentView {
-    return this.props.node.comment_view;
+    return this.state.commentView as CommentView;
   }
 
   get commentId(): CommentId {
@@ -443,7 +446,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       <VoteButtonsCompact
                         voteContentType={VoteContentType.Comment}
                         id={this.commentView.comment.id}
-                        onVote={this.props.onCommentVote}
+                        onVote={this.onVote}
                         enableDownvotes={this.props.enableDownvotes}
                         counts={this.commentView.counts}
                         my_vote={this.commentView.my_vote}
@@ -1151,7 +1154,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}
             onEditComment={this.props.onEditComment}
-            onCommentVote={this.props.onCommentVote}
             onBlockPerson={this.props.onBlockPerson}
             onSaveComment={this.props.onSaveComment}
             onDeleteComment={this.props.onDeleteComment}
@@ -1586,5 +1588,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       saved_only: false,
       auth: myAuth(),
     });
+  }
+
+  async onVote(form: CreateCommentLike) {
+    const response = await HttpService.client.likeComment(form);
+    if (response.state == "success") {
+      console.log("Comment vote");
+      this.setState({ commentView: response.data.comment_view });
+    } else {
+      console.error("Comment could not be voted on!");
+    }
   }
 }

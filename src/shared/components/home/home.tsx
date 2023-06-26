@@ -38,9 +38,7 @@ import {
   CommentReplyResponse,
   CommentResponse,
   CreateComment,
-  CreateCommentLike,
   CreateCommentReport,
-  CreatePostLike,
   CreatePostReport,
   DeleteComment,
   DeletePost,
@@ -247,7 +245,6 @@ export class Home extends Component<any, HomeState> {
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.handleCommentVote = this.handleCommentVote.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
@@ -260,7 +257,6 @@ export class Home extends Component<any, HomeState> {
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostEdit = this.handlePostEdit.bind(this);
-    this.handlePostVote = this.handlePostVote.bind(this);
     this.handlePostReport = this.handlePostReport.bind(this);
     this.handleLockPost = this.handleLockPost.bind(this);
     this.handleDeletePost = this.handleDeletePost.bind(this);
@@ -682,7 +678,6 @@ export class Home extends Component<any, HomeState> {
               siteLanguages={siteRes.discussion_languages}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
-              onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
               onLockPost={this.handleLockPost}
               onDeletePost={this.handleDeletePost}
@@ -725,7 +720,6 @@ export class Home extends Component<any, HomeState> {
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
-              onCommentVote={this.handleCommentVote}
               onCommentReport={this.handleCommentReport}
               onDistinguishComment={this.handleDistinguishComment}
               onAddModToCommunity={this.handleAddModToCommunity}
@@ -943,19 +937,9 @@ export class Home extends Component<any, HomeState> {
     this.findAndUpdatePost(featureRes);
   }
 
-  async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = await HttpService.client.likeComment(form);
-    this.findAndUpdateComment(voteRes);
-  }
-
   async handlePostEdit(form: EditPost) {
     const res = await HttpService.client.editPost(form);
     this.findAndUpdatePost(res);
-  }
-
-  async handlePostVote(form: CreatePostLike) {
-    const voteRes = await HttpService.client.likePost(form);
-    this.findAndUpdatePost(voteRes);
   }
 
   async handleCommentReport(form: CreateCommentReport) {

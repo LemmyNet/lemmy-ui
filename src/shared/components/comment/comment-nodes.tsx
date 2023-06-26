@@ -10,7 +10,6 @@ import {
   CommentId,
   CommunityModeratorView,
   CreateComment,
-  CreateCommentLike,
   CreateCommentReport,
   DeleteComment,
   DistinguishComment,
@@ -54,7 +53,6 @@ interface CommentNodesProps {
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
   onCreateComment(form: EditComment | CreateComment): void;
   onEditComment(form: EditComment | CreateComment): void;
-  onCommentVote(form: CreateCommentLike): void;
   onBlockPerson(form: BlockPerson): void;
   onDeleteComment(form: DeleteComment): void;
   onRemoveComment(form: RemoveComment): void;
@@ -118,7 +116,6 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               finished={this.props.finished}
               onCreateComment={this.props.onCreateComment}
               onEditComment={this.props.onEditComment}
-              onCommentVote={this.props.onCommentVote}
               onBlockPerson={this.props.onBlockPerson}
               onSaveComment={this.props.onSaveComment}
               onDeleteComment={this.props.onDeleteComment}

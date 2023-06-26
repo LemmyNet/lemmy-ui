@@ -72,7 +72,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           hideImage
           // All of these are unused, since its view only
           onPostEdit={() => {}}
-          onPostVote={() => {}}
           onPostReport={() => {}}
           onBlockPerson={() => {}}
           onLockPost={() => {}}

@@ -50,7 +50,7 @@ import {
   VoteContentType,
 } from "../../interfaces";
 import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { HttpService, I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -95,6 +95,7 @@ interface PostListingState {
   addModLoading: boolean;
   addAdminLoading: boolean;
   transferLoading: boolean;
+  postView?: PostView;
 }
 
 interface PostListingProps {
@@ -111,7 +112,6 @@ interface PostListingProps {
   enableNsfw?: boolean;
   viewOnly?: boolean;
   onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
   onBlockPerson(form: BlockPerson): void;
   onLockPost(form: LockPost): void;
@@ -163,8 +163,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   constructor(props: any, context: any) {
     super(props, context);
 
+    this.state.postView = props.post_view;
+
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
+    this.onVote = this.onVote.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
@@ -184,12 +187,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         addAdminLoading: false,
         transferLoading: false,
         imageExpanded: false,
+        postView: nextProps.post_view,
       });
     }
   }
 
   get postView(): PostView {
-    return this.props.post_view;
+    return this.state.postView as PostView;
   }
 
   render() {
@@ -621,7 +625,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
             id={this.postView.post.id}
-            onVote={this.props.onPostVote}
+            onVote={this.onVote}
             enableDownvotes={this.props.enableDownvotes}
             counts={this.postView.counts}
             my_vote={this.postView.my_vote}
@@ -632,6 +636,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           this.postActions()}
       </div>
     );
+  }
+
+  async onVote(form: CreatePostLike) {
+    const response = await HttpService.client.likePost(form);
+    if (response.state == "success") {
+      this.setState({ postView: response.data.post_view });
+    }
   }
 
   showPreviewButton() {
@@ -1439,7 +1450,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <VoteButtons
                 voteContentType={VoteContentType.Post}
                 id={this.postView.post.id}
-                onVote={this.props.onPostVote}
+                onVote={this.onVote}
                 enableDownvotes={this.props.enableDownvotes}
                 counts={this.postView.counts}
                 my_vote={this.postView.my_vote}

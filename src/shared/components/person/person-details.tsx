@@ -9,7 +9,6 @@ import {
   CommentId,
   CommentView,
   CreateComment,
-  CreateCommentLike,
   CreateCommentReport,
   CreatePostLike,
   CreatePostReport,
@@ -61,7 +60,6 @@ interface PersonDetailsProps {
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
   onCreateComment(form: CreateComment): void;
   onEditComment(form: EditComment): void;
-  onCommentVote(form: CreateCommentLike): void;
   onBlockPerson(form: BlockPerson): void;
   onDeleteComment(form: DeleteComment): void;
   onRemoveComment(form: RemoveComment): void;
@@ -154,7 +152,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}
             onEditComment={this.props.onEditComment}
-            onCommentVote={this.props.onCommentVote}
             onBlockPerson={this.props.onBlockPerson}
             onSaveComment={this.props.onSaveComment}
             onDeleteComment={this.props.onDeleteComment}
@@ -185,7 +182,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             onPostEdit={this.props.onPostEdit}
-            onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
             onBlockPerson={this.props.onBlockPerson}
             onLockPost={this.props.onLockPost}
@@ -262,7 +258,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           onPersonMentionRead={this.props.onPersonMentionRead}
           onCreateComment={this.props.onCreateComment}
           onEditComment={this.props.onEditComment}
-          onCommentVote={this.props.onCommentVote}
           onBlockPerson={this.props.onBlockPerson}
           onSaveComment={this.props.onSaveComment}
           onDeleteComment={this.props.onDeleteComment}
@@ -296,7 +291,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               onPostEdit={this.props.onPostEdit}
-              onPostVote={this.props.onPostVote}
               onPostReport={this.props.onPostReport}
               onBlockPerson={this.props.onBlockPerson}
               onLockPost={this.props.onLockPost}

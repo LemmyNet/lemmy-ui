@@ -30,7 +30,6 @@ import {
   CommentSortType,
   CommentView,
   CreateComment,
-  CreateCommentLike,
   CreateCommentReport,
   CreatePrivateMessage,
   CreatePrivateMessageReport,
@@ -144,7 +143,6 @@ export class Inbox extends Component<any, InboxState> {
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.handleCommentVote = this.handleCommentVote.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
@@ -462,7 +460,6 @@ export class Inbox extends Component<any, InboxState> {
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
             onRemoveComment={this.handleRemoveComment}
-            onCommentVote={this.handleCommentVote}
             onCommentReport={this.handleCommentReport}
             onDistinguishComment={this.handleDistinguishComment}
             onAddModToCommunity={this.handleAddModToCommunity}
@@ -501,7 +498,6 @@ export class Inbox extends Component<any, InboxState> {
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
             onRemoveComment={this.handleRemoveComment}
-            onCommentVote={this.handleCommentVote}
             onCommentReport={this.handleCommentReport}
             onDistinguishComment={this.handleDistinguishComment}
             onAddModToCommunity={this.handleAddModToCommunity}
@@ -578,7 +574,6 @@ export class Inbox extends Component<any, InboxState> {
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
-              onCommentVote={this.handleCommentVote}
               onCommentReport={this.handleCommentReport}
               onDistinguishComment={this.handleDistinguishComment}
               onAddModToCommunity={this.handleAddModToCommunity}
@@ -627,7 +622,6 @@ export class Inbox extends Component<any, InboxState> {
                 onBlockPerson={this.handleBlockPerson}
                 onDeleteComment={this.handleDeleteComment}
                 onRemoveComment={this.handleRemoveComment}
-                onCommentVote={this.handleCommentVote}
                 onCommentReport={this.handleCommentReport}
                 onDistinguishComment={this.handleDistinguishComment}
                 onAddModToCommunity={this.handleAddModToCommunity}
@@ -861,11 +855,6 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleSaveComment(form: SaveComment) {
     const res = await HttpService.client.saveComment(form);
-    this.findAndUpdateComment(res);
-  }
-
-  async handleCommentVote(form: CreateCommentLike) {
-    const res = await HttpService.client.likeComment(form);
     this.findAndUpdateComment(res);
   }
 

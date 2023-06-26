@@ -39,7 +39,6 @@ import {
   CommentResponse,
   CommunityResponse,
   CreateComment,
-  CreateCommentLike,
   CreateCommentReport,
   CreatePostLike,
   CreatePostReport,
@@ -174,7 +173,6 @@ export class Community extends Component<
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.handleCommentVote = this.handleCommentVote.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
@@ -413,7 +411,6 @@ export class Community extends Component<
               siteLanguages={site_res.discussion_languages}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
-              onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
               onLockPost={this.handleLockPost}
               onDeletePost={this.handleDeletePost}
@@ -455,7 +452,6 @@ export class Community extends Component<
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
-              onCommentVote={this.handleCommentVote}
               onCommentReport={this.handleCommentReport}
               onDistinguishComment={this.handleDistinguishComment}
               onAddModToCommunity={this.handleAddModToCommunity}
@@ -730,11 +726,6 @@ export class Community extends Component<
   async handleFeaturePost(form: FeaturePost) {
     const featureRes = await HttpService.client.featurePost(form);
     this.findAndUpdatePost(featureRes);
-  }
-
-  async handleCommentVote(form: CreateCommentLike) {
-    const voteRes = await HttpService.client.likeComment(form);
-    this.findAndUpdateComment(voteRes);
   }
 
   async handlePostEdit(form: EditPost) {
