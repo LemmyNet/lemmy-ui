@@ -167,6 +167,26 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleEditCancel = this.handleEditCancel.bind(this);
   }
 
+  componentWillReceiveProps(nextProps: PostListingProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        purgeLoading: false,
+        reportLoading: false,
+        blockLoading: false,
+        lockLoading: false,
+        deleteLoading: false,
+        removeLoading: false,
+        saveLoading: false,
+        featureCommunityLoading: false,
+        featureLocalLoading: false,
+        banLoading: false,
+        addModLoading: false,
+        addAdminLoading: false,
+        transferLoading: false,
+      });
+    }
+  }
+
   get postView(): PostView {
     return this.props.post_view;
   }
