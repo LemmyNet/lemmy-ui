@@ -315,8 +315,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 <Icon icon="shield" inline classes="text-danger me-2" />
               )}
               {this.isPostCreator && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
-                  {I18NextService.i18n.t("creator")}
+                <div className="badge text-info text-bg-light d-none d-sm-inline me-2">
+                  {I18NextService.i18n.t("op").toUpperCase()}
                 </div>
               )}
               {isMod_ && (
