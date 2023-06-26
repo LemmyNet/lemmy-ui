@@ -104,7 +104,7 @@ export class VoteButtonsCompact extends Component<
 
   render() {
     return (
-      <div>
+      <>
         <button
           type="button"
           className={`btn-animate btn py-0 px-1 ${
@@ -157,7 +157,7 @@ export class VoteButtonsCompact extends Component<
             )}
           </button>
         )}
-      </div>
+      </>
     );
   }
 }
