@@ -183,7 +183,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         addModLoading: false,
         addAdminLoading: false,
         transferLoading: false,
-        imageExpanded: false,
       });
     }
   }
