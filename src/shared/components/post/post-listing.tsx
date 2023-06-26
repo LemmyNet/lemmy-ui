@@ -42,6 +42,7 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
+import deepEqual from "lodash.isequal";
 import { relTags } from "../../config";
 import {
   BanType,
@@ -168,7 +169,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
-    if (this.props !== nextProps) {
+    if (!deepEqual(this.props, nextProps)) {
       this.setState({
         purgeLoading: false,
         reportLoading: false,
@@ -183,7 +184,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         addModLoading: false,
         addAdminLoading: false,
         transferLoading: false,
-        imageExpanded: false,
       });
     }
   }
