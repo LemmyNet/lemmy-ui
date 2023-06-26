@@ -312,7 +312,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 <PersonListing person={cv.creator} />
               </span>
               {cv.comment.distinguished && (
-                <Icon icon="shield" inline classes={`text-danger me-2`} />
+                <Icon icon="shield" inline classes="text-danger me-2" />
               )}
               {this.isPostCreator && (
                 <div className="badge text-bg-light d-none d-sm-inline me-2">
