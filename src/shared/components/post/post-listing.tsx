@@ -481,26 +481,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               this.postLink
             )}
           </h5>
-          {(url && isImage(url)) ||
-            (post.thumbnail_url && (
-              <button
-                className="btn btn-sm text-monospace text-muted d-inline-block"
-                data-tippy-content={I18NextService.i18n.t("expand_here")}
-                onClick={linkEvent(this, this.handleImageExpandClick)}
-              >
-                <Icon
-                  icon={
-                    !this.state.imageExpanded ? "plus-square" : "minus-square"
-                  }
-                  classes="icon-inline"
-                />
-              </button>
-            ))}
+
           {post.removed && (
             <small className="ms-2 badge text-bg-secondary">
               {I18NextService.i18n.t("removed")}
             </small>
           )}
+
           {post.deleted && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -509,6 +496,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="trash" classes="icon-inline text-danger" />
             </small>
           )}
+
           {post.locked && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -517,6 +505,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="lock" classes="icon-inline text-danger" />
             </small>
           )}
+
           {post.featured_community && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -528,6 +517,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="pin" classes="icon-inline text-primary" />
             </small>
           )}
+
           {post.featured_local && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -537,6 +527,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="pin" classes="icon-inline text-secondary" />
             </small>
           )}
+
           {post.nsfw && (
             <small className="ms-2 badge text-bg-danger">
               {I18NextService.i18n.t("nsfw")}
