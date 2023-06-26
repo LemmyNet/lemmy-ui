@@ -3,7 +3,7 @@
   "env": {
     "browser": true
   },
-  "plugins": ["@typescript-eslint", "jsx-a11y"],
+  "plugins": ["@typescript-eslint", "jsx-a11y", "prettier"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -41,6 +41,7 @@
     "no-var": 0,
     "prefer-const": 1,
     "prefer-rest-params": 0,
+    "prettier/prettier": "error",
     "quote-props": 0,
     "unicorn/filename-case": 0
   }
