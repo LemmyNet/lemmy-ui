@@ -1,8 +1,7 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { Post } from "lemmy-js-client";
 import * as sanitizeHtml from "sanitize-html";
-import { i18n } from "../../i18next";
-import { relTags } from "../../utils";
+import { relTags } from "../../config";
 import { Icon } from "../common/icon";
 
 interface MetadataCardProps {
@@ -17,10 +16,6 @@ export class MetadataCard extends Component<
   MetadataCardProps,
   MetadataCardState
 > {
-  state: MetadataCardState = {
-    expanded: false,
-  };
-
   constructor(props: any, context: any) {
     super(props, context);
   }
@@ -29,8 +24,8 @@ export class MetadataCard extends Component<
     const post = this.props.post;
     return (
       <>
-        {!this.state.expanded && post.embed_title && post.url && (
-          <div className="card border-secondary mt-3 mb-2">
+        {post.embed_title && post.url && (
+          <div className="post-metadata-card card border-secondary mt-3 mb-2">
             <div className="row">
               <div className="col-12">
                 <div className="card-body">
@@ -43,7 +38,7 @@ export class MetadataCard extends Component<
                       </h5>
                       <span className="d-inline-block ms-2 mb-2 small text-muted">
                         <a
-                          className="text-muted font-italic"
+                          className="text-muted fst-italic"
                           href={post.url}
                           rel={relTags}
                         >
@@ -61,27 +56,12 @@ export class MetadataCard extends Component<
                       }}
                     />
                   )}
-                  {post.embed_video_url && (
-                    <button
-                      className="mt-2 btn btn-secondary text-monospace"
-                      onClick={linkEvent(this, this.handleIframeExpand)}
-                    >
-                      {i18n.t("expand_here")}
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
           </div>
         )}
-        {this.state.expanded && post.embed_video_url && (
-          <iframe src={post.embed_video_url}></iframe>
-        )}
       </>
     );
-  }
-
-  handleIframeExpand(i: MetadataCard) {
-    i.setState({ expanded: !i.state.expanded });
   }
 }

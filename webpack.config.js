@@ -1,10 +1,13 @@
 const webpack = require("webpack");
+const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
 const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
-const merge = require("lodash/merge");
+const merge = require("lodash.merge");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
   Source code: https://github.com/LemmyNet/lemmy-ui
@@ -20,6 +23,10 @@ const base = {
   },
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
+    alias: {
+      "@": path.resolve(__dirname, "src/"),
+      "@utils": path.resolve(__dirname, "src/shared/utils/"),
+    },
   },
   performance: {
     hints: false,
@@ -148,11 +155,8 @@ const createClientConfig = (_env, mode) => {
     ],
   });
 
-  if (mode === "development") {
-    // config.cache = {
-    //   type: "filesystem",
-    //   name: "client",
-    // };
+  if (mode === "none") {
+    config.plugins.push(new BundleAnalyzerPlugin());
   }
 
   return config;

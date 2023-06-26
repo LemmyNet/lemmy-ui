@@ -1,3 +1,5 @@
+import { getRecipientIdFromProps, myAuth, setIsoData } from "@utils/app";
+import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   CreatePrivateMessage as CreatePrivateMessageI,
@@ -5,17 +7,10 @@ import {
   GetPersonDetailsResponse,
   GetSiteResponse,
 } from "lemmy-js-client";
-import { i18n } from "../../i18next";
 import { InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService } from "../../services/FirstLoadService";
+import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import {
-  RouteDataResponse,
-  getRecipientIdFromProps,
-  myAuth,
-  setIsoData,
-  toast,
-} from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
@@ -101,7 +96,7 @@ export class CreatePrivateMessage extends Component<
   get documentTitle(): string {
     if (this.state.recipientRes.state == "success") {
       const name_ = this.state.recipientRes.data.person_view.person.name;
-      return `${i18n.t("create_private_message")} - ${name_}`;
+      return `${I18NextService.i18n.t("create_private_message")} - ${name_}`;
     } else {
       return "";
     }
@@ -120,7 +115,9 @@ export class CreatePrivateMessage extends Component<
         return (
           <div className="row">
             <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-              <h5>{i18n.t("create_private_message")}</h5>
+              <h1 className="h4">
+                {I18NextService.i18n.t("create_private_message")}
+              </h1>
               <PrivateMessageForm
                 onCreate={this.handlePrivateMessageCreate}
                 recipient={res.person_view.person}
@@ -134,7 +131,7 @@ export class CreatePrivateMessage extends Component<
 
   render() {
     return (
-      <div className="container-lg">
+      <div className="create-private-message container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -148,7 +145,7 @@ export class CreatePrivateMessage extends Component<
     const res = await HttpService.client.createPrivateMessage(form);
 
     if (res.state == "success") {
-      toast(i18n.t("message_sent"));
+      toast(I18NextService.i18n.t("message_sent"));
 
       // Navigate to the front
       this.context.router.history.push("/");

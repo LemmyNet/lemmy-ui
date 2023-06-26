@@ -1,5 +1,5 @@
 import { Component, linkEvent } from "inferno";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 import { EmojiMart } from "./emoji-mart";
 import { Icon } from "./icon";
 
@@ -10,6 +10,10 @@ interface EmojiPickerProps {
 
 interface EmojiPickerState {
   showPicker: boolean;
+}
+
+function closeEmojiMartOnEsc(i, event): void {
+  event.key === "Escape" && i.setState({ showPicker: false });
 }
 
 export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
@@ -23,13 +27,14 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
     this.state = this.emptyState;
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
+
   render() {
     return (
-      <span>
+      <span className="emoji-picker">
         <button
           className="btn btn-sm text-muted"
-          data-tippy-content={i18n.t("emoji")}
-          aria-label={i18n.t("emoji")}
+          data-tippy-content={I18NextService.i18n.t("emoji")}
+          aria-label={I18NextService.i18n.t("emoji")}
           disabled={this.props.disabled}
           onClick={linkEvent(this, this.togglePicker)}
         >
@@ -38,25 +43,36 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
 
         {this.state.showPicker && (
           <>
-            <div className="emoji-picker-container">
-              <EmojiMart
-                onEmojiClick={this.handleEmojiClick}
-                pickerOptions={{}}
-              ></EmojiMart>
+            <div className="position-relative" role="dialog">
+              <div className="emoji-picker-container">
+                <EmojiMart
+                  onEmojiClick={this.handleEmojiClick}
+                  pickerOptions={{}}
+                ></EmojiMart>
+              </div>
+              {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+              <div
+                onClick={linkEvent(this, this.togglePicker)}
+                className="click-away-container"
+              />
             </div>
-            <div
-              onClick={linkEvent(this, this.togglePicker)}
-              className="click-away-container"
-            />
           </>
         )}
       </span>
     );
   }
 
+  componentWillUnmount() {
+    document.removeEventListener("keyup", e => closeEmojiMartOnEsc(this, e));
+  }
+
   togglePicker(i: EmojiPicker, e: any) {
     e.preventDefault();
     i.setState({ showPicker: !i.state.showPicker });
+
+    i.state.showPicker
+      ? document.addEventListener("keyup", e => closeEmojiMartOnEsc(i, e))
+      : document.removeEventListener("keyup", e => closeEmojiMartOnEsc(i, e));
   }
 
   handleEmojiClick(e: any) {

@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Component } from "inferno";
-import { i18n } from "../../i18next";
+import { I18NextService } from "../../services";
 
 interface IconProps {
   icon: string;
@@ -35,6 +35,7 @@ export class Icon extends Component<IconProps, any> {
 
 interface SpinnerProps {
   large?: boolean;
+  className?: string;
 }
 
 export class Spinner extends Component<SpinnerProps, any> {
@@ -46,7 +47,9 @@ export class Spinner extends Component<SpinnerProps, any> {
     return (
       <Icon
         icon="spinner"
-        classes={`spin ${this.props.large && "spinner-large"}`}
+        classes={classNames("spin", this.props.className, {
+          "spinner-large": this.props.large,
+        })}
       />
     );
   }
@@ -59,9 +62,9 @@ export class PurgeWarning extends Component<any, any> {
 
   render() {
     return (
-      <div className="mt-2 alert alert-danger" role="alert">
+      <div className="purge-warning mt-2 alert alert-danger" role="alert">
         <Icon icon="alert-triangle" classes="icon-inline me-2" />
-        {i18n.t("purge_warning")}
+        {I18NextService.i18n.t("purge_warning")}
       </div>
     );
   }

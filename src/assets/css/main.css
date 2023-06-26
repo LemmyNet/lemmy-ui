@@ -21,7 +21,7 @@
 }
 
 .upvote:hover {
-  color: var(--info);
+  color: var(--bs-info);
 }
 
 .upvote {
@@ -29,7 +29,7 @@
 }
 
 .downvote:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .downvote {
@@ -84,8 +84,8 @@
   margin-top: -6.5px;
 }
 
-.post-title a:visited {
-  color: var(--gray) !important;
+.post-title a:visited:not(:hover) {
+  color: var(--bs-gray) !important;
 }
 
 .icon {
@@ -124,7 +124,8 @@
 
 .emoji-picker-container {
   position: absolute;
-  top: 30px;
+  top: 0;
+  left: 50%;
   z-index: 1000;
   transform: translateX(-50%);
 }
@@ -175,7 +176,7 @@
 }
 
 blockquote {
-  border-left: 2px solid var(--secondary);
+  border-left: 2px solid var(--bs-secondary);
   margin: 0.5em 5px;
   padding: 0.1em 5px;
 }
@@ -214,7 +215,7 @@ blockquote {
 }
 
 hr {
-  border-top: 1px solid var(--light);
+  border-top: 1px solid var(--bs-light);
 }
 
 .emoji {
@@ -275,10 +276,7 @@ hr {
 }
 
 .mini-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 2px;
+  display: block;
   height: 1.5em;
   width: 1.5em;
   background: rgba(0, 0, 0, 0.4);
@@ -371,7 +369,7 @@ br.big {
   margin-top: 2px;
   padding: 0;
   list-style: none;
-  background: var(--light);
+  background: var(--bs-light);
 }
 
 .tribute-container li {
@@ -380,7 +378,7 @@ br.big {
 }
 
 .tribute-container li.highlight {
-  background: var(--primary);
+  background: var(--bs-primary);
 }
 
 .tribute-container li span {
@@ -415,7 +413,7 @@ br.big {
   -webkit-box-orient: vertical;
 }
 
-.emoji-picker {
+#emoji-picker {
   width: 100%;
 }
 

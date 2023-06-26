@@ -1,3 +1,5 @@
+import { isBrowser } from "@utils/browser";
+
 export class FirstLoadService {
   #isFirstLoad: boolean;
   static #instance: FirstLoadService;
@@ -15,11 +17,19 @@ export class FirstLoadService {
     return isFirst;
   }
 
+  falsify() {
+    this.#isFirstLoad = false;
+  }
+
   static get #Instance() {
     return this.#instance ?? (this.#instance = new this());
   }
 
   static get isFirstLoad() {
-    return this.#Instance.isFirstLoad;
+    return !isBrowser() || this.#Instance.isFirstLoad;
+  }
+
+  static falsify() {
+    this.#Instance.falsify();
   }
 }

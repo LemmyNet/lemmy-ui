@@ -1,8 +1,8 @@
+import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { myAuthRequired } from "../../utils";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
@@ -37,7 +37,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const r = this.props.report;
     const resolver = r.resolver;
     const post = r.post;
-    const tippyContent = i18n.t(
+    const tippyContent = I18NextService.i18n.t(
       r.post_report.resolved ? "unresolve_report" : "resolve_report"
     );
 
@@ -60,7 +60,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     };
 
     return (
-      <div>
+      <div className="post-report">
         <PostListing
           post_view={pv}
           showCommunity={true}
@@ -89,10 +89,11 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onTransferCommunity={() => {}}
         />
         <div>
-          {i18n.t("reporter")}: <PersonListing person={r.creator} />
+          {I18NextService.i18n.t("reporter")}:{" "}
+          <PersonListing person={r.creator} />
         </div>
         <div>
-          {i18n.t("reason")}: {r.post_report.reason}
+          {I18NextService.i18n.t("reason")}: {r.post_report.reason}
         </div>
         {resolver && (
           <div>

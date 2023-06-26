@@ -1,26 +1,21 @@
+import { isBrowser } from "@utils/browser";
+import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Language } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { HttpService, UserService } from "../../services";
 import {
   concurrentImageUpload,
-  customEmojisLookup,
-  isBrowser,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
   maxUploadImages,
-  mdToHtml,
-  numToSI,
-  pictrsDeleteToast,
-  randomStr,
   relTags,
-  setupTippy,
-  setupTribute,
-  toast,
-} from "../../utils";
+} from "../../config";
+import { customEmojisLookup, mdToHtml, setupTribute } from "../../markdown";
+import { HttpService, I18NextService, UserService } from "../../services";
+import { setupTippy } from "../../tippy";
+import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
@@ -28,15 +23,28 @@ import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
+  /**
+   * Initial content inside the textarea
+   */
   initialContent?: string;
+  /**
+   * Numerical ID of the language to select in dropdown
+   */
   initialLanguageId?: number;
   placeholder?: string;
   buttonTitle?: string;
   maxLength?: number;
+  /**
+   * Whether this form is for a reply to a Private Message.
+   * If true, a "Cancel" button is shown that will close the reply.
+   */
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
   finished?: boolean;
+  /**
+   * Whether to show the language selector
+   */
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
@@ -133,10 +141,14 @@ export class MarkdownTextArea extends Component<
     // TODO add these prompts back in at some point
     // <Prompt
     //   when={!this.props.hideNavigationWarnings && this.state.content}
-    //   message={i18n.t("block_leaving")}
+    //   message={I18NextService.i18n.t("block_leaving")}
     // />
     return (
-      <form id={this.formId} onSubmit={linkEvent(this, this.handleSubmit)}>
+      <form
+        className="markdown-textarea"
+        id={this.formId}
+        onSubmit={linkEvent(this, this.handleSubmit)}
+      >
         <NavigationPrompt
           when={
             !this.props.hideNavigationWarnings &&
@@ -155,13 +167,13 @@ export class MarkdownTextArea extends Component<
                   onEmojiClick={e => this.handleEmoji(this, e)}
                   disabled={this.isDisabled}
                 ></EmojiPicker>
-                <form className="btn btn-sm text-muted font-weight-bold">
+                <form className="btn btn-sm text-muted fw-bold">
                   <label
                     htmlFor={`file-upload-${this.id}`}
                     className={`mb-0 ${
                       UserService.Instance.myUserInfo && "pointer"
                     }`}
-                    data-tippy-content={i18n.t("upload_image")}
+                    data-tippy-content={I18NextService.i18n.t("upload_image")}
                   >
                     {this.state.imageUploadStatus ? (
                       <Spinner />
@@ -198,8 +210,8 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
                 <a
                   href={markdownHelpUrl}
-                  className="btn btn-sm text-muted font-weight-bold"
-                  title={i18n.t("formatting_help")}
+                  className="btn btn-sm text-muted fw-bold"
+                  title={I18NextService.i18n.t("formatting_help")}
                   rel={relTags}
                 >
                   <Icon icon="help-circle" classes="icon-inline" />
@@ -241,15 +253,17 @@ export class MarkdownTextArea extends Component<
                       animated
                       value={this.state.imageUploadStatus.uploaded}
                       max={this.state.imageUploadStatus.total}
-                      text={i18n.t("pictures_uploded_progess", {
-                        uploaded: this.state.imageUploadStatus.uploaded,
-                        total: this.state.imageUploadStatus.total,
-                      })}
+                      text={
+                        I18NextService.i18n.t("pictures_uploded_progess", {
+                          uploaded: this.state.imageUploadStatus.uploaded,
+                          total: this.state.imageUploadStatus.total,
+                        }) ?? undefined
+                      }
                     />
                   )}
               </div>
               <label className="visually-hidden" htmlFor={this.id}>
-                {i18n.t("body")}
+                {I18NextService.i18n.t("body")}
               </label>
             </div>
           </div>
@@ -259,8 +273,12 @@ export class MarkdownTextArea extends Component<
               <LanguageSelect
                 iconVersion
                 allLanguages={this.props.allLanguages}
+                // Only set the selected language ID if it exists as an option
+                // in the dropdown; otherwise, set it to 0 (Undetermined)
                 selectedLanguageIds={
-                  languageId ? Array.of(languageId) : undefined
+                  languageId && this.props.siteLanguages.includes(languageId)
+                    ? [languageId]
+                    : [0]
                 }
                 siteLanguages={this.props.siteLanguages}
                 onChange={this.handleLanguageChange}
@@ -271,36 +289,35 @@ export class MarkdownTextArea extends Component<
             {/* A flex expander */}
             <div className="flex-grow-1"></div>
 
-            {this.props.buttonTitle && (
-              <button
-                type="submit"
-                className="btn btn-sm btn-secondary ms-2"
-                disabled={this.isDisabled}
-              >
-                {this.state.loading ? (
-                  <Spinner />
-                ) : (
-                  <span>{this.props.buttonTitle}</span>
-                )}
-              </button>
-            )}
             {this.props.replyType && (
               <button
                 type="button"
                 className="btn btn-sm btn-secondary ms-2"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
-                {i18n.t("cancel")}
+                {I18NextService.i18n.t("cancel")}
               </button>
             )}
-            {this.state.content && (
+            <button
+              type="button"
+              disabled={!this.state.content}
+              className={classNames("btn btn-sm btn-secondary ms-2", {
+                active: this.state.previewMode,
+              })}
+              onClick={linkEvent(this, this.handlePreviewToggle)}
+            >
+              {this.state.previewMode
+                ? I18NextService.i18n.t("edit")
+                : I18NextService.i18n.t("preview")}
+            </button>
+            {this.props.buttonTitle && (
               <button
-                className={`btn btn-sm btn-secondary ms-2 ${
-                  this.state.previewMode && "active"
-                }`}
-                onClick={linkEvent(this, this.handlePreviewToggle)}
+                type="submit"
+                className="btn btn-sm btn-secondary ms-2"
+                disabled={this.isDisabled || !this.state.content}
               >
-                {this.state.previewMode ? i18n.t("edit") : i18n.t("preview")}
+                {this.state.loading && <Spinner className="me-1" />}
+                {this.props.buttonTitle}
               </button>
             )}
           </div>
@@ -332,8 +349,8 @@ export class MarkdownTextArea extends Component<
     return (
       <button
         className="btn btn-sm text-muted"
-        data-tippy-content={i18n.t(type)}
-        aria-label={i18n.t(type)}
+        data-tippy-content={I18NextService.i18n.t(type)}
+        aria-label={I18NextService.i18n.t(type)}
         onClick={linkEvent(this, handleClick)}
         disabled={this.isDisabled}
       >
@@ -376,7 +393,7 @@ export class MarkdownTextArea extends Component<
 
     if (files.length > maxUploadImages) {
       toast(
-        i18n.t("too_many_images_upload", {
+        I18NextService.i18n.t("too_many_images_upload", {
           count: Number(maxUploadImages),
           formattedCount: numToSI(maxUploadImages),
         }),
@@ -677,7 +694,7 @@ export class MarkdownTextArea extends Component<
 
   handleInsertSpoiler(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    const beforeChars = `\n::: spoiler ${i18n.t("spoiler")}\n`;
+    const beforeChars = `\n::: spoiler ${I18NextService.i18n.t("spoiler")}\n`;
     const afterChars = "\n:::\n";
     i.simpleSurroundBeforeAfter(beforeChars, afterChars);
   }

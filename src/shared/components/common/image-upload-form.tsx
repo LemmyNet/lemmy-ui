@@ -1,7 +1,7 @@
+import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
-import { i18n } from "../../i18next";
-import { HttpService, UserService } from "../../services";
-import { randomStr, toast } from "../../utils";
+import { HttpService, I18NextService, UserService } from "../../services";
+import { toast } from "../../toast";
 import { Icon } from "./icon";
 
 interface ImageUploadFormProps {
@@ -32,14 +32,13 @@ export class ImageUploadForm extends Component<
 
   render() {
     return (
-      <form className="d-inline">
-        <label
-          htmlFor={this.id}
-          className="pointer text-muted small font-weight-bold"
-        >
+      <form className="image-upload-form d-inline">
+        <label htmlFor={this.id} className="pointer text-muted small fw-bold">
           {this.props.imageSrc ? (
             <span className="d-inline-block position-relative">
+              {/* TODO: Create "Current Iamge" translation for alt text */}
               <img
+                alt=""
                 src={this.props.imageSrc}
                 height={this.props.rounded ? 60 : ""}
                 width={this.props.rounded ? 60 : ""}
@@ -47,12 +46,14 @@ export class ImageUploadForm extends Component<
                   this.props.rounded ? "rounded-circle" : ""
                 }`}
               />
-              <a
+              <button
+                className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
+                type="button"
                 onClick={linkEvent(this, this.handleRemoveImage)}
-                aria-label={i18n.t("remove")}
+                aria-label={I18NextService.i18n.t("remove")}
               >
                 <Icon icon="x" classes="mini-overlay" />
-              </a>
+              </button>
             </span>
           ) : (
             <span className="btn btn-secondary">{this.props.uploadTitle}</span>

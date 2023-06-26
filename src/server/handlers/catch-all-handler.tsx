@@ -1,10 +1,13 @@
+import { initializeSite, isAuthPath } from "@utils/app";
+import { getHttpBaseInternal } from "@utils/env";
+import { ErrorPageData } from "@utils/types";
+import fetch from "cross-fetch";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { renderToString } from "inferno-server";
 import IsomorphicCookie from "isomorphic-cookie";
 import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import { App } from "../../shared/components/app/app";
-import { getHttpBaseInternal } from "../../shared/env";
 import {
   InitialFetchRequest,
   IsoDataOptionalSite,
@@ -15,7 +18,6 @@ import {
   FailedRequestState,
   wrapClient,
 } from "../../shared/services/HttpService";
-import { ErrorPageData, initializeSite, isAuthPath } from "../../shared/utils";
 import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
@@ -28,7 +30,9 @@ export default async (req: Request, res: Response) => {
     const getSiteForm: GetSite = { auth };
 
     const headers = setForwardedHeaders(req.headers);
-    const client = wrapClient(new LemmyHttp(getHttpBaseInternal(), headers));
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers })
+    );
 
     const { path, url, query } = req;
 

@@ -18,7 +18,11 @@
     "noImplicitReturns": true,
     "experimentalDecorators": true,
     "strictNullChecks": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@/*": ["/*"],
+      "@utils/*": ["shared/utils/*"]
+    }
   },
   "include": [
     "src/**/*.ts",
