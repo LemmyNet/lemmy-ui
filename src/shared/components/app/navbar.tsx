@@ -1,18 +1,12 @@
-import { myAuth, showAvatars } from "@utils/app";
+import { showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { numToSI, poll } from "@utils/helpers";
+import { numToSI } from "@utils/helpers";
 import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
-import {
-  GetReportCountResponse,
-  GetSiteResponse,
-  GetUnreadCountResponse,
-  GetUnreadRegistrationApplicationCountResponse,
-} from "lemmy-js-client";
-import { donateLemmyUrl, updateUnreadCountsInterval } from "../../config";
-import { I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import { GetSiteResponse } from "lemmy-js-client";
+import { donateLemmyUrl } from "../../config";
+import { I18NextService, InboxService, UserService } from "../../services";
 import { toast } from "../../toast";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
@@ -22,9 +16,6 @@ interface NavbarProps {
 }
 
 interface NavbarState {
-  unreadInboxCountRes: RequestState<GetUnreadCountResponse>;
-  unreadReportCountRes: RequestState<GetReportCountResponse>;
-  unreadApplicationCountRes: RequestState<GetUnreadRegistrationApplicationCountResponse>;
   onSiteBanner?(url: string): any;
 }
 
@@ -44,11 +35,6 @@ function handleLogOut(i: Navbar) {
 }
 
 export class Navbar extends Component<NavbarProps, NavbarState> {
-  state: NavbarState = {
-    unreadInboxCountRes: { state: "empty" },
-    unreadReportCountRes: { state: "empty" },
-    unreadApplicationCountRes: { state: "empty" },
-  };
   collapseButtonRef = createRef<HTMLButtonElement>();
   mobileMenuRef = createRef<HTMLDivElement>();
 
@@ -58,13 +44,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     this.handleOutsideMenuClick = this.handleOutsideMenuClick.bind(this);
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
-      this.fetchUnreads();
-      this.requestNotificationPermission();
+
+      InboxService.fetchUnreadCounts();
 
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
     }
@@ -102,7 +88,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 to="/inbox"
                 className="p-1 nav-link border-0 nav-messages"
                 title={I18NextService.i18n.t("unread_messages", {
-                  count: Number(this.state.unreadApplicationCountRes.state),
+                  count: Number(this.unreadInboxCount),
                   formattedCount: numToSI(this.unreadInboxCount),
                 })}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -443,67 +429,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     return amAdmin() || moderatesS;
   }
 
-  fetchUnreads() {
-    poll(async () => {
-      if (window.document.visibilityState !== "hidden") {
-        const auth = myAuth();
-        if (auth) {
-          this.setState({
-            unreadInboxCountRes: await HttpService.client.getUnreadCount({
-              auth,
-            }),
-          });
-
-          if (this.moderatesSomething) {
-            this.setState({
-              unreadReportCountRes: await HttpService.client.getReportCount({
-                auth,
-              }),
-            });
-          }
-
-          if (amAdmin()) {
-            this.setState({
-              unreadApplicationCountRes:
-                await HttpService.client.getUnreadRegistrationApplicationCount({
-                  auth,
-                }),
-            });
-          }
-        }
-      }
-    }, updateUnreadCountsInterval);
+  get unreadInboxCount() {
+    return InboxService.unreadInboxCount;
   }
 
-  get unreadInboxCount(): number {
-    if (this.state.unreadInboxCountRes.state == "success") {
-      const data = this.state.unreadInboxCountRes.data;
-      return data.replies + data.mentions + data.private_messages;
-    } else {
-      return 0;
-    }
+  get unreadReportCount() {
+    return InboxService.unreadReportCount;
   }
 
-  get unreadReportCount(): number {
-    if (this.state.unreadReportCountRes.state == "success") {
-      const data = this.state.unreadReportCountRes.data;
-      return (
-        data.post_reports +
-        data.comment_reports +
-        (data.private_message_reports ?? 0)
-      );
-    } else {
-      return 0;
-    }
-  }
-
-  get unreadApplicationCount(): number {
-    if (this.state.unreadApplicationCountRes.state == "success") {
-      const data = this.state.unreadApplicationCountRes.data;
-      return data.registration_applications;
-    } else {
-      return 0;
-    }
+  get unreadApplicationCount() {
+    return InboxService.unreadApplicationCount;
   }
 
   get currentLocation() {

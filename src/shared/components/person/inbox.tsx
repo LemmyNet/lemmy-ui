@@ -60,7 +60,12 @@ import {
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import {
+  FirstLoadService,
+  I18NextService,
+  InboxService,
+  UserService,
+} from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -786,6 +791,8 @@ export class Inbox extends Component<any, InboxState> {
         mentionsRes: { state: "empty" },
         messagesRes: { state: "empty" },
       });
+
+      InboxService.fetchUnreadCounts();
     }
   }
 
