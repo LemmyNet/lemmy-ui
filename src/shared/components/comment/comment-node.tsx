@@ -1593,10 +1593,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   async onVote(form: CreateCommentLike) {
     const response = await HttpService.client.likeComment(form);
     if (response.state == "success") {
-      console.log("Comment vote");
       this.setState({ commentView: response.data.comment_view });
     } else {
-      console.error("Comment could not be voted on!");
+      console.error("Comment could not be voted on.");
     }
   }
 }

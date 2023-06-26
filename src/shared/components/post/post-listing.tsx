@@ -642,6 +642,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const response = await HttpService.client.likePost(form);
     if (response.state == "success") {
       this.setState({ postView: response.data.post_view });
+    } else {
+      console.error("Comment could not be voted on.");
     }
   }
 
