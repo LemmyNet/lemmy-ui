@@ -88,15 +88,6 @@
   color: var(--bs-gray) !important;
 }
 
-input[type="file"]::file-selector-button {
-  font: inherit;
-  border: 0;
-  padding: 0.375em 0.75em;
-  border-radius: var(--bs-border-radius);
-  background-color: var(--bs-secondary);
-  color: var(--bs-white);
-}
-
 .icon {
   display: inline-grid;
   display: inline-flex;

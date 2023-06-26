@@ -133,6 +133,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                       )}
                       {cv.image_url.length === 0 && (
                         <label
+                          // TODO: Fix this linting violation
                           // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                           tabIndex={0}
                           className="btn btn-sm btn-secondary pointer"

@@ -390,15 +390,17 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {capitalizeFirstLetter(I18NextService.i18n.t("image"))}
             <Icon icon="image" classes="icon-inline ms-1" />
           </label>
-          <input
-            id="file-upload"
-            type="file"
-            accept="image/*,video/*"
-            name="file"
-            className="small col-sm-10"
-            disabled={!UserService.Instance.myUserInfo}
-            onChange={linkEvent(this, handleImageUpload)}
-          />
+          <div className="col-sm-10">
+            <input
+              id="file-upload"
+              type="file"
+              accept="image/*,video/*"
+              name="file"
+              className="small col-sm-10 form-control"
+              disabled={!UserService.Instance.myUserInfo}
+              onChange={linkEvent(this, handleImageUpload)}
+            />
+          </div>
           {this.state.imageLoading && <Spinner />}
           {url && isImage(url) && (
             <img src={url} className="img-fluid" alt="" />

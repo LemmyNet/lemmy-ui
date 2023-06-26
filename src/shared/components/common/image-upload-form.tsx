@@ -59,7 +59,7 @@ export class ImageUploadForm extends Component<
           id={this.id}
           type="file"
           accept="image/*,video/*"
-          className="small"
+          className="small form-control"
           name={this.id}
           disabled={!UserService.Instance.myUserInfo}
           onChange={linkEvent(this, this.handleImageUpload)}

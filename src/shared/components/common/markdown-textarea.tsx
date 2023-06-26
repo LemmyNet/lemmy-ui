@@ -170,6 +170,9 @@ export class MarkdownTextArea extends Component<
                 <form className="btn btn-sm text-muted fw-bold">
                   <label
                     htmlFor={`file-upload-${this.id}`}
+                    // TODO: Fix this linting violation
+                    // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                    tabIndex={0}
                     className={`mb-0 ${
                       UserService.Instance.myUserInfo && "pointer"
                     }`}
