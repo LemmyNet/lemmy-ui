@@ -106,7 +106,6 @@ interface PostListingProps {
   siteLanguages: number[];
   showCommunity?: boolean;
   showBody?: boolean;
-  smallAvatars?: boolean;
   hideImage?: boolean;
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
