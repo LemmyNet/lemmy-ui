@@ -1407,7 +1407,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-none d-sm-block">
           <article className="row post-container">
             {!this.props.viewOnly && (
-              <div className="col-auto">
+              <div className="col flex-grow-0">
                 <VoteButtons
                   voteContentType={VoteContentType.Post}
                   id={this.postView.post.id}
@@ -1418,7 +1418,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 />
               </div>
             )}
-            <div className="col-sm-10">
+            <div className="col flex-grow-1">
               <div className="row">
                 <div className="col-sm-3 col-lg-2 pe-0 post-media">
                   <div className="">{this.thumbnail()}</div>
