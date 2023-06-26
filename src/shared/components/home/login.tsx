@@ -1,12 +1,11 @@
 import { myAuth, setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
-import { isBrowser, myAuth, setIsoData, toast } from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -110,7 +109,7 @@ export class Login extends Component<any, State> {
                 className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
                 to="/login_reset"
               >
-                {i18n.t("forgot_password")}
+                {I18NextService.i18n.t("forgot_password")}
               </NavLink>
             </div>
           </div>
