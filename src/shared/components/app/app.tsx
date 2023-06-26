@@ -4,7 +4,7 @@ import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { routes } from "../../routes";
-import { I18NextService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import AuthGuard from "../common/auth-guard";
 import ErrorGuard from "../common/error-guard";
 import { ErrorPage } from "./error-page";
@@ -33,39 +33,48 @@ export class App extends Component<any, any> {
       <>
         <Provider i18next={I18NextService.i18n}>
           <div id="app" className="lemmy-site">
-            <a
-              className="skip-link bg-light text-dark p-2 text-decoration-none position-absolute start-0 z-3"
+            <button
+              type="button"
+              className="btn skip-link bg-light position-absolute start-0 z-3"
               onClick={linkEvent(this, this.handleJumpToContent)}
             >
-              ${I18NextService.i18n.t("jump_to_content", "Jump to content")}
-            </a>
+              {I18NextService.i18n.t("jump_to_content", "Jump to content")}
+            </button>
             {siteView && (
               <Theme defaultTheme={siteView.local_site.default_theme} />
             )}
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
               <Switch>
-                {routes.map(({ path, component: RouteComponent }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    exact
-                    component={routeProps => (
-                      <ErrorGuard>
-                        <main tabIndex={-1} ref={this.mainContentRef}>
-                          {RouteComponent &&
-                            (isAuthPath(path ?? "") ? (
-                              <AuthGuard>
-                                <RouteComponent {...routeProps} />
-                              </AuthGuard>
-                            ) : (
-                              <RouteComponent {...routeProps} />
-                            ))}
-                        </main>
-                      </ErrorGuard>
-                    )}
-                  />
-                ))}
+                {routes.map(
+                  ({ path, component: RouteComponent, fetchInitialData }) => (
+                    <Route
+                      key={path}
+                      path={path}
+                      exact
+                      component={routeProps => {
+                        if (!fetchInitialData) {
+                          FirstLoadService.falsify();
+                        }
+
+                        return (
+                          <ErrorGuard>
+                            <div tabIndex={-1}>
+                              {RouteComponent &&
+                                (isAuthPath(path ?? "") ? (
+                                  <AuthGuard>
+                                    <RouteComponent {...routeProps} />
+                                  </AuthGuard>
+                                ) : (
+                                  <RouteComponent {...routeProps} />
+                                ))}
+                            </div>
+                          </ErrorGuard>
+                        );
+                      }}
+                    />
+                  )
+                )}
                 <Route component={ErrorPage} />
               </Switch>
             </div>

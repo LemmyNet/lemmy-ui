@@ -23,6 +23,8 @@ import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
+import format from "date-fns/format";
+import parseISO from "date-fns/parseISO";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -70,7 +72,6 @@ import {
   SortType,
   TransferCommunity,
 } from "lemmy-js-client";
-import moment from "moment";
 import { fetchLimit, relTags } from "../../config";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
@@ -614,10 +615,7 @@ export class Profile extends Component<
                 <Icon icon="cake" />
                 <span className="ms-2">
                   {I18NextService.i18n.t("cake_day_title")}{" "}
-                  {moment
-                    .utc(pv.person.published)
-                    .local()
-                    .format("MMM DD, YYYY")}
+                  {format(parseISO(pv.person.published), "PPP")}
                 </span>
               </div>
               {!UserService.Instance.myUserInfo && (
@@ -650,12 +648,12 @@ export class Profile extends Component<
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
             />
-            <label className="col-form-label" htmlFor={`mod-ban-expires`}>
+            <label className="col-form-label" htmlFor="mod-ban-expires">
               {I18NextService.i18n.t("expires")}
             </label>
             <input
               type="number"
-              id={`mod-ban-expires`}
+              id="mod-ban-expires"
               className="form-control me-2"
               placeholder={I18NextService.i18n.t("number_of_days")}
               value={this.state.banExpireDays}
