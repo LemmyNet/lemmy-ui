@@ -106,7 +106,7 @@ interface PostListingProps {
   siteLanguages: number[];
   showCommunity?: boolean;
   showBody?: boolean;
-  hideAvatars?: boolean;
+  smallAvatars?: boolean;
   hideImage?: boolean;
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
@@ -398,10 +398,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <span className="small">
-        <PersonListing
-          person={post_view.creator}
-          hideAvatar={this.props.hideAvatars}
-        />
+        <PersonListing person={post_view.creator} />
         {this.creatorIsMod_ && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("mod")}
@@ -421,10 +418,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {" "}
             {I18NextService.i18n.t("to")}{" "}
-            <CommunityLink
-              community={post_view.community}
-              hideAvatar={this.props.hideAvatars}
-            />
+            <CommunityLink community={post_view.community} />
           </>
         )}
         {post_view.post.language_id !== 0 && (

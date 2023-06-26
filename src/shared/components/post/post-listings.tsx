@@ -76,7 +76,6 @@ export class PostListings extends Component<PostListingsProps, any> {
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
-                hideAvatars={true}
                 viewOnly={this.props.viewOnly}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
