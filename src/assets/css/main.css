@@ -84,7 +84,7 @@
   margin-top: -6.5px;
 }
 
-.post-title a:visited {
+.post-title a:visited:not(:hover) {
   color: var(--bs-gray) !important;
 }
 
@@ -124,7 +124,8 @@
 
 .emoji-picker-container {
   position: absolute;
-  top: 30px;
+  top: 0;
+  left: 50%;
   z-index: 1000;
   transform: translateX(-50%);
 }
@@ -275,10 +276,7 @@ hr {
 }
 
 .mini-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 2px;
+  display: block;
   height: 1.5em;
   width: 1.5em;
   background: rgba(0, 0, 0, 0.4);
