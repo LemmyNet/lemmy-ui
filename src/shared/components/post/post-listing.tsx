@@ -1755,10 +1755,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     setupTippy();
   }
 
-  // handleShowPreview(i: PostListing) {
-  //   return null;
-  // }
-
   get pointsTippy(): string {
     const points = I18NextService.i18n.t("number_of_points", {
       count: Number(this.postView.counts.score),
