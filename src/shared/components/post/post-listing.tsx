@@ -1407,7 +1407,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-none d-sm-block">
           <article className="row post-container">
             {!this.props.viewOnly && (
-              <div className="col-1">
+              <div className="col-auto">
                 <VoteButtons
                   voteContentType={VoteContentType.Post}
                   id={this.postView.post.id}
@@ -1418,17 +1418,21 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 />
               </div>
             )}
-            <div className="col-sm-2 pe-0 post-media">
-              <div className="">{this.thumbnail()}</div>
-            </div>
-            <div className="col-12 col-sm-9">
-              {this.postTitleLine()}
-              {this.createdLine()}
-              {this.showBodyPreview()}
-              {this.commentsLine()}
-              {this.duplicatesLine()}
-              {this.userActionsLine()}
-              {this.removeAndBanDialogs()}
+            <div className="col-sm-10">
+              <div className="row">
+                <div className="col-sm-3 col-lg-2 pe-0 post-media">
+                  <div className="">{this.thumbnail()}</div>
+                </div>
+                <div className="col-12 col-sm-9 col-lg-10">
+                  {this.postTitleLine()}
+                  {this.createdLine()}
+                  {this.showBodyPreview()}
+                  {this.commentsLine()}
+                  {this.duplicatesLine()}
+                  {this.userActionsLine()}
+                  {this.removeAndBanDialogs()}
+                </div>
+              </div>
             </div>
           </article>
         </div>
