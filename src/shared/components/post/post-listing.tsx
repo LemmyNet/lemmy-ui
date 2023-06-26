@@ -489,26 +489,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               this.postLink
             )}
           </h5>
-          {(url && isImage(url)) ||
-            (post.thumbnail_url && (
-              <button
-                className="btn btn-sm text-monospace text-muted d-inline-block"
-                data-tippy-content={I18NextService.i18n.t("expand_here")}
-                onClick={linkEvent(this, this.handleImageExpandClick)}
-              >
-                <Icon
-                  icon={
-                    !this.state.imageExpanded ? "plus-square" : "minus-square"
-                  }
-                  classes="icon-inline"
-                />
-              </button>
-            ))}
+
           {post.removed && (
             <small className="ms-2 badge text-bg-secondary">
               {I18NextService.i18n.t("removed")}
             </small>
           )}
+
           {post.deleted && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -517,6 +504,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="trash" classes="icon-inline text-danger" />
             </small>
           )}
+
           {post.locked && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -525,6 +513,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="lock" classes="icon-inline text-danger" />
             </small>
           )}
+
           {post.featured_community && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -536,6 +525,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="pin" classes="icon-inline text-primary" />
             </small>
           )}
+
           {post.featured_local && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -545,6 +535,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="pin" classes="icon-inline text-secondary" />
             </small>
           )}
+
           {post.nsfw && (
             <small className="ms-2 badge text-bg-danger">
               {I18NextService.i18n.t("nsfw")}
@@ -989,6 +980,121 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  get modBanFromCommunityButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleModBanFromCommunityShow)}
+        aria-label={I18NextService.i18n.t("ban_from_community")}
+      >
+        {I18NextService.i18n.t("ban_from_community")}
+      </button>
+    );
+  }
+
+  get modUnbanFromCommunityButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleModBanFromCommunitySubmit)}
+        aria-label={I18NextService.i18n.t("unban")}
+      >
+        {this.state.banLoading ? <Spinner /> : I18NextService.i18n.t("unban")}
+      </button>
+    );
+  }
+
+  get addModToCommunityButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleAddModToCommunity)}
+        aria-label={
+          this.creatorIsMod_
+            ? I18NextService.i18n.t("remove_as_mod")
+            : I18NextService.i18n.t("appoint_as_mod")
+        }
+      >
+        {this.state.addModLoading ? (
+          <Spinner />
+        ) : this.creatorIsMod_ ? (
+          I18NextService.i18n.t("remove_as_mod")
+        ) : (
+          I18NextService.i18n.t("appoint_as_mod")
+        )}
+      </button>
+    );
+  }
+
+  get modBanButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleModBanShow)}
+        aria-label={I18NextService.i18n.t("ban_from_site")}
+      >
+        {I18NextService.i18n.t("ban_from_site")}
+      </button>
+    );
+  }
+
+  get modUnbanButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleModBanSubmit)}
+        aria-label={I18NextService.i18n.t("unban_from_site")}
+      >
+        {this.state.banLoading ? (
+          <Spinner />
+        ) : (
+          I18NextService.i18n.t("unban_from_site")
+        )}
+      </button>
+    );
+  }
+
+  get purgePersonButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handlePurgePersonShow)}
+        aria-label={I18NextService.i18n.t("purge_user")}
+      >
+        {I18NextService.i18n.t("purge_user")}
+      </button>
+    );
+  }
+
+  get purgePostButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handlePurgePostShow)}
+        aria-label={I18NextService.i18n.t("purge_post")}
+      >
+        {I18NextService.i18n.t("purge_post")}
+      </button>
+    );
+  }
+
+  get toggleAdminButton() {
+    return (
+      <button
+        className="btn btn-link btn-animate text-muted py-0"
+        onClick={linkEvent(this, this.handleAddAdmin)}
+      >
+        {this.state.addAdminLoading ? (
+          <Spinner />
+        ) : this.creatorIsAdmin_ ? (
+          I18NextService.i18n.t("remove_as_admin")
+        ) : (
+          I18NextService.i18n.t("appoint_as_admin")
+        )}
+      </button>
+    );
+  }
+
   get modRemoveButton() {
     const removed = this.postView.post.removed;
     return (
@@ -1023,54 +1129,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           {this.canMod_ && (
             <>
               {!this.creatorIsMod_ &&
-                (!post_view.creator_banned_from_community ? (
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(
-                      this,
-                      this.handleModBanFromCommunityShow
-                    )}
-                    aria-label={I18NextService.i18n.t("ban_from_community")}
-                  >
-                    {I18NextService.i18n.t("ban_from_community")}
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(
-                      this,
-                      this.handleModBanFromCommunitySubmit
-                    )}
-                    aria-label={I18NextService.i18n.t("unban")}
-                  >
-                    {this.state.banLoading ? (
-                      <Spinner />
-                    ) : (
-                      I18NextService.i18n.t("unban")
-                    )}
-                  </button>
-                ))}
-              {!post_view.creator_banned_from_community && (
-                <button
-                  className="btn btn-link btn-animate text-muted py-0"
-                  onClick={linkEvent(this, this.handleAddModToCommunity)}
-                  aria-label={
-                    this.creatorIsMod_
-                      ? I18NextService.i18n.t("remove_as_mod")
-                      : I18NextService.i18n.t("appoint_as_mod")
-                  }
-                >
-                  {this.state.addModLoading ? (
-                    <Spinner />
-                  ) : this.creatorIsMod_ ? (
-                    I18NextService.i18n.t("remove_as_mod")
-                  ) : (
-                    I18NextService.i18n.t("appoint_as_mod")
-                  )}
-                </button>
-              )}
+                (!post_view.creator_banned_from_community
+                  ? this.modBanFromCommunityButton
+                  : this.modUnbanFromCommunityButton)}
+              {!post_view.creator_banned_from_community &&
+                this.addModToCommunityButton}
             </>
           )}
+
           {/* Community creators and admins can transfer community to another mod */}
           {(amCommunityCreator(post_view.creator.id, this.props.moderators) ||
             this.canAdmin_) &&
@@ -1122,62 +1188,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <>
               {!this.creatorIsAdmin_ && (
                 <>
-                  {!isBanned(post_view.creator) ? (
-                    <button
-                      className="btn btn-link btn-animate text-muted py-0"
-                      onClick={linkEvent(this, this.handleModBanShow)}
-                      aria-label={I18NextService.i18n.t("ban_from_site")}
-                    >
-                      {I18NextService.i18n.t("ban_from_site")}
-                    </button>
-                  ) : (
-                    <button
-                      className="btn btn-link btn-animate text-muted py-0"
-                      onClick={linkEvent(this, this.handleModBanSubmit)}
-                      aria-label={I18NextService.i18n.t("unban_from_site")}
-                    >
-                      {this.state.banLoading ? (
-                        <Spinner />
-                      ) : (
-                        I18NextService.i18n.t("unban_from_site")
-                      )}
-                    </button>
-                  )}
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handlePurgePersonShow)}
-                    aria-label={I18NextService.i18n.t("purge_user")}
-                  >
-                    {I18NextService.i18n.t("purge_user")}
-                  </button>
-                  <button
-                    className="btn btn-link btn-animate text-muted py-0"
-                    onClick={linkEvent(this, this.handlePurgePostShow)}
-                    aria-label={I18NextService.i18n.t("purge_post")}
-                  >
-                    {I18NextService.i18n.t("purge_post")}
-                  </button>
+                  {!isBanned(post_view.creator)
+                    ? this.modBanButton
+                    : this.modUnbanButton}
+                  {this.purgePersonButton}
+                  {this.purgePostButton}
                 </>
               )}
-              {!isBanned(post_view.creator) && post_view.creator.local && (
-                <button
-                  className="btn btn-link btn-animate text-muted py-0"
-                  onClick={linkEvent(this, this.handleAddAdmin)}
-                  aria-label={
-                    this.creatorIsAdmin_
-                      ? I18NextService.i18n.t("remove_as_admin")
-                      : I18NextService.i18n.t("appoint_as_admin")
-                  }
-                >
-                  {this.state.addAdminLoading ? (
-                    <Spinner />
-                  ) : this.creatorIsAdmin_ ? (
-                    I18NextService.i18n.t("remove_as_admin")
-                  ) : (
-                    I18NextService.i18n.t("appoint_as_admin")
-                  )}
-                </button>
-              )}
+              {!isBanned(post_view.creator) &&
+                post_view.creator.local &&
+                this.toggleAdminButton}
             </>
           )}
         </div>
@@ -1242,12 +1262,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 value={this.state.banReason}
                 onInput={linkEvent(this, this.handleModBanReasonChange)}
               />
-              <label className="col-form-label" htmlFor={`mod-ban-expires`}>
+              <label className="col-form-label" htmlFor="mod-ban-expires">
                 {I18NextService.i18n.t("expires")}
               </label>
               <input
                 type="number"
-                id={`mod-ban-expires`}
+                id="mod-ban-expires"
                 className="form-control me-2"
                 placeholder={I18NextService.i18n.t("number_of_days")}
                 value={this.state.banExpireDays}

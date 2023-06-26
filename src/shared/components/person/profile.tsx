@@ -205,6 +205,7 @@ export class Profile extends Component<
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -647,12 +648,12 @@ export class Profile extends Component<
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
             />
-            <label className="col-form-label" htmlFor={`mod-ban-expires`}>
+            <label className="col-form-label" htmlFor="mod-ban-expires">
               {I18NextService.i18n.t("expires")}
             </label>
             <input
               type="number"
-              id={`mod-ban-expires`}
+              id="mod-ban-expires"
               className="form-control me-2"
               placeholder={I18NextService.i18n.t("number_of_days")}
               value={this.state.banExpireDays}
@@ -987,6 +988,7 @@ export class Profile extends Component<
           s.personRes.data.comments
             .filter(c => c.creator.id == banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
+          s.personRes.data.person_view.person.banned = banRes.data.banned;
         }
         return s;
       });
