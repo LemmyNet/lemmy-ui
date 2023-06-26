@@ -348,7 +348,7 @@ export class Post extends Component<any, PostState> {
         const res = this.state.postRes.data;
         return (
           <div className="row">
-            <div className="col-12 col-md-8 mb-3">
+            <main className="col-12 col-md-8 mb-3">
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
@@ -415,8 +415,10 @@ export class Post extends Component<any, PostState> {
                 this.commentsTree()}
               {this.state.commentViewType == CommentViewType.Flat &&
                 this.commentsFlat()}
-            </div>
-            <div className="d-none d-md-block col-md-4">{this.sidebar()}</div>
+            </main>
+            <aside className="d-none d-md-block col-md-4">
+              {this.sidebar()}
+            </aside>
           </div>
         );
       }
