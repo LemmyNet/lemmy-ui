@@ -320,7 +320,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   aria-label={I18NextService.i18n.t("creator")}
                   data-tippy-content={I18NextService.i18n.t("creator")}
                 >
-                  {I18NextService.i18n.t("op").toUpperCase()}
+                  {I18NextService.i18n.t("op")}
                 </div>
               )}
               {isMod_ && (
