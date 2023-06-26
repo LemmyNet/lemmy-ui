@@ -1,14 +1,10 @@
+import { setIsoData } from "@utils/app";
+import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
-import { i18n } from "../../i18next";
-import { UserService } from "../../services";
+import { I18NextService, UserService } from "../../services";
 import { HttpService } from "../../services/HttpService";
-import {
-  capitalizeFirstLetter,
-  setIsoData,
-  toast,
-  validEmail,
-} from "../../utils";
+import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
@@ -42,9 +38,9 @@ export class LoginReset extends Component<any, State> {
   }
 
   get documentTitle(): string {
-    return `${capitalizeFirstLetter(i18n.t("forgot_password"))} - ${
-      this.state.siteRes.site_view.site.name
-    }`;
+    return `${capitalizeFirstLetter(
+      I18NextService.i18n.t("forgot_password")
+    )} - ${this.state.siteRes.site_view.site.name}`;
   }
 
   render() {
@@ -64,11 +60,13 @@ export class LoginReset extends Component<any, State> {
   loginResetForm() {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordReset)}>
-        <h5>{capitalizeFirstLetter(i18n.t("forgot_password"))}</h5>
+        <h5>
+          {capitalizeFirstLetter(I18NextService.i18n.t("forgot_password"))}
+        </h5>
 
         <div className="form-group row">
           <label className="col-form-label">
-            {i18n.t("no_password_reset")}
+            {I18NextService.i18n.t("no_password_reset")}
           </label>
         </div>
 
@@ -77,7 +75,7 @@ export class LoginReset extends Component<any, State> {
             className="col-sm-2 col-form-label"
             htmlFor="login-reset-email"
           >
-            {i18n.t("email")}
+            {I18NextService.i18n.t("email")}
           </label>
 
           <div className="col-sm-10">
@@ -104,7 +102,11 @@ export class LoginReset extends Component<any, State> {
                 !validEmail(this.state.form.email) || this.state.form.loading
               }
             >
-              {this.state.form.loading ? <Spinner /> : i18n.t("reset_password")}
+              {this.state.form.loading ? (
+                <Spinner />
+              ) : (
+                I18NextService.i18n.t("reset_password")
+              )}
             </button>
           </div>
         </div>
@@ -127,7 +129,7 @@ export class LoginReset extends Component<any, State> {
       const res = await HttpService.client.passwordReset({ email });
 
       if (res.state == "success") {
-        toast(i18n.t("reset_password_mail_sent"));
+        toast(I18NextService.i18n.t("reset_password_mail_sent"));
         i.context.router.history.push("/login");
       }
 
