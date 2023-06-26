@@ -174,7 +174,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
 
   render() {
     return (
-      <div className={`vote-bar pe-0 small text-center`}>
+      <div className="vote-bar pe-0 small text-center">
         <button
           type="button"
           className={`btn-animate btn btn-link p-0 ${
@@ -193,7 +193,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
         </button>
         {showScores() ? (
           <div
-            className={`unselectable pointer text-muted px-1 post-score`}
+            className="unselectable pointer text-muted px-1 post-score"
             data-tippy-content={tippy(this.props.counts)}
           >
             {numToSI(this.props.counts.score)}

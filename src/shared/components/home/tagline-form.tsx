@@ -71,7 +71,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                       data-tippy-content={I18NextService.i18n.t("edit")}
                       aria-label={I18NextService.i18n.t("edit")}
                     >
-                      <Icon icon="edit" classes={`icon-inline`} />
+                      <Icon icon="edit" classes="icon-inline" />
                     </button>
 
                     <button
@@ -83,7 +83,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                       data-tippy-content={I18NextService.i18n.t("delete")}
                       aria-label={I18NextService.i18n.t("delete")}
                     >
-                      <Icon icon="trash" classes={`icon-inline text-danger`} />
+                      <Icon icon="trash" classes="icon-inline text-danger" />
                     </button>
                   </td>
                 </tr>
