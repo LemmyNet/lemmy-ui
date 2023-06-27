@@ -321,29 +321,28 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("op").toUpperCase(),
                   tooltip: I18NextService.i18n.t("creator"),
-                  textClasses: "text-info",
-                  hideOnMobile: false,
+                  parentClasses: "text-info",
+                  shrinkToSingleLetter: false,
                 })}
 
               {isMod_ &&
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("mod"),
                   tooltip: I18NextService.i18n.t("mod"),
-                  hideOnMobile: true,
+                  shrunkenLabelClasses: "text-info",
                 })}
 
               {isAdmin_ &&
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("admin"),
                   tooltip: I18NextService.i18n.t("admin"),
-                  hideOnMobile: true,
+                  shrunkenLabelClasses: "text-danger",
                 })}
 
-              {cv.creator.bot_account &&
+              {true &&
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("bot_account").toLowerCase(),
                   tooltip: I18NextService.i18n.t("bot_account"),
-                  hideOnMobile: true,
                 })}
 
               {this.props.showCommunity && (
@@ -1203,25 +1202,43 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   getRoleLabelPill({
     label,
     tooltip,
-    textClasses,
-    hideOnMobile,
+    parentClasses,
+    shrunkenLabelClasses,
+    hideOnMobile = false,
+    shrinkToSingleLetter = true,
   }: {
     label: string;
     tooltip: string;
-    textClasses?: string;
+    parentClasses?: string;
+    shrunkenLabelClasses?: string;
     hideOnMobile?: boolean;
+    shrinkToSingleLetter?: boolean;
   }) {
-    const classnames = classNames(`badge me-2 text-bg-light ${textClasses}`, {
-      "d-none d-md-inline": hideOnMobile,
-    });
+    const parentClassNames = classNames(
+      `badge me-2 text-bg-light ${parentClasses}`,
+      {
+        "d-none d-md-inline": hideOnMobile,
+      }
+    );
+
+    let fullLabelClassNames = "d-none d-md-inline";
+    let shrunkenLabelClassNames = `d-inline d-md-none ${shrunkenLabelClasses}`;
+
+    if (!shrinkToSingleLetter) {
+      fullLabelClassNames = "";
+      shrunkenLabelClassNames = "d-none";
+    }
 
     return (
       <span
-        className={classnames}
+        className={parentClassNames}
         aria-label={tooltip}
         data-tippy-content={tooltip}
       >
-        {label}
+        <span className={fullLabelClassNames}>{label}</span>
+        <span className={shrunkenLabelClassNames}>
+          {label[0].toUpperCase()}
+        </span>
       </span>
     );
   }
