@@ -396,7 +396,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <span className="small">
-        <PersonListing person={post_view.creator} muted={true} />
+        <PersonListing person={post_view.creator} />
         {this.creatorIsMod_ && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("mod")}

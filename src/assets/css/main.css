@@ -360,8 +360,9 @@ br.big {
 }
 
 .img-icon {
-  width: 2rem;
-  height: 2rem;
+  width: calc(var(--bs-body-line-height) * 1em);
+  height: calc(var(--bs-body-line-height) * 1em);
+  border-radius: 0.25em;
 }
 
 .tribute-container ul {
