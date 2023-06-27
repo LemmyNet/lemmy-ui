@@ -4,6 +4,7 @@ import {
   Component,
   InfernoKeyboardEvent,
   InfernoMouseEvent,
+  InfernoNode,
   linkEvent,
 } from "inferno";
 import {
@@ -13,6 +14,7 @@ import {
   Instance,
   ListingType,
 } from "lemmy-js-client";
+import deepEqual from "lodash.isequal";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -55,6 +57,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   initSiteForm(): EditSite {
     const site = this.props.siteRes.site_view.site;
     const ls = this.props.siteRes.site_view.local_site;
+
     return {
       name: site.name,
       sidebar: site.sidebar,
@@ -617,6 +620,19 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
       </form>
     );
+  }
+
+  componentDidUpdate(
+    prevProps: Readonly<{ children?: InfernoNode } & SiteFormProps>
+  ) {
+    if (
+      !(
+        deepEqual(prevProps.allowedInstances, this.props.allowedInstances) ||
+        deepEqual(prevProps.blockedInstances, this.props.blockedInstances)
+      )
+    ) {
+      this.setState({ siteForm: this.initSiteForm() });
+    }
   }
 
   federatedInstanceSelect(key: InstanceKey) {
