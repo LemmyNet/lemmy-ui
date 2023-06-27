@@ -308,36 +308,44 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   classes="icon-inline"
                 />
               </button>
+
               <span className="me-2">
                 <PersonListing person={cv.creator} />
               </span>
+
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes="text-danger me-2" />
               )}
-              {this.isPostCreator && (
-                <span
-                  className="badge text-info text-bg-light d-sm-inline me-2"
-                  aria-label={I18NextService.i18n.t("creator")}
-                  data-tippy-content={I18NextService.i18n.t("creator")}
-                >
-                  {I18NextService.i18n.t("op")}
-                </span>
-              )}
-              {isMod_ && (
-                <span className="badge text-bg-light d-none d-sm-inline me-2">
-                  {I18NextService.i18n.t("mod")}
-                </span>
-              )}
-              {isAdmin_ && (
-                <span className="badge text-bg-light d-none d-sm-inline me-2">
-                  {I18NextService.i18n.t("admin")}
-                </span>
-              )}
-              {cv.creator.bot_account && (
-                <span className="badge text-bg-light d-none d-sm-inline me-2">
-                  {I18NextService.i18n.t("bot_account").toLowerCase()}
-                </span>
-              )}
+
+              {this.isPostCreator &&
+                this.getRoleLabelPill({
+                  label: I18NextService.i18n.t("op").toUpperCase(),
+                  tooltip: I18NextService.i18n.t("creator"),
+                  textClasses: "text-info",
+                  hideOnMobile: false,
+                })}
+
+              {isMod_ &&
+                this.getRoleLabelPill({
+                  label: I18NextService.i18n.t("mod"),
+                  tooltip: I18NextService.i18n.t("mod"),
+                  hideOnMobile: true,
+                })}
+
+              {isAdmin_ &&
+                this.getRoleLabelPill({
+                  label: I18NextService.i18n.t("admin"),
+                  tooltip: I18NextService.i18n.t("admin"),
+                  hideOnMobile: true,
+                })}
+
+              {cv.creator.bot_account &&
+                this.getRoleLabelPill({
+                  label: I18NextService.i18n.t("bot_account").toLowerCase(),
+                  tooltip: I18NextService.i18n.t("bot_account"),
+                  hideOnMobile: true,
+                })}
+
               {this.props.showCommunity && (
                 <>
                   <span className="mx-1">{I18NextService.i18n.t("to")}</span>
@@ -348,7 +356,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   </Link>
                 </>
               )}
-              {this.linkBtn(true)}
+
+              {this.getLinkButton(true)}
+
               {cv.comment.language_id !== 0 && (
                 <span className="badge text-bg-light d-none d-sm-inline me-2">
                   {
@@ -414,7 +424,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   />
                 )}
                 <div className="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold">
-                  {this.props.showContext && this.linkBtn()}
+                  {this.props.showContext && this.getLinkButton()}
                   {this.props.markable && (
                     <button
                       className="btn btn-link btn-animate text-muted"
@@ -1190,7 +1200,33 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
-  linkBtn(small = false) {
+  getRoleLabelPill({
+    label,
+    tooltip,
+    textClasses,
+    hideOnMobile,
+  }: {
+    label: string;
+    tooltip: string;
+    textClasses?: string;
+    hideOnMobile?: boolean;
+  }) {
+    const classnames = classNames(`badge me-2 text-bg-light ${textClasses}`, {
+      "d-none d-md-inline": hideOnMobile,
+    });
+
+    return (
+      <span
+        className={classnames}
+        aria-label={tooltip}
+        data-tippy-content={tooltip}
+      >
+        {label}
+      </span>
+    );
+  }
+
+  getLinkButton(small = false) {
     const cv = this.commentView;
 
     const classnames = classNames("btn btn-link btn-animate text-muted", {
