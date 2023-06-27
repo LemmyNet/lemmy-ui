@@ -316,7 +316,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               )}
               {this.isPostCreator && (
                 <div
-                  className="badge text-info text-bg-light d-none d-sm-inline me-2"
+                  className="badge text-info text-bg-light d-sm-inline me-2"
                   aria-label={I18NextService.i18n.t("creator")}
                   data-tippy-content={I18NextService.i18n.t("creator")}
                 >
