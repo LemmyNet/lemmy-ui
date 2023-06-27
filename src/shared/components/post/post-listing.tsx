@@ -1008,7 +1008,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modBanFromCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanFromCommunityShow)}
         aria-label={I18NextService.i18n.t("ban_from_community")}
       >
@@ -1020,7 +1020,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modUnbanFromCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanFromCommunitySubmit)}
         aria-label={I18NextService.i18n.t("unban")}
       >
@@ -1032,20 +1032,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get addModToCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleAddModToCommunity)}
         aria-label={
           this.creatorIsMod_
-            ? I18NextService.i18n.t("remove_as_mod")
-            : I18NextService.i18n.t("appoint_as_mod")
+            ? capitalizeFirstLetter(I18NextService.i18n.t("remove_as_mod"))
+            : capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_mod"))
         }
       >
         {this.state.addModLoading ? (
           <Spinner />
         ) : this.creatorIsMod_ ? (
-          I18NextService.i18n.t("remove_as_mod")
+          capitalizeFirstLetter(I18NextService.i18n.t("remove_as_mod"))
         ) : (
-          I18NextService.i18n.t("appoint_as_mod")
+          capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_mod"))
         )}
       </button>
     );
@@ -1054,11 +1054,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modBanButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanShow)}
         aria-label={I18NextService.i18n.t("ban_from_site")}
       >
-        {I18NextService.i18n.t("ban_from_site")}
+        {capitalizeFirstLetter(I18NextService.i18n.t("ban_from_site"))}
       </button>
     );
   }
@@ -1066,14 +1066,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modUnbanButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanSubmit)}
-        aria-label={I18NextService.i18n.t("unban_from_site")}
+        aria-label={capitalizeFirstLetter(
+          I18NextService.i18n.t("unban_from_site")
+        )}
       >
         {this.state.banLoading ? (
           <Spinner />
         ) : (
-          I18NextService.i18n.t("unban_from_site")
+          capitalizeFirstLetter(I18NextService.i18n.t("unban_from_site"))
         )}
       </button>
     );
@@ -1082,11 +1084,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get purgePersonButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handlePurgePersonShow)}
         aria-label={I18NextService.i18n.t("purge_user")}
       >
-        {I18NextService.i18n.t("purge_user")}
+        {capitalizeFirstLetter(I18NextService.i18n.t("purge_user"))}
       </button>
     );
   }
@@ -1094,11 +1096,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get purgePostButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handlePurgePostShow)}
         aria-label={I18NextService.i18n.t("purge_post")}
       >
-        {I18NextService.i18n.t("purge_post")}
+        {capitalizeFirstLetter(I18NextService.i18n.t("purge_post"))}
       </button>
     );
   }
@@ -1106,15 +1108,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get toggleAdminButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleAddAdmin)}
       >
         {this.state.addAdminLoading ? (
           <Spinner />
         ) : this.creatorIsAdmin_ ? (
-          I18NextService.i18n.t("remove_as_admin")
+          capitalizeFirstLetter(I18NextService.i18n.t("remove_as_admin"))
         ) : (
-          I18NextService.i18n.t("appoint_as_admin")
+          capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_admin"))
         )}
       </button>
     );
@@ -1134,9 +1136,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.state.removeLoading ? (
           <Spinner />
         ) : !removed ? (
-          I18NextService.i18n.t("remove")
+          capitalizeFirstLetter(I18NextService.i18n.t("remove_post"))
         ) : (
-          I18NextService.i18n.t("restore")
+          <>
+            {capitalizeFirstLetter(I18NextService.i18n.t("restore"))}{" "}
+            {I18NextService.i18n.t("post")}
+          </>
         )}
       </button>
     );
