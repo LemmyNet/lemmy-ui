@@ -29,6 +29,7 @@ import getDataTypeString from "./get-data-type-string";
 import getDepthFromComment from "./get-depth-from-comment";
 import getIdFromProps from "./get-id-from-props";
 import getRecipientIdFromProps from "./get-recipient-id-from-props";
+import getRoleLabelPill from "./get-role-label-pill";
 import getUpdatedSearchId from "./get-updated-search-id";
 import initializeSite from "./initialize-site";
 import insertCommentIntoTree from "./insert-comment-into-tree";
@@ -87,6 +88,7 @@ export {
   getDepthFromComment,
   getIdFromProps,
   getRecipientIdFromProps,
+  getRoleLabelPill,
   getUpdatedSearchId,
   getUserInterfaceLangId,
   initializeSite,

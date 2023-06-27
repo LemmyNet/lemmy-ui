@@ -1,4 +1,4 @@
-import { myAuthRequired } from "@utils/app";
+import { getRoleLabelPill, myAuthRequired } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -404,23 +404,27 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   createdLine() {
     const post_view = this.postView;
     return (
-      <span className="small">
-        <PersonListing person={post_view.creator} />
-        {this.creatorIsMod_ && (
-          <span className="mx-1 badge text-bg-light">
-            {I18NextService.i18n.t("mod")}
-          </span>
-        )}
-        {this.creatorIsAdmin_ && (
-          <span className="mx-1 badge text-bg-light">
-            {I18NextService.i18n.t("admin")}
-          </span>
-        )}
-        {post_view.creator.bot_account && (
-          <span className="mx-1 badge text-bg-light">
-            {I18NextService.i18n.t("bot_account").toLowerCase()}
-          </span>
-        )}
+      <div className="small">
+        <span className="me-1">
+          <PersonListing person={post_view.creator} />
+        </span>
+        {this.creatorIsMod_ &&
+          getRoleLabelPill({
+            label: I18NextService.i18n.t("mod"),
+            tooltip: I18NextService.i18n.t("mod"),
+            classes: "text-bg-primary text-black",
+          })}
+        {this.creatorIsAdmin_ &&
+          getRoleLabelPill({
+            label: I18NextService.i18n.t("admin"),
+            tooltip: I18NextService.i18n.t("admin"),
+            classes: "text-bg-danger text-white",
+          })}
+        {post_view.creator.bot_account &&
+          getRoleLabelPill({
+            label: I18NextService.i18n.t("bot_account").toLowerCase(),
+            tooltip: I18NextService.i18n.t("bot_account"),
+          })}
         {this.props.showCommunity && (
           <>
             {" "}
@@ -442,7 +446,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           published={post_view.post.published}
           updated={post_view.post.updated}
         />
-      </span>
+      </div>
     );
   }
 

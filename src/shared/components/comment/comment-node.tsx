@@ -1,6 +1,7 @@
 import {
   colorList,
   getCommentParentId,
+  getRoleLabelPill,
   myAuth,
   myAuthRequired,
   showScores,
@@ -308,32 +309,43 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   classes="icon-inline"
                 />
               </button>
+
               <span className="me-2">
                 <PersonListing person={cv.creator} />
               </span>
+
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes="text-danger me-2" />
               )}
-              {this.isPostCreator && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
-                  {I18NextService.i18n.t("creator")}
-                </div>
-              )}
-              {isMod_ && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
-                  {I18NextService.i18n.t("mod")}
-                </div>
-              )}
-              {isAdmin_ && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
-                  {I18NextService.i18n.t("admin")}
-                </div>
-              )}
-              {cv.creator.bot_account && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
-                  {I18NextService.i18n.t("bot_account").toLowerCase()}
-                </div>
-              )}
+
+              {this.isPostCreator &&
+                getRoleLabelPill({
+                  label: I18NextService.i18n.t("op").toUpperCase(),
+                  tooltip: I18NextService.i18n.t("creator"),
+                  classes: "text-bg-info text-black",
+                  shrink: false,
+                })}
+
+              {isMod_ &&
+                getRoleLabelPill({
+                  label: I18NextService.i18n.t("mod"),
+                  tooltip: I18NextService.i18n.t("mod"),
+                  classes: "text-bg-primary text-black",
+                })}
+
+              {isAdmin_ &&
+                getRoleLabelPill({
+                  label: I18NextService.i18n.t("admin"),
+                  tooltip: I18NextService.i18n.t("admin"),
+                  classes: "text-bg-danger text-white",
+                })}
+
+              {cv.creator.bot_account &&
+                getRoleLabelPill({
+                  label: I18NextService.i18n.t("bot_account").toLowerCase(),
+                  tooltip: I18NextService.i18n.t("bot_account"),
+                })}
+
               {this.props.showCommunity && (
                 <>
                   <span className="mx-1">{I18NextService.i18n.t("to")}</span>
@@ -344,7 +356,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   </Link>
                 </>
               )}
-              {this.linkBtn(true)}
+
+              {this.getLinkButton(true)}
+
               {cv.comment.language_id !== 0 && (
                 <span className="badge text-bg-light d-none d-sm-inline me-2">
                   {
@@ -410,7 +424,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   />
                 )}
                 <div className="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold">
-                  {this.props.showContext && this.linkBtn()}
+                  {this.props.showContext && this.getLinkButton()}
                   {this.props.markable && (
                     <button
                       className="btn btn-link btn-animate text-muted"
@@ -1186,7 +1200,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
-  linkBtn(small = false) {
+  getLinkButton(small = false) {
     const cv = this.commentView;
 
     const classnames = classNames("btn btn-link btn-animate text-muted", {
