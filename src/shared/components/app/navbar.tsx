@@ -49,9 +49,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
-
-      InboxService.fetchUnreadCounts();
-
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
     }
   }
@@ -88,15 +85,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 to="/inbox"
                 className="p-1 nav-link border-0 nav-messages"
                 title={I18NextService.i18n.t("unread_messages", {
-                  count: Number(this.unreadInboxCount),
-                  formattedCount: numToSI(this.unreadInboxCount),
+                  count: Number(InboxService.unreadInboxCount),
+                  formattedCount: numToSI(InboxService.unreadInboxCount),
                 })}
                 onMouseUp={linkEvent(this, handleCollapseClick)}
               >
                 <Icon icon="bell" />
-                {this.unreadInboxCount > 0 && (
+                {InboxService.unreadInboxCount > 0 && (
                   <span className="mx-1 badge text-bg-light">
-                    {numToSI(this.unreadInboxCount)}
+                    {numToSI(InboxService.unreadInboxCount)}
                   </span>
                 )}
               </NavLink>
@@ -107,15 +104,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   to="/reports"
                   className="p-1 nav-link border-0"
                   title={I18NextService.i18n.t("unread_reports", {
-                    count: Number(this.unreadReportCount),
-                    formattedCount: numToSI(this.unreadReportCount),
+                    count: Number(InboxService.unreadReportCount),
+                    formattedCount: numToSI(InboxService.unreadReportCount),
                   })}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="shield" />
-                  {this.unreadReportCount > 0 && (
+                  {InboxService.unreadReportCount > 0 && (
                     <span className="mx-1 badge text-bg-light">
-                      {numToSI(this.unreadReportCount)}
+                      {numToSI(InboxService.unreadReportCount)}
                     </span>
                   )}
                 </NavLink>
@@ -129,16 +126,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   title={I18NextService.i18n.t(
                     "unread_registration_applications",
                     {
-                      count: Number(this.unreadApplicationCount),
-                      formattedCount: numToSI(this.unreadApplicationCount),
+                      count: Number(InboxService.unreadApplicationCount),
+                      formattedCount: numToSI(
+                        InboxService.unreadApplicationCount
+                      ),
                     }
                   )}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="clipboard" />
-                  {this.unreadApplicationCount > 0 && (
+                  {InboxService.unreadApplicationCount > 0 && (
                     <span className="mx-1 badge text-bg-light">
-                      {numToSI(this.unreadApplicationCount)}
+                      {numToSI(InboxService.unreadApplicationCount)}
                     </span>
                   )}
                 </NavLink>
@@ -253,21 +252,21 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     className="nav-link d-inline-flex align-items-center d-md-inline-block"
                     to="/inbox"
                     title={I18NextService.i18n.t("unread_messages", {
-                      count: Number(this.unreadInboxCount),
-                      formattedCount: numToSI(this.unreadInboxCount),
+                      count: Number(InboxService.unreadInboxCount),
+                      formattedCount: numToSI(InboxService.unreadInboxCount),
                     })}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="bell" />
                     <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                       {I18NextService.i18n.t("unread_messages", {
-                        count: Number(this.unreadInboxCount),
-                        formattedCount: numToSI(this.unreadInboxCount),
+                        count: Number(InboxService.unreadInboxCount),
+                        formattedCount: numToSI(InboxService.unreadInboxCount),
                       })}
                     </span>
-                    {this.unreadInboxCount > 0 && (
+                    {InboxService.unreadInboxCount > 0 && (
                       <span className="mx-1 badge text-bg-light">
-                        {numToSI(this.unreadInboxCount)}
+                        {numToSI(InboxService.unreadInboxCount)}
                       </span>
                     )}
                   </NavLink>
@@ -278,21 +277,23 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       to="/reports"
                       title={I18NextService.i18n.t("unread_reports", {
-                        count: Number(this.unreadReportCount),
-                        formattedCount: numToSI(this.unreadReportCount),
+                        count: Number(InboxService.unreadReportCount),
+                        formattedCount: numToSI(InboxService.unreadReportCount),
                       })}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="shield" />
                       <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                         {I18NextService.i18n.t("unread_reports", {
-                          count: Number(this.unreadReportCount),
-                          formattedCount: numToSI(this.unreadReportCount),
+                          count: Number(InboxService.unreadReportCount),
+                          formattedCount: numToSI(
+                            InboxService.unreadReportCount
+                          ),
                         })}
                       </span>
-                      {this.unreadReportCount > 0 && (
+                      {InboxService.unreadReportCount > 0 && (
                         <span className="mx-1 badge text-bg-light">
-                          {numToSI(this.unreadReportCount)}
+                          {numToSI(InboxService.unreadReportCount)}
                         </span>
                       )}
                     </NavLink>
@@ -306,8 +307,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       title={I18NextService.i18n.t(
                         "unread_registration_applications",
                         {
-                          count: Number(this.unreadApplicationCount),
-                          formattedCount: numToSI(this.unreadApplicationCount),
+                          count: Number(InboxService.unreadApplicationCount),
+                          formattedCount: numToSI(
+                            InboxService.unreadApplicationCount
+                          ),
                         }
                       )}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -317,16 +320,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         {I18NextService.i18n.t(
                           "unread_registration_applications",
                           {
-                            count: Number(this.unreadApplicationCount),
+                            count: Number(InboxService.unreadApplicationCount),
                             formattedCount: numToSI(
-                              this.unreadApplicationCount
+                              InboxService.unreadApplicationCount
                             ),
                           }
                         )}
                       </span>
-                      {this.unreadApplicationCount > 0 && (
+                      {InboxService.unreadApplicationCount > 0 && (
                         <span className="mx-1 badge text-bg-light">
-                          {numToSI(this.unreadApplicationCount)}
+                          {numToSI(InboxService.unreadApplicationCount)}
                         </span>
                       )}
                     </NavLink>
@@ -427,18 +430,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     const mods = UserService.Instance.myUserInfo?.moderates;
     const moderatesS = (mods && mods.length > 0) || false;
     return amAdmin() || moderatesS;
-  }
-
-  get unreadInboxCount() {
-    return InboxService.unreadInboxCount;
-  }
-
-  get unreadReportCount() {
-    return InboxService.unreadReportCount;
-  }
-
-  get unreadApplicationCount() {
-    return InboxService.unreadApplicationCount;
   }
 
   get currentLocation() {
