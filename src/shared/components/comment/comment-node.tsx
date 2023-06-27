@@ -1215,7 +1215,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     shrinkToSingleLetter?: boolean;
   }) {
     const parentClassNames = classNames(
-      `badge me-2 text-bg-light ${parentClasses}`,
+      `badge me-1 text-bg-light ${parentClasses}`,
       {
         "d-none d-md-inline": hideOnMobile,
       }
