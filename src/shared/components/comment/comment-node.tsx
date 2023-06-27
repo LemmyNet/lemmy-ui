@@ -329,7 +329,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("mod"),
                   tooltip: I18NextService.i18n.t("mod"),
-                  shrunkenLabelClasses: "text-info",
+                  shrunkenLabelClasses: "text-primary",
                 })}
 
               {isAdmin_ &&
