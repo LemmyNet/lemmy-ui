@@ -1,6 +1,7 @@
 import {
   colorList,
   getCommentParentId,
+  getRoleLabelPill,
   myAuth,
   myAuthRequired,
   showScores,
@@ -318,7 +319,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               )}
 
               {this.isPostCreator &&
-                this.getRoleLabelPill({
+                getRoleLabelPill({
                   label: I18NextService.i18n.t("op").toUpperCase(),
                   tooltip: I18NextService.i18n.t("creator"),
                   classes: "text-bg-info text-black",
@@ -326,21 +327,21 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 })}
 
               {isMod_ &&
-                this.getRoleLabelPill({
+                getRoleLabelPill({
                   label: I18NextService.i18n.t("mod"),
                   tooltip: I18NextService.i18n.t("mod"),
                   classes: "text-bg-primary text-black",
                 })}
 
               {isAdmin_ &&
-                this.getRoleLabelPill({
+                getRoleLabelPill({
                   label: I18NextService.i18n.t("admin"),
                   tooltip: I18NextService.i18n.t("admin"),
-                  classes: "text-bg-danger text-black",
+                  classes: "text-bg-danger text-white",
                 })}
 
               {cv.creator.bot_account &&
-                this.getRoleLabelPill({
+                getRoleLabelPill({
                   label: I18NextService.i18n.t("bot_account").toLowerCase(),
                   tooltip: I18NextService.i18n.t("bot_account"),
                 })}
@@ -1197,28 +1198,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     } else {
       return false;
     }
-  }
-
-  getRoleLabelPill({
-    label,
-    tooltip,
-    classes,
-    shrink = true,
-  }: {
-    label: string;
-    tooltip: string;
-    classes?: string;
-    shrink?: boolean;
-  }) {
-    return (
-      <span
-        className={`badge me-1 ${classes ?? "text-bg-light"}`}
-        aria-label={tooltip}
-        data-tippy-content={tooltip}
-      >
-        {shrink ? label[0].toUpperCase() : label}
-      </span>
-    );
   }
 
   getLinkButton(small = false) {
