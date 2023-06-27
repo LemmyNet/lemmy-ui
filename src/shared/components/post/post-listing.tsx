@@ -1426,21 +1426,23 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-none d-sm-block">
           <article className="row post-container">
             {!this.props.viewOnly && (
-              <VoteButtons
-                voteContentType={VoteContentType.Post}
-                id={this.postView.post.id}
-                onVote={this.props.onPostVote}
-                enableDownvotes={this.props.enableDownvotes}
-                counts={this.postView.counts}
-                my_vote={this.postView.my_vote}
-              />
+              <div className="col flex-grow-0">
+                <VoteButtons
+                  voteContentType={VoteContentType.Post}
+                  id={this.postView.post.id}
+                  onVote={this.props.onPostVote}
+                  enableDownvotes={this.props.enableDownvotes}
+                  counts={this.postView.counts}
+                  my_vote={this.postView.my_vote}
+                />
+              </div>
             )}
-            <div className="col-sm-2 pe-0 post-media">
-              <div className="">{this.thumbnail()}</div>
-            </div>
-            <div className="col-12 col-sm-9">
+            <div className="col flex-grow-1">
               <div className="row">
-                <div className="col-12">
+                <div className="col-sm-3 col-lg-2 pe-0 post-media">
+                  <div className="">{this.thumbnail()}</div>
+                </div>
+                <div className="col-12 col-sm-9 col-lg-10">
                   {this.postTitleLine()}
                   {this.createdLine()}
                   {this.showBodyPreview()}

@@ -348,7 +348,7 @@ export class Post extends Component<any, PostState> {
         const res = this.state.postRes.data;
         return (
           <div className="row">
-            <main className="col-12 col-md-8 mb-3">
+            <main className="col-12 col-md-8 col-lg-9 mb-3">
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
@@ -416,7 +416,7 @@ export class Post extends Component<any, PostState> {
               {this.state.commentViewType == CommentViewType.Flat &&
                 this.commentsFlat()}
             </main>
-            <aside className="d-none d-md-block col-md-4">
+            <aside className="d-none d-md-block col-md-4 col-lg-3">
               {this.sidebar()}
             </aside>
           </div>
