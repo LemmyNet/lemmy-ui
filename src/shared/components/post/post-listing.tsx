@@ -105,6 +105,9 @@ interface PostListingProps {
   allLanguages: Language[];
   siteLanguages: number[];
   showCommunity?: boolean;
+  /**
+   * Controls whether to show both the body *and* the metadata preview card
+   */
   showBody?: boolean;
   hideImage?: boolean;
   enableDownvotes?: boolean;
@@ -200,7 +203,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.listing()}
             {this.state.imageExpanded && !this.props.hideImage && this.img}
-            {post.url && this.state.showBody && post.embed_title && (
+            {this.showBody && post.url && post.embed_title && (
               <MetadataCard post={post} />
             )}
             {this.showBody && this.body()}
@@ -483,10 +486,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </h5>
 
           {/**
-           * If there is a URL, or if the post has a body and we were told not to
-           * show the body, show the MetadataCard/body toggle.
+           * If there is a URL, an embed title, and we were not told to show the
+           * body by the parent component, show the MetadataCard/body toggle.
            */}
-          {(post.url || (post.body && !this.props.showBody)) && (
+          {!this.props.showBody && post.url && post.embed_title && (
             <button
               className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
               data-tippy-content={post.body && mdNoImages.render(post.body)}
