@@ -160,9 +160,9 @@ export class MarkdownTextArea extends Component<
           <div className="col-12">
             <div className="rounded bg-light border">
               <div
-                className={`d-flex flex-wrap border-bottom ${
-                  this.isDisabled ? "no-click" : ""
-                }`}
+                className={classNames("d-flex flex-wrap border-bottom", {
+                  "no-click": this.isDisabled,
+                })}
               >
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
