@@ -315,28 +315,28 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 <Icon icon="shield" inline classes="text-danger me-2" />
               )}
               {this.isPostCreator && (
-                <div
+                <span
                   className="badge text-info text-bg-light d-sm-inline me-2"
                   aria-label={I18NextService.i18n.t("creator")}
                   data-tippy-content={I18NextService.i18n.t("creator")}
                 >
                   {I18NextService.i18n.t("op")}
-                </div>
+                </span>
               )}
               {isMod_ && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
+                <span className="badge text-bg-light d-none d-sm-inline me-2">
                   {I18NextService.i18n.t("mod")}
-                </div>
+                </span>
               )}
               {isAdmin_ && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
+                <span className="badge text-bg-light d-none d-sm-inline me-2">
                   {I18NextService.i18n.t("admin")}
-                </div>
+                </span>
               )}
               {cv.creator.bot_account && (
-                <div className="badge text-bg-light d-none d-sm-inline me-2">
+                <span className="badge text-bg-light d-none d-sm-inline me-2">
                   {I18NextService.i18n.t("bot_account").toLowerCase()}
-                </div>
+                </span>
               )}
               {this.props.showCommunity && (
                 <>
