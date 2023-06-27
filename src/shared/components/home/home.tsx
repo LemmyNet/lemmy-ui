@@ -387,7 +387,7 @@ export class Home extends Component<any, HomeState> {
         />
         {site_setup && (
           <div className="row">
-            <main role="main" className="col-12 col-md-8">
+            <main role="main" className="col-12 col-md-8 col-lg-9">
               {tagline && (
                 <div
                   id="tagline"
@@ -397,7 +397,7 @@ export class Home extends Component<any, HomeState> {
               <div className="d-block d-md-none">{this.mobileView}</div>
               {this.posts}
             </main>
-            <aside className="d-none d-md-block col-md-4">
+            <aside className="d-none d-md-block col-md-4 col-lg-3">
               {this.mySidebar}
             </aside>
           </div>
