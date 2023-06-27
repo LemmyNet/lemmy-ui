@@ -183,7 +183,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         addModLoading: false,
         addAdminLoading: false,
         transferLoading: false,
-        imageExpanded: false,
       });
     }
   }
@@ -397,7 +396,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <span className="small">
-        <PersonListing person={post_view.creator} muted={true} />
+        <PersonListing person={post_view.creator} />
         {this.creatorIsMod_ && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("mod")}
@@ -1412,9 +1411,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
 
-              {/* Show a preview of the post body */}
-              {this.showBodyPreview()}
-
               {this.commentsLine(true)}
               {this.userActionsLine()}
               {this.duplicatesLine()}
@@ -1427,24 +1423,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-none d-sm-block">
           <article className="row post-container">
             {!this.props.viewOnly && (
-              <VoteButtons
-                voteContentType={VoteContentType.Post}
-                id={this.postView.post.id}
-                onVote={this.props.onPostVote}
-                enableDownvotes={this.props.enableDownvotes}
-                counts={this.postView.counts}
-                my_vote={this.postView.my_vote}
-              />
+              <div className="col flex-grow-0">
+                <VoteButtons
+                  voteContentType={VoteContentType.Post}
+                  id={this.postView.post.id}
+                  onVote={this.props.onPostVote}
+                  enableDownvotes={this.props.enableDownvotes}
+                  counts={this.postView.counts}
+                  my_vote={this.postView.my_vote}
+                />
+              </div>
             )}
-            <div className="col-sm-2 pe-0 post-media">
-              <div className="">{this.thumbnail()}</div>
-            </div>
-            <div className="col-12 col-sm-9">
+            <div className="col flex-grow-1">
               <div className="row">
-                <div className="col-12">
+                <div className="col-sm-3 col-lg-2 pe-0 post-media">
+                  <div className="">{this.thumbnail()}</div>
+                </div>
+                <div className="col-12 col-sm-9 col-lg-10">
                   {this.postTitleLine()}
                   {this.createdLine()}
-                  {this.showBodyPreview()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
                   {this.userActionsLine()}
