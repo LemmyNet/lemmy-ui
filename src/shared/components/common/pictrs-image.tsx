@@ -10,7 +10,7 @@ interface PictrsImageProps {
   icon?: boolean;
   banner?: boolean;
   thumbnail?: boolean;
-  nsfw?: boolean;
+  blur?: boolean;
   iconOverlay?: boolean;
   pushup?: boolean;
 }
@@ -38,7 +38,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
               this.props.thumbnail && !this.props.icon && !this.props.banner,
             "img-expanded slight-radius":
               !this.props.thumbnail && !this.props.icon,
-            "img-blur": this.props.thumbnail && this.props.nsfw,
+            "img-blur": this.props.thumbnail && this.props.blur,
             "img-cover img-icon me-1": this.props.icon,
             "ms-2 mb-0 rounded-circle img-cover avatar-overlay":
               this.props.iconOverlay,
