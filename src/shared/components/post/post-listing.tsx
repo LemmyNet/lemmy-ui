@@ -49,7 +49,7 @@ import {
   PurgeType,
   VoteContentType,
 } from "../../interfaces";
-import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
+import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -105,6 +105,9 @@ interface PostListingProps {
   allLanguages: Language[];
   siteLanguages: number[];
   showCommunity?: boolean;
+  /**
+   * Controls whether to show both the body *and* the metadata preview card
+   */
   showBody?: boolean;
   hideImage?: boolean;
   enableDownvotes?: boolean;
@@ -183,7 +186,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         addModLoading: false,
         addAdminLoading: false,
         transferLoading: false,
-        imageExpanded: false,
       });
     }
   }
@@ -201,7 +203,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.listing()}
             {this.state.imageExpanded && !this.props.hideImage && this.img}
-            {post.url && this.state.showBody && post.embed_title && (
+            {this.showBody && post.url && post.embed_title && (
               <MetadataCard post={post} />
             )}
             {this.showBody && this.body()}
@@ -397,7 +399,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
     return (
       <span className="small">
-        <PersonListing person={post_view.creator} muted={true} />
+        <PersonListing person={post_view.creator} />
         {this.creatorIsMod_ && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("mod")}
@@ -482,26 +484,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               this.postLink
             )}
           </h5>
-          {(url && isImage(url)) ||
-            (post.thumbnail_url && (
-              <button
-                className="btn btn-sm text-monospace text-muted d-inline-block"
-                data-tippy-content={I18NextService.i18n.t("expand_here")}
-                onClick={linkEvent(this, this.handleImageExpandClick)}
-              >
-                <Icon
-                  icon={
-                    !this.state.imageExpanded ? "plus-square" : "minus-square"
-                  }
-                  classes="icon-inline"
-                />
-              </button>
-            ))}
+
+          {/**
+           * If there is a URL, an embed title, and we were not told to show the
+           * body by the parent component, show the MetadataCard/body toggle.
+           */}
+          {!this.props.showBody &&
+            post.url &&
+            post.embed_title &&
+            this.showPreviewButton()}
+
           {post.removed && (
             <small className="ms-2 badge text-bg-secondary">
               {I18NextService.i18n.t("removed")}
             </small>
           )}
+
           {post.deleted && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -510,6 +508,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="trash" classes="icon-inline text-danger" />
             </small>
           )}
+
           {post.locked && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -518,6 +517,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="lock" classes="icon-inline text-danger" />
             </small>
           )}
+
           {post.featured_community && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -529,6 +529,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="pin" classes="icon-inline text-primary" />
             </small>
           )}
+
           {post.featured_local && (
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
@@ -538,6 +539,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Icon icon="pin" classes="icon-inline text-secondary" />
             </small>
           )}
+
           {post.nsfw && (
             <small className="ms-2 badge text-bg-danger">
               {I18NextService.i18n.t("nsfw")}
@@ -634,27 +636,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  showPreviewButton() {
-    const post_view = this.postView;
-    const body = post_view.post.body;
-
-    return (
-      <button
-        className="btn btn-sm btn-animate text-muted py-0"
-        data-tippy-content={body && mdNoImages.render(body)}
-        data-tippy-allowHtml={true}
-        onClick={linkEvent(this, this.handleShowBody)}
-      >
-        <Icon
-          icon="book-open"
-          classes={classNames("icon-inline me-1", {
-            "text-success": this.state.showBody,
-          })}
-        />
-      </button>
-    );
-  }
-
   postActions() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
@@ -666,14 +647,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.saveButton}
         {this.crossPostButton}
 
-        {/**
-         * If there is a URL, or if the post has a body and we were told not to
-         * show the body, show the MetadataCard/body toggle.
-         */}
-        {(post.url || (post.body && !this.props.showBody)) &&
-          this.showPreviewButton()}
-
-        {this.showBody && post_view.post.body && this.viewSourceButton}
+        {this.props.showBody && post_view.post.body && this.viewSourceButton}
 
         <div className="dropdown">
           <button
@@ -1397,15 +1371,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  showBodyPreview() {
-    const { body, id } = this.postView.post;
-
-    return !this.showBody && body ? (
-      <Link className="text-body mt-2 d-block" to={`/post/${id}`}>
-        <div className="md-div mb-1 preview-lines">{body}</div>
-      </Link>
-    ) : (
-      <></>
+  showPreviewButton() {
+    return (
+      <button
+        type="button"
+        className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
+        onClick={linkEvent(this, this.handleShowBody)}
+      >
+        <Icon
+          icon={!this.state.showBody ? "plus-square" : "minus-square"}
+          classes="icon-inline"
+        />
+      </button>
     );
   }
 
@@ -1421,9 +1398,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
 
-              {/* Show a preview of the post body */}
-              {this.showBodyPreview()}
-
               {this.commentsLine(true)}
               {this.userActionsLine()}
               {this.duplicatesLine()}
@@ -1436,24 +1410,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-none d-sm-block">
           <article className="row post-container">
             {!this.props.viewOnly && (
-              <VoteButtons
-                voteContentType={VoteContentType.Post}
-                id={this.postView.post.id}
-                onVote={this.props.onPostVote}
-                enableDownvotes={this.props.enableDownvotes}
-                counts={this.postView.counts}
-                my_vote={this.postView.my_vote}
-              />
+              <div className="col flex-grow-0">
+                <VoteButtons
+                  voteContentType={VoteContentType.Post}
+                  id={this.postView.post.id}
+                  onVote={this.props.onPostVote}
+                  enableDownvotes={this.props.enableDownvotes}
+                  counts={this.postView.counts}
+                  my_vote={this.postView.my_vote}
+                />
+              </div>
             )}
-            <div className="col-sm-2 pe-0 post-media">
-              <div className="">{this.thumbnail()}</div>
-            </div>
-            <div className="col-12 col-sm-9">
+            <div className="col flex-grow-1">
               <div className="row">
-                <div className="col-12">
+                <div className="col-sm-3 col-lg-2 pe-0 post-media">
+                  <div className="">{this.thumbnail()}</div>
+                </div>
+                <div className="col-12 col-sm-9 col-lg-10">
                   {this.postTitleLine()}
                   {this.createdLine()}
-                  {this.showBodyPreview()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
                   {this.userActionsLine()}
