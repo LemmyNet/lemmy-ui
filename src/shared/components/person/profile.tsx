@@ -489,7 +489,7 @@ export class Profile extends Component<
                         {getRoleLabelPill({
                           label: I18NextService.i18n.t("banned"),
                           tooltip: I18NextService.i18n.t("banned"),
-                          classes: "text-bg-danger text-white",
+                          classes: "text-bg-danger",
                           shrink: false,
                         })}
                       </li>
@@ -499,7 +499,7 @@ export class Profile extends Component<
                         {getRoleLabelPill({
                           label: I18NextService.i18n.t("deleted"),
                           tooltip: I18NextService.i18n.t("deleted"),
-                          classes: "text-bg-danger text-white",
+                          classes: "text-bg-danger",
                           shrink: false,
                         })}
                       </li>
