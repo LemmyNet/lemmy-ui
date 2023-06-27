@@ -348,7 +348,7 @@ export class MarkdownTextArea extends Component<
 
     return (
       <button
-        className="btn btn-sm text-muted"
+        className="btn btn-sm text-muted border border-0"
         data-tippy-content={I18NextService.i18n.t(type)}
         aria-label={I18NextService.i18n.t(type)}
         onClick={linkEvent(this, handleClick)}
@@ -361,7 +361,7 @@ export class MarkdownTextArea extends Component<
 
   handleEmoji(i: MarkdownTextArea, e: any) {
     let value = e.native;
-    if (value == null) {
+    if (value === null) {
       const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
       if (emoji) {
         value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;
