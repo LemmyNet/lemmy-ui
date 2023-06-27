@@ -297,20 +297,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   imgThumb(src: string) {
     const post_view = this.postView;
 
-    let user_blur_nsfw = false;
-    if (UserService.Instance.myUserInfo) {
-      user_blur_nsfw =
-        UserService.Instance.myUserInfo?.local_user_view.local_user.blur_nsfw;
-    }
-
     return (
       <PictrsImage
         src={src}
         thumbnail
         alt=""
-        blur={
-          (post_view.post.nsfw || post_view.community.nsfw) && user_blur_nsfw
-        }
+        nsfw={post_view.post.nsfw || post_view.community.nsfw}
       />
     );
   }

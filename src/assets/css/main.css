@@ -245,12 +245,20 @@ hr {
   flex: 1;
 }
 
-.img-blur {
+.img-blur-thumb {
   filter: blur(10px);
   -webkit-filter: blur(10px);
   -moz-filter: blur(10px);
   -o-filter: blur(10px);
   -ms-filter: blur(10px);
+}
+
+.img-blur-icon {
+  filter: blur(3px);
+  -webkit-filter: blur(3px);
+  -moz-filter: blur(3px);
+  -o-filter: blur(3px);
+  -ms-filter: blur(3px);
 }
 
 .img-cover {
