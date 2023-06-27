@@ -690,6 +690,34 @@ export class Settings extends Component<any, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="user-blur-nsfw"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.blur_nsfw}
+                onChange={linkEvent(this, this.handleBlurNsfwChange)}
+              />
+              <label className="form-check-label" htmlFor="user-blur-nsfw">
+                {I18NextService.i18n.t("blur_nsfw")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-auto-expand"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.auto_expand}
+                onChange={linkEvent(this, this.handleAutoExpandChange)}
+              />
+              <label className="form-check-label" htmlFor="user-auto-expand">
+                {I18NextService.i18n.t("auto_expand")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="user-show-scores"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_scores}
@@ -1003,6 +1031,18 @@ export class Settings extends Component<any, SettingsState> {
   handleShowNsfwChange(i: Settings, event: any) {
     i.setState(
       s => ((s.saveUserSettingsForm.show_nsfw = event.target.checked), s)
+    );
+  }
+
+  handleBlurNsfwChange(i: Settings, event: any) {
+    i.setState(
+      s => ((s.saveUserSettingsForm.blur_nsfw = event.target.checked), s)
+    );
+  }
+
+  handleAutoExpandChange(i: Settings, event: any) {
+    i.setState(
+      s => ((s.saveUserSettingsForm.auto_expand = event.target.checked), s)
     );
   }
 
