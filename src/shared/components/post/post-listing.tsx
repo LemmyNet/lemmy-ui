@@ -719,6 +719,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 )}
               </>
             )}
+
+            {(amCommunityCreator(post_view.creator.id, this.props.moderators) ||
+              this.canAdmin_) &&
+              this.creatorIsMod_ && <li>{this.transferCommunityButton}</li>}
+
             {/* Admins can ban from all, and appoint other admins */}
             {this.canAdmin_ && (
               <>
@@ -1122,6 +1127,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  get transferCommunityButton() {
+    return (
+      <button
+        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+        onClick={linkEvent(this, this.handleShowConfirmTransferCommunity)}
+        aria-label={I18NextService.i18n.t("transfer_community")}
+      >
+        {I18NextService.i18n.t("transfer_community")}
+      </button>
+    );
+  }
+
   get modRemoveButton() {
     const removed = this.postView.post.removed;
     return (
@@ -1144,66 +1161,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </>
         )}
       </button>
-    );
-  }
-
-  /**
-   * Mod/Admin actions to be taken against the author.
-   */
-  userActionsLine() {
-    // TODO: make nicer
-    const post_view = this.postView;
-    return (
-      this.state.showAdvanced && (
-        <div className="mt-3">
-          {/* Community creators and admins can transfer community to another mod */}
-          {(amCommunityCreator(post_view.creator.id, this.props.moderators) ||
-            this.canAdmin_) &&
-            this.creatorIsMod_ &&
-            (!this.state.showConfirmTransferCommunity ? (
-              <button
-                className="btn btn-link btn-animate text-muted py-0"
-                onClick={linkEvent(
-                  this,
-                  this.handleShowConfirmTransferCommunity
-                )}
-                aria-label={I18NextService.i18n.t("transfer_community")}
-              >
-                {I18NextService.i18n.t("transfer_community")}
-              </button>
-            ) : (
-              <>
-                <button
-                  className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0"
-                  aria-label={I18NextService.i18n.t("are_you_sure")}
-                >
-                  {I18NextService.i18n.t("are_you_sure")}
-                </button>
-                <button
-                  className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
-                  aria-label={I18NextService.i18n.t("yes")}
-                  onClick={linkEvent(this, this.handleTransferCommunity)}
-                >
-                  {this.state.transferLoading ? (
-                    <Spinner />
-                  ) : (
-                    I18NextService.i18n.t("yes")
-                  )}
-                </button>
-                <button
-                  className="btn btn-link btn-animate text-muted py-0 d-inline-block"
-                  onClick={linkEvent(
-                    this,
-                    this.handleCancelShowConfirmTransferCommunity
-                  )}
-                  aria-label={I18NextService.i18n.t("no")}
-                >
-                  {I18NextService.i18n.t("no")}
-                </button>
-              </>
-            ))}
-        </div>
-      )
     );
   }
 
@@ -1246,6 +1203,37 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               )}
             </button>
           </form>
+        )}
+        {this.state.showConfirmTransferCommunity && (
+          <>
+            <button
+              className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0"
+              aria-label={I18NextService.i18n.t("are_you_sure")}
+            >
+              {I18NextService.i18n.t("are_you_sure")}
+            </button>
+            <button
+              className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
+              aria-label={I18NextService.i18n.t("yes")}
+              onClick={linkEvent(this, this.handleTransferCommunity)}
+            >
+              {this.state.transferLoading ? (
+                <Spinner />
+              ) : (
+                I18NextService.i18n.t("yes")
+              )}
+            </button>
+            <button
+              className="btn btn-link btn-animate text-muted py-0 d-inline-block"
+              onClick={linkEvent(
+                this,
+                this.handleCancelShowConfirmTransferCommunity
+              )}
+              aria-label={I18NextService.i18n.t("no")}
+            >
+              {I18NextService.i18n.t("no")}
+            </button>
+          </>
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
@@ -1425,7 +1413,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.mobileThumbnail()}
 
               {this.commentsLine(true)}
-              {this.userActionsLine()}
               {this.duplicatesLine()}
               {this.removeAndBanDialogs()}
             </div>
@@ -1457,7 +1444,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   {this.createdLine()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
-                  {this.userActionsLine()}
                   {this.removeAndBanDialogs()}
                 </div>
               </div>
