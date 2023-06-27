@@ -322,7 +322,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 getRoleLabelPill({
                   label: I18NextService.i18n.t("op").toUpperCase(),
                   tooltip: I18NextService.i18n.t("creator"),
-                  classes: "text-bg-info text-black",
+                  classes: "text-bg-info",
                   shrink: false,
                 })}
 
@@ -330,14 +330,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 getRoleLabelPill({
                   label: I18NextService.i18n.t("mod"),
                   tooltip: I18NextService.i18n.t("mod"),
-                  classes: "text-bg-primary text-black",
+                  classes: "text-bg-primary",
                 })}
 
               {isAdmin_ &&
                 getRoleLabelPill({
                   label: I18NextService.i18n.t("admin"),
                   tooltip: I18NextService.i18n.t("admin"),
-                  classes: "text-bg-danger text-white",
+                  classes: "text-bg-danger",
                 })}
 
               {cv.creator.bot_account &&
