@@ -53,6 +53,8 @@ interface SettingsState {
   // TODO redo these forms
   saveUserSettingsForm: {
     show_nsfw?: boolean;
+    blur_nsfw?: boolean;
+    auto_expand?: boolean;
     theme?: string;
     default_sort_type?: SortType;
     default_listing_type?: ListingType;
@@ -175,6 +177,8 @@ export class Settings extends Component<any, SettingsState> {
       const {
         local_user: {
           show_nsfw,
+          blur_nsfw,
+          auto_expand,
           theme,
           default_sort_type,
           default_listing_type,
@@ -204,6 +208,8 @@ export class Settings extends Component<any, SettingsState> {
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
           show_nsfw,
+          blur_nsfw,
+          auto_expand,
           theme: theme ?? "browser",
           default_sort_type,
           default_listing_type,
