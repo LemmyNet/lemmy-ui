@@ -30,7 +30,7 @@ export function setCacheControl({
   next: NextFunction;
 }) {
   const user = UserService.Instance;
-  var caching;
+  let caching;
   if (user.auth()) {
     caching = "private";
   } else {
