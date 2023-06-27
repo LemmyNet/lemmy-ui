@@ -692,6 +692,8 @@ export class Profile extends Component<
             >
               {I18NextService.i18n.t("cancel")}
             </button>
+          </div>
+          <div className="mb-3 row">
             <button
               type="submit"
               className="btn btn-secondary"
