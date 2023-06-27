@@ -339,7 +339,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   shrunkenLabelClasses: "text-danger",
                 })}
 
-              {true &&
+              {cv.creator.bot_account &&
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("bot_account").toLowerCase(),
                   tooltip: I18NextService.i18n.t("bot_account"),
