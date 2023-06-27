@@ -692,6 +692,45 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {(this.canMod_ || this.canAdmin_) && (
               <li>{this.modRemoveButton}</li>
             )}
+
+            {this.canMod_ && (
+              <>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                {!this.creatorIsMod_ &&
+                  (!post_view.creator_banned_from_community ? (
+                    <li>{this.modBanFromCommunityButton}</li>
+                  ) : (
+                    <li>{this.modUnbanFromCommunityButton}</li>
+                  ))}
+                {!post_view.creator_banned_from_community && (
+                  <li>{this.addModToCommunityButton}</li>
+                )}
+              </>
+            )}
+            {/* Admins can ban from all, and appoint other admins */}
+            {this.canAdmin_ && (
+              <>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                {!this.creatorIsAdmin_ && (
+                  <>
+                    {!isBanned(post_view.creator) ? (
+                      <li>{this.modBanButton}</li>
+                    ) : (
+                      <li>{this.modUnbanButton}</li>
+                    )}
+                    <li>{this.purgePersonButton}</li>
+                    <li>{this.purgePostButton}</li>
+                  </>
+                )}
+                {!isBanned(post_view.creator) && post_view.creator.local && (
+                  <li>{this.toggleAdminButton}</li>
+                )}
+              </>
+            )}
           </ul>
         </div>
       </>
@@ -959,7 +998,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modBanFromCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanFromCommunityShow)}
         aria-label={I18NextService.i18n.t("ban_from_community")}
       >
@@ -971,7 +1010,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modUnbanFromCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanFromCommunitySubmit)}
         aria-label={I18NextService.i18n.t("unban")}
       >
@@ -983,7 +1022,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get addModToCommunityButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handleAddModToCommunity)}
         aria-label={
           this.creatorIsMod_
@@ -1005,7 +1044,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modBanButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanShow)}
         aria-label={I18NextService.i18n.t("ban_from_site")}
       >
@@ -1017,7 +1056,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get modUnbanButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanSubmit)}
         aria-label={I18NextService.i18n.t("unban_from_site")}
       >
@@ -1033,7 +1072,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get purgePersonButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handlePurgePersonShow)}
         aria-label={I18NextService.i18n.t("purge_user")}
       >
@@ -1045,7 +1084,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get purgePostButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handlePurgePostShow)}
         aria-label={I18NextService.i18n.t("purge_post")}
       >
@@ -1057,7 +1096,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get toggleAdminButton() {
     return (
       <button
-        className="btn btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0 dropdown-item"
         onClick={linkEvent(this, this.handleAddAdmin)}
       >
         {this.state.addAdminLoading ? (
@@ -1102,17 +1141,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       this.state.showAdvanced && (
         <div className="mt-3">
-          {this.canMod_ && (
-            <>
-              {!this.creatorIsMod_ &&
-                (!post_view.creator_banned_from_community
-                  ? this.modBanFromCommunityButton
-                  : this.modUnbanFromCommunityButton)}
-              {!post_view.creator_banned_from_community &&
-                this.addModToCommunityButton}
-            </>
-          )}
-
           {/* Community creators and admins can transfer community to another mod */}
           {(amCommunityCreator(post_view.creator.id, this.props.moderators) ||
             this.canAdmin_) &&
@@ -1159,23 +1187,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 </button>
               </>
             ))}
-          {/* Admins can ban from all, and appoint other admins */}
-          {this.canAdmin_ && (
-            <>
-              {!this.creatorIsAdmin_ && (
-                <>
-                  {!isBanned(post_view.creator)
-                    ? this.modBanButton
-                    : this.modUnbanButton}
-                  {this.purgePersonButton}
-                  {this.purgePostButton}
-                </>
-              )}
-              {!isBanned(post_view.creator) &&
-                post_view.creator.local &&
-                this.toggleAdminButton}
-            </>
-          )}
         </div>
       )
     );
