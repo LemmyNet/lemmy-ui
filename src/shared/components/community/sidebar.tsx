@@ -260,20 +260,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   subscribe() {
     const community_view = this.props.community_view;
     return (
-      <>
-        {community_view.subscribed == "NotSubscribed" && (
-          <button
-            className="btn btn-secondary d-block mb-2 w-100"
-            onClick={linkEvent(this, this.handleFollowCommunity)}
-          >
-            {this.state.followCommunityLoading ? (
-              <Spinner />
-            ) : (
-              I18NextService.i18n.t("subscribe")
-            )}
-          </button>
-        )}
-      </>
+      community_view.subscribed === "NotSubscribed" && (
+        <button
+          className="btn btn-secondary d-block mb-2 w-100"
+          onClick={linkEvent(this, this.handleFollowCommunity)}
+        >
+          {this.state.followCommunityLoading ? (
+            <Spinner />
+          ) : (
+            I18NextService.i18n.t("subscribe")
+          )}
+        </button>
+      )
     );
   }
 
@@ -281,18 +279,16 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const { subscribed, blocked } = this.props.community_view;
 
     return (
-      <>
-        {subscribed == "NotSubscribed" && (
-          <button
-            className="btn btn-danger d-block mb-2 w-100"
-            onClick={linkEvent(this, this.handleBlockCommunity)}
-          >
-            {I18NextService.i18n.t(
-              blocked ? "unblock_community" : "block_community"
-            )}
-          </button>
-        )}
-      </>
+      subscribed === "NotSubscribed" && (
+        <button
+          className="btn btn-danger d-block mb-2 w-100"
+          onClick={linkEvent(this, this.handleBlockCommunity)}
+        >
+          {I18NextService.i18n.t(
+            blocked ? "unblock_community" : "block_community"
+          )}
+        </button>
+      )
     );
   }
 
