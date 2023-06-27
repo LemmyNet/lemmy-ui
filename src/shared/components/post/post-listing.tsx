@@ -49,7 +49,7 @@ import {
   PurgeType,
   VoteContentType,
 } from "../../interfaces";
-import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
+import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -328,16 +328,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (!this.props.hideImage && url && isImage(url) && this.imageSrc) {
       return (
-        <a
-          href={this.imageSrc}
-          className="text-body d-inline-block position-relative mb-2"
+        <button
+          type="button"
+          className="d-inline-block position-relative mb-2 p-0 border-0"
           data-tippy-content={I18NextService.i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={I18NextService.i18n.t("expand_here")}
         >
           {this.imgThumb(this.imageSrc)}
-          <Icon icon="image" classes="mini-overlay" />
-        </a>
+          <Icon
+            icon="image"
+            classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
+          />
+        </button>
       );
     } else if (!this.props.hideImage && url && thumbnail && this.imageSrc) {
       return (
@@ -348,7 +351,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           title={url}
         >
           {this.imgThumb(this.imageSrc)}
-          <Icon icon="external-link" classes="mini-overlay" />
+          <Icon
+            icon="external-link"
+            classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
+          />
         </a>
       );
     } else if (url) {
