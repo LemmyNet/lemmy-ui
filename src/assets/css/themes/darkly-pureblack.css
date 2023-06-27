@@ -2086,9 +2086,9 @@ progress {
   font-weight: 400;
   line-height: 1.5;
   color: #f3f3f3;
-  background-color: #202020;
+  background-color: #111;
   background-clip: padding-box;
-  border: var(--bs-border-width) solid #333;
+  border: var(--bs-border-width) solid #202020;
   appearance: none;
   border-radius: var(--bs-border-radius);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -2106,7 +2106,7 @@ progress {
 }
 .form-control:focus {
   color: #f3f3f3;
-  background-color: #202020;
+  background-color: #111;
   border-color: #80dec6;
   outline: 0;
   box-shadow: 0 0 0 0.25rem rgba(0, 188, 140, 0.25);
@@ -2236,12 +2236,12 @@ textarea.form-control-lg {
   font-weight: 400;
   line-height: 1.5;
   color: #f3f3f3;
-  background-color: #202020;
+  background-color: #111;
   background-image: var(--bs-form-select-bg-img), var(--bs-form-select-bg-icon, none);
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px 12px;
-  border: var(--bs-border-width) solid #333;
+  border: var(--bs-border-width) solid #202020;
   border-radius: var(--bs-border-radius);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   appearance: none;
@@ -2311,7 +2311,7 @@ textarea.form-control-lg {
 }
 
 .form-check-input {
-  --bs-form-check-bg: #202020;
+  --bs-form-check-bg: #111;
   width: 1em;
   height: 1em;
   margin-top: 0.25em;
@@ -2569,7 +2569,7 @@ textarea.form-control-lg {
   z-index: -1;
   height: 1.5em;
   content: "";
-  background-color: #202020;
+  background-color: #111;
   border-radius: var(--bs-border-radius);
 }
 .form-floating > .form-control:-webkit-autofill ~ label {
@@ -2625,7 +2625,7 @@ textarea.form-control-lg {
   text-align: center;
   white-space: nowrap;
   background-color: #202020;
-  border: var(--bs-border-width) solid #333;
+  border: var(--bs-border-width) solid #202020;
   border-radius: var(--bs-border-radius);
 }
 
@@ -4272,7 +4272,7 @@ textarea.form-control-lg {
   --bs-card-inner-border-radius: calc(var(--bs-border-radius) - (var(--bs-border-width)));
   --bs-card-cap-padding-y: 0.5rem;
   --bs-card-cap-padding-x: 1rem;
-  --bs-card-cap-bg: #202020;
+  --bs-card-cap-bg: #111;
   --bs-card-cap-color: ;
   --bs-card-height: ;
   --bs-card-color: #dee2e6;

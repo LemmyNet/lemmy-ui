@@ -38,7 +38,7 @@ $h1-font-size: 3rem;
 $h2-font-size: 2.5rem;
 $h3-font-size: 2rem;
 
-$card-cap-bg: $gray-800;
+$card-cap-bg: $gray-900;
 $card-bg: $gray-900;
 $card-color: $gray-300;
 
@@ -62,10 +62,10 @@ $nav-tabs-link-active-color: $white;
 $nav-tabs-link-active-border-color: $nav-tabs-border-color
   $nav-tabs-border-color transparent;
 
-$input-bg: $gray-800;
+$input-bg: $gray-900;
 $input-color: $white;
-$input-disabled-bg: darken($gray-900, 10%);
-$input-border-color: $gray-700;
+$input-disabled-bg: darken($gray-900, 20%);
+$input-border-color: $gray-800;
 $input-group-addon-color: $gray-800;
 $input-group-addon-bg: $gray-800;
 
