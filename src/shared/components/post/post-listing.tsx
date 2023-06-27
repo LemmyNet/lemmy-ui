@@ -49,7 +49,7 @@ import {
   PurgeType,
   VoteContentType,
 } from "../../interfaces";
-import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
+import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -489,19 +489,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
            * If there is a URL, an embed title, and we were not told to show the
            * body by the parent component, show the MetadataCard/body toggle.
            */}
-          {!this.props.showBody && post.url && post.embed_title && (
-            <button
-              className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
-              data-tippy-content={post.body && mdNoImages.render(post.body)}
-              data-tippy-allowHtml={true}
-              onClick={linkEvent(this, this.handleShowBody)}
-            >
-              <Icon
-                icon={!this.state.showBody ? "plus-square" : "minus-square"}
-                classes="icon-inline"
-              />
-            </button>
-          )}
+          {!this.props.showBody &&
+            post.url &&
+            post.embed_title &&
+            this.showPreviewButton()}
 
           {post.removed && (
             <small className="ms-2 badge text-bg-secondary">
@@ -1377,6 +1368,21 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       </div>
     ) : (
       this.postTitleLine()
+    );
+  }
+
+  showPreviewButton() {
+    return (
+      <button
+        type="button"
+        className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
+        onClick={linkEvent(this, this.handleShowBody)}
+      >
+        <Icon
+          icon={!this.state.showBody ? "plus-square" : "minus-square"}
+          classes="icon-inline"
+        />
+      </button>
     );
   }
 
