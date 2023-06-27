@@ -1411,9 +1411,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
 
-              {/* Show a preview of the post body */}
-              {this.showBodyPreview()}
-
               {this.commentsLine(true)}
               {this.userActionsLine()}
               {this.duplicatesLine()}
@@ -1445,7 +1442,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <div className="col-12 col-sm-9 col-lg-10">
                   {this.postTitleLine()}
                   {this.createdLine()}
-                  {this.showBodyPreview()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
                   {this.userActionsLine()}
