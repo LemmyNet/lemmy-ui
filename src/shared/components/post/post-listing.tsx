@@ -49,7 +49,7 @@ import {
   PurgeType,
   VoteContentType,
 } from "../../interfaces";
-import { mdNoImages, mdToHtml, mdToHtmlInline } from "../../markdown";
+import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -624,27 +624,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  showPreviewButton() {
-    const post_view = this.postView;
-    const body = post_view.post.body;
-
-    return (
-      <button
-        className="btn btn-sm btn-animate text-muted py-0"
-        data-tippy-content={body && mdNoImages.render(body)}
-        data-tippy-allowHtml={true}
-        onClick={linkEvent(this, this.handleShowBody)}
-      >
-        <Icon
-          icon="book-open"
-          classes={classNames("icon-inline me-1", {
-            "text-success": this.state.showBody,
-          })}
-        />
-      </button>
-    );
-  }
-
   postActions() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
@@ -655,13 +634,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         {this.saveButton}
         {this.crossPostButton}
-
-        {/**
-         * If there is a URL, or if the post has a body and we were told not to
-         * show the body, show the MetadataCard/body toggle.
-         */}
-        {(post.url || (post.body && !this.props.showBody)) &&
-          this.showPreviewButton()}
 
         {this.showBody && post_view.post.body && this.viewSourceButton}
 
