@@ -321,22 +321,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("op").toUpperCase(),
                   tooltip: I18NextService.i18n.t("creator"),
-                  parentClasses: "text-info",
-                  shrinkToSingleLetter: false,
+                  classes: "text-bg-info text-black",
+                  shrink: false,
                 })}
 
               {isMod_ &&
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("mod"),
                   tooltip: I18NextService.i18n.t("mod"),
-                  shrunkenLabelClasses: "text-primary",
+                  classes: "text-bg-primary text-black",
                 })}
 
               {isAdmin_ &&
                 this.getRoleLabelPill({
                   label: I18NextService.i18n.t("admin"),
                   tooltip: I18NextService.i18n.t("admin"),
-                  shrunkenLabelClasses: "text-danger",
+                  classes: "text-bg-danger text-black",
                 })}
 
               {cv.creator.bot_account &&
@@ -1202,43 +1202,21 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   getRoleLabelPill({
     label,
     tooltip,
-    parentClasses,
-    shrunkenLabelClasses,
-    hideOnMobile = false,
-    shrinkToSingleLetter = true,
+    classes,
+    shrink = true,
   }: {
     label: string;
     tooltip: string;
-    parentClasses?: string;
-    shrunkenLabelClasses?: string;
-    hideOnMobile?: boolean;
-    shrinkToSingleLetter?: boolean;
+    classes?: string;
+    shrink?: boolean;
   }) {
-    const parentClassNames = classNames(
-      `badge me-1 text-bg-light ${parentClasses}`,
-      {
-        "d-none d-md-inline": hideOnMobile,
-      }
-    );
-
-    let fullLabelClassNames = "d-none d-md-inline";
-    let shrunkenLabelClassNames = `d-inline d-md-none ${shrunkenLabelClasses}`;
-
-    if (!shrinkToSingleLetter) {
-      fullLabelClassNames = "";
-      shrunkenLabelClassNames = "d-none";
-    }
-
     return (
       <span
-        className={parentClassNames}
+        className={`badge me-1 ${classes ?? "text-bg-light"}`}
         aria-label={tooltip}
         data-tippy-content={tooltip}
       >
-        <span className={fullLabelClassNames}>{label}</span>
-        <span className={shrunkenLabelClassNames}>
-          {label[0].toUpperCase()}
-        </span>
+        {shrink ? label[0].toUpperCase() : label}
       </span>
     );
   }
