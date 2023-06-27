@@ -159,13 +159,16 @@ export class MarkdownTextArea extends Component<
         <div className="mb-3 row">
           <div className="col-12">
             <div className="rounded bg-light border">
-              <div className="d-flex flex-wrap border-bottom">
+              <div
+                className={`d-flex flex-wrap border-bottom ${
+                  this.isDisabled ? "no-click" : ""
+                }`}
+              >
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
                 {this.getFormatButton("link", this.handleInsertLink)}
                 <EmojiPicker
                   onEmojiClick={e => this.handleEmoji(this, e)}
-                  disabled={this.isDisabled}
                 ></EmojiPicker>
                 <form className="btn btn-sm text-muted fw-bold">
                   <label
@@ -188,9 +191,7 @@ export class MarkdownTextArea extends Component<
                     name="file"
                     className="d-none"
                     multiple
-                    disabled={
-                      !UserService.Instance.myUserInfo || this.isDisabled
-                    }
+                    disabled={!UserService.Instance.myUserInfo}
                     onChange={linkEvent(this, this.handleImageUpload)}
                   />
                 </form>
@@ -352,7 +353,6 @@ export class MarkdownTextArea extends Component<
         data-tippy-content={I18NextService.i18n.t(type)}
         aria-label={I18NextService.i18n.t(type)}
         onClick={linkEvent(this, handleClick)}
-        disabled={this.isDisabled}
       >
         <Icon icon={iconType} classes="icon-inline" />
       </button>
