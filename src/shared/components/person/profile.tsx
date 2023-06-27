@@ -205,6 +205,7 @@ export class Profile extends Component<
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -691,6 +692,8 @@ export class Profile extends Component<
             >
               {I18NextService.i18n.t("cancel")}
             </button>
+          </div>
+          <div className="mb-3 row">
             <button
               type="submit"
               className="btn btn-secondary"
@@ -987,6 +990,7 @@ export class Profile extends Component<
           s.personRes.data.comments
             .filter(c => c.creator.id == banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
+          s.personRes.data.person_view.person.banned = banRes.data.banned;
         }
         return s;
       });
