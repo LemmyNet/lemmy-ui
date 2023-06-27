@@ -950,7 +950,7 @@ export class Search extends Component<any, SearchState> {
       if (auth) {
         this.setState({ resolveObjectRes: { state: "loading" } });
         this.setState({
-          resolveObjectRes: await HttpService.client.resolveObject({
+          resolveObjectRes: await HttpService.silent_client.resolveObject({
             q,
             auth,
           }),
