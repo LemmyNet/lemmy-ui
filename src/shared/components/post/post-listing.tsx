@@ -1433,7 +1433,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             )}
             <div className="col flex-grow-1">
               <div className="row">
-                <div className="col-sm-3 col-lg-2 pe-0 post-media">
+                <div className="col-auto pe-0 post-media">
                   <div className="">{this.thumbnail()}</div>
                 </div>
                 <div className="col-12 col-sm-9 col-lg-10">
