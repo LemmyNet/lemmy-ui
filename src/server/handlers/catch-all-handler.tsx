@@ -75,7 +75,12 @@ export default async (req: Request, res: Response) => {
 
         routeData = await activeRoute.fetchInitialData(initialFetchReq);
       }
+
+      if (!activeRoute) {
+        res.status(404);
+      }
     } else if (try_site.state === "failed") {
+      res.status(500);
       errorPageData = getErrorPageData(new Error(try_site.msg), site);
     }
 
@@ -89,6 +94,7 @@ export default async (req: Request, res: Response) => {
       if (error.msg === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
+        res.status(500);
         errorPageData = getErrorPageData(new Error(error.msg), site);
       }
     }
