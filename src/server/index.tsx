@@ -9,7 +9,7 @@ import RobotsHandler from "./handlers/robots-handler";
 import ServiceWorkerHandler from "./handlers/service-worker-handler";
 import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
-import setDefaultCsp from "./middleware/set-default-csp";
+import { setCacheControl, setDefaultCsp } from "./middleware";
 
 const server = express();
 
@@ -20,6 +20,7 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 server.use("/static", express.static(path.resolve("./dist")));
+server.use(setCacheControl);
 
 if (!process.env["LEMMY_UI_DISABLE_CSP"] && !process.env["LEMMY_UI_DEBUG"]) {
   server.use(setDefaultCsp);
