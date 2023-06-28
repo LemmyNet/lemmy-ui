@@ -8,6 +8,7 @@ const themes: ReadonlyArray<string> = [
   "darkly",
   "darkly-red",
   "darkly-compact",
+  "darkly-pureblack",
   "litely",
   "litely-red",
   "litely-compact",
