@@ -432,7 +432,9 @@ export class Search extends Component<any, SearchState> {
             q: query,
             auth,
           };
-          resolveObjectResponse = await client.resolveObject(resolveObjectForm);
+          resolveObjectResponse = await HttpService.silent_client.resolveObject(
+            resolveObjectForm
+          );
         }
       }
     }
