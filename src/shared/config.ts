@@ -21,8 +21,18 @@ export const markdownFieldCharacterLimit = 50000;
 export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
 export const updateUnreadCountsInterval = 30000;
-export const fetchLimit = 40;
+export const fetchLimit = 20;
 export const relTags = "noopener nofollow";
 export const emDash = "\u2014";
+
+/**
+ * Accepted formats:
+ * !community@server.com
+ * /c/community@server.com
+ * /m/community@server.com
+ * /u/username@server.com
+ */
+export const instanceLinkRegex =
+  /(\/[cmu]\/|!)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 
 export const testHost = "0.0.0.0:8536";

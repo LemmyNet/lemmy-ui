@@ -1,6 +1,7 @@
-import { capitalizeFirstLetter } from "@utils/helpers";
+import { capitalizeFirstLetter, formatPastDate } from "@utils/helpers";
+import format from "date-fns/format";
+import parseISO from "date-fns/parseISO";
 import { Component } from "inferno";
-import moment from "moment";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 
@@ -11,22 +12,24 @@ interface MomentTimeProps {
   ignoreUpdated?: boolean;
 }
 
+function formatDate(input: string) {
+  return format(parseISO(input), "PPPPpppp");
+}
+
 export class MomentTime extends Component<MomentTimeProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
-
-    moment.locale([...I18NextService.i18n.languages]);
   }
 
   createdAndModifiedTimes() {
     const updated = this.props.updated;
     let line = `${capitalizeFirstLetter(
       I18NextService.i18n.t("created")
-    )}: ${this.format(this.props.published)}`;
+    )}: ${formatDate(this.props.published)}`;
     if (updated) {
       line += `\n\n\n${capitalizeFirstLetter(
         I18NextService.i18n.t("modified")
-      )} ${this.format(updated)}`;
+      )} ${formatDate(updated)}`;
     }
     return line;
   }
@@ -36,10 +39,10 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       return (
         <span
           data-tippy-content={this.createdAndModifiedTimes()}
-          className="moment-time font-italics pointer unselectable"
+          className="moment-time fst-italic pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
-          {moment.utc(this.props.updated).fromNow(!this.props.showAgo)}
+          {formatPastDate(this.props.updated)}
         </span>
       );
     } else {
@@ -47,15 +50,11 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       return (
         <span
           className="moment-time pointer unselectable"
-          data-tippy-content={this.format(published)}
+          data-tippy-content={formatDate(published)}
         >
-          {moment.utc(published).fromNow(!this.props.showAgo)}
+          {formatPastDate(published)}
         </span>
       );
     }
-  }
-
-  format(input: string): string {
-    return moment.utc(input).local().format("LLLL");
   }
 }

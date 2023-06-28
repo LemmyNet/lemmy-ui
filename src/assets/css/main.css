@@ -84,7 +84,7 @@
   margin-top: -6.5px;
 }
 
-.post-title a:visited {
+.post-title a:visited:not(:hover) {
   color: var(--bs-gray) !important;
 }
 
@@ -124,7 +124,8 @@
 
 .emoji-picker-container {
   position: absolute;
-  top: 30px;
+  top: 0;
+  left: 50%;
   z-index: 1000;
   transform: translateX(-50%);
 }
@@ -197,9 +198,9 @@ blockquote {
 
 .thumbnail {
   object-fit: cover;
-  min-height: 60px;
-  max-height: 80px;
+  aspect-ratio: 4/3;
   width: 100%;
+  max-height: 6rem;
 }
 
 .thumbnail svg {
@@ -275,10 +276,7 @@ hr {
 }
 
 .mini-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 2px;
+  display: block;
   height: 1.5em;
   width: 1.5em;
   background: rgba(0, 0, 0, 0.4);
@@ -362,8 +360,9 @@ br.big {
 }
 
 .img-icon {
-  width: 2rem;
-  height: 2rem;
+  width: calc(var(--bs-body-line-height) * 1em);
+  height: calc(var(--bs-body-line-height) * 1em);
+  border-radius: 0.25em;
 }
 
 .tribute-container ul {

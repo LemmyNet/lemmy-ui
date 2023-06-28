@@ -7,8 +7,11 @@ const extraThemesFolder =
 const themes: ReadonlyArray<string> = [
   "darkly",
   "darkly-red",
+  "darkly-compact",
+  "darkly-pureblack",
   "litely",
   "litely-red",
+  "litely-compact",
 ];
 
 export async function buildThemeList(): Promise<ReadonlyArray<string>> {

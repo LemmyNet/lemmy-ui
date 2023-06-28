@@ -11,6 +11,7 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
@@ -243,7 +244,9 @@ export class Inbox extends Component<any, InboxState> {
                 {this.state.markAllAsReadRes.state == "loading" ? (
                   <Spinner />
                 ) : (
-                  I18NextService.i18n.t("mark_all_as_read")
+                  capitalizeFirstLetter(
+                    I18NextService.i18n.t("mark_all_as_read")
+                  )
                 )}
               </button>
             )}
@@ -449,7 +452,6 @@ export class Inbox extends Component<any, InboxState> {
             ]}
             viewType={CommentViewType.Flat}
             finished={this.state.finished}
-            noIndent
             markable
             showCommunity
             showContext
@@ -489,7 +491,6 @@ export class Inbox extends Component<any, InboxState> {
             ]}
             finished={this.state.finished}
             viewType={CommentViewType.Flat}
-            noIndent
             markable
             showCommunity
             showContext
@@ -567,7 +568,6 @@ export class Inbox extends Component<any, InboxState> {
               nodes={commentsToFlatNodes(replies)}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
-              noIndent
               markable
               showCommunity
               showContext
@@ -617,7 +617,6 @@ export class Inbox extends Component<any, InboxState> {
                 nodes={[{ comment_view: umv, children: [], depth: 0 }]}
                 viewType={CommentViewType.Flat}
                 finished={this.state.finished}
-                noIndent
                 markable
                 showCommunity
                 showContext

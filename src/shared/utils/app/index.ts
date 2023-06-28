@@ -29,6 +29,7 @@ import getDataTypeString from "./get-data-type-string";
 import getDepthFromComment from "./get-depth-from-comment";
 import getIdFromProps from "./get-id-from-props";
 import getRecipientIdFromProps from "./get-recipient-id-from-props";
+import getRoleLabelPill from "./get-role-label-pill";
 import getUpdatedSearchId from "./get-updated-search-id";
 import initializeSite from "./initialize-site";
 import insertCommentIntoTree from "./insert-comment-into-tree";
@@ -46,6 +47,7 @@ import searchCommentTree from "./search-comment-tree";
 import selectableLanguages from "./selectable-languages";
 import setIsoData from "./set-iso-data";
 import setTheme from "./set-theme";
+import setupDateFns from "./setup-date-fns";
 import showAvatars from "./show-avatars";
 import showLocal from "./show-local";
 import showScores from "./show-scores";
@@ -85,6 +87,7 @@ export {
   getDepthFromComment,
   getIdFromProps,
   getRecipientIdFromProps,
+  getRoleLabelPill,
   getUpdatedSearchId,
   initializeSite,
   insertCommentIntoTree,
@@ -102,6 +105,7 @@ export {
   selectableLanguages,
   setIsoData,
   setTheme,
+  setupDateFns,
   showAvatars,
   showLocal,
   showScores,
