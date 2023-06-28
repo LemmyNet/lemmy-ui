@@ -1,0 +1,12 @@
+@import "variables.i386";
+@import "../../../../node_modules/bootstrap/scss/bootstrap";
+
+.btn-outline-secondary {
+  color: $gray-500;
+}
+
+.dropdown-item.active,
+.dropdown-item:hover,
+option:disabled {
+  color: $secondary;
+}
