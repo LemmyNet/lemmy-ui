@@ -331,16 +331,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (!this.props.hideImage && url && isImage(url) && this.imageSrc) {
       return (
-        <a
-          href={this.imageSrc}
-          className="text-body d-inline-block position-relative mb-2"
+        <button
+          type="button"
+          className="d-inline-block position-relative mb-2 p-0 border-0"
           data-tippy-content={I18NextService.i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={I18NextService.i18n.t("expand_here")}
         >
           {this.imgThumb(this.imageSrc)}
-          <Icon icon="image" classes="mini-overlay" />
-        </a>
+          <Icon
+            icon="image"
+            classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
+          />
+        </button>
       );
     } else if (!this.props.hideImage && url && thumbnail && this.imageSrc) {
       return (
@@ -351,7 +354,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           title={url}
         >
           {this.imgThumb(this.imageSrc)}
-          <Icon icon="external-link" classes="mini-overlay" />
+          <Icon
+            icon="external-link"
+            classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
+          />
         </a>
       );
     } else if (url) {
@@ -406,13 +412,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           getRoleLabelPill({
             label: I18NextService.i18n.t("mod"),
             tooltip: I18NextService.i18n.t("mod"),
-            classes: "text-bg-primary text-black",
+            classes: "text-bg-primary",
           })}
         {this.creatorIsAdmin_ &&
           getRoleLabelPill({
             label: I18NextService.i18n.t("admin"),
             tooltip: I18NextService.i18n.t("admin"),
-            classes: "text-bg-danger text-white",
+            classes: "text-bg-danger",
           })}
         {post_view.creator.bot_account &&
           getRoleLabelPill({
