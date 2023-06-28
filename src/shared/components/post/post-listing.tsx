@@ -1015,7 +1015,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanFromCommunityShow)}
-        aria-label={I18NextService.i18n.t("ban_from_community")}
       >
         {I18NextService.i18n.t("ban_from_community")}
       </button>
@@ -1027,7 +1026,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanFromCommunitySubmit)}
-        aria-label={I18NextService.i18n.t("unban")}
       >
         {this.state.banLoading ? <Spinner /> : I18NextService.i18n.t("unban")}
       </button>
@@ -1039,11 +1037,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleAddModToCommunity)}
-        aria-label={
-          this.creatorIsMod_
-            ? capitalizeFirstLetter(I18NextService.i18n.t("remove_as_mod"))
-            : capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_mod"))
-        }
       >
         {this.state.addModLoading ? (
           <Spinner />
@@ -1061,7 +1054,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanShow)}
-        aria-label={I18NextService.i18n.t("ban_from_site")}
       >
         {capitalizeFirstLetter(I18NextService.i18n.t("ban_from_site"))}
       </button>
@@ -1073,9 +1065,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModBanSubmit)}
-        aria-label={capitalizeFirstLetter(
-          I18NextService.i18n.t("unban_from_site")
-        )}
       >
         {this.state.banLoading ? (
           <Spinner />
@@ -1091,7 +1080,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handlePurgePersonShow)}
-        aria-label={I18NextService.i18n.t("purge_user")}
       >
         {capitalizeFirstLetter(I18NextService.i18n.t("purge_user"))}
       </button>
@@ -1103,7 +1091,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handlePurgePostShow)}
-        aria-label={I18NextService.i18n.t("purge_post")}
       >
         {capitalizeFirstLetter(I18NextService.i18n.t("purge_post"))}
       </button>
@@ -1132,7 +1119,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleShowConfirmTransferCommunity)}
-        aria-label={I18NextService.i18n.t("transfer_community")}
       >
         {I18NextService.i18n.t("transfer_community")}
       </button>
@@ -1191,11 +1177,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               value={this.state.removeReason}
               onInput={linkEvent(this, this.handleModRemoveReasonChange)}
             />
-            <button
-              type="submit"
-              className="btn btn-secondary"
-              aria-label={I18NextService.i18n.t("remove_post")}
-            >
+            <button type="submit" className="btn btn-secondary">
               {this.state.removeLoading ? (
                 <Spinner />
               ) : (
@@ -1206,15 +1188,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showConfirmTransferCommunity && (
           <>
-            <button
-              className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0"
-              aria-label={I18NextService.i18n.t("are_you_sure")}
-            >
+            <button className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0">
               {I18NextService.i18n.t("are_you_sure")}
             </button>
             <button
               className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
-              aria-label={I18NextService.i18n.t("yes")}
               onClick={linkEvent(this, this.handleTransferCommunity)}
             >
               {this.state.transferLoading ? (
@@ -1288,11 +1266,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
             {/* </div> */}
             <div className="mb-3 row">
-              <button
-                type="submit"
-                className="btn btn-secondary"
-                aria-label={I18NextService.i18n.t("ban")}
-              >
+              <button type="submit" className="btn btn-secondary">
                 {this.state.banLoading ? (
                   <Spinner />
                 ) : (
@@ -1321,11 +1295,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               value={this.state.reportReason}
               onInput={linkEvent(this, this.handleReportReasonChange)}
             />
-            <button
-              type="submit"
-              className="btn btn-secondary"
-              aria-label={I18NextService.i18n.t("create_report")}
-            >
+            <button type="submit" className="btn btn-secondary">
               {this.state.reportLoading ? (
                 <Spinner />
               ) : (
@@ -1354,11 +1324,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {this.state.purgeLoading ? (
               <Spinner />
             ) : (
-              <button
-                type="submit"
-                className="btn btn-secondary"
-                aria-label={purgeTypeText}
-              >
+              <button type="submit" className="btn btn-secondary">
                 {this.state.purgeLoading ? <Spinner /> : { purgeTypeText }}
               </button>
             )}
