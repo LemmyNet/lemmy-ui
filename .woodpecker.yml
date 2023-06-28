@@ -32,3 +32,14 @@ pipeline:
       auto_tag: true
     when:
       event: tag
+
+  nightly_build:
+    image: woodpeckerci/plugin-docker-buildx
+    secrets: [docker_username, docker_password]
+    settings:
+      repo: dessalines/lemmy-ui
+      dockerfile: Dockerfile
+      platforms: linux/amd64
+      tag: dev
+    when:
+      event: cron
