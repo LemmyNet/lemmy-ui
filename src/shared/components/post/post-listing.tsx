@@ -412,13 +412,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           getRoleLabelPill({
             label: I18NextService.i18n.t("mod"),
             tooltip: I18NextService.i18n.t("mod"),
-            classes: "text-bg-primary text-black",
+            classes: "text-bg-primary",
           })}
         {this.creatorIsAdmin_ &&
           getRoleLabelPill({
             label: I18NextService.i18n.t("admin"),
             tooltip: I18NextService.i18n.t("admin"),
-            classes: "text-bg-danger text-white",
+            classes: "text-bg-danger",
           })}
         {post_view.creator.bot_account &&
           getRoleLabelPill({
