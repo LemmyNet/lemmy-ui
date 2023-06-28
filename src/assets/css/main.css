@@ -227,10 +227,6 @@ hr {
   text-overflow: ellipsis;
 }
 
-.overflow-hidden {
-  overflow: hidden;
-}
-
 .text-xs-center {
   text-align: center;
 }
