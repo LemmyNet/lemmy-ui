@@ -332,9 +332,7 @@ export class Search extends Component<any, SearchState> {
   }
 
   async componentDidMount() {
-    if (
-      !(this.state.isIsomorphic || this.props.history.location.state?.searched)
-    ) {
+    if (!this.state.isIsomorphic) {
       const promises = [this.fetchCommunities()];
       if (this.state.searchText) {
         promises.push(this.search());
@@ -435,6 +433,12 @@ export class Search extends Component<any, SearchState> {
           resolveObjectResponse = await HttpService.silent_client.resolveObject(
             resolveObjectForm
           );
+
+          // If we return this object with a state of failed, the catch-all-handler will redirect
+          // to an error page, so we ignore it by covering up the error with the empty state.
+          if (resolveObjectResponse.state == "failed") {
+            resolveObjectResponse = { state: "empty" };
+          }
         }
       }
     }
@@ -1099,10 +1103,6 @@ export class Search extends Component<any, SearchState> {
       sort: sort ?? urlSort,
     };
 
-    this.props.history.push(`/search${getQueryString(queryParams)}`, {
-      searched: true,
-    });
-
-    await this.search();
+    this.props.history.push(`/search${getQueryString(queryParams)}`);
   }
 }

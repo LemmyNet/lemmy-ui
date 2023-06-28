@@ -3,7 +3,7 @@ import { LemmyHttp } from "lemmy-js-client";
 import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
 
-type EmptyRequestState = {
+export type EmptyRequestState = {
   state: "empty";
 };
 
