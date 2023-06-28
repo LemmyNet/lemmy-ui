@@ -54,7 +54,6 @@ import showScores from "./show-scores";
 import siteBannerCss from "./site-banner-css";
 import updateCommunityBlock from "./update-community-block";
 import updatePersonBlock from "./update-person-block";
-import getUserInterfaceLangId from "./user-interface-language";
 
 export {
   buildCommentsTree,
@@ -90,7 +89,6 @@ export {
   getRecipientIdFromProps,
   getRoleLabelPill,
   getUpdatedSearchId,
-  getUserInterfaceLangId,
   initializeSite,
   insertCommentIntoTree,
   isAuthPath,
