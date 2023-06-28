@@ -1120,7 +1120,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleShowConfirmTransferCommunity)}
       >
-        {I18NextService.i18n.t("transfer_community")}
+        {capitalizeFirstLetter(I18NextService.i18n.t("transfer_community"))}
       </button>
     );
   }
