@@ -29,8 +29,6 @@ export function setCacheControl(
 ) {
   const user = UserService.Instance;
   let caching: string;
-  console.log("In middleware");
-  console.log(process.env.NODE_ENV);
 
   if (
     process.env.NODE_ENV === "production" &&
