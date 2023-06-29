@@ -20,7 +20,13 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
-server.use(getStaticDir(), express.static(path.resolve("./dist")));
+server.use(
+  getStaticDir(),
+  express.static(path.resolve("./dist"), {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    immutable: true,
+  })
+);
 server.use(setCacheControl);
 
 if (!process.env["LEMMY_UI_DISABLE_CSP"] && !process.env["LEMMY_UI_DEBUG"]) {
