@@ -27,7 +27,7 @@ COPY .git .git
 RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version.ts"
 
 RUN yarn --production --prefer-offline
-RUN yarn build:prod
+RUN NODE_OPTIONS="--max-old-space-size=8192" yarn build:prod
 
 # Prune the image
 RUN node-prune /usr/src/app/node_modules
