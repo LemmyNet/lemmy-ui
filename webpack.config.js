@@ -103,7 +103,7 @@ const createClientConfig = (env, mode) => {
     entry: "./src/client/index.tsx",
     output: {
       filename: "js/client.js",
-      publicPath: `/static/${env.COMMIT_HASH}`,
+      publicPath: `/static/${env.COMMIT_HASH}/`,
     },
     plugins: [
       ...base.plugins,
