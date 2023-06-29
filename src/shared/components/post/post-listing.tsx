@@ -401,10 +401,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
-  createdLine() {
+  createdLine({ extraClasses = "" }: { extraClasses?: string }) {
     const post_view = this.postView;
+
     return (
-      <div className="small">
+      <div className={`small ${extraClasses}`}>
         <span className="me-1">
           <PersonListing person={post_view.creator} />
         </span>
@@ -1373,7 +1374,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-block d-sm-none">
           <article className="row post-container">
             <div className="col-12">
-              <div className="mb-1">{this.createdLine()}</div>
+              {this.createdLine({
+                extraClasses: "mb-1",
+              })}
 
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
@@ -1407,7 +1410,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 </div>
                 <div className="col flex-grow-1">
                   {this.postTitleLine()}
-                  {this.createdLine()}
+                  {this.createdLine({})}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
                   {this.removeAndBanDialogs()}
