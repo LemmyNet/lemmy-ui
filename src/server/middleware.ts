@@ -27,6 +27,11 @@ export function setCacheControl(
   res: Response,
   next: NextFunction
 ) {
+  // Avoid setting Cache-Control in development
+  if (process.env.NODE_ENV === "development") {
+    return next();
+  }
+
   const user = UserService.Instance;
   let caching: string;
 
