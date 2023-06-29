@@ -187,6 +187,8 @@ function handleImageUpload(i: PostForm, event: any) {
           imageLoading: false,
           imageDeleteUrl: res.data.delete_url as string,
         });
+      } else if (res.data.msg === "too_large") {
+        toast(I18NextService.i18n.t("upload_too_large"), "danger");
       } else {
         toast(JSON.stringify(res), "danger");
       }

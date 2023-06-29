@@ -114,7 +114,7 @@ const createClientConfig = (env, mode) => {
             "/": `/static/${env.COMMIT_HASH}/`,
           },
           cacheId: "lemmy",
-          include: [/(assets|styles)\/.+\..+|client\.js$/g],
+          include: [/(assets|styles|js)\/.+\..+$/g],
           inlineWorkboxRuntime: true,
           runtimeCaching: [
             {
