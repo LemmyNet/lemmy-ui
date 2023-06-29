@@ -101,7 +101,7 @@ const createClientConfig = (_env, mode) => {
     entry: "./src/client/index.tsx",
     output: {
       filename: "js/client.js",
-      publicPath: `/static/${commitHash}`,
+      publicPath: `/static/${commitHash}`
     },
     plugins: [
       ...base.plugins,
@@ -112,7 +112,7 @@ const createClientConfig = (_env, mode) => {
             "/": `/static/${commitHash}/`,
           },
           cacheId: "lemmy",
-          include: [/(assets|styles)\/.+\..+|client\.js$/g],
+          include: [/(assets|styles|js)\/.+\..+$/g],
           inlineWorkboxRuntime: true,
           runtimeCaching: [
             {
