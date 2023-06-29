@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter, formatPastDate } from "@utils/helpers";
-import { formatInTimeZone } from "date-fns-tz";
+import { format } from "date-fns";
 import parseISO from "date-fns/parseISO";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
@@ -13,9 +13,8 @@ interface MomentTimeProps {
 }
 
 function formatDate(input: string) {
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const parsed = parseISO(input + "Z");
-  return formatInTimeZone(parsed, tz, "PPPPpppp");
+  return format(parsed, "PPPPpppp");
 }
 
 export class MomentTime extends Component<MomentTimeProps, any> {

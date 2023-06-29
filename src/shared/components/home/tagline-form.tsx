@@ -141,7 +141,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   handleEditTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
     event.preventDefault();
-    if (this.state.editingRow == d.index) {
+    if (d.i.state.editingRow == d.index) {
       d.i.setState({ editingRow: undefined });
     } else {
       d.i.setState({ editingRow: d.index });

@@ -1,6 +1,6 @@
 {
   "name": "lemmy-ui",
-  "version": "0.18.1-rc.3",
+  "version": "0.18.1-rc.5",
   "description": "An isomorphic UI for lemmy",
   "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
@@ -8,9 +8,9 @@
   "scripts": {
     "analyze": "webpack --mode=none",
     "prebuild:dev": "yarn clean && node generate_translations.js",
-    "build:dev": "webpack --mode=development",
+    "build:dev": "webpack --env COMMIT_HASH=$(git rev-parse --short HEAD) --mode=development",
     "prebuild:prod": "yarn clean && node generate_translations.js",
-    "build:prod": "webpack --mode=production",
+    "build:prod": "webpack --env COMMIT_HASH=$(git rev-parse --short HEAD) --mode=production",
     "clean": "yarn run rimraf dist",
     "dev": "yarn build:dev --watch",
     "lint": "yarn translations:generate && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx \"src/**\" && prettier --check \"src/**/*.{ts,tsx,js,css,scss}\"",
@@ -52,7 +52,6 @@
     "cross-fetch": "^3.1.5",
     "css-loader": "^6.7.3",
     "date-fns": "^2.30.0",
-    "date-fns-tz": "^2.0.0",
     "emoji-mart": "^5.4.0",
     "emoji-short-name": "^2.0.0",
     "express": "~4.18.2",
