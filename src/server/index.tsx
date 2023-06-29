@@ -38,7 +38,6 @@ server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);
 
 server.listen(Number(port), hostname, () => {
-  console.log(`HASH: ${process.env.COMMIT_HASH}`);
   setupDateFns();
   console.log(`http://${hostname}:${port}`);
 });
