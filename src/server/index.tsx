@@ -4,6 +4,7 @@ import path from "path";
 import process from "process";
 import CatchAllHandler from "./handlers/catch-all-handler";
 import ManifestHandler from "./handlers/manifest-handler";
+import SecurityHandler from "./handlers/security-handler";
 import RobotsHandler from "./handlers/robots-handler";
 import ServiceWorkerHandler from "./handlers/service-worker-handler";
 import ThemeHandler from "./handlers/theme-handler";
@@ -25,6 +26,7 @@ if (!process.env["LEMMY_UI_DISABLE_CSP"] && !process.env["LEMMY_UI_DEBUG"]) {
   server.use(setDefaultCsp);
 }
 
+server.get("/.well-known/security.txt", SecurityHandler);
 server.get("/robots.txt", RobotsHandler);
 server.get("/service-worker.js", ServiceWorkerHandler);
 server.get("/manifest.webmanifest", ManifestHandler);

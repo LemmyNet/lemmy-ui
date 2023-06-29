@@ -443,6 +443,10 @@ export class MarkdownTextArea extends Component<
         const textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
         pictrsDeleteToast(image.name, res.data.delete_url as string);
+      } else if (res.data.msg === "too_large") {
+        toast(I18NextService.i18n.t("upload_too_large"), "danger");
+        i.setState({ imageUploadStatus: undefined });
+        throw JSON.stringify(res.data);
       } else {
         throw JSON.stringify(res.data);
       }
