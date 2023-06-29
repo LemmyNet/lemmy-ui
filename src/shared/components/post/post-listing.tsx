@@ -403,8 +403,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   createdLine() {
     const post_view = this.postView;
+
     return (
-      <div className="small">
+      <div className="small mb-1 mb-md-0">
         <span className="me-1">
           <PersonListing person={post_view.creator} />
         </span>
