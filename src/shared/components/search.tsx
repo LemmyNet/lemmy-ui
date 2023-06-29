@@ -436,7 +436,7 @@ export class Search extends Component<any, SearchState> {
 
           // If we return this object with a state of failed, the catch-all-handler will redirect
           // to an error page, so we ignore it by covering up the error with the empty state.
-          if (resolveObjectResponse.state == "failed") {
+          if (resolveObjectResponse.state === "failed") {
             resolveObjectResponse = { state: "empty" };
           }
         }
