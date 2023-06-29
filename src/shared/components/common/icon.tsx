@@ -24,7 +24,7 @@ export class Icon extends Component<IconProps, any> {
         })}
       >
         <use
-          xlinkHref={`/static-${COMMIT_HASH}/assets/symbols.svg#icon-${this.props.icon}`}
+          xlinkHref={`/static/${COMMIT_HASH}/assets/symbols.svg#icon-${this.props.icon}`}
         ></use>
         <div className="visually-hidden">
           <title>{this.props.icon}</title>

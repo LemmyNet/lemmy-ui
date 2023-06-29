@@ -101,7 +101,7 @@ const createClientConfig = (_env, mode) => {
     entry: "./src/client/index.tsx",
     output: {
       filename: "js/client.js",
-      publicPath: `/static-${commitHash}`,
+      publicPath: `/static/${commitHash}`,
     },
     plugins: [
       ...base.plugins,
@@ -109,7 +109,7 @@ const createClientConfig = (_env, mode) => {
         enableInDevelopment: mode !== "development", // this may seem counterintuitive, but it is correct
         workbox: {
           modifyURLPrefix: {
-            "/": `/static-${commitHash}/`,
+            "/": `/static/${commitHash}/`,
           },
           cacheId: "lemmy",
           include: [/(assets|styles)\/.+\..+|client\.js$/g],

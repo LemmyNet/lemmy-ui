@@ -19,7 +19,7 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
-server.use(`/static-${COMMIT_HASH}`, express.static(path.resolve("./dist")));
+server.use(`/static/${COMMIT_HASH}`, express.static(path.resolve("./dist")));
 server.use(setCacheControl);
 
 if (!process.env["LEMMY_UI_DISABLE_CSP"] && !process.env["LEMMY_UI_DEBUG"]) {

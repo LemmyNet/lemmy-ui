@@ -90,7 +90,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
           showAvatars() && (
             <PictrsImage
               src={
-                avatar ?? `/static-${COMMIT_HASH}/assets/icons/icon-96x96.png`
+                avatar ?? `/static/${COMMIT_HASH}/assets/icons/icon-96x96.png`
               }
               icon
             />

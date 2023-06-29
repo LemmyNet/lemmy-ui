@@ -88,7 +88,7 @@ export async function createSsrHtml(
     <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
   
     <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="/static-${COMMIT_HASH}/styles/styles.css" />
+    <link rel="stylesheet" type="text/css" href="/static/${COMMIT_HASH}/styles/styles.css" />
   
     <!-- Current theme and more -->
     ${helmet.link.toString() || fallbackTheme}
@@ -103,7 +103,7 @@ export async function createSsrHtml(
       </noscript>
   
       <div id='root'>${root}</div>
-      <script defer src='/static-${COMMIT_HASH}/js/client.js'></script>
+      <script defer src='/static/${COMMIT_HASH}/js/client.js'></script>
     </body>
   </html>
   `;
