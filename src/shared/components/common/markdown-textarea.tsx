@@ -274,12 +274,8 @@ export class MarkdownTextArea extends Component<
               <LanguageSelect
                 iconVersion
                 allLanguages={this.props.allLanguages}
-                // Only set the selected language ID if it exists as an option
-                // in the dropdown; otherwise, set it to 0 (Undetermined)
                 selectedLanguageIds={
-                  languageId && this.props.siteLanguages.includes(languageId)
-                    ? [languageId]
-                    : [0]
+                  languageId ? Array.of(languageId) : undefined
                 }
                 siteLanguages={this.props.siteLanguages}
                 onChange={this.handleLanguageChange}
