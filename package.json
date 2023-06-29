@@ -22,16 +22,9 @@
     "translations:update": "git submodule update --remote --recursive"
   },
   "lint-staged": {
-    "*.{ts,tsx,js}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{css, scss}": [
-      "prettier --write"
-    ],
-    "package.json": [
-      "sortpack"
-    ]
+    "*.{ts,tsx,js}": ["prettier --write", "eslint --fix"],
+    "*.{css, scss}": ["prettier --write"],
+    "package.json": ["sortpack"]
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.21.0",
@@ -52,7 +45,6 @@
     "cross-fetch": "^3.1.5",
     "css-loader": "^6.7.3",
     "date-fns": "^2.30.0",
-    "date-fns-tz": "^2.0.0",
     "emoji-mart": "^5.4.0",
     "emoji-short-name": "^2.0.0",
     "express": "~4.18.2",
