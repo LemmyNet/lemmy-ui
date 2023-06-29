@@ -14,56 +14,62 @@ const banner = `
   @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3.0
   `;
 
-const base = {
-  output: {
-    filename: "js/server.js",
-    publicPath: "/",
-    hashFunction: "xxhash64",
-  },
-  resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
-    alias: {
-      "@": path.resolve(__dirname, "src/"),
-      "@utils": path.resolve(__dirname, "src/shared/utils/"),
+function getBase(env) {
+  return {
+    output: {
+      filename: "js/server.js",
+      publicPath: "/",
+      hashFunction: "xxhash64",
     },
-  },
-  performance: {
-    hints: false,
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(scss|css)$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+    resolve: {
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
+      alias: {
+        "@": path.resolve(__dirname, "src/"),
+        "@utils": path.resolve(__dirname, "src/shared/utils/"),
       },
-      {
-        test: /\.(js|jsx|tsx|ts)$/, // All ts and tsx files will be process by
-        exclude: /node_modules/, // ignore node_modules
-        loader: "babel-loader",
-      },
-      // Due to some weird babel issue: https://github.com/webpack/webpack/issues/11467
-      {
-        test: /\.m?js/,
-        resolve: {
-          fullySpecified: false,
+    },
+    performance: {
+      hints: false,
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(scss|css)$/i,
+          use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
         },
-      },
+        {
+          test: /\.(js|jsx|tsx|ts)$/, // All ts and tsx files will be process by
+          exclude: /node_modules/, // ignore node_modules
+          loader: "babel-loader",
+        },
+        // Due to some weird babel issue: https://github.com/webpack/webpack/issues/11467
+        {
+          test: /\.m?js/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
+      ],
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        "process.env.COMMIT_HASH": `"${env.COMMIT_HASH}"`,
+      }),
+      new MiniCssExtractPlugin({
+        filename: "styles/styles.css",
+      }),
+      new CopyPlugin({
+        patterns: [{ from: "./src/assets", to: "./assets" }],
+      }),
+      new webpack.BannerPlugin({
+        banner,
+      }),
     ],
-  },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: "styles/styles.css",
-    }),
-    new CopyPlugin({
-      patterns: [{ from: "./src/assets", to: "./assets" }],
-    }),
-    new webpack.BannerPlugin({
-      banner,
-    }),
-  ],
-};
+  };
+}
 
-const createServerConfig = (_env, mode) => {
+const createServerConfig = (env, mode) => {
+  const base = getBase(env);
   const config = merge({}, base, {
     mode,
     entry: "./src/server/index.tsx",
@@ -90,13 +96,14 @@ const createServerConfig = (_env, mode) => {
   return config;
 };
 
-const createClientConfig = (_env, mode) => {
+const createClientConfig = (env, mode) => {
+  const base = getBase(env);
   const config = merge({}, base, {
     mode,
     entry: "./src/client/index.tsx",
     output: {
       filename: "js/client.js",
-      publicPath: "/static/",
+      publicPath: `/static/${env.COMMIT_HASH}/`,
     },
     plugins: [
       ...base.plugins,
@@ -104,7 +111,7 @@ const createClientConfig = (_env, mode) => {
         enableInDevelopment: mode !== "development", // this may seem counterintuitive, but it is correct
         workbox: {
           modifyURLPrefix: {
-            "/": "/static/",
+            "/": `/static/${env.COMMIT_HASH}/`,
           },
           cacheId: "lemmy",
           include: [/(assets|styles|js)\/.+\..+$/g],
