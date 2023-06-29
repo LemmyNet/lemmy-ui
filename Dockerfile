@@ -24,7 +24,7 @@ COPY src src
 COPY .git .git
 
 # Set UI version 
-RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version.ts"
+RUN echo "export const VERSION = '$(git describe --tag)'; export const COMMIT_HASH = '$(git rev-parse HEAD)';" > "src/shared/version.ts"
 
 RUN yarn --production --prefer-offline
 RUN yarn build:prod

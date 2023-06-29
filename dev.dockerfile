@@ -18,11 +18,13 @@ COPY generate_translations.js \
   .babelrc \
   ./
 
+
 COPY lemmy-translations lemmy-translations
 COPY src src
+COPY .git .git
 
 # Set UI version 
-RUN echo "export const VERSION = 'dev';" > "src/shared/version.ts"
+RUN echo "export const VERSION = 'dev'; export const COMMIT_HASH = '$(git rev-parse HEAD)';" > "src/shared/version.ts"
 
 RUN yarn --prefer-offline
 RUN yarn build:dev

@@ -14,6 +14,11 @@ const banner = `
   @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3.0
   `;
 
+const commitHash = require("child_process")
+  .execSync("git rev-parse HEAD")
+  .toString()
+  .trim();
+
 const base = {
   output: {
     filename: "js/server.js",
@@ -96,6 +101,7 @@ const createClientConfig = (_env, mode) => {
     entry: "./src/client/index.tsx",
     output: {
       filename: "js/client.js",
+      publicPath: `/static-${commitHash}`,
     },
     plugins: [
       ...base.plugins,
@@ -103,7 +109,7 @@ const createClientConfig = (_env, mode) => {
         enableInDevelopment: mode !== "development", // this may seem counterintuitive, but it is correct
         workbox: {
           modifyURLPrefix: {
-            "/": "/static/",
+            "/": `/static-${commitHash}/`,
           },
           cacheId: "lemmy",
           include: [/(assets|styles)\/.+\..+|client\.js$/g],
