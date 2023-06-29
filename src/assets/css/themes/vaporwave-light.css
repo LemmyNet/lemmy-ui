@@ -35,7 +35,7 @@
   --bs-info: #01cdfe;
   --bs-warning: #fffb96;
   --bs-danger: rgb(255, 95, 110);
-  --bs-light: #f4f5f7;
+  --bs-light: #dadee3;
   --bs-dark: #212529;
   --bs-primary-rgb: 255, 64, 186;
   --bs-secondary-rgb: 1, 205, 254;
@@ -43,7 +43,7 @@
   --bs-info-rgb: 1, 205, 254;
   --bs-warning-rgb: 255, 251, 150;
   --bs-danger-rgb: 255, 95, 110;
-  --bs-light-rgb: 244, 245, 247;
+  --bs-light-rgb: 218, 222, 227;
   --bs-dark-rgb: 33, 37, 41;
   --bs-primary-text-emphasis: #661a4a;
   --bs-secondary-text-emphasis: #005266;
@@ -2011,13 +2011,13 @@ progress {
 
 .table-light {
   --bs-table-color: #000;
-  --bs-table-bg: #f4f5f7;
-  --bs-table-border-color: #dcddde;
-  --bs-table-striped-bg: #e8e9eb;
+  --bs-table-bg: #dadee3;
+  --bs-table-border-color: #c4c8cc;
+  --bs-table-striped-bg: #cfd3d8;
   --bs-table-striped-color: #000;
-  --bs-table-active-bg: #dcddde;
+  --bs-table-active-bg: #c4c8cc;
   --bs-table-active-color: #000;
-  --bs-table-hover-bg: #e2e3e4;
+  --bs-table-hover-bg: #cacdd2;
   --bs-table-hover-color: #000;
   color: var(--bs-table-color);
   border-color: var(--bs-table-border-color);
@@ -3078,19 +3078,19 @@ textarea.form-control-lg {
 
 .btn-light {
   --bs-btn-color: #000;
-  --bs-btn-bg: #f4f5f7;
-  --bs-btn-border-color: #f4f5f7;
+  --bs-btn-bg: #dadee3;
+  --bs-btn-border-color: #dadee3;
   --bs-btn-hover-color: #000;
-  --bs-btn-hover-bg: #cfd0d2;
-  --bs-btn-hover-border-color: #c3c4c6;
-  --bs-btn-focus-shadow-rgb: 207, 208, 210;
+  --bs-btn-hover-bg: #b9bdc1;
+  --bs-btn-hover-border-color: #aeb2b6;
+  --bs-btn-focus-shadow-rgb: 185, 189, 193;
   --bs-btn-active-color: #000;
-  --bs-btn-active-bg: #c3c4c6;
-  --bs-btn-active-border-color: #b7b8b9;
+  --bs-btn-active-bg: #aeb2b6;
+  --bs-btn-active-border-color: #a4a7aa;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   --bs-btn-disabled-color: #000;
-  --bs-btn-disabled-bg: #f4f5f7;
-  --bs-btn-disabled-border-color: #f4f5f7;
+  --bs-btn-disabled-bg: #dadee3;
+  --bs-btn-disabled-border-color: #dadee3;
 }
 
 .btn-dark {
@@ -3213,19 +3213,19 @@ textarea.form-control-lg {
 }
 
 .btn-outline-light {
-  --bs-btn-color: #f4f5f7;
-  --bs-btn-border-color: #f4f5f7;
+  --bs-btn-color: #dadee3;
+  --bs-btn-border-color: #dadee3;
   --bs-btn-hover-color: #000;
-  --bs-btn-hover-bg: #f4f5f7;
-  --bs-btn-hover-border-color: #f4f5f7;
-  --bs-btn-focus-shadow-rgb: 244, 245, 247;
+  --bs-btn-hover-bg: #dadee3;
+  --bs-btn-hover-border-color: #dadee3;
+  --bs-btn-focus-shadow-rgb: 218, 222, 227;
   --bs-btn-active-color: #000;
-  --bs-btn-active-bg: #f4f5f7;
-  --bs-btn-active-border-color: #f4f5f7;
+  --bs-btn-active-bg: #dadee3;
+  --bs-btn-active-border-color: #dadee3;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #f4f5f7;
+  --bs-btn-disabled-color: #dadee3;
   --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: #f4f5f7;
+  --bs-btn-disabled-border-color: #dadee3;
   --bs-gradient: none;
 }
 
@@ -6839,7 +6839,7 @@ textarea.form-control-lg {
 
 .text-bg-light {
   color: #000 !important;
-  background-color: RGBA(244, 245, 247, var(--bs-bg-opacity, 1)) !important;
+  background-color: RGBA(218, 222, 227, var(--bs-bg-opacity, 1)) !important;
 }
 
 .text-bg-dark {
@@ -6906,8 +6906,8 @@ textarea.form-control-lg {
   text-decoration-color: RGBA(var(--bs-light-rgb), var(--bs-link-underline-opacity, 1)) !important;
 }
 .link-light:hover, .link-light:focus {
-  color: RGBA(246, 247, 249, var(--bs-link-opacity, 1)) !important;
-  text-decoration-color: RGBA(246, 247, 249, var(--bs-link-underline-opacity, 1)) !important;
+  color: RGBA(225, 229, 233, var(--bs-link-opacity, 1)) !important;
+  text-decoration-color: RGBA(225, 229, 233, var(--bs-link-underline-opacity, 1)) !important;
 }
 
 .link-dark {
@@ -11904,6 +11904,13 @@ textarea.form-control-lg {
   .d-print-none {
     display: none !important;
   }
+}
+.form-control::placeholder {
+  color: #adb5bd;
+}
+
+.dropdown-item:hover:not(.active) {
+  background-color: #01cdfe;
 }
 
 /*# sourceMappingURL=vaporwave-light.css.map */
