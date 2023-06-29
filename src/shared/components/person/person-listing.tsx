@@ -1,4 +1,5 @@
 import { showAvatars } from "@utils/app";
+import { getStaticDir } from "@utils/env";
 import { hostname, isCakeDay } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
@@ -88,10 +89,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
           !this.props.person.banned &&
           showAvatars() && (
             <PictrsImage
-              src={
-                avatar ??
-                `/static/${process.env.COMMIT_HASH}/assets/icons/icon-96x96.png`
-              }
+              src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
               icon
             />
           )}

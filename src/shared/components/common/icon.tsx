@@ -1,3 +1,4 @@
+import { getStaticDir } from "@utils/env";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
@@ -23,7 +24,9 @@ export class Icon extends Component<IconProps, any> {
         })}
       >
         <use
-          xlinkHref={`/static/${process.env.COMMIT_HASH}/assets/symbols.svg#icon-${this.props.icon}`}
+          xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${
+            this.props.icon
+          }`}
         ></use>
         <div className="visually-hidden">
           <title>{this.props.icon}</title>
