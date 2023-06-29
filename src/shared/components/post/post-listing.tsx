@@ -325,10 +325,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   thumbnail() {
-    const post = this.postView.post;
-    const url = post.url;
+    const { post } = this.postView;
+    const { url } = post;
     const thumbnail = post.thumbnail_url;
 
+    // if direct image link
     if (!this.props.hideImage && url && isImage(url) && this.imageSrc) {
       return (
         <button
@@ -345,7 +346,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           />
         </button>
       );
-    } else if (!this.props.hideImage && url && thumbnail && this.imageSrc) {
+    }
+
+    // if link to url with included metadata image
+    if (!this.props.hideImage && url && thumbnail && this.imageSrc) {
       return (
         <a
           className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
@@ -360,45 +364,53 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           />
         </a>
       );
-    } else if (url) {
-      if ((!this.props.hideImage && isVideo(url)) || post.embed_video_url) {
-        return (
-          <a
-            className="text-body"
-            href={url}
-            title={url}
-            rel={relTags}
-            data-tippy-content={I18NextService.i18n.t("expand_here")}
-            onClick={linkEvent(this, this.handleImageExpandClick)}
-            aria-label={I18NextService.i18n.t("expand_here")}
-          >
-            <div className="thumbnail rounded bg-light d-flex justify-content-center">
-              <Icon icon="play" classes="d-flex align-items-center" />
-            </div>
-          </a>
-        );
-      } else {
-        return (
-          <a className="text-body" href={url} title={url} rel={relTags}>
-            <div className="thumbnail rounded bg-light d-flex justify-content-center">
-              <Icon icon="external-link" classes="d-flex align-items-center" />
-            </div>
-          </a>
-        );
-      }
-    } else {
+    }
+
+    // if link to direct/embedded video
+    if (
+      url &&
+      ((!this.props.hideImage && isVideo(url)) || post.embed_video_url)
+    ) {
       return (
-        <Link
+        <a
           className="text-body"
-          to={`/post/${post.id}`}
-          title={I18NextService.i18n.t("comments")}
+          href={url}
+          title={url}
+          rel={relTags}
+          data-tippy-content={I18NextService.i18n.t("expand_here")}
+          onClick={linkEvent(this, this.handleImageExpandClick)}
+          aria-label={I18NextService.i18n.t("expand_here")}
         >
           <div className="thumbnail rounded bg-light d-flex justify-content-center">
-            <Icon icon="message-square" classes="d-flex align-items-center" />
+            <Icon icon="play" classes="d-flex align-items-center" />
           </div>
-        </Link>
+        </a>
       );
     }
+
+    // if link to url without metadata image
+    if (url) {
+      return (
+        <a className="text-body" href={url} title={url} rel={relTags}>
+          <div className="thumbnail rounded bg-light d-flex justify-content-center">
+            <Icon icon="external-link" classes="d-flex align-items-center" />
+          </div>
+        </a>
+      );
+    }
+
+    // if text-only post
+    return (
+      <Link
+        className="text-body"
+        to={`/post/${post.id}`}
+        title={I18NextService.i18n.t("comments")}
+      >
+        <div className="thumbnail rounded bg-light d-flex justify-content-center">
+          <Icon icon="message-square" classes="d-flex align-items-center" />
+        </div>
+      </Link>
+    );
   }
 
   createdLine() {
