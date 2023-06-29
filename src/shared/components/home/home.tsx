@@ -279,13 +279,15 @@ export class Home extends Component<any, HomeState> {
         trendingCommunitiesRes,
         commentsRes,
         postsRes,
-        tagline: getRandomFromList(this.state?.siteRes?.taglines ?? [])
-          ?.content,
         isIsomorphic: true,
       };
 
       HomeCacheService.postsRes = postsRes;
     }
+
+    this.state.tagline = getRandomFromList(
+      this.state?.siteRes?.taglines ?? []
+    )?.content;
   }
 
   componentWillUnmount() {
