@@ -4,7 +4,6 @@ import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { Person } from "lemmy-js-client";
-import { COMMIT_HASH } from "../../../shared/version";
 import { relTags } from "../../config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
@@ -90,7 +89,8 @@ export class PersonListing extends Component<PersonListingProps, any> {
           showAvatars() && (
             <PictrsImage
               src={
-                avatar ?? `/static/${COMMIT_HASH}/assets/icons/icon-96x96.png`
+                avatar ??
+                `/static/${process.env.COMMIT_HASH}/assets/icons/icon-96x96.png`
               }
               icon
             />

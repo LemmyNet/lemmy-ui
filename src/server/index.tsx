@@ -2,7 +2,6 @@ import { setupDateFns } from "@utils/app";
 import express from "express";
 import path from "path";
 import process from "process";
-import { COMMIT_HASH } from "../shared/version";
 import CatchAllHandler from "./handlers/catch-all-handler";
 import ManifestHandler from "./handlers/manifest-handler";
 import RobotsHandler from "./handlers/robots-handler";
@@ -19,7 +18,10 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
-server.use(`/static/${COMMIT_HASH}`, express.static(path.resolve("./dist")));
+server.use(
+  `/static/${process.env.COMMIT_HASH}`,
+  express.static(path.resolve("./dist"))
+);
 server.use(setCacheControl);
 
 if (!process.env["LEMMY_UI_DISABLE_CSP"] && !process.env["LEMMY_UI_DEBUG"]) {
@@ -34,6 +36,7 @@ server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);
 
 server.listen(Number(port), hostname, () => {
+  console.log(`HASH: ${process.env.COMMIT_HASH}`);
   setupDateFns();
   console.log(`http://${hostname}:${port}`);
 });

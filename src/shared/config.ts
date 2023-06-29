@@ -1,7 +1,5 @@
-import { COMMIT_HASH } from "./version";
-
-export const favIconUrl = `/static/${COMMIT_HASH}/assets/icons/favicon.svg`;
-export const favIconPngUrl = `/static/${COMMIT_HASH}/assets/icons/apple-touch-icon.png`;
+export const favIconUrl = `/static/${process.env.COMMIT_HASH}/assets/icons/favicon.svg`;
+export const favIconPngUrl = `/static/${process.env.COMMIT_HASH}/assets/icons/apple-touch-icon.png`;
 
 export const repoUrl = "https://github.com/LemmyNet";
 export const joinLemmyUrl = "https://join-lemmy.org";

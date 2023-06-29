@@ -1,6 +1,5 @@
 import classNames from "classnames";
 import { Component } from "inferno";
-import { COMMIT_HASH } from "../../../shared/version";
 import { I18NextService } from "../../services";
 
 interface IconProps {
@@ -24,7 +23,7 @@ export class Icon extends Component<IconProps, any> {
         })}
       >
         <use
-          xlinkHref={`/static/${COMMIT_HASH}/assets/symbols.svg#icon-${this.props.icon}`}
+          xlinkHref={`/static/${process.env.COMMIT_HASH}/assets/symbols.svg#icon-${this.props.icon}`}
         ></use>
         <div className="visually-hidden">
           <title>{this.props.icon}</title>
