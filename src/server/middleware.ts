@@ -10,7 +10,7 @@ export function setDefaultCsp({
 }) {
   res.setHeader(
     "Content-Security-Policy",
-    `default-src 'self'; manifest-src *; connect-src *; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'; frame-src *; media-src *`
+    `default-src 'self'; manifest-src *; connect-src *; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'; frame-src *; media-src * data:`
   );
 
   next();
@@ -30,7 +30,7 @@ export function setCacheControl({
   next: NextFunction;
 }) {
   const user = UserService.Instance;
-  let caching;
+  let caching: string;
   if (user.auth()) {
     caching = "private";
   } else {
