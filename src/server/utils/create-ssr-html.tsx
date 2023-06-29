@@ -24,7 +24,7 @@ export async function createSsrHtml(
 
   if (!appleTouchIcon) {
     appleTouchIcon = site?.site_view.site.icon
-      ? `data:image/png;base64,${sharp(
+      ? `data:image/png;base64,${await sharp(
           await fetchIconPng(site.site_view.site.icon)
         )
           .resize(180, 180)

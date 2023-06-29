@@ -1,4 +1,4 @@
-import type { NextFunction, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { UserService } from "../shared/services";
 
 export function setDefaultCsp({
@@ -22,19 +22,25 @@ export function setDefaultCsp({
 // interval is rather arbitrary and could be set higher (less server load) or lower (fresher data).
 //
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
-export function setCacheControl({
-  res,
-  next,
-}: {
-  res: Response;
-  next: NextFunction;
-}) {
+export function setCacheControl(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const user = UserService.Instance;
   let caching: string;
-  if (user.auth()) {
-    caching = "private";
+  if (
+    req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
+    req.path.includes("/css/themelist")
+  ) {
+    // Static content gets cached publicly for a day
+    caching = "public, max-age=86400";
   } else {
-    caching = "public, max-age=60";
+    if (user.auth()) {
+      caching = "private";
+    } else {
+      caching = "public, max-age=60";
+    }
   }
   res.setHeader("Cache-Control", caching);
 
