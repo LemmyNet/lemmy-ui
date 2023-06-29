@@ -1373,7 +1373,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className="d-block d-sm-none">
           <article className="row post-container">
             <div className="col-12">
-              {this.createdLine()}
+              <div className="mb-1">{this.createdLine()}</div>
 
               {/* If it has a thumbnail, do a right aligned thumbnail */}
               {this.mobileThumbnail()}
