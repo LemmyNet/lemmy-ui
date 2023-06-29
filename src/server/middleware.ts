@@ -29,10 +29,13 @@ export function setCacheControl(
 ) {
   const user = UserService.Instance;
   let caching: string;
+  console.log("In middleware");
+  console.log(process.env.NODE_ENV);
 
   if (
-    req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
-    req.path.includes("/css/themelist")
+    process.env.NODE_ENV === "production" &&
+    (req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
+      req.path.includes("/css/themelist"))
   ) {
     // Static content gets cached publicly for a day
     caching = "public, max-age=86400";
