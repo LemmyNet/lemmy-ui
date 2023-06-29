@@ -284,7 +284,7 @@ export class Communities extends Component<any, CommunitiesState> {
   handleSearchSubmit(i: Communities, event: any) {
     event.preventDefault();
     const searchParamEncoded = encodeURIComponent(i.state.searchText);
-    i.context.router.history.push(`/search?q=${searchParamEncoded}`);
+    i.context.router.history.push(`/search?q=${searchParamEncoded}&type=Communities`);
   }
 
   static async fetchInitialData({
