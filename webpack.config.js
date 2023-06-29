@@ -14,7 +14,7 @@ const banner = `
   @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3.0
   `;
 
-function getBase(env) {
+function getBase(env, mode) {
   return {
     output: {
       filename: "js/server.js",
@@ -54,6 +54,7 @@ function getBase(env) {
     plugins: [
       new webpack.DefinePlugin({
         "process.env.COMMIT_HASH": `"${env.COMMIT_HASH}"`,
+        "process.env.NODE_ENV": `"${mode}"`,
       }),
       new MiniCssExtractPlugin({
         filename: "styles/styles.css",
@@ -69,7 +70,7 @@ function getBase(env) {
 }
 
 const createServerConfig = (env, mode) => {
-  const base = getBase(env);
+  const base = getBase(env, mode);
   const config = merge({}, base, {
     mode,
     entry: "./src/server/index.tsx",
@@ -97,7 +98,7 @@ const createServerConfig = (env, mode) => {
 };
 
 const createClientConfig = (env, mode) => {
-  const base = getBase(env);
+  const base = getBase(env, mode);
   const config = merge({}, base, {
     mode,
     entry: "./src/client/index.tsx",
