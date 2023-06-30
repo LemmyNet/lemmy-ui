@@ -27,11 +27,11 @@ export function setCacheControl(
   res: Response,
   next: NextFunction
 ) {
-  let caching: string;
-
   if (process.env.NODE_ENV !== "production") {
     return next();
   }
+
+  let caching: string;
 
   if (
     req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
