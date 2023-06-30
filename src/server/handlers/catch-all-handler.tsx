@@ -25,11 +25,15 @@ import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 export default async (req: Request, res: Response) => {
   try {
     const activeRoute = routes.find(route => matchPath(req.path, route));
-    let auth = req.cookies ? cookie.parse(req.cookies).jwt : undefined;
+
+    let auth = req.headers.cookie
+      ? cookie.parse(req.headers.cookie).jwt
+      : undefined;
 
     const getSiteForm: GetSite = { auth };
 
     const headers = setForwardedHeaders(req.headers);
+
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers })
     );
@@ -43,6 +47,7 @@ export default async (req: Request, res: Response) => {
     let routeData: RouteData = {};
     let errorPageData: ErrorPageData | undefined = undefined;
     let try_site = await client.getSite(getSiteForm);
+
     if (try_site.state === "failed" && try_site.msg == "not_logged_in") {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
@@ -91,6 +96,7 @@ export default async (req: Request, res: Response) => {
     // Redirect to the 404 if there's an API error
     if (error) {
       console.error(error.msg);
+
       if (error.msg === "instance_is_private") {
         return res.redirect(`/signup`);
       } else {
@@ -119,6 +125,7 @@ export default async (req: Request, res: Response) => {
     // If an error is caught here, the error page couldn't even be rendered
     console.error(err);
     res.statusCode = 500;
+
     return res.send(
       process.env.NODE_ENV === "development" ? err.message : "Server error"
     );
