@@ -1,20 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { hasJwtCookie } from "./utils/has-jwt-cookie";
-
-export function setDefaultCsp({
-  res,
-  next,
-}: {
-  res: Response;
-  next: NextFunction;
-}) {
-  res.setHeader(
-    "Content-Security-Policy",
-    `default-src 'self'; manifest-src *; connect-src *; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'; frame-src *; media-src * data:`
-  );
-
-  next();
-}
+import { hasJwtCookie } from "../utils/has-jwt-cookie";
 
 // Set cache-control headers. If user is logged in, set `private` to prevent storing data in
 // shared caches (eg nginx) and leaking of private data. If user is not logged in, allow caching
@@ -22,11 +7,15 @@ export function setDefaultCsp({
 // interval is rather arbitrary and could be set higher (less server load) or lower (fresher data).
 //
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
-export function setCacheControl(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function setCacheControl({
+  res,
+  req,
+  next,
+}: {
+  res: Response;
+  req: Request;
+  next: NextFunction;
+}) {
   if (process.env.NODE_ENV !== "production") {
     return next();
   }

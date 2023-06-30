@@ -10,7 +10,8 @@ import SecurityHandler from "./handlers/security-handler";
 import ServiceWorkerHandler from "./handlers/service-worker-handler";
 import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
-import { setCacheControl, setDefaultCsp } from "./middleware";
+import { setCacheControl } from "./middleware/set-cache-control";
+import { setDefaultCsp } from "./middleware/set-default-csp";
 
 const server = express();
 
