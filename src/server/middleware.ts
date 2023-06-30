@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { UserService } from "../shared/services";
+import { hasJwtCookie } from "./utils/has-jwt-cookie";
 
 export function setDefaultCsp({
   res,
@@ -27,18 +27,20 @@ export function setCacheControl(
   res: Response,
   next: NextFunction
 ) {
-  const user = UserService.Instance;
+  if (process.env.NODE_ENV !== "production") {
+    return next();
+  }
+
   let caching: string;
 
   if (
-    process.env.NODE_ENV === "production" &&
-    (req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
-      req.path.includes("/css/themelist"))
+    req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
+    req.path.includes("/css/themelist")
   ) {
     // Static content gets cached publicly for a day
     caching = "public, max-age=86400";
   } else {
-    if (user.auth()) {
+    if (hasJwtCookie(req)) {
       caching = "private";
     } else {
       caching = "public, max-age=5";

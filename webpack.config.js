@@ -111,9 +111,6 @@ const createClientConfig = (env, mode) => {
       new ServiceWorkerPlugin({
         enableInDevelopment: mode !== "development", // this may seem counterintuitive, but it is correct
         workbox: {
-          modifyURLPrefix: {
-            "/": `/static/${env.COMMIT_HASH}/`,
-          },
           cacheId: "lemmy",
           include: [/(assets|styles|js)\/.+\..+$/g],
           inlineWorkboxRuntime: true,
