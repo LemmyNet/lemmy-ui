@@ -1,3 +1,4 @@
+import { myAuth } from "@utils/app";
 import { Component } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
@@ -58,7 +59,9 @@ export class Footer extends Component<FooterProps, any> {
             </li>
             <li className="nav-item">
               <a className="nav-link" href={joinLemmyUrl}>
-                {I18NextService.i18n.t("join_lemmy")}
+                {myAuth()
+                  ? "join-lemmy.org"
+                  : I18NextService.i18n.t("join_lemmy")}
               </a>
             </li>
           </ul>
