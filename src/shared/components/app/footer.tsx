@@ -60,7 +60,7 @@ export class Footer extends Component<FooterProps, any> {
             <li className="nav-item">
               <a className="nav-link" href={joinLemmyUrl}>
                 {myAuth()
-                  ? "join-lemmy.org"
+                  ? new URL(joinLemmyUrl).hostname
                   : I18NextService.i18n.t("join_lemmy")}
               </a>
             </li>
