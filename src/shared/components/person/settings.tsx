@@ -548,7 +548,7 @@ export class Settings extends Component<any, SettingsState> {
                 placeholder="@user:example.com"
                 value={this.state.saveUserSettingsForm.matrix_user_id}
                 onInput={linkEvent(this, this.handleMatrixUserIdChange)}
-                pattern="^@[A-Za-z0-9._=-]+:[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+                pattern="^@[A-Za-z0-9._=-]+:[A-Za-z0-9.-]+\.[A-Za-z]{2,}(:[0-9]{1,5})?$"
               />
             </div>
           </div>
