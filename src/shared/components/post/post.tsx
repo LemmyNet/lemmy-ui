@@ -618,6 +618,7 @@ export class Post extends Component<any, PostState> {
             finished={this.state.finished}
             allLanguages={this.state.siteRes.all_languages}
             siteLanguages={this.state.siteRes.discussion_languages}
+            markCommentId={this.state.commentId}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}

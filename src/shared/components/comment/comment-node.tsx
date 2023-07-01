@@ -125,6 +125,7 @@ interface CommentNodeProps {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
+  markCommentId?: number;
   finished: Map<CommentId, boolean | undefined>;
   onSaveComment(form: SaveComment): void;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
@@ -289,7 +290,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
-            mark: this.isCommentNew || this.commentView.comment.distinguished,
+            mark: this.isCommentNew || this.commentView.comment.distinguished || this.props.markCommentId == cv.comment.id,
           })}
         >
           <div
@@ -1161,6 +1162,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             isChild={!this.props.noIndent}
             depth={this.props.node.depth + 1}
             finished={this.props.finished}
+            markCommentId={this.props.markCommentId}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}
@@ -1209,7 +1211,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     const title = this.props.showContext
       ? I18NextService.i18n.t("show_context")
-      : I18NextService.i18n.t("link");
+      : I18NextService.i18n.t("link parent");
 
     // The context button should show the parent comment by default
     const parentCommentId = getCommentParentId(cv.comment) ?? cv.comment.id;

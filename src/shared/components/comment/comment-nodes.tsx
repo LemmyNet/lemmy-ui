@@ -49,6 +49,7 @@ interface CommentNodesProps {
   isChild?: boolean;
   depth?: number;
   finished: Map<CommentId, boolean | undefined>;
+  markCommentId?: number;
   onSaveComment(form: SaveComment): void;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -113,6 +114,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               hideImages={this.props.hideImages}
+              markCommentId={this.props.markCommentId}
               onCommentReplyRead={this.props.onCommentReplyRead}
               onPersonMentionRead={this.props.onPersonMentionRead}
               finished={this.props.finished}
