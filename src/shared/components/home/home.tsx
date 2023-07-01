@@ -219,6 +219,7 @@ const LinkButton = ({
 
 export class Home extends Component<any, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
+  private unregisterHistoryListener: () => void;
   state: HomeState = {
     postsRes: { state: "empty" },
     commentsRes: { state: "empty" },
@@ -291,6 +292,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   componentWillUnmount() {
+    this.unregisterHistoryListener();
     HomeCacheService.activate();
   }
 
@@ -303,6 +305,15 @@ export class Home extends Component<any, HomeState> {
     ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
+
+    this.unregisterHistoryListener = this.props.history.listen(() => {
+      if (!this.state.scrolled) {
+        this.setState({ scrolled: true });
+        setTimeout(() => window.scrollTo(0, 0), 0);
+      }
+
+      this.fetchData();
+    });
 
     setupTippy();
   }
@@ -634,13 +645,6 @@ export class Home extends Component<any, HomeState> {
       pathname: "/",
       search: getQueryString(queryParams),
     });
-
-    if (!this.state.scrolled) {
-      this.setState({ scrolled: true });
-      setTimeout(() => window.scrollTo(0, 0), 0);
-    }
-
-    await this.fetchData();
   }
 
   get posts() {
