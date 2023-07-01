@@ -38,6 +38,7 @@ export class UserService {
         secure: isHttps(),
         domain: location.hostname,
         sameSite: true,
+        path: "/",
       });
       this.#setJwtInfo();
     }
