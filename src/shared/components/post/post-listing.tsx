@@ -333,7 +333,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return (
         <button
           type="button"
-          className="thumbnail rounded overflow-hidden d-inline-block position-relative mb-2 p-0 border-0"
+          className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
           data-tippy-content={I18NextService.i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={I18NextService.i18n.t("expand_here")}
@@ -348,7 +348,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     } else if (!this.props.hideImage && url && thumbnail && this.imageSrc) {
       return (
         <a
-          className="thumbnail rounded bg-light d-flex justify-content-center"
+          className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
           href={url}
           rel={relTags}
           title={url}
@@ -403,8 +403,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   createdLine() {
     const post_view = this.postView;
+
     return (
-      <div className="small">
+      <div className="small mb-1 mb-md-0">
         <span className="me-1">
           <PersonListing person={post_view.creator} />
         </span>

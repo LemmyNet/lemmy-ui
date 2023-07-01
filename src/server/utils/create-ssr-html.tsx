@@ -1,3 +1,4 @@
+import { getStaticDir } from "@utils/env";
 import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
@@ -23,7 +24,7 @@ export async function createSsrHtml(
 
   if (!appleTouchIcon) {
     appleTouchIcon = site?.site_view.site.icon
-      ? `data:image/png;base64,${sharp(
+      ? `data:image/png;base64,${await sharp(
           await fetchIconPng(site.site_view.site.icon)
         )
           .resize(180, 180)
@@ -87,7 +88,7 @@ export async function createSsrHtml(
     <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
   
     <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
+    <link rel="stylesheet" type="text/css" href="${getStaticDir()}/styles/styles.css" />
   
     <!-- Current theme and more -->
     ${helmet.link.toString() || fallbackTheme}
@@ -102,7 +103,7 @@ export async function createSsrHtml(
       </noscript>
   
       <div id='root'>${root}</div>
-      <script defer src='/static/js/client.js'></script>
+      <script defer src='${getStaticDir()}/js/client.js'></script>
     </body>
   </html>
   `;
