@@ -702,18 +702,20 @@ export class MarkdownTextArea extends Component<
   quoteInsert() {
     const textarea: any = document.getElementById(this.id);
     const selectedText = window.getSelection()?.toString();
-    const { content } = this.state;
+    let { content } = this.state;
     if (selectedText) {
       const quotedText =
         selectedText
           .split("\n")
           .map(t => `> ${t}`)
           .join("\n") + "\n\n";
+
       if (!content) {
-        this.setState({ content: "" });
+        content = "";
       } else {
-        this.setState({ content: `${content}\n` });
+        content = `${content}\n\n`;
       }
+
       this.setState({
         content: `${content}${quotedText}`,
       });
