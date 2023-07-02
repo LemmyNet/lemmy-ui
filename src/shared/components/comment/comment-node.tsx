@@ -296,6 +296,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             className={classNames({
               "ms-2": !this.props.noIndent,
             })}
+            onClick={linkEvent(this, this.handleCommentCollapse)}
+            onKeyDown={linkEvent(this, this.handleCommentCollapse)}
+            role={"textbox"}
+            aria-label={this.expandText}
+            data-tippy-content={this.expandText}
+            tabIndex={cv.comment.id}
           >
             <div className="d-flex flex-wrap align-items-center text-muted small">
               <button
@@ -1287,11 +1293,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : comment.content;
   }
 
-  handleReplyClick(i: CommentNode) {
+  handleReplyClick(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showReply: true });
   }
 
-  handleEditClick(i: CommentNode) {
+  handleEditClick(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showEdit: true });
   }
 
@@ -1299,15 +1307,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState({ showReply: false, showEdit: false });
   }
 
-  handleShowReportDialog(i: CommentNode) {
+  handleShowReportDialog(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
   handleReportReasonChange(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ reportReason: event.target.value });
   }
 
-  handleModRemoveShow(i: CommentNode) {
+  handleModRemoveShow(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({
       showRemoveDialog: !i.state.showRemoveDialog,
       showBanDialog: false,
@@ -1315,10 +1326,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModRemoveReasonChange(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ removeReason: event.target.value });
   }
 
   handleModRemoveDataChange(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ removeData: event.target.checked });
   }
 
@@ -1334,7 +1347,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return (item as CommentReplyView).comment_reply?.id !== undefined;
   }
 
-  handleModBanFromCommunityShow(i: CommentNode) {
+  handleModBanFromCommunityShow(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({
       showBanDialog: true,
       banType: BanType.Community,
@@ -1342,7 +1356,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleModBanShow(i: CommentNode) {
+  handleModBanShow(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({
       showBanDialog: true,
       banType: BanType.Site,
@@ -1351,14 +1366,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModBanReasonChange(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ banReason: event.target.value });
   }
 
   handleModBanExpireDaysChange(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ banExpireDays: event.target.value });
   }
 
-  handlePurgePersonShow(i: CommentNode) {
+  handlePurgePersonShow(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({
       showPurgeDialog: true,
       purgeType: PurgeType.Person,
@@ -1366,7 +1384,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handlePurgeCommentShow(i: CommentNode) {
+  handlePurgeCommentShow(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({
       showPurgeDialog: true,
       purgeType: PurgeType.Comment,
@@ -1375,38 +1394,47 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handlePurgeReasonChange(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ purgeReason: event.target.value });
   }
 
-  handleShowConfirmAppointAsMod(i: CommentNode) {
+  handleShowConfirmAppointAsMod(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showConfirmAppointAsMod: true });
   }
 
-  handleCancelConfirmAppointAsMod(i: CommentNode) {
+  handleCancelConfirmAppointAsMod(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showConfirmAppointAsMod: false });
   }
 
-  handleShowConfirmAppointAsAdmin(i: CommentNode) {
+  handleShowConfirmAppointAsAdmin(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showConfirmAppointAsAdmin: true });
   }
 
-  handleCancelConfirmAppointAsAdmin(i: CommentNode) {
+  handleCancelConfirmAppointAsAdmin(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showConfirmAppointAsAdmin: false });
   }
 
-  handleShowConfirmTransferCommunity(i: CommentNode) {
+  handleShowConfirmTransferCommunity(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showConfirmTransferCommunity: true });
   }
 
-  handleCancelShowConfirmTransferCommunity(i: CommentNode) {
+  handleCancelShowConfirmTransferCommunity(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showConfirmTransferCommunity: false });
   }
 
-  handleShowConfirmTransferSite(i: CommentNode) {
+  handleShowConfirmTransferSite(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showConfirmTransferSite: true });
   }
 
-  handleCancelShowConfirmTransferSite(i: CommentNode) {
+  handleCancelShowConfirmTransferSite(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showConfirmTransferSite: false });
   }
 
@@ -1416,21 +1444,25 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return isBefore(now, then);
   }
 
-  handleCommentCollapse(i: CommentNode) {
+  handleCommentCollapse(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ collapsed: !i.state.collapsed });
     setupTippy();
   }
 
-  handleViewSource(i: CommentNode) {
+  handleViewSource(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ viewSource: !i.state.viewSource });
   }
 
-  handleShowAdvanced(i: CommentNode) {
+  handleShowAdvanced(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ showAdvanced: !i.state.showAdvanced });
     setupTippy();
   }
 
-  handleSaveComment(i: CommentNode) {
+  handleSaveComment(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ saveLoading: true });
 
     i.props.onSaveComment({
@@ -1440,7 +1472,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleBlockPerson(i: CommentNode) {
+  handleBlockPerson(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ blockPersonLoading: true });
     i.props.onBlockPerson({
       person_id: i.commentView.creator.id,
@@ -1449,7 +1482,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleMarkAsRead(i: CommentNode) {
+  handleMarkAsRead(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ readLoading: true });
     const cv = i.commentView;
     if (i.isPersonMentionType(cv)) {
@@ -1467,7 +1501,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
-  handleDeleteComment(i: CommentNode) {
+  handleDeleteComment(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ deleteLoading: true });
     i.props.onDeleteComment({
       comment_id: i.commentId,
@@ -1477,6 +1512,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleRemoveComment(i: CommentNode, event: any) {
+    event.stopPropagation();
     event.preventDefault();
     i.setState({ removeLoading: true });
     i.props.onRemoveComment({
@@ -1486,7 +1522,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleDistinguishComment(i: CommentNode) {
+  handleDistinguishComment(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ distinguishLoading: true });
     i.props.onDistinguishComment({
       comment_id: i.commentId,
@@ -1495,7 +1532,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleBanPersonFromCommunity(i: CommentNode) {
+  handleBanPersonFromCommunity(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ banLoading: true });
     i.props.onBanPersonFromCommunity({
       community_id: i.commentView.community.id,
@@ -1508,7 +1546,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleBanPerson(i: CommentNode) {
+  handleBanPerson(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ banLoading: true });
     i.props.onBanPerson({
       person_id: i.commentView.creator.id,
@@ -1521,15 +1560,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModBanBothSubmit(i: CommentNode, event: any) {
+    event.stopPropagation();
     event.preventDefault();
     if (i.state.banType == BanType.Community) {
-      i.handleBanPersonFromCommunity(i);
+      i.handleBanPersonFromCommunity(i, event);
     } else {
-      i.handleBanPerson(i);
+      i.handleBanPerson(i, event);
     }
   }
 
-  handleAddModToCommunity(i: CommentNode) {
+  handleAddModToCommunity(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ addModLoading: true });
 
     const added = !isMod(i.commentView.comment.creator_id, i.props.moderators);
@@ -1541,7 +1582,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleAddAdmin(i: CommentNode) {
+  handleAddAdmin(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ addAdminLoading: true });
 
     const added = !isAdmin(i.commentView.comment.creator_id, i.props.admins);
@@ -1552,7 +1594,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleTransferCommunity(i: CommentNode) {
+  handleTransferCommunity(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ transferCommunityLoading: true });
     i.props.onTransferCommunity({
       community_id: i.commentView.community.id,
@@ -1562,6 +1605,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleReportComment(i: CommentNode, event: any) {
+    event.stopPropagation();
     event.preventDefault();
     i.setState({ reportLoading: true });
     i.props.onCommentReport({
@@ -1572,6 +1616,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handlePurgeBothSubmit(i: CommentNode, event: any) {
+    event.stopPropagation();
     event.preventDefault();
     i.setState({ purgeLoading: true });
 
@@ -1590,7 +1635,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
-  handleFetchChildren(i: CommentNode) {
+  handleFetchChildren(i: CommentNode, event: any) {
+    event.stopPropagation();
     i.setState({ fetchChildrenLoading: true });
     i.props.onFetchChildren?.({
       parent_id: i.commentId,

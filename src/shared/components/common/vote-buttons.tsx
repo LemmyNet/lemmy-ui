@@ -45,7 +45,8 @@ const tippy = (counts: CommentAggregates | PostAggregates): string => {
   return `${points} • ${upvotes} • ${downvotes}`;
 };
 
-const handleUpvote = (i: VoteButtons) => {
+const handleUpvote = (i: VoteButtons, event: any) => {
+  event.stopPropagation();
   i.setState({ upvoteLoading: true });
 
   switch (i.props.voteContentType) {
@@ -68,7 +69,8 @@ const handleUpvote = (i: VoteButtons) => {
   i.setState({ upvoteLoading: false });
 };
 
-const handleDownvote = (i: VoteButtons) => {
+const handleDownvote = (i: VoteButtons, event: any) => {
+  event.stopPropagation();
   i.setState({ downvoteLoading: true });
   switch (i.props.voteContentType) {
     case VoteContentType.Comment:
