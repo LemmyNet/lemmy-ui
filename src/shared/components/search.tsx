@@ -182,27 +182,22 @@ const Filter = ({
 }) => {
   return (
     <div className="col-sm-6">
-      <div className="row gx-2">
-        <label
-          className="col-12 col-sm-auto col-form-label flex-grow-0"
-          htmlFor={`${filterType}-filter`}
-        >
-          {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
-        </label>
-        <SearchableSelect
-          id={`${filterType}-filter`}
-          options={[
-            {
-              label: I18NextService.i18n.t("all"),
-              value: "0",
-            },
-          ].concat(options)}
-          value={value ?? 0}
-          onSearch={onSearch}
-          onChange={onChange}
-          loading={loading}
-        />
-      </div>
+      <label className="mb-1" htmlFor={`${filterType}-filter`}>
+        {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
+      </label>
+      <SearchableSelect
+        id={`${filterType}-filter`}
+        options={[
+          {
+            label: I18NextService.i18n.t("all"),
+            value: "0",
+          },
+        ].concat(options)}
+        value={value ?? 0}
+        onSearch={onSearch}
+        onChange={onChange}
+        loading={loading}
+      />
     </div>
   );
 };
@@ -588,7 +583,7 @@ export class Search extends Component<any, SearchState> {
             />
           </div>
         </div>
-        <div className="row gx-5 gy-2 mb-3">
+        <div className="row gy-2 gx-4 mb-3">
           {hasCommunities && (
             <Filter
               filterType="community"
