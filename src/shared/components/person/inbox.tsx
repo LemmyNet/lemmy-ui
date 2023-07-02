@@ -382,7 +382,7 @@ export class Inbox extends Component<any, InboxState> {
 
   selects() {
     return (
-      <div className="row g-2">
+      <div className="row g-2 mb-2">
         <div className="col-auto">{this.unreadOrAllRadios()}</div>
         <div className="col-auto">{this.messageTypeRadios()}</div>
         <div className="col-auto">
