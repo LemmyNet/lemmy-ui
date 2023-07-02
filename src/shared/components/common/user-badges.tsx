@@ -1,4 +1,3 @@
-import { getRoleLabelPill } from "@utils/app";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
@@ -11,6 +10,28 @@ interface UserBadgesProps {
   isAdmin?: boolean;
   isBot?: boolean;
   classNames?: string;
+}
+
+export function getRoleLabelPill({
+  label,
+  tooltip,
+  classes,
+  shrink = true,
+}: {
+  label: string;
+  tooltip: string;
+  classes?: string;
+  shrink?: boolean;
+}) {
+  return (
+    <span
+      className={`badge ${classes ?? "text-bg-light"}`}
+      aria-label={tooltip}
+      data-tippy-content={tooltip}
+    >
+      {shrink ? label[0].toUpperCase() : label}
+    </span>
+  );
 }
 
 export class UserBadges extends Component<UserBadgesProps> {
