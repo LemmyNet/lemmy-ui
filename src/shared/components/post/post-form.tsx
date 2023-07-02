@@ -402,22 +402,20 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               disabled={!UserService.Instance.myUserInfo}
               onChange={linkEvent(this, handleImageUpload)}
             />
+            {this.state.imageLoading && <Spinner />}
+            {url && isImage(url) && (
+              <img src={url} className="img-fluid mt-2" alt="" />
+            )}
+            {this.state.imageDeleteUrl && (
+              <button
+                className="btn btn-danger btn-sm mt-2"
+                onClick={linkEvent(this, handleImageDelete)}
+              >
+                <Icon icon="x" classes="icon-inline me-1" />
+                {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
+              </button>
+            )}
           </div>
-          {this.state.imageLoading && <Spinner />}
-          {url && isImage(url) && (
-            <img src={url} className="img-fluid" alt="" />
-          )}
-          {this.state.imageDeleteUrl && (
-            <button
-              className="btn btn-danger btn-sm mt-2"
-              onClick={linkEvent(this, handleImageDelete)}
-              aria-label={I18NextService.i18n.t("delete")}
-              data-tippy-content={I18NextService.i18n.t("delete")}
-            >
-              <Icon icon="x" classes="icon-inline me-1" />
-              {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
-            </button>
-          )}
           {this.props.crossPosts && this.props.crossPosts.length > 0 && (
             <>
               <div className="my-1 text-muted small fw-bold">

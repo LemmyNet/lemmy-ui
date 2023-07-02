@@ -1,4 +1,5 @@
 import { randomStr } from "@utils/helpers";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { HttpService, I18NextService, UserService } from "../../services";
 import { toast } from "../../toast";
@@ -34,16 +35,17 @@ export class ImageUploadForm extends Component<
     return (
       <form className="image-upload-form d-inline">
         {this.props.imageSrc && (
-          <span className="d-inline-block position-relative">
+          <span className="d-inline-block position-relative mb-2">
             {/* TODO: Create "Current Iamge" translation for alt text */}
             <img
               alt=""
               src={this.props.imageSrc}
               height={this.props.rounded ? 60 : ""}
               width={this.props.rounded ? 60 : ""}
-              className={`img-fluid ${
-                this.props.rounded ? "rounded-circle" : ""
-              }`}
+              className={classNames("img-fluid", {
+                "rounded-circle ratio ratio-1x1 object-fit-cover":
+                  this.props.rounded,
+              })}
             />
             <button
               className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
