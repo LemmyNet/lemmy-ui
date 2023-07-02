@@ -1,4 +1,4 @@
-import { getRoleLabelPill, myAuthRequired } from "@utils/app";
+import { myAuthRequired } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -55,6 +55,7 @@ import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
+import { UserBadges } from "../common/user-badges";
 import { VoteButtons, VoteButtonsCompact } from "../common/vote-buttons";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
@@ -406,26 +407,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     return (
       <div className="small mb-1 mb-md-0">
-        <span className="me-1">
-          <PersonListing person={post_view.creator} />
-        </span>
-        {this.creatorIsMod_ &&
-          getRoleLabelPill({
-            label: I18NextService.i18n.t("mod"),
-            tooltip: I18NextService.i18n.t("mod"),
-            classes: "text-bg-primary",
-          })}
-        {this.creatorIsAdmin_ &&
-          getRoleLabelPill({
-            label: I18NextService.i18n.t("admin"),
-            tooltip: I18NextService.i18n.t("admin"),
-            classes: "text-bg-danger",
-          })}
-        {post_view.creator.bot_account &&
-          getRoleLabelPill({
-            label: I18NextService.i18n.t("bot_account").toLowerCase(),
-            tooltip: I18NextService.i18n.t("bot_account"),
-          })}
+        <PersonListing person={post_view.creator} />
+        <UserBadges
+          classNames="ms-1"
+          isMod={this.creatorIsMod_}
+          isAdmin={this.creatorIsAdmin_}
+          isBot={post_view.creator.bot_account}
+        />
         {this.props.showCommunity && (
           <>
             {" "}

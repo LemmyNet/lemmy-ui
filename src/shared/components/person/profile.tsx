@@ -5,7 +5,6 @@ import {
   enableDownvotes,
   enableNsfw,
   getCommentParentId,
-  getRoleLabelPill,
   myAuth,
   myAuthRequired,
   setIsoData,
@@ -85,6 +84,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { SortSelect } from "../common/sort-select";
+import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
@@ -484,46 +484,15 @@ export class Profile extends Component<
                         hideAvatar
                       />
                     </li>
-                    {isBanned(pv.person) && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("banned"),
-                          tooltip: I18NextService.i18n.t("banned"),
-                          classes: "text-bg-danger",
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.deleted && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("deleted"),
-                          tooltip: I18NextService.i18n.t("deleted"),
-                          classes: "text-bg-danger",
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.admin && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("admin"),
-                          tooltip: I18NextService.i18n.t("admin"),
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.bot_account && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n
-                            .t("bot_account")
-                            .toLowerCase(),
-                          tooltip: I18NextService.i18n.t("bot_account"),
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
+                    <li className="list-inline-item">
+                      <UserBadges
+                        classNames="ms-1"
+                        isBanned={isBanned(pv.person)}
+                        isDeleted={pv.person.deleted}
+                        isAdmin={pv.person.admin}
+                        isBot={pv.person.bot_account}
+                      />
+                    </li>
                   </ul>
                 </div>
                 {this.banDialog(pv)}

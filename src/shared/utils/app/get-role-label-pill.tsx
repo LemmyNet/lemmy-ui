@@ -11,7 +11,7 @@ export default function getRoleLabelPill({
 }) {
   return (
     <span
-      className={`badge me-1 ${classes ?? "text-bg-light"}`}
+      className={`badge ${classes ?? "text-bg-light"}`}
       aria-label={tooltip}
       data-tippy-content={tooltip}
     >
