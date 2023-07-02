@@ -501,8 +501,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
            * body by the parent component, show the MetadataCard/body toggle.
            */}
           {!this.props.showBody &&
-            post.url &&
-            post.embed_title &&
+            ((post.url && post.embed_title) || post.body) &&
             this.showPreviewButton()}
 
           {post.removed && (
