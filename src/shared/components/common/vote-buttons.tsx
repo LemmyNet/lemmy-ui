@@ -64,8 +64,6 @@ const handleUpvote = (i: VoteButtons) => {
         auth: myAuthRequired(),
       });
   }
-
-  i.setState({ upvoteLoading: false });
 };
 
 const handleDownvote = (i: VoteButtons) => {
@@ -86,7 +84,6 @@ const handleDownvote = (i: VoteButtons) => {
         auth: myAuthRequired(),
       });
   }
-  i.setState({ downvoteLoading: false });
 };
 
 export class VoteButtonsCompact extends Component<
@@ -100,6 +97,15 @@ export class VoteButtonsCompact extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
+  }
+
+  componentWillReceiveProps(nextProps: VoteButtonsProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        upvoteLoading: false,
+        downvoteLoading: false,
+      });
+    }
   }
 
   render() {
@@ -170,6 +176,15 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
 
   constructor(props: any, context: any) {
     super(props, context);
+  }
+
+  componentWillReceiveProps(nextProps: VoteButtonsProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        upvoteLoading: false,
+        downvoteLoading: false,
+      });
+    }
   }
 
   render() {
