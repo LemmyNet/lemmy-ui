@@ -551,7 +551,7 @@ export class Search extends Component<any, SearchState> {
 
     return (
       <>
-        <div className="row gx-2 gy-3 mb-2 mb-sm-3">
+        <div className="row g-2 mb-2 mb-sm-3">
           <div className="col-auto">
             <select
               value={type}
