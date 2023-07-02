@@ -497,12 +497,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </h5>
 
           {/**
-           * If there is a URL, an embed title, and we were not told to show the
-           * body by the parent component, show the MetadataCard/body toggle.
+           * If there is (a) a URL and an embed title, or (b) a post body, and
+           * we were not told to show the body by the parent component, show the
+           * MetadataCard/body toggle.
            */}
           {!this.props.showBody &&
-            post.url &&
-            post.embed_title &&
+            ((post.url && post.embed_title) || post.body) &&
             this.showPreviewButton()}
 
           {post.removed && (
