@@ -42,9 +42,9 @@ export class ImageUploadForm extends Component<
               src={this.props.imageSrc}
               height={this.props.rounded ? 60 : ""}
               width={this.props.rounded ? 60 : ""}
-              className={classNames("img-fluid", {
-                "rounded-circle ratio ratio-1x1 object-fit-cover":
-                  this.props.rounded,
+              className={classNames({
+                "rounded-circle object-fit-cover": this.props.rounded,
+                "img-fluid": !this.props.rounded,
               })}
             />
             <button
