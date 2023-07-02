@@ -546,8 +546,8 @@ export class Search extends Component<any, SearchState> {
 
     return (
       <>
-        <div className="row g-2 mb-2 mb-sm-3">
-          <div className="col-auto">
+        <div className="row row-cols-auto g-2 mb-2 mb-sm-3">
+          <div className="col">
             <select
               value={type}
               onChange={linkEvent(this, this.handleTypeChange)}
@@ -566,7 +566,7 @@ export class Search extends Component<any, SearchState> {
               ))}
             </select>
           </div>
-          <div className="col-auto">
+          <div className="col">
             <ListingTypeSelect
               type_={listingType}
               showLocal={showLocal(this.isoData)}
@@ -574,7 +574,7 @@ export class Search extends Component<any, SearchState> {
               onChange={this.handleListingTypeChange}
             />
           </div>
-          <div className="col-auto">
+          <div className="col">
             <SortSelect
               sort={sort}
               onChange={this.handleSortChange}

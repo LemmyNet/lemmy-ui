@@ -382,10 +382,10 @@ export class Inbox extends Component<any, InboxState> {
 
   selects() {
     return (
-      <div className="row g-2 mb-2">
-        <div className="col-auto">{this.unreadOrAllRadios()}</div>
-        <div className="col-auto">{this.messageTypeRadios()}</div>
-        <div className="col-auto">
+      <div className="row row-cols-auto g-2 mb-2">
+        <div className="col">{this.unreadOrAllRadios()}</div>
+        <div className="col">{this.messageTypeRadios()}</div>
+        <div className="col">
           <CommentSortSelect
             sort={this.state.sort}
             onChange={this.handleSortChange}
