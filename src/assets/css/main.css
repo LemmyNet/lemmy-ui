@@ -81,6 +81,7 @@
 }
 
 .vote-bar {
+  min-width: 5ch;
   margin-top: -6.5px;
 }
 
@@ -198,9 +199,9 @@ blockquote {
 
 .thumbnail {
   object-fit: cover;
-  min-height: 60px;
-  max-height: 80px;
-  width: 100%;
+  aspect-ratio: 1/1;
+  width: 5rem;
+  height: 5rem;
 }
 
 .thumbnail svg {
@@ -360,8 +361,9 @@ br.big {
 }
 
 .img-icon {
-  width: 2rem;
-  height: 2rem;
+  width: calc(var(--bs-body-line-height) * 1em);
+  height: calc(var(--bs-body-line-height) * 1em);
+  border-radius: 0.25em;
 }
 
 .tribute-container ul {

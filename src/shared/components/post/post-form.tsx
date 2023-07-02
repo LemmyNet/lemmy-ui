@@ -4,7 +4,6 @@ import {
   myAuth,
   myAuthRequired,
 } from "@utils/app";
-import getUserInterfaceLangId from "@utils/app/user-interface-language";
 import {
   capitalizeFirstLetter,
   debounce,
@@ -188,6 +187,8 @@ function handleImageUpload(i: PostForm, event: any) {
           imageLoading: false,
           imageDeleteUrl: res.data.delete_url as string,
         });
+      } else if (res.data.msg === "too_large") {
+        toast(I18NextService.i18n.t("upload_too_large"), "danger");
       } else {
         toast(JSON.stringify(res), "danger");
       }
@@ -324,9 +325,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   render() {
-    const url = this.state.form.url;
+    const firstLang = this.state.form.language_id;
+    const selectedLangs = firstLang ? Array.of(firstLang) : undefined;
 
-    const userInterfaceLangId = getUserInterfaceLangId(this.props.allLanguages);
+    const url = this.state.form.url;
 
     return (
       <form className="post-form" onSubmit={linkEvent(this, handlePostSubmit)}>
@@ -493,8 +495,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         </div>
         <LanguageSelect
           allLanguages={this.props.allLanguages}
-          selectedLanguageIds={[userInterfaceLangId]}
           siteLanguages={this.props.siteLanguages}
+          selectedLanguageIds={selectedLangs}
           multiple={false}
           onChange={this.handleLanguageChange}
         />

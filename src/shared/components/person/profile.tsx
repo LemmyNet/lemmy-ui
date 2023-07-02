@@ -5,6 +5,7 @@ import {
   enableDownvotes,
   enableNsfw,
   getCommentParentId,
+  getRoleLabelPill,
   myAuth,
   myAuthRequired,
   setIsoData,
@@ -484,23 +485,43 @@ export class Profile extends Component<
                       />
                     </li>
                     {isBanned(pv.person) && (
-                      <li className="list-inline-item badge text-bg-danger">
-                        {I18NextService.i18n.t("banned")}
+                      <li className="list-inline-item">
+                        {getRoleLabelPill({
+                          label: I18NextService.i18n.t("banned"),
+                          tooltip: I18NextService.i18n.t("banned"),
+                          classes: "text-bg-danger",
+                          shrink: false,
+                        })}
                       </li>
                     )}
                     {pv.person.deleted && (
-                      <li className="list-inline-item badge text-bg-danger">
-                        {I18NextService.i18n.t("deleted")}
+                      <li className="list-inline-item">
+                        {getRoleLabelPill({
+                          label: I18NextService.i18n.t("deleted"),
+                          tooltip: I18NextService.i18n.t("deleted"),
+                          classes: "text-bg-danger",
+                          shrink: false,
+                        })}
                       </li>
                     )}
                     {pv.person.admin && (
-                      <li className="list-inline-item badge text-bg-light">
-                        {I18NextService.i18n.t("admin")}
+                      <li className="list-inline-item">
+                        {getRoleLabelPill({
+                          label: I18NextService.i18n.t("admin"),
+                          tooltip: I18NextService.i18n.t("admin"),
+                          shrink: false,
+                        })}
                       </li>
                     )}
                     {pv.person.bot_account && (
-                      <li className="list-inline-item badge text-bg-light">
-                        {I18NextService.i18n.t("bot_account").toLowerCase()}
+                      <li className="list-inline-item">
+                        {getRoleLabelPill({
+                          label: I18NextService.i18n
+                            .t("bot_account")
+                            .toLowerCase(),
+                          tooltip: I18NextService.i18n.t("bot_account"),
+                          shrink: false,
+                        })}
                       </li>
                     )}
                   </ul>
@@ -692,6 +713,8 @@ export class Profile extends Component<
             >
               {I18NextService.i18n.t("cancel")}
             </button>
+          </div>
+          <div className="mb-3 row">
             <button
               type="submit"
               className="btn btn-secondary"

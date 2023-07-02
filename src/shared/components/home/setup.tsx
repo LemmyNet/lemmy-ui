@@ -205,9 +205,7 @@ export class Setup extends Component<any, State> {
         const data = i.state.registerRes.data;
 
         UserService.Instance.login(data);
-        if (UserService.Instance.jwtInfo) {
-          i.setState({ doneRegisteringUser: true });
-        }
+        i.setState({ doneRegisteringUser: true });
       }
     }
   }

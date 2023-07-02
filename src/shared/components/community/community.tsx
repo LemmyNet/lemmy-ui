@@ -317,7 +317,10 @@ export class Community extends Component<
             />
 
             <div className="row">
-              <main className="col-12 col-md-8" ref={this.mainContentRef}>
+              <main
+                className="col-12 col-md-8 col-lg-9"
+                ref={this.mainContentRef}
+              >
                 {this.communityInfo(res)}
                 <div className="d-block d-md-none">
                   <button
@@ -340,7 +343,7 @@ export class Community extends Component<
                 {this.listings(res)}
                 <Paginator page={page} onChange={this.handlePageChange} />
               </main>
-              <aside className="d-none d-md-block col-md-4">
+              <aside className="d-none d-md-block col-md-4 col-lg-3">
                 {this.sidebar(res)}
               </aside>
             </div>

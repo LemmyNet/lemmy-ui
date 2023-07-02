@@ -80,6 +80,8 @@ export class ImageUploadForm extends Component<
       if (res.state === "success") {
         if (res.data.msg === "ok") {
           i.props.onUpload(res.data.url as string);
+        } else if (res.data.msg === "too_large") {
+          toast(I18NextService.i18n.t("upload_too_large"), "danger");
         } else {
           toast(JSON.stringify(res), "danger");
         }

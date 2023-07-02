@@ -512,6 +512,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
             { form: form, index: index, overrideValue: res.data.url as string },
             event
           );
+        } else if (res.data.msg === "too_large") {
+          toast(I18NextService.i18n.t("upload_too_large"), "danger");
         } else {
           toast(JSON.stringify(res), "danger");
         }

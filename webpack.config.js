@@ -6,8 +6,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
 const merge = require("lodash.merge");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
-const BundleAnalyzerPlugin =
-  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
   Source code: https://github.com/LemmyNet/lemmy-ui
@@ -15,56 +14,63 @@ const banner = `
   @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3.0
   `;
 
-const base = {
-  output: {
-    filename: "js/server.js",
-    publicPath: "/",
-    hashFunction: "xxhash64",
-  },
-  resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
-    alias: {
-      "@": path.resolve(__dirname, "src/"),
-      "@utils": path.resolve(__dirname, "src/shared/utils/"),
+function getBase(env, mode) {
+  return {
+    output: {
+      filename: "js/server.js",
+      publicPath: "/",
+      hashFunction: "xxhash64",
     },
-  },
-  performance: {
-    hints: false,
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(scss|css)$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+    resolve: {
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
+      alias: {
+        "@": path.resolve(__dirname, "src/"),
+        "@utils": path.resolve(__dirname, "src/shared/utils/"),
       },
-      {
-        test: /\.(js|jsx|tsx|ts)$/, // All ts and tsx files will be process by
-        exclude: /node_modules/, // ignore node_modules
-        loader: "babel-loader",
-      },
-      // Due to some weird babel issue: https://github.com/webpack/webpack/issues/11467
-      {
-        test: /\.m?js/,
-        resolve: {
-          fullySpecified: false,
+    },
+    performance: {
+      hints: false,
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(scss|css)$/i,
+          use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
         },
-      },
+        {
+          test: /\.(js|jsx|tsx|ts)$/, // All ts and tsx files will be process by
+          exclude: /node_modules/, // ignore node_modules
+          loader: "babel-loader",
+        },
+        // Due to some weird babel issue: https://github.com/webpack/webpack/issues/11467
+        {
+          test: /\.m?js/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
+      ],
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        "process.env.COMMIT_HASH": `"${env.COMMIT_HASH}"`,
+        "process.env.NODE_ENV": `"${mode}"`,
+      }),
+      new MiniCssExtractPlugin({
+        filename: "styles/styles.css",
+      }),
+      new CopyPlugin({
+        patterns: [{ from: "./src/assets", to: "./assets" }],
+      }),
+      new webpack.BannerPlugin({
+        banner,
+      }),
     ],
-  },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: "styles/styles.css",
-    }),
-    new CopyPlugin({
-      patterns: [{ from: "./src/assets", to: "./assets" }],
-    }),
-    new webpack.BannerPlugin({
-      banner,
-    }),
-  ],
-};
+  };
+}
 
-const createServerConfig = (_env, mode) => {
+const createServerConfig = (env, mode) => {
+  const base = getBase(env, mode);
   const config = merge({}, base, {
     mode,
     entry: "./src/server/index.tsx",
@@ -91,23 +97,22 @@ const createServerConfig = (_env, mode) => {
   return config;
 };
 
-const createClientConfig = (_env, mode) => {
+const createClientConfig = (env, mode) => {
+  const base = getBase(env, mode);
   const config = merge({}, base, {
     mode,
     entry: "./src/client/index.tsx",
     output: {
       filename: "js/client.js",
+      publicPath: `/static/${env.COMMIT_HASH}/`,
     },
     plugins: [
       ...base.plugins,
       new ServiceWorkerPlugin({
         enableInDevelopment: mode !== "development", // this may seem counterintuitive, but it is correct
         workbox: {
-          modifyURLPrefix: {
-            "/": "/static/",
-          },
           cacheId: "lemmy",
-          include: [/(assets|styles)\/.+\..+|client\.js$/g],
+          include: [/(assets|styles|js)\/.+\..+$/g],
           inlineWorkboxRuntime: true,
           runtimeCaching: [
             {
@@ -156,6 +161,8 @@ const createClientConfig = (_env, mode) => {
   });
 
   if (mode === "none") {
+    const BundleAnalyzerPlugin =
+      require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
     config.plugins.push(new BundleAnalyzerPlugin());
   }
 
