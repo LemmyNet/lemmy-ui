@@ -258,7 +258,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <Spinner />
           ) : (
             <>
-              <Icon icon="check" classes="icon-inline text-success me-1" />
+              <Icon icon="check" classes="icon-inline me-1" />
               {I18NextService.i18n.t("joined")}
             </>
           )}

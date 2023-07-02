@@ -1,4 +1,5 @@
 import { randomStr } from "@utils/helpers";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { HttpService, I18NextService, UserService } from "../../services";
 import { toast } from "../../toast";
@@ -33,38 +34,35 @@ export class ImageUploadForm extends Component<
   render() {
     return (
       <form className="image-upload-form d-inline">
-        <label htmlFor={this.id} className="pointer text-muted small fw-bold">
-          {this.props.imageSrc ? (
-            <span className="d-inline-block position-relative">
-              {/* TODO: Create "Current Iamge" translation for alt text */}
-              <img
-                alt=""
-                src={this.props.imageSrc}
-                height={this.props.rounded ? 60 : ""}
-                width={this.props.rounded ? 60 : ""}
-                className={`img-fluid ${
-                  this.props.rounded ? "rounded-circle" : ""
-                }`}
-              />
-              <button
-                className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
-                type="button"
-                onClick={linkEvent(this, this.handleRemoveImage)}
-                aria-label={I18NextService.i18n.t("remove")}
-              >
-                <Icon icon="x" classes="mini-overlay" />
-              </button>
-            </span>
-          ) : (
-            <span className="btn btn-secondary">{this.props.uploadTitle}</span>
-          )}
-        </label>
+        {this.props.imageSrc && (
+          <span className="d-inline-block position-relative mb-2">
+            {/* TODO: Create "Current Iamge" translation for alt text */}
+            <img
+              alt=""
+              src={this.props.imageSrc}
+              height={this.props.rounded ? 60 : ""}
+              width={this.props.rounded ? 60 : ""}
+              className={classNames({
+                "rounded-circle object-fit-cover": this.props.rounded,
+                "img-fluid": !this.props.rounded,
+              })}
+            />
+            <button
+              className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
+              type="button"
+              onClick={linkEvent(this, this.handleRemoveImage)}
+              aria-label={I18NextService.i18n.t("remove")}
+            >
+              <Icon icon="x" classes="mini-overlay" />
+            </button>
+          </span>
+        )}
         <input
           id={this.id}
           type="file"
           accept="image/*,video/*"
+          className="small form-control"
           name={this.id}
-          className="d-none"
           disabled={!UserService.Instance.myUserInfo}
           onChange={linkEvent(this, this.handleImageUpload)}
         />
