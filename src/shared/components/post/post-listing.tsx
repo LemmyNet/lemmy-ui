@@ -333,7 +333,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return (
         <button
           type="button"
-          className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
+          className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0 bg-transparent"
           data-tippy-content={I18NextService.i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={I18NextService.i18n.t("expand_here")}
