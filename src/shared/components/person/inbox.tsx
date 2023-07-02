@@ -238,7 +238,7 @@ export class Inbox extends Component<any, InboxState> {
             </h1>
             {this.hasUnreads && (
               <button
-                className="btn btn-secondary mb-2"
+                className="btn btn-secondary mb-2 mb-sm-3"
                 onClick={linkEvent(this, this.handleMarkAllAsRead)}
               >
                 {this.state.markAllAsReadRes.state == "loading" ? (
@@ -382,7 +382,7 @@ export class Inbox extends Component<any, InboxState> {
 
   selects() {
     return (
-      <div className="row row-cols-auto g-2 mb-2">
+      <div className="row row-cols-auto g-2 g-sm-3 mb-2 mb-sm-3">
         <div className="col">{this.unreadOrAllRadios()}</div>
         <div className="col">{this.messageTypeRadios()}</div>
         <div className="col">
