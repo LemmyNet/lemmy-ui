@@ -221,7 +221,7 @@ export class Inbox extends Component<any, InboxState> {
               title={this.documentTitle}
               path={this.context.router.route.match.url}
             />
-            <h5 className="mb-2">
+            <h1 className="h4 mb-4">
               {I18NextService.i18n.t("inbox")}
               {inboxRss && (
                 <small>
@@ -235,7 +235,7 @@ export class Inbox extends Component<any, InboxState> {
                   />
                 </small>
               )}
-            </h5>
+            </h1>
             {this.hasUnreads && (
               <button
                 className="btn btn-secondary mb-2"
@@ -284,7 +284,7 @@ export class Inbox extends Component<any, InboxState> {
 
   unreadOrAllRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap">
         <label
           className={`btn btn-outline-secondary pointer
             ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
@@ -319,7 +319,7 @@ export class Inbox extends Component<any, InboxState> {
 
   messageTypeRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap">
         <label
           className={`btn btn-outline-secondary pointer
             ${this.state.messageType == MessageType.All && "active"}
@@ -382,13 +382,15 @@ export class Inbox extends Component<any, InboxState> {
 
   selects() {
     return (
-      <div className="mb-2">
-        <span className="me-3">{this.unreadOrAllRadios()}</span>
-        <span className="me-3">{this.messageTypeRadios()}</span>
-        <CommentSortSelect
-          sort={this.state.sort}
-          onChange={this.handleSortChange}
-        />
+      <div className="row g-2">
+        <div className="col-auto">{this.unreadOrAllRadios()}</div>
+        <div className="col-auto">{this.messageTypeRadios()}</div>
+        <div className="col-auto">
+          <CommentSortSelect
+            sort={this.state.sort}
+            onChange={this.handleSortChange}
+          />
+        </div>
       </div>
     );
   }
@@ -541,9 +543,9 @@ export class Inbox extends Component<any, InboxState> {
       this.state.messagesRes.state == "loading"
     ) {
       return (
-        <h5>
+        <h1 className="h4">
           <Spinner large />
-        </h5>
+        </h1>
       );
     } else {
       return (
@@ -556,9 +558,9 @@ export class Inbox extends Component<any, InboxState> {
     switch (this.state.repliesRes.state) {
       case "loading":
         return (
-          <h5>
+          <h1 className="h4">
             <Spinner large />
-          </h5>
+          </h1>
         );
       case "success": {
         const replies = this.state.repliesRes.data.replies;
@@ -603,9 +605,9 @@ export class Inbox extends Component<any, InboxState> {
     switch (this.state.mentionsRes.state) {
       case "loading":
         return (
-          <h5>
+          <h1 className="h4">
             <Spinner large />
-          </h5>
+          </h1>
         );
       case "success": {
         const mentions = this.state.mentionsRes.data.mentions;
@@ -653,9 +655,9 @@ export class Inbox extends Component<any, InboxState> {
     switch (this.state.messagesRes.state) {
       case "loading":
         return (
-          <h5>
+          <h1 className="h4">
             <Spinner large />
-          </h5>
+          </h1>
         );
       case "success": {
         const messages = this.state.messagesRes.data.private_messages;

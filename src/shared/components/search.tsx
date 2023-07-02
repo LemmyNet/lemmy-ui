@@ -181,23 +181,28 @@ const Filter = ({
   loading: boolean;
 }) => {
   return (
-    <div className="mb-3 col-sm-6">
-      <label className="col-form-label me-2" htmlFor={`${filterType}-filter`}>
-        {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
-      </label>
-      <SearchableSelect
-        id={`${filterType}-filter`}
-        options={[
-          {
-            label: I18NextService.i18n.t("all"),
-            value: "0",
-          },
-        ].concat(options)}
-        value={value ?? 0}
-        onSearch={onSearch}
-        onChange={onChange}
-        loading={loading}
-      />
+    <div className="col-sm-6">
+      <div className="row gx-2">
+        <label
+          className="col-12 col-sm-auto col-form-label flex-grow-0"
+          htmlFor={`${filterType}-filter`}
+        >
+          {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
+        </label>
+        <SearchableSelect
+          id={`${filterType}-filter`}
+          options={[
+            {
+              label: I18NextService.i18n.t("all"),
+              value: "0",
+            },
+          ].concat(options)}
+          value={value ?? 0}
+          onSearch={onSearch}
+          onChange={onChange}
+          loading={loading}
+        />
+      </div>
     </div>
   );
 };
@@ -467,7 +472,7 @@ export class Search extends Component<any, SearchState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5>{I18NextService.i18n.t("search")}</h5>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
         {this.searchForm}
         {this.displayResults(type)}
@@ -500,8 +505,11 @@ export class Search extends Component<any, SearchState> {
 
   get searchForm() {
     return (
-      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
-        <div className="col-auto">
+      <form
+        className="row gx-2 gy-3"
+        onSubmit={linkEvent(this, this.handleSearchSubmit)}
+      >
+        <div className="col-auto flex-grow-1 flex-sm-grow-0">
           <input
             type="text"
             className="form-control me-2 mb-2 col-sm-8"
@@ -542,41 +550,45 @@ export class Search extends Component<any, SearchState> {
       communitiesRes.data.communities.length > 0;
 
     return (
-      <div className="mb-2">
-        <select
-          value={type}
-          onChange={linkEvent(this, this.handleTypeChange)}
-          className="form-select d-inline-block w-auto mb-2"
-          aria-label={I18NextService.i18n.t("type")}
-        >
-          <option disabled aria-hidden="true">
-            {I18NextService.i18n.t("type")}
-          </option>
-          {searchTypes.map(option => (
-            <option value={option} key={option}>
-              {I18NextService.i18n.t(
-                option.toString().toLowerCase() as NoOptionI18nKeys
-              )}
-            </option>
-          ))}
-        </select>
-        <span className="ms-2">
-          <ListingTypeSelect
-            type_={listingType}
-            showLocal={showLocal(this.isoData)}
-            showSubscribed
-            onChange={this.handleListingTypeChange}
-          />
-        </span>
-        <span className="ms-2">
-          <SortSelect
-            sort={sort}
-            onChange={this.handleSortChange}
-            hideHot
-            hideMostComments
-          />
-        </span>
-        <div className="row">
+      <>
+        <div className="row gx-2 gy-3 mb-2 mb-sm-3">
+          <div className="col-auto">
+            <select
+              value={type}
+              onChange={linkEvent(this, this.handleTypeChange)}
+              className="form-select d-inline-block w-auto"
+              aria-label={I18NextService.i18n.t("type")}
+            >
+              <option disabled aria-hidden="true">
+                {I18NextService.i18n.t("type")}
+              </option>
+              {searchTypes.map(option => (
+                <option value={option} key={option}>
+                  {I18NextService.i18n.t(
+                    option.toString().toLowerCase() as NoOptionI18nKeys
+                  )}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-auto">
+            <ListingTypeSelect
+              type_={listingType}
+              showLocal={showLocal(this.isoData)}
+              showSubscribed
+              onChange={this.handleListingTypeChange}
+            />
+          </div>
+          <div className="col-auto">
+            <SortSelect
+              sort={sort}
+              onChange={this.handleSortChange}
+              hideHot
+              hideMostComments
+            />
+          </div>
+        </div>
+        <div className="row gx-5 gy-2 mb-3">
           {hasCommunities && (
             <Filter
               filterType="community"
@@ -596,7 +608,7 @@ export class Search extends Component<any, SearchState> {
             loading={searchCreatorLoading}
           />
         </div>
-      </div>
+      </>
     );
   }
 
