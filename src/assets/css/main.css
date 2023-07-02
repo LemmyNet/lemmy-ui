@@ -81,6 +81,7 @@
 }
 
 .vote-bar {
+  min-width: 5ch;
   margin-top: -6.5px;
 }
 
