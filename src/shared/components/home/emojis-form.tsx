@@ -77,7 +77,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5 className="col-12">{I18NextService.i18n.t("custom_emojis")}</h5>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("custom_emojis")}</h1>
         {customEmojisLookup.size > 0 && (
           <div>
             <EmojiMart

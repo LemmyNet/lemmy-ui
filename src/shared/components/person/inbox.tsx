@@ -221,7 +221,7 @@ export class Inbox extends Component<any, InboxState> {
               title={this.documentTitle}
               path={this.context.router.route.match.url}
             />
-            <h5 className="mb-2">
+            <h1 className="h4 mb-4">
               {I18NextService.i18n.t("inbox")}
               {inboxRss && (
                 <small>
@@ -235,7 +235,7 @@ export class Inbox extends Component<any, InboxState> {
                   />
                 </small>
               )}
-            </h5>
+            </h1>
             {this.hasUnreads && (
               <button
                 className="btn btn-secondary mb-2"

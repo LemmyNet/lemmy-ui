@@ -467,7 +467,7 @@ export class Search extends Component<any, SearchState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5>{I18NextService.i18n.t("search")}</h5>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
         {this.searchForm}
         {this.displayResults(type)}
