@@ -284,7 +284,6 @@ export class PrivateMessage extends Component<
           <div className="row">
             <div className="col-sm-6">
               <PrivateMessageForm
-                privateMessageView={message_view}
                 replyType={true}
                 recipient={otherPerson}
                 onCreate={this.props.onCreate}

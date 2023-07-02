@@ -333,7 +333,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return (
         <button
           type="button"
-          className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
+          className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0 bg-transparent"
           data-tippy-content={I18NextService.i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={I18NextService.i18n.t("expand_here")}
@@ -497,12 +497,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </h5>
 
           {/**
-           * If there is a URL, an embed title, and we were not told to show the
-           * body by the parent component, show the MetadataCard/body toggle.
+           * If there is (a) a URL and an embed title, or (b) a post body, and
+           * we were not told to show the body by the parent component, show the
+           * MetadataCard/body toggle.
            */}
           {!this.props.showBody &&
-            post.url &&
-            post.embed_title &&
+            ((post.url && post.embed_title) || post.body) &&
             this.showPreviewButton()}
 
           {post.removed && (
