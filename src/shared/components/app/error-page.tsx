@@ -1,5 +1,5 @@
 import { setIsoData } from "@utils/app";
-import removeAuthParam from "@utils/helpers/remove-auth-param";
+import { removeAuthParam } from "@utils/helpers";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
