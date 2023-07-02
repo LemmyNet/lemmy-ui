@@ -197,17 +197,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return this.commentView.comment.id;
   }
 
-  get hasBadges(): boolean {
-    const cv = this.commentView;
-
-    return (
-      this.isPostCreator ||
-      isMod(cv.creator.id, this.props.moderators) ||
-      isAdmin(cv.creator.id, this.props.admins) ||
-      cv.creator.bot_account
-    );
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>
   ): void {
