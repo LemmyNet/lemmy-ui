@@ -473,7 +473,7 @@ export class MarkdownTextArea extends Component<
   // Keybind handler
   // Keybinds inspired by github comment area
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       switch (event.key) {
         case "k": {
           i.handleInsertLink(i, event);
