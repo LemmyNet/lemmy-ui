@@ -5,7 +5,6 @@ import {
   enableDownvotes,
   enableNsfw,
   getCommentParentId,
-  getRoleLabelPill,
   myAuth,
   myAuthRequired,
   setIsoData,
@@ -85,6 +84,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { SortSelect } from "../common/sort-select";
+import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
@@ -137,7 +137,7 @@ const getCommunitiesListing = (
   communityViews.length > 0 && (
     <div className="card border-secondary mb-3">
       <div className="card-body">
-        <h5>{I18NextService.i18n.t(translationKey)}</h5>
+        <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
         <ul className="list-unstyled mb-0">
           {communityViews.map(({ community }) => (
             <li key={community.id}>
@@ -232,7 +232,7 @@ export class Profile extends Component<
   async fetchUserData() {
     const { page, sort, view } = getProfileQueryParams();
 
-    this.setState({ personRes: { state: "empty" } });
+    this.setState({ personRes: { state: "loading" } });
     this.setState({
       personRes: await HttpService.client.getPersonDetails({
         username: this.props.match.params.username,
@@ -472,7 +472,7 @@ export class Profile extends Component<
               <div className="mb-0 d-flex flex-wrap">
                 <div>
                   {pv.person.display_name && (
-                    <h5 className="mb-0">{pv.person.display_name}</h5>
+                    <h1 className="h4 mb-4">{pv.person.display_name}</h1>
                   )}
                   <ul className="list-inline mb-2">
                     <li className="list-inline-item">
@@ -484,46 +484,15 @@ export class Profile extends Component<
                         hideAvatar
                       />
                     </li>
-                    {isBanned(pv.person) && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("banned"),
-                          tooltip: I18NextService.i18n.t("banned"),
-                          classes: "text-bg-danger",
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.deleted && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("deleted"),
-                          tooltip: I18NextService.i18n.t("deleted"),
-                          classes: "text-bg-danger",
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.admin && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("admin"),
-                          tooltip: I18NextService.i18n.t("admin"),
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.bot_account && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n
-                            .t("bot_account")
-                            .toLowerCase(),
-                          tooltip: I18NextService.i18n.t("bot_account"),
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
+                    <li className="list-inline-item">
+                      <UserBadges
+                        classNames="ms-1"
+                        isBanned={isBanned(pv.person)}
+                        isDeleted={pv.person.deleted}
+                        isAdmin={pv.person.admin}
+                        isBot={pv.person.bot_account}
+                      />
+                    </li>
                   </ul>
                 </div>
                 {this.banDialog(pv)}

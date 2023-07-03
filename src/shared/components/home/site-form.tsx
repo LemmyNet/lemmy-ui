@@ -136,11 +136,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !this.state.submitted
           }
         />
-        <h5>{`${
+        <h2 className="h5">{`${
           siteSetup
             ? capitalizeFirstLetter(I18NextService.i18n.t("edit"))
             : capitalizeFirstLetter(I18NextService.i18n.t("setup"))
-        } ${I18NextService.i18n.t("your_site")}`}</h5>
+        } ${I18NextService.i18n.t("your_site")}`}</h2>
         <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="create-site-name">
             {I18NextService.i18n.t("name")}
@@ -158,28 +158,32 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="input-group mb-3">
-          <label className="me-2 col-form-label">
+        <div className="row mb-3">
+          <label className="col-sm-2 col-form-label">
             {I18NextService.i18n.t("icon")}
           </label>
-          <ImageUploadForm
-            uploadTitle={I18NextService.i18n.t("upload_icon")}
-            imageSrc={this.state.siteForm.icon}
-            onUpload={this.handleIconUpload}
-            onRemove={this.handleIconRemove}
-            rounded
-          />
+          <div className="col-sm-10">
+            <ImageUploadForm
+              uploadTitle={I18NextService.i18n.t("upload_icon")}
+              imageSrc={this.state.siteForm.icon}
+              onUpload={this.handleIconUpload}
+              onRemove={this.handleIconRemove}
+              rounded
+            />
+          </div>
         </div>
-        <div className="input-group mb-3">
-          <label className="me-2 col-form-label">
+        <div className="row mb-3">
+          <label className="col-sm-2 col-form-label">
             {I18NextService.i18n.t("banner")}
           </label>
-          <ImageUploadForm
-            uploadTitle={I18NextService.i18n.t("upload_banner")}
-            imageSrc={this.state.siteForm.banner}
-            onUpload={this.handleBannerUpload}
-            onRemove={this.handleBannerRemove}
-          />
+          <div className="col-sm-10">
+            <ImageUploadForm
+              uploadTitle={I18NextService.i18n.t("upload_banner")}
+              imageSrc={this.state.siteForm.banner}
+              onUpload={this.handleBannerUpload}
+              onRemove={this.handleBannerRemove}
+            />
+          </div>
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="site-desc">

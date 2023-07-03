@@ -144,7 +144,7 @@ export class Signup extends Component<any, State> {
         className="was-validated"
         onSubmit={linkEvent(this, this.handleRegisterSubmit)}
       >
-        <h5>{this.titleName(siteView)}</h5>
+        <h1 className="h4 mb-4">{this.titleName(siteView)}</h1>
 
         {this.isLemmyMl && (
           <div className="mb-3 row">
