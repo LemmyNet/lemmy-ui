@@ -292,12 +292,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             mark: this.isCommentNew || this.commentView.comment.distinguished,
           })}
         >
-          <div
+          <button
             className={classNames({
               "ms-2": !this.props.noIndent,
             })}
             onClick={linkEvent(this, this.handleCommentCollapse)}
-            onKeyDown={linkEvent(this, this.handleCommentCollapse)}
             role={"textbox"}
             aria-label={this.expandText}
             data-tippy-content={this.expandText}
@@ -927,7 +926,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 {/* end of button group */}
               </div>
             )}
-          </div>
+          </button>
         </article>
         {showMoreChildren && (
           <div
