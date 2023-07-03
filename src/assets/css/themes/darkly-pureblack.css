@@ -2129,11 +2129,12 @@ progress {
   opacity: 1;
 }
 .form-control::file-selector-button {
+  --bs-btn-bg: #333;
   padding: 0.375rem 0.75rem;
   margin: -0.375rem -0.75rem;
   margin-inline-end: 0.75rem;
   color: #f3f3f3;
-  background-color: var(--bs-tertiary-bg);
+  background-color: var(--bs-btn-bg);
   pointer-events: none;
   border-color: inherit;
   border-style: solid;
@@ -2148,7 +2149,8 @@ progress {
   }
 }
 .form-control:hover:not(:disabled):not([readonly])::file-selector-button {
-  background-color: var(--bs-secondary-bg);
+  --bs-btn-hover-bg: #2b2b2b;
+  background-color: var(--bs-btn-hover-bg);
 }
 
 .form-control-plaintext {
