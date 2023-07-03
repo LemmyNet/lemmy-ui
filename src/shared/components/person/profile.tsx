@@ -232,7 +232,7 @@ export class Profile extends Component<
   async fetchUserData() {
     const { page, sort, view } = getProfileQueryParams();
 
-    this.setState({ personRes: { state: "empty" } });
+    this.setState({ personRes: { state: "loading" } });
     this.setState({
       personRes: await HttpService.client.getPersonDetails({
         username: this.props.match.params.username,
