@@ -81,6 +81,7 @@
 }
 
 .vote-bar {
+  min-width: 5ch;
   margin-top: -6.5px;
 }
 
@@ -253,10 +254,6 @@ hr {
   -ms-filter: blur(10px);
 }
 
-.img-cover {
-  object-fit: cover;
-}
-
 .img-expanded {
   max-height: 90vh;
 }
@@ -349,10 +346,12 @@ br.big {
 }
 
 .avatar-overlay {
-  width: 20%;
-  height: 20%;
+  width: 20vw;
+  height: 20vw;
   max-width: 120px;
   max-height: 120px;
+  min-width: 80px;
+  min-height: 80px;
 }
 
 .avatar-pushup {
