@@ -751,87 +751,83 @@ export class Modlog extends Component<
           path={this.context.router.route.match.url}
         />
 
-        <div>
-          <div
-            className="alert alert-warning text-sm-start text-xs-center"
-            role="alert"
-          >
-            <Icon
-              icon="alert-triangle"
-              inline
-              classes="me-sm-2 mx-auto d-sm-inline d-block"
-            />
-            <T i18nKey="modlog_content_warning" class="d-inline">
-              #<strong>#</strong>#
-            </T>
-          </div>
-          {this.state.communityRes.state === "success" && (
-            <h5>
-              <Link
-                className="text-body"
-                to={`/c/${this.state.communityRes.data.community_view.community.name}`}
-              >
-                /c/{this.state.communityRes.data.community_view.community.name}{" "}
-              </Link>
-              <span>{I18NextService.i18n.t("modlog")}</span>
-            </h5>
-          )}
-          <div className="row mb-2">
-            <div className="col-sm-6">
-              <select
-                value={actionType}
-                onChange={linkEvent(this, this.handleFilterActionChange)}
-                className="form-select"
-                aria-label="action"
-              >
-                <option disabled aria-hidden="true">
-                  {I18NextService.i18n.t("filter_by_action")}
-                </option>
-                <option value={"All"}>{I18NextService.i18n.t("all")}</option>
-                <option value={"ModRemovePost"}>Removing Posts</option>
-                <option value={"ModLockPost"}>Locking Posts</option>
-                <option value={"ModFeaturePost"}>Featuring Posts</option>
-                <option value={"ModRemoveComment"}>Removing Comments</option>
-                <option value={"ModRemoveCommunity"}>
-                  Removing Communities
-                </option>
-                <option value={"ModBanFromCommunity"}>
-                  Banning From Communities
-                </option>
-                <option value={"ModAddCommunity"}>
-                  Adding Mod to Community
-                </option>
-                <option value={"ModTransferCommunity"}>
-                  Transferring Communities
-                </option>
-                <option value={"ModAdd"}>Adding Mod to Site</option>
-                <option value={"ModBan"}>Banning From Site</option>
-              </select>
-            </div>
-          </div>
-          <div className="row mb-2">
-            <Filter
-              filterType="user"
-              onChange={this.handleUserChange}
-              onSearch={this.handleSearchUsers}
-              value={userId}
-              options={userSearchOptions}
-              loading={loadingUserSearch}
-            />
-            {!this.isoData.site_res.site_view.local_site
-              .hide_modlog_mod_names && (
-              <Filter
-                filterType="mod"
-                onChange={this.handleModChange}
-                onSearch={this.handleSearchMods}
-                value={modId}
-                options={modSearchOptions}
-                loading={loadingModSearch}
-              />
-            )}
-          </div>
-          {this.renderModlogTable()}
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("modlog")}</h1>
+
+        <div
+          className="alert alert-warning text-sm-start text-xs-center"
+          role="alert"
+        >
+          <Icon
+            icon="alert-triangle"
+            inline
+            classes="me-sm-2 mx-auto d-sm-inline d-block"
+          />
+          <T i18nKey="modlog_content_warning" class="d-inline">
+            #<strong>#</strong>#
+          </T>
         </div>
+        {this.state.communityRes.state === "success" && (
+          <h5>
+            <Link
+              className="text-body"
+              to={`/c/${this.state.communityRes.data.community_view.community.name}`}
+            >
+              /c/{this.state.communityRes.data.community_view.community.name}{" "}
+            </Link>
+            <span>{I18NextService.i18n.t("modlog")}</span>
+          </h5>
+        )}
+        <div className="row mb-2">
+          <div className="col-sm-6">
+            <select
+              value={actionType}
+              onChange={linkEvent(this, this.handleFilterActionChange)}
+              className="form-select"
+              aria-label="action"
+            >
+              <option disabled aria-hidden="true">
+                {I18NextService.i18n.t("filter_by_action")}
+              </option>
+              <option value={"All"}>{I18NextService.i18n.t("all")}</option>
+              <option value={"ModRemovePost"}>Removing Posts</option>
+              <option value={"ModLockPost"}>Locking Posts</option>
+              <option value={"ModFeaturePost"}>Featuring Posts</option>
+              <option value={"ModRemoveComment"}>Removing Comments</option>
+              <option value={"ModRemoveCommunity"}>Removing Communities</option>
+              <option value={"ModBanFromCommunity"}>
+                Banning From Communities
+              </option>
+              <option value={"ModAddCommunity"}>Adding Mod to Community</option>
+              <option value={"ModTransferCommunity"}>
+                Transferring Communities
+              </option>
+              <option value={"ModAdd"}>Adding Mod to Site</option>
+              <option value={"ModBan"}>Banning From Site</option>
+            </select>
+          </div>
+        </div>
+        <div className="row mb-2">
+          <Filter
+            filterType="user"
+            onChange={this.handleUserChange}
+            onSearch={this.handleSearchUsers}
+            value={userId}
+            options={userSearchOptions}
+            loading={loadingUserSearch}
+          />
+          {!this.isoData.site_res.site_view.local_site
+            .hide_modlog_mod_names && (
+            <Filter
+              filterType="mod"
+              onChange={this.handleModChange}
+              onSearch={this.handleSearchMods}
+              value={modId}
+              options={modSearchOptions}
+              loading={loadingModSearch}
+            />
+          )}
+        </div>
+        {this.renderModlogTable()}
       </div>
     );
   }

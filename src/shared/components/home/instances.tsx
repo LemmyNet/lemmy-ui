@@ -85,24 +85,35 @@ export class Instances extends Component<any, InstancesState> {
       case "success": {
         const instances = this.state.instancesRes.data.federated_instances;
         return instances ? (
-          <div className="row">
-            <div className="col-md-6">
-              <h5>{I18NextService.i18n.t("linked_instances")}</h5>
-              {this.itemList(instances.linked)}
+          <>
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("instances")}</h1>
+            <div className="row">
+              <div className="col-md-6">
+                <h2 className="h5 mb-3">
+                  {I18NextService.i18n.t("linked_instances")}
+                </h2>
+                {this.itemList(instances.linked)}
+              </div>
             </div>
-            {instances.allowed && instances.allowed.length > 0 && (
-              <div className="col-md-6">
-                <h5>{I18NextService.i18n.t("allowed_instances")}</h5>
-                {this.itemList(instances.allowed)}
-              </div>
-            )}
-            {instances.blocked && instances.blocked.length > 0 && (
-              <div className="col-md-6">
-                <h5>{I18NextService.i18n.t("blocked_instances")}</h5>
-                {this.itemList(instances.blocked)}
-              </div>
-            )}
-          </div>
+            <div className="row">
+              {instances.allowed && instances.allowed.length > 0 && (
+                <div className="col-md-6">
+                  <h2 className="h5 mb-3">
+                    {I18NextService.i18n.t("allowed_instances")}
+                  </h2>
+                  {this.itemList(instances.allowed)}
+                </div>
+              )}
+              {instances.blocked && instances.blocked.length > 0 && (
+                <div className="col-md-6">
+                  <h2 className="h5 mb-3">
+                    {I18NextService.i18n.t("blocked_instances")}
+                  </h2>
+                  {this.itemList(instances.blocked)}
+                </div>
+              )}
+            </div>
+          </>
         ) : (
           <></>
         );

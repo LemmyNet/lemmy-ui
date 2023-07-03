@@ -466,7 +466,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         <div className="post-title overflow-hidden">
-          <h5 className="d-inline">
+          <h1 className="h5 d-inline">
             {url && this.props.showBody ? (
               <a
                 className={
@@ -482,7 +482,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               this.postLink
             )}
-          </h5>
+          </h1>
 
           {/**
            * If there is (a) a URL and an embed title, or (b) a post body, and

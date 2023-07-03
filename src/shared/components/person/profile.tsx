@@ -137,7 +137,7 @@ const getCommunitiesListing = (
   communityViews.length > 0 && (
     <div className="card border-secondary mb-3">
       <div className="card-body">
-        <h5>{I18NextService.i18n.t(translationKey)}</h5>
+        <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
         <ul className="list-unstyled mb-0">
           {communityViews.map(({ community }) => (
             <li key={community.id}>
@@ -472,7 +472,7 @@ export class Profile extends Component<
               <div className="mb-0 d-flex flex-wrap">
                 <div>
                   {pv.person.display_name && (
-                    <h5 className="mb-0">{pv.person.display_name}</h5>
+                    <h1 className="h4 mb-4">{pv.person.display_name}</h1>
                   )}
                   <ul className="list-inline mb-2">
                     <li className="list-inline-item">
