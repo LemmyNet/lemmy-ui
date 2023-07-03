@@ -37,7 +37,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5 className="col-12">{I18NextService.i18n.t("taglines")}</h5>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("taglines")}</h1>
         <div className="table-responsive col-12">
           <table id="taglines_table" className="table table-sm table-hover">
             <thead className="pointer">
