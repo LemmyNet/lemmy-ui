@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter, formatPastDate } from "@utils/helpers";
-import format from "date-fns/format";
+import { format } from "date-fns";
 import parseISO from "date-fns/parseISO";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
@@ -13,7 +13,8 @@ interface MomentTimeProps {
 }
 
 function formatDate(input: string) {
-  return format(parseISO(input), "PPPPpppp");
+  const parsed = parseISO(input + "Z");
+  return format(parsed, "PPPPpppp");
 }
 
 export class MomentTime extends Component<MomentTimeProps, any> {

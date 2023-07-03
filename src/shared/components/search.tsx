@@ -181,8 +181,8 @@ const Filter = ({
   loading: boolean;
 }) => {
   return (
-    <div className="mb-3 col-sm-6">
-      <label className="col-form-label me-2" htmlFor={`${filterType}-filter`}>
+    <div className="col-sm-6">
+      <label className="mb-1" htmlFor={`${filterType}-filter`}>
         {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
       </label>
       <SearchableSelect
@@ -332,9 +332,7 @@ export class Search extends Component<any, SearchState> {
   }
 
   async componentDidMount() {
-    if (
-      !(this.state.isIsomorphic || this.props.history.location.state?.searched)
-    ) {
+    if (!this.state.isIsomorphic) {
       const promises = [this.fetchCommunities()];
       if (this.state.searchText) {
         promises.push(this.search());
@@ -432,7 +430,15 @@ export class Search extends Component<any, SearchState> {
             q: query,
             auth,
           };
-          resolveObjectResponse = await client.resolveObject(resolveObjectForm);
+          resolveObjectResponse = await HttpService.silent_client.resolveObject(
+            resolveObjectForm
+          );
+
+          // If we return this object with a state of failed, the catch-all-handler will redirect
+          // to an error page, so we ignore it by covering up the error with the empty state.
+          if (resolveObjectResponse.state === "failed") {
+            resolveObjectResponse = { state: "empty" };
+          }
         }
       }
     }
@@ -461,7 +467,7 @@ export class Search extends Component<any, SearchState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5>{I18NextService.i18n.t("search")}</h5>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
         {this.searchForm}
         {this.displayResults(type)}
@@ -494,8 +500,11 @@ export class Search extends Component<any, SearchState> {
 
   get searchForm() {
     return (
-      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
-        <div className="col-auto">
+      <form
+        className="row gx-2 gy-3"
+        onSubmit={linkEvent(this, this.handleSearchSubmit)}
+      >
+        <div className="col-auto flex-grow-1 flex-sm-grow-0">
           <input
             type="text"
             className="form-control me-2 mb-2 col-sm-8"
@@ -536,41 +545,45 @@ export class Search extends Component<any, SearchState> {
       communitiesRes.data.communities.length > 0;
 
     return (
-      <div className="mb-2">
-        <select
-          value={type}
-          onChange={linkEvent(this, this.handleTypeChange)}
-          className="form-select d-inline-block w-auto mb-2"
-          aria-label={I18NextService.i18n.t("type")}
-        >
-          <option disabled aria-hidden="true">
-            {I18NextService.i18n.t("type")}
-          </option>
-          {searchTypes.map(option => (
-            <option value={option} key={option}>
-              {I18NextService.i18n.t(
-                option.toString().toLowerCase() as NoOptionI18nKeys
-              )}
-            </option>
-          ))}
-        </select>
-        <span className="ms-2">
-          <ListingTypeSelect
-            type_={listingType}
-            showLocal={showLocal(this.isoData)}
-            showSubscribed
-            onChange={this.handleListingTypeChange}
-          />
-        </span>
-        <span className="ms-2">
-          <SortSelect
-            sort={sort}
-            onChange={this.handleSortChange}
-            hideHot
-            hideMostComments
-          />
-        </span>
-        <div className="row">
+      <>
+        <div className="row row-cols-auto g-2 g-sm-3 mb-2 mb-sm-3">
+          <div className="col">
+            <select
+              value={type}
+              onChange={linkEvent(this, this.handleTypeChange)}
+              className="form-select d-inline-block w-auto"
+              aria-label={I18NextService.i18n.t("type")}
+            >
+              <option disabled aria-hidden="true">
+                {I18NextService.i18n.t("type")}
+              </option>
+              {searchTypes.map(option => (
+                <option value={option} key={option}>
+                  {I18NextService.i18n.t(
+                    option.toString().toLowerCase() as NoOptionI18nKeys
+                  )}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col">
+            <ListingTypeSelect
+              type_={listingType}
+              showLocal={showLocal(this.isoData)}
+              showSubscribed
+              onChange={this.handleListingTypeChange}
+            />
+          </div>
+          <div className="col">
+            <SortSelect
+              sort={sort}
+              onChange={this.handleSortChange}
+              hideHot
+              hideMostComments
+            />
+          </div>
+        </div>
+        <div className="row gy-2 gx-4 mb-3">
           {hasCommunities && (
             <Filter
               filterType="community"
@@ -590,7 +603,7 @@ export class Search extends Component<any, SearchState> {
             loading={searchCreatorLoading}
           />
         </div>
-      </div>
+      </>
     );
   }
 
@@ -950,7 +963,7 @@ export class Search extends Component<any, SearchState> {
       if (auth) {
         this.setState({ resolveObjectRes: { state: "loading" } });
         this.setState({
-          resolveObjectRes: await HttpService.client.resolveObject({
+          resolveObjectRes: await HttpService.silent_client.resolveObject({
             q,
             auth,
           }),
@@ -1097,10 +1110,6 @@ export class Search extends Component<any, SearchState> {
       sort: sort ?? urlSort,
     };
 
-    this.props.history.push(`/search${getQueryString(queryParams)}`, {
-      searched: true,
-    });
-
-    await this.search();
+    this.props.history.push(`/search${getQueryString(queryParams)}`);
   }
 }

@@ -20,6 +20,7 @@ COPY generate_translations.js \
 
 COPY lemmy-translations lemmy-translations
 COPY src src
+COPY .git .git
 
 # Set UI version 
 RUN echo "export const VERSION = 'dev';" > "src/shared/version.ts"

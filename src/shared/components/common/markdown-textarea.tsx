@@ -159,17 +159,23 @@ export class MarkdownTextArea extends Component<
         <div className="mb-3 row">
           <div className="col-12">
             <div className="rounded bg-light border">
-              <div className="d-flex flex-wrap border-bottom">
+              <div
+                className={classNames("d-flex flex-wrap border-bottom", {
+                  "no-click": this.isDisabled,
+                })}
+              >
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
                 {this.getFormatButton("link", this.handleInsertLink)}
                 <EmojiPicker
                   onEmojiClick={e => this.handleEmoji(this, e)}
-                  disabled={this.isDisabled}
                 ></EmojiPicker>
                 <form className="btn btn-sm text-muted fw-bold">
                   <label
                     htmlFor={`file-upload-${this.id}`}
+                    // TODO: Fix this linting violation
+                    // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                    tabIndex={0}
                     className={`mb-0 ${
                       UserService.Instance.myUserInfo && "pointer"
                     }`}
@@ -188,9 +194,7 @@ export class MarkdownTextArea extends Component<
                     name="file"
                     className="d-none"
                     multiple
-                    disabled={
-                      !UserService.Instance.myUserInfo || this.isDisabled
-                    }
+                    disabled={!UserService.Instance.myUserInfo}
                     onChange={linkEvent(this, this.handleImageUpload)}
                   />
                 </form>
@@ -273,12 +277,8 @@ export class MarkdownTextArea extends Component<
               <LanguageSelect
                 iconVersion
                 allLanguages={this.props.allLanguages}
-                // Only set the selected language ID if it exists as an option
-                // in the dropdown; otherwise, set it to 0 (Undetermined)
                 selectedLanguageIds={
-                  languageId && this.props.siteLanguages.includes(languageId)
-                    ? [languageId]
-                    : [0]
+                  languageId ? Array.of(languageId) : undefined
                 }
                 siteLanguages={this.props.siteLanguages}
                 onChange={this.handleLanguageChange}
@@ -352,7 +352,6 @@ export class MarkdownTextArea extends Component<
         data-tippy-content={I18NextService.i18n.t(type)}
         aria-label={I18NextService.i18n.t(type)}
         onClick={linkEvent(this, handleClick)}
-        disabled={this.isDisabled}
       >
         <Icon icon={iconType} classes="icon-inline" />
       </button>
@@ -447,6 +446,10 @@ export class MarkdownTextArea extends Component<
         const textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
         pictrsDeleteToast(image.name, res.data.delete_url as string);
+      } else if (res.data.msg === "too_large") {
+        toast(I18NextService.i18n.t("upload_too_large"), "danger");
+        i.setState({ imageUploadStatus: undefined });
+        throw JSON.stringify(res.data);
       } else {
         throw JSON.stringify(res.data);
       }
@@ -473,7 +476,7 @@ export class MarkdownTextArea extends Component<
   // Keybind handler
   // Keybinds inspired by github comment area
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       switch (event.key) {
         case "k": {
           i.handleInsertLink(i, event);
@@ -702,18 +705,20 @@ export class MarkdownTextArea extends Component<
   quoteInsert() {
     const textarea: any = document.getElementById(this.id);
     const selectedText = window.getSelection()?.toString();
-    const { content } = this.state;
+    let { content } = this.state;
     if (selectedText) {
       const quotedText =
         selectedText
           .split("\n")
           .map(t => `> ${t}`)
           .join("\n") + "\n\n";
+
       if (!content) {
-        this.setState({ content: "" });
+        content = "";
       } else {
-        this.setState({ content: `${content}\n` });
+        content = `${content}\n\n`;
       }
+
       this.setState({
         content: `${content}${quotedText}`,
       });
