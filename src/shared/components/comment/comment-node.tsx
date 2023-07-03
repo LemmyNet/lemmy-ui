@@ -1,7 +1,6 @@
 import {
   colorList,
   getCommentParentId,
-  getRoleLabelPill,
   myAuth,
   myAuthRequired,
   showScores,
@@ -63,6 +62,7 @@ import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
+import { UserBadges } from "../common/user-badges";
 import { VoteButtonsCompact } from "../common/vote-buttons";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
@@ -316,41 +316,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 />
               </button>
 
-              <span className="me-2">
-                <PersonListing person={cv.creator} />
-              </span>
+              <PersonListing person={cv.creator} />
 
               {cv.comment.distinguished && (
-                <Icon icon="shield" inline classes="text-danger me-2" />
+                <Icon icon="shield" inline classes="text-danger ms-1" />
               )}
 
-              {this.isPostCreator &&
-                getRoleLabelPill({
-                  label: I18NextService.i18n.t("op").toUpperCase(),
-                  tooltip: I18NextService.i18n.t("creator"),
-                  classes: "text-bg-info",
-                  shrink: false,
-                })}
-
-              {isMod_ &&
-                getRoleLabelPill({
-                  label: I18NextService.i18n.t("mod"),
-                  tooltip: I18NextService.i18n.t("mod"),
-                  classes: "text-bg-primary",
-                })}
-
-              {isAdmin_ &&
-                getRoleLabelPill({
-                  label: I18NextService.i18n.t("admin"),
-                  tooltip: I18NextService.i18n.t("admin"),
-                  classes: "text-bg-danger",
-                })}
-
-              {cv.creator.bot_account &&
-                getRoleLabelPill({
-                  label: I18NextService.i18n.t("bot_account").toLowerCase(),
-                  tooltip: I18NextService.i18n.t("bot_account"),
-                })}
+              <UserBadges
+                classNames="ms-1"
+                isPostCreator={this.isPostCreator}
+                isMod={isMod_}
+                isAdmin={isAdmin_}
+                isBot={cv.creator.bot_account}
+              />
 
               {this.props.showCommunity && (
                 <>
