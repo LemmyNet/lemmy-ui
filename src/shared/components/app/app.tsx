@@ -43,7 +43,7 @@ export class App extends Component<any, any> {
           <div
             id="app"
             className="lemmy-site"
-            data-bs-theme={this?.state?.bsTheme}
+            data-bs-theme={this.state?.bsTheme}
           >
             <button
               type="button"
