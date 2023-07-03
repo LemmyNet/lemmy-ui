@@ -69,7 +69,7 @@ export class Login extends Component<any, State> {
     return (
       <div>
         <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
-          <h5>{I18NextService.i18n.t("login")}</h5>
+          <h1 className="h4 mb-4">{I18NextService.i18n.t("login")}</h1>
           <div className="mb-3 row">
             <label
               className="col-sm-2 col-form-label"

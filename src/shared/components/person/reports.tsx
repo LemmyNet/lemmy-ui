@@ -152,7 +152,7 @@ export class Reports extends Component<any, ReportsState> {
               title={this.documentTitle}
               path={this.context.router.route.match.url}
             />
-            <h5 className="mb-2">{I18NextService.i18n.t("reports")}</h5>
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("reports")}</h1>
             {this.selects()}
             {this.section}
             <Paginator

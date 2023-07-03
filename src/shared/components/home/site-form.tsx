@@ -136,11 +136,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !this.state.submitted
           }
         />
-        <h5>{`${
+        <h2 className="h5">{`${
           siteSetup
             ? capitalizeFirstLetter(I18NextService.i18n.t("edit"))
             : capitalizeFirstLetter(I18NextService.i18n.t("setup"))
-        } ${I18NextService.i18n.t("your_site")}`}</h5>
+        } ${I18NextService.i18n.t("your_site")}`}</h2>
         <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="create-site-name">
             {I18NextService.i18n.t("name")}

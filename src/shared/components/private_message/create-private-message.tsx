@@ -115,7 +115,7 @@ export class CreatePrivateMessage extends Component<
         return (
           <div className="row">
             <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-              <h1 className="h4">
+              <h1 className="h4 mb-4">
                 {I18NextService.i18n.t("create_private_message")}
               </h1>
               <PrivateMessageForm

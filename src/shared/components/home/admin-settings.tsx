@@ -135,6 +135,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                   role="tabpanel"
                   id="site-tab-pane"
                 >
+                  <h1 className="h4 mb-4">
+                    {I18NextService.i18n.t("site_config")}
+                  </h1>
                   <div className="row">
                     <div className="col-12 col-md-6">
                       <SiteForm
@@ -149,6 +152,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                     </div>
                     <div className="col-12 col-md-6">
                       {this.admins()}
+                      <hr />
                       {this.bannedUsers()}
                     </div>
                   </div>
@@ -249,7 +253,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   admins() {
     return (
       <>
-        <h5>{capitalizeFirstLetter(I18NextService.i18n.t("admins"))}</h5>
+        <h2 className="h5">
+          {capitalizeFirstLetter(I18NextService.i18n.t("admins"))}
+        </h2>
         <ul className="list-unstyled">
           {this.state.siteRes.admins.map(admin => (
             <li key={admin.person.id} className="list-inline-item">
@@ -289,7 +295,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         const bans = this.state.bannedRes.data.banned;
         return (
           <>
-            <h5>{I18NextService.i18n.t("banned_users")}</h5>
+            <h2 className="h5">{I18NextService.i18n.t("banned_users")}</h2>
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">

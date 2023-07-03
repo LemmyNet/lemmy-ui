@@ -1,4 +1,4 @@
-import { getRoleLabelPill, myAuthRequired } from "@utils/app";
+import { myAuthRequired } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -55,6 +55,7 @@ import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
+import { UserBadges } from "../common/user-badges";
 import { VoteButtons, VoteButtonsCompact } from "../common/vote-buttons";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
@@ -406,26 +407,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     return (
       <div className="small mb-1 mb-md-0">
-        <span className="me-1">
-          <PersonListing person={post_view.creator} />
-        </span>
-        {this.creatorIsMod_ &&
-          getRoleLabelPill({
-            label: I18NextService.i18n.t("mod"),
-            tooltip: I18NextService.i18n.t("mod"),
-            classes: "text-bg-primary",
-          })}
-        {this.creatorIsAdmin_ &&
-          getRoleLabelPill({
-            label: I18NextService.i18n.t("admin"),
-            tooltip: I18NextService.i18n.t("admin"),
-            classes: "text-bg-danger",
-          })}
-        {post_view.creator.bot_account &&
-          getRoleLabelPill({
-            label: I18NextService.i18n.t("bot_account").toLowerCase(),
-            tooltip: I18NextService.i18n.t("bot_account"),
-          })}
+        <PersonListing person={post_view.creator} />
+        <UserBadges
+          classNames="ms-1"
+          isMod={this.creatorIsMod_}
+          isAdmin={this.creatorIsAdmin_}
+          isBot={post_view.creator.bot_account}
+        />
         {this.props.showCommunity && (
           <>
             {" "}
@@ -478,7 +466,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         <div className="post-title">
-          <h5 className="d-inline text-break">
+          <h1 className="h5 d-inline text-break">
             {url && this.props.showBody ? (
               <a
                 className={
@@ -494,7 +482,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               this.postLink
             )}
-          </h5>
+          </h1>
 
           {/**
            * If there is (a) a URL and an embed title, or (b) a post body, and
@@ -1427,6 +1415,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       UserService.Instance.myUserInfo?.local_user_view.person.id
     );
   }
+
   handleEditClick(i: PostListing) {
     i.setState({ showEdit: true });
   }
@@ -1550,6 +1539,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       post_id: i.postView.post.id,
       removed: !i.postView.post.removed,
       auth: myAuthRequired(),
+      reason: i.state.removeReason,
     });
   }
 
@@ -1621,13 +1611,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handlePurgeSubmit(i: PostListing, event: any) {
     event.preventDefault();
     i.setState({ purgeLoading: true });
-    if (i.state.purgeType == PurgeType.Person) {
+    if (i.state.purgeType === PurgeType.Person) {
       i.props.onPurgePerson({
         person_id: i.postView.creator.id,
         reason: i.state.purgeReason,
         auth: myAuthRequired(),
       });
-    } else if (i.state.purgeType == PurgeType.Post) {
+    } else if (i.state.purgeType === PurgeType.Post) {
       i.props.onPurgePost({
         post_id: i.postView.post.id,
         reason: i.state.purgeReason,
