@@ -292,15 +292,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             mark: this.isCommentNew || this.commentView.comment.distinguished,
           })}
         >
-          <button
+          <div
             className={classNames({
               "ms-2": !this.props.noIndent,
             })}
             onClick={linkEvent(this, this.handleCommentCollapse)}
-            role={"textbox"}
+            onKeyDown={linkEvent(this, this.handleKeyBinds)}
             aria-label={this.expandText}
             data-tippy-content={this.expandText}
-            tabIndex={cv.comment.id}
+            role="button"
+            tabIndex={0}
           >
             <div className="d-flex flex-wrap align-items-center text-muted small">
               <button
@@ -308,6 +309,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 onClick={linkEvent(this, this.handleCommentCollapse)}
                 aria-label={this.expandText}
                 data-tippy-content={this.expandText}
+                aria-expanded={this.state.collapsed}
               >
                 <Icon
                   icon={`${this.state.collapsed ? "plus" : "minus"}-square`}
@@ -926,7 +928,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 {/* end of button group */}
               </div>
             )}
-          </button>
+          </div>
         </article>
         {showMoreChildren && (
           <div
@@ -1419,6 +1421,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const now = subMinutes(new Date(), 10);
     const then = parseISO(this.commentView.comment.published);
     return isBefore(now, then);
+  }
+
+  handleKeyBinds(i: CommentNode, event: KeyboardEvent) {
+    if (event.ctrlKey || event.metaKey) {
+      switch (event.key) {
+        case "ArrowLeft": {
+          i.handleCommentCollapse(i, event);
+          break;
+        }
+      }
+    }
   }
 
   handleCommentCollapse(i: CommentNode, event: any) {
