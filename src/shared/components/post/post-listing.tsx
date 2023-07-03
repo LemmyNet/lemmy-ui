@@ -1415,6 +1415,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       UserService.Instance.myUserInfo?.local_user_view.person.id
     );
   }
+
   handleEditClick(i: PostListing) {
     i.setState({ showEdit: true });
   }
@@ -1538,6 +1539,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       post_id: i.postView.post.id,
       removed: !i.postView.post.removed,
       auth: myAuthRequired(),
+      reason: i.state.removeReason,
     });
   }
 
@@ -1609,13 +1611,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handlePurgeSubmit(i: PostListing, event: any) {
     event.preventDefault();
     i.setState({ purgeLoading: true });
-    if (i.state.purgeType == PurgeType.Person) {
+    if (i.state.purgeType === PurgeType.Person) {
       i.props.onPurgePerson({
         person_id: i.postView.creator.id,
         reason: i.state.purgeReason,
         auth: myAuthRequired(),
       });
-    } else if (i.state.purgeType == PurgeType.Post) {
+    } else if (i.state.purgeType === PurgeType.Post) {
       i.props.onPurgePost({
         post_id: i.postView.post.id,
         reason: i.state.purgeReason,
