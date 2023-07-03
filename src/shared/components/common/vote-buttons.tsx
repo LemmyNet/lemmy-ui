@@ -113,7 +113,7 @@ export class VoteButtonsCompact extends Component<
       <>
         <button
           type="button"
-          className={`btn-animate btn py-0 px-1 ${
+          className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
             this.props.my_vote === 1 ? "text-info" : "text-muted"
           }`}
           data-tippy-content={tippy(this.props.counts)}
@@ -137,7 +137,7 @@ export class VoteButtonsCompact extends Component<
         {this.props.enableDownvotes && (
           <button
             type="button"
-            className={`ms-2 btn-animate btn py-0 px-1 ${
+            className={`ms-2 btn btn-sm btn-link btn-animate btn py-0 px-1 ${
               this.props.my_vote === -1 ? "text-danger" : "text-muted"
             }`}
             onClick={linkEvent(this, handleDownvote)}
