@@ -452,7 +452,7 @@ export class Post extends Component<any, PostState> {
               this.state.commentSort === "Controversial" && "active"
             }`}
           >
-            {i18n.t("controversial")}
+            {I18NextService.i18n.t("controversial")}
             <input
               type="radio"
               value={"Controversial"}
