@@ -1461,6 +1461,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       comment_id: i.commentId,
       removed: !i.commentView.comment.removed,
       auth: myAuthRequired(),
+      reason: i.state.removeReason,
     });
   }
 
