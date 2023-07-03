@@ -38,15 +38,12 @@ export class ListingTypeSelect extends Component<
 
   render() {
     return (
-      <div className="listing-type-select btn-group btn-group-toggle flex-wrap">
+      <div
+        className="listing-type-select btn-group btn-group-toggle flex-wrap"
+        role="group"
+      >
         {this.props.showSubscribed && (
-          <label
-            title={I18NextService.i18n.t("subscribed_description")}
-            className={`btn btn-outline-secondary 
-            ${this.state.type_ == "Subscribed" && "active"}
-            ${!UserService.Instance.myUserInfo ? "disabled" : "pointer"}
-          `}
-          >
+          <>
             <input
               id={`${this.id}-subscribed`}
               type="radio"
@@ -56,16 +53,20 @@ export class ListingTypeSelect extends Component<
               onChange={linkEvent(this, this.handleTypeChange)}
               disabled={!UserService.Instance.myUserInfo}
             />
-            {I18NextService.i18n.t("subscribed")}
-          </label>
+            <label
+              htmlFor={`${this.id}-subscribed`}
+              title={I18NextService.i18n.t("subscribed_description")}
+              className={`btn btn-outline-secondary 
+              ${this.state.type_ == "Subscribed" && "active"}
+              ${!UserService.Instance.myUserInfo ? "disabled" : "pointer"}
+            `}
+            >
+              {I18NextService.i18n.t("subscribed")}
+            </label>
+          </>
         )}
         {this.props.showLocal && (
-          <label
-            title={I18NextService.i18n.t("local_description")}
-            className={`pointer btn btn-outline-secondary ${
-              this.state.type_ == "Local" && "active"
-            }`}
-          >
+          <>
             <input
               id={`${this.id}-local`}
               type="radio"
@@ -74,24 +75,33 @@ export class ListingTypeSelect extends Component<
               checked={this.state.type_ == "Local"}
               onChange={linkEvent(this, this.handleTypeChange)}
             />
-            {I18NextService.i18n.t("local")}
-          </label>
+            <label
+              htmlFor={`${this.id}-local`}
+              title={I18NextService.i18n.t("local_description")}
+              className={`pointer btn btn-outline-secondary ${
+                this.state.type_ == "Local" && "active"
+              }`}
+            >
+              {I18NextService.i18n.t("local")}
+            </label>
+          </>
         )}
+        <input
+          id={`${this.id}-all`}
+          type="radio"
+          className="btn-check"
+          value={"All"}
+          checked={this.state.type_ == "All"}
+          onChange={linkEvent(this, this.handleTypeChange)}
+        />
         <label
           title={I18NextService.i18n.t("all_description")}
+          htmlFor={`${this.id}-all`}
           className={`pointer btn btn-outline-secondary ${
             (this.state.type_ == "All" && "active") ||
             (!this.props.showLocal && this.state.type_ == "Local" && "active")
           }`}
         >
-          <input
-            id={`${this.id}-all`}
-            type="radio"
-            className="btn-check"
-            value={"All"}
-            checked={this.state.type_ == "All"}
-            onChange={linkEvent(this, this.handleTypeChange)}
-          />
           {I18NextService.i18n.t("all")}
         </label>
       </div>
