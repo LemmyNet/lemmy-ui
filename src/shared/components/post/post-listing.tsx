@@ -477,8 +477,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     return (
       <>
-        <div className="post-title overflow-hidden">
-          <h5 className="d-inline">
+        <div className="post-title">
+          <h5 className="d-inline text-break">
             {url && this.props.showBody ? (
               <a
                 className={
