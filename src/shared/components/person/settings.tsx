@@ -1175,8 +1175,12 @@ export class Settings extends Component<any, SettingsState> {
       ...i.state.saveUserSettingsForm,
       auth: myAuthRequired(),
     });
+
     if (saveRes.state === "success") {
-      UserService.Instance.login(saveRes.data);
+      UserService.Instance.login({
+        res: saveRes.data,
+        showToast: false,
+      });
       toast(I18NextService.i18n.t("saved"));
       window.scrollTo(0, 0);
     }
@@ -1198,7 +1202,10 @@ export class Settings extends Component<any, SettingsState> {
         auth: myAuthRequired(),
       });
       if (changePasswordRes.state === "success") {
-        UserService.Instance.login(changePasswordRes.data);
+        UserService.Instance.login({
+          res: changePasswordRes.data,
+          showToast: false,
+        });
         window.scrollTo(0, 0);
         toast(I18NextService.i18n.t("password_changed"));
       }
