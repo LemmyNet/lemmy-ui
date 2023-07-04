@@ -1,0 +1,27 @@
+@import "./variables.vaporwave";
+
+// Colors
+$white: #fff;
+$gray-200: #ebebeb;
+$gray-600: #888;
+$gray-700: #444;
+$gray-800: #303030;
+$gray-900: #222;
+
+$light: $gray-700;
+
+$body-bg: $gray-900;
+$body-color: $gray-200;
+
+$card-bg: $body-bg;
+$navbar-dark-color: rgba($body-bg, 0.5);
+$navbar-light-active-color: rgba($gray-200, 0.9);
+$navbar-light-disabled-color: rgba($gray-200, 0.3);
+$navbar-light-color: rgba($white, 0.5);
+$nav-tabs-link-active-color: $purple;
+$input-bg: $gray-600;
+$input-color: $white;
+$input-disabled-bg: $gray-800;
+$input-border-color: $gray-800;
+$mark-bg: $gray-600;
+$pre-color: $gray-200;

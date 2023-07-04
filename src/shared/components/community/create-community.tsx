@@ -39,7 +39,9 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{I18NextService.i18n.t("create_community")}</h5>
+            <h1 className="h4 mb-4">
+              {I18NextService.i18n.t("create_community")}
+            </h1>
             <CommunityForm
               onUpsertCommunity={this.handleCommunityCreate}
               enableNsfw={enableNsfw(this.state.siteRes)}
