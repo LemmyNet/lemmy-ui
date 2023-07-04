@@ -10,6 +10,7 @@ export default function dataBsTheme(user?: MyUserInfo) {
         "darkly-pureblack",
         "darkly-compact",
         "i386",
+        "vaporwave-dark",
       ].includes(user.local_user_view.local_user.theme))
     ? "dark"
     : "light";
