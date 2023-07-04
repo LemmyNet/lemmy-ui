@@ -32,7 +32,7 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
     return (
       <span className="emoji-picker">
         <button
-          className="btn btn-sm text-muted"
+          className="btn btn-sm btn-link rounded-0 text-muted"
           data-tippy-content={I18NextService.i18n.t("emoji")}
           aria-label={I18NextService.i18n.t("emoji")}
           disabled={this.props.disabled}
