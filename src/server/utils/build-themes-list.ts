@@ -14,7 +14,7 @@ const themes: ReadonlyArray<string> = [
   "litely-compact",
   "vaporwave-dark",
   "vaporwave-light",
-  "i386"
+  "i386",
 ];
 
 export async function buildThemeList(): Promise<ReadonlyArray<string>> {
