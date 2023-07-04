@@ -114,7 +114,7 @@ interface HomeState {
 }
 
 interface HomeProps {
-  listingType: ListingType;
+  listingType?: ListingType;
   dataType: DataType;
   sort: SortType;
   page: number;
@@ -126,8 +126,8 @@ type HomeData = RouteDataResponse<{
   trendingCommunitiesRes: ListCommunitiesResponse;
 }>;
 
-function getRss(listingType: ListingType, site: GetSiteResponse) {
-  const { sort } = getHomeQueryParams(site);
+function getRss(listingType: ListingType) {
+  const { sort } = getHomeQueryParams();
   const auth = myAuth();
 
   let rss: string | undefined = undefined;
@@ -163,19 +163,12 @@ function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
 
-function getListingTypeFromQuery(
-  type?: string,
-  site?: GetSiteResponse
-): ListingType {
+function getListingTypeFromQuery(type?: string): ListingType | undefined {
   const myListingType =
     UserService.Instance.myUserInfo?.local_user_view?.local_user
       ?.default_listing_type;
 
-  return (
-    (type ? (type as ListingType) : myListingType) ??
-    site?.site_view.local_site.default_post_listing_type ??
-    "Local"
-  );
+  return type ? (type as ListingType) : myListingType;
 }
 
 function getSortTypeFromQuery(type?: string): SortType {
@@ -186,16 +179,13 @@ function getSortTypeFromQuery(type?: string): SortType {
   return (type ? (type as SortType) : mySortType) ?? "Active";
 }
 
-const getHomeQueryParams = (site: GetSiteResponse) =>
-  getQueryParams<HomeProps>(
-    {
-      sort: getSortTypeFromQuery,
-      listingType: getListingTypeFromQuery,
-      page: getPageFromString,
-      dataType: getDataTypeFromQuery,
-    },
-    site
-  );
+const getHomeQueryParams = () =>
+  getQueryParams<HomeProps>({
+    sort: getSortTypeFromQuery,
+    listingType: getListingTypeFromQuery,
+    page: getPageFromString,
+    dataType: getDataTypeFromQuery,
+  });
 
 const MobileButton = ({
   textKey,
@@ -324,7 +314,9 @@ export class Home extends Component<any, HomeState> {
     site,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
     const dataType = getDataTypeFromQuery(urlDataType);
-    const type_ = getListingTypeFromQuery(listingType, site);
+    const type_ =
+      getListingTypeFromQuery(listingType) ??
+      site.site_view.local_site.default_post_listing_type;
     const sort = getSortTypeFromQuery(urlSort);
 
     const page = urlPage ? Number(urlPage) : 1;
@@ -630,7 +622,7 @@ export class Home extends Component<any, HomeState> {
       listingType: urlListingType,
       page: urlPage,
       sort: urlSort,
-    } = getHomeQueryParams(this.state.siteRes);
+    } = getHomeQueryParams();
 
     const queryParams: QueryParams<HomeProps> = {
       dataType: getDataTypeString(dataType ?? urlDataType),
@@ -653,7 +645,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   get posts() {
-    const { page } = getHomeQueryParams(this.state.siteRes);
+    const { page } = getHomeQueryParams();
 
     return (
       <div className="main-content-wrapper">
@@ -667,7 +659,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   get listings() {
-    const { dataType } = getHomeQueryParams(this.state.siteRes);
+    const { dataType } = getHomeQueryParams();
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
@@ -758,9 +750,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   get selects() {
-    const { listingType, dataType, sort } = getHomeQueryParams(
-      this.state.siteRes
-    );
+    const { listingType, dataType, sort } = getHomeQueryParams();
 
     return (
       <div className="row align-items-center mb-3 g-3">
@@ -772,7 +762,10 @@ export class Home extends Component<any, HomeState> {
         </div>
         <div className="col-auto">
           <ListingTypeSelect
-            type_={listingType}
+            type_={
+              listingType ??
+              this.state.siteRes.site_view.local_site.default_post_listing_type
+            }
             showLocal={showLocal(this.isoData)}
             showSubscribed
             onChange={this.handleListingTypeChange}
@@ -782,7 +775,10 @@ export class Home extends Component<any, HomeState> {
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </div>
         <div className="col-auto ps-0">
-          {getRss(listingType, this.state.siteRes)}
+          {getRss(
+            listingType ??
+              this.state.siteRes.site_view.local_site.default_post_listing_type
+          )}
         </div>
       </div>
     );
@@ -802,9 +798,7 @@ export class Home extends Component<any, HomeState> {
 
   async fetchData() {
     const auth = myAuth();
-    const { dataType, page, listingType, sort } = getHomeQueryParams(
-      this.state.siteRes
-    );
+    const { dataType, page, listingType, sort } = getHomeQueryParams();
 
     if (dataType === DataType.Post) {
       if (HomeCacheService.active) {
