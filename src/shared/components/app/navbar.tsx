@@ -220,6 +220,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 </li>
               )}
               <li className="nav-item">
+                <NavLink
+                  to="/federate"
+                  className="nav-link"
+                  title="Federate!"
+                  onMouseUp={linkEvent(this, handleCollapseClick)}
+                >
+                  Federate!
+                </NavLink>
+              </li>
+              <li className="nav-item">
                 <a
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"
                   title={I18NextService.i18n.t("support_lemmy")}

@@ -2,6 +2,7 @@ import { IRouteProps } from "inferno-router/dist/Route";
 import { Communities } from "./components/community/communities";
 import { Community } from "./components/community/community";
 import { CreateCommunity } from "./components/community/create-community";
+import { Federate } from "./components/federate";
 import { AdminSettings } from "./components/home/admin-settings";
 import { Home } from "./components/home/home";
 import { Instances } from "./components/home/instances";
@@ -125,6 +126,11 @@ export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [
     path: `/search`,
     component: Search,
     fetchInitialData: Search.fetchInitialData,
+  },
+  {
+    path: "/federate",
+    component: Federate,
+    fetchInitialData: Federate.fetchInitialData,
   },
   {
     path: `/password_change/:token`,
