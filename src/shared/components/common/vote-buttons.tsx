@@ -64,8 +64,6 @@ const handleUpvote = (i: VoteButtons) => {
         auth: myAuthRequired(),
       });
   }
-
-  i.setState({ upvoteLoading: false });
 };
 
 const handleDownvote = (i: VoteButtons) => {
@@ -86,7 +84,6 @@ const handleDownvote = (i: VoteButtons) => {
         auth: myAuthRequired(),
       });
   }
-  i.setState({ downvoteLoading: false });
 };
 
 export class VoteButtonsCompact extends Component<
@@ -102,12 +99,21 @@ export class VoteButtonsCompact extends Component<
     super(props, context);
   }
 
+  componentWillReceiveProps(nextProps: VoteButtonsProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        upvoteLoading: false,
+        downvoteLoading: false,
+      });
+    }
+  }
+
   render() {
     return (
       <>
         <button
           type="button"
-          className={`btn-animate btn py-0 px-1 ${
+          className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
             this.props.my_vote === 1 ? "text-info" : "text-muted"
           }`}
           data-tippy-content={tippy(this.props.counts)}
@@ -131,7 +137,7 @@ export class VoteButtonsCompact extends Component<
         {this.props.enableDownvotes && (
           <button
             type="button"
-            className={`ms-2 btn-animate btn py-0 px-1 ${
+            className={`ms-2 btn btn-sm btn-link btn-animate btn py-0 px-1 ${
               this.props.my_vote === -1 ? "text-danger" : "text-muted"
             }`}
             onClick={linkEvent(this, handleDownvote)}
@@ -172,9 +178,18 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
     super(props, context);
   }
 
+  componentWillReceiveProps(nextProps: VoteButtonsProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        upvoteLoading: false,
+        downvoteLoading: false,
+      });
+    }
+  }
+
   render() {
     return (
-      <div className="vote-bar pe-0 small text-center">
+      <div className="vote-bar small text-center">
         <button
           type="button"
           className={`btn-animate btn btn-link p-0 ${
@@ -193,7 +208,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
         </button>
         {showScores() ? (
           <div
-            className="unselectable pointer text-muted px-1 post-score"
+            className="unselectable pointer text-muted post-score"
             data-tippy-content={tippy(this.props.counts)}
           >
             {numToSI(this.props.counts.score)}

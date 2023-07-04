@@ -170,31 +170,39 @@ export class MarkdownTextArea extends Component<
                 <EmojiPicker
                   onEmojiClick={e => this.handleEmoji(this, e)}
                 ></EmojiPicker>
-                <form className="btn btn-sm text-muted fw-bold">
-                  <label
-                    htmlFor={`file-upload-${this.id}`}
-                    className={`mb-0 ${
-                      UserService.Instance.myUserInfo && "pointer"
-                    }`}
-                    data-tippy-content={I18NextService.i18n.t("upload_image")}
-                  >
-                    {this.state.imageUploadStatus ? (
-                      <Spinner />
-                    ) : (
+                <label
+                  htmlFor={`file-upload-${this.id}`}
+                  className={classNames("mb-0", {
+                    pointer: UserService.Instance.myUserInfo,
+                  })}
+                  data-tippy-content={I18NextService.i18n.t("upload_image")}
+                >
+                  {this.state.imageUploadStatus ? (
+                    <Spinner />
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-link rounded-0 text-muted mb-0"
+                      onClick={() => {
+                        document
+                          .getElementById(`file-upload-${this.id}`)
+                          ?.click();
+                      }}
+                    >
                       <Icon icon="image" classes="icon-inline" />
-                    )}
-                  </label>
-                  <input
-                    id={`file-upload-${this.id}`}
-                    type="file"
-                    accept="image/*,video/*"
-                    name="file"
-                    className="d-none"
-                    multiple
-                    disabled={!UserService.Instance.myUserInfo}
-                    onChange={linkEvent(this, this.handleImageUpload)}
-                  />
-                </form>
+                    </button>
+                  )}
+                </label>
+                <input
+                  id={`file-upload-${this.id}`}
+                  type="file"
+                  accept="image/*,video/*"
+                  name="file"
+                  className="d-none"
+                  multiple
+                  disabled={!UserService.Instance.myUserInfo}
+                  onChange={linkEvent(this, this.handleImageUpload)}
+                />
                 {this.getFormatButton("header", this.handleInsertHeader)}
                 {this.getFormatButton(
                   "strikethrough",
@@ -345,7 +353,7 @@ export class MarkdownTextArea extends Component<
 
     return (
       <button
-        className="btn btn-sm text-muted"
+        className="btn btn-sm btn-link rounded-0 text-muted"
         data-tippy-content={I18NextService.i18n.t(type)}
         aria-label={I18NextService.i18n.t(type)}
         onClick={linkEvent(this, handleClick)}
@@ -473,7 +481,7 @@ export class MarkdownTextArea extends Component<
   // Keybind handler
   // Keybinds inspired by github comment area
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       switch (event.key) {
         case "k": {
           i.handleInsertLink(i, event);
@@ -702,18 +710,20 @@ export class MarkdownTextArea extends Component<
   quoteInsert() {
     const textarea: any = document.getElementById(this.id);
     const selectedText = window.getSelection()?.toString();
-    const { content } = this.state;
+    let { content } = this.state;
     if (selectedText) {
       const quotedText =
         selectedText
           .split("\n")
           .map(t => `> ${t}`)
           .join("\n") + "\n\n";
+
       if (!content) {
-        this.setState({ content: "" });
+        content = "";
       } else {
-        this.setState({ content: `${content}\n` });
+        content = `${content}\n\n`;
       }
+
       this.setState({
         content: `${content}${quotedText}`,
       });

@@ -17,6 +17,7 @@ import isCakeDay from "./is-cake-day";
 import numToSI from "./num-to-si";
 import poll from "./poll";
 import randomStr from "./random-str";
+import removeAuthParam from "./remove-auth-param";
 import sleep from "./sleep";
 import validEmail from "./valid-email";
 import validInstanceTLD from "./valid-instance-tld";
@@ -43,6 +44,7 @@ export {
   numToSI,
   poll,
   randomStr,
+  removeAuthParam,
   sleep,
   validEmail,
   validInstanceTLD,

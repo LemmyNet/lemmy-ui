@@ -2,7 +2,7 @@
 import { isAuthPath } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { isHttps } from "@utils/env";
-import IsomorphicCookie from "isomorphic-cookie";
+import * as cookie from "cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { toast } from "../toast";
@@ -31,9 +31,15 @@ export class UserService {
   public login(res: LoginResponse) {
     const expires = new Date();
     expires.setDate(expires.getDate() + 365);
-    if (res.jwt) {
+    if (isBrowser() && res.jwt) {
       toast(I18NextService.i18n.t("logged_in"));
-      IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps() });
+      document.cookie = cookie.serialize("jwt", res.jwt, {
+        expires,
+        secure: isHttps(),
+        domain: location.hostname,
+        sameSite: true,
+        path: "/",
+      });
       this.#setJwtInfo();
     }
   }
@@ -41,8 +47,14 @@ export class UserService {
   public logout() {
     this.jwtInfo = undefined;
     this.myUserInfo = undefined;
-    IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
-    document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
+    if (isBrowser()) {
+      document.cookie = cookie.serialize("jwt", "", {
+        maxAge: 0,
+        path: "/",
+        domain: location.hostname,
+        sameSite: true,
+      });
+    }
     if (isAuthPath(location.pathname)) {
       location.replace("/");
     } else {
@@ -66,10 +78,11 @@ export class UserService {
   }
 
   #setJwtInfo() {
-    const jwt: string | undefined = IsomorphicCookie.load("jwt");
-
-    if (jwt) {
-      this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
+    if (isBrowser()) {
+      const { jwt } = cookie.parse(document.cookie);
+      if (jwt) {
+        this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
+      }
     }
   }
 

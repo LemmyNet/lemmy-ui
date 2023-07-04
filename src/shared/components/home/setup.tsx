@@ -63,7 +63,9 @@ export class Setup extends Component<any, State> {
         <Helmet title={this.documentTitle} />
         <div className="row">
           <div className="col-12 offset-lg-3 col-lg-6">
-            <h3>{I18NextService.i18n.t("lemmy_instance_setup")}</h3>
+            <h1 className="h4 mb-4">
+              {I18NextService.i18n.t("lemmy_instance_setup")}
+            </h1>
             {!this.state.doneRegisteringUser ? (
               this.registerUser()
             ) : (
@@ -84,7 +86,7 @@ export class Setup extends Component<any, State> {
   registerUser() {
     return (
       <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
-        <h5>{I18NextService.i18n.t("setup_admin")}</h5>
+        <h2 className="h5 mb-3">{I18NextService.i18n.t("setup_admin")}</h2>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="username">
             {I18NextService.i18n.t("username")}
