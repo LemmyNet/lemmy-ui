@@ -760,7 +760,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.unreadCount && (
           <>
             {" "}
-            <span className="fst-italic">
+            <span className="badge text-bg-info">
               ({this.unreadCount} {I18NextService.i18n.t("new")})
             </span>
           </>
