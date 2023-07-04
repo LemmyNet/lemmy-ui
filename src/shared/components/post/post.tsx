@@ -23,7 +23,7 @@ import { debounce, randomStr } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
-import classNames from "classNames";
+import classNames from "classnames";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import {
   AddAdmin,
