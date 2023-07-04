@@ -431,7 +431,7 @@ export class Post extends Component<any, PostState> {
   }
 
   sortRadios() {
-    const id =
+    const radioId =
       this.state.postRes.state === "success"
         ? this.state.postRes.data.post_view.post.id
         : randomStr();
@@ -443,7 +443,7 @@ export class Post extends Component<any, PostState> {
           role="group"
         >
           <input
-            id={`${id}-hot`}
+            id={`${radioId}-hot`}
             type="radio"
             className="btn-check"
             value={"Hot"}
@@ -451,7 +451,7 @@ export class Post extends Component<any, PostState> {
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
-            htmlFor={`${id}-hot`}
+            htmlFor={`${radioId}-hot`}
             className={classNames("btn btn-outline-secondary pointer", {
               active: this.state.commentSort === "Hot",
             })}
@@ -459,7 +459,7 @@ export class Post extends Component<any, PostState> {
             {I18NextService.i18n.t("hot")}
           </label>
           <input
-            id={`${id}-top`}
+            id={`${radioId}-top`}
             type="radio"
             className="btn-check"
             value={"Top"}
@@ -467,7 +467,7 @@ export class Post extends Component<any, PostState> {
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
-            htmlFor={`${id}-top`}
+            htmlFor={`${radioId}-top`}
             className={classNames("btn btn-outline-secondary pointer", {
               active: this.state.commentSort === "Top",
             })}
@@ -475,7 +475,7 @@ export class Post extends Component<any, PostState> {
             {I18NextService.i18n.t("top")}
           </label>
           <input
-            id={`${id}-new`}
+            id={`${radioId}-new`}
             type="radio"
             className="btn-check"
             value={"New"}
@@ -483,7 +483,7 @@ export class Post extends Component<any, PostState> {
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
-            htmlFor={`${id}-new`}
+            htmlFor={`${radioId}-new`}
             className={classNames("btn btn-outline-secondary pointer", {
               active: this.state.commentSort === "New",
             })}
@@ -491,7 +491,7 @@ export class Post extends Component<any, PostState> {
             {I18NextService.i18n.t("new")}
           </label>
           <input
-            id={`${id}-old`}
+            id={`${radioId}-old`}
             type="radio"
             className="btn-check"
             value={"Old"}
@@ -499,7 +499,7 @@ export class Post extends Component<any, PostState> {
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
-            htmlFor={`${id}-old`}
+            htmlFor={`${radioId}-old`}
             className={classNames("btn btn-outline-secondary pointer", {
               active: this.state.commentSort === "Old",
             })}
@@ -509,7 +509,7 @@ export class Post extends Component<any, PostState> {
         </div>
         <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
           <input
-            id={`${id}-chat`}
+            id={`${radioId}-chat`}
             type="radio"
             className="btn-check"
             value={CommentViewType.Flat}
@@ -517,7 +517,7 @@ export class Post extends Component<any, PostState> {
             onChange={linkEvent(this, this.handleCommentViewTypeChange)}
           />
           <label
-            htmlFor={`${id}-chat`}
+            htmlFor={`${radioId}-chat`}
             className={classNames("btn btn-outline-secondary pointer", {
               active: this.state.commentViewType === CommentViewType.Flat,
             })}
