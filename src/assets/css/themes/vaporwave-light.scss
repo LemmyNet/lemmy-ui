@@ -1,0 +1,10 @@
+@import "variables.vaporwave-light";
+@import "../../../../node_modules/bootstrap/scss/bootstrap";
+
+.form-control::placeholder {
+  color: $gray-500;
+}
+
+.dropdown-item:hover:not(.active) {
+  background-color: $secondary;
+}
