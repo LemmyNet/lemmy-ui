@@ -198,7 +198,7 @@ export class Reports extends Component<any, ReportsState> {
           type="radio"
           className="btn-check"
           value={UnreadOrAll.Unread}
-          checked={this.state.unreadOrAll == UnreadOrAll.Unread}
+          checked={this.state.unreadOrAll === UnreadOrAll.Unread}
           onChange={linkEvent(this, this.handleUnreadOrAllChange)}
         />
         <label
@@ -215,7 +215,7 @@ export class Reports extends Component<any, ReportsState> {
           type="radio"
           className="btn-check"
           value={UnreadOrAll.All}
-          checked={this.state.unreadOrAll == UnreadOrAll.All}
+          checked={this.state.unreadOrAll === UnreadOrAll.All}
           onChange={linkEvent(this, this.handleUnreadOrAllChange)}
         />
         <label
@@ -240,7 +240,7 @@ export class Reports extends Component<any, ReportsState> {
           type="radio"
           className="btn-check"
           value={MessageType.All}
-          checked={this.state.messageType == MessageType.All}
+          checked={this.state.messageType === MessageType.All}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
@@ -257,7 +257,7 @@ export class Reports extends Component<any, ReportsState> {
           type="radio"
           className="btn-check"
           value={MessageType.CommentReport}
-          checked={this.state.messageType == MessageType.CommentReport}
+          checked={this.state.messageType === MessageType.CommentReport}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
@@ -274,7 +274,7 @@ export class Reports extends Component<any, ReportsState> {
           type="radio"
           className="btn-check"
           value={MessageType.PostReport}
-          checked={this.state.messageType == MessageType.PostReport}
+          checked={this.state.messageType === MessageType.PostReport}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
@@ -294,7 +294,7 @@ export class Reports extends Component<any, ReportsState> {
               className="btn-check"
               value={MessageType.PrivateMessageReport}
               checked={
-                this.state.messageType == MessageType.PrivateMessageReport
+                this.state.messageType === MessageType.PrivateMessageReport
               }
               onChange={linkEvent(this, this.handleMessageTypeChange)}
             />
