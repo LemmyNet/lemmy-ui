@@ -12,6 +12,7 @@ interface CommunityLinkProps {
   useApubName?: boolean;
   muted?: boolean;
   hideAvatar?: boolean;
+  bigAvatar?: boolean;
 }
 
 export class CommunityLink extends Component<CommunityLinkProps, any> {
@@ -63,7 +64,9 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
         {!this.props.hideAvatar &&
           !this.props.community.removed &&
           showAvatars() &&
-          icon && <PictrsImage src={icon} icon />}
+          icon && (
+            <PictrsImage src={icon} icon iconOverlay={this.props.bigAvatar} />
+          )}
         <span className="overflow-wrap-anywhere">{displayName}</span>
       </>
     );

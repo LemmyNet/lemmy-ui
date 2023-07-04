@@ -1,13 +1,25 @@
 import { myAuthRequired, setIsoData } from "@utils/app";
 import { Choice, QueryParams, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
-import { GetFederatedInstancesResponse } from "lemmy-js-client";
-import { RequestState } from "shared/services/HttpService";
+import {
+  CommunityView,
+  FollowCommunity,
+  GetFederatedInstancesResponse,
+  ResolveObjectResponse,
+} from "lemmy-js-client";
 import { emDash } from "../../shared/config";
 import { InitialFetchRequest } from "../../shared/interfaces";
-import { FirstLoadService, HttpService } from "../../shared/services";
+import {
+  FirstLoadService,
+  HttpService,
+  UserService,
+} from "../../shared/services";
+import { RequestState } from "../../shared/services/HttpService";
+import { toast } from "../../shared/toast";
 import { HtmlTags } from "./common/html-tags";
+import { Spinner } from "./common/icon";
 import { SearchableSelect } from "./common/searchable-select";
+import CommunityCard from "./community/community-card";
 
 type FederateData = RouteDataResponse<{
   federatedInstancesRes: GetFederatedInstancesResponse;
@@ -20,6 +32,8 @@ interface FederateState {
   selectedLinkedInstanceOption?: Choice;
   instanceDomain: string;
   linkedDomainQuery: string;
+  resolveObjectRes: RequestState<ResolveObjectResponse>;
+  loadingFollow: boolean;
 }
 
 function handleInstanceDomainChange(i: Federate, event: any) {
@@ -30,14 +44,70 @@ function handleCommunityNameChange(i: Federate, event: any) {
   i.setState({ communityName: event.target.value });
 }
 
+async function handleSubmit(i: Federate, event: Event) {
+  event.preventDefault();
+  i.setState({ resolveObjectRes: { state: "loading" } });
+
+  const resolveObjectRes = await HttpService.silent_client.resolveObject({
+    auth: myAuthRequired(),
+    q: i.webfinger,
+  });
+
+  if (resolveObjectRes.state === "failed") {
+    toast(`Could not resolve ${i.webfinger}`, "danger");
+  }
+
+  i.setState({
+    resolveObjectRes,
+  });
+}
+
+// TODO: this is for local testing only. Delete before merge.
+const testcom: CommunityView = {
+  community: {
+    id: 2,
+    name: "test",
+    title: "Test Com",
+    description: "This is a test community.",
+    removed: false,
+    published: "2023-06-21T00:42:32.959825",
+    updated: "2023-07-04T13:00:22.110683",
+    deleted: false,
+    nsfw: false,
+    actor_id: "https://localhost/c/test",
+    local: true,
+    icon: "http://localhost:1236/pictrs/image/ee92a87c-d5b3-4373-8d37-fa24ba342c74.jpeg",
+    hidden: false,
+    posting_restricted_to_mods: false,
+    instance_id: 1,
+  },
+  subscribed: "Subscribed",
+  blocked: false,
+  counts: {
+    id: 1,
+    community_id: 2,
+    subscribers: 1,
+    posts: 3,
+    comments: 8,
+    published: "2023-06-21T00:42:32.959825",
+    users_active_day: 3,
+    users_active_week: 3,
+    users_active_month: 3,
+    users_active_half_year: 3,
+    hot_rank: 0,
+  },
+};
+
 export class Federate extends Component<any, FederateState> {
   private isoData = setIsoData<FederateData>(this.context);
   state: FederateState = {
     isIsomorphic: false,
     federatedInstancesRes: { state: "empty" },
+    resolveObjectRes: { state: "empty" },
     communityName: "",
     instanceDomain: "",
     linkedDomainQuery: "",
+    loadingFollow: false,
   };
 
   constructor(props: any, context: any) {
@@ -59,6 +129,7 @@ export class Federate extends Component<any, FederateState> {
       instanceDomain,
       selectedLinkedInstanceOption,
       linkedDomainQuery,
+      resolveObjectRes,
     } = this.state;
 
     const instanceOptions: Choice[] = (
@@ -95,7 +166,7 @@ export class Federate extends Component<any, FederateState> {
           Search for communities that aren&apos;t federated with your instance
           yet.
         </p>
-        <form className="row">
+        <form className="row" onSubmit={linkEvent(this, handleSubmit)}>
           <div className="col-12 col-md-6 my-2">
             <p className="alert alert-info">
               Enter the name of the community you want to federate. Make sure to
@@ -128,9 +199,9 @@ export class Federate extends Component<any, FederateState> {
               </label>
               <SearchableSelect
                 id="linked-instances-search-select"
-                options={[
-                  { label: emDash, value: "0", disabled: true } as Choice,
-                ].concat(instanceOptions)}
+                options={[{ label: emDash, value: "0" } as Choice].concat(
+                  instanceOptions
+                )}
                 value={selectedLinkedInstanceOption?.value}
                 onChange={this.handleLinkedInstanceChange}
                 onSearch={this.handleSearch}
@@ -153,9 +224,63 @@ export class Federate extends Component<any, FederateState> {
               </div>
             )}
           </div>
+          <button
+            className="btn btn-lg btn-secondary mx-auto col-auto mt-4"
+            type="submit"
+            disabled={
+              !(
+                communityName &&
+                (selectedLinkedInstanceOption || instanceDomain)
+              ) || resolveObjectRes.state === "loading"
+            }
+          >
+            {resolveObjectRes.state === "loading" ? <Spinner /> : "Federate"}
+          </button>
         </form>
+
+        <div className="col-12 col-md-6 col-lg-4 mx-auto mt-4">
+          {this.federationResult}
+        </div>
       </main>
     );
+  }
+
+  get webfinger() {
+    const { communityName, selectedLinkedInstanceOption, instanceDomain } =
+      this.state;
+
+    return `!${communityName}@${
+      selectedLinkedInstanceOption?.label ?? instanceDomain
+    }`;
+  }
+
+  get federationResult() {
+    const { resolveObjectRes, loadingFollow } = this.state;
+    console.log("in fed result");
+    console.log(resolveObjectRes);
+    return (
+      <CommunityCard
+        communityView={testcom}
+        webfinger={`!test@localhost`}
+        loading={loadingFollow}
+        onSubscribe={this.handleFollowCommunity}
+      />
+    );
+    // if (
+    //   resolveObjectRes.state === "success" &&
+    //   resolveObjectRes.data.community
+    // ) {
+    //   return (
+    //     <CommunityCard
+    //       communityView={resolveObjectRes.data.community}
+    //       webfinger={this.webfinger}
+    //       loading={loadingFollow}
+    //       onSubscribe={this.handleFollowCommunity}
+    //     />
+    //   );
+    // } else {
+    //   return null;
+    // }
   }
 
   handleLinkedInstanceChange = (option: Choice) => {
@@ -167,6 +292,37 @@ export class Federate extends Component<any, FederateState> {
 
   handleSearch = (query: string) => {
     this.setState({ linkedDomainQuery: query });
+  };
+
+  handleFollowCommunity = async (form: FollowCommunity) => {
+    this.setState({ loadingFollow: true });
+
+    const res = await HttpService.client.followCommunity(form);
+
+    this.setState(prev => {
+      if (
+        res.state === "success" &&
+        prev.resolveObjectRes.state === "success" &&
+        prev.resolveObjectRes.data.community
+      ) {
+        prev.resolveObjectRes.data.community.subscribed =
+          res.data.community_view.subscribed;
+      }
+
+      return {
+        ...prev,
+        loadingFollow: false,
+      };
+    });
+
+    // Update myUserInfo
+    if (res.state === "success") {
+      const communityId = res.data.community_view.community.id;
+      const mui = UserService.Instance.myUserInfo;
+      if (mui) {
+        mui.follows = mui.follows.filter(i => i.community.id != communityId);
+      }
+    }
   };
 
   async componentDidMount() {
