@@ -47,7 +47,9 @@ export class PasswordChange extends Component<any, State> {
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{I18NextService.i18n.t("password_change")}</h5>
+            <h1 className="h4 mb-4">
+              {I18NextService.i18n.t("password_change")}
+            </h1>
             {this.passwordChangeForm()}
           </div>
         </div>

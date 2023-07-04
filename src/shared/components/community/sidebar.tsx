@@ -169,7 +169,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
     return (
       <div>
-        <h5 className="mb-0">
+        <h2 className="h5 mb-0">
           {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
@@ -191,7 +191,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               {I18NextService.i18n.t("nsfw")}
             </small>
           )}
-        </h5>
+        </h2>
         <CommunityLink
           community={community}
           realLink
@@ -258,7 +258,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <Spinner />
           ) : (
             <>
-              <Icon icon="check" classes="icon-inline text-success me-1" />
+              <Icon icon="check" classes="icon-inline me-1" />
               {I18NextService.i18n.t("joined")}
             </>
           )}
