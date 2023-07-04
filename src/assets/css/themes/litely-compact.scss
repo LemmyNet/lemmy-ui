@@ -1,5 +1,4 @@
 @import "variables.litely-compact";
-@import "../../../../node_modules/bootstrap/scss/bootstrap";
 
 /*
     GENERAL
@@ -56,3 +55,5 @@ hr.my-3 {
     display: none;
   }
 }
+
+@import "../../../../node_modules/bootstrap/scss/bootstrap";
