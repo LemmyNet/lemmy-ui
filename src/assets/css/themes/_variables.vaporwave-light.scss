@@ -1,0 +1,13 @@
+@import "./variables.vaporwave";
+
+// Colors
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+$light: darken($gray-300, 1.5);
+
+$body-bg: $gray-100;
+$body-color: $gray-700;
+$text-muted: $gray-500;
