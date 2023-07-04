@@ -207,7 +207,11 @@ export class Federate extends Component<any, FederateState> {
                 onSearch={this.handleSearch}
               />
             </div>
-            {!selectedLinkedInstanceOption && (
+            {!(
+              selectedLinkedInstanceOption ||
+              (federatedInstancesRes.state === "success" &&
+                federatedInstancesRes.data.federated_instances?.allowed)
+            ) && (
               <div className="form-group mt-2">
                 <label htmlFor="instance-name-input">
                   Is the instance you&apos;re looking for not linked already?
