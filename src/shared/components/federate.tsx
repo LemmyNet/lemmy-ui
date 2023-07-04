@@ -258,29 +258,30 @@ export class Federate extends Component<any, FederateState> {
     const { resolveObjectRes, loadingFollow } = this.state;
     console.log("in fed result");
     console.log(resolveObjectRes);
-    return (
-      <CommunityCard
-        communityView={testcom}
-        webfinger={`!test@localhost`}
-        loading={loadingFollow}
-        onSubscribe={this.handleFollowCommunity}
-      />
-    );
-    // if (
-    //   resolveObjectRes.state === "success" &&
-    //   resolveObjectRes.data.community
-    // ) {
-    //   return (
-    //     <CommunityCard
-    //       communityView={resolveObjectRes.data.community}
-    //       webfinger={this.webfinger}
-    //       loading={loadingFollow}
-    //       onSubscribe={this.handleFollowCommunity}
-    //     />
-    //   );
-    // } else {
-    //   return null;
-    // }
+    // TODO: Remove commented out code before merge
+    // return (
+    //   <CommunityCard
+    //     communityView={testcom}
+    //     webfinger={`!test@localhost`}
+    //     loading={loadingFollow}
+    //     onSubscribe={this.handleFollowCommunity}
+    //   />
+    // );
+    if (
+      resolveObjectRes.state === "success" &&
+      resolveObjectRes.data.community
+    ) {
+      return (
+        <CommunityCard
+          communityView={resolveObjectRes.data.community}
+          webfinger={this.webfinger}
+          loading={loadingFollow}
+          onSubscribe={this.handleFollowCommunity}
+        />
+      );
+    } else {
+      return null;
+    }
   }
 
   handleLinkedInstanceChange = (option: Choice) => {
