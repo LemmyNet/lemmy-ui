@@ -1,5 +1,5 @@
 import * as cookie from "cookie";
-import { authCookieName } from "shared/config";
+import { authCookieName } from "../../config";
 
 export default function clearAuthCookie() {
   document.cookie = cookie.serialize(authCookieName, "", {

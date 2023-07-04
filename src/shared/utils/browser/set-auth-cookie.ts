@@ -1,6 +1,6 @@
 import { isHttps } from "@utils/env";
 import * as cookie from "cookie";
-import { authCookieName } from "shared/config";
+import { authCookieName } from "../../config";
 
 export default function setAuthCookie(jwt: string) {
   const expires = new Date();
