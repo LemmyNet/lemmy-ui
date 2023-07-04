@@ -38,8 +38,6 @@ import {
   ListingType,
   PersonView,
   PostView,
-  ResolveObject,
-  ResolveObjectResponse,
   Search as SearchForm,
   SearchResponse,
   SearchType,
@@ -75,14 +73,12 @@ type SearchData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
   creatorDetailsResponse: GetPersonDetailsResponse;
   searchResponse: SearchResponse;
-  resolveObjectResponse: ResolveObjectResponse;
 }>;
 
 type FilterType = "creator" | "community";
 
 interface SearchState {
   searchRes: RequestState<SearchResponse>;
-  resolveObjectRes: RequestState<ResolveObjectResponse>;
   creatorDetailsRes: RequestState<GetPersonDetailsResponse>;
   communitiesRes: RequestState<ListCommunitiesResponse>;
   communityRes: RequestState<GetCommunityResponse>;
@@ -239,7 +235,6 @@ export class Search extends Component<any, SearchState> {
   private isoData = setIsoData<SearchData>(this.context);
 
   state: SearchState = {
-    resolveObjectRes: { state: "empty" },
     creatorDetailsRes: { state: "empty" },
     communitiesRes: { state: "empty" },
     communityRes: { state: "empty" },
@@ -275,7 +270,6 @@ export class Search extends Component<any, SearchState> {
         communityResponse: communityRes,
         creatorDetailsResponse: creatorDetailsRes,
         listCommunitiesResponse: communitiesRes,
-        resolveObjectResponse: resolveObjectRes,
         searchResponse: searchRes,
       } = this.isoData.routeData;
 
@@ -318,13 +312,6 @@ export class Search extends Component<any, SearchState> {
           this.state = {
             ...this.state,
             searchRes,
-          };
-        }
-
-        if (resolveObjectRes?.state === "success") {
-          this.state = {
-            ...this.state,
-            resolveObjectRes,
           };
         }
       }
@@ -406,9 +393,6 @@ export class Search extends Component<any, SearchState> {
     const query = getSearchQueryFromQuery(q);
 
     let searchResponse: RequestState<SearchResponse> = { state: "empty" };
-    let resolveObjectResponse: RequestState<ResolveObjectResponse> = {
-      state: "empty",
-    };
 
     if (query) {
       const form: SearchForm = {
@@ -425,21 +409,6 @@ export class Search extends Component<any, SearchState> {
 
       if (query !== "") {
         searchResponse = await client.search(form);
-        if (auth) {
-          const resolveObjectForm: ResolveObject = {
-            q: query,
-            auth,
-          };
-          resolveObjectResponse = await HttpService.silent_client.resolveObject(
-            resolveObjectForm
-          );
-
-          // If we return this object with a state of failed, the catch-all-handler will redirect
-          // to an error page, so we ignore it by covering up the error with the empty state.
-          if (resolveObjectResponse.state === "failed") {
-            resolveObjectResponse = { state: "empty" };
-          }
-        }
       }
     }
 
@@ -447,7 +416,6 @@ export class Search extends Component<any, SearchState> {
       communityResponse,
       creatorDetailsResponse,
       listCommunitiesResponse,
-      resolveObjectResponse,
       searchResponse,
     };
   }
@@ -609,28 +577,7 @@ export class Search extends Component<any, SearchState> {
 
   buildCombined(): Combined[] {
     const combined: Combined[] = [];
-    const {
-      resolveObjectRes: resolveObjectResponse,
-      searchRes: searchResponse,
-    } = this.state;
-
-    // Push the possible resolve / federated objects first
-    if (resolveObjectResponse.state == "success") {
-      const { comment, post, community, person } = resolveObjectResponse.data;
-
-      if (comment) {
-        combined.push(commentViewToCombined(comment));
-      }
-      if (post) {
-        combined.push(postViewToCombined(post));
-      }
-      if (community) {
-        combined.push(communityViewToCombined(community));
-      }
-      if (person) {
-        combined.push(personViewSafeToCombined(person));
-      }
-    }
+    const { searchRes: searchResponse } = this.state;
 
     // Push the search results
     if (searchResponse.state === "success") {
@@ -757,20 +704,9 @@ export class Search extends Component<any, SearchState> {
   }
 
   get comments() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-      siteRes,
-    } = this.state;
+    const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
       searchResponse.state === "success" ? searchResponse.data.comments : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.comment
-    ) {
-      comments.unshift(resolveObjectResponse.data.comment);
-    }
 
     return (
       <CommentNodes
@@ -807,20 +743,9 @@ export class Search extends Component<any, SearchState> {
   }
 
   get posts() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-      siteRes,
-    } = this.state;
+    const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
       searchResponse.state === "success" ? searchResponse.data.posts : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.post
-    ) {
-      posts.unshift(resolveObjectResponse.data.post);
-    }
 
     return (
       <>
@@ -861,19 +786,9 @@ export class Search extends Component<any, SearchState> {
   }
 
   get communities() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-    } = this.state;
+    const { searchRes: searchResponse } = this.state;
     const communities =
       searchResponse.state === "success" ? searchResponse.data.communities : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.community
-    ) {
-      communities.unshift(resolveObjectResponse.data.community);
-    }
 
     return (
       <>
@@ -887,19 +802,9 @@ export class Search extends Component<any, SearchState> {
   }
 
   get users() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-    } = this.state;
+    const { searchRes: searchResponse } = this.state;
     const users =
       searchResponse.state === "success" ? searchResponse.data.users : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.person
-    ) {
-      users.unshift(resolveObjectResponse.data.person);
-    }
 
     return (
       <>
@@ -913,27 +818,14 @@ export class Search extends Component<any, SearchState> {
   }
 
   get resultsCount(): number {
-    const { searchRes: r, resolveObjectRes: resolveRes } = this.state;
+    const { searchRes: r } = this.state;
 
-    const searchCount =
-      r.state === "success"
-        ? r.data.posts.length +
+    return r.state === "success"
+      ? r.data.posts.length +
           r.data.comments.length +
           r.data.communities.length +
           r.data.users.length
-        : 0;
-
-    const resObjCount =
-      resolveRes.state === "success"
-        ? resolveRes.data.post ||
-          resolveRes.data.person ||
-          resolveRes.data.community ||
-          resolveRes.data.comment
-          ? 1
-          : 0
-        : 0;
-
-    return resObjCount + searchCount;
+      : 0;
   }
 
   async search() {
@@ -959,16 +851,6 @@ export class Search extends Component<any, SearchState> {
       });
       window.scrollTo(0, 0);
       restoreScrollPosition(this.context);
-
-      if (auth) {
-        this.setState({ resolveObjectRes: { state: "loading" } });
-        this.setState({
-          resolveObjectRes: await HttpService.silent_client.resolveObject({
-            q,
-            auth,
-          }),
-        });
-      }
     }
   }
 

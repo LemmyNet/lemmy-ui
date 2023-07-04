@@ -90,7 +90,7 @@ export default async (req: Request, res: Response) => {
     }
 
     const error = Object.values(routeData).find(
-      res => res.state === "failed" && res.msg !== "couldnt_find_object" // TODO: find a better way of handling errors
+      res => res.state === "failed"
     ) as FailedRequestState | undefined;
 
     // Redirect to the 404 if there's an API error
