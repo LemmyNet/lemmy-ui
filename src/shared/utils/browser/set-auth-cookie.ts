@@ -3,11 +3,8 @@ import * as cookie from "cookie";
 import { authCookieName } from "../../config";
 
 export default function setAuthCookie(jwt: string) {
-  const expires = new Date();
-  expires.setDate(expires.getDate() + 365);
-
   document.cookie = cookie.serialize(authCookieName, jwt, {
-    expires,
+    maxAge: 365 * 24 * 60 * 60 * 1000,
     secure: isHttps(),
     sameSite: true,
     path: "/",
