@@ -19,10 +19,11 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "@utils/browser";
-import { debounce } from "@utils/helpers";
+import { debounce, randomStr } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
+import classNames from "classNames";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import {
   AddAdmin,
@@ -430,80 +431,98 @@ export class Post extends Component<any, PostState> {
   }
 
   sortRadios() {
+    const id =
+      this.state.postRes.state === "success"
+        ? this.state.postRes.data.post_view.post.id
+        : randomStr();
+
     return (
       <>
-        <div className="btn-group btn-group-toggle flex-wrap me-3 mb-2">
+        <div
+          className="btn-group btn-group-toggle flex-wrap me-3 mb-2"
+          role="group"
+        >
+          <input
+            id={`${id}-hot`}
+            type="radio"
+            className="btn-check"
+            value={"Hot"}
+            checked={this.state.commentSort === "Hot"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === "Hot" && "active"
-            }`}
+            htmlFor={`${id}-hot`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "Hot",
+            })}
           >
             {I18NextService.i18n.t("hot")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={"Hot"}
-              checked={this.state.commentSort === "Hot"}
-              onChange={linkEvent(this, this.handleCommentSortChange)}
-            />
           </label>
+          <input
+            id={`${id}-top`}
+            type="radio"
+            className="btn-check"
+            value={"Top"}
+            checked={this.state.commentSort === "Top"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === "Top" && "active"
-            }`}
+            htmlFor={`${id}-top`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "Top",
+            })}
           >
             {I18NextService.i18n.t("top")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={"Top"}
-              checked={this.state.commentSort === "Top"}
-              onChange={linkEvent(this, this.handleCommentSortChange)}
-            />
           </label>
+          <input
+            id={`${id}-new`}
+            type="radio"
+            className="btn-check"
+            value={"New"}
+            checked={this.state.commentSort === "New"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === "New" && "active"
-            }`}
+            htmlFor={`${id}-new`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "New",
+            })}
           >
             {I18NextService.i18n.t("new")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={"New"}
-              checked={this.state.commentSort === "New"}
-              onChange={linkEvent(this, this.handleCommentSortChange)}
-            />
           </label>
+          <input
+            id={`${id}-old`}
+            type="radio"
+            className="btn-check"
+            value={"Old"}
+            checked={this.state.commentSort === "Old"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === "Old" && "active"
-            }`}
+            htmlFor={`${id}-old`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "Old",
+            })}
           >
             {I18NextService.i18n.t("old")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={"Old"}
-              checked={this.state.commentSort === "Old"}
-              onChange={linkEvent(this, this.handleCommentSortChange)}
-            />
           </label>
         </div>
-        <div className="btn-group btn-group-toggle flex-wrap mb-2">
+        <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+          <input
+            id={`${id}-chat`}
+            type="radio"
+            className="btn-check"
+            value={CommentViewType.Flat}
+            checked={this.state.commentViewType === CommentViewType.Flat}
+            onChange={linkEvent(this, this.handleCommentViewTypeChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentViewType === CommentViewType.Flat && "active"
-            }`}
+            htmlFor={`${id}-chat`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentViewType === CommentViewType.Flat,
+            })}
           >
             {I18NextService.i18n.t("chat")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={CommentViewType.Flat}
-              checked={this.state.commentViewType === CommentViewType.Flat}
-              onChange={linkEvent(this, this.handleCommentViewTypeChange)}
-            />
           </label>
         </div>
       </>

@@ -1,4 +1,5 @@
 import { randomStr } from "@utils/helpers";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { ListingType } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
@@ -49,17 +50,18 @@ export class ListingTypeSelect extends Component<
               type="radio"
               className="btn-check"
               value={"Subscribed"}
-              checked={this.state.type_ == "Subscribed"}
+              checked={this.state.type_ === "Subscribed"}
               onChange={linkEvent(this, this.handleTypeChange)}
               disabled={!UserService.Instance.myUserInfo}
             />
             <label
               htmlFor={`${this.id}-subscribed`}
               title={I18NextService.i18n.t("subscribed_description")}
-              className={`btn btn-outline-secondary 
-              ${this.state.type_ == "Subscribed" && "active"}
-              ${!UserService.Instance.myUserInfo ? "disabled" : "pointer"}
-            `}
+              className={classNames("btn btn-outline-secondary", {
+                active: this.state.type_ === "Subscribed",
+                disabled: !UserService.Instance.myUserInfo,
+                pointer: UserService.Instance.myUserInfo,
+              })}
             >
               {I18NextService.i18n.t("subscribed")}
             </label>
@@ -72,15 +74,15 @@ export class ListingTypeSelect extends Component<
               type="radio"
               className="btn-check"
               value={"Local"}
-              checked={this.state.type_ == "Local"}
+              checked={this.state.type_ === "Local"}
               onChange={linkEvent(this, this.handleTypeChange)}
             />
             <label
               htmlFor={`${this.id}-local`}
               title={I18NextService.i18n.t("local_description")}
-              className={`pointer btn btn-outline-secondary ${
-                this.state.type_ == "Local" && "active"
-              }`}
+              className={classNames("pointer btn btn-outline-secondary", {
+                active: this.state.type_ === "Local",
+              })}
             >
               {I18NextService.i18n.t("local")}
             </label>
@@ -91,16 +93,17 @@ export class ListingTypeSelect extends Component<
           type="radio"
           className="btn-check"
           value={"All"}
-          checked={this.state.type_ == "All"}
+          checked={this.state.type_ === "All"}
           onChange={linkEvent(this, this.handleTypeChange)}
         />
         <label
           title={I18NextService.i18n.t("all_description")}
           htmlFor={`${this.id}-all`}
-          className={`pointer btn btn-outline-secondary ${
-            (this.state.type_ == "All" && "active") ||
-            (!this.props.showLocal && this.state.type_ == "Local" && "active")
-          }`}
+          className={classNames("pointer btn btn-outline-secondary", {
+            active:
+              this.state.type_ === "All" ||
+              (!this.props.showLocal && this.state.type_) === "Local",
+          })}
         >
           {I18NextService.i18n.t("all")}
         </label>

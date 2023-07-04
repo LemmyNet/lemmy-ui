@@ -1,4 +1,5 @@
 import { randomStr } from "@utils/helpers";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { DataType } from "../../interfaces";
 import { I18NextService } from "../../services";
@@ -34,7 +35,10 @@ export class DataTypeSelect extends Component<
 
   render() {
     return (
-      <div className="data-type-select btn-group btn-group-toggle flex-wrap">
+      <div
+        className="data-type-select btn-group btn-group-toggle flex-wrap"
+        role="group"
+      >
         <input
           id={`${this.id}-posts`}
           type="radio"
@@ -45,12 +49,13 @@ export class DataTypeSelect extends Component<
         />
         <label
           htmlFor={`${this.id}-posts`}
-          className={`pointer btn btn-outline-secondary 
-            ${this.state.type_ == DataType.Post && "active"}
-          `}
+          className={classNames("pointer btn btn-outline-secondary", {
+            active: this.state.type_ === DataType.Post,
+          })}
         >
           {I18NextService.i18n.t("posts")}
         </label>
+
         <input
           id={`${this.id}-comments`}
           type="radio"
@@ -61,9 +66,9 @@ export class DataTypeSelect extends Component<
         />
         <label
           htmlFor={`${this.id}-comments`}
-          className={`pointer btn btn-outline-secondary ${
-            this.state.type_ == DataType.Comment && "active"
-          }`}
+          className={classNames("pointer btn btn-outline-secondary", {
+            active: this.state.type_ === DataType.Comment,
+          })}
         >
           {I18NextService.i18n.t("comments")}
         </label>

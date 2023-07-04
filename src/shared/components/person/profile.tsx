@@ -18,6 +18,7 @@ import {
   getQueryParams,
   getQueryString,
   numToSI,
+  randomStr,
 } from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
@@ -397,7 +398,7 @@ export class Profile extends Component<
 
   get viewRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
         {this.getRadio(PersonDetailsView.Overview)}
         {this.getRadio(PersonDetailsView.Comments)}
         {this.getRadio(PersonDetailsView.Posts)}
@@ -409,22 +410,27 @@ export class Profile extends Component<
   getRadio(view: PersonDetailsView) {
     const { view: urlView } = getProfileQueryParams();
     const active = view === urlView;
+    const radioId = randomStr();
 
     return (
-      <label
-        className={classNames("btn btn-outline-secondary pointer", {
-          active,
-        })}
-      >
+      <>
         <input
+          id={radioId}
           type="radio"
           className="btn-check"
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
         />
-        {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
-      </label>
+        <label
+          htmlFor={radioId}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active,
+          })}
+        >
+          {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+        </label>
+      </>
     );
   }
 

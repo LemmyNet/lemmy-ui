@@ -11,8 +11,9 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
-import { capitalizeFirstLetter } from "@utils/helpers";
+import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   AddAdmin,
@@ -283,34 +284,41 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   unreadOrAllRadios() {
+    const radioId = randomStr();
+
     return (
-      <div className="btn-group btn-group-toggle flex-wrap">
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        <input
+          id={`${radioId}-unread`}
+          type="radio"
+          className="btn-check"
+          value={UnreadOrAll.Unread}
+          checked={this.state.unreadOrAll === UnreadOrAll.Unread}
+          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
-          `}
+          htmlFor={`${radioId}-unread`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.unreadOrAll === UnreadOrAll.Unread,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={UnreadOrAll.Unread}
-            checked={this.state.unreadOrAll == UnreadOrAll.Unread}
-            onChange={linkEvent(this, this.handleUnreadOrAllChange)}
-          />
           {I18NextService.i18n.t("unread")}
         </label>
+
+        <input
+          id={`${radioId}-all`}
+          type="radio"
+          className="btn-check"
+          value={UnreadOrAll.All}
+          checked={this.state.unreadOrAll === UnreadOrAll.All}
+          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.All && "active"}
-          `}
+          htmlFor={`${radioId}-all`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.unreadOrAll === UnreadOrAll.All,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={UnreadOrAll.All}
-            checked={this.state.unreadOrAll == UnreadOrAll.All}
-            onChange={linkEvent(this, this.handleUnreadOrAllChange)}
-          />
           {I18NextService.i18n.t("all")}
         </label>
       </div>
@@ -318,62 +326,75 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   messageTypeRadios() {
+    const radioId = randomStr();
+
     return (
-      <div className="btn-group btn-group-toggle flex-wrap">
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        <input
+          id={`${radioId}-all`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.All}
+          checked={this.state.messageType === MessageType.All}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.All && "active"}
-          `}
+          htmlFor={`${radioId}-all`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.All,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.All}
-            checked={this.state.messageType == MessageType.All}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("all")}
         </label>
+
+        <input
+          id={`${radioId}-replies`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.Replies}
+          checked={this.state.messageType === MessageType.Replies}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Replies && "active"}
-          `}
+          htmlFor={`${radioId}-replies`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.Replies,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.Replies}
-            checked={this.state.messageType == MessageType.Replies}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("replies")}
         </label>
+
+        <input
+          id={`${radioId}-mentions`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.Mentions}
+          checked={this.state.messageType === MessageType.Mentions}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Mentions && "active"}
-          `}
+          htmlFor={`${radioId}-mentions`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.Mentions,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.Mentions}
-            checked={this.state.messageType == MessageType.Mentions}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("mentions")}
         </label>
+
+        <input
+          id={`${radioId}-messages`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.Messages}
+          checked={this.state.messageType === MessageType.Messages}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Messages && "active"}
-          `}
+          htmlFor={`${radioId}-messages`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.Messages,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.Messages}
-            checked={this.state.messageType == MessageType.Messages}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("messages")}
         </label>
       </div>
