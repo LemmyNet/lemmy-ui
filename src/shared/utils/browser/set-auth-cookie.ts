@@ -9,7 +9,6 @@ export default function setAuthCookie(jwt: string) {
   document.cookie = cookie.serialize(authCookieName, jwt, {
     expires,
     secure: isHttps(),
-    domain: location.hostname,
     sameSite: true,
     path: "/",
   });
