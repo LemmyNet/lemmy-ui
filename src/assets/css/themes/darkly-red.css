@@ -11857,5 +11857,8 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+.btn-outline-secondary {
+  color: #adb5bd;
+}
 
 /*# sourceMappingURL=darkly-red.css.map */

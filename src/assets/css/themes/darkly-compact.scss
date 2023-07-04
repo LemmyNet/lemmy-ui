@@ -1,4 +1,5 @@
 @import "variables.darkly-compact";
+@import "../../../../node_modules/bootstrap/scss/bootstrap";
 
 /*
     GENERAL
@@ -56,4 +57,6 @@ hr.my-3 {
   }
 }
 
-@import "../../../../node_modules/bootstrap/scss/bootstrap";
+.btn-outline-secondary {
+  color: $gray-500;
+}
