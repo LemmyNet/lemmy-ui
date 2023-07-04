@@ -175,7 +175,9 @@ export class Login extends Component<any, State> {
         }
 
         case "success": {
-          UserService.Instance.login(loginRes.data);
+          UserService.Instance.login({
+            res: loginRes.data,
+          });
           const site = await HttpService.client.getSite({
             auth: myAuth(),
           });

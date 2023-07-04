@@ -28,11 +28,17 @@ export class UserService {
     this.#setJwtInfo();
   }
 
-  public login(res: LoginResponse) {
+  public login({
+    res,
+    showToast = true,
+  }: {
+    res: LoginResponse;
+    showToast?: boolean;
+  }) {
     const expires = new Date();
     expires.setDate(expires.getDate() + 365);
     if (isBrowser() && res.jwt) {
-      toast(I18NextService.i18n.t("logged_in"));
+      showToast && toast(I18NextService.i18n.t("logged_in"));
       document.cookie = cookie.serialize("jwt", res.jwt, {
         expires,
         secure: isHttps(),

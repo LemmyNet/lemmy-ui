@@ -469,7 +469,9 @@ export class Signup extends Component<any, State> {
 
           // Only log them in if a jwt was set
           if (data.jwt) {
-            UserService.Instance.login(data);
+            UserService.Instance.login({
+              res: data,
+            });
 
             const site = await HttpService.client.getSite({ auth: myAuth() });
 
