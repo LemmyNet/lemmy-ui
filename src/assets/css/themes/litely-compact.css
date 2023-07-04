@@ -1,4 +1,44 @@
 @charset "UTF-8";
+/*
+    GENERAL
+*/
+hr.my-3 {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/*
+    POST-LISTING
+*/
+.post-listing {
+  line-height: 1;
+}
+.post-listing .post-title h5, .post-listing .post-title .h5 {
+  margin: 0;
+}
+.post-listing .post-title + p {
+  padding-top: 0.125rem !important;
+  padding-bottom: 0.125rem !important;
+}
+.post-listing .community-link {
+  padding-left: 0.125rem;
+}
+.post-listing .person-listing {
+  padding-right: 0.125rem;
+}
+.post-listing ul.list-inline.mt-2 {
+  margin-top: 0.125rem !important;
+}
+.post-listing ul.list-inline.mb-1 {
+  margin-bottom: 0.125rem !important;
+}
+.post-listing .btn-sm, .post-listing .btn-group-sm > .btn {
+  --bs-btn-padding-y: 0;
+}
+.post-listing .img-icon {
+  display: none;
+}
+
 /*!
  * Bootstrap  v5.3.0 (https://getbootstrap.com/)
  * Copyright 2011-2023 The Bootstrap Authors
@@ -729,11 +769,7 @@ progress {
 
 .container,
 .container-fluid,
-.container-xxl,
-.container-xl,
-.container-lg,
-.container-md,
-.container-sm {
+.container-lg {
   --bs-gutter-x: 1.5rem;
   --bs-gutter-y: 0;
   width: 100%;
@@ -743,29 +779,9 @@ progress {
   margin-left: auto;
 }
 
-@media (min-width: 576px) {
-  .container-sm, .container {
-    max-width: 540px;
-  }
-}
-@media (min-width: 768px) {
-  .container-md, .container-sm, .container {
-    max-width: 720px;
-  }
-}
 @media (min-width: 992px) {
   .container-lg, .container-md, .container-sm, .container {
-    max-width: 960px;
-  }
-}
-@media (min-width: 1200px) {
-  .container-xl, .container-lg, .container-md, .container-sm, .container {
-    max-width: 1140px;
-  }
-}
-@media (min-width: 1400px) {
-  .container-xxl, .container-xl, .container-lg, .container-md, .container-sm, .container {
-    max-width: 1320px;
+    max-width: 1920px;
   }
 }
 :root {
@@ -3894,11 +3910,7 @@ textarea.form-control-lg {
 }
 .navbar > .container,
 .navbar > .container-fluid,
-.navbar > .container-sm,
-.navbar > .container-md,
-.navbar > .container-lg,
-.navbar > .container-xl,
-.navbar > .container-xxl {
+.navbar > .container-lg {
   display: flex;
   flex-wrap: inherit;
   align-items: center;
@@ -11855,45 +11867,6 @@ textarea.form-control-lg {
   .d-print-none {
     display: none !important;
   }
-}
-/*
-    GENERAL
-*/
-hr.my-3 {
-  margin-top: 0.5rem !important;
-  margin-bottom: 0.5rem !important;
-}
-
-/*
-    POST-LISTING
-*/
-.post-listing {
-  line-height: 1;
-}
-.post-listing .post-title h5, .post-listing .post-title .h5 {
-  margin: 0;
-}
-.post-listing .post-title + p {
-  padding-top: 0.125rem !important;
-  padding-bottom: 0.125rem !important;
-}
-.post-listing .community-link {
-  padding-left: 0.125rem;
-}
-.post-listing .person-listing {
-  padding-right: 0.125rem;
-}
-.post-listing ul.list-inline.mt-2 {
-  margin-top: 0.125rem !important;
-}
-.post-listing ul.list-inline.mb-1 {
-  margin-bottom: 0.125rem !important;
-}
-.post-listing .btn-sm, .post-listing .btn-group-sm > .btn {
-  --bs-btn-padding-y: 0;
-}
-.post-listing .img-icon {
-  display: none;
 }
 
 /*# sourceMappingURL=litely-compact.css.map */
