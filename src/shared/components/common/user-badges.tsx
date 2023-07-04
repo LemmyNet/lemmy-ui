@@ -53,7 +53,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("banned"),
                 tooltip: I18NextService.i18n.t("banned"),
-                classes: "text-bg-danger",
+                classes: "text-danger border border-danger",
                 shrink: false,
               })}
             </span>
@@ -63,7 +63,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("deleted"),
                 tooltip: I18NextService.i18n.t("deleted"),
-                classes: "text-bg-danger",
+                classes: "text-danger border border-danger",
                 shrink: false,
               })}
             </span>
@@ -74,7 +74,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("op").toUpperCase(),
                 tooltip: I18NextService.i18n.t("creator"),
-                classes: "text-bg-info",
+                classes: "text-info border border-info",
                 shrink: false,
               })}
             </span>
@@ -84,7 +84,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("mod"),
                 tooltip: I18NextService.i18n.t("mod"),
-                classes: "text-bg-primary",
+                classes: "text-primary border border-primary",
               })}
             </span>
           )}
@@ -93,7 +93,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("admin"),
                 tooltip: I18NextService.i18n.t("admin"),
-                classes: "text-bg-danger",
+                classes: "text-danger border border-danger",
               })}
             </span>
           )}
