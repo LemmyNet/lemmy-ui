@@ -219,7 +219,7 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
                 <a
                   href={markdownHelpUrl}
-                  className="btn btn-sm text-muted fw-bold"
+                  className="btn btn-sm btn-link rounded-0 text-muted fw-bold"
                   title={I18NextService.i18n.t("formatting_help")}
                   rel={relTags}
                 >
