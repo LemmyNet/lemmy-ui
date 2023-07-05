@@ -230,7 +230,7 @@ export class MarkdownTextArea extends Component<
                 >
                   <Icon icon="help-circle" classes="icon-inline" />
                 </a>
-                {this.props.maxLength !== undefined &&
+                {this.props.maxLength &&
                   this.getCharacterCounter(contentLength, maxLength)}
               </div>
 
@@ -244,6 +244,7 @@ export class MarkdownTextArea extends Component<
                       "is-invalid": contentLength > maxLength,
                     }
                   )}
+                  aria-invalid={contentLength > maxLength}
                   value={this.state.content}
                   onInput={linkEvent(this, this.handleContentChange)}
                   onPaste={linkEvent(this, this.handleImageUploadPaste)}
@@ -339,19 +340,16 @@ export class MarkdownTextArea extends Component<
 
   getCharacterCounter(contentLength: number, maxLength: number) {
     return (
-      <>
-        <div className="flex-grow-1"></div>
-        <div
-          className={classNames(
-            "px-2 py-1",
-            contentLength > maxLength ? "text-danger" : "text-muted"
-          )}
-        >
-          {contentLength}
-          {" / "}
-          {maxLength}
-        </div>
-      </>
+      <div
+        className={classNames(
+          "ms-auto px-2 py-1",
+          contentLength > maxLength ? "text-danger" : "text-muted"
+        )}
+      >
+        {contentLength.toLocaleString()}
+        {" / "}
+        {maxLength.toLocaleString()}
+      </div>
     );
   }
 
