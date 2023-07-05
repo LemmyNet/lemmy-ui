@@ -32,10 +32,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     return (
       <div className="site-sidebar accordion">
         <section id="sidebarInfo" className="card border-secondary mb-3">
-          <header
-            className="card-header d-flex align-items-center flex-wrap"
-            id="sidebarInfoHeader"
-          >
+          <header className="card-header" id="sidebarInfoHeader">
             {this.siteName()}
             {!this.state.collapsed && (
               <BannerIconHeader banner={this.props.site.banner} />
@@ -54,7 +51,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   siteName() {
     return (
-      <>
+      <div className={!this.state.collapsed ? "mb-2" : undefined}>
         <h5 className="mb-0 d-inline">{this.props.site.name}</h5>
         {!this.props.isMobile && (
           <button
@@ -83,7 +80,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             )}
           </button>
         )}
-      </>
+      </div>
     );
   }
 
