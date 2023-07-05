@@ -1327,10 +1327,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
     return post.thumbnail_url || (post.url && isImage(post.url)) ? (
       <div className="row">
-        <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
+        <div className={`${this.state.imageExpanded ? "col-12" : "col-9"}`}>
           {this.postTitleLine()}
         </div>
-        <div className="col-4">
+        <div className="col-3 mobile-thumbnail-container">
           {/* Post thumbnail */}
           {!this.state.imageExpanded && this.thumbnail()}
         </div>
