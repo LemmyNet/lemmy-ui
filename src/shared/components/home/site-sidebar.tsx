@@ -33,7 +33,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
       <div className="site-sidebar accordion">
         <section id="sidebarInfo" className="card border-secondary mb-3">
           <header
-            className="card-header d-flex align-items-center"
+            className="card-header d-flex align-items-center flex-wrap"
             id="sidebarInfoHeader"
           >
             {this.siteName()}

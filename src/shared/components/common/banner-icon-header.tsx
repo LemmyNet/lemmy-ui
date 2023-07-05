@@ -16,7 +16,7 @@ export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
     const icon = this.props.icon;
     return (
       (banner || icon) && (
-        <div className="banner-icon-header position-relative mb-2">
+        <div className="banner-icon-header position-relative mb-2 mx-auto">
           {banner && <PictrsImage src={banner} banner alt="" />}
           {icon && (
             <PictrsImage
