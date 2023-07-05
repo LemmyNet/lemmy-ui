@@ -135,7 +135,9 @@ export class PasswordChange extends Component<any, State> {
 
       if (i.state.passwordChangeRes.state === "success") {
         const data = i.state.passwordChangeRes.data;
-        UserService.Instance.login(data);
+        UserService.Instance.login({
+          res: data,
+        });
 
         const site = await HttpService.client.getSite({ auth: myAuth() });
         if (site.state === "success") {
