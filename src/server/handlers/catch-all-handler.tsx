@@ -114,7 +114,7 @@ export default async (req: Request, res: Response) => {
 
     const wrapper = (
       <StaticRouter location={url} context={isoData}>
-        <App />
+        <App user={site?.my_user} />
       </StaticRouter>
     );
 
