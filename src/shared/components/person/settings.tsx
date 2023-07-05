@@ -322,7 +322,7 @@ export class Settings extends Component<any, SettingsState> {
   changePasswordHtmlForm() {
     return (
       <>
-        <h5>{I18NextService.i18n.t("change_password")}</h5>
+        <h2 className="h5">{I18NextService.i18n.t("change_password")}</h2>
         <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
           <div className="mb-3 row">
             <label className="col-sm-5 col-form-label" htmlFor="user-password">
@@ -415,7 +415,7 @@ export class Settings extends Component<any, SettingsState> {
   blockedUsersList() {
     return (
       <>
-        <h5>{I18NextService.i18n.t("blocked_users")}</h5>
+        <h2 className="h5">{I18NextService.i18n.t("blocked_users")}</h2>
         <ul className="list-unstyled mb-0">
           {this.state.personBlocks.map(pb => (
             <li key={pb.target.id}>
@@ -459,7 +459,7 @@ export class Settings extends Component<any, SettingsState> {
   blockedCommunitiesList() {
     return (
       <>
-        <h5>{I18NextService.i18n.t("blocked_communities")}</h5>
+        <h2 className="h5">{I18NextService.i18n.t("blocked_communities")}</h2>
         <ul className="list-unstyled mb-0">
           {this.state.communityBlocks.map(cb => (
             <li key={cb.community.id}>
@@ -490,7 +490,7 @@ export class Settings extends Component<any, SettingsState> {
 
     return (
       <>
-        <h5>{I18NextService.i18n.t("settings")}</h5>
+        <h2 className="h5">{I18NextService.i18n.t("settings")}</h2>
         <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
           <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="display-name">
@@ -1221,8 +1221,12 @@ export class Settings extends Component<any, SettingsState> {
       ...i.state.saveUserSettingsForm,
       auth: myAuthRequired(),
     });
+
     if (saveRes.state === "success") {
-      UserService.Instance.login(saveRes.data);
+      UserService.Instance.login({
+        res: saveRes.data,
+        showToast: false,
+      });
       toast(I18NextService.i18n.t("saved"));
       window.scrollTo(0, 0);
     }
@@ -1244,7 +1248,10 @@ export class Settings extends Component<any, SettingsState> {
         auth: myAuthRequired(),
       });
       if (changePasswordRes.state === "success") {
-        UserService.Instance.login(changePasswordRes.data);
+        UserService.Instance.login({
+          res: changePasswordRes.data,
+          showToast: false,
+        });
         window.scrollTo(0, 0);
         toast(I18NextService.i18n.t("password_changed"));
       }

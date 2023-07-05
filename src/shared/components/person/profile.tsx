@@ -5,7 +5,6 @@ import {
   enableDownvotes,
   enableNsfw,
   getCommentParentId,
-  getRoleLabelPill,
   myAuth,
   myAuthRequired,
   setIsoData,
@@ -19,6 +18,7 @@ import {
   getQueryParams,
   getQueryString,
   numToSI,
+  randomStr,
 } from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
@@ -85,6 +85,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { SortSelect } from "../common/sort-select";
+import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
@@ -137,7 +138,7 @@ const getCommunitiesListing = (
   communityViews.length > 0 && (
     <div className="card border-secondary mb-3">
       <div className="card-body">
-        <h5>{I18NextService.i18n.t(translationKey)}</h5>
+        <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
         <ul className="list-unstyled mb-0">
           {communityViews.map(({ community }) => (
             <li key={community.id}>
@@ -232,7 +233,7 @@ export class Profile extends Component<
   async fetchUserData() {
     const { page, sort, view } = getProfileQueryParams();
 
-    this.setState({ personRes: { state: "empty" } });
+    this.setState({ personRes: { state: "loading" } });
     this.setState({
       personRes: await HttpService.client.getPersonDetails({
         username: this.props.match.params.username,
@@ -397,7 +398,7 @@ export class Profile extends Component<
 
   get viewRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
         {this.getRadio(PersonDetailsView.Overview)}
         {this.getRadio(PersonDetailsView.Comments)}
         {this.getRadio(PersonDetailsView.Posts)}
@@ -409,22 +410,27 @@ export class Profile extends Component<
   getRadio(view: PersonDetailsView) {
     const { view: urlView } = getProfileQueryParams();
     const active = view === urlView;
+    const radioId = randomStr();
 
     return (
-      <label
-        className={classNames("btn btn-outline-secondary pointer", {
-          active,
-        })}
-      >
+      <>
         <input
+          id={radioId}
           type="radio"
           className="btn-check"
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
         />
-        {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
-      </label>
+        <label
+          htmlFor={radioId}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active,
+          })}
+        >
+          {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+        </label>
+      </>
     );
   }
 
@@ -472,7 +478,7 @@ export class Profile extends Component<
               <div className="mb-0 d-flex flex-wrap">
                 <div>
                   {pv.person.display_name && (
-                    <h5 className="mb-0">{pv.person.display_name}</h5>
+                    <h1 className="h4 mb-4">{pv.person.display_name}</h1>
                   )}
                   <ul className="list-inline mb-2">
                     <li className="list-inline-item">
@@ -484,46 +490,15 @@ export class Profile extends Component<
                         hideAvatar
                       />
                     </li>
-                    {isBanned(pv.person) && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("banned"),
-                          tooltip: I18NextService.i18n.t("banned"),
-                          classes: "text-bg-danger",
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.deleted && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("deleted"),
-                          tooltip: I18NextService.i18n.t("deleted"),
-                          classes: "text-bg-danger",
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.admin && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n.t("admin"),
-                          tooltip: I18NextService.i18n.t("admin"),
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
-                    {pv.person.bot_account && (
-                      <li className="list-inline-item">
-                        {getRoleLabelPill({
-                          label: I18NextService.i18n
-                            .t("bot_account")
-                            .toLowerCase(),
-                          tooltip: I18NextService.i18n.t("bot_account"),
-                          shrink: false,
-                        })}
-                      </li>
-                    )}
+                    <li className="list-inline-item">
+                      <UserBadges
+                        classNames="ms-1"
+                        isBanned={isBanned(pv.person)}
+                        isDeleted={pv.person.deleted}
+                        isAdmin={pv.person.admin}
+                        isBot={pv.person.bot_account}
+                      />
+                    </li>
                   </ul>
                 </div>
                 {this.banDialog(pv)}

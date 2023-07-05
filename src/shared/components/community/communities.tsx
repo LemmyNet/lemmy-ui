@@ -102,7 +102,7 @@ export class Communities extends Component<any, CommunitiesState> {
         const { listingType, page } = this.getCommunitiesQueryParams();
         return (
           <div>
-            <h1 className="h4">
+            <h1 className="h4 mb-4">
               {I18NextService.i18n.t("list_of_communities")}
             </h1>
             <div className="row g-2 justify-content-between">

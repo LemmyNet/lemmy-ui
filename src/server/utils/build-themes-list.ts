@@ -12,6 +12,8 @@ const themes: ReadonlyArray<string> = [
   "litely",
   "litely-red",
   "litely-compact",
+  "vaporwave-dark",
+  "vaporwave-light",
   "i386",
 ];
 

@@ -1,10 +1,12 @@
 import { isAuthPath, setIsoData } from "@utils/app";
+import { dataBsTheme } from "@utils/browser";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
+import { MyUserInfo } from "lemmy-js-client";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { routes } from "../../routes";
-import { FirstLoadService, I18NextService } from "../../services";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import AuthGuard from "../common/auth-guard";
 import ErrorGuard from "../common/error-guard";
 import { ErrorPage } from "./error-page";
@@ -13,10 +15,14 @@ import { Navbar } from "./navbar";
 import "./styles.scss";
 import { Theme } from "./theme";
 
-export class App extends Component<any, any> {
+interface AppProps {
+  user?: MyUserInfo;
+}
+
+export class App extends Component<AppProps, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly mainContentRef: RefObject<HTMLElement>;
-  constructor(props: any, context: any) {
+  constructor(props: AppProps, context: any) {
     super(props, context);
     this.mainContentRef = createRef();
   }
@@ -25,6 +31,9 @@ export class App extends Component<any, any> {
     event.preventDefault();
     this.mainContentRef.current?.focus();
   }
+
+  user = UserService.Instance.myUserInfo;
+
   render() {
     const siteRes = this.isoData.site_res;
     const siteView = siteRes?.site_view;
@@ -32,7 +41,11 @@ export class App extends Component<any, any> {
     return (
       <>
         <Provider i18next={I18NextService.i18n}>
-          <div id="app" className="lemmy-site">
+          <div
+            id="app"
+            className="lemmy-site"
+            data-bs-theme={dataBsTheme(this.props.user)}
+          >
             <button
               type="button"
               className="btn skip-link bg-light position-absolute start-0 z-3"

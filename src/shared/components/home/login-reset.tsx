@@ -59,9 +59,9 @@ export class LoginReset extends Component<any, State> {
   loginResetForm() {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordReset)}>
-        <h5>
+        <h1 className="h4 mb-4">
           {capitalizeFirstLetter(I18NextService.i18n.t("forgot_password"))}
-        </h5>
+        </h1>
 
         <div className="form-group row">
           <label className="col-form-label">
