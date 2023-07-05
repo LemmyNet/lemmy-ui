@@ -44,6 +44,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     this.handleOutsideMenuClick = this.handleOutsideMenuClick.bind(this);
   }
 
+  componentWillMount(): void {
+    InboxService.observable.subscribe(() => {
+      this.render();
+    });
+  }
+
   componentDidMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
