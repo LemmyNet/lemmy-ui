@@ -114,7 +114,7 @@ interface CommentNodeProps {
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
   noBorder?: boolean;
-  noIndent?: boolean;
+  isTopLevel?: boolean;
   viewOnly?: boolean;
   locked?: boolean;
   markable?: boolean;
@@ -292,11 +292,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             mark: this.isCommentNew || this.commentView.comment.distinguished,
           })}
         >
-          <div
-            className={classNames({
-              "ms-2": !this.props.noIndent,
-            })}
-          >
+          <div className="ms-2">
             <div className="d-flex flex-wrap align-items-center text-muted small">
               <button
                 className="btn btn-sm btn-link text-muted me-2"
@@ -1136,7 +1132,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
-            isChild={!this.props.noIndent}
+            isChild={!this.props.isTopLevel}
             depth={this.props.node.depth + 1}
             finished={this.props.finished}
             onCommentReplyRead={this.props.onCommentReplyRead}

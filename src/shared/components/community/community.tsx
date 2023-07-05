@@ -447,7 +447,7 @@ export class Community extends Component<
               nodes={commentsToFlatNodes(this.state.commentsRes.data.comments)}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
-              noIndent
+              isTopLevel
               showContext
               enableDownvotes={enableDownvotes(site_res)}
               moderators={communityRes.moderators}

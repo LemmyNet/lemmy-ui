@@ -35,7 +35,7 @@ interface CommentNodesProps {
   admins?: PersonView[];
   maxCommentsShown?: number;
   noBorder?: boolean;
-  noIndent?: boolean;
+  isTopLevel?: boolean;
   viewOnly?: boolean;
   locked?: boolean;
   markable?: boolean;
@@ -100,7 +100,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               key={node.comment_view.comment.id}
               node={node}
               noBorder={this.props.noBorder}
-              noIndent={this.props.noIndent}
+              isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}
               locked={this.props.locked}
               moderators={this.props.moderators}

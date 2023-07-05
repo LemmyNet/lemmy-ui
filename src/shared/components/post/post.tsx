@@ -522,7 +522,7 @@ export class Post extends Component<any, PostState> {
             nodes={commentsToFlatNodes(commentsRes.data.comments)}
             viewType={this.state.commentViewType}
             maxCommentsShown={this.state.maxCommentsShown}
-            noIndent
+            isTopLevel
             locked={postRes.data.post_view.post.locked}
             moderators={postRes.data.moderators}
             admins={this.state.siteRes.admins}

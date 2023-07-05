@@ -717,7 +717,7 @@ export class Search extends Component<any, SearchState> {
                   viewType={CommentViewType.Flat}
                   viewOnly
                   locked
-                  noIndent
+                  isTopLevel
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
@@ -778,7 +778,7 @@ export class Search extends Component<any, SearchState> {
         viewType={CommentViewType.Flat}
         viewOnly
         locked
-        noIndent
+        isTopLevel
         enableDownvotes={enableDownvotes(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
