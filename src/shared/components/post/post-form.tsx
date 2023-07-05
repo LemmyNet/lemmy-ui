@@ -27,6 +27,7 @@ import {
 import {
   archiveTodayUrl,
   ghostArchiveUrl,
+  postBodyMaxLength,
   relTags,
   trendingFetchLimit,
   webArchiveUrl,
@@ -487,6 +488,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               onContentChange={this.handlePostBodyChange}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
+              maxLength={postBodyMaxLength}
               hideNavigationWarnings
             />
           </div>

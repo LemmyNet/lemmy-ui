@@ -137,6 +137,8 @@ export class MarkdownTextArea extends Component<
 
   render() {
     const languageId = this.state.languageId;
+    const maxLength = this.props.maxLength ?? markdownFieldCharacterLimit;
+    const contentLength = this.state.content?.length ?? 0;
 
     // TODO add these prompts back in at some point
     // <Prompt
@@ -160,9 +162,12 @@ export class MarkdownTextArea extends Component<
           <div className="col-12">
             <div className="rounded bg-light border">
               <div
-                className={classNames("d-flex flex-wrap border-bottom", {
-                  "no-click": this.isDisabled,
-                })}
+                className={classNames(
+                  "d-flex flex-wrap border-bottom align-items-center",
+                  {
+                    "no-click": this.isDisabled,
+                  }
+                )}
               >
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
@@ -225,6 +230,8 @@ export class MarkdownTextArea extends Component<
                 >
                   <Icon icon="help-circle" classes="icon-inline" />
                 </a>
+                {this.props.maxLength !== undefined &&
+                  this.getCharacterCounter(contentLength, maxLength)}
               </div>
 
               <div>
@@ -234,6 +241,7 @@ export class MarkdownTextArea extends Component<
                     "form-control border-0 rounded-top-0 rounded-bottom",
                     {
                       "d-none": this.state.previewMode,
+                      "is-invalid": contentLength > maxLength,
                     }
                   )}
                   value={this.state.content}
@@ -243,9 +251,7 @@ export class MarkdownTextArea extends Component<
                   required
                   disabled={this.isDisabled}
                   rows={2}
-                  maxLength={
-                    this.props.maxLength ?? markdownFieldCharacterLimit
-                  }
+                  maxLength={maxLength}
                   placeholder={this.props.placeholder}
                 />
                 {this.state.previewMode && this.state.content && (
@@ -328,6 +334,24 @@ export class MarkdownTextArea extends Component<
           </div>
         </div>
       </form>
+    );
+  }
+
+  getCharacterCounter(contentLength: number, maxLength: number) {
+    return (
+      <>
+        <div className="flex-grow-1"></div>
+        <div
+          className={classNames(
+            "px-2 py-1",
+            contentLength > maxLength ? "text-danger" : "text-muted"
+          )}
+        >
+          {contentLength}
+          {" / "}
+          {maxLength}
+        </div>
+      </>
     );
   }
 

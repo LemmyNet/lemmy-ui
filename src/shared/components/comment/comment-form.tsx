@@ -4,6 +4,7 @@ import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { CreateComment, EditComment, Language } from "lemmy-js-client";
+import { commentBodyMaxLength } from "../../config";
 import { CommentNodeI } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
 import { Icon } from "../common/icon";
@@ -60,6 +61,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             placeholder={I18NextService.i18n.t("comment_here") ?? undefined}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            maxLength={commentBodyMaxLength}
           />
         ) : (
           <div className="alert alert-warning" role="alert">
