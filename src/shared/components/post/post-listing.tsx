@@ -602,7 +602,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.commentsButton}
         {canShare() && (
           <button
-            className="btn btn-sm btn-animate text-muted py-0"
+            className="btn btn-sm btn-link btn-animate text-muted py-0"
             onClick={linkEvent(this, this.handleShare)}
             type="button"
           >
@@ -611,7 +611,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {!post.local && (
           <a
-            className="btn btn-sm btn-animate text-muted py-0"
+            className="btn btn-sm btn-link btn-animate text-muted py-0"
             title={I18NextService.i18n.t("link")}
             href={post.ap_id}
           >
@@ -650,7 +650,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         <div className="dropdown">
           <button
-            className="btn btn-sm btn-animate text-muted py-0 dropdown-toggle"
+            className="btn btn-sm btn-link btn-animate text-muted py-0 dropdown-toggle"
             onClick={linkEvent(this, this.handleShowAdvanced)}
             data-tippy-content={I18NextService.i18n.t("more")}
             data-bs-toggle="dropdown"
@@ -783,7 +783,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       : I18NextService.i18n.t("save");
     return (
       <button
-        className="btn btn-sm btn-animate text-muted py-0"
+        className="btn btn-sm btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleSavePostClick)}
         data-tippy-content={label}
         aria-label={label}
@@ -804,7 +804,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get crossPostButton() {
     return (
       <Link
-        className="btn btn-sm btn-animate text-muted py-0"
+        className="btn btn-sm btn-link btn-animate text-muted py-0"
         to={{
           /* Empty string properties are required to satisfy type*/
           pathname: "/create_post",
@@ -894,7 +894,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get viewSourceButton() {
     return (
       <button
-        className="btn btn-sm btn-animate text-muted py-0"
+        className="btn btn-sm btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleViewSource)}
         data-tippy-content={I18NextService.i18n.t("view_source")}
         aria-label={I18NextService.i18n.t("view_source")}
@@ -1327,10 +1327,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
     return post.thumbnail_url || (post.url && isImage(post.url)) ? (
       <div className="row">
-        <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
+        <div className={`${this.state.imageExpanded ? "col-12" : "col-9"}`}>
           {this.postTitleLine()}
         </div>
-        <div className="col-4">
+        <div className="col-3 mobile-thumbnail-container">
           {/* Post thumbnail */}
           {!this.state.imageExpanded && this.thumbnail()}
         </div>
