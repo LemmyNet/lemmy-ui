@@ -206,7 +206,7 @@ export class Setup extends Component<any, State> {
       if (i.state.registerRes.state == "success") {
         const data = i.state.registerRes.data;
 
-        UserService.Instance.login(data);
+        UserService.Instance.login({ res: data });
         i.setState({ doneRegisteringUser: true });
       }
     }

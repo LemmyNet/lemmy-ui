@@ -1,6 +1,6 @@
 {
   "name": "lemmy-ui",
-  "version": "0.18.1-rc.9",
+  "version": "0.18.1-rc.10",
   "description": "An isomorphic UI for lemmy",
   "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
@@ -75,6 +75,7 @@
     "markdown-it-emoji": "^2.0.2",
     "markdown-it-footnote": "^3.0.3",
     "markdown-it-html5-embed": "^1.0.0",
+    "markdown-it-ruby": "^0.1.1",
     "markdown-it-sub": "^1.0.0",
     "markdown-it-sup": "^1.0.0",
     "mini-css-extract-plugin": "^2.7.5",
