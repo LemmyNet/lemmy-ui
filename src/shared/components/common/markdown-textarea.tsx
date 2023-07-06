@@ -230,8 +230,6 @@ export class MarkdownTextArea extends Component<
                 >
                   <Icon icon="help-circle" classes="icon-inline" />
                 </a>
-                {this.props.maxLength &&
-                  this.getCharacterCounter(contentLength, maxLength)}
               </div>
 
               <div>
@@ -284,7 +282,7 @@ export class MarkdownTextArea extends Component<
             </div>
           </div>
 
-          <div className="col-12 d-flex align-items-center flex-wrap mt-2">
+          <div className="col-12 d-flex align-items-center flex-wrap mt-2 gap-2">
             {this.props.showLanguage && (
               <LanguageSelect
                 iconVersion
@@ -297,6 +295,8 @@ export class MarkdownTextArea extends Component<
                 disabled={this.isDisabled}
               />
             )}
+            {this.props.maxLength &&
+              this.getCharacterCounter(contentLength, maxLength)}
 
             {/* A flex expander */}
             <div className="flex-grow-1"></div>
@@ -304,7 +304,7 @@ export class MarkdownTextArea extends Component<
             {this.props.replyType && (
               <button
                 type="button"
-                className="btn btn-sm btn-secondary ms-2"
+                className="btn btn-sm btn-secondary"
                 onClick={linkEvent(this, this.handleReplyCancel)}
               >
                 {I18NextService.i18n.t("cancel")}
@@ -313,7 +313,7 @@ export class MarkdownTextArea extends Component<
             <button
               type="button"
               disabled={!this.state.content}
-              className={classNames("btn btn-sm btn-secondary ms-2", {
+              className={classNames("btn btn-sm btn-secondary", {
                 active: this.state.previewMode,
               })}
               onClick={linkEvent(this, this.handlePreviewToggle)}
@@ -325,7 +325,7 @@ export class MarkdownTextArea extends Component<
             {this.props.buttonTitle && (
               <button
                 type="submit"
-                className="btn btn-sm btn-secondary ms-2"
+                className="btn btn-sm btn-secondary"
                 disabled={this.isDisabled || !this.state.content}
               >
                 {this.state.loading && <Spinner className="me-1" />}
@@ -340,12 +340,7 @@ export class MarkdownTextArea extends Component<
 
   getCharacterCounter(contentLength: number, maxLength: number) {
     return (
-      <div
-        className={classNames(
-          "ms-auto px-2 py-1",
-          contentLength > maxLength ? "text-danger" : "text-muted"
-        )}
-      >
+      <div className={contentLength > maxLength ? "text-danger" : "text-muted"}>
         {contentLength.toLocaleString()}
         {" / "}
         {maxLength.toLocaleString()}
