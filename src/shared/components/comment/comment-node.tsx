@@ -319,8 +319,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <UserBadges
                 classNames="ms-1"
                 isPostCreator={this.isPostCreator}
-                isMod={isMod_}
-                isAdmin={isAdmin_}
+                isMod={isMod_ && cv.comment.distinguished}
+                isAdmin={isAdmin_ && cv.comment.distinguished}
                 isBot={cv.creator.bot_account}
               />
 
