@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
@@ -51,7 +52,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   siteName() {
     return (
-      <div className={!this.state.collapsed ? "mb-2" : undefined}>
+      <div className={classNames({ "mb-2": !this.state.collapsed })}>
         <h5 className="mb-0 d-inline">{this.props.site.name}</h5>
         {!this.props.isMobile && (
           <button
