@@ -299,7 +299,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           >
             <div className="d-flex flex-wrap align-items-center text-muted small">
               <button
-                className="btn btn-sm text-muted me-2"
+                className="btn btn-sm btn-link text-muted me-2"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
                 aria-label={this.expandText}
                 data-tippy-content={this.expandText}
@@ -1461,6 +1461,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       comment_id: i.commentId,
       removed: !i.commentView.comment.removed,
       auth: myAuthRequired(),
+      reason: i.state.removeReason,
     });
   }
 

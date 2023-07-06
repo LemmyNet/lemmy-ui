@@ -1,3 +1,5 @@
+import { randomStr } from "@utils/helpers";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { DataType } from "../../interfaces";
 import { I18NextService } from "../../services";
@@ -15,6 +17,8 @@ export class DataTypeSelect extends Component<
   DataTypeSelectProps,
   DataTypeSelectState
 > {
+  private id = `listing-type-input-${randomStr()}`;
+
   state: DataTypeSelectState = {
     type_: this.props.type_,
   };
@@ -31,33 +35,41 @@ export class DataTypeSelect extends Component<
 
   render() {
     return (
-      <div className="data-type-select btn-group btn-group-toggle flex-wrap">
+      <div
+        className="data-type-select btn-group btn-group-toggle flex-wrap"
+        role="group"
+      >
+        <input
+          id={`${this.id}-posts`}
+          type="radio"
+          className="btn-check"
+          value={DataType.Post}
+          checked={this.state.type_ === DataType.Post}
+          onChange={linkEvent(this, this.handleTypeChange)}
+        />
         <label
-          className={`pointer btn btn-outline-secondary 
-            ${this.state.type_ == DataType.Post && "active"}
-          `}
+          htmlFor={`${this.id}-posts`}
+          className={classNames("pointer btn btn-outline-secondary", {
+            active: this.state.type_ === DataType.Post,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={DataType.Post}
-            checked={this.state.type_ == DataType.Post}
-            onChange={linkEvent(this, this.handleTypeChange)}
-          />
           {I18NextService.i18n.t("posts")}
         </label>
+
+        <input
+          id={`${this.id}-comments`}
+          type="radio"
+          className="btn-check"
+          value={DataType.Comment}
+          checked={this.state.type_ === DataType.Comment}
+          onChange={linkEvent(this, this.handleTypeChange)}
+        />
         <label
-          className={`pointer btn btn-outline-secondary ${
-            this.state.type_ == DataType.Comment && "active"
-          }`}
+          htmlFor={`${this.id}-comments`}
+          className={classNames("pointer btn btn-outline-secondary", {
+            active: this.state.type_ === DataType.Comment,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={DataType.Comment}
-            checked={this.state.type_ == DataType.Comment}
-            onChange={linkEvent(this, this.handleTypeChange)}
-          />
           {I18NextService.i18n.t("comments")}
         </label>
       </div>
