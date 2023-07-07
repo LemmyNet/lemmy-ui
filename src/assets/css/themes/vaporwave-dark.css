@@ -36,7 +36,7 @@
   --bs-warning: #fffb96;
   --bs-danger: rgb(255, 95, 110);
   --bs-light: #444;
-  --bs-dark: #222;
+  --bs-dark: #ebebeb;
   --bs-primary-rgb: 255, 64, 186;
   --bs-secondary-rgb: 1, 205, 254;
   --bs-success-rgb: 5, 255, 161;
@@ -44,7 +44,7 @@
   --bs-warning-rgb: 255, 251, 150;
   --bs-danger-rgb: 255, 95, 110;
   --bs-light-rgb: 68, 68, 68;
-  --bs-dark-rgb: 34, 34, 34;
+  --bs-dark-rgb: 235, 235, 235;
   --bs-primary-text-emphasis: #661a4a;
   --bs-secondary-text-emphasis: #005266;
   --bs-success-text-emphasis: #026640;
@@ -2029,15 +2029,15 @@ progress {
 }
 
 .table-dark {
-  --bs-table-color: #fff;
-  --bs-table-bg: #222;
-  --bs-table-border-color: #383838;
-  --bs-table-striped-bg: #2d2d2d;
-  --bs-table-striped-color: #fff;
-  --bs-table-active-bg: #383838;
-  --bs-table-active-color: #fff;
-  --bs-table-hover-bg: #333333;
-  --bs-table-hover-color: #fff;
+  --bs-table-color: #000;
+  --bs-table-bg: #ebebeb;
+  --bs-table-border-color: #d4d4d4;
+  --bs-table-striped-bg: #dfdfdf;
+  --bs-table-striped-color: #000;
+  --bs-table-active-bg: #d4d4d4;
+  --bs-table-active-color: #000;
+  --bs-table-hover-bg: #d9d9d9;
+  --bs-table-hover-color: #000;
   color: var(--bs-table-color);
   border-color: var(--bs-table-border-color);
 }
@@ -3099,20 +3099,20 @@ textarea.form-control-lg {
 }
 
 .btn-dark {
-  --bs-btn-color: #fff;
-  --bs-btn-bg: #222;
-  --bs-btn-border-color: #222;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #434343;
-  --bs-btn-hover-border-color: #383838;
-  --bs-btn-focus-shadow-rgb: 67, 67, 67;
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #4e4e4e;
-  --bs-btn-active-border-color: #383838;
+  --bs-btn-color: #000;
+  --bs-btn-bg: #ebebeb;
+  --bs-btn-border-color: #ebebeb;
+  --bs-btn-hover-color: #000;
+  --bs-btn-hover-bg: #eeeeee;
+  --bs-btn-hover-border-color: #ededed;
+  --bs-btn-focus-shadow-rgb: 200, 200, 200;
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: #efefef;
+  --bs-btn-active-border-color: #ededed;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #fff;
-  --bs-btn-disabled-bg: #222;
-  --bs-btn-disabled-border-color: #222;
+  --bs-btn-disabled-color: #000;
+  --bs-btn-disabled-bg: #ebebeb;
+  --bs-btn-disabled-border-color: #ebebeb;
 }
 
 .btn-outline-primary {
@@ -3235,19 +3235,19 @@ textarea.form-control-lg {
 }
 
 .btn-outline-dark {
-  --bs-btn-color: #222;
-  --bs-btn-border-color: #222;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #222;
-  --bs-btn-hover-border-color: #222;
-  --bs-btn-focus-shadow-rgb: 34, 34, 34;
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #222;
-  --bs-btn-active-border-color: #222;
+  --bs-btn-color: #ebebeb;
+  --bs-btn-border-color: #ebebeb;
+  --bs-btn-hover-color: #000;
+  --bs-btn-hover-bg: #ebebeb;
+  --bs-btn-hover-border-color: #ebebeb;
+  --bs-btn-focus-shadow-rgb: 235, 235, 235;
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: #ebebeb;
+  --bs-btn-active-border-color: #ebebeb;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #222;
+  --bs-btn-disabled-color: #ebebeb;
   --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: #222;
+  --bs-btn-disabled-border-color: #ebebeb;
   --bs-gradient: none;
 }
 
@@ -6848,8 +6848,8 @@ textarea.form-control-lg {
 }
 
 .text-bg-dark {
-  color: #fff !important;
-  background-color: RGBA(34, 34, 34, var(--bs-bg-opacity, 1)) !important;
+  color: #000 !important;
+  background-color: RGBA(235, 235, 235, var(--bs-bg-opacity, 1)) !important;
 }
 
 .link-primary {
@@ -6920,8 +6920,8 @@ textarea.form-control-lg {
   text-decoration-color: RGBA(var(--bs-dark-rgb), var(--bs-link-underline-opacity, 1)) !important;
 }
 .link-dark:hover, .link-dark:focus {
-  color: RGBA(27, 27, 27, var(--bs-link-opacity, 1)) !important;
-  text-decoration-color: RGBA(27, 27, 27, var(--bs-link-underline-opacity, 1)) !important;
+  color: RGBA(239, 239, 239, var(--bs-link-opacity, 1)) !important;
+  text-decoration-color: RGBA(239, 239, 239, var(--bs-link-underline-opacity, 1)) !important;
 }
 
 .link-body-emphasis {
