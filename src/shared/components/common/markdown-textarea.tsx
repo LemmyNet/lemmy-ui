@@ -4,6 +4,7 @@ import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import {
   concurrentImageUpload,
@@ -19,7 +20,6 @@ import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
-import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
@@ -138,18 +138,14 @@ export class MarkdownTextArea extends Component<
   render() {
     const languageId = this.state.languageId;
 
-    // TODO add these prompts back in at some point
-    // <Prompt
-    //   when={!this.props.hideNavigationWarnings && this.state.content}
-    //   message={I18NextService.i18n.t("block_leaving")}
-    // />
     return (
       <form
         className="markdown-textarea"
         id={this.formId}
         onSubmit={linkEvent(this, this.handleSubmit)}
       >
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.hideNavigationWarnings &&
             !!this.state.content &&
