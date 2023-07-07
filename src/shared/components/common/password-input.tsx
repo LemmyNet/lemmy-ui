@@ -4,6 +4,7 @@ import { NoOptionI18nKeys } from "i18next";
 import { Component, FormEventHandler, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import { I18NextService } from "../../services";
+import { Icon } from "./icon";
 
 interface PasswordInputProps {
   id: string;
@@ -115,8 +116,10 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 type="button"
                 id={id}
                 onClick={linkEvent(this, handleToggleShow)}
+                aria-label={show ? "Hide Password" : "Show Password"}
+                data-tippy-content={show ? "Hide Password" : "Show Password"}
               >
-                Button
+                <Icon icon={`eye${show ? "-slash" : ""}`} inline />
               </button>
             </div>
             {showForgotLink && (
