@@ -6,8 +6,9 @@ $gray-100: #f8f9fa;
 $gray-200: #ebebeb;
 $gray-300: #bbb;
 $gray-500: #adb5bd;
+$gray-700: #444;
 $gray-800: #303030;
-$gray-900: #222;
+$gray-900: #2f2f2f;
 
 $blue: #5555ff;
 $cyan: #55ffff;
@@ -20,13 +21,13 @@ $pink: #fe54fe;
 $purple: #fe5454;
 
 $primary: #fefe54;
-$secondary: $gray-900;
+$secondary: $gray-800;
 $success: #00aa00;
 $danger: #aa0000;
 $info: #00aaaa;
 $warning: #aa00aa;
-$light: $gray-800;
-$dark: black;
+$light: $gray-700;
+$dark: $gray-300;
 
 $body-bg: #000084;
 $body-color: $gray-300;
