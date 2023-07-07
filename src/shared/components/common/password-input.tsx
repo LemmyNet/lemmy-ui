@@ -109,6 +109,13 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 <Icon icon={`eye${show ? "-slash" : ""}`} inline />
               </button>
             </div>
+            {showStrength && value && (
+              <div className={this.passwordColorClass}>
+                {I18NextService.i18n.t(
+                  this.passwordStrength as NoOptionI18nKeys
+                )}
+              </div>
+            )}
             {showForgotLink && (
               <NavLink
                 className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
@@ -119,11 +126,6 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
             )}
           </div>
         </div>
-        {showStrength && value && (
-          <div className={this.passwordColorClass}>
-            {I18NextService.i18n.t(this.passwordStrength as NoOptionI18nKeys)}
-          </div>
-        )}
       </>
     );
   }
