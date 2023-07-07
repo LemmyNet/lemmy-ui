@@ -67,7 +67,7 @@
     "inferno-router": "^8.1.1",
     "inferno-server": "^8.1.1",
     "jwt-decode": "^3.1.2",
-    "lemmy-js-client": "0.18.0-rc.2",
+    "lemmy-js-client": "0.18.1",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.2",
     "markdown-it": "^13.0.1",
