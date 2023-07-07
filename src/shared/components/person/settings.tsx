@@ -785,8 +785,12 @@ export class Settings extends Component<any, SettingsState> {
             </button>
           </div>
           <hr />
-          <div className="mb-3">
+          <form
+            className="mb-3"
+            onSubmit={linkEvent(this, this.handleDeleteAccount)}
+          >
             <button
+              type="button"
               className="btn d-block btn-danger"
               onClick={linkEvent(
                 this,
@@ -814,9 +818,9 @@ export class Settings extends Component<any, SettingsState> {
                   className="my-2"
                 />
                 <button
+                  type="submit"
                   className="btn btn-danger me-4"
                   disabled={!this.state.deleteAccountForm.password}
-                  onClick={linkEvent(this, this.handleDeleteAccount)}
                 >
                   {this.state.deleteAccountRes.state === "loading" ? (
                     <Spinner />
@@ -826,6 +830,7 @@ export class Settings extends Component<any, SettingsState> {
                 </button>
                 <button
                   className="btn btn-secondary"
+                  type="button"
                   onClick={linkEvent(
                     this,
                     this.handleDeleteAccountShowConfirmToggle
@@ -835,7 +840,7 @@ export class Settings extends Component<any, SettingsState> {
                 </button>
               </>
             )}
-          </div>
+          </form>
         </form>
       </>
     );
@@ -1196,7 +1201,8 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
   }
 
-  async handleDeleteAccount(i: Settings) {
+  async handleDeleteAccount(i: Settings, event: Event) {
+    event.preventDefault();
     const password = i.state.deleteAccountForm.password;
     if (password) {
       i.setState({ deleteAccountRes: { state: "loading" } });
