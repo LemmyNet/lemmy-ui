@@ -324,7 +324,6 @@ export class Settings extends Component<any, SettingsState> {
               id="new-password"
               value={this.state.changePasswordForm.new_password}
               onInput={linkEvent(this, this.handleNewPasswordChange)}
-              cols={7}
               showStrength
               label={I18NextService.i18n.t("new_password") ?? undefined}
             />
@@ -334,7 +333,6 @@ export class Settings extends Component<any, SettingsState> {
               id="verify-new-password"
               value={this.state.changePasswordForm.new_password_verify}
               onInput={linkEvent(this, this.handleNewPasswordVerifyChange)}
-              cols={7}
               label={I18NextService.i18n.t("verify_password") ?? undefined}
             />
           </div>
@@ -343,7 +341,6 @@ export class Settings extends Component<any, SettingsState> {
               id="user-old-password"
               value={this.state.changePasswordForm.old_password}
               onInput={linkEvent(this, this.handleOldPasswordChange)}
-              cols={7}
               label={I18NextService.i18n.t("old_password") ?? undefined}
             />
           </div>
@@ -788,7 +785,7 @@ export class Settings extends Component<any, SettingsState> {
             </button>
           </div>
           <hr />
-          <div className="input-group mb-3">
+          <div className="mb-3">
             <button
               className="btn d-block btn-danger"
               onClick={linkEvent(
@@ -815,7 +812,6 @@ export class Settings extends Component<any, SettingsState> {
                     this.handleDeleteAccountPasswordChange
                   )}
                   className="my-2"
-                  cols={null}
                 />
                 <button
                   className="btn btn-danger me-4"

@@ -12,7 +12,6 @@ interface PasswordInputProps {
   onInput: FormEventHandler<HTMLInputElement>;
   className?: string;
   showStrength?: boolean;
-  cols?: number | null;
   label?: string;
   showForgotLink?: boolean;
 }
@@ -72,7 +71,6 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
         onInput,
         className,
         showStrength,
-        cols = 10,
         label,
         showForgotLink,
       },
@@ -81,24 +79,13 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
 
     return (
       <>
-        <div
-          className={classNames(className, {
-            row: !!cols,
-          })}
-        >
+        <div className={classNames("row", className)}>
           {label && (
-            <label
-              className={`col-sm-${12 - (cols ?? 0)} col-form-label`}
-              htmlFor={id}
-            >
+            <label className="col-sm-2 col-form-label" htmlFor={id}>
               {label}
             </label>
           )}
-          <div
-            className={classNames({
-              [`col-sm-${cols}`]: !!cols,
-            })}
-          >
+          <div className={`col-sm-${label ? 10 : 12}`}>
             <div className="input-group">
               <input
                 type={show ? "text" : "password"}
