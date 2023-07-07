@@ -145,6 +145,15 @@ export class Signup extends Component<any, State> {
         onSubmit={linkEvent(this, this.handleRegisterSubmit)}
       >
         <h1 className="h4 mb-4">{this.titleName(siteView)}</h1>
+        <div className="alert alert-warning mt-3" role="alert">
+          <h6 className="alert-heading">
+            <Icon icon="alert-triangle" classes="icon-inline me-2" />
+            <strong>
+              {I18NextService.i18n.t("federation_disclaimer_title")}
+            </strong>
+          </h6>
+          {I18NextService.i18n.t("federation_disclaimer_body")}
+        </div>
 
         {this.isLemmyMl && (
           <div className="mb-3 row">
