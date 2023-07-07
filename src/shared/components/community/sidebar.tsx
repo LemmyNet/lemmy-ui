@@ -1,6 +1,7 @@
 import { myAuthRequired } from "@utils/app";
 import { getUnixTime, hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
+import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -131,7 +132,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              {myUSerInfo && this.subscribe()}
+              {this.subscribeButton}
               {this.canPost && this.createPost()}
               {myUSerInfo && this.blockCommunity()}
               {!myUSerInfo && (
@@ -160,6 +161,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             </div>
           </section>
         </div>
+        {this.remoteFetchModal}
       </aside>
     );
   }
@@ -230,56 +232,117 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  subscribe() {
+  get subscribeButton() {
     const community_view = this.props.community_view;
 
-    if (community_view.subscribed === "NotSubscribed") {
+    let i18key: NoOptionI18nKeys;
+
+    switch (community_view.subscribed) {
+      case "NotSubscribed": {
+        i18key = "subscribe";
+
+        break;
+      }
+      case "Subscribed": {
+        i18key = "joined";
+
+        break;
+      }
+      case "Pending": {
+        i18key = "subscribe_pending";
+
+        break;
+      }
+    }
+
+    if (!UserService.Instance.myUserInfo) {
       return (
         <button
+          type="button"
           className="btn btn-secondary d-block mb-2 w-100"
-          onClick={linkEvent(this, this.handleFollowCommunity)}
+          data-bs-toggle="modal"
+          data-bs-target="#remoteFetchModal"
         >
-          {this.state.followCommunityLoading ? (
-            <Spinner />
-          ) : (
-            I18NextService.i18n.t("subscribe")
-          )}
+          {I18NextService.i18n.t("subscribe")}
         </button>
       );
     }
 
-    if (community_view.subscribed === "Subscribed") {
-      return (
-        <button
-          className="btn btn-secondary d-block mb-2 w-100"
-          onClick={linkEvent(this, this.handleUnfollowCommunity)}
-        >
-          {this.state.followCommunityLoading ? (
-            <Spinner />
-          ) : (
-            <>
+    return (
+      <button
+        type="button"
+        className={`btn btn-${
+          community_view.subscribed === "Pending" ? "warning" : "secondary"
+        } d-block mb-2 w-100`}
+        onClick={linkEvent(
+          this,
+          community_view.subscribed === "NotSubscribed"
+            ? this.handleFollowCommunity
+            : this.handleUnfollowCommunity
+        )}
+      >
+        {this.state.followCommunityLoading ? (
+          <Spinner />
+        ) : (
+          <>
+            {community_view.subscribed === "Subscribed" && (
               <Icon icon="check" classes="icon-inline me-1" />
-              {I18NextService.i18n.t("joined")}
-            </>
-          )}
-        </button>
-      );
-    }
+            )}
+            {I18NextService.i18n.t(i18key)}
+          </>
+        )}
+      </button>
+    );
+  }
 
-    if (community_view.subscribed === "Pending") {
-      return (
-        <button
-          className="btn btn-warning d-block mb-2 w-100"
-          onClick={linkEvent(this, this.handleUnfollowCommunity)}
-        >
-          {this.state.followCommunityLoading ? (
-            <Spinner />
-          ) : (
-            I18NextService.i18n.t("subscribe_pending")
-          )}
-        </button>
-      );
-    }
+  get remoteFetchModal() {
+    return (
+      <div
+        className="modal fade"
+        id="remoteFetchModal"
+        tabIndex={-1}
+        aria-hidden={true}
+        aria-labelledby="#remoteFetchModalTitle"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <header className="modal-header">
+              <h1 className="modal-title" id="remoteFetchModalTitle">
+                Subscribe from Remote Instance
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              />
+            </header>
+          </div>
+          <form className="modal-body">
+            <label className="form-label" htmlFor="remoteFetchInstance">
+              Enter the instance you would like to follow this community from
+            </label>
+            <input
+              type="text"
+              id="remoteFetchInstance"
+              className="form-control"
+            />
+          </form>
+          <footer className="modal-footer">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" className="btn btn-primary">
+              Save changes
+            </button>
+          </footer>
+        </div>
+      </div>
+    );
   }
 
   blockCommunity() {
