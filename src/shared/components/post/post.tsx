@@ -353,6 +353,7 @@ export class Post extends Component<any, PostState> {
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
+                canonicalPath={res.post_view.post.ap_id}
                 image={this.imageTag}
                 description={res.post_view.post.body}
               />

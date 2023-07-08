@@ -312,6 +312,7 @@ export class Community extends Component<
             <HtmlTags
               title={this.documentTitle}
               path={this.context.router.route.match.url}
+              canonicalPath={res.community_view.community.actor_id}
               description={res.community_view.community.description}
               image={res.community_view.community.icon}
             />
