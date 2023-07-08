@@ -324,7 +324,7 @@ export class Post extends Component<any, PostState> {
   get documentTitle(): string {
     const siteName = this.state.siteRes.site_view.site.name;
     return this.state.postRes.state == "success"
-      ? `${this.state.postRes.data.post_view.post.name} - ${siteName}`
+      ? `${this.state.postRes.data.post_view.post.name}`
       : siteName;
   }
 

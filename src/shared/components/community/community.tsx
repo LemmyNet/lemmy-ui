@@ -291,7 +291,7 @@ export class Community extends Component<
   get documentTitle(): string {
     const cRes = this.state.communityRes;
     return cRes.state == "success"
-      ? `${cRes.data.community_view.community.title} - ${this.isoData.site_res.site_view.site.name}`
+      ? `${cRes.data.community_view.community.title}`
       : "";
   }
 

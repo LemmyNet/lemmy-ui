@@ -301,7 +301,7 @@ export class Profile extends Component<
     const siteName = this.state.siteRes.site_view.site.name;
     const res = this.state.personRes;
     return res.state == "success"
-      ? `@${res.data.person_view.person.name} - ${siteName}`
+      ? `@${res.data.person_view.person.name}`
       : siteName;
   }
 
