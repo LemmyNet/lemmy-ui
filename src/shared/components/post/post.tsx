@@ -19,7 +19,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "@utils/browser";
-import { debounce, randomStr } from "@utils/helpers";
+import { debounce, poll, randomStr } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
@@ -76,7 +76,7 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
-import { commentTreeMaxDepth } from "../../config";
+import { commentTreeMaxDepth, postRefetchSeconds } from "../../config";
 import {
   CommentNodeI,
   CommentViewType,
@@ -193,29 +193,20 @@ export class Post extends Component<any, PostState> {
     }
   }
 
-  async fetchPost() {
+  async fetchPostAndComments() {
     this.setState({
       postRes: { state: "loading" },
       commentsRes: { state: "loading" },
     });
 
-    const auth = myAuth();
+    const [postRes, commentsRes] = await Promise.all([
+      this.fetchPost(),
+      this.fetchComments(),
+    ]);
 
     this.setState({
-      postRes: await HttpService.client.getPost({
-        id: this.state.postId,
-        comment_id: this.state.commentId,
-        auth,
-      }),
-      commentsRes: await HttpService.client.getComments({
-        post_id: this.state.postId,
-        parent_id: this.state.commentId,
-        max_depth: commentTreeMaxDepth,
-        sort: this.state.commentSort,
-        type_: "All",
-        saved_only: false,
-        auth,
-      }),
+      postRes,
+      commentsRes,
     });
 
     setupTippy();
@@ -226,6 +217,24 @@ export class Post extends Component<any, PostState> {
       this.scrollIntoCommentSection();
     }
   }
+
+  fetchComments = () =>
+    HttpService.client.getComments({
+      post_id: this.state.postId,
+      parent_id: this.state.commentId,
+      max_depth: commentTreeMaxDepth,
+      sort: this.state.commentSort,
+      type_: "All",
+      saved_only: false,
+      auth: myAuth(),
+    });
+
+  fetchPost = () =>
+    HttpService.client.getPost({
+      id: this.state.postId,
+      comment_id: this.state.commentId,
+      auth: myAuth(),
+    });
 
   static async fetchInitialData({
     client,
@@ -272,7 +281,7 @@ export class Post extends Component<any, PostState> {
 
   async componentDidMount() {
     if (!this.state.isIsomorphic) {
-      await this.fetchPost();
+      await Promise.all([this.fetchPostAndComments(), this.pollPost()]);
     }
 
     autosize(document.querySelectorAll("textarea"));
@@ -284,7 +293,7 @@ export class Post extends Component<any, PostState> {
   async componentDidUpdate(_lastProps: any) {
     // Necessary if you are on a post and you click another post (same route)
     if (_lastProps.location.pathname !== _lastProps.history.location.pathname) {
-      await this.fetchPost();
+      await this.fetchPostAndComments();
     }
   }
 
@@ -680,7 +689,7 @@ export class Post extends Component<any, PostState> {
       commentsRes: { state: "loading" },
       postRes: { state: "loading" },
     });
-    await i.fetchPost();
+    await i.fetchPostAndComments();
   }
 
   handleCommentViewTypeChange(i: Post, event: any) {
@@ -711,6 +720,62 @@ export class Post extends Component<any, PostState> {
       }
     }
   }
+
+  pollPost = async () =>
+    poll(
+      await Promise.all([
+        (async () => {
+          if (window.document.visibilityState !== "hidden") {
+            const pollResponse = await this.fetchPost();
+
+            this.setState(({ postRes, ...restPrev }) => {
+              if (pollResponse.state === "success") {
+                return {
+                  ...restPrev,
+                  postRes: pollResponse,
+                };
+              } else {
+                return {
+                  ...restPrev,
+                  postRes,
+                };
+              }
+            });
+          }
+        })(),
+        (async () => {
+          if (window.document.visibilityState !== "hidden") {
+            const pollResponse = await this.fetchComments();
+
+            if (pollResponse.state === "success") {
+              this.setState(({ commentsRes, ...restPrev }) => {
+                if (commentsRes.state === "success") {
+                  commentsRes.data.comments.unshift(
+                    ...pollResponse.data.comments.filter(
+                      pollCv =>
+                        !commentsRes.data.comments.some(
+                          cv => cv.comment.id === pollCv.comment.id
+                        )
+                    )
+                  );
+                } else {
+                  return {
+                    ...restPrev,
+                    commentsRes: pollResponse,
+                  };
+                }
+
+                return {
+                  ...restPrev,
+                  commentsRes,
+                };
+              });
+            }
+          }
+        })(),
+      ]),
+      postRefetchSeconds
+    );
 
   async handleDeleteCommunityClick(form: DeleteCommunity) {
     const deleteCommunityRes = await HttpService.client.deleteCommunity(form);
