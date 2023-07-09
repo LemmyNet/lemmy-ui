@@ -51,11 +51,24 @@ interface PostListingsProps {
   onTransferCommunity(form: TransferCommunity): void;
 }
 
-export class PostListings extends Component<PostListingsProps, any> {
+interface PostListingsState {
+  highlightedPost: number;
+}
+
+export class PostListings extends Component<
+  PostListingsProps,
+  PostListingsState
+> {
+  state: PostListingsState = {
+    highlightedPost: 0,
+  };
+
   duplicatesMap = new Map<number, PostView[]>();
 
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleHighlight = this.handleHighlight.bind(this);
+    this.handleKeybinds = this.handleKeybinds.bind(this);
   }
 
   get posts() {
@@ -65,8 +78,18 @@ export class PostListings extends Component<PostListingsProps, any> {
   }
 
   render() {
+    const keyboardNavProps = {
+      handleHighlight: this.handleHighlight,
+      handleKeybinds: this.handleKeybinds,
+    };
+
     return (
-      <div className="post-listings">
+      <div
+        className="post-listings"
+        onKeyDown={this.handleKeybinds}
+        role="menu"
+        tabIndex={0}
+      >
         {this.posts.length > 0 ? (
           this.posts.map((post_view, idx) => (
             <>
@@ -95,6 +118,9 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onAddModToCommunity={this.props.onAddModToCommunity}
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
+                isHighlighted={this.state.highlightedPost == idx}
+                idx={idx}
+                {...keyboardNavProps}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>
@@ -111,6 +137,35 @@ export class PostListings extends Component<PostListingsProps, any> {
         )}
       </div>
     );
+  }
+
+  handleHighlight(postIndex: number | undefined) {
+    postIndex != undefined && this.setState({ highlightedPost: postIndex });
+  }
+
+  handleKeybinds(event: KeyboardEvent) {
+    const idx = this.state.highlightedPost;
+    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+      switch (event.key) {
+        case "j": {
+          idx + 1 !== this.posts.length &&
+            this.setState({ highlightedPost: idx + 1 });
+          break;
+        }
+        case "k": {
+          idx > 0 && this.setState({ highlightedPost: idx - 1 });
+          break;
+        }
+        case "J": {
+          this.setState({ highlightedPost: this.posts.length - 1 });
+          break;
+        }
+        case "K": {
+          this.setState({ highlightedPost: 0 });
+          break;
+        }
+      }
+    }
   }
 
   removeDuplicates(): PostView[] {

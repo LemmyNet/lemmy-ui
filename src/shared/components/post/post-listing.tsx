@@ -1,9 +1,11 @@
-import { myAuthRequired } from "@utils/app";
+import { myAuthRequired, newVote } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
+  getCommunityDetails,
+  getPersonDetails,
   hostname,
 } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
@@ -48,6 +50,7 @@ import {
   PostFormParams,
   PurgeType,
   VoteContentType,
+  VoteType,
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
@@ -130,6 +133,10 @@ interface PostListingProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  handleHighlight?(postIndex: number | undefined): void;
+  handleKeybinds?(event: KeyboardEvent): void;
+  isHighlighted?: boolean;
+  idx?: number;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -1357,7 +1364,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   listing() {
     return (
-      <>
+      <div
+        id={`post-listing-${this.props.idx}}`}
+        className={
+          this.props.isHighlighted
+            ? "row post-container bg-light"
+            : "row post-container"
+        }
+        onKeyDown={e => this.handleKeybinds(e)}
+        onClick={() => this.props.handleHighlight?.(this.props.idx)}
+        role="menuitem"
+        tabIndex={0}
+      >
         {/* The mobile view*/}
         <div className="d-block d-sm-none">
           <article className="row post-container">
@@ -1377,6 +1395,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {/* The larger view*/}
         <div className="d-none d-sm-block">
           <article className="row post-container">
+            {this.props.idx != undefined && (
+              <div className="col flex-grow-0 d-inline-flex align-items-center">
+                <div className="row px-1">{this.props.idx + 1}</div>
+              </div>
+            )}
             {!this.props.viewOnly && (
               <div className="col flex-grow-0">
                 <VoteButtons
@@ -1405,7 +1428,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </div>
           </article>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -1414,6 +1437,82 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       this.postView.creator.id ==
       UserService.Instance.myUserInfo?.local_user_view.person.id
     );
+  }
+
+  componentDidMount(): void {
+    this.focusListing();
+  }
+
+  componentDidUpdate(): void {
+    this.focusListing();
+  }
+
+  focusListing() {
+    const postListing = document.getElementById(
+      `post-listing-${this.props.idx}}`
+    );
+    this.props.isHighlighted && postListing?.focus();
+  }
+
+  handleListingClick() {
+    this.props.handleHighlight?.(this.props.idx);
+  }
+
+  handleKeybinds(event: KeyboardEvent) {
+    const post_view = this.postView;
+    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+      switch (event.key) {
+        case "x": {
+          this.handleShowBody(this);
+          break;
+        }
+        case "s": {
+          this.handleSavePostClick(this);
+          break;
+        }
+        case "c": {
+          this.context.router.history.push(
+            `/post/${post_view.post.id}?scrollToComments=true`
+          );
+          break;
+        }
+        case "C": {
+          window.open(`/post/${post_view.post.id}?scrollToComments=true`);
+          break;
+        }
+        case "u": {
+          const [, link] = getPersonDetails(post_view.creator);
+          this.context.router.history.push(link);
+          break;
+        }
+        case "U": {
+          const [, link] = getPersonDetails(post_view.creator);
+          window.open(link);
+          break;
+        }
+        case "g": {
+          const [, , link] = getCommunityDetails(this.postView.community);
+          this.context.router.history.push(link);
+          break;
+        }
+        case "a": {
+          this.props.onPostVote({
+            post_id: this.postView.post.id,
+            score: newVote(VoteType.Upvote, this.postView.my_vote),
+            auth: myAuthRequired(),
+          });
+          break;
+        }
+        case "z": {
+          this.props.onPostVote({
+            post_id: this.postView.post.id,
+            score: newVote(VoteType.Downvote, this.postView.my_vote),
+            auth: myAuthRequired(),
+          });
+          break;
+        }
+      }
+    }
   }
 
   handleEditClick(i: PostListing) {

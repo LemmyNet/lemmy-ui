@@ -1,6 +1,6 @@
 import { showAvatars } from "@utils/app";
 import { getStaticDir } from "@utils/env";
-import { hostname, isCakeDay } from "@utils/helpers";
+import { getPersonDetails, isCakeDay } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
@@ -25,25 +25,13 @@ export class PersonListing extends Component<PersonListingProps, any> {
 
   render() {
     const person = this.props.person;
-    const local = person.local;
-    let apubName: string, link: string;
-
-    if (local) {
-      apubName = `@${person.name}`;
-      link = `/u/${person.name}`;
-    } else {
-      const domain = hostname(person.actor_id);
-      apubName = `@${person.name}@${domain}`;
-      link = !this.props.realLink
-        ? `/u/${person.name}@${domain}`
-        : person.actor_id;
-    }
+    const [apubName, link] = getPersonDetails(person);
 
     let displayName = this.props.useApubName
       ? apubName
       : person.display_name ?? apubName;
 
-    if (this.props.showApubName && !local && person.display_name) {
+    if (this.props.showApubName && !person.local && person.display_name) {
       displayName = `${displayName} (${apubName})`;
     }
 

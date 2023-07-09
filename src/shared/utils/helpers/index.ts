@@ -3,8 +3,10 @@ import debounce from "./debounce";
 import editListImmutable from "./edit-list-immutable";
 import formatPastDate from "./format-past-date";
 import futureDaysToUnixTime from "./future-days-to-unix-time";
+import getCommunityDetails from "./get-community-details";
 import getIdFromString from "./get-id-from-string";
 import getPageFromString from "./get-page-from-string";
+import getPersonDetails from "./get-person-details";
 import getQueryParams from "./get-query-params";
 import getQueryString from "./get-query-string";
 import getRandomCharFromAlphabet from "./get-random-char-from-alphabet";
@@ -30,8 +32,10 @@ export {
   editListImmutable,
   formatPastDate,
   futureDaysToUnixTime,
+  getCommunityDetails,
   getIdFromString,
   getPageFromString,
+  getPersonDetails,
   getQueryParams,
   getQueryString,
   getRandomCharFromAlphabet,
