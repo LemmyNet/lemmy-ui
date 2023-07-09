@@ -1,3 +1,4 @@
+import { enableKeyboardNavigation } from "@utils/app";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -81,6 +82,7 @@ export class PostListings extends Component<
     const keyboardNavProps = {
       handleHighlight: this.handleHighlight,
       handleKeybinds: this.handleKeybinds,
+      enableKeyboardNav: enableKeyboardNavigation(),
     };
 
     return (
@@ -145,7 +147,12 @@ export class PostListings extends Component<
 
   handleKeybinds(event: KeyboardEvent) {
     const idx = this.state.highlightedPost;
-    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (
+      enableKeyboardNavigation() &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
       switch (event.key) {
         case "j": {
           idx + 1 !== this.posts.length &&

@@ -137,6 +137,7 @@ interface PostListingProps {
   handleKeybinds?(event: KeyboardEvent): void;
   isHighlighted?: boolean;
   idx?: number;
+  enableKeyboardNav?: boolean;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -1367,7 +1368,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <div
         id={`post-listing-${this.props.idx}}`}
         className={
-          this.props.isHighlighted
+          this.props.enableKeyboardNav && this.props.isHighlighted
             ? "row post-container bg-light"
             : "row post-container"
         }
@@ -1395,7 +1396,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {/* The larger view*/}
         <div className="d-none d-sm-block">
           <article className="row post-container">
-            {this.props.idx != undefined && (
+            {this.props.enableKeyboardNav && this.props.idx != undefined && (
               <div className="col flex-grow-0 d-inline-flex align-items-center">
                 <div className="row px-1">{this.props.idx + 1}</div>
               </div>
@@ -1460,7 +1461,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleKeybinds(event: KeyboardEvent) {
     const post_view = this.postView;
-    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (
+      this.props.enableKeyboardNav &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
       switch (event.key) {
         case "x": {
           this.handleShowBody(this);

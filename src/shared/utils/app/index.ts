@@ -18,6 +18,7 @@ import editPrivateMessageReport from "./edit-private-message-report";
 import editRegistrationApplication from "./edit-registration-application";
 import editWith from "./edit-with";
 import enableDownvotes from "./enable-downvotes";
+import enableKeyboardNavigation from "./enable-keyboard-navigation";
 import enableNsfw from "./enable-nsfw";
 import fetchCommunities from "./fetch-communities";
 import fetchSearchResults from "./fetch-search-results";
@@ -75,6 +76,7 @@ export {
   editRegistrationApplication,
   editWith,
   enableDownvotes,
+  enableKeyboardNavigation,
   enableNsfw,
   fetchCommunities,
   fetchSearchResults,
