@@ -312,6 +312,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       const {
         mod_feature_post: { featured, is_featured_community },
         post: { id, name },
+        community,
       } = view as ModFeaturePostView;
 
       return (
@@ -320,7 +321,12 @@ function renderModlogType({ type_, view }: ModlogType) {
           <span>
             Post <Link to={`/post/${id}`}>{name}</Link>
           </span>
-          <span>{is_featured_community ? " In Community" : " In Local"}</span>
+          <span>
+            {is_featured_community
+              ? " in community "
+              : " in Local, from community "}
+          </span>
+          <CommunityLink community={community} />
         </>
       );
     }
@@ -532,7 +538,7 @@ function renderModlogType({ type_, view }: ModlogType) {
 
       return (
         <>
-          <span>Purged a Post from from </span>
+          <span>Purged a Post from </span>
           <CommunityLink community={community} />
           {reason && (
             <span>
