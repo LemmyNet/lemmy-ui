@@ -213,6 +213,7 @@ export class MarkdownTextArea extends Component<
                   this.handleInsertSuperscript
                 )}
                 {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
+                {this.getFormatButton("newline", this.handleInsertNewline)}
                 <a
                   href={markdownHelpUrl}
                   className="btn btn-sm btn-link rounded-0 text-muted fw-bold"
@@ -632,6 +633,17 @@ export class MarkdownTextArea extends Component<
   handleInsertBold(i: MarkdownTextArea, event: any) {
     event.preventDefault();
     i.simpleSurround("**");
+  }
+
+  handleInsertNewline(i: MarkdownTextArea, event: any) {
+    event.preventDefault();
+    const content = i.state.content ?? "";
+    const textarea: any = document.getElementById(i.id);
+
+    i.setState({
+      content: `${content}  \n`,
+    });
+    textarea.focus();
   }
 
   handleInsertItalic(i: MarkdownTextArea, event: any) {
