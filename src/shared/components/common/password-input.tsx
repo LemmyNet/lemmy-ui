@@ -12,7 +12,7 @@ interface PasswordInputProps {
   onInput: FormEventHandler<HTMLInputElement>;
   className?: string;
   showStrength?: boolean;
-  label?: string;
+  label?: string | null;
   showForgotLink?: boolean;
 }
 
@@ -96,7 +96,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 value={value}
                 required
                 maxLength={60}
-                minLength={showStrength ? 10 : 0}
+                minLength={10}
               />
               <button
                 className="btn btn-outline-dark"

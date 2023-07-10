@@ -95,7 +95,7 @@ export class Login extends Component<any, State> {
               id="login-password"
               value={this.state.form.password}
               onInput={linkEvent(this, this.handleLoginPasswordChange)}
-              label={I18NextService.i18n.t("password") ?? undefined}
+              label={I18NextService.i18n.t("password")}
               showForgotLink
             />
           </div>

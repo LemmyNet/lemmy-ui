@@ -127,7 +127,7 @@ export class Setup extends Component<any, State> {
             id="password"
             value={this.state.form.password}
             onInput={linkEvent(this, this.handleRegisterPasswordChange)}
-            label={I18NextService.i18n.t("password") ?? undefined}
+            label={I18NextService.i18n.t("password")}
           />
         </div>
         <div className="mb-3">
@@ -135,7 +135,7 @@ export class Setup extends Component<any, State> {
             id="verify-password"
             value={this.state.form.password_verify}
             onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
-            label={I18NextService.i18n.t("verify_password") ?? undefined}
+            label={I18NextService.i18n.t("verify_password")}
           />
         </div>
         <div className="mb-3 row">

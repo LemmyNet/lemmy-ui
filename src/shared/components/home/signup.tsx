@@ -188,7 +188,7 @@ export class Signup extends Component<any, State> {
             value={this.state.form.password}
             onInput={linkEvent(this, this.handleRegisterPasswordChange)}
             showStrength
-            label={I18NextService.i18n.t("password") ?? undefined}
+            label={I18NextService.i18n.t("password")}
           />
         </div>
 
@@ -197,7 +197,7 @@ export class Signup extends Component<any, State> {
             id="register-verify-password"
             value={this.state.form.password_verify}
             onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
-            label={I18NextService.i18n.t("verify_password") ?? undefined}
+            label={I18NextService.i18n.t("verify_password")}
           />
         </div>
 

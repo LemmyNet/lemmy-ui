@@ -67,7 +67,7 @@ export class PasswordChange extends Component<any, State> {
             value={this.state.form.password}
             onInput={linkEvent(this, this.handlePasswordChange)}
             showStrength
-            label={I18NextService.i18n.t("new_password") ?? undefined}
+            label={I18NextService.i18n.t("new_password")}
           />
         </div>
         <div className="mb-3">
@@ -75,7 +75,7 @@ export class PasswordChange extends Component<any, State> {
             id="password"
             value={this.state.form.password_verify}
             onInput={linkEvent(this, this.handleVerifyPasswordChange)}
-            label={I18NextService.i18n.t("verify_password") ?? undefined}
+            label={I18NextService.i18n.t("verify_password")}
           />
         </div>
         <div className="mb-3 row">

@@ -325,7 +325,7 @@ export class Settings extends Component<any, SettingsState> {
               value={this.state.changePasswordForm.new_password}
               onInput={linkEvent(this, this.handleNewPasswordChange)}
               showStrength
-              label={I18NextService.i18n.t("new_password") ?? undefined}
+              label={I18NextService.i18n.t("new_password")}
             />
           </div>
           <div className="mb-3">
@@ -333,7 +333,7 @@ export class Settings extends Component<any, SettingsState> {
               id="verify-new-password"
               value={this.state.changePasswordForm.new_password_verify}
               onInput={linkEvent(this, this.handleNewPasswordVerifyChange)}
-              label={I18NextService.i18n.t("verify_password") ?? undefined}
+              label={I18NextService.i18n.t("verify_password")}
             />
           </div>
           <div className="mb-3">
@@ -341,7 +341,7 @@ export class Settings extends Component<any, SettingsState> {
               id="user-old-password"
               value={this.state.changePasswordForm.old_password}
               onInput={linkEvent(this, this.handleOldPasswordChange)}
-              label={I18NextService.i18n.t("old_password") ?? undefined}
+              label={I18NextService.i18n.t("old_password")}
             />
           </div>
           <div className="input-group mb-3">
