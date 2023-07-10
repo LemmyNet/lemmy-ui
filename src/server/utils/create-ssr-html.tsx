@@ -4,7 +4,7 @@ import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "../../shared/config";
-import { ILemmyConfig, IsoDataOptionalSite } from "../../shared/interfaces";
+import { IsoDataOptionalSite } from "../../shared/interfaces";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 
@@ -53,14 +53,11 @@ export async function createSsrHtml(
 
   const helmet = Helmet.renderStatic();
 
-  const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
-
   return `
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
     <head>
     <script>window.isoData = ${serialize(isoData)}</script>
-    <script>window.lemmyConfig = ${serialize(config)}</script>
   
     <!-- A remote debugging utility for mobile -->
     ${erudaStr}
