@@ -252,7 +252,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           viewType={CommentViewType.Flat}
           admins={this.props.admins}
           finished={this.props.finished}
-          noIndent
+          isTopLevel
           showCommunity
           showContext
           enableDownvotes={this.props.enableDownvotes}
