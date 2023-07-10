@@ -1,7 +1,6 @@
 import { getStaticDir } from "@utils/env";
 import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
-import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "../../shared/config";
 import { ILemmyConfig, IsoDataOptionalSite } from "../../shared/interfaces";
@@ -59,8 +58,12 @@ export async function createSsrHtml(
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
     <head>
-    <script>window.isoData = ${serialize(isoData)}</script>
-    <script>window.lemmyConfig = ${serialize(config)}</script>
+    <script type="application/json" id="isoData">${JSON.stringify(
+      isoData
+    )}</script>
+    <script type="application/json" id="lemmyConfig">${JSON.stringify(
+      config
+    )}</script>
   
     <!-- A remote debugging utility for mobile -->
     ${erudaStr}
