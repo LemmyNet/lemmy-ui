@@ -596,6 +596,9 @@ export class Settings extends Component<any, SettingsState> {
                 <option value="browser">
                   {I18NextService.i18n.t("browser_default")}
                 </option>
+                <option value="browser-compact">
+                  {I18NextService.i18n.t("browser_default_compact")}
+                </option>
                 <option disabled aria-hidden="true">
                   ──
                 </option>
@@ -634,6 +637,9 @@ export class Settings extends Component<any, SettingsState> {
                 </option>
                 <option value="browser">
                   {I18NextService.i18n.t("browser_default")}
+                </option>
+                <option value="browser-compact">
+                  {I18NextService.i18n.t("browser_default_compact")}
                 </option>
                 {this.state.themeList.map(theme => (
                   <option key={theme} value={theme}>

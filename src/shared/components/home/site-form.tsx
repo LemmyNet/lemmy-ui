@@ -411,6 +411,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               <option value="browser">
                 {I18NextService.i18n.t("browser_default")}
               </option>
+              <option value="browser-compact">
+                {I18NextService.i18n.t("browser_default_compact")}
+              </option>
               {this.props.themeList?.map(theme => (
                 <option key={theme} value={theme}>
                   {theme}
