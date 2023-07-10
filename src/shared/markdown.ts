@@ -15,6 +15,7 @@ import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
+import sanitizeHtml from "sanitize-html";
 import { instanceLinkRegex } from "./config";
 
 export let Tribute: any;
@@ -193,11 +194,13 @@ export function setupMarkdown() {
     if (!isCustomEmoji) {
       return defaultRenderer?.(tokens, idx, options, env, self) ?? "";
     }
-    return `<img class="icon icon-emoji" src="${
-      customEmoji!.custom_emoji.image_url
-    }" title="${customEmoji!.custom_emoji.shortcode}" alt="${
-      customEmoji!.custom_emoji.alt_text
-    }"/>`;
+    return sanitizeHtml(
+      `<img class="icon icon-emoji" src="${
+        customEmoji!.custom_emoji.image_url
+      }" title="${customEmoji!.custom_emoji.shortcode}" alt="${
+        customEmoji!.custom_emoji.alt_text
+      }"/>`
+    );
   };
   md.renderer.rules.table_open = function () {
     return '<table class="table">';
@@ -320,7 +323,9 @@ export function setupTribute() {
           .concat(
             Array.from(customEmojisLookup.entries()).map(k => ({
               key: k[0],
-              val: `<img class="icon icon-emoji" src="${k[1].custom_emoji.image_url}" title="${k[1].custom_emoji.shortcode}" alt="${k[1].custom_emoji.alt_text}" />`,
+              val: sanitizeHtml(
+                `<img class="icon icon-emoji" src="${k[1].custom_emoji.image_url}" title="${k[1].custom_emoji.shortcode}" alt="${k[1].custom_emoji.alt_text}" />`
+              ),
             }))
           ),
         allowSpaces: false,
