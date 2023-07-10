@@ -466,6 +466,10 @@ export class Search extends Component<any, SearchState> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          canonicalPath={
+            this.context.router.route.match.url +
+            this.context.router.route.location.search
+          }
         />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
