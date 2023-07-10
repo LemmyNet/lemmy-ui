@@ -120,7 +120,7 @@ export default async (req: Request, res: Response) => {
 
     const root = renderToString(wrapper);
 
-    res.send(await createSsrHtml(root, isoData));
+    res.send(await createSsrHtml(root, isoData, res.locals.cspNonce));
   } catch (err) {
     // If an error is caught here, the error page couldn't even be rendered
     console.error(err);

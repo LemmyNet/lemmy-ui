@@ -15,5 +15,6 @@ export default async ({ res }: { res: Response }) => {
   Disallow: /admin
   Disallow: /password_change
   Disallow: /search/
+  Disallow: /modlog
   `);
 };

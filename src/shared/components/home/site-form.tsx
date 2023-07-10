@@ -7,6 +7,7 @@ import {
   InfernoNode,
   linkEvent,
 } from "inferno";
+import { Prompt } from "inferno-router";
 import {
   CreateSite,
   EditSite,
@@ -21,7 +22,6 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import NavigationPrompt from "../common/navigation-prompt";
 
 interface SiteFormProps {
   blockedInstances?: Instance[];
@@ -123,7 +123,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         className="site-form"
         onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}
       >
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.loading &&
             !siteSetup &&
@@ -409,6 +410,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             >
               <option value="browser">
                 {I18NextService.i18n.t("browser_default")}
+              </option>
+              <option value="browser-compact">
+                {I18NextService.i18n.t("browser_default_compact")}
               </option>
               {this.props.themeList?.map(theme => (
                 <option key={theme} value={theme}>
