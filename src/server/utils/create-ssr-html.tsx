@@ -14,13 +14,20 @@ let appleTouchIcon: string | undefined = undefined;
 
 export async function createSsrHtml(
   root: string,
-  isoData: IsoDataOptionalSite
+  isoData: IsoDataOptionalSite,
+  cspNonce: string
 ) {
   const site = isoData.site_res;
 
   const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
     (await buildThemeList())[0]
   }.css" />`;
+
+  const customHtmlHeaderScriptTag = new RegExp("<script", "g");
+  const customHtmlHeaderWithNonce = customHtmlHeader.replace(
+    customHtmlHeaderScriptTag,
+    `<script nonce="${cspNonce}"`
+  );
 
   if (!appleTouchIcon) {
     appleTouchIcon = site?.site_view.site.icon
@@ -45,8 +52,11 @@ export async function createSsrHtml(
     process.env["LEMMY_UI_DEBUG"] === "true"
       ? renderToString(
           <>
-            <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-            <script>eruda.init();</script>
+            <script
+              nonce={cspNonce}
+              src="//cdn.jsdelivr.net/npm/eruda"
+            ></script>
+            <script nonce={cspNonce}>eruda.init();</script>
           </>
         )
       : "";
@@ -57,13 +67,13 @@ export async function createSsrHtml(
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
     <head>
-    <script>window.isoData = ${serialize(isoData)}</script>
+    <script nonce="${cspNonce}">window.isoData = ${serialize(isoData)}</script>
   
     <!-- A remote debugging utility for mobile -->
     ${erudaStr}
   
     <!-- Custom injected script -->
-    ${customHtmlHeader}
+    ${customHtmlHeaderWithNonce}
   
     ${helmet.title.toString()}
     ${helmet.meta.toString()}
