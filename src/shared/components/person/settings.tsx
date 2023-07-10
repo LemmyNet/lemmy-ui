@@ -820,8 +820,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="form-check-label"
                 htmlFor="user-enable-keyboard-navigation"
               >
-                {/* {I18NextService.i18n.t("enable_keyboard_navigation")} */}
-                {"Enable keyboard navigation"}
+                {I18NextService.i18n.t("enable_keyboard_navigation")}
               </label>
             </div>
           </div>

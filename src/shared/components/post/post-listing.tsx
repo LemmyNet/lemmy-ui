@@ -1460,7 +1460,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleKeybinds(event: KeyboardEvent) {
-    const post_view = this.postView;
+    const {
+      creator,
+      post: { id, url },
+    } = this.postView;
     if (
       this.props.enableKeyboardNav &&
       !event.ctrlKey &&
@@ -1479,22 +1482,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           break;
         }
         case "c": {
-          window.open(`/post/${post_view.post.id}?scrollToComments=true`);
+          window.open(`/post/${id}?scrollToComments=true`);
           break;
         }
         case "C": {
-          this.context.router.history.push(
-            `/post/${post_view.post.id}?scrollToComments=true`
-          );
+          this.context.router.history.push(`/post/${id}?scrollToComments=true`);
+          break;
+        }
+        case "l": {
+          url && window.open(url);
+          break;
+        }
+        case "L": {
+          url && this.context.router.history.push(url);
           break;
         }
         case "u": {
-          const [, link] = getPersonDetails(post_view.creator);
+          const [, link] = getPersonDetails(creator);
           window.open(link);
           break;
         }
         case "U": {
-          const [, link] = getPersonDetails(post_view.creator);
+          const [, link] = getPersonDetails(creator);
           this.context.router.history.push(link);
           break;
         }
