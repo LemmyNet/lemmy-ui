@@ -124,7 +124,7 @@ export class PostListings extends Component<
                 idx={idx}
                 {...keyboardNavProps}
               />
-              {idx + 1 !== this.posts.length && <hr className="my-3" />}
+              {idx + 1 !== this.posts.length && <hr className="my-0" />}
             </>
           ))
         ) : (

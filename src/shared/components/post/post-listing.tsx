@@ -1367,11 +1367,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <div
         id={`post-listing-${this.props.idx}}`}
-        className={
+        className={`my-1 p-2 row post-container ${
           this.props.enableKeyboardNav && this.props.isHighlighted
-            ? "row post-container bg-light"
-            : "row post-container"
-        }
+            ? "rounded bg-body-tertiary"
+            : ""
+        }`}
         onKeyDown={e => this.handleKeybinds(e)}
         onClick={() => this.props.handleHighlight?.(this.props.idx)}
         role="menuitem"
@@ -1469,6 +1469,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     ) {
       switch (event.key) {
         case "x": {
+          this.img &&
+            this.setState({ imageExpanded: !this.state.imageExpanded });
           this.handleShowBody(this);
           break;
         }
@@ -1477,26 +1479,31 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           break;
         }
         case "c": {
+          window.open(`/post/${post_view.post.id}?scrollToComments=true`);
+          break;
+        }
+        case "C": {
           this.context.router.history.push(
             `/post/${post_view.post.id}?scrollToComments=true`
           );
           break;
         }
-        case "C": {
-          window.open(`/post/${post_view.post.id}?scrollToComments=true`);
-          break;
-        }
         case "u": {
-          const [, link] = getPersonDetails(post_view.creator);
-          this.context.router.history.push(link);
-          break;
-        }
-        case "U": {
           const [, link] = getPersonDetails(post_view.creator);
           window.open(link);
           break;
         }
+        case "U": {
+          const [, link] = getPersonDetails(post_view.creator);
+          this.context.router.history.push(link);
+          break;
+        }
         case "g": {
+          const [, , link] = getCommunityDetails(this.postView.community);
+          window.open(link);
+          break;
+        }
+        case "G": {
           const [, , link] = getCommunityDetails(this.postView.community);
           this.context.router.history.push(link);
           break;
