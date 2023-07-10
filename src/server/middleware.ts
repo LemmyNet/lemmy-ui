@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 import type { NextFunction, Request, Response } from "express";
 import { hasJwtCookie } from "./utils/has-jwt-cookie";
 
@@ -8,9 +9,20 @@ export function setDefaultCsp({
   res: Response;
   next: NextFunction;
 }) {
+  res.locals.cspNonce = crypto.randomBytes(16).toString("hex");
+
   res.setHeader(
     "Content-Security-Policy",
-    `default-src 'self'; manifest-src *; connect-src *; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'; frame-src *; media-src * data:`
+    `default-src 'self';
+     manifest-src *;
+     connect-src *;
+     img-src * data:;
+     script-src 'self' 'nonce-${res.locals.cspNonce}';
+     style-src 'self' 'unsafe-inline';
+     form-action 'self';
+     base-uri 'self';
+     frame-src *;
+     media-src * data:`.replace(/\s+/g, " ")
   );
 
   next();
