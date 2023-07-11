@@ -29,7 +29,11 @@ server.use(
 );
 server.use(setCacheControl);
 
-if (!process.env["LEMMY_UI_DISABLE_CSP"] && !process.env["LEMMY_UI_DEBUG"]) {
+if (
+  !process.env["LEMMY_UI_DISABLE_CSP"] &&
+  !process.env["LEMMY_UI_DEBUG"] &&
+  process.env["NODE_ENV"] !== "development"
+) {
   server.use(setDefaultCsp);
 }
 
