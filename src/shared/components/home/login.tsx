@@ -169,14 +169,8 @@ export class Login extends Component<any, State> {
             i.setState({ showTotp: true });
             toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
           }
-          if (loginRes.msg === "couldnt_find_that_username_or_email") {
-            toast(
-              I18NextService.i18n.t("couldnt_find_that_username_or_email"),
-              "danger"
-            );
-          }
-          if (loginRes.msg === "password_incorrect") {
-            toast(I18NextService.i18n.t("password_incorrect"), "danger");
+          if (loginRes.msg === "incorrect_login") {
+            toast(I18NextService.i18n.t("incorrect_login"), "danger");
           }
 
           i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
