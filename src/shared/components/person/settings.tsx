@@ -596,9 +596,6 @@ export class Settings extends Component<any, SettingsState> {
                 <option value="browser">
                   {I18NextService.i18n.t("browser_default")}
                 </option>
-                <option value="browser-compact">
-                  {I18NextService.i18n.t("browser_default_compact")}
-                </option>
                 <option disabled aria-hidden="true">
                   ──
                 </option>
