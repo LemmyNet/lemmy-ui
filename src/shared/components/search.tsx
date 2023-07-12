@@ -579,6 +579,7 @@ export class Search extends Component<any, SearchState> {
               sort={sort}
               onChange={this.handleSortChange}
               hideHot
+              hideControversial={!enableDownvotes(this.state.siteRes)}
               hideMostComments
             />
           </div>
