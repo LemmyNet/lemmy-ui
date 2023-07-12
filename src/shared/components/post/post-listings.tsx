@@ -155,20 +155,26 @@ export class PostListings extends Component<
     ) {
       switch (event.key) {
         case "j": {
-          idx + 1 !== this.posts.length &&
-            this.setState({ highlightedPost: idx + 1 });
+          idx + 1 == this.posts.length
+            ? window.scrollTo(0, document.body.scrollHeight)
+            : this.setState({ highlightedPost: idx + 1 });
           break;
         }
         case "k": {
-          idx > 0 && this.setState({ highlightedPost: idx - 1 });
+          idx > 0
+            ? this.setState({ highlightedPost: idx - 1 })
+            : window.scrollTo(0, 0);
+          console.log("idx: ", idx);
           break;
         }
         case "J": {
           this.setState({ highlightedPost: this.posts.length - 1 });
+          window.scrollTo(0, document.body.scrollHeight);
           break;
         }
         case "K": {
           this.setState({ highlightedPost: 0 });
+          window.scrollTo(0, 0);
           break;
         }
       }

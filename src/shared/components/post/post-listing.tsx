@@ -1367,11 +1367,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <div
         id={`post-listing-${this.props.idx}}`}
-        className={`my-1 p-2 row post-container ${
-          this.props.enableKeyboardNav && this.props.isHighlighted
-            ? "rounded bg-body-tertiary"
-            : ""
-        }`}
+        className={classNames(`my-1 p-2 row post-container`, {
+          "rounded bg-body-tertiary":
+            this.props.enableKeyboardNav && this.props.isHighlighted,
+        })}
         onKeyDown={e => this.handleKeybinds(e)}
         onClick={() => this.props.handleHighlight?.(this.props.idx)}
         role="menuitem"
