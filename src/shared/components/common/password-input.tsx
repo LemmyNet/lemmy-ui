@@ -103,8 +103,12 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 type="button"
                 id={id}
                 onClick={linkEvent(this, handleToggleShow)}
-                aria-label={show ? "Hide Password" : "Show Password"}
-                data-tippy-content={show ? "Hide Password" : "Show Password"}
+                aria-label={I18NextService.i18n.t(
+                  `${show ? "show" : "hide"}_password`
+                )}
+                data-tippy-content={I18NextService.i18n.t(
+                  `${show ? "show" : "hide"}_password`
+                )}
               >
                 <Icon icon={`eye${show ? "-slash" : ""}`} inline />
               </button>
