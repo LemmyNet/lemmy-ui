@@ -54,6 +54,7 @@ interface PostListingsProps {
 
 interface PostListingsState {
   highlightedPost: number;
+  isExpanded: boolean;
 }
 
 export class PostListings extends Component<
@@ -62,6 +63,7 @@ export class PostListings extends Component<
 > {
   state: PostListingsState = {
     highlightedPost: 0,
+    isExpanded: false,
   };
 
   duplicatesMap = new Map<number, PostView[]>();
@@ -70,6 +72,7 @@ export class PostListings extends Component<
     super(props, context);
     this.handleHighlight = this.handleHighlight.bind(this);
     this.handleKeybinds = this.handleKeybinds.bind(this);
+    this.toggleExpand = this.toggleExpand.bind(this);
   }
 
   get posts() {
@@ -82,6 +85,7 @@ export class PostListings extends Component<
     const keyboardNavProps = {
       handleHighlight: this.handleHighlight,
       handleKeybinds: this.handleKeybinds,
+      toggleExpand: this.toggleExpand,
       enableKeyboardNav: enableKeyboardNavigation(),
     };
 
@@ -121,6 +125,7 @@ export class PostListings extends Component<
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
                 isHighlighted={this.state.highlightedPost == idx}
+                isExpanded={this.state.isExpanded}
                 idx={idx}
                 {...keyboardNavProps}
               />
@@ -145,6 +150,10 @@ export class PostListings extends Component<
     postIndex != undefined && this.setState({ highlightedPost: postIndex });
   }
 
+  toggleExpand() {
+    this.setState({ isExpanded: !this.state.isExpanded });
+  }
+
   handleKeybinds(event: KeyboardEvent) {
     const idx = this.state.highlightedPost;
     if (
@@ -164,7 +173,6 @@ export class PostListings extends Component<
           idx > 0
             ? this.setState({ highlightedPost: idx - 1 })
             : window.scrollTo(0, 0);
-          console.log("idx: ", idx);
           break;
         }
         case "J": {

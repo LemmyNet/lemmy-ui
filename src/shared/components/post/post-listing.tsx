@@ -135,6 +135,8 @@ interface PostListingProps {
   onTransferCommunity(form: TransferCommunity): void;
   handleHighlight?(postIndex: number | undefined): void;
   handleKeybinds?(event: KeyboardEvent): void;
+  toggleExpand?(): void;
+  isExpanded?: boolean;
   isHighlighted?: boolean;
   idx?: number;
   enableKeyboardNav?: boolean;
@@ -1440,11 +1442,23 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentDidMount(): void {
-    this.focusListing();
+    this.props.enableKeyboardNav && this.focusListing();
   }
 
   componentDidUpdate(): void {
-    this.focusListing();
+    if (this.props.enableKeyboardNav) {
+      this.focusListing();
+      if (this.props.isExpanded && this.props.isHighlighted) {
+        !this.state.imageExpanded &&
+          this.setState({ imageExpanded: !this.state.imageExpanded });
+        !this.showBody && this.handleShowBody(this);
+      }
+      if (!this.props.isHighlighted) {
+        this.state.imageExpanded &&
+          this.setState({ imageExpanded: !this.state.imageExpanded });
+        this.showBody && this.handleShowBody(this);
+      }
+    }
   }
 
   focusListing() {
@@ -1471,6 +1485,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     ) {
       switch (event.key) {
         case "x": {
+          this.props.toggleExpand?.();
           this.img &&
             this.setState({ imageExpanded: !this.state.imageExpanded });
           this.handleShowBody(this);
@@ -1534,6 +1549,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         }
       }
     }
+  }
+
+  handleNavigate() {
+    if (this.img && this.state.imageExpanded) {
+      // if expanded, close
+      this.setState({ imageExpanded: !this.state.imageExpanded });
+    }
+    this.state.showBody && this.handleShowBody(this); // if showing body, close
   }
 
   handleEditClick(i: PostListing) {
@@ -1847,6 +1870,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
+    (!i.props.isExpanded || i.props.isHighlighted) && i.props.toggleExpand?.();
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
   }
