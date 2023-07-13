@@ -1355,7 +1355,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <button
         type="button"
         className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
-        onClick={linkEvent(this, this.handleShowBody)}
+        onClick={linkEvent(this, this.handleBodyExpandClick)}
       >
         <Icon
           icon={!this.state.showBody ? "plus-square" : "minus-square"}
@@ -1446,18 +1446,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentDidUpdate(): void {
-    if (this.props.enableKeyboardNav) {
-      this.focusListing();
-      if (this.props.isExpanded && this.props.isHighlighted) {
-        !this.state.imageExpanded &&
-          this.setState({ imageExpanded: !this.state.imageExpanded });
-        !this.showBody && this.handleShowBody(this);
-      }
-      if (!this.props.isHighlighted) {
-        this.state.imageExpanded &&
-          this.setState({ imageExpanded: !this.state.imageExpanded });
-        this.showBody && this.handleShowBody(this);
-      }
+    if (!this.props.enableKeyboardNav) return;
+
+    this.focusListing();
+    if (this.props.isExpanded) {
+      this.props.isHighlighted != this.state.imageExpanded &&
+        this.handleShowImage(this);
+      this.props.isHighlighted != this.showBody && this.handleShowBody(this);
     }
   }
 
@@ -1486,8 +1481,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       switch (event.key) {
         case "x": {
           this.props.toggleExpand?.();
-          this.img &&
-            this.setState({ imageExpanded: !this.state.imageExpanded });
+          this.handleShowImage(this);
           this.handleShowBody(this);
           break;
         }
@@ -1549,14 +1543,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         }
       }
     }
-  }
-
-  handleNavigate() {
-    if (this.img && this.state.imageExpanded) {
-      // if expanded, close
-      this.setState({ imageExpanded: !this.state.imageExpanded });
-    }
-    this.state.showBody && this.handleShowBody(this); // if showing body, close
   }
 
   handleEditClick(i: PostListing) {
@@ -1868,10 +1854,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ showConfirmTransferSite: false });
   }
 
+  handleBodyExpandClick(i: PostListing, event: any) {
+    event.preventDefault();
+    (!i.props.isExpanded || i.props.isHighlighted) && i.props.toggleExpand?.();
+    i.handleShowBody(i);
+    setupTippy();
+  }
+
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
     (!i.props.isExpanded || i.props.isHighlighted) && i.props.toggleExpand?.();
-    i.setState({ imageExpanded: !i.state.imageExpanded });
+    i.handleShowImage(i);
     setupTippy();
   }
 
@@ -1894,7 +1887,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
-    setupTippy();
+  }
+
+  handleShowImage(i: PostListing) {
+    i.img && i.setState({ imageExpanded: !this.state.imageExpanded });
   }
 
   get pointsTippy(): string {
