@@ -113,7 +113,7 @@ export class Communities extends Component<any, CommunitiesState> {
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("list_of_communities")}
             </h1>
-            <div className="row g-2 row-cols-4 align-items-center">
+            <div className="row g-3 align-items-center mb-2">
               <div className="col-auto">
                 <ListingTypeSelect
                   type_={listingType}
@@ -235,10 +235,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   searchForm() {
     return (
-      <form
-        className="row mb-2"
-        onSubmit={linkEvent(this, this.handleSearchSubmit)}
-      >
+      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
         <div className="col-auto">
           <input
             type="text"
