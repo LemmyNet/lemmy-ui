@@ -35,7 +35,7 @@ interface CommentNodesProps {
   admins?: PersonView[];
   maxCommentsShown?: number;
   noBorder?: boolean;
-  noIndent?: boolean;
+  isTopLevel?: boolean;
   viewOnly?: boolean;
   locked?: boolean;
   markable?: boolean;
@@ -79,24 +79,28 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
     const maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
 
     const borderColor = this.props.depth
-      ? colorList[this.props.depth % colorList.length]
+      ? colorList[(this.props.depth - 1) % colorList.length]
       : colorList[0];
 
     return (
       this.props.nodes.length > 0 && (
         <ul
           className={classNames("comments", {
-            "ms-1": !!this.props.isChild,
+            "ms-1": this.props.depth && this.props.depth > 1,
             "border-top border-light": !this.props.noBorder,
           })}
-          style={`border-left: 2px solid ${borderColor} !important;`}
+          style={
+            this.props.isChild
+              ? `border-left: 2px solid ${borderColor} !important;`
+              : undefined
+          }
         >
           {this.props.nodes.slice(0, maxComments).map(node => (
             <CommentNode
               key={node.comment_view.comment.id}
               node={node}
               noBorder={this.props.noBorder}
-              noIndent={this.props.noIndent}
+              isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}
               locked={this.props.locked}
               moderators={this.props.moderators}

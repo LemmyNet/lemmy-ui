@@ -37,7 +37,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <h5 className="col-12">{I18NextService.i18n.t("taglines")}</h5>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("taglines")}</h1>
         <div className="table-responsive col-12">
           <table id="taglines_table" className="table table-sm table-hover">
             <thead className="pointer">
@@ -71,7 +71,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                       data-tippy-content={I18NextService.i18n.t("edit")}
                       aria-label={I18NextService.i18n.t("edit")}
                     >
-                      <Icon icon="edit" classes={`icon-inline`} />
+                      <Icon icon="edit" classes="icon-inline" />
                     </button>
 
                     <button
@@ -83,7 +83,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                       data-tippy-content={I18NextService.i18n.t("delete")}
                       aria-label={I18NextService.i18n.t("delete")}
                     >
-                      <Icon icon="trash" classes={`icon-inline text-danger`} />
+                      <Icon icon="trash" classes="icon-inline text-danger" />
                     </button>
                   </td>
                 </tr>
@@ -141,7 +141,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   handleEditTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
     event.preventDefault();
-    if (this.state.editingRow == d.index) {
+    if (d.i.state.editingRow == d.index) {
       d.i.setState({ editingRow: undefined });
     } else {
       d.i.setState({ editingRow: d.index });

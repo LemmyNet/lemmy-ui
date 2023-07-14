@@ -11,7 +11,9 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
+import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   AddAdmin,
@@ -220,7 +222,7 @@ export class Inbox extends Component<any, InboxState> {
               title={this.documentTitle}
               path={this.context.router.route.match.url}
             />
-            <h5 className="mb-2">
+            <h1 className="h4 mb-4">
               {I18NextService.i18n.t("inbox")}
               {inboxRss && (
                 <small>
@@ -234,16 +236,18 @@ export class Inbox extends Component<any, InboxState> {
                   />
                 </small>
               )}
-            </h5>
+            </h1>
             {this.hasUnreads && (
               <button
-                className="btn btn-secondary mb-2"
+                className="btn btn-secondary mb-2 mb-sm-3"
                 onClick={linkEvent(this, this.handleMarkAllAsRead)}
               >
                 {this.state.markAllAsReadRes.state == "loading" ? (
                   <Spinner />
                 ) : (
-                  I18NextService.i18n.t("mark_all_as_read")
+                  capitalizeFirstLetter(
+                    I18NextService.i18n.t("mark_all_as_read")
+                  )
                 )}
               </button>
             )}
@@ -280,34 +284,41 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   unreadOrAllRadios() {
+    const radioId = randomStr();
+
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        <input
+          id={`${radioId}-unread`}
+          type="radio"
+          className="btn-check"
+          value={UnreadOrAll.Unread}
+          checked={this.state.unreadOrAll === UnreadOrAll.Unread}
+          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
-          `}
+          htmlFor={`${radioId}-unread`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.unreadOrAll === UnreadOrAll.Unread,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={UnreadOrAll.Unread}
-            checked={this.state.unreadOrAll == UnreadOrAll.Unread}
-            onChange={linkEvent(this, this.handleUnreadOrAllChange)}
-          />
           {I18NextService.i18n.t("unread")}
         </label>
+
+        <input
+          id={`${radioId}-all`}
+          type="radio"
+          className="btn-check"
+          value={UnreadOrAll.All}
+          checked={this.state.unreadOrAll === UnreadOrAll.All}
+          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.All && "active"}
-          `}
+          htmlFor={`${radioId}-all`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.unreadOrAll === UnreadOrAll.All,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={UnreadOrAll.All}
-            checked={this.state.unreadOrAll == UnreadOrAll.All}
-            onChange={linkEvent(this, this.handleUnreadOrAllChange)}
-          />
           {I18NextService.i18n.t("all")}
         </label>
       </div>
@@ -315,62 +326,75 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   messageTypeRadios() {
+    const radioId = randomStr();
+
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        <input
+          id={`${radioId}-all`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.All}
+          checked={this.state.messageType === MessageType.All}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.All && "active"}
-          `}
+          htmlFor={`${radioId}-all`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.All,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.All}
-            checked={this.state.messageType == MessageType.All}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("all")}
         </label>
+
+        <input
+          id={`${radioId}-replies`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.Replies}
+          checked={this.state.messageType === MessageType.Replies}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Replies && "active"}
-          `}
+          htmlFor={`${radioId}-replies`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.Replies,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.Replies}
-            checked={this.state.messageType == MessageType.Replies}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("replies")}
         </label>
+
+        <input
+          id={`${radioId}-mentions`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.Mentions}
+          checked={this.state.messageType === MessageType.Mentions}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Mentions && "active"}
-          `}
+          htmlFor={`${radioId}-mentions`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.Mentions,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.Mentions}
-            checked={this.state.messageType == MessageType.Mentions}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("mentions")}
         </label>
+
+        <input
+          id={`${radioId}-messages`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.Messages}
+          checked={this.state.messageType === MessageType.Messages}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.Messages && "active"}
-          `}
+          htmlFor={`${radioId}-messages`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.Messages,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.Messages}
-            checked={this.state.messageType == MessageType.Messages}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("messages")}
         </label>
       </div>
@@ -379,13 +403,15 @@ export class Inbox extends Component<any, InboxState> {
 
   selects() {
     return (
-      <div className="mb-2">
-        <span className="me-3">{this.unreadOrAllRadios()}</span>
-        <span className="me-3">{this.messageTypeRadios()}</span>
-        <CommentSortSelect
-          sort={this.state.sort}
-          onChange={this.handleSortChange}
-        />
+      <div className="row row-cols-auto g-2 g-sm-3 mb-2 mb-sm-3">
+        <div className="col">{this.unreadOrAllRadios()}</div>
+        <div className="col">{this.messageTypeRadios()}</div>
+        <div className="col">
+          <CommentSortSelect
+            sort={this.state.sort}
+            onChange={this.handleSortChange}
+          />
+        </div>
       </div>
     );
   }
@@ -538,9 +564,9 @@ export class Inbox extends Component<any, InboxState> {
       this.state.messagesRes.state == "loading"
     ) {
       return (
-        <h5>
+        <h1 className="h4">
           <Spinner large />
-        </h5>
+        </h1>
       );
     } else {
       return (
@@ -553,9 +579,9 @@ export class Inbox extends Component<any, InboxState> {
     switch (this.state.repliesRes.state) {
       case "loading":
         return (
-          <h5>
+          <h1 className="h4">
             <Spinner large />
-          </h5>
+          </h1>
         );
       case "success": {
         const replies = this.state.repliesRes.data.replies;
@@ -600,9 +626,9 @@ export class Inbox extends Component<any, InboxState> {
     switch (this.state.mentionsRes.state) {
       case "loading":
         return (
-          <h5>
+          <h1 className="h4">
             <Spinner large />
-          </h5>
+          </h1>
         );
       case "success": {
         const mentions = this.state.mentionsRes.data.mentions;
@@ -650,9 +676,9 @@ export class Inbox extends Component<any, InboxState> {
     switch (this.state.messagesRes.state) {
       case "loading":
         return (
-          <h5>
+          <h1 className="h4">
             <Spinner large />
-          </h5>
+          </h1>
         );
       case "success": {
         const messages = this.state.messagesRes.data.private_messages;

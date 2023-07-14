@@ -1,7 +1,7 @@
 import { myAuth, setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
+import { NavLink } from "inferno-router";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
@@ -69,7 +69,7 @@ export class Login extends Component<any, State> {
     return (
       <div>
         <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
-          <h5>{I18NextService.i18n.t("login")}</h5>
+          <h1 className="h4 mb-4">{I18NextService.i18n.t("login")}</h1>
           <div className="mb-3 row">
             <label
               className="col-sm-2 col-form-label"
@@ -105,18 +105,12 @@ export class Login extends Component<any, State> {
                 required
                 maxLength={60}
               />
-              <button
-                type="button"
-                onClick={linkEvent(this, this.handlePasswordReset)}
+              <NavLink
                 className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
-                disabled={
-                  !!this.state.form.username_or_email &&
-                  !validEmail(this.state.form.username_or_email)
-                }
-                title={I18NextService.i18n.t("no_password_reset")}
+                to="/login_reset"
               >
                 {I18NextService.i18n.t("forgot_password")}
-              </button>
+              </NavLink>
             </div>
           </div>
           {this.state.showTotp && (
@@ -175,13 +169,18 @@ export class Login extends Component<any, State> {
             i.setState({ showTotp: true });
             toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
           }
+          if (loginRes.msg === "incorrect_login") {
+            toast(I18NextService.i18n.t("incorrect_login"), "danger");
+          }
 
           i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
           break;
         }
 
         case "success": {
-          UserService.Instance.login(loginRes.data);
+          UserService.Instance.login({
+            res: loginRes.data,
+          });
           const site = await HttpService.client.getSite({
             auth: myAuth(),
           });
@@ -213,16 +212,5 @@ export class Login extends Component<any, State> {
   handleLoginPasswordChange(i: Login, event: any) {
     i.state.form.password = event.target.value;
     i.setState(i.state);
-  }
-
-  async handlePasswordReset(i: Login, event: any) {
-    event.preventDefault();
-    const email = i.state.form.username_or_email;
-    if (email) {
-      const res = await HttpService.client.passwordReset({ email });
-      if (res.state == "success") {
-        toast(I18NextService.i18n.t("reset_password_mail_sent"));
-      }
-    }
   }
 }

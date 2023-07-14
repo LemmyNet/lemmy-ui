@@ -22,7 +22,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, linkEvent } from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   AddAdmin,
@@ -154,7 +154,7 @@ export class Community extends Component<
     finished: new Map(),
     isIsomorphic: false,
   };
-
+  private readonly mainContentRef: RefObject<HTMLElement>;
   constructor(props: RouteComponentProps<{ name: string }>, context: any) {
     super(props, context);
 
@@ -195,7 +195,7 @@ export class Community extends Component<
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
-
+    this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const { communityRes, commentsRes, postsRes } = this.isoData.routeData;
@@ -312,12 +312,16 @@ export class Community extends Component<
             <HtmlTags
               title={this.documentTitle}
               path={this.context.router.route.match.url}
+              canonicalPath={res.community_view.community.actor_id}
               description={res.community_view.community.description}
               image={res.community_view.community.icon}
             />
 
             <div className="row">
-              <div className="col-12 col-md-8">
+              <main
+                className="col-12 col-md-8 col-lg-9"
+                ref={this.mainContentRef}
+              >
                 {this.communityInfo(res)}
                 <div className="d-block d-md-none">
                   <button
@@ -339,10 +343,10 @@ export class Community extends Component<
                 {this.selects(res)}
                 {this.listings(res)}
                 <Paginator page={page} onChange={this.handlePageChange} />
-              </div>
-              <div className="d-none d-md-block col-md-4">
+              </main>
+              <aside className="d-none d-md-block col-md-4 col-lg-3">
                 {this.sidebar(res)}
-              </div>
+              </aside>
             </div>
           </>
         );
@@ -444,7 +448,7 @@ export class Community extends Component<
               nodes={commentsToFlatNodes(this.state.commentsRes.data.comments)}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
-              noIndent
+              isTopLevel
               showContext
               enableDownvotes={enableDownvotes(site_res)}
               moderators={communityRes.moderators}
@@ -482,7 +486,7 @@ export class Community extends Component<
       community && (
         <div className="mb-2">
           <BannerIconHeader banner={community.banner} icon={community.icon} />
-          <h5 className="mb-0 overflow-wrap-anywhere">{community.title}</h5>
+          <h1 className="h4 mb-0 overflow-wrap-anywhere">{community.title}</h1>
           <CommunityLink
             community={community}
             realLink

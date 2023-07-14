@@ -4,6 +4,7 @@ import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import {
   concurrentImageUpload,
@@ -19,19 +20,31 @@ import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
-import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
 
 interface MarkdownTextAreaProps {
+  /**
+   * Initial content inside the textarea
+   */
   initialContent?: string;
+  /**
+   * Numerical ID of the language to select in dropdown
+   */
   initialLanguageId?: number;
   placeholder?: string;
   buttonTitle?: string;
   maxLength?: number;
+  /**
+   * Whether this form is for a reply to a Private Message.
+   * If true, a "Cancel" button is shown that will close the reply.
+   */
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
   finished?: boolean;
+  /**
+   * Whether to show the language selector
+   */
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
@@ -125,18 +138,14 @@ export class MarkdownTextArea extends Component<
   render() {
     const languageId = this.state.languageId;
 
-    // TODO add these prompts back in at some point
-    // <Prompt
-    //   when={!this.props.hideNavigationWarnings && this.state.content}
-    //   message={I18NextService.i18n.t("block_leaving")}
-    // />
     return (
       <form
         className="markdown-textarea"
         id={this.formId}
         onSubmit={linkEvent(this, this.handleSubmit)}
       >
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.hideNavigationWarnings &&
             !!this.state.content &&
@@ -146,41 +155,50 @@ export class MarkdownTextArea extends Component<
         <div className="mb-3 row">
           <div className="col-12">
             <div className="rounded bg-light border">
-              <div className="d-flex flex-wrap border-bottom">
+              <div
+                className={classNames("d-flex flex-wrap border-bottom", {
+                  "no-click": this.isDisabled,
+                })}
+              >
                 {this.getFormatButton("bold", this.handleInsertBold)}
                 {this.getFormatButton("italic", this.handleInsertItalic)}
                 {this.getFormatButton("link", this.handleInsertLink)}
                 <EmojiPicker
                   onEmojiClick={e => this.handleEmoji(this, e)}
-                  disabled={this.isDisabled}
                 ></EmojiPicker>
-                <form className="btn btn-sm text-muted font-weight-bold">
-                  <label
-                    htmlFor={`file-upload-${this.id}`}
-                    className={`mb-0 ${
-                      UserService.Instance.myUserInfo && "pointer"
-                    }`}
-                    data-tippy-content={I18NextService.i18n.t("upload_image")}
-                  >
-                    {this.state.imageUploadStatus ? (
-                      <Spinner />
-                    ) : (
+                <label
+                  htmlFor={`file-upload-${this.id}`}
+                  className={classNames("mb-0", {
+                    pointer: UserService.Instance.myUserInfo,
+                  })}
+                  data-tippy-content={I18NextService.i18n.t("upload_image")}
+                >
+                  {this.state.imageUploadStatus ? (
+                    <Spinner />
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-link rounded-0 text-muted mb-0"
+                      onClick={() => {
+                        document
+                          .getElementById(`file-upload-${this.id}`)
+                          ?.click();
+                      }}
+                    >
                       <Icon icon="image" classes="icon-inline" />
-                    )}
-                  </label>
-                  <input
-                    id={`file-upload-${this.id}`}
-                    type="file"
-                    accept="image/*,video/*"
-                    name="file"
-                    className="d-none"
-                    multiple
-                    disabled={
-                      !UserService.Instance.myUserInfo || this.isDisabled
-                    }
-                    onChange={linkEvent(this, this.handleImageUpload)}
-                  />
-                </form>
+                    </button>
+                  )}
+                </label>
+                <input
+                  id={`file-upload-${this.id}`}
+                  type="file"
+                  accept="image/*,video/*"
+                  name="file"
+                  className="d-none"
+                  multiple
+                  disabled={!UserService.Instance.myUserInfo}
+                  onChange={linkEvent(this, this.handleImageUpload)}
+                />
                 {this.getFormatButton("header", this.handleInsertHeader)}
                 {this.getFormatButton(
                   "strikethrough",
@@ -197,7 +215,7 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
                 <a
                   href={markdownHelpUrl}
-                  className="btn btn-sm text-muted font-weight-bold"
+                  className="btn btn-sm btn-link rounded-0 text-muted fw-bold"
                   title={I18NextService.i18n.t("formatting_help")}
                   rel={relTags}
                 >
@@ -272,19 +290,6 @@ export class MarkdownTextArea extends Component<
             {/* A flex expander */}
             <div className="flex-grow-1"></div>
 
-            {this.props.buttonTitle && (
-              <button
-                type="submit"
-                className="btn btn-sm btn-secondary ms-2"
-                disabled={this.isDisabled}
-              >
-                {this.state.loading ? (
-                  <Spinner />
-                ) : (
-                  <span>{this.props.buttonTitle}</span>
-                )}
-              </button>
-            )}
             {this.props.replyType && (
               <button
                 type="button"
@@ -294,16 +299,26 @@ export class MarkdownTextArea extends Component<
                 {I18NextService.i18n.t("cancel")}
               </button>
             )}
-            {this.state.content && (
+            <button
+              type="button"
+              disabled={!this.state.content}
+              className={classNames("btn btn-sm btn-secondary ms-2", {
+                active: this.state.previewMode,
+              })}
+              onClick={linkEvent(this, this.handlePreviewToggle)}
+            >
+              {this.state.previewMode
+                ? I18NextService.i18n.t("edit")
+                : I18NextService.i18n.t("preview")}
+            </button>
+            {this.props.buttonTitle && (
               <button
-                className={`btn btn-sm btn-secondary ms-2 ${
-                  this.state.previewMode && "active"
-                }`}
-                onClick={linkEvent(this, this.handlePreviewToggle)}
+                type="submit"
+                className="btn btn-sm btn-secondary ms-2"
+                disabled={this.isDisabled || !this.state.content}
               >
-                {this.state.previewMode
-                  ? I18NextService.i18n.t("edit")
-                  : I18NextService.i18n.t("preview")}
+                {this.state.loading && <Spinner className="me-1" />}
+                {this.props.buttonTitle}
               </button>
             )}
           </div>
@@ -334,11 +349,10 @@ export class MarkdownTextArea extends Component<
 
     return (
       <button
-        className="btn btn-sm text-muted"
+        className="btn btn-sm btn-link rounded-0 text-muted"
         data-tippy-content={I18NextService.i18n.t(type)}
         aria-label={I18NextService.i18n.t(type)}
         onClick={linkEvent(this, handleClick)}
-        disabled={this.isDisabled}
       >
         <Icon icon={iconType} classes="icon-inline" />
       </button>
@@ -433,6 +447,10 @@ export class MarkdownTextArea extends Component<
         const textarea: any = document.getElementById(i.id);
         autosize.update(textarea);
         pictrsDeleteToast(image.name, res.data.delete_url as string);
+      } else if (res.data.msg === "too_large") {
+        toast(I18NextService.i18n.t("upload_too_large"), "danger");
+        i.setState({ imageUploadStatus: undefined });
+        throw JSON.stringify(res.data);
       } else {
         throw JSON.stringify(res.data);
       }
@@ -459,7 +477,7 @@ export class MarkdownTextArea extends Component<
   // Keybind handler
   // Keybinds inspired by github comment area
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       switch (event.key) {
         case "k": {
           i.handleInsertLink(i, event);
@@ -688,18 +706,20 @@ export class MarkdownTextArea extends Component<
   quoteInsert() {
     const textarea: any = document.getElementById(this.id);
     const selectedText = window.getSelection()?.toString();
-    const { content } = this.state;
+    let { content } = this.state;
     if (selectedText) {
       const quotedText =
         selectedText
           .split("\n")
           .map(t => `> ${t}`)
           .join("\n") + "\n\n";
+
       if (!content) {
-        this.setState({ content: "" });
+        content = "";
       } else {
-        this.setState({ content: `${content}\n` });
+        content = `${content}\n\n`;
       }
+
       this.setState({
         content: `${content}${quotedText}`,
       });

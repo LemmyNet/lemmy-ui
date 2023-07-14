@@ -166,59 +166,32 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   communityTitle() {
     const community = this.props.community_view.community;
-    const subscribed = this.props.community_view.subscribed;
+
     return (
       <div>
-        <h5 className="mb-0">
+        <h2 className="h5 mb-0">
           {this.props.showIcon && !community.removed && (
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span className="me-2">
             <CommunityLink community={community} hideAvatar />
           </span>
-          {subscribed === "Subscribed" && (
-            <button
-              className="btn btn-secondary btn-sm me-2"
-              onClick={linkEvent(this, this.handleUnfollowCommunity)}
-            >
-              {this.state.followCommunityLoading ? (
-                <Spinner />
-              ) : (
-                <>
-                  <Icon icon="check" classes="icon-inline text-success me-1" />
-                  {I18NextService.i18n.t("joined")}
-                </>
-              )}
-            </button>
-          )}
-          {subscribed === "Pending" && (
-            <button
-              className="btn btn-warning me-2"
-              onClick={linkEvent(this, this.handleUnfollowCommunity)}
-            >
-              {this.state.followCommunityLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("subscribe_pending")
-              )}
-            </button>
-          )}
           {community.removed && (
-            <small className="me-2 text-muted font-italic">
+            <small className="me-2 text-muted fst-italic">
               {I18NextService.i18n.t("removed")}
             </small>
           )}
           {community.deleted && (
-            <small className="me-2 text-muted font-italic">
+            <small className="me-2 text-muted fst-italic">
               {I18NextService.i18n.t("deleted")}
             </small>
           )}
           {community.nsfw && (
-            <small className="me-2 text-muted font-italic">
+            <small className="me-2 text-muted fst-italic">
               {I18NextService.i18n.t("nsfw")}
             </small>
           )}
-        </h5>
+        </h2>
         <CommunityLink
           community={community}
           realLink
@@ -259,40 +232,70 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   subscribe() {
     const community_view = this.props.community_view;
-    return (
-      <>
-        {community_view.subscribed == "NotSubscribed" && (
-          <button
-            className="btn btn-secondary d-block mb-2 w-100"
-            onClick={linkEvent(this, this.handleFollowCommunity)}
-          >
-            {this.state.followCommunityLoading ? (
-              <Spinner />
-            ) : (
-              I18NextService.i18n.t("subscribe")
-            )}
-          </button>
-        )}
-      </>
-    );
+
+    if (community_view.subscribed === "NotSubscribed") {
+      return (
+        <button
+          className="btn btn-secondary d-block mb-2 w-100"
+          onClick={linkEvent(this, this.handleFollowCommunity)}
+        >
+          {this.state.followCommunityLoading ? (
+            <Spinner />
+          ) : (
+            I18NextService.i18n.t("subscribe")
+          )}
+        </button>
+      );
+    }
+
+    if (community_view.subscribed === "Subscribed") {
+      return (
+        <button
+          className="btn btn-secondary d-block mb-2 w-100"
+          onClick={linkEvent(this, this.handleUnfollowCommunity)}
+        >
+          {this.state.followCommunityLoading ? (
+            <Spinner />
+          ) : (
+            <>
+              <Icon icon="check" classes="icon-inline me-1" />
+              {I18NextService.i18n.t("joined")}
+            </>
+          )}
+        </button>
+      );
+    }
+
+    if (community_view.subscribed === "Pending") {
+      return (
+        <button
+          className="btn btn-warning d-block mb-2 w-100"
+          onClick={linkEvent(this, this.handleUnfollowCommunity)}
+        >
+          {this.state.followCommunityLoading ? (
+            <Spinner />
+          ) : (
+            I18NextService.i18n.t("subscribe_pending")
+          )}
+        </button>
+      );
+    }
   }
 
   blockCommunity() {
     const { subscribed, blocked } = this.props.community_view;
 
     return (
-      <>
-        {subscribed == "NotSubscribed" && (
-          <button
-            className="btn btn-danger d-block mb-2 w-100"
-            onClick={linkEvent(this, this.handleBlockCommunity)}
-          >
-            {I18NextService.i18n.t(
-              blocked ? "unblock_community" : "block_community"
-            )}
-          </button>
-        )}
-      </>
+      subscribed === "NotSubscribed" && (
+        <button
+          className="btn btn-danger d-block mb-2 w-100"
+          onClick={linkEvent(this, this.handleBlockCommunity)}
+        >
+          {I18NextService.i18n.t(
+            blocked ? "unblock_community" : "block_community"
+          )}
+        </button>
+      )
     );
   }
 
@@ -309,7 +312,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const community_view = this.props.community_view;
     return (
       <>
-        <ul className="list-inline mb-1 text-muted font-weight-bold">
+        <ul className="list-inline mb-1 text-muted fw-bold">
           {amMod(this.props.moderators) && (
             <>
               <li className="list-inline-item-action">
@@ -570,7 +573,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       i.setState({ leaveModTeamLoading: true });
       i.props.onLeaveModTeam({
         community_id: i.props.community_view.community.id,
-        person_id: 92,
+        person_id: myId,
         added: false,
         auth: myAuthRequired(),
       });

@@ -15,6 +15,7 @@ import { isImage } from "@utils/media";
 import { Choice } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
 import {
   CommunityView,
   CreatePost,
@@ -39,7 +40,6 @@ import { toast } from "../../toast";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import NavigationPrompt from "../common/navigation-prompt";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 
@@ -187,6 +187,8 @@ function handleImageUpload(i: PostForm, event: any) {
           imageLoading: false,
           imageDeleteUrl: res.data.delete_url as string,
         });
+      } else if (res.data.msg === "too_large") {
+        toast(I18NextService.i18n.t("upload_too_large"), "danger");
       } else {
         toast(JSON.stringify(res), "danger");
       }
@@ -330,7 +332,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     return (
       <form className="post-form" onSubmit={linkEvent(this, handlePostSubmit)}>
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !!(
               this.state.form.name ||
@@ -347,37 +350,17 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             <input
               type="url"
               id="post-url"
-              className="form-control"
+              className="form-control mb-3"
               value={url}
               onInput={linkEvent(this, handlePostUrlChange)}
               onPaste={linkEvent(this, handleImageUploadPaste)}
             />
             {this.renderSuggestedTitleCopy()}
-            <form>
-              <label
-                htmlFor="file-upload"
-                className={`${
-                  UserService.Instance.myUserInfo && "pointer"
-                } d-inline-block float-right text-muted font-weight-bold`}
-                data-tippy-content={I18NextService.i18n.t("upload_image")}
-              >
-                <Icon icon="image" classes="icon-inline" />
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept="image/*,video/*"
-                name="file"
-                className="d-none"
-                disabled={!UserService.Instance.myUserInfo}
-                onChange={linkEvent(this, handleImageUpload)}
-              />
-            </form>
             {url && validURL(url) && (
               <div>
                 <a
                   href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
-                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
                 >
                   archive.org {I18NextService.i18n.t("archive_link")}
@@ -386,7 +369,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
                     url
                   )}`}
-                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
                 >
                   ghostarchive.org {I18NextService.i18n.t("archive_link")}
@@ -395,63 +378,80 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
                     url
                   )}`}
-                  className="me-2 d-inline-block float-right text-muted small font-weight-bold"
+                  className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
                 >
                   archive.today {I18NextService.i18n.t("archive_link")}
                 </a>
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="mb-3 row">
+          <label htmlFor="file-upload" className={"col-sm-2 col-form-label"}>
+            {capitalizeFirstLetter(I18NextService.i18n.t("image"))}
+            <Icon icon="image" classes="icon-inline ms-1" />
+          </label>
+          <div className="col-sm-10">
+            <input
+              id="file-upload"
+              type="file"
+              accept="image/*,video/*"
+              name="file"
+              className="small col-sm-10 form-control"
+              disabled={!UserService.Instance.myUserInfo}
+              onChange={linkEvent(this, handleImageUpload)}
+            />
             {this.state.imageLoading && <Spinner />}
             {url && isImage(url) && (
-              <img src={url} className="img-fluid" alt="" />
+              <img src={url} className="img-fluid mt-2" alt="" />
             )}
             {this.state.imageDeleteUrl && (
               <button
                 className="btn btn-danger btn-sm mt-2"
                 onClick={linkEvent(this, handleImageDelete)}
-                aria-label={I18NextService.i18n.t("delete")}
-                data-tippy-content={I18NextService.i18n.t("delete")}
               >
                 <Icon icon="x" classes="icon-inline me-1" />
                 {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
               </button>
             )}
-            {this.props.crossPosts && this.props.crossPosts.length > 0 && (
-              <>
-                <div className="my-1 text-muted small font-weight-bold">
-                  {I18NextService.i18n.t("cross_posts")}
-                </div>
-                <PostListings
-                  showCommunity
-                  posts={this.props.crossPosts}
-                  enableDownvotes={this.props.enableDownvotes}
-                  enableNsfw={this.props.enableNsfw}
-                  allLanguages={this.props.allLanguages}
-                  siteLanguages={this.props.siteLanguages}
-                  viewOnly
-                  // All of these are unused, since its view only
-                  onPostEdit={() => {}}
-                  onPostVote={() => {}}
-                  onPostReport={() => {}}
-                  onBlockPerson={() => {}}
-                  onLockPost={() => {}}
-                  onDeletePost={() => {}}
-                  onRemovePost={() => {}}
-                  onSavePost={() => {}}
-                  onFeaturePost={() => {}}
-                  onPurgePerson={() => {}}
-                  onPurgePost={() => {}}
-                  onBanPersonFromCommunity={() => {}}
-                  onBanPerson={() => {}}
-                  onAddModToCommunity={() => {}}
-                  onAddAdmin={() => {}}
-                  onTransferCommunity={() => {}}
-                />
-              </>
-            )}
           </div>
+          {this.props.crossPosts && this.props.crossPosts.length > 0 && (
+            <>
+              <div className="my-1 text-muted small fw-bold">
+                {I18NextService.i18n.t("cross_posts")}
+              </div>
+              <PostListings
+                showCommunity
+                posts={this.props.crossPosts}
+                enableDownvotes={this.props.enableDownvotes}
+                enableNsfw={this.props.enableNsfw}
+                allLanguages={this.props.allLanguages}
+                siteLanguages={this.props.siteLanguages}
+                viewOnly
+                // All of these are unused, since its view only
+                onPostEdit={() => {}}
+                onPostVote={() => {}}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+              />
+            </>
+          )}
         </div>
+
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-title">
             {I18NextService.i18n.t("title")}
@@ -531,7 +531,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               checked={this.state.form.nsfw}
               onChange={linkEvent(this, handlePostNsfwChange)}
             />
-            <label className="form-check-label">
+            <label className="form-check-label" htmlFor="post-nsfw">
               {I18NextService.i18n.t("nsfw")}
             </label>
           </div>
@@ -585,9 +585,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
         return (
           suggestedTitle && (
-            <div
-              className="mt-1 text-muted small font-weight-bold pointer"
-              role="button"
+            <button
+              type="button"
+              className="mt-1 small border-0 bg-transparent p-0 d-block text-muted fw-bold pointer"
               onClick={linkEvent(
                 { i: this, suggestedTitle },
                 copySuggestedTitle
@@ -595,7 +595,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             >
               {I18NextService.i18n.t("copy_suggested_title", { title: "" })}{" "}
               {suggestedTitle}
-            </div>
+            </button>
           )
         );
       }
@@ -613,7 +613,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           suggestedPosts &&
           suggestedPosts.length > 0 && (
             <>
-              <div className="my-1 text-muted small font-weight-bold">
+              <div className="my-1 text-muted small fw-bold">
                 {I18NextService.i18n.t("related_posts")}
               </div>
               <PostListings

@@ -19,10 +19,11 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "@utils/browser";
-import { debounce } from "@utils/helpers";
+import { debounce, randomStr } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
+import classNames from "classnames";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import {
   AddAdmin,
@@ -348,10 +349,11 @@ export class Post extends Component<any, PostState> {
         const res = this.state.postRes.data;
         return (
           <div className="row">
-            <div className="col-12 col-md-8 mb-3">
+            <main className="col-12 col-md-8 col-lg-9 mb-3">
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
+                canonicalPath={res.post_view.post.ap_id}
                 image={this.imageTag}
                 description={res.post_view.post.body}
               />
@@ -415,8 +417,10 @@ export class Post extends Component<any, PostState> {
                 this.commentsTree()}
               {this.state.commentViewType == CommentViewType.Flat &&
                 this.commentsFlat()}
-            </div>
-            <div className="d-none d-md-block col-md-4">{this.sidebar()}</div>
+            </main>
+            <aside className="d-none d-md-block col-md-4 col-lg-3">
+              {this.sidebar()}
+            </aside>
           </div>
         );
       }
@@ -428,80 +432,98 @@ export class Post extends Component<any, PostState> {
   }
 
   sortRadios() {
+    const radioId =
+      this.state.postRes.state === "success"
+        ? this.state.postRes.data.post_view.post.id
+        : randomStr();
+
     return (
       <>
-        <div className="btn-group btn-group-toggle flex-wrap me-3 mb-2">
+        <div
+          className="btn-group btn-group-toggle flex-wrap me-3 mb-2"
+          role="group"
+        >
+          <input
+            id={`${radioId}-hot`}
+            type="radio"
+            className="btn-check"
+            value={"Hot"}
+            checked={this.state.commentSort === "Hot"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === "Hot" && "active"
-            }`}
+            htmlFor={`${radioId}-hot`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "Hot",
+            })}
           >
             {I18NextService.i18n.t("hot")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={"Hot"}
-              checked={this.state.commentSort === "Hot"}
-              onChange={linkEvent(this, this.handleCommentSortChange)}
-            />
           </label>
+          <input
+            id={`${radioId}-top`}
+            type="radio"
+            className="btn-check"
+            value={"Top"}
+            checked={this.state.commentSort === "Top"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === "Top" && "active"
-            }`}
+            htmlFor={`${radioId}-top`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "Top",
+            })}
           >
             {I18NextService.i18n.t("top")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={"Top"}
-              checked={this.state.commentSort === "Top"}
-              onChange={linkEvent(this, this.handleCommentSortChange)}
-            />
           </label>
+          <input
+            id={`${radioId}-new`}
+            type="radio"
+            className="btn-check"
+            value={"New"}
+            checked={this.state.commentSort === "New"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === "New" && "active"
-            }`}
+            htmlFor={`${radioId}-new`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "New",
+            })}
           >
             {I18NextService.i18n.t("new")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={"New"}
-              checked={this.state.commentSort === "New"}
-              onChange={linkEvent(this, this.handleCommentSortChange)}
-            />
           </label>
+          <input
+            id={`${radioId}-old`}
+            type="radio"
+            className="btn-check"
+            value={"Old"}
+            checked={this.state.commentSort === "Old"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentSort === "Old" && "active"
-            }`}
+            htmlFor={`${radioId}-old`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "Old",
+            })}
           >
             {I18NextService.i18n.t("old")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={"Old"}
-              checked={this.state.commentSort === "Old"}
-              onChange={linkEvent(this, this.handleCommentSortChange)}
-            />
           </label>
         </div>
-        <div className="btn-group btn-group-toggle flex-wrap mb-2">
+        <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+          <input
+            id={`${radioId}-chat`}
+            type="radio"
+            className="btn-check"
+            value={CommentViewType.Flat}
+            checked={this.state.commentViewType === CommentViewType.Flat}
+            onChange={linkEvent(this, this.handleCommentViewTypeChange)}
+          />
           <label
-            className={`btn btn-outline-secondary pointer ${
-              this.state.commentViewType === CommentViewType.Flat && "active"
-            }`}
+            htmlFor={`${radioId}-chat`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentViewType === CommentViewType.Flat,
+            })}
           >
             {I18NextService.i18n.t("chat")}
-            <input
-              type="radio"
-              className="btn-check"
-              value={CommentViewType.Flat}
-              checked={this.state.commentViewType === CommentViewType.Flat}
-              onChange={linkEvent(this, this.handleCommentViewTypeChange)}
-            />
           </label>
         </div>
       </>
@@ -520,7 +542,7 @@ export class Post extends Component<any, PostState> {
             nodes={commentsToFlatNodes(commentsRes.data.comments)}
             viewType={this.state.commentViewType}
             maxCommentsShown={this.state.maxCommentsShown}
-            noIndent
+            isTopLevel
             locked={postRes.data.post_view.post.locked}
             moderators={postRes.data.moderators}
             admins={this.state.siteRes.admins}

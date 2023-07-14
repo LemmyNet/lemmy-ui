@@ -1,5 +1,7 @@
-export const favIconUrl = "/static/assets/icons/favicon.svg";
-export const favIconPngUrl = "/static/assets/icons/apple-touch-icon.png";
+import { getStaticDir } from "@utils/env";
+
+export const favIconUrl = `${getStaticDir()}/assets/icons/favicon.svg`;
+export const favIconPngUrl = `${getStaticDir()}/assets/icons/apple-touch-icon.png`;
 
 export const repoUrl = "https://github.com/LemmyNet";
 export const joinLemmyUrl = "https://join-lemmy.org";
@@ -21,9 +23,10 @@ export const markdownFieldCharacterLimit = 50000;
 export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
 export const updateUnreadCountsInterval = 30000;
-export const fetchLimit = 40;
+export const fetchLimit = 20;
 export const relTags = "noopener nofollow";
 export const emDash = "\u2014";
+export const authCookieName = "jwt";
 
 /**
  * Accepted formats:

@@ -114,7 +114,7 @@ interface HomeState {
 }
 
 interface HomeProps {
-  listingType: ListingType;
+  listingType?: ListingType;
   dataType: DataType;
   sort: SortType;
   page: number;
@@ -163,12 +163,12 @@ function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
 
-function getListingTypeFromQuery(type?: string): ListingType {
+function getListingTypeFromQuery(type?: string): ListingType | undefined {
   const myListingType =
     UserService.Instance.myUserInfo?.local_user_view?.local_user
       ?.default_listing_type;
 
-  return (type ? (type as ListingType) : myListingType) ?? "Local";
+  return type ? (type as ListingType) : myListingType;
 }
 
 function getSortTypeFromQuery(type?: string): SortType {
@@ -279,13 +279,15 @@ export class Home extends Component<any, HomeState> {
         trendingCommunitiesRes,
         commentsRes,
         postsRes,
-        tagline: getRandomFromList(this.state?.siteRes?.taglines ?? [])
-          ?.content,
         isIsomorphic: true,
       };
 
       HomeCacheService.postsRes = postsRes;
     }
+
+    this.state.tagline = getRandomFromList(
+      this.state?.siteRes?.taglines ?? []
+    )?.content;
   }
 
   componentWillUnmount() {
@@ -309,11 +311,12 @@ export class Home extends Component<any, HomeState> {
     client,
     auth,
     query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
+    site,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
     const dataType = getDataTypeFromQuery(urlDataType);
-
-    // TODO figure out auth default_listingType, default_sort_type
-    const type_ = getListingTypeFromQuery(listingType);
+    const type_ =
+      getListingTypeFromQuery(listingType) ??
+      site.site_view.local_site.default_post_listing_type;
     const sort = getSortTypeFromQuery(urlSort);
 
     const page = urlPage ? Number(urlPage) : 1;
@@ -387,7 +390,7 @@ export class Home extends Component<any, HomeState> {
         />
         {site_setup && (
           <div className="row">
-            <main role="main" className="col-12 col-md-8">
+            <main role="main" className="col-12 col-md-8 col-lg-9">
               {tagline && (
                 <div
                   id="tagline"
@@ -397,7 +400,7 @@ export class Home extends Component<any, HomeState> {
               <div className="d-block d-md-none">{this.mobileView}</div>
               {this.posts}
             </main>
-            <aside className="d-none d-md-block col-md-4">
+            <aside className="d-none d-md-block col-md-4 col-lg-3">
               {this.mySidebar}
             </aside>
           </div>
@@ -715,7 +718,7 @@ export class Home extends Component<any, HomeState> {
               nodes={commentsToFlatNodes(comments)}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
-              noIndent
+              isTopLevel
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
@@ -759,7 +762,10 @@ export class Home extends Component<any, HomeState> {
         </div>
         <div className="col-auto">
           <ListingTypeSelect
-            type_={listingType}
+            type_={
+              listingType ??
+              this.state.siteRes.site_view.local_site.default_post_listing_type
+            }
             showLocal={showLocal(this.isoData)}
             showSubscribed
             onChange={this.handleListingTypeChange}
@@ -768,7 +774,12 @@ export class Home extends Component<any, HomeState> {
         <div className="col-auto">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </div>
-        <div className="col-auto ps-0">{getRss(listingType)}</div>
+        <div className="col-auto ps-0">
+          {getRss(
+            listingType ??
+              this.state.siteRes.site_view.local_site.default_post_listing_type
+          )}
+        </div>
       </div>
     );
   }
