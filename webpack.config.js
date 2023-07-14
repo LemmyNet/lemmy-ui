@@ -3,7 +3,6 @@ const { resolve } = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
-const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
 
 const banner = `
@@ -18,8 +17,6 @@ module.exports = (env, argv) => {
 
   const base = {
     output: {
-      filename: "js/server.js",
-      publicPath: "/",
       hashFunction: "xxhash64",
     },
     resolve: {
@@ -73,7 +70,9 @@ module.exports = (env, argv) => {
     ...base,
     entry: "./src/server/index.tsx",
     output: {
+      ...base.output,
       filename: "js/server.js",
+      publicPath: "/",
     },
     target: "node",
     externals: [nodeExternals(), "inferno-helmet"],
@@ -83,6 +82,7 @@ module.exports = (env, argv) => {
     ...base,
     entry: "./src/client/index.tsx",
     output: {
+      ...base.output,
       filename: "js/client.js",
       publicPath: `/static/${env.COMMIT_HASH}/`,
     },
@@ -146,6 +146,7 @@ module.exports = (env, argv) => {
     //   name: "server",
     // };
 
+    const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
     serverConfig.plugins.push(
       new RunNodeWebpackPlugin({ runOnlyInWatchMode: true })
     );
