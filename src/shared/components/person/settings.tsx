@@ -40,6 +40,7 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import PasswordInput from "../common/password-input";
 import { SearchableSelect } from "../common/searchable-select";
 import { SortSelect } from "../common/sort-select";
 import Tabs from "../common/tabs";
@@ -318,59 +319,30 @@ export class Settings extends Component<any, SettingsState> {
       <>
         <h2 className="h5">{I18NextService.i18n.t("change_password")}</h2>
         <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
-          <div className="mb-3 row">
-            <label className="col-sm-5 col-form-label" htmlFor="user-password">
-              {I18NextService.i18n.t("new_password")}
-            </label>
-            <div className="col-sm-7">
-              <input
-                type="password"
-                id="user-password"
-                className="form-control"
-                value={this.state.changePasswordForm.new_password}
-                autoComplete="new-password"
-                maxLength={60}
-                onInput={linkEvent(this, this.handleNewPasswordChange)}
-              />
-            </div>
+          <div className="mb-3">
+            <PasswordInput
+              id="new-password"
+              value={this.state.changePasswordForm.new_password}
+              onInput={linkEvent(this, this.handleNewPasswordChange)}
+              showStrength
+              label={I18NextService.i18n.t("new_password")}
+            />
           </div>
-          <div className="mb-3 row">
-            <label
-              className="col-sm-5 col-form-label"
-              htmlFor="user-verify-password"
-            >
-              {I18NextService.i18n.t("verify_password")}
-            </label>
-            <div className="col-sm-7">
-              <input
-                type="password"
-                id="user-verify-password"
-                className="form-control"
-                value={this.state.changePasswordForm.new_password_verify}
-                autoComplete="new-password"
-                maxLength={60}
-                onInput={linkEvent(this, this.handleNewPasswordVerifyChange)}
-              />
-            </div>
+          <div className="mb-3">
+            <PasswordInput
+              id="verify-new-password"
+              value={this.state.changePasswordForm.new_password_verify}
+              onInput={linkEvent(this, this.handleNewPasswordVerifyChange)}
+              label={I18NextService.i18n.t("verify_password")}
+            />
           </div>
-          <div className="mb-3 row">
-            <label
-              className="col-sm-5 col-form-label"
-              htmlFor="user-old-password"
-            >
-              {I18NextService.i18n.t("old_password")}
-            </label>
-            <div className="col-sm-7">
-              <input
-                type="password"
-                id="user-old-password"
-                className="form-control"
-                value={this.state.changePasswordForm.old_password}
-                autoComplete="new-password"
-                maxLength={60}
-                onInput={linkEvent(this, this.handleOldPasswordChange)}
-              />
-            </div>
+          <div className="mb-3">
+            <PasswordInput
+              id="user-old-password"
+              value={this.state.changePasswordForm.old_password}
+              onInput={linkEvent(this, this.handleOldPasswordChange)}
+              label={I18NextService.i18n.t("old_password")}
+            />
           </div>
           <div className="input-group mb-3">
             <button
@@ -816,8 +788,12 @@ export class Settings extends Component<any, SettingsState> {
             </button>
           </div>
           <hr />
-          <div className="input-group mb-3">
+          <form
+            className="mb-3"
+            onSubmit={linkEvent(this, this.handleDeleteAccount)}
+          >
             <button
+              type="button"
               className="btn d-block btn-danger"
               onClick={linkEvent(
                 this,
@@ -828,24 +804,26 @@ export class Settings extends Component<any, SettingsState> {
             </button>
             {this.state.deleteAccountShowConfirm && (
               <>
-                <div className="my-2 alert alert-danger" role="alert">
+                <label
+                  className="my-2 alert alert-danger d-block"
+                  role="alert"
+                  htmlFor="password-delete-account"
+                >
                   {I18NextService.i18n.t("delete_account_confirm")}
-                </div>
-                <input
-                  type="password"
+                </label>
+                <PasswordInput
+                  id="password-delete-account"
                   value={this.state.deleteAccountForm.password}
-                  autoComplete="new-password"
-                  maxLength={60}
                   onInput={linkEvent(
                     this,
                     this.handleDeleteAccountPasswordChange
                   )}
-                  className="form-control my-2"
+                  className="my-2"
                 />
                 <button
+                  type="submit"
                   className="btn btn-danger me-4"
                   disabled={!this.state.deleteAccountForm.password}
-                  onClick={linkEvent(this, this.handleDeleteAccount)}
                 >
                   {this.state.deleteAccountRes.state === "loading" ? (
                     <Spinner />
@@ -855,6 +833,7 @@ export class Settings extends Component<any, SettingsState> {
                 </button>
                 <button
                   className="btn btn-secondary"
+                  type="button"
                   onClick={linkEvent(
                     this,
                     this.handleDeleteAccountShowConfirmToggle
@@ -864,7 +843,7 @@ export class Settings extends Component<any, SettingsState> {
                 </button>
               </>
             )}
-          </div>
+          </form>
         </form>
       </>
     );
@@ -1225,7 +1204,8 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
   }
 
-  async handleDeleteAccount(i: Settings) {
+  async handleDeleteAccount(i: Settings, event: Event) {
+    event.preventDefault();
     const password = i.state.deleteAccountForm.password;
     if (password) {
       i.setState({ deleteAccountRes: { state: "loading" } });
