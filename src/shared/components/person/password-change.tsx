@@ -6,6 +6,7 @@ import { HttpService, I18NextService, UserService } from "../../services";
 import { RequestState } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import PasswordInput from "../common/password-input";
 
 interface State {
   passwordChangeRes: RequestState<LoginResponse>;
@@ -60,37 +61,22 @@ export class PasswordChange extends Component<any, State> {
   passwordChangeForm() {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="new-password">
-            {I18NextService.i18n.t("new_password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="new-password"
-              type="password"
-              value={this.state.form.password}
-              onInput={linkEvent(this, this.handlePasswordChange)}
-              className="form-control"
-              required
-              maxLength={60}
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="new-password"
+            value={this.state.form.password}
+            onInput={linkEvent(this, this.handlePasswordChange)}
+            showStrength
+            label={I18NextService.i18n.t("new_password")}
+          />
         </div>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="verify-password">
-            {I18NextService.i18n.t("verify_password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="verify-password"
-              type="password"
-              value={this.state.form.password_verify}
-              onInput={linkEvent(this, this.handleVerifyPasswordChange)}
-              className="form-control"
-              required
-              maxLength={60}
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="password"
+            value={this.state.form.password_verify}
+            onInput={linkEvent(this, this.handleVerifyPasswordChange)}
+            label={I18NextService.i18n.t("verify_password")}
+          />
         </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
