@@ -466,6 +466,10 @@ export class Search extends Component<any, SearchState> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          canonicalPath={
+            this.context.router.route.match.url +
+            this.context.router.route.location.search
+          }
         />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
@@ -717,7 +721,7 @@ export class Search extends Component<any, SearchState> {
                   viewType={CommentViewType.Flat}
                   viewOnly
                   locked
-                  noIndent
+                  isTopLevel
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
@@ -778,7 +782,7 @@ export class Search extends Component<any, SearchState> {
         viewType={CommentViewType.Flat}
         viewOnly
         locked
-        noIndent
+        isTopLevel
         enableDownvotes={enableDownvotes(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}

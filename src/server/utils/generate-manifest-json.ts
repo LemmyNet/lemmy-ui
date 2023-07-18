@@ -1,4 +1,3 @@
-import { getHttpBaseExternal } from "@utils/env";
 import { readFile } from "fs/promises";
 import { GetSiteResponse } from "lemmy-js-client";
 import path from "path";
@@ -21,15 +20,13 @@ export default async function ({
     local_site: { community_creation_admin_only },
   },
 }: GetSiteResponse) {
-  const url = getHttpBaseExternal();
-
   const icon = site.icon ? await fetchIconPng(site.icon) : null;
 
   return {
     name: site.name,
     description: site.description ?? "A link aggregator for the fediverse",
-    start_url: url,
-    scope: url,
+    start_url: "/",
+    scope: "/",
     display: "standalone",
     id: "/",
     background_color: "#222222",

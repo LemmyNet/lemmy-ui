@@ -18,14 +18,9 @@ export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
 > &
   Pick<IsoData<T>, Exclude<keyof IsoData<T>, "site_res">>;
 
-export interface ILemmyConfig {
-  wsHost?: string;
-}
-
 declare global {
   interface Window {
     isoData: IsoData;
-    lemmyConfig?: ILemmyConfig;
   }
 }
 

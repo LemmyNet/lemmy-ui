@@ -718,7 +718,7 @@ export class Home extends Component<any, HomeState> {
               nodes={commentsToFlatNodes(comments)}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
-              noIndent
+              isTopLevel
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}

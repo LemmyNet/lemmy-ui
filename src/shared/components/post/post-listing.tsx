@@ -324,16 +324,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
     const thumbnail = post.thumbnail_url;
 
-    if (url && isImage(url)) {
-      if (url.includes("pictrs")) {
-        return url;
-      } else if (thumbnail) {
-        return thumbnail;
-      } else {
-        return url;
-      }
-    } else if (thumbnail) {
+    if (thumbnail) {
       return thumbnail;
+    } else if (url && isImage(url)) {
+      return url;
     } else {
       return undefined;
     }

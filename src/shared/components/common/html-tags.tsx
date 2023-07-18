@@ -8,6 +8,7 @@ import { I18NextService } from "../../services";
 interface HtmlTagsProps {
   title: string;
   path: string;
+  canonicalPath?: string;
   description?: string;
   image?: string;
 }
@@ -16,6 +17,8 @@ interface HtmlTagsProps {
 export class HtmlTags extends Component<HtmlTagsProps, any> {
   render() {
     const url = httpExternalPath(this.props.path);
+    const canonicalUrl =
+      this.props.canonicalPath ?? httpExternalPath(this.props.path);
     const desc = this.props.description;
     const image = this.props.image;
 
@@ -29,6 +32,8 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
         {["og:url", "twitter:url"].map(u => (
           <meta key={u} property={u} content={url} />
         ))}
+
+        <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
