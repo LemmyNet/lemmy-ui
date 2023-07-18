@@ -314,7 +314,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
-            mark: this.isCommentNew || this.commentView.comment.distinguished, // TODO: differentiate new/distingushed comments and keyboard nav highlighted
+            // TODO: differentiate new/distingushed comments and keyboard nav highlighted comment
+            mark: this.isCommentNew || this.commentView.comment.distinguished,
             "rounded bg-body-tertiary": isHighlighted,
           })}
           onKeyPress={e => this.handleKeybinds(e)}
@@ -323,14 +324,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           role="row"
           tabIndex={0}
         >
-          <div
-            className={classNames({
-              "ms-2": !this.props.noIndent,
-              "border-3": isHighlighted,
-            })}
-          >
+          <div className={classNames({ "ms-2": !this.props.noIndent })}>
             <div className="d-flex flex-wrap align-items-center text-muted small">
-              <div className="fw-bold">{cv.comment.id}</div>
               <button
                 className="btn btn-sm btn-link text-muted me-2"
                 onClick={linkEvent(this, this.handleCommentCollapse)}

@@ -778,8 +778,35 @@ export class Post extends Component<any, PostState> {
           this.handleHighlight(prevSibling);
           break;
         }
+        case "p": {
+          const parent = this.getParentComment(current);
+          this.handleHighlight(parent);
+          break;
+        }
+        case "t": {
+          let topParent = this.getParentComment(current);
+          let parent = this.getParentComment(topParent);
+
+          while (parent) {
+            topParent = parent;
+            parent = this.getParentComment(parent);
+          }
+
+          topParent && this.setState({ highlightedNode: topParent });
+          break;
+        }
       }
     }
+  }
+
+  getParentComment(node: Element | undefined) {
+    return (
+      node &&
+      node
+        .closest(".comments")
+        ?.closest(".comment")
+        ?.getElementsByTagName("article")[0]
+    );
   }
 
   async handleDeleteCommunityClick(form: DeleteCommunity) {

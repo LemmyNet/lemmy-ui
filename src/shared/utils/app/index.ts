@@ -18,7 +18,6 @@ import editPrivateMessageReport from "./edit-private-message-report";
 import editRegistrationApplication from "./edit-registration-application";
 import editWith from "./edit-with";
 import enableDownvotes from "./enable-downvotes";
-import isKeyboardNavigationEnabled from "./enable-keyboard-navigation";
 import enableNsfw from "./enable-nsfw";
 import fetchCommunities from "./fetch-communities";
 import fetchSearchResults from "./fetch-search-results";
@@ -91,7 +90,6 @@ export {
   initializeSite,
   insertCommentIntoTree,
   isAuthPath,
-  isKeyboardNavigationEnabled,
   isPostBlocked,
   myAuth,
   myAuthRequired,
