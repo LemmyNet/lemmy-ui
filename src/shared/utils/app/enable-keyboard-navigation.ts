@@ -1,6 +1,6 @@
 import { UserService } from "../../services";
 
-export default function enableKeyboardNavigation(
+export default function isKeyboardNavigationEnabled(
   myUserInfo = UserService.Instance.myUserInfo
 ): boolean {
   return (

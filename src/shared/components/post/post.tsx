@@ -114,6 +114,8 @@ interface PostState {
   maxCommentsShown: number;
   finished: Map<CommentId, boolean | undefined>;
   isIsomorphic: boolean;
+  highlightedNode?: Element;
+  nodes?: NodeListOf<Element>;
 }
 
 export class Post extends Component<any, PostState> {
@@ -171,6 +173,8 @@ export class Post extends Component<any, PostState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleHighlight = this.handleHighlight.bind(this);
+    this.handleKeybinds = this.handleKeybinds.bind(this);
 
     this.state = { ...this.state, commentSectionRef: createRef() };
 
@@ -279,12 +283,32 @@ export class Post extends Component<any, PostState> {
 
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
     document.addEventListener("scroll", this.commentScrollDebounced);
+
+    this.setState({
+      nodes: document.querySelectorAll(".post-listing, .comment-node"),
+    });
+
+    if (this.state.nodes && this.state.nodes?.length > 0)
+      this.setState({
+        highlightedNode: this.checkScrollIntoCommentsParam
+          ? this.state.nodes[1]
+          : this.state.nodes[0],
+      });
   }
 
   async componentDidUpdate(_lastProps: any) {
     // Necessary if you are on a post and you click another post (same route)
     if (_lastProps.location.pathname !== _lastProps.history.location.pathname) {
       await this.fetchPost();
+    }
+
+    if (
+      document.querySelectorAll(".post-listing, .comment-node").length !==
+      this.state.nodes?.length
+    ) {
+      this.setState({
+        nodes: document.querySelectorAll(".post-listing, .comment-node"),
+      });
     }
   }
 
@@ -383,6 +407,11 @@ export class Post extends Component<any, PostState> {
                 onAddAdmin={this.handleAddAdmin}
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
+                isHighlighted={this.state.highlightedNode?.classList.contains(
+                  "post-listing"
+                )}
+                handleKeybinds={this.handleKeybinds}
+                idx={0}
               />
               <div ref={this.state.commentSectionRef} className="mb-2" />
               <CommentForm
@@ -601,7 +630,7 @@ export class Post extends Component<any, PostState> {
 
   commentsTree() {
     const res = this.state.postRes;
-    const firstComment = this.commentTree().at(0)?.comment_view.comment;
+    const firstComment = this.commentTree.at(0)?.comment_view.comment;
     const depth = getDepthFromComment(firstComment);
     const showContextButton = depth ? depth > 0 : false;
 
@@ -627,7 +656,7 @@ export class Post extends Component<any, PostState> {
             </>
           )}
           <CommentNodes
-            nodes={this.commentTree()}
+            nodes={this.commentTree}
             viewType={this.state.commentViewType}
             maxCommentsShown={this.state.maxCommentsShown}
             locked={res.data.post_view.post.locked}
@@ -656,13 +685,16 @@ export class Post extends Component<any, PostState> {
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
+            handleHighlight={this.handleHighlight}
+            handleKeybinds={this.handleKeybinds}
+            highlightedNode={this.state.highlightedNode}
           />
         </div>
       )
     );
   }
 
-  commentTree(): CommentNodeI[] {
+  get commentTree(): CommentNodeI[] {
     if (this.state.commentsRes.state == "success") {
       return buildCommentsTree(
         this.state.commentsRes.data.comments,
@@ -708,6 +740,44 @@ export class Post extends Component<any, PostState> {
       );
       if (parentId) {
         i.context.router.history.push(`/comment/${parentId}`);
+      }
+    }
+  }
+
+  handleHighlight(node?: Element) {
+    node && this.setState({ highlightedNode: node });
+  }
+
+  handleKeybinds(event: KeyboardEvent) {
+    const { nodes, highlightedNode: current } = this.state;
+    if (!(event.ctrlKey || event.metaKey || event.altKey) && nodes && current) {
+      switch (event.key) {
+        case "j": {
+          const idx = Array.from(nodes).indexOf(current);
+          idx + 1 < nodes.length && this.handleHighlight(nodes[idx + 1]);
+          break;
+        }
+        case "k": {
+          const idx = Array.from(nodes).indexOf(current);
+          idx - 1 >= 0 && this.handleHighlight(nodes[idx - 1]);
+          break;
+        }
+        case "J": {
+          const nextSibling =
+            current.parentElement?.nextElementSibling?.getElementsByTagName(
+              "article"
+            )[0];
+          this.handleHighlight(nextSibling);
+          break;
+        }
+        case "K": {
+          const prevSibling =
+            current.parentElement?.previousElementSibling?.getElementsByTagName(
+              "article"
+            )[0];
+          this.handleHighlight(prevSibling);
+          break;
+        }
       }
     }
   }

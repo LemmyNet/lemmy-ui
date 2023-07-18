@@ -81,12 +81,11 @@
 }
 
 .post-container:focus,
-.post-container:focus-visible {
-  outline: none;
-}
-
+.post-container:focus-visible,
 .post-listings:focus,
-.post-listings:focus-visible {
+.post-listings:focus-visible,
+.comment-node:focus,
+.comment-node:focus-visible {
   outline: none;
 }
 

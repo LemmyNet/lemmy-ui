@@ -3,6 +3,7 @@ import {
   getCommentParentId,
   myAuth,
   myAuthRequired,
+  newVote,
   showScores,
 } from "@utils/app";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
@@ -56,6 +57,7 @@ import {
   CommentViewType,
   PurgeType,
   VoteContentType,
+  VoteType,
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
@@ -126,6 +128,9 @@ interface CommentNodeProps {
   siteLanguages: number[];
   hideImages?: boolean;
   finished: Map<CommentId, boolean | undefined>;
+  highlightedNode?: Element;
+  handleHighlight?(node: Element): void;
+  handleKeybinds?(event: KeyboardEvent): void;
   onSaveComment(form: SaveComment): void;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -238,6 +243,23 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
+  componentDidMount(): void {
+    this.focusNode();
+  }
+
+  componentDidUpdate(): void {
+    this.focusNode();
+  }
+
+  focusNode() {
+    const id = `comment-${this.commentView.comment.id}`;
+    const node = document.getElementById(id);
+    if (this.props.highlightedNode?.id == id) {
+      !(this.state.showReply || this.state.showEdit) && node?.focus();
+      node?.scrollIntoView({ behavior: "instant", block: "nearest" });
+    }
+  }
+
   render() {
     const node = this.props.node;
     const cv = this.commentView;
@@ -283,21 +305,32 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.children.length == 0 &&
       node.comment_view.counts.child_count > 0;
 
+    const isHighlighted =
+      this.props.highlightedNode?.id == `comment-${cv.comment.id}`;
+
     return (
       <li className="comment">
         <article
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
-            mark: this.isCommentNew || this.commentView.comment.distinguished,
+            mark: this.isCommentNew || this.commentView.comment.distinguished, // TODO: differentiate new/distingushed comments and keyboard nav highlighted
+            "rounded bg-body-tertiary": isHighlighted,
           })}
+          onKeyPress={e => this.handleKeybinds(e)}
+          onClick={e => this.handleCommentClick(e.currentTarget)}
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
+          role="row"
+          tabIndex={0}
         >
           <div
             className={classNames({
               "ms-2": !this.props.noIndent,
+              "border-3": isHighlighted,
             })}
           >
             <div className="d-flex flex-wrap align-items-center text-muted small">
+              <div className="fw-bold">{cv.comment.id}</div>
               <button
                 className="btn btn-sm btn-link text-muted me-2"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
@@ -1158,6 +1191,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onCommentReport={this.props.onCommentReport}
             onPurgePerson={this.props.onPurgePerson}
             onPurgeComment={this.props.onPurgeComment}
+            handleHighlight={this.props.handleHighlight}
+            handleKeybinds={this.props.handleKeybinds}
+            highlightedNode={this.props.highlightedNode}
           />
         )}
         {/* A collapsed clearfix */}
@@ -1263,6 +1299,46 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : comment.deleted
       ? `*${I18NextService.i18n.t("deleted")}*`
       : comment.content;
+  }
+
+  handleKeybinds(event: KeyboardEvent) {
+    const { comment, my_vote } = this.commentView;
+    if (!(event.ctrlKey || event.metaKey || event.altKey)) {
+      switch (event.key) {
+        case "a": {
+          this.props.onCommentVote({
+            comment_id: comment.id,
+            score: newVote(VoteType.Upvote, my_vote),
+            auth: myAuthRequired(),
+          });
+          break;
+        }
+        case "z": {
+          this.props.onCommentVote({
+            comment_id: comment.id,
+            score: newVote(VoteType.Downvote, my_vote),
+            auth: myAuthRequired(),
+          });
+          break;
+        }
+        case "r": {
+          this.handleReplyClick(this);
+          break;
+        }
+        case "e": {
+          this.handleEditClick(this);
+          break;
+        }
+        default: {
+          this.props.handleKeybinds?.(event);
+          break;
+        }
+      }
+    }
+  }
+
+  handleCommentClick(parent: Element | null) {
+    parent && this.props.handleHighlight?.(parent);
   }
 
   handleReplyClick(i: CommentNode) {

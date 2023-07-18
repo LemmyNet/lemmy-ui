@@ -1,7 +1,9 @@
 import { Community } from "lemmy-js-client";
 import hostname from "./hostname";
 
-export default function getCommunityDetails(community: Community) {
+export default function getCommunityDetails(
+  community: Community
+): [string, string, string] {
   let name_: string, title: string, link: string;
   const local = community.local == null ? true : community.local;
   if (local) {

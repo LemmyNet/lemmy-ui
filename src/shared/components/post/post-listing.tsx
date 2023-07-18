@@ -139,7 +139,6 @@ interface PostListingProps {
   isExpanded?: boolean;
   isHighlighted?: boolean;
   idx?: number;
-  enableKeyboardNav?: boolean;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -256,7 +255,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <>
           <div className="offset-sm-3 my-2 d-none d-sm-block">
             <a href={this.imageSrc} className="d-inline-block">
-              <PictrsImage src={this.imageSrc} />
+              <PictrsImage
+                src={this.imageSrc}
+                onLoad={() =>
+                  this.focusListing(this.props.idx, this.props.isHighlighted)
+                }
+              />
             </a>
           </div>
           <div className="my-2 d-block d-sm-none">
@@ -1371,9 +1375,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         id={`post-listing-${this.props.idx}}`}
         className={classNames(`my-1 p-2 row post-container`, {
           "rounded bg-body-tertiary":
-            this.props.enableKeyboardNav && this.props.isHighlighted,
+            !this.props.viewOnly && this.props.isHighlighted,
         })}
-        onKeyDown={e => this.handleKeybinds(e)}
+        onKeyPress={e => this.handleKeybinds(e)}
         onClick={() => this.props.handleHighlight?.(this.props.idx)}
         role="menuitem"
         tabIndex={0}
@@ -1397,7 +1401,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {/* The larger view*/}
         <div className="d-none d-sm-block">
           <article className="row post-container">
-            {this.props.enableKeyboardNav && this.props.idx != undefined && (
+            {this.props.idx != undefined && (
               <div className="col flex-grow-0 d-inline-flex align-items-center">
                 <div className="row px-1">{this.props.idx + 1}</div>
               </div>
@@ -1442,25 +1446,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentDidMount(): void {
-    this.props.enableKeyboardNav && this.focusListing();
+    !this.props.viewOnly && this.props.isHighlighted && this.focusListing();
   }
 
   componentDidUpdate(): void {
-    if (!this.props.enableKeyboardNav) return;
-
-    this.focusListing();
-    if (this.props.isExpanded) {
-      this.props.isHighlighted != this.state.imageExpanded &&
-        this.handleShowImage(this);
-      this.props.isHighlighted != this.showBody && this.handleShowBody(this);
+    if (!this.props.viewOnly) {
+      if (this.props.isExpanded) {
+        this.props.isHighlighted != this.state.imageExpanded &&
+          this.handleShowImage(this);
+        this.props.isHighlighted != this.showBody && this.handleShowBody(this);
+      }
+      this.props.isHighlighted && this.focusListing();
     }
   }
 
-  focusListing() {
-    const postListing = document.getElementById(
-      `post-listing-${this.props.idx}}`
-    );
-    this.props.isHighlighted && postListing?.focus();
+  focusListing(idx = this.props.idx, isHighlighted = this.props.isHighlighted) {
+    const postListing = document.getElementById(`post-listing-${idx}}`);
+    if (isHighlighted) {
+      postListing?.focus();
+      (this.state.imageExpanded || this.props.showBody) &&
+        postListing?.parentElement?.scrollIntoView({ behavior: "instant" });
+      this.props.idx == 0 && window.scrollTo({ top: 0, behavior: "instant" });
+    }
   }
 
   handleListingClick() {
@@ -1468,12 +1475,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleKeybinds(event: KeyboardEvent) {
-    const {
-      creator,
-      post: { id, url },
-    } = this.postView;
+    const { creator, community, my_vote, post } = this.postView;
+    const { id, url } = post;
     if (
-      this.props.enableKeyboardNav &&
+      !this.props.viewOnly &&
       !event.ctrlKey &&
       !event.metaKey &&
       !event.altKey
@@ -1516,29 +1521,33 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           break;
         }
         case "g": {
-          const [, , link] = getCommunityDetails(this.postView.community);
+          const [, , link] = getCommunityDetails(community);
           window.open(link);
           break;
         }
         case "G": {
-          const [, , link] = getCommunityDetails(this.postView.community);
+          const [, , link] = getCommunityDetails(community);
           this.context.router.history.push(link);
           break;
         }
         case "a": {
           this.props.onPostVote({
-            post_id: this.postView.post.id,
-            score: newVote(VoteType.Upvote, this.postView.my_vote),
+            post_id: id,
+            score: newVote(VoteType.Upvote, my_vote),
             auth: myAuthRequired(),
           });
           break;
         }
         case "z": {
           this.props.onPostVote({
-            post_id: this.postView.post.id,
-            score: newVote(VoteType.Downvote, this.postView.my_vote),
+            post_id: id,
+            score: newVote(VoteType.Downvote, my_vote),
             auth: myAuthRequired(),
           });
+          break;
+        }
+        default: {
+          this.props.handleKeybinds?.(event);
           break;
         }
       }

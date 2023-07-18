@@ -49,6 +49,7 @@ interface CommentNodesProps {
   isChild?: boolean;
   depth?: number;
   finished: Map<CommentId, boolean | undefined>;
+  highlightedNode?: Element;
   onSaveComment(form: SaveComment): void;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -68,6 +69,8 @@ interface CommentNodesProps {
   onCommentReport(form: CreateCommentReport): void;
   onPurgePerson(form: PurgePerson): void;
   onPurgeComment(form: PurgeComment): void;
+  handleHighlight?(node: Element): void;
+  handleKeybinds?(event: KeyboardEvent): void;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -133,6 +136,9 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               onCommentReport={this.props.onCommentReport}
               onPurgePerson={this.props.onPurgePerson}
               onPurgeComment={this.props.onPurgeComment}
+              highlightedNode={this.props.highlightedNode}
+              handleHighlight={this.props.handleHighlight}
+              handleKeybinds={this.props.handleKeybinds}
             />
           ))}
         </ul>

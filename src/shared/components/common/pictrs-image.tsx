@@ -13,6 +13,7 @@ interface PictrsImageProps {
   nsfw?: boolean;
   iconOverlay?: boolean;
   pushup?: boolean;
+  onLoad?: () => void;
 }
 
 export class PictrsImage extends Component<PictrsImageProps, any> {
@@ -31,6 +32,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
           alt={this.alt()}
           title={this.alt()}
           loading="lazy"
+          onLoad={this.props.onLoad}
           className={classNames("overflow-hidden pictrs-image", {
             "img-fluid": !this.props.icon && !this.props.iconOverlay,
             banner: this.props.banner,

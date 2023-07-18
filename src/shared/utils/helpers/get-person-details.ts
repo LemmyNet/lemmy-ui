@@ -1,7 +1,7 @@
 import { Person } from "lemmy-js-client";
 import hostname from "./hostname";
 
-export default function getPersonDetails(person: Person) {
+export default function getPersonDetails(person: Person): [string, string] {
   const local = person.local;
   let apubName: string, link: string;
 
@@ -16,5 +16,5 @@ export default function getPersonDetails(person: Person) {
       : person.actor_id;
   }
 
-  return [apubName, link] as const;
+  return [apubName, link];
 }
