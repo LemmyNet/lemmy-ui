@@ -72,7 +72,6 @@ interface SettingsState {
     show_new_post_notifs?: boolean;
     discussion_languages?: number[];
     generate_totp_2fa?: boolean;
-    enable_keyboard_navigation?: boolean;
   };
   changePasswordForm: {
     new_password?: string;
@@ -186,7 +185,6 @@ export class Settings extends Component<any, SettingsState> {
           show_read_posts,
           show_new_post_notifs,
           send_notifications_to_email,
-          enable_keyboard_navigation,
           email,
         },
         person: {
@@ -220,7 +218,6 @@ export class Settings extends Component<any, SettingsState> {
           show_scores,
           show_read_posts,
           show_new_post_notifs,
-          enable_keyboard_navigation,
           email,
           bio,
           send_notifications_to_email,
@@ -805,25 +802,6 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="input-group mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="user-enable-keyboard-navigation"
-                type="checkbox"
-                checked={
-                  this.state.saveUserSettingsForm.enable_keyboard_navigation
-                }
-                onChange={linkEvent(this, this.handleKeyboardNavigationChange)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="user-enable-keyboard-navigation"
-              >
-                {I18NextService.i18n.t("enable_keyboard_navigation")}
-              </label>
-            </div>
-          </div>
           {this.totpSection()}
           <div className="input-group mb-3">
             <button type="submit" className="btn d-block btn-secondary me-4">
@@ -1095,16 +1073,6 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.send_notifications_to_email =
-          event.target.checked),
-        s
-      )
-    );
-  }
-
-  handleKeyboardNavigationChange(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.enable_keyboard_navigation =
           event.target.checked),
         s
       )

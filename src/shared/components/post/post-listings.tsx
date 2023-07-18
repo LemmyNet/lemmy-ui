@@ -81,11 +81,6 @@ export class PostListings extends Component<
   }
 
   render() {
-    const keyboardNavProps = {
-      handleHighlight: this.handleHighlight,
-      toggleExpand: this.toggleExpand,
-    };
-
     return (
       <div
         className="post-listings"
@@ -97,6 +92,7 @@ export class PostListings extends Component<
           this.posts.map((post_view, idx) => (
             <>
               <PostListing
+                idx={idx}
                 post_view={post_view}
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
@@ -105,6 +101,8 @@ export class PostListings extends Component<
                 viewOnly={this.props.viewOnly}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                isHighlighted={this.state.highlightedPost == idx}
+                isExpanded={this.state.isExpanded}
                 onPostEdit={this.props.onPostEdit}
                 onPostVote={this.props.onPostVote}
                 onPostReport={this.props.onPostReport}
@@ -121,10 +119,8 @@ export class PostListings extends Component<
                 onAddModToCommunity={this.props.onAddModToCommunity}
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
-                isHighlighted={this.state.highlightedPost == idx}
-                isExpanded={this.state.isExpanded}
-                idx={idx}
-                {...keyboardNavProps}
+                handleHighlight={this.handleHighlight}
+                toggleExpand={this.toggleExpand}
               />
               {idx + 1 !== this.posts.length && <hr className="my-0" />}
             </>

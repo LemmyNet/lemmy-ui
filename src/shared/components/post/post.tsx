@@ -371,6 +371,8 @@ export class Post extends Component<any, PostState> {
         );
       case "success": {
         const res = this.state.postRes.data;
+        const isHighlighted =
+          this.state.highlightedNode?.classList.contains("post-listing");
         return (
           <div className="row">
             <main className="col-12 col-md-8 col-lg-9 mb-3">
@@ -381,6 +383,7 @@ export class Post extends Component<any, PostState> {
                 description={res.post_view.post.body}
               />
               <PostListing
+                idx={0}
                 post_view={res.post_view}
                 crossPosts={res.cross_posts}
                 showBody
@@ -391,6 +394,7 @@ export class Post extends Component<any, PostState> {
                 enableNsfw={enableNsfw(this.state.siteRes)}
                 allLanguages={this.state.siteRes.all_languages}
                 siteLanguages={this.state.siteRes.discussion_languages}
+                isHighlighted={isHighlighted}
                 onBlockPerson={this.handleBlockPerson}
                 onPostEdit={this.handlePostEdit}
                 onPostVote={this.handlePostVote}
@@ -407,11 +411,7 @@ export class Post extends Component<any, PostState> {
                 onAddAdmin={this.handleAddAdmin}
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
-                isHighlighted={this.state.highlightedNode?.classList.contains(
-                  "post-listing"
-                )}
                 handleKeybinds={this.handleKeybinds}
-                idx={0}
               />
               <div ref={this.state.commentSectionRef} className="mb-2" />
               <CommentForm
@@ -666,6 +666,7 @@ export class Post extends Component<any, PostState> {
             finished={this.state.finished}
             allLanguages={this.state.siteRes.all_languages}
             siteLanguages={this.state.siteRes.discussion_languages}
+            highlightedNode={this.state.highlightedNode}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -687,7 +688,6 @@ export class Post extends Component<any, PostState> {
             onEditComment={this.handleEditComment}
             handleHighlight={this.handleHighlight}
             handleKeybinds={this.handleKeybinds}
-            highlightedNode={this.state.highlightedNode}
           />
         </div>
       )
