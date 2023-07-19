@@ -6,7 +6,11 @@ import {
   newVote,
   showScores,
 } from "@utils/app";
-import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
+import {
+  futureDaysToUnixTime,
+  getPersonDetails,
+  numToSI,
+} from "@utils/helpers";
 import {
   amCommunityCreator,
   canAdmin,
@@ -318,7 +322,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             mark: this.isCommentNew || this.commentView.comment.distinguished,
             "rounded bg-body-tertiary": isHighlighted,
           })}
-          onKeyPress={e => this.handleKeybinds(e)}
+          onKeyUp={e => this.handleKeybinds(e)}
           onClick={e => this.handleCommentClick(e.currentTarget)}
           // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
           role="row"
@@ -1297,7 +1301,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleKeybinds(event: KeyboardEvent) {
-    const { comment, my_vote } = this.commentView;
+    const { comment, creator, my_vote } = this.commentView;
     if (!(event.ctrlKey || event.metaKey || event.altKey)) {
       switch (event.key) {
         case "a": {
@@ -1322,6 +1326,24 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         }
         case "e": {
           this.handleEditClick(this);
+          break;
+        }
+        case "u": {
+          const [, link] = getPersonDetails(creator);
+          window.open(link);
+          break;
+        }
+        case "U": {
+          const [, link] = getPersonDetails(creator);
+          this.context.router.history.push(link);
+          break;
+        }
+        case ".": {
+          this.handleShowAdvanced(this);
+          break;
+        }
+        case "s": {
+          this.handleSaveComment(this);
           break;
         }
         default: {

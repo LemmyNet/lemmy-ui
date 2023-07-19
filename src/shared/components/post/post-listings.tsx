@@ -84,9 +84,9 @@ export class PostListings extends Component<
     return (
       <div
         className="post-listings"
-        onKeyDown={this.handleKeybinds}
-        role="menu"
-        tabIndex={0}
+        onKeyPress={this.handleKeybinds}
+        role="grid"
+        tabIndex={-1}
       >
         {this.posts.length > 0 ? (
           this.posts.map((post_view, idx) => (

@@ -1373,8 +1373,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         })}
         onKeyPress={e => this.handleKeybinds(e)}
         onClick={() => this.props.handleHighlight?.(this.props.idx)}
-        role="menuitem"
-        tabIndex={0}
+        role="row"
+        tabIndex={-1}
       >
         {/* The mobile view*/}
         <div className="d-block d-sm-none">
@@ -1395,11 +1395,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {/* The larger view*/}
         <div className="d-none d-sm-block">
           <article className="row post-container">
-            {this.props.idx != undefined && (
-              <div className="col flex-grow-0 d-inline-flex align-items-center">
-                <div className="row px-1">{this.props.idx + 1}</div>
-              </div>
-            )}
             {!this.props.viewOnly && (
               <div className="col flex-grow-0">
                 <VoteButtons
