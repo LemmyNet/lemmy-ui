@@ -7,9 +7,9 @@ import { Icon } from "./icon";
 
 interface SortSelectProps {
   sort: SortType;
+  hideControversial?: boolean;
   onChange(val: SortType): void;
   hideHot?: boolean;
-  hideControversial?: boolean;
   hideMostComments?: boolean;
 }
 

@@ -214,6 +214,7 @@ export class Inbox extends Component<any, InboxState> {
   render() {
     const auth = myAuth();
     const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
+
     return (
       <div className="inbox container-lg">
         <div className="row">

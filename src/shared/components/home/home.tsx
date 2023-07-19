@@ -772,7 +772,11 @@ export class Home extends Component<any, HomeState> {
           />
         </div>
         <div className="col-auto">
-          <SortSelect sort={sort} onChange={this.handleSortChange} />
+          <SortSelect
+            sort={sort}
+            onChange={this.handleSortChange}
+            hideControversial={!enableDownvotes(this.state.siteRes)}
+          />
         </div>
         <div className="col-auto ps-0">
           {getRss(
