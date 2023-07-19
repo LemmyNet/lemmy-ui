@@ -15,6 +15,7 @@ import { isImage } from "@utils/media";
 import { Choice } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
 import {
   CommunityView,
   CreatePost,
@@ -39,7 +40,6 @@ import { toast } from "../../toast";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import NavigationPrompt from "../common/navigation-prompt";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 
@@ -332,7 +332,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     return (
       <form className="post-form" onSubmit={linkEvent(this, handlePostSubmit)}>
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !!(
               this.state.form.name ||

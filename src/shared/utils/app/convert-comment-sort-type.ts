@@ -11,6 +11,9 @@ export default function convertCommentSortType(
     case "TopDay":
     case "TopWeek":
     case "TopMonth":
+    case "TopThreeMonths":
+    case "TopSixMonths":
+    case "TopNineMonths":
     case "TopYear": {
       return "Top";
     }
