@@ -8,6 +8,7 @@ import { CustomEmojiView } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
 // import markdown_it_emoji from "markdown-it-emoji/bare";
+import markdown_it_bidi from "markdown-it-bidi";
 import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_ruby from "markdown-it-ruby";
@@ -161,7 +162,8 @@ export function setupMarkdown() {
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
     .use(markdown_it_ruby)
-    .use(localInstanceLinkParser);
+    .use(localInstanceLinkParser)
+    .use(markdown_it_bidi);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });
@@ -173,6 +175,7 @@ export function setupMarkdown() {
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
     .use(localInstanceLinkParser)
+    .use(markdown_it_bidi)
     // .use(markdown_it_emoji, {
     //   defs: emojiDefs,
     // })
