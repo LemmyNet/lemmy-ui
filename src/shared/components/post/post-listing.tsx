@@ -1492,11 +1492,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           break;
         }
         case "l": {
-          url && window.open(url);
+          window.open(url ?? `/post/${id}`);
           break;
         }
         case "L": {
-          url && this.context.router.history.push(url);
+          this.context.router.history.push(url ?? `/post/${id}`);
           break;
         }
         case "u": {
