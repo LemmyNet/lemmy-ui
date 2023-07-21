@@ -21,7 +21,7 @@ import { VerifyEmail } from "./components/person/verify-email";
 import { CreatePost } from "./components/post/create-post";
 import { Post } from "./components/post/post";
 import { CreatePrivateMessage } from "./components/private_message/create-private-message";
-import { RemoteFetch } from "./components/remote_fetch";
+import { RemoteFetch } from "./components/remote-fetch";
 import { Search } from "./components/search";
 import { InitialFetchRequest, RouteData } from "./interfaces";
 

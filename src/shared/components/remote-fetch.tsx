@@ -75,12 +75,12 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
 
   render() {
     return (
-      <div className="remote-fetch container-lg">
+      <div className="remote-fetch container-lg d-flex">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <div className="row">
+        <div className="row flex-grow-1 align-items-center">
           <div className="col-12 col-lg-6 offset-lg-3 text-center">
             {this.content}
           </div>
@@ -97,7 +97,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
         return (
           <>
             <h1>Community Federated!</h1>
-            <Link href="/" className="btn btn-lg bt-link btn-primary mt-auto">
+            <Link href="/" className="btn btn-lg bt-link btn-primary mt-5">
               Click to visit com
             </Link>
           </>

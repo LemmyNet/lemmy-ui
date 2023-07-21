@@ -249,6 +249,7 @@ hr {
 
 .fl-1 {
   flex: 1;
+  display: flex;
 }
 
 .img-blur {
