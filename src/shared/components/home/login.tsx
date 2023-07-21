@@ -60,9 +60,6 @@ async function handleLoginSubmit(i: Login, event: any) {
         const { hash, pathname, search } = (i.props.history.location.state ??
           {}) as Location;
 
-        console.log("Login state");
-        console.log(i.props.history.location.state);
-
         i.props.history.location.state
           ? i.props.history.replace({ hash, pathname, search })
           : i.props.history.action === "PUSH"

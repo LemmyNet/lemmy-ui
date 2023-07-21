@@ -161,7 +161,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             </div>
           </section>
         </div>
-        {this.remoteFetchModal}
       </aside>
     );
   }
@@ -257,12 +256,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
     if (!UserService.Instance.myUserInfo) {
       return (
-        <button
-          type="button"
-          className="btn btn-secondary d-block mb-2 w-100"
-          data-bs-toggle="modal"
-          data-bs-target="#remoteFetchModal"
-        >
+        <button type="button" className="btn btn-secondary d-block mb-2 w-100">
           {I18NextService.i18n.t("subscribe")}
         </button>
       );
@@ -292,56 +286,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           </>
         )}
       </button>
-    );
-  }
-
-  get remoteFetchModal() {
-    return (
-      <div
-        className="modal fade"
-        id="remoteFetchModal"
-        tabIndex={-1}
-        aria-hidden={true}
-        aria-labelledby="#remoteFetchModalTitle"
-      >
-        <div className="modal-dialog modal-fullscreen-sm-down">
-          <div className="modal-content">
-            <header className="modal-header">
-              <h3 className="modal-title" id="remoteFetchModalTitle">
-                Subscribe from Remote Instance
-              </h3>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              />
-            </header>
-            <form className="modal-body d-flex flex-column justify-content-center">
-              <label className="form-label" htmlFor="remoteFetchInstance">
-                Enter the instance you would like to follow this community from
-              </label>
-              <input
-                type="text"
-                id="remoteFetchInstance"
-                className="form-control"
-              />
-            </form>
-            <footer className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-              <button type="button" className="btn btn-primary">
-                Save changes
-              </button>
-            </footer>
-          </div>
-        </div>
-      </div>
     );
   }
 
