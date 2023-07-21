@@ -636,7 +636,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       i.setState({ leaveModTeamLoading: true });
       i.props.onLeaveModTeam({
         community_id: i.props.community_view.community.id,
-        person_id: 92,
+        person_id: myId,
         added: false,
         auth: myAuthRequired(),
       });
