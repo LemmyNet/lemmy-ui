@@ -85,11 +85,6 @@ function handleLoginTotpChange(i: Login, event: any) {
   i.setState(i.state);
 }
 
-function handleLoginPasswordChange(i: Login, event: any) {
-  i.state.form.password = event.target.value;
-  i.setState(i.state);
-}
-
 export class Login extends Component<
   RouteComponentProps<Record<string, never>>,
   State
