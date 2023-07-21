@@ -1,4 +1,5 @@
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 import { UserService } from "../../services";
 import { Spinner } from "./icon";
 
@@ -6,20 +7,26 @@ interface AuthGuardState {
   hasRedirected: boolean;
 }
 
-class AuthGuard extends Component<{ children?: InfernoNode }, AuthGuardState> {
+class AuthGuard extends Component<
+  RouteComponentProps<Record<string, string>>,
+  AuthGuardState
+> {
   state = {
     hasRedirected: false,
   } as AuthGuardState;
 
-  constructor(props: any, context: any) {
+  constructor(
+    props: RouteComponentProps<Record<string, string>>,
+    context: any
+  ) {
     super(props, context);
   }
 
   componentDidMount() {
     if (!UserService.Instance.myUserInfo) {
+      const { pathname, search } = this.props.location;
       this.context.router.history.replace(
-        "/login",
-        this.context.router.history.location
+        `/login?prev=${encodeURIComponent(pathname + search)}`
       );
     } else {
       this.setState({ hasRedirected: true });

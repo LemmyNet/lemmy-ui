@@ -72,10 +72,10 @@ export class App extends Component<AppProps, any> {
 
                         return (
                           <ErrorGuard>
-                            <div tabIndex={-1}>
+                            <div tabIndex={-1} className="h-100">
                               {RouteComponent &&
                                 (isAuthPath(path ?? "") ? (
-                                  <AuthGuard>
+                                  <AuthGuard {...routeProps}>
                                     <RouteComponent {...routeProps} />
                                   </AuthGuard>
                                 ) : (

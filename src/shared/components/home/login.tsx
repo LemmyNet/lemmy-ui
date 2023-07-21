@@ -1,6 +1,6 @@
 import { myAuth, setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { Location } from "history";
+import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
@@ -10,6 +10,17 @@ import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
+
+interface LoginProps {
+  prev?: string;
+}
+
+const getLoginQueryParams = () =>
+  getQueryParams<LoginProps>({
+    prev(param) {
+      return param ? decodeURIComponent(param) : undefined;
+    },
+  });
 
 interface State {
   loginRes: RequestState<LoginResponse>;
@@ -57,11 +68,10 @@ async function handleLoginSubmit(i: Login, event: any) {
           UserService.Instance.myUserInfo = site.data.my_user;
         }
 
-        const { hash, pathname, search } = (i.props.history.location.state ??
-          {}) as Location;
+        const { prev } = getLoginQueryParams();
 
-        i.props.history.location.state
-          ? i.props.history.replace({ hash, pathname, search })
+        prev
+          ? i.props.history.replace(prev)
           : i.props.history.action === "PUSH"
           ? i.props.history.back()
           : i.props.history.replace("/");
