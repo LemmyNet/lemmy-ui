@@ -1,7 +1,6 @@
 import { myAuthRequired } from "@utils/app";
 import { getUnixTime, hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
-import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -23,6 +22,7 @@ import { I18NextService, UserService } from "../../services";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
+import { SubscribeButton } from "../common/subscribe-button";
 import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
@@ -124,7 +124,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   sidebar() {
     const myUSerInfo = UserService.Instance.myUserInfo;
-    const { name, actor_id } = this.props.community_view.community;
+    const {
+      community: { name, actor_id },
+      subscribed,
+    } = this.props.community_view;
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -132,7 +135,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              {this.subscribeButton}
+              <SubscribeButton
+                subscribed={subscribed}
+                onFollow={linkEvent(this, this.handleFollowCommunity)}
+                onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
+                loading={this.state.followCommunityLoading}
+              />
               {this.canPost && this.createPost()}
               {myUSerInfo && this.blockCommunity()}
               {!myUSerInfo && (
@@ -228,64 +236,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       >
         {I18NextService.i18n.t("create_a_post")}
       </Link>
-    );
-  }
-
-  get subscribeButton() {
-    const community_view = this.props.community_view;
-
-    let i18key: NoOptionI18nKeys;
-
-    switch (community_view.subscribed) {
-      case "NotSubscribed": {
-        i18key = "subscribe";
-
-        break;
-      }
-      case "Subscribed": {
-        i18key = "joined";
-
-        break;
-      }
-      case "Pending": {
-        i18key = "subscribe_pending";
-
-        break;
-      }
-    }
-
-    if (!UserService.Instance.myUserInfo) {
-      return (
-        <button type="button" className="btn btn-secondary d-block mb-2 w-100">
-          {I18NextService.i18n.t("subscribe")}
-        </button>
-      );
-    }
-
-    return (
-      <button
-        type="button"
-        className={`btn btn-${
-          community_view.subscribed === "Pending" ? "warning" : "secondary"
-        } d-block mb-2 w-100`}
-        onClick={linkEvent(
-          this,
-          community_view.subscribed === "NotSubscribed"
-            ? this.handleFollowCommunity
-            : this.handleUnfollowCommunity
-        )}
-      >
-        {this.state.followCommunityLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            {community_view.subscribed === "Subscribed" && (
-              <Icon icon="check" classes="icon-inline me-1" />
-            )}
-            {I18NextService.i18n.t(i18key)}
-          </>
-        )}
-      </button>
     );
   }
 
