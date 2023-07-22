@@ -8,6 +8,8 @@ import { InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
 import { RequestState } from "../services/HttpService";
 import { HtmlTags } from "./common/html-tags";
+import { Spinner } from "./common/icon";
+import { LoadingEllipses } from "./common/loading-ellipses";
 
 interface RemoteFetchProps {
   uri?: string;
@@ -90,7 +92,9 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
   }
 
   get content() {
-    const status: "success" | "loading" | "empty" = "success";
+    const status = "loading" as "success" | "loading" | "empty";
+
+    const { uri } = getRemoteFetchQueryParams();
 
     switch (status) {
       case "success": {
@@ -100,6 +104,20 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
             <Link href="/" className="btn btn-lg bt-link btn-primary mt-5">
               Click to visit com
             </Link>
+          </>
+        );
+      }
+
+      case "loading": {
+        return (
+          <>
+            <h1>
+              Fetching {uri ? uriToQuery(uri) : "remote community"}
+              <LoadingEllipses />
+            </h1>
+            <h5>
+              <Spinner large />
+            </h5>
           </>
         );
       }

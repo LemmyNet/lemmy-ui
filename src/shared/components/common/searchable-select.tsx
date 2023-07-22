@@ -9,6 +9,7 @@ import {
 } from "inferno";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "./icon";
+import { LoadingEllipses } from "./loading-ellipses";
 
 interface SearchableSelectProps {
   id: string;
@@ -22,7 +23,6 @@ interface SearchableSelectProps {
 interface SearchableSelectState {
   selectedIndex: number;
   searchText: string;
-  loadingEllipses: string;
 }
 
 function handleSearch(i: SearchableSelect, e: ChangeEvent<HTMLInputElement>) {
@@ -70,12 +70,10 @@ export class SearchableSelect extends Component<
 > {
   searchInputRef: RefObject<HTMLInputElement> = createRef();
   toggleButtonRef: RefObject<HTMLButtonElement> = createRef();
-  private loadingEllipsesInterval?: NodeJS.Timer = undefined;
 
   state: SearchableSelectState = {
     selectedIndex: 0,
     searchText: "",
-    loadingEllipses: "...",
   };
 
   constructor(props: SearchableSelectProps, context: any) {
@@ -99,7 +97,7 @@ export class SearchableSelect extends Component<
 
   render() {
     const { id, options, onSearch, loading } = this.props;
-    const { searchText, selectedIndex, loadingEllipses } = this.state;
+    const { searchText, selectedIndex } = this.state;
 
     return (
       <div className="searchable-select dropdown col-12 col-sm-auto flex-grow-1">
@@ -116,9 +114,14 @@ export class SearchableSelect extends Component<
           onClick={linkEvent(this, focusSearch)}
           ref={this.toggleButtonRef}
         >
-          {loading
-            ? `${I18NextService.i18n.t("loading")}${loadingEllipses}`
-            : options[selectedIndex].label}
+          {loading ? (
+            <>
+              {I18NextService.i18n.t("loading")}
+              <LoadingEllipses />
+            </>
+          ) : (
+            options[selectedIndex].label
+          )}
         </button>
         <div className="modlog-choices-font-size dropdown-menu w-100 p-2">
           <div className="input-group">
@@ -179,25 +182,5 @@ export class SearchableSelect extends Component<
     return {
       selectedIndex,
     };
-  }
-
-  componentDidUpdate() {
-    const { loading } = this.props;
-    if (loading && !this.loadingEllipsesInterval) {
-      this.loadingEllipsesInterval = setInterval(() => {
-        this.setState(({ loadingEllipses }) => ({
-          loadingEllipses:
-            loadingEllipses.length === 3 ? "" : loadingEllipses + ".",
-        }));
-      }, 750);
-    } else if (!loading && this.loadingEllipsesInterval) {
-      clearInterval(this.loadingEllipsesInterval);
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.loadingEllipsesInterval) {
-      clearInterval(this.loadingEllipsesInterval);
-    }
   }
 }
