@@ -95,6 +95,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
     const status = "loading" as "success" | "loading" | "empty";
 
     const { uri } = getRemoteFetchQueryParams();
+    const remoteCommunityName = uri ? uriToQuery(uri) : "remote community";
 
     switch (status) {
       case "success": {
@@ -112,12 +113,20 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
         return (
           <>
             <h1>
-              Fetching {uri ? uriToQuery(uri) : "remote community"}
+              Fetching {remoteCommunityName}
               <LoadingEllipses />
             </h1>
             <h5>
               <Spinner large />
             </h5>
+          </>
+        );
+      }
+
+      default: {
+        return (
+          <>
+            <h1>Could not fetch {remoteCommunityName}</h1>
           </>
         );
       }
