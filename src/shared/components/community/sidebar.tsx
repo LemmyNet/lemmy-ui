@@ -126,7 +126,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUSerInfo = UserService.Instance.myUserInfo;
     const {
       community: { name, actor_id },
-      subscribed,
     } = this.props.community_view;
     return (
       <aside className="mb-3">
@@ -136,7 +135,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
               <SubscribeButton
-                subscribed={subscribed}
+                communityView={this.props.community_view}
                 onFollow={linkEvent(this, this.handleFollowCommunity)}
                 onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
                 loading={this.state.followCommunityLoading}

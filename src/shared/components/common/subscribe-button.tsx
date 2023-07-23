@@ -1,22 +1,24 @@
+import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { MouseEventHandler } from "inferno";
-import { SubscribedType } from "lemmy-js-client";
+import { Component, MouseEventHandler } from "inferno";
+import { CommunityView } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { Icon, Spinner } from "./icon";
 
 interface SubscribeButtonProps {
-  subscribed: SubscribedType;
+  communityView: CommunityView;
   onFollow: MouseEventHandler;
   onUnFollow: MouseEventHandler;
   loading: boolean;
 }
 
 export function SubscribeButton({
-  subscribed,
+  communityView,
   onFollow,
   onUnFollow,
   loading,
 }: SubscribeButtonProps) {
+  const { subscribed } = communityView;
   let i18key: NoOptionI18nKeys;
 
   switch (subscribed) {
@@ -37,20 +39,31 @@ export function SubscribeButton({
     }
   }
 
+  const buttonClass = "btn d-block mb-2 w-100";
+
   if (!UserService.Instance.myUserInfo) {
     return (
-      <button type="button" className="btn btn-secondary d-block mb-2 w-100">
-        {I18NextService.i18n.t("subscribe")}
-      </button>
+      <>
+        <button
+          type="button"
+          className={classNames(buttonClass, "btn-secondary")}
+          data-bs-toggle="modal"
+          data-bs-target="#remoteFetchModal"
+        >
+          {I18NextService.i18n.t("subscribe")}
+        </button>
+        <RemoteFetchModal />
+      </>
     );
   }
 
   return (
     <button
       type="button"
-      className={`btn btn-${
-        subscribed === "Pending" ? "warning" : "secondary"
-      } d-block mb-2 w-100`}
+      className={classNames(
+        buttonClass,
+        `btn-${subscribed === "Pending" ? "warning" : "secondary"}`
+      )}
       onClick={subscribed === "NotSubscribed" ? onFollow : onUnFollow}
     >
       {loading ? (
@@ -65,4 +78,68 @@ export function SubscribeButton({
       )}
     </button>
   );
+}
+
+class RemoteFetchModal extends Component {
+  constructor(props, context) {
+    super(props, context);
+  }
+
+  render() {
+    return (
+      <div
+        className="modal fade"
+        id="remoteFetchModal"
+        tabIndex={-1}
+        aria-hidden
+        aria-labelledby="#remoteFetchModalTitle"
+      >
+        <div className="modal-dialog modal-fullscreen-sm-down">
+          <div className="modal-content">
+            <header className="modal-header">
+              <h3 className="modal-title" id="remoteFetchModalTitle">
+                Subscribe from Remote Instance
+              </h3>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              />
+            </header>
+            <form
+              id="remote-fetch-form"
+              className="modal-body d-flex flex-column justify-content-center"
+            >
+              <label className="form-label" htmlFor="remoteFetchInstance">
+                Enter the instance you would like to follow this community from:
+              </label>
+              <input
+                type="text"
+                id="remoteFetchInstance"
+                className="form-control"
+                name="instance"
+              />
+            </form>
+            <footer className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                form="remote-fetch-form"
+              >
+                Save changes
+              </button>
+            </footer>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
