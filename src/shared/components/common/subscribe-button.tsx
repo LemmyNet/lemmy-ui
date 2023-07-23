@@ -80,9 +80,25 @@ export function SubscribeButton({
   );
 }
 
+function focusInput() {
+  document.getElementById("remoteFetchInstance")?.focus();
+}
+
 class RemoteFetchModal extends Component {
   constructor(props, context) {
     super(props, context);
+  }
+
+  componentDidMount() {
+    document
+      .getElementById("remoteFetchModal")
+      ?.addEventListener("shown.bs.modal", focusInput);
+  }
+
+  componentWillUnmount(): void {
+    document
+      .getElementById("remoteFetchModal")
+      ?.removeEventListener("shown.bs.modal", focusInput);
   }
 
   render() {
