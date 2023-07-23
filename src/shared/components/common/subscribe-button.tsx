@@ -1,8 +1,10 @@
+import { validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, MouseEventHandler } from "inferno";
+import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { CommunityView } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
+import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
 
 interface SubscribeButtonProps {
@@ -13,12 +15,14 @@ interface SubscribeButtonProps {
 }
 
 export function SubscribeButton({
-  communityView,
+  communityView: {
+    subscribed,
+    community: { actor_id },
+  },
   onFollow,
   onUnFollow,
   loading,
 }: SubscribeButtonProps) {
-  const { subscribed } = communityView;
   let i18key: NoOptionI18nKeys;
 
   switch (subscribed) {
@@ -52,7 +56,7 @@ export function SubscribeButton({
         >
           {I18NextService.i18n.t("subscribe")}
         </button>
-        <RemoteFetchModal />
+        <RemoteFetchModal communityActorId={actor_id} />
       </>
     );
   }
@@ -80,12 +84,51 @@ export function SubscribeButton({
   );
 }
 
+interface RemoteFetchModalProps {
+  communityActorId: string;
+}
+
+interface RemoteFetchModalState {
+  instanceText: string;
+}
+
+function handleInput(i: RemoteFetchModal, event: any) {
+  i.setState({ instanceText: event.target.value });
+}
+
 function focusInput() {
   document.getElementById("remoteFetchInstance")?.focus();
 }
 
-class RemoteFetchModal extends Component {
-  constructor(props, context) {
+function submitRemoteFollow(
+  { state: { instanceText }, props: { communityActorId } }: RemoteFetchModal,
+  event: Event
+) {
+  event.preventDefault();
+
+  if (!validInstanceTLD(instanceText)) {
+    // TODO: Figure out appropriate way of handling invalid domainss
+    console.log("I should do something about this.");
+  }
+
+  if (!/^https?:\/\//.test(instanceText)) {
+    instanceText = `http${VERSION !== "dev" ? "s" : ""}://${instanceText}`;
+  }
+
+  window.location.href = `${instanceText}/activitypub/externalInteraction?uri=${encodeURIComponent(
+    communityActorId
+  )}`;
+}
+
+class RemoteFetchModal extends Component<
+  RemoteFetchModalProps,
+  RemoteFetchModalState
+> {
+  state: RemoteFetchModalState = {
+    instanceText: "",
+  };
+
+  constructor(props: any, context: any) {
     super(props, context);
   }
 
@@ -126,6 +169,7 @@ class RemoteFetchModal extends Component {
             <form
               id="remote-fetch-form"
               className="modal-body d-flex flex-column justify-content-center"
+              onSubmit={linkEvent(this, submitRemoteFollow)}
             >
               <label className="form-label" htmlFor="remoteFetchInstance">
                 Enter the instance you would like to follow this community from:
@@ -135,6 +179,9 @@ class RemoteFetchModal extends Component {
                 id="remoteFetchInstance"
                 className="form-control"
                 name="instance"
+                value={this.state.instanceText}
+                onInput={linkEvent(this, handleInput)}
+                required
               />
             </form>
             <footer className="modal-footer">
