@@ -1,4 +1,4 @@
-import { myAuthRequired } from "@utils/app";
+import { myAuth, myAuthRequired } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -34,6 +34,7 @@ import {
   FeaturePost,
   Language,
   LockPost,
+  MarkPostAsRead,
   PersonView,
   PostView,
   PurgePerson,
@@ -51,6 +52,7 @@ import {
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
+import { HttpService } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -1723,6 +1725,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
+
+    const auth = myAuth();
+    if (
+      auth &&
+      (typeof i.props.post_view.read === "undefined" ||
+        i.props.post_view.read === false)
+    ) {
+      const form: MarkPostAsRead = {
+        post_id: i.props.post_view.post.id,
+        read: true,
+        auth: auth,
+      };
+      HttpService.client.markPostAsRead(form);
+    }
   }
 
   handleViewSource(i: PostListing) {
