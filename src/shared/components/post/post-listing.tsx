@@ -401,7 +401,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     return (
       <div className="small mb-1 mb-md-0">
-        <PersonListing person={post_view.creator} />
+        <PersonListing person={post_view.creator} showApubName />
         <UserBadges
           classNames="ms-1"
           isMod={this.creatorIsMod_}

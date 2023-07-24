@@ -306,7 +306,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 />
               </button>
 
-              <PersonListing person={cv.creator} />
+              <PersonListing person={cv.creator} showApubName />
 
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes="text-danger ms-1" />
