@@ -1727,11 +1727,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     setupTippy();
 
     const auth = myAuth();
-    if (
-      auth &&
-      (typeof i.props.post_view.read === "undefined" ||
-        i.props.post_view.read === false)
-    ) {
+    if (auth && !i.props.post_view.read) {
       const form: MarkPostAsRead = {
         post_id: i.props.post_view.post.id,
         read: true,
