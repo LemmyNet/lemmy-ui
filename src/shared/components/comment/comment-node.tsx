@@ -384,20 +384,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
-              <div>
-                {this.state.viewSource ? (
-                  <pre>{this.commentUnlessRemoved}</pre>
-                ) : (
-                  <div
-                    className="md-div"
-                    dangerouslySetInnerHTML={
-                      this.props.hideImages
-                        ? mdToHtmlNoImages(this.commentUnlessRemoved)
-                        : mdToHtml(this.commentUnlessRemoved)
-                    }
-                  />
-                )}
-                <div className="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold">
+              <>
+                <div className="comment-content">
+                  {this.state.viewSource ? (
+                    <pre>{this.commentUnlessRemoved}</pre>
+                  ) : (
+                    <div
+                      className="md-div"
+                      dangerouslySetInnerHTML={
+                        this.props.hideImages
+                          ? mdToHtmlNoImages(this.commentUnlessRemoved)
+                          : mdToHtml(this.commentUnlessRemoved)
+                      }
+                    />
+                  )}
+                </div>
+                <div className="comment-bottom-btns d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold">
                   {this.props.showContext && this.getLinkButton()}
                   {this.props.markable && (
                     <button
@@ -915,7 +917,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   )}
                 </div>
                 {/* end of button group */}
-              </div>
+              </>
             )}
           </div>
         </article>
