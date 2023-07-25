@@ -1,12 +1,13 @@
-FROM node:20.2-alpine as builder
-RUN apk update && apk add curl yarn python3 build-base gcc wget git --no-cache
-RUN curl -sf https://gobinaries.com/tj/node-prune | sh
+FROM node:lts-bullseye-slim as builder
+RUN apt-get update && apt-get install -y build-essential ca-certificates apt-utils nodejs npm curl wget git yarn python3 dumb-init --no-install-recommends
+RUN curl -k -sf https://gobinaries.com/tj/node-prune | sh
 
 WORKDIR /usr/src/app
 
 ENV npm_config_target_arch=x64
 ENV npm_config_target_platform=linux
-ENV npm_config_target_libc=musl
+ENV npm_config_target_libc=glibc
+ENV NODE_ENV=production
 
 # Cache deps
 COPY package.json yarn.lock ./
@@ -24,7 +25,7 @@ COPY src src
 COPY .git .git
 
 # Set UI version 
-RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version.ts"
+RUN echo "export const VERSION = \"$(git describe --tag | awk -F'-' '{print $1"-"$2}')\";" > "src/shared/version.ts"
 
 RUN yarn --production --prefer-offline
 RUN NODE_OPTIONS="--max-old-space-size=8192" yarn build:prod
@@ -36,15 +37,13 @@ RUN rm -rf ./node_modules/import-sort-parser-typescript
 RUN rm -rf ./node_modules/typescript
 RUN rm -rf ./node_modules/npm
 
-RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
-
-FROM node:alpine as runner
-COPY --from=builder /usr/src/app/dist /app/dist
-COPY --from=builder /usr/src/app/node_modules /app/node_modules
-
-RUN chown -R node:node /app
+FROM node:lts-bullseye-slim as runner
+RUN apt-get update && apt-get install -y curl wget vim dumb-init --no-install-recommends
+COPY --from=builder --chown=node:node /usr/src/app/dist /app/dist
+COPY --from=builder --chown=node:node /usr/src/app/node_modules /app/node_modules
 
 USER node
 EXPOSE 1234
 WORKDIR /app
-CMD node dist/js/server.js
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "node", "dist/js/server.js" ]
