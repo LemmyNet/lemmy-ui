@@ -84,7 +84,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
 
     return (
       this.props.nodes.length > 0 && (
-        <ul
+        <div
           className={classNames("comments", {
             "ms-1": this.props.depth && this.props.depth > 1,
             "border-top border-light": !this.props.noBorder,
@@ -135,7 +135,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               onPurgeComment={this.props.onPurgeComment}
             />
           ))}
-        </ul>
+        </div>
       )
     );
   }
