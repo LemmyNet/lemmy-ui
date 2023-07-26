@@ -22,7 +22,7 @@ export function setDefaultCsp({
      form-action 'self';
      base-uri 'self';
      frame-src *;
-     media-src * data:`.replace(/\s+/g, " ")
+     media-src * data:`.replace(/\s+/g, " "),
   );
 
   next();
@@ -37,7 +37,7 @@ export function setDefaultCsp({
 export function setCacheControl(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   if (process.env.NODE_ENV !== "production") {
     return next();

@@ -25,7 +25,7 @@ server.use(
   express.static(path.resolve("./dist"), {
     maxAge: 24 * 60 * 60 * 1000, // 1 day
     immutable: true,
-  })
+  }),
 );
 server.use(setCacheControl);
 

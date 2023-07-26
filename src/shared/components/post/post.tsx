@@ -290,7 +290,7 @@ export class Post extends Component<any, PostState> {
 
   get checkScrollIntoCommentsParam() {
     return Boolean(
-      new URLSearchParams(this.props.location.search).get("scrollToComments")
+      new URLSearchParams(this.props.location.search).get("scrollToComments"),
     );
   }
 
@@ -667,7 +667,7 @@ export class Post extends Component<any, PostState> {
     if (this.state.commentsRes.state == "success") {
       return buildCommentsTree(
         this.state.commentsRes.data.comments,
-        !!this.state.commentId
+        !!this.state.commentId,
       );
     } else {
       return [];
@@ -705,7 +705,7 @@ export class Post extends Component<any, PostState> {
   handleViewContext(i: Post) {
     if (i.state.commentsRes.state == "success") {
       const parentId = getCommentParentId(
-        i.state.commentsRes.data.comments.at(0)?.comment
+        i.state.commentsRes.data.comments.at(0)?.comment,
       );
       if (parentId) {
         i.context.router.history.push(`/comment/${parentId}`);
@@ -887,7 +887,7 @@ export class Post extends Component<any, PostState> {
 
   async handleTransferCommunity(form: TransferCommunity) {
     const transferCommunityRes = await HttpService.client.transferCommunity(
-      form
+      form,
     );
     this.updateCommunityFull(transferCommunityRes);
   }
@@ -943,7 +943,7 @@ export class Post extends Component<any, PostState> {
           s.commentsRes.data.comments
             .filter(c => c.creator.id == banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -1015,7 +1015,7 @@ export class Post extends Component<any, PostState> {
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
       }
       return s;
@@ -1027,7 +1027,7 @@ export class Post extends Component<any, PostState> {
       if (s.commentsRes.state == "success" && res.state == "success") {
         s.commentsRes.data.comments = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
       }
@@ -1040,7 +1040,7 @@ export class Post extends Component<any, PostState> {
       if (s.commentsRes.state == "success" && res.state == "success") {
         s.commentsRes.data.comments = editWith(
           res.data.comment_reply_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
       }
       return s;

@@ -38,7 +38,7 @@ export class LoginReset extends Component<any, State> {
 
   get documentTitle(): string {
     return `${capitalizeFirstLetter(
-      I18NextService.i18n.t("forgot_password")
+      I18NextService.i18n.t("forgot_password"),
     )} - ${this.state.siteRes.site_view.site.name}`;
   }
 

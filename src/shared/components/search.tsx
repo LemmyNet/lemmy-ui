@@ -209,20 +209,20 @@ const communityListing = ({
   getListing(
     <CommunityLink community={community} />,
     subscribers,
-    "number_of_subscribers"
+    "number_of_subscribers",
   );
 
 const personListing = ({ person, counts: { comment_count } }: PersonView) =>
   getListing(
     <PersonListing person={person} showApubName />,
     comment_count,
-    "number_of_comments"
+    "number_of_comments",
   );
 
 function getListing(
   listing: JSX.ElementClass,
   count: number,
-  translationKey: "number_of_comments" | "number_of_subscribers"
+  translationKey: "number_of_comments" | "number_of_subscribers",
 ) {
   return (
     <>
@@ -386,7 +386,7 @@ export class Search extends Component<any, SearchState> {
       };
 
       listCommunitiesResponse = await client.listCommunities(
-        listCommunitiesForm
+        listCommunitiesForm,
       );
     }
 
@@ -431,7 +431,7 @@ export class Search extends Component<any, SearchState> {
             auth,
           };
           resolveObjectResponse = await HttpService.silent_client.resolveObject(
-            resolveObjectForm
+            resolveObjectForm,
           );
 
           // If we return this object with a state of failed, the catch-all-handler will redirect
@@ -564,7 +564,7 @@ export class Search extends Component<any, SearchState> {
               {searchTypes.map(option => (
                 <option value={option} key={option}>
                   {I18NextService.i18n.t(
-                    option.toString().toLowerCase() as NoOptionI18nKeys
+                    option.toString().toLowerCase() as NoOptionI18nKeys,
                   )}
                 </option>
               ))}
@@ -646,7 +646,7 @@ export class Search extends Component<any, SearchState> {
           ...(posts?.map(postViewToCombined) ?? []),
           ...(communities?.map(communityViewToCombined) ?? []),
           ...(users?.map(personViewSafeToCombined) ?? []),
-        ]
+        ],
       );
     }
 
@@ -663,8 +663,8 @@ export class Search extends Component<any, SearchState> {
             (b.data as PersonView).counts.comment_score) -
             ((a.data as CommentView | PostView).counts.score |
               (a.data as CommunityView).counts.subscribers |
-              (a.data as PersonView).counts.comment_score)
-        )
+              (a.data as PersonView).counts.comment_score),
+        ),
       );
     }
 
@@ -984,7 +984,7 @@ export class Search extends Component<any, SearchState> {
     this.setState({ searchCreatorLoading: true });
 
     const selectedChoice = creatorSearchOptions.find(
-      choice => getIdFromString(choice.value) === creatorId
+      choice => getIdFromString(choice.value) === creatorId,
     );
 
     if (selectedChoice) {
@@ -1011,7 +1011,7 @@ export class Search extends Component<any, SearchState> {
     const newOptions: Choice[] = [];
 
     const selectedChoice = communitySearchOptions.find(
-      choice => getIdFromString(choice.value) === communityId
+      choice => getIdFromString(choice.value) === communityId,
     );
 
     if (selectedChoice) {

@@ -30,7 +30,7 @@ export class ListingTypeSelect extends Component<
   }
 
   static getDerivedStateFromProps(
-    props: ListingTypeSelectProps
+    props: ListingTypeSelectProps,
   ): ListingTypeSelectState {
     return {
       type_: props.type_,

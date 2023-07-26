@@ -65,7 +65,7 @@ export class PrivateMessage extends Component<
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>,
   ): void {
     if (this.props != nextProps) {
       this.setState({

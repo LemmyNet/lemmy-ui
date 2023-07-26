@@ -1,7 +1,7 @@
 import { Comment } from "lemmy-js-client";
 
 export default function getCommentParentId(
-  comment?: Comment
+  comment?: Comment,
 ): number | undefined {
   const split = comment?.path.split(".");
   // remove the 0

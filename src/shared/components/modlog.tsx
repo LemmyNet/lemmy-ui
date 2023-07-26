@@ -121,7 +121,7 @@ function getActionFromString(action?: string): ModlogActionType {
 const getModlogActionMapper =
   (
     actionType: ModlogActionType,
-    getAction: (view: View) => { id: number; when_: string }
+    getAction: (view: View) => { id: number; when_: string },
   ) =>
   (view: View & { moderator?: Person; admin?: Person }): ModlogType => {
     const { id, when_ } = getAction(view);
@@ -155,111 +155,111 @@ function buildCombined({
     .map(
       getModlogActionMapper(
         "ModRemovePost",
-        ({ mod_remove_post }: ModRemovePostView) => mod_remove_post
-      )
+        ({ mod_remove_post }: ModRemovePostView) => mod_remove_post,
+      ),
     )
     .concat(
       locked_posts.map(
         getModlogActionMapper(
           "ModLockPost",
-          ({ mod_lock_post }: ModLockPostView) => mod_lock_post
-        )
-      )
+          ({ mod_lock_post }: ModLockPostView) => mod_lock_post,
+        ),
+      ),
     )
     .concat(
       featured_posts.map(
         getModlogActionMapper(
           "ModFeaturePost",
-          ({ mod_feature_post }: ModFeaturePostView) => mod_feature_post
-        )
-      )
+          ({ mod_feature_post }: ModFeaturePostView) => mod_feature_post,
+        ),
+      ),
     )
     .concat(
       removed_comments.map(
         getModlogActionMapper(
           "ModRemoveComment",
-          ({ mod_remove_comment }: ModRemoveCommentView) => mod_remove_comment
-        )
-      )
+          ({ mod_remove_comment }: ModRemoveCommentView) => mod_remove_comment,
+        ),
+      ),
     )
     .concat(
       removed_communities.map(
         getModlogActionMapper(
           "ModRemoveCommunity",
           ({ mod_remove_community }: ModRemoveCommunityView) =>
-            mod_remove_community
-        )
-      )
+            mod_remove_community,
+        ),
+      ),
     )
     .concat(
       banned_from_community.map(
         getModlogActionMapper(
           "ModBanFromCommunity",
           ({ mod_ban_from_community }: ModBanFromCommunityView) =>
-            mod_ban_from_community
-        )
-      )
+            mod_ban_from_community,
+        ),
+      ),
     )
     .concat(
       added_to_community.map(
         getModlogActionMapper(
           "ModAddCommunity",
-          ({ mod_add_community }: ModAddCommunityView) => mod_add_community
-        )
-      )
+          ({ mod_add_community }: ModAddCommunityView) => mod_add_community,
+        ),
+      ),
     )
     .concat(
       transferred_to_community.map(
         getModlogActionMapper(
           "ModTransferCommunity",
           ({ mod_transfer_community }: ModTransferCommunityView) =>
-            mod_transfer_community
-        )
-      )
+            mod_transfer_community,
+        ),
+      ),
     )
     .concat(
       added.map(
-        getModlogActionMapper("ModAdd", ({ mod_add }: ModAddView) => mod_add)
-      )
+        getModlogActionMapper("ModAdd", ({ mod_add }: ModAddView) => mod_add),
+      ),
     )
     .concat(
       banned.map(
-        getModlogActionMapper("ModBan", ({ mod_ban }: ModBanView) => mod_ban)
-      )
+        getModlogActionMapper("ModBan", ({ mod_ban }: ModBanView) => mod_ban),
+      ),
     )
     .concat(
       admin_purged_persons.map(
         getModlogActionMapper(
           "AdminPurgePerson",
-          ({ admin_purge_person }: AdminPurgePersonView) => admin_purge_person
-        )
-      )
+          ({ admin_purge_person }: AdminPurgePersonView) => admin_purge_person,
+        ),
+      ),
     )
     .concat(
       admin_purged_communities.map(
         getModlogActionMapper(
           "AdminPurgeCommunity",
           ({ admin_purge_community }: AdminPurgeCommunityView) =>
-            admin_purge_community
-        )
-      )
+            admin_purge_community,
+        ),
+      ),
     )
     .concat(
       admin_purged_posts.map(
         getModlogActionMapper(
           "AdminPurgePost",
-          ({ admin_purge_post }: AdminPurgePostView) => admin_purge_post
-        )
-      )
+          ({ admin_purge_post }: AdminPurgePostView) => admin_purge_post,
+        ),
+      ),
     )
     .concat(
       admin_purged_comments.map(
         getModlogActionMapper(
           "AdminPurgeComment",
           ({ admin_purge_comment }: AdminPurgeCommentView) =>
-            admin_purge_comment
-        )
-      )
+            admin_purge_comment,
+        ),
+      ),
     );
 
   // Sort them by time
@@ -622,7 +622,7 @@ async function createNewOptions({
 
   if (id) {
     const selectedUser = oldOptions.find(
-      ({ value }) => value === id.toString()
+      ({ value }) => value === id.toString(),
     );
 
     if (selectedUser) {
@@ -634,7 +634,7 @@ async function createNewOptions({
     newOptions.push(
       ...(await fetchUsers(text))
         .slice(0, Number(fetchLimit))
-        .map<Choice>(personToChoice)
+        .map<Choice>(personToChoice),
     );
   }
 
@@ -658,7 +658,7 @@ export class Modlog extends Component<
 
   constructor(
     props: RouteComponentProps<{ communityId?: string }>,
-    context: any
+    context: any,
   ) {
     super(props, context);
     this.handlePageChange = this.handlePageChange.bind(this);
@@ -731,7 +731,7 @@ export class Modlog extends Component<
   modOrAdminText(person?: Person): string {
     return person &&
       this.isoData.site_res.admins.some(
-        ({ person: { id } }) => id === person.id
+        ({ person: { id } }) => id === person.id,
       )
       ? I18NextService.i18n.t("admin")
       : I18NextService.i18n.t("mod");
@@ -939,8 +939,8 @@ export class Modlog extends Component<
 
     this.props.history.push(
       `/modlog${communityId ? `/${communityId}` : ""}${getQueryString(
-        queryParams
-      )}`
+        queryParams,
+      )}`,
     );
 
     await this.refetch();

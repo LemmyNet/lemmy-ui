@@ -2,7 +2,7 @@ import { CommentNodeI } from "../../interfaces";
 
 export default function searchCommentTree(
   tree: CommentNodeI[],
-  id: number
+  id: number,
 ): CommentNodeI | undefined {
   for (const node of tree) {
     if (node.comment_view.comment.id === id) {
