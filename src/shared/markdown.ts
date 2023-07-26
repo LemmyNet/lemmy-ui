@@ -23,6 +23,14 @@ export let md: MarkdownIt = new MarkdownIt();
 
 export let mdNoImages: MarkdownIt = new MarkdownIt();
 
+// Zero disables all rules.
+// Only explicitly allow a limited set of rules safe for use in post titles.
+export const mdLimited: MarkdownIt = new MarkdownIt("zero").enable([
+  "emphasis",
+  "backticks",
+  "strikethrough",
+]);
+
 export const customEmojis: EmojiMartCategory[] = [];
 
 export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
@@ -43,7 +51,7 @@ export function mdToHtmlNoImages(text: string) {
 }
 
 export function mdToHtmlInline(text: string) {
-  return { __html: md.renderInline(text) };
+  return { __html: mdLimited.renderInline(text) };
 }
 
 const spoilerConfig = {
