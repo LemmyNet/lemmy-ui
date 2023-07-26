@@ -587,6 +587,7 @@ export class Settings extends Component<any, SettingsState> {
             selectedLanguageIds={selectedLangs}
             multiple={true}
             showLanguageWarning={true}
+            showAll={true}
             showSite
             onChange={this.handleDiscussionLanguageChange}
           />
