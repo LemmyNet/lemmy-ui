@@ -284,7 +284,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.comment_view.counts.child_count > 0;
 
     return (
-      <div className="comment">
+      <li className="comment list-unstyled">
         <article
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
@@ -1160,7 +1160,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         )}
         {/* A collapsed clearfix */}
         {this.state.collapsed && <div className="row col-12" />}
-      </div>
+      </li>
     );
   }
 
