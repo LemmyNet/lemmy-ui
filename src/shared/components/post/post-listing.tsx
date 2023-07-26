@@ -1466,12 +1466,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleKeybinds(i: PostListing, event: KeyboardEvent) {
     const { creator, community, my_vote, post } = i.postView;
     const { id, url } = post;
-    if (
-      !i.props.viewOnly &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.altKey
-    ) {
+    if (!(i.props.viewOnly || event.ctrlKey || event.metaKey || event.altKey)) {
       switch (event.key) {
         case "x": {
           i.props.toggleExpand?.();

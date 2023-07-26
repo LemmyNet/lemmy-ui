@@ -848,7 +848,7 @@ export class Home extends Component<any, HomeState> {
   handleKeybinds(event: KeyboardEvent) {
     const { page } = getHomeQueryParams();
 
-    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (!(event.ctrlKey || event.metaKey || event.altKey)) {
       switch (event.key) {
         case "n": {
           const comments =

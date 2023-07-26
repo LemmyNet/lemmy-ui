@@ -318,9 +318,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
-            // TODO: differentiate new/distingushed comments and keyboard nav highlighted comment
             mark: this.isCommentNew || this.commentView.comment.distinguished,
-            "rounded bg-body-tertiary": isHighlighted,
           })}
           onKeyUp={linkEvent(this, this.handleKeybinds)}
           onClick={e => this.handleCommentClick(e.currentTarget)}
@@ -328,7 +326,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           role="row"
           tabIndex={0}
         >
-          <div className="ms-2">
+          <div
+            className={classNames(`ms-2`, {
+              "rounded bg-body-tertiary": isHighlighted,
+            })}
+          >
             <div className="d-flex flex-wrap align-items-center text-muted small">
               <button
                 className="btn btn-sm btn-link text-muted me-2"

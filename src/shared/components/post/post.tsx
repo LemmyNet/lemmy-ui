@@ -288,12 +288,9 @@ export class Post extends Component<any, PostState> {
       nodes: document.querySelectorAll(".post-listing, .comment-node"),
     });
 
-    if (this.state.nodes && this.state.nodes?.length > 0)
-      this.setState({
-        highlightedNode: this.checkScrollIntoCommentsParam
-          ? this.state.nodes[1]
-          : this.state.nodes[0],
-      });
+    this.setState(prev => ({
+      highlightedNode: prev.nodes?.[this.checkScrollIntoCommentsParam ? 1 : 0],
+    }));
   }
 
   async componentDidUpdate(_lastProps: any) {

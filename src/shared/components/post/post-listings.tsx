@@ -144,17 +144,15 @@ export class PostListings extends Component<
   }
 
   toggleExpand() {
-    this.setState({ isExpanded: !this.state.isExpanded });
+    this.setState(prev => ({
+      ...prev,
+      isExpanded: !prev.isExpanded,
+    }));
   }
 
   handleKeybinds(i: PostListings, event: KeyboardEvent) {
     const idx = i.state.highlightedPost;
-    if (
-      !i.props.viewOnly &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.altKey
-    ) {
+    if (!(i.props.viewOnly || event.ctrlKey || event.metaKey || event.altKey)) {
       switch (event.key) {
         case "j": {
           idx + 1 == i.posts.length
