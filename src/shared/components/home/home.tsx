@@ -118,6 +118,7 @@ interface HomeProps {
   dataType: DataType;
   sort: SortType;
   page: number;
+  moderatorView: boolean;
 }
 
 type HomeData = RouteDataResponse<{
@@ -179,12 +180,17 @@ function getSortTypeFromQuery(type?: string): SortType {
   return (type ? (type as SortType) : mySortType) ?? "Active";
 }
 
+function getModeratorViewFromQuery(moderatorView?: string): boolean {
+  return moderatorView?.toLowerCase() == "true";
+}
+
 const getHomeQueryParams = () =>
   getQueryParams<HomeProps>({
     sort: getSortTypeFromQuery,
     listingType: getListingTypeFromQuery,
     page: getPageFromString,
     dataType: getDataTypeFromQuery,
+    moderatorView: getModeratorViewFromQuery,
   });
 
 const MobileButton = ({
@@ -310,7 +316,13 @@ export class Home extends Component<any, HomeState> {
   static async fetchInitialData({
     client,
     auth,
-    query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
+    query: {
+      dataType: urlDataType,
+      listingType,
+      page: urlPage,
+      sort: urlSort,
+      moderatorView,
+    },
     site,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
     const dataType = getDataTypeFromQuery(urlDataType);
@@ -333,6 +345,7 @@ export class Home extends Component<any, HomeState> {
         limit: fetchLimit,
         sort,
         saved_only: false,
+        moderator_view: moderatorView?.toLowerCase() == "true",
         auth,
       };
 
@@ -616,12 +629,19 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  async updateUrl({ dataType, listingType, page, sort }: Partial<HomeProps>) {
+  async updateUrl({
+    dataType,
+    listingType,
+    page,
+    sort,
+    moderatorView,
+  }: Partial<HomeProps>) {
     const {
       dataType: urlDataType,
       listingType: urlListingType,
       page: urlPage,
       sort: urlSort,
+      moderatorView: urlModeratorView,
     } = getHomeQueryParams();
 
     const queryParams: QueryParams<HomeProps> = {
@@ -629,6 +649,7 @@ export class Home extends Component<any, HomeState> {
       listingType: listingType ?? urlListingType,
       page: (page ?? urlPage).toString(),
       sort: sort ?? urlSort,
+      moderatorView: (moderatorView ?? urlModeratorView).toString(),
     };
 
     this.props.history.push({
@@ -798,7 +819,8 @@ export class Home extends Component<any, HomeState> {
 
   async fetchData() {
     const auth = myAuth();
-    const { dataType, page, listingType, sort } = getHomeQueryParams();
+    const { dataType, page, listingType, sort, moderatorView } =
+      getHomeQueryParams();
 
     if (dataType === DataType.Post) {
       if (HomeCacheService.active) {
@@ -820,6 +842,7 @@ export class Home extends Component<any, HomeState> {
             saved_only: false,
             type_: listingType,
             auth,
+            moderator_view: moderatorView,
           }),
         });
 

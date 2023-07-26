@@ -284,7 +284,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.comment_view.counts.child_count > 0;
 
     return (
-      <li className="comment">
+      <li className="comment list-unstyled">
         <article
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
@@ -348,7 +348,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {showScores() && (
                 <>
                   <span
-                    className="me-1 fw-bold"
+                    className={`me-1 fw-bold ${this.scoreColor}`}
                     aria-label={I18NextService.i18n.t("number_of_points", {
                       count: Number(this.commentView.counts.score),
                       formattedCount: numToSI(this.commentView.counts.score),
