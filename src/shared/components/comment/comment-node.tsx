@@ -313,7 +313,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.props.highlightedNode?.id == `comment-${cv.comment.id}`;
 
     return (
-      <li className="comment">
+      <li className="comment list-unstyled">
         <article
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
