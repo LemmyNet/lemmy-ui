@@ -348,7 +348,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {showScores() && (
                 <>
                   <span
-                    className="me-1 fw-bold"
+                    className={`me-1 fw-bold ${this.scoreColor}`}
                     aria-label={I18NextService.i18n.t("number_of_points", {
                       count: Number(this.commentView.counts.score),
                       formattedCount: numToSI(this.commentView.counts.score),
