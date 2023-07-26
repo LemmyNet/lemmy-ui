@@ -83,13 +83,17 @@ async function handleLoginSubmit(i: Login, event: any) {
 }
 
 function handleLoginUsernameChange(i: Login, event: any) {
-  i.state.form.username_or_email = event.target.value.trim();
-  i.setState(i.state);
+  i.setState(
+    prevState => (prevState.form.username_or_email = event.target.value.trim())
+  );
 }
 
 function handleLoginTotpChange(i: Login, event: any) {
-  i.state.form.totp_2fa_token = event.target.value;
-  i.setState(i.state);
+  i.setState(prevState => (prevState.form.totp_2fa_token = event.target.value));
+}
+
+function handleLoginPasswordChange(i: Login, event: any) {
+  i.setState(prevState => (prevState.form.password = event.target.value));
 }
 
 export class Login extends Component<
@@ -169,7 +173,7 @@ export class Login extends Component<
             <PasswordInput
               id="login-password"
               value={this.state.form.password}
-              onInput={linkEvent(this, this.handleLoginPasswordChange)}
+              onInput={linkEvent(this, handleLoginPasswordChange)}
               label={I18NextService.i18n.t("password")}
               showForgotLink
             />
@@ -210,68 +214,5 @@ export class Login extends Component<
         </form>
       </div>
     );
-  }
-
-  async handleLoginSubmit(i: Login, event: any) {
-    event.preventDefault();
-    const { password, totp_2fa_token, username_or_email } = i.state.form;
-
-    if (username_or_email && password) {
-      i.setState({ loginRes: { state: "loading" } });
-
-      const loginRes = await HttpService.client.login({
-        username_or_email,
-        password,
-        totp_2fa_token,
-      });
-      switch (loginRes.state) {
-        case "failed": {
-          if (loginRes.msg === "missing_totp_token") {
-            i.setState({ showTotp: true });
-            toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
-          }
-          if (loginRes.msg === "incorrect_login") {
-            toast(I18NextService.i18n.t("incorrect_login"), "danger");
-          }
-
-          i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
-          break;
-        }
-
-        case "success": {
-          UserService.Instance.login({
-            res: loginRes.data,
-          });
-          const site = await HttpService.client.getSite({
-            auth: myAuth(),
-          });
-
-          if (site.state === "success") {
-            UserService.Instance.myUserInfo = site.data.my_user;
-          }
-
-          i.props.history.action === "PUSH"
-            ? i.props.history.back()
-            : i.props.history.replace("/");
-
-          break;
-        }
-      }
-    }
-  }
-
-  handleLoginUsernameChange(i: Login, event: any) {
-    i.state.form.username_or_email = event.target.value.trim();
-    i.setState(i.state);
-  }
-
-  handleLoginTotpChange(i: Login, event: any) {
-    i.state.form.totp_2fa_token = event.target.value;
-    i.setState(i.state);
-  }
-
-  handleLoginPasswordChange(i: Login, event: any) {
-    i.state.form.password = event.target.value;
-    i.setState(i.state);
   }
 }
