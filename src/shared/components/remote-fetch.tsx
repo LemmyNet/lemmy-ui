@@ -86,12 +86,12 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
     super(props, context);
 
     if (FirstLoadService.isFirstLoad) {
-      //      const { resolveObjectRes } = this.isoData.routeData;
+      const { resolveObjectRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
         isIsomorphic: true,
-        // resolveObjectRes,
+        resolveObjectRes,
       };
     }
   }
@@ -139,7 +139,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
         const communityView = res.data.community as CommunityView;
         return (
           <>
-            <h1>Community Federated!</h1>
+            <h1>{I18NextService.i18n.t("community_federated")}</h1>
             <div className="card mt-5">
               {communityView.community.banner && (
                 <PictrsImage src={communityView.community.banner} cardTop />
@@ -169,7 +169,9 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
         return (
           <>
             <h1>
-              Fetching {remoteCommunityName}
+              {I18NextService.i18n.t("fetching_community", {
+                community: remoteCommunityName,
+              })}
               <LoadingEllipses />
             </h1>
             <h5>
@@ -182,7 +184,11 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
       default: {
         return (
           <>
-            <h1>Could not fetch {remoteCommunityName}</h1>
+            <h1>
+              {I18NextService.i18n.t("could_not_fetch_community", {
+                community: remoteCommunityName,
+              })}
+            </h1>
           </>
         );
       }
@@ -192,7 +198,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
   get documentTitle(): string {
     const { uri } = getRemoteFetchQueryParams();
     const name = this.isoData.site_res.site_view.site.name;
-    return `${I18NextService.i18n.t("search")} - ${
+    return `${I18NextService.i18n.t("remote_follow")} - ${
       uri ? `${uri} - ` : ""
     }${name}`;
   }

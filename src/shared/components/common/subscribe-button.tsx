@@ -157,7 +157,7 @@ class RemoteFetchModal extends Component<
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="remoteFetchModalTitle">
-                Subscribe from Remote Instance
+                {I18NextService.i18n.t("remote_follow_modal_title")}
               </h3>
               <button
                 type="button"
@@ -172,7 +172,7 @@ class RemoteFetchModal extends Component<
               onSubmit={linkEvent(this, submitRemoteFollow)}
             >
               <label className="form-label" htmlFor="remoteFetchInstance">
-                Enter the instance you would like to follow this community from:
+                {I18NextService.i18n.t("remote_follow_prompt")}
               </label>
               <input
                 type="text"
@@ -187,17 +187,17 @@ class RemoteFetchModal extends Component<
             <footer className="modal-footer">
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-danger"
                 data-bs-dismiss="modal"
               >
-                Close
+                {I18NextService.i18n.t("cancel")}
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn btn-success"
                 form="remote-fetch-form"
               >
-                Save changes
+                {I18NextService.i18n.t("fetch_community")}
               </button>
             </footer>
           </div>
