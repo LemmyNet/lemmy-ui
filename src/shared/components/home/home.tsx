@@ -268,6 +268,7 @@ export class Home extends Component<any, HomeState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleKeybinds = this.handleKeybinds.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -291,6 +292,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   componentWillUnmount() {
+    document.removeEventListener("keyup", this.handleKeybinds);
     HomeCacheService.activate();
   }
 
@@ -304,6 +306,7 @@ export class Home extends Component<any, HomeState> {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
 
+    document.addEventListener("keyup", this.handleKeybinds);
     setupTippy();
   }
 
@@ -840,6 +843,29 @@ export class Home extends Component<any, HomeState> {
     }
 
     setupTippy();
+  }
+
+  handleKeybinds(event: KeyboardEvent) {
+    const { page } = getHomeQueryParams();
+
+    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+      switch (event.key) {
+        case "n": {
+          const comments =
+            this.state.commentsRes.state == "success" &&
+            this.state.commentsRes.data.comments.length > 0;
+          const posts =
+            this.state.postsRes.state == "success" &&
+            this.state.postsRes.data.posts.length > 0;
+          (comments || posts) && this.handlePageChange(page + 1);
+          break;
+        }
+        case "p": {
+          page > 1 && this.handlePageChange(page - 1);
+          break;
+        }
+      }
+    }
   }
 
   handleShowSubscribedMobile(i: Home) {

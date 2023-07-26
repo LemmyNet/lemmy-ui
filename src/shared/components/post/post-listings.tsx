@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -84,7 +84,7 @@ export class PostListings extends Component<
     return (
       <div
         className="post-listings"
-        onKeyPress={this.handleKeybinds}
+        onKeyPress={linkEvent(this, this.handleKeybinds)}
         role="grid"
         tabIndex={-1}
       >
@@ -147,34 +147,34 @@ export class PostListings extends Component<
     this.setState({ isExpanded: !this.state.isExpanded });
   }
 
-  handleKeybinds(event: KeyboardEvent) {
-    const idx = this.state.highlightedPost;
+  handleKeybinds(i: PostListings, event: KeyboardEvent) {
+    const idx = i.state.highlightedPost;
     if (
-      !this.props.viewOnly &&
+      !i.props.viewOnly &&
       !event.ctrlKey &&
       !event.metaKey &&
       !event.altKey
     ) {
       switch (event.key) {
         case "j": {
-          idx + 1 == this.posts.length
+          idx + 1 == i.posts.length
             ? window.scrollTo(0, document.body.scrollHeight)
-            : this.setState({ highlightedPost: idx + 1 });
+            : i.setState({ highlightedPost: idx + 1 });
           break;
         }
         case "k": {
           idx > 0
-            ? this.setState({ highlightedPost: idx - 1 })
+            ? i.setState({ highlightedPost: idx - 1 })
             : window.scrollTo(0, 0);
           break;
         }
         case "J": {
-          this.setState({ highlightedPost: this.posts.length - 1 });
+          i.setState({ highlightedPost: i.posts.length - 1 });
           window.scrollTo(0, document.body.scrollHeight);
           break;
         }
         case "K": {
-          this.setState({ highlightedPost: 0 });
+          i.setState({ highlightedPost: 0 });
           window.scrollTo(0, 0);
           break;
         }

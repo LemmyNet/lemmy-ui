@@ -1371,7 +1371,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           "rounded bg-body-tertiary":
             !this.props.viewOnly && this.props.isHighlighted,
         })}
-        onKeyPress={e => this.handleKeybinds(e)}
+        onKeyUp={linkEvent(this, this.handleKeybinds)}
         onClick={() => this.props.handleHighlight?.(this.props.idx)}
         role="row"
         tabIndex={-1}
@@ -1463,24 +1463,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.props.handleHighlight?.(this.props.idx);
   }
 
-  handleKeybinds(event: KeyboardEvent) {
-    const { creator, community, my_vote, post } = this.postView;
+  handleKeybinds(i: PostListing, event: KeyboardEvent) {
+    const { creator, community, my_vote, post } = i.postView;
     const { id, url } = post;
     if (
-      !this.props.viewOnly &&
+      !i.props.viewOnly &&
       !event.ctrlKey &&
       !event.metaKey &&
       !event.altKey
     ) {
       switch (event.key) {
         case "x": {
-          this.props.toggleExpand?.();
-          this.handleShowImage(this);
-          this.handleShowBody(this);
+          i.props.toggleExpand?.();
+          i.handleShowImage(i);
+          i.handleShowBody(i);
           break;
         }
         case "s": {
-          this.handleSavePostClick(this);
+          i.handleSavePostClick(i);
           break;
         }
         case "c": {
@@ -1488,7 +1488,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           break;
         }
         case "C": {
-          this.context.router.history.push(`/post/${id}?scrollToComments=true`);
+          i.context.router.history.push(`/post/${id}?scrollToComments=true`);
           break;
         }
         case "l": {
@@ -1496,7 +1496,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           break;
         }
         case "L": {
-          this.context.router.history.push(url ?? `/post/${id}`);
+          i.context.router.history.push(url ?? `/post/${id}`);
           break;
         }
         case "u": {
@@ -1506,7 +1506,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         }
         case "U": {
           const [, link] = getPersonDetails(creator);
-          this.context.router.history.push(link);
+          i.context.router.history.push(link);
           break;
         }
         case "g": {
@@ -1516,11 +1516,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         }
         case "G": {
           const [, , link] = getCommunityDetails(community);
-          this.context.router.history.push(link);
+          i.context.router.history.push(link);
           break;
         }
         case "a": {
-          this.props.onPostVote({
+          i.props.onPostVote({
             post_id: id,
             score: newVote(VoteType.Upvote, my_vote),
             auth: myAuthRequired(),
@@ -1528,7 +1528,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           break;
         }
         case "z": {
-          this.props.onPostVote({
+          i.props.onPostVote({
             post_id: id,
             score: newVote(VoteType.Downvote, my_vote),
             auth: myAuthRequired(),
@@ -1536,7 +1536,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           break;
         }
         default: {
-          this.props.handleKeybinds?.(event);
+          i.props.handleKeybinds?.(event);
           break;
         }
       }

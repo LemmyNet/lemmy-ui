@@ -322,7 +322,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             mark: this.isCommentNew || this.commentView.comment.distinguished,
             "rounded bg-body-tertiary": isHighlighted,
           })}
-          onKeyUp={e => this.handleKeybinds(e)}
+          onKeyUp={linkEvent(this, this.handleKeybinds)}
           onClick={e => this.handleCommentClick(e.currentTarget)}
           // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
           role="row"
@@ -1300,12 +1300,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : comment.content;
   }
 
-  handleKeybinds(event: KeyboardEvent) {
-    const { comment, creator, my_vote } = this.commentView;
+  handleKeybinds(i: CommentNode, event: KeyboardEvent) {
+    const { comment, creator, my_vote } = i.commentView;
     if (!(event.ctrlKey || event.metaKey || event.altKey)) {
       switch (event.key) {
         case "a": {
-          this.props.onCommentVote({
+          i.props.onCommentVote({
             comment_id: comment.id,
             score: newVote(VoteType.Upvote, my_vote),
             auth: myAuthRequired(),
@@ -1313,7 +1313,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           break;
         }
         case "z": {
-          this.props.onCommentVote({
+          i.props.onCommentVote({
             comment_id: comment.id,
             score: newVote(VoteType.Downvote, my_vote),
             auth: myAuthRequired(),
@@ -1321,11 +1321,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           break;
         }
         case "r": {
-          this.handleReplyClick(this);
+          i.handleReplyClick(i);
           break;
         }
         case "e": {
-          this.handleEditClick(this);
+          i.handleEditClick(i);
           break;
         }
         case "u": {
@@ -1335,19 +1335,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         }
         case "U": {
           const [, link] = getPersonDetails(creator);
-          this.context.router.history.push(link);
+          i.context.router.history.push(link);
           break;
         }
         case ".": {
-          this.handleShowAdvanced(this);
+          i.handleShowAdvanced(i);
           break;
         }
         case "s": {
-          this.handleSaveComment(this);
+          i.handleSaveComment(i);
           break;
         }
         default: {
-          this.props.handleKeybinds?.(event);
+          i.props.handleKeybinds?.(event);
           break;
         }
       }
