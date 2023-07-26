@@ -582,7 +582,6 @@ export class Search extends Component<any, SearchState> {
             <SortSelect
               sort={sort}
               onChange={this.handleSortChange}
-              hideControversial
               hideHot
               hideMostComments
             />

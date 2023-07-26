@@ -410,7 +410,6 @@ export class Inbox extends Component<any, InboxState> {
           <CommentSortSelect
             sort={this.state.sort}
             onChange={this.handleSortChange}
-            hideControversial={!enableDownvotes(this.state.siteRes)}
           />
         </div>
       </div>
