@@ -312,7 +312,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & PostFormProps>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState(
         s => (
           (s.form.community_id = getIdFromString(

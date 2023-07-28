@@ -71,7 +71,7 @@ export class Signup extends Component<any, State> {
     });
 
     this.setState(s => {
-      if (s.captchaRes.state == "success") {
+      if (s.captchaRes.state === "success") {
         s.form.captcha_uuid = s.captchaRes.data.ok?.uuid;
       }
       return s;
@@ -90,7 +90,7 @@ export class Signup extends Component<any, State> {
   }
 
   get isLemmyMl(): boolean {
-    return isBrowser() && window.location.hostname == "lemmy.ml";
+    return isBrowser() && window.location.hostname === "lemmy.ml";
   }
 
   render() {
@@ -269,7 +269,7 @@ export class Signup extends Component<any, State> {
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.registerRes.state == "loading" ? (
+              {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
                 this.titleName(siteView)
@@ -424,7 +424,7 @@ export class Signup extends Component<any, State> {
 
   handleRegisterEmailChange(i: Signup, event: any) {
     i.state.form.email = event.target.value;
-    if (i.state.form.email == "") {
+    if (i.state.form.email === "") {
       i.state.form.email = undefined;
     }
     i.setState(i.state);
@@ -469,7 +469,7 @@ export class Signup extends Component<any, State> {
     // This was a bad bug, it should only build the new audio on a new file.
     // Replays would stop prematurely if this was rebuilt every time.
 
-    if (i.state.captchaRes.state == "success" && i.state.captchaRes.data.ok) {
+    if (i.state.captchaRes.state === "success" && i.state.captchaRes.data.ok) {
       const captchaRes = i.state.captchaRes.data.ok;
       if (!i.audio) {
         const base64 = `data:audio/wav;base64,${captchaRes.wav}`;

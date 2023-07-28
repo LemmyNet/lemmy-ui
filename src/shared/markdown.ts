@@ -197,7 +197,7 @@ export function setupMarkdown() {
     const item = tokens[idx] as any;
     const title = item.attrs.length >= 3 ? item.attrs[2][1] : "";
     const customEmoji = customEmojisLookup.get(title);
-    const isCustomEmoji = customEmoji != undefined;
+    const isCustomEmoji = customEmoji !== undefined;
     if (!isCustomEmoji) {
       return defaultRenderer?.(tokens, idx, options, env, self) ?? "";
     }
@@ -244,7 +244,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
   const categoryIndex = customEmojis.findIndex(
     x => x.id === custom_emoji_view.custom_emoji.category,
   );
-  if (categoryIndex == -1) {
+  if (categoryIndex === -1) {
     customEmojis.push({
       id: custom_emoji_view.custom_emoji.category,
       name: custom_emoji_view.custom_emoji.category,
@@ -254,7 +254,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
     const emojiIndex = customEmojis[categoryIndex].emojis.findIndex(
       x => x.id === custom_emoji_view.custom_emoji.shortcode,
     );
-    if (emojiIndex == -1) {
+    if (emojiIndex === -1) {
       customEmojis[categoryIndex].emojis.push(emoji);
     } else {
       customEmojis[categoryIndex].emojis[emojiIndex] = emoji;

@@ -411,7 +411,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     cv: CustomEmojiViewForm;
   }) {
     const pagedIndex = (d.i.state.page - 1) * d.i.itemsPerPage + d.index;
-    if (d.cv.id != 0) {
+    if (d.cv.id !== 0) {
       d.i.props.onDelete({
         id: d.cv.id,
         auth: myAuthRequired(),

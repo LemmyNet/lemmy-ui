@@ -22,8 +22,8 @@ export class Theme extends Component<Props> {
         </Helmet>
       );
     } else if (
-      this.props.defaultTheme != "browser" &&
-      this.props.defaultTheme != "browser-compact"
+      this.props.defaultTheme !== "browser" &&
+      this.props.defaultTheme !== "browser-compact"
     ) {
       return (
         <Helmet>
@@ -34,7 +34,7 @@ export class Theme extends Component<Props> {
           />
         </Helmet>
       );
-    } else if (this.props.defaultTheme == "browser-compact") {
+    } else if (this.props.defaultTheme === "browser-compact") {
       return (
         <Helmet>
           <link

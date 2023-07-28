@@ -360,7 +360,7 @@ export class MarkdownTextArea extends Component<
 
   handleEmoji(i: MarkdownTextArea, e: any) {
     let value = e.native;
-    if (value == null) {
+    if (value === null) {
       const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
       if (emoji) {
         value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;

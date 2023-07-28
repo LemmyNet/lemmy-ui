@@ -18,7 +18,7 @@ export default function canMod(
     const myIndex = adminsThenMods.findIndex(
       id => id === myUserInfo.local_user_view.person.id,
     );
-    if (myIndex == -1) {
+    if (myIndex === -1) {
       return false;
     } else {
       // onSelf +1 on mod actions not for yourself, IE ban, remove, etc

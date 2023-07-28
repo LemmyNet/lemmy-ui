@@ -161,7 +161,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           {numToSI(cv.counts.comments)}
                         </td>
                         <td className="text-right">
-                          {cv.subscribed == "Subscribed" && (
+                          {cv.subscribed === "Subscribed" && (
                             <button
                               className="btn btn-link d-inline-block"
                               onClick={linkEvent(
@@ -352,8 +352,8 @@ export class Communities extends Component<any, CommunitiesState> {
   findAndUpdateCommunity(res: RequestState<CommunityResponse>) {
     this.setState(s => {
       if (
-        s.listCommunitiesResponse.state == "success" &&
-        res.state == "success"
+        s.listCommunitiesResponse.state === "success" &&
+        res.state === "success"
       ) {
         s.listCommunitiesResponse.data.communities = editCommunity(
           res.data.community_view,

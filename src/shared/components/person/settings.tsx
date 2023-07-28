@@ -887,7 +887,7 @@ export class Settings extends Component<any, SettingsState> {
                   id="user-remove-totp"
                   type="checkbox"
                   checked={
-                    this.state.saveUserSettingsForm.generate_totp_2fa == false
+                    this.state.saveUserSettingsForm.generate_totp_2fa === false
                   }
                   onChange={linkEvent(this, this.handleRemoveTotp)}
                 />
@@ -1134,13 +1134,13 @@ export class Settings extends Component<any, SettingsState> {
 
   handleNewPasswordChange(i: Settings, event: any) {
     const newPass: string | undefined =
-      event.target.value == "" ? undefined : event.target.value;
+      event.target.value === "" ? undefined : event.target.value;
     i.setState(s => ((s.changePasswordForm.new_password = newPass), s));
   }
 
   handleNewPasswordVerifyChange(i: Settings, event: any) {
     const newPassVerify: string | undefined =
-      event.target.value == "" ? undefined : event.target.value;
+      event.target.value === "" ? undefined : event.target.value;
     i.setState(
       s => ((s.changePasswordForm.new_password_verify = newPassVerify), s),
     );
@@ -1148,7 +1148,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleOldPasswordChange(i: Settings, event: any) {
     const oldPass: string | undefined =
-      event.target.value == "" ? undefined : event.target.value;
+      event.target.value === "" ? undefined : event.target.value;
     i.setState(s => ((s.changePasswordForm.old_password = oldPass), s));
   }
 
