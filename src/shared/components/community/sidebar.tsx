@@ -81,13 +81,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>,
   ): void {
-    if (this.props.moderators != nextProps.moderators) {
+    if (this.props.moderators !== nextProps.moderators) {
       this.setState({
         showConfirmLeaveModTeam: false,
       });
     }
 
-    if (this.props.community_view != nextProps.community_view) {
+    if (this.props.community_view !== nextProps.community_view) {
       this.setState({
         showEdit: false,
         showPurgeDialog: false,

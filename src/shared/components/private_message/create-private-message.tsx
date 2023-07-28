@@ -94,7 +94,7 @@ export class CreatePrivateMessage extends Component<
   }
 
   get documentTitle(): string {
-    if (this.state.recipientRes.state == "success") {
+    if (this.state.recipientRes.state === "success") {
       const name_ = this.state.recipientRes.data.person_view.person.name;
       return `${I18NextService.i18n.t("create_private_message")} - ${name_}`;
     } else {
@@ -144,7 +144,7 @@ export class CreatePrivateMessage extends Component<
   async handlePrivateMessageCreate(form: CreatePrivateMessageI) {
     const res = await HttpService.client.createPrivateMessage(form);
 
-    if (res.state == "success") {
+    if (res.state === "success") {
       toast(I18NextService.i18n.t("message_sent"));
 
       // Navigate to the front

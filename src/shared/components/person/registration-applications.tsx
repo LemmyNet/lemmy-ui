@@ -220,7 +220,7 @@ export class RegistrationApplications extends Component<
   }
 
   async refetch() {
-    const unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     this.setState({
       appsRes: { state: "loading" },
     });
@@ -239,7 +239,7 @@ export class RegistrationApplications extends Component<
       form,
     );
     this.setState(s => {
-      if (s.appsRes.state == "success" && approveRes.state == "success") {
+      if (s.appsRes.state === "success" && approveRes.state === "success") {
         s.appsRes.data.registration_applications = editRegistrationApplication(
           approveRes.data.registration_application,
           s.appsRes.data.registration_applications,

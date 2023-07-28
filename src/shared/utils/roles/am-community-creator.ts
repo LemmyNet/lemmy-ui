@@ -8,5 +8,5 @@ export default function amCommunityCreator(
 ): boolean {
   const myId = myUserInfo?.local_user_view.person.id;
   // Don't allow mod actions on yourself
-  return myId == mods?.at(0)?.moderator.id && myId != creator_id;
+  return myId === mods?.at(0)?.moderator.id && myId !== creator_id;
 }

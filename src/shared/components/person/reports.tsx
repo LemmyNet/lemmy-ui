@@ -352,18 +352,18 @@ export class Reports extends Component<any, ReportsState> {
   get buildCombined(): ItemType[] {
     const commentRes = this.state.commentReportsRes;
     const comments =
-      commentRes.state == "success"
+      commentRes.state === "success"
         ? commentRes.data.comment_reports.map(this.commentReportToItemType)
         : [];
 
     const postRes = this.state.postReportsRes;
     const posts =
-      postRes.state == "success"
+      postRes.state === "success"
         ? postRes.data.post_reports.map(this.postReportToItemType)
         : [];
     const pmRes = this.state.messageReportsRes;
     const privateMessages =
-      pmRes.state == "success"
+      pmRes.state === "success"
         ? pmRes.data.private_message_reports.map(
             this.privateMessageReportToItemType,
           )
@@ -565,7 +565,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   async refetch() {
-    const unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const unresolved_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
     const limit = fetchLimit;
     const auth = myAuthRequired();
@@ -617,7 +617,7 @@ export class Reports extends Component<any, ReportsState> {
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
     this.setState(s => {
-      if (s.commentReportsRes.state == "success" && res.state == "success") {
+      if (s.commentReportsRes.state === "success" && res.state === "success") {
         s.commentReportsRes.data.comment_reports = editCommentReport(
           res.data.comment_report_view,
           s.commentReportsRes.data.comment_reports,
@@ -629,7 +629,7 @@ export class Reports extends Component<any, ReportsState> {
 
   findAndUpdatePostReport(res: RequestState<PostReportResponse>) {
     this.setState(s => {
-      if (s.postReportsRes.state == "success" && res.state == "success") {
+      if (s.postReportsRes.state === "success" && res.state === "success") {
         s.postReportsRes.data.post_reports = editPostReport(
           res.data.post_report_view,
           s.postReportsRes.data.post_reports,
@@ -643,7 +643,7 @@ export class Reports extends Component<any, ReportsState> {
     res: RequestState<PrivateMessageReportResponse>,
   ) {
     this.setState(s => {
-      if (s.messageReportsRes.state == "success" && res.state == "success") {
+      if (s.messageReportsRes.state === "success" && res.state === "success") {
         s.messageReportsRes.data.private_message_reports =
           editPrivateMessageReport(
             res.data.private_message_report_view,

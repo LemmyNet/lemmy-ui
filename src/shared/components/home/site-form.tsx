@@ -293,7 +293,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </select>
           </div>
         </div>
-        {this.state.siteForm.registration_mode == "RequireApplication" && (
+        {this.state.siteForm.registration_mode === "RequireApplication" && (
           <div className="mb-3 row">
             <label className="col-12 col-form-label">
               {I18NextService.i18n.t("application_questionnaire")}

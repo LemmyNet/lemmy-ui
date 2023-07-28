@@ -545,7 +545,7 @@ export class Search extends Component<any, SearchState> {
     } = this.state;
 
     const hasCommunities =
-      communitiesRes.state == "success" &&
+      communitiesRes.state === "success" &&
       communitiesRes.data.communities.length > 0;
 
     return (
@@ -619,7 +619,7 @@ export class Search extends Component<any, SearchState> {
     } = this.state;
 
     // Push the possible resolve / federated objects first
-    if (resolveObjectResponse.state == "success") {
+    if (resolveObjectResponse.state === "success") {
       const { comment, post, community, person } = resolveObjectResponse.data;
 
       if (comment) {

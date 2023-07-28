@@ -31,7 +31,7 @@ export class PrivateMessageReport extends Component<Props, State> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({ loading: false });
     }
   }

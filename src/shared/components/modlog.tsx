@@ -698,7 +698,7 @@ export class Modlog extends Component<
 
   get combined() {
     const res = this.state.res;
-    const combined = res.state == "success" ? buildCombined(res.data) : [];
+    const combined = res.state === "success" ? buildCombined(res.data) : [];
 
     return (
       <tbody>
@@ -723,7 +723,7 @@ export class Modlog extends Component<
 
   get amAdminOrMod(): boolean {
     const amMod_ =
-      this.state.communityRes.state == "success" &&
+      this.state.communityRes.state === "success" &&
       amMod(this.state.communityRes.data.moderators);
     return amAdmin() || amMod_;
   }

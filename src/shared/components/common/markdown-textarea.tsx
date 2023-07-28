@@ -1,4 +1,4 @@
-import { isBrowser } from "@utils/browser";
+import { isBrowser, platform } from "@utils/browser";
 import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
@@ -21,7 +21,6 @@ import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
-
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -361,7 +360,7 @@ export class MarkdownTextArea extends Component<
 
   handleEmoji(i: MarkdownTextArea, e: any) {
     let value = e.native;
-    if (value == null) {
+    if (value === null) {
       const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
       if (emoji) {
         value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;
@@ -477,7 +476,7 @@ export class MarkdownTextArea extends Component<
   // Keybind handler
   // Keybinds inspired by github comment area
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
-    if (event.ctrlKey || event.metaKey) {
+    if (platform.isMac() ? event.metaKey : event.ctrlKey) {
       switch (event.key) {
         case "k": {
           i.handleInsertLink(i, event);
