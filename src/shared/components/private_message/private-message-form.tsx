@@ -58,7 +58,7 @@ export class PrivateMessageForm extends Component<
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageFormProps>
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({ loading: false, content: undefined, previewMode: false });
     }
   }

@@ -243,7 +243,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const cv = this.commentView;
 
     const purgeTypeText =
-      this.state.purgeType == PurgeType.Comment
+      this.state.purgeType === PurgeType.Comment
         ? I18NextService.i18n.t("purge_comment")
         : `${I18NextService.i18n.t("purge")} ${cv.creator.name}`;
 
@@ -278,9 +278,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : colorList[0];
 
     const showMoreChildren =
-      this.props.viewType == CommentViewType.Tree &&
+      this.props.viewType === CommentViewType.Tree &&
       !this.state.collapsed &&
-      node.children.length == 0 &&
+      node.children.length === 0 &&
       node.comment_view.counts.child_count > 0;
 
     return (
@@ -1210,19 +1210,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get myComment(): boolean {
     return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ==
+      UserService.Instance.myUserInfo?.local_user_view.person.id ===
       this.commentView.creator.id
     );
   }
 
   get isPostCreator(): boolean {
-    return this.commentView.creator.id == this.commentView.post.creator_id;
+    return this.commentView.creator.id === this.commentView.post.creator_id;
   }
 
   get scoreColor() {
-    if (this.commentView.my_vote == 1) {
+    if (this.commentView.my_vote === 1) {
       return "text-info";
-    } else if (this.commentView.my_vote == -1) {
+    } else if (this.commentView.my_vote === -1) {
       return "text-danger";
     } else {
       return "text-muted";
@@ -1499,7 +1499,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handleModBanBothSubmit(i: CommentNode, event: any) {
     event.preventDefault();
-    if (i.state.banType == BanType.Community) {
+    if (i.state.banType === BanType.Community) {
       i.handleBanPersonFromCommunity(i);
     } else {
       i.handleBanPerson(i);
@@ -1552,7 +1552,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     event.preventDefault();
     i.setState({ purgeLoading: true });
 
-    if (i.state.purgeType == PurgeType.Person) {
+    if (i.state.purgeType === PurgeType.Person) {
       i.props.onPurgePerson({
         person_id: i.commentView.creator.id,
         reason: i.state.purgeReason,

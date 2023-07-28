@@ -48,7 +48,7 @@ export default async (req: Request, res: Response) => {
     let errorPageData: ErrorPageData | undefined = undefined;
     let try_site = await client.getSite(getSiteForm);
 
-    if (try_site.state === "failed" && try_site.msg == "not_logged_in") {
+    if (try_site.state === "failed" && try_site.msg === "not_logged_in") {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
       );
