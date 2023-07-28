@@ -324,6 +324,7 @@ export class Profile extends Component<
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
+                canonicalPath={personRes.person_view.person.actor_id}
                 description={personRes.person_view.person.bio}
                 image={personRes.person_view.person.avatar}
               />

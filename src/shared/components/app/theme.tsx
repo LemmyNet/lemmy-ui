@@ -21,13 +21,35 @@ export class Theme extends Component<Props> {
           />
         </Helmet>
       );
-    } else if (this.props.defaultTheme != "browser") {
+    } else if (
+      this.props.defaultTheme != "browser" &&
+      this.props.defaultTheme != "browser-compact"
+    ) {
       return (
         <Helmet>
           <link
             rel="stylesheet"
             type="text/css"
             href={`/css/themes/${this.props.defaultTheme}.css`}
+          />
+        </Helmet>
+      );
+    } else if (this.props.defaultTheme == "browser-compact") {
+      return (
+        <Helmet>
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href="/css/themes/litely-compact.css"
+            id="default-light"
+            media="(prefers-color-scheme: light)"
+          />
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href="/css/themes/darkly-compact.css"
+            id="default-dark"
+            media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
           />
         </Helmet>
       );

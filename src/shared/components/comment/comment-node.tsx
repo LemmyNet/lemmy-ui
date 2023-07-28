@@ -114,7 +114,7 @@ interface CommentNodeProps {
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
   noBorder?: boolean;
-  noIndent?: boolean;
+  isTopLevel?: boolean;
   viewOnly?: boolean;
   locked?: boolean;
   markable?: boolean;
@@ -284,7 +284,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.comment_view.counts.child_count > 0;
 
     return (
-      <li className="comment">
+      <li className="comment list-unstyled">
         <article
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
@@ -292,11 +292,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             mark: this.isCommentNew || this.commentView.comment.distinguished,
           })}
         >
-          <div
-            className={classNames({
-              "ms-2": !this.props.noIndent,
-            })}
-          >
+          <div className="ms-2">
             <div className="d-flex flex-wrap align-items-center text-muted small">
               <button
                 className="btn btn-sm btn-link text-muted me-2"
@@ -352,7 +348,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {showScores() && (
                 <>
                   <span
-                    className="me-1 fw-bold"
+                    className={`me-1 fw-bold ${this.scoreColor}`}
                     aria-label={I18NextService.i18n.t("number_of_points", {
                       count: Number(this.commentView.counts.score),
                       formattedCount: numToSI(this.commentView.counts.score),
@@ -388,20 +384,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
-              <div>
-                {this.state.viewSource ? (
-                  <pre>{this.commentUnlessRemoved}</pre>
-                ) : (
-                  <div
-                    className="md-div"
-                    dangerouslySetInnerHTML={
-                      this.props.hideImages
-                        ? mdToHtmlNoImages(this.commentUnlessRemoved)
-                        : mdToHtml(this.commentUnlessRemoved)
-                    }
-                  />
-                )}
-                <div className="d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold">
+              <>
+                <div className="comment-content">
+                  {this.state.viewSource ? (
+                    <pre>{this.commentUnlessRemoved}</pre>
+                  ) : (
+                    <div
+                      className="md-div"
+                      dangerouslySetInnerHTML={
+                        this.props.hideImages
+                          ? mdToHtmlNoImages(this.commentUnlessRemoved)
+                          : mdToHtml(this.commentUnlessRemoved)
+                      }
+                    />
+                  )}
+                </div>
+                <div className="comment-bottom-btns d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold">
                   {this.props.showContext && this.getLinkButton()}
                   {this.props.markable && (
                     <button
@@ -919,7 +917,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   )}
                 </div>
                 {/* end of button group */}
-              </div>
+              </>
             )}
           </div>
         </article>
@@ -1136,7 +1134,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
-            isChild={!this.props.noIndent}
+            isChild={!this.props.isTopLevel}
             depth={this.props.node.depth + 1}
             finished={this.props.finished}
             onCommentReplyRead={this.props.onCommentReplyRead}
