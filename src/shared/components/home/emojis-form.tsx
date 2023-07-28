@@ -290,8 +290,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
       cv.shortcode.length > 0;
     const noDuplicateShortCodes =
       this.state.customEmojis.filter(
-        x => x.shortcode == cv.shortcode && x.id != cv.id
-      ).length == 0;
+        x => x.shortcode === cv.shortcode && x.id !== cv.id
+      ).length === 0;
     return noEmptyFields && noDuplicateShortCodes && !cv.loading && cv.changed;
   }
 
@@ -308,7 +308,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     const view = customEmojisLookup.get(e.id);
     if (view) {
       const page = this.state.customEmojis.find(
-        x => x.id == view.custom_emoji.id
+        x => x.id === view.custom_emoji.id
       )?.page;
       if (page) {
         this.setState({ page: page });
@@ -420,7 +420,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     cv: CustomEmojiViewForm;
   }) {
     const pagedIndex = (d.i.state.page - 1) * d.i.itemsPerPage + d.index;
-    if (d.cv.id != 0) {
+    if (d.cv.id !== 0) {
       d.i.props.onDelete({
         id: d.cv.id,
         auth: myAuthRequired(),

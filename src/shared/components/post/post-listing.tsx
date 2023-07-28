@@ -765,7 +765,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get unreadCount(): number | undefined {
     const pv = this.postView;
-    return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0
+    return pv.unread_comments === pv.counts.comments || pv.unread_comments === 0
       ? undefined
       : pv.unread_comments;
   }
@@ -1136,7 +1136,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   removeAndBanDialogs() {
     const post = this.postView;
     const purgeTypeText =
-      this.state.purgeType == PurgeType.Post
+      this.state.purgeType === PurgeType.Post
         ? I18NextService.i18n.t("purge_post")
         : `${I18NextService.i18n.t("purge")} ${post.creator.name}`;
     return (
@@ -1405,7 +1405,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   private get myPost(): boolean {
     return (
-      this.postView.creator.id ==
+      this.postView.creator.id ===
       UserService.Instance.myUserInfo?.local_user_view.person.id
     );
   }
@@ -1644,7 +1644,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     const ban = !i.props.post_view.creator_banned_from_community;
     // If its an unban, restore all their data
-    if (ban == false) {
+    if (ban === false) {
       i.setState({ removeData: false });
     }
     const person_id = i.props.post_view.creator.id;
@@ -1652,7 +1652,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const reason = i.state.banReason;
     const expires = futureDaysToUnixTime(i.state.banExpireDays);
 
-    if (i.state.banType == BanType.Community) {
+    if (i.state.banType === BanType.Community) {
       const community_id = i.postView.community.id;
       i.props.onBanPersonFromCommunity({
         community_id,

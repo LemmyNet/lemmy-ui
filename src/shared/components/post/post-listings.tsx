@@ -141,7 +141,7 @@ export class PostListings extends Component<PostListingsProps, any> {
     // Sort by oldest
     // Remove the ones that have no length
     for (const e of urlMap.entries()) {
-      if (e[1].length == 1) {
+      if (e[1].length === 1) {
         urlMap.delete(e[0]);
       } else {
         e[1].sort((a, b) => a.post.published.localeCompare(b.post.published));
@@ -155,7 +155,7 @@ export class PostListings extends Component<PostListingsProps, any> {
         const found = urlMap.get(url);
         if (found) {
           // If its the oldest, add
-          if (pv.post.id == found[0].post.id) {
+          if (pv.post.id === found[0].post.id) {
             this.duplicatesMap.set(pv.post.id, found.slice(1));
           }
           // Otherwise, delete it

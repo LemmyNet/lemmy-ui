@@ -146,7 +146,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
 
     if (strength && ["weak", "medium"].includes(strength)) {
       return "text-warning";
-    } else if (strength == "strong") {
+    } else if (strength === "strong") {
       return "text-success";
     } else {
       return "text-danger";

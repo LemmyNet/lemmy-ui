@@ -48,7 +48,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               {this.state.taglines.map((cv, index) => (
                 <tr key={index}>
                   <td>
-                    {this.state.editingRow == index && (
+                    {this.state.editingRow === index && (
                       <MarkdownTextArea
                         initialContent={cv}
                         onContentChange={s =>
@@ -59,7 +59,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                         siteLanguages={[]}
                       />
                     )}
-                    {this.state.editingRow != index && <div>{cv}</div>}
+                    {this.state.editingRow !== index && <div>{cv}</div>}
                   </td>
                   <td className="text-right">
                     <button
@@ -141,7 +141,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   handleEditTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
     event.preventDefault();
-    if (d.i.state.editingRow == d.index) {
+    if (d.i.state.editingRow === d.index) {
       d.i.setState({ editingRow: undefined });
     } else {
       d.i.setState({ editingRow: d.index });

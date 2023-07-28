@@ -35,7 +35,7 @@ export class CommentReport extends Component<
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentReportProps>
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({ loading: false });
     }
   }

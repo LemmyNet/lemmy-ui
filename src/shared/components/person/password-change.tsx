@@ -81,7 +81,7 @@ export class PasswordChange extends Component<any, State> {
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.passwordChangeRes.state == "loading" ? (
+              {this.state.passwordChangeRes.state === "loading" ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))

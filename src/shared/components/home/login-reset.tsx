@@ -127,7 +127,7 @@ export class LoginReset extends Component<any, State> {
 
       const res = await HttpService.client.passwordReset({ email });
 
-      if (res.state == "success") {
+      if (res.state === "success") {
         toast(I18NextService.i18n.t("reset_password_mail_sent"));
         i.context.router.history.push("/login");
       }
