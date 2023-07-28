@@ -25,11 +25,11 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   createdAndModifiedTimes() {
     const updated = this.props.updated;
     let line = `${capitalizeFirstLetter(
-      I18NextService.i18n.t("created")
+      I18NextService.i18n.t("created"),
     )}: ${formatDate(this.props.published)}`;
     if (updated) {
       line += `\n\n\n${capitalizeFirstLetter(
-        I18NextService.i18n.t("modified")
+        I18NextService.i18n.t("modified"),
       )} ${formatDate(updated)}`;
     }
     return line;

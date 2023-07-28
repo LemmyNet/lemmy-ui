@@ -188,7 +188,7 @@ export class Inbox extends Component<any, InboxState> {
     const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "inbox"
+          "inbox",
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
@@ -246,7 +246,7 @@ export class Inbox extends Component<any, InboxState> {
                   <Spinner />
                 ) : (
                   capitalizeFirstLetter(
-                    I18NextService.i18n.t("mark_all_as_read")
+                    I18NextService.i18n.t("mark_all_as_read"),
                   )
                 )}
               </button>
@@ -455,12 +455,12 @@ export class Inbox extends Component<any, InboxState> {
     const messages: ReplyType[] =
       this.state.messagesRes.state === "success"
         ? this.state.messagesRes.data.private_messages.map(
-            this.messageToReplyType
+            this.messageToReplyType,
           )
         : [];
 
     return [...replies, ...mentions, ...messages].sort((a, b) =>
-      b.published.localeCompare(a.published)
+      b.published.localeCompare(a.published),
     );
   }
 
@@ -960,7 +960,7 @@ export class Inbox extends Component<any, InboxState> {
     this.setState(s => {
       if (s.messagesRes.state === "success" && res.state === "success") {
         s.messagesRes.data.private_messages.unshift(
-          res.data.private_message_view
+          res.data.private_message_view,
         );
       }
 
@@ -973,7 +973,7 @@ export class Inbox extends Component<any, InboxState> {
       if (s.messagesRes.state === "success" && res.state === "success") {
         s.messagesRes.data.private_messages = editPrivateMessage(
           res.data.private_message_view,
-          s.messagesRes.data.private_messages
+          s.messagesRes.data.private_messages,
         );
       }
       return s;
@@ -988,14 +988,14 @@ export class Inbox extends Component<any, InboxState> {
           s.repliesRes.data.replies
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         if (s.mentionsRes.state === "success") {
           s.mentionsRes.data.mentions
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -1030,7 +1030,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   reportToast(
-    res: RequestState<PrivateMessageReportResponse | CommentReportResponse>
+    res: RequestState<PrivateMessageReportResponse | CommentReportResponse>,
   ) {
     if (res.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
@@ -1044,19 +1044,19 @@ export class Inbox extends Component<any, InboxState> {
         if (s.repliesRes.state === "success") {
           s.repliesRes.data.replies = editWith(
             res.data.comment_view,
-            s.repliesRes.data.replies
+            s.repliesRes.data.replies,
           );
         }
         if (s.mentionsRes.state === "success") {
           s.mentionsRes.data.mentions = editWith(
             res.data.comment_view,
-            s.mentionsRes.data.mentions
+            s.mentionsRes.data.mentions,
           );
         }
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
         return s;
       });
@@ -1068,7 +1068,7 @@ export class Inbox extends Component<any, InboxState> {
       if (s.repliesRes.state === "success" && res.state === "success") {
         s.repliesRes.data.replies = editCommentReply(
           res.data.comment_reply_view,
-          s.repliesRes.data.replies
+          s.repliesRes.data.replies,
         );
       }
       return s;
@@ -1080,7 +1080,7 @@ export class Inbox extends Component<any, InboxState> {
       if (s.mentionsRes.state === "success" && res.state === "success") {
         s.mentionsRes.data.mentions = editMention(
           res.data.person_mention_view,
-          s.mentionsRes.data.mentions
+          s.mentionsRes.data.mentions,
         );
       }
       return s;

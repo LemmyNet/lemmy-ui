@@ -140,7 +140,7 @@ export class Reports extends Component<any, ReportsState> {
     const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "reports"
+          "reports",
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
@@ -365,12 +365,12 @@ export class Reports extends Component<any, ReportsState> {
     const privateMessages =
       pmRes.state === "success"
         ? pmRes.data.private_message_reports.map(
-            this.privateMessageReportToItemType
+            this.privateMessageReportToItemType,
           )
         : [];
 
     return [...comments, ...posts, ...privateMessages].sort((a, b) =>
-      b.published.localeCompare(a.published)
+      b.published.localeCompare(a.published),
     );
   }
 
@@ -557,7 +557,7 @@ export class Reports extends Component<any, ReportsState> {
       };
 
       data.messageReportsRes = await client.listPrivateMessageReports(
-        privateMessageReportsForm
+        privateMessageReportsForm,
       );
     }
 
@@ -594,7 +594,7 @@ export class Reports extends Component<any, ReportsState> {
     if (amAdmin()) {
       this.setState({
         messageReportsRes: await HttpService.client.listPrivateMessageReports(
-          form
+          form,
         ),
       });
     }
@@ -620,7 +620,7 @@ export class Reports extends Component<any, ReportsState> {
       if (s.commentReportsRes.state === "success" && res.state === "success") {
         s.commentReportsRes.data.comment_reports = editCommentReport(
           res.data.comment_report_view,
-          s.commentReportsRes.data.comment_reports
+          s.commentReportsRes.data.comment_reports,
         );
       }
       return s;
@@ -632,7 +632,7 @@ export class Reports extends Component<any, ReportsState> {
       if (s.postReportsRes.state === "success" && res.state === "success") {
         s.postReportsRes.data.post_reports = editPostReport(
           res.data.post_report_view,
-          s.postReportsRes.data.post_reports
+          s.postReportsRes.data.post_reports,
         );
       }
       return s;
@@ -640,14 +640,14 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   findAndUpdatePrivateMessageReport(
-    res: RequestState<PrivateMessageReportResponse>
+    res: RequestState<PrivateMessageReportResponse>,
   ) {
     this.setState(s => {
       if (s.messageReportsRes.state === "success" && res.state === "success") {
         s.messageReportsRes.data.private_message_reports =
           editPrivateMessageReport(
             res.data.private_message_report_view,
-            s.messageReportsRes.data.private_message_reports
+            s.messageReportsRes.data.private_message_reports,
           );
       }
       return s;

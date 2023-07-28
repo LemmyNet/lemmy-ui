@@ -45,7 +45,7 @@ export class UserBadges extends Component<UserBadgesProps> {
         <span
           className={classNames(
             "row d-inline-flex gx-1",
-            this.props.classNames
+            this.props.classNames,
           )}
         >
           {this.props.isBanned && (

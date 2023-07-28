@@ -29,7 +29,7 @@ export class PrivateMessageReport extends Component<Props, State> {
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & Props>
+    nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {
     if (this.props !== nextProps) {
       this.setState({ loading: false });
@@ -40,7 +40,7 @@ export class PrivateMessageReport extends Component<Props, State> {
     const r = this.props.report;
     const pmr = r.private_message_report;
     const tippyContent = I18NextService.i18n.t(
-      r.private_message_report.resolved ? "unresolve_report" : "resolve_report"
+      r.private_message_report.resolved ? "unresolve_report" : "resolve_report",
     );
 
     return (

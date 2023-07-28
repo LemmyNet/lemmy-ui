@@ -53,12 +53,12 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
         <label
           className={classNames(
             "col-form-label",
-            `col-sm-${this.props.multiple ? 3 : 2}`
+            `col-sm-${this.props.multiple ? 3 : 2}`,
           )}
           htmlFor={this.id}
         >
           {I18NextService.i18n.t(
-            this.props.multiple ? "language_plural" : "language"
+            this.props.multiple ? "language_plural" : "language",
           )}
         </label>
         {this.props.multiple && this.props.showLanguageWarning && (
@@ -97,7 +97,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
       this.props.siteLanguages,
       this.props.showAll,
       this.props.showSite,
-      UserService.Instance.myUserInfo
+      UserService.Instance.myUserInfo,
     );
 
     return (

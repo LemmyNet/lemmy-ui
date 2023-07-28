@@ -3,7 +3,7 @@ import { UserService } from "../../services";
 
 export default function isPostBlocked(
   pv: PostView,
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
+  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
 ): boolean {
   return (
     (myUserInfo?.community_blocks

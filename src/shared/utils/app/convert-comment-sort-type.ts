@@ -1,7 +1,7 @@
 import { CommentSortType, SortType } from "lemmy-js-client";
 
 export default function convertCommentSortType(
-  sort: SortType
+  sort: SortType,
 ): CommentSortType {
   switch (sort) {
     case "TopAll":

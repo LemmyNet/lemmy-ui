@@ -285,9 +285,8 @@ export class Home extends Component<any, HomeState> {
       HomeCacheService.postsRes = postsRes;
     }
 
-    this.state.tagline = getRandomFromList(
-      this.state?.siteRes?.taglines ?? []
-    )?.content;
+    this.state.tagline = getRandomFromList(this.state?.siteRes?.taglines ?? [])
+      ?.content;
   }
 
   componentWillUnmount() {
@@ -298,7 +297,7 @@ export class Home extends Component<any, HomeState> {
     if (
       !this.state.isIsomorphic ||
       !Object.values(this.isoData.routeData).some(
-        res => res.state === "success" || res.state === "failed"
+        res => res.state === "success" || res.state === "failed",
       )
     ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
@@ -359,7 +358,7 @@ export class Home extends Component<any, HomeState> {
 
     return {
       trendingCommunitiesRes: await client.listCommunities(
-        trendingCommunitiesForm
+        trendingCommunitiesForm,
       ),
       commentsRes,
       postsRes,
@@ -777,7 +776,7 @@ export class Home extends Component<any, HomeState> {
         <div className="col-auto ps-0">
           {getRss(
             listingType ??
-              this.state.siteRes.site_view.local_site.default_post_listing_type
+              this.state.siteRes.site_view.local_site.default_post_listing_type,
           )}
         </div>
       </div>
@@ -1034,14 +1033,14 @@ export class Home extends Component<any, HomeState> {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -1080,7 +1079,7 @@ export class Home extends Component<any, HomeState> {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
       }
@@ -1096,7 +1095,7 @@ export class Home extends Component<any, HomeState> {
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
       }
       return s;
@@ -1108,7 +1107,7 @@ export class Home extends Component<any, HomeState> {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editWith(
           res.data.comment_reply_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
       }
       return s;
@@ -1120,7 +1119,7 @@ export class Home extends Component<any, HomeState> {
       if (s.postsRes.state === "success" && res.state === "success") {
         s.postsRes.data.posts = editPost(
           res.data.post_view,
-          s.postsRes.data.posts
+          s.postsRes.data.posts,
         );
       }
       return s;

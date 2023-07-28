@@ -121,7 +121,7 @@ export class CreatePost extends Component<
       const { communityId } = getCreatePostQueryParams();
 
       const initialCommunitiesRes = await fetchCommunitiesForOptions(
-        HttpService.client
+        HttpService.client,
       );
 
       this.setState({

@@ -13,7 +13,7 @@ export default function selectableLanguages(
   siteLanguages: number[],
   showAll?: boolean,
   showSite?: boolean,
-  myUserInfo = UserService.Instance.myUserInfo
+  myUserInfo = UserService.Instance.myUserInfo,
 ): Language[] {
   const allLangIds = allLanguages.map(l => l.id);
   let myLangs = myUserInfo?.discussion_languages ?? allLangIds;

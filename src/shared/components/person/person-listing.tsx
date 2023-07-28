@@ -57,7 +57,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
               {
                 "text-muted": this.props.muted,
                 "text-info": !this.props.muted,
-              }
+              },
             )}
             to={link}
           >

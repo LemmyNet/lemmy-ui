@@ -391,7 +391,7 @@ export class Settings extends Component<any, SettingsState> {
                   className="btn btn-sm"
                   onClick={linkEvent(
                     { ctx: this, recipientId: pb.target.id },
-                    this.handleUnblockPerson
+                    this.handleUnblockPerson,
                   )}
                   data-tippy-content={I18NextService.i18n.t("unblock_user")}
                 >
@@ -435,10 +435,10 @@ export class Settings extends Component<any, SettingsState> {
                   className="btn btn-sm"
                   onClick={linkEvent(
                     { ctx: this, communityId: cb.community.id },
-                    this.handleUnblockCommunity
+                    this.handleUnblockCommunity,
                   )}
                   data-tippy-content={I18NextService.i18n.t(
-                    "unblock_community"
+                    "unblock_community",
                   )}
                 >
                   <Icon icon="x" classes="icon-inline" />
@@ -767,7 +767,7 @@ export class Settings extends Component<any, SettingsState> {
                 }
                 onChange={linkEvent(
                   this,
-                  this.handleSendNotificationsToEmailChange
+                  this.handleSendNotificationsToEmailChange,
                 )}
               />
               <label
@@ -798,7 +798,7 @@ export class Settings extends Component<any, SettingsState> {
               className="btn d-block btn-danger"
               onClick={linkEvent(
                 this,
-                this.handleDeleteAccountShowConfirmToggle
+                this.handleDeleteAccountShowConfirmToggle,
               )}
             >
               {I18NextService.i18n.t("delete_account")}
@@ -817,7 +817,7 @@ export class Settings extends Component<any, SettingsState> {
                   value={this.state.deleteAccountForm.password}
                   onInput={linkEvent(
                     this,
-                    this.handleDeleteAccountPasswordChange
+                    this.handleDeleteAccountPasswordChange,
                   )}
                   className="my-2"
                 />
@@ -837,7 +837,7 @@ export class Settings extends Component<any, SettingsState> {
                   type="button"
                   onClick={linkEvent(
                     this,
-                    this.handleDeleteAccountShowConfirmToggle
+                    this.handleDeleteAccountShowConfirmToggle,
                   )}
                 >
                   {I18NextService.i18n.t("cancel")}
@@ -924,7 +924,7 @@ export class Settings extends Component<any, SettingsState> {
 
     if (text.length > 0) {
       searchCommunityOptions.push(
-        ...(await fetchCommunities(text)).map(communityToChoice)
+        ...(await fetchCommunities(text)).map(communityToChoice),
       );
     }
 
@@ -985,7 +985,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleShowNsfwChange(i: Settings, event: any) {
     i.setState(
-      s => ((s.saveUserSettingsForm.show_nsfw = event.target.checked), s)
+      s => ((s.saveUserSettingsForm.show_nsfw = event.target.checked), s),
     );
   }
 
@@ -995,13 +995,13 @@ export class Settings extends Component<any, SettingsState> {
       mui.local_user_view.local_user.show_avatars = event.target.checked;
     }
     i.setState(
-      s => ((s.saveUserSettingsForm.show_avatars = event.target.checked), s)
+      s => ((s.saveUserSettingsForm.show_avatars = event.target.checked), s),
     );
   }
 
   handleBotAccount(i: Settings, event: any) {
     i.setState(
-      s => ((s.saveUserSettingsForm.bot_account = event.target.checked), s)
+      s => ((s.saveUserSettingsForm.bot_account = event.target.checked), s),
     );
   }
 
@@ -1009,13 +1009,13 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.show_bot_accounts = event.target.checked), s
-      )
+      ),
     );
   }
 
   handleReadPosts(i: Settings, event: any) {
     i.setState(
-      s => ((s.saveUserSettingsForm.show_read_posts = event.target.checked), s)
+      s => ((s.saveUserSettingsForm.show_read_posts = event.target.checked), s),
     );
   }
 
@@ -1023,7 +1023,7 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.show_new_post_notifs = event.target.checked), s
-      )
+      ),
     );
   }
 
@@ -1033,7 +1033,7 @@ export class Settings extends Component<any, SettingsState> {
       mui.local_user_view.local_user.show_scores = event.target.checked;
     }
     i.setState(
-      s => ((s.saveUserSettingsForm.show_scores = event.target.checked), s)
+      s => ((s.saveUserSettingsForm.show_scores = event.target.checked), s),
     );
   }
 
@@ -1058,7 +1058,7 @@ export class Settings extends Component<any, SettingsState> {
         (s.saveUserSettingsForm.send_notifications_to_email =
           event.target.checked),
         s
-      )
+      ),
     );
   }
 
@@ -1070,17 +1070,19 @@ export class Settings extends Component<any, SettingsState> {
   handleInterfaceLangChange(i: Settings, event: any) {
     const newLang = event.target.value ?? "browser";
     I18NextService.i18n.changeLanguage(
-      newLang === "browser" ? navigator.languages : newLang
+      newLang === "browser" ? navigator.languages : newLang,
     );
 
     i.setState(
-      s => ((s.saveUserSettingsForm.interface_language = event.target.value), s)
+      s => (
+        (s.saveUserSettingsForm.interface_language = event.target.value), s
+      ),
     );
   }
 
   handleDiscussionLanguageChange(val: number[]) {
     this.setState(
-      s => ((s.saveUserSettingsForm.discussion_languages = val), s)
+      s => ((s.saveUserSettingsForm.discussion_languages = val), s),
     );
   }
 
@@ -1090,7 +1092,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleListingTypeChange(val: ListingType) {
     this.setState(
-      s => ((s.saveUserSettingsForm.default_listing_type = val), s)
+      s => ((s.saveUserSettingsForm.default_listing_type = val), s),
     );
   }
 
@@ -1120,13 +1122,13 @@ export class Settings extends Component<any, SettingsState> {
 
   handleDisplayNameChange(i: Settings, event: any) {
     i.setState(
-      s => ((s.saveUserSettingsForm.display_name = event.target.value), s)
+      s => ((s.saveUserSettingsForm.display_name = event.target.value), s),
     );
   }
 
   handleMatrixUserIdChange(i: Settings, event: any) {
     i.setState(
-      s => ((s.saveUserSettingsForm.matrix_user_id = event.target.value), s)
+      s => ((s.saveUserSettingsForm.matrix_user_id = event.target.value), s),
     );
   }
 
@@ -1140,7 +1142,7 @@ export class Settings extends Component<any, SettingsState> {
     const newPassVerify: string | undefined =
       event.target.value === "" ? undefined : event.target.value;
     i.setState(
-      s => ((s.changePasswordForm.new_password_verify = newPassVerify), s)
+      s => ((s.changePasswordForm.new_password_verify = newPassVerify), s),
     );
   }
 

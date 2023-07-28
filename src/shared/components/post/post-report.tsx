@@ -26,7 +26,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>
+    nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>,
   ): void {
     if (this.props !== nextProps) {
       this.setState({ loading: false });
@@ -38,7 +38,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const resolver = r.resolver;
     const post = r.post;
     const tippyContent = I18NextService.i18n.t(
-      r.post_report.resolved ? "unresolve_report" : "resolve_report"
+      r.post_report.resolved ? "unresolve_report" : "resolve_report",
     );
 
     // Set the original post data ( a troll could change it )

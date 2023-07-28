@@ -201,7 +201,7 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("header", this.handleInsertHeader)}
                 {this.getFormatButton(
                   "strikethrough",
-                  this.handleInsertStrikethrough
+                  this.handleInsertStrikethrough,
                 )}
                 {this.getFormatButton("quote", this.handleInsertQuote)}
                 {this.getFormatButton("list", this.handleInsertList)}
@@ -209,7 +209,7 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("subscript", this.handleInsertSubscript)}
                 {this.getFormatButton(
                   "superscript",
-                  this.handleInsertSuperscript
+                  this.handleInsertSuperscript,
                 )}
                 {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
                 <a
@@ -229,7 +229,7 @@ export class MarkdownTextArea extends Component<
                     "form-control border-0 rounded-top-0 rounded-bottom",
                     {
                       "d-none": this.state.previewMode,
-                    }
+                    },
                   )}
                   value={this.state.content}
                   onInput={linkEvent(this, this.handleContentChange)}
@@ -328,7 +328,7 @@ export class MarkdownTextArea extends Component<
 
   getFormatButton(
     type: NoOptionI18nKeys,
-    handleClick: (i: MarkdownTextArea, event: any) => void
+    handleClick: (i: MarkdownTextArea, event: any) => void,
   ) {
     let iconType: string;
 
@@ -396,7 +396,7 @@ export class MarkdownTextArea extends Component<
           count: Number(maxUploadImages),
           formattedCount: numToSI(maxUploadImages),
         }),
-        "danger"
+        "danger",
       );
     } else {
       i.setState({
@@ -424,7 +424,7 @@ export class MarkdownTextArea extends Component<
                 uploaded: (imageUploadStatus?.uploaded ?? 0) + 1,
               },
             }));
-          })
+          }),
         );
       } catch (e) {
         errorOccurred = true;
@@ -560,7 +560,7 @@ export class MarkdownTextArea extends Component<
       i.setState({
         content: `${content?.substring(
           0,
-          start
+          start,
         )}[${selectedText}]()${content?.substring(end)}`,
       });
       textarea.focus();
@@ -584,7 +584,7 @@ export class MarkdownTextArea extends Component<
   simpleSurroundBeforeAfter(
     beforeChars: string,
     afterChars: string,
-    emptyChars = "___"
+    emptyChars = "___",
   ) {
     const content = this.state.content ?? "";
     if (!this.state.content) {
@@ -599,7 +599,7 @@ export class MarkdownTextArea extends Component<
       this.setState({
         content: `${content?.substring(
           0,
-          start
+          start,
         )}${beforeChars}${selectedText}${afterChars}${content?.substring(end)}`,
       });
     } else {
@@ -614,12 +614,12 @@ export class MarkdownTextArea extends Component<
     if (start !== end) {
       textarea.setSelectionRange(
         start + beforeChars.length,
-        end + afterChars.length
+        end + afterChars.length,
       );
     } else {
       textarea.setSelectionRange(
         start + beforeChars.length,
-        end + emptyChars.length + afterChars.length
+        end + emptyChars.length + afterChars.length,
       );
     }
 

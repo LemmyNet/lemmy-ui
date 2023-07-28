@@ -146,7 +146,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       {
                         count: Number(this.unreadApplicationCount),
                         formattedCount: numToSI(this.unreadApplicationCount),
-                      }
+                      },
                     )}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
@@ -323,9 +323,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           {
                             count: Number(this.unreadApplicationCount),
                             formattedCount: numToSI(
-                              this.unreadApplicationCount
+                              this.unreadApplicationCount,
                             ),
-                          }
+                          },
                         )}
                         onMouseUp={linkEvent(this, handleCollapseClick)}
                       >
@@ -336,9 +336,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             {
                               count: Number(this.unreadApplicationCount),
                               formattedCount: numToSI(
-                                this.unreadApplicationCount
+                                this.unreadApplicationCount,
                               ),
-                            }
+                            },
                           )}
                         </span>
                         {this.unreadApplicationCount > 0 && (

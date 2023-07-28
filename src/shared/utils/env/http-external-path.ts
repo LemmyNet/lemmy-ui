@@ -4,6 +4,6 @@ import { getExternalHost, getSecure } from "@utils/env";
 export default function httpExternalPath(path: string) {
   return `http${getSecure()}://${getExternalHost().replace(
     /:\d+/g,
-    ""
+    "",
   )}${path}`;
 }

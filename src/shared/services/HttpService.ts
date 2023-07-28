@@ -49,7 +49,7 @@ class WrappedLemmyHttpClient {
     this.#client = client;
 
     for (const key of Object.getOwnPropertyNames(
-      Object.getPrototypeOf(this.#client)
+      Object.getPrototypeOf(this.#client),
     )) {
       if (key !== "constructor") {
         WrappedLemmyHttpClient.prototype[key] = async (...args) => {
@@ -80,7 +80,7 @@ export function wrapClient(client: LemmyHttp, silent = false) {
   // unfortunately, this verbose cast is necessary
   return new WrappedLemmyHttpClient(
     client,
-    silent
+    silent,
   ) as unknown as WrappedLemmyHttp;
 }
 
