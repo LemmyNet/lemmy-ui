@@ -66,17 +66,9 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
-  get documentTitle(): string {
-    return I18NextService.i18n.t("custom_emojis");
-  }
-
   render() {
     return (
       <div className="home-emojis-form col-12">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("custom_emojis")}</h1>
         {customEmojisLookup.size > 0 && (
           <div>
