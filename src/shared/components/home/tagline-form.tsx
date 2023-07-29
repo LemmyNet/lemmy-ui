@@ -3,7 +3,6 @@ import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { EditSite, Tagline } from "lemmy-js-client";
 import { I18NextService } from "../../services";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
