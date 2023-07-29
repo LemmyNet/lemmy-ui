@@ -52,7 +52,6 @@ import {
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
-import { HttpService } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -132,6 +131,7 @@ interface PostListingProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -1728,12 +1728,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     const auth = myAuth();
     if (auth && !i.props.post_view.read) {
-      const form: MarkPostAsRead = {
+      i.props.onMarkPostAsRead({
         post_id: i.props.post_view.post.id,
         read: true,
         auth: auth,
-      };
-      HttpService.client.markPostAsRead(form);
+      });
     }
   }
 

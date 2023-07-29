@@ -706,6 +706,7 @@ export class Search extends Component<any, SearchState> {
                   onAddModToCommunity={() => {}}
                   onAddAdmin={() => {}}
                   onTransferCommunity={() => {}}
+                  onMarkPostAsRead={() => {}}
                 />
               )}
               {i.type_ === "comments" && (
@@ -856,6 +857,7 @@ export class Search extends Component<any, SearchState> {
                 onAddModToCommunity={() => {}}
                 onAddAdmin={() => {}}
                 onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
               />
             </div>
           </div>
