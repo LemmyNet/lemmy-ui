@@ -12,7 +12,7 @@ type ImmutableListKey =
 
 export default function editListImmutable<
   T extends { [key in F]: { id: number } },
-  F extends ImmutableListKey
+  F extends ImmutableListKey,
 >(fieldName: F, data: T, list: T[]): T[] {
   return [
     ...list.map(c => (c[fieldName].id === data[fieldName].id ? data : c)),

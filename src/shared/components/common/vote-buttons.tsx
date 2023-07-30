@@ -193,7 +193,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
         <button
           type="button"
           className={`btn-animate btn btn-link p-0 ${
-            this.props.my_vote == 1 ? "text-info" : "text-muted"
+            this.props.my_vote === 1 ? "text-info" : "text-muted"
           }`}
           onClick={linkEvent(this, handleUpvote)}
           data-tippy-content={I18NextService.i18n.t("upvote")}
@@ -220,7 +220,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
-              this.props.my_vote == -1 ? "text-danger" : "text-muted"
+              this.props.my_vote === -1 ? "text-danger" : "text-muted"
             }`}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={I18NextService.i18n.t("downvote")}

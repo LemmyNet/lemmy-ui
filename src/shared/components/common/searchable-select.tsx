@@ -83,7 +83,7 @@ export class SearchableSelect extends Component<
 
     if (props.value) {
       let selectedIndex = props.options.findIndex(
-        ({ value }) => value === props.value?.toString()
+        ({ value }) => value === props.value?.toString(),
       );
 
       if (selectedIndex < 0) {
@@ -140,7 +140,7 @@ export class SearchableSelect extends Component<
             (onSearch || searchText.length === 0
               ? options
               : options.filter(({ label }) =>
-                  label.toLowerCase().includes(searchText.toLowerCase())
+                  label.toLowerCase().includes(searchText.toLowerCase()),
                 )
             ).map((option, index) => (
               <button

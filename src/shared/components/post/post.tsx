@@ -292,7 +292,7 @@ export class Post extends Component<any, PostState> {
 
   get checkScrollIntoCommentsParam() {
     return Boolean(
-      new URLSearchParams(this.props.location.search).get("scrollToComments")
+      new URLSearchParams(this.props.location.search).get("scrollToComments"),
     );
   }
 
@@ -311,7 +311,7 @@ export class Post extends Component<any, PostState> {
     const wrappedElement = document.getElementsByClassName("comments")[0];
     if (wrappedElement && this.isBottom(wrappedElement)) {
       const commentCount =
-        this.state.commentsRes.state == "success"
+        this.state.commentsRes.state === "success"
           ? this.state.commentsRes.data.comments.length
           : 0;
 
@@ -325,13 +325,13 @@ export class Post extends Component<any, PostState> {
 
   get documentTitle(): string {
     const siteName = this.state.siteRes.site_view.site.name;
-    return this.state.postRes.state == "success"
+    return this.state.postRes.state === "success"
       ? `${this.state.postRes.data.post_view.post.name} - ${siteName}`
       : siteName;
   }
 
   get imageTag(): string | undefined {
-    if (this.state.postRes.state == "success") {
+    if (this.state.postRes.state === "success") {
       const post = this.state.postRes.data.post_view.post;
       const thumbnail = post.thumbnail_url;
       const url = post.url;
@@ -416,9 +416,9 @@ export class Post extends Component<any, PostState> {
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
               {this.sortRadios()}
-              {this.state.commentViewType == CommentViewType.Tree &&
+              {this.state.commentViewType === CommentViewType.Tree &&
                 this.commentsTree()}
-              {this.state.commentViewType == CommentViewType.Flat &&
+              {this.state.commentViewType === CommentViewType.Flat &&
                 this.commentsFlat()}
             </main>
             <aside className="d-none d-md-block col-md-4 col-lg-3">
@@ -538,7 +538,7 @@ export class Post extends Component<any, PostState> {
     const commentsRes = this.state.commentsRes;
     const postRes = this.state.postRes;
 
-    if (commentsRes.state == "success" && postRes.state == "success") {
+    if (commentsRes.state === "success" && postRes.state === "success") {
       return (
         <div>
           <CommentNodes
@@ -610,7 +610,7 @@ export class Post extends Component<any, PostState> {
     const showContextButton = depth ? depth > 0 : false;
 
     return (
-      res.state == "success" && (
+      res.state === "success" && (
         <div>
           {!!this.state.commentId && (
             <>
@@ -667,10 +667,10 @@ export class Post extends Component<any, PostState> {
   }
 
   commentTree(): CommentNodeI[] {
-    if (this.state.commentsRes.state == "success") {
+    if (this.state.commentsRes.state === "success") {
       return buildCommentsTree(
         this.state.commentsRes.data.comments,
-        !!this.state.commentId
+        !!this.state.commentId,
       );
     } else {
       return [];
@@ -699,16 +699,16 @@ export class Post extends Component<any, PostState> {
   }
 
   handleViewPost(i: Post) {
-    if (i.state.postRes.state == "success") {
+    if (i.state.postRes.state === "success") {
       const id = i.state.postRes.data.post_view.post.id;
       i.context.router.history.push(`/post/${id}`);
     }
   }
 
   handleViewContext(i: Post) {
-    if (i.state.commentsRes.state == "success") {
+    if (i.state.commentsRes.state === "success") {
       const parentId = getCommentParentId(
-        i.state.commentsRes.data.comments.at(0)?.comment
+        i.state.commentsRes.data.comments.at(0)?.comment,
       );
       if (parentId) {
         i.context.router.history.push(`/comment/${parentId}`);
@@ -735,7 +735,7 @@ export class Post extends Component<any, PostState> {
       const communityId = followCommunityRes.data.community_view.community.id;
       const mui = UserService.Instance.myUserInfo;
       if (mui) {
-        mui.follows = mui.follows.filter(i => i.community.id != communityId);
+        mui.follows = mui.follows.filter(i => i.community.id !== communityId);
       }
     }
   }
@@ -762,10 +762,10 @@ export class Post extends Component<any, PostState> {
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
-    if (blockCommunityRes.state == "success") {
+    if (blockCommunityRes.state === "success") {
       updateCommunityBlock(blockCommunityRes.data);
       this.setState(s => {
-        if (s.postRes.state == "success") {
+        if (s.postRes.state === "success") {
           s.postRes.data.community_view.blocked =
             blockCommunityRes.data.blocked;
         }
@@ -775,7 +775,7 @@ export class Post extends Component<any, PostState> {
 
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
-    if (blockPersonRes.state == "success") {
+    if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
@@ -858,14 +858,14 @@ export class Post extends Component<any, PostState> {
 
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
-    if (reportRes.state == "success") {
+    if (reportRes.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
-    if (reportRes.state == "success") {
+    if (reportRes.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     }
   }
@@ -890,7 +890,7 @@ export class Post extends Component<any, PostState> {
 
   async handleTransferCommunity(form: TransferCommunity) {
     const transferCommunityRes = await HttpService.client.transferCommunity(
-      form
+      form,
     );
     this.updateCommunityFull(transferCommunityRes);
   }
@@ -898,8 +898,8 @@ export class Post extends Component<any, PostState> {
   async handleFetchChildren(form: GetComments) {
     const moreCommentsRes = await HttpService.client.getComments(form);
     if (
-      this.state.commentsRes.state == "success" &&
-      moreCommentsRes.state == "success"
+      this.state.commentsRes.state === "success" &&
+      moreCommentsRes.state === "success"
     ) {
       const newComments = moreCommentsRes.data.comments;
       // Remove the first comment, since it is the parent
@@ -937,21 +937,21 @@ export class Post extends Component<any, PostState> {
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
         if (
-          s.postRes.state == "success" &&
-          s.postRes.data.post_view.creator.id ==
+          s.postRes.state === "success" &&
+          s.postRes.data.post_view.creator.id ===
             banRes.data.person_view.person.id
         ) {
           s.postRes.data.post_view.creator_banned_from_community =
             banRes.data.banned;
         }
-        if (s.commentsRes.state == "success") {
+        if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -961,18 +961,18 @@ export class Post extends Component<any, PostState> {
 
   updateBan(banRes: RequestState<BanPersonResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
         if (
-          s.postRes.state == "success" &&
-          s.postRes.data.post_view.creator.id ==
+          s.postRes.state === "success" &&
+          s.postRes.data.post_view.creator.id ===
             banRes.data.person_view.person.id
         ) {
           s.postRes.data.post_view.creator.banned = banRes.data.banned;
         }
-        if (s.commentsRes.state == "success") {
+        if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
         }
         return s;
@@ -982,7 +982,7 @@ export class Post extends Component<any, PostState> {
 
   updateCommunity(communityRes: RequestState<CommunityResponse>) {
     this.setState(s => {
-      if (s.postRes.state == "success" && communityRes.state == "success") {
+      if (s.postRes.state === "success" && communityRes.state === "success") {
         s.postRes.data.community_view = communityRes.data.community_view;
       }
       return s;
@@ -991,7 +991,7 @@ export class Post extends Component<any, PostState> {
 
   updateCommunityFull(res: RequestState<GetCommunityResponse>) {
     this.setState(s => {
-      if (s.postRes.state == "success" && res.state == "success") {
+      if (s.postRes.state === "success" && res.state === "success") {
         s.postRes.data.community_view = res.data.community_view;
         s.postRes.data.moderators = res.data.moderators;
       }
@@ -1001,7 +1001,7 @@ export class Post extends Component<any, PostState> {
 
   updatePost(post: RequestState<PostResponse>) {
     this.setState(s => {
-      if (s.postRes.state == "success" && post.state == "success") {
+      if (s.postRes.state === "success" && post.state === "success") {
         s.postRes.data.post_view = post.data.post_view;
       }
       return s;
@@ -1009,7 +1009,7 @@ export class Post extends Component<any, PostState> {
   }
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
-    if (purgeRes.state == "success") {
+    if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
@@ -1023,7 +1023,7 @@ export class Post extends Component<any, PostState> {
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
       }
       return s;
@@ -1032,10 +1032,10 @@ export class Post extends Component<any, PostState> {
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
       }
@@ -1045,10 +1045,10 @@ export class Post extends Component<any, PostState> {
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editWith(
           res.data.comment_reply_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
       }
       return s;
@@ -1058,7 +1058,7 @@ export class Post extends Component<any, PostState> {
   updateModerators(res: RequestState<AddModToCommunityResponse>) {
     // Update the moderators
     this.setState(s => {
-      if (s.postRes.state == "success" && res.state == "success") {
+      if (s.postRes.state === "success" && res.state === "success") {
         s.postRes.data.moderators = res.data.moderators;
       }
       return s;

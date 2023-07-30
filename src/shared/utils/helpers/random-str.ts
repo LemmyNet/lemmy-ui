@@ -5,7 +5,7 @@ const DEFAULT_ALPHABET =
 
 export default function randomStr(
   idDesiredLength = 20,
-  alphabet = DEFAULT_ALPHABET
+  alphabet = DEFAULT_ALPHABET,
 ): string {
   /**
    * Create n-long array and map it to random chars from given alphabet.
