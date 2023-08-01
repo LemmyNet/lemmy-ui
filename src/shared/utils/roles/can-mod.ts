@@ -6,7 +6,7 @@ export default function canMod(
   mods?: CommunityModeratorView[],
   admins?: PersonView[],
   myUserInfo = UserService.Instance.myUserInfo,
-  onSelf = false
+  onSelf = false,
 ): boolean {
   // You can do moderator actions only on the mods added after you.
   let adminsThenMods =
@@ -16,9 +16,9 @@ export default function canMod(
 
   if (myUserInfo) {
     const myIndex = adminsThenMods.findIndex(
-      id => id == myUserInfo.local_user_view.person.id
+      id => id === myUserInfo.local_user_view.person.id,
     );
-    if (myIndex == -1) {
+    if (myIndex === -1) {
       return false;
     } else {
       // onSelf +1 on mod actions not for yourself, IE ban, remove, etc

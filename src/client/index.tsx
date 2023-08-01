@@ -1,8 +1,8 @@
 import { initializeSite, setupDateFns } from "@utils/app";
 import { hydrate } from "inferno-hydrate";
-import { Router } from "inferno-router";
+import { BrowserRouter } from "inferno-router";
 import { App } from "../shared/components/app/app";
-import { HistoryService, UserService } from "../shared/services";
+import { UserService } from "../shared/services";
 
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
@@ -13,9 +13,9 @@ async function startClient() {
   await setupDateFns();
 
   const wrapper = (
-    <Router history={HistoryService.history}>
+    <BrowserRouter>
       <App user={UserService.Instance.myUserInfo} />
-    </Router>
+    </BrowserRouter>
   );
 
   const root = document.getElementById("root");

@@ -15,6 +15,7 @@ import { isImage } from "@utils/media";
 import { Choice } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
 import {
   CommunityView,
   CreatePost,
@@ -39,7 +40,6 @@ import { toast } from "../../toast";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import NavigationPrompt from "../common/navigation-prompt";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 
@@ -122,7 +122,7 @@ function copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
   const sTitle = d.suggestedTitle;
   if (sTitle) {
     d.i.setState(
-      s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s)
+      s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s),
     );
     d.i.setState({ suggestedPostsRes: { state: "empty" } });
     setTimeout(() => {
@@ -271,9 +271,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               ({ community: { id, title } }) => ({
                 label: title,
                 value: id.toString(),
-              })
+              }),
             ) ?? []
-          ).filter(option => option.value !== selectedCommunityChoice.value)
+          ).filter(option => option.value !== selectedCommunityChoice.value),
         ),
       };
     } else {
@@ -284,7 +284,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             ({ community: { id, title } }) => ({
               label: title,
               value: id.toString(),
-            })
+            }),
           ) ?? [],
       };
     }
@@ -310,16 +310,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PostFormProps>
+    nextProps: Readonly<{ children?: InfernoNode } & PostFormProps>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState(
         s => (
           (s.form.community_id = getIdFromString(
-            nextProps.selectedCommunityChoice?.value
+            nextProps.selectedCommunityChoice?.value,
           )),
           s
-        )
+        ),
       );
     }
   }
@@ -332,7 +332,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     return (
       <form className="post-form" onSubmit={linkEvent(this, handlePostSubmit)}>
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !!(
               this.state.form.name ||
@@ -366,7 +367,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 </a>
                 <a
                   href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
-                    url
+                    url,
                   )}`}
                   className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
@@ -375,7 +376,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 </a>
                 <a
                   href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
-                    url
+                    url,
                   )}`}
                   className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
@@ -589,7 +590,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               className="mt-1 small border-0 bg-transparent p-0 d-block text-muted fw-bold pointer"
               onClick={linkEvent(
                 { i: this, suggestedTitle },
-                copySuggestedTitle
+                copySuggestedTitle,
               )}
             >
               {I18NextService.i18n.t("copy_suggested_title", { title: "" })}{" "}

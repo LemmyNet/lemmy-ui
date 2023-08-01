@@ -146,7 +146,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       {
                         count: Number(this.unreadApplicationCount),
                         formattedCount: numToSI(this.unreadApplicationCount),
-                      }
+                      },
                     )}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
@@ -323,9 +323,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           {
                             count: Number(this.unreadApplicationCount),
                             formattedCount: numToSI(
-                              this.unreadApplicationCount
+                              this.unreadApplicationCount,
                             ),
-                          }
+                          },
                         )}
                         onMouseUp={linkEvent(this, handleCollapseClick)}
                       >
@@ -336,9 +336,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             {
                               count: Number(this.unreadApplicationCount),
                               formattedCount: numToSI(
-                                this.unreadApplicationCount
+                                this.unreadApplicationCount,
                               ),
-                            }
+                            },
                           )}
                         </span>
                         {this.unreadApplicationCount > 0 && (
@@ -480,7 +480,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get unreadInboxCount(): number {
-    if (this.state.unreadInboxCountRes.state == "success") {
+    if (this.state.unreadInboxCountRes.state === "success") {
       const data = this.state.unreadInboxCountRes.data;
       return data.replies + data.mentions + data.private_messages;
     } else {
@@ -489,7 +489,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get unreadReportCount(): number {
-    if (this.state.unreadReportCountRes.state == "success") {
+    if (this.state.unreadReportCountRes.state === "success") {
       const data = this.state.unreadReportCountRes.data;
       return (
         data.post_reports +
@@ -502,7 +502,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get unreadApplicationCount(): number {
-    if (this.state.unreadApplicationCountRes.state == "success") {
+    if (this.state.unreadApplicationCountRes.state === "success") {
       const data = this.state.unreadApplicationCountRes.data;
       return data.registration_applications;
     } else {

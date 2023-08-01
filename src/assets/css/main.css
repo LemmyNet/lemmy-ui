@@ -204,6 +204,11 @@ blockquote {
   height: 5rem;
 }
 
+.mobile-thumbnail-container .thumbnail {
+  width: 100%;
+  height: auto;
+}
+
 .thumbnail svg {
   height: 1.25rem;
   width: 1.25rem;

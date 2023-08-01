@@ -1,9 +1,10 @@
-import { isBrowser } from "@utils/browser";
+import { isBrowser, platform } from "@utils/browser";
 import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import {
   concurrentImageUpload,
@@ -19,9 +20,7 @@ import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
-import NavigationPrompt from "./navigation-prompt";
 import ProgressBar from "./progress-bar";
-
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -138,18 +137,14 @@ export class MarkdownTextArea extends Component<
   render() {
     const languageId = this.state.languageId;
 
-    // TODO add these prompts back in at some point
-    // <Prompt
-    //   when={!this.props.hideNavigationWarnings && this.state.content}
-    //   message={I18NextService.i18n.t("block_leaving")}
-    // />
     return (
       <form
         className="markdown-textarea"
         id={this.formId}
         onSubmit={linkEvent(this, this.handleSubmit)}
       >
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.hideNavigationWarnings &&
             !!this.state.content &&
@@ -206,7 +201,7 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("header", this.handleInsertHeader)}
                 {this.getFormatButton(
                   "strikethrough",
-                  this.handleInsertStrikethrough
+                  this.handleInsertStrikethrough,
                 )}
                 {this.getFormatButton("quote", this.handleInsertQuote)}
                 {this.getFormatButton("list", this.handleInsertList)}
@@ -214,12 +209,12 @@ export class MarkdownTextArea extends Component<
                 {this.getFormatButton("subscript", this.handleInsertSubscript)}
                 {this.getFormatButton(
                   "superscript",
-                  this.handleInsertSuperscript
+                  this.handleInsertSuperscript,
                 )}
                 {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
                 <a
                   href={markdownHelpUrl}
-                  className="btn btn-sm text-muted fw-bold"
+                  className="btn btn-sm btn-link rounded-0 text-muted fw-bold"
                   title={I18NextService.i18n.t("formatting_help")}
                   rel={relTags}
                 >
@@ -234,7 +229,7 @@ export class MarkdownTextArea extends Component<
                     "form-control border-0 rounded-top-0 rounded-bottom",
                     {
                       "d-none": this.state.previewMode,
-                    }
+                    },
                   )}
                   value={this.state.content}
                   onInput={linkEvent(this, this.handleContentChange)}
@@ -333,7 +328,7 @@ export class MarkdownTextArea extends Component<
 
   getFormatButton(
     type: NoOptionI18nKeys,
-    handleClick: (i: MarkdownTextArea, event: any) => void
+    handleClick: (i: MarkdownTextArea, event: any) => void,
   ) {
     let iconType: string;
 
@@ -365,7 +360,7 @@ export class MarkdownTextArea extends Component<
 
   handleEmoji(i: MarkdownTextArea, e: any) {
     let value = e.native;
-    if (value == null) {
+    if (value === null) {
       const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
       if (emoji) {
         value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;
@@ -401,7 +396,7 @@ export class MarkdownTextArea extends Component<
           count: Number(maxUploadImages),
           formattedCount: numToSI(maxUploadImages),
         }),
-        "danger"
+        "danger",
       );
     } else {
       i.setState({
@@ -429,7 +424,7 @@ export class MarkdownTextArea extends Component<
                 uploaded: (imageUploadStatus?.uploaded ?? 0) + 1,
               },
             }));
-          })
+          }),
         );
       } catch (e) {
         errorOccurred = true;
@@ -481,7 +476,7 @@ export class MarkdownTextArea extends Component<
   // Keybind handler
   // Keybinds inspired by github comment area
   handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
-    if (event.ctrlKey || event.metaKey) {
+    if (platform.isMac() ? event.metaKey : event.ctrlKey) {
       switch (event.key) {
         case "k": {
           i.handleInsertLink(i, event);
@@ -565,7 +560,7 @@ export class MarkdownTextArea extends Component<
       i.setState({
         content: `${content?.substring(
           0,
-          start
+          start,
         )}[${selectedText}]()${content?.substring(end)}`,
       });
       textarea.focus();
@@ -589,7 +584,7 @@ export class MarkdownTextArea extends Component<
   simpleSurroundBeforeAfter(
     beforeChars: string,
     afterChars: string,
-    emptyChars = "___"
+    emptyChars = "___",
   ) {
     const content = this.state.content ?? "";
     if (!this.state.content) {
@@ -604,7 +599,7 @@ export class MarkdownTextArea extends Component<
       this.setState({
         content: `${content?.substring(
           0,
-          start
+          start,
         )}${beforeChars}${selectedText}${afterChars}${content?.substring(end)}`,
       });
     } else {
@@ -619,12 +614,12 @@ export class MarkdownTextArea extends Component<
     if (start !== end) {
       textarea.setSelectionRange(
         start + beforeChars.length,
-        end + afterChars.length
+        end + afterChars.length,
       );
     } else {
       textarea.setSelectionRange(
         start + beforeChars.length,
-        end + emptyChars.length + afterChars.length
+        end + emptyChars.length + afterChars.length,
       );
     }
 

@@ -2,6 +2,7 @@ import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
+import { Prompt } from "inferno-router";
 import {
   CreatePrivateMessage,
   EditPrivateMessage,
@@ -13,7 +14,6 @@ import { I18NextService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import NavigationPrompt from "../common/navigation-prompt";
 import { PersonListing } from "../person/person-listing";
 
 interface PrivateMessageFormProps {
@@ -56,22 +56,18 @@ export class PrivateMessageForm extends Component<
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageFormProps>
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageFormProps>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({ loading: false, content: undefined, previewMode: false });
     }
   }
-  // TODO
-  // <Prompt
-  //   when={!this.state.loading && this.state.content}
-  //   message={I18NextService.i18n.t("block_leaving")}
-  // />
 
   render() {
     return (
       <form className="private-message-form">
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.state.loading && !!this.state.content && !this.state.submitted
           }

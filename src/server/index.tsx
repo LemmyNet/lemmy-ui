@@ -25,11 +25,15 @@ server.use(
   express.static(path.resolve("./dist"), {
     maxAge: 24 * 60 * 60 * 1000, // 1 day
     immutable: true,
-  })
+  }),
 );
 server.use(setCacheControl);
 
-if (!process.env["LEMMY_UI_DISABLE_CSP"] && !process.env["LEMMY_UI_DEBUG"]) {
+if (
+  !process.env["LEMMY_UI_DISABLE_CSP"] &&
+  !process.env["LEMMY_UI_DEBUG"] &&
+  process.env["NODE_ENV"] !== "development"
+) {
   server.use(setDefaultCsp);
 }
 

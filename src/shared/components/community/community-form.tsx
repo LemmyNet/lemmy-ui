@@ -1,6 +1,7 @@
 import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
+import { Prompt } from "inferno-router";
 import {
   CommunityView,
   CreateCommunity,
@@ -12,7 +13,6 @@ import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import NavigationPrompt from "../common/navigation-prompt";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
@@ -90,7 +90,8 @@ export class CommunityForm extends Component<
         className="community-form"
         onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}
       >
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.loading &&
             !!(
@@ -230,7 +231,7 @@ export class CommunityForm extends Component<
                 checked={this.state.form.posting_restricted_to_mods}
                 onChange={linkEvent(
                   this,
-                  this.handleCommunityPostingRestrictedToMods
+                  this.handleCommunityPostingRestrictedToMods,
                 )}
               />
             </div>
@@ -329,7 +330,7 @@ export class CommunityForm extends Component<
 
   handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
     i.setState(
-      s => ((s.form.posting_restricted_to_mods = event.target.checked), s)
+      s => ((s.form.posting_restricted_to_mods = event.target.checked), s),
     );
   }
 

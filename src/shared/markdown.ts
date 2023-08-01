@@ -10,6 +10,7 @@ import markdown_it_container from "markdown-it-container";
 // import markdown_it_emoji from "markdown-it-emoji/bare";
 import markdown_it_footnote from "markdown-it-footnote";
 import markdown_it_html5_embed from "markdown-it-html5-embed";
+import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
@@ -21,6 +22,14 @@ export let Tribute: any;
 export let md: MarkdownIt = new MarkdownIt();
 
 export let mdNoImages: MarkdownIt = new MarkdownIt();
+
+// Zero disables all rules.
+// Only explicitly allow a limited set of rules safe for use in post titles.
+export const mdLimited: MarkdownIt = new MarkdownIt("zero").enable([
+  "emphasis",
+  "backticks",
+  "strikethrough",
+]);
 
 export const customEmojis: EmojiMartCategory[] = [];
 
@@ -42,7 +51,7 @@ export function mdToHtmlNoImages(text: string) {
 }
 
 export function mdToHtmlInline(text: string) {
-  return { __html: md.renderInline(text) };
+  return { __html: mdLimited.renderInline(text) };
 }
 
 const spoilerConfig = {
@@ -159,6 +168,7 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
+    .use(markdown_it_ruby)
     .use(localInstanceLinkParser);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
@@ -181,18 +191,21 @@ export function setupMarkdown() {
     idx: number,
     options: MarkdownIt.Options,
     env: any,
-    self: Renderer
+    self: Renderer,
   ) {
     //Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
     const item = tokens[idx] as any;
     const title = item.attrs.length >= 3 ? item.attrs[2][1] : "";
-    const src: string = item.attrs[0][1];
-    const isCustomEmoji = customEmojisLookup.get(title) != undefined;
+    const customEmoji = customEmojisLookup.get(title);
+    const isCustomEmoji = customEmoji !== undefined;
     if (!isCustomEmoji) {
       return defaultRenderer?.(tokens, idx, options, env, self) ?? "";
     }
-    const alt_text = item.content;
-    return `<img class="icon icon-emoji" src="${src}" title="${title}" alt="${alt_text}"/>`;
+    return `<img class="icon icon-emoji" src="${
+      customEmoji!.custom_emoji.image_url
+    }" title="${customEmoji!.custom_emoji.shortcode}" alt="${
+      customEmoji!.custom_emoji.alt_text
+    }"/>`;
   };
   md.renderer.rules.table_open = function () {
     return '<table class="table">';
@@ -202,7 +215,7 @@ export function setupMarkdown() {
 export function setupEmojiDataModel(custom_emoji_views: CustomEmojiView[]) {
   const groupedEmojis = groupBy(
     custom_emoji_views,
-    x => x.custom_emoji.category
+    x => x.custom_emoji.category,
   );
   for (const [category, emojis] of Object.entries(groupedEmojis)) {
     customEmojis.push({
@@ -217,7 +230,7 @@ export function setupEmojiDataModel(custom_emoji_views: CustomEmojiView[]) {
     });
   }
   customEmojisLookup = new Map(
-    custom_emoji_views.map(view => [view.custom_emoji.shortcode, view])
+    custom_emoji_views.map(view => [view.custom_emoji.shortcode, view]),
   );
 }
 
@@ -229,9 +242,9 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
     skins: [{ src: custom_emoji_view.custom_emoji.image_url }],
   };
   const categoryIndex = customEmojis.findIndex(
-    x => x.id == custom_emoji_view.custom_emoji.category
+    x => x.id === custom_emoji_view.custom_emoji.category,
   );
-  if (categoryIndex == -1) {
+  if (categoryIndex === -1) {
     customEmojis.push({
       id: custom_emoji_view.custom_emoji.category,
       name: custom_emoji_view.custom_emoji.category,
@@ -239,9 +252,9 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
     });
   } else {
     const emojiIndex = customEmojis[categoryIndex].emojis.findIndex(
-      x => x.id == custom_emoji_view.custom_emoji.shortcode
+      x => x.id === custom_emoji_view.custom_emoji.shortcode,
     );
-    if (emojiIndex == -1) {
+    if (emojiIndex === -1) {
       customEmojis[categoryIndex].emojis.push(emoji);
     } else {
       customEmojis[categoryIndex].emojis[emojiIndex] = emoji;
@@ -249,7 +262,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
   }
   customEmojisLookup.set(
     custom_emoji_view.custom_emoji.shortcode,
-    custom_emoji_view
+    custom_emoji_view,
   );
 }
 
@@ -263,10 +276,10 @@ export function removeFromEmojiDataModel(id: number) {
   }
   if (!view) return;
   const categoryIndex = customEmojis.findIndex(
-    x => x.id == view?.custom_emoji.category
+    x => x.id === view?.custom_emoji.category,
   );
   const emojiIndex = customEmojis[categoryIndex].emojis.findIndex(
-    x => x.id == view?.custom_emoji.shortcode
+    x => x.id === view?.custom_emoji.shortcode,
   );
   customEmojis[categoryIndex].emojis = customEmojis[
     categoryIndex
@@ -277,7 +290,7 @@ export function removeFromEmojiDataModel(id: number) {
 
 export function getEmojiMart(
   onEmojiSelect: (e: any) => void,
-  customPickerOptions: any = {}
+  customPickerOptions: any = {},
 ) {
   const pickerOptions = {
     ...customPickerOptions,
@@ -301,10 +314,9 @@ export function setupTribute() {
           return `${item.original.val} ${shortName}`;
         },
         selectTemplate: (item: any) => {
-          const customEmoji = customEmojisLookup.get(
-            item.original.key
-          )?.custom_emoji;
-          if (customEmoji == undefined) return `${item.original.val}`;
+          const customEmoji = customEmojisLookup.get(item.original.key)
+            ?.custom_emoji;
+          if (customEmoji === undefined) return `${item.original.val}`;
           else
             return `![${customEmoji.alt_text}](${customEmoji.image_url} "${customEmoji.shortcode}")`;
         },
@@ -316,7 +328,7 @@ export function setupTribute() {
             Array.from(customEmojisLookup.entries()).map(k => ({
               key: k[0],
               val: `<img class="icon icon-emoji" src="${k[1].custom_emoji.image_url}" title="${k[1].custom_emoji.shortcode}" alt="${k[1].custom_emoji.alt_text}" />`,
-            }))
+            })),
           ),
         allowSpaces: false,
         autocompleteMode: true,

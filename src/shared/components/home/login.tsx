@@ -1,13 +1,13 @@
 import { myAuth, setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { Component, linkEvent } from "inferno";
-import { NavLink } from "inferno-router";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import PasswordInput from "../common/password-input";
 
 interface State {
   loginRes: RequestState<LoginResponse>;
@@ -48,7 +48,7 @@ export class Login extends Component<any, State> {
   }
 
   get isLemmyMl(): boolean {
-    return isBrowser() && window.location.hostname == "lemmy.ml";
+    return isBrowser() && window.location.hostname === "lemmy.ml";
   }
 
   render() {
@@ -90,28 +90,14 @@ export class Login extends Component<any, State> {
               />
             </div>
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-2 col-form-label" htmlFor="login-password">
-              {I18NextService.i18n.t("password")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                type="password"
-                id="login-password"
-                value={this.state.form.password}
-                onInput={linkEvent(this, this.handleLoginPasswordChange)}
-                className="form-control"
-                autoComplete="current-password"
-                required
-                maxLength={60}
-              />
-              <NavLink
-                className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
-                to="/login_reset"
-              >
-                {I18NextService.i18n.t("forgot_password")}
-              </NavLink>
-            </div>
+          <div className="mb-3">
+            <PasswordInput
+              id="login-password"
+              value={this.state.form.password}
+              onInput={linkEvent(this, this.handleLoginPasswordChange)}
+              label={I18NextService.i18n.t("password")}
+              showForgotLink
+            />
           </div>
           {this.state.showTotp && (
             <div className="mb-3 row">
@@ -138,7 +124,7 @@ export class Login extends Component<any, State> {
           <div className="mb-3 row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-secondary">
-                {this.state.loginRes.state == "loading" ? (
+                {this.state.loginRes.state === "loading" ? (
                   <Spinner />
                 ) : (
                   I18NextService.i18n.t("login")
@@ -168,6 +154,9 @@ export class Login extends Component<any, State> {
           if (loginRes.msg === "missing_totp_token") {
             i.setState({ showTotp: true });
             toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
+          }
+          if (loginRes.msg === "incorrect_login") {
+            toast(I18NextService.i18n.t("incorrect_login"), "danger");
           }
 
           i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });

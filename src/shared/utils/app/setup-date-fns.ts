@@ -30,7 +30,7 @@ export default async function () {
     ).default;
   } catch (e) {
     console.log(
-      `Could not load locale ${lang} from date-fns, falling back to ${EN_US}`
+      `Could not load locale ${lang} from date-fns, falling back to ${EN_US}`,
     );
     locale = (
       await import(

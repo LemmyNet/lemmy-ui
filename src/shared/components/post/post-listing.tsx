@@ -316,16 +316,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
     const thumbnail = post.thumbnail_url;
 
-    if (url && isImage(url)) {
-      if (url.includes("pictrs")) {
-        return url;
-      } else if (thumbnail) {
-        return thumbnail;
-      } else {
-        return url;
-      }
-    } else if (thumbnail) {
+    if (thumbnail) {
       return thumbnail;
+    } else if (url && isImage(url)) {
+      return url;
     } else {
       return undefined;
     }
@@ -431,7 +425,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <span className="mx-1 badge text-bg-light">
             {
               this.props.allLanguages.find(
-                lang => lang.id === post_view.post.language_id
+                lang => lang.id === post_view.post.language_id,
               )?.name
             }
           </span>
@@ -527,7 +521,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
               data-tippy-content={I18NextService.i18n.t(
-                "featured_in_community"
+                "featured_in_community",
               )}
               aria-label={I18NextService.i18n.t("featured_in_community")}
             >
@@ -608,7 +602,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.commentsButton}
         {canShare() && (
           <button
-            className="btn btn-sm btn-animate text-muted py-0"
+            className="btn btn-sm btn-link btn-animate text-muted py-0"
             onClick={linkEvent(this, this.handleShare)}
             type="button"
           >
@@ -617,7 +611,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {!post.local && (
           <a
-            className="btn btn-sm btn-animate text-muted py-0"
+            className="btn btn-sm btn-link btn-animate text-muted py-0"
             title={I18NextService.i18n.t("link")}
             href={post.ap_id}
           >
@@ -656,7 +650,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         <div className="dropdown">
           <button
-            className="btn btn-sm btn-animate text-muted py-0 dropdown-toggle"
+            className="btn btn-sm btn-link btn-animate text-muted py-0 dropdown-toggle"
             onClick={linkEvent(this, this.handleShowAdvanced)}
             data-tippy-content={I18NextService.i18n.t("more")}
             data-bs-toggle="dropdown"
@@ -777,7 +771,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get unreadCount(): number | undefined {
     const pv = this.postView;
-    return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0
+    return pv.unread_comments === pv.counts.comments || pv.unread_comments === 0
       ? undefined
       : pv.unread_comments;
   }
@@ -789,7 +783,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       : I18NextService.i18n.t("save");
     return (
       <button
-        className="btn btn-sm btn-animate text-muted py-0"
+        className="btn btn-sm btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleSavePostClick)}
         data-tippy-content={label}
         aria-label={label}
@@ -810,7 +804,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get crossPostButton() {
     return (
       <Link
-        className="btn btn-sm btn-animate text-muted py-0"
+        className="btn btn-sm btn-link btn-animate text-muted py-0"
         to={{
           /* Empty string properties are required to satisfy type*/
           pathname: "/create_post",
@@ -900,7 +894,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get viewSourceButton() {
     return (
       <button
-        className="btn btn-sm btn-animate text-muted py-0"
+        className="btn btn-sm btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleViewSource)}
         data-tippy-content={I18NextService.i18n.t("view_source")}
         aria-label={I18NextService.i18n.t("view_source")}
@@ -1127,7 +1121,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(
           this,
-          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit
+          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit,
         )}
       >
         {/* TODO: Find an icon for this. */}
@@ -1148,7 +1142,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   removeAndBanDialogs() {
     const post = this.postView;
     const purgeTypeText =
-      this.state.purgeType == PurgeType.Post
+      this.state.purgeType === PurgeType.Post
         ? I18NextService.i18n.t("purge_post")
         : `${I18NextService.i18n.t("purge")} ${post.creator.name}`;
     return (
@@ -1200,7 +1194,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="btn btn-link btn-animate text-muted py-0 d-inline-block"
               onClick={linkEvent(
                 this,
-                this.handleCancelShowConfirmTransferCommunity
+                this.handleCancelShowConfirmTransferCommunity,
               )}
               aria-label={I18NextService.i18n.t("no")}
             >
@@ -1333,10 +1327,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
     return post.thumbnail_url || (post.url && isImage(post.url)) ? (
       <div className="row">
-        <div className={`${this.state.imageExpanded ? "col-12" : "col-8"}`}>
+        <div className={`${this.state.imageExpanded ? "col-12" : "col-9"}`}>
           {this.postTitleLine()}
         </div>
-        <div className="col-4">
+        <div className="col-3 mobile-thumbnail-container">
           {/* Post thumbnail */}
           {!this.state.imageExpanded && this.thumbnail()}
         </div>
@@ -1417,7 +1411,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   private get myPost(): boolean {
     return (
-      this.postView.creator.id ==
+      this.postView.creator.id ===
       UserService.Instance.myUserInfo?.local_user_view.person.id
     );
   }
@@ -1656,7 +1650,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     const ban = !i.props.post_view.creator_banned_from_community;
     // If its an unban, restore all their data
-    if (ban == false) {
+    if (ban === false) {
       i.setState({ removeData: false });
     }
     const person_id = i.props.post_view.creator.id;
@@ -1664,7 +1658,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const reason = i.state.banReason;
     const expires = futureDaysToUnixTime(i.state.banExpireDays);
 
-    if (i.state.banType == BanType.Community) {
+    if (i.state.banType === BanType.Community) {
       const community_id = i.postView.community.id;
       i.props.onBanPersonFromCommunity({
         community_id,
@@ -1784,7 +1778,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       this.props.moderators,
       this.props.admins,
       undefined,
-      true
+      true,
     );
   }
 
@@ -1792,7 +1786,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return canMod(
       this.postView.creator.id,
       this.props.moderators,
-      this.props.admins
+      this.props.admins,
     );
   }
 
