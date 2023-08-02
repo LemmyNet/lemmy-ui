@@ -86,7 +86,7 @@ export class App extends Component<AppProps, any> {
                         );
                       }}
                     />
-                  )
+                  ),
                 )}
                 <Route component={ErrorPage} />
               </Switch>

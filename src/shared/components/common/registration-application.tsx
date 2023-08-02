@@ -42,9 +42,9 @@ export class RegistrationApplication extends Component<
   componentWillReceiveProps(
     nextProps: Readonly<
       { children?: InfernoNode } & RegistrationApplicationProps
-    >
+    >,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({
         denyExpanded: false,
         approveLoading: false,

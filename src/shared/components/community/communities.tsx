@@ -172,7 +172,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           {numToSI(cv.counts.comments)}
                         </td>
                         <td className="text-right">
-                          {cv.subscribed == "Subscribed" && (
+                          {cv.subscribed === "Subscribed" && (
                             <button
                               className="btn btn-link d-inline-block"
                               onClick={linkEvent(
@@ -181,7 +181,7 @@ export class Communities extends Component<any, CommunitiesState> {
                                   communityId: cv.community.id,
                                   follow: false,
                                 },
-                                this.handleFollow
+                                this.handleFollow,
                               )}
                             >
                               {I18NextService.i18n.t("unsubscribe")}
@@ -196,7 +196,7 @@ export class Communities extends Component<any, CommunitiesState> {
                                   communityId: cv.community.id,
                                   follow: true,
                                 },
-                                this.handleFollow
+                                this.handleFollow,
                               )}
                             >
                               {I18NextService.i18n.t("subscribe")}
@@ -209,7 +209,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           )}
                         </td>
                       </tr>
-                    )
+                    ),
                   )}
                 </tbody>
               </table>
@@ -301,7 +301,7 @@ export class Communities extends Component<any, CommunitiesState> {
     event.preventDefault();
     const searchParamEncoded = encodeURIComponent(i.state.searchText);
     i.context.router.history.push(
-      `/search?q=${searchParamEncoded}&type=Communities`
+      `/search?q=${searchParamEncoded}&type=Communities`,
     );
   }
 
@@ -322,7 +322,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
     return {
       listCommunitiesResponse: await client.listCommunities(
-        listCommunitiesForm
+        listCommunitiesForm,
       ),
     };
   }
@@ -369,12 +369,12 @@ export class Communities extends Component<any, CommunitiesState> {
   findAndUpdateCommunity(res: RequestState<CommunityResponse>) {
     this.setState(s => {
       if (
-        s.listCommunitiesResponse.state == "success" &&
-        res.state == "success"
+        s.listCommunitiesResponse.state === "success" &&
+        res.state === "success"
       ) {
         s.listCommunitiesResponse.data.communities = editCommunity(
           res.data.community_view,
-          s.listCommunitiesResponse.data.communities
+          s.listCommunitiesResponse.data.communities,
         );
       }
       return s;

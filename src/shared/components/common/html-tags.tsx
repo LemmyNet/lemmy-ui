@@ -50,10 +50,10 @@ export class HtmlTags extends Component<HtmlTagsProps, any> {
                 name={n}
                 content={htmlToText(md.renderInline(desc))}
               />
-            )
+            ),
         )}
         {["og:image", "twitter:image"].map(
-          p => image && <meta key={p} property={p} content={image} />
+          p => image && <meta key={p} property={p} content={image} />,
         )}
       </Helmet>
     );

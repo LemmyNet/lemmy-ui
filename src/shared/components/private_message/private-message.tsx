@@ -59,15 +59,15 @@ export class PrivateMessage extends Component<
 
   get mine(): boolean {
     return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ==
+      UserService.Instance.myUserInfo?.local_user_view.person.id ===
       this.props.private_message_view.creator.id
     );
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({
         showReply: false,
         showEdit: false,

@@ -4,7 +4,7 @@ import { CommentNodeI } from "../../interfaces";
 
 export default function buildCommentsTree(
   comments: CommentView[],
-  parentComment: boolean
+  parentComment: boolean,
 ): CommentNodeI[] {
   const map = new Map<number, CommentNodeI>();
   const depthOffset = !parentComment

@@ -274,7 +274,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         onClick={linkEvent(this, this.handleLeaveAdminTeam)}
         className="btn btn-danger mb-2"
       >
-        {this.state.leaveAdminTeamRes.state == "loading" ? (
+        {this.state.leaveAdminTeamRes.state === "loading" ? (
           <Spinner />
         ) : (
           I18NextService.i18n.t("leave_admin_team")

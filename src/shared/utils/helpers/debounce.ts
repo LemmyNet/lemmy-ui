@@ -1,7 +1,7 @@
 export default function debounce<T extends any[], R>(
   func: (...e: T) => R,
   wait = 1000,
-  immediate = false
+  immediate = false,
 ) {
   let timeout: NodeJS.Timeout | null;
 

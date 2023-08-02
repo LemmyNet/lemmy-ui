@@ -12,6 +12,6 @@ export default async ({ res }: { res: Response }) => {
       process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST +
       `
   Expires: 2024-01-01T04:59:00.000Z
-  `
+  `,
   );
 };

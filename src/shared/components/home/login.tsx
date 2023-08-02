@@ -127,7 +127,7 @@ export class Login extends Component<
   }
 
   get isLemmyMl(): boolean {
-    return isBrowser() && window.location.hostname == "lemmy.ml";
+    return isBrowser() && window.location.hostname === "lemmy.ml";
   }
 
   render() {
@@ -203,7 +203,7 @@ export class Login extends Component<
           <div className="mb-3 row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-secondary">
-                {this.state.loginRes.state == "loading" ? (
+                {this.state.loginRes.state === "loading" ? (
                   <Spinner />
                 ) : (
                   I18NextService.i18n.t("login")

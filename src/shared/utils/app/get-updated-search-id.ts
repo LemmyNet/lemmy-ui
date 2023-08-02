@@ -1,6 +1,6 @@
 export default function getUpdatedSearchId(
   id?: number | null,
-  urlId?: number | null
+  urlId?: number | null,
 ) {
   return id === null
     ? undefined

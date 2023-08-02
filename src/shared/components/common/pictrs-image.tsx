@@ -59,7 +59,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     const split = this.props.src.split("/pictrs/image/");
 
     // If theres not multiple, then its not a pictrs image
-    if (split.length == 1) {
+    if (split.length === 1) {
       return this.props.src;
     }
 

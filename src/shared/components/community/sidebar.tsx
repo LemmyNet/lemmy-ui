@@ -80,15 +80,15 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>
+    nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>,
   ): void {
-    if (this.props.moderators != nextProps.moderators) {
+    if (this.props.moderators !== nextProps.moderators) {
       this.setState({
         showConfirmLeaveModTeam: false,
       });
     }
 
-    if (this.props.community_view != nextProps.community_view) {
+    if (this.props.community_view !== nextProps.community_view) {
       this.setState({
         showEdit: false,
         showPurgeDialog: false,
@@ -248,7 +248,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           onClick={linkEvent(this, this.handleBlockCommunity)}
         >
           {I18NextService.i18n.t(
-            blocked ? "unblock_community" : "block_community"
+            blocked ? "unblock_community" : "block_community",
           )}
         </button>
       )
@@ -288,7 +288,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                       className="btn btn-link text-muted d-inline-block"
                       onClick={linkEvent(
                         this,
-                        this.handleShowConfirmLeaveModTeamClick
+                        this.handleShowConfirmLeaveModTeamClick,
                       )}
                     >
                       {I18NextService.i18n.t("leave_mod_team")}
@@ -312,7 +312,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         className="btn btn-link text-muted d-inline-block"
                         onClick={linkEvent(
                           this,
-                          this.handleCancelLeaveModTeamClick
+                          this.handleCancelLeaveModTeamClick,
                         )}
                       >
                         {I18NextService.i18n.t("no")}
