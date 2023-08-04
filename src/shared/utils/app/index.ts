@@ -27,7 +27,6 @@ import getCommentIdFromProps from "./get-comment-id-from-props";
 import getCommentParentId from "./get-comment-parent-id";
 import getDataTypeString from "./get-data-type-string";
 import getDepthFromComment from "./get-depth-from-comment";
-import getIdFromProps from "./get-id-from-props";
 import getRecipientIdFromProps from "./get-recipient-id-from-props";
 import getUpdatedSearchId from "./get-updated-search-id";
 import initializeSite from "./initialize-site";
@@ -84,7 +83,6 @@ export {
   getCommentParentId,
   getDataTypeString,
   getDepthFromComment,
-  getIdFromProps,
   getRecipientIdFromProps,
   getUpdatedSearchId,
   initializeSite,

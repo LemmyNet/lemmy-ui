@@ -5,10 +5,8 @@ import {
   editWith,
   enableDownvotes,
   enableNsfw,
-  getCommentIdFromProps,
   getCommentParentId,
   getDepthFromComment,
-  getIdFromProps,
   myAuth,
   setIsoData,
   updateCommunityBlock,
@@ -92,17 +90,20 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 const commentsShownInterval = 15;
 
+interface PostParams {
+  post_id?: number;
+  comment_id?: number;
+}
 type PostData = RouteDataResponse<{
   postRes: GetPostResponse;
   commentsRes: GetCommentsResponse;
 }>;
 
 interface PostState {
-  postId?: number;
-  commentId?: number;
   postRes: RequestState<GetPostResponse>;
   commentsRes: RequestState<GetCommentsResponse>;
   commentSort: CommentSortType;
@@ -116,14 +117,15 @@ interface PostState {
   isIsomorphic: boolean;
 }
 
-export class Post extends Component<any, PostState> {
+export class Post extends Component<
+  RouteComponentProps<PostParams>,
+  PostState
+> {
   private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
   state: PostState = {
     postRes: { state: "empty" },
     commentsRes: { state: "empty" },
-    postId: getIdFromProps(this.props),
-    commentId: getCommentIdFromProps(this.props),
     commentSort: "Hot",
     commentViewType: CommentViewType.Tree,
     scrolled: false,
@@ -136,7 +138,6 @@ export class Post extends Component<any, PostState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
     this.handleDeleteCommunityClick =
       this.handleDeleteCommunityClick.bind(this);
     this.handleEditCommunity = this.handleEditCommunity.bind(this);
@@ -200,16 +201,17 @@ export class Post extends Component<any, PostState> {
     });
 
     const auth = myAuth();
+    const { post_id, comment_id } = this.props.match.params;
 
     this.setState({
       postRes: await HttpService.client.getPost({
-        id: this.state.postId,
-        comment_id: this.state.commentId,
+        id: post_id,
+        comment_id: comment_id,
         auth,
       }),
       commentsRes: await HttpService.client.getComments({
-        post_id: this.state.postId,
-        parent_id: this.state.commentId,
+        post_id: this.props.match.params.post_id,
+        parent_id: comment_id,
         max_depth: commentTreeMaxDepth,
         sort: this.state.commentSort,
         type_: "All",
@@ -220,7 +222,9 @@ export class Post extends Component<any, PostState> {
 
     setupTippy();
 
-    if (!this.state.commentId) restoreScrollPosition(this.context);
+    if (!comment_id) {
+      restoreScrollPosition(this.context);
+    }
 
     if (this.checkScrollIntoCommentsParam) {
       this.scrollIntoCommentSection();
@@ -234,11 +238,13 @@ export class Post extends Component<any, PostState> {
   }: InitialFetchRequest): Promise<PostData> {
     const pathSplit = path.split("/");
 
-    const pathType = pathSplit.at(1);
     const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
+    const comment_id = pathSplit.at(4) ? Number(pathSplit.at(4)) : undefined;
 
     const postForm: GetPost = {
       auth,
+      id,
+      comment_id,
     };
 
     const commentsForm: GetComments = {
@@ -247,16 +253,9 @@ export class Post extends Component<any, PostState> {
       type_: "All",
       saved_only: false,
       auth,
+      post_id: id,
+      parent_id: comment_id,
     };
-
-    // Set the correct id based on the path type
-    if (pathType === "post") {
-      postForm.id = id;
-      commentsForm.post_id = id;
-    } else {
-      postForm.comment_id = id;
-      commentsForm.parent_id = id;
-    }
 
     return {
       postRes: await client.getPost(postForm),
@@ -609,7 +608,7 @@ export class Post extends Component<any, PostState> {
     return (
       res.state === "success" && (
         <div>
-          {!!this.state.commentId && (
+          {!!this.props.match.params.comment_id && (
             <>
               <button
                 className="ps-0 d-block btn btn-link text-muted"
@@ -665,9 +664,11 @@ export class Post extends Component<any, PostState> {
 
   commentTree(): CommentNodeI[] {
     if (this.state.commentsRes.state === "success") {
+      const { comment_id } = this.props.match.params;
+
       return buildCommentsTree(
         this.state.commentsRes.data.comments,
-        !!this.state.commentId,
+        !!comment_id,
       );
     } else {
       return [];
@@ -704,11 +705,12 @@ export class Post extends Component<any, PostState> {
 
   handleViewContext(i: Post) {
     if (i.state.commentsRes.state === "success") {
-      const parentId = getCommentParentId(
-        i.state.commentsRes.data.comments.at(0)?.comment,
-      );
+      const comment = i.state.commentsRes.data.comments.at(0)?.comment;
+      const parentId = getCommentParentId(comment);
       if (parentId) {
-        i.context.router.history.push(`/comment/${parentId}`);
+        i.context.router.history.push(
+          `/post/${comment?.post_id}/comment/${parentId}`,
+        );
       }
     }
   }

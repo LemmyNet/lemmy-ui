@@ -334,7 +334,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       const mrc = view as ModRemoveCommentView;
       const {
         mod_remove_comment: { reason, removed },
-        comment: { id, content },
+        comment: { id, content, post_id },
         commenter,
       } = mrc;
 
@@ -342,7 +342,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{removed ? "Removed " : "Restored "}</span>
           <span>
-            Comment <Link to={`/comment/${id}`}>{content}</Link>
+            Comment <Link to={`/post/${post_id}/comment/${id}`}>{content}</Link>
           </span>
           <span>
             {" "}

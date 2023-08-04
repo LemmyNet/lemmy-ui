@@ -1194,7 +1194,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       <>
         <Link
           className={classnames}
-          to={`/comment/${parentCommentId}`}
+          to={`/post/${cv.comment.post_id}/comment/${parentCommentId}`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />
