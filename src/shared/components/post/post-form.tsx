@@ -447,6 +447,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onAddModToCommunity={() => {}}
                 onAddAdmin={() => {}}
                 onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
               />
             </>
           )}
@@ -643,6 +644,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onAddModToCommunity={() => {}}
                 onAddAdmin={() => {}}
                 onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
               />
             </>
           )

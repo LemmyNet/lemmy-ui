@@ -87,6 +87,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onAddModToCommunity={() => {}}
           onAddAdmin={() => {}}
           onTransferCommunity={() => {}}
+          onMarkPostAsRead={() => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

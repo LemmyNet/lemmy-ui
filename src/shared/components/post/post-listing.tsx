@@ -1,4 +1,4 @@
-import { myAuthRequired } from "@utils/app";
+import { myAuth, myAuthRequired } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -34,6 +34,7 @@ import {
   FeaturePost,
   Language,
   LockPost,
+  MarkPostAsRead,
   PersonView,
   PostView,
   PurgePerson,
@@ -130,6 +131,7 @@ interface PostListingProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -1723,6 +1725,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
+
+    const auth = myAuth();
+    if (auth && !i.props.post_view.read) {
+      i.props.onMarkPostAsRead({
+        post_id: i.props.post_view.post.id,
+        read: true,
+        auth: auth,
+      });
+    }
   }
 
   handleViewSource(i: PostListing) {
