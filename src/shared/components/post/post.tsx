@@ -63,6 +63,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -171,6 +172,7 @@ export class Post extends Component<any, PostState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     this.state = { ...this.state, commentSectionRef: createRef() };
 
@@ -384,6 +386,7 @@ export class Post extends Component<any, PostState> {
                 onAddAdmin={this.handleAddAdmin}
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
+                onMarkPostAsRead={this.handleMarkPostAsRead}
               />
               <div ref={this.state.commentSectionRef} className="mb-2" />
               <CommentForm
@@ -915,6 +918,11 @@ export class Post extends Component<any, PostState> {
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
     await HttpService.client.markPersonMentionAsRead(form);
+  }
+
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    this.updatePost(res);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
