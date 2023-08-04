@@ -234,8 +234,8 @@ export class Post extends Component<any, PostState> {
   }: InitialFetchRequest): Promise<PostData> {
     const pathSplit = path.split("/");
 
-    const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
-    const comment_id = pathSplit.at(4) ? Number(pathSplit.at(4)) : undefined;
+    const id = getIdFromString(pathSplit.at(2));
+    const comment_id = getIdFromString(pathSplit.at(4));
 
     const postForm: GetPost = {
       auth,
