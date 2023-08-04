@@ -14,6 +14,7 @@ import {
   FeaturePost,
   Language,
   LockPost,
+  MarkPostAsRead,
   PostView,
   PurgePerson,
   PurgePost,
@@ -49,6 +50,7 @@ interface PostListingsProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -95,6 +97,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onAddModToCommunity={this.props.onAddModToCommunity}
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
+                onMarkPostAsRead={this.props.onMarkPostAsRead}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>
