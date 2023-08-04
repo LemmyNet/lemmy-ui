@@ -198,22 +198,44 @@ export class Post extends Component<any, PostState> {
 
     const auth = myAuth();
     const { post_id, comment_id } = this.props.match.params as PostParams;
+    const postForm: GetPost = {
+      auth,
+    };
+    const commentsForm: GetComments = {
+      max_depth: commentTreeMaxDepth,
+      sort: this.state.commentSort,
+      type_: "All",
+      saved_only: false,
+      auth,
+    };
+
+    if (post_id) {
+      postForm.id = getIdFromString(post_id);
+      commentsForm.post_id = getIdFromString(post_id);
+    } else {
+      const commentRes = await HttpService.client.getComment({
+        auth,
+        id: getIdFromString(comment_id)!,
+      });
+
+      if (commentRes.state === "success") {
+        const postId = commentRes.data.comment_view.comment.post_id;
+
+        postForm.id = postId;
+        postForm.comment_id = getIdFromString(comment_id);
+        commentsForm.post_id = postId;
+        commentsForm.parent_id = getIdFromString(comment_id);
+      }
+    }
+
+    const [postRes, commentsRes] = await Promise.all([
+      HttpService.client.getPost(postForm),
+      HttpService.client.getComments(commentsForm),
+    ]);
 
     this.setState({
-      postRes: await HttpService.client.getPost({
-        id: getIdFromString(post_id),
-        comment_id: getIdFromString(comment_id),
-        auth,
-      }),
-      commentsRes: await HttpService.client.getComments({
-        post_id: getIdFromString(post_id),
-        parent_id: getIdFromString(comment_id),
-        max_depth: commentTreeMaxDepth,
-        sort: this.state.commentSort,
-        type_: "All",
-        saved_only: false,
-        auth,
-      }),
+      postRes,
+      commentsRes,
     });
 
     setupTippy();
@@ -234,13 +256,11 @@ export class Post extends Component<any, PostState> {
   }: InitialFetchRequest): Promise<PostData> {
     const pathSplit = path.split("/");
 
-    const id = getIdFromString(pathSplit.at(2));
-    const comment_id = getIdFromString(pathSplit.at(4));
+    const pathType = pathSplit.at(1);
+    const id = getIdFromString(pathSplit.at(2))!;
 
     const postForm: GetPost = {
       auth,
-      id,
-      comment_id,
     };
 
     const commentsForm: GetComments = {
@@ -249,9 +269,22 @@ export class Post extends Component<any, PostState> {
       type_: "All",
       saved_only: false,
       auth,
-      post_id: id,
-      parent_id: comment_id,
     };
+
+    if (pathType === "post") {
+      postForm.id = id;
+      commentsForm.post_id = id;
+    } else {
+      const commentRes = await client.getComment({ id, auth });
+
+      if (commentRes.state === "success") {
+        const postId = commentRes.data.comment_view.comment.post_id;
+        postForm.id = postId;
+        postForm.comment_id = id;
+        commentsForm.post_id = postId;
+        commentsForm.parent_id = id;
+      }
+    }
 
     return {
       postRes: await client.getPost(postForm),
@@ -704,9 +737,7 @@ export class Post extends Component<any, PostState> {
       const comment = i.state.commentsRes.data.comments.at(0)?.comment;
       const parentId = getCommentParentId(comment);
       if (parentId) {
-        i.context.router.history.push(
-          `/post/${comment?.post_id}/comment/${parentId}`,
-        );
+        i.context.router.history.push(`/comment/${parentId}`);
       }
     }
   }
