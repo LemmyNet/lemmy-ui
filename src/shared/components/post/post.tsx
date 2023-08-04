@@ -17,7 +17,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "@utils/browser";
-import { debounce, randomStr } from "@utils/helpers";
+import { debounce, getIdFromString, randomStr } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
@@ -90,13 +90,12 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
-import { RouteComponentProps } from "inferno-router/dist/Route";
 
 const commentsShownInterval = 15;
 
 interface PostParams {
-  post_id?: number;
-  comment_id?: number;
+  post_id?: string;
+  comment_id?: string;
 }
 type PostData = RouteDataResponse<{
   postRes: GetPostResponse;
@@ -117,10 +116,7 @@ interface PostState {
   isIsomorphic: boolean;
 }
 
-export class Post extends Component<
-  RouteComponentProps<PostParams>,
-  PostState
-> {
+export class Post extends Component<any, PostState> {
   private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
   state: PostState = {
@@ -201,17 +197,17 @@ export class Post extends Component<
     });
 
     const auth = myAuth();
-    const { post_id, comment_id } = this.props.match.params;
+    const { post_id, comment_id } = this.props.match.params as PostParams;
 
     this.setState({
       postRes: await HttpService.client.getPost({
-        id: post_id,
-        comment_id: comment_id,
+        id: getIdFromString(post_id),
+        comment_id: getIdFromString(comment_id),
         auth,
       }),
       commentsRes: await HttpService.client.getComments({
-        post_id: this.props.match.params.post_id,
-        parent_id: comment_id,
+        post_id: getIdFromString(post_id),
+        parent_id: getIdFromString(comment_id),
         max_depth: commentTreeMaxDepth,
         sort: this.state.commentSort,
         type_: "All",
