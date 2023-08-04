@@ -10,7 +10,7 @@ const defaultLogoPathDirectory = path.join(
   process.cwd(),
   "dist",
   "assets",
-  "icons"
+  "icons",
 );
 
 export default async function ({
@@ -34,7 +34,7 @@ export default async function ({
     icons: await Promise.all(
       iconSizes.map(async size => {
         let src = await readFile(
-          path.join(defaultLogoPathDirectory, `icon-${size}x${size}.png`)
+          path.join(defaultLogoPathDirectory, `icon-${size}x${size}.png`),
         ).then(buf => buf.toString("base64"));
 
         if (icon) {
@@ -51,7 +51,7 @@ export default async function ({
           src: `data:image/png;base64,${src}`,
           purpose: "any maskable",
         };
-      })
+      }),
     ),
     shortcuts: [
       {
@@ -82,7 +82,7 @@ export default async function ({
               description: "Create a community",
             },
           ]
-        : []
+        : [],
     ),
     related_applications: [
       {

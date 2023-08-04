@@ -4,7 +4,7 @@ import { toast } from "../../toast";
 
 export default function updateCommunityBlock(
   data: BlockCommunityResponse,
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
+  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
 ) {
   if (myUserInfo) {
     if (data.blocked) {
@@ -15,16 +15,16 @@ export default function updateCommunityBlock(
       toast(
         `${I18NextService.i18n.t("blocked")} ${
           data.community_view.community.name
-        }`
+        }`,
       );
     } else {
       myUserInfo.community_blocks = myUserInfo.community_blocks.filter(
-        i => i.community.id !== data.community_view.community.id
+        i => i.community.id !== data.community_view.community.id,
       );
       toast(
         `${I18NextService.i18n.t("unblocked")} ${
           data.community_view.community.name
-        }`
+        }`,
       );
     }
   }

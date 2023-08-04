@@ -22,7 +22,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
   render() {
     const community = this.props.community;
     let name_: string, title: string, link: string;
-    const local = community.local == null ? true : community.local;
+    const local = community.local === null ? true : community.local;
     if (local) {
       name_ = community.name;
       title = community.title;

@@ -43,7 +43,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
     return (
       <div
         className={["comment-form", "mb-3", this.props.containerClass].join(
-          " "
+          " ",
         )}
       >
         {UserService.Instance.myUserInfo ? (

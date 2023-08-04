@@ -1,4 +1,4 @@
-import { myAuthRequired } from "@utils/app";
+import { myAuth, myAuthRequired } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -34,6 +34,7 @@ import {
   FeaturePost,
   Language,
   LockPost,
+  MarkPostAsRead,
   PersonView,
   PostView,
   PurgePerson,
@@ -130,6 +131,7 @@ interface PostListingProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -419,7 +421,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <span className="mx-1 badge text-bg-light">
             {
               this.props.allLanguages.find(
-                lang => lang.id === post_view.post.language_id
+                lang => lang.id === post_view.post.language_id,
               )?.name
             }
           </span>
@@ -515,7 +517,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
               data-tippy-content={I18NextService.i18n.t(
-                "featured_in_community"
+                "featured_in_community",
               )}
               aria-label={I18NextService.i18n.t("featured_in_community")}
             >
@@ -765,7 +767,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get unreadCount(): number | undefined {
     const pv = this.postView;
-    return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0
+    return pv.unread_comments === pv.counts.comments || pv.unread_comments === 0
       ? undefined
       : pv.unread_comments;
   }
@@ -1115,7 +1117,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(
           this,
-          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit
+          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit,
         )}
       >
         {/* TODO: Find an icon for this. */}
@@ -1136,7 +1138,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   removeAndBanDialogs() {
     const post = this.postView;
     const purgeTypeText =
-      this.state.purgeType == PurgeType.Post
+      this.state.purgeType === PurgeType.Post
         ? I18NextService.i18n.t("purge_post")
         : `${I18NextService.i18n.t("purge")} ${post.creator.name}`;
     return (
@@ -1188,7 +1190,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="btn btn-link btn-animate text-muted py-0 d-inline-block"
               onClick={linkEvent(
                 this,
-                this.handleCancelShowConfirmTransferCommunity
+                this.handleCancelShowConfirmTransferCommunity,
               )}
               aria-label={I18NextService.i18n.t("no")}
             >
@@ -1405,7 +1407,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   private get myPost(): boolean {
     return (
-      this.postView.creator.id ==
+      this.postView.creator.id ===
       UserService.Instance.myUserInfo?.local_user_view.person.id
     );
   }
@@ -1644,7 +1646,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     const ban = !i.props.post_view.creator_banned_from_community;
     // If its an unban, restore all their data
-    if (ban == false) {
+    if (ban === false) {
       i.setState({ removeData: false });
     }
     const person_id = i.props.post_view.creator.id;
@@ -1652,7 +1654,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const reason = i.state.banReason;
     const expires = futureDaysToUnixTime(i.state.banExpireDays);
 
-    if (i.state.banType == BanType.Community) {
+    if (i.state.banType === BanType.Community) {
       const community_id = i.postView.community.id;
       i.props.onBanPersonFromCommunity({
         community_id,
@@ -1723,6 +1725,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
+
+    const auth = myAuth();
+    if (auth && !i.props.post_view.read) {
+      i.props.onMarkPostAsRead({
+        post_id: i.props.post_view.post.id,
+        read: true,
+        auth: auth,
+      });
+    }
   }
 
   handleViewSource(i: PostListing) {
@@ -1772,7 +1783,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       this.props.moderators,
       this.props.admins,
       undefined,
-      true
+      true,
     );
   }
 
@@ -1780,7 +1791,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return canMod(
       this.postView.creator.id,
       this.props.moderators,
-      this.props.admins
+      this.props.admins,
     );
   }
 
