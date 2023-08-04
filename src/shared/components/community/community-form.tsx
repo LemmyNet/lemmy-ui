@@ -231,7 +231,7 @@ export class CommunityForm extends Component<
                 checked={this.state.form.posting_restricted_to_mods}
                 onChange={linkEvent(
                   this,
-                  this.handleCommunityPostingRestrictedToMods
+                  this.handleCommunityPostingRestrictedToMods,
                 )}
               />
             </div>
@@ -330,7 +330,7 @@ export class CommunityForm extends Component<
 
   handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
     i.setState(
-      s => ((s.form.posting_restricted_to_mods = event.target.checked), s)
+      s => ((s.form.posting_restricted_to_mods = event.target.checked), s),
     );
   }
 

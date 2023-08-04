@@ -25,6 +25,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
   PersonView,
   PostView,
   PurgeComment,
@@ -84,6 +85,7 @@ interface PersonDetailsProps {
   onSavePost(form: SavePost): void;
   onFeaturePost(form: FeaturePost): void;
   onPurgePost(form: PurgePost): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 enum ItemEnum {
@@ -200,6 +202,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onAddModToCommunity={this.props.onAddModToCommunity}
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
+            onMarkPostAsRead={this.props.onMarkPostAsRead}
           />
         );
       }
@@ -311,6 +314,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               onAddModToCommunity={this.props.onAddModToCommunity}
               onAddAdmin={this.props.onAddAdmin}
               onTransferCommunity={this.props.onTransferCommunity}
+              onMarkPostAsRead={this.props.onMarkPostAsRead}
             />
             <hr className="my-3" />
           </>

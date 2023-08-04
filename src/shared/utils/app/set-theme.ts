@@ -9,7 +9,7 @@ export default async function setTheme(theme: string, forceReload = false) {
     return;
   }
   // This is only run on a force reload
-  if (theme == "browser") {
+  if (theme === "browser") {
     theme = "darkly";
   }
 

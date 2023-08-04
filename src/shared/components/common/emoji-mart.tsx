@@ -15,7 +15,7 @@ export class EmojiMart extends Component<EmojiMartProps> {
     const div: any = document.getElementById("emoji-picker");
     if (div) {
       div.appendChild(
-        getEmojiMart(this.handleEmojiClick, this.props.pickerOptions)
+        getEmojiMart(this.handleEmojiClick, this.props.pickerOptions),
       );
     }
   }

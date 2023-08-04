@@ -60,6 +60,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
   PersonView,
   PostResponse,
   PurgeComment,
@@ -132,7 +133,7 @@ function getViewFromProps(view?: string): PersonDetailsView {
 
 const getCommunitiesListing = (
   translationKey: NoOptionI18nKeys,
-  communityViews?: { community: Community }[]
+  communityViews?: { community: Community }[],
 ) =>
   communityViews &&
   communityViews.length > 0 && (
@@ -208,6 +209,7 @@ export class Profile extends Component<
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
     this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -266,7 +268,7 @@ export class Profile extends Component<
     if (mui && res.state === "success") {
       this.setState({
         personBlocked: mui.person_blocks.some(
-          ({ target: { id } }) => id === res.data.person_view.person.id
+          ({ target: { id } }) => id === res.data.person_view.person.id,
         ),
       });
     }
@@ -300,7 +302,7 @@ export class Profile extends Component<
   get documentTitle(): string {
     const siteName = this.state.siteRes.site_view.site.name;
     const res = this.state.personRes;
-    return res.state == "success"
+    return res.state === "success"
       ? `@${res.data.person_view.person.name} - ${siteName}`
       : siteName;
   }
@@ -376,6 +378,7 @@ export class Profile extends Component<
                 onSavePost={this.handleSavePost}
                 onPurgePost={this.handlePurgePost}
                 onFeaturePost={this.handleFeaturePost}
+                onMarkPostAsRead={this.handleMarkPostAsRead}
               />
             </div>
 
@@ -530,7 +533,7 @@ export class Profile extends Component<
                         }
                         onClick={linkEvent(
                           pv.person.id,
-                          this.handleUnblockPerson
+                          this.handleUnblockPerson,
                         )}
                       >
                         {I18NextService.i18n.t("unblock_user")}
@@ -542,7 +545,7 @@ export class Profile extends Component<
                         }
                         onClick={linkEvent(
                           pv.person.id,
-                          this.handleBlockPerson
+                          this.handleBlockPerson,
                         )}
                       >
                         {I18NextService.i18n.t("block_user")}
@@ -764,7 +767,7 @@ export class Profile extends Component<
 
     const personRes = i.state.personRes;
 
-    if (personRes.state == "success") {
+    if (personRes.state === "success") {
       const person = personRes.data.person_view.person;
       const ban = !person.banned;
 
@@ -793,7 +796,7 @@ export class Profile extends Component<
       block,
       auth: myAuthRequired(),
     });
-    if (res.state == "success") {
+    if (res.state === "success") {
       updatePersonBlock(res.data);
     }
   }
@@ -924,7 +927,7 @@ export class Profile extends Component<
   async handleAddAdmin(form: AddAdmin) {
     const addAdminRes = await HttpService.client.addAdmin(form);
 
-    if (addAdminRes.state == "success") {
+    if (addAdminRes.state === "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
     }
   }
@@ -944,6 +947,11 @@ export class Profile extends Component<
     await HttpService.client.markPersonMentionAsRead(form);
   }
 
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    this.findAndUpdatePost(res);
+  }
+
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
@@ -958,17 +966,17 @@ export class Profile extends Component<
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
-        if (s.personRes.state == "success") {
+        if (s.personRes.state === "success") {
           s.personRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
 
           s.personRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -978,14 +986,14 @@ export class Profile extends Component<
 
   updateBan(banRes: RequestState<BanPersonResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
-        if (s.personRes.state == "success") {
+        if (s.personRes.state === "success") {
           s.personRes.data.posts
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
           s.personRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
           s.personRes.data.person_view.person.banned = banRes.data.banned;
         }
@@ -995,7 +1003,7 @@ export class Profile extends Component<
   }
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
-    if (purgeRes.state == "success") {
+    if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
@@ -1003,10 +1011,10 @@ export class Profile extends Component<
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.personRes.state == "success" && res.state == "success") {
+      if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.comments = editComment(
           res.data.comment_view,
-          s.personRes.data.comments
+          s.personRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
       }
@@ -1016,12 +1024,12 @@ export class Profile extends Component<
 
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.personRes.state == "success" && res.state == "success") {
+      if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.comments.unshift(res.data.comment_view);
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
       }
       return s;
@@ -1030,10 +1038,10 @@ export class Profile extends Component<
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
-      if (s.personRes.state == "success" && res.state == "success") {
+      if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.comments = editWith(
           res.data.comment_reply_view,
-          s.personRes.data.comments
+          s.personRes.data.comments,
         );
       }
       return s;
@@ -1042,10 +1050,10 @@ export class Profile extends Component<
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
-      if (s.personRes.state == "success" && res.state == "success") {
+      if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.posts = editPost(
           res.data.post_view,
-          s.personRes.data.posts
+          s.personRes.data.posts,
         );
       }
       return s;

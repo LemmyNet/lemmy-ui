@@ -28,7 +28,7 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
       "failed_to_delete_picture",
       {
         filename,
-      }
+      },
     );
 
     const backgroundColor = `var(--bs-light)`;

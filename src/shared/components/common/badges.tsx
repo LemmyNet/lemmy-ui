@@ -13,13 +13,13 @@ interface BadgesProps {
 }
 
 const isCommunityAggregates = (
-  counts: CommunityAggregates | SiteAggregates
+  counts: CommunityAggregates | SiteAggregates,
 ): counts is CommunityAggregates => {
   return "subscribers" in counts;
 };
 
 const isSiteAggregates = (
-  counts: CommunityAggregates | SiteAggregates
+  counts: CommunityAggregates | SiteAggregates,
 ): counts is SiteAggregates => {
   return "communities" in counts;
 };
@@ -34,7 +34,7 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
           {
             count: Number(counts.users_active_day),
             formattedCount: numToSI(counts.users_active_day),
-          }
+          },
         )}
       >
         {I18NextService.i18n.t("number_of_users", {
@@ -50,7 +50,7 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
           {
             count: Number(counts.users_active_week),
             formattedCount: numToSI(counts.users_active_week),
-          }
+          },
         )}
       >
         {I18NextService.i18n.t("number_of_users", {
@@ -66,7 +66,7 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
           {
             count: Number(counts.users_active_month),
             formattedCount: numToSI(counts.users_active_month),
-          }
+          },
         )}
       >
         {I18NextService.i18n.t("number_of_users", {
@@ -82,7 +82,7 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
           {
             count: Number(counts.users_active_half_year),
             formattedCount: numToSI(counts.users_active_half_year),
-          }
+          },
         )}
       >
         {I18NextService.i18n.t("number_of_users", {

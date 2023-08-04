@@ -104,10 +104,10 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 id={id}
                 onClick={linkEvent(this, handleToggleShow)}
                 aria-label={I18NextService.i18n.t(
-                  `${show ? "show" : "hide"}_password`
+                  `${show ? "show" : "hide"}_password`,
                 )}
                 data-tippy-content={I18NextService.i18n.t(
-                  `${show ? "show" : "hide"}_password`
+                  `${show ? "show" : "hide"}_password`,
                 )}
               >
                 <Icon icon={`eye${show ? "-slash" : ""}`} inline />
@@ -116,7 +116,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
             {showStrength && value && (
               <div className={this.passwordColorClass}>
                 {I18NextService.i18n.t(
-                  this.passwordStrength as NoOptionI18nKeys
+                  this.passwordStrength as NoOptionI18nKeys,
                 )}
               </div>
             )}
@@ -146,7 +146,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
 
     if (strength && ["weak", "medium"].includes(strength)) {
       return "text-warning";
-    } else if (strength == "strong") {
+    } else if (strength === "strong") {
       return "text-success";
     } else {
       return "text-danger";
