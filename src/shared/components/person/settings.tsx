@@ -1025,13 +1025,13 @@ export class Settings extends Component<any, SettingsState> {
 
   handleBlurNsfwChange(i: Settings, event: any) {
     i.setState(
-      s => ((s.saveUserSettingsForm.blur_nsfw = event.target.checked), s)
+      s => ((s.saveUserSettingsForm.blur_nsfw = event.target.checked), s),
     );
   }
 
   handleAutoExpandChange(i: Settings, event: any) {
     i.setState(
-      s => ((s.saveUserSettingsForm.auto_expand = event.target.checked), s)
+      s => ((s.saveUserSettingsForm.auto_expand = event.target.checked), s),
     );
   }
 
