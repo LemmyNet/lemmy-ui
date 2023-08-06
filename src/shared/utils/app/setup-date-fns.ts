@@ -5,7 +5,7 @@ const EN_US = "en-US";
 
 export default async function () {
   let lang = I18NextService.i18n.language;
-  if (lang === "en" || lang === "en-AU") {
+  if (lang === "en") {
     lang = EN_US;
   }
 
