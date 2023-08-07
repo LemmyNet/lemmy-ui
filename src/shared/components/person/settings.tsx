@@ -73,6 +73,7 @@ interface SettingsState {
     show_new_post_notifs?: boolean;
     discussion_languages?: number[];
     generate_totp_2fa?: boolean;
+    open_links_in_new_tab?: boolean;
   };
   changePasswordForm: {
     new_password?: string;
@@ -780,6 +781,23 @@ export class Settings extends Component<any, SettingsState> {
               </label>
             </div>
           </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-open-links-in-new-tab"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.open_links_in_new_tab}
+                onChange={linkEvent(this, this.handleOpenInNewTab)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-open-links-in-new-tab"
+              >
+                {I18NextService.i18n.t("open_links_in_new_tab")}
+              </label>
+            </div>
+          </div>
           {this.totpSection()}
           <div className="input-group mb-3">
             <button type="submit" className="btn d-block btn-secondary me-4">
@@ -1025,6 +1043,14 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.show_new_post_notifs = event.target.checked), s
+      ),
+    );
+  }
+
+  handleOpenInNewTab(i: Settings, event: any) {
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.open_links_in_new_tab = event.target.checked), s
       ),
     );
   }
