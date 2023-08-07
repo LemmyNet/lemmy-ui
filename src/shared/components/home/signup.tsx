@@ -189,6 +189,7 @@ export class Signup extends Component<any, State> {
             onInput={linkEvent(this, this.handleRegisterPasswordChange)}
             showStrength
             label={I18NextService.i18n.t("password")}
+            isNew
           />
         </div>
 
@@ -198,6 +199,7 @@ export class Signup extends Component<any, State> {
             value={this.state.form.password_verify}
             onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
             label={I18NextService.i18n.t("verify_password")}
+            isNew
           />
         </div>
 
