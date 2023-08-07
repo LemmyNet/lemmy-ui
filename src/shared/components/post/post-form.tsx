@@ -583,7 +583,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         return <Spinner />;
       case "success": {
         // Clean up the title of any extra whitespace and replace &nbsp; with a space
-        const suggestedTitle = this.state.metadataRes.data.metadata.title?.trim().replace(/\s+/g, " ");
+        const suggestedTitle = this.state.metadataRes.data.metadata.title
+          ?.trim()
+          .replace(/\s+/g, " ");
         return (
           suggestedTitle && (
             <button
