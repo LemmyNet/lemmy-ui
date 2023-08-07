@@ -169,6 +169,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   constructor(props: any, context: any) {
     super(props, context);
 
+    if (UserService.Instance.myUserInfo) {
+      this.state.imageExpanded =
+        UserService.Instance.myUserInfo.local_user_view.local_user.auto_expand;
+    }
+
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
   }
@@ -297,6 +302,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   imgThumb(src: string) {
     const post_view = this.postView;
+
     return (
       <PictrsImage
         src={src}
