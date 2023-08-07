@@ -128,6 +128,7 @@ export class Setup extends Component<any, State> {
             value={this.state.form.password}
             onInput={linkEvent(this, this.handleRegisterPasswordChange)}
             label={I18NextService.i18n.t("password")}
+            isNew
           />
         </div>
         <div className="mb-3">
@@ -136,6 +137,7 @@ export class Setup extends Component<any, State> {
             value={this.state.form.password_verify}
             onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
             label={I18NextService.i18n.t("verify_password")}
+            isNew
           />
         </div>
         <div className="mb-3 row">

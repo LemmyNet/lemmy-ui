@@ -32,6 +32,10 @@ export default function buildCommentsTree(
     }
   }
 
+  // This should not be sorted on the front end, in order to preserve the
+  // back end sorts. However, the parent ids must be sorted, so make sure
+  // When adding new comments to trees, that they're inserted right after
+  // their parent index. This is done in post.tsx
   for (const comment_view of comments) {
     const child = map.get(comment_view.comment.id);
     if (child) {
