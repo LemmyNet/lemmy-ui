@@ -355,6 +355,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           href={url}
           rel={relTags}
           title={url}
+          target={this.linkTarget}
         >
           {this.imgThumb(this.imageSrc)}
           <Icon
@@ -374,6 +375,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             data-tippy-content={I18NextService.i18n.t("expand_here")}
             onClick={linkEvent(this, this.handleImageExpandClick)}
             aria-label={I18NextService.i18n.t("expand_here")}
+            target={this.linkTarget}
           >
             <div className="thumbnail rounded bg-light d-flex justify-content-center">
               <Icon icon="play" classes="d-flex align-items-center" />
@@ -382,7 +384,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         );
       } else {
         return (
-          <a className="text-body" href={url} title={url} rel={relTags}>
+          <a
+            className="text-body"
+            href={url}
+            title={url}
+            rel={relTags}
+            target={this.linkTarget}
+          >
             <div className="thumbnail rounded bg-light d-flex justify-content-center">
               <Icon icon="external-link" classes="d-flex align-items-center" />
             </div>
@@ -395,6 +403,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           className="text-body"
           to={`/post/${post.id}`}
           title={I18NextService.i18n.t("comments")}
+          target={this.linkTarget}
         >
           <div className="thumbnail rounded bg-light d-flex justify-content-center">
             <Icon icon="message-square" classes="d-flex align-items-center" />
@@ -743,6 +752,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  public get linkTarget(): string {
+    return UserService.Instance.myUserInfo?.local_user_view.local_user
+      .open_links_in_new_tab
+      ? "_blank"
+      : // _self is the default target on links when the field is not specified
+        "_self";
+  }
+
   get commentsButton() {
     const post_view = this.postView;
     const title = I18NextService.i18n.t("number_of_comments", {
@@ -756,6 +773,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         title={title}
         to={`/post/${post_view.post.id}?scrollToComments=true`}
         data-tippy-content={title}
+        target={this.linkTarget}
       >
         <Icon icon="message-square" classes="me-1" inline />
         {post_view.counts.comments}
