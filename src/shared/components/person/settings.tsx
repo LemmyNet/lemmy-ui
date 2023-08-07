@@ -1049,7 +1049,7 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.open_links_in_new_tab = event.target.checked), s
-      )
+      ),
     );
   }
 
