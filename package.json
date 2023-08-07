@@ -1,6 +1,6 @@
 {
   "name": "lemmy-ui",
-  "version": "0.18.4-rc.3",
+  "version": "0.18.4-rc.4",
   "description": "An isomorphic UI for lemmy",
   "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
@@ -22,9 +22,16 @@
     "translations:update": "git submodule update --remote --recursive"
   },
   "lint-staged": {
-    "*.{ts,tsx,js}": ["prettier --write", "eslint --fix"],
-    "*.{css, scss}": ["prettier --write"],
-    "package.json": ["sortpack"]
+    "*.{ts,tsx,js}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{css, scss}": [
+      "prettier --write"
+    ],
+    "package.json": [
+      "sortpack"
+    ]
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.21.5",
