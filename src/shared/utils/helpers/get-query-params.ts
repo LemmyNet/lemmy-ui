@@ -1,7 +1,7 @@
 import { isBrowser } from "@utils/browser";
 
 export default function getQueryParams<
-  T extends Record<string, any>
+  T extends Record<string, any>,
 >(processors: {
   [K in keyof T]: (param: string) => T[K];
 }): T {
@@ -13,7 +13,7 @@ export default function getQueryParams<
         ...acc,
         [key]: process(searchParams.get(key)),
       }),
-      {} as T
+      {} as T,
     );
   }
 

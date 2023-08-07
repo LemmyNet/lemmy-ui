@@ -80,7 +80,7 @@ export class RegistrationApplications extends Component<
     const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "registration_applications"
+          "registration_applications",
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
@@ -236,13 +236,13 @@ export class RegistrationApplications extends Component<
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {
     const approveRes = await HttpService.client.approveRegistrationApplication(
-      form
+      form,
     );
     this.setState(s => {
       if (s.appsRes.state == "success" && approveRes.state == "success") {
         s.appsRes.data.registration_applications = editRegistrationApplication(
           approveRes.data.registration_application,
-          s.appsRes.data.registration_applications
+          s.appsRes.data.registration_applications,
         );
       }
       return s;

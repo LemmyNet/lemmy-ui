@@ -58,7 +58,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(
                         { i: this, index: index },
-                        this.handleEditTaglineClick
+                        this.handleEditTaglineClick,
                       )}
                       data-tippy-content={I18NextService.i18n.t("edit")}
                       aria-label={I18NextService.i18n.t("edit")}
@@ -70,7 +70,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(
                         { i: this, index: index },
-                        this.handleDeleteTaglineClick
+                        this.handleDeleteTaglineClick,
                       )}
                       data-tippy-content={I18NextService.i18n.t("delete")}
                       aria-label={I18NextService.i18n.t("delete")}
@@ -149,7 +149,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   handleAddTaglineClick(
     i: TaglineForm,
-    event: InfernoMouseEvent<HTMLButtonElement>
+    event: InfernoMouseEvent<HTMLButtonElement>,
   ) {
     event.preventDefault();
     const newTaglines = [...i.state.taglines];

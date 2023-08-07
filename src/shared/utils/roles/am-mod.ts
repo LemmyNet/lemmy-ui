@@ -4,7 +4,7 @@ import { UserService } from "../../services";
 
 export default function amMod(
   mods?: CommunityModeratorView[],
-  myUserInfo = UserService.Instance.myUserInfo
+  myUserInfo = UserService.Instance.myUserInfo,
 ): boolean {
   return myUserInfo ? isMod(myUserInfo.local_user_view.person.id, mods) : false;
 }

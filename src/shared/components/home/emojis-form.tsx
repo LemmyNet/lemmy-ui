@@ -109,8 +109,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                   Number((this.state.page - 1) * this.itemsPerPage),
                   Number(
                     (this.state.page - 1) * this.itemsPerPage +
-                      this.itemsPerPage
-                  )
+                      this.itemsPerPage,
+                  ),
                 )
                 .map((cv, index) => (
                   <tr key={index} ref={e => (this.scrollRef[cv.shortcode] = e)}>
@@ -130,11 +130,11 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                           className="btn btn-sm btn-secondary pointer"
                           htmlFor={`file-uploader-${index}`}
                           data-tippy-content={I18NextService.i18n.t(
-                            "upload_image"
+                            "upload_image",
                           )}
                         >
                           {capitalizeFirstLetter(
-                            I18NextService.i18n.t("upload")
+                            I18NextService.i18n.t("upload"),
                           )}
                           <input
                             name={`file-uploader-${index}`}
@@ -144,7 +144,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                             className="d-none"
                             onChange={linkEvent(
                               { form: this, index: index },
-                              this.handleImageUpload
+                              this.handleImageUpload,
                             )}
                           />
                         </label>
@@ -159,7 +159,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         value={cv.shortcode}
                         onInput={linkEvent(
                           { form: this, index: index },
-                          this.handleEmojiShortCodeChange
+                          this.handleEmojiShortCodeChange,
                         )}
                       />
                     </td>
@@ -171,7 +171,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         value={cv.category}
                         onInput={linkEvent(
                           { form: this, index: index },
-                          this.handleEmojiCategoryChange
+                          this.handleEmojiCategoryChange,
                         )}
                       />
                     </td>
@@ -183,7 +183,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         value={cv.image_url}
                         onInput={linkEvent(
                           { form: this, index: index, overrideValue: null },
-                          this.handleEmojiImageUrlChange
+                          this.handleEmojiImageUrlChange,
                         )}
                       />
                     </td>
@@ -195,7 +195,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         value={cv.alt_text}
                         onInput={linkEvent(
                           { form: this, index: index },
-                          this.handleEmojiAltTextChange
+                          this.handleEmojiAltTextChange,
                         )}
                       />
                     </td>
@@ -207,7 +207,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         value={cv.keywords}
                         onInput={linkEvent(
                           { form: this, index: index },
-                          this.handleEmojiKeywordChange
+                          this.handleEmojiKeywordChange,
                         )}
                       />
                     </td>
@@ -222,7 +222,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                             }
                             onClick={linkEvent(
                               { i: this, cv: cv },
-                              this.handleEditEmojiClick
+                              this.handleEditEmojiClick,
                             )}
                             data-tippy-content={I18NextService.i18n.t("save")}
                             aria-label={I18NextService.i18n.t("save")}
@@ -232,7 +232,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                               <Spinner />
                             ) : (
                               capitalizeFirstLetter(
-                                I18NextService.i18n.t("save")
+                                I18NextService.i18n.t("save"),
                               )
                             )}
                           </button>
@@ -241,7 +241,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                           className="btn btn-link btn-animate text-muted"
                           onClick={linkEvent(
                             { i: this, index: index, cv: cv },
-                            this.handleDeleteEmojiClick
+                            this.handleDeleteEmojiClick,
                           )}
                           data-tippy-content={I18NextService.i18n.t("delete")}
                           aria-label={I18NextService.i18n.t("delete")}
@@ -281,8 +281,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
       cv.shortcode.length > 0;
     const noDuplicateShortCodes =
       this.state.customEmojis.filter(
-        x => x.shortcode == cv.shortcode && x.id != cv.id
-      ).length == 0;
+        x => x.shortcode === cv.shortcode && x.id !== cv.id,
+      ).length === 0;
     return noEmptyFields && noDuplicateShortCodes && !cv.loading && cv.changed;
   }
 
@@ -299,7 +299,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     const view = customEmojisLookup.get(e.id);
     if (view) {
       const page = this.state.customEmojis.find(
-        x => x.id == view.custom_emoji.id
+        x => x.id === view.custom_emoji.id,
       )?.page;
       if (page) {
         this.setState({ page: page });
@@ -310,7 +310,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   handleEmojiCategoryChange(
     props: { form: EmojiForm; index: number },
-    event: any
+    event: any,
   ) {
     const custom_emojis = [...props.form.state.customEmojis];
     const pagedIndex =
@@ -326,7 +326,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   handleEmojiShortCodeChange(
     props: { form: EmojiForm; index: number },
-    event: any
+    event: any,
   ) {
     const custom_emojis = [...props.form.state.customEmojis];
     const pagedIndex =
@@ -346,7 +346,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
       index,
       overrideValue,
     }: { form: EmojiForm; index: number; overrideValue: string | null },
-    event: any
+    event: any,
   ) {
     form.setState(prevState => {
       const custom_emojis = [...form.state.customEmojis];
@@ -367,7 +367,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                 changed: true,
                 loading: false,
               }
-            : ce
+            : ce,
         ),
       };
     });
@@ -375,7 +375,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   handleEmojiAltTextChange(
     props: { form: EmojiForm; index: number },
-    event: any
+    event: any,
   ) {
     const custom_emojis = [...props.form.state.customEmojis];
     const pagedIndex =
@@ -391,7 +391,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   handleEmojiKeywordChange(
     props: { form: EmojiForm; index: number },
-    event: any
+    event: any,
   ) {
     const custom_emojis = [...props.form.state.customEmojis];
     const pagedIndex =
@@ -476,7 +476,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
   handleImageUpload(
     { form, index }: { form: EmojiForm; index: number },
-    event: any
+    event: any,
   ) {
     let file: any;
     if (event.target) {
@@ -489,7 +489,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     form.setState(prevState => ({
       ...prevState,
       customEmojis: prevState.customEmojis.map((cv, i) =>
-        i === index ? { ...cv, loading: true } : cv
+        i === index ? { ...cv, loading: true } : cv,
       ),
     }));
 
@@ -501,7 +501,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           pictrsDeleteToast(file.name, res.data.delete_url as string);
           form.handleEmojiImageUrlChange(
             { form: form, index: index, overrideValue: res.data.url as string },
-            event
+            event,
           );
         } else if (res.data.msg === "too_large") {
           toast(I18NextService.i18n.t("upload_too_large"), "danger");

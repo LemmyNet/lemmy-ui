@@ -132,7 +132,7 @@ function getViewFromProps(view?: string): PersonDetailsView {
 
 const getCommunitiesListing = (
   translationKey: NoOptionI18nKeys,
-  communityViews?: { community: Community }[]
+  communityViews?: { community: Community }[],
 ) =>
   communityViews &&
   communityViews.length > 0 && (
@@ -266,7 +266,7 @@ export class Profile extends Component<
     if (mui && res.state === "success") {
       this.setState({
         personBlocked: mui.person_blocks.some(
-          ({ target: { id } }) => id === res.data.person_view.person.id
+          ({ target: { id } }) => id === res.data.person_view.person.id,
         ),
       });
     }
@@ -530,7 +530,7 @@ export class Profile extends Component<
                         }
                         onClick={linkEvent(
                           pv.person.id,
-                          this.handleUnblockPerson
+                          this.handleUnblockPerson,
                         )}
                       >
                         {I18NextService.i18n.t("unblock_user")}
@@ -542,7 +542,7 @@ export class Profile extends Component<
                         }
                         onClick={linkEvent(
                           pv.person.id,
-                          this.handleBlockPerson
+                          this.handleBlockPerson,
                         )}
                       >
                         {I18NextService.i18n.t("block_user")}
@@ -962,13 +962,13 @@ export class Profile extends Component<
           s.personRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
 
           s.personRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -1006,7 +1006,7 @@ export class Profile extends Component<
       if (s.personRes.state == "success" && res.state == "success") {
         s.personRes.data.comments = editComment(
           res.data.comment_view,
-          s.personRes.data.comments
+          s.personRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
       }
@@ -1021,7 +1021,7 @@ export class Profile extends Component<
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
       }
       return s;
@@ -1033,7 +1033,7 @@ export class Profile extends Component<
       if (s.personRes.state == "success" && res.state == "success") {
         s.personRes.data.comments = editWith(
           res.data.comment_reply_view,
-          s.personRes.data.comments
+          s.personRes.data.comments,
         );
       }
       return s;
@@ -1045,7 +1045,7 @@ export class Profile extends Component<
       if (s.personRes.state == "success" && res.state == "success") {
         s.personRes.data.posts = editPost(
           res.data.post_view,
-          s.personRes.data.posts
+          s.personRes.data.posts,
         );
       }
       return s;

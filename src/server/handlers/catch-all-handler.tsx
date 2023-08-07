@@ -35,7 +35,7 @@ export default async (req: Request, res: Response) => {
     const headers = setForwardedHeaders(req.headers);
 
     const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers })
+      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers }),
     );
 
     const { path, url, query } = req;
@@ -50,7 +50,7 @@ export default async (req: Request, res: Response) => {
 
     if (try_site.state === "failed" && try_site.msg == "not_logged_in") {
       console.error(
-        "Incorrect JWT token, skipping auth so frontend can remove jwt cookie"
+        "Incorrect JWT token, skipping auth so frontend can remove jwt cookie",
       );
       getSiteForm.auth = undefined;
       auth = undefined;
@@ -90,7 +90,7 @@ export default async (req: Request, res: Response) => {
     }
 
     const error = Object.values(routeData).find(
-      res => res.state === "failed" && res.msg !== "couldnt_find_object" // TODO: find a better way of handling errors
+      res => res.state === "failed" && res.msg !== "couldnt_find_object", // TODO: find a better way of handling errors
     ) as FailedRequestState | undefined;
 
     // Redirect to the 404 if there's an API error
@@ -127,7 +127,7 @@ export default async (req: Request, res: Response) => {
     res.statusCode = 500;
 
     return res.send(
-      process.env.NODE_ENV === "development" ? err.message : "Server error"
+      process.env.NODE_ENV === "development" ? err.message : "Server error",
     );
   }
 };

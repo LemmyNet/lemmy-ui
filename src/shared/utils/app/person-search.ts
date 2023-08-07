@@ -3,7 +3,7 @@ import { hostname } from "@utils/helpers";
 import { PersonTribute } from "@utils/types";
 
 export default async function personSearch(
-  text: string
+  text: string,
 ): Promise<PersonTribute[]> {
   const usersResponse = await fetchUsers(text);
 

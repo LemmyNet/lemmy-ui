@@ -4,7 +4,7 @@ import { toast } from "../../toast";
 
 export default function updatePersonBlock(
   data: BlockPersonResponse,
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo
+  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
 ) {
   if (myUserInfo) {
     if (data.blocked) {
@@ -13,14 +13,14 @@ export default function updatePersonBlock(
         target: data.person_view.person,
       });
       toast(
-        `${I18NextService.i18n.t("blocked")} ${data.person_view.person.name}`
+        `${I18NextService.i18n.t("blocked")} ${data.person_view.person.name}`,
       );
     } else {
       myUserInfo.person_blocks = myUserInfo.person_blocks.filter(
-        i => i.target.id !== data.person_view.person.id
+        i => i.target.id !== data.person_view.person.id,
       );
       toast(
-        `${I18NextService.i18n.t("unblocked")} ${data.person_view.person.name}`
+        `${I18NextService.i18n.t("unblocked")} ${data.person_view.person.name}`,
       );
     }
   }

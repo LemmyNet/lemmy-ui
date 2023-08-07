@@ -85,7 +85,7 @@ export class Signup extends Component<any, State> {
 
   titleName(siteView: SiteView): string {
     return I18NextService.i18n.t(
-      siteView.local_site.private_instance ? "apply_to_join" : "sign_up"
+      siteView.local_site.private_instance ? "apply_to_join" : "sign_up",
     );
   }
 
@@ -213,7 +213,7 @@ export class Signup extends Component<any, State> {
                   <div
                     className="md-div"
                     dangerouslySetInnerHTML={mdToHtml(
-                      siteView.local_site.application_question
+                      siteView.local_site.application_question,
                     )}
                   />
                 )}
@@ -311,7 +311,7 @@ export class Signup extends Component<any, State> {
                 value={this.state.form.captcha_answer}
                 onInput={linkEvent(
                   this,
-                  this.handleRegisterCaptchaAnswerChange
+                  this.handleRegisterCaptchaAnswerChange,
                 )}
                 required
               />

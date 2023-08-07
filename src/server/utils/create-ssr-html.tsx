@@ -15,7 +15,7 @@ let appleTouchIcon: string | undefined = undefined;
 export async function createSsrHtml(
   root: string,
   isoData: IsoDataOptionalSite,
-  cspNonce: string
+  cspNonce: string,
 ) {
   const site = isoData.site_res;
 
@@ -26,13 +26,13 @@ export async function createSsrHtml(
   const customHtmlHeaderScriptTag = new RegExp("<script", "g");
   const customHtmlHeaderWithNonce = customHtmlHeader.replace(
     customHtmlHeaderScriptTag,
-    `<script nonce="${cspNonce}"`
+    `<script nonce="${cspNonce}"`,
   );
 
   if (!appleTouchIcon) {
     appleTouchIcon = site?.site_view.site.icon
       ? `data:image/png;base64,${await sharp(
-          await fetchIconPng(site.site_view.site.icon)
+          await fetchIconPng(site.site_view.site.icon),
         )
           .resize(180, 180)
           .extend({
@@ -57,7 +57,7 @@ export async function createSsrHtml(
               src="//cdn.jsdelivr.net/npm/eruda"
             ></script>
             <script nonce={cspNonce}>eruda.init();</script>
-          </>
+          </>,
         )
       : "";
 

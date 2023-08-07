@@ -8,7 +8,7 @@ export default async ({ res }: { res: Response }) => {
       path.resolve(
         `./dist/service-worker${
           process.env.NODE_ENV === "development" ? "-development" : ""
-        }.js`
-      )
+        }.js`,
+      ),
     );
 };

@@ -23,8 +23,11 @@ option:disabled {
 }
 
 .form-control::placeholder {
-  text-shadow: 0.5px 0.5px 0 $secondary, 0.5px -0.5px 0 $secondary,
-    -0.5px 0.5px 0 $secondary, -0.5px -0.5px 0 $secondary;
+  text-shadow:
+    0.5px 0.5px 0 $secondary,
+    0.5px -0.5px 0 $secondary,
+    -0.5px 0.5px 0 $secondary,
+    -0.5px -0.5px 0 $secondary;
 }
 
 .input-group-text {
