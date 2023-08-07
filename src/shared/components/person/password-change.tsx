@@ -68,6 +68,7 @@ export class PasswordChange extends Component<any, State> {
             onInput={linkEvent(this, this.handlePasswordChange)}
             showStrength
             label={I18NextService.i18n.t("new_password")}
+            isNew
           />
         </div>
         <div className="mb-3">
