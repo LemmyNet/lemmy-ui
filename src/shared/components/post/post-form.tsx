@@ -342,6 +342,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             ) && !this.state.submitted
           }
         />
+
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-title">
             {I18NextService.i18n.t("title")}
