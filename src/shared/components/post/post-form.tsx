@@ -367,7 +367,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.renderSuggestedPosts()}
           </div>
         </div>
-        
+
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
             {I18NextService.i18n.t("url")}
