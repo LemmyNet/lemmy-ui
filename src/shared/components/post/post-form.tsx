@@ -343,6 +343,32 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           }
         />
         <div className="mb-3 row">
+          <label className="col-sm-2 col-form-label" htmlFor="post-title">
+            {I18NextService.i18n.t("title")}
+          </label>
+          <div className="col-sm-10">
+            <textarea
+              value={this.state.form.name}
+              id="post-title"
+              onInput={linkEvent(this, handlePostNameChange)}
+              className={`form-control ${
+                !validTitle(this.state.form.name) && "is-invalid"
+              }`}
+              required
+              rows={1}
+              minLength={3}
+              maxLength={MAX_POST_TITLE_LENGTH}
+            />
+            {!validTitle(this.state.form.name) && (
+              <div className="invalid-feedback">
+                {I18NextService.i18n.t("invalid_post_title")}
+              </div>
+            )}
+            {this.renderSuggestedPosts()}
+          </div>
+        </div>
+
+        <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
             {I18NextService.i18n.t("url")}
           </label>
@@ -451,32 +477,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               />
             </>
           )}
-        </div>
-
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="post-title">
-            {I18NextService.i18n.t("title")}
-          </label>
-          <div className="col-sm-10">
-            <textarea
-              value={this.state.form.name}
-              id="post-title"
-              onInput={linkEvent(this, handlePostNameChange)}
-              className={`form-control ${
-                !validTitle(this.state.form.name) && "is-invalid"
-              }`}
-              required
-              rows={1}
-              minLength={3}
-              maxLength={MAX_POST_TITLE_LENGTH}
-            />
-            {!validTitle(this.state.form.name) && (
-              <div className="invalid-feedback">
-                {I18NextService.i18n.t("invalid_post_title")}
-              </div>
-            )}
-            {this.renderSuggestedPosts()}
-          </div>
         </div>
 
         <div className="mb-3 row">
