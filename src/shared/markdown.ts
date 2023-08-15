@@ -206,9 +206,11 @@ export function setupMarkdown() {
     if (!isLocalEmoji) {
       const imgElement =
         defaultRenderer?.(tokens, idx, options, env, self) ?? "";
-      return `<span class='${
-        isEmoji ? "icon icon-emoji" : ""
-      }'>${imgElement}</span>`;
+      if (imgElement) {
+        return `<span class='${
+          isEmoji ? "icon icon-emoji" : ""
+        }'>${imgElement}</span>`;
+      } else return "";
     }
     return `<img class="icon icon-emoji" src="${
       customEmoji!.custom_emoji.image_url
