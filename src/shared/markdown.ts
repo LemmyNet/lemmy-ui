@@ -191,7 +191,7 @@ export function setupMarkdown() {
     idx: number,
     options: MarkdownIt.Options,
     env: any,
-    self: Renderer
+    self: Renderer,
   ) {
     //Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
     const item = tokens[idx] as any;
@@ -226,7 +226,7 @@ export function setupMarkdown() {
 export function setupEmojiDataModel(custom_emoji_views: CustomEmojiView[]) {
   const groupedEmojis = groupBy(
     custom_emoji_views,
-    x => x.custom_emoji.category
+    x => x.custom_emoji.category,
   );
   for (const [category, emojis] of Object.entries(groupedEmojis)) {
     customEmojis.push({
@@ -241,7 +241,7 @@ export function setupEmojiDataModel(custom_emoji_views: CustomEmojiView[]) {
     });
   }
   customEmojisLookup = new Map(
-    custom_emoji_views.map(view => [view.custom_emoji.shortcode, view])
+    custom_emoji_views.map(view => [view.custom_emoji.shortcode, view]),
   );
 }
 
@@ -253,7 +253,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
     skins: [{ src: custom_emoji_view.custom_emoji.image_url }],
   };
   const categoryIndex = customEmojis.findIndex(
-    x => x.id === custom_emoji_view.custom_emoji.category
+    x => x.id === custom_emoji_view.custom_emoji.category,
   );
   if (categoryIndex === -1) {
     customEmojis.push({
@@ -263,7 +263,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
     });
   } else {
     const emojiIndex = customEmojis[categoryIndex].emojis.findIndex(
-      x => x.id === custom_emoji_view.custom_emoji.shortcode
+      x => x.id === custom_emoji_view.custom_emoji.shortcode,
     );
     if (emojiIndex === -1) {
       customEmojis[categoryIndex].emojis.push(emoji);
@@ -273,7 +273,7 @@ export function updateEmojiDataModel(custom_emoji_view: CustomEmojiView) {
   }
   customEmojisLookup.set(
     custom_emoji_view.custom_emoji.shortcode,
-    custom_emoji_view
+    custom_emoji_view,
   );
 }
 
@@ -287,10 +287,10 @@ export function removeFromEmojiDataModel(id: number) {
   }
   if (!view) return;
   const categoryIndex = customEmojis.findIndex(
-    x => x.id === view?.custom_emoji.category
+    x => x.id === view?.custom_emoji.category,
   );
   const emojiIndex = customEmojis[categoryIndex].emojis.findIndex(
-    x => x.id === view?.custom_emoji.shortcode
+    x => x.id === view?.custom_emoji.shortcode,
   );
   customEmojis[categoryIndex].emojis = customEmojis[
     categoryIndex
@@ -301,7 +301,7 @@ export function removeFromEmojiDataModel(id: number) {
 
 export function getEmojiMart(
   onEmojiSelect: (e: any) => void,
-  customPickerOptions: any = {}
+  customPickerOptions: any = {},
 ) {
   const pickerOptions = {
     ...customPickerOptions,
@@ -325,9 +325,8 @@ export function setupTribute() {
           return `${item.original.val} ${shortName}`;
         },
         selectTemplate: (item: any) => {
-          const customEmoji = customEmojisLookup.get(
-            item.original.key
-          )?.custom_emoji;
+          const customEmoji = customEmojisLookup.get(item.original.key)
+            ?.custom_emoji;
           if (customEmoji === undefined) return `${item.original.val}`;
           else
             return `![${customEmoji.alt_text}](${customEmoji.image_url} "emoji ${customEmoji.shortcode}")`;
@@ -340,7 +339,7 @@ export function setupTribute() {
             Array.from(customEmojisLookup.entries()).map(k => ({
               key: k[0],
               val: `<img class="icon icon-emoji" src="${k[1].custom_emoji.image_url}" title="${k[1].custom_emoji.shortcode}" alt="${k[1].custom_emoji.alt_text}" />`,
-            }))
+            })),
           ),
         allowSpaces: false,
         autocompleteMode: true,
