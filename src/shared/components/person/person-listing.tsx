@@ -1,8 +1,7 @@
 import { showAvatars } from "@utils/app";
 import { getStaticDir } from "@utils/env";
 import { hostname, isCakeDay } from "@utils/helpers";
-import classNames from "classnames";
-import { Component } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { Link } from "inferno-router";
 import { Person } from "lemmy-js-client";
 import { relTags } from "../../config";
@@ -11,11 +10,7 @@ import { CakeDay } from "./cake-day";
 
 interface PersonListingProps {
   person: Person;
-  realLink?: boolean;
-  useApubName?: boolean;
-  muted?: boolean;
-  hideAvatar?: boolean;
-  showApubName?: boolean;
+  profile?: boolean;
 }
 
 export class PersonListing extends Component<PersonListingProps, any> {
@@ -24,76 +19,62 @@ export class PersonListing extends Component<PersonListingProps, any> {
   }
 
   render() {
-    const person = this.props.person;
-    const local = person.local;
-    let apubName: string, link: string;
+    const {
+      person: {
+        local,
+        name,
+        actor_id,
+        display_name,
+        published,
+        avatar,
+        banned,
+      },
+      profile,
+    } = this.props;
+    const domain = hostname(actor_id);
+    const apubName = `@${name}@${domain}`;
+    const link = profile ? actor_id : `/u/${name}${!local && `@${domain}`}`;
 
-    if (local) {
-      apubName = `@${person.name}`;
-      link = `/u/${person.name}`;
-    } else {
-      const domain = hostname(person.actor_id);
-      apubName = `@${person.name}@${domain}`;
-      link = !this.props.realLink
-        ? `/u/${person.name}@${domain}`
-        : person.actor_id;
-    }
+    function linkify(node: InfernoNode, isApubName?: boolean) {
+      const className = `text-${display_name || profile ? "muted" : "info"}`;
 
-    let displayName = this.props.useApubName
-      ? apubName
-      : person.display_name ?? apubName;
-
-    if (this.props.showApubName && !local && person.display_name) {
-      displayName = `${displayName} (${apubName})`;
-    }
-
-    return (
-      <>
-        {!this.props.realLink ? (
-          <Link
-            title={apubName}
-            className={classNames(
-              "person-listing d-inline-flex align-items-baseline",
-              {
-                "text-muted": this.props.muted,
-                "text-info": !this.props.muted,
-              },
-            )}
-            to={link}
-          >
-            {this.avatarAndName(displayName)}
-          </Link>
-        ) : (
-          <a
-            title={apubName}
-            className={`person-listing d-inline-flex align-items-baseline ${
-              this.props.muted ? "text-muted" : "text-info"
-            }`}
-            href={link}
-            rel={relTags}
-          >
-            {this.avatarAndName(displayName)}
+      if (local && profile) {
+        return isApubName ? <div className={className}>{node}</div> : node;
+      } else if (profile) {
+        return (
+          <a title={apubName} href={link} rel={relTags} className={className}>
+            {node}
           </a>
-        )}
+        );
+      } else {
+        return (
+          <Link title={apubName} to={link} className={className}>
+            {node}
+          </Link>
+        );
+      }
+    }
 
-        {isCakeDay(person.published) && <CakeDay creatorName={apubName} />}
-      </>
-    );
-  }
-
-  avatarAndName(displayName: string) {
-    const avatar = this.props.person.avatar;
     return (
       <>
-        {!this.props.hideAvatar &&
-          !this.props.person.banned &&
-          showAvatars() && (
-            <PictrsImage
-              src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
-              icon
-            />
-          )}
-        <span>{displayName}</span>
+        <div className="person-listing d-inline-flex align-items-center">
+          {!(profile || banned) &&
+            showAvatars() &&
+            linkify(
+              <PictrsImage
+                src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
+                icon
+              />,
+            )}
+          <div>
+            {display_name && !profile && (
+              <div className="text-info">{display_name}</div>
+            )}
+            {linkify(apubName, true)}
+          </div>
+        </div>
+
+        {isCakeDay(published) && <CakeDay creatorName={apubName} />}
       </>
     );
   }

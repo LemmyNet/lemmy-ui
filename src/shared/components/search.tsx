@@ -214,7 +214,7 @@ const communityListing = ({
 
 const personListing = ({ person, counts: { comment_count } }: PersonView) =>
   getListing(
-    <PersonListing person={person} showApubName />,
+    <PersonListing person={person} />,
     comment_count,
     "number_of_comments",
   );

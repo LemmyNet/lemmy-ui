@@ -417,18 +417,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post_view = this.postView;
 
     return (
-      <div className="small mb-1 mb-md-0">
+      <div className="small mb-1 mb-md-0 d-flex align-items-center flex-wrap">
         <PersonListing person={post_view.creator} />
         <UserBadges
-          classNames="ms-1"
+          classNames="mx-1"
           isMod={this.creatorIsMod_}
           isAdmin={this.creatorIsAdmin_}
           isBot={post_view.creator.bot_account}
         />
         {this.props.showCommunity && (
           <>
-            {" "}
-            {I18NextService.i18n.t("to")}{" "}
+            <span className="mx-1">{I18NextService.i18n.t("to")}</span>
             <CommunityLink community={post_view.community} />
           </>
         )}
@@ -440,8 +439,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               )?.name
             }
           </span>
-        )}{" "}
-        •{" "}
+        )}
+        <span className="mx-1">•</span>
         <MomentTime
           published={post_view.post.published}
           updated={post_view.post.updated}
