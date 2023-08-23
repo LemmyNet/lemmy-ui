@@ -23,18 +23,18 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     const community = this.props.community;
     let name_: string, title: string, link: string;
     const local = community.local === null ? true : community.local;
+    const domain = hostname(community.actor_id);
     if (local) {
       name_ = community.name;
       title = community.title;
       link = `/c/${community.name}`;
     } else {
-      const domain = hostname(community.actor_id);
       name_ = `${community.name}@${domain}`;
       title = `${community.title}@${domain}`;
       link = !this.props.realLink ? `/c/${name_}` : community.actor_id;
     }
 
-    const apubName = `!${name_}`;
+    const apubName = `!${community.name}@${domain}`;
     const displayName = this.props.useApubName ? apubName : title;
     return !this.props.realLink ? (
       <Link
