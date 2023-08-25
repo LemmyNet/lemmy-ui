@@ -134,7 +134,7 @@ export class Instances extends Component<any, InstancesState> {
     );
   }
 
-  itemList(items: Instance[], link?: boolean | undefined) {
+  itemList(items: Instance[], link = true) {
     return items.length > 0 ? (
       <div className="table-responsive">
         <table id="instances_table" className="table table-sm table-hover">
