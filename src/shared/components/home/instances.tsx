@@ -149,7 +149,7 @@ export class Instances extends Component<any, InstancesState> {
             {items.map(i => (
               <tr key={i.domain}>
                 <td>
-                  {link === true || link === undefined ? (
+                  {link ? (
                     <a href={`https://${i.domain}`} rel={relTags}>
                       {" "}
                       {i.domain}{" "}
