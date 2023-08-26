@@ -150,12 +150,23 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                         loading={this.state.loading}
                       />
                     </div>
-                    <div className="col-12 col-md-6">
-                      {this.admins()}
-                      <hr />
-                      {this.bannedUsers()}
-                    </div>
+                    <div className="col-12 col-md-6">{this.admins()}</div>
                   </div>
+                </div>
+              ),
+            },
+            {
+              key: "banned_users",
+              label: I18NextService.i18n.t("banned_users"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="banned_users-tab-pane"
+                >
+                  {this.bannedUsers()}
                 </div>
               ),
             },
@@ -295,7 +306,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         const bans = this.state.bannedRes.data.banned;
         return (
           <>
-            <h2 className="h5">{I18NextService.i18n.t("banned_users")}</h2>
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("banned_users")}</h1>
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">
