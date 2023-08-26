@@ -374,5 +374,11 @@ export class PrivateMessage extends Component<
       reason: i.state.reportReason ?? "",
       auth: myAuthRequired(),
     });
+
+    i.setState({
+      reportLoading: false,
+      showReportDialog: false,
+      reportReason: undefined,
+    });
   }
 }

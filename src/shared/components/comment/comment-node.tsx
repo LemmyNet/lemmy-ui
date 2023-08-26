@@ -1546,6 +1546,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       reason: i.state.reportReason ?? "",
       auth: myAuthRequired(),
     });
+
+    i.setState({
+      reportLoading: false,
+      reportReason: undefined,
+      showReportDialog: false,
+    });
   }
 
   handlePurgeBothSubmit(i: CommentNode, event: any) {
