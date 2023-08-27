@@ -62,6 +62,11 @@ enum MessageEnum {
   PrivateMessageReport,
 }
 
+enum SortOrder {
+  Asc,
+  Desc,
+}
+
 type ReportsData = RouteDataResponse<{
   commentReportsRes: ListCommentReportsResponse;
   postReportsRes: ListPostReportsResponse;
@@ -81,6 +86,7 @@ interface ReportsState {
   messageReportsRes: RequestState<ListPrivateMessageReportsResponse>;
   unreadOrAll: UnreadOrAll;
   messageType: MessageType;
+  sortOrder: SortOrder;
   siteRes: GetSiteResponse;
   page: number;
   isIsomorphic: boolean;
@@ -94,6 +100,7 @@ export class Reports extends Component<any, ReportsState> {
     messageReportsRes: { state: "empty" },
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
+    sortOrder: SortOrder.Asc,
     page: 1,
     siteRes: this.isoData.site_res,
     isIsomorphic: false,
@@ -313,11 +320,54 @@ export class Reports extends Component<any, ReportsState> {
     );
   }
 
+  sortOrderRadios() {
+    const radioId = randomStr();
+
+    return (
+      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+        <input
+          id={`${radioId}-asc`}
+          type="radio"
+          className="btn-check"
+          value={SortOrder.Asc}
+          checked={this.state.sortOrder === SortOrder.Asc}
+          onChange={linkEvent(this, this.handleSortChange)}
+        />
+        <label
+          htmlFor={`${radioId}-asc`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.sortOrder === SortOrder.Asc,
+          })}
+        >
+          {I18NextService.i18n.t("old")}
+        </label>
+
+        <input
+          id={`${radioId}-desc`}
+          type="radio"
+          className="btn-check"
+          value={SortOrder.Desc}
+          checked={this.state.sortOrder === SortOrder.Desc}
+          onChange={linkEvent(this, this.handleSortChange)}
+        />
+        <label
+          htmlFor={`${radioId}-desc`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.sortOrder === SortOrder.Desc,
+          })}
+        >
+          {I18NextService.i18n.t("new")}
+        </label>
+      </div>
+    );
+  }
+
   selects() {
     return (
       <div className="mb-2">
         <span className="me-3">{this.unreadOrAllRadios()}</span>
         <span className="me-3">{this.messageTypeRadios()}</span>
+        <span className="me-3">{this.sortOrderRadios()}</span>
       </div>
     );
   }
@@ -370,7 +420,9 @@ export class Reports extends Component<any, ReportsState> {
         : [];
 
     return [...comments, ...posts, ...privateMessages].sort((a, b) =>
-      b.published.localeCompare(a.published),
+      this.state.sortOrder === SortOrder.Asc
+        ? a.published.localeCompare(b.published, undefined, { numeric: true })
+        : b.published.localeCompare(a.published, undefined, { numeric: true }),
     );
   }
 
@@ -517,6 +569,11 @@ export class Reports extends Component<any, ReportsState> {
 
   async handleMessageTypeChange(i: Reports, event: any) {
     i.setState({ messageType: Number(event.target.value), page: 1 });
+    await i.refetch();
+  }
+
+  async handleSortChange(i: Reports, event: any) {
+    i.setState({ sortOrder: Number(event.target.value), page: 1 });
     await i.refetch();
   }
 
