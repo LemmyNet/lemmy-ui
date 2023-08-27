@@ -28,6 +28,11 @@ enum UnreadOrAll {
   All,
 }
 
+enum SortOrder {
+  Asc,
+  Desc,
+}
+
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
 }>;
@@ -36,6 +41,7 @@ interface RegistrationApplicationsState {
   appsRes: RequestState<ListRegistrationApplicationsResponse>;
   siteRes: GetSiteResponse;
   unreadOrAll: UnreadOrAll;
+  sortOrder: SortOrder;
   page: number;
   isIsomorphic: boolean;
 }
@@ -49,6 +55,7 @@ export class RegistrationApplications extends Component<
     appsRes: { state: "empty" },
     siteRes: this.isoData.site_res,
     unreadOrAll: UnreadOrAll.Unread,
+    sortOrder: SortOrder.Asc,
     page: 1,
     isIsomorphic: false,
   };
@@ -95,6 +102,21 @@ export class RegistrationApplications extends Component<
         );
       case "success": {
         const apps = this.state.appsRes.data.registration_applications;
+
+        apps.sort((a, b) =>
+          this.state.sortOrder === SortOrder.Asc
+            ? a.registration_application.published.localeCompare(
+                b.registration_application.published,
+                undefined,
+                { numeric: true },
+              )
+            : b.registration_application.published.localeCompare(
+                a.registration_application.published,
+                undefined,
+                { numeric: true },
+              ),
+        );
+
         return (
           <div className="row">
             <div className="col-12">
@@ -168,10 +190,53 @@ export class RegistrationApplications extends Component<
     );
   }
 
+  sortOrderRadios() {
+    const radioId = randomStr();
+
+    return (
+      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+        <input
+          id={`${radioId}-asc`}
+          type="radio"
+          className="btn-check"
+          value={SortOrder.Asc}
+          checked={this.state.sortOrder === SortOrder.Asc}
+          onChange={linkEvent(this, this.handleSortChange)}
+        />
+        <label
+          htmlFor={`${radioId}-asc`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.sortOrder === SortOrder.Asc,
+          })}
+        >
+          {I18NextService.i18n.t("old")}
+        </label>
+
+        <input
+          id={`${radioId}-desc`}
+          type="radio"
+          className="btn-check"
+          value={SortOrder.Desc}
+          checked={this.state.sortOrder === SortOrder.Desc}
+          onChange={linkEvent(this, this.handleSortChange)}
+        />
+        <label
+          htmlFor={`${radioId}-desc`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.sortOrder === SortOrder.Desc,
+          })}
+        >
+          {I18NextService.i18n.t("new")}
+        </label>
+      </div>
+    );
+  }
+
   selects() {
     return (
       <div className="mb-2">
         <span className="me-3">{this.unreadOrAllRadios()}</span>
+        <span className="me-3">{this.sortOrderRadios()}</span>
       </div>
     );
   }
@@ -195,6 +260,11 @@ export class RegistrationApplications extends Component<
 
   handleUnreadOrAllChange(i: RegistrationApplications, event: any) {
     i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+    i.refetch();
+  }
+
+  handleSortChange(i: RegistrationApplications, event: any) {
+    i.setState({ sortOrder: Number(event.target.value), page: 1 });
     i.refetch();
   }
 
@@ -224,6 +294,7 @@ export class RegistrationApplications extends Component<
     this.setState({
       appsRes: { state: "loading" },
     });
+
     this.setState({
       appsRes: await HttpService.client.listRegistrationApplications({
         unread_only: unread_only,
