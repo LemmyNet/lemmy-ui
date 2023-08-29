@@ -87,26 +87,28 @@ export class Instances extends Component<any, InstancesState> {
       case "success": {
         const instances = this.state.instancesRes.data.federated_instances;
         return instances ? (
-          <>
-            <Tabs
-              tabs={["linked", "allowed", "blocked"]
-                .filter(status => instances[status].length)
-                .map(status => ({
-                  key: status,
-                  label: I18NextService.i18n.t(`${status}_instances`),
-                  getNode: isSelected => (
-                    <div
-                      role="tabpanel"
-                      className={classNames("tab-pane show", {
-                        active: isSelected,
-                      })}
-                    >
-                      {this.itemList(instances[status])}
-                    </div>
-                  ),
-                }))}
-            />
-          </>
+          <div className="row">
+            <div className="col-lg-8">
+              <Tabs
+                tabs={["linked", "allowed", "blocked"]
+                  .filter(status => instances[status].length)
+                  .map(status => ({
+                    key: status,
+                    label: I18NextService.i18n.t(`${status}_instances`),
+                    getNode: isSelected => (
+                      <div
+                        role="tabpanel"
+                        className={classNames("tab-pane show", {
+                          active: isSelected,
+                        })}
+                      >
+                        {this.itemList(instances[status])}
+                      </div>
+                    ),
+                  }))}
+              />
+            </div>
+          </div>
         ) : (
           <h5>No linked instance</h5>
         );
