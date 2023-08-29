@@ -6,12 +6,14 @@ import {
   GetSiteResponse,
   Instance,
 } from "lemmy-js-client";
+import classNames from "classnames";
 import { relTags } from "../../config";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import Tabs from "../common/tabs";
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -85,37 +87,30 @@ export class Instances extends Component<any, InstancesState> {
       case "success": {
         const instances = this.state.instancesRes.data.federated_instances;
         return instances ? (
-          <>
-            <h1 className="h4 mb-4">{I18NextService.i18n.t("instances")}</h1>
-            <div className="row">
-              <div className="col-md-6">
-                <h2 className="h5 mb-3">
-                  {I18NextService.i18n.t("linked_instances")}
-                </h2>
-                {this.itemList(instances.linked)}
-              </div>
+          <div className="row">
+            <div className="col-lg-8">
+              <Tabs
+                tabs={["linked", "allowed", "blocked"]
+                  .filter(status => instances[status].length)
+                  .map(status => ({
+                    key: status,
+                    label: I18NextService.i18n.t(`${status}_instances`),
+                    getNode: isSelected => (
+                      <div
+                        role="tabpanel"
+                        className={classNames("tab-pane show", {
+                          active: isSelected,
+                        })}
+                      >
+                        {this.itemList(instances[status])}
+                      </div>
+                    ),
+                  }))}
+              />
             </div>
-            <div className="row">
-              {instances.allowed && instances.allowed.length > 0 && (
-                <div className="col-md-6">
-                  <h2 className="h5 mb-3">
-                    {I18NextService.i18n.t("allowed_instances")}
-                  </h2>
-                  {this.itemList(instances.allowed)}
-                </div>
-              )}
-              {instances.blocked && instances.blocked.length > 0 && (
-                <div className="col-md-6">
-                  <h2 className="h5 mb-3">
-                    {I18NextService.i18n.t("blocked_instances")}
-                  </h2>
-                  {this.itemList(instances.blocked)}
-                </div>
-              )}
-            </div>
-          </>
+          </div>
         ) : (
-          <></>
+          <h5>No linked instance</h5>
         );
       }
     }
