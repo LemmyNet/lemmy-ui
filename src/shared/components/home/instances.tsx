@@ -108,7 +108,7 @@ export class Instances extends Component<any, InstancesState> {
             />
           </>
         ) : (
-          <></>
+          <h5>No linked instance</h5>
         );
       }
     }
