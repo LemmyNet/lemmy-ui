@@ -195,11 +195,22 @@ export function setupMarkdown() {
   ) {
     //Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
     const item = tokens[idx] as any;
-    const title = item.attrs.length >= 3 ? item.attrs[2][1] : "";
+    let title = item.attrs.length >= 3 ? item.attrs[2][1] : "";
+    const splitTitle = title.split(/ (.*)/, 2);
+    const isEmoji = splitTitle[0] === "emoji";
+    if (isEmoji) {
+      title = splitTitle[1];
+    }
     const customEmoji = customEmojisLookup.get(title);
-    const isCustomEmoji = customEmoji !== undefined;
-    if (!isCustomEmoji) {
-      return defaultRenderer?.(tokens, idx, options, env, self) ?? "";
+    const isLocalEmoji = customEmoji !== undefined;
+    if (!isLocalEmoji) {
+      const imgElement =
+        defaultRenderer?.(tokens, idx, options, env, self) ?? "";
+      if (imgElement) {
+        return `<span class='${
+          isEmoji ? "icon icon-emoji" : ""
+        }'>${imgElement}</span>`;
+      } else return "";
     }
     return `<img class="icon icon-emoji" src="${
       customEmoji!.custom_emoji.image_url
@@ -318,7 +329,7 @@ export function setupTribute() {
             ?.custom_emoji;
           if (customEmoji === undefined) return `${item.original.val}`;
           else
-            return `![${customEmoji.alt_text}](${customEmoji.image_url} "${customEmoji.shortcode}")`;
+            return `![${customEmoji.alt_text}](${customEmoji.image_url} "emoji ${customEmoji.shortcode}")`;
         },
         values: Object.entries(emojiShortName)
           .map(e => {
