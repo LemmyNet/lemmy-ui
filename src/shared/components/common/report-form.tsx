@@ -1,10 +1,10 @@
 import { Component, linkEvent } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 import { Spinner } from "./icon";
+import { randomStr } from "@utils/helpers";
 
 interface ReportFormProps {
   onSubmit: (reason: string) => void;
-  id: string;
 }
 
 interface ReportFormState {
@@ -40,8 +40,8 @@ export default class ReportForm extends Component<
   }
 
   render() {
-    const { id } = this.props;
     const { loading, reason } = this.state;
+    const id = `report-form-${randomStr()}`;
 
     return (
       <form

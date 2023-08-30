@@ -185,6 +185,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     super(props, context);
 
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
+    this.handleReportComment = this.handleReportComment.bind(this);
   }
 
   get commentView(): CommentView {
@@ -975,10 +976,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           </form>
         )}
         {this.state.showReportDialog && (
-          <ReportForm
-            id={`report-reason-${cv.comment.id}`}
-            onSubmit={this.handleReportComment}
-          />
+          <ReportForm onSubmit={this.handleReportComment} />
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
@@ -1508,7 +1506,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleReportComment = (reason: string) => {
+  handleReportComment(reason: string) {
     this.props.onCommentReport({
       comment_id: this.commentId,
       reason,
@@ -1518,7 +1516,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState({
       showReportDialog: false,
     });
-  };
+  }
 
   handlePurgeBothSubmit(i: CommentNode, event: any) {
     event.preventDefault();

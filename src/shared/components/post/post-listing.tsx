@@ -174,6 +174,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
+    this.handleReportSubmit = this.handleReportSubmit.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
@@ -1285,10 +1286,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </form>
         )}
         {this.state.showReportDialog && (
-          <ReportForm
-            id="post-report-reason"
-            onSubmit={this.handleReportSubmit}
-          />
+          <ReportForm onSubmit={this.handleReportSubmit} />
         )}
         {this.state.showPurgeDialog && (
           <form
@@ -1440,7 +1438,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
-  handleReportSubmit = (reason: string) => {
+  handleReportSubmit(reason: string) {
     this.props.onPostReport({
       post_id: this.postView.post.id,
       reason,
@@ -1450,7 +1448,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.setState({
       showReportDialog: false,
     });
-  };
+  }
 
   handleBlockPersonClick(i: PostListing) {
     i.setState({ blockLoading: true });

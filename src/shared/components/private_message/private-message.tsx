@@ -53,6 +53,7 @@ export class PrivateMessage extends Component<
   constructor(props: any, context: any) {
     super(props, context);
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
+    this.handleReportSubmit = this.handleReportSubmit.bind(this);
   }
 
   get mine(): boolean {
@@ -248,10 +249,7 @@ export class PrivateMessage extends Component<
           )}
         </div>
         {this.state.showReportDialog && (
-          <ReportForm
-            id="pm-report-reason"
-            onSubmit={this.handleReportSubmit}
-          />
+          <ReportForm onSubmit={this.handleReportSubmit} />
         )}
         {this.state.showReply && (
           <div className="row">
@@ -335,7 +333,7 @@ export class PrivateMessage extends Component<
     i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
-  handleReportSubmit = (reason: string) => {
+  handleReportSubmit(reason: string) {
     this.props.onReport({
       private_message_id: this.props.private_message_view.private_message.id,
       reason,
@@ -345,5 +343,5 @@ export class PrivateMessage extends Component<
     this.setState({
       showReportDialog: false,
     });
-  };
+  }
 }
