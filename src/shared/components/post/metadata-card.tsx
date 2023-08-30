@@ -1,6 +1,7 @@
 import { Component } from "inferno";
 import { Post } from "lemmy-js-client";
 import * as sanitizeHtml from "sanitize-html";
+import { unescapeHTML } from "@utils/helpers";
 import { relTags } from "../../config";
 import { Icon } from "../common/icon";
 
@@ -26,7 +27,7 @@ export class MetadataCard extends Component<MetadataCardProps> {
                   <>
                     <h5 className="card-title d-inline">
                       <a className="text-body" href={post.url} rel={relTags}>
-                        {post.embed_title}
+                        {unescapeHTML(post.embed_title)}
                       </a>
                     </h5>
                     <span className="d-inline-block ms-2 mb-2 small text-muted">

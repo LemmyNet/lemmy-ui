@@ -23,11 +23,13 @@ import validEmail from "./valid-email";
 import validInstanceTLD from "./valid-instance-tld";
 import validTitle from "./valid-title";
 import validURL from "./valid-url";
+import { escapeHTML, unescapeHTML } from "./html-entities";
 
 export {
   capitalizeFirstLetter,
   debounce,
   editListImmutable,
+  escapeHTML,
   formatPastDate,
   futureDaysToUnixTime,
   getIdFromString,
@@ -46,6 +48,7 @@ export {
   randomStr,
   removeAuthParam,
   sleep,
+  unescapeHTML,
   validEmail,
   validInstanceTLD,
   validTitle,

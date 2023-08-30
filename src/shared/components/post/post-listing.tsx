@@ -5,6 +5,7 @@ import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
   hostname,
+  unescapeHTML,
 } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import {
@@ -206,7 +207,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.listing()}
             {this.state.imageExpanded && !this.props.hideImage && this.img}
-            {this.showBody && post.url && post.embed_title && (
+            {this.showBody && post.url && unescapeHTML(post.embed_title) && (
               <MetadataCard post={post} />
             )}
             {this.showBody && this.body()}
@@ -286,7 +287,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             allowFullScreen
             className="post-metadata-iframe"
             src={post.embed_video_url}
-            title={post.embed_title}
+            title={unescapeHTML(post.embed_title)}
           ></iframe>
         </div>
       );
@@ -449,7 +450,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       >
         <span
           className="d-inline"
-          dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+          dangerouslySetInnerHTML={mdToHtmlInline(unescapeHTML(post.name))}
         />
       </Link>
     );
@@ -473,7 +474,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 href={url}
                 title={url}
                 rel={relTags}
-                dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+                dangerouslySetInnerHTML={mdToHtmlInline(
+                  unescapeHTML(post.name),
+                )}
               ></a>
             ) : (
               this.postLink
@@ -486,7 +489,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
            * MetadataCard/body toggle.
            */}
           {!this.props.showBody &&
-            ((post.url && post.embed_title) || post.body) &&
+            ((post.url && unescapeHTML(post.embed_title)) || post.body) &&
             this.showPreviewButton()}
 
           {post.removed && (
