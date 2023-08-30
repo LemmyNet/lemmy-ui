@@ -287,7 +287,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             allowFullScreen
             className="post-metadata-iframe"
             src={post.embed_video_url}
-            title={post.embed_title}
+            title={unescapeHTML(post.embed_title)}
           ></iframe>
         </div>
       );

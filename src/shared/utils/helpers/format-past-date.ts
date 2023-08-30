@@ -2,7 +2,7 @@ import formatDistanceStrict from "date-fns/formatDistanceStrict";
 import parseISO from "date-fns/parseISO";
 
 export default function (dateString?: string) {
-  if (!dateString || dateString === undefined) {
+  if (!dateString) {
     console.error("Got an undefined dateString for `formatPastDate` function");
     return "UNDEFINED DATE";
   }
