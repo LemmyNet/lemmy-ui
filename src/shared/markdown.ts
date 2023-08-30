@@ -15,7 +15,7 @@ import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
-import { instanceLinkRegex } from "./config";
+import { instanceLinkRegex, relTags } from "./config";
 
 export let Tribute: any;
 
@@ -185,7 +185,7 @@ export function setupMarkdown() {
     //   defs: emojiDefs,
     // })
     .disable("image");
-  const defaultRenderer = md.renderer.rules.image;
+  const defaultImageRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
     tokens: Token[],
     idx: number,
@@ -205,7 +205,7 @@ export function setupMarkdown() {
     const isLocalEmoji = customEmoji !== undefined;
     if (!isLocalEmoji) {
       const imgElement =
-        defaultRenderer?.(tokens, idx, options, env, self) ?? "";
+        defaultImageRenderer?.(tokens, idx, options, env, self) ?? "";
       if (imgElement) {
         return `<span class='${
           isEmoji ? "icon icon-emoji" : ""
@@ -220,6 +220,21 @@ export function setupMarkdown() {
   };
   md.renderer.rules.table_open = function () {
     return '<table class="table">';
+  };
+  const defaultLinkRenderer =
+    md.renderer.rules.link_open ||
+    function (tokens, idx, options, _env, self) {
+      return self.renderToken(tokens, idx, options);
+    };
+  md.renderer.rules.link_open = function (
+    tokens: Token[],
+    idx: number,
+    options: MarkdownIt.Options,
+    env: any,
+    self: Renderer,
+  ) {
+    tokens[idx].attrPush(["rel", relTags]);
+    return defaultLinkRenderer(tokens, idx, options, env, self);
   };
 }
 
