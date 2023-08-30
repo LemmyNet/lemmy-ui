@@ -325,9 +325,9 @@ export class Post extends Component<any, PostState> {
 
   get documentTitle(): string {
     const siteName = this.state.siteRes.site_view.site.name;
-    const postTitle = this.state.postRes.data.post_view.post.name;
     return this.state.postRes.state === "success"
-      ? unescapeHTML(postTitle) + ` - ${siteName}`
+      ? unescapeHTML(this.state.postRes.data.post_view.post.name) +
+          ` - ${siteName}`
       : siteName;
   }
 
