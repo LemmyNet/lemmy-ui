@@ -207,7 +207,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.listing()}
             {this.state.imageExpanded && !this.props.hideImage && this.img}
-            {this.showBody && post.url && unescapeHTML(post.embed_title) && (
+            {this.showBody && post.url && post.embed_title && (
               <MetadataCard post={post} />
             )}
             {this.showBody && this.body()}
@@ -287,7 +287,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             allowFullScreen
             className="post-metadata-iframe"
             src={post.embed_video_url}
-            title={unescapeHTML(post.embed_title)}
+            title={post.embed_title}
           ></iframe>
         </div>
       );
@@ -489,7 +489,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
            * MetadataCard/body toggle.
            */}
           {!this.props.showBody &&
-            ((post.url && unescapeHTML(post.embed_title)) || post.body) &&
+            ((post.url && post.embed_title) || post.body) &&
             this.showPreviewButton()}
 
           {post.removed && (

@@ -18,7 +18,6 @@ import numToSI from "./num-to-si";
 import poll from "./poll";
 import randomStr from "./random-str";
 import removeAuthParam from "./remove-auth-param";
-import returnStringFromString from "./return-str";
 import sleep from "./sleep";
 import validEmail from "./valid-email";
 import validInstanceTLD from "./valid-instance-tld";
@@ -48,7 +47,6 @@ export {
   poll,
   randomStr,
   removeAuthParam,
-  returnStringFromString,
   sleep,
   unescapeHTML,
   validEmail,

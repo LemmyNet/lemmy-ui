@@ -18,7 +18,7 @@ export default function (dateString?: string) {
       console.error(
         `Got the invalid value of ${dateString} when attempting to parse to ISO date`,
       );
-      return "DATE PARSE ERROR";
     }
+    return "DATE PARSE ERROR";
   }
 }
