@@ -486,13 +486,7 @@ export class Profile extends Component<
                   )}
                   <ul className="list-inline mb-2">
                     <li className="list-inline-item">
-                      <PersonListing
-                        person={pv.person}
-                        realLink
-                        useApubName
-                        muted
-                        hideAvatar
-                      />
+                      <PersonListing person={pv.person} profile />
                     </li>
                     <li className="list-inline-item">
                       <UserBadges
