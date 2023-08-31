@@ -363,7 +363,7 @@ export class MarkdownTextArea extends Component<
     if (value === null) {
       const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
       if (emoji) {
-        value = `![${emoji.alt_text}](${emoji.image_url} "${emoji.shortcode}")`;
+        value = `![${emoji.alt_text}](${emoji.image_url} "emoji ${emoji.shortcode}")`;
       }
     }
     i.setState({

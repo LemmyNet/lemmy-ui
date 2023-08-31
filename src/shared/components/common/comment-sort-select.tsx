@@ -48,6 +48,9 @@ export class CommentSortSelect extends Component<
             {I18NextService.i18n.t("sort_type")}
           </option>
           <option value={"Hot"}>{I18NextService.i18n.t("hot")}</option>,
+          <option value={"Controversial"}>
+            {I18NextService.i18n.t("controversial")}
+          </option>
           <option value={"Top"}>{I18NextService.i18n.t("top")}</option>,
           <option value={"New"}>{I18NextService.i18n.t("new")}</option>
           <option value={"Old"}>{I18NextService.i18n.t("old")}</option>

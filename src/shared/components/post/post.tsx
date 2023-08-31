@@ -63,6 +63,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -171,6 +172,7 @@ export class Post extends Component<any, PostState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     this.state = { ...this.state, commentSectionRef: createRef() };
 
@@ -384,17 +386,22 @@ export class Post extends Component<any, PostState> {
                 onAddAdmin={this.handleAddAdmin}
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
+                onMarkPostAsRead={this.handleMarkPostAsRead}
               />
               <div ref={this.state.commentSectionRef} className="mb-2" />
-              <CommentForm
-                node={res.post_view.post.id}
-                disabled={res.post_view.post.locked}
-                allLanguages={this.state.siteRes.all_languages}
-                siteLanguages={this.state.siteRes.discussion_languages}
-                containerClass="post-comment-container"
-                onUpsertComment={this.handleCreateComment}
-                finished={this.state.finished.get(0)}
-              />
+
+              {/* Only show the top level comment form if its not a context view */}
+              {!this.state.commentId && (
+                <CommentForm
+                  node={res.post_view.post.id}
+                  disabled={res.post_view.post.locked}
+                  allLanguages={this.state.siteRes.all_languages}
+                  siteLanguages={this.state.siteRes.discussion_languages}
+                  containerClass="post-comment-container"
+                  onUpsertComment={this.handleCreateComment}
+                  finished={this.state.finished.get(0)}
+                />
+              )}
               <div className="d-block d-md-none">
                 <button
                   className="btn btn-secondary d-inline-block mb-2 me-3"
@@ -474,6 +481,22 @@ export class Post extends Component<any, PostState> {
             })}
           >
             {I18NextService.i18n.t("top")}
+          </label>
+          <input
+            id={`${radioId}-controversial`}
+            type="radio"
+            className="btn-check"
+            value={"Controversial"}
+            checked={this.state.commentSort === "Controversial"}
+            onChange={linkEvent(this, this.handleCommentSortChange)}
+          />
+          <label
+            htmlFor={`${radioId}-controversial`}
+            className={classNames("btn btn-outline-secondary pointer", {
+              active: this.state.commentSort === "Controversial",
+            })}
+          >
+            {I18NextService.i18n.t("controversial")}
           </label>
           <input
             id={`${radioId}-new`}
@@ -917,6 +940,11 @@ export class Post extends Component<any, PostState> {
     await HttpService.client.markPersonMentionAsRead(form);
   }
 
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    this.updatePost(res);
+  }
+
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBan(banRes);
@@ -1010,13 +1038,21 @@ export class Post extends Component<any, PostState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments.unshift(res.data.comment_view);
+        // The comment must be inserted not at the very beginning of the list,
+        // because the buildCommentsTree needs a correct path ordering.
+        // It should be inserted right after its parent is found
+        const comments = s.commentsRes.data.comments;
+        const newComment = res.data.comment_view;
+        const newCommentParentId = getCommentParentId(newComment.comment);
+
+        const foundCommentParentIndex = comments.findIndex(
+          c => c.comment.id === newCommentParentId,
+        );
+
+        comments.splice(foundCommentParentIndex + 1, 0, newComment);
 
         // Set finished for the parent
-        s.finished.set(
-          getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true,
-        );
+        s.finished.set(newCommentParentId ?? 0, true);
       }
       return s;
     });

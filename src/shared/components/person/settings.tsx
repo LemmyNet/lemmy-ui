@@ -54,6 +54,8 @@ interface SettingsState {
   // TODO redo these forms
   saveUserSettingsForm: {
     show_nsfw?: boolean;
+    blur_nsfw?: boolean;
+    auto_expand?: boolean;
     theme?: string;
     default_sort_type?: SortType;
     default_listing_type?: ListingType;
@@ -73,6 +75,7 @@ interface SettingsState {
     show_new_post_notifs?: boolean;
     discussion_languages?: number[];
     generate_totp_2fa?: boolean;
+    open_links_in_new_tab?: boolean;
   };
   changePasswordForm: {
     new_password?: string;
@@ -176,6 +179,8 @@ export class Settings extends Component<any, SettingsState> {
       const {
         local_user: {
           show_nsfw,
+          blur_nsfw,
+          auto_expand,
           theme,
           default_sort_type,
           default_listing_type,
@@ -205,6 +210,8 @@ export class Settings extends Component<any, SettingsState> {
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
           show_nsfw,
+          blur_nsfw,
+          auto_expand,
           theme: theme ?? "browser",
           default_sort_type,
           default_listing_type,
@@ -264,7 +271,7 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  userSettings(isSelected) {
+  userSettings(isSelected: boolean) {
     return (
       <div
         className={classNames("tab-pane show", {
@@ -289,7 +296,7 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  blockCards(isSelected) {
+  blockCards(isSelected: boolean) {
     return (
       <div
         className={classNames("tab-pane", {
@@ -326,6 +333,7 @@ export class Settings extends Component<any, SettingsState> {
               onInput={linkEvent(this, this.handleNewPasswordChange)}
               showStrength
               label={I18NextService.i18n.t("new_password")}
+              isNew
             />
           </div>
           <div className="mb-3">
@@ -334,6 +342,7 @@ export class Settings extends Component<any, SettingsState> {
               value={this.state.changePasswordForm.new_password_verify}
               onInput={linkEvent(this, this.handleNewPasswordVerifyChange)}
               label={I18NextService.i18n.t("verify_password")}
+              isNew
             />
           </div>
           <div className="mb-3">
@@ -666,6 +675,34 @@ export class Settings extends Component<any, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="user-blur-nsfw"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.blur_nsfw}
+                onChange={linkEvent(this, this.handleBlurNsfwChange)}
+              />
+              <label className="form-check-label" htmlFor="user-blur-nsfw">
+                {I18NextService.i18n.t("blur_nsfw")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-auto-expand"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.auto_expand}
+                onChange={linkEvent(this, this.handleAutoExpandChange)}
+              />
+              <label className="form-check-label" htmlFor="user-auto-expand">
+                {I18NextService.i18n.t("auto_expand")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="user-show-scores"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_scores}
@@ -775,6 +812,23 @@ export class Settings extends Component<any, SettingsState> {
                 htmlFor="user-send-notifications-to-email"
               >
                 {I18NextService.i18n.t("send_notifications_to_email")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-open-links-in-new-tab"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.open_links_in_new_tab}
+                onChange={linkEvent(this, this.handleOpenInNewTab)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-open-links-in-new-tab"
+              >
+                {I18NextService.i18n.t("open_links_in_new_tab")}
               </label>
             </div>
           </div>
@@ -989,6 +1043,18 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
+  handleBlurNsfwChange(i: Settings, event: any) {
+    i.setState(
+      s => ((s.saveUserSettingsForm.blur_nsfw = event.target.checked), s),
+    );
+  }
+
+  handleAutoExpandChange(i: Settings, event: any) {
+    i.setState(
+      s => ((s.saveUserSettingsForm.auto_expand = event.target.checked), s),
+    );
+  }
+
   handleShowAvatarsChange(i: Settings, event: any) {
     const mui = UserService.Instance.myUserInfo;
     if (mui) {
@@ -1023,6 +1089,14 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.show_new_post_notifs = event.target.checked), s
+      ),
+    );
+  }
+
+  handleOpenInNewTab(i: Settings, event: any) {
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.open_links_in_new_tab = event.target.checked), s
       ),
     );
   }

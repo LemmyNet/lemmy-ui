@@ -60,6 +60,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
   PersonView,
   PostResponse,
   PurgeComment,
@@ -208,6 +209,7 @@ export class Profile extends Component<
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
     this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -376,6 +378,7 @@ export class Profile extends Component<
                 onSavePost={this.handleSavePost}
                 onPurgePost={this.handlePurgePost}
                 onFeaturePost={this.handleFeaturePost}
+                onMarkPostAsRead={this.handleMarkPostAsRead}
               />
             </div>
 
@@ -942,6 +945,11 @@ export class Profile extends Component<
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
     await HttpService.client.markPersonMentionAsRead(form);
+  }
+
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    this.findAndUpdatePost(res);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {

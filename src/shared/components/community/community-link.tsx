@@ -21,20 +21,19 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
 
   render() {
     const community = this.props.community;
-    let name_: string, title: string, link: string;
+    let title: string, link: string;
     const local = community.local === null ? true : community.local;
+    const domain = hostname(community.actor_id);
     if (local) {
-      name_ = community.name;
       title = community.title;
       link = `/c/${community.name}`;
     } else {
-      const domain = hostname(community.actor_id);
-      name_ = `${community.name}@${domain}`;
+      const name_ = `${community.name}@${domain}`;
       title = `${community.title}@${domain}`;
       link = !this.props.realLink ? `/c/${name_}` : community.actor_id;
     }
 
-    const apubName = `!${name_}`;
+    const apubName = `!${community.name}@${domain}`;
     const displayName = this.props.useApubName ? apubName : title;
     return !this.props.realLink ? (
       <Link
@@ -58,12 +57,14 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
 
   avatarAndName(displayName: string) {
     const icon = this.props.community.icon;
+    const nsfw = this.props.community.nsfw;
+
     return (
       <>
         {!this.props.hideAvatar &&
           !this.props.community.removed &&
           showAvatars() &&
-          icon && <PictrsImage src={icon} icon />}
+          icon && <PictrsImage src={icon} icon nsfw={nsfw} />}
         <span className="overflow-wrap-anywhere">{displayName}</span>
       </>
     );

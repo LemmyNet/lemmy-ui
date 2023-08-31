@@ -14,6 +14,7 @@ interface PasswordInputProps {
   showStrength?: boolean;
   label?: string | null;
   showForgotLink?: boolean;
+  isNew?: boolean;
 }
 
 interface PasswordInputState {
@@ -73,6 +74,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
         showStrength,
         label,
         showForgotLink,
+        isNew,
       },
       state: { show },
     } = this;
@@ -91,7 +93,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 type={show ? "text" : "password"}
                 className="form-control"
                 aria-describedby={id}
-                autoComplete="on"
+                autoComplete={isNew ? "new-password" : "current-password"}
                 onInput={onInput}
                 value={value}
                 required
