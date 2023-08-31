@@ -1,4 +1,5 @@
 import { myAuthRequired } from "@utils/app";
+import { unescapeHTML } from "@utils/helpers";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
@@ -42,8 +43,8 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     );
 
     // Set the original post data ( a troll could change it )
-    post.name = r.post_report.original_post_name;
-    post.url = r.post_report.original_post_url;
+    post.name = unescapeHTML(r.post_report.original_post_name);
+    post.url = unescapeHTML(r.post_report.original_post_url);
     post.body = r.post_report.original_post_body;
     const pv: PostView = {
       post,

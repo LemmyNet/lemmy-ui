@@ -5,6 +5,7 @@ import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
   hostname,
+  unescapeHTML,
 } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import {
@@ -291,7 +292,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             allowFullScreen
             className="post-metadata-iframe"
             src={post.embed_video_url}
-            title={post.embed_title}
+            title={post.embed_title ? unescapeHTML(post.embed_title) : " "}
           ></iframe>
         </div>
       );
@@ -464,7 +465,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       >
         <span
           className="d-inline"
-          dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+          dangerouslySetInnerHTML={unescapeHTML(mdToHtmlInline(post.name))}
         />
       </Link>
     );
@@ -485,10 +486,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     ? "link-dark"
                     : "link-primary"
                 }
-                href={url}
-                title={url}
+                href={unescapeHTML(url)}
+                title={unescapeHTML(url)}
                 rel={relTags}
-                dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+                dangerouslySetInnerHTML={mdToHtmlInline(
+                  unescapeHTML(post.name),
+                )}
               ></a>
             ) : (
               this.postLink

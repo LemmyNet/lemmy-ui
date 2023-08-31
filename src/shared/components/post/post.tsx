@@ -19,7 +19,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "@utils/browser";
-import { debounce, randomStr } from "@utils/helpers";
+import { debounce, randomStr, unescapeHTML } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
@@ -353,7 +353,7 @@ export class Post extends Component<any, PostState> {
           <div className="row">
             <main className="col-12 col-md-8 col-lg-9 mb-3">
               <HtmlTags
-                title={this.documentTitle}
+                title={unescapeHTML(this.documentTitle)}
                 path={this.context.router.route.match.url}
                 canonicalPath={res.post_view.post.ap_id}
                 image={this.imageTag}
@@ -909,9 +909,8 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    const transferCommunityRes = await HttpService.client.transferCommunity(
-      form,
-    );
+    const transferCommunityRes =
+      await HttpService.client.transferCommunity(form);
     this.updateCommunityFull(transferCommunityRes);
   }
 
