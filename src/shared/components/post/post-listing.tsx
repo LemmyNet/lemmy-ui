@@ -465,7 +465,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       >
         <span
           className="d-inline"
-          dangerouslySetInnerHTML={unescapeHTML(mdToHtmlInline(post.name))}
+          dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
         />
       </Link>
     );

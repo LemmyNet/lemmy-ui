@@ -42,7 +42,7 @@ export function escapeHTML(str: string): string {
   return lastIndex !== index ? html + str.substring(lastIndex, index) : html;
 }
 
-export function unescapeHTML(str: string): string {
+export function unescapeHTML(str: string | undefined): string {
   const matchUnEsc = matchUnEscRx.exec(str);
   if (!matchUnEsc) {
     return str;

@@ -44,7 +44,9 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
 
     // Set the original post data ( a troll could change it )
     post.name = unescapeHTML(r.post_report.original_post_name);
-    post.url = unescapeHTML(r.post_report.original_post_url);
+    post.url = r.post_report.original_post_url
+      ? unescapeHTML(r.post_report.original_post_url)
+      : r.post_report.original_post_url;
     post.body = r.post_report.original_post_body;
     const pv: PostView = {
       post,
