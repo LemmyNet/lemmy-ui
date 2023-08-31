@@ -17,7 +17,7 @@ class AuthGuard extends Component<
 
   constructor(
     props: RouteComponentProps<Record<string, string>>,
-    context: any
+    context: any,
   ) {
     super(props, context);
   }
@@ -26,7 +26,7 @@ class AuthGuard extends Component<
     if (!UserService.Instance.myUserInfo) {
       const { pathname, search } = this.props.location;
       this.context.router.history.replace(
-        `/login?prev=${encodeURIComponent(pathname + search)}`
+        `/login?prev=${encodeURIComponent(pathname + search)}`,
       );
     } else {
       this.setState({ hasRedirected: true });

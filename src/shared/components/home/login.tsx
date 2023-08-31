@@ -84,7 +84,7 @@ async function handleLoginSubmit(i: Login, event: any) {
 
 function handleLoginUsernameChange(i: Login, event: any) {
   i.setState(
-    prevState => (prevState.form.username_or_email = event.target.value.trim())
+    prevState => (prevState.form.username_or_email = event.target.value.trim()),
   );
 }
 

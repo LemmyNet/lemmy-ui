@@ -66,7 +66,7 @@ export function SubscribeButton({
       type="button"
       className={classNames(
         buttonClass,
-        `btn-${subscribed === "Pending" ? "warning" : "secondary"}`
+        `btn-${subscribed === "Pending" ? "warning" : "secondary"}`,
       )}
       onClick={subscribed === "NotSubscribed" ? onFollow : onUnFollow}
     >
@@ -102,7 +102,7 @@ function focusInput() {
 
 function submitRemoteFollow(
   { state: { instanceText }, props: { communityActorId } }: RemoteFetchModal,
-  event: Event
+  event: Event,
 ) {
   event.preventDefault();
 
@@ -116,7 +116,7 @@ function submitRemoteFollow(
   }
 
   window.location.href = `${instanceText}/activitypub/externalInteraction?uri=${encodeURIComponent(
-    communityActorId
+    communityActorId,
   )}`;
 }
 
