@@ -15,6 +15,7 @@ import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
 import { PrivateMessageForm } from "./private-message-form";
+import ReportForm from "../common/report-form";
 
 interface PrivateMessageState {
   showReply: boolean;
@@ -22,10 +23,8 @@ interface PrivateMessageState {
   collapsed: boolean;
   viewSource: boolean;
   showReportDialog: boolean;
-  reportReason?: string;
   deleteLoading: boolean;
   readLoading: boolean;
-  reportLoading: boolean;
 }
 
 interface PrivateMessageProps {
@@ -49,12 +48,12 @@ export class PrivateMessage extends Component<
     showReportDialog: false,
     deleteLoading: false,
     readLoading: false,
-    reportLoading: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
+    this.handleReportSubmit = this.handleReportSubmit.bind(this);
   }
 
   get mine(): boolean {
@@ -76,7 +75,6 @@ export class PrivateMessage extends Component<
         showReportDialog: false,
         deleteLoading: false,
         readLoading: false,
-        reportLoading: false,
       });
     }
   }
@@ -251,34 +249,7 @@ export class PrivateMessage extends Component<
           )}
         </div>
         {this.state.showReportDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handleReportSubmit)}
-          >
-            <label className="visually-hidden" htmlFor="pm-report-reason">
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="pm-report-reason"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              required
-              value={this.state.reportReason}
-              onInput={linkEvent(this, this.handleReportReasonChange)}
-            />
-            <button
-              type="submit"
-              className="btn btn-secondary"
-              aria-label={I18NextService.i18n.t("create_report")}
-            >
-              {this.state.reportLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("create_report")
-              )}
-            </button>
-          </form>
+          <ReportForm onSubmit={this.handleReportSubmit} />
         )}
         {this.state.showReply && (
           <div className="row">
@@ -362,17 +333,15 @@ export class PrivateMessage extends Component<
     i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
-  handleReportReasonChange(i: PrivateMessage, event: any) {
-    i.setState({ reportReason: event.target.value });
-  }
-
-  handleReportSubmit(i: PrivateMessage, event: any) {
-    event.preventDefault();
-    i.setState({ reportLoading: true });
-    i.props.onReport({
-      private_message_id: i.props.private_message_view.private_message.id,
-      reason: i.state.reportReason ?? "",
+  handleReportSubmit(reason: string) {
+    this.props.onReport({
+      private_message_id: this.props.private_message_view.private_message.id,
+      reason,
       auth: myAuthRequired(),
+    });
+
+    this.setState({
+      showReportDialog: false,
     });
   }
 }

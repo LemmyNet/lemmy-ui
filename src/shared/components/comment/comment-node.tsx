@@ -68,6 +68,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
+import ReportForm from "../common/report-form";
 
 interface CommentNodeState {
   showReply: boolean;
@@ -90,7 +91,6 @@ interface CommentNodeState {
   viewSource: boolean;
   showAdvanced: boolean;
   showReportDialog: boolean;
-  reportReason?: string;
   createOrEditCommentLoading: boolean;
   upvoteLoading: boolean;
   downvoteLoading: boolean;
@@ -105,7 +105,6 @@ interface CommentNodeState {
   addAdminLoading: boolean;
   transferCommunityLoading: boolean;
   fetchChildrenLoading: boolean;
-  reportLoading: boolean;
   purgeLoading: boolean;
 }
 
@@ -179,7 +178,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     addAdminLoading: false,
     transferCommunityLoading: false,
     fetchChildrenLoading: false,
-    reportLoading: false,
     purgeLoading: false,
   };
 
@@ -187,6 +185,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     super(props, context);
 
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
+    this.handleReportComment = this.handleReportComment.bind(this);
   }
 
   get commentView(): CommentView {
@@ -232,7 +231,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         addAdminLoading: false,
         transferCommunityLoading: false,
         fetchChildrenLoading: false,
-        reportLoading: false,
         purgeLoading: false,
       });
     }
@@ -978,33 +976,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           </form>
         )}
         {this.state.showReportDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handleReportComment)}
-          >
-            <label
-              className="visually-hidden"
-              htmlFor={`report-reason-${cv.comment.id}`}
-            >
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              required
-              id={`report-reason-${cv.comment.id}`}
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              value={this.state.reportReason}
-              onInput={linkEvent(this, this.handleReportReasonChange)}
-            />
-            <button
-              type="submit"
-              className="btn btn-secondary"
-              aria-label={I18NextService.i18n.t("create_report")}
-            >
-              {I18NextService.i18n.t("create_report")}
-            </button>
-          </form>
+          <ReportForm onSubmit={this.handleReportComment} />
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
@@ -1279,10 +1251,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
-  handleReportReasonChange(i: CommentNode, event: any) {
-    i.setState({ reportReason: event.target.value });
-  }
-
   handleModRemoveShow(i: CommentNode) {
     i.setState({
       showRemoveDialog: !i.state.showRemoveDialog,
@@ -1538,13 +1506,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleReportComment(i: CommentNode, event: any) {
-    event.preventDefault();
-    i.setState({ reportLoading: true });
-    i.props.onCommentReport({
-      comment_id: i.commentId,
-      reason: i.state.reportReason ?? "",
+  handleReportComment(reason: string) {
+    this.props.onCommentReport({
+      comment_id: this.commentId,
+      reason,
       auth: myAuthRequired(),
+    });
+
+    this.setState({
+      showReportDialog: false,
     });
   }
 
