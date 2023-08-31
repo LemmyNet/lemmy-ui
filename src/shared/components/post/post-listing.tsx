@@ -62,6 +62,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
+import ReportForm from "../common/report-form";
 
 interface PostListingState {
   showEdit: boolean;
@@ -84,8 +85,6 @@ interface PostListingState {
   showMoreMobile: boolean;
   showBody: boolean;
   showReportDialog: boolean;
-  reportReason?: string;
-  reportLoading: boolean;
   blockLoading: boolean;
   lockLoading: boolean;
   deleteLoading: boolean;
@@ -152,7 +151,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showBody: false,
     showReportDialog: false,
     purgeLoading: false,
-    reportLoading: false,
     blockLoading: false,
     lockLoading: false,
     deleteLoading: false,
@@ -176,13 +174,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
+    this.handleReportSubmit = this.handleReportSubmit.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
     if (this.props !== nextProps) {
       this.setState({
         purgeLoading: false,
-        reportLoading: false,
         blockLoading: false,
         lockLoading: false,
         deleteLoading: false,
@@ -1288,30 +1286,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </form>
         )}
         {this.state.showReportDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handleReportSubmit)}
-          >
-            <label className="visually-hidden" htmlFor="post-report-reason">
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="post-report-reason"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              required
-              value={this.state.reportReason}
-              onInput={linkEvent(this, this.handleReportReasonChange)}
-            />
-            <button type="submit" className="btn btn-secondary">
-              {this.state.reportLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("create_report")
-              )}
-            </button>
-          </form>
+          <ReportForm onSubmit={this.handleReportSubmit} />
         )}
         {this.state.showPurgeDialog && (
           <form
@@ -1463,17 +1438,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
-  handleReportReasonChange(i: PostListing, event: any) {
-    i.setState({ reportReason: event.target.value });
-  }
-
-  handleReportSubmit(i: PostListing, event: any) {
-    event.preventDefault();
-    i.setState({ reportLoading: true });
-    i.props.onPostReport({
-      post_id: i.postView.post.id,
-      reason: i.state.reportReason ?? "",
+  handleReportSubmit(reason: string) {
+    this.props.onPostReport({
+      post_id: this.postView.post.id,
+      reason,
       auth: myAuthRequired(),
+    });
+
+    this.setState({
+      showReportDialog: false,
     });
   }
 
