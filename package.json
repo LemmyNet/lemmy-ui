@@ -15,6 +15,7 @@
     "dev": "yarn build:dev --watch",
     "lint": "yarn translations:generate && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx \"src/**\" && prettier --check \"src/**/*.{ts,tsx,js,css,scss}\"",
     "prepare": "husky install",
+    "postinstall": "husky install",
     "themes:build": "sass src/assets/css/themes/:src/assets/css/themes",
     "themes:watch": "sass --watch src/assets/css/themes/:src/assets/css/themes",
     "translations:generate": "node generate_translations.js",
