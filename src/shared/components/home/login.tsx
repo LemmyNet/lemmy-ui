@@ -155,7 +155,13 @@ export class Login extends Component<any, State> {
             i.setState({ showTotp: true });
             toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
           }
-          if (["incorrect_login", "email_not_verified", "registration_application_pending"].includes(loginRes.msg)) {
+          if (
+            [
+              "incorrect_login",
+              "email_not_verified",
+              "registration_application_pending",
+            ].includes(loginRes.msg)
+          ) {
             toast(I18NextService.i18n.t(loginRes.msg), "danger");
           }
 
