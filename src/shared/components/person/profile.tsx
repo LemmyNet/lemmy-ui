@@ -499,7 +499,7 @@ export class Profile extends Component<
                         classNames="ms-1"
                         isBanned={isBanned(pv.person)}
                         isDeleted={pv.person.deleted}
-                        isAdmin={pv.person.admin}
+                        isAdmin={isAdmin(pv.person.id, admins)}
                         isBot={pv.person.bot_account}
                       />
                     </li>
