@@ -32,7 +32,7 @@ import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "./community-link";
 
-const communityLimit = 50;
+import { communityLimit } from "../../config";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
