@@ -84,7 +84,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
       : capitalizeFirstLetter(I18NextService.i18n.t("reply"));
   }
 
-  handleCommentSubmit(content: string, _form_id: string, language_id?: number) {
+  handleCommentSubmit(content: string, language_id?: number) {
     const { node, onUpsertComment, edit } = this.props;
     if (typeof node === "number") {
       const post_id = node;

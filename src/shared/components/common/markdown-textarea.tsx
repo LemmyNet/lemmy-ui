@@ -48,7 +48,7 @@ interface MarkdownTextAreaProps {
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
   onReplyCancel?(): void;
-  onSubmit?(content: string, formId: string, languageId?: number): void;
+  onSubmit?(content: string, languageId?: number): void;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
 }
@@ -534,7 +534,7 @@ export class MarkdownTextArea extends Component<
     event.preventDefault();
     if (i.state.content) {
       i.setState({ loading: true, submitted: true });
-      i.props.onSubmit?.(i.state.content, i.formId, i.state.languageId);
+      i.props.onSubmit?.(i.state.content, i.state.languageId);
     }
   }
 
