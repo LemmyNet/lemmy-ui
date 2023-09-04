@@ -4,6 +4,7 @@ import { I18NextService } from "../../services";
 interface PaginatorProps {
   page: number;
   onChange(val: number): any;
+  nextDisabled?: boolean;
 }
 
 export class Paginator extends Component<PaginatorProps, any> {
@@ -23,6 +24,7 @@ export class Paginator extends Component<PaginatorProps, any> {
         <button
           className="btn btn-secondary"
           onClick={linkEvent(this, this.handleNext)}
+          disabled={props.nextDisabled || false}
         >
           {I18NextService.i18n.t("next")}
         </button>

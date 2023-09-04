@@ -221,7 +221,14 @@ export class Communities extends Component<any, CommunitiesState> {
                 </tbody>
               </table>
             </div>
-            <Paginator page={page} onChange={this.handlePageChange} />
+            <Paginator
+              page={page}
+              onChange={this.handlePageChange}
+              nextDisabled={
+                communityLimit >
+                this.state.listCommunitiesResponse.data.communities
+              }
+            />
           </div>
         );
       }
