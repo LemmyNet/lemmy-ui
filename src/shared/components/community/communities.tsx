@@ -226,7 +226,7 @@ export class Communities extends Component<any, CommunitiesState> {
               onChange={this.handlePageChange}
               nextDisabled={
                 communityLimit >
-                this.state.listCommunitiesResponse.data.communities
+                this.state.listCommunitiesResponse.data.communities.length
               }
             />
           </div>

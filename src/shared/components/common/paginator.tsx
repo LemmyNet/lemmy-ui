@@ -24,7 +24,7 @@ export class Paginator extends Component<PaginatorProps, any> {
         <button
           className="btn btn-secondary"
           onClick={linkEvent(this, this.handleNext)}
-          disabled={props.nextDisabled || false}
+          disabled={this.props.nextDisabled || false}
         >
           {I18NextService.i18n.t("next")}
         </button>
