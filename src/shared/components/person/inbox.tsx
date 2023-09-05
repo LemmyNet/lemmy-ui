@@ -256,6 +256,7 @@ export class Inbox extends Component<any, InboxState> {
             <Paginator
               page={this.state.page}
               onChange={this.handlePageChange}
+              nextDisabled={false}
             />
           </div>
         </div>
