@@ -4,7 +4,7 @@ import { I18NextService } from "../../services";
 interface PaginatorProps {
   page: number;
   onChange(val: number): any;
-  nextDisabled?: boolean;
+  nextDisabled: boolean;
 }
 
 export class Paginator extends Component<PaginatorProps, any> {
