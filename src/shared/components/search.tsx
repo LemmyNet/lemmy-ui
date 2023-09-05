@@ -479,7 +479,14 @@ export class Search extends Component<any, SearchState> {
           this.state.searchRes.state === "success" && (
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
-        <Paginator page={page} onChange={this.handlePageChange} />
+        <Paginator
+          page={page}
+          onChange={this.handlePageChange}
+          nextDisabled={
+            this.state.searchRes.state !== "success" ||
+            fetchLimit > this.resultsCount
+          }
+        />
       </div>
     );
   }
