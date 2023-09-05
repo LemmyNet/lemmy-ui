@@ -348,8 +348,8 @@ export class Community extends Component<
                   page={page}
                   onChange={this.handlePageChange}
                   nextDisabled={
-                    this.state.postsRes.state === "success" &&
-                    this.state.postsRes.data.posts.length > fetchLimit
+                    this.state.postsRes.state !== "success" ||
+                    fetchLimit > this.state.postsRes.data.posts.length
                   }
                 />
               </main>
