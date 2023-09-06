@@ -73,7 +73,8 @@ export default async function ({
         description: "Create a post.",
       },
     ].concat(
-      my_user?.local_user_view.person.admin || !community_creation_admin_only
+      my_user?.local_user_view.local_user.admin ||
+        !community_creation_admin_only
         ? [
             {
               name: "Create Community",
