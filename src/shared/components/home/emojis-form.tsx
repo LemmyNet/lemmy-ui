@@ -267,7 +267,11 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
             {I18NextService.i18n.t("add_custom_emoji")}
           </button>
 
-          <Paginator page={this.state.page} onChange={this.handlePageChange} />
+          <Paginator
+            page={this.state.page}
+            onChange={this.handlePageChange}
+            nextDisabled={false}
+          />
         </div>
       </div>
     );

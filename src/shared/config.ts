@@ -28,6 +28,10 @@ export const relTags = "noopener nofollow";
 export const emDash = "\u2014";
 export const authCookieName = "jwt";
 
+// No. of max displayed communities per
+// page on route "/communities"
+export const communityLimit = 50;
+
 /**
  * Accepted formats:
  * !community@server.com

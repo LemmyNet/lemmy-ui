@@ -344,7 +344,14 @@ export class Community extends Component<
                 </div>
                 {this.selects(res)}
                 {this.listings(res)}
-                <Paginator page={page} onChange={this.handlePageChange} />
+                <Paginator
+                  page={page}
+                  onChange={this.handlePageChange}
+                  nextDisabled={
+                    this.state.postsRes.state !== "success" ||
+                    fetchLimit > this.state.postsRes.data.posts.length
+                  }
+                />
               </main>
               <aside className="d-none d-md-block col-md-4 col-lg-3">
                 {this.sidebar(res)}
