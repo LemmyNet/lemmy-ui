@@ -32,7 +32,7 @@ import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "./community-link";
 
-const communityLimit = 50;
+import { communityLimit } from "../../config";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -57,6 +57,13 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
 
 function getSortTypeFromQuery(type?: string): SortType {
   return type ? (type as SortType) : "TopMonth";
+}
+function getCommunitiesQueryParams() {
+  return getQueryParams<CommunitiesProps>({
+    listingType: getListingTypeFromQuery,
+    sort: getSortTypeFromQuery,
+    page: getPageFromString,
+  });
 }
 
 export class Communities extends Component<any, CommunitiesState> {
@@ -107,7 +114,7 @@ export class Communities extends Component<any, CommunitiesState> {
           </h5>
         );
       case "success": {
-        const { listingType, sort, page } = this.getCommunitiesQueryParams();
+        const { listingType, sort, page } = getCommunitiesQueryParams();
         return (
           <div>
             <h1 className="h4 mb-4">
@@ -214,7 +221,14 @@ export class Communities extends Component<any, CommunitiesState> {
                 </tbody>
               </table>
             </div>
-            <Paginator page={page} onChange={this.handlePageChange} />
+            <Paginator
+              page={page}
+              onChange={this.handlePageChange}
+              nextDisabled={
+                communityLimit >
+                this.state.listCommunitiesResponse.data.communities.length
+              }
+            />
           </div>
         );
       }
@@ -265,7 +279,7 @@ export class Communities extends Component<any, CommunitiesState> {
       listingType: urlListingType,
       sort: urlSort,
       page: urlPage,
-    } = this.getCommunitiesQueryParams();
+    } = getCommunitiesQueryParams();
 
     const queryParams: QueryParams<CommunitiesProps> = {
       listingType: listingType ?? urlListingType,
@@ -300,8 +314,9 @@ export class Communities extends Component<any, CommunitiesState> {
   handleSearchSubmit(i: Communities, event: any) {
     event.preventDefault();
     const searchParamEncoded = encodeURIComponent(i.state.searchText);
+    const { listingType } = getCommunitiesQueryParams();
     i.context.router.history.push(
-      `/search?q=${searchParamEncoded}&type=Communities`,
+      `/search?q=${searchParamEncoded}&type=Communities&listingType=${listingType}`,
     );
   }
 
@@ -327,14 +342,6 @@ export class Communities extends Component<any, CommunitiesState> {
     };
   }
 
-  getCommunitiesQueryParams() {
-    return getQueryParams<CommunitiesProps>({
-      listingType: getListingTypeFromQuery,
-      sort: getSortTypeFromQuery,
-      page: getPageFromString,
-    });
-  }
-
   async handleFollow(data: {
     i: Communities;
     communityId: number;
@@ -351,7 +358,7 @@ export class Communities extends Component<any, CommunitiesState> {
   async refetch() {
     this.setState({ listCommunitiesResponse: { state: "loading" } });
 
-    const { listingType, sort, page } = this.getCommunitiesQueryParams();
+    const { listingType, sort, page } = getCommunitiesQueryParams();
 
     this.setState({
       listCommunitiesResponse: await HttpService.client.listCommunities({

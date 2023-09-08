@@ -653,7 +653,14 @@ export class Home extends Component<any, HomeState> {
         <div>
           {this.selects}
           {this.listings}
-          <Paginator page={page} onChange={this.handlePageChange} />
+          <Paginator
+            page={page}
+            onChange={this.handlePageChange}
+            nextDisabled={
+              this.state.postsRes?.state !== "success" ||
+              fetchLimit > this.state.postsRes.data.posts.length
+            }
+          />
         </div>
       </div>
     );
