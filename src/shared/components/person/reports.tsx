@@ -160,6 +160,16 @@ export class Reports extends Component<any, ReportsState> {
             <Paginator
               page={this.state.page}
               onChange={this.handlePageChange}
+              nextDisabled={
+                (this.state.messageType === MessageType.All &&
+                  fetchLimit > this.buildCombined.length) ||
+                (this.state.messageType === MessageType.CommentReport &&
+                  fetchLimit > this.commentReports.length) ||
+                (this.state.messageType === MessageType.PostReport &&
+                  fetchLimit > this.postReports.length) ||
+                (this.state.messageType === MessageType.PrivateMessageReport &&
+                  fetchLimit > this.privateMessageReports.length)
+              }
             />
           </div>
         </div>
