@@ -794,9 +794,8 @@ export class Community extends Component<
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    const transferCommunityRes = await HttpService.client.transferCommunity(
-      form,
-    );
+    const transferCommunityRes =
+      await HttpService.client.transferCommunity(form);
     toast(I18NextService.i18n.t("transfer_community"));
     this.updateCommunityFull(transferCommunityRes);
   }

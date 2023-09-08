@@ -148,7 +148,7 @@ module.exports = (env, argv) => {
 
     const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
     serverConfig.plugins.push(
-      new RunNodeWebpackPlugin({ runOnlyInWatchMode: true })
+      new RunNodeWebpackPlugin({ runOnlyInWatchMode: true }),
     );
   } else if (mode === "none") {
     const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");

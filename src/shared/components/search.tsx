@@ -385,9 +385,8 @@ export class Search extends Component<any, SearchState> {
         auth,
       };
 
-      listCommunitiesResponse = await client.listCommunities(
-        listCommunitiesForm,
-      );
+      listCommunitiesResponse =
+        await client.listCommunities(listCommunitiesForm);
     }
 
     const creator_id = getIdFromString(creatorId);
@@ -430,9 +429,8 @@ export class Search extends Component<any, SearchState> {
             q: query,
             auth,
           };
-          resolveObjectResponse = await HttpService.silent_client.resolveObject(
-            resolveObjectForm,
-          );
+          resolveObjectResponse =
+            await HttpService.silent_client.resolveObject(resolveObjectForm);
 
           // If we return this object with a state of failed, the catch-all-handler will redirect
           // to an error page, so we ignore it by covering up the error with the empty state.

@@ -236,9 +236,8 @@ export class RegistrationApplications extends Component<
   }
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {
-    const approveRes = await HttpService.client.approveRegistrationApplication(
-      form,
-    );
+    const approveRes =
+      await HttpService.client.approveRegistrationApplication(form);
     this.setState(s => {
       if (s.appsRes.state === "success" && approveRes.state === "success") {
         s.appsRes.data.registration_applications = editRegistrationApplication(
