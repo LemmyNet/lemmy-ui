@@ -5,8 +5,10 @@ import {
   myAuthRequired,
   setIsoData,
 } from "@utils/app";
+import { randomStr } from "@utils/helpers";
 import { amAdmin } from "@utils/roles";
 import { RouteDataResponse } from "@utils/types";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   CommentReportResponse,
@@ -138,7 +140,7 @@ export class Reports extends Component<any, ReportsState> {
     const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "reports"
+          "reports",
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
@@ -152,12 +154,22 @@ export class Reports extends Component<any, ReportsState> {
               title={this.documentTitle}
               path={this.context.router.route.match.url}
             />
-            <h5 className="mb-2">{I18NextService.i18n.t("reports")}</h5>
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("reports")}</h1>
             {this.selects()}
             {this.section}
             <Paginator
               page={this.state.page}
               onChange={this.handlePageChange}
+              nextDisabled={
+                (this.state.messageType === MessageType.All &&
+                  fetchLimit > this.buildCombined.length) ||
+                (this.state.messageType === MessageType.CommentReport &&
+                  fetchLimit > this.commentReports.length) ||
+                (this.state.messageType === MessageType.PostReport &&
+                  fetchLimit > this.postReports.length) ||
+                (this.state.messageType === MessageType.PrivateMessageReport &&
+                  fetchLimit > this.privateMessageReports.length)
+              }
             />
           </div>
         </div>
@@ -187,34 +199,41 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   unreadOrAllRadios() {
+    const radioId = randomStr();
+
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+        <input
+          id={`${radioId}-unread`}
+          type="radio"
+          className="btn-check"
+          value={UnreadOrAll.Unread}
+          checked={this.state.unreadOrAll === UnreadOrAll.Unread}
+          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
-          `}
+          htmlFor={`${radioId}-unread`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.unreadOrAll === UnreadOrAll.Unread,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={UnreadOrAll.Unread}
-            checked={this.state.unreadOrAll == UnreadOrAll.Unread}
-            onChange={linkEvent(this, this.handleUnreadOrAllChange)}
-          />
           {I18NextService.i18n.t("unread")}
         </label>
+
+        <input
+          id={`${radioId}-all`}
+          type="radio"
+          className="btn-check"
+          value={UnreadOrAll.All}
+          checked={this.state.unreadOrAll === UnreadOrAll.All}
+          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.All && "active"}
-          `}
+          htmlFor={`${radioId}-all`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.unreadOrAll === UnreadOrAll.All,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={UnreadOrAll.All}
-            checked={this.state.unreadOrAll == UnreadOrAll.All}
-            onChange={linkEvent(this, this.handleUnreadOrAllChange)}
-          />
           {I18NextService.i18n.t("all")}
         </label>
       </div>
@@ -222,70 +241,83 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   messageTypeRadios() {
+    const radioId = randomStr();
+
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+        <input
+          id={`${radioId}-all`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.All}
+          checked={this.state.messageType === MessageType.All}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.All && "active"}
-          `}
+          htmlFor={`${radioId}-all`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.All,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.All}
-            checked={this.state.messageType == MessageType.All}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("all")}
         </label>
+
+        <input
+          id={`${radioId}-comments`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.CommentReport}
+          checked={this.state.messageType === MessageType.CommentReport}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.CommentReport && "active"}
-          `}
+          htmlFor={`${radioId}-comments`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.CommentReport,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.CommentReport}
-            checked={this.state.messageType == MessageType.CommentReport}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("comments")}
         </label>
+
+        <input
+          id={`${radioId}-posts`}
+          type="radio"
+          className="btn-check"
+          value={MessageType.PostReport}
+          checked={this.state.messageType === MessageType.PostReport}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.messageType == MessageType.PostReport && "active"}
-          `}
+          htmlFor={`${radioId}-posts`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === MessageType.PostReport,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={MessageType.PostReport}
-            checked={this.state.messageType == MessageType.PostReport}
-            onChange={linkEvent(this, this.handleMessageTypeChange)}
-          />
           {I18NextService.i18n.t("posts")}
         </label>
+
         {amAdmin() && (
-          <label
-            className={`btn btn-outline-secondary pointer
-            ${
-              this.state.messageType == MessageType.PrivateMessageReport &&
-              "active"
-            }
-          `}
-          >
+          <>
             <input
+              id={`${radioId}-messages`}
               type="radio"
               className="btn-check"
               value={MessageType.PrivateMessageReport}
               checked={
-                this.state.messageType == MessageType.PrivateMessageReport
+                this.state.messageType === MessageType.PrivateMessageReport
               }
               onChange={linkEvent(this, this.handleMessageTypeChange)}
             />
-            {I18NextService.i18n.t("messages")}
-          </label>
+            <label
+              htmlFor={`${radioId}-messages`}
+              className={classNames("btn btn-outline-secondary pointer", {
+                active:
+                  this.state.messageType === MessageType.PrivateMessageReport,
+              })}
+            >
+              {I18NextService.i18n.t("messages")}
+            </label>
+          </>
         )}
       </div>
     );
@@ -330,25 +362,25 @@ export class Reports extends Component<any, ReportsState> {
   get buildCombined(): ItemType[] {
     const commentRes = this.state.commentReportsRes;
     const comments =
-      commentRes.state == "success"
+      commentRes.state === "success"
         ? commentRes.data.comment_reports.map(this.commentReportToItemType)
         : [];
 
     const postRes = this.state.postReportsRes;
     const posts =
-      postRes.state == "success"
+      postRes.state === "success"
         ? postRes.data.post_reports.map(this.postReportToItemType)
         : [];
     const pmRes = this.state.messageReportsRes;
     const privateMessages =
-      pmRes.state == "success"
+      pmRes.state === "success"
         ? pmRes.data.private_message_reports.map(
-            this.privateMessageReportToItemType
+            this.privateMessageReportToItemType,
           )
         : [];
 
     return [...comments, ...posts, ...privateMessages].sort((a, b) =>
-      b.published.localeCompare(a.published)
+      b.published.localeCompare(a.published),
     );
   }
 
@@ -535,7 +567,7 @@ export class Reports extends Component<any, ReportsState> {
       };
 
       data.messageReportsRes = await client.listPrivateMessageReports(
-        privateMessageReportsForm
+        privateMessageReportsForm,
       );
     }
 
@@ -543,7 +575,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   async refetch() {
-    const unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const unresolved_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
     const limit = fetchLimit;
     const auth = myAuthRequired();
@@ -572,7 +604,7 @@ export class Reports extends Component<any, ReportsState> {
     if (amAdmin()) {
       this.setState({
         messageReportsRes: await HttpService.client.listPrivateMessageReports(
-          form
+          form,
         ),
       });
     }
@@ -595,10 +627,10 @@ export class Reports extends Component<any, ReportsState> {
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
     this.setState(s => {
-      if (s.commentReportsRes.state == "success" && res.state == "success") {
+      if (s.commentReportsRes.state === "success" && res.state === "success") {
         s.commentReportsRes.data.comment_reports = editCommentReport(
           res.data.comment_report_view,
-          s.commentReportsRes.data.comment_reports
+          s.commentReportsRes.data.comment_reports,
         );
       }
       return s;
@@ -607,10 +639,10 @@ export class Reports extends Component<any, ReportsState> {
 
   findAndUpdatePostReport(res: RequestState<PostReportResponse>) {
     this.setState(s => {
-      if (s.postReportsRes.state == "success" && res.state == "success") {
+      if (s.postReportsRes.state === "success" && res.state === "success") {
         s.postReportsRes.data.post_reports = editPostReport(
           res.data.post_report_view,
-          s.postReportsRes.data.post_reports
+          s.postReportsRes.data.post_reports,
         );
       }
       return s;
@@ -618,14 +650,14 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   findAndUpdatePrivateMessageReport(
-    res: RequestState<PrivateMessageReportResponse>
+    res: RequestState<PrivateMessageReportResponse>,
   ) {
     this.setState(s => {
-      if (s.messageReportsRes.state == "success" && res.state == "success") {
+      if (s.messageReportsRes.state === "success" && res.state === "success") {
         s.messageReportsRes.data.private_message_reports =
           editPrivateMessageReport(
             res.data.private_message_report_view,
-            s.messageReportsRes.data.private_message_reports
+            s.messageReportsRes.data.private_message_reports,
           );
       }
       return s;

@@ -1,9 +1,10 @@
+import { getStaticDir } from "@utils/env";
 import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "../../shared/config";
-import { ILemmyConfig, IsoDataOptionalSite } from "../../shared/interfaces";
+import { IsoDataOptionalSite } from "../../shared/interfaces";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 
@@ -13,7 +14,8 @@ let appleTouchIcon: string | undefined = undefined;
 
 export async function createSsrHtml(
   root: string,
-  isoData: IsoDataOptionalSite
+  isoData: IsoDataOptionalSite,
+  cspNonce: string,
 ) {
   const site = isoData.site_res;
 
@@ -21,10 +23,16 @@ export async function createSsrHtml(
     (await buildThemeList())[0]
   }.css" />`;
 
+  const customHtmlHeaderScriptTag = new RegExp("<script", "g");
+  const customHtmlHeaderWithNonce = customHtmlHeader.replace(
+    customHtmlHeaderScriptTag,
+    `<script nonce="${cspNonce}"`,
+  );
+
   if (!appleTouchIcon) {
     appleTouchIcon = site?.site_view.site.icon
-      ? `data:image/png;base64,${sharp(
-          await fetchIconPng(site.site_view.site.icon)
+      ? `data:image/png;base64,${await sharp(
+          await fetchIconPng(site.site_view.site.icon),
         )
           .resize(180, 180)
           .extend({
@@ -44,28 +52,28 @@ export async function createSsrHtml(
     process.env["LEMMY_UI_DEBUG"] === "true"
       ? renderToString(
           <>
-            <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-            <script>eruda.init();</script>
-          </>
+            <script
+              nonce={cspNonce}
+              src="//cdn.jsdelivr.net/npm/eruda"
+            ></script>
+            <script nonce={cspNonce}>eruda.init();</script>
+          </>,
         )
       : "";
 
   const helmet = Helmet.renderStatic();
 
-  const config: ILemmyConfig = { wsHost: process.env.LEMMY_UI_LEMMY_WS_HOST };
-
   return `
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
     <head>
-    <script>window.isoData = ${serialize(isoData)}</script>
-    <script>window.lemmyConfig = ${serialize(config)}</script>
+    <script nonce="${cspNonce}">window.isoData = ${serialize(isoData)}</script>
   
     <!-- A remote debugging utility for mobile -->
     ${erudaStr}
   
     <!-- Custom injected script -->
-    ${customHtmlHeader}
+    ${customHtmlHeaderWithNonce}
   
     ${helmet.title.toString()}
     ${helmet.meta.toString()}
@@ -87,7 +95,7 @@ export async function createSsrHtml(
     <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
   
     <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
+    <link rel="stylesheet" type="text/css" href="${getStaticDir()}/styles/styles.css" />
   
     <!-- Current theme and more -->
     ${helmet.link.toString() || fallbackTheme}
@@ -102,7 +110,7 @@ export async function createSsrHtml(
       </noscript>
   
       <div id='root'>${root}</div>
-      <script defer src='/static/js/client.js'></script>
+      <script defer src='${getStaticDir()}/js/client.js'></script>
     </body>
   </html>
   `;

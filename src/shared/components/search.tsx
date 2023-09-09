@@ -181,8 +181,8 @@ const Filter = ({
   loading: boolean;
 }) => {
   return (
-    <div className="mb-3 col-sm-6">
-      <label className="col-form-label me-2" htmlFor={`${filterType}-filter`}>
+    <div className="col-sm-6">
+      <label className="mb-1" htmlFor={`${filterType}-filter`}>
         {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
       </label>
       <SearchableSelect
@@ -209,20 +209,20 @@ const communityListing = ({
   getListing(
     <CommunityLink community={community} />,
     subscribers,
-    "number_of_subscribers"
+    "number_of_subscribers",
   );
 
 const personListing = ({ person, counts: { comment_count } }: PersonView) =>
   getListing(
     <PersonListing person={person} showApubName />,
     comment_count,
-    "number_of_comments"
+    "number_of_comments",
   );
 
 function getListing(
   listing: JSX.ElementClass,
   count: number,
-  translationKey: "number_of_comments" | "number_of_subscribers"
+  translationKey: "number_of_comments" | "number_of_subscribers",
 ) {
   return (
     <>
@@ -386,7 +386,7 @@ export class Search extends Component<any, SearchState> {
       };
 
       listCommunitiesResponse = await client.listCommunities(
-        listCommunitiesForm
+        listCommunitiesForm,
       );
     }
 
@@ -430,7 +430,15 @@ export class Search extends Component<any, SearchState> {
             q: query,
             auth,
           };
-          resolveObjectResponse = await client.resolveObject(resolveObjectForm);
+          resolveObjectResponse = await HttpService.silent_client.resolveObject(
+            resolveObjectForm,
+          );
+
+          // If we return this object with a state of failed, the catch-all-handler will redirect
+          // to an error page, so we ignore it by covering up the error with the empty state.
+          if (resolveObjectResponse.state === "failed") {
+            resolveObjectResponse = { state: "empty" };
+          }
         }
       }
     }
@@ -458,8 +466,12 @@ export class Search extends Component<any, SearchState> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          canonicalPath={
+            this.context.router.route.match.url +
+            this.context.router.route.location.search
+          }
         />
-        <h5>{I18NextService.i18n.t("search")}</h5>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
         {this.searchForm}
         {this.displayResults(type)}
@@ -467,7 +479,14 @@ export class Search extends Component<any, SearchState> {
           this.state.searchRes.state === "success" && (
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
-        <Paginator page={page} onChange={this.handlePageChange} />
+        <Paginator
+          page={page}
+          onChange={this.handlePageChange}
+          nextDisabled={
+            this.state.searchRes.state !== "success" ||
+            fetchLimit > this.resultsCount
+          }
+        />
       </div>
     );
   }
@@ -492,8 +511,11 @@ export class Search extends Component<any, SearchState> {
 
   get searchForm() {
     return (
-      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
-        <div className="col-auto">
+      <form
+        className="row gx-2 gy-3"
+        onSubmit={linkEvent(this, this.handleSearchSubmit)}
+      >
+        <div className="col-auto flex-grow-1 flex-sm-grow-0">
           <input
             type="text"
             className="form-control me-2 mb-2 col-sm-8"
@@ -530,45 +552,49 @@ export class Search extends Component<any, SearchState> {
     } = this.state;
 
     const hasCommunities =
-      communitiesRes.state == "success" &&
+      communitiesRes.state === "success" &&
       communitiesRes.data.communities.length > 0;
 
     return (
-      <div className="mb-2">
-        <select
-          value={type}
-          onChange={linkEvent(this, this.handleTypeChange)}
-          className="form-select d-inline-block w-auto mb-2"
-          aria-label={I18NextService.i18n.t("type")}
-        >
-          <option disabled aria-hidden="true">
-            {I18NextService.i18n.t("type")}
-          </option>
-          {searchTypes.map(option => (
-            <option value={option} key={option}>
-              {I18NextService.i18n.t(
-                option.toString().toLowerCase() as NoOptionI18nKeys
-              )}
-            </option>
-          ))}
-        </select>
-        <span className="ms-2">
-          <ListingTypeSelect
-            type_={listingType}
-            showLocal={showLocal(this.isoData)}
-            showSubscribed
-            onChange={this.handleListingTypeChange}
-          />
-        </span>
-        <span className="ms-2">
-          <SortSelect
-            sort={sort}
-            onChange={this.handleSortChange}
-            hideHot
-            hideMostComments
-          />
-        </span>
-        <div className="row">
+      <>
+        <div className="row row-cols-auto g-2 g-sm-3 mb-2 mb-sm-3">
+          <div className="col">
+            <select
+              value={type}
+              onChange={linkEvent(this, this.handleTypeChange)}
+              className="form-select d-inline-block w-auto"
+              aria-label={I18NextService.i18n.t("type")}
+            >
+              <option disabled aria-hidden="true">
+                {I18NextService.i18n.t("type")}
+              </option>
+              {searchTypes.map(option => (
+                <option value={option} key={option}>
+                  {I18NextService.i18n.t(
+                    option.toString().toLowerCase() as NoOptionI18nKeys,
+                  )}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col">
+            <ListingTypeSelect
+              type_={listingType}
+              showLocal={showLocal(this.isoData)}
+              showSubscribed
+              onChange={this.handleListingTypeChange}
+            />
+          </div>
+          <div className="col">
+            <SortSelect
+              sort={sort}
+              onChange={this.handleSortChange}
+              hideHot
+              hideMostComments
+            />
+          </div>
+        </div>
+        <div className="row gy-2 gx-4 mb-3">
           {hasCommunities && (
             <Filter
               filterType="community"
@@ -588,7 +614,7 @@ export class Search extends Component<any, SearchState> {
             loading={searchCreatorLoading}
           />
         </div>
-      </div>
+      </>
     );
   }
 
@@ -600,7 +626,7 @@ export class Search extends Component<any, SearchState> {
     } = this.state;
 
     // Push the possible resolve / federated objects first
-    if (resolveObjectResponse.state == "success") {
+    if (resolveObjectResponse.state === "success") {
       const { comment, post, community, person } = resolveObjectResponse.data;
 
       if (comment) {
@@ -627,7 +653,7 @@ export class Search extends Component<any, SearchState> {
           ...(posts?.map(postViewToCombined) ?? []),
           ...(communities?.map(communityViewToCombined) ?? []),
           ...(users?.map(personViewSafeToCombined) ?? []),
-        ]
+        ],
       );
     }
 
@@ -644,8 +670,8 @@ export class Search extends Component<any, SearchState> {
             (b.data as PersonView).counts.comment_score) -
             ((a.data as CommentView | PostView).counts.score |
               (a.data as CommunityView).counts.subscribers |
-              (a.data as PersonView).counts.comment_score)
-        )
+              (a.data as PersonView).counts.comment_score),
+        ),
       );
     }
 
@@ -687,6 +713,7 @@ export class Search extends Component<any, SearchState> {
                   onAddModToCommunity={() => {}}
                   onAddAdmin={() => {}}
                   onTransferCommunity={() => {}}
+                  onMarkPostAsRead={() => {}}
                 />
               )}
               {i.type_ === "comments" && (
@@ -702,7 +729,7 @@ export class Search extends Component<any, SearchState> {
                   viewType={CommentViewType.Flat}
                   viewOnly
                   locked
-                  noIndent
+                  isTopLevel
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
@@ -763,7 +790,7 @@ export class Search extends Component<any, SearchState> {
         viewType={CommentViewType.Flat}
         viewOnly
         locked
-        noIndent
+        isTopLevel
         enableDownvotes={enableDownvotes(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
@@ -837,6 +864,7 @@ export class Search extends Component<any, SearchState> {
                 onAddModToCommunity={() => {}}
                 onAddAdmin={() => {}}
                 onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
               />
             </div>
           </div>
@@ -948,7 +976,7 @@ export class Search extends Component<any, SearchState> {
       if (auth) {
         this.setState({ resolveObjectRes: { state: "loading" } });
         this.setState({
-          resolveObjectRes: await HttpService.client.resolveObject({
+          resolveObjectRes: await HttpService.silent_client.resolveObject({
             q,
             auth,
           }),
@@ -965,7 +993,7 @@ export class Search extends Component<any, SearchState> {
     this.setState({ searchCreatorLoading: true });
 
     const selectedChoice = creatorSearchOptions.find(
-      choice => getIdFromString(choice.value) === creatorId
+      choice => getIdFromString(choice.value) === creatorId,
     );
 
     if (selectedChoice) {
@@ -992,7 +1020,7 @@ export class Search extends Component<any, SearchState> {
     const newOptions: Choice[] = [];
 
     const selectedChoice = communitySearchOptions.find(
-      choice => getIdFromString(choice.value) === communityId
+      choice => getIdFromString(choice.value) === communityId,
     );
 
     if (selectedChoice) {
@@ -1096,7 +1124,5 @@ export class Search extends Component<any, SearchState> {
     };
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);
-
-    await this.search();
   }
 }

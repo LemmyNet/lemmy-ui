@@ -6,6 +6,7 @@ import { HttpService, I18NextService, UserService } from "../../services";
 import { RequestState } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import PasswordInput from "../common/password-input";
 
 interface State {
   passwordChangeRes: RequestState<LoginResponse>;
@@ -47,7 +48,9 @@ export class PasswordChange extends Component<any, State> {
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{I18NextService.i18n.t("password_change")}</h5>
+            <h1 className="h4 mb-4">
+              {I18NextService.i18n.t("password_change")}
+            </h1>
             {this.passwordChangeForm()}
           </div>
         </div>
@@ -58,42 +61,28 @@ export class PasswordChange extends Component<any, State> {
   passwordChangeForm() {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="new-password">
-            {I18NextService.i18n.t("new_password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="new-password"
-              type="password"
-              value={this.state.form.password}
-              onInput={linkEvent(this, this.handlePasswordChange)}
-              className="form-control"
-              required
-              maxLength={60}
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="new-password"
+            value={this.state.form.password}
+            onInput={linkEvent(this, this.handlePasswordChange)}
+            showStrength
+            label={I18NextService.i18n.t("new_password")}
+            isNew
+          />
         </div>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="verify-password">
-            {I18NextService.i18n.t("verify_password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="verify-password"
-              type="password"
-              value={this.state.form.password_verify}
-              onInput={linkEvent(this, this.handleVerifyPasswordChange)}
-              className="form-control"
-              required
-              maxLength={60}
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="password"
+            value={this.state.form.password_verify}
+            onInput={linkEvent(this, this.handleVerifyPasswordChange)}
+            label={I18NextService.i18n.t("verify_password")}
+          />
         </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.passwordChangeRes.state == "loading" ? (
+              {this.state.passwordChangeRes.state === "loading" ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))
@@ -133,7 +122,9 @@ export class PasswordChange extends Component<any, State> {
 
       if (i.state.passwordChangeRes.state === "success") {
         const data = i.state.passwordChangeRes.data;
-        UserService.Instance.login(data);
+        UserService.Instance.login({
+          res: data,
+        });
 
         const site = await HttpService.client.getSite({ auth: myAuth() });
         if (site.state === "success") {

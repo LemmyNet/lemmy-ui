@@ -1,6 +1,8 @@
 import classNames from "classnames";
 import { Component } from "inferno";
 
+import { UserService } from "../../services";
+
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
 
@@ -21,6 +23,14 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
   }
 
   render() {
+    let user_blur_nsfw = true;
+    if (UserService.Instance.myUserInfo) {
+      user_blur_nsfw =
+        UserService.Instance.myUserInfo?.local_user_view.local_user.blur_nsfw;
+    }
+
+    const blur_image = this.props.nsfw && user_blur_nsfw;
+
     return (
       <picture>
         <source srcSet={this.src("webp")} type="image/webp" />
@@ -34,13 +44,14 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
           className={classNames("overflow-hidden pictrs-image", {
             "img-fluid": !this.props.icon && !this.props.iconOverlay,
             banner: this.props.banner,
-            "thumbnail rounded":
+            "thumbnail rounded object-fit-cover":
               this.props.thumbnail && !this.props.icon && !this.props.banner,
             "img-expanded slight-radius":
               !this.props.thumbnail && !this.props.icon,
-            "img-blur": this.props.thumbnail && this.props.nsfw,
-            "rounded-circle img-cover img-icon me-2": this.props.icon,
-            "ms-2 mb-0 rounded-circle img-cover avatar-overlay":
+            "img-blur-icon": this.props.icon && blur_image,
+            "img-blur-thumb": this.props.thumbnail && blur_image,
+            "object-fit-cover img-icon me-1": this.props.icon,
+            "ms-2 mb-0 rounded-circle object-fit-cover avatar-overlay":
               this.props.iconOverlay,
             "avatar-pushup": this.props.pushup,
           })}
@@ -56,7 +67,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     const split = this.props.src.split("/pictrs/image/");
 
     // If theres not multiple, then its not a pictrs image
-    if (split.length == 1) {
+    if (split.length === 1) {
       return this.props.src;
     }
 

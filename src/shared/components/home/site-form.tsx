@@ -4,8 +4,10 @@ import {
   Component,
   InfernoKeyboardEvent,
   InfernoMouseEvent,
+  InfernoNode,
   linkEvent,
 } from "inferno";
+import { Prompt } from "inferno-router";
 import {
   CreateSite,
   EditSite,
@@ -13,13 +15,13 @@ import {
   Instance,
   ListingType,
 } from "lemmy-js-client";
+import deepEqual from "lodash.isequal";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import NavigationPrompt from "../common/navigation-prompt";
 
 interface SiteFormProps {
   blockedInstances?: Instance[];
@@ -55,6 +57,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   initSiteForm(): EditSite {
     const site = this.props.siteRes.site_view.site;
     const ls = this.props.siteRes.site_view.local_site;
+
     return {
       name: site.name,
       sidebar: site.sidebar,
@@ -120,7 +123,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         className="site-form"
         onSubmit={linkEvent(this, this.handleSaveSiteSubmit)}
       >
-        <NavigationPrompt
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.loading &&
             !siteSetup &&
@@ -133,11 +137,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !this.state.submitted
           }
         />
-        <h5>{`${
+        <h2 className="h5">{`${
           siteSetup
             ? capitalizeFirstLetter(I18NextService.i18n.t("edit"))
             : capitalizeFirstLetter(I18NextService.i18n.t("setup"))
-        } ${I18NextService.i18n.t("your_site")}`}</h5>
+        } ${I18NextService.i18n.t("your_site")}`}</h2>
         <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="create-site-name">
             {I18NextService.i18n.t("name")}
@@ -155,28 +159,32 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="input-group mb-3">
-          <label className="me-2 col-form-label">
+        <div className="row mb-3">
+          <label className="col-sm-2 col-form-label">
             {I18NextService.i18n.t("icon")}
           </label>
-          <ImageUploadForm
-            uploadTitle={I18NextService.i18n.t("upload_icon")}
-            imageSrc={this.state.siteForm.icon}
-            onUpload={this.handleIconUpload}
-            onRemove={this.handleIconRemove}
-            rounded
-          />
+          <div className="col-sm-10">
+            <ImageUploadForm
+              uploadTitle={I18NextService.i18n.t("upload_icon")}
+              imageSrc={this.state.siteForm.icon}
+              onUpload={this.handleIconUpload}
+              onRemove={this.handleIconRemove}
+              rounded
+            />
+          </div>
         </div>
-        <div className="input-group mb-3">
-          <label className="me-2 col-form-label">
+        <div className="row mb-3">
+          <label className="col-sm-2 col-form-label">
             {I18NextService.i18n.t("banner")}
           </label>
-          <ImageUploadForm
-            uploadTitle={I18NextService.i18n.t("upload_banner")}
-            imageSrc={this.state.siteForm.banner}
-            onUpload={this.handleBannerUpload}
-            onRemove={this.handleBannerRemove}
-          />
+          <div className="col-sm-10">
+            <ImageUploadForm
+              uploadTitle={I18NextService.i18n.t("upload_banner")}
+              imageSrc={this.state.siteForm.banner}
+              onUpload={this.handleBannerUpload}
+              onRemove={this.handleBannerRemove}
+            />
+          </div>
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="site-desc">
@@ -285,7 +293,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </select>
           </div>
         </div>
-        {this.state.siteForm.registration_mode == "RequireApplication" && (
+        {this.state.siteForm.registration_mode === "RequireApplication" && (
           <div className="mb-3 row">
             <label className="col-12 col-form-label">
               {I18NextService.i18n.t("application_questionnaire")}
@@ -311,7 +319,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 checked={this.state.siteForm.community_creation_admin_only}
                 onChange={linkEvent(
                   this,
-                  this.handleSiteCommunityCreationAdminOnly
+                  this.handleSiteCommunityCreationAdminOnly,
                 )}
               />
               <label
@@ -333,7 +341,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 checked={this.state.siteForm.require_email_verification}
                 onChange={linkEvent(
                   this,
-                  this.handleSiteRequireEmailVerification
+                  this.handleSiteRequireEmailVerification,
                 )}
               />
               <label
@@ -355,7 +363,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 checked={this.state.siteForm.application_email_admins}
                 onChange={linkEvent(
                   this,
-                  this.handleSiteApplicationEmailAdmins
+                  this.handleSiteApplicationEmailAdmins,
                 )}
               />
               <label
@@ -402,6 +410,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             >
               <option value="browser">
                 {I18NextService.i18n.t("browser_default")}
+              </option>
+              <option value="browser-compact">
+                {I18NextService.i18n.t("browser_default_compact")}
               </option>
               {this.props.themeList?.map(theme => (
                 <option key={theme} value={theme}>
@@ -619,6 +630,19 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     );
   }
 
+  componentDidUpdate(
+    prevProps: Readonly<{ children?: InfernoNode } & SiteFormProps>,
+  ) {
+    if (
+      !(
+        deepEqual(prevProps.allowedInstances, this.props.allowedInstances) ||
+        deepEqual(prevProps.blockedInstances, this.props.blockedInstances)
+      )
+    ) {
+      this.setState({ siteForm: this.initSiteForm() });
+    }
+  }
+
   federatedInstanceSelect(key: InstanceKey) {
     const id = `create_site_${key}`;
     const value = this.state.instance_select[key];
@@ -670,7 +694,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                   className="btn btn-sm bg-danger"
                   onClick={linkEvent(
                     { key, instance },
-                    this.handleRemoveInstance
+                    this.handleRemoveInstance,
                   )}
                 >
                   <Icon
@@ -698,7 +722,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleInstanceEnterPress(
     key: InstanceKey,
-    event: InfernoKeyboardEvent<HTMLInputElement>
+    event: InfernoKeyboardEvent<HTMLInputElement>,
   ) {
     if (event.code.toLowerCase() === "enter") {
       event.preventDefault();
@@ -839,7 +863,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleDeleteTaglineClick(
     i: SiteForm,
     index: number,
-    event: InfernoMouseEvent<HTMLButtonElement>
+    event: InfernoMouseEvent<HTMLButtonElement>,
   ) {
     event.preventDefault();
     const taglines = i.state.siteForm.taglines;
@@ -854,7 +878,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleAddTaglineClick(
     i: SiteForm,
-    event: InfernoMouseEvent<HTMLButtonElement>
+    event: InfernoMouseEvent<HTMLButtonElement>,
   ) {
     event.preventDefault();
     if (!i.state.siteForm.taglines) {
@@ -945,7 +969,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteActorNameMaxLength(i: SiteForm, event: any) {
     i.setState(
-      s => ((s.siteForm.actor_name_max_length = Number(event.target.value)), s)
+      s => ((s.siteForm.actor_name_max_length = Number(event.target.value)), s),
     );
   }
 

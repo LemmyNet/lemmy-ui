@@ -3,7 +3,7 @@ import { hostname } from "@utils/helpers";
 import { CommunityTribute } from "@utils/types";
 
 export default async function communitySearch(
-  text: string
+  text: string,
 ): Promise<CommunityTribute[]> {
   const communitiesResponse = await fetchCommunities(text);
 

@@ -1,0 +1,35 @@
+@import "variables.vaporwave-dark";
+@import "../../../../node_modules/bootstrap/scss/bootstrap";
+
+.shadow-sm {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+.navbar {
+  background: none;
+}
+
+.dropdown-item:hover,
+option:disabled {
+  color: $secondary;
+}
+
+.btn-sm {
+  margin: 0.25rem;
+}
+
+.form-control::placeholder {
+  text-shadow:
+    0.5px 0.5px 0 $secondary,
+    0.5px -0.5px 0 $secondary,
+    -0.5px 0.5px 0 $secondary,
+    -0.5px -0.5px 0 $secondary;
+}
+
+.input-group-text {
+  background: $gray-500;
+}

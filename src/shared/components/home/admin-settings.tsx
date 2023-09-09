@@ -44,7 +44,6 @@ interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
-  emojiLoading: boolean;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -59,7 +58,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     bannedRes: { state: "empty" },
     instancesRes: { state: "empty" },
     leaveAdminTeamRes: { state: "empty" },
-    emojiLoading: false,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -137,6 +135,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                   role="tabpanel"
                   id="site-tab-pane"
                 >
+                  <h1 className="h4 mb-4">
+                    {I18NextService.i18n.t("site_config")}
+                  </h1>
                   <div className="row">
                     <div className="col-12 col-md-6">
                       <SiteForm
@@ -149,11 +150,23 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                         loading={this.state.loading}
                       />
                     </div>
-                    <div className="col-12 col-md-6">
-                      {this.admins()}
-                      {this.bannedUsers()}
-                    </div>
+                    <div className="col-12 col-md-6">{this.admins()}</div>
                   </div>
+                </div>
+              ),
+            },
+            {
+              key: "banned_users",
+              label: I18NextService.i18n.t("banned_users"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="banned_users-tab-pane"
+                >
+                  {this.bannedUsers()}
                 </div>
               ),
             },
@@ -215,7 +228,6 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                       onCreate={this.handleCreateEmoji}
                       onDelete={this.handleDeleteEmoji}
                       onEdit={this.handleEditEmoji}
-                      loading={this.state.emojiLoading}
                     />
                   </div>
                 </div>
@@ -252,7 +264,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   admins() {
     return (
       <>
-        <h5>{capitalizeFirstLetter(I18NextService.i18n.t("admins"))}</h5>
+        <h2 className="h5">
+          {capitalizeFirstLetter(I18NextService.i18n.t("admins"))}
+        </h2>
         <ul className="list-unstyled">
           {this.state.siteRes.admins.map(admin => (
             <li key={admin.person.id} className="list-inline-item">
@@ -271,7 +285,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         onClick={linkEvent(this, this.handleLeaveAdminTeam)}
         className="btn btn-danger mb-2"
       >
-        {this.state.leaveAdminTeamRes.state == "loading" ? (
+        {this.state.leaveAdminTeamRes.state === "loading" ? (
           <Spinner />
         ) : (
           I18NextService.i18n.t("leave_admin_team")
@@ -292,7 +306,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         const bans = this.state.bannedRes.data.banned;
         return (
           <>
-            <h5>{I18NextService.i18n.t("banned_users")}</h5>
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("banned_users")}</h1>
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">
@@ -345,35 +359,23 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleEditEmoji(form: EditCustomEmoji) {
-    this.setState({ emojiLoading: true });
-
     const res = await HttpService.client.editCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
-
-    this.setState({ emojiLoading: false });
   }
 
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
-    this.setState({ emojiLoading: true });
-
     const res = await HttpService.client.deleteCustomEmoji(form);
     if (res.state === "success") {
       removeFromEmojiDataModel(res.data.id);
     }
-
-    this.setState({ emojiLoading: false });
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
-    this.setState({ emojiLoading: true });
-
     const res = await HttpService.client.createCustomEmoji(form);
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
-
-    this.setState({ emojiLoading: false });
   }
 }

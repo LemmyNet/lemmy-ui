@@ -1,4 +1,4 @@
-pipeline:
+steps:
   fetch_git_submodules:
     image: node:alpine
     commands:
@@ -30,5 +30,32 @@ pipeline:
       dockerfile: Dockerfile
       platforms: linux/amd64
       auto_tag: true
+    when:
+      event: tag
+
+  nightly_build:
+    image: woodpeckerci/plugin-docker-buildx
+    secrets: [docker_username, docker_password]
+    settings:
+      repo: dessalines/lemmy-ui
+      dockerfile: Dockerfile
+      platforms: linux/amd64
+      tag: dev
+    when:
+      event: cron
+
+  notify_on_failure:
+    image: alpine:3
+    commands:
+      - apk add curl
+      - "curl -d'Lemmy-UI CI build failed: ${CI_PIPELINE_URL}' ntfy.sh/lemmy_drone_ci"
+    when:
+      status: [failure]
+
+  notify_on_tag_deploy:
+    image: alpine:3
+    commands:
+      - apk add curl
+      - "curl -d'lemmy-ui:${CI_COMMIT_TAG} deployed' ntfy.sh/lemmy_drone_ci"
     when:
       event: tag

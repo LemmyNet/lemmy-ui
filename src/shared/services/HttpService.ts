@@ -1,9 +1,9 @@
 import { getHttpBase } from "@utils/env";
 import { LemmyHttp } from "lemmy-js-client";
-import { toast } from "../../shared/toast";
+import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
 
-type EmptyRequestState = {
+export type EmptyRequestState = {
   state: "empty";
 };
 
@@ -45,11 +45,11 @@ export type WrappedLemmyHttp = {
 class WrappedLemmyHttpClient {
   #client: LemmyHttp;
 
-  constructor(client: LemmyHttp) {
+  constructor(client: LemmyHttp, silent = false) {
     this.#client = client;
 
     for (const key of Object.getOwnPropertyNames(
-      Object.getPrototypeOf(this.#client)
+      Object.getPrototypeOf(this.#client),
     )) {
       if (key !== "constructor") {
         WrappedLemmyHttpClient.prototype[key] = async (...args) => {
@@ -61,8 +61,10 @@ class WrappedLemmyHttpClient {
               state: !(res === undefined || res === null) ? "success" : "empty",
             };
           } catch (error) {
-            console.error(`API error: ${error}`);
-            toast(I18NextService.i18n.t(error), "danger");
+            if (!silent) {
+              console.error(`API error: ${error}`);
+              toast(I18NextService.i18n.t(error), "danger");
+            }
             return {
               state: "failed",
               msg: error,
@@ -74,16 +76,23 @@ class WrappedLemmyHttpClient {
   }
 }
 
-export function wrapClient(client: LemmyHttp) {
-  return new WrappedLemmyHttpClient(client) as unknown as WrappedLemmyHttp; // unfortunately, this verbose cast is necessary
+export function wrapClient(client: LemmyHttp, silent = false) {
+  // unfortunately, this verbose cast is necessary
+  return new WrappedLemmyHttpClient(
+    client,
+    silent,
+  ) as unknown as WrappedLemmyHttp;
 }
 
 export class HttpService {
   static #_instance: HttpService;
+  #silent_client: WrappedLemmyHttp;
   #client: WrappedLemmyHttp;
 
   private constructor() {
-    this.#client = wrapClient(new LemmyHttp(getHttpBase()));
+    const lemmyHttp = new LemmyHttp(getHttpBase());
+    this.#client = wrapClient(lemmyHttp);
+    this.#silent_client = wrapClient(lemmyHttp, true);
   }
 
   static get #Instance() {
@@ -92,5 +101,9 @@ export class HttpService {
 
   public static get client() {
     return this.#Instance.#client;
+  }
+
+  public static get silent_client() {
+    return this.#Instance.#silent_client;
   }
 }

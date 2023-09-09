@@ -15,6 +15,7 @@ import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
 import { PrivateMessageForm } from "./private-message-form";
+import ReportForm from "../common/report-form";
 
 interface PrivateMessageState {
   showReply: boolean;
@@ -22,10 +23,8 @@ interface PrivateMessageState {
   collapsed: boolean;
   viewSource: boolean;
   showReportDialog: boolean;
-  reportReason?: string;
   deleteLoading: boolean;
   readLoading: boolean;
-  reportLoading: boolean;
 }
 
 interface PrivateMessageProps {
@@ -49,25 +48,25 @@ export class PrivateMessage extends Component<
     showReportDialog: false,
     deleteLoading: false,
     readLoading: false,
-    reportLoading: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
+    this.handleReportSubmit = this.handleReportSubmit.bind(this);
   }
 
   get mine(): boolean {
     return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ==
+      UserService.Instance.myUserInfo?.local_user_view.person.id ===
       this.props.private_message_view.creator.id
     );
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({
         showReply: false,
         showEdit: false,
@@ -76,7 +75,6 @@ export class PrivateMessage extends Component<
         showReportDialog: false,
         deleteLoading: false,
         readLoading: false,
-        reportLoading: false,
       });
     }
   }
@@ -109,17 +107,17 @@ export class PrivateMessage extends Component<
               </span>
             </li>
             <li className="list-inline-item">
-              <div
-                role="button"
-                className="pointer text-monospace"
+              <button
+                type="button"
+                className="pointer text-monospace p-0 bg-transparent border-0 d-block"
                 onClick={linkEvent(this, this.handleMessageCollapse)}
               >
                 {this.state.collapsed ? (
-                  <Icon icon="plus-square" classes="icon-inline" />
+                  <Icon icon="plus-square" />
                 ) : (
-                  <Icon icon="minus-square" classes="icon-inline" />
+                  <Icon icon="minus-square" />
                 )}
-              </div>
+              </button>
             </li>
           </ul>
           {this.state.showEdit && (
@@ -140,11 +138,12 @@ export class PrivateMessage extends Component<
                   dangerouslySetInnerHTML={mdToHtml(this.messageUnlessRemoved)}
                 />
               )}
-              <ul className="list-inline mb-0 text-muted font-weight-bold">
+              <ul className="list-inline mb-0 text-muted fw-bold">
                 {!this.mine && (
                   <>
                     <li className="list-inline-item">
                       <button
+                        type="button"
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleMarkRead)}
                         data-tippy-content={
@@ -174,6 +173,7 @@ export class PrivateMessage extends Component<
                     <li className="list-inline-item">{this.reportButton}</li>
                     <li className="list-inline-item">
                       <button
+                        type="button"
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
                         data-tippy-content={I18NextService.i18n.t("reply")}
@@ -188,6 +188,7 @@ export class PrivateMessage extends Component<
                   <>
                     <li className="list-inline-item">
                       <button
+                        type="button"
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleEditClick)}
                         data-tippy-content={I18NextService.i18n.t("edit")}
@@ -198,6 +199,7 @@ export class PrivateMessage extends Component<
                     </li>
                     <li className="list-inline-item">
                       <button
+                        type="button"
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleDeleteClick)}
                         data-tippy-content={
@@ -228,6 +230,7 @@ export class PrivateMessage extends Component<
                 )}
                 <li className="list-inline-item">
                   <button
+                    type="button"
                     className="btn btn-link btn-animate text-muted"
                     onClick={linkEvent(this, this.handleViewSource)}
                     data-tippy-content={I18NextService.i18n.t("view_source")}
@@ -246,40 +249,19 @@ export class PrivateMessage extends Component<
           )}
         </div>
         {this.state.showReportDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handleReportSubmit)}
-          >
-            <label className="visually-hidden" htmlFor="pm-report-reason">
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="pm-report-reason"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              required
-              value={this.state.reportReason}
-              onInput={linkEvent(this, this.handleReportReasonChange)}
-            />
-            <button
-              type="submit"
-              className="btn btn-secondary"
-              aria-label={I18NextService.i18n.t("create_report")}
-            >
-              {this.state.reportLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("create_report")
-              )}
-            </button>
-          </form>
+          <ReportForm onSubmit={this.handleReportSubmit} />
         )}
         {this.state.showReply && (
-          <PrivateMessageForm
-            recipient={otherPerson}
-            onCreate={this.props.onCreate}
-          />
+          <div className="row">
+            <div className="col-sm-6">
+              <PrivateMessageForm
+                replyType={true}
+                recipient={otherPerson}
+                onCreate={this.props.onCreate}
+                onCancel={this.handleReplyCancel}
+              />
+            </div>
+          </div>
         )}
         {/* A collapsed clearfix */}
         {this.state.collapsed && <div className="row col-12"></div>}
@@ -290,6 +272,7 @@ export class PrivateMessage extends Component<
   get reportButton() {
     return (
       <button
+        type="button"
         className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleShowReportDialog)}
         data-tippy-content={I18NextService.i18n.t("show_report_dialog")}
@@ -350,17 +333,15 @@ export class PrivateMessage extends Component<
     i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
-  handleReportReasonChange(i: PrivateMessage, event: any) {
-    i.setState({ reportReason: event.target.value });
-  }
-
-  handleReportSubmit(i: PrivateMessage, event: any) {
-    event.preventDefault();
-    i.setState({ reportLoading: true });
-    i.props.onReport({
-      private_message_id: i.props.private_message_view.private_message.id,
-      reason: i.state.reportReason ?? "",
+  handleReportSubmit(reason: string) {
+    this.props.onReport({
+      private_message_id: this.props.private_message_view.private_message.id,
+      reason,
       auth: myAuthRequired(),
+    });
+
+    this.setState({
+      showReportDialog: false,
     });
   }
 }

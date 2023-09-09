@@ -1,8 +1,6 @@
-// import Cookies from 'js-cookie';
 import { isAuthPath } from "@utils/app";
-import { isBrowser } from "@utils/browser";
-import { isHttps } from "@utils/env";
-import IsomorphicCookie from "isomorphic-cookie";
+import { clearAuthCookie, isBrowser, setAuthCookie } from "@utils/browser";
+import * as cookie from "cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { toast } from "../toast";
@@ -28,12 +26,19 @@ export class UserService {
     this.#setJwtInfo();
   }
 
-  public login(res: LoginResponse) {
+  public login({
+    res,
+    showToast = true,
+  }: {
+    res: LoginResponse;
+    showToast?: boolean;
+  }) {
     const expires = new Date();
     expires.setDate(expires.getDate() + 365);
-    if (res.jwt) {
-      toast(I18NextService.i18n.t("logged_in"));
-      IsomorphicCookie.save("jwt", res.jwt, { expires, secure: isHttps() });
+
+    if (isBrowser() && res.jwt) {
+      showToast && toast(I18NextService.i18n.t("logged_in"));
+      setAuthCookie(res.jwt);
       this.#setJwtInfo();
     }
   }
@@ -41,8 +46,11 @@ export class UserService {
   public logout() {
     this.jwtInfo = undefined;
     this.myUserInfo = undefined;
-    IsomorphicCookie.remove("jwt"); // TODO is sometimes unreliable for some reason
-    document.cookie = "jwt=; Max-Age=0; path=/; domain=" + location.hostname;
+
+    if (isBrowser()) {
+      clearAuthCookie();
+    }
+
     if (isAuthPath(location.pathname)) {
       location.replace("/");
     } else {
@@ -52,24 +60,29 @@ export class UserService {
 
   public auth(throwErr = false): string | undefined {
     const jwt = this.jwtInfo?.jwt;
+
     if (jwt) {
       return jwt;
     } else {
       const msg = "No JWT cookie found";
+
       if (throwErr && isBrowser()) {
         console.error(msg);
         toast(I18NextService.i18n.t("not_logged_in"), "danger");
       }
+
       return undefined;
       // throw msg;
     }
   }
 
   #setJwtInfo() {
-    const jwt: string | undefined = IsomorphicCookie.load("jwt");
+    if (isBrowser()) {
+      const { jwt } = cookie.parse(document.cookie);
 
-    if (jwt) {
-      this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
+      if (jwt) {
+        this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
+      }
     }
   }
 

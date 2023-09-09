@@ -6,6 +6,7 @@ import getHttpBaseExternal from "./get-http-base-external";
 import getHttpBaseInternal from "./get-http-base-internal";
 import getInternalHost from "./get-internal-host";
 import getSecure from "./get-secure";
+import getStaticDir from "./get-static-dir";
 import httpExternalPath from "./http-external-path";
 import isHttps from "./is-https";
 
@@ -18,6 +19,7 @@ export {
   getHttpBaseInternal,
   getInternalHost,
   getSecure,
+  getStaticDir,
   httpExternalPath,
   isHttps,
 };

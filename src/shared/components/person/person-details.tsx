@@ -25,6 +25,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
   PersonView,
   PostView,
   PurgeComment,
@@ -84,6 +85,7 @@ interface PersonDetailsProps {
   onSavePost(form: SavePost): void;
   onFeaturePost(form: FeaturePost): void;
   onPurgePost(form: PurgePost): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 enum ItemEnum {
@@ -113,7 +115,16 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       <div className="person-details">
         {this.viewSelector(this.props.view)}
 
-        <Paginator page={this.props.page} onChange={this.handlePageChange} />
+        <Paginator
+          page={this.props.page}
+          onChange={this.handlePageChange}
+          nextDisabled={
+            (this.props.view === PersonDetailsView.Comments &&
+              this.props.limit > this.props.personRes.comments.length) ||
+            (this.props.view === PersonDetailsView.Posts &&
+              this.props.limit > this.props.personRes.posts.length)
+          }
+        />
       </div>
     );
   }
@@ -200,6 +211,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onAddModToCommunity={this.props.onAddModToCommunity}
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
+            onMarkPostAsRead={this.props.onMarkPostAsRead}
           />
         );
       }
@@ -252,7 +264,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           viewType={CommentViewType.Flat}
           admins={this.props.admins}
           finished={this.props.finished}
-          noIndent
+          isTopLevel
           showCommunity
           showContext
           enableDownvotes={this.props.enableDownvotes}
@@ -311,6 +323,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               onAddModToCommunity={this.props.onAddModToCommunity}
               onAddAdmin={this.props.onAddAdmin}
               onTransferCommunity={this.props.onTransferCommunity}
+              onMarkPostAsRead={this.props.onMarkPostAsRead}
             />
             <hr className="my-3" />
           </>

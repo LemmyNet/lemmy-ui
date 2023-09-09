@@ -3,7 +3,7 @@
   "env": {
     "browser": true
   },
-  "plugins": ["@typescript-eslint", "jsx-a11y"],
+  "plugins": ["@typescript-eslint", "jsx-a11y", "prettier"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -20,20 +20,11 @@
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/explicit-module-boundary-types": 0,
     "@typescript-eslint/no-empty-function": 0,
+    "@typescript-eslint/no-non-null-assertion": 0,
     "arrow-body-style": 0,
-    "jsx-a11y/alt-text": 1,
-    "jsx-a11y/anchor-is-valid": 1,
-    "jsx-a11y/aria-activedescendant-has-tabindex": 1,
-    "jsx-a11y/aria-role": 1,
-    "jsx-a11y/click-events-have-key-events": 1,
-    "jsx-a11y/iframe-has-title": 1,
-    "jsx-a11y/interactive-supports-focus": 1,
-    "jsx-a11y/no-redundant-roles": 1,
-    "jsx-a11y/no-static-element-interactions": 1,
-    "jsx-a11y/role-has-required-aria-props": 1,
     "curly": 0,
     "eol-last": 0,
-    "eqeqeq": 0,
+    "eqeqeq": "error",
     "func-style": 0,
     "import/no-duplicates": 0,
     "max-statements": 0,
@@ -49,8 +40,9 @@
     "no-useless-constructor": 0,
     "no-useless-escape": 0,
     "no-var": 0,
-    "prefer-const": 1,
+    "prefer-const": "error",
     "prefer-rest-params": 0,
+    "prettier/prettier": "error",
     "quote-props": 0,
     "unicorn/filename-case": 0
   }

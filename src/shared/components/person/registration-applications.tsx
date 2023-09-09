@@ -3,7 +3,9 @@ import {
   myAuthRequired,
   setIsoData,
 } from "@utils/app";
+import { randomStr } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
+import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
@@ -78,7 +80,7 @@ export class RegistrationApplications extends Component<
     const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "registration_applications"
+          "registration_applications",
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
@@ -100,14 +102,15 @@ export class RegistrationApplications extends Component<
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
               />
-              <h5 className="mb-2">
+              <h1 className="h4 mb-4">
                 {I18NextService.i18n.t("registration_applications")}
-              </h5>
+              </h1>
               {this.selects()}
               {this.applicationList(apps)}
               <Paginator
                 page={this.state.page}
                 onChange={this.handlePageChange}
+                nextDisabled={fetchLimit > apps.length}
               />
             </div>
           </div>
@@ -125,34 +128,41 @@ export class RegistrationApplications extends Component<
   }
 
   unreadOrAllRadios() {
+    const radioId = randomStr();
+
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+        <input
+          id={`${radioId}-unread`}
+          type="radio"
+          className="btn-check"
+          value={UnreadOrAll.Unread}
+          checked={this.state.unreadOrAll === UnreadOrAll.Unread}
+          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.Unread && "active"}
-          `}
+          htmlFor={`${radioId}-unread`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.unreadOrAll === UnreadOrAll.Unread,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={UnreadOrAll.Unread}
-            checked={this.state.unreadOrAll == UnreadOrAll.Unread}
-            onChange={linkEvent(this, this.handleUnreadOrAllChange)}
-          />
           {I18NextService.i18n.t("unread")}
         </label>
+
+        <input
+          id={`${radioId}-all`}
+          type="radio"
+          className="btn-check"
+          value={UnreadOrAll.All}
+          checked={this.state.unreadOrAll === UnreadOrAll.All}
+          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+        />
         <label
-          className={`btn btn-outline-secondary pointer
-            ${this.state.unreadOrAll == UnreadOrAll.All && "active"}
-          `}
+          htmlFor={`${radioId}-all`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.unreadOrAll === UnreadOrAll.All,
+          })}
         >
-          <input
-            type="radio"
-            className="btn-check"
-            value={UnreadOrAll.All}
-            checked={this.state.unreadOrAll == UnreadOrAll.All}
-            onChange={linkEvent(this, this.handleUnreadOrAllChange)}
-          />
           {I18NextService.i18n.t("all")}
         </label>
       </div>
@@ -211,7 +221,7 @@ export class RegistrationApplications extends Component<
   }
 
   async refetch() {
-    const unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     this.setState({
       appsRes: { state: "loading" },
     });
@@ -227,13 +237,13 @@ export class RegistrationApplications extends Component<
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {
     const approveRes = await HttpService.client.approveRegistrationApplication(
-      form
+      form,
     );
     this.setState(s => {
-      if (s.appsRes.state == "success" && approveRes.state == "success") {
+      if (s.appsRes.state === "success" && approveRes.state === "success") {
         s.appsRes.data.registration_applications = editRegistrationApplication(
           approveRes.data.registration_application,
-          s.appsRes.data.registration_applications
+          s.appsRes.data.registration_applications,
         );
       }
       return s;

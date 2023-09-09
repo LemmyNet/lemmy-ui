@@ -7,6 +7,7 @@ import { Home } from "./components/home/home";
 import { Instances } from "./components/home/instances";
 import { Legal } from "./components/home/legal";
 import { Login } from "./components/home/login";
+import { LoginReset } from "./components/home/login-reset";
 import { Setup } from "./components/home/setup";
 import { Signup } from "./components/home/signup";
 import { Modlog } from "./components/modlog";
@@ -37,6 +38,10 @@ export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [
   {
     path: `/login`,
     component: Login,
+  },
+  {
+    path: `/login_reset`,
+    component: LoginReset,
   },
   {
     path: `/signup`,

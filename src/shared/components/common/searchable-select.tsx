@@ -83,7 +83,7 @@ export class SearchableSelect extends Component<
 
     if (props.value) {
       let selectedIndex = props.options.findIndex(
-        ({ value }) => value === props.value?.toString()
+        ({ value }) => value === props.value?.toString(),
       );
 
       if (selectedIndex < 0) {
@@ -102,12 +102,16 @@ export class SearchableSelect extends Component<
     const { searchText, selectedIndex, loadingEllipses } = this.state;
 
     return (
-      <div className="searchable-select dropdown">
+      <div className="searchable-select dropdown col-12 col-sm-auto flex-grow-1">
         <button
           id={id}
           type="button"
+          role="combobox"
           className="form-select d-inline-block text-start"
           aria-haspopup="listbox"
+          aria-controls="searchable-select-input"
+          aria-activedescendant={options[selectedIndex].label}
+          aria-expanded={false}
           data-bs-toggle="dropdown"
           onClick={linkEvent(this, focusSearch)}
           ref={this.toggleButtonRef}
@@ -116,17 +120,14 @@ export class SearchableSelect extends Component<
             ? `${I18NextService.i18n.t("loading")}${loadingEllipses}`
             : options[selectedIndex].label}
         </button>
-        <div
-          role="combobox"
-          aria-activedescendant={options[selectedIndex].label}
-          className="modlog-choices-font-size dropdown-menu w-100 p-2"
-        >
+        <div className="modlog-choices-font-size dropdown-menu w-100 p-2">
           <div className="input-group">
             <span className="input-group-text">
               {loading ? <Spinner /> : <Icon icon="search" />}
             </span>
             <input
               type="text"
+              id="searchable-select-input"
               className="form-control"
               ref={this.searchInputRef}
               onInput={linkEvent(this, handleSearch)}
@@ -139,7 +140,7 @@ export class SearchableSelect extends Component<
             (onSearch || searchText.length === 0
               ? options
               : options.filter(({ label }) =>
-                  label.toLowerCase().includes(searchText.toLowerCase())
+                  label.toLowerCase().includes(searchText.toLowerCase()),
                 )
             ).map((option, index) => (
               <button

@@ -14,6 +14,7 @@ import {
   FeaturePost,
   Language,
   LockPost,
+  MarkPostAsRead,
   PostView,
   PurgePerson,
   PurgePost,
@@ -49,6 +50,7 @@ interface PostListingsProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -95,6 +97,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onAddModToCommunity={this.props.onAddModToCommunity}
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
+                onMarkPostAsRead={this.props.onMarkPostAsRead}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>
@@ -141,7 +144,7 @@ export class PostListings extends Component<PostListingsProps, any> {
     // Sort by oldest
     // Remove the ones that have no length
     for (const e of urlMap.entries()) {
-      if (e[1].length == 1) {
+      if (e[1].length === 1) {
         urlMap.delete(e[0]);
       } else {
         e[1].sort((a, b) => a.post.published.localeCompare(b.post.published));
@@ -155,7 +158,7 @@ export class PostListings extends Component<PostListingsProps, any> {
         const found = urlMap.get(url);
         if (found) {
           // If its the oldest, add
-          if (pv.post.id == found[0].post.id) {
+          if (pv.post.id === found[0].post.id) {
             this.duplicatesMap.set(pv.post.id, found.slice(1));
           }
           // Otherwise, delete it

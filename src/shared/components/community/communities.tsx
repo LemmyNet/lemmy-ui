@@ -20,6 +20,7 @@ import {
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
+  SortType,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -28,9 +29,10 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { Paginator } from "../common/paginator";
+import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "./community-link";
 
-const communityLimit = 50;
+import { communityLimit } from "../../config";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -45,11 +47,23 @@ interface CommunitiesState {
 
 interface CommunitiesProps {
   listingType: ListingType;
+  sort: SortType;
   page: number;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : "Local";
+}
+
+function getSortTypeFromQuery(type?: string): SortType {
+  return type ? (type as SortType) : "TopMonth";
+}
+function getCommunitiesQueryParams() {
+  return getQueryParams<CommunitiesProps>({
+    listingType: getListingTypeFromQuery,
+    sort: getSortTypeFromQuery,
+    page: getPageFromString,
+  });
 }
 
 export class Communities extends Component<any, CommunitiesState> {
@@ -64,6 +78,7 @@ export class Communities extends Component<any, CommunitiesState> {
   constructor(props: any, context: any) {
     super(props, context);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
     // Only fetch the data if coming from another route
@@ -99,13 +114,13 @@ export class Communities extends Component<any, CommunitiesState> {
           </h5>
         );
       case "success": {
-        const { listingType, page } = this.getCommunitiesQueryParams();
+        const { listingType, sort, page } = getCommunitiesQueryParams();
         return (
           <div>
-            <h1 className="h4">
+            <h1 className="h4 mb-4">
               {I18NextService.i18n.t("list_of_communities")}
             </h1>
-            <div className="row g-2 justify-content-between">
+            <div className="row g-3 align-items-center mb-2">
               <div className="col-auto">
                 <ListingTypeSelect
                   type_={listingType}
@@ -113,6 +128,9 @@ export class Communities extends Component<any, CommunitiesState> {
                   showSubscribed
                   onChange={this.handleListingTypeChange}
                 />
+              </div>
+              <div className="col-auto me-auto">
+                <SortSelect sort={sort} onChange={this.handleSortChange} />
               </div>
               <div className="col-auto">{this.searchForm()}</div>
             </div>
@@ -161,7 +179,7 @@ export class Communities extends Component<any, CommunitiesState> {
                           {numToSI(cv.counts.comments)}
                         </td>
                         <td className="text-right">
-                          {cv.subscribed == "Subscribed" && (
+                          {cv.subscribed === "Subscribed" && (
                             <button
                               className="btn btn-link d-inline-block"
                               onClick={linkEvent(
@@ -170,7 +188,7 @@ export class Communities extends Component<any, CommunitiesState> {
                                   communityId: cv.community.id,
                                   follow: false,
                                 },
-                                this.handleFollow
+                                this.handleFollow,
                               )}
                             >
                               {I18NextService.i18n.t("unsubscribe")}
@@ -185,7 +203,7 @@ export class Communities extends Component<any, CommunitiesState> {
                                   communityId: cv.community.id,
                                   follow: true,
                                 },
-                                this.handleFollow
+                                this.handleFollow,
                               )}
                             >
                               {I18NextService.i18n.t("subscribe")}
@@ -198,12 +216,19 @@ export class Communities extends Component<any, CommunitiesState> {
                           )}
                         </td>
                       </tr>
-                    )
+                    ),
                   )}
                 </tbody>
               </table>
             </div>
-            <Paginator page={page} onChange={this.handlePageChange} />
+            <Paginator
+              page={page}
+              onChange={this.handlePageChange}
+              nextDisabled={
+                communityLimit >
+                this.state.listCommunitiesResponse.data.communities.length
+              }
+            />
           </div>
         );
       }
@@ -224,10 +249,7 @@ export class Communities extends Component<any, CommunitiesState> {
 
   searchForm() {
     return (
-      <form
-        className="row mb-2"
-        onSubmit={linkEvent(this, this.handleSearchSubmit)}
-      >
+      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
         <div className="col-auto">
           <input
             type="text"
@@ -252,12 +274,16 @@ export class Communities extends Component<any, CommunitiesState> {
     );
   }
 
-  async updateUrl({ listingType, page }: Partial<CommunitiesProps>) {
-    const { listingType: urlListingType, page: urlPage } =
-      this.getCommunitiesQueryParams();
+  async updateUrl({ listingType, sort, page }: Partial<CommunitiesProps>) {
+    const {
+      listingType: urlListingType,
+      sort: urlSort,
+      page: urlPage,
+    } = getCommunitiesQueryParams();
 
     const queryParams: QueryParams<CommunitiesProps> = {
       listingType: listingType ?? urlListingType,
+      sort: sort ?? urlSort,
       page: (page ?? urlPage)?.toString(),
     };
 
@@ -268,6 +294,10 @@ export class Communities extends Component<any, CommunitiesState> {
 
   handlePageChange(page: number) {
     this.updateUrl({ page });
+  }
+
+  handleSortChange(val: SortType) {
+    this.updateUrl({ sort: val, page: 1 });
   }
 
   handleListingTypeChange(val: ListingType) {
@@ -284,11 +314,14 @@ export class Communities extends Component<any, CommunitiesState> {
   handleSearchSubmit(i: Communities, event: any) {
     event.preventDefault();
     const searchParamEncoded = encodeURIComponent(i.state.searchText);
-    i.context.router.history.push(`/search?q=${searchParamEncoded}`);
+    const { listingType } = getCommunitiesQueryParams();
+    i.context.router.history.push(
+      `/search?q=${searchParamEncoded}&type=Communities&listingType=${listingType}`,
+    );
   }
 
   static async fetchInitialData({
-    query: { listingType, page },
+    query: { listingType, sort, page },
     client,
     auth,
   }: InitialFetchRequest<
@@ -296,7 +329,7 @@ export class Communities extends Component<any, CommunitiesState> {
   >): Promise<CommunitiesData> {
     const listCommunitiesForm: ListCommunities = {
       type_: getListingTypeFromQuery(listingType),
-      sort: "TopMonth",
+      sort: getSortTypeFromQuery(sort),
       limit: communityLimit,
       page: getPageFromString(page),
       auth: auth,
@@ -304,16 +337,9 @@ export class Communities extends Component<any, CommunitiesState> {
 
     return {
       listCommunitiesResponse: await client.listCommunities(
-        listCommunitiesForm
+        listCommunitiesForm,
       ),
     };
-  }
-
-  getCommunitiesQueryParams() {
-    return getQueryParams<CommunitiesProps>({
-      listingType: getListingTypeFromQuery,
-      page: getPageFromString,
-    });
   }
 
   async handleFollow(data: {
@@ -332,12 +358,12 @@ export class Communities extends Component<any, CommunitiesState> {
   async refetch() {
     this.setState({ listCommunitiesResponse: { state: "loading" } });
 
-    const { listingType, page } = this.getCommunitiesQueryParams();
+    const { listingType, sort, page } = getCommunitiesQueryParams();
 
     this.setState({
       listCommunitiesResponse: await HttpService.client.listCommunities({
         type_: listingType,
-        sort: "TopMonth",
+        sort: sort,
         limit: communityLimit,
         page,
         auth: myAuth(),
@@ -350,12 +376,12 @@ export class Communities extends Component<any, CommunitiesState> {
   findAndUpdateCommunity(res: RequestState<CommunityResponse>) {
     this.setState(s => {
       if (
-        s.listCommunitiesResponse.state == "success" &&
-        res.state == "success"
+        s.listCommunitiesResponse.state === "success" &&
+        res.state === "success"
       ) {
         s.listCommunitiesResponse.data.communities = editCommunity(
           res.data.community_view,
-          s.listCommunitiesResponse.data.communities
+          s.listCommunitiesResponse.data.communities,
         );
       }
       return s;

@@ -35,7 +35,7 @@ export class VerifyEmail extends Component<any, State> {
       }),
     });
 
-    if (this.state.verifyRes.state == "success") {
+    if (this.state.verifyRes.state === "success") {
       toast(I18NextService.i18n.t("email_verified"));
       this.props.history.push("/login");
     }
@@ -60,8 +60,8 @@ export class VerifyEmail extends Component<any, State> {
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h5>{I18NextService.i18n.t("verify_email")}</h5>
-            {this.state.verifyRes.state == "loading" && (
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("verify_email")}</h1>
+            {this.state.verifyRes.state === "loading" && (
               <h5>
                 <Spinner large />
               </h5>

@@ -88,7 +88,7 @@ function RateLimits({
 
 function handleRateLimitChange(
   { rateLimitType, ctx }: { rateLimitType: string; ctx: RateLimitsForm },
-  event: any
+  event: any,
 ) {
   ctx.setState(prev => ({
     ...prev,
@@ -101,7 +101,7 @@ function handleRateLimitChange(
 
 function handlePerSecondChange(
   { rateLimitType, ctx }: { rateLimitType: string; ctx: RateLimitsForm },
-  event: any
+  event: any,
 ) {
   ctx.setState(prev => ({
     ...prev,
@@ -122,7 +122,7 @@ function submitRateLimitForm(i: RateLimitsForm, event: any) {
     },
     {
       auth,
-    }
+    },
   );
 
   i.props.onSaveSite(form);
@@ -145,7 +145,9 @@ export default class RateLimitsForm extends Component<
         className="rate-limit-form"
         onSubmit={linkEvent(this, submitRateLimitForm)}
       >
-        <h5>{I18NextService.i18n.t("rate_limit_header")}</h5>
+        <h1 className="h4 mb-4">
+          {I18NextService.i18n.t("rate_limit_header")}
+        </h1>
         <Tabs
           tabs={rateLimitTypes.map(rateLimitType => ({
             key: rateLimitType,
@@ -157,11 +159,11 @@ export default class RateLimitsForm extends Component<
                 })}
                 handleRateLimit={linkEvent(
                   { rateLimitType, ctx: this },
-                  handleRateLimitChange
+                  handleRateLimitChange,
                 )}
                 handleRateLimitPerSecond={linkEvent(
                   { rateLimitType, ctx: this },
-                  handlePerSecondChange
+                  handlePerSecondChange,
                 )}
                 rateLimitValue={this.state.form[rateLimitType]}
                 rateLimitPerSecondValue={

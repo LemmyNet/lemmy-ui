@@ -1,3 +1,4 @@
+import { getStaticDir } from "@utils/env";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
@@ -23,7 +24,9 @@ export class Icon extends Component<IconProps, any> {
         })}
       >
         <use
-          xlinkHref={`/static/assets/symbols.svg#icon-${this.props.icon}`}
+          xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${
+            this.props.icon
+          }`}
         ></use>
         <div className="visually-hidden">
           <title>{this.props.icon}</title>
@@ -35,6 +38,7 @@ export class Icon extends Component<IconProps, any> {
 
 interface SpinnerProps {
   large?: boolean;
+  className?: string;
 }
 
 export class Spinner extends Component<SpinnerProps, any> {
@@ -46,7 +50,9 @@ export class Spinner extends Component<SpinnerProps, any> {
     return (
       <Icon
         icon="spinner"
-        classes={`spin ${this.props.large && "spinner-large"}`}
+        classes={classNames("spin", this.props.className, {
+          "spinner-large": this.props.large,
+        })}
       />
     );
   }

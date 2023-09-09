@@ -18,6 +18,7 @@ import {
   getQueryParams,
   getQueryString,
   numToSI,
+  randomStr,
 } from "@utils/helpers";
 import { canMod, isAdmin, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
@@ -59,6 +60,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
   PersonView,
   PostResponse,
   PurgeComment,
@@ -84,6 +86,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { SortSelect } from "../common/sort-select";
+import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
@@ -130,13 +133,13 @@ function getViewFromProps(view?: string): PersonDetailsView {
 
 const getCommunitiesListing = (
   translationKey: NoOptionI18nKeys,
-  communityViews?: { community: Community }[]
+  communityViews?: { community: Community }[],
 ) =>
   communityViews &&
   communityViews.length > 0 && (
     <div className="card border-secondary mb-3">
       <div className="card-body">
-        <h5>{I18NextService.i18n.t(translationKey)}</h5>
+        <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
         <ul className="list-unstyled mb-0">
           {communityViews.map(({ community }) => (
             <li key={community.id}>
@@ -205,6 +208,8 @@ export class Profile extends Component<
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -230,7 +235,7 @@ export class Profile extends Component<
   async fetchUserData() {
     const { page, sort, view } = getProfileQueryParams();
 
-    this.setState({ personRes: { state: "empty" } });
+    this.setState({ personRes: { state: "loading" } });
     this.setState({
       personRes: await HttpService.client.getPersonDetails({
         username: this.props.match.params.username,
@@ -263,7 +268,7 @@ export class Profile extends Component<
     if (mui && res.state === "success") {
       this.setState({
         personBlocked: mui.person_blocks.some(
-          ({ target: { id } }) => id === res.data.person_view.person.id
+          ({ target: { id } }) => id === res.data.person_view.person.id,
         ),
       });
     }
@@ -297,7 +302,7 @@ export class Profile extends Component<
   get documentTitle(): string {
     const siteName = this.state.siteRes.site_view.site.name;
     const res = this.state.personRes;
-    return res.state == "success"
+    return res.state === "success"
       ? `@${res.data.person_view.person.name} - ${siteName}`
       : siteName;
   }
@@ -321,6 +326,7 @@ export class Profile extends Component<
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
+                canonicalPath={personRes.person_view.person.actor_id}
                 description={personRes.person_view.person.bio}
                 image={personRes.person_view.person.avatar}
               />
@@ -372,6 +378,7 @@ export class Profile extends Component<
                 onSavePost={this.handleSavePost}
                 onPurgePost={this.handlePurgePost}
                 onFeaturePost={this.handleFeaturePost}
+                onMarkPostAsRead={this.handleMarkPostAsRead}
               />
             </div>
 
@@ -395,7 +402,7 @@ export class Profile extends Component<
 
   get viewRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2">
+      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
         {this.getRadio(PersonDetailsView.Overview)}
         {this.getRadio(PersonDetailsView.Comments)}
         {this.getRadio(PersonDetailsView.Posts)}
@@ -407,22 +414,27 @@ export class Profile extends Component<
   getRadio(view: PersonDetailsView) {
     const { view: urlView } = getProfileQueryParams();
     const active = view === urlView;
+    const radioId = randomStr();
 
     return (
-      <label
-        className={classNames("btn btn-outline-secondary pointer", {
-          active,
-        })}
-      >
+      <>
         <input
+          id={radioId}
           type="radio"
           className="btn-check"
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
         />
-        {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
-      </label>
+        <label
+          htmlFor={radioId}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active,
+          })}
+        >
+          {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+        </label>
+      </>
     );
   }
 
@@ -470,7 +482,7 @@ export class Profile extends Component<
               <div className="mb-0 d-flex flex-wrap">
                 <div>
                   {pv.person.display_name && (
-                    <h5 className="mb-0">{pv.person.display_name}</h5>
+                    <h1 className="h4 mb-4">{pv.person.display_name}</h1>
                   )}
                   <ul className="list-inline mb-2">
                     <li className="list-inline-item">
@@ -482,26 +494,15 @@ export class Profile extends Component<
                         hideAvatar
                       />
                     </li>
-                    {isBanned(pv.person) && (
-                      <li className="list-inline-item badge text-bg-danger">
-                        {I18NextService.i18n.t("banned")}
-                      </li>
-                    )}
-                    {pv.person.deleted && (
-                      <li className="list-inline-item badge text-bg-danger">
-                        {I18NextService.i18n.t("deleted")}
-                      </li>
-                    )}
-                    {pv.person.admin && (
-                      <li className="list-inline-item badge text-bg-light">
-                        {I18NextService.i18n.t("admin")}
-                      </li>
-                    )}
-                    {pv.person.bot_account && (
-                      <li className="list-inline-item badge text-bg-light">
-                        {I18NextService.i18n.t("bot_account").toLowerCase()}
-                      </li>
-                    )}
+                    <li className="list-inline-item">
+                      <UserBadges
+                        classNames="ms-1"
+                        isBanned={isBanned(pv.person)}
+                        isDeleted={pv.person.deleted}
+                        isAdmin={isAdmin(pv.person.id, admins)}
+                        isBot={pv.person.bot_account}
+                      />
+                    </li>
                   </ul>
                 </div>
                 {this.banDialog(pv)}
@@ -532,7 +533,7 @@ export class Profile extends Component<
                         }
                         onClick={linkEvent(
                           pv.person.id,
-                          this.handleUnblockPerson
+                          this.handleUnblockPerson,
                         )}
                       >
                         {I18NextService.i18n.t("unblock_user")}
@@ -544,7 +545,7 @@ export class Profile extends Component<
                         }
                         onClick={linkEvent(
                           pv.person.id,
-                          this.handleBlockPerson
+                          this.handleBlockPerson,
                         )}
                       >
                         {I18NextService.i18n.t("block_user")}
@@ -647,12 +648,12 @@ export class Profile extends Component<
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
             />
-            <label className="col-form-label" htmlFor={`mod-ban-expires`}>
+            <label className="col-form-label" htmlFor="mod-ban-expires">
               {I18NextService.i18n.t("expires")}
             </label>
             <input
               type="number"
-              id={`mod-ban-expires`}
+              id="mod-ban-expires"
               className="form-control me-2"
               placeholder={I18NextService.i18n.t("number_of_days")}
               value={this.state.banExpireDays}
@@ -691,6 +692,8 @@ export class Profile extends Component<
             >
               {I18NextService.i18n.t("cancel")}
             </button>
+          </div>
+          <div className="mb-3 row">
             <button
               type="submit"
               className="btn btn-secondary"
@@ -764,7 +767,7 @@ export class Profile extends Component<
 
     const personRes = i.state.personRes;
 
-    if (personRes.state == "success") {
+    if (personRes.state === "success") {
       const person = personRes.data.person_view.person;
       const ban = !person.banned;
 
@@ -793,7 +796,7 @@ export class Profile extends Component<
       block,
       auth: myAuthRequired(),
     });
-    if (res.state == "success") {
+    if (res.state === "success") {
       updatePersonBlock(res.data);
     }
   }
@@ -924,7 +927,7 @@ export class Profile extends Component<
   async handleAddAdmin(form: AddAdmin) {
     const addAdminRes = await HttpService.client.addAdmin(form);
 
-    if (addAdminRes.state == "success") {
+    if (addAdminRes.state === "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
     }
   }
@@ -944,6 +947,11 @@ export class Profile extends Component<
     await HttpService.client.markPersonMentionAsRead(form);
   }
 
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    this.findAndUpdatePost(res);
+  }
+
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
@@ -958,17 +966,17 @@ export class Profile extends Component<
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
-        if (s.personRes.state == "success") {
+        if (s.personRes.state === "success") {
           s.personRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
 
           s.personRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -978,15 +986,16 @@ export class Profile extends Component<
 
   updateBan(banRes: RequestState<BanPersonResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
-        if (s.personRes.state == "success") {
+        if (s.personRes.state === "success") {
           s.personRes.data.posts
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
           s.personRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
+          s.personRes.data.person_view.person.banned = banRes.data.banned;
         }
         return s;
       });
@@ -994,7 +1003,7 @@ export class Profile extends Component<
   }
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
-    if (purgeRes.state == "success") {
+    if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
@@ -1002,10 +1011,10 @@ export class Profile extends Component<
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.personRes.state == "success" && res.state == "success") {
+      if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.comments = editComment(
           res.data.comment_view,
-          s.personRes.data.comments
+          s.personRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
       }
@@ -1015,12 +1024,12 @@ export class Profile extends Component<
 
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.personRes.state == "success" && res.state == "success") {
+      if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.comments.unshift(res.data.comment_view);
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
       }
       return s;
@@ -1029,10 +1038,10 @@ export class Profile extends Component<
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
-      if (s.personRes.state == "success" && res.state == "success") {
+      if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.comments = editWith(
           res.data.comment_reply_view,
-          s.personRes.data.comments
+          s.personRes.data.comments,
         );
       }
       return s;
@@ -1041,10 +1050,10 @@ export class Profile extends Component<
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
-      if (s.personRes.state == "success" && res.state == "success") {
+      if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.posts = editPost(
           res.data.post_view,
-          s.personRes.data.posts
+          s.personRes.data.posts,
         );
       }
       return s;

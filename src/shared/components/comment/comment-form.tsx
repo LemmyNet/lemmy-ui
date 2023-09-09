@@ -43,7 +43,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
     return (
       <div
         className={["comment-form", "mb-3", this.props.containerClass].join(
-          " "
+          " ",
         )}
       >
         {UserService.Instance.myUserInfo ? (
@@ -84,7 +84,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
       : capitalizeFirstLetter(I18NextService.i18n.t("reply"));
   }
 
-  handleCommentSubmit(content: string, form_id: string, language_id?: number) {
+  handleCommentSubmit(content: string, language_id?: number) {
     const { node, onUpsertComment, edit } = this.props;
     if (typeof node === "number") {
       const post_id = node;
@@ -92,7 +92,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
         content,
         post_id,
         language_id,
-        form_id,
         auth: myAuthRequired(),
       });
     } else {
@@ -101,7 +100,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
         onUpsertComment({
           content,
           comment_id,
-          form_id,
           language_id,
           auth: myAuthRequired(),
         });
@@ -112,7 +110,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
           content,
           parent_id,
           post_id,
-          form_id,
           language_id,
           auth: myAuthRequired(),
         });
