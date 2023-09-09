@@ -26,7 +26,8 @@ import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { UserFlairModal } from "./user-flair-modal";
-import { UserFlair, getUserFlair } from "@utils/helpers/user-flairs";
+import { UserFlairType, getUserFlair } from "@utils/helpers/user-flair-type";
+import { UserFlair } from "../common/user-flair";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -60,7 +61,7 @@ interface SidebarState {
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
-  userFlair: UserFlair | null;
+  userFlair: UserFlairType | null;
 }
 
 export class Sidebar extends Component<SidebarProps, SidebarState> {
@@ -82,7 +83,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     this.handleEditCancel = this.handleEditCancel.bind(this);
   }
 
-  handleUserFlairUpdate = (newUserFlair: UserFlair | null) => {
+  handleUserFlairUpdate = (newUserFlair: UserFlairType | null) => {
     this.setState({ userFlair: newUserFlair });
   }
   
@@ -104,7 +105,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         removeCommunityLoading: false,
         leaveModTeamLoading: false,
         followCommunityLoading: false,
-        purgeCommunityLoading: false,
+        purgeCommunityLoading: false,        
       });
     }
   }
@@ -171,10 +172,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               <span>
                 <h6 class="card-subtitle text-muted">This is your flair for {this.props.community_view.community.title}:</h6>
                 <div class="my-2">
-                  <div class="badge text-bg-dark my-auto d-inline me-2 p-1" style="height: min-content; width: min-content;">
-                    {this.state.userFlair.image.length > 0 && (<img src={this.state.userFlair.image} style="height:1rem;" class="me-2"/>)}
-                    <span>{this.state.userFlair.name}</span>
-                  </div>
+                <UserFlair
+                  userFlair={this.state.userFlair}
+                  classNames="fs-6"
+                  imageSize="1.5rem"
+                />
                 </div>
                 <div class="mt-3 w-100 d-flex align-items-center justify-content-center">
                   <button class="btn btn-secondary btn-block d-block mb-2 w-100" onClick={this.onPickUserFlairClick}>Change your flair</button>

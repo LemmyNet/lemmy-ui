@@ -63,7 +63,8 @@ import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
 import ReportForm from "../common/report-form";
-import { getUserFlair } from "@utils/helpers/user-flairs";
+import { getUserFlair } from "@utils/helpers/user-flair-type";
+import { UserFlair } from "../common/user-flair";
 
 interface PostListingState {
   showEdit: boolean;
@@ -414,17 +415,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   createdLine() {
     const post_view = this.postView;
-    const userFlair = getUserFlair(post_view.creator);
 
     return (
       <div className="small mb-1 mb-md-0">
         <PersonListing person={post_view.creator} />
-          {userFlair !== null && (
-            <div class="badge text-bg-light my-auto d-inline mx-2 p-1">
-              {userFlair.image.length > 0 && (<img src={userFlair.image} style="height:1rem;" class="me-2"/>)}
-              <span>{userFlair.name}</span>
-            </div>
-          )}
+
+          <UserFlair
+            userFlair={getUserFlair(post_view.creator)}
+            classNames="pb-1 mx-1"
+          />
           
           <UserBadges
           classNames="ms-1"

@@ -1,6 +1,7 @@
 import { Component } from 'inferno';
 import { Icon } from "../common/icon";
-import { UserFlair, clearUserFlair, setUserFlair } from '@utils/helpers/user-flairs';
+import { UserFlairType, clearUserFlair, setUserFlair } from '@utils/helpers/user-flair-type';
+import { UserFlair } from '../common/user-flair';
 
 const flairs = [{
     "id": "0",
@@ -46,11 +47,11 @@ const flairs = [{
     "id": "10",
     "name": "LibRight",
     "image": "https://emoji.redditmedia.com/9usjafiot7t31_t5_3ipa1/libright2"
-}] satisfies UserFlair[];
+}] satisfies UserFlairType[];
 
 interface UserFlairModalProp {
-  userFlair: UserFlair | null;
-  onUserFlairUpdate: (newFlair: UserFlair | null) => void;
+  userFlair: UserFlairType | null;
+  onUserFlairUpdate: (newFlair: UserFlairType | null) => void;
 }
 
 export class UserFlairModal extends Component<UserFlairModalProp> {
@@ -74,7 +75,7 @@ export class UserFlairModal extends Component<UserFlairModalProp> {
     
             const flair = userFlairDialog.returnValue;
             if (flair !== 'cancel' && flair !== 'default') {
-              const pickedFlair = flairs.find(f => f.id === flair) as unknown as UserFlair;
+              const pickedFlair = flairs.find(f => f.id === flair) as unknown as UserFlairType;
               
               this.props.onUserFlairUpdate(pickedFlair)
               setUserFlair(pickedFlair);
@@ -100,27 +101,34 @@ export class UserFlairModal extends Component<UserFlairModalProp> {
     render() {
     return (
         <dialog id="userFlairDialog" class="bg-light text-dark rounded" style="border-width: 1px;">
-            <form>
+            <form class="d-flex flex-column">
 
-            <div class="d-flex justify-content-between mb-4">
+            <div class="d-flex justify-content-between mb-2">
             <h5>Pick your flair:</h5>
             <button class="btn btn-outline-dark btn-sm rounded-circle" value="cancel" formMethod="dialog">
                 <Icon icon="x" classes="icon-inline fs-6" />
             </button>
             </div>
          
-            <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));column-gap: 1rem;row-gap: 0.25rem;" class="w-100">
+            <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));column-gap: 1rem;row-gap: 0.5rem;" class="w-100">
                 {flairs.map(flair => (
                     <span>
                         <input type="radio" name="userFlair" value={flair.id} class="me-2" id={"userFlair"+flair.id}/>
                         <label htmlFor={"userFlair"+flair.id}>
-                            {flair.image.length > 0 && (<img src={flair.image} style="height:1rem;" class="me-2"/>)}
-                            <span>{flair.name}</span>
+                          <UserFlair
+                            userFlair={flair}
+                            classNames="fs-6"
+                            imageSize="1.5rem"
+                          />
                         </label>
                     </span>
                 ))}
             </div>
-               
+              
+            <span class="fst-italic my-3">
+                It might be necessary to refresh the page for the changes to take effect.
+            </span>
+            
             <div style="display:grid;grid-template-columns: repeat(3, minmax(0, 1fr));column-gap: 1rem;">
                 <div/>
                 <button class="btn btn-outline-dark" id="removeFlairBtn" value="default">Remove flair</button>

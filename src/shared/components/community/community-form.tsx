@@ -2,8 +2,7 @@ import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { CommunityView, Language } from "lemmy-js-client";
-import { CreateCommunity, EditCommunity } from "@utils/types/TEMP_user_flairs";
+import { CreateCommunity, EditCommunity, CommunityView, Language } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -18,7 +17,6 @@ interface CommunityFormProps {
   onCancel?(): any;
   onUpsertCommunity(form: CreateCommunity | EditCommunity): void;
   enableNsfw?: boolean;
-  enableUserFlairs?: boolean;
   loading?: boolean;
 }
 
@@ -30,7 +28,6 @@ interface CommunityFormState {
     icon?: string;
     banner?: string;
     nsfw?: boolean;
-    allow_user_flairs?: boolean;
     posting_restricted_to_mods?: boolean;
     discussion_languages?: number[];
   };
@@ -197,23 +194,6 @@ export class CommunityForm extends Component<
             />
           </div>
         </div>
-
-        <div className="mb-3 row">
-        <legend className="col-form-label col-6 pt-0">
-            Allow user flairs
-          </legend>
-          <div className="col-6">
-            <div className="form-check">
-              <input
-                className="form-check-input position-static"
-                id="community-user-flairs"
-                type="checkbox"
-                checked={this.state.form.allow_user_flairs}
-                onChange={linkEvent(this, this.handleCommunityAllowUserFlairsChange)}
-              />
-            </div>
-          </div>
-        </div>
         
         {this.props.enableNsfw && (
           <div className="mb-3 row">
@@ -306,7 +286,6 @@ export class CommunityForm extends Component<
         icon: cForm.icon,
         banner: cForm.banner,
         nsfw: cForm.nsfw,
-        user_flairs: cForm.allow_user_flairs,
         posting_restricted_to_mods: cForm.posting_restricted_to_mods,
         discussion_languages: cForm.discussion_languages,
         auth,
@@ -320,7 +299,6 @@ export class CommunityForm extends Component<
           icon: cForm.icon,
           banner: cForm.banner,
           nsfw: cForm.nsfw,
-          user_flairs: cForm.allow_user_flairs,
           posting_restricted_to_mods: cForm.posting_restricted_to_mods,
           discussion_languages: cForm.discussion_languages,
           auth,
@@ -343,10 +321,6 @@ export class CommunityForm extends Component<
 
   handleCommunityNsfwChange(i: CommunityForm, event: any) {
     i.setState(s => ((s.form.nsfw = event.target.checked), s));
-  }
-  
-  handleCommunityAllowUserFlairsChange(i: CommunityForm, event: any) {
-    i.setState(s => ((s.form.allow_user_flairs = event.target.checked), s));
   }
 
   handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {

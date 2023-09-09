@@ -69,7 +69,8 @@ import { PersonListing } from "../person/person-listing";
 import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
 import ReportForm from "../common/report-form";
-import { getUserFlair } from "@utils/helpers/user-flairs";
+import { getUserFlair } from "@utils/helpers/user-flair-type";
+import { UserFlair } from "../common/user-flair";
 
 
 interface CommentNodeState {
@@ -273,8 +274,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.props.moderators,
     );
 
-    const userFlair = getUserFlair(cv.creator);
-
     const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
       : colorList[0];
@@ -310,14 +309,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
               <PersonListing person={cv.creator} />
 
+              <UserFlair
+                userFlair={getUserFlair(cv.creator)}
+                classNames="py-1 ms-1"
+              />
+
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes="text-danger ms-1" />
-              )}
-              {userFlair !== null && (
-                <div class="badge text-bg-light my-auto d-inline me-2 p-1">
-                  {userFlair.image.length > 0 && (<img src={userFlair.image} style="height:1rem;" class="me-2"/>)}
-                  <span>{userFlair.name}</span>
-                </div>
               )}
 
               <UserBadges
@@ -429,9 +427,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       ) : (
                         <Icon
                           icon="check"
-                          classes={`icon-inline ${
-                            this.commentReplyOrMentionRead && "text-success"
-                          }`}
+                          classes={`icon-inline ${this.commentReplyOrMentionRead && "text-success"
+                            }`}
                         />
                       )}
                     </button>
@@ -529,9 +526,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             ) : (
                               <Icon
                                 icon="star"
-                                classes={`icon-inline ${
-                                  cv.saved && "text-warning"
-                                }`}
+                                classes={`icon-inline ${cv.saved && "text-warning"
+                                  }`}
                               />
                             )}
                           </button>
@@ -545,9 +541,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           >
                             <Icon
                               icon="file-text"
-                              classes={`icon-inline ${
-                                this.state.viewSource && "text-success"
-                              }`}
+                              classes={`icon-inline ${this.state.viewSource && "text-success"
+                                }`}
                             />
                           </button>
                           {this.myComment && (
@@ -584,9 +579,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 ) : (
                                   <Icon
                                     icon="trash"
-                                    classes={`icon-inline ${
-                                      cv.comment.deleted && "text-danger"
-                                    }`}
+                                    classes={`icon-inline ${cv.comment.deleted && "text-danger"
+                                      }`}
                                   />
                                 )}
                               </button>
@@ -611,9 +605,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                 >
                                   <Icon
                                     icon="shield"
-                                    classes={`icon-inline ${
-                                      cv.comment.distinguished && "text-danger"
-                                    }`}
+                                    classes={`icon-inline ${cv.comment.distinguished && "text-danger"
+                                      }`}
                                   />
                                 </button>
                               )}
@@ -698,8 +691,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                       isMod_
                                         ? I18NextService.i18n.t("remove_as_mod")
                                         : I18NextService.i18n.t(
-                                            "appoint_as_mod",
-                                          )
+                                          "appoint_as_mod",
+                                        )
                                     }
                                   >
                                     {isMod_
@@ -873,18 +866,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                                     aria-label={
                                       isAdmin_
                                         ? I18NextService.i18n.t(
-                                            "remove_as_admin",
-                                          )
+                                          "remove_as_admin",
+                                        )
                                         : I18NextService.i18n.t(
-                                            "appoint_as_admin",
-                                          )
+                                          "appoint_as_admin",
+                                        )
                                     }
                                   >
                                     {isAdmin_
                                       ? I18NextService.i18n.t("remove_as_admin")
                                       : I18NextService.i18n.t(
-                                          "appoint_as_admin",
-                                        )}
+                                        "appoint_as_admin",
+                                      )}
                                   </button>
                                 ) : (
                                   <>
@@ -1241,8 +1234,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return comment.removed
       ? `*${I18NextService.i18n.t("removed")}*`
       : comment.deleted
-      ? `*${I18NextService.i18n.t("deleted")}*`
-      : comment.content;
+        ? `*${I18NextService.i18n.t("deleted")}*`
+        : comment.content;
   }
 
   handleReplyClick(i: CommentNode) {
