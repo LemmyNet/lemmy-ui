@@ -55,7 +55,7 @@ export function setCacheControl(
     if (hasJwtCookie(req)) {
       caching = "private";
     } else {
-      caching = "public, max-age=5";
+      caching = "public, max-age=60";
     }
   }
 
