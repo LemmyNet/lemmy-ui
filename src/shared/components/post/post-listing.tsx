@@ -607,7 +607,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const post = this.postView.post;
+    const post_view = this.postView;
+    const post = post_view.post;
 
     return (
       <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -640,6 +641,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             my_vote={this.postView.my_vote}
           />
         )}
+
+        {this.props.showBody && post_view.post.body && this.viewSourceButton}
+
         {UserService.Instance.myUserInfo &&
           !this.props.viewOnly &&
           this.postActions()}
@@ -657,8 +661,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         {this.saveButton}
         {this.crossPostButton}
-
-        {this.props.showBody && post_view.post.body && this.viewSourceButton}
 
         <div className="dropdown">
           <button
