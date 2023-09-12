@@ -1310,8 +1310,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {this.state.purgeLoading ? (
               <Spinner />
             ) : (
-              <button type="submit" className="btn btn-secondary">
-                {this.state.purgeLoading ? <Spinner /> : { purgeTypeText }}
+              <button type="submit" className="btn btn-secondary mt-2">
+                {purgeTypeText}
               </button>
             )}
           </form>
