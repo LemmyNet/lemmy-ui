@@ -1,5 +1,4 @@
-import { HttpService } from "./HttpService";
-import { UserService } from "../services";
+import { UserService, HttpService } from "../services";
 import { updateUnreadCountsInterval } from "../config";
 import { poll } from "@utils/helpers";
 import { myAuth } from "@utils/app";
@@ -35,7 +34,7 @@ export class UnreadCounterService {
     }
   }
 
-  update = async () => {
+  public update = async () => {
     if (window.document.visibilityState === "hidden") {
       return;
     }
