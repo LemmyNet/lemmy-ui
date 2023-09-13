@@ -60,11 +60,12 @@ const spoilerConfig = {
   },
 
   render: (tokens: any, idx: any) => {
-    var m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
+    const m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
+    const summary = mdToHtmlInline(md.utils.escapeHtml(m[1])).__html;
 
     if (tokens[idx].nesting === 1) {
       // opening tag
-      return `<details><summary> ${md.utils.escapeHtml(m[1])} </summary>\n`;
+      return `<details><summary> ${summary} </summary>\n`;
     } else {
       // closing tag
       return "</details>\n";
@@ -110,7 +111,7 @@ function localInstanceLinkParser(md: MarkdownIt) {
               newTokens.push(textToken);
             }
 
-            let href;
+            let href: string;
             if (match[0].startsWith("!")) {
               href = "/c/" + match[0].substring(1);
             } else if (match[0].startsWith("/m/")) {
