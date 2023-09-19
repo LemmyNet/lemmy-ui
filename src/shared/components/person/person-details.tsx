@@ -115,7 +115,16 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       <div className="person-details">
         {this.viewSelector(this.props.view)}
 
-        <Paginator page={this.props.page} onChange={this.handlePageChange} />
+        <Paginator
+          page={this.props.page}
+          onChange={this.handlePageChange}
+          nextDisabled={
+            (this.props.view === PersonDetailsView.Comments &&
+              this.props.limit > this.props.personRes.comments.length) ||
+            (this.props.view === PersonDetailsView.Posts &&
+              this.props.limit > this.props.personRes.posts.length)
+          }
+        />
       </div>
     );
   }

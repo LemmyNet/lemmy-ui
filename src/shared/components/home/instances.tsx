@@ -102,7 +102,9 @@ export class Instances extends Component<any, InstancesState> {
                           active: isSelected,
                         })}
                       >
-                        {this.itemList(instances[status])}
+                        {status === "blocked"
+                          ? this.itemList(instances[status], false)
+                          : this.itemList(instances[status])}
                       </div>
                     ),
                   }))}
@@ -128,7 +130,7 @@ export class Instances extends Component<any, InstancesState> {
     );
   }
 
-  itemList(items: Instance[]) {
+  itemList(items: Instance[], link = true) {
     return items.length > 0 ? (
       <div className="table-responsive">
         <table id="instances_table" className="table table-sm table-hover">
@@ -143,9 +145,13 @@ export class Instances extends Component<any, InstancesState> {
             {items.map(i => (
               <tr key={i.domain}>
                 <td>
-                  <a href={`https://${i.domain}`} rel={relTags}>
-                    {i.domain}
-                  </a>
+                  {link ? (
+                    <a href={`https://${i.domain}`} rel={relTags}>
+                      {i.domain}{" "}
+                    </a>
+                  ) : (
+                    <span>{i.domain}</span>
+                  )}
                 </td>
                 <td>{i.software}</td>
                 <td>{i.version}</td>

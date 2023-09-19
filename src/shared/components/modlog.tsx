@@ -860,7 +860,11 @@ export class Modlog extends Component<
               </thead>
               {this.combined}
             </table>
-            <Paginator page={page} onChange={this.handlePageChange} />
+            <Paginator
+              page={page}
+              onChange={this.handlePageChange}
+              nextDisabled={false}
+            />
           </div>
         );
       }

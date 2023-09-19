@@ -47,14 +47,16 @@ async function handleLoginSubmit(i: Login, event: any) {
     });
     switch (loginRes.state) {
       case "failed": {
-        if (loginRes.msg === "missing_totp_token") {
-          i.setState({ showTotp: true });
-          toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
-        }
+          if (loginRes.msg === "missing_totp_token") {
+            i.setState({ showTotp: true });
+            toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
+          } else {
+            toast(I18NextService.i18n.t(loginRes.msg), "danger");
+          }
 
-        i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
-        break;
-      }
+          i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
+          break;
+       }
 
       case "success": {
         UserService.Instance.login({

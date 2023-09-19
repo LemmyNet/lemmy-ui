@@ -256,6 +256,7 @@ export class Inbox extends Component<any, InboxState> {
             <Paginator
               page={this.state.page}
               onChange={this.handlePageChange}
+              nextDisabled={false}
             />
           </div>
         </div>
@@ -917,12 +918,20 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
     const res = await HttpService.client.markCommentReplyAsRead(form);
-    this.findAndUpdateCommentReply(res);
+    if (this.state.unreadOrAll === UnreadOrAll.All) {
+      this.findAndUpdateCommentReply(res);
+    } else {
+      await this.refetch();
+    }
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     const res = await HttpService.client.markPersonMentionAsRead(form);
-    this.findAndUpdateMention(res);
+    if (this.state.unreadOrAll === UnreadOrAll.All) {
+      this.findAndUpdateMention(res);
+    } else {
+      await this.refetch();
+    }
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
@@ -947,7 +956,11 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
     const res = await HttpService.client.markPrivateMessageAsRead(form);
-    this.findAndUpdateMessage(res);
+    if (this.state.unreadOrAll === UnreadOrAll.All) {
+      this.findAndUpdateMessage(res);
+    } else {
+      await this.refetch();
+    }
   }
 
   async handleMessageReport(form: CreatePrivateMessageReport) {
