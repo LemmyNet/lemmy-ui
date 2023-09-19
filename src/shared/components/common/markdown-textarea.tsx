@@ -233,7 +233,7 @@ export class MarkdownTextArea extends Component<
                   )}
                   value={this.state.content}
                   onInput={linkEvent(this, this.handleContentChange)}
-                  onPaste={linkEvent(this, this.handleImageUploadPaste)}
+                  onPaste={linkEvent(this, this.handlePaste)}
                   onKeyDown={linkEvent(this, this.handleKeyBinds)}
                   required
                   disabled={this.isDisabled}
@@ -374,10 +374,55 @@ export class MarkdownTextArea extends Component<
     autosize.update(textarea);
   }
 
-  handleImageUploadPaste(i: MarkdownTextArea, event: any) {
+  handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
+    if (!event.clipboardData) return;
+
+    // check clipboard files
     const image = event.clipboardData.files[0];
     if (image) {
       i.handleImageUpload(i, image);
+      return;
+    }
+
+    // check clipboard url
+    const url = event.clipboardData.getData("text");
+    if (i.isValidUrl(url)) {
+      i.handleUrlPaste(url, i, event);
+      return;
+    }
+  }
+
+  handleUrlPaste(url: string, i: MarkdownTextArea, event: ClipboardEvent) {
+    // query textarea element
+    const textarea = document.getElementById(i.id);
+
+    if (textarea instanceof HTMLTextAreaElement) {
+      event.preventDefault();
+      const { selectionStart, selectionEnd } = textarea;
+
+      // update textarea content
+      i.setState({
+        content: `${
+          i.state.content ? i.state.content.substring(0, selectionStart) : ""
+        }[${i.getSelectedText()}](${url})${
+          i.state.content ? i.state.content.substring(selectionEnd) : ""
+        }`,
+      });
+      i.contentChange();
+
+      // shift selection 1 to the right
+      textarea.setSelectionRange(selectionStart + 1, selectionEnd + 1);
+    }
+  }
+
+  isValidUrl(value: string): boolean {
+    if (!value) return false;
+
+    try {
+      new URL(value);
+      return true;
+    } catch {
+      return false;
     }
   }
 
