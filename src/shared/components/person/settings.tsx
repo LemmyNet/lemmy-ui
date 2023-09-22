@@ -1289,7 +1289,7 @@ export class Settings extends Component<any, SettingsState> {
       const deleteAccountRes = await HttpService.client.deleteAccount({
         password,
         auth: myAuthRequired(),
-        // TODO: promt user weather he wants the content to be deleted
+        // TODO: promt user weather he wants the content to be deleted,
         delete_content: false,
       });
       if (deleteAccountRes.state === "success") {
