@@ -6,6 +6,7 @@ import { CommunityView } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
+import { toast } from "shared/toast";
 
 interface SubscribeButtonProps {
   communityView: CommunityView;
@@ -105,13 +106,25 @@ function submitRemoteFollow(
   event: Event,
 ) {
   event.preventDefault();
+  instanceText = instanceText.trim();
 
   if (!validInstanceTLD(instanceText)) {
-    // TODO: Figure out appropriate way of handling invalid domainss
-    console.log("I should do something about this.");
+    toast(
+      I18NextService.i18n.t("remote_follow_invalid_instance", {
+        instance: instanceText,
+      }),
+      "danger",
+    );
+    return;
   }
 
-  if (!/^https?:\/\//.test(instanceText)) {
+  const protocolRegex = /^https?:\/\//;
+  if (instanceText.replace(protocolRegex, "") === window.location.host) {
+    toast(I18NextService.i18n.t("remote_follow_local_instance"), "danger");
+    return;
+  }
+
+  if (!protocolRegex.test(instanceText)) {
     instanceText = `http${VERSION !== "dev" ? "s" : ""}://${instanceText}`;
   }
 
