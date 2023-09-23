@@ -82,7 +82,7 @@ export class UserService {
       const { jwt } = cookie.parse(document.cookie);
 
       if (jwt) {
-        HttpService.client.setHeaders({ auth: jwt });
+        HttpService.client.setHeaders({ Authorization: `Bearer ${jwt}` });
         this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
       }
     }
