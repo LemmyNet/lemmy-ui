@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
   CreatePrivateMessage,
@@ -304,7 +303,6 @@ export class PrivateMessage extends Component<
     i.props.onDelete({
       private_message_id: i.props.private_message_view.private_message.id,
       deleted: !i.props.private_message_view.private_message.deleted,
-      auth: myAuthRequired(),
     });
   }
 
@@ -317,7 +315,6 @@ export class PrivateMessage extends Component<
     i.props.onMarkRead({
       private_message_id: i.props.private_message_view.private_message.id,
       read: !i.props.private_message_view.private_message.read,
-      auth: myAuthRequired(),
     });
   }
 
@@ -337,7 +334,6 @@ export class PrivateMessage extends Component<
     this.props.onReport({
       private_message_id: this.props.private_message_view.private_message.id,
       reason,
-      auth: myAuthRequired(),
     });
 
     this.setState({

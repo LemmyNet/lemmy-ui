@@ -450,28 +450,21 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   fetchUnreads() {
     poll(async () => {
       if (window.document.visibilityState !== "hidden") {
-        const auth = myAuth();
-        if (auth) {
+        if (myAuth()) {
           this.setState({
-            unreadInboxCountRes: await HttpService.client.getUnreadCount({
-              auth,
-            }),
+            unreadInboxCountRes: await HttpService.client.getUnreadCount(),
           });
 
           if (this.moderatesSomething) {
             this.setState({
-              unreadReportCountRes: await HttpService.client.getReportCount({
-                auth,
-              }),
+              unreadReportCountRes: await HttpService.client.getReportCount({}),
             });
           }
 
           if (amAdmin()) {
             this.setState({
               unreadApplicationCountRes:
-                await HttpService.client.getUnreadRegistrationApplicationCount({
-                  auth,
-                }),
+                await HttpService.client.getUnreadRegistrationApplicationCount(),
             });
           }
         }

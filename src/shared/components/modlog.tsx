@@ -1,7 +1,6 @@
 import {
   fetchUsers,
   getUpdatedSearchId,
-  myAuth,
   personToChoice,
   setIsoData,
 } from "@utils/app";
@@ -951,7 +950,6 @@ export class Modlog extends Component<
   }
 
   async refetch() {
-    const auth = myAuth();
     const { actionType, page, modId, userId } = getModlogQueryParams();
     const { communityId: urlCommunityId } = this.props.match.params;
     const communityId = getIdFromString(urlCommunityId);
@@ -968,7 +966,6 @@ export class Modlog extends Component<
           .hide_modlog_mod_names
           ? modId ?? undefined
           : undefined,
-        auth,
       }),
     });
 
@@ -977,7 +974,6 @@ export class Modlog extends Component<
       this.setState({
         communityRes: await HttpService.client.getCommunity({
           id: communityId,
-          auth,
         }),
       });
     }
@@ -987,7 +983,6 @@ export class Modlog extends Component<
     client,
     path,
     query: { modId: urlModId, page, userId: urlUserId, actionType },
-    auth,
     site,
   }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<ModlogData> {
     const pathSplit = path.split("/");
@@ -1004,7 +999,6 @@ export class Modlog extends Component<
       type_: getActionFromString(actionType),
       mod_person_id: modId,
       other_person_id: userId,
-      auth,
     };
 
     let communityResponse: RequestState<GetCommunityResponse> = {
@@ -1014,7 +1008,6 @@ export class Modlog extends Component<
     if (communityId) {
       const communityForm: GetCommunity = {
         id: communityId,
-        auth,
       };
 
       communityResponse = await client.getCommunity(communityForm);
@@ -1027,7 +1020,6 @@ export class Modlog extends Component<
     if (modId) {
       const getPersonForm: GetPersonDetails = {
         person_id: modId,
-        auth,
       };
 
       modUserResponse = await client.getPersonDetails(getPersonForm);
@@ -1040,7 +1032,6 @@ export class Modlog extends Component<
     if (userId) {
       const getPersonForm: GetPersonDetails = {
         person_id: userId,
-        auth,
       };
 
       userResponse = await client.getPersonDetails(getPersonForm);

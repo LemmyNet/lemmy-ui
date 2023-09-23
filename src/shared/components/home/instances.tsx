@@ -58,7 +58,7 @@ export class Instances extends Component<any, InstancesState> {
     });
 
     this.setState({
-      instancesRes: await HttpService.client.getFederatedInstances({}),
+      instancesRes: await HttpService.client.getFederatedInstances(),
     });
   }
 
@@ -66,7 +66,7 @@ export class Instances extends Component<any, InstancesState> {
     client,
   }: InitialFetchRequest): Promise<InstancesData> {
     return {
-      federatedInstancesResponse: await client.getFederatedInstances({}),
+      federatedInstancesResponse: await client.getFederatedInstances(),
     };
   }
 

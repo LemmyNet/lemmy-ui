@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -92,7 +91,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
         content,
         post_id,
         language_id,
-        auth: myAuthRequired(),
       });
     } else {
       if (edit) {
@@ -101,7 +99,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
           content,
           comment_id,
           language_id,
-          auth: myAuthRequired(),
         });
       } else {
         const post_id = node.comment_view.post.id;
@@ -111,7 +108,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
           parent_id,
           post_id,
           language_id,
-          auth: myAuthRequired(),
         });
       }
     }

@@ -1,4 +1,4 @@
-import { getRecipientIdFromProps, myAuth, setIsoData } from "@utils/app";
+import { getRecipientIdFromProps, setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
@@ -62,7 +62,6 @@ export class CreatePrivateMessage extends Component<
   static async fetchInitialData({
     client,
     path,
-    auth,
   }: InitialFetchRequest): Promise<CreatePrivateMessageData> {
     const person_id = Number(path.split("/").pop());
 
@@ -70,7 +69,6 @@ export class CreatePrivateMessage extends Component<
       person_id,
       sort: "New",
       saved_only: false,
-      auth,
     };
 
     return {
@@ -88,7 +86,6 @@ export class CreatePrivateMessage extends Component<
         person_id: this.state.recipientId,
         sort: "New",
         saved_only: false,
-        auth: myAuth(),
       }),
     });
   }

@@ -2,7 +2,6 @@ import {
   editCommentReport,
   editPostReport,
   editPrivateMessageReport,
-  myAuthRequired,
   setIsoData,
 } from "@utils/app";
 import { randomStr } from "@utils/helpers";
@@ -531,7 +530,6 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   static async fetchInitialData({
-    auth,
     client,
   }: InitialFetchRequest): Promise<ReportsData> {
     const unresolved_only = true;
@@ -542,14 +540,12 @@ export class Reports extends Component<any, ReportsState> {
       unresolved_only,
       page,
       limit,
-      auth: auth as string,
     };
 
     const postReportsForm: ListPostReports = {
       unresolved_only,
       page,
       limit,
-      auth: auth as string,
     };
 
     const data: ReportsData = {
@@ -563,7 +559,6 @@ export class Reports extends Component<any, ReportsState> {
         unresolved_only,
         page,
         limit,
-        auth: auth as string,
       };
 
       data.messageReportsRes = await client.listPrivateMessageReports(
@@ -578,7 +573,6 @@ export class Reports extends Component<any, ReportsState> {
     const unresolved_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
     const limit = fetchLimit;
-    const auth = myAuthRequired();
 
     this.setState({
       commentReportsRes: { state: "loading" },
@@ -593,7 +587,6 @@ export class Reports extends Component<any, ReportsState> {
       unresolved_only,
       page,
       limit,
-      auth,
     };
 
     this.setState({

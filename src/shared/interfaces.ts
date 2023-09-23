@@ -25,7 +25,6 @@ declare global {
 }
 
 export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
-  auth?: string;
   client: WrappedLemmyHttp;
   path: string;
   query: T;

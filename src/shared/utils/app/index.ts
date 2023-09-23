@@ -35,7 +35,6 @@ import insertCommentIntoTree from "./insert-comment-into-tree";
 import isAuthPath from "./is-auth-path";
 import isPostBlocked from "./is-post-blocked";
 import myAuth from "./my-auth";
-import myAuthRequired from "./my-auth-required";
 import newVote from "./new-vote";
 import nsfwCheck from "./nsfw-check";
 import personSearch from "./person-search";
@@ -92,7 +91,6 @@ export {
   isAuthPath,
   isPostBlocked,
   myAuth,
-  myAuthRequired,
   newVote,
   nsfwCheck,
   personSearch,

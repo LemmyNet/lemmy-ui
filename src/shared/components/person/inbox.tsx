@@ -7,7 +7,6 @@ import {
   enableDownvotes,
   getCommentParentId,
   myAuth,
-  myAuthRequired,
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
@@ -63,7 +62,11 @@ import {
 import { fetchLimit, relTags } from "../../config";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EmptyRequestState,
+  HttpService,
+  RequestState,
+} from "../../services/HttpService";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
@@ -719,38 +722,40 @@ export class Inbox extends Component<any, InboxState> {
 
   static async fetchInitialData({
     client,
-    auth,
   }: InitialFetchRequest): Promise<InboxData> {
     const sort: CommentSortType = "New";
-
-    return {
-      mentionsRes: auth
-        ? await client.getPersonMentions({
-            sort,
-            unread_only: true,
-            page: 1,
-            limit: fetchLimit,
-            auth,
-          })
-        : { state: "empty" },
-      messagesRes: auth
-        ? await client.getPrivateMessages({
-            unread_only: true,
-            page: 1,
-            limit: fetchLimit,
-            auth,
-          })
-        : { state: "empty" },
-      repliesRes: auth
-        ? await client.getReplies({
-            sort,
-            unread_only: true,
-            page: 1,
-            limit: fetchLimit,
-            auth,
-          })
-        : { state: "empty" },
+    const empty: EmptyRequestState = { state: "empty" };
+    let inboxData: InboxData = {
+      mentionsRes: empty,
+      messagesRes: empty,
+      repliesRes: empty,
     };
+
+    if (myAuth()) {
+      const [mentionsRes, messagesRes, repliesRes] = await Promise.all([
+        client.getPersonMentions({
+          sort,
+          unread_only: true,
+          page: 1,
+          limit: fetchLimit,
+        }),
+        client.getPrivateMessages({
+          unread_only: true,
+          page: 1,
+          limit: fetchLimit,
+        }),
+        client.getReplies({
+          sort,
+          unread_only: true,
+          page: 1,
+          limit: fetchLimit,
+        }),
+      ]);
+
+      inboxData = { mentionsRes, messagesRes, repliesRes };
+    }
+
+    return inboxData;
   }
 
   async refetch() {
@@ -758,7 +763,6 @@ export class Inbox extends Component<any, InboxState> {
     const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
     const limit = fetchLimit;
-    const auth = myAuthRequired();
 
     this.setState({ repliesRes: { state: "loading" } });
     this.setState({
@@ -767,7 +771,6 @@ export class Inbox extends Component<any, InboxState> {
         unread_only,
         page,
         limit,
-        auth,
       }),
     });
 
@@ -778,7 +781,6 @@ export class Inbox extends Component<any, InboxState> {
         unread_only,
         page,
         limit,
-        auth,
       }),
     });
 
@@ -788,7 +790,6 @@ export class Inbox extends Component<any, InboxState> {
         unread_only,
         page,
         limit,
-        auth,
       }),
     });
   }
@@ -802,9 +803,7 @@ export class Inbox extends Component<any, InboxState> {
     i.setState({ markAllAsReadRes: { state: "loading" } });
 
     i.setState({
-      markAllAsReadRes: await HttpService.client.markAllAsRead({
-        auth: myAuthRequired(),
-      }),
+      markAllAsReadRes: await HttpService.client.markAllAsRead(),
     });
 
     if (i.state.markAllAsReadRes.state === "success") {
