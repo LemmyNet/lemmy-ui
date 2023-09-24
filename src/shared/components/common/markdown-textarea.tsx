@@ -385,42 +385,46 @@ export class MarkdownTextArea extends Component<
     }
 
     // check clipboard url
-    const url = event.clipboardData.getData("text");
-    if (i.isValidUrl(url)) {
+    const url = i.isValidUrl(event.clipboardData.getData("text"));
+    if (url) {
       i.handleUrlPaste(url, i, event);
       return;
     }
   }
 
-  handleUrlPaste(url: string, i: MarkdownTextArea, event: ClipboardEvent) {
+  handleUrlPaste(url: URL, i: MarkdownTextArea, event: ClipboardEvent) {
     // query textarea element
     const textarea = document.getElementById(i.id);
 
     if (textarea instanceof HTMLTextAreaElement) {
       event.preventDefault();
       const { selectionStart, selectionEnd } = textarea;
+      const selectedText = i.getSelectedText() || url.toString();
 
       // update textarea content
       i.setState({
         content: `${
           i.state.content ? i.state.content.substring(0, selectionStart) : ""
-        }[${i.getSelectedText()}](${url})${
+        }[${selectedText}](${url.toString()})${
           i.state.content ? i.state.content.substring(selectionEnd) : ""
         }`,
       });
       i.contentChange();
 
       // shift selection 1 to the right
-      textarea.setSelectionRange(selectionStart + 1, selectionEnd + 1);
+      textarea.setSelectionRange(
+        selectionStart + 1,
+        selectionStart + 1 + selectedText.length,
+      );
     }
   }
 
-  isValidUrl(value: string): boolean {
+  isValidUrl(value: string) {
     if (!value) return false;
 
     try {
-      new URL(value);
-      return true;
+      const url = new URL(value);
+      return url;
     } catch {
       return false;
     }
