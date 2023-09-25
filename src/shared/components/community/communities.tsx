@@ -182,11 +182,14 @@ export class Communities extends Component<any, CommunitiesState> {
                         <td className="text-right">
                           <SubscribeButton
                             communityView={cv}
-                            onFollow={linkEvent({
-                              i: this,
-                              communityId: cv.community.id,
-                              follow: false,
-                            })}
+                            onFollow={linkEvent(
+                              {
+                                i: this,
+                                communityId: cv.community.id,
+                                follow: false,
+                              },
+                              this.handleFollow,
+                            )}
                             onUnFollow={linkEvent(
                               {
                                 i: this,
