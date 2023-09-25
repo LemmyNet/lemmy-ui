@@ -6,13 +6,13 @@ import { CommunityView } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
-import { toast } from "shared/toast";
+import { toast } from "../../toast";
 
 interface SubscribeButtonProps {
   communityView: CommunityView;
   onFollow: MouseEventHandler;
   onUnFollow: MouseEventHandler;
-  loading: boolean;
+  loading?: boolean;
 }
 
 export function SubscribeButton({
@@ -22,7 +22,7 @@ export function SubscribeButton({
   },
   onFollow,
   onUnFollow,
-  loading,
+  loading = false,
 }: SubscribeButtonProps) {
   let i18key: NoOptionI18nKeys;
 
