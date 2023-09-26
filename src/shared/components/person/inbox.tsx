@@ -67,7 +67,8 @@ import {
   EmptyRequestState,
   HttpService,
   RequestState,
-} from "../../services/HttpService";import { toast } from "../../toast";
+} from "../../services/HttpService";
+import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
 import { HtmlTags } from "../common/html-tags";

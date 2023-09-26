@@ -43,7 +43,7 @@ export class UnreadCounterService {
       return;
     }
     this.fetching = true;
-    const unreadCountRes = await HttpService.client.getUnreadCount({ auth });
+    const unreadCountRes = await HttpService.client.getUnreadCount();
     if (unreadCountRes.state === "success") {
       this.unreadPrivateMessages = unreadCountRes.data.private_messages;
       this.unreadReplies = unreadCountRes.data.replies;
@@ -52,7 +52,7 @@ export class UnreadCounterService {
         this.unreadPrivateMessages + this.unreadReplies + this.unreadMentions;
     }
     if (UserService.Instance.moderatesSomething) {
-      const reportCountRes = await HttpService.client.getReportCount({ auth });
+      const reportCountRes = await HttpService.client.getReportCount({});
       if (reportCountRes.state === "success") {
         this.commentReportCount = reportCountRes.data.comment_reports ?? 0;
         this.postReportCount = reportCountRes.data.post_reports ?? 0;
@@ -66,9 +66,7 @@ export class UnreadCounterService {
     }
     if (amAdmin()) {
       const unreadApplicationsRes =
-        await HttpService.client.getUnreadRegistrationApplicationCount({
-          auth,
-        });
+        await HttpService.client.getUnreadRegistrationApplicationCount();
       if (unreadApplicationsRes.state === "success") {
         this.unreadApplicationCount =
           unreadApplicationsRes.data.registration_applications;
