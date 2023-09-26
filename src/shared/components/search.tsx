@@ -349,7 +349,6 @@ export class Search extends Component<any, SearchState> {
         type_: defaultListingType,
         sort: defaultSortType,
         limit: fetchLimit,
-        auth: myAuth(),
       }),
     });
   }
@@ -360,7 +359,6 @@ export class Search extends Component<any, SearchState> {
 
   static async fetchInitialData({
     client,
-    auth,
     query: { communityId, creatorId, q, type, sort, listingType, page },
   }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<SearchData> {
     const community_id = getIdFromString(communityId);
@@ -373,7 +371,6 @@ export class Search extends Component<any, SearchState> {
     if (community_id) {
       const getCommunityForm: GetCommunity = {
         id: community_id,
-        auth,
       };
 
       communityResponse = await client.getCommunity(getCommunityForm);
@@ -382,7 +379,6 @@ export class Search extends Component<any, SearchState> {
         type_: defaultListingType,
         sort: defaultSortType,
         limit: fetchLimit,
-        auth,
       };
 
       listCommunitiesResponse = await client.listCommunities(
@@ -397,7 +393,6 @@ export class Search extends Component<any, SearchState> {
     if (creator_id) {
       const getCreatorForm: GetPersonDetails = {
         person_id: creator_id,
-        auth,
       };
 
       creatorDetailsResponse = await client.getPersonDetails(getCreatorForm);
@@ -420,15 +415,13 @@ export class Search extends Component<any, SearchState> {
         listing_type: getListingTypeFromQuery(listingType),
         page: getPageFromString(page),
         limit: fetchLimit,
-        auth,
       };
 
       if (query !== "") {
         searchResponse = await client.search(form);
-        if (auth) {
+        if (myAuth()) {
           const resolveObjectForm: ResolveObject = {
             q: query,
-            auth,
           };
           resolveObjectResponse = await HttpService.silent_client.resolveObject(
             resolveObjectForm,
@@ -950,7 +943,6 @@ export class Search extends Component<any, SearchState> {
   }
 
   async search() {
-    const auth = myAuth();
     const { searchText: q } = this.state;
     const { communityId, creatorId, type, sort, listingType, page } =
       getSearchQueryParams();
@@ -967,18 +959,16 @@ export class Search extends Component<any, SearchState> {
           listing_type: listingType,
           page,
           limit: fetchLimit,
-          auth,
         }),
       });
       window.scrollTo(0, 0);
       restoreScrollPosition(this.context);
 
-      if (auth) {
+      if (myAuth()) {
         this.setState({ resolveObjectRes: { state: "loading" } });
         this.setState({
           resolveObjectRes: await HttpService.silent_client.resolveObject({
             q,
-            auth,
           }),
         });
       }

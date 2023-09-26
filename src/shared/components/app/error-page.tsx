@@ -1,5 +1,4 @@
 import { setIsoData } from "@utils/app";
-import { removeAuthParam } from "@utils/helpers";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -56,11 +55,7 @@ export class ErrorPage extends Component<any, any> {
             </>
           )}
         {errorPageData?.error && (
-          <T
-            i18nKey="error_code_message"
-            parent="p"
-            interpolation={{ error: removeAuthParam(errorPageData.error) }}
-          >
+          <T i18nKey="error_code_message" parent="p">
             #<strong className="text-danger">#</strong>#
           </T>
         )}

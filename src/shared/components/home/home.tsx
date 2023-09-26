@@ -129,7 +129,6 @@ type HomeData = RouteDataResponse<{
 
 function getRss(listingType: ListingType) {
   const { sort } = getHomeQueryParams();
-  const auth = myAuth();
 
   let rss: string | undefined = undefined;
 
@@ -143,6 +142,7 @@ function getRss(listingType: ListingType) {
       break;
     }
     case "Subscribed": {
+      const auth = myAuth();
       rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
       break;
     }
@@ -310,7 +310,6 @@ export class Home extends Component<any, HomeState> {
 
   static async fetchInitialData({
     client,
-    auth,
     query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
     site,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
@@ -334,7 +333,6 @@ export class Home extends Component<any, HomeState> {
         limit: fetchLimit,
         sort,
         saved_only: false,
-        auth,
       };
 
       postsRes = await client.getPosts(getPostsForm);
@@ -345,7 +343,6 @@ export class Home extends Component<any, HomeState> {
         sort: postToCommentSortType(sort),
         type_,
         saved_only: false,
-        auth,
       };
 
       commentsRes = await client.getComments(getCommentsForm);
@@ -355,7 +352,6 @@ export class Home extends Component<any, HomeState> {
       type_: "Local",
       sort: "Hot",
       limit: trendingFetchLimit,
-      auth,
     };
 
     return {
@@ -800,13 +796,11 @@ export class Home extends Component<any, HomeState> {
         type_: "Local",
         sort: "Hot",
         limit: trendingFetchLimit,
-        auth: myAuth(),
       }),
     });
   }
 
   async fetchData() {
-    const auth = myAuth();
     const { dataType, page, listingType, sort } = getHomeQueryParams();
 
     if (dataType === DataType.Post) {
@@ -828,7 +822,6 @@ export class Home extends Component<any, HomeState> {
             sort,
             saved_only: false,
             type_: listingType,
-            auth,
           }),
         });
 
@@ -843,7 +836,6 @@ export class Home extends Component<any, HomeState> {
           sort: postToCommentSortType(sort),
           saved_only: false,
           type_: listingType,
-          auth,
         }),
       });
     }

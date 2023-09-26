@@ -1,9 +1,4 @@
-import {
-  communityToChoice,
-  fetchCommunities,
-  myAuth,
-  myAuthRequired,
-} from "@utils/app";
+import { communityToChoice, fetchCommunities } from "@utils/app";
 import {
   capitalizeFirstLetter,
   debounce,
@@ -89,7 +84,6 @@ function handlePostSubmit(i: PostForm, event: any) {
     i.setState(s => ((s.form.url = undefined), s));
   }
   i.setState({ loading: true, submitted: true });
-  const auth = myAuthRequired();
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
@@ -102,7 +96,6 @@ function handlePostSubmit(i: PostForm, event: any) {
       nsfw: pForm.nsfw,
       post_id: pv.post.id,
       language_id: pForm.language_id,
-      auth,
     });
   } else if (pForm.name && pForm.community_id) {
     i.props.onCreate?.({
@@ -113,7 +106,6 @@ function handlePostSubmit(i: PostForm, event: any) {
       nsfw: pForm.nsfw,
       language_id: pForm.language_id,
       honeypot: pForm.honeypot,
-      auth,
     });
   }
 }
@@ -676,7 +668,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           community_id: this.state.form.community_id,
           page: 1,
           limit: trendingFetchLimit,
-          auth: myAuth(),
         }),
       });
     }

@@ -1,4 +1,4 @@
-import { myAuth, myAuthRequired } from "@utils/app";
+import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -1444,7 +1444,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.props.onPostReport({
       post_id: this.postView.post.id,
       reason,
-      auth: myAuthRequired(),
     });
 
     this.setState({
@@ -1457,7 +1456,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onBlockPerson({
       person_id: i.postView.creator.id,
       block: true,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1466,7 +1464,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onDeletePost({
       post_id: i.postView.post.id,
       deleted: !i.postView.post.deleted,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1475,7 +1472,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onSavePost({
       post_id: i.postView.post.id,
       save: !i.postView.saved,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1533,7 +1529,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onRemovePost({
       post_id: i.postView.post.id,
       removed: !i.postView.post.removed,
-      auth: myAuthRequired(),
       reason: i.state.removeReason,
     });
   }
@@ -1543,7 +1538,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onLockPost({
       post_id: i.postView.post.id,
       locked: !i.postView.post.locked,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1553,7 +1547,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       post_id: i.postView.post.id,
       featured: !i.postView.post.featured_local,
       feature_type: "Local",
-      auth: myAuthRequired(),
     });
   }
 
@@ -1563,7 +1556,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       post_id: i.postView.post.id,
       featured: !i.postView.post.featured_community,
       feature_type: "Community",
-      auth: myAuthRequired(),
     });
   }
 
@@ -1610,13 +1602,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       i.props.onPurgePerson({
         person_id: i.postView.creator.id,
         reason: i.state.purgeReason,
-        auth: myAuthRequired(),
       });
     } else if (i.state.purgeType === PurgeType.Post) {
       i.props.onPurgePost({
         post_id: i.postView.post.id,
         reason: i.state.purgeReason,
-        auth: myAuthRequired(),
       });
     }
   }
@@ -1662,7 +1652,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         remove_data,
         reason,
         expires,
-        auth: myAuthRequired(),
       });
     } else {
       i.props.onBanPerson({
@@ -1671,7 +1660,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         remove_data,
         reason,
         expires,
-        auth: myAuthRequired(),
       });
     }
   }
@@ -1682,7 +1670,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       community_id: i.postView.community.id,
       person_id: i.postView.creator.id,
       added: !i.creatorIsMod_,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1691,7 +1678,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onAddAdmin({
       person_id: i.postView.creator.id,
       added: !i.creatorIsAdmin_,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1708,7 +1694,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onTransferCommunity({
       community_id: i.postView.community.id,
       person_id: i.postView.creator.id,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1725,12 +1710,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
 
-    const auth = myAuth();
-    if (auth && !i.props.post_view.read) {
+    if (myAuth() && !i.props.post_view.read) {
       i.props.onMarkPostAsRead({
         post_id: i.props.post_view.post.id,
         read: true,
-        auth: auth,
       });
     }
   }

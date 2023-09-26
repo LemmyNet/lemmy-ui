@@ -1,4 +1,4 @@
-import { myAuthRequired, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { getQueryParams } from "@utils/helpers";
 import { QueryParams, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
@@ -49,7 +49,6 @@ async function handleToggleFollow(i: RemoteFetch, follow: boolean) {
     });
 
     const communityRes = await HttpService.client.followCommunity({
-      auth: myAuthRequired(),
       community_id: resolveObjectRes.data.community.community.id,
       follow,
     });
@@ -104,7 +103,6 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
         this.setState({ resolveObjectRes: { state: "loading" } });
         this.setState({
           resolveObjectRes: await HttpService.client.resolveObject({
-            auth: myAuthRequired(),
             q: uriToQuery(uri),
           }),
         });
@@ -204,8 +202,8 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
   }
 
   static async fetchInitialData({
-    client,
     auth,
+    client,
     query: { uri },
   }: InitialFetchRequest<
     QueryParams<RemoteFetchProps>
@@ -214,7 +212,6 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
 
     if (uri && auth) {
       data.resolveObjectRes = await client.resolveObject({
-        auth,
         q: uriToQuery(uri),
       });
     }

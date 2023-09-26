@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { getUnixTime, hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
@@ -500,7 +499,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onFollowCommunity({
       community_id: i.props.community_view.community.id,
       follow: false,
-      auth: myAuthRequired(),
     });
   }
 
@@ -509,7 +507,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onFollowCommunity({
       community_id: i.props.community_view.community.id,
       follow: true,
-      auth: myAuthRequired(),
     });
   }
 
@@ -519,7 +516,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onBlockCommunity({
       community_id: community.id,
       block: !blocked,
-      auth: myAuthRequired(),
     });
   }
 
@@ -531,7 +527,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         community_id: i.props.community_view.community.id,
         person_id: myId,
         added: false,
-        auth: myAuthRequired(),
       });
     }
   }
@@ -541,7 +536,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onDeleteCommunity({
       community_id: i.props.community_view.community.id,
       deleted: !i.props.community_view.community.deleted,
-      auth: myAuthRequired(),
     });
   }
 
@@ -553,7 +547,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       removed: !i.props.community_view.community.removed,
       reason: i.state.removeReason,
       expires: getUnixTime(i.state.removeExpires), // TODO fix this
-      auth: myAuthRequired(),
     });
   }
 
@@ -563,7 +556,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onPurgeCommunity({
       community_id: i.props.community_view.community.id,
       reason: i.state.purgeReason,
-      auth: myAuthRequired(),
     });
   }
 }

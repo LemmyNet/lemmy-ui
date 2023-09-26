@@ -1,10 +1,4 @@
-import {
-  colorList,
-  getCommentParentId,
-  myAuth,
-  myAuthRequired,
-  showScores,
-} from "@utils/app";
+import { colorList, getCommentParentId, showScores } from "@utils/app";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import {
   amCommunityCreator,
@@ -1380,7 +1374,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.props.onSaveComment({
       comment_id: i.commentView.comment.id,
       save: !i.commentView.saved,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1389,7 +1382,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.props.onBlockPerson({
       person_id: i.commentView.creator.id,
       block: true,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1400,13 +1392,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       i.props.onPersonMentionRead({
         person_mention_id: cv.person_mention.id,
         read: !cv.person_mention.read,
-        auth: myAuthRequired(),
       });
     } else if (i.isCommentReplyType(cv)) {
       i.props.onCommentReplyRead({
         comment_reply_id: cv.comment_reply.id,
         read: !cv.comment_reply.read,
-        auth: myAuthRequired(),
       });
     }
   }
@@ -1416,7 +1406,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.props.onDeleteComment({
       comment_id: i.commentId,
       deleted: !i.commentView.comment.deleted,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1426,7 +1415,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.props.onRemoveComment({
       comment_id: i.commentId,
       removed: !i.commentView.comment.removed,
-      auth: myAuthRequired(),
       reason: i.state.removeReason,
     });
   }
@@ -1436,7 +1424,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.props.onDistinguishComment({
       comment_id: i.commentId,
       distinguished: !i.commentView.comment.distinguished,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1449,7 +1436,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       reason: i.state.banReason,
       remove_data: i.state.removeData,
       expires: futureDaysToUnixTime(i.state.banExpireDays),
-      auth: myAuthRequired(),
     });
   }
 
@@ -1461,7 +1447,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       reason: i.state.banReason,
       remove_data: i.state.removeData,
       expires: futureDaysToUnixTime(i.state.banExpireDays),
-      auth: myAuthRequired(),
     });
   }
 
@@ -1482,7 +1467,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       community_id: i.commentView.community.id,
       person_id: i.commentView.creator.id,
       added,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1493,7 +1477,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.props.onAddAdmin({
       person_id: i.commentView.creator.id,
       added,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1502,7 +1485,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.props.onTransferCommunity({
       community_id: i.commentView.community.id,
       person_id: i.commentView.creator.id,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1510,7 +1492,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.props.onCommentReport({
       comment_id: this.commentId,
       reason,
-      auth: myAuthRequired(),
     });
 
     this.setState({
@@ -1526,13 +1507,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       i.props.onPurgePerson({
         person_id: i.commentView.creator.id,
         reason: i.state.purgeReason,
-        auth: myAuthRequired(),
       });
     } else {
       i.props.onPurgeComment({
         comment_id: i.commentId,
         reason: i.state.purgeReason,
-        auth: myAuthRequired(),
       });
     }
   }
@@ -1545,7 +1524,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       limit: 999, // TODO
       type_: "All",
       saved_only: false,
-      auth: myAuth(),
     });
   }
 }

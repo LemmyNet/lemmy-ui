@@ -15,7 +15,7 @@ export default async (req: Request, res: Response) => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers }),
     );
-    const site = await client.getSite({});
+    const site = await client.getSite();
 
     if (site.state === "success") {
       manifest = await generateManifestJson(site.data);

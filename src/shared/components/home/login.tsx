@@ -1,4 +1,4 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
@@ -62,9 +62,7 @@ async function handleLoginSubmit(i: Login, event: any) {
         UserService.Instance.login({
           res: loginRes.data,
         });
-        const site = await HttpService.client.getSite({
-          auth: myAuth(),
-        });
+        const site = await HttpService.client.getSite();
 
         if (site.state === "success") {
           UserService.Instance.myUserInfo = site.data.my_user;

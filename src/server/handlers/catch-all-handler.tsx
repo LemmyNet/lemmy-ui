@@ -6,7 +6,7 @@ import fetch from "cross-fetch";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { renderToString } from "inferno-server";
-import { GetSite, GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import { App } from "../../shared/components/app/app";
 import {
   InitialFetchRequest,
@@ -26,18 +26,19 @@ export default async (req: Request, res: Response) => {
   try {
     const activeRoute = routes.find(route => matchPath(req.path, route));
 
-    let auth = req.headers.cookie
-      ? cookie.parse(req.headers.cookie).jwt
-      : undefined;
-
-    const getSiteForm: GetSite = { auth };
-
     const headers = setForwardedHeaders(req.headers);
 
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers }),
     );
 
+    const auth = req.headers.cookie
+      ? cookie.parse(req.headers.cookie).jwt
+      : undefined;
+
+    if (auth) {
+      client.setHeaders({ Authorization: `Bearer ${auth}` });
+    }
     const { path, url, query } = req;
 
     // Get site data first
@@ -46,15 +47,14 @@ export default async (req: Request, res: Response) => {
     let site: GetSiteResponse | undefined = undefined;
     let routeData: RouteData = {};
     let errorPageData: ErrorPageData | undefined = undefined;
-    let try_site = await client.getSite(getSiteForm);
+    let try_site = await client.getSite();
 
     if (try_site.state === "failed" && try_site.msg === "not_logged_in") {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie",
       );
-      getSiteForm.auth = undefined;
-      auth = undefined;
-      try_site = await client.getSite(getSiteForm);
+      client.setHeaders({});
+      try_site = await client.getSite();
     }
 
     if (!auth && isAuthPath(path)) {
@@ -72,7 +72,6 @@ export default async (req: Request, res: Response) => {
       if (site && activeRoute?.fetchInitialData) {
         const initialFetchReq: InitialFetchRequest = {
           client,
-          auth,
           path,
           query,
           site,

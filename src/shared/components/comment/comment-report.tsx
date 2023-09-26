@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -149,7 +148,6 @@ export class CommentReport extends Component<
     i.props.onResolveReport({
       report_id: i.props.report.comment_report.id,
       resolved: !i.props.report.comment_report.resolved,
-      auth: myAuthRequired(),
     });
   }
 }
