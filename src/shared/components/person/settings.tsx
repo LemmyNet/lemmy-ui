@@ -266,6 +266,9 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   async componentDidMount() {
+    setupTippy();
+    this.setState({ themeList: await fetchThemeList() });
+
     if (!this.state.isIsomorphic) {
       this.setState({
         instancesRes: { state: "loading" },
@@ -283,11 +286,6 @@ export class Settings extends Component<any, SettingsState> {
     return {
       instancesRes: await client.getFederatedInstances(),
     };
-  }
-
-  async componentDidMount() {
-    setupTippy();
-    this.setState({ themeList: await fetchThemeList() });
   }
 
   get documentTitle(): string {
