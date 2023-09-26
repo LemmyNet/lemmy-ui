@@ -34,7 +34,7 @@ import {
   SortType,
 } from "lemmy-js-client";
 import { elementUrl, emDash, relTags } from "../../config";
-import { UserService } from "../../services";
+import { FirstLoadService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { I18NextService, languages } from "../../services/I18NextService";
 import { setupTippy } from "../../tippy";
@@ -108,6 +108,7 @@ interface SettingsState {
   searchPersonLoading: boolean;
   searchPersonOptions: Choice[];
   searchInstanceOptions: Choice[];
+  isIsomorphic: boolean;
 }
 
 type FilterType = "user" | "community" | "instance";
@@ -117,7 +118,7 @@ const Filter = ({
   options,
   onChange,
   onSearch,
-  loading = true,
+  loading = false,
 }: {
   filterType: FilterType;
   options: Choice[];
@@ -147,7 +148,7 @@ const Filter = ({
 );
 
 export class Settings extends Component<any, SettingsState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<SettingsData>(this.context);
   state: SettingsState = {
     saveRes: { state: "empty" },
     deleteAccountRes: { state: "empty" },
@@ -168,6 +169,7 @@ export class Settings extends Component<any, SettingsState> {
     searchPersonLoading: false,
     searchPersonOptions: [],
     searchInstanceOptions: [],
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -249,6 +251,29 @@ export class Settings extends Component<any, SettingsState> {
           matrix_user_id,
         },
       };
+    }
+
+    // Only fetch the data if coming from another route
+    if (FirstLoadService.isFirstLoad) {
+      const { instancesRes } = this.isoData.routeData;
+
+      this.state = {
+        ...this.state,
+        instancesRes,
+        isIsomorphic: true,
+      };
+    }
+  }
+
+  async componentDidMount() {
+    if (!this.state.isIsomorphic) {
+      this.setState({
+        instancesRes: { state: "loading" },
+      });
+
+      this.setState({
+        instancesRes: await HttpService.client.getFederatedInstances(),
+      });
     }
   }
 
