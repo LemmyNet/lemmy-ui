@@ -6,6 +6,7 @@ import { UserService } from "../shared/services";
 
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
+import "bootstrap/js/dist/modal";
 
 async function startClient() {
   initializeSite(window.isoData.site_res);

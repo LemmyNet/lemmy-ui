@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
@@ -137,7 +136,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     i.props.onResolveReport({
       report_id: i.props.report.post_report.id,
       resolved: !i.props.report.post_report.resolved,
-      auth: myAuthRequired(),
     });
   }
 }

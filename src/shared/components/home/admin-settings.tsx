@@ -1,9 +1,4 @@
-import {
-  fetchThemeList,
-  myAuthRequired,
-  setIsoData,
-  showLocal,
-} from "@utils/app";
+import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -85,16 +80,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   static async fetchInitialData({
-    auth,
     client,
   }: InitialFetchRequest): Promise<AdminSettingsData> {
     return {
-      bannedRes: await client.getBannedPersons({
-        auth: auth as string,
-      }),
-      instancesRes: await client.getFederatedInstances({
-        auth: auth as string,
-      }),
+      bannedRes: await client.getBannedPersons(),
+      instancesRes: await client.getFederatedInstances(),
     };
   }
 
@@ -246,11 +236,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       themeList: [],
     });
 
-    const auth = myAuthRequired();
-
     const [bannedRes, instancesRes, themeList] = await Promise.all([
-      HttpService.client.getBannedPersons({ auth }),
-      HttpService.client.getFederatedInstances({ auth }),
+      HttpService.client.getBannedPersons(),
+      HttpService.client.getFederatedInstances(),
       fetchThemeList(),
     ]);
 
@@ -347,9 +335,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   async handleLeaveAdminTeam(i: AdminSettings) {
     i.setState({ leaveAdminTeamRes: { state: "loading" } });
     this.setState({
-      leaveAdminTeamRes: await HttpService.client.leaveAdmin({
-        auth: myAuthRequired(),
-      }),
+      leaveAdminTeamRes: await HttpService.client.leaveAdmin(),
     });
 
     if (this.state.leaveAdminTeamRes.state === "success") {

@@ -1,4 +1,4 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
@@ -126,7 +126,7 @@ export class PasswordChange extends Component<any, State> {
           res: data,
         });
 
-        const site = await HttpService.client.getSite({ auth: myAuth() });
+        const site = await HttpService.client.getSite();
         if (site.state === "success") {
           UserService.Instance.myUserInfo = site.data.my_user;
         }

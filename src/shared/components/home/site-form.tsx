@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter, validInstanceTLD } from "@utils/helpers";
 import {
   Component,
@@ -85,7 +84,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       captcha_difficulty: ls.captcha_difficulty,
       allowed_instances: this.props.allowedInstances?.map(i => i.domain),
       blocked_instances: this.props.blockedInstances?.map(i => i.domain),
-      auth: "TODO",
     };
   }
 
@@ -733,8 +731,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSaveSiteSubmit(i: SiteForm, event: any) {
     event.preventDefault();
-    const auth = myAuthRequired();
-    i.setState(s => ((s.siteForm.auth = auth), s));
     i.setState({ submitted: true });
 
     const stateSiteForm = i.state.siteForm;
@@ -788,7 +784,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         allowed_instances: stateSiteForm.allowed_instances,
         blocked_instances: stateSiteForm.blocked_instances,
         discussion_languages: stateSiteForm.discussion_languages,
-        auth,
       };
     }
 

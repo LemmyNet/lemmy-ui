@@ -8,7 +8,6 @@ import {
   enableNsfw,
   getCommentParentId,
   getDataTypeString,
-  myAuth,
   postToCommentSortType,
   setIsoData,
   showLocal,
@@ -217,7 +216,6 @@ export class Community extends Component<
     this.setState({
       communityRes: await HttpService.client.getCommunity({
         name: this.props.match.params.name,
-        auth: myAuth(),
       }),
     });
   }
@@ -234,7 +232,6 @@ export class Community extends Component<
     client,
     path,
     query: { dataType: urlDataType, page: urlPage, sort: urlSort },
-    auth,
   }: InitialFetchRequest<QueryParams<CommunityProps>>): Promise<
     Promise<CommunityData>
   > {
@@ -243,7 +240,6 @@ export class Community extends Component<
     const communityName = pathSplit[2];
     const communityForm: GetCommunity = {
       name: communityName,
-      auth,
     };
 
     const dataType = getDataTypeFromQuery(urlDataType);
@@ -265,7 +261,6 @@ export class Community extends Component<
         sort,
         type_: "All",
         saved_only: false,
-        auth,
       };
 
       postsResponse = await client.getPosts(getPostsForm);
@@ -277,7 +272,6 @@ export class Community extends Component<
         sort: postToCommentSortType(sort),
         type_: "All",
         saved_only: false,
-        auth,
       };
 
       commentsResponse = await client.getComments(getCommentsForm);
@@ -600,7 +594,6 @@ export class Community extends Component<
           type_: "All",
           community_name: name,
           saved_only: false,
-          auth: myAuth(),
         }),
       });
     } else {
@@ -613,7 +606,6 @@ export class Community extends Component<
           type_: "All",
           community_name: name,
           saved_only: false,
-          auth: myAuth(),
         }),
       });
     }

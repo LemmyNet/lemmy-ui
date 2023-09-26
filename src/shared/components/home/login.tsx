@@ -1,6 +1,8 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
+import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
@@ -8,6 +10,17 @@ import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
+
+interface LoginProps {
+  prev?: string;
+}
+
+const getLoginQueryParams = () =>
+  getQueryParams<LoginProps>({
+    prev(param) {
+      return param ? decodeURIComponent(param) : undefined;
+    },
+  });
 
 interface State {
   loginRes: RequestState<LoginResponse>;
@@ -20,7 +33,73 @@ interface State {
   siteRes: GetSiteResponse;
 }
 
-export class Login extends Component<any, State> {
+async function handleLoginSubmit(i: Login, event: any) {
+  event.preventDefault();
+  const { password, totp_2fa_token, username_or_email } = i.state.form;
+
+  if (username_or_email && password) {
+    i.setState({ loginRes: { state: "loading" } });
+
+    const loginRes = await HttpService.client.login({
+      username_or_email,
+      password,
+      totp_2fa_token,
+    });
+    switch (loginRes.state) {
+      case "failed": {
+        if (loginRes.msg === "missing_totp_token") {
+          i.setState({ showTotp: true });
+          toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
+        } else {
+          toast(I18NextService.i18n.t(loginRes.msg), "danger");
+        }
+
+        i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
+        break;
+      }
+
+      case "success": {
+        UserService.Instance.login({
+          res: loginRes.data,
+        });
+        const site = await HttpService.client.getSite();
+
+        if (site.state === "success") {
+          UserService.Instance.myUserInfo = site.data.my_user;
+        }
+
+        const { prev } = getLoginQueryParams();
+
+        prev
+          ? i.props.history.replace(prev)
+          : i.props.history.action === "PUSH"
+          ? i.props.history.back()
+          : i.props.history.replace("/");
+
+        break;
+      }
+    }
+  }
+}
+
+function handleLoginUsernameChange(i: Login, event: any) {
+  i.setState(
+    prevState => (prevState.form.username_or_email = event.target.value.trim()),
+  );
+}
+
+function handleLoginTotpChange(i: Login, event: any) {
+  i.setState(prevState => (prevState.form.totp_2fa_token = event.target.value));
+}
+
+function handleLoginPasswordChange(i: Login, event: any) {
+  i.setState(prevState => (prevState.form.password = event.target.value));
+}
+
+export class Login extends Component<
+  RouteComponentProps<Record<string, never>>,
+  State
+> {
   private isoData = setIsoData(this.context);
 
   state: State = {
@@ -68,7 +147,7 @@ export class Login extends Component<any, State> {
   loginForm() {
     return (
       <div>
-        <form onSubmit={linkEvent(this, this.handleLoginSubmit)}>
+        <form onSubmit={linkEvent(this, handleLoginSubmit)}>
           <h1 className="h4 mb-4">{I18NextService.i18n.t("login")}</h1>
           <div className="mb-3 row">
             <label
@@ -83,7 +162,7 @@ export class Login extends Component<any, State> {
                 className="form-control"
                 id="login-email-or-username"
                 value={this.state.form.username_or_email}
-                onInput={linkEvent(this, this.handleLoginUsernameChange)}
+                onInput={linkEvent(this, handleLoginUsernameChange)}
                 autoComplete="email"
                 required
                 minLength={3}
@@ -94,7 +173,7 @@ export class Login extends Component<any, State> {
             <PasswordInput
               id="login-password"
               value={this.state.form.password}
-              onInput={linkEvent(this, this.handleLoginPasswordChange)}
+              onInput={linkEvent(this, handleLoginPasswordChange)}
               label={I18NextService.i18n.t("password")}
               showForgotLink
             />
@@ -116,7 +195,7 @@ export class Login extends Component<any, State> {
                   pattern="[0-9]*"
                   autoComplete="one-time-code"
                   value={this.state.form.totp_2fa_token}
-                  onInput={linkEvent(this, this.handleLoginTotpChange)}
+                  onInput={linkEvent(this, handleLoginTotpChange)}
                 />
               </div>
             </div>
@@ -135,67 +214,5 @@ export class Login extends Component<any, State> {
         </form>
       </div>
     );
-  }
-
-  async handleLoginSubmit(i: Login, event: any) {
-    event.preventDefault();
-    const { password, totp_2fa_token, username_or_email } = i.state.form;
-
-    if (username_or_email && password) {
-      i.setState({ loginRes: { state: "loading" } });
-
-      const loginRes = await HttpService.client.login({
-        username_or_email,
-        password,
-        totp_2fa_token,
-      });
-      switch (loginRes.state) {
-        case "failed": {
-          if (loginRes.msg === "missing_totp_token") {
-            i.setState({ showTotp: true });
-            toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
-          } else {
-            toast(I18NextService.i18n.t(loginRes.msg), "danger");
-          }
-
-          i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
-          break;
-        }
-
-        case "success": {
-          UserService.Instance.login({
-            res: loginRes.data,
-          });
-          const site = await HttpService.client.getSite({
-            auth: myAuth(),
-          });
-
-          if (site.state === "success") {
-            UserService.Instance.myUserInfo = site.data.my_user;
-          }
-
-          i.props.history.action === "PUSH"
-            ? i.props.history.back()
-            : i.props.history.replace("/");
-
-          break;
-        }
-      }
-    }
-  }
-
-  handleLoginUsernameChange(i: Login, event: any) {
-    i.state.form.username_or_email = event.target.value.trim();
-    i.setState(i.state);
-  }
-
-  handleLoginTotpChange(i: Login, event: any) {
-    i.state.form.totp_2fa_token = event.target.value;
-    i.setState(i.state);
-  }
-
-  handleLoginPasswordChange(i: Login, event: any) {
-    i.state.form.password = event.target.value;
-    i.setState(i.state);
   }
 }

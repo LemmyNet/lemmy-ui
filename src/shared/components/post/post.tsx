@@ -9,7 +9,6 @@ import {
   getCommentParentId,
   getDepthFromComment,
   getIdFromProps,
-  myAuth,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
@@ -201,23 +200,24 @@ export class Post extends Component<any, PostState> {
       commentsRes: { state: "loading" },
     });
 
-    const auth = myAuth();
-
-    this.setState({
-      postRes: await HttpService.client.getPost({
+    const [postRes, commentsRes] = await Promise.all([
+      await HttpService.client.getPost({
         id: this.state.postId,
         comment_id: this.state.commentId,
-        auth,
       }),
-      commentsRes: await HttpService.client.getComments({
+      HttpService.client.getComments({
         post_id: this.state.postId,
         parent_id: this.state.commentId,
         max_depth: commentTreeMaxDepth,
         sort: this.state.commentSort,
         type_: "All",
         saved_only: false,
-        auth,
       }),
+    ]);
+
+    this.setState({
+      postRes,
+      commentsRes,
     });
 
     setupTippy();
@@ -232,23 +232,19 @@ export class Post extends Component<any, PostState> {
   static async fetchInitialData({
     client,
     path,
-    auth,
   }: InitialFetchRequest): Promise<PostData> {
     const pathSplit = path.split("/");
 
     const pathType = pathSplit.at(1);
     const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
 
-    const postForm: GetPost = {
-      auth,
-    };
+    const postForm: GetPost = {};
 
     const commentsForm: GetComments = {
       max_depth: commentTreeMaxDepth,
       sort: "Hot",
       type_: "All",
       saved_only: false,
-      auth,
     };
 
     // Set the correct id based on the path type

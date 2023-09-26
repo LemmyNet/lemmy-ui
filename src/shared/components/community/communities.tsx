@@ -1,10 +1,4 @@
-import {
-  editCommunity,
-  myAuth,
-  myAuthRequired,
-  setIsoData,
-  showLocal,
-} from "@utils/app";
+import { editCommunity, setIsoData, showLocal } from "@utils/app";
 import {
   getPageFromString,
   getQueryParams,
@@ -33,6 +27,7 @@ import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "./community-link";
 
 import { communityLimit } from "../../config";
+import { SubscribeButton } from "../common/subscribe-button";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -179,41 +174,26 @@ export class Communities extends Component<any, CommunitiesState> {
                           {numToSI(cv.counts.comments)}
                         </td>
                         <td className="text-right">
-                          {cv.subscribed === "Subscribed" && (
-                            <button
-                              className="btn btn-link d-inline-block"
-                              onClick={linkEvent(
-                                {
-                                  i: this,
-                                  communityId: cv.community.id,
-                                  follow: false,
-                                },
-                                this.handleFollow,
-                              )}
-                            >
-                              {I18NextService.i18n.t("unsubscribe")}
-                            </button>
-                          )}
-                          {cv.subscribed === "NotSubscribed" && (
-                            <button
-                              className="btn btn-link d-inline-block"
-                              onClick={linkEvent(
-                                {
-                                  i: this,
-                                  communityId: cv.community.id,
-                                  follow: true,
-                                },
-                                this.handleFollow,
-                              )}
-                            >
-                              {I18NextService.i18n.t("subscribe")}
-                            </button>
-                          )}
-                          {cv.subscribed === "Pending" && (
-                            <div className="text-warning d-inline-block">
-                              {I18NextService.i18n.t("subscribe_pending")}
-                            </div>
-                          )}
+                          <SubscribeButton
+                            communityView={cv}
+                            onFollow={linkEvent(
+                              {
+                                i: this,
+                                communityId: cv.community.id,
+                                follow: false,
+                              },
+                              this.handleFollow,
+                            )}
+                            onUnFollow={linkEvent(
+                              {
+                                i: this,
+                                communityId: cv.community.id,
+                                follow: true,
+                              },
+                              this.handleFollow,
+                            )}
+                            isLink
+                          />
                         </td>
                       </tr>
                     ),
@@ -323,7 +303,6 @@ export class Communities extends Component<any, CommunitiesState> {
   static async fetchInitialData({
     query: { listingType, sort, page },
     client,
-    auth,
   }: InitialFetchRequest<
     QueryParams<CommunitiesProps>
   >): Promise<CommunitiesData> {
@@ -332,7 +311,6 @@ export class Communities extends Component<any, CommunitiesState> {
       sort: getSortTypeFromQuery(sort),
       limit: communityLimit,
       page: getPageFromString(page),
-      auth: auth,
     };
 
     return {
@@ -350,7 +328,6 @@ export class Communities extends Component<any, CommunitiesState> {
     const res = await HttpService.client.followCommunity({
       community_id: data.communityId,
       follow: data.follow,
-      auth: myAuthRequired(),
     });
     data.i.findAndUpdateCommunity(res);
   }
@@ -366,7 +343,6 @@ export class Communities extends Component<any, CommunitiesState> {
         sort: sort,
         limit: communityLimit,
         page,
-        auth: myAuth(),
       }),
     });
 

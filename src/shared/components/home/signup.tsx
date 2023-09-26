@@ -1,4 +1,4 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
@@ -67,7 +67,7 @@ export class Signup extends Component<any, State> {
   async fetchCaptcha() {
     this.setState({ captchaRes: { state: "loading" } });
     this.setState({
-      captchaRes: await HttpService.client.getCaptcha({}),
+      captchaRes: await HttpService.client.getCaptcha(),
     });
 
     this.setState(s => {
@@ -397,7 +397,7 @@ export class Signup extends Component<any, State> {
               res: data,
             });
 
-            const site = await HttpService.client.getSite({ auth: myAuth() });
+            const site = await HttpService.client.getSite();
 
             if (site.state === "success") {
               UserService.Instance.myUserInfo = site.data.my_user;

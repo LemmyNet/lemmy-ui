@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { EditSite, Tagline } from "lemmy-js-client";
@@ -143,7 +142,6 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   async handleSaveClick(i: TaglineForm) {
     i.props.onSaveSite({
       taglines: i.state.taglines,
-      auth: myAuthRequired(),
     });
   }
 
