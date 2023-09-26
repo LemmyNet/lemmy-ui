@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -128,19 +127,16 @@ export class PrivateMessageForm extends Component<
     event.preventDefault();
     i.setState({ loading: true, submitted: true });
     const pm = i.props.privateMessageView;
-    const auth = myAuthRequired();
     const content = i.state.content ?? "";
     if (pm) {
       i.props.onEdit?.({
         private_message_id: pm.private_message.id,
         content,
-        auth,
       });
     } else {
       i.props.onCreate?.({
         content,
         recipient_id: i.props.recipient.id,
-        auth,
       });
     }
   }

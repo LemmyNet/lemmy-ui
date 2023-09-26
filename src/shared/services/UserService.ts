@@ -5,6 +5,7 @@ import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
+import { HttpService } from ".";
 
 interface Claims {
   sub: number;
@@ -81,6 +82,7 @@ export class UserService {
       const { jwt } = cookie.parse(document.cookie);
 
       if (jwt) {
+        HttpService.client.setHeaders({ Authorization: `Bearer ${jwt}` });
         this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
       }
     }

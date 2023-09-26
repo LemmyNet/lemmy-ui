@@ -1,8 +1,4 @@
-import {
-  editRegistrationApplication,
-  myAuthRequired,
-  setIsoData,
-} from "@utils/app";
+import { editRegistrationApplication, myAuth, setIsoData } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -205,16 +201,14 @@ export class RegistrationApplications extends Component<
   }
 
   static async fetchInitialData({
-    auth,
     client,
   }: InitialFetchRequest): Promise<RegistrationApplicationsData> {
     return {
-      listRegistrationApplicationsResponse: auth
+      listRegistrationApplicationsResponse: myAuth()
         ? await client.listRegistrationApplications({
             unread_only: true,
             page: 1,
             limit: fetchLimit,
-            auth: auth as string,
           })
         : { state: "empty" },
     };
@@ -230,7 +224,6 @@ export class RegistrationApplications extends Component<
         unread_only: unread_only,
         page: this.state.page,
         limit: fetchLimit,
-        auth: myAuthRequired(),
       }),
     });
   }

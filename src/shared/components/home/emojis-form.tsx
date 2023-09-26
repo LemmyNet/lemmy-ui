@@ -1,4 +1,4 @@
-import { myAuthRequired, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import {
@@ -418,7 +418,6 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     if (d.cv.id !== 0) {
       d.i.props.onDelete({
         id: d.cv.id,
-        auth: myAuthRequired(),
       });
     } else {
       const custom_emojis = [...d.i.state.customEmojis];
@@ -439,7 +438,6 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
         image_url: d.cv.image_url,
         alt_text: d.cv.alt_text,
         keywords: uniqueKeywords,
-        auth: myAuthRequired(),
       });
     } else {
       d.i.props.onCreate({
@@ -448,7 +446,6 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
         image_url: d.cv.image_url,
         alt_text: d.cv.alt_text,
         keywords: uniqueKeywords,
-        auth: myAuthRequired(),
       });
     }
   }

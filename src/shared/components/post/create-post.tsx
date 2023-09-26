@@ -1,4 +1,4 @@
-import { enableDownvotes, enableNsfw, myAuth, setIsoData } from "@utils/app";
+import { enableDownvotes, enableNsfw, setIsoData } from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -96,12 +96,10 @@ export class CreatePost extends Component<
 
   async fetchCommunity() {
     const { communityId } = getCreatePostQueryParams();
-    const auth = myAuth();
 
     if (communityId) {
       const res = await HttpService.client.getCommunity({
         id: communityId,
-        auth,
       });
       if (res.state === "success") {
         this.setState({
@@ -239,7 +237,6 @@ export class CreatePost extends Component<
   static async fetchInitialData({
     client,
     query: { communityId },
-    auth,
   }: InitialFetchRequest<
     QueryParams<CreatePostProps>
   >): Promise<CreatePostData> {
@@ -250,7 +247,6 @@ export class CreatePost extends Component<
 
     if (communityId) {
       const form: GetCommunity = {
-        auth,
         id: getIdFromString(communityId),
       };
 

@@ -1,10 +1,4 @@
-import {
-  editCommunity,
-  myAuth,
-  myAuthRequired,
-  setIsoData,
-  showLocal,
-} from "@utils/app";
+import { editCommunity, setIsoData, showLocal } from "@utils/app";
 import {
   getPageFromString,
   getQueryParams,
@@ -323,7 +317,6 @@ export class Communities extends Component<any, CommunitiesState> {
   static async fetchInitialData({
     query: { listingType, sort, page },
     client,
-    auth,
   }: InitialFetchRequest<
     QueryParams<CommunitiesProps>
   >): Promise<CommunitiesData> {
@@ -332,7 +325,6 @@ export class Communities extends Component<any, CommunitiesState> {
       sort: getSortTypeFromQuery(sort),
       limit: communityLimit,
       page: getPageFromString(page),
-      auth: auth,
     };
 
     return {
@@ -350,7 +342,6 @@ export class Communities extends Component<any, CommunitiesState> {
     const res = await HttpService.client.followCommunity({
       community_id: data.communityId,
       follow: data.follow,
-      auth: myAuthRequired(),
     });
     data.i.findAndUpdateCommunity(res);
   }
@@ -366,7 +357,6 @@ export class Communities extends Component<any, CommunitiesState> {
         sort: sort,
         limit: communityLimit,
         page,
-        auth: myAuth(),
       }),
     });
 

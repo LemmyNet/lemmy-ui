@@ -1,4 +1,4 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
@@ -166,9 +166,7 @@ export class Login extends Component<any, State> {
           UserService.Instance.login({
             res: loginRes.data,
           });
-          const site = await HttpService.client.getSite({
-            auth: myAuth(),
-          });
+          const site = await HttpService.client.getSite();
 
           if (site.state === "success") {
             UserService.Instance.myUserInfo = site.data.my_user;

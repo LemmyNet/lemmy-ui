@@ -5,8 +5,6 @@ import {
   enableDownvotes,
   enableNsfw,
   getCommentParentId,
-  myAuth,
-  myAuthRequired,
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
@@ -243,7 +241,6 @@ export class Profile extends Component<
         saved_only: view === PersonDetailsView.Saved,
         page,
         limit: fetchLimit,
-        auth: myAuth(),
       }),
     });
     restoreScrollPosition(this.context);
@@ -278,7 +275,6 @@ export class Profile extends Component<
     client,
     path,
     query: { page, sort, view: urlView },
-    auth,
   }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<ProfileData> {
     const pathSplit = path.split("/");
 
@@ -291,7 +287,6 @@ export class Profile extends Component<
       saved_only: view === PersonDetailsView.Saved,
       page: getPageFromString(page),
       limit: fetchLimit,
-      auth,
     };
 
     return {
@@ -782,7 +777,6 @@ export class Profile extends Component<
         remove_data: removeData,
         reason: banReason,
         expires: futureDaysToUnixTime(banExpireDays),
-        auth: myAuthRequired(),
       });
       // TODO
       this.updateBan(res);
@@ -794,7 +788,6 @@ export class Profile extends Component<
     const res = await HttpService.client.blockPerson({
       person_id: recipientId,
       block,
-      auth: myAuthRequired(),
     });
     if (res.state === "success") {
       updatePersonBlock(res.data);

@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -105,7 +104,6 @@ export class PrivateMessageReport extends Component<Props, State> {
     i.props.onResolveReport({
       report_id: pmr.id,
       resolved: !pmr.resolved,
-      auth: myAuthRequired(),
     });
   }
 }

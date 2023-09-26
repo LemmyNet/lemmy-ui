@@ -4,7 +4,6 @@ import {
   fetchThemeList,
   fetchUsers,
   myAuth,
-  myAuthRequired,
   personToChoice,
   setIsoData,
   setTheme,
@@ -993,7 +992,6 @@ export class Settings extends Component<any, SettingsState> {
       const res = await HttpService.client.blockPerson({
         person_id: Number(value),
         block: true,
-        auth: myAuthRequired(),
       });
       this.personBlock(res);
     }
@@ -1009,7 +1007,6 @@ export class Settings extends Component<any, SettingsState> {
     const res = await HttpService.client.blockPerson({
       person_id: recipientId,
       block: false,
-      auth: myAuthRequired(),
     });
     ctx.personBlock(res);
   }
@@ -1019,19 +1016,16 @@ export class Settings extends Component<any, SettingsState> {
       const res = await HttpService.client.blockCommunity({
         community_id: Number(value),
         block: true,
-        auth: myAuthRequired(),
       });
       this.communityBlock(res);
     }
   }
 
   async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
-    const auth = myAuth();
-    if (auth) {
+    if (myAuth()) {
       const res = await HttpService.client.blockCommunity({
         community_id: i.communityId,
         block: false,
-        auth: myAuthRequired(),
       });
       i.ctx.communityBlock(res);
     }
@@ -1232,7 +1226,6 @@ export class Settings extends Component<any, SettingsState> {
 
     const saveRes = await HttpService.client.saveUserSettings({
       ...i.state.saveUserSettingsForm,
-      auth: myAuthRequired(),
     });
 
     if (saveRes.state === "success") {
@@ -1258,7 +1251,6 @@ export class Settings extends Component<any, SettingsState> {
         new_password,
         new_password_verify,
         old_password,
-        auth: myAuthRequired(),
       });
       if (changePasswordRes.state === "success") {
         UserService.Instance.login({
@@ -1288,7 +1280,6 @@ export class Settings extends Component<any, SettingsState> {
       i.setState({ deleteAccountRes: { state: "loading" } });
       const deleteAccountRes = await HttpService.client.deleteAccount({
         password,
-        auth: myAuthRequired(),
         // TODO: promt user weather he wants the content to be deleted
         delete_content: false,
       });

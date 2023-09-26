@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, FormEventHandler, linkEvent } from "inferno";
@@ -114,15 +113,12 @@ function handlePerSecondChange(
 
 function submitRateLimitForm(i: RateLimitsForm, event: any) {
   event.preventDefault();
-  const auth = myAuthRequired();
   const form: EditSite = Object.entries(i.state.form).reduce(
     (acc, [key, val]) => {
       acc[`rate_limit_${key}`] = val;
       return acc;
     },
-    {
-      auth,
-    },
+    {},
   );
 
   i.props.onSaveSite(form);
