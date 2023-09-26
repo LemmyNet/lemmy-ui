@@ -3,6 +3,7 @@ import {
   fetchCommunities,
   fetchThemeList,
   fetchUsers,
+  instanceToChoice,
   myAuth,
   personToChoice,
   setIsoData,
@@ -12,7 +13,7 @@ import {
   updatePersonBlock,
 } from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
-import { Choice } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
@@ -21,7 +22,10 @@ import {
   BlockPersonResponse,
   CommunityBlockView,
   DeleteAccountResponse,
+  GetFederatedInstancesResponse,
   GetSiteResponse,
+  Instance,
+  InstanceBlockView,
   ListingType,
   LoginResponse,
   PersonBlockView,
@@ -45,11 +49,17 @@ import { SortSelect } from "../common/sort-select";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
+import { InitialFetchRequest } from "shared/interfaces";
+
+type SettingsData = RouteDataResponse<{
+  instancesRes: GetFederatedInstancesResponse;
+}>;
 
 interface SettingsState {
   saveRes: RequestState<LoginResponse>;
   changePasswordRes: RequestState<LoginResponse>;
   deleteAccountRes: RequestState<DeleteAccountResponse>;
+  instancesRes: RequestState<GetFederatedInstancesResponse>;
   // TODO redo these forms
   saveUserSettingsForm: {
     show_nsfw?: boolean;
@@ -86,6 +96,7 @@ interface SettingsState {
   };
   personBlocks: PersonBlockView[];
   communityBlocks: CommunityBlockView[];
+  instanceBlocks: InstanceBlockView[];
   currentTab: string;
   themeList: string[];
   deleteAccountShowConfirm: boolean;
@@ -94,22 +105,23 @@ interface SettingsState {
   searchCommunityOptions: Choice[];
   searchPersonLoading: boolean;
   searchPersonOptions: Choice[];
+  searchInstanceOptions: Choice[];
 }
 
-type FilterType = "user" | "community";
+type FilterType = "user" | "community" | "instance";
 
 const Filter = ({
   filterType,
   options,
   onChange,
   onSearch,
-  loading,
+  loading = true,
 }: {
   filterType: FilterType;
   options: Choice[];
   onSearch: (text: string) => void;
   onChange: (choice: Choice) => void;
-  loading: boolean;
+  loading?: boolean;
 }) => (
   <div className="mb-3 row">
     <label
@@ -138,12 +150,14 @@ export class Settings extends Component<any, SettingsState> {
     saveRes: { state: "empty" },
     deleteAccountRes: { state: "empty" },
     changePasswordRes: { state: "empty" },
+    instancesRes: { state: "empty" },
     saveUserSettingsForm: {},
     changePasswordForm: {},
     deleteAccountShowConfirm: false,
     deleteAccountForm: {},
     personBlocks: [],
     communityBlocks: [],
+    instanceBlocks: [],
     currentTab: "settings",
     siteRes: this.isoData.site_res,
     themeList: [],
@@ -151,6 +165,7 @@ export class Settings extends Component<any, SettingsState> {
     searchCommunityOptions: [],
     searchPersonLoading: false,
     searchPersonOptions: [],
+    searchInstanceOptions: [],
   };
 
   constructor(props: any, context: any) {
@@ -234,6 +249,14 @@ export class Settings extends Component<any, SettingsState> {
     }
   }
 
+  static async fetchInitialData({
+    client,
+  }: InitialFetchRequest): Promise<SettingsData> {
+    return {
+      instancesRes: await client.getFederatedInstances(),
+    };
+  }
+
   async componentDidMount() {
     setupTippy();
     this.setState({ themeList: await fetchThemeList() });
@@ -308,6 +331,11 @@ export class Settings extends Component<any, SettingsState> {
           <div className="col-12 col-md-6">
             <div className="card border-secondary mb-3">
               <div className="card-body">{this.blockUserCard()}</div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockCommunityCard()}</div>
             </div>
           </div>
           <div className="col-12 col-md-6">
@@ -456,6 +484,22 @@ export class Settings extends Component<any, SettingsState> {
           ))}
         </ul>
       </>
+    );
+  }
+
+  blockInstanceCard() {
+    const { searchInstanceOptions } = this.state;
+
+    return (
+      <div>
+        <Filter
+          filterType="instance"
+          onChange={this.handleBlockPerson}
+          onSearch={this.handlePersonSearch}
+          options={searchInstanceOptions}
+        />
+        {this.blockedUsersList()}
+      </div>
     );
   }
 
@@ -984,6 +1028,27 @@ export class Settings extends Component<any, SettingsState> {
     this.setState({
       searchCommunityLoading: false,
       searchCommunityOptions,
+    });
+  });
+
+  handleInstanceSearch = debounce(async (text: string) => {
+    let searchInstanceOptions: Instance[] = [];
+
+    if (this.state.instancesRes.state === "success") {
+      searchInstanceOptions =
+        this.state.instancesRes.data.federated_instances?.linked.filter(
+          instance =>
+            instance.domain.toLowerCase().includes(text.toLowerCase()) ||
+            !this.state.instanceBlocks.some(
+              blockedIntance => blockedIntance.instance.id === instance.id,
+            ),
+        ) ?? [];
+    }
+
+    this.setState({
+      searchInstanceOptions: searchInstanceOptions
+        .slice(0, 30)
+        .map(instanceToChoice),
     });
   });
 
