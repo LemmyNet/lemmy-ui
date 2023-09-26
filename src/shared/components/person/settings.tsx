@@ -10,6 +10,7 @@ import {
   setTheme,
   showLocal,
   updateCommunityBlock,
+  updateInstanceBlock,
   updatePersonBlock,
 } from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
@@ -19,6 +20,7 @@ import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
   BlockCommunityResponse,
+  BlockInstanceResponse,
   BlockPersonResponse,
   CommunityBlockView,
   DeleteAccountResponse,
@@ -187,6 +189,7 @@ export class Settings extends Component<any, SettingsState> {
 
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
+    this.handleBlockInstance = this.handleBlockInstance.bind(this);
 
     const mui = UserService.Instance.myUserInfo;
     if (mui) {
@@ -340,7 +343,7 @@ export class Settings extends Component<any, SettingsState> {
           </div>
           <div className="col-12 col-md-6">
             <div className="card border-secondary mb-3">
-              <div className="card-body">{this.blockCommunityCard()}</div>
+              <div className="card-body">{this.blockInstanceCard()}</div>
             </div>
           </div>
         </div>
@@ -494,12 +497,40 @@ export class Settings extends Component<any, SettingsState> {
       <div>
         <Filter
           filterType="instance"
-          onChange={this.handleBlockPerson}
-          onSearch={this.handlePersonSearch}
+          onChange={this.handleBlockInstance}
+          onSearch={this.handleInstanceSearch}
           options={searchInstanceOptions}
         />
-        {this.blockedUsersList()}
+        {this.blockedInstancesList()}
       </div>
+    );
+  }
+
+  blockedInstancesList() {
+    // TODO: Make translations
+    return (
+      <>
+        <h2 className="h5">{I18NextService.i18n.t("blocked_users")}</h2>
+        <ul className="list-unstyled mb-0">
+          {this.state.instanceBlocks.map(ib => (
+            <li key={ib.instance.id}>
+              <span>
+                {ib.instance.domain}
+                <button
+                  className="btn btn-sm"
+                  onClick={linkEvent(
+                    { ctx: this, instanceId: ib.instance.id },
+                    this.handleUnblockInstance,
+                  )}
+                  data-tippy-content={I18NextService.i18n.t("unblock_user")}
+                >
+                  <Icon icon="x" classes="icon-inline" />
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </>
     );
   }
 
@@ -1096,6 +1127,31 @@ export class Settings extends Component<any, SettingsState> {
     }
   }
 
+  async handleBlockInstance({ value }: Choice) {
+    if (value !== "0") {
+      const id = Number(value);
+      const res = await HttpService.client.blockInstance({
+        block: true,
+        instance_id: id,
+      });
+      this.instanceBlock(id, res);
+    }
+  }
+
+  async handleUnblockInstance({
+    ctx,
+    instanceId,
+  }: {
+    ctx: Settings;
+    instanceId: number;
+  }) {
+    const res = await HttpService.client.blockInstance({
+      block: false,
+      instance_id: instanceId,
+    });
+    ctx.instanceBlock(instanceId, res);
+  }
+
   handleShowNsfwChange(i: Settings, event: any) {
     i.setState(
       s => ((s.saveUserSettingsForm.show_nsfw = event.target.checked), s),
@@ -1377,6 +1433,21 @@ export class Settings extends Component<any, SettingsState> {
       const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });
+      }
+    }
+  }
+
+  instanceBlock(id: number, res: RequestState<BlockInstanceResponse>) {
+    if (
+      res.state === "success" &&
+      this.state.instancesRes.state === "success"
+    ) {
+      const linkedInstances =
+        this.state.instancesRes.data.federated_instances?.linked ?? [];
+      updateInstanceBlock(res.data, id, linkedInstances);
+      const mui = UserService.Instance.myUserInfo;
+      if (mui) {
+        this.setState({ instanceBlocks: mui.instance_blocks });
       }
     }
   }
