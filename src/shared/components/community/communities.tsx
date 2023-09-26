@@ -27,6 +27,7 @@ import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "./community-link";
 
 import { communityLimit } from "../../config";
+import { SubscribeButton } from "../common/subscribe-button";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -173,41 +174,26 @@ export class Communities extends Component<any, CommunitiesState> {
                           {numToSI(cv.counts.comments)}
                         </td>
                         <td className="text-right">
-                          {cv.subscribed === "Subscribed" && (
-                            <button
-                              className="btn btn-link d-inline-block"
-                              onClick={linkEvent(
-                                {
-                                  i: this,
-                                  communityId: cv.community.id,
-                                  follow: false,
-                                },
-                                this.handleFollow,
-                              )}
-                            >
-                              {I18NextService.i18n.t("unsubscribe")}
-                            </button>
-                          )}
-                          {cv.subscribed === "NotSubscribed" && (
-                            <button
-                              className="btn btn-link d-inline-block"
-                              onClick={linkEvent(
-                                {
-                                  i: this,
-                                  communityId: cv.community.id,
-                                  follow: true,
-                                },
-                                this.handleFollow,
-                              )}
-                            >
-                              {I18NextService.i18n.t("subscribe")}
-                            </button>
-                          )}
-                          {cv.subscribed === "Pending" && (
-                            <div className="text-warning d-inline-block">
-                              {I18NextService.i18n.t("subscribe_pending")}
-                            </div>
-                          )}
+                          <SubscribeButton
+                            communityView={cv}
+                            onFollow={linkEvent(
+                              {
+                                i: this,
+                                communityId: cv.community.id,
+                                follow: false,
+                              },
+                              this.handleFollow,
+                            )}
+                            onUnFollow={linkEvent(
+                              {
+                                i: this,
+                                communityId: cv.community.id,
+                                follow: true,
+                              },
+                              this.handleFollow,
+                            )}
+                            isLink
+                          />
                         </td>
                       </tr>
                     ),

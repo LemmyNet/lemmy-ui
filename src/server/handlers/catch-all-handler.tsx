@@ -58,7 +58,7 @@ export default async (req: Request, res: Response) => {
     }
 
     if (!auth && isAuthPath(path)) {
-      return res.redirect("/login");
+      return res.redirect(`/login?prev=${encodeURIComponent(url)}`);
     }
 
     if (try_site.state === "success") {

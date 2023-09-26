@@ -75,7 +75,7 @@ export class App extends Component<AppProps, any> {
                             <div tabIndex={-1}>
                               {RouteComponent &&
                                 (isAuthPath(path ?? "") ? (
-                                  <AuthGuard>
+                                  <AuthGuard {...routeProps}>
                                     <RouteComponent {...routeProps} />
                                   </AuthGuard>
                                 ) : (

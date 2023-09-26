@@ -4,5 +4,5 @@ export default function isAdmin(
   creatorId: number,
   admins?: PersonView[],
 ): boolean {
-  return admins?.map(a => a.person.id).includes(creatorId) ?? false;
+  return admins?.some(({ person: { id } }) => id === creatorId) ?? false;
 }

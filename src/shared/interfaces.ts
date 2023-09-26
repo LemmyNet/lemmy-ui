@@ -29,6 +29,7 @@ export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
   path: string;
   query: T;
   site: GetSiteResponse;
+  auth?: string;
 }
 
 export interface PostFormParams {
