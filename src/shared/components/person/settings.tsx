@@ -507,10 +507,9 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   blockedInstancesList() {
-    // TODO: Make translations
     return (
       <>
-        <h2 className="h5">{I18NextService.i18n.t("blocked_users")}</h2>
+        <h2 className="h5">{I18NextService.i18n.t("blocked_instances")}</h2>
         <ul className="list-unstyled mb-0">
           {this.state.instanceBlocks.map(ib => (
             <li key={ib.instance.id}>
@@ -522,7 +521,7 @@ export class Settings extends Component<any, SettingsState> {
                     { ctx: this, instanceId: ib.instance.id },
                     this.handleUnblockInstance,
                   )}
-                  data-tippy-content={I18NextService.i18n.t("unblock_user")}
+                  data-tippy-content={I18NextService.i18n.t("unblock_instance")}
                 >
                   <Icon icon="x" classes="icon-inline" />
                 </button>
