@@ -397,18 +397,22 @@ export class MarkdownTextArea extends Component<
     const textarea = document.getElementById(i.id);
 
     if (textarea instanceof HTMLTextAreaElement) {
-      event.preventDefault();
       const { selectionStart, selectionEnd } = textarea;
-      const selectedText = i.getSelectedText() || url.toString();
+
+      // if no selection, just insert url
+      if (selectionStart === selectionEnd) return;
+
+      event.preventDefault();
+      const selectedText = i.getSelectedText();
 
       // update textarea content
-      i.setState({
+      i.setState(({ content }) => ({
         content: `${
-          i.state.content ? i.state.content.substring(0, selectionStart) : ""
+          content?.substring(0, selectionStart) ?? ""
         }[${selectedText}](${url.toString()})${
-          i.state.content ? i.state.content.substring(selectionEnd) : ""
+          content?.substring(selectionEnd) ?? ""
         }`,
-      });
+      }));
       i.contentChange();
 
       // shift selection 1 to the right
