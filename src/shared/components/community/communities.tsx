@@ -192,6 +192,7 @@ export class Communities extends Component<any, CommunitiesState> {
                               },
                               this.handleFollow,
                             )}
+                            isLink
                           />
                         </td>
                       </tr>

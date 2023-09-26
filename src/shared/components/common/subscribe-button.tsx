@@ -13,6 +13,7 @@ interface SubscribeButtonProps {
   onFollow: MouseEventHandler;
   onUnFollow: MouseEventHandler;
   loading?: boolean;
+  isLink?: boolean;
 }
 
 export function SubscribeButton({
@@ -23,6 +24,7 @@ export function SubscribeButton({
   onFollow,
   onUnFollow,
   loading = false,
+  isLink = false,
 }: SubscribeButtonProps) {
   let i18key: NoOptionI18nKeys;
 
@@ -44,14 +46,19 @@ export function SubscribeButton({
     }
   }
 
-  const buttonClass = "btn d-block mb-2 w-100";
+  const buttonClass = classNames(
+    "btn",
+    isLink ? "btn-link d-inline-block" : "d-block mb-2 w-100",
+  );
 
   if (!UserService.Instance.myUserInfo) {
     return (
       <>
         <button
           type="button"
-          className={classNames(buttonClass, "btn-secondary")}
+          className={classNames(buttonClass, {
+            "btn-secondary": !isLink,
+          })}
           data-bs-toggle="modal"
           data-bs-target="#remoteFetchModal"
         >
@@ -65,10 +72,9 @@ export function SubscribeButton({
   return (
     <button
       type="button"
-      className={classNames(
-        buttonClass,
-        `btn-${subscribed === "Pending" ? "warning" : "secondary"}`,
-      )}
+      className={classNames(buttonClass, {
+        [`btn-${subscribed === "Pending" ? "warning" : "secondary"}`]: !isLink,
+      })}
       onClick={subscribed === "NotSubscribed" ? onFollow : onUnFollow}
     >
       {loading ? (
