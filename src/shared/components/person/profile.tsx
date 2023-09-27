@@ -155,12 +155,15 @@ const Moderates = ({ moderates }: { moderates?: CommunityModeratorView[] }) =>
 const Follows = () =>
   getCommunitiesListing("subscribed", UserService.Instance.myUserInfo?.follows);
 
-const isPersonBlocked = (personRes: RequestState<GetPersonDetailsResponse>) =>
-  (personRes.state === "success" &&
-    UserService.Instance.myUserInfo?.person_blocks.some(
-      ({ target: { id } }) => id === personRes.data.person_view.person.id,
-    )) ??
-  false;
+function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
+  return (
+    (personRes.state === "success" &&
+      UserService.Instance.myUserInfo?.person_blocks.some(
+        ({ target: { id } }) => id === personRes.data.person_view.person.id,
+      )) ??
+    false
+  );
+}
 
 export class Profile extends Component<
   RouteComponentProps<{ username: string }>,
