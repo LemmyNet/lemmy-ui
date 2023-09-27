@@ -52,6 +52,8 @@ import showScores from "./show-scores";
 import siteBannerCss from "./site-banner-css";
 import updateCommunityBlock from "./update-community-block";
 import updatePersonBlock from "./update-person-block";
+import instanceToChoice from "./instance-to-choice";
+import updateInstanceBlock from "./update-instance-block";
 
 export {
   buildCommentsTree,
@@ -108,4 +110,6 @@ export {
   siteBannerCss,
   updateCommunityBlock,
   updatePersonBlock,
+  instanceToChoice,
+  updateInstanceBlock,
 };
