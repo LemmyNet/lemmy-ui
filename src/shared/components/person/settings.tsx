@@ -51,7 +51,7 @@ import { SortSelect } from "../common/sort-select";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
-import { InitialFetchRequest } from "shared/interfaces";
+import { InitialFetchRequest } from "../../interfaces";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
