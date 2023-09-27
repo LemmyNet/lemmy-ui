@@ -156,10 +156,11 @@ const Follows = () =>
   getCommunitiesListing("subscribed", UserService.Instance.myUserInfo?.follows);
 
 const isPersonBlocked = (personRes: RequestState<GetPersonDetailsResponse>) =>
-  personRes.state === "success" &&
-  UserService.Instance.myUserInfo?.person_blocks.some(
-    ({ target: { id } }) => id === personRes.data.person_view.person.id,
-  );
+  (personRes.state === "success" &&
+    UserService.Instance.myUserInfo?.person_blocks.some(
+      ({ target: { id } }) => id === personRes.data.person_view.person.id,
+    )) ??
+  false;
 
 export class Profile extends Component<
   RouteComponentProps<{ username: string }>,
@@ -787,7 +788,7 @@ export class Profile extends Component<
     });
     if (res.state === "success") {
       updatePersonBlock(res.data);
-      this.setState({ personBlocked: isPersonBlocked(res) });
+      this.setState({ personBlocked: res.data.blocked });
     }
   }
 
