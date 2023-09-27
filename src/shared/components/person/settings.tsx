@@ -3,32 +3,38 @@ import {
   fetchCommunities,
   fetchThemeList,
   fetchUsers,
+  instanceToChoice,
   myAuth,
   personToChoice,
   setIsoData,
   setTheme,
   showLocal,
   updateCommunityBlock,
+  updateInstanceBlock,
   updatePersonBlock,
 } from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
-import { Choice } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import {
   BlockCommunityResponse,
+  BlockInstanceResponse,
   BlockPersonResponse,
   CommunityBlockView,
   DeleteAccountResponse,
+  GetFederatedInstancesResponse,
   GetSiteResponse,
+  Instance,
+  InstanceBlockView,
   ListingType,
   LoginResponse,
   PersonBlockView,
   SortType,
 } from "lemmy-js-client";
 import { elementUrl, emDash, relTags } from "../../config";
-import { UserService } from "../../services";
+import { FirstLoadService, UserService } from "../../services";
 import { HttpService, RequestState } from "../../services/HttpService";
 import { I18NextService, languages } from "../../services/I18NextService";
 import { setupTippy } from "../../tippy";
@@ -45,11 +51,17 @@ import { SortSelect } from "../common/sort-select";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
+import { InitialFetchRequest } from "../../interfaces";
+
+type SettingsData = RouteDataResponse<{
+  instancesRes: GetFederatedInstancesResponse;
+}>;
 
 interface SettingsState {
   saveRes: RequestState<LoginResponse>;
   changePasswordRes: RequestState<LoginResponse>;
   deleteAccountRes: RequestState<DeleteAccountResponse>;
+  instancesRes: RequestState<GetFederatedInstancesResponse>;
   // TODO redo these forms
   saveUserSettingsForm: {
     show_nsfw?: boolean;
@@ -86,6 +98,7 @@ interface SettingsState {
   };
   personBlocks: PersonBlockView[];
   communityBlocks: CommunityBlockView[];
+  instanceBlocks: InstanceBlockView[];
   currentTab: string;
   themeList: string[];
   deleteAccountShowConfirm: boolean;
@@ -94,22 +107,24 @@ interface SettingsState {
   searchCommunityOptions: Choice[];
   searchPersonLoading: boolean;
   searchPersonOptions: Choice[];
+  searchInstanceOptions: Choice[];
+  isIsomorphic: boolean;
 }
 
-type FilterType = "user" | "community";
+type FilterType = "user" | "community" | "instance";
 
 const Filter = ({
   filterType,
   options,
   onChange,
   onSearch,
-  loading,
+  loading = false,
 }: {
   filterType: FilterType;
   options: Choice[];
   onSearch: (text: string) => void;
   onChange: (choice: Choice) => void;
-  loading: boolean;
+  loading?: boolean;
 }) => (
   <div className="mb-3 row">
     <label
@@ -133,17 +148,19 @@ const Filter = ({
 );
 
 export class Settings extends Component<any, SettingsState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData<SettingsData>(this.context);
   state: SettingsState = {
     saveRes: { state: "empty" },
     deleteAccountRes: { state: "empty" },
     changePasswordRes: { state: "empty" },
+    instancesRes: { state: "empty" },
     saveUserSettingsForm: {},
     changePasswordForm: {},
     deleteAccountShowConfirm: false,
     deleteAccountForm: {},
     personBlocks: [],
     communityBlocks: [],
+    instanceBlocks: [],
     currentTab: "settings",
     siteRes: this.isoData.site_res,
     themeList: [],
@@ -151,6 +168,8 @@ export class Settings extends Component<any, SettingsState> {
     searchCommunityOptions: [],
     searchPersonLoading: false,
     searchPersonOptions: [],
+    searchInstanceOptions: [],
+    isIsomorphic: false,
   };
 
   constructor(props: any, context: any) {
@@ -172,6 +191,7 @@ export class Settings extends Component<any, SettingsState> {
 
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
+    this.handleBlockInstance = this.handleBlockInstance.bind(this);
 
     const mui = UserService.Instance.myUserInfo;
     if (mui) {
@@ -232,11 +252,40 @@ export class Settings extends Component<any, SettingsState> {
         },
       };
     }
+
+    // Only fetch the data if coming from another route
+    if (FirstLoadService.isFirstLoad) {
+      const { instancesRes } = this.isoData.routeData;
+
+      this.state = {
+        ...this.state,
+        instancesRes,
+        isIsomorphic: true,
+      };
+    }
   }
 
   async componentDidMount() {
     setupTippy();
     this.setState({ themeList: await fetchThemeList() });
+
+    if (!this.state.isIsomorphic) {
+      this.setState({
+        instancesRes: { state: "loading" },
+      });
+
+      this.setState({
+        instancesRes: await HttpService.client.getFederatedInstances(),
+      });
+    }
+  }
+
+  static async fetchInitialData({
+    client,
+  }: InitialFetchRequest): Promise<SettingsData> {
+    return {
+      instancesRes: await client.getFederatedInstances(),
+    };
   }
 
   get documentTitle(): string {
@@ -313,6 +362,11 @@ export class Settings extends Component<any, SettingsState> {
           <div className="col-12 col-md-6">
             <div className="card border-secondary mb-3">
               <div className="card-body">{this.blockCommunityCard()}</div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockInstanceCard()}</div>
             </div>
           </div>
         </div>
@@ -448,6 +502,49 @@ export class Settings extends Component<any, SettingsState> {
                   data-tippy-content={I18NextService.i18n.t(
                     "unblock_community",
                   )}
+                >
+                  <Icon icon="x" classes="icon-inline" />
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </>
+    );
+  }
+
+  blockInstanceCard() {
+    const { searchInstanceOptions } = this.state;
+
+    return (
+      <div>
+        <Filter
+          filterType="instance"
+          onChange={this.handleBlockInstance}
+          onSearch={this.handleInstanceSearch}
+          options={searchInstanceOptions}
+        />
+        {this.blockedInstancesList()}
+      </div>
+    );
+  }
+
+  blockedInstancesList() {
+    return (
+      <>
+        <h2 className="h5">{I18NextService.i18n.t("blocked_instances")}</h2>
+        <ul className="list-unstyled mb-0">
+          {this.state.instanceBlocks.map(ib => (
+            <li key={ib.instance.id}>
+              <span>
+                {ib.instance.domain}
+                <button
+                  className="btn btn-sm"
+                  onClick={linkEvent(
+                    { ctx: this, instanceId: ib.instance.id },
+                    this.handleUnblockInstance,
+                  )}
+                  data-tippy-content={I18NextService.i18n.t("unblock_instance")}
                 >
                   <Icon icon="x" classes="icon-inline" />
                 </button>
@@ -987,6 +1084,27 @@ export class Settings extends Component<any, SettingsState> {
     });
   });
 
+  handleInstanceSearch = debounce(async (text: string) => {
+    let searchInstanceOptions: Instance[] = [];
+
+    if (this.state.instancesRes.state === "success") {
+      searchInstanceOptions =
+        this.state.instancesRes.data.federated_instances?.linked.filter(
+          instance =>
+            instance.domain.toLowerCase().includes(text.toLowerCase()) ||
+            !this.state.instanceBlocks.some(
+              blockedIntance => blockedIntance.instance.id === instance.id,
+            ),
+        ) ?? [];
+    }
+
+    this.setState({
+      searchInstanceOptions: searchInstanceOptions
+        .slice(0, 30)
+        .map(instanceToChoice),
+    });
+  });
+
   async handleBlockPerson({ value }: Choice) {
     if (value !== "0") {
       const res = await HttpService.client.blockPerson({
@@ -1029,6 +1147,31 @@ export class Settings extends Component<any, SettingsState> {
       });
       i.ctx.communityBlock(res);
     }
+  }
+
+  async handleBlockInstance({ value }: Choice) {
+    if (value !== "0") {
+      const id = Number(value);
+      const res = await HttpService.client.blockInstance({
+        block: true,
+        instance_id: id,
+      });
+      this.instanceBlock(id, res);
+    }
+  }
+
+  async handleUnblockInstance({
+    ctx,
+    instanceId,
+  }: {
+    ctx: Settings;
+    instanceId: number;
+  }) {
+    const res = await HttpService.client.blockInstance({
+      block: false,
+      instance_id: instanceId,
+    });
+    ctx.instanceBlock(instanceId, res);
   }
 
   handleShowNsfwChange(i: Settings, event: any) {
@@ -1312,6 +1455,21 @@ export class Settings extends Component<any, SettingsState> {
       const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });
+      }
+    }
+  }
+
+  instanceBlock(id: number, res: RequestState<BlockInstanceResponse>) {
+    if (
+      res.state === "success" &&
+      this.state.instancesRes.state === "success"
+    ) {
+      const linkedInstances =
+        this.state.instancesRes.data.federated_instances?.linked ?? [];
+      updateInstanceBlock(res.data, id, linkedInstances);
+      const mui = UserService.Instance.myUserInfo;
+      if (mui) {
+        this.setState({ instanceBlocks: mui.instance_blocks });
       }
     }
   }
