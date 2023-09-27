@@ -51,12 +51,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     unreadApplicationCount: 0,
   };
 
-  updateUnreads = (service: UnreadCounterService) => {
+  updateUnreads = ({
+    unreadInboxCount,
+    unreadReportCount,
+    unreadApplicationCount,
+  }: UnreadCounterService) => {
     this.setState({
       ...this.state,
-      unreadInboxCount: service.unreadInboxCount,
-      unreadReportCount: service.unreadReportCount,
-      unreadApplicationCount: service.unreadApplicationCount,
+      unreadInboxCount,
+      unreadReportCount,
+      unreadApplicationCount,
     });
   };
 

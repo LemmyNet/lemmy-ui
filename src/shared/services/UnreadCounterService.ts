@@ -25,7 +25,7 @@ export class UnreadCounterService {
   public unreadApplicationCount = 0;
 
   static #instance: UnreadCounterService;
-  private subscriptions = new Set<(service: UnreadCounterService) => any>();
+  private subscriptions = new Set<(service: UnreadCounterService) => void>();
   private fetching = false;
 
   constructor() {
@@ -38,8 +38,7 @@ export class UnreadCounterService {
     if (window.document.visibilityState === "hidden") {
       return;
     }
-    const auth = myAuth();
-    if (!auth) {
+    if (!myAuth()) {
       return;
     }
     this.fetching = true;
