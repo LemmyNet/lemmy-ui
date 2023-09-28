@@ -1376,6 +1376,17 @@ export class Settings extends Component<any, SettingsState> {
         res: saveRes.data,
         showToast: false,
       });
+
+      const siteRes = await HttpService.client.getSite();
+
+      if (siteRes.state === "success") {
+        i.setState({
+          siteRes: siteRes.data,
+        });
+
+        UserService.Instance.myUserInfo = siteRes.data.my_user;
+      }
+
       toast(I18NextService.i18n.t("saved"));
       window.scrollTo(0, 0);
     }
