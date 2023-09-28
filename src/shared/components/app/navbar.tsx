@@ -14,6 +14,7 @@ import {
 import { toast } from "../../toast";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
+import { Subscription } from "rxjs";
 
 interface NavbarProps {
   siteRes?: GetSiteResponse;
@@ -44,24 +45,14 @@ function handleLogOut(i: Navbar) {
 export class Navbar extends Component<NavbarProps, NavbarState> {
   collapseButtonRef = createRef<HTMLButtonElement>();
   mobileMenuRef = createRef<HTMLDivElement>();
+  unreadInboxCountSubscription: Subscription;
+  unreadReportCountSubscription: Subscription;
+  unreadApplicationCountSubscription: Subscription;
 
   state: NavbarState = {
     unreadInboxCount: 0,
     unreadReportCount: 0,
     unreadApplicationCount: 0,
-  };
-
-  updateUnreads = ({
-    unreadInboxCount,
-    unreadReportCount,
-    unreadApplicationCount,
-  }: UnreadCounterService) => {
-    this.setState({
-      ...this.state,
-      unreadInboxCount,
-      unreadReportCount,
-      unreadApplicationCount,
-    });
   };
 
   constructor(props: any, context: any) {
@@ -75,7 +66,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
-      UnreadCounterService.Instance.subscribe(this.updateUnreads);
+      this.unreadInboxCountSubscription =
+        UnreadCounterService.Instance.unreadInboxCountSubject.subscribe(
+          unreadInboxCount => this.setState({ unreadInboxCount }),
+        );
+      this.unreadReportCountSubscription =
+        UnreadCounterService.Instance.unreadReportCountSubject.subscribe(
+          unreadReportCount => this.setState({ unreadReportCount }),
+        );
+      this.unreadApplicationCountSubscription =
+        UnreadCounterService.Instance.unreadApplicationCountSubject.subscribe(
+          unreadApplicationCount => this.setState({ unreadApplicationCount }),
+        );
       this.requestNotificationPermission();
 
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
@@ -84,7 +86,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   componentWillUnmount() {
     document.removeEventListener("mouseup", this.handleOutsideMenuClick);
-    UnreadCounterService.Instance.unsubscribe(this.updateUnreads);
+    this.unreadInboxCountSubscription.unsubscribe();
+    this.unreadReportCountSubscription.unsubscribe();
+    this.unreadApplicationCountSubscription.unsubscribe();
   }
 
   // TODO class active corresponding to current pages
