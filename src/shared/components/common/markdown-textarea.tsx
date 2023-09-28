@@ -21,6 +21,7 @@ import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
+import validUrl from "@utils/helpers/valid-url";
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -233,7 +234,7 @@ export class MarkdownTextArea extends Component<
                   )}
                   value={this.state.content}
                   onInput={linkEvent(this, this.handleContentChange)}
-                  onPaste={linkEvent(this, this.handleImageUploadPaste)}
+                  onPaste={linkEvent(this, this.handlePaste)}
                   onKeyDown={linkEvent(this, this.handleKeyBinds)}
                   required
                   disabled={this.isDisabled}
@@ -374,10 +375,49 @@ export class MarkdownTextArea extends Component<
     autosize.update(textarea);
   }
 
-  handleImageUploadPaste(i: MarkdownTextArea, event: any) {
+  handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
+    if (!event.clipboardData) return;
+
+    // check clipboard files
     const image = event.clipboardData.files[0];
     if (image) {
       i.handleImageUpload(i, image);
+      return;
+    }
+
+    // check clipboard url
+    const url = event.clipboardData.getData("text");
+    if (validUrl(url)) {
+      i.handleUrlPaste(url, i, event);
+    }
+  }
+
+  handleUrlPaste(url: string, i: MarkdownTextArea, event: ClipboardEvent) {
+    // query textarea element
+    const textarea = document.getElementById(i.id);
+
+    if (textarea instanceof HTMLTextAreaElement) {
+      const { selectionStart, selectionEnd } = textarea;
+
+      // if no selection, just insert url
+      if (selectionStart === selectionEnd) return;
+
+      event.preventDefault();
+      const selectedText = i.getSelectedText();
+
+      // update textarea content
+      i.setState(({ content }) => ({
+        content: `${
+          content?.substring(0, selectionStart) ?? ""
+        }[${selectedText}](${url})${content?.substring(selectionEnd) ?? ""}`,
+      }));
+      i.contentChange();
+
+      // shift selection 1 to the right
+      textarea.setSelectionRange(
+        selectionStart + 1,
+        selectionStart + 1 + selectedText.length,
+      );
     }
   }
 
