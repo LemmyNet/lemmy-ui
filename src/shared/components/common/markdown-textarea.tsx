@@ -21,6 +21,7 @@ import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
+import validUrl from "@utils/helpers/valid-url";
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -385,14 +386,13 @@ export class MarkdownTextArea extends Component<
     }
 
     // check clipboard url
-    const url = i.isValidUrl(event.clipboardData.getData("text"));
-    if (url) {
+    const url = event.clipboardData.getData("text");
+    if (validUrl(url)) {
       i.handleUrlPaste(url, i, event);
-      return;
     }
   }
 
-  handleUrlPaste(url: URL, i: MarkdownTextArea, event: ClipboardEvent) {
+  handleUrlPaste(url: string, i: MarkdownTextArea, event: ClipboardEvent) {
     // query textarea element
     const textarea = document.getElementById(i.id);
 
@@ -409,9 +409,7 @@ export class MarkdownTextArea extends Component<
       i.setState(({ content }) => ({
         content: `${
           content?.substring(0, selectionStart) ?? ""
-        }[${selectedText}](${url.toString()})${
-          content?.substring(selectionEnd) ?? ""
-        }`,
+        }[${selectedText}](${url})${content?.substring(selectionEnd) ?? ""}`,
       }));
       i.contentChange();
 
@@ -420,17 +418,6 @@ export class MarkdownTextArea extends Component<
         selectionStart + 1,
         selectionStart + 1 + selectedText.length,
       );
-    }
-  }
-
-  isValidUrl(value: string) {
-    if (!value) return false;
-
-    try {
-      const url = new URL(value);
-      return url;
-    } catch {
-      return false;
     }
   }
 
