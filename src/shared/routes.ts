@@ -95,6 +95,7 @@ export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [
   {
     path: `/settings`,
     component: Settings,
+    fetchInitialData: Settings.fetchInitialData,
   },
   {
     path: `/modlog/:communityId`,

@@ -155,6 +155,16 @@ const Moderates = ({ moderates }: { moderates?: CommunityModeratorView[] }) =>
 const Follows = () =>
   getCommunitiesListing("subscribed", UserService.Instance.myUserInfo?.follows);
 
+function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
+  return (
+    (personRes.state === "success" &&
+      UserService.Instance.myUserInfo?.person_blocks.some(
+        ({ target: { id } }) => id === personRes.data.person_view.person.id,
+      )) ??
+    false
+  );
+}
+
 export class Profile extends Component<
   RouteComponentProps<{ username: string }>,
   ProfileState
@@ -211,10 +221,12 @@ export class Profile extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
+      const personRes = this.isoData.routeData.personResponse;
       this.state = {
         ...this.state,
-        personRes: this.isoData.routeData.personResponse,
+        personRes,
         isIsomorphic: true,
+        personBlocked: isPersonBlocked(personRes),
       };
     }
   }
@@ -234,17 +246,18 @@ export class Profile extends Component<
     const { page, sort, view } = getProfileQueryParams();
 
     this.setState({ personRes: { state: "loading" } });
+    const personRes = await HttpService.client.getPersonDetails({
+      username: this.props.match.params.username,
+      sort,
+      saved_only: view === PersonDetailsView.Saved,
+      page,
+      limit: fetchLimit,
+    });
     this.setState({
-      personRes: await HttpService.client.getPersonDetails({
-        username: this.props.match.params.username,
-        sort,
-        saved_only: view === PersonDetailsView.Saved,
-        page,
-        limit: fetchLimit,
-      }),
+      personRes,
+      personBlocked: isPersonBlocked(personRes),
     });
     restoreScrollPosition(this.context);
-    this.setPersonBlock();
   }
 
   get amCurrentUser() {
@@ -255,19 +268,6 @@ export class Profile extends Component<
       );
     } else {
       return false;
-    }
-  }
-
-  setPersonBlock() {
-    const mui = UserService.Instance.myUserInfo;
-    const res = this.state.personRes;
-
-    if (mui && res.state === "success") {
-      this.setState({
-        personBlocked: mui.person_blocks.some(
-          ({ target: { id } }) => id === res.data.person_view.person.id,
-        ),
-      });
     }
   }
 
@@ -791,6 +791,7 @@ export class Profile extends Component<
     });
     if (res.state === "success") {
       updatePersonBlock(res.data);
+      this.setState({ personBlocked: res.data.blocked });
     }
   }
 
@@ -826,6 +827,7 @@ export class Profile extends Component<
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data);
+      this.setState({ personBlocked: blockPersonRes.data.blocked });
     }
   }
 
