@@ -90,9 +90,7 @@ export class UserService {
   }
 
   public get moderatesSomething(): boolean {
-    const mods = this.myUserInfo?.moderates;
-    const moderatesS = (mods && mods.length > 0) || false;
-    return amAdmin() || moderatesS;
+    return amAdmin() || (this.myUserInfo?.moderates?.length ?? 0) > 0;
   }
 
   public static get Instance() {
