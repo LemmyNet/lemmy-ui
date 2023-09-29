@@ -5,7 +5,6 @@ import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
   hostname,
-  unescapeHTML,
 } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import {
@@ -207,9 +206,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.listing()}
             {this.state.imageExpanded && !this.props.hideImage && this.img}
-            {this.showBody &&
-              unescapeHTML(post.url) &&
-              unescapeHTML(post.embed_title) && <MetadataCard post={post} />}
+            {this.showBody && post.url && post.embed_title && (
+              <MetadataCard post={post} />
+            )}
             {this.showBody && this.body()}
           </>
         ) : (
@@ -286,8 +285,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <iframe
             allowFullScreen
             className="post-metadata-iframe"
-            src={unescapeHTML(post.embed_video_url)}
-            title={unescapeHTML(post.embed_title)}
+            src={post.embed_video_url}
+            title={post.embed_title}
           ></iframe>
         </div>
       );
@@ -310,7 +309,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get imageSrc(): string | undefined {
     const post = this.postView.post;
-    const url = unescapeHTML(post.url);
+    const url = post.url;
     const thumbnail = post.thumbnail_url;
 
     if (thumbnail) {
@@ -324,7 +323,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   thumbnail() {
     const post = this.postView.post;
-    const url = unescapeHTML(post.url);
+    const url = post.url;
     const thumbnail = post.thumbnail_url;
 
     if (!this.props.hideImage && url && isImage(url) && this.imageSrc) {
@@ -450,7 +449,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       >
         <span
           className="d-inline"
-          dangerouslySetInnerHTML={mdToHtmlInline(unescapeHTML(post.name))}
+          dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
         />
       </Link>
     );
@@ -458,7 +457,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   postTitleLine() {
     const post = this.postView.post;
-    const url = unescapeHTML(post.url);
+    const url = post.url;
 
     return (
       <>
@@ -474,9 +473,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 href={url}
                 title={url}
                 rel={relTags}
-                dangerouslySetInnerHTML={mdToHtmlInline(
-                  unescapeHTML(post.name),
-                )}
+                dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
               ></a>
             ) : (
               this.postLink
@@ -489,7 +486,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
            * MetadataCard/body toggle.
            */}
           {!this.props.showBody &&
-            (unescapeHTML(post.url && post.embed_title) || post.body) &&
+            ((post.url && post.embed_title) || post.body) &&
             this.showPreviewButton()}
 
           {post.removed && (
@@ -551,7 +548,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   urlLine() {
     const post = this.postView.post;
-    const url = unescapeHTML(post.url);
+    const url = post.url;
 
     return (
       <p className="small m-0">

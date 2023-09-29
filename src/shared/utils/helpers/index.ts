@@ -18,19 +18,16 @@ import numToSI from "./num-to-si";
 import poll from "./poll";
 import randomStr from "./random-str";
 import removeAuthParam from "./remove-auth-param";
-import returnStringFromString from "./return-str";
 import sleep from "./sleep";
 import validEmail from "./valid-email";
 import validInstanceTLD from "./valid-instance-tld";
 import validTitle from "./valid-title";
 import validURL from "./valid-url";
-import { escapeHTML, unescapeHTML } from "./html-entities";
 
 export {
   capitalizeFirstLetter,
   debounce,
   editListImmutable,
-  escapeHTML,
   formatPastDate,
   futureDaysToUnixTime,
   getIdFromString,
@@ -48,9 +45,7 @@ export {
   poll,
   randomStr,
   removeAuthParam,
-  returnStringFromString,
   sleep,
-  unescapeHTML,
   validEmail,
   validInstanceTLD,
   validTitle,

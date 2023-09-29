@@ -19,7 +19,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "@utils/browser";
-import { debounce, randomStr, unescapeHTML } from "@utils/helpers";
+import { debounce, randomStr } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
@@ -325,9 +325,8 @@ export class Post extends Component<any, PostState> {
 
   get documentTitle(): string {
     const siteName = this.state.siteRes.site_view.site.name;
-    const postTitle = unescapeHTML(this.state.postRes.data.post_view.post.name);
     return this.state.postRes.state === "success"
-      ? `${postTitle} - ${siteName}`
+      ? `${this.state.postRes.data.post_view.post.name} - ${siteName}`
       : siteName;
   }
 
