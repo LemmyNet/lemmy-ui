@@ -94,25 +94,24 @@ export class Instances extends Component<any, InstancesState> {
                 </h2>
                 {this.itemList(instances.linked)}
               </div>
-              <div className="col-md-6">
-                {instances.allowed && instances.allowed.length > 0 && (
-                  <>
-                    <h2 className="h5 mb-3">
-                      {I18NextService.i18n.t("allowed_instances")}
-                    </h2>
-                    {this.itemList(instances.allowed)}
-                  </>
-                )}
-
-                {instances.blocked && instances.blocked.length > 0 && (
-                  <>
-                    <h2 className="h5 mb-3">
-                      {I18NextService.i18n.t("blocked_instances")}
-                    </h2>
-                    {this.itemList(instances.blocked, false)}
-                  </>
-                )}
-              </div>
+            </div>
+            <div className="row">
+              {instances.allowed && instances.allowed.length > 0 && (
+                <div className="col-md-6">
+                  <h2 className="h5 mb-3">
+                    {I18NextService.i18n.t("allowed_instances")}
+                  </h2>
+                  {this.itemList(instances.allowed)}
+                </div>
+              )}
+              {instances.blocked && instances.blocked.length > 0 && (
+                <div className="col-md-6">
+                  <h2 className="h5 mb-3">
+                    {I18NextService.i18n.t("blocked_instances")}
+                  </h2>
+                  {this.itemList(instances.blocked)}
+                </div>
+              )}
             </div>
           </>
         ) : (
@@ -134,7 +133,7 @@ export class Instances extends Component<any, InstancesState> {
     );
   }
 
-  itemList(items: Instance[], link = true) {
+  itemList(items: Instance[]) {
     return items.length > 0 ? (
       <div className="table-responsive">
         <table id="instances_table" className="table table-sm table-hover">
@@ -149,15 +148,9 @@ export class Instances extends Component<any, InstancesState> {
             {items.map(i => (
               <tr key={i.domain}>
                 <td>
-                  {link ? (
-                    <a href={`https://${i.domain}`} rel={relTags}>
-                      {" "}
-                      {i.domain}{" "}
-                    </a>
-                  ) : (
-                    <span> {i.domain} </span>
-                  )}
-                  ;
+                  <a href={`https://${i.domain}`} rel={relTags}>
+                    {i.domain}
+                  </a>
                 </td>
                 <td>{i.software}</td>
                 <td>{i.version}</td>
