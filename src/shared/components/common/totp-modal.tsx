@@ -31,6 +31,11 @@ function handleInput(
   { modal, i }: { modal: TotpModal; i: number },
   event: any,
 ) {
+  if (isNaN(event.target.value)) {
+    event.preventDefault();
+    return;
+  }
+
   modal.setState(prev => ({ ...prev, totp: prev.totp + event.target.value }));
   document.getElementById(`totp-input-${i + 1}`)?.focus();
 
@@ -114,16 +119,17 @@ export default class TotpModal extends Component<
         tabIndex={-1}
         aria-hidden
         aria-labelledby="#totpModalTitle"
+        data-bs-backdrop="static"
       >
         <div className="modal-dialog modal-fullscreen-sm-down">
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="totpModalTitle">
                 {type === "generate"
-                  ? "Generate TOTP"
+                  ? "Enable 2 Factor Authentication"
                   : type === "remove"
-                  ? "Remove TOTP"
-                  : "Enter TOTP"}
+                  ? "Disable 2 Factor Authentication"
+                  : "Enter 2FA Token"}
               </h3>
               <button
                 type="button"
@@ -133,9 +139,9 @@ export default class TotpModal extends Component<
                 id="totp-close-button"
               />
             </header>
-            <div className="modal-body">
+            <div className="modal-body d-flex flex-column  align-items-center justify-content-center">
               {type === "generate" && (
-                <div className="mx-auto">
+                <div>
                   <a
                     className="btn btn-secondary mx-auto d-block totp-link"
                     href={secretUrl}
@@ -143,9 +149,9 @@ export default class TotpModal extends Component<
                     Click here for your TOTP link
                   </a>
                   <div className="mx-auto mt-3 w-50 h-50 text-center">
-                    <span className="fw-semibold">
+                    <strong className="fw-semibold">
                       or scan this QR code in your authenticator app
-                    </span>
+                    </strong>
                     <img
                       src={this.state.qrCode}
                       className="d-block mt-1 mx-auto"
@@ -176,7 +182,7 @@ export default class TotpModal extends Component<
                       disabled={totp.length !== i}
                       aria-labelledby="totp-input-label"
                       id={`totp-input-${i}`}
-                      className="form-control form-control-lg mx-2"
+                      className="form-control form-control-lg mx-2 p-1 p-md-2 text-center"
                       onInput={linkEvent({ modal: this, i }, handleInput)}
                       onKeyUp={linkEvent({ modal: this, i }, handleKeyUp)}
                       onPaste={linkEvent(this, handlePaste)}
