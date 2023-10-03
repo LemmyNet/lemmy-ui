@@ -448,3 +448,7 @@ br.big {
 .skip-link:focus {
   top: 0;
 }
+
+.totp-link {
+  width: fit-content;
+}

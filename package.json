@@ -42,6 +42,7 @@
     "@babel/preset-typescript": "^7.21.5",
     "@babel/runtime": "^7.21.5",
     "@emoji-mart/data": "^1.1.0",
+    "@shortcm/qr-image": "^9.0.2",
     "autosize": "^6.0.1",
     "babel-loader": "^9.1.2",
     "babel-plugin-inferno": "^6.6.0",

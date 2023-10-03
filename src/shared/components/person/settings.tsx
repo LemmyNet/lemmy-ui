@@ -1038,35 +1038,29 @@ export class Settings extends Component<any, SettingsState> {
 
     return (
       <>
+        <button
+          type="button"
+          className="btn btn-secondary my-2"
+          onClick={
+            !totpEnabled ? linkEvent(this, handleGenerateTotp) : undefined
+          }
+          data-bs-toggle="modal"
+          data-bs-target="#totpModal"
+        >{`${
+          totpEnabled ? "Disable" : "Enable"
+        } 2 factor authentication`}</button>
         {totpEnabled ? (
-          <div>
-            <TotpModal type="remove" onSubmit={this.handleDisable2fa} />
-            <button type="button" className="btn btn-secondary">
-              Disable 2 factor authentication
-            </button>
-          </div>
+          <TotpModal type="remove" onSubmit={this.handleDisable2fa} />
         ) : (
-          <div>
-            <TotpModal
-              type="generate"
-              secretUrl={
-                generateTotpRes.state === "success"
-                  ? generateTotpRes.data.totp_secret_url
-                  : undefined
-              }
-              onSubmit={this.handleEnable2fa}
-            />
-
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={linkEvent(this, handleGenerateTotp)}
-              data-bs-toggle="modal"
-              data-bs-target="#totpModal"
-            >
-              Enable 2 factor authentication
-            </button>
-          </div>
+          <TotpModal
+            type="generate"
+            onSubmit={this.handleEnable2fa}
+            secretUrl={
+              generateTotpRes.state === "success"
+                ? generateTotpRes.data.totp_secret_url
+                : undefined
+            }
+          />
         )}
       </>
     );
@@ -1080,19 +1074,23 @@ export class Settings extends Component<any, SettingsState> {
       totp_token: totp,
     });
 
+    console.log("updating 2fa");
+
     if (updateTotpRes.state === "failed") {
-      toast(updateTotpRes.msg, "danger");
+      toast("Invalid TOTP", "danger");
     }
 
     this.setState({ updateTotpRes });
+
+    return updateTotpRes.state === "success";
   }
 
   handleEnable2fa(totp: string) {
-    this.handleToggle2fa(totp, true);
+    return this.handleToggle2fa(totp, true);
   }
 
   handleDisable2fa(totp: string) {
-    this.handleToggle2fa(totp, false);
+    return this.handleToggle2fa(totp, false);
   }
 
   handlePersonSearch = debounce(async (text: string) => {
