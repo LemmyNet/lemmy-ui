@@ -1074,15 +1074,31 @@ export class Settings extends Component<any, SettingsState> {
       totp_token: totp,
     });
 
-    console.log("updating 2fa");
-
     if (updateTotpRes.state === "failed") {
       toast("Invalid TOTP", "danger");
     }
 
     this.setState({ updateTotpRes });
 
-    return updateTotpRes.state === "success";
+    const succeeded = updateTotpRes.state === "success";
+    if (succeeded) {
+      const siteRes = await HttpService.client.getSite();
+      UserService.Instance.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
+        enabled;
+
+      if (siteRes.state === "success") {
+        this.setState({ siteRes: siteRes.data });
+      }
+
+      toast(
+        `Successfully ${
+          enabled ? "enabled" : "disabled"
+        } 2 factor authentication`,
+        "success",
+      );
+    }
+
+    return succeeded;
   }
 
   handleEnable2fa(totp: string) {
