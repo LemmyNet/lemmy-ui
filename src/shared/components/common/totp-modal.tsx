@@ -42,18 +42,28 @@ export default class TotpModal extends Component<
 
   constructor(props: TotpModalProps, context: any) {
     super(props, context);
+
+    this.clearTotp = this.clearTotp.bind(this);
   }
 
   componentDidMount() {
     document
       .getElementById("totpModal")
       ?.addEventListener("shown.bs.modal", focusInput);
+
+    document
+      .getElementById("totpModal")
+      ?.addEventListener("hidden.bs.modal", this.clearTotp);
   }
 
   componentWillUnmount() {
     document
       .getElementById("totpModal")
       ?.removeEventListener("shown.bs.modal", focusInput);
+
+    document
+      .getElementById("totpModal")
+      ?.removeEventListener("hidden.bs.modal", this.clearTotp);
   }
 
   render() {
@@ -96,8 +106,8 @@ export default class TotpModal extends Component<
               >
                 Enter TOTP
               </label>
-              <div className="d-flex justify-content-between align-items-center">
-                {Array(6).map((_, i) => (
+              <div className="d-flex justify-content-between align-items-center p-4">
+                {Array.from(Array(TOTP_LENGTH).keys()).map(i => (
                   <input
                     key={
                       i /*While using indices as keys is usually bad practice, in this case we don't have to worry about the order of the list items changing.*/
@@ -110,7 +120,7 @@ export default class TotpModal extends Component<
                     disabled={totp.length !== i}
                     aria-labelledby="totp-input-label"
                     id={`totp-input-${i}`}
-                    className="form-control form-control-lg"
+                    className="form-control form-control-lg mx-2"
                     onInput={linkEvent({ modal: this, i }, handleInput)}
                   />
                 ))}
@@ -129,5 +139,10 @@ export default class TotpModal extends Component<
         </div>
       </div>
     );
+  }
+
+  clearTotp() {
+    console.log("clearing");
+    this.setState({ totp: "" });
   }
 }
