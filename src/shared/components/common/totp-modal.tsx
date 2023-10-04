@@ -1,12 +1,21 @@
-import { Component, linkEvent } from "inferno";
+import {
+  Component,
+  MouseEventHandler,
+  RefObject,
+  createRef,
+  linkEvent,
+} from "inferno";
 import { I18NextService } from "../../services";
 import { toast } from "../../toast";
+import type { Modal } from "bootstrap";
 
 interface TotpModalProps {
   /**Takes totp as param, returns whether submit was successful*/
   onSubmit: (totp: string) => Promise<boolean>;
+  onClose: MouseEventHandler;
   type: "login" | "remove" | "generate";
   secretUrl?: string;
+  show?: boolean;
 }
 
 interface TotpModalState {
@@ -17,13 +26,11 @@ interface TotpModalState {
 const TOTP_LENGTH = 6;
 
 async function handleSubmit(modal: TotpModal, totp: string) {
-  const succeeded = await modal.props.onSubmit(totp);
+  const successful = await modal.props.onSubmit(totp);
 
-  modal.setState({ totp: "" });
-  if (succeeded) {
-    document.getElementById("totp-close-button")?.click();
-  } else {
-    document.getElementById(`totp-input-0`)?.focus();
+  if (!successful) {
+    modal.setState({ totp: "" });
+    modal.inputRefs[0]?.focus();
   }
 }
 
@@ -37,7 +44,7 @@ function handleInput(
   }
 
   modal.setState(prev => ({ ...prev, totp: prev.totp + event.target.value }));
-  document.getElementById(`totp-input-${i + 1}`)?.focus();
+  modal.inputRefs[i + 1]?.focus();
 
   const { totp } = modal.state;
   if (totp.length >= TOTP_LENGTH) {
@@ -56,7 +63,7 @@ function handleKeyUp(
       ...prev,
       totp: prev.totp.slice(0, prev.totp.length - 1),
     }));
-    document.getElementById(`totp-input-${i - 1}`)?.focus();
+    modal.inputRefs[i - 1]?.focus();
   }
 }
 
@@ -77,6 +84,9 @@ export default class TotpModal extends Component<
   TotpModalProps,
   TotpModalState
 > {
+  private readonly modalDivRef: RefObject<HTMLDivElement>;
+  inputRefs: (HTMLInputElement | null)[] = [];
+  modal: Modal;
   state: TotpModalState = {
     totp: "",
   };
@@ -84,32 +94,57 @@ export default class TotpModal extends Component<
   constructor(props: TotpModalProps, context: any) {
     super(props, context);
 
+    this.modalDivRef = createRef();
+
     this.clearTotp = this.clearTotp.bind(this);
     this.handleShow = this.handleShow.bind(this);
   }
 
   async componentDidMount() {
-    document
-      .getElementById("totpModal")
-      ?.addEventListener("shown.bs.modal", this.handleShow);
+    this.modalDivRef.current?.addEventListener(
+      "shown.bs.modal",
+      this.handleShow,
+    );
 
-    document
-      .getElementById("totpModal")
-      ?.addEventListener("hidden.bs.modal", this.clearTotp);
+    this.modalDivRef.current?.addEventListener(
+      "hidden.bs.modal",
+      this.clearTotp,
+    );
+
+    const Modal = (await import("bootstrap/js/dist/modal")).default;
+    this.modal = new Modal(this.modalDivRef.current!);
+
+    if (this.props.show) {
+      this.modal.show();
+    }
   }
 
   componentWillUnmount() {
-    document
-      .getElementById("totpModal")
-      ?.removeEventListener("shown.bs.modal", this.handleShow);
+    this.modalDivRef.current?.removeEventListener(
+      "shown.bs.modal",
+      this.handleShow,
+    );
 
-    document
-      .getElementById("totpModal")
-      ?.removeEventListener("hidden.bs.modal", this.clearTotp);
+    this.modalDivRef.current?.removeEventListener(
+      "hidden.bs.modal",
+      this.clearTotp,
+    );
+
+    this.modal.dispose();
+  }
+
+  componentDidUpdate({ show: prevShow }: TotpModalProps) {
+    if (!!prevShow !== !!this.props.show) {
+      if (this.props.show) {
+        this.modal.show();
+      } else {
+        this.modal.hide();
+      }
+    }
   }
 
   render() {
-    const { type, secretUrl } = this.props;
+    const { type, secretUrl, onClose } = this.props;
     const { totp } = this.state;
 
     return (
@@ -120,6 +155,7 @@ export default class TotpModal extends Component<
         aria-hidden
         aria-labelledby="#totpModalTitle"
         data-bs-backdrop="static"
+        ref={this.modalDivRef}
       >
         <div className="modal-dialog modal-fullscreen-sm-down">
           <div className="modal-content">
@@ -134,9 +170,8 @@ export default class TotpModal extends Component<
               <button
                 type="button"
                 className="btn-close"
-                data-bs-dismiss="modal"
                 aria-label="Close"
-                id="totp-close-button"
+                onClick={onClose}
               />
             </header>
             <div className="modal-body d-flex flex-column  align-items-center justify-content-center">
@@ -186,6 +221,9 @@ export default class TotpModal extends Component<
                       onInput={linkEvent({ modal: this, i }, handleInput)}
                       onKeyUp={linkEvent({ modal: this, i }, handleKeyUp)}
                       onPaste={linkEvent(this, handlePaste)}
+                      ref={element => {
+                        this.inputRefs[i] = element;
+                      }}
                     />
                   ))}
                 </div>
@@ -195,7 +233,7 @@ export default class TotpModal extends Component<
               <button
                 type="button"
                 className="btn btn-danger"
-                data-bs-dismiss="modal"
+                onClick={onClose}
               >
                 {I18NextService.i18n.t("cancel")}
               </button>
@@ -211,7 +249,7 @@ export default class TotpModal extends Component<
   }
 
   async handleShow() {
-    document.getElementById("totp-input-0")?.focus();
+    this.inputRefs[0]?.focus();
 
     if (this.props.type === "generate") {
       const { getSVG } = await import("@shortcm/qr-image/lib/svg");

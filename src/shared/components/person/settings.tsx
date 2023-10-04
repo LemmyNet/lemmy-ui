@@ -118,6 +118,7 @@ interface SettingsState {
   searchPersonOptions: Choice[];
   searchInstanceOptions: Choice[];
   isIsomorphic: boolean;
+  show2faModal: boolean;
 }
 
 type FilterType = "user" | "community" | "instance";
@@ -156,19 +157,28 @@ const Filter = ({
   </div>
 );
 
-async function handleGenerateTotp(i: Settings, event: any) {
+async function handleGenerateTotp(i: Settings) {
   i.setState({ generateTotpRes: LOADING_REQUEST });
 
   const generateTotpRes = await HttpService.client.generateTotpSecret();
 
   if (generateTotpRes.state === "failed") {
-    event.stopPropagation();
     toast(generateTotpRes.msg, "danger");
+  } else {
+    i.setState({ show2faModal: true });
   }
 
   i.setState({
     generateTotpRes,
   });
+}
+
+function handleShowTotpModal(i: Settings) {
+  i.setState({ show2faModal: true });
+}
+
+function handleClose2faModal(i: Settings) {
+  i.setState({ show2faModal: false });
 }
 
 export class Settings extends Component<any, SettingsState> {
@@ -196,6 +206,7 @@ export class Settings extends Component<any, SettingsState> {
     isIsomorphic: false,
     generateTotpRes: EMPTY_REQUEST,
     updateTotpRes: EMPTY_REQUEST,
+    show2faModal: false,
   };
 
   constructor(props: any, context: any) {
@@ -1041,16 +1052,20 @@ export class Settings extends Component<any, SettingsState> {
         <button
           type="button"
           className="btn btn-secondary my-2"
-          onClick={
-            !totpEnabled ? linkEvent(this, handleGenerateTotp) : undefined
-          }
-          data-bs-toggle="modal"
-          data-bs-target="#totpModal"
+          onClick={linkEvent(
+            this,
+            totpEnabled ? handleShowTotpModal : handleGenerateTotp,
+          )}
         >{`${
           totpEnabled ? "Disable" : "Enable"
         } 2 factor authentication`}</button>
         {totpEnabled ? (
-          <TotpModal type="remove" onSubmit={this.handleDisable2fa} />
+          <TotpModal
+            type="remove"
+            onSubmit={this.handleDisable2fa}
+            show={this.state.show2faModal}
+            onClose={linkEvent(this, handleClose2faModal)}
+          />
         ) : (
           <TotpModal
             type="generate"
@@ -1060,6 +1075,8 @@ export class Settings extends Component<any, SettingsState> {
                 ? generateTotpRes.data.totp_secret_url
                 : undefined
             }
+            show={this.state.show2faModal}
+            onClose={linkEvent(this, handleClose2faModal)}
           />
         )}
       </>
@@ -1074,14 +1091,12 @@ export class Settings extends Component<any, SettingsState> {
       totp_token: totp,
     });
 
-    if (updateTotpRes.state === "failed") {
-      toast("Invalid TOTP", "danger");
-    }
-
     this.setState({ updateTotpRes });
 
-    const succeeded = updateTotpRes.state === "success";
-    if (succeeded) {
+    const successful = updateTotpRes.state === "success";
+    if (successful) {
+      this.setState({ show2faModal: false });
+
       const siteRes = await HttpService.client.getSite();
       UserService.Instance.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
         enabled;
@@ -1096,9 +1111,11 @@ export class Settings extends Component<any, SettingsState> {
         } 2 factor authentication`,
         "success",
       );
+    } else {
+      toast("Invalid TOTP", "danger");
     }
 
-    return succeeded;
+    return successful;
   }
 
   handleEnable2fa(totp: string) {

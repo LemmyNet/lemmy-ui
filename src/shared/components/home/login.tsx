@@ -30,6 +30,7 @@ interface State {
     password: string;
   };
   siteRes: GetSiteResponse;
+  show2faModal: boolean;
 }
 
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
@@ -65,9 +66,7 @@ async function handleLoginSubmit(i: Login, event: any) {
     switch (loginRes.state) {
       case "failed": {
         if (loginRes.msg === "missing_totp_token") {
-          const Modal = (await import("bootstrap/js/dist/modal")).default;
-          const modal = new Modal(document.getElementById("totpModal")!);
-          modal.show();
+          i.setState({ show2faModal: true });
         } else {
           toast(I18NextService.i18n.t(loginRes.msg), "danger");
         }
@@ -94,6 +93,10 @@ function handleLoginPasswordChange(i: Login, event: any) {
   i.setState(prevState => (prevState.form.password = event.target.value));
 }
 
+function handleClose2faModal(i: Login) {
+  i.setState({ show2faModal: false });
+}
+
 export class Login extends Component<
   RouteComponentProps<Record<string, never>>,
   State
@@ -107,6 +110,7 @@ export class Login extends Component<
       password: "",
     },
     siteRes: this.isoData.site_res,
+    show2faModal: false,
   };
 
   constructor(props: any, context: any) {
@@ -139,7 +143,12 @@ export class Login extends Component<
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        <TotpModal type="login" onSubmit={this.handleSubmitTotp} />
+        <TotpModal
+          type="login"
+          onSubmit={this.handleSubmitTotp}
+          show={this.state.show2faModal}
+          onClose={linkEvent(this, handleClose2faModal)}
+        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
@@ -154,14 +163,15 @@ export class Login extends Component<
       totp_2fa_token: totp,
     });
 
-    const succeeded = loginRes.state === "success";
-    if (succeeded) {
+    const successful = loginRes.state === "success";
+    if (successful) {
+      this.setState({ show2faModal: false });
       handleLoginSuccess(this, loginRes.data);
     } else {
       toast("Invalid 2FA Token", "danger");
     }
 
-    return succeeded;
+    return successful;
   }
 
   loginForm() {
