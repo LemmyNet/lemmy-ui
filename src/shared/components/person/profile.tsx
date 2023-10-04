@@ -76,7 +76,12 @@ import { fetchLimit, relTags } from "../../config";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { BannerIconHeader } from "../common/banner-icon-header";
@@ -171,7 +176,7 @@ export class Profile extends Component<
 > {
   private isoData = setIsoData<ProfileData>(this.context);
   state: ProfileState = {
-    personRes: { state: "empty" },
+    personRes: EMPTY_REQUEST,
     personBlocked: false,
     siteRes: this.isoData.site_res,
     showBanDialog: false,
@@ -245,7 +250,7 @@ export class Profile extends Component<
   async fetchUserData() {
     const { page, sort, view } = getProfileQueryParams();
 
-    this.setState({ personRes: { state: "loading" } });
+    this.setState({ personRes: LOADING_REQUEST });
     const personRes = await HttpService.client.getPersonDetails({
       username: this.props.match.params.username,
       sort,

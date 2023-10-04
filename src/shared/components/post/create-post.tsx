@@ -14,6 +14,7 @@ import {
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
+  EMPTY_REQUEST,
   HttpService,
   RequestState,
   WrappedLemmyHttp,
@@ -57,7 +58,7 @@ export class CreatePost extends Component<
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
     loading: true,
-    initialCommunitiesRes: { state: "empty" },
+    initialCommunitiesRes: EMPTY_REQUEST,
     isIsomorphic: false,
   };
 
@@ -242,7 +243,7 @@ export class CreatePost extends Component<
   >): Promise<CreatePostData> {
     const data: CreatePostData = {
       initialCommunitiesRes: await fetchCommunitiesForOptions(client),
-      communityResponse: { state: "empty" },
+      communityResponse: EMPTY_REQUEST,
     };
 
     if (communityId) {

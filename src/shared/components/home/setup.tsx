@@ -8,7 +8,12 @@ import {
   Register,
 } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { SiteForm } from "./site-form";
@@ -35,7 +40,7 @@ export class Setup extends Component<any, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {
-    registerRes: { state: "empty" },
+    registerRes: EMPTY_REQUEST,
     themeList: [],
     form: {
       show_nsfw: true,
@@ -157,7 +162,7 @@ export class Setup extends Component<any, State> {
 
   async handleRegisterSubmit(i: Setup, event: any) {
     event.preventDefault();
-    i.setState({ registerRes: { state: "loading" } });
+    i.setState({ registerRes: LOADING_REQUEST });
     const {
       username,
       password_verify,

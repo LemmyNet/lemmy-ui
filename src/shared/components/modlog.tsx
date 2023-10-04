@@ -47,7 +47,12 @@ import {
 import { fetchLimit } from "../config";
 import { InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
-import { HttpService, RequestState } from "../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../services/HttpService";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
@@ -647,8 +652,8 @@ export class Modlog extends Component<
   private isoData = setIsoData<ModlogData>(this.context);
 
   state: ModlogState = {
-    res: { state: "empty" },
-    communityRes: { state: "empty" },
+    res: EMPTY_REQUEST,
+    communityRes: EMPTY_REQUEST,
     loadingModSearch: false,
     loadingUserSearch: false,
     userSearchOptions: [],
@@ -954,7 +959,7 @@ export class Modlog extends Component<
     const { communityId: urlCommunityId } = this.props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
-    this.setState({ res: { state: "loading" } });
+    this.setState({ res: LOADING_REQUEST });
     this.setState({
       res: await HttpService.client.getModlog({
         community_id: communityId,
@@ -970,7 +975,7 @@ export class Modlog extends Component<
     });
 
     if (communityId) {
-      this.setState({ communityRes: { state: "loading" } });
+      this.setState({ communityRes: LOADING_REQUEST });
       this.setState({
         communityRes: await HttpService.client.getCommunity({
           id: communityId,
@@ -1001,9 +1006,7 @@ export class Modlog extends Component<
       other_person_id: userId,
     };
 
-    let communityResponse: RequestState<GetCommunityResponse> = {
-      state: "empty",
-    };
+    let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
 
     if (communityId) {
       const communityForm: GetCommunity = {
@@ -1013,9 +1016,7 @@ export class Modlog extends Component<
       communityResponse = await client.getCommunity(communityForm);
     }
 
-    let modUserResponse: RequestState<GetPersonDetailsResponse> = {
-      state: "empty",
-    };
+    let modUserResponse: RequestState<GetPersonDetailsResponse> = EMPTY_REQUEST;
 
     if (modId) {
       const getPersonForm: GetPersonDetails = {
@@ -1025,9 +1026,7 @@ export class Modlog extends Component<
       modUserResponse = await client.getPersonDetails(getPersonForm);
     }
 
-    let userResponse: RequestState<GetPersonDetailsResponse> = {
-      state: "empty",
-    };
+    let userResponse: RequestState<GetPersonDetailsResponse> = EMPTY_REQUEST;
 
     if (userId) {
       const getPersonForm: GetPersonDetails = {

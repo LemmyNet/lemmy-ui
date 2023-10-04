@@ -5,7 +5,11 @@ import { Component, linkEvent } from "inferno";
 import { CommunityView, ResolveObjectResponse } from "lemmy-js-client";
 import { InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
-import { RequestState } from "../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  LOADING_REQUEST,
+  RequestState,
+} from "../services/HttpService";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { LoadingEllipses } from "./common/loading-ellipses";
@@ -76,7 +80,7 @@ const handleUnfollow = (i: RemoteFetch) => handleToggleFollow(i, false);
 export class RemoteFetch extends Component<any, RemoteFetchState> {
   private isoData = setIsoData<RemoteFetchData>(this.context);
   state: RemoteFetchState = {
-    resolveObjectRes: { state: "empty" },
+    resolveObjectRes: EMPTY_REQUEST,
     isIsomorphic: false,
     followCommunityLoading: false,
   };
@@ -100,7 +104,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
       const { uri } = getRemoteFetchQueryParams();
 
       if (uri) {
-        this.setState({ resolveObjectRes: { state: "loading" } });
+        this.setState({ resolveObjectRes: LOADING_REQUEST });
         this.setState({
           resolveObjectRes: await HttpService.client.resolveObject({
             q: uriToQuery(uri),
@@ -208,7 +212,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
   }: InitialFetchRequest<
     QueryParams<RemoteFetchProps>
   >): Promise<RemoteFetchData> {
-    const data: RemoteFetchData = { resolveObjectRes: { state: "empty" } };
+    const data: RemoteFetchData = { resolveObjectRes: EMPTY_REQUEST };
 
     if (uri && auth) {
       data.resolveObjectRes = await client.resolveObject({

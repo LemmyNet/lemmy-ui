@@ -85,7 +85,12 @@ import {
   I18NextService,
   UserService,
 } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -221,9 +226,9 @@ const LinkButton = ({
 export class Home extends Component<any, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
   state: HomeState = {
-    postsRes: { state: "empty" },
-    commentsRes: { state: "empty" },
-    trendingCommunitiesRes: { state: "empty" },
+    postsRes: EMPTY_REQUEST,
+    commentsRes: EMPTY_REQUEST,
+    trendingCommunitiesRes: EMPTY_REQUEST,
     scrolled: true,
     siteRes: this.isoData.site_res,
     showSubscribedMobile: false,
@@ -321,10 +326,8 @@ export class Home extends Component<any, HomeState> {
 
     const page = urlPage ? Number(urlPage) : 1;
 
-    let postsRes: RequestState<GetPostsResponse> = { state: "empty" };
-    let commentsRes: RequestState<GetCommentsResponse> = {
-      state: "empty",
-    };
+    let postsRes: RequestState<GetPostsResponse> = EMPTY_REQUEST;
+    let commentsRes: RequestState<GetCommentsResponse> = EMPTY_REQUEST;
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -790,7 +793,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   async fetchTrendingCommunities() {
-    this.setState({ trendingCommunitiesRes: { state: "loading" } });
+    this.setState({ trendingCommunitiesRes: LOADING_REQUEST });
     this.setState({
       trendingCommunitiesRes: await HttpService.client.listCommunities({
         type_: "Local",
@@ -814,7 +817,7 @@ export class Home extends Component<any, HomeState> {
           behavior: "instant",
         });
       } else {
-        this.setState({ postsRes: { state: "loading" } });
+        this.setState({ postsRes: LOADING_REQUEST });
         this.setState({
           postsRes: await HttpService.client.getPosts({
             page,
@@ -828,7 +831,7 @@ export class Home extends Component<any, HomeState> {
         HomeCacheService.postsRes = this.state.postsRes;
       }
     } else {
-      this.setState({ commentsRes: { state: "loading" } });
+      this.setState({ commentsRes: LOADING_REQUEST });
       this.setState({
         commentsRes: await HttpService.client.getComments({
           page,

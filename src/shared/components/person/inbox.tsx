@@ -64,8 +64,10 @@ import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { UnreadCounterService } from "../../services";
 import {
+  EMPTY_REQUEST,
   EmptyRequestState,
   HttpService,
+  LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
 import { toast } from "../../toast";
@@ -129,10 +131,10 @@ export class Inbox extends Component<any, InboxState> {
     sort: "New",
     page: 1,
     siteRes: this.isoData.site_res,
-    repliesRes: { state: "empty" },
-    mentionsRes: { state: "empty" },
-    messagesRes: { state: "empty" },
-    markAllAsReadRes: { state: "empty" },
+    repliesRes: EMPTY_REQUEST,
+    mentionsRes: EMPTY_REQUEST,
+    messagesRes: EMPTY_REQUEST,
+    markAllAsReadRes: EMPTY_REQUEST,
     finished: new Map(),
     isIsomorphic: false,
   };
@@ -725,7 +727,7 @@ export class Inbox extends Component<any, InboxState> {
     client,
   }: InitialFetchRequest): Promise<InboxData> {
     const sort: CommentSortType = "New";
-    const empty: EmptyRequestState = { state: "empty" };
+    const empty: EmptyRequestState = EMPTY_REQUEST;
     let inboxData: InboxData = {
       mentionsRes: empty,
       messagesRes: empty,
@@ -765,7 +767,7 @@ export class Inbox extends Component<any, InboxState> {
     const page = this.state.page;
     const limit = fetchLimit;
 
-    this.setState({ repliesRes: { state: "loading" } });
+    this.setState({ repliesRes: LOADING_REQUEST });
     this.setState({
       repliesRes: await HttpService.client.getReplies({
         sort,
@@ -775,7 +777,7 @@ export class Inbox extends Component<any, InboxState> {
       }),
     });
 
-    this.setState({ mentionsRes: { state: "loading" } });
+    this.setState({ mentionsRes: LOADING_REQUEST });
     this.setState({
       mentionsRes: await HttpService.client.getPersonMentions({
         sort,
@@ -785,7 +787,7 @@ export class Inbox extends Component<any, InboxState> {
       }),
     });
 
-    this.setState({ messagesRes: { state: "loading" } });
+    this.setState({ messagesRes: LOADING_REQUEST });
     this.setState({
       messagesRes: await HttpService.client.getPrivateMessages({
         unread_only,
@@ -802,7 +804,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleMarkAllAsRead(i: Inbox) {
-    i.setState({ markAllAsReadRes: { state: "loading" } });
+    i.setState({ markAllAsReadRes: LOADING_REQUEST });
 
     i.setState({
       markAllAsReadRes: await HttpService.client.markAllAsRead(),
@@ -810,9 +812,9 @@ export class Inbox extends Component<any, InboxState> {
 
     if (i.state.markAllAsReadRes.state === "success") {
       i.setState({
-        repliesRes: { state: "empty" },
-        mentionsRes: { state: "empty" },
-        messagesRes: { state: "empty" },
+        repliesRes: EMPTY_REQUEST,
+        mentionsRes: EMPTY_REQUEST,
+        messagesRes: EMPTY_REQUEST,
       });
     }
   }

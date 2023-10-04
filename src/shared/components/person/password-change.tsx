@@ -3,7 +3,11 @@ import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { HttpService, I18NextService, UserService } from "../../services";
-import { RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
@@ -22,7 +26,7 @@ export class PasswordChange extends Component<any, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {
-    passwordChangeRes: { state: "empty" },
+    passwordChangeRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     form: {
       token: this.props.match.params.token,
@@ -106,7 +110,7 @@ export class PasswordChange extends Component<any, State> {
 
   async handlePasswordChangeSubmit(i: PasswordChange, event: any) {
     event.preventDefault();
-    i.setState({ passwordChangeRes: { state: "loading" } });
+    i.setState({ passwordChangeRes: LOADING_REQUEST });
 
     const password = i.state.form.password;
     const password_verify = i.state.form.password_verify;

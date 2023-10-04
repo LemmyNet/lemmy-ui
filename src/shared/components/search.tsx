@@ -48,7 +48,12 @@ import {
 import { fetchLimit } from "../config";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
-import { HttpService, RequestState } from "../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../services/HttpService";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
@@ -239,14 +244,14 @@ export class Search extends Component<any, SearchState> {
   private isoData = setIsoData<SearchData>(this.context);
 
   state: SearchState = {
-    resolveObjectRes: { state: "empty" },
-    creatorDetailsRes: { state: "empty" },
-    communitiesRes: { state: "empty" },
-    communityRes: { state: "empty" },
+    resolveObjectRes: EMPTY_REQUEST,
+    creatorDetailsRes: EMPTY_REQUEST,
+    communitiesRes: EMPTY_REQUEST,
+    communityRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     creatorSearchOptions: [],
     communitySearchOptions: [],
-    searchRes: { state: "empty" },
+    searchRes: EMPTY_REQUEST,
     searchCreatorLoading: false,
     searchCommunitiesLoading: false,
     isIsomorphic: false,
@@ -343,7 +348,7 @@ export class Search extends Component<any, SearchState> {
   }
 
   async fetchCommunities() {
-    this.setState({ communitiesRes: { state: "loading" } });
+    this.setState({ communitiesRes: LOADING_REQUEST });
     this.setState({
       communitiesRes: await HttpService.client.listCommunities({
         type_: defaultListingType,
@@ -362,12 +367,9 @@ export class Search extends Component<any, SearchState> {
     query: { communityId, creatorId, q, type, sort, listingType, page },
   }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<SearchData> {
     const community_id = getIdFromString(communityId);
-    let communityResponse: RequestState<GetCommunityResponse> = {
-      state: "empty",
-    };
-    let listCommunitiesResponse: RequestState<ListCommunitiesResponse> = {
-      state: "empty",
-    };
+    let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
+    let listCommunitiesResponse: RequestState<ListCommunitiesResponse> =
+      EMPTY_REQUEST;
     if (community_id) {
       const getCommunityForm: GetCommunity = {
         id: community_id,
@@ -387,9 +389,8 @@ export class Search extends Component<any, SearchState> {
     }
 
     const creator_id = getIdFromString(creatorId);
-    let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> = {
-      state: "empty",
-    };
+    let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> =
+      EMPTY_REQUEST;
     if (creator_id) {
       const getCreatorForm: GetPersonDetails = {
         person_id: creator_id,
@@ -400,10 +401,9 @@ export class Search extends Component<any, SearchState> {
 
     const query = getSearchQueryFromQuery(q);
 
-    let searchResponse: RequestState<SearchResponse> = { state: "empty" };
-    let resolveObjectResponse: RequestState<ResolveObjectResponse> = {
-      state: "empty",
-    };
+    let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
+    let resolveObjectResponse: RequestState<ResolveObjectResponse> =
+      EMPTY_REQUEST;
 
     if (query) {
       const form: SearchForm = {
@@ -430,7 +430,7 @@ export class Search extends Component<any, SearchState> {
           // If we return this object with a state of failed, the catch-all-handler will redirect
           // to an error page, so we ignore it by covering up the error with the empty state.
           if (resolveObjectResponse.state === "failed") {
-            resolveObjectResponse = { state: "empty" };
+            resolveObjectResponse = EMPTY_REQUEST;
           }
         }
       }
@@ -744,8 +744,8 @@ export class Search extends Component<any, SearchState> {
                   onPersonMentionRead={() => {}}
                   onBanPersonFromCommunity={() => {}}
                   onBanPerson={() => {}}
-                  onCreateComment={() => Promise.resolve({ state: "empty" })}
-                  onEditComment={() => Promise.resolve({ state: "empty" })}
+                  onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
+                  onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
                 />
               )}
               {i.type_ === "communities" && (
@@ -805,8 +805,8 @@ export class Search extends Component<any, SearchState> {
         onPersonMentionRead={() => {}}
         onBanPersonFromCommunity={() => {}}
         onBanPerson={() => {}}
-        onCreateComment={() => Promise.resolve({ state: "empty" })}
-        onEditComment={() => Promise.resolve({ state: "empty" })}
+        onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
+        onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
       />
     );
   }
@@ -948,7 +948,7 @@ export class Search extends Component<any, SearchState> {
       getSearchQueryParams();
 
     if (q) {
-      this.setState({ searchRes: { state: "loading" } });
+      this.setState({ searchRes: LOADING_REQUEST });
       this.setState({
         searchRes: await HttpService.client.search({
           q,
@@ -965,7 +965,7 @@ export class Search extends Component<any, SearchState> {
       restoreScrollPosition(this.context);
 
       if (myAuth()) {
-        this.setState({ resolveObjectRes: { state: "loading" } });
+        this.setState({ resolveObjectRes: LOADING_REQUEST });
         this.setState({
           resolveObjectRes: await HttpService.silent_client.resolveObject({
             q,

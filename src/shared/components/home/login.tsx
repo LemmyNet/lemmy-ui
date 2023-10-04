@@ -5,7 +5,12 @@ import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -57,7 +62,7 @@ async function handleLoginSubmit(i: Login, event: any) {
   const { password, username_or_email } = i.state.form;
 
   if (username_or_email && password) {
-    i.setState({ loginRes: { state: "loading" } });
+    i.setState({ loginRes: LOADING_REQUEST });
 
     const loginRes = await HttpService.client.login({
       username_or_email,
@@ -104,7 +109,7 @@ export class Login extends Component<
   private isoData = setIsoData(this.context);
 
   state: State = {
-    loginRes: { state: "empty" },
+    loginRes: EMPTY_REQUEST,
     form: {
       username_or_email: "",
       password: "",

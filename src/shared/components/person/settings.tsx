@@ -184,10 +184,10 @@ function handleClose2faModal(i: Settings) {
 export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData<SettingsData>(this.context);
   state: SettingsState = {
-    saveRes: { state: "empty" },
-    deleteAccountRes: { state: "empty" },
-    changePasswordRes: { state: "empty" },
-    instancesRes: { state: "empty" },
+    saveRes: EMPTY_REQUEST,
+    deleteAccountRes: EMPTY_REQUEST,
+    changePasswordRes: EMPTY_REQUEST,
+    instancesRes: EMPTY_REQUEST,
     saveUserSettingsForm: {},
     changePasswordForm: {},
     deleteAccountShowConfirm: false,
@@ -312,7 +312,7 @@ export class Settings extends Component<any, SettingsState> {
 
     if (!this.state.isIsomorphic) {
       this.setState({
-        instancesRes: { state: "loading" },
+        instancesRes: LOADING_REQUEST,
       });
 
       this.setState({
@@ -1432,7 +1432,7 @@ export class Settings extends Component<any, SettingsState> {
 
   async handleSaveSettingsSubmit(i: Settings, event: any) {
     event.preventDefault();
-    i.setState({ saveRes: { state: "loading" } });
+    i.setState({ saveRes: LOADING_REQUEST });
 
     const saveRes = await HttpService.client.saveUserSettings({
       ...i.state.saveUserSettingsForm,
@@ -1467,7 +1467,7 @@ export class Settings extends Component<any, SettingsState> {
       i.state.changePasswordForm;
 
     if (new_password && old_password && new_password_verify) {
-      i.setState({ changePasswordRes: { state: "loading" } });
+      i.setState({ changePasswordRes: LOADING_REQUEST });
       const changePasswordRes = await HttpService.client.changePassword({
         new_password,
         new_password_verify,
@@ -1498,7 +1498,7 @@ export class Settings extends Component<any, SettingsState> {
     event.preventDefault();
     const password = i.state.deleteAccountForm.password;
     if (password) {
-      i.setState({ deleteAccountRes: { state: "loading" } });
+      i.setState({ deleteAccountRes: LOADING_REQUEST });
       const deleteAccountRes = await HttpService.client.deleteAccount({
         password,
         // TODO: promt user weather he wants the content to be deleted

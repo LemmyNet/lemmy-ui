@@ -83,7 +83,12 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { CommentForm } from "../comment/comment-form";
@@ -120,8 +125,8 @@ export class Post extends Component<any, PostState> {
   private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
   state: PostState = {
-    postRes: { state: "empty" },
-    commentsRes: { state: "empty" },
+    postRes: EMPTY_REQUEST,
+    commentsRes: EMPTY_REQUEST,
     postId: getIdFromProps(this.props),
     commentId: getCommentIdFromProps(this.props),
     commentSort: "Hot",
@@ -196,8 +201,8 @@ export class Post extends Component<any, PostState> {
 
   async fetchPost() {
     this.setState({
-      postRes: { state: "loading" },
-      commentsRes: { state: "loading" },
+      postRes: LOADING_REQUEST,
+      commentsRes: LOADING_REQUEST,
     });
 
     const [postRes, commentsRes] = await Promise.all([
@@ -697,8 +702,8 @@ export class Post extends Component<any, PostState> {
     i.setState({
       commentSort: event.target.value as CommentSortType,
       commentViewType: CommentViewType.Tree,
-      commentsRes: { state: "loading" },
-      postRes: { state: "loading" },
+      commentsRes: LOADING_REQUEST,
+      postRes: LOADING_REQUEST,
     });
     await i.fetchPost();
   }

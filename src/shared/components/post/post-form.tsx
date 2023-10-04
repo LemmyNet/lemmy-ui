@@ -29,7 +29,12 @@ import {
 } from "../../config";
 import { PostFormParams } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { Icon, Spinner } from "../common/icon";
@@ -116,7 +121,7 @@ function copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
     d.i.setState(
       s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s),
     );
-    d.i.setState({ suggestedPostsRes: { state: "empty" } });
+    d.i.setState({ suggestedPostsRes: EMPTY_REQUEST });
     setTimeout(() => {
       const textarea: any = document.getElementById("post-title");
       autosize.update(textarea);
@@ -215,8 +220,8 @@ function handleImageDelete(i: PostForm) {
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
   state: PostFormState = {
-    suggestedPostsRes: { state: "empty" },
-    metadataRes: { state: "empty" },
+    suggestedPostsRes: EMPTY_REQUEST,
+    metadataRes: EMPTY_REQUEST,
     form: {},
     loading: false,
     imageLoading: false,
@@ -648,7 +653,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   async fetchPageTitle() {
     const url = this.state.form.url;
     if (url && validURL(url)) {
-      this.setState({ metadataRes: { state: "loading" } });
+      this.setState({ metadataRes: LOADING_REQUEST });
       this.setState({
         metadataRes: await HttpService.client.getSiteMetadata({ url }),
       });
@@ -658,7 +663,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   async fetchSimilarPosts() {
     const q = this.state.form.name;
     if (q && q !== "") {
-      this.setState({ suggestedPostsRes: { state: "loading" } });
+      this.setState({ suggestedPostsRes: LOADING_REQUEST });
       this.setState({
         suggestedPostsRes: await HttpService.client.search({
           q,
