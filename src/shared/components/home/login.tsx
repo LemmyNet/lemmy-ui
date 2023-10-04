@@ -173,7 +173,7 @@ export class Login extends Component<
       this.setState({ show2faModal: false });
       handleLoginSuccess(this, loginRes.data);
     } else {
-      toast("Invalid 2FA Token", "danger");
+      toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
     }
 
     return successful;

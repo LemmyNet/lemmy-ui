@@ -72,7 +72,7 @@ function handlePaste(modal: TotpModal, event: any) {
   const text: string = event.clipboardData.getData("text");
 
   if (text.length > TOTP_LENGTH || isNaN(Number(text))) {
-    toast("Invalid TOTP: Must be string of six digits", "danger");
+    toast(I18NextService.i18n.t("invalid_totp_code"), "danger");
     modal.setState({ totp: "" });
   } else {
     modal.setState({ totp: text });
@@ -161,11 +161,13 @@ export default class TotpModal extends Component<
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="totpModalTitle">
-                {type === "generate"
-                  ? "Enable 2 Factor Authentication"
-                  : type === "remove"
-                  ? "Disable 2 Factor Authentication"
-                  : "Enter 2FA Token"}
+                {I18NextService.i18n.t(
+                  type === "generate"
+                    ? "enable_totp"
+                    : type === "remove"
+                    ? "disable_totp"
+                    : "enter_totp_code",
+                )}
               </h3>
               <button
                 type="button"
@@ -181,16 +183,16 @@ export default class TotpModal extends Component<
                     className="btn btn-secondary mx-auto d-block totp-link"
                     href={secretUrl}
                   >
-                    Click here for your TOTP link
+                    {I18NextService.i18n.t("totp_link")}
                   </a>
                   <div className="mx-auto mt-3 w-50 h-50 text-center">
                     <strong className="fw-semibold">
-                      or scan this QR code in your authenticator app
+                      {I18NextService.i18n.t("totp_qr_segue")}
                     </strong>
                     <img
                       src={this.state.qrCode}
                       className="d-block mt-1 mx-auto"
-                      alt="TOTP QR code"
+                      alt={I18NextService.i18n.t("totp_qr")}
                     />
                   </div>
                 </div>
@@ -201,7 +203,7 @@ export default class TotpModal extends Component<
                   id="totp-input-label"
                   htmlFor="totp-input-0"
                 >
-                  Enter TOTP
+                  {I18NextService.i18n.t("enter_totp_code")}
                 </label>
                 <div className="d-flex justify-content-between align-items-center p-2">
                   {Array.from(Array(TOTP_LENGTH).keys()).map(i => (

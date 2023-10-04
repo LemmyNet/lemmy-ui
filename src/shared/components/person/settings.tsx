@@ -1056,9 +1056,9 @@ export class Settings extends Component<any, SettingsState> {
             this,
             totpEnabled ? handleShowTotpModal : handleGenerateTotp,
           )}
-        >{`${
-          totpEnabled ? "Disable" : "Enable"
-        } 2 factor authentication`}</button>
+        >
+          {I18NextService.i18n.t(totpEnabled ? "disable_totp" : "enable_totp")}
+        </button>
         {totpEnabled ? (
           <TotpModal
             type="remove"
@@ -1106,13 +1106,12 @@ export class Settings extends Component<any, SettingsState> {
       }
 
       toast(
-        `Successfully ${
-          enabled ? "enabled" : "disabled"
-        } 2 factor authentication`,
-        "success",
+        I18NextService.i18n.t(
+          enabled ? "enable_totp_success" : "disable_totp_success",
+        ),
       );
     } else {
-      toast("Invalid TOTP", "danger");
+      toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
     }
 
     return successful;
