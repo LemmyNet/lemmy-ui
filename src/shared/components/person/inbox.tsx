@@ -62,6 +62,7 @@ import {
 import { fetchLimit, relTags } from "../../config";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { UnreadCounterService } from "../../services";
 import {
   EmptyRequestState,
   HttpService,
@@ -792,6 +793,7 @@ export class Inbox extends Component<any, InboxState> {
         limit,
       }),
     });
+    UnreadCounterService.Instance.update();
   }
 
   async handleSortChange(val: CommentSortType) {

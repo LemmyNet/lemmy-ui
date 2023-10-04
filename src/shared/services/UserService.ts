@@ -5,6 +5,7 @@ import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
+import { amAdmin } from "@utils/roles";
 import { HttpService } from ".";
 
 interface Claims {
@@ -86,6 +87,10 @@ export class UserService {
         this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
       }
     }
+  }
+
+  public get moderatesSomething(): boolean {
+    return amAdmin() || (this.myUserInfo?.moderates?.length ?? 0) > 0;
   }
 
   public static get Instance() {

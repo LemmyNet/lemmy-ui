@@ -1,31 +1,30 @@
-import { myAuth, showAvatars } from "@utils/app";
+import { showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { numToSI, poll } from "@utils/helpers";
+import { numToSI } from "@utils/helpers";
 import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
+import { GetSiteResponse } from "lemmy-js-client";
+import { donateLemmyUrl } from "../../config";
 import {
-  GetReportCountResponse,
-  GetSiteResponse,
-  GetUnreadCountResponse,
-  GetUnreadRegistrationApplicationCountResponse,
-} from "lemmy-js-client";
-import { donateLemmyUrl, updateUnreadCountsInterval } from "../../config";
-import { I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+  I18NextService,
+  UserService,
+  UnreadCounterService,
+} from "../../services";
 import { toast } from "../../toast";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
+import { Subscription } from "rxjs";
 
 interface NavbarProps {
   siteRes?: GetSiteResponse;
 }
 
 interface NavbarState {
-  unreadInboxCountRes: RequestState<GetUnreadCountResponse>;
-  unreadReportCountRes: RequestState<GetReportCountResponse>;
-  unreadApplicationCountRes: RequestState<GetUnreadRegistrationApplicationCountResponse>;
   onSiteBanner?(url: string): any;
+  unreadInboxCount: number;
+  unreadReportCount: number;
+  unreadApplicationCount: number;
 }
 
 function handleCollapseClick(i: Navbar) {
@@ -44,13 +43,17 @@ function handleLogOut(i: Navbar) {
 }
 
 export class Navbar extends Component<NavbarProps, NavbarState> {
-  state: NavbarState = {
-    unreadInboxCountRes: { state: "empty" },
-    unreadReportCountRes: { state: "empty" },
-    unreadApplicationCountRes: { state: "empty" },
-  };
   collapseButtonRef = createRef<HTMLButtonElement>();
   mobileMenuRef = createRef<HTMLDivElement>();
+  unreadInboxCountSubscription: Subscription;
+  unreadReportCountSubscription: Subscription;
+  unreadApplicationCountSubscription: Subscription;
+
+  state: NavbarState = {
+    unreadInboxCount: 0,
+    unreadReportCount: 0,
+    unreadApplicationCount: 0,
+  };
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -63,7 +66,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
-      this.fetchUnreads();
+      this.unreadInboxCountSubscription =
+        UnreadCounterService.Instance.unreadInboxCountSubject.subscribe(
+          unreadInboxCount => this.setState({ unreadInboxCount }),
+        );
+      this.unreadReportCountSubscription =
+        UnreadCounterService.Instance.unreadReportCountSubject.subscribe(
+          unreadReportCount => this.setState({ unreadReportCount }),
+        );
+      this.unreadApplicationCountSubscription =
+        UnreadCounterService.Instance.unreadApplicationCountSubject.subscribe(
+          unreadApplicationCount => this.setState({ unreadApplicationCount }),
+        );
       this.requestNotificationPermission();
 
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
@@ -72,6 +86,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   componentWillUnmount() {
     document.removeEventListener("mouseup", this.handleOutsideMenuClick);
+    this.unreadInboxCountSubscription.unsubscribe();
+    this.unreadReportCountSubscription.unsubscribe();
+    this.unreadApplicationCountSubscription.unsubscribe();
   }
 
   // TODO class active corresponding to current pages
@@ -103,34 +120,34 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   to="/inbox"
                   className="p-1 nav-link border-0 nav-messages"
                   title={I18NextService.i18n.t("unread_messages", {
-                    count: Number(this.state.unreadApplicationCountRes.state),
-                    formattedCount: numToSI(this.unreadInboxCount),
+                    count: Number(this.state.unreadInboxCount),
+                    formattedCount: numToSI(this.state.unreadInboxCount),
                   })}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="bell" />
-                  {this.unreadInboxCount > 0 && (
+                  {this.state.unreadInboxCount > 0 && (
                     <span className="mx-1 badge text-bg-light">
-                      {numToSI(this.unreadInboxCount)}
+                      {numToSI(this.state.unreadInboxCount)}
                     </span>
                   )}
                 </NavLink>
               </li>
-              {this.moderatesSomething && (
+              {UserService.Instance.moderatesSomething && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
                     to="/reports"
                     className="p-1 nav-link border-0"
                     title={I18NextService.i18n.t("unread_reports", {
-                      count: Number(this.unreadReportCount),
-                      formattedCount: numToSI(this.unreadReportCount),
+                      count: Number(this.state.unreadReportCount),
+                      formattedCount: numToSI(this.state.unreadReportCount),
                     })}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="shield" />
-                    {this.unreadReportCount > 0 && (
+                    {this.state.unreadReportCount > 0 && (
                       <span className="mx-1 badge text-bg-light">
-                        {numToSI(this.unreadReportCount)}
+                        {numToSI(this.state.unreadReportCount)}
                       </span>
                     )}
                   </NavLink>
@@ -144,16 +161,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     title={I18NextService.i18n.t(
                       "unread_registration_applications",
                       {
-                        count: Number(this.unreadApplicationCount),
-                        formattedCount: numToSI(this.unreadApplicationCount),
+                        count: Number(this.state.unreadApplicationCount),
+                        formattedCount: numToSI(
+                          this.state.unreadApplicationCount,
+                        ),
                       },
                     )}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
                   >
                     <Icon icon="clipboard" />
-                    {this.unreadApplicationCount > 0 && (
+                    {this.state.unreadApplicationCount > 0 && (
                       <span className="mx-1 badge text-bg-light">
-                        {numToSI(this.unreadApplicationCount)}
+                        {numToSI(this.state.unreadApplicationCount)}
                       </span>
                     )}
                   </NavLink>
@@ -268,46 +287,48 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       to="/inbox"
                       title={I18NextService.i18n.t("unread_messages", {
-                        count: Number(this.unreadInboxCount),
-                        formattedCount: numToSI(this.unreadInboxCount),
+                        count: Number(this.state.unreadInboxCount),
+                        formattedCount: numToSI(this.state.unreadInboxCount),
                       })}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="bell" />
                       <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                         {I18NextService.i18n.t("unread_messages", {
-                          count: Number(this.unreadInboxCount),
-                          formattedCount: numToSI(this.unreadInboxCount),
+                          count: Number(this.state.unreadInboxCount),
+                          formattedCount: numToSI(this.state.unreadInboxCount),
                         })}
                       </span>
-                      {this.unreadInboxCount > 0 && (
+                      {this.state.unreadInboxCount > 0 && (
                         <span className="mx-1 badge text-bg-light">
-                          {numToSI(this.unreadInboxCount)}
+                          {numToSI(this.state.unreadInboxCount)}
                         </span>
                       )}
                     </NavLink>
                   </li>
-                  {this.moderatesSomething && (
+                  {UserService.Instance.moderatesSomething && (
                     <li id="navModeration" className="nav-item">
                       <NavLink
                         className="nav-link d-inline-flex align-items-center d-md-inline-block"
                         to="/reports"
                         title={I18NextService.i18n.t("unread_reports", {
-                          count: Number(this.unreadReportCount),
-                          formattedCount: numToSI(this.unreadReportCount),
+                          count: Number(this.state.unreadReportCount),
+                          formattedCount: numToSI(this.state.unreadReportCount),
                         })}
                         onMouseUp={linkEvent(this, handleCollapseClick)}
                       >
                         <Icon icon="shield" />
                         <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                           {I18NextService.i18n.t("unread_reports", {
-                            count: Number(this.unreadReportCount),
-                            formattedCount: numToSI(this.unreadReportCount),
+                            count: Number(this.state.unreadReportCount),
+                            formattedCount: numToSI(
+                              this.state.unreadReportCount,
+                            ),
                           })}
                         </span>
-                        {this.unreadReportCount > 0 && (
+                        {this.state.unreadReportCount > 0 && (
                           <span className="mx-1 badge text-bg-light">
-                            {numToSI(this.unreadReportCount)}
+                            {numToSI(this.state.unreadReportCount)}
                           </span>
                         )}
                       </NavLink>
@@ -321,9 +342,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         title={I18NextService.i18n.t(
                           "unread_registration_applications",
                           {
-                            count: Number(this.unreadApplicationCount),
+                            count: Number(this.state.unreadApplicationCount),
                             formattedCount: numToSI(
-                              this.unreadApplicationCount,
+                              this.state.unreadApplicationCount,
                             ),
                           },
                         )}
@@ -334,16 +355,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           {I18NextService.i18n.t(
                             "unread_registration_applications",
                             {
-                              count: Number(this.unreadApplicationCount),
+                              count: Number(this.state.unreadApplicationCount),
                               formattedCount: numToSI(
-                                this.unreadApplicationCount,
+                                this.state.unreadApplicationCount,
                               ),
                             },
                           )}
                         </span>
-                        {this.unreadApplicationCount > 0 && (
+                        {this.state.unreadApplicationCount > 0 && (
                           <span className="mx-1 badge text-bg-light">
-                            {numToSI(this.unreadApplicationCount)}
+                            {numToSI(this.state.unreadApplicationCount)}
                           </span>
                         )}
                       </NavLink>
@@ -438,68 +459,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   handleOutsideMenuClick(event: MouseEvent) {
     if (!this.mobileMenuRef.current?.contains(event.target as Node | null)) {
       handleCollapseClick(this);
-    }
-  }
-
-  get moderatesSomething(): boolean {
-    const mods = UserService.Instance.myUserInfo?.moderates;
-    const moderatesS = (mods && mods.length > 0) || false;
-    return amAdmin() || moderatesS;
-  }
-
-  fetchUnreads() {
-    poll(async () => {
-      if (window.document.visibilityState !== "hidden") {
-        if (myAuth()) {
-          this.setState({
-            unreadInboxCountRes: await HttpService.client.getUnreadCount(),
-          });
-
-          if (this.moderatesSomething) {
-            this.setState({
-              unreadReportCountRes: await HttpService.client.getReportCount({}),
-            });
-          }
-
-          if (amAdmin()) {
-            this.setState({
-              unreadApplicationCountRes:
-                await HttpService.client.getUnreadRegistrationApplicationCount(),
-            });
-          }
-        }
-      }
-    }, updateUnreadCountsInterval);
-  }
-
-  get unreadInboxCount(): number {
-    if (this.state.unreadInboxCountRes.state === "success") {
-      const data = this.state.unreadInboxCountRes.data;
-      return data.replies + data.mentions + data.private_messages;
-    } else {
-      return 0;
-    }
-  }
-
-  get unreadReportCount(): number {
-    if (this.state.unreadReportCountRes.state === "success") {
-      const data = this.state.unreadReportCountRes.data;
-      return (
-        data.post_reports +
-        data.comment_reports +
-        (data.private_message_reports ?? 0)
-      );
-    } else {
-      return 0;
-    }
-  }
-
-  get unreadApplicationCount(): number {
-    if (this.state.unreadApplicationCountRes.state === "success") {
-      const data = this.state.unreadApplicationCountRes.data;
-      return data.registration_applications;
-    } else {
-      return 0;
     }
   }
 
