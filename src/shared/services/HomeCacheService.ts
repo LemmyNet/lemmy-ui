@@ -1,5 +1,5 @@
 import { GetPostsResponse } from "lemmy-js-client";
-import { EMPTY_REQUEST, RequestState } from "./HttpService.js";
+import { EMPTY_REQUEST, RequestState } from "./HttpService";
 
 /**
  * Service to cache home post listings and restore home state when user uses the browser back buttons.

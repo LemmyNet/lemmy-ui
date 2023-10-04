@@ -10,7 +10,7 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
-import { EMPTY_REQUEST } from "shared/services/HttpService";
+import { EMPTY_REQUEST } from "../../services/HttpService";
 
 interface CommentReportProps {
   report: CommentReportView;
