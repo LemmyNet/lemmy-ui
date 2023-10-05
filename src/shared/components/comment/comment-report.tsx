@@ -10,6 +10,7 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
+import { EMPTY_REQUEST } from "../../services/HttpService";
 
 interface CommentReportProps {
   report: CommentReportView;
@@ -97,8 +98,8 @@ export class CommentReport extends Component<
           onPersonMentionRead={() => {}}
           onBanPersonFromCommunity={() => {}}
           onBanPerson={() => {}}
-          onCreateComment={() => Promise.resolve({ state: "empty" })}
-          onEditComment={() => Promise.resolve({ state: "empty" })}
+          onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
+          onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

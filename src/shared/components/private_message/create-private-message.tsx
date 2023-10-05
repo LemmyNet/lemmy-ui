@@ -9,7 +9,12 @@ import {
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -33,7 +38,7 @@ export class CreatePrivateMessage extends Component<
   private isoData = setIsoData<CreatePrivateMessageData>(this.context);
   state: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
-    recipientRes: { state: "empty" },
+    recipientRes: EMPTY_REQUEST,
     recipientId: getRecipientIdFromProps(this.props),
     isIsomorphic: false,
   };
@@ -78,7 +83,7 @@ export class CreatePrivateMessage extends Component<
 
   async fetchPersonDetails() {
     this.setState({
-      recipientRes: { state: "loading" },
+      recipientRes: LOADING_REQUEST,
     });
 
     this.setState({

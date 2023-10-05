@@ -18,7 +18,12 @@ import {
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
@@ -64,7 +69,7 @@ function getCommunitiesQueryParams() {
 export class Communities extends Component<any, CommunitiesState> {
   private isoData = setIsoData<CommunitiesData>(this.context);
   state: CommunitiesState = {
-    listCommunitiesResponse: { state: "empty" },
+    listCommunitiesResponse: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     searchText: "",
     isIsomorphic: false,
@@ -333,7 +338,7 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   async refetch() {
-    this.setState({ listCommunitiesResponse: { state: "loading" } });
+    this.setState({ listCommunitiesResponse: LOADING_REQUEST });
 
     const { listingType, sort, page } = getCommunitiesQueryParams();
 

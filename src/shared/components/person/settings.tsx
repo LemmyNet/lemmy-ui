@@ -24,6 +24,7 @@ import {
   BlockPersonResponse,
   CommunityBlockView,
   DeleteAccountResponse,
+  GenerateTotpSecretResponse,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
@@ -32,10 +33,16 @@ import {
   LoginResponse,
   PersonBlockView,
   SortType,
+  UpdateTotpResponse,
 } from "lemmy-js-client";
 import { elementUrl, emDash, relTags } from "../../config";
 import { FirstLoadService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { I18NextService, languages } from "../../services/I18NextService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -52,6 +59,7 @@ import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
+import TotpModal from "../common/totp-modal";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -62,6 +70,8 @@ interface SettingsState {
   changePasswordRes: RequestState<LoginResponse>;
   deleteAccountRes: RequestState<DeleteAccountResponse>;
   instancesRes: RequestState<GetFederatedInstancesResponse>;
+  generateTotpRes: RequestState<GenerateTotpSecretResponse>;
+  updateTotpRes: RequestState<UpdateTotpResponse>;
   // TODO redo these forms
   saveUserSettingsForm: {
     show_nsfw?: boolean;
@@ -85,7 +95,6 @@ interface SettingsState {
     show_read_posts?: boolean;
     show_new_post_notifs?: boolean;
     discussion_languages?: number[];
-    generate_totp_2fa?: boolean;
     open_links_in_new_tab?: boolean;
   };
   changePasswordForm: {
@@ -109,6 +118,7 @@ interface SettingsState {
   searchPersonOptions: Choice[];
   searchInstanceOptions: Choice[];
   isIsomorphic: boolean;
+  show2faModal: boolean;
 }
 
 type FilterType = "user" | "community" | "instance";
@@ -147,13 +157,37 @@ const Filter = ({
   </div>
 );
 
+async function handleGenerateTotp(i: Settings) {
+  i.setState({ generateTotpRes: LOADING_REQUEST });
+
+  const generateTotpRes = await HttpService.client.generateTotpSecret();
+
+  if (generateTotpRes.state === "failed") {
+    toast(generateTotpRes.msg, "danger");
+  } else {
+    i.setState({ show2faModal: true });
+  }
+
+  i.setState({
+    generateTotpRes,
+  });
+}
+
+function handleShowTotpModal(i: Settings) {
+  i.setState({ show2faModal: true });
+}
+
+function handleClose2faModal(i: Settings) {
+  i.setState({ show2faModal: false });
+}
+
 export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData<SettingsData>(this.context);
   state: SettingsState = {
-    saveRes: { state: "empty" },
-    deleteAccountRes: { state: "empty" },
-    changePasswordRes: { state: "empty" },
-    instancesRes: { state: "empty" },
+    saveRes: EMPTY_REQUEST,
+    deleteAccountRes: EMPTY_REQUEST,
+    changePasswordRes: EMPTY_REQUEST,
+    instancesRes: EMPTY_REQUEST,
     saveUserSettingsForm: {},
     changePasswordForm: {},
     deleteAccountShowConfirm: false,
@@ -170,6 +204,9 @@ export class Settings extends Component<any, SettingsState> {
     searchPersonOptions: [],
     searchInstanceOptions: [],
     isIsomorphic: false,
+    generateTotpRes: EMPTY_REQUEST,
+    updateTotpRes: EMPTY_REQUEST,
+    show2faModal: false,
   };
 
   constructor(props: any, context: any) {
@@ -192,6 +229,10 @@ export class Settings extends Component<any, SettingsState> {
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleBlockInstance = this.handleBlockInstance.bind(this);
+
+    this.handleToggle2fa = this.handleToggle2fa.bind(this);
+    this.handleEnable2fa = this.handleEnable2fa.bind(this);
+    this.handleDisable2fa = this.handleDisable2fa.bind(this);
 
     const mui = UserService.Instance.myUserInfo;
     if (mui) {
@@ -271,7 +312,7 @@ export class Settings extends Component<any, SettingsState> {
 
     if (!this.state.isIsomorphic) {
       this.setState({
-        instancesRes: { state: "loading" },
+        instancesRes: LOADING_REQUEST,
       });
 
       this.setState({
@@ -1001,55 +1042,87 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   totpSection() {
-    const totpUrl =
-      UserService.Instance.myUserInfo?.local_user_view.local_user.totp_2fa_url;
+    const totpEnabled =
+      !!UserService.Instance.myUserInfo?.local_user_view.local_user
+        .totp_2fa_enabled;
+    const { generateTotpRes } = this.state;
 
     return (
       <>
-        {!totpUrl && (
-          <div className="input-group mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="user-generate-totp"
-                type="checkbox"
-                checked={this.state.saveUserSettingsForm.generate_totp_2fa}
-                onChange={linkEvent(this, this.handleGenerateTotp)}
-              />
-              <label className="form-check-label" htmlFor="user-generate-totp">
-                {I18NextService.i18n.t("set_up_two_factor")}
-              </label>
-            </div>
-          </div>
-        )}
-
-        {totpUrl && (
-          <>
-            <div>
-              <a className="btn btn-secondary mb-2" href={totpUrl}>
-                {I18NextService.i18n.t("two_factor_link")}
-              </a>
-            </div>
-            <div className="input-group mb-3">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="user-remove-totp"
-                  type="checkbox"
-                  checked={
-                    this.state.saveUserSettingsForm.generate_totp_2fa === false
-                  }
-                  onChange={linkEvent(this, this.handleRemoveTotp)}
-                />
-                <label className="form-check-label" htmlFor="user-remove-totp">
-                  {I18NextService.i18n.t("remove_two_factor")}
-                </label>
-              </div>
-            </div>
-          </>
+        <button
+          type="button"
+          className="btn btn-secondary my-2"
+          onClick={linkEvent(
+            this,
+            totpEnabled ? handleShowTotpModal : handleGenerateTotp,
+          )}
+        >
+          {I18NextService.i18n.t(totpEnabled ? "disable_totp" : "enable_totp")}
+        </button>
+        {totpEnabled ? (
+          <TotpModal
+            type="remove"
+            onSubmit={this.handleDisable2fa}
+            show={this.state.show2faModal}
+            onClose={linkEvent(this, handleClose2faModal)}
+          />
+        ) : (
+          <TotpModal
+            type="generate"
+            onSubmit={this.handleEnable2fa}
+            secretUrl={
+              generateTotpRes.state === "success"
+                ? generateTotpRes.data.totp_secret_url
+                : undefined
+            }
+            show={this.state.show2faModal}
+            onClose={linkEvent(this, handleClose2faModal)}
+          />
         )}
       </>
     );
+  }
+
+  async handleToggle2fa(totp: string, enabled: boolean) {
+    this.setState({ updateTotpRes: LOADING_REQUEST });
+
+    const updateTotpRes = await HttpService.client.updateTotp({
+      enabled,
+      totp_token: totp,
+    });
+
+    this.setState({ updateTotpRes });
+
+    const successful = updateTotpRes.state === "success";
+    if (successful) {
+      this.setState({ show2faModal: false });
+
+      const siteRes = await HttpService.client.getSite();
+      UserService.Instance.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
+        enabled;
+
+      if (siteRes.state === "success") {
+        this.setState({ siteRes: siteRes.data });
+      }
+
+      toast(
+        I18NextService.i18n.t(
+          enabled ? "enable_totp_success" : "disable_totp_success",
+        ),
+      );
+    } else {
+      toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
+    }
+
+    return successful;
+  }
+
+  handleEnable2fa(totp: string) {
+    return this.handleToggle2fa(totp, true);
+  }
+
+  handleDisable2fa(totp: string) {
+    return this.handleToggle2fa(totp, false);
   }
 
   handlePersonSearch = debounce(async (text: string) => {
@@ -1248,19 +1321,12 @@ export class Settings extends Component<any, SettingsState> {
     );
   }
 
-  handleGenerateTotp(i: Settings, event: any) {
-    // Coerce false to undefined here, so it won't generate it.
-    const checked: boolean | undefined = event.target.checked || undefined;
-    if (checked) {
-      toast(I18NextService.i18n.t("two_factor_setup_instructions"));
-    }
-    i.setState(s => ((s.saveUserSettingsForm.generate_totp_2fa = checked), s));
-  }
+  async handleGenerateTotp(i: Settings) {
+    i.setState({ generateTotpRes: LOADING_REQUEST });
 
-  handleRemoveTotp(i: Settings, event: any) {
-    // Coerce true to undefined here, so it won't generate it.
-    const checked: boolean | undefined = !event.target.checked && undefined;
-    i.setState(s => ((s.saveUserSettingsForm.generate_totp_2fa = checked), s));
+    i.setState({
+      generateTotpRes: await HttpService.client.generateTotpSecret(),
+    });
   }
 
   handleSendNotificationsToEmailChange(i: Settings, event: any) {
@@ -1365,7 +1431,7 @@ export class Settings extends Component<any, SettingsState> {
 
   async handleSaveSettingsSubmit(i: Settings, event: any) {
     event.preventDefault();
-    i.setState({ saveRes: { state: "loading" } });
+    i.setState({ saveRes: LOADING_REQUEST });
 
     const saveRes = await HttpService.client.saveUserSettings({
       ...i.state.saveUserSettingsForm,
@@ -1400,7 +1466,7 @@ export class Settings extends Component<any, SettingsState> {
       i.state.changePasswordForm;
 
     if (new_password && old_password && new_password_verify) {
-      i.setState({ changePasswordRes: { state: "loading" } });
+      i.setState({ changePasswordRes: LOADING_REQUEST });
       const changePasswordRes = await HttpService.client.changePassword({
         new_password,
         new_password_verify,
@@ -1431,7 +1497,7 @@ export class Settings extends Component<any, SettingsState> {
     event.preventDefault();
     const password = i.state.deleteAccountForm.password;
     if (password) {
-      i.setState({ deleteAccountRes: { state: "loading" } });
+      i.setState({ deleteAccountRes: LOADING_REQUEST });
       const deleteAccountRes = await HttpService.client.deleteAccount({
         password,
         // TODO: promt user weather he wants the content to be deleted

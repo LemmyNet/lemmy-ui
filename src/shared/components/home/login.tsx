@@ -5,11 +5,17 @@ import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
+import TotpModal from "../common/totp-modal";
 
 interface LoginProps {
   prev?: string;
@@ -25,57 +31,57 @@ const getLoginQueryParams = () =>
 interface State {
   loginRes: RequestState<LoginResponse>;
   form: {
-    username_or_email?: string;
-    password?: string;
-    totp_2fa_token?: string;
+    username_or_email: string;
+    password: string;
   };
-  showTotp: boolean;
   siteRes: GetSiteResponse;
+  show2faModal: boolean;
+}
+
+async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
+  UserService.Instance.login({
+    res: loginRes,
+  });
+  const site = await HttpService.client.getSite();
+
+  if (site.state === "success") {
+    UserService.Instance.myUserInfo = site.data.my_user;
+  }
+
+  const { prev } = getLoginQueryParams();
+
+  prev
+    ? i.props.history.replace(prev)
+    : i.props.history.action === "PUSH"
+    ? i.props.history.back()
+    : i.props.history.replace("/");
 }
 
 async function handleLoginSubmit(i: Login, event: any) {
   event.preventDefault();
-  const { password, totp_2fa_token, username_or_email } = i.state.form;
+  const { password, username_or_email } = i.state.form;
 
   if (username_or_email && password) {
-    i.setState({ loginRes: { state: "loading" } });
+    i.setState({ loginRes: LOADING_REQUEST });
 
     const loginRes = await HttpService.client.login({
       username_or_email,
       password,
-      totp_2fa_token,
     });
     switch (loginRes.state) {
       case "failed": {
         if (loginRes.msg === "missing_totp_token") {
-          i.setState({ showTotp: true });
-          toast(I18NextService.i18n.t("enter_two_factor_code"), "info");
+          i.setState({ show2faModal: true });
         } else {
           toast(I18NextService.i18n.t(loginRes.msg), "danger");
         }
 
-        i.setState({ loginRes: { state: "failed", msg: loginRes.msg } });
+        i.setState({ loginRes });
         break;
       }
 
       case "success": {
-        UserService.Instance.login({
-          res: loginRes.data,
-        });
-        const site = await HttpService.client.getSite();
-
-        if (site.state === "success") {
-          UserService.Instance.myUserInfo = site.data.my_user;
-        }
-
-        const { prev } = getLoginQueryParams();
-
-        prev
-          ? i.props.history.replace(prev)
-          : i.props.history.action === "PUSH"
-          ? i.props.history.back()
-          : i.props.history.replace("/");
-
+        handleLoginSuccess(i, loginRes.data);
         break;
       }
     }
@@ -88,12 +94,12 @@ function handleLoginUsernameChange(i: Login, event: any) {
   );
 }
 
-function handleLoginTotpChange(i: Login, event: any) {
-  i.setState(prevState => (prevState.form.totp_2fa_token = event.target.value));
-}
-
 function handleLoginPasswordChange(i: Login, event: any) {
   i.setState(prevState => (prevState.form.password = event.target.value));
+}
+
+function handleClose2faModal(i: Login) {
+  i.setState({ show2faModal: false });
 }
 
 export class Login extends Component<
@@ -103,14 +109,19 @@ export class Login extends Component<
   private isoData = setIsoData(this.context);
 
   state: State = {
-    loginRes: { state: "empty" },
-    form: {},
-    showTotp: false,
+    loginRes: EMPTY_REQUEST,
+    form: {
+      username_or_email: "",
+      password: "",
+    },
     siteRes: this.isoData.site_res,
+    show2faModal: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
+
+    this.handleSubmitTotp = this.handleSubmitTotp.bind(this);
   }
 
   componentDidMount() {
@@ -137,11 +148,35 @@ export class Login extends Component<
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
+        <TotpModal
+          type="login"
+          onSubmit={this.handleSubmitTotp}
+          show={this.state.show2faModal}
+          onClose={linkEvent(this, handleClose2faModal)}
+        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
       </div>
     );
+  }
+
+  async handleSubmitTotp(totp: string) {
+    const loginRes = await HttpService.client.login({
+      password: this.state.form.password,
+      username_or_email: this.state.form.username_or_email,
+      totp_2fa_token: totp,
+    });
+
+    const successful = loginRes.state === "success";
+    if (successful) {
+      this.setState({ show2faModal: false });
+      handleLoginSuccess(this, loginRes.data);
+    } else {
+      toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
+    }
+
+    return successful;
   }
 
   loginForm() {
@@ -178,28 +213,6 @@ export class Login extends Component<
               showForgotLink
             />
           </div>
-          {this.state.showTotp && (
-            <div className="mb-3 row">
-              <label
-                className="col-sm-6 col-form-label"
-                htmlFor="login-totp-token"
-              >
-                {I18NextService.i18n.t("two_factor_token")}
-              </label>
-              <div className="col-sm-6">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  className="form-control"
-                  id="login-totp-token"
-                  pattern="[0-9]*"
-                  autoComplete="one-time-code"
-                  value={this.state.form.totp_2fa_token}
-                  onInput={linkEvent(this, handleLoginTotpChange)}
-                />
-              </div>
-            </div>
-          )}
           <div className="mb-3 row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-secondary">

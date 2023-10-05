@@ -12,7 +12,12 @@ import {
 import { fetchLimit } from "../../config";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -42,7 +47,7 @@ export class RegistrationApplications extends Component<
 > {
   private isoData = setIsoData<RegistrationApplicationsData>(this.context);
   state: RegistrationApplicationsState = {
-    appsRes: { state: "empty" },
+    appsRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     unreadOrAll: UnreadOrAll.Unread,
     page: 1,
@@ -210,14 +215,14 @@ export class RegistrationApplications extends Component<
             page: 1,
             limit: fetchLimit,
           })
-        : { state: "empty" },
+        : EMPTY_REQUEST,
     };
   }
 
   async refetch() {
     const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     this.setState({
-      appsRes: { state: "loading" },
+      appsRes: LOADING_REQUEST,
     });
     this.setState({
       appsRes: await HttpService.client.listRegistrationApplications({

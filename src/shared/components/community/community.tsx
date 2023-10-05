@@ -83,7 +83,12 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -146,9 +151,9 @@ export class Community extends Component<
 > {
   private isoData = setIsoData<CommunityData>(this.context);
   state: State = {
-    communityRes: { state: "empty" },
-    postsRes: { state: "empty" },
-    commentsRes: { state: "empty" },
+    communityRes: EMPTY_REQUEST,
+    postsRes: EMPTY_REQUEST,
+    commentsRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
     finished: new Map(),
@@ -212,7 +217,7 @@ export class Community extends Component<
   }
 
   async fetchCommunity() {
-    this.setState({ communityRes: { state: "loading" } });
+    this.setState({ communityRes: LOADING_REQUEST });
     this.setState({
       communityRes: await HttpService.client.getCommunity({
         name: this.props.match.params.name,
@@ -248,10 +253,8 @@ export class Community extends Component<
 
     const page = getPageFromString(urlPage);
 
-    let postsResponse: RequestState<GetPostsResponse> = { state: "empty" };
-    let commentsResponse: RequestState<GetCommentsResponse> = {
-      state: "empty",
-    };
+    let postsResponse: RequestState<GetPostsResponse> = EMPTY_REQUEST;
+    let commentsResponse: RequestState<GetCommentsResponse> = EMPTY_REQUEST;
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -585,7 +588,7 @@ export class Community extends Component<
     const { name } = this.props.match.params;
 
     if (dataType === DataType.Post) {
-      this.setState({ postsRes: { state: "loading" } });
+      this.setState({ postsRes: LOADING_REQUEST });
       this.setState({
         postsRes: await HttpService.client.getPosts({
           page,
@@ -597,7 +600,7 @@ export class Community extends Component<
         }),
       });
     } else {
-      this.setState({ commentsRes: { state: "loading" } });
+      this.setState({ commentsRes: LOADING_REQUEST });
       this.setState({
         commentsRes: await HttpService.client.getComments({
           page,

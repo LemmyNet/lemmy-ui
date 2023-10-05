@@ -16,7 +16,12 @@ import {
 import { InitialFetchRequest } from "../../interfaces";
 import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
 import { FirstLoadService, I18NextService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -50,9 +55,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     siteRes: this.isoData.site_res,
     banned: [],
     currentTab: "site",
-    bannedRes: { state: "empty" },
-    instancesRes: { state: "empty" },
-    leaveAdminTeamRes: { state: "empty" },
+    bannedRes: EMPTY_REQUEST,
+    instancesRes: EMPTY_REQUEST,
+    leaveAdminTeamRes: EMPTY_REQUEST,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -231,8 +236,8 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
   async fetchData() {
     this.setState({
-      bannedRes: { state: "loading" },
-      instancesRes: { state: "loading" },
+      bannedRes: LOADING_REQUEST,
+      instancesRes: LOADING_REQUEST,
       themeList: [],
     });
 
@@ -333,7 +338,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleLeaveAdminTeam(i: AdminSettings) {
-    i.setState({ leaveAdminTeamRes: { state: "loading" } });
+    i.setState({ leaveAdminTeamRes: LOADING_REQUEST });
     this.setState({
       leaveAdminTeamRes: await HttpService.client.leaveAdmin(),
     });

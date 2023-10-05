@@ -3,13 +3,17 @@ import { LemmyHttp } from "lemmy-js-client";
 import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
 
-export type EmptyRequestState = {
-  state: "empty";
-};
+export const EMPTY_REQUEST = {
+  state: "empty",
+} as const;
 
-type LoadingRequestState = {
-  state: "loading";
-};
+export type EmptyRequestState = typeof EMPTY_REQUEST;
+
+export const LOADING_REQUEST = {
+  state: "loading",
+} as const;
+
+type LoadingRequestState = typeof LOADING_REQUEST;
 
 export type FailedRequestState = {
   state: "failed";

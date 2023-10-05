@@ -35,7 +35,11 @@ import {
   I18NextService,
   UserService,
 } from "../../services";
-import { RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -88,9 +92,9 @@ interface ReportsState {
 export class Reports extends Component<any, ReportsState> {
   private isoData = setIsoData<ReportsData>(this.context);
   state: ReportsState = {
-    commentReportsRes: { state: "empty" },
-    postReportsRes: { state: "empty" },
-    messageReportsRes: { state: "empty" },
+    commentReportsRes: EMPTY_REQUEST,
+    postReportsRes: EMPTY_REQUEST,
+    messageReportsRes: EMPTY_REQUEST,
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
     page: 1,
@@ -551,7 +555,7 @@ export class Reports extends Component<any, ReportsState> {
     const data: ReportsData = {
       commentReportsRes: await client.listCommentReports(commentReportsForm),
       postReportsRes: await client.listPostReports(postReportsForm),
-      messageReportsRes: { state: "empty" },
+      messageReportsRes: EMPTY_REQUEST,
     };
 
     if (amAdmin()) {
@@ -575,9 +579,9 @@ export class Reports extends Component<any, ReportsState> {
     const limit = fetchLimit;
 
     this.setState({
-      commentReportsRes: { state: "loading" },
-      postReportsRes: { state: "loading" },
-      messageReportsRes: { state: "loading" },
+      commentReportsRes: LOADING_REQUEST,
+      postReportsRes: LOADING_REQUEST,
+      messageReportsRes: LOADING_REQUEST,
     });
 
     const form:

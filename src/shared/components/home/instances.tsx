@@ -10,7 +10,12 @@ import classNames from "classnames";
 import { relTags } from "../../config";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
@@ -28,7 +33,7 @@ interface InstancesState {
 export class Instances extends Component<any, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
   state: InstancesState = {
-    instancesRes: { state: "empty" },
+    instancesRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     isIsomorphic: false,
   };
@@ -54,7 +59,7 @@ export class Instances extends Component<any, InstancesState> {
 
   async fetchInstances() {
     this.setState({
-      instancesRes: { state: "loading" },
+      instancesRes: LOADING_REQUEST,
     });
 
     this.setState({
