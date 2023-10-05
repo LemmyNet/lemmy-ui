@@ -29,6 +29,7 @@ steps:
       repo: dessalines/lemmy-ui
       dockerfile: Dockerfile
       platforms: linux/amd64
+      tag: ${CI_COMMIT_TAG}
     when:
       event: tag
 
