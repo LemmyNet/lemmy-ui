@@ -53,6 +53,9 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
             <option key={"Active"} value={"Active"}>
               {I18NextService.i18n.t("active")}
             </option>,
+            <option key={"Scaled"} value={"Scaled"}>
+              {I18NextService.i18n.t("scaled")}
+            </option>,
           ]}
           <option value={"Controversial"}>
             {I18NextService.i18n.t("controversial")}
