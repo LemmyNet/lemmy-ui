@@ -1,5 +1,4 @@
 import { Component } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
 import { UserService } from "../../services";
 import { Spinner } from "./icon";
 
@@ -12,10 +11,7 @@ class AnonymousGuard extends Component<any, AnonymousGuardState> {
     hasRedirected: false,
   } as AnonymousGuardState;
 
-  constructor(
-    props: RouteComponentProps<Record<string, string>>,
-    context: any,
-  ) {
+  constructor(props: any, context: any) {
     super(props, context);
   }
 
