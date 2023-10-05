@@ -54,6 +54,7 @@ import updateCommunityBlock from "./update-community-block";
 import updatePersonBlock from "./update-person-block";
 import instanceToChoice from "./instance-to-choice";
 import updateInstanceBlock from "./update-instance-block";
+import isAnonymousPath from "./is-anonymous-path";
 
 export {
   buildCommentsTree,
@@ -112,4 +113,5 @@ export {
   updatePersonBlock,
   instanceToChoice,
   updateInstanceBlock,
+  isAnonymousPath,
 };
